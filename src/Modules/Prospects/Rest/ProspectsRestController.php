@@ -260,7 +260,8 @@ class ProspectsRestController {
 
     /**
      * PATCH /prospects/{id} — correct the parent contact block and the
-     * consent state.
+     * consent state, and (#3600) the scouting visit the prospect was found
+     * at.
      *
      * Scope is deliberately narrow (#2838): the four fields a scout needs
      * to fix after the fact, not a general-purpose record editor. A
@@ -281,7 +282,10 @@ class ProspectsRestController {
 
         $repo = new ProspectsRepository();
         $row  = $repo->find( $id );
-        if ( ! $row ) {
+        // The write narrows to the same set the read does (#3160): a scout
+        // could otherwise edit the contact and consent of another scout's
+        // prospect they cannot even open.
+        if ( ! $row || ! self::visibleTo( $id, get_current_user_id() ) ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
 
@@ -327,6 +331,24 @@ class ProspectsRestController {
                     __( 'Consent date must be YYYY-MM-DD.', 'talenttrack' ),
                     400
                 );
+            }
+        }
+
+        // #3600 — the visit the prospect was found at. Null or 0 unlinks; a
+        // visit that is not this club's, or is archived, is refused rather
+        // than stored as a dangling id.
+        if ( array_key_exists( 'scouting_visit_id', $params ) ) {
+            $visit_id = (int) $r['scouting_visit_id'];
+            if ( $visit_id <= 0 ) {
+                $patch['scouting_visit_id'] = null;
+            } elseif ( ( new \TT\Modules\Prospects\Repositories\ScoutingVisitsRepository() )->findLinkable( $visit_id ) === null ) {
+                return RestResponse::error(
+                    'invalid_visit',
+                    __( 'That scouting visit does not exist.', 'talenttrack' ),
+                    400
+                );
+            } else {
+                $patch['scouting_visit_id'] = $visit_id;
             }
         }
 

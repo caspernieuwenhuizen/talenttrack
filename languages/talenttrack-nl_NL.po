@@ -40891,6 +40891,10 @@ msgstr "Ongeldig scouting-bezoek-id."
 msgid "Scouting visit not found."
 msgstr "Scouting-bezoek niet gevonden."
 
+#: src/Modules/Prospects/Rest/ProspectsRestController.php
+msgid "That scouting visit does not exist."
+msgstr "Dat scouting-bezoek bestaat niet."
+
 #: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:118
 msgid "You can only edit your own scouting visits."
 msgstr "Je kunt alleen je eigen scouting-bezoeken bewerken."

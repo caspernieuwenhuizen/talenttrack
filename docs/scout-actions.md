@@ -96,6 +96,11 @@ going to and record what came of each trip. Planning them in the system means
 the academy can see coverage — which age groups and which regions are actually
 being watched — instead of it living in your head.
 
+When you spot someone, open the visit and use **Log scouting find**. The
+prospect you log is linked to that visit, which then lists them. The
+event is filled in from the visit, so you don't type it twice. That link is
+where the player came from, and it stays on their record.
+
 ## What you cannot do yet
 
 One thing scouts reasonably expect is not built:

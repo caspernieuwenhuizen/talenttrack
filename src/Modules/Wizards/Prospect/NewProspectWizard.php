@@ -54,4 +54,27 @@ final class NewProspectWizard implements WizardInterface {
             new ReviewStep(),
         ];
     }
+
+    /**
+     * #3600 — "Log scouting find" on a visit opens this wizard with
+     * `from_visit=N`, and nothing read it, so every prospect logged from a
+     * visit lost the link to where they were found. The visit is checked
+     * (this club, not archived) and seeded; the event text is prefilled from
+     * the visit so the scout does not type it twice.
+     *
+     * @param array<string,mixed> $url_params
+     * @return array<string,mixed>
+     */
+    public function initialState( array $url_params ): array {
+        $visit_id = isset( $url_params['from_visit'] ) ? absint( $url_params['from_visit'] ) : 0;
+        if ( $visit_id <= 0 ) return [];
+
+        $visit = ( new \TT\Modules\Prospects\Repositories\ScoutingVisitsRepository() )->findLinkable( $visit_id );
+        if ( $visit === null ) return [];
+
+        $seed = [ 'scouting_visit_id' => $visit_id ];
+        $event = trim( (string) ( ( (array) $visit )['event_description'] ?? '' ) );
+        if ( $event !== '' ) $seed['discovered_at_event'] = $event;
+        return $seed;
+    }
 }

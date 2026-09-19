@@ -94,6 +94,8 @@ final class ReviewStep implements WizardStepInterface {
             'discovered_at_event'     => trim( (string) ( $state['discovered_at_event'] ?? '' ) ) ?: null,
             'current_club'            => trim( (string) ( $state['current_club']  ?? '' ) ) ?: null,
             'scouting_notes'          => trim( (string) ( $state['scouting_notes'] ?? '' ) ) ?: null,
+            // #3600 — seeded by the wizard from `from_visit`.
+            'scouting_visit_id'       => (int) ( $state['scouting_visit_id'] ?? 0 ),
             'parent_name'             => trim( (string) ( $state['parent_name']   ?? '' ) ) ?: null,
             'parent_email'            => trim( (string) ( $state['parent_email']  ?? '' ) ) ?: null,
             'parent_phone'            => trim( (string) ( $state['parent_phone']  ?? '' ) ) ?: null,

@@ -58,6 +58,17 @@ class ScoutingVisitsRepository {
     }
 
     /**
+     * #3600 — a visit a prospect may be recorded as found at: in this club
+     * and not archived. Null otherwise, which the callers turn into a
+     * refusal (REST) or into "no visit" (the wizard's URL seed).
+     */
+    public function findLinkable( int $id ): ?object {
+        $row = $this->find( $id );
+        if ( ! $row || ! empty( $row->archived_at ) ) return null;
+        return $row;
+    }
+
+    /**
      * @param array{scout_user_id?:int,status?:string,from?:string,to?:string,include_archived?:bool} $filters
      * @return object[]
      */
