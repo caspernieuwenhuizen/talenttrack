@@ -150,6 +150,28 @@ final class AuditLogRestUserNameTest extends WP_UnitTestCase {
         $this->assertCount( 2, $this->rowsOf( $paged ) );
     }
 
+    /**
+     * #3712 adjacent — the `action` arg sanitized with `sanitize_key`, which
+     * strips the dot. Every audit action is "{entity}.{verb}", so the filter
+     * matched nothing at all: `player.updated` reached the query as
+     * `playerupdated`.
+     */
+    public function test_action_filter_matches_a_dotted_action(): void {
+        $actor  = self::factory()->user->create( [ 'display_name' => 'Filter Actor' ] );
+        $reader = $this->reader();
+        $this->resetLog();
+
+        $this->insertEntry( $actor, 'player.updated', 'player', 3 );
+        $this->insertEntry( $actor, 'team.updated',   'team',   4 );
+
+        $res  = $this->request( $reader, [ 'action' => 'player.updated' ] );
+        $rows = $this->rowsOf( $res );
+
+        $this->assertCount( 1, $rows, 'the dot must survive sanitization' );
+        $this->assertSame( 'player.updated', $rows[0]['action'] );
+        $this->assertSame( '1', $res->get_headers()['X-WP-Total'], 'the count query filters the same way' );
+    }
+
     public function test_another_clubs_entries_stay_invisible(): void {
         $actor  = self::factory()->user->create( [ 'display_name' => 'Other Club' ] );
         $reader = $this->reader();

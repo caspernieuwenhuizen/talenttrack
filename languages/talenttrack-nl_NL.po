@@ -4421,6 +4421,8 @@ msgid "Time"
 msgstr "Tijd"
 
 #: src/Infrastructure/REST/PeekRestController.php:220
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1261
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1286
 msgid "Presence time"
 msgstr "Aanwezigheidstijd"
 
@@ -53618,11 +53620,6 @@ msgstr "Aftrap %s"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3677
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1261
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1286
-msgid "Presence time"
-msgstr "Aanwezigheidstijd"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 msgid "Kick-off"

@@ -33,7 +33,13 @@ final class AuditLogRestController extends BaseController {
                     'entity_type' => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
                     'entity_id'   => [ 'sanitize_callback' => 'absint',       'required' => false ],
                     'user_id'     => [ 'sanitize_callback' => 'absint',       'required' => false ],
-                    'action'      => [ 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    // #3712 — NOT sanitize_key: it strips the dot, and every
+                    // audit action is "{entity}.{verb}", so `team.purged`
+                    // arrived as `teampurged` and the filter could never
+                    // match a single row. The screen's own filter has always
+                    // used sanitize_text_field; the value is bound through
+                    // $wpdb->prepare either way.
+                    'action'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'date_from'   => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'date_to'     => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
                     'page'        => [ 'sanitize_callback' => 'absint', 'default' => 1 ],
