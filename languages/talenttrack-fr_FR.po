@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T09:47:55+00:00\n"
+"POT-Creation-Date: 2026-09-19T09:53:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -6490,6 +6490,23 @@ msgid_plural "%1$s is in %2$d days and has no coach assigned."
 msgstr[0] ""
 msgstr[1] ""
 
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:70
+msgid "Player with no guardian contact"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:74
+msgid ""
+"Nobody at home can be reached about this player: no parent account is linked "
+"and there is no guardian email or phone. Messages about them reach no one "
+"until one is added."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:88
+#, php-format
+msgid "Nobody at home can be reached about %s."
+msgstr ""
+
 #: src/Modules/Alerts/Definitions/NoMeasurementThisSeasonAlert.php:63
 msgid "No measurement this season"
 msgstr ""
@@ -7693,7 +7710,7 @@ msgstr ""
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:571
 #: src/Modules/DemoData/DemoCoverage.php:1342
-#: src/Modules/DemoData/DemoGenerator.php:508
+#: src/Modules/DemoData/DemoGenerator.php:523
 #: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:90
@@ -18969,12 +18986,12 @@ msgid "Pick a preset, or open the size fields below to set your own numbers."
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:572
-#: src/Modules/DemoData/DemoGenerator.php:509
+#: src/Modules/DemoData/DemoGenerator.php:524
 msgid "Players per team"
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:573
-#: src/Modules/DemoData/DemoGenerator.php:510
+#: src/Modules/DemoData/DemoGenerator.php:525
 msgid "Weeks of history"
 msgstr ""
 
@@ -19692,7 +19709,7 @@ msgid ""
 msgstr ""
 
 #. translators: 1: size field label, 2: the number asked for, 3: the number used
-#: src/Modules/DemoData/DemoGenerator.php:518
+#: src/Modules/DemoData/DemoGenerator.php:533
 #, php-format
 msgid "%1$s: asked for %2$d, generating %3$d — the most a run can finish."
 msgstr ""
