@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\PlayerSex;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Players\PlayerDates;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -485,7 +486,7 @@ class PlayersRestController {
             // consumer gets a link that still needs the caller's session,
             // which is the whole point of moving photos off uploads/.
             'photo_url'        => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ),
-            'date_of_birth'    => $pl->date_of_birth ?: null,
+            'date_of_birth'    => PlayerDates::forOutput( $pl->date_of_birth ?? null ),
             'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
             // v3.110.170 — row-link standard (#758).
@@ -521,6 +522,8 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
+        $bad_date = self::dateRefusal( $data );
+        if ( $bad_date !== null ) return $bad_date;
         $data = self::stampConsent( $data, null );
         $data['club_id'] = CurrentClub::id();
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_players', $data );
@@ -568,6 +571,8 @@ class PlayersRestController {
         // whatever its value — an explicit empty is how a field is cleared
         // (and `team_id: 0` how a player comes off a team, #2866).
         $data = array_intersect_key( self::extract( $r ), $r->get_params() );
+        $bad_date = self::dateRefusal( $data );
+        if ( $bad_date !== null ) return $bad_date;
         if ( array_key_exists( 'media_consent', $data ) ) {
             $data = self::stampConsent( $data, $existing );
         }
@@ -717,11 +722,34 @@ class PlayersRestController {
         return $data;
     }
 
+    /**
+     * #3590 — a date that is sent must be a real `Y-m-d` date. Blank is
+     * accepted and means "not recorded"; anything else that does not parse
+     * is refused rather than stored as the zero date.
+     *
+     * @param array<string,mixed> $data
+     */
+    private static function dateRefusal( array $data ): ?\WP_REST_Response {
+        foreach ( [ 'date_of_birth', 'date_joined' ] as $field ) {
+            if ( ! array_key_exists( $field, $data ) ) continue;
+            $value = $data[ $field ];
+            if ( PlayerDates::isValid( is_string( $value ) ? $value : null ) ) continue;
+            return RestResponse::errors( [ [
+                'code'    => 'bad_date',
+                'message' => __( 'Dates must be a real date in the form YYYY-MM-DD.', 'talenttrack' ),
+                'details' => [ 'field' => $field ],
+            ] ], 400 );
+        }
+        return null;
+    }
+
     private static function extract( \WP_REST_Request $r ): array {
         return [
             'first_name'          => sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
             'last_name'           => sanitize_text_field( (string) ( $r['last_name'] ?? '' ) ),
-            'date_of_birth'       => sanitize_text_field( (string) ( $r['date_of_birth'] ?? '' ) ),
+            // #3590 — blank is NULL, not the zero date an empty string
+            // becomes in a DATE column.
+            'date_of_birth'       => PlayerDates::fromInput( $r['date_of_birth'] ?? null ),
             // #2894 — sanitize() maps anything unrecognised to blank rather
             // than rejecting the request. An unknown value on a minor's
             // record should degrade to "not recorded", not fail a save that
@@ -738,7 +766,7 @@ class PlayersRestController {
             ),
             'jersey_number'       => ! empty( $r['jersey_number'] ) ? absint( $r['jersey_number'] ) : null,
             'team_id'             => absint( $r['team_id'] ?? 0 ),
-            'date_joined'         => sanitize_text_field( (string) ( $r['date_joined'] ?? '' ) ),
+            'date_joined'         => PlayerDates::fromInput( $r['date_joined'] ?? null ),
             'photo_url'           => esc_url_raw( (string) ( $r['photo_url'] ?? '' ) ),
             // #2744 — a record of what the family agreed to, not a gate.
             // On create an absent key means "no", which is the honest
@@ -766,7 +794,7 @@ class PlayersRestController {
             'id'                  => (int) $pl->id,
             'first_name'          => (string) $pl->first_name,
             'last_name'           => (string) $pl->last_name,
-            'date_of_birth'       => $pl->date_of_birth ?: null,
+            'date_of_birth'       => PlayerDates::forOutput( $pl->date_of_birth ),
             'sex'                 => (string) ( $pl->sex ?? '' ),
             'nationality'         => $pl->nationality ?: null,
             'height_cm'           => $pl->height_cm !== null ? (int) $pl->height_cm : null,
@@ -782,12 +810,13 @@ class PlayersRestController {
             'preferred_positions' => json_decode( (string) $pl->preferred_positions, true ) ?: [],
             'jersey_number'       => $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
             'team_id'             => (int) $pl->team_id,
-            'date_joined'         => $pl->date_joined ?: null,
+            'date_joined'         => PlayerDates::forOutput( $pl->date_joined ),
             'photo_url'           => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ) ?: null,
             'guardian_name'       => $pl->guardian_name ?: null,
             'guardian_email'      => $pl->guardian_email ?: null,
             'guardian_phone'      => $pl->guardian_phone ?: null,
-            'wp_user_id'          => (int) $pl->wp_user_id,
+            // #3590 — NULL is "no account" since #1772; 0 read as an id.
+            'wp_user_id'          => ( (int) $pl->wp_user_id ) ?: null,
             'status'              => (string) $pl->status,
             'custom_fields'       => (object) $custom,
         ];

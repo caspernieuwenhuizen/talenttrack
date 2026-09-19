@@ -2169,6 +2169,10 @@ msgstr "Geblesseerd"
 msgid "Excused"
 msgstr "Afgemeld"
 
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Dates must be a real date in the form YYYY-MM-DD."
+msgstr "Een datum moet een bestaande datum zijn in de vorm JJJJ-MM-DD."
+
 #: src/Infrastructure/Query/LabelTranslator.php:95
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:511
