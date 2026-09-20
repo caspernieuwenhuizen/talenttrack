@@ -704,25 +704,25 @@ class GoalsRestController {
      *
      * `status` is not here on purpose — `update_status()` announces it.
      *
-     * @param  array<string,mixed> $data Values about to be written.
+     * @param  array<string,mixed> $before The stored row.
+     * @param  array<string,mixed> $data   Values about to be written.
      * @return array<string,array{from:mixed,to:mixed}>
      */
-    private static function materialGoalDiff( object $before, array $data ): array {
-        $row  = (array) $before;
+    private static function materialGoalDiff( array $before, array $data ): array {
         $diff = [];
 
         foreach ( [ 'title', 'due_date', 'progress_pct' ] as $field ) {
             if ( ! array_key_exists( $field, $data ) ) continue;
 
-            $from = $row[ $field ] ?? null;
+            $from = $before[ $field ] ?? null;
             $to   = $data[ $field ];
 
             if ( $field === 'progress_pct' ) {
-                $from = ( $from === null || $from === '' ) ? null : (int) $from;
-                $to   = ( $to === null || $to === '' ) ? null : (int) $to;
+                $from = ( is_numeric( $from ) ) ? (int) $from : null;
+                $to   = ( is_numeric( $to ) ) ? (int) $to : null;
             } else {
-                $from = ( $from === null ) ? '' : (string) $from;
-                $to   = ( $to === null ) ? '' : (string) $to;
+                $from = is_scalar( $from ) ? (string) $from : '';
+                $to   = is_scalar( $to ) ? (string) $to : '';
                 // Stored DATE columns come back as `Y-m-d`; a client may
                 // send `Y-m-d H:i:s`. Compare the date part only.
                 if ( $field === 'due_date' ) {
@@ -784,14 +784,15 @@ class GoalsRestController {
 
         // #3781 — the row as it stands, so the write below can say what
         // actually moved. Read before the update or the diff is empty.
-        $before = $data
-            ? $wpdb->get_row( $wpdb->prepare(
+        $before = [];
+        if ( $data ) {
+            $before = (array) $wpdb->get_row( $wpdb->prepare(
                 "SELECT player_id, title, due_date, progress_pct
                    FROM {$wpdb->prefix}tt_goals
                   WHERE id = %d AND club_id = %d",
                 $goal_id, CurrentClub::id()
-            ) )
-            : null;
+            ), ARRAY_A );
+        }
 
         if ( $data ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
@@ -809,7 +810,7 @@ class GoalsRestController {
         // #3781 — announce what materially changed, so the goal's
         // conversation records it. Status is deliberately absent: it has
         // its own `tt_goal_status_changed` announcement on update_status().
-        if ( $before !== null ) {
+        if ( $before ) {
             $diff = self::materialGoalDiff( $before, $data );
             if ( $diff ) {
                 /**
@@ -820,7 +821,7 @@ class GoalsRestController {
                  * @param int                                       $goal_id   The goal.
                  * @param array<string,array{from:mixed,to:mixed}>  $diff      Changed fields.
                  */
-                do_action( 'tt_goal_updated', (int) ( $before->player_id ?? 0 ), $goal_id, $diff );
+                do_action( 'tt_goal_updated', (int) ( $before['player_id'] ?? 0 ), $goal_id, $diff );
             }
         }
 
