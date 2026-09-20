@@ -1967,4 +1967,30 @@
             return { event_uuid: uuidv4(), half: half, minute: minute, player_off: off, player_on: on };
         });
     })();
+
+    // #3861 — complete the activity behind a played match, from the screen
+    // "Complete activity" sends the coach to. The activity is flipped on the
+    // final whistle and nowhere else, so an activity reopened for a
+    // correction had no way back to completed and fell out of every
+    // completed count.
+    //
+    // Posted straight at the activities endpoint rather than through api():
+    // this is a status flip on a different resource, and it must not land in
+    // the offline queue, which replays match events against the match's own
+    // base URL.
+    (function wireCompleteActivity() {
+        var btn = root.querySelector('[data-tt-mexec-complete-activity]');
+        if (!btn || !cfg.activity_status_url) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.complete_activity_confirm || 'Mark this activity completed? You can reopen it later.')) return;
+            btn.disabled = true;
+            rawFetch(cfg.activity_status_url, 'POST', { status: 'completed' }).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                var why = (err && err.status) ? (' HTTP ' + err.status) : '';
+                window.alert((i18n.complete_activity_error || 'Could not update the activity status.') + why);
+            });
+        });
+    })();
 })();

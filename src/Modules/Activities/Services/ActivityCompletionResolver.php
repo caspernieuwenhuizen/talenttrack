@@ -137,6 +137,38 @@ final class ActivityCompletionResolver {
     }
 
     /**
+     * #3861 — true when this activity's register is already written and
+     * locked by a match that has been played: a match-type activity whose
+     * execution has reached a post-live state.
+     *
+     * The #2407 guard refuses a bare `completed` write so that an activity
+     * cannot complete with no attendance recorded — the wizard's final save
+     * is what guarantees the register exists. Here the guarantee already
+     * holds: `recomputeAttendanceAndMinutes()` ran on the final whistle, on
+     * every pending-review edit, and again on finalize. Without this,
+     * reopening a played match was a one-way door — nothing could complete
+     * the activity again, and it dropped out of every completed count for
+     * good.
+     *
+     * Reads the activity's type when the caller has not got it, so the REST
+     * endpoint and the render surfaces can ask the same question with the
+     * same answer.
+     */
+    public static function completionIsOwnedByAPlayedMatch( int $activity_id, ?string $type_key = null ): bool {
+        if ( $activity_id <= 0 ) return false;
+
+        if ( $type_key === null ) {
+            $row      = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $activity_id );
+            $type_key = (string) ( $row->activity_type_key ?? '' );
+        }
+        if ( ! self::routesToMatchExecution( $activity_id, $type_key ) ) return false;
+
+        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        return $exec !== null
+            && \TT\Domain\Vocabularies\Enums\MatchExecutionState::isPostLive( (string) ( $exec->state ?? '' ) );
+    }
+
+    /**
      * True when the activity is a match type AND a match-execution row
      * already exists — in which case completion runs through the
      * execution's Resume/Finalize flow (the minutes source) rather than

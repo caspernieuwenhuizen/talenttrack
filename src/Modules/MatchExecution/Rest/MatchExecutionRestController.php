@@ -1063,16 +1063,7 @@ class MatchExecutionRestController {
         ] );
 
         // 2. Flip the activity to completed.
-        $wpdb->update(
-            "{$p}tt_activities",
-            [
-                'activity_status_key' => 'completed',
-                'plan_state'          => 'completed',
-                'home_score'          => (int) $exec->home_score,
-                'away_score'          => (int) $exec->away_score,
-            ],
-            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
-        );
+        self::completeActivityForMatch( $activity_id, (int) $exec->home_score, (int) $exec->away_score );
 
         // 3. #1048 — recompute attendance + minutes from prep + sub
         // log. The inline write block lives on the repository now so
@@ -1113,15 +1104,44 @@ class MatchExecutionRestController {
     }
 
     /**
+     * #3861 — the activity a played match belongs to is completed, and
+     * carries the match's score.
+     *
+     * Idempotent, and called from both ends of the post-match flow: the
+     * final whistle writes it, and finalize asserts it again. Finalize used
+     * to leave the activity alone, so an activity reopened for a correction
+     * had no way back to `completed` — the final whistle is the only other
+     * writer and it is unreachable once the match is over. Asserting it here
+     * makes finalize the repair as well as the lock.
+     */
+    private static function completeActivityForMatch( int $activity_id, int $home_score, int $away_score ): void {
+        if ( $activity_id <= 0 ) return;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'activity_status_key' => 'completed',
+                'plan_state'          => 'completed',
+                'home_score'          => $home_score,
+                'away_score'          => $away_score,
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+    }
+
+    /**
      * #1033 — explicit "Finalize" transition. Moves a PENDING_REVIEW
      * execution to the terminal FINALIZED state. Read-only thereafter
      * (score, goal-event, substitution endpoints refuse writes once
      * the execution is FINALIZED — see `assertEditable()`).
      *
-     * No-op (returns 409) if the execution is already FINALIZED or
-     * not yet in PENDING_REVIEW. Attendance + minutes were already
-     * written on the End-match tap (route_finish); finalize only
-     * flips the state.
+     * No-op (returns 409) if the execution is not yet in PENDING_REVIEW.
+     * Attendance + minutes were already written on the End-match tap
+     * (route_finish); finalize re-derives them, flips the state, and
+     * (#3861) asserts the activity's completed status — including on an
+     * already-finalized match, so re-finalizing repairs an activity that
+     * drifted out of `completed` rather than reporting nothing to do.
      */
     public static function route_finalize( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
@@ -1130,15 +1150,21 @@ class MatchExecutionRestController {
         global $wpdb;
         $p = $wpdb->prefix;
         $exec = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, state, activity_id FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
+            "SELECT id, state, activity_id, home_score, away_score FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
             $exec_id, CurrentClub::id()
         ) );
         if ( ! $exec ) return RestResponse::error( 'not_found', __( 'Execution not found.', 'talenttrack' ), 404 );
 
         $current = (string) ( $exec->state ?? '' );
         if ( $current === MatchExecutionState::FINALIZED ) {
+            self::completeActivityForMatch(
+                (int) $exec->activity_id,
+                (int) $exec->home_score,
+                (int) $exec->away_score
+            );
             return RestResponse::success( [
                 'execution_id' => $exec_id,
+                'activity_id'  => (int) $exec->activity_id,
                 'state'        => MatchExecutionState::FINALIZED,
                 'note'         => 'already_finalized',
             ] );
@@ -1166,6 +1192,13 @@ class MatchExecutionRestController {
         $repo->update( $exec_id, [
             'state' => MatchExecutionState::FINALIZED,
         ] );
+
+        // #3861 — the match is played and locked, so its activity says so.
+        self::completeActivityForMatch(
+            (int) $exec->activity_id,
+            (int) $exec->home_score,
+            (int) $exec->away_score
+        );
 
         Logger::info( 'match_execution.finalize', [
             'execution_id'     => $exec_id,
