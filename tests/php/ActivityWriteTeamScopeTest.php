@@ -89,11 +89,21 @@ final class ActivityWriteTeamScopeTest extends WP_UnitTestCase {
         return $r;
     }
 
+    /**
+     * The house envelope puts the code in `errors[0].code`, not at the top
+     * level — see the contract in `RestResponse`'s docblock.
+     */
     private function assertForbiddenTeam( $response, string $why ): void {
         $this->assertInstanceOf( \WP_REST_Response::class, $response, $why );
         $this->assertSame( 403, $response->get_status(), $why );
-        $data = (array) $response->get_data();
-        $this->assertSame( 'forbidden_team', (string) ( $data['code'] ?? ( $data['error']['code'] ?? '' ) ), $why );
+
+        $body = (array) $response->get_data();
+        $this->assertFalse( (bool) ( $body['success'] ?? true ), $why );
+        $this->assertSame(
+            'forbidden_team',
+            (string) ( $body['errors'][0]['code'] ?? '' ),
+            $why . ' — and it must be forbidden_team, not a generic refusal'
+        );
     }
 
     private function activityRow( int $id ): ?object {
