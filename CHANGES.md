@@ -1,3 +1,58 @@
+# TalentTrack v4.128.1 — Attendance registers now say who saved them (#3655)
+
+A completed activity's Attendance card shows a line under the breakdown bar reading "Register last saved by <name> on <date>", so a coach who finds a mark neither they nor their assistant entered can see where it came from. It is the last save of the register rather than the author of each mark — saving a register rewrites all of its rows at once — and the wording says so. Minutes, the line-up and a notes-only edit don't count as a save, and a register recorded before this release stays blank rather than gaining a guessed author. The same information rides on the activity API's `register.attendance.last_saved`, so a non-WordPress client gets it without a new route.
+
+# TalentTrack v4.128.1 — Creating an activity as completed no longer marks a future roster present (#3744)
+
+Creating an activity already marked Completed seeds the whole active roster as present so a just-played session is rateable straight away. It did that without looking at the date, so an activity dated weeks ahead was saved with a full register nobody had taken — and read as a 100% attended session in the activities list, the attendance grid and every attendance figure. The seed now declines a date in the future: the activity is still created, its register stays empty, and the coach records who turned up on the day. A completed activity dated today or earlier is unchanged.
+
+# TalentTrack v4.128.1 — Team staff list honours the team filter (#3765)
+
+Asking the functional-role assignments list for one team returned every team's staff instead. The list read only the nested `filter[team_id]` form, so a plain `team_id` was dropped without a word and the answer quietly widened to the whole academy — an administrator checking which role links one person to U11 got the full staff list back. Both `team_id` and `functional_role_id` are now accepted plainly as well as nested (the nested value wins when both are sent), a filter that is sent but is not a usable id is refused instead of ignored, and the endpoint now advertises all of its parameters.
+
+# TalentTrack v4.128.1 — A training run is dated by its training, not by the day it was planned (#3766)
+
+Attaching a plan to a training used to stamp the run with the day the coach
+did the planning, so a session planned a week ahead landed in the wrong week
+and two sessions planned in one sitting shared a date. The run now takes the
+date of the activity it hangs off; an explicitly supplied date still wins, and
+a training whose date cannot be read still falls back to today.
+
+# TalentTrack v4.128.1 — Player journey: real evaluation scores, no raw position codes (#3767)
+
+The journey told families two things that were not true. Every evaluation
+entry carried an overall score of 0, because it read the legacy single-score
+column on the evaluation rather than the weighted overall the evaluation
+screen itself shows, and that column is empty on every evaluation written
+the normal way. Entries now carry the same overall a coach sees, they follow
+the evaluation when the categories are re-scored, and an evaluation with
+nothing rated on it carries no score at all rather than a zero a parent
+would read as "he scored nothing".
+
+Clearing a player's preferred positions wrote *"Position: Centre forward →
+[]"* — the raw empty array the field stores. Emptying the field now writes
+no entry at all, and no journey summary can carry raw JSON. The admin
+**Rebuild journey events** action scrubs the `[]` out of entries already
+written and refreshes the stored overall on existing evaluation entries.
+
+# TalentTrack v4.128.1 — A player's own activity screens name the time, not just the day (#3771)
+
+The "My activities" surface knew the day of every training and fixture and
+never said when any of them ran, so a player who wanted to know what time to
+be at the pitch had to text a coach for something TalentTrack already stored.
+
+"Coming up" now carries each activity's time window beside its date, and the
+activity detail names the presence time when one is set, then the kick-off and
+end time on a game, or a single time window on a training, tournament or other
+activity. An activity with no times saved renders exactly as before — no empty
+placeholders. The wording and the formatting come from the same helper the
+staff activity detail and the peek panel use, so the two sides of the same
+fixture agree.
+
+# TalentTrack v4.128.1 — Attendance reports answer for the team you asked about (#3780)
+
+Asking the attendance reports for one team over the API could return every team in the academy. The three endpoints read only a plain `team_id`, so the nested `filter[team_id]` form the rest of the list API uses was dropped without a word — and because each row carries a team name, the answer looked deliberate: a full, plausible at-risk list, just not the one asked for, with players from other age groups in it. All three now take `team_id`, `from`, `to` and `activity_type_key` in either spelling (the nested value wins when both are sent), a team filter that is not a usable id is refused rather than ignored, and the endpoints advertise every parameter they accept. Team scope is unchanged: a team you may not read still answers with a refusal.
+
 # TalentTrack v4.128.0 — A team manager can open the screens their role already lets them read (#3643)
 
 A Staff account holding the **Manager** functional role could read its squad,

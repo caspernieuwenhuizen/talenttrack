@@ -1,3 +1,0 @@
-# Attendance registers now say who saved them (#3655)
-
-A completed activity's Attendance card shows a line under the breakdown bar reading "Register last saved by <name> on <date>", so a coach who finds a mark neither they nor their assistant entered can see where it came from. It is the last save of the register rather than the author of each mark — saving a register rewrites all of its rows at once — and the wording says so. Minutes, the line-up and a notes-only edit don't count as a save, and a register recorded before this release stays blank rather than gaining a guessed author. The same information rides on the activity API's `register.attendance.last_saved`, so a non-WordPress client gets it without a new route.
