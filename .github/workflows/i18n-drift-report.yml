@@ -15,9 +15,10 @@ name: i18n drift report
 # the gap is cleared. See #1223 + Audit 4 (#1178).
 #
 # Separation of concerns vs. existing workflows:
-# - `i18n-sync.yml` REGENERATES `.pot` and `msgmerge`s it into `.po`
-#   on every PHP-touching merge to main. It's structural — it keeps
-#   the file layout honest. It commits the result.
+# - `auto-release.yml` REGENERATES `.pot` and `msgmerge`s it into
+#   `.po` at release time (#3865), via `tools/i18n-sync.sh`, and
+#   commits the result to main. It's structural — it keeps the file
+#   layout honest. `i18n-sync.yml` runs the same script on demand.
 # - This workflow REPORTS on the resulting drift. It does NOT
 #   commit anything to the repo; it only writes the issue body.
 

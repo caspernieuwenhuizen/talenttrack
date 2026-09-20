@@ -12,10 +12,16 @@ name: Auto-release on version bump
 #   2. If release `v<version>` already exists → no-op (idempotent;
 #      re-runs, reverts, and non-bump pushes touching this file are
 #      all safe).
-#   3. Build the plugin ZIP — same steps as release.yml's `release`
+#   3. Sync the translation catalogue (#3865) — regenerate the `.pot`
+#      from PHP source, `msgmerge` into every `.po`, push that to
+#      `main`. This is the ONLY scheduled place the catalogue is
+#      regenerated; `i18n-sync.yml` is a manual escape hatch now. It
+#      runs before the `.mo` recompile below so the published `.mo` is
+#      built from the synced `.po`.
+#   4. Build the plugin ZIP — same steps as release.yml's `release`
 #      job + release-tag.yml (gettext, composer no-dev, msgfmt loop,
 #      rsync excludes).
-#   4. Create the release via softprops/action-gh-release with an
+#   5. Create the release via softprops/action-gh-release with an
 #      explicit tag_name + target_commitish — the release API creates
 #      the tag in the same call, no separate `git push --tags`
 #      needed. Tags created by GITHUB_TOKEN don't re-trigger
@@ -82,7 +88,56 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: composer:v2
+          tools: composer:v2, wp-cli
+
+      # #3865 — the translation catalogue is regenerated HERE, once per
+      # release, and nowhere else on a schedule. It used to run on every
+      # PHP-touching push to main and commit, which put every open PR one
+      # commit behind on a file GitHub cannot auto-merge.
+      #
+      # Order matters twice over:
+      #   - BEFORE the .mo recompile below, so the published .mo is built
+      #     from the synced .po rather than the pre-sync one.
+      #   - BEFORE `composer install --no-dev`, so `wp i18n make-pot` scans
+      #     the same committed vendor/ tree the old push-triggered run saw.
+      #     Extracting against a pruned tree would produce a different .pot.
+      #
+      # Never fatal. A release that cannot ship because catalogue
+      # housekeeping hiccuped is strictly worse than a release with a
+      # slightly stale catalogue — pilot sites auto-update from the
+      # release, and an unsynced msgid just falls back to English, which
+      # is what it already did before this ran. Failures surface as a
+      # warning annotation on the run; re-run the `i18n sync` workflow
+      # manually to catch main up. `tools/i18n-sync.sh` restores
+      # `languages/` to HEAD on any failure, so a half-merged catalogue
+      # can never reach the ZIP.
+      - name: Sync translation catalogue (.pot + msgmerge) and push to main
+        id: i18n
+        if: steps.exists.outputs.exists == 'false'
+        env:
+          REF: ${{ github.ref_name }}
+        run: |
+          if ! bash tools/i18n-sync.sh; then
+            echo "::warning::Translation catalogue sync failed; releasing with the catalogue as committed on main. Run the 'i18n sync' workflow manually to catch up."
+            exit 0
+          fi
+
+          if [ -z "$(git status --porcelain languages/)" ]; then
+            echo "Catalogue already in sync; nothing to push."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add languages/talenttrack.pot languages/*.po
+          git commit -m "chore(i18n): sync .pot from PHP source + msgmerge into .po"
+
+          if git push origin "HEAD:$REF"; then
+            echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+            echo "Pushed the synced catalogue to $REF."
+          else
+            echo "::warning::$REF moved while the release ran, so the synced catalogue could not be pushed. The ZIP below still contains it; run the 'i18n sync' workflow manually to catch main up."
+          fi
 
       # Kept, deliberately: this builds the SHIPPED ZIP. `--no-dev` prunes
       # the dev tree out of the artifact and `--optimize-autoloader`
@@ -95,6 +150,8 @@ jobs:
             composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
           fi
 
+      # Runs on the .po the step above just synced, so the shipped .mo
+      # carries every msgid the source tree has at this version.
       - name: Regenerate .mo files from .po (always fresh in release ZIP)
         if: steps.exists.outputs.exists == 'false'
         run: |
@@ -123,6 +180,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          target_commitish: ${{ github.sha }}
+          # Tag the catalogue-sync commit when there was one, so the tagged
+          # tree matches the ZIP's translations; otherwise the version bump
+          # itself.
+          target_commitish: ${{ steps.i18n.outputs.sha != '' && steps.i18n.outputs.sha || github.sha }}
           files: /tmp/build/talenttrack.zip
           generate_release_notes: true

@@ -99,6 +99,6 @@ Plan accordingly. The `.po` is the smaller deliverable and ships first; docs fol
 ## See also
 
 - `docs/i18n-architecture.md` — the two-channel split (`.po` for UI, `tt_translations` for data rows).
-- `DEVOPS.md` § "Before tagging a release — POT regeneration check" — the release-checklist hygiene step.
+- `DEVOPS.md` § "The translation catalogue — regenerated at release, by the release" — who refreshes the `.pot`, when, and what happens if it fails.
 - `specs/0010-feat-multi-language-fr-de-es.md` — the parent epic.
 - WordPress codex on [translation files](https://make.wordpress.org/polyglots/handbook/translating/) — gettext fundamentals.
