@@ -47,9 +47,13 @@ final class EventTypeRegistry {
             'days_out'      => 'int',
             'expected_days' => 'int',
         ],
+        // #3767 — `overall` is the weighted overall the evaluation screen
+        // shows, and it is optional: an evaluation with nothing rated on it
+        // has no score, and writing `0` for one told a parent their son
+        // scored zero.
         'evaluation_completed' => [
             'evaluation_id' => 'int',
-            'overall'       => 'float',
+            'overall'       => '?float',
         ],
         // #3131 — `origin` is a `GoalOrigin` value. A season rollover
         // writes a goal for every player at once, so the entry has to say
