@@ -65658,3 +65658,44 @@ msgstr "Onbekend veldtype: %s"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:768
+msgid ""
+"This team has no played matches on record at all, so there are no minutes to "
+"share out. Check the Activities log."
+msgstr ""
+"Dit team heeft helemaal geen gespeelde wedstrijden vastgelegd, dus er zijn "
+"geen minuten te verdelen. Controleer het activiteitenlog."
+
+#. translators: 1: number of played matches outside the window, 2: the earliest of their dates, 3: the latest
+#: src/Shared/Frontend/FrontendStandardReportsView.php:740
+#, php-format
+msgid ""
+"%1$d played match falls outside this window, on %2$s. Widen the window to "
+"include it."
+msgid_plural ""
+"%1$d played matches fall outside this window, between %2$s and %3$s. Widen "
+"the window to include them."
+msgstr[0] ""
+"%1$d gespeelde wedstrijd valt buiten deze periode, op %2$s. Verruim de "
+"periode om die mee te nemen."
+msgstr[1] ""
+"%1$d gespeelde wedstrijden vallen buiten deze periode, tussen %2$s en %3$s. "
+"Verruim de periode om ze mee te nemen."
+
+#. translators: 1: number of played matches outside the window, 2: the earliest of their dates, 3: the latest
+#: src/Shared/Frontend/FrontendStandardReportsView.php:790
+#, php-format
+msgid ""
+"No matches played for this team in this window. %1$d played match falls "
+"outside it, on %2$s — widen the window to include it."
+msgid_plural ""
+"No matches played for this team in this window. %1$d played matches fall "
+"outside it, between %2$s and %3$s — widen the window to include them."
+msgstr[0] ""
+"Geen wedstrijden gespeeld voor dit team in deze periode. %1$d gespeelde "
+"wedstrijd valt erbuiten, op %2$s — verruim de periode om die mee te nemen."
+msgstr[1] ""
+"Geen wedstrijden gespeeld voor dit team in deze periode. %1$d gespeelde "
+"wedstrijden vallen erbuiten, tussen %2$s en %3$s — verruim de periode om ze "
+"mee te nemen."
