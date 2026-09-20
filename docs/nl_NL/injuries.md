@@ -20,11 +20,17 @@ TalentTrack legt de **ontwikkelimpact** van een blessure vast, niet de behandeli
 | --- | --- | --- | --- |
 | Hoofdtrainer | Eigen teams | Eigen teams | Nee |
 | Assistent-trainer | Nee | Nee | Nee |
+| Stafmedewerker met de functionele rol **Fysio** | De teams waarvan hij fysio is | De teams waarvan hij fysio is | Nee |
+| Stafmedewerker met een andere functionele rol | Nee | Nee | Nee |
 | Hoofd opleidingen | Elk team | Elk team | Ja |
 | Academiebeheerder | Elk team | Elk team | Ja |
 | Speler / ouder | De eigen, op de reis | Nee | Nee |
 
 De assistent-trainer valt hier bewust buiten. Blessuregegevens zijn medische gegevens over minderjarigen, en de academie kiest ervoor dat minder mensen ze zien, niet meer. Een assistent-trainer markeert een speler nog steeds als **Blessure** bij de aanwezigheid van een sessie en als **Geblesseerd** in de beschikbaarheidsdrawer op wedstrijddag — zo regel je beschikbaarheid, en dat staat los van het blessuredossier.
+
+**Blessures volgen de functionele rol, niet het type account.** Teammanager, materiaalman en fysio zijn alle drie hetzelfde type Staf-account, dus het account kan ze niet uit elkaar houden — de taak die iemand bij een elftal doet wel. Alleen de rol **Fysio** draagt het blessurelogboek, en die draagt het op de teams waarop de rol gehouden wordt en nergens anders. Een teammanager die ook de EHBO doet, krijgt daarom **Fysio** als tweede functionele rol op dat team, via **Personen → Functionele rollen**: iemand kan meerdere rollen op hetzelfde elftal hebben, en die staan gewoon naast elkaar. **Verwijderen** kan niemand in deze groep, welke rollen hij ook heeft. De toewijzing moet vandaag lopen wil de toegang gelden — loopt ze af, dan vervalt de toegang.
+
+Eén uitzondering, en die is tijdelijk: een Staf-account zonder functionele rol op enig team houdt de blessuretoegang die het had vóór de functionele rollen bestonden, op de elftallen waaraan het gekoppeld is. Die persoon de rol geven die zijn werk beschrijft, is wat hem naar de tabel hierboven verplaatst. Zie [Toegangsbeheer](access-control.md) voor het volledige beeld.
 
 ## Een blessure vastleggen
 
@@ -70,3 +76,4 @@ Een blessure verwijderen is voorbehouden aan het hoofd opleidingen en de academi
 
 - [Spelersreis](player-journey.md) — waar blessureregels in context verschijnen.
 - [Activiteiten en aanwezigheid](activities.md) — de status **Blessure** per sessie, die over beschikbaarheid gaat en niet over het blessuredossier.
+- [Toegangsbeheer](access-control.md) — functionele rollen, en wat elke rol geeft op het team waarop die gehouden wordt.
