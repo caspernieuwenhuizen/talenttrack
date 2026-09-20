@@ -41268,6 +41268,26 @@ msgstr "Open volgende actie"
 msgid "Edit contact"
 msgstr "Contact bewerken"
 
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:186
+msgid "Arrange test training"
+msgstr "Testtraining regelen"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:189
+msgid "Propose test training"
+msgstr "Testtraining voorstellen"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:131
+msgid "Put forward. The head of development has been asked to arrange a test training."
+msgstr "Voorgedragen. De hoofd opleiding is gevraagd een testtraining te regelen."
+
+#: src/Modules/Prospects/Domain/ProposeTestTrainingService.php:80
+msgid "This prospect cannot be put forward for a test training."
+msgstr "Deze prospect kan niet worden voorgedragen voor een testtraining."
+
+#: src/Modules/Prospects/Domain/ProposeTestTrainingService.php:96
+msgid "Nobody could be found to send this to. Check that somebody holds the head of development role."
+msgstr "Er is niemand gevonden om dit naartoe te sturen. Controleer of iemand de rol hoofd opleiding heeft."
+
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:197
 #: src/Modules/Wizards/Prospect/DiscoveryStep.php:30
 #: src/Modules/Workflow/Forms/LogProspectForm.php:95
