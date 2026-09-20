@@ -11,7 +11,9 @@ use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -462,6 +464,17 @@ class FrontendPdpManageView extends FrontendViewBase {
         $team_options  = TeamPickerComponent::filterOptions( $user_id, $is_admin );
         $selected_team = isset( $_GET['filter']['team_id'] ) ? absint( $_GET['filter']['team_id'] ) : 0;
         if ( count( $team_options ) > 1 && $selected_team <= 0 ) {
+            // #3810 — the gate used to be a bare picker, which meant the one
+            // reader who spans every team had to choose one before seeing a
+            // single number, and could only learn which team was behind by
+            // visiting each in turn. The breakdown answers that before the
+            // choice, and each row is the choice.
+            $scope_player_ids = PdpAccess::coverageScopePlayerIds( $user_id );
+            $by_team = ( new PdpFilesRepository() )->coverageByTeamForSeason(
+                (int) $current->id,
+                $scope_player_ids !== null ? [ 'player_ids' => $scope_player_ids ] : []
+            );
+            self::renderTeamCoverage( $by_team, (string) $current->name );
             self::renderTeamGate( $team_options );
             return;
         }
@@ -564,6 +577,76 @@ class FrontendPdpManageView extends FrontendViewBase {
      *
      * @param array<int,string> $team_options id => name
      */
+    /**
+     * #3810 — PDP coverage, one row per team, worst first.
+     *
+     * Four numbers per team, because "who has a file" is not the question
+     * seven weeks into a season: how many players, how many have a plan,
+     * how many have actually sat down with their coach, and how many talks
+     * are booked in the next four weeks. A team with twelve files and no
+     * conversations reads as fully covered on the old line and is the team
+     * that needs chasing.
+     *
+     * The fifth column is the parent one. There is no record anywhere of
+     * who was in the room, so this counts talks a parent has signed off —
+     * the nearest fact the product actually holds, named for what it is
+     * rather than dressed up as attendance.
+     *
+     * Ordering and the counting rule come from the repository; this
+     * composes (CLAUDE.md §4).
+     *
+     * @param list<array{ team_id:int, team_name:string, players:int, covered:int,
+     *                    conducted:int, scheduled_soon:int, parent_acked:int }> $rows
+     */
+    private static function renderTeamCoverage( array $rows, string $season_name ): void {
+        if ( empty( $rows ) ) return;
+
+        echo '<section class="tt-pdp-team-coverage">';
+        echo '<h2 class="tt-pdp-team-coverage__title">' . esc_html( sprintf(
+            /* translators: %s: season name */
+            __( 'PDP coverage by team (%s)', 'talenttrack' ),
+            $season_name
+        ) ) . '</h2>';
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table">';
+        echo '<thead><tr>';
+        echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        echo '<th scope="col">' . esc_html__( 'Players', 'talenttrack' ) . '</th>';
+        echo '<th scope="col">' . esc_html__( 'With a plan', 'talenttrack' ) . '</th>';
+        echo '<th scope="col">' . esc_html__( 'Talked to', 'talenttrack' ) . '</th>';
+        echo '<th scope="col">' . esc_html__( 'Booked in 4 weeks', 'talenttrack' ) . '</th>';
+        echo '<th scope="col">' . esc_html__( 'Signed by a parent', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ( $rows as $row ) {
+            $name = (string) $row['team_name'];
+            if ( $name === '' ) $name = __( 'No team', 'talenttrack' );
+
+            $cell = $name;
+            if ( (int) $row['team_id'] > 0 ) {
+                $url  = add_query_arg(
+                    [ 'tt_view' => 'pdp', 'filter' => [ 'team_id' => (int) $row['team_id'] ] ],
+                    RecordLink::dashboardUrl()
+                );
+                $cell = RecordLink::inline( $name, BackLink::appendTo( $url ) );
+            } else {
+                $cell = esc_html( $name );
+            }
+
+            echo '<tr>';
+            echo '<th scope="row">' . $cell . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
+            echo '<td>' . esc_html( (string) (int) $row['players'] ) . '</td>';
+            echo '<td>' . esc_html( (string) (int) $row['covered'] ) . '</td>';
+            echo '<td>' . esc_html( (string) (int) $row['conducted'] ) . '</td>';
+            echo '<td>' . esc_html( (string) (int) $row['scheduled_soon'] ) . '</td>';
+            echo '<td>' . esc_html( (string) (int) $row['parent_acked'] ) . '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table></div>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'Teams with the fewest players talked to come first.', 'talenttrack' ) . '</p>';
+        echo '</section>';
+    }
+
     private static function renderTeamGate( array $team_options ): void {
         $action = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'only_missing', 'archived' ] );
         echo '<div class="tt-pdp-team-gate">';

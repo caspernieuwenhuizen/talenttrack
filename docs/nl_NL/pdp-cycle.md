@@ -30,6 +30,9 @@ Dat is geen weergaveregel die een toekomstig scherm kan vergeten. De controle zi
 De **POP**-tegel opent op één **spelergerichte lijst** voor het huidige seizoen in plaats van een kale lijst met dossiers. Het vertrekpunt is de speler (CLAUDE.md §1): elke speler die je traint wordt één keer getoond, met een duidelijke indicator of het POP **voor dit seizoen** al bestaat.
 
 - Bestrijk je **meer dan één team** (of heb je globale scope), dan kies je eerst een team — *"Selecteer een team om de spelers te zien."* — zodat je afgebakend begint in plaats van alle spelers tegelijk te zien. Een coach met één team gaat direct naar de eigen selectie.
+- Boven die keuze staat **POP-dekking per team**: één regel per team met het aantal spelers, hoeveel er een plan hebben, met hoeveel er daadwerkelijk een gesprek is gevoerd, hoeveel gesprekken er de komende vier weken staan, en hoeveel gesprekken een ouder heeft ondertekend. **Teams met de minste gevoerde gesprekken staan bovenaan**, want dat is het team dat je zoekt. Elke teamnaam is een link naar de selectie van dat team.
+ - "Met een plan" en "Gesproken" zijn verschillende vragen, en het gat ertussen is waar het om gaat: een team waar iedereen een dossier heeft en nog niemand aan tafel heeft gezeten leest als volledig gedekt op de samenvattingsregel, en is precies het team dat achterloopt.
+ - De ouderkolom telt gesprekken die een **ouder heeft ondertekend**. Nergens wordt vastgelegd wie er in de kamer zat, dus dit is het dichtstbijzijnde feit dat het product heeft; het is geen presentielijst.
 - Bovenaan staat een samenvattingsregel, bijvoorbeeld: *"14 van de 18 spelers hebben een POP voor het huidige seizoen (2025/26)."* De regel telt dezelfde spelers als de lijst eronder: een hoofd opleiding, of iemand anders die het POP van elke speler mag lezen, telt het hele team; een coach telt alleen de eigen spelers.
 - Elke rij toont de **speler** (gekoppeld aan het spelerrecord), het **team** en een **POP dit seizoen**-status:
  - **Aangemaakt** — een groene *POP ✓*-pil, waar mogelijk met gespreksvoortgang (bijv. *POP ✓ 1/3*), die direct naar het dossier linkt.
@@ -39,7 +42,9 @@ De **POP**-tegel opent op één **spelergerichte lijst** voor het huidige seizoe
 - Met de **⋯**-knop aan het eind van de filterrij (voor wie mag herstellen of verwijderen) schakel je de lijst naar de spelers van wie het POP voor het seizoen **gearchiveerd** is, met per rij **Herstellen** / permanent verwijderen. Dit vervangt het oude aparte tabblad Dossiers — gearchiveerde bestanden staan nu in dezelfde lijst.
 - Klik op een gedekte rij om het POP-dossier van de speler te openen; klik op een ontbrekende rij om naar de aanmaakflow te springen.
 
-De dekkingsdata is ook beschikbaar via REST op `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `team_id` of `filter[team_id]`, `search`, `only_missing`, `archived`), zodat een toekomstige front-end hetzelfde antwoord krijgt.
+- **Wie nog geen gesprek heeft gehad** — `conducted=0` beperkt de lijst tot spelers zonder gevoerd gesprek, inclusief spelers die helemaal geen dossier hebben. Dat laatste is met opzet: een speler zonder iets is het ergste geval, en een filter dat bedoeld is om te vinden wie nog niet gesproken is mag ze niet verbergen.
+
+De dekkingsdata is ook beschikbaar via REST op `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `team_id` of `filter[team_id]`, `search`, `only_missing`, `conducted`, `archived`), zodat een toekomstige front-end hetzelfde antwoord krijgt. Het `summary`-blok bevat de kopregel `total` / `covered` plus een `by_team`-uitsplitsing met dezelfde vijf getallen als op het scherm. Beide worden berekend over de hele gefilterde scope en niet over de getoonde pagina — een totaal dat verandert als je doorbladert is geen totaal — en beide negeren `only_missing` en `conducted`, die een lijst afbakenen om naar te kijken in plaats van te veranderen wat de dekking van de academie is.
 
 ## De flow
 

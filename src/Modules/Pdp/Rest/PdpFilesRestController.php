@@ -303,6 +303,15 @@ class PdpFilesRestController {
         if ( $only_missing ) {
             $coverage_filters['only_missing'] = true;
         }
+        // #3810 — `conducted=0` is "who has not had their talk". Only that
+        // value means anything: `conducted=1` would be "at least one", which
+        // is the inverse of a question nobody asks, and any other number
+        // would promise a comparison the column cannot answer. Absent or
+        // anything else leaves the list alone, so a caller that does not
+        // know about the parameter is unaffected.
+        if ( self::isConductedNone( $r, $filter ) ) {
+            $coverage_filters['conducted_none'] = true;
+        }
         // #2040 — Active / Archived record-state view. Only operators who can
         // act on archived files (unarchive or delete) may switch to the
         // archived view; everyone else is pinned to active.
@@ -315,6 +324,10 @@ class PdpFilesRestController {
         $files   = new PdpFilesRepository();
         $rows    = $files->coverageForSeason( $season_id, $coverage_filters );
         $summary = $files->coverageSummaryForSeason( $season_id, $coverage_filters );
+        // #3810 — the breakdown behind the headline. Both come off the same
+        // unpaged row set, so they cannot disagree, and neither changes when
+        // the reader turns the page.
+        $summary['by_team'] = $files->coverageByTeamForSeason( $season_id, $coverage_filters );
 
         $page     = max( 1, absint( $r['page'] ?? 1 ) );
         $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
@@ -329,6 +342,23 @@ class PdpFilesRestController {
             'season_id' => $season_id,
             'summary'   => $summary,
         ] );
+    }
+
+    /**
+     * #3810 — is this request asking for players with no conducted talk?
+     *
+     * Reads both spellings the rest of this controller accepts, `conducted`
+     * and `filter[conducted]`, and treats only an explicit zero as the ask.
+     * An absent parameter arrives as null and must not read as zero, which
+     * is why this is a string comparison rather than `absint()`.
+     *
+     * @param array<string,mixed> $filter
+     */
+    private static function isConductedNone( \WP_REST_Request $r, array $filter ): bool {
+        $raw = $filter['conducted'] ?? $r['conducted'] ?? null;
+        if ( $raw === null || is_array( $raw ) ) return false;
+
+        return trim( (string) $raw ) === '0';
     }
 
     /**
@@ -505,8 +535,9 @@ class PdpFilesRestController {
             'season_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Season id. Defaults to the current season.' ],
             'team_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only players on this team. Same as filter[team_id].' ],
             'only_missing' => [ 'description' => '1 to list only players without a PDP file. Same as filter[only_missing].' ],
+            'conducted'    => [ 'type' => [ 'integer', 'string' ], 'description' => '0 to list only players who have not had a conversation yet. No other value is accepted; anything else leaves the list unfiltered. Same as filter[conducted].' ],
             'archived'     => [ 'type' => 'string', 'description' => 'active (default) or archived. The archived view needs tt_unarchive_pdp or tt_delete_pdp. Same as filter[archived].' ],
-            'filter'       => [ 'description' => 'Nested filters: team_id, only_missing, archived. A nested value wins over the plain parameter of the same name.' ],
+            'filter'       => [ 'description' => 'Nested filters: team_id, only_missing, conducted, archived. A nested value wins over the plain parameter of the same name.' ],
             'search'       => [ 'type' => 'string', 'description' => 'Matches the player\'s first or last name.' ],
             'page'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
             'per_page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'One of 10, 25, 50 or 100; any other value is treated as 25. The response echoes the value used.' ],
