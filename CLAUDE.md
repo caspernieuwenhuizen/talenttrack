@@ -662,6 +662,25 @@ release-plumbing files:
   Multiple issues after one trigger (`co #1731 #1732`) = one agent doing
   them in sequence; separate agents are launched per the user's parallel
   set.
+
+  **When the fix doesn't satisfy the reported reproduction, say how to
+  check it.** An issue from the Academy HQ (label `from-hq`) records the
+  request that showed the bug, and the HQ replays that request once the
+  issue closes. If the fix deliberately leaves it as it was — because the
+  capability shipped on another route, or because the route stays refused
+  on purpose — add one line to the issue before it closes:
+
+  ```
+  Verify: <persona> <METHOD> <route> -> <status>
+  ```
+
+  for example `Verify: parent GET players/577/pdp -> 200`. The persona is
+  the account name from the HQ's `credentials.json` (`parent`, `player1`,
+  `coach1`, `admin`, …). Without it the HQ re-checks the old request,
+  finds it unchanged and reports the issue as still failing — on a fix
+  that works. That happened to nine closed issues before the convention
+  existed; #3645 was told it was broken five times while the shipped route
+  answered 200 every time.
 - **`release`** (optionally **`release <version>`** to override) → act as
   the **integrate-and-release agent**. The release role OWNS merging the
   batch — implementation agents only open PRs, so without this the PRs pile
@@ -821,6 +840,10 @@ A PR is not ready to merge until **all** of these hold:
       Don't hand-edit `CHANGES.md` / `readme.txt` in a feature PR — the
       snippet is the entry; the release step consolidates it.
 - [ ] `SEQUENCE.md` updated if the work is referenced there.
+- [ ] **A `from-hq` issue whose fix doesn't satisfy the reported
+      reproduction carries a `Verify: <persona> <METHOD> <route> -> <status>`
+      line** (see §7), so the Academy HQ re-checks the route that shipped
+      instead of the one the persona happened to hit.
 - [ ] **Version bump follows strict SemVer** (from v4.0.0 onward, see
       `DEVOPS.md` § "When to bump what"). **Patch** for fixes + small
       enhancements; **minor** for new feature epics (reset patch to 0);
