@@ -65,12 +65,13 @@ class FrontendAnalyticsView extends FrontendViewBase {
         // and no academy-wide KPI grid, which is the shorter menu rather
         // than a locked door.
         $club_wide = $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
-        $team_ids  = $club_wide
+        /** @var list<int>|null $team_ids */
+        $team_ids = $club_wide
             ? null
-            : array_values( array_map(
+            : array_map(
                 'intval',
                 array_column( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
-            ) );
+            );
 
         [ $selected_type, $selected_id ] = self::selectedEntity();
         // A narrowed reader cannot open an entity outside their teams by
@@ -359,7 +360,10 @@ class FrontendAnalyticsView extends FrontendViewBase {
         }
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
     private static function fetchInstancePlayers( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
         $scope = self::teamClause( $team_ids, 'pl' );
@@ -386,7 +390,10 @@ class FrontendAnalyticsView extends FrontendViewBase {
         return $out;
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
     private static function fetchInstanceTeams( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
         $scope = '';
@@ -414,7 +421,10 @@ class FrontendAnalyticsView extends FrontendViewBase {
         return $out;
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
     private static function fetchInstanceActivities( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
         $scope = self::teamClause( $team_ids, 'a' );
