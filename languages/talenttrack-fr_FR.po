@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T16:01:37+00:00\n"
+"POT-Creation-Date: 2026-09-20T16:26:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -72,8 +72,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:267
 #: src/Modules/Documentation/AudienceResolver.php:48
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:178
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:244
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:189
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:255
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:517
@@ -82,7 +82,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:361
 #: src/Modules/Players/Admin/PlayersPage.php:181
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:2342
+#: src/Shared/Frontend/DashboardShortcode.php:2356
 #: src/Shared/Frontend/FrontendConfigurationView.php:2975
 #: src/Shared/Frontend/FrontendPeopleManageView.php:291
 #: src/Shared/Frontend/FrontendRolesView.php:93
@@ -92,7 +92,7 @@ msgstr "Parent"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:272
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:2347
+#: src/Shared/Frontend/DashboardShortcode.php:2361
 msgid "Team Manager"
 msgstr ""
 
@@ -204,7 +204,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/SubjectVoice.php:82
 #: src/Shared/Frontend/DashboardShortcode.php:282
 #: src/Shared/Frontend/DashboardShortcode.php:315
-#: src/Shared/Frontend/DashboardShortcode.php:2341
+#: src/Shared/Frontend/DashboardShortcode.php:2355
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:4034
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:4046
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:4123
@@ -287,7 +287,7 @@ msgstr "Entraîneur"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:123
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:2345
+#: src/Shared/Frontend/DashboardShortcode.php:2359
 #: src/Shared/Frontend/FrontendConfigurationView.php:2969
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:69
@@ -1200,8 +1200,8 @@ msgstr ""
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
 #: src/Shared/Frontend/FrontendOverviewView.php:263
-#: src/Shared/Frontend/FrontendPlayersManageView.php:648
-#: src/Shared/Frontend/FrontendPlayersManageView.php:769
+#: src/Shared/Frontend/FrontendPlayersManageView.php:699
+#: src/Shared/Frontend/FrontendPlayersManageView.php:820
 msgid "Additional information"
 msgstr ""
 
@@ -1593,7 +1593,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:87
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:682
-#: src/Shared/Frontend/DashboardShortcode.php:1377
+#: src/Shared/Frontend/DashboardShortcode.php:1391
 msgid "Player not found."
 msgstr ""
 
@@ -2055,7 +2055,7 @@ msgstr "Kinésithérapeute"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:2346
+#: src/Shared/Frontend/DashboardShortcode.php:2360
 #: src/Shared/Frontend/FrontendConfigurationView.php:2973
 #: src/Shared/Frontend/FrontendPeopleManageView.php:290
 #: src/Shared/Frontend/FrontendRolesView.php:81
@@ -2138,7 +2138,7 @@ msgstr "Admin du club"
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:269
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:2344
+#: src/Shared/Frontend/DashboardShortcode.php:2358
 msgid "Head Coach"
 msgstr "Entraîneur principal"
 
@@ -2149,7 +2149,7 @@ msgstr "Entraîneur principal"
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:268
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:2343
+#: src/Shared/Frontend/DashboardShortcode.php:2357
 msgid "Assistant Coach"
 msgstr "Entraîneur adjoint"
 
@@ -3618,6 +3618,12 @@ msgstr ""
 msgid "Goal not found."
 msgstr ""
 
+#: src/Infrastructure/REST/GuardianContactRestController.php:147
+#: src/Modules/Invitations/Frontend/GuardianContactHandlers.php:61
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:178
+msgid "This link is no longer valid. Ask the academy to send you a new one."
+msgstr ""
+
 #: src/Infrastructure/REST/ImportRestController.php:98
 msgid "No workbook was uploaded."
 msgstr ""
@@ -3627,24 +3633,24 @@ msgstr ""
 msgid "The upload did not complete. It may be larger than this server accepts."
 msgstr ""
 
-#: src/Infrastructure/REST/InvitationsRestController.php:120
+#: src/Infrastructure/REST/InvitationsRestController.php:121
 msgid "Could not create invitation."
 msgstr ""
 
-#: src/Infrastructure/REST/InvitationsRestController.php:129
-#: src/Infrastructure/REST/InvitationsRestController.php:144
+#: src/Infrastructure/REST/InvitationsRestController.php:130
+#: src/Infrastructure/REST/InvitationsRestController.php:145
 msgid "Invitation not found."
 msgstr ""
 
-#: src/Infrastructure/REST/InvitationsRestController.php:147
+#: src/Infrastructure/REST/InvitationsRestController.php:148
 msgid "Invitation is no longer pending."
 msgstr ""
 
-#: src/Infrastructure/REST/InvitationsRestController.php:151
+#: src/Infrastructure/REST/InvitationsRestController.php:152
 msgid "Could not accept invitation."
 msgstr ""
 
-#: src/Infrastructure/REST/InvitationsRestController.php:162
+#: src/Infrastructure/REST/InvitationsRestController.php:163
 msgid "Could not revoke invitation."
 msgstr ""
 
@@ -4052,7 +4058,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:101
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:150
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:161
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:308
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
 #: src/Modules/Trials/Wizards/TrialPlayerStep.php:64
@@ -4116,7 +4122,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:631
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
 #: src/Shared/Frontend/FrontendPlayersManageView.php:75
-#: src/Shared/Frontend/FrontendPlayersManageView.php:676
+#: src/Shared/Frontend/FrontendPlayersManageView.php:727
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:89
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1246
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1450
@@ -7226,7 +7232,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:823
 #: src/Shared/CoreSurfaceRegistration.php:2111
 #: src/Shared/Frontend/Components/EvidencePanel.php:148
-#: src/Shared/Frontend/DashboardShortcode.php:930
+#: src/Shared/Frontend/DashboardShortcode.php:944
 #: src/Shared/Frontend/FrontendComparisonView.php:432
 #: src/Shared/Frontend/FrontendEvaluationsView.php:53
 #: src/Shared/Frontend/FrontendEvaluationsView.php:103
@@ -7276,7 +7282,7 @@ msgstr "Évaluations"
 #: src/Shared/CoreSurfaceRegistration.php:915
 #: src/Shared/CoreSurfaceRegistration.php:2129
 #: src/Shared/Frontend/Components/EvidencePanel.php:291
-#: src/Shared/Frontend/DashboardShortcode.php:931
+#: src/Shared/Frontend/DashboardShortcode.php:945
 #: src/Shared/Frontend/FrontendConfigurationView.php:284
 #: src/Shared/Frontend/FrontendExportsView.php:367
 #: src/Shared/Frontend/FrontendGoalsManageView.php:45
@@ -7437,7 +7443,7 @@ msgstr ""
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:510
 #: src/Modules/DemoData/DemoCoverage.php:1372
-#: src/Shared/Frontend/DashboardShortcode.php:934
+#: src/Shared/Frontend/DashboardShortcode.php:948
 #: src/Shared/Frontend/FrontendMySettingsView.php:669
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:223
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1053
@@ -7844,15 +7850,15 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:67
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
-#: src/Shared/Frontend/DashboardShortcode.php:595
-#: src/Shared/Frontend/DashboardShortcode.php:606
-#: src/Shared/Frontend/DashboardShortcode.php:990
-#: src/Shared/Frontend/DashboardShortcode.php:1081
-#: src/Shared/Frontend/DashboardShortcode.php:1314
-#: src/Shared/Frontend/DashboardShortcode.php:1323
-#: src/Shared/Frontend/DashboardShortcode.php:1737
-#: src/Shared/Frontend/DashboardShortcode.php:1745
-#: src/Shared/Frontend/DashboardShortcode.php:1753
+#: src/Shared/Frontend/DashboardShortcode.php:609
+#: src/Shared/Frontend/DashboardShortcode.php:620
+#: src/Shared/Frontend/DashboardShortcode.php:1004
+#: src/Shared/Frontend/DashboardShortcode.php:1095
+#: src/Shared/Frontend/DashboardShortcode.php:1328
+#: src/Shared/Frontend/DashboardShortcode.php:1337
+#: src/Shared/Frontend/DashboardShortcode.php:1751
+#: src/Shared/Frontend/DashboardShortcode.php:1759
+#: src/Shared/Frontend/DashboardShortcode.php:1767
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -7912,7 +7918,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1121
 #: src/Shared/CoreSurfaceRegistration.php:1136
 #: src/Shared/CoreSurfaceRegistration.php:2193
-#: src/Shared/Frontend/DashboardShortcode.php:2015
+#: src/Shared/Frontend/DashboardShortcode.php:2029
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
 msgstr ""
@@ -13080,7 +13086,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:273
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:2348
+#: src/Shared/Frontend/DashboardShortcode.php:2362
 msgid "Academy Admin"
 msgstr ""
 
@@ -15170,6 +15176,52 @@ msgid ""
 "gesteld. Tik om je voortgang bij te werken: {deep_link}"
 msgstr ""
 
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:27
+msgid "Guardian contact request"
+msgstr ""
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
+msgid "Please confirm your contact details for {player_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
+msgid ""
+"Hello,\n"
+"\n"
+"{academy_name} needs a way to reach you about {player_name} — a cancelled "
+"training, a change of time, or an injury.\n"
+"\n"
+"Fill in your details here:\n"
+"{form_url}\n"
+"\n"
+"It takes a minute, and the link works once. It expires in {ttl_days} days; "
+"ask us for a new one if it does.\n"
+"\n"
+"Thank you,\n"
+"{academy_name}"
+msgstr ""
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
+msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
+msgstr ""
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:38
+msgid ""
+"Hallo,\n"
+"\n"
+"{academy_name} heeft een manier nodig om je te bereiken over {player_name} — "
+"een training die vervalt, een tijd die verschuift of een blessure.\n"
+"\n"
+"Vul je gegevens hier in:\n"
+"{form_url}\n"
+"\n"
+"Het kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} "
+"dagen; vraag ons gerust om een nieuwe.\n"
+"\n"
+"Bedankt,\n"
+"{academy_name}"
+msgstr ""
+
 #: src/Modules/Comms/Templates/GuestPlayerInviteTemplate.php:19
 msgid "Guest-player invite"
 msgstr ""
@@ -17128,7 +17180,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:84
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:140
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:151
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:557
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:642
 #: src/Modules/People/Admin/PeoplePage.php:314
@@ -17166,7 +17218,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:85
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:144
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:155
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:561
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:646
 #: src/Modules/People/Admin/PeoplePage.php:319
@@ -17219,7 +17271,7 @@ msgstr "Poids (kg)"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:103
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:44
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:154
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:165
 #: src/Modules/Wizards/Player/ReviewStep.php:41
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
 #: src/Shared/Frontend/FrontendConfigurationView.php:199
@@ -20638,7 +20690,7 @@ msgstr ""
 #: src/Modules/Documentation/Admin/DocumentationPage.php:215
 #: src/Shared/CoreSurfaceRegistration.php:1952
 #: src/Shared/CoreSurfaceRegistration.php:2418
-#: src/Shared/Frontend/DashboardShortcode.php:2382
+#: src/Shared/Frontend/DashboardShortcode.php:2396
 #: src/Shared/Frontend/FrontendDocsView.php:97
 msgid "Help"
 msgstr "Aide"
@@ -22946,7 +22998,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendOverviewView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1343
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1349
-#: src/Shared/Frontend/FrontendPlayersManageView.php:686
+#: src/Shared/Frontend/FrontendPlayersManageView.php:737
 #: src/Shared/Frontend/FrontendReportDetailView.php:69
 #: src/Shared/Frontend/FrontendReportWizardView.php:344
 msgid "Print"
@@ -22970,7 +23022,7 @@ msgstr "Imprimer"
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/Components/MediaGallery.php:324
 #: src/Shared/Frontend/DashboardShortcode.php:288
-#: src/Shared/Frontend/DashboardShortcode.php:2387
+#: src/Shared/Frontend/DashboardShortcode.php:2401
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:160
 msgid "Close"
 msgstr "Fermer"
@@ -23691,6 +23743,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/Invitations/Frontend/AcceptanceView.php:30
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:49
 msgid "This invitation link is invalid."
 msgstr ""
 
@@ -23698,137 +23751,137 @@ msgstr ""
 msgid "This invitation could not be found. It may have been revoked."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:44
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:55
 msgid "This invitation has already been accepted. Sign in to your account."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:48
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:59
 msgid "This invitation was revoked."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:52
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:63
 msgid "This invitation has expired. Ask the inviter to send a new one."
 msgstr ""
 
 #. translators: 1: club name, 2: invitation kind label
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:83
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:94
 #, php-format
 msgid "Welcome to %1$s on TalentTrack — accepting your %2$s invitation"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:90
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:101
 msgid ""
 "Set up your account in 30 seconds. We only collect what we need to log you "
 "in and recover your account if you forget the password."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:101
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:112
 #: src/Shared/Frontend/FrontendMySettingsView.php:240
 #: src/Shared/Frontend/FrontendTileGrid.php:771
 msgid "Your account"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:106
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:117
 msgid "Email (for password recovery)"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:113
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:124
 msgid ""
 "We only use this if you forget your password. It is pre-filled from your "
 "invitation; change it if you prefer a different address."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:118
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:129
 msgid "Password (8+ characters)"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:128
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:139
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:21
 msgid "Player details"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:129
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:140
 msgid "Your relationship"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:130
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:141
 msgid "Your role"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:156
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:167
 msgid "— select —"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:165
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:176
 msgid "Jersey number (optional)"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:170
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:181
 msgid ""
 "Confirm or complete your details above. You can add a photo after sign-in."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:175
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:242
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:186
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:253
 msgid "Your relationship to the player"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:179
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:245
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:190
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:256
 msgid "Mother"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:180
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:246
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:191
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:257
 msgid "Father"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:181
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:247
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:192
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:258
 msgid "Guardian"
 msgstr "Tuteur"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:187
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
 msgid "Email me when there are new evaluations or goals."
 msgstr ""
 
 #. translators: 1: role label, 2: team name
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:209
 #, php-format
 msgid ""
 "You are joining as %1$s%2$s. The role + team are confirmed by your inviter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:203
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:214
 msgid "Your role + team are confirmed by your inviter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:212
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:223
 msgid "Create account & sign in"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:224
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:235
 msgid "Accept invitation"
 msgstr ""
 
 #. translators: %s = invitation kind label
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:230
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:241
 #, php-format
 msgid ""
 "You are signed in. Tap accept to link the %s invitation to your existing "
 "account."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:252
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:263
 msgid "Accept and continue"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:264
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:275
 msgid "Sign out to accept this invitation?"
 msgstr ""
 
 #. translators: 1: current logged-in email, 2: invited email
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:270
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:281
 #, php-format
 msgid ""
 "You are signed in as %1$s, but this invitation is addressed to %2$s. Sign "
@@ -23836,12 +23889,95 @@ msgid ""
 "browser."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:272
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:283
 msgid "a different account"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:278
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:289
 msgid "Sign out and accept"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactHandlers.php:28
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:90
+msgid "You are not allowed to send contact requests."
+msgstr ""
+
+#. translators: %s: the email address the request was sent to
+#: src/Modules/Invitations/Frontend/GuardianContactHandlers.php:42
+#, php-format
+msgid ""
+"Request sent to %s. The link works once and expires; the details land on the "
+"record as soon as the family answers."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:43
+#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:278
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:99
+msgid "This link is no longer valid"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:44
+msgid ""
+"It may have been used already, or it may have expired. Ask the academy to "
+"send you a new one."
+msgstr ""
+
+#. translators: %s: the child's name
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:61
+#, php-format
+msgid "Your contact details for %s"
+msgstr ""
+
+#. translators: %s: the academy's name
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:70
+#, php-format
+msgid ""
+"%s needs a way to reach you — a cancelled training, a change of time, an "
+"injury. Fill in your details below and they go straight onto the record. It "
+"takes a minute."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:82
+msgid "Your name"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:88
+msgid "Your email address"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:94
+msgid "Your phone number"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:97
+msgid ""
+"A mobile the academy can ring or text. Fill in at least an email address or "
+"a phone number."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:103
+msgid ""
+"These are my details, and the academy may use them to contact me about my "
+"child."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:107
+msgid "Send my details"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:110
+msgid ""
+"This link works once. Your details are visible to the academy staff who look "
+"after your child, and to nobody else."
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:119
+msgid "Thank you — that is saved"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:120
+msgid ""
+"The academy has your details and can reach you. You can close this page."
 msgstr ""
 
 #: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:26
@@ -24084,12 +24220,55 @@ msgstr ""
 msgid "Invitation message saved."
 msgstr ""
 
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:77
+msgid "Enter the email address to send the request to."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:82
+msgid "That player could not be found."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:102
+msgid ""
+"You have reached today's limit for sending requests. Try again tomorrow."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:120
+msgid "The request could not be saved."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:182
+msgid "Please confirm the academy may use these details to contact you."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:190
+msgid "Please fill in your name."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:193
+msgid "That email address does not look right. Please check it."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:196
+msgid ""
+"Please fill in an email address or a phone number, so the academy can reach "
+"you."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:199
+msgid "That phone number does not look right. Please check it."
+msgstr ""
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:212
+msgid "This link has already been used. Ask the academy to send you a new one."
+msgstr ""
+
 #: src/Modules/Invitations/InvitationService.php:61
 msgid "Invalid invitation kind."
 msgstr ""
 
 #: src/Modules/Invitations/InvitationService.php:70
-#: src/Modules/Invitations/InvitationService.php:237
+#: src/Modules/Invitations/InvitationService.php:244
 msgid "New user registration is currently disabled."
 msgstr ""
 
@@ -24105,34 +24284,36 @@ msgstr ""
 msgid "The invitation could not be saved."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:240
-#: src/Modules/Invitations/InvitationService.php:297
+#: src/Modules/Invitations/InvitationService.php:241
+#: src/Modules/Invitations/InvitationService.php:247
+#: src/Modules/Invitations/InvitationService.php:306
+#: src/Modules/Invitations/InvitationService.php:309
 msgid "This invitation is no longer pending."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:244
+#: src/Modules/Invitations/InvitationService.php:251
 msgid "This invitation has expired."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:249
+#: src/Modules/Invitations/InvitationService.php:256
 msgid "Please provide a valid recovery email."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:253
+#: src/Modules/Invitations/InvitationService.php:260
 msgid "Password must be at least 8 characters."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:257
+#: src/Modules/Invitations/InvitationService.php:264
 msgid ""
 "An account with that email already exists. Sign in instead and the "
 "invitation will link silently."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:280
+#: src/Modules/Invitations/InvitationService.php:287
 msgid "This invitation was just accepted by someone else."
 msgstr ""
 
-#: src/Modules/Invitations/InvitationService.php:300
+#: src/Modules/Invitations/InvitationService.php:312
 msgid "Already accepted."
 msgstr ""
 
@@ -26805,11 +26986,6 @@ msgstr ""
 msgid ""
 "The coach is still writing it. The link stays valid — open it again once "
 "they have marked it final."
-msgstr ""
-
-#: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:278
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepShareView.php:99
-msgid "This link is no longer valid"
 msgstr ""
 
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:280
@@ -30925,7 +31101,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:401
 #: src/Shared/Frontend/DashboardShortcode.php:252
 #: src/Shared/Frontend/DashboardShortcode.php:286
-#: src/Shared/Frontend/DashboardShortcode.php:2392
+#: src/Shared/Frontend/DashboardShortcode.php:2406
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:345
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:562
 #: src/Shared/Frontend/FrontendWizardView.php:337
@@ -35821,8 +35997,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:2297
-#: src/Shared/Frontend/DashboardShortcode.php:2298
+#: src/Shared/Frontend/DashboardShortcode.php:2311
+#: src/Shared/Frontend/DashboardShortcode.php:2312
 msgid "Help & docs"
 msgstr ""
 
@@ -38697,8 +38873,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1738
-#: src/Shared/Frontend/DashboardShortcode.php:1746
+#: src/Shared/Frontend/DashboardShortcode.php:1752
+#: src/Shared/Frontend/DashboardShortcode.php:1760
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -40639,7 +40815,7 @@ msgid "You do not have permission to edit this player's attributes."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php:53
-#: src/Shared/Frontend/DashboardShortcode.php:1376
+#: src/Shared/Frontend/DashboardShortcode.php:1390
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:399
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:402
 #: src/Shared/Frontend/FrontendPlayersManageView.php:87
@@ -47220,7 +47396,7 @@ msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
-#: src/Shared/Frontend/DashboardShortcode.php:1091
+#: src/Shared/Frontend/DashboardShortcode.php:1105
 msgid "Task completed."
 msgstr ""
 
@@ -49757,7 +49933,7 @@ msgid "Jump to"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:276
-#: src/Shared/Frontend/DashboardShortcode.php:2232
+#: src/Shared/Frontend/DashboardShortcode.php:2246
 msgid "Search players, teams, activities…"
 msgstr ""
 
@@ -49770,7 +49946,7 @@ msgid "results"
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:281
-#: src/Shared/Frontend/DashboardShortcode.php:935
+#: src/Shared/Frontend/DashboardShortcode.php:949
 msgid "Section"
 msgstr ""
 
@@ -49874,148 +50050,148 @@ msgstr ""
 msgid "Records that currently block a permanent delete:"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:399
+#: src/Shared/Frontend/DashboardShortcode.php:413
 msgid "The two passwords did not match. Please try again."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:401
+#: src/Shared/Frontend/DashboardShortcode.php:415
 msgid "Please choose a password of at least 8 characters."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:403
+#: src/Shared/Frontend/DashboardShortcode.php:417
 msgid "Please fill in both password fields."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:428
+#: src/Shared/Frontend/DashboardShortcode.php:442
 msgid "If that account exists, we've sent a password reset link to its email."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:433
+#: src/Shared/Frontend/DashboardShortcode.php:447
 msgid "Your password has been updated. You can sign in now."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:596
-#: src/Shared/Frontend/DashboardShortcode.php:607
+#: src/Shared/Frontend/DashboardShortcode.php:610
+#: src/Shared/Frontend/DashboardShortcode.php:621
 msgid "You do not have access to this surface."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:621
+#: src/Shared/Frontend/DashboardShortcode.php:635
 msgid "Page not found"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:932
+#: src/Shared/Frontend/DashboardShortcode.php:946
 #: src/Shared/Frontend/FrontendMySettingsView.php:668
-#: src/Shared/Frontend/FrontendPlayersManageView.php:684
+#: src/Shared/Frontend/FrontendPlayersManageView.php:735
 msgid "Journey"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:933
+#: src/Shared/Frontend/DashboardShortcode.php:947
 msgid "Development plan"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:991
+#: src/Shared/Frontend/DashboardShortcode.php:1005
 msgid "This section is only available for users linked to a player record."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1067
+#: src/Shared/Frontend/DashboardShortcode.php:1081
 msgid "Sign in required"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1068
+#: src/Shared/Frontend/DashboardShortcode.php:1082
 #: src/Shared/Frontend/FrontendMySettingsView.php:60
 msgid "You need to be logged in to manage your settings."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1082
+#: src/Shared/Frontend/DashboardShortcode.php:1096
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1315
+#: src/Shared/Frontend/DashboardShortcode.php:1329
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1324
+#: src/Shared/Frontend/DashboardShortcode.php:1338
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1754
+#: src/Shared/Frontend/DashboardShortcode.php:1768
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1966
-#: src/Shared/Frontend/DashboardShortcode.php:2366
+#: src/Shared/Frontend/DashboardShortcode.php:1980
+#: src/Shared/Frontend/DashboardShortcode.php:2380
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2017
+#: src/Shared/Frontend/DashboardShortcode.php:2031
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2160
+#: src/Shared/Frontend/DashboardShortcode.php:2174
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2163
+#: src/Shared/Frontend/DashboardShortcode.php:2177
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2166
+#: src/Shared/Frontend/DashboardShortcode.php:2180
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2189
+#: src/Shared/Frontend/DashboardShortcode.php:2203
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2252
+#: src/Shared/Frontend/DashboardShortcode.php:2266
 msgid "Search results"
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:2276
+#: src/Shared/Frontend/DashboardShortcode.php:2290
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2316
+#: src/Shared/Frontend/DashboardShortcode.php:2330
 #: src/Shared/Frontend/FrontendMySettingsView.php:55
 #: src/Shared/Frontend/FrontendMySettingsView.php:56
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:2323
+#: src/Shared/Frontend/DashboardShortcode.php:2337
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 #: src/Shared/Frontend/FrontendMySessionsView.php:42
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2335
+#: src/Shared/Frontend/DashboardShortcode.php:2349
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2338
+#: src/Shared/Frontend/DashboardShortcode.php:2352
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2362
+#: src/Shared/Frontend/DashboardShortcode.php:2376
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2384
+#: src/Shared/Frontend/DashboardShortcode.php:2398
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2456
+#: src/Shared/Frontend/DashboardShortcode.php:2470
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:2457
+#: src/Shared/Frontend/DashboardShortcode.php:2471
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -53600,7 +53776,7 @@ msgid "Time:"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:344
-#: src/Shared/Frontend/FrontendPlayersManageView.php:740
+#: src/Shared/Frontend/FrontendPlayersManageView.php:791
 msgid "Team:"
 msgstr ""
 
@@ -55467,30 +55643,49 @@ msgstr ""
 msgid "Save player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:683
+#: src/Shared/Frontend/FrontendPlayersManageView.php:665
+msgid "Ask the family"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:667
+msgid ""
+"Send a one-time link where a parent fills in their own name, email and "
+"phone. What they send lands on this record straight away, and the audit log "
+"records what changed."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:671
+msgid "Send the link to"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:676
+msgid "Send request"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:734
 msgid "Edit player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:689
+#: src/Shared/Frontend/FrontendPlayersManageView.php:740
 msgid "Generate report…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:743
+#: src/Shared/Frontend/FrontendPlayersManageView.php:794
 msgid "Pos:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:746
+#: src/Shared/Frontend/FrontendPlayersManageView.php:797
 msgid "Foot:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:805
+#: src/Shared/Frontend/FrontendPlayersManageView.php:856
 msgid ""
 "No parent accounts linked yet. Either link an existing user from the People "
 "page, or fill in the contact details below."
 msgstr ""
 
 #. translators: %s is a comma-separated list of "Name (email)" entries.
-#: src/Shared/Frontend/FrontendPlayersManageView.php:818
+#: src/Shared/Frontend/FrontendPlayersManageView.php:869
 #, php-format
 msgid ""
 "Linked parent accounts: %s. Manage from People → user → Edit. The contact "
