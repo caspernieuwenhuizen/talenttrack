@@ -157,7 +157,7 @@ final class CoachEvalQualityQuery {
             return [ $b['eval_count'], $a['coach_name'] ] <=> [ $a['eval_count'], $b['coach_name'] ];
         } );
 
-        return [ 'from' => $from, 'to' => $to, 'rows' => array_values( $rows ) ];
+        return [ 'from' => $from, 'to' => $to, 'rows' => $rows ];
     }
 
     /**
@@ -237,7 +237,6 @@ final class CoachEvalQualityQuery {
         $p     = $wpdb->prefix;
         $scope = $this->evaluationScope( $team_id, $from, $to );
 
-        /** @var list<object> $agg */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $agg = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.coach_id,
@@ -283,7 +282,6 @@ final class CoachEvalQualityQuery {
         $p     = $wpdb->prefix;
         $scope = $this->evaluationScope( $team_id, $from, $to );
 
-        /** @var list<object> $freq */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $freq = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.coach_id, r.rating, COUNT(*) AS n
@@ -319,7 +317,6 @@ final class CoachEvalQualityQuery {
         $p     = $wpdb->prefix;
         $scope = $this->evaluationScope( $team_id, '', '' );
 
-        /** @var list<object> $rows */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.coach_id, MAX(e.eval_date) AS last_eval_date
@@ -358,7 +355,6 @@ final class CoachEvalQualityQuery {
             $params[] = $team_id;
         }
 
-        /** @var list<object> $rows */
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.team_id,
