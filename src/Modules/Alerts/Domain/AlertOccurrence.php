@@ -46,6 +46,22 @@ final class AlertOccurrence {
     public $payload;
 
     /**
+     * Which audience this occurrence was resolved for (#3795).
+     *
+     * Not persisted — it is what the evaluator gates on. A staff occurrence
+     * is checked against the definition's capability; a parent one against
+     * the guardian link to `playerId`, because a parent holds none of the
+     * capabilities the definitions declare and the capability is the wrong
+     * question to ask a family anyway.
+     *
+     * Defaults to staff, so an occurrence built by a definition that has
+     * never heard of audiences behaves exactly as it always did.
+     *
+     * @var string
+     */
+    public $audience;
+
+    /**
      * @param array<string,mixed> $payload
      */
     public function __construct(
@@ -55,7 +71,8 @@ final class AlertOccurrence {
         int $subjectId,
         string $severity = Severity::ATTENTION,
         array $payload = [],
-        ?int $playerId = null
+        ?int $playerId = null,
+        string $audience = AlertAudience::STAFF
     ) {
         $this->alertKey        = $alertKey;
         $this->recipientUserId = $recipientUserId;
@@ -64,6 +81,7 @@ final class AlertOccurrence {
         $this->severity        = Severity::normalise( $severity );
         $this->payload         = $payload;
         $this->playerId        = $playerId !== null && $playerId > 0 ? $playerId : null;
+        $this->audience        = $audience === AlertAudience::PARENT ? AlertAudience::PARENT : AlertAudience::STAFF;
     }
 
     /**

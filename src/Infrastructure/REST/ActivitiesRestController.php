@@ -258,6 +258,26 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
             ],
         ] );
+        // #3748 — the minutes for ONE match, for a coach who has just been
+        // told "minutes 16/16, complete" on the list and wants to see them.
+        // A route rather than an `activity_id` filter on the grid: the grid
+        // means a team × window matrix and should keep meaning only that,
+        // and this shape is what the activity detail screen needs too.
+        //
+        // Deliberately NOT wrapped in `gateMinutesGrid()`. The grid is the
+        // Pro desktop bulk affordance; reading the minutes already recorded
+        // against one activity is not, any more than the activity's own GET
+        // is.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/minutes', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'activity_minutes' ],
+                'permission_callback' => [ __CLASS__, 'can_view_activity_minutes' ],
+                'args'                => [
+                    'id' => [ 'sanitize_callback' => 'absint', 'required' => true ],
+                ],
+            ],
+        ] );
         // #3094 — goals and assists per player for one match, entered as
         // counts. Resource-oriented per CLAUDE.md §4, and separate from
         // `/minutes/bulk` on purpose: minutes go through the ownership
@@ -638,8 +658,64 @@ class ActivitiesRestController {
         $from = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['from'] ?? '' ) ) ? (string) $r['from'] : $defaults['from'];
         $to   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) ( $r['to'] ?? '' ) )   ? (string) $r['to']   : $defaults['to'];
 
+        // #3748 — `matrix()` returns the window it applied alongside the
+        // data, so a caller who sent nothing can see the season default that
+        // was chosen for them rather than wondering why a match is missing.
         $matrix = ( new \TT\Modules\Activities\Reports\MinutesGridQuery() )->matrix( $team_id, $from, $to );
         return RestResponse::success( $matrix );
+    }
+
+    /**
+     * #3748 — the read gate on `GET /activities/{id}/minutes`.
+     *
+     * The staff-reader rung of `can_view()` and only that rung: a player or
+     * a parent reads playing time through `GET /players/{id}/minutes`, which
+     * answers for one player and respects their privacy settings. This route
+     * answers for a whole squad, so it stays staff-side.
+     */
+    public static function can_view_activity_minutes(): bool {
+        return ActivityAccess::isStaffReader( get_current_user_id() );
+    }
+
+    /**
+     * #3748 — GET /activities/{id}/minutes — per-player minutes for one
+     * activity.
+     *
+     * Which player question does this help answer? *Did this player get the
+     * minutes their plan called for?* The activities list advertises a
+     * complete minutes register and, until this route, there was no way to
+     * read it back for a named match without already knowing its date and
+     * guessing a window around it.
+     */
+    public static function activity_minutes( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+
+        $stored = self::repo()->findByIdIncludingArchived( $activity_id );
+        if ( $stored === null ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        // The same per-activity team scope the grid applies, checked before
+        // anything is read: a refusal must not depend on what the query found.
+        $allowed = self::gridAllowedTeamIds();
+        $team_id = (int) ( $stored->team_id ?? 0 );
+        if ( $allowed !== null && ! in_array( $team_id, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        }
+
+        $data = ( new \TT\Modules\Activities\Reports\MinutesGridQuery() )->forActivity( $activity_id );
+        if ( $data === null ) {
+            return RestResponse::error(
+                'not_a_match_activity',
+                __( 'Minutes are only recorded for match activities that are still active.', 'talenttrack' ),
+                400
+            );
+        }
+
+        return RestResponse::success( $data );
     }
 
     /**
