@@ -100,7 +100,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
-                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => $visit_id ], $base_url )
+                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => $visit_id ], $base_url ) /* tt-xview-ok */
             );
             $wizard_url = add_query_arg( [ 'from_visit' => $visit_id ], $wizard_url );
             $page_actions[] = [
