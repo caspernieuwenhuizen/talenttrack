@@ -243,6 +243,27 @@ class EnrolmentRepository {
         );
     }
 
+    /**
+     * Whether a deadline has passed on work that is not finished.
+     *
+     * The row-level twin of the `overdue` column the statistics count in
+     * SQL, kept here so the chip on a course card, the flag on a team's
+     * staff list and the roll-up cannot drift apart. Derived rather than
+     * stored: "overdue" is a comparison against now, so a stored flag
+     * would be wrong the morning after it was written.
+     */
+    public static function isOverdue( ?string $due_at, string $status ): bool {
+        if ( $due_at === null || trim( $due_at ) === '' ) {
+            return false;
+        }
+
+        if ( $status === self::STATUS_COMPLETED ) {
+            return false;
+        }
+
+        return strtotime( $due_at ) < strtotime( current_time( 'mysql' ) );
+    }
+
     public function setDueDate( int $id, ?string $due_at ): void {
         if ( $id <= 0 ) {
             return;

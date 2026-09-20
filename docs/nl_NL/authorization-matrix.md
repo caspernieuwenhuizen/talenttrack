@@ -294,10 +294,12 @@ De beslissing wordt opgelost via de matrixentiteit `team_chemistry` (`MatrixGate
 
 Omdat de matrix nu de enige bron van waarheid is, krijgen twee persona's die voorheen de ruwe leescapability hadden geen `team_chemistry`-toegang meer:
 
-- **Assistent-coaches verliezen `team_chemistry`-leestoegang.** De matrix laat `team_chemistry` weg bij `assistant_coach` (verwijderd door de redactionele beslissing #1060 "AC is operationeel, HC is ontwikkeling"). Assistent-coaches delen de WP-rol `tt_coach` met hoofdcoaches, dus de rol draagt de capability nog, maar de persona-bewuste matrixcontrole weigert hen. Hoofdcoaches (ook `tt_coach`) houden toegang via hun rij `team_chemistry [rc, team]`.
+- **Assistent-trainers verloren `team_chemistry`-leestoegang en hebben die alleen-lezen terug.** De redactionele beslissing #1060 "AC is operationeel, HC is ontwikkeling" haalde de rij weg als ontwikkelingsanalyse. De entiteit draagt ook de team**formatie** en de **blauwdruk**, dus die verwijdering nam de vorm weg waarmee de assistent-trainer werkt — hij zag de opstelling op het veld, maar niet de formatie waar die uit voortkomt. De assistent-trainer heeft nu `team_chemistry [r, team]`: alleen lezen, alleen eigen teams. Formaties, blauwdrukken en koppels opstellen blijft bij de hoofdtrainer, die `change` houdt.
 - **Alleen-lezen-waarnemers verliezen `team_chemistry`-leestoegang.** De alles-ziende waarnemer (`tt_readonly_observer`) heeft geen `team_chemistry`-matrixrij, dus de controle weigert hem. De verouderde `tt_view_team_chemistry`-roltoekenning wordt bij upgrade ingetrokken zodat de WP-capabilities samenvallen met de matrixautoriteit.
 
-Persona's die toegang houden: `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
+Persona's met toegang: `assistant_coach` (lezen, teamscope), `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
+
+Het chemiebord (voorgestelde basiself, door de trainer gemarkeerde koppels, dieptekaart) gaat samen met de formatie open voor de assistent-trainer. Dat is aanvaard en niet omzeild: één entiteit regelt beide, en ze splitsen zou een seed-entiteit toevoegen om een blik op de selectie te verbergen waar de assistent-trainer al voor staat.
 
 ### Resterende blauwdruk-oppervlakken via `TeamChemistryAccess`
 
@@ -493,7 +495,9 @@ Bij `analytics` tellen twee activiteiten:
 
 Standaard hebben **Hoofd opleiding** en **Academiebeheerder** lezen en wijzigen, globaal. Een persona die je alleen lezen geeft, bijvoorbeeld een waarnemer die de dekking mag zien, ziet de periodes in een lijst maar krijgt geen formulier om ze te wijzigen, en de API weigert de wijziging.
 
-Bestaande installaties krijgen het wijzigrecht voor die twee persona's met de update die het invoerde (migratie `0272_authorization_seed_topup_analytics_change`). Die voegt alleen die ene regel toe met `INSERT IGNORE` en laat elke rij die een beheerder heeft aangepast ongemoeid.
+**Teammanager** heeft lezen op **teamscope**. De aanwezigheidsrapporten — de risicolijst, de ranglijst en de regels per speler — hangen allemaal aan deze entiteit, en achter de spelers aangaan die trainingen blijven missen is precies waarvoor die rol bestaat. De regels die deze rapporten teruggeven worden apart afgebakend tot de teams waaraan de lezer is toegewezen, dus de grant reikt tot de eigen elftallen van de manager en niet verder. Dezelfde grant staat op de **functionele rol Manager** (zie de as hieronder), omdat een teammanager op een installatie net zo vaak een Staff-account met die rol is als een houder van de persona.
+
+Bestaande installaties krijgen het wijzigrecht voor hoofd opleiding en academiebeheerder met de update die het invoerde (migratie `0272_authorization_seed_topup_analytics_change`), en het leesrecht van de teammanager met `0277_authorization_seed_topup_manager_analytics`. Beide voegen hun regels toe met `INSERT IGNORE` en laten elke rij die een beheerder heeft aangepast ongemoeid.
 
 ## De functionele-rol-as (#3257, #3433)
 
@@ -510,7 +514,9 @@ Wat die twee mensen wél scheidt, is het werk dat ze op een elftal doen, en dat 
 | `grants` | sleutel van functionele rol → entiteit → activiteiten. Altijd op **team**scope, want een functionele rol wordt op een team gehouden; een andere scope bestaat hier niet. Wordt samengevoegd met wat de persona's van de gebruiker geven. |
 | `supersedes` | persona → de entiteiten waarvan de functionele-rollaag het antwoord bezit. Voor een gebruiker met minstens één functionele rol wordt de eigen matrixrij van die persona op die entiteiten **overgeslagen**. |
 
-Meegeleverde inhoud: `physio` geeft `player_injuries [rc]` en `measurements [r]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+Meegeleverde inhoud: `physio` geeft `player_injuries [rc]` en `measurements [r]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` en `analytics [r]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+
+`analytics [r]` op `manager` is de grant achter de aanwezigheidsrapporten. Een Staff-account met de rol Manager is de vorm die een teammanager op een installatie het vaakst heeft, en de risicolijst is het enige scherm dat de spelers benoemt die trainingen blijven missen — precies waarvoor die rol bestaat. De rapporten gelden voor de elftallen waarop de rol wordt gehouden: de regels worden hoe dan ook afgebakend door `get_teams_for_coach()`.
 
 ### Waarom `measurements` een release later volgde (#3433)
 

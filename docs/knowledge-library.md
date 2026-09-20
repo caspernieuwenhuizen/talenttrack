@@ -488,6 +488,7 @@ PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     mark read, persist t
 POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  hand in an assignment
 GET    /talenttrack/v1/submissions                          your review queue
 PATCH  /talenttrack/v1/submissions/{id}                     record a verdict
+PATCH  /talenttrack/v1/enrolments/{id}                      move or clear the deadline
 DELETE /talenttrack/v1/enrolments/{id}                      withdraw
 GET    /talenttrack/v1/people/{id}/learning                 one person's record
 ```
@@ -503,6 +504,32 @@ the stored one, `due_at_ignored: true` and a message say so: the API must not
 report a change it did not make. Moving an existing deadline is a separate
 decision, and the assign-course wizard has always said the same thing on
 screen.
+
+### Moving a deadline
+
+`PATCH /talenttrack/v1/enrolments/{id}` with `{"due_at": "2026-12-18"}` moves
+the deadline on an enrolment that already exists, and `{"due_at": null}` clears
+it. Nothing else on the row is writable: status, start date and progress are a
+record of what the person actually did, and an academy pushing a course target
+from September to December must not pay for it with everybody's progress.
+Before this route the only way to move a date was to withdraw and re-assign,
+which threw that progress away.
+
+Leaving `due_at` out of the body changes nothing and answers `200` with the
+enrolment as it stands — a partial update, so a later field can be added here
+without every caller having to resend the deadline to keep it.
+
+The date has to be a real calendar date in `YYYY-MM-DD`; anything else answers
+`400` and writes nothing. That is stricter than it looks: `2026-02-31` would
+otherwise be stored as 3 March, and `next tuesday` as no deadline at all.
+
+Same gate as withdrawing — `tt_manage_knowledge`. Moving somebody's deadline is
+the same class of act as taking them off the course, so it asks for the same
+capability. A coach cannot extend their own.
+
+Once the date is in the future the enrolment drops out of the overdue listing,
+so the overdue alert resolves on the next reconcile and the learning report
+stops counting them late against a target the academy has already dropped.
 
 A verdict is a `PATCH` on the submission rather than an `/approve` verb: the
 outcome is a field on a record, and modelling it as an action would need a
@@ -687,8 +714,45 @@ without anything failing.
 
 `TeamCourseCoverage::forTeam( $team_id, $course_slug )` answers it in one
 query, joining `tt_user_role_scopes` (staff assigned to the team) to
-`tt_course_enrolments`. A `LEFT JOIN`, deliberately: somebody who never
-started the course is the answer to the question, not a row to omit.
+`tt_course_enrolments`.
+
+**Enrolled staff only.** The list started out as a `LEFT JOIN` that reported
+anybody without an enrolment as *not started*, on the reasoning that a coach
+who never began is part of the answer. They are — but it is a different
+answer, and saying it in the enrolment vocabulary made the two
+indistinguishable. "Nobody ever asked this coach to do the course" read
+exactly like "we asked and they have not begun", and the only way to tell was
+to try enrolling the person and watch for a new row appearing.
+
+So the list is enrolment-backed, and the question it answers is *how is this
+team getting on with the course*. **Who still needs assigning** is the
+assignment wizard's question, because the wizard is the surface that can act
+on the answer. The team summary reports three numbers rather than two:
+
+| | what it counts |
+| --- | --- |
+| `total` | the team's staff who are on the course |
+| `done` | how many of those finished |
+| `assigned` | the team's active staff, on the course or not |
+
+`assigned` minus `total` is how many nobody has put on the course yet —
+`unenrolled` in the REST payload. It exists so a screen can say *nobody on
+this team is enrolled yet* rather than render an empty panel that looks
+broken. The report does exactly that, and names the assign-course wizard in
+the same sentence.
+
+Each staff row carries its `due_at` and an `is_overdue` flag derived from
+`EnrolmentRepository::isOverdue()` — the same rule the course card's chip and
+the roll-up's overdue count use, so a deadline cannot be late on one surface
+and fine on another.
+
+**One counting path.** `TeamCourseCoverage::summaryFor()` and
+`LearningStatisticsService::forCourse()` both read
+`LearningStatisticsService::countsFor()`, which takes an optional team.
+Before that the roll-up counted enrolment rows club-wide while the team view
+counted team-assigned people, and both numbers appeared in the same
+`/courses/{slug}/statistics` response — where two honest answers to two
+different questions read as a bug.
 
 **This does not join on methodology, and the epic said it would.** Building it
 showed why it cannot. `tt_principles` holds tactical game principles keyed

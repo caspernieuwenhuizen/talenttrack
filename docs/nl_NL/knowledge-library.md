@@ -500,6 +500,7 @@ PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     gelezen markeren, to
 POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  een opdracht inleveren
 GET    /talenttrack/v1/submissions                          jouw beoordelingswachtrij
 PATCH  /talenttrack/v1/submissions/{id}                     een oordeel vastleggen
+PATCH  /talenttrack/v1/enrolments/{id}                      deadline verzetten of wissen
 DELETE /talenttrack/v1/enrolments/{id}                      uitschrijven
 GET    /talenttrack/v1/people/{id}/learning                 het dossier van één persoon
 ```
@@ -516,6 +517,34 @@ deadline die niet de opgeslagen is, dan zeggen `due_at_ignored: true` en een
 bericht dat ook: de API mag geen wijziging melden die ze niet heeft
 doorgevoerd. Een bestaande deadline verzetten is een aparte beslissing, en de
 toewijswizard zegt op het scherm al hetzelfde.
+
+### Een deadline verzetten
+
+`PATCH /talenttrack/v1/enrolments/{id}` met `{"due_at": "2026-12-18"}` verzet de
+deadline op een inschrijving die al bestaat, en `{"due_at": null}` wist hem.
+Verder is niets op de rij schrijfbaar: status, startdatum en voortgang zijn een
+verslag van wat de persoon werkelijk gedaan heeft, en een academie die een
+cursusdoel van september naar december schuift mag dat niet betalen met
+andermans voortgang. Vóór deze route kon een datum alleen verzet worden door
+uit te schrijven en opnieuw toe te wijzen, en dat gooide die voortgang weg.
+
+`due_at` weglaten uit de body verandert niets en levert `200` op met de
+inschrijving zoals ze is — een gedeeltelijke update, zodat hier later een veld
+bij kan zonder dat elke aanroeper de deadline moet meesturen om hem te behouden.
+
+De datum moet een bestaande kalenderdatum in `YYYY-MM-DD` zijn; al het andere
+levert `400` op en schrijft niets. Strenger dan het lijkt: `2026-02-31` zou
+anders als 3 maart worden opgeslagen, en `next tuesday` als helemaal geen
+deadline.
+
+Dezelfde poort als uitschrijven — `tt_manage_knowledge`. Iemands deadline
+verzetten is dezelfde soort handeling als hem van de cursus halen, dus vraagt
+het om dezelfde bevoegdheid. Een trainer kan zijn eigen deadline niet oprekken.
+
+Zodra de datum in de toekomst ligt, valt de inschrijving uit de lijst met
+achterstallige inschrijvingen: de melding lost bij de volgende reconcile op en
+het leerrapport telt de persoon niet langer als te laat voor een doel dat de
+academie al heeft laten vallen.
 
 Een oordeel is een `PATCH` op de inzending en geen `/approve`-werkwoord: de
 uitkomst is een veld op een record, en het als actie modelleren zou een tweede
@@ -711,8 +740,46 @@ zonder dat er iets faalt.
 
 `TeamCourseCoverage::forTeam( $team_id, $course_slug )` beantwoordt het in één
 query, met `tt_user_role_scopes` (staf gekoppeld aan het team) tegen
-`tt_course_enrolments`. Bewust een `LEFT JOIN`: wie nooit begonnen is, ís het
-antwoord op de vraag en geen rij om weg te laten.
+`tt_course_enrolments`.
+
+**Alleen ingeschreven staf.** De lijst begon als een `LEFT JOIN` die iedereen
+zonder inschrijving als *niet begonnen* rapporteerde, met als redenering dat
+een trainer die nooit begon bij het antwoord hoort. Dat klopt — maar het is
+een ánder antwoord, en het in de inschrijvingswoordenschat uitdrukken maakte
+de twee ononderscheidbaar. "Niemand heeft deze trainer ooit voor de cursus
+aangemeld" las precies als "we hebben het gevraagd en hij is niet begonnen",
+en het enige onderscheid was iemand proberen in te schrijven en kijken of er
+een nieuwe rij verscheen.
+
+De lijst is dus inschrijvingsgebaseerd, en de vraag die ze beantwoordt is
+*hoe vergaat het dit team met de cursus*. **Wie nog toegewezen moet worden**
+is de vraag van de toewijswizard, want dat is het scherm dat er iets aan kan
+doen. De teamsamenvatting geeft drie getallen in plaats van twee:
+
+| | wat het telt |
+| --- | --- |
+| `total` | de staf van het team die op de cursus zit |
+| `done` | hoeveel daarvan afgerond hebben |
+| `assigned` | de actieve staf van het team, op de cursus of niet |
+
+`assigned` min `total` is hoeveel mensen nog nergens op ingeschreven staan —
+`unenrolled` in de REST-payload. Dat bestaat zodat een scherm *niemand van
+dit team is nog ingeschreven* kan zeggen in plaats van een leeg paneel te
+tonen dat kapot lijkt. Het rapport doet precies dat, en noemt in dezelfde zin
+de toewijswizard.
+
+Elke stafrij draagt zijn `due_at` en een `is_overdue`-vlag, afgeleid uit
+`EnrolmentRepository::isOverdue()` — dezelfde regel als de chip op de
+cursuskaart en de achterstandsteller in het overzicht, zodat een deadline
+niet op het ene scherm te laat en op het andere op tijd kan zijn.
+
+**Eén telpad.** `TeamCourseCoverage::summaryFor()` en
+`LearningStatisticsService::forCourse()` lezen allebei
+`LearningStatisticsService::countsFor()`, dat optioneel een team meekrijgt.
+Daarvóór telde het overzicht clubbrede inschrijvingsrijen en de teamweergave
+aan het team gekoppelde personen, en stonden beide getallen in dezelfde
+`/courses/{slug}/statistics`-response — waar twee eerlijke antwoorden op twee
+verschillende vragen als een fout lezen.
 
 **Dit koppelt niet op methodiek, en het epic zei van wel.** Bij het bouwen
 bleek waarom dat niet kan. `tt_principles` bevat tactische spelprincipes met

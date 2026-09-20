@@ -68,11 +68,42 @@ class AuthorizationService {
     /** @var array<string, bool> */
     private static $cache_decisions = [];
 
+    /**
+     * #3644 — matrix answers for the legacy permission vocabulary, keyed
+     * `user|permission|scope_type|scope_id`. Same request lifetime as
+     * `$cache_scopes`, cleared by the same `flushCache()`.
+     *
+     * @var array<string, bool>
+     */
+    private static $cache_matrix = [];
+
+    /**
+     * #3644 — legacy permission string → the `(entity, activity)` tuple
+     * that says the same thing in the authorization matrix.
+     *
+     * Read activities only, on purpose — see `matrixGrants()`. A
+     * permission absent from this map is answered by the scope sources
+     * alone, exactly as before.
+     *
+     * @var array<string, array{0:string,1:string}>
+     */
+    private const MATRIX_PERMISSION_MAP = [
+        'players.view'              => [ 'players',     'read' ],
+        // The guardian path. The seed grants the parent `players [r, player]`,
+        // which is the same statement in the matrix's vocabulary; the scope
+        // check keeps it to their own children.
+        'players.view_own_children' => [ 'players',     'read' ],
+        'evaluations.view'          => [ 'evaluations', 'read' ],
+        'people.view'               => [ 'people',      'read' ],
+        'team.view'                 => [ 'team',        'read' ],
+    ];
+
     public static function flushCache(): void {
         self::$cache_person = [];
         self::$cache_team_roles = [];
         self::$cache_scopes = [];
         self::$cache_decisions = [];
+        self::$cache_matrix = [];
 
         // #3257 — the functional-role grant layer caches a user's team /
         // role assignments per request, and `tt_person_assigned_to_team`
@@ -420,6 +451,11 @@ class AuthorizationService {
      *
      * The `*.*` wildcard permission matches every permission string.
      * The `<domain>.*` wildcard matches any action within that domain.
+     *
+     * #3644 — two authorities answer this question, and until now only one
+     * of them was asked. The scope sources come first (they are the older,
+     * richer vocabulary); the authorization matrix answers last, for the
+     * read permissions it has an equivalent for. See `matrixGrants()`.
      */
     public static function userHasPermission( int $user_id, string $permission, ?string $scope_type = null, ?int $scope_id = null ): bool {
         if ( $user_id <= 0 ) return false;
@@ -438,7 +474,6 @@ class AuthorizationService {
         if ( user_can( $user_id, 'tt_head_dev' ) ) return true;
 
         $scopes = self::resolveScopesForUser( $user_id );
-        if ( empty( $scopes ) ) return false;
 
         foreach ( $scopes as $scope ) {
             // Scope must match: global always applies; specific scopes must
@@ -459,7 +494,62 @@ class AuthorizationService {
             }
         }
 
-        return false;
+        // #3644 — and then the authorization matrix, which this path never
+        // asked. See `matrixGrants()`.
+        return self::matrixGrants( $user_id, $permission, $scope_type, $scope_id );
+    }
+
+    /**
+     * #3644 — the second authority, which this path used to ignore.
+     *
+     * `resolveScopesForUser()` reads `tt_user_role_scopes`, the
+     * functional-role mapping and the derived player/parent links. A
+     * persona granted purely through `config/authorization_seed.php` has
+     * none of those, so it resolved to no scopes and every per-record
+     * decision came back false — while the bulk exports, which gate on the
+     * raw capability the matrix bridge answers, let the same user through.
+     * The read-only observer is the seat that surfaced it: academy-wide
+     * evaluations in a spreadsheet, 403 on one player's page.
+     *
+     * The fix is the matrix, not a role-name shortcut for that one seat.
+     * Any persona whose grant lives only in the seed hits the same wall,
+     * and naming `tt_readonly_observer` here would fix the report and leave
+     * the class of defect behind it.
+     *
+     * **Deliberately read-only.** The map below carries the `read`
+     * activities and nothing else. This issue is about reads being
+     * refused; bridging `change` or `create_delete` would be a widening
+     * nobody asked for, on the side where a mistake writes to a child's
+     * record. A write permission that belongs here is its own decision.
+     *
+     * @param string|null $scope_type 'team' or 'player' when the caller has a target.
+     */
+    private static function matrixGrants( int $user_id, string $permission, ?string $scope_type, ?int $scope_id ): bool {
+        $tuple = self::MATRIX_PERMISSION_MAP[ $permission ] ?? null;
+        if ( $tuple === null ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        // Same request-lifetime caching contract as `self::$cache_scopes`:
+        // `flushCache()` clears both.
+        $key = $user_id . '|' . $permission . '|' . (string) $scope_type . '|' . (int) $scope_id;
+        if ( isset( self::$cache_matrix[ $key ] ) ) return self::$cache_matrix[ $key ];
+
+        [ $entity, $activity ] = $tuple;
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+
+        $allowed = $gate::can( $user_id, $entity, $activity, $gate::SCOPE_GLOBAL );
+
+        if ( ! $allowed
+            && $scope_type !== null
+            && $scope_id !== null
+            && $scope_id > 0
+            && in_array( $scope_type, [ $gate::SCOPE_TEAM, $gate::SCOPE_PLAYER ], true )
+        ) {
+            $allowed = $gate::can( $user_id, $entity, $activity, $scope_type, $scope_id );
+        }
+
+        self::$cache_matrix[ $key ] = $allowed;
+        return $allowed;
     }
 
     /**

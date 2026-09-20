@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Definitions;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Alerts\Contracts\AudienceAwareAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -34,8 +35,15 @@ use TT\Shared\Frontend\Components\RecordLink;
  * in `tt_config`, defaulting to 45 days after the file was opened. Firing on
  * a file created yesterday would be nagging a coach about work they have not
  * had a chance to do.
+ *
+ * #3795 — the family may switch this on too. The occurrence states only
+ * that the conversation has not happened; nothing from the file, the plan
+ * or any conversation that was held travels with it, and the family's copy
+ * links to their child's record rather than to the PDP file.
  */
-final class PdpNoConversationAlert extends AbstractPlayerAlert {
+final class PdpNoConversationAlert extends AbstractPlayerAlert implements AudienceAwareAlert {
+
+    use FamilyAudienceTrait;
 
     public const SUBJECT_TYPE = 'pdp_file';
 
@@ -104,12 +112,25 @@ final class PdpNoConversationAlert extends AbstractPlayerAlert {
         );
     }
 
+    protected function familyTitleFor( object $row ): string {
+        return sprintf(
+            /* translators: %s: player name */
+            __( '%s has not had a PDP conversation this cycle yet.', 'talenttrack' ),
+            $this->playerName( $row )
+        );
+    }
+
     /** @return array<string,mixed> */
     protected function payloadFor( object $row ): array {
         return [
             'season_name'      => (string) ( $row->season_name ?? '' ),
             'cycle_started_at' => (string) ( $row->cycle_started_at ?? '' ),
         ];
+    }
+
+    /** @return array<string,mixed> */
+    protected function familyPayloadFor( object $row ): array {
+        return [ 'season_name' => (string) ( $row->season_name ?? '' ) ];
     }
 
     /** @return list<object> */

@@ -44,6 +44,26 @@ uncommitted to cancel. Adding still needs Save, deliberately — nothing
 should be able to leave an empty goal on a player's file just because you
 opened the form and changed your mind.
 
+### The conversation records what you change
+
+Three fields on a goal are things the player and their family plan
+around, so a change to one of them writes a line into the goal's
+[conversation](conversational-goals.md): the **title**, the **target
+date** and the **progress** percentage. The entry is terse — *Target
+date changed to: 19 November 2026* — and sits in the thread alongside
+the goal-created and status-change entries.
+
+Changing two or three of them in one sitting writes **one** entry
+listing all of them, not one per field. Because the edit form
+autosaves, an entry stays open for a few minutes while you keep
+working: nudging the progress slider four times amends the same line to
+where you ended up instead of leaving four lines behind you. Save a
+field with the value it already had and nothing is written at all, and
+a value you move and then move back takes its entry with it.
+
+Changes to other fields — description, priority, linked principles,
+evidence — are not recorded in the conversation.
+
 ## Tracking progress
 
 Update the status and description over time as the player makes progress. The **Status** filter on the Goals list groups goals into **Active**, **Achieved** and **Missed**, and defaults to Active so the list opens on what's still being worked on. Archived goals are separate from that: the list opens on unarchived goals, and the **⋯** button at the end of the filter row switches to the archived ones.

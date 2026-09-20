@@ -115,22 +115,23 @@ final class KnowledgeChrome {
     /**
      * Whether an enrolment is past its due date.
      *
-     * Read here rather than stored: `due_at` is a date and "overdue" is a
-     * comparison against now, so a stored flag would be wrong the morning
-     * after it was written.
+     * The rule itself lives on `EnrolmentRepository`, so the chip here, the
+     * flag on a team's staff list and the roll-up's overdue count all
+     * answer from one implementation (CLAUDE.md §4).
      *
      * @param object|null $enrolment
      */
     public static function isOverdue( ?object $enrolment ): bool {
-        if ( $enrolment === null || empty( $enrolment->due_at ) ) {
+        if ( $enrolment === null ) {
             return false;
         }
 
-        if ( (string) $enrolment->status === EnrolmentRepository::STATUS_COMPLETED ) {
-            return false;
-        }
+        $row = (array) $enrolment;
 
-        return strtotime( (string) $enrolment->due_at ) < strtotime( current_time( 'mysql' ) );
+        return EnrolmentRepository::isOverdue(
+            isset( $row['due_at'] ) && is_string( $row['due_at'] ) ? $row['due_at'] : null,
+            isset( $row['status'] ) ? (string) $row['status'] : ''
+        );
     }
 
     private static function chip( string $kind, string $label ): void {
