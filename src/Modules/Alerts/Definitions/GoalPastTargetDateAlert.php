@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Definitions;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Alerts\Contracts\AudienceAwareAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -33,8 +34,15 @@ use TT\Shared\Frontend\Components\RecordLink;
  * tidy-up rather than an alert. Without the second bound, the first sweep
  * after this ships returns every stale goal the academy ever wrote and
  * buries the handful still worth acting on.
+ *
+ * #3795 — the family may switch this on too. A goal is written with the
+ * player and their parents can already read it; the date passing is the one
+ * moment the plan stops describing what happens next, and a family that can
+ * see it can ask about it instead of chasing.
  */
-final class GoalPastTargetDateAlert extends AbstractPlayerAlert {
+final class GoalPastTargetDateAlert extends AbstractPlayerAlert implements AudienceAwareAlert {
+
+    use FamilyAudienceTrait;
 
     public const SUBJECT_TYPE = 'goal';
 
@@ -113,8 +121,28 @@ final class GoalPastTargetDateAlert extends AbstractPlayerAlert {
         );
     }
 
+    protected function familyTitleFor( object $row ): string {
+        $goal = trim( (string) ( $row->goal_title ?? '' ) );
+        if ( $goal === '' ) $goal = __( 'Untitled goal', 'talenttrack' );
+
+        return sprintf(
+            /* translators: 1: player name, 2: goal title */
+            __( '%1$s\'s goal "%2$s" is past its target date and still open.', 'talenttrack' ),
+            $this->playerName( $row ),
+            $goal
+        );
+    }
+
     /** @return array<string,mixed> */
     protected function payloadFor( object $row ): array {
+        return [
+            'goal_title' => (string) ( $row->goal_title ?? '' ),
+            'due_date'   => (string) ( $row->due_date ?? '' ),
+        ];
+    }
+
+    /** @return array<string,mixed> */
+    protected function familyPayloadFor( object $row ): array {
         return [
             'goal_title' => (string) ( $row->goal_title ?? '' ),
             'due_date'   => (string) ( $row->due_date ?? '' ),

@@ -3,6 +3,7 @@ namespace TT\Modules\Tournaments\Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -73,6 +74,10 @@ final class ReviewStep implements WizardStepInterface {
         echo '<a href="#" class="ttw-edit-link" data-ttw-jump="matches">' . esc_html__( 'Edit', 'talenttrack' ) . '</a>';
         echo '<h3 class="ttw-card-title">' . esc_html__( 'Matches', 'talenttrack' ) . ' <span class="ttw-pill">' . esc_html( (string) $match_count ) . '</span></h3>';
         if ( $matches ) {
+            // #3713 — the summary repeats the opponent level the matches step
+            // captured; resolve the stored key to its translated label, and
+            // fall back to the key for an untranslated operator-added level.
+            $level_labels = QueryHelpers::get_lookup_label_pairs( 'tournament_opponent_level' );
             echo '<ol class="ttw-review-matches">';
             foreach ( $matches as $i => $m ) {
                 $headline = (string) ( $m['label'] ?? '' );
@@ -88,7 +93,7 @@ final class ReviewStep implements WizardStepInterface {
                     $meta_bits[] = __( 'no subs', 'talenttrack' );
                 }
                 $level = (string) ( $m['opponent_level'] ?? '' );
-                if ( $level !== '' ) $meta_bits[] = $level;
+                if ( $level !== '' ) $meta_bits[] = $level_labels[ $level ] ?? $level;
                 echo '<li>';
                 echo '<span class="ttw-seq">' . (int) ( $i + 1 ) . '</span>';
                 echo '<span class="ttw-name">' . esc_html( $headline ) . '</span>';

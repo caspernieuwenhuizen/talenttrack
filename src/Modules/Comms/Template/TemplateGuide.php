@@ -37,6 +37,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * **Keep this honest.** When a trigger is wired, flip the flag in the
  * same PR. The value is verifiable: a template with a trigger has a
  * call site that names its key outside `src/Modules/Comms/Templates/`.
+ *
+ * #3814 — three flags said `false` about templates a listener had been
+ * firing for releases, which is the worst way round: an operator reads
+ * "ticking it changes nothing", cancels a training, and assumes the
+ * squad still has to be told by hand. `CommsTemplateGuideTriggeredTest`
+ * now pins the half of that claim a machine can check — every
+ * `Send\*` listener registered in `CommsModule::boot()` must have its
+ * template marked triggered, and one that is not registered must not be.
  */
 final class TemplateGuide {
 
@@ -139,7 +147,7 @@ final class TemplateGuide {
                 'what'      => __( 'Tells everyone expected at a training that it is off.', 'talenttrack' ),
                 'who'       => __( 'The players in the squad and their parents, plus the staff assigned to it.', 'talenttrack' ),
                 'when'      => __( 'When a training is cancelled.', 'talenttrack' ),
-                'triggered' => false,
+                'triggered' => true,
             ],
             'schedule_change_from_spond' => [
                 'family'    => self::FAMILY_URGENT,
@@ -235,7 +243,7 @@ final class TemplateGuide {
                 'what'      => __( 'Says a development plan or evaluation is finished and ready to read.', 'talenttrack' ),
                 'who'       => __( 'The player and their parents.', 'talenttrack' ),
                 'when'      => __( 'When a plan or evaluation is published.', 'talenttrack' ),
-                'triggered' => false,
+                'triggered' => true,
             ],
             'parent_meeting_invite' => [
                 'family'    => self::FAMILY_MILESTONE,
@@ -249,7 +257,7 @@ final class TemplateGuide {
                 'what'      => __( 'Shares an activity plan or a piece of the academy methodology with a coach.', 'talenttrack' ),
                 'who'       => __( 'The coaching staff it was shared with.', 'talenttrack' ),
                 'when'      => __( 'When a plan is delivered to a coach.', 'talenttrack' ),
-                'triggered' => false,
+                'triggered' => true,
             ],
 
             // -- Reminders and summaries --------------------------------

@@ -558,6 +558,129 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
         wp_delete_user( $other_user );
     }
 
+    /**
+     * #3708 — the deadline moves, and nothing else on the row does. An
+     * academy that pushes a staff course target from September to December
+     * must not pay for it with everybody's progress.
+     */
+    public function test_rest_patch_moves_the_deadline_and_leaves_progress_alone(): void {
+        wp_set_current_user( $this->user_id );
+
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE, [ 'due_at' => '2026-09-07' ] );
+        $repo->markStarted( $id );
+
+        $started = $repo->find( $id )->started_at;
+
+        $response = rest_get_server()->dispatch( $this->dueDateRequest( $id, '2026-12-18' ) );
+        $data     = $response->get_data()['data'];
+
+        $this->assertSame( 200, $response->get_status() );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-12-18' ), $data['due_at'] );
+
+        $stored = $repo->find( $id );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-12-18' ), $stored->due_at );
+        $this->assertSame( EnrolmentRepository::STATUS_IN_PROGRESS, $stored->status );
+        $this->assertSame( $started, $stored->started_at, 'Moving a deadline must not rewrite when they started.' );
+    }
+
+    /** #3708 — an explicit null is "no deadline", not "leave it alone". */
+    public function test_rest_patch_with_null_clears_the_deadline(): void {
+        wp_set_current_user( $this->user_id );
+
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE, [ 'due_at' => '2026-09-07' ] );
+
+        $response = rest_get_server()->dispatch( $this->dueDateRequest( $id, null ) );
+
+        $this->assertSame( 200, $response->get_status() );
+        $this->assertNull( $response->get_data()['data']['due_at'] );
+        $this->assertNull( $repo->find( $id )->due_at );
+    }
+
+    /**
+     * #3708 — the partial-update contract (CLAUDE.md §6). A body that says
+     * nothing about `due_at` leaves the stored one where it was; the
+     * alternative is a deadline quietly vanishing every time some other
+     * field is patched.
+     */
+    public function test_rest_patch_omitting_due_at_leaves_the_row_alone(): void {
+        wp_set_current_user( $this->user_id );
+
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE, [ 'due_at' => '2026-09-07' ] );
+
+        $request = new WP_REST_Request( 'PATCH', '/talenttrack/v1/enrolments/' . $id );
+        $request->set_param( 'note', 'nothing to do with the deadline' );
+
+        $response = rest_get_server()->dispatch( $request );
+
+        $this->assertSame( 200, $response->get_status() );
+        $this->assertSame( EnrolmentRepository::normaliseDate( '2026-09-07' ), $repo->find( $id )->due_at );
+    }
+
+    /**
+     * #3708 — a date that does not exist is refused rather than rolled
+     * forward. `strtotime( '2026-02-31' )` returns 3 March, which would
+     * store a deadline nobody asked for.
+     */
+    public function test_rest_patch_rejects_a_malformed_date_and_writes_nothing(): void {
+        wp_set_current_user( $this->user_id );
+
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE, [ 'due_at' => '2026-09-07' ] );
+
+        foreach ( [ 'next tuesday', '18-12-2026', '2026-02-31' ] as $bad ) {
+            $response = rest_get_server()->dispatch( $this->dueDateRequest( $id, $bad ) );
+
+            $this->assertSame( 400, $response->get_status(), $bad . ' should be refused.' );
+            $this->assertSame( EnrolmentRepository::normaliseDate( '2026-09-07' ), $repo->find( $id )->due_at );
+        }
+    }
+
+    /** #3708 — an unknown enrolment is a 404, not a silent success. */
+    public function test_rest_patch_on_an_unknown_enrolment_is_404(): void {
+        wp_set_current_user( $this->user_id );
+
+        $response = rest_get_server()->dispatch( $this->dueDateRequest( 999999, '2026-12-18' ) );
+
+        $this->assertSame( 404, $response->get_status() );
+    }
+
+    /** #3708 — same gate as the DELETE sibling: moving a deadline is management. */
+    public function test_rest_patch_requires_the_manage_capability(): void {
+        $id = ( new EnrolmentRepository() )->enrol( $this->person_id, self::COURSE );
+
+        $other_user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        get_user_by( 'id', $other_user )->add_cap( 'tt_view_knowledge' );
+        wp_set_current_user( $other_user );
+
+        $response = rest_get_server()->dispatch( $this->dueDateRequest( $id, '2026-12-18' ) );
+
+        $this->assertSame( 403, $response->get_status() );
+
+        wp_delete_user( $other_user );
+    }
+
+    /**
+     * #3708 — an enrolment moved into the future drops out of the overdue
+     * listing the alerts and the learning report read.
+     */
+    public function test_moving_a_deadline_forward_drops_it_from_the_overdue_listing(): void {
+        wp_set_current_user( $this->user_id );
+
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE, [ 'due_at' => '2020-01-01' ] );
+
+        $overdue = array_map( static fn( $row ) => (int) $row->id, $repo->listOverdue() );
+        $this->assertContains( $id, $overdue );
+
+        rest_get_server()->dispatch( $this->dueDateRequest( $id, gmdate( 'Y-m-d', time() + YEAR_IN_SECONDS ) ) );
+
+        $overdue = array_map( static fn( $row ) => (int) $row->id, $repo->listOverdue() );
+        $this->assertNotContains( $id, $overdue );
+    }
+
     public function test_rest_withdraw_requires_the_manage_capability(): void {
         $id = ( new EnrolmentRepository() )->enrol( $this->person_id, self::COURSE );
 
@@ -592,6 +715,14 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
     private function deletePerson( int $person_id ): void {
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_people', [ 'id' => $person_id ] );
+    }
+
+    /** A `PATCH /enrolments/{id}` carrying a deadline — `null` clears it. */
+    private function dueDateRequest( int $enrolment_id, ?string $due_at ): WP_REST_Request {
+        $request = new WP_REST_Request( 'PATCH', '/talenttrack/v1/enrolments/' . $enrolment_id );
+        $request->set_param( 'due_at', $due_at );
+
+        return $request;
     }
 
     private function assignRequest( int $person_id, string $due_at ): WP_REST_Request {

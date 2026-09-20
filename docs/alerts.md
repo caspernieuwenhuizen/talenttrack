@@ -119,6 +119,19 @@ It is **not** a fault, and it is deliberately quiet: a badge, never a banner. Sw
 
 One thing it does *not* mean: invitations still work. The email that lets a new coach, player or parent set up their account is account plumbing rather than one of these messages, so it is sent whatever this alert says.
 
+### For families
+
+Two alerts exist only for parents and guardians, about their own child.
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **New evaluation shared with the family** | Feedback on an evaluation of your child has been shared with you. | *Where is this player now?* — asked by the people who were checking by hand every Sunday because nothing ever told them anything had changed. |
+| **A goal for your child was updated** | A development goal on your child's plan has changed since it was written — its status, its target date or its wording. | *What does this player need next?* The family reads the same goal the coach does; when it moves, the answer to that question has moved with it. |
+
+**The evaluation alert appears only once staff have shared something, never when the evaluation is written.** That is the point of it. An evaluation is recorded days or weeks before anybody decides the player and their family should read it, and an alert that arrived on the save would tell a family that an assessment of their child exists before the academy chose to release it. Nothing is announced until the player-facing feedback has been written.
+
+Both are new information rather than problems, so they appear quietly and clear themselves after a fortnight.
+
 That completes the alert catalogue for now. They arrive one module at a time, and each release names the alerts it adds — see "New alerts arrive switched on" below.
 
 ### Settings that change when these alerts fire
@@ -142,6 +155,8 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_player_without_team_grace_days` | 7 days | How long a newly added player may sit without a team before the alert appears. Assigning the squad is often the next step in the same sitting. |
 | `alerts_invitation_stale_days` | 14 days | How long a player or staff invitation may sit unaccepted, counted from the day it was sent, before the alert appears. |
 | `alerts_invitation_unsent_days` | 1 day | How long an invitation may sit created but unsent before the alert appears. Held for the first hours is the feature working — you are still adding people. Raise it if your academy prepares invitations over several days. |
+| `alerts_eval_shared_recent_days` | 14 days | How long newly shared feedback stays news for the family. After that the alert clears itself, the way an unread notification stops being new. |
+| `alerts_goal_updated_recent_days` | 14 days | How long a change to a goal stays news for the family. |
 
 ## New alerts arrive switched on
 
@@ -159,6 +174,27 @@ Heads of Development and academy admins do **not** receive an alert for every te
 
 You also only ever receive an alert about a record you have permission to see. This is re-checked every hour, so a coach who moves off a team stops receiving that team's alerts without anyone having to remember to remove them.
 
+### Parents and guardians
+
+A parent's alert settings used to list the whole catalogue — certificates expiring, teams without a head coach, invitations waiting to be sent. None of it was about their child and none of it was theirs to do anything about, which is a good way to teach a family to switch the lot off.
+
+A parent now sees **six** alerts, all of them about their own linked child and nothing else:
+
+| Alert | Why a family gets it |
+| --- | --- |
+| **Player not evaluated recently** | Nothing has been written down about your child for a while. |
+| **Evaluation not shared with the player** | An evaluation exists and no feedback has been written for you yet. |
+| **New evaluation shared with the family** | Feedback has been shared — the one that announces good news rather than a gap. |
+| **Goal past its target date** | A goal on the plan has passed the date it was aimed at. |
+| **A goal for your child was updated** | Something on the plan changed since it was written. |
+| **No PDP conversation this cycle** | The conversation the academy committed to has not happened yet. |
+
+Four of those are the same alerts a coach gets. What a family reads is written for a family: the fact, the child's name, and nothing else. No ratings, no internal notes, no coach's name — and the link goes to your own child's record rather than to a staff screen. The alert changes *when* you look, never *what* you may see.
+
+**A parent is told about their own linked children and nobody else's.** That link is the one in the child's record, re-checked on every hourly run, and it ends when the player is released.
+
+These are switched on the same way as everything else, under **Account → Alert settings**, and email digests stay off until you ask for them.
+
 ## When an alert disappears
 
 Fix the thing an alert is about and the alert goes as soon as you save. Mark the activity completed, record the attendance, assign the head coach — the next screen you land on no longer shows it. You do not confirm anything and there is no "done" button; the alert was only ever a description of your data, and the description stopped being true.
@@ -169,7 +205,7 @@ The one case where you may still wait is a bulk change — importing players, ro
 
 ## Choosing which alerts you see
 
-**Account → Alert settings** lists every alert, grouped by the part of the system it comes from, with a tick per place it can appear:
+**Account → Alert settings** lists every alert that can reach you, grouped by the part of the system it comes from, with a tick per place it can appear. Staff see the whole catalogue; a parent sees the six about their own child (see "Parents and guardians" above).
 
 - **In the bell** — counted in the number top right.
 - **Banner on the dashboard** — a bar at the top of the page.
