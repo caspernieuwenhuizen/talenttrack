@@ -527,7 +527,7 @@ class EvaluationsRestController {
      * `player_id` never reached a scope check at all, so the row's own
      * player went unverified on update and archive.
      */
-    private static function write_refusal( int $eval_id ) {
+    private static function write_refusal( int $eval_id ): ?\WP_REST_Response {
         if ( current_user_can( 'tt_edit_settings' ) ) return null;
         $player_id = self::evaluation_player_id( $eval_id );
         if ( $player_id > 0 && ! QueryHelpers::coach_owns_player( get_current_user_id(), $player_id ) ) {
