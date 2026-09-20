@@ -1,0 +1,53 @@
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Consent on file"
+msgstr "Toestemming vastgelegd"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "No consent, %d media item"
+msgid_plural "No consent, %d media items"
+msgstr[0] "Geen toestemming, %d mediabestand"
+msgstr[1] "Geen toestemming, %d mediabestanden"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "No consent"
+msgstr "Geen toestemming"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "Has media, no consent"
+msgstr "Heeft media, geen toestemming"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "No consent recorded"
+msgstr "Geen toestemming vastgelegd"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "No consent on record"
+msgstr "Geen toestemming vastgelegd"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "On record, %1$s by %2$s"
+msgstr "Vastgelegd op %1$s door %2$s"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "On record, %s"
+msgstr "Vastgelegd op %s"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record."
+msgstr "Toestemming voor foto en video: vastgelegd."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record, %1$s by %2$s."
+msgstr "Toestemming voor foto en video: vastgelegd op %1$s door %2$s."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record, %s."
+msgstr "Toestemming voor foto en video: vastgelegd op %s."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid ""
+"Photo and video consent: not recorded. Anything here may still be shown — "
+"ask before using it outside the club."
+msgstr ""
+"Toestemming voor foto en video: niet vastgelegd. Alles hier blijft zichtbaar "
+"— vraag het na voordat je het buiten de club gebruikt."

@@ -670,6 +670,9 @@ class FrontendMySettingsView extends FrontendViewBase {
             // #3666 — how many minutes you played, and in which matches.
             'minutes'      => __( 'Playing time', 'talenttrack' ),
             'pdp'          => __( 'Development plan (PDP)', 'talenttrack' ),
+            // #3560 — the tournament days you played and your minutes in
+            // them. Beside Playing time, because it is the same number.
+            'tournaments'  => __( 'Tournaments', 'talenttrack' ),
             // #2500 — minutes trained per principle, and which ones have
             // never been trained.
             'training'     => __( 'Training history', 'talenttrack' ),

@@ -35,11 +35,18 @@ class PlayerParentVisibilityRepository {
      * home. Giving them the same control they have over their
      * evaluations is the point of the list.
      *
+     * #3560 (epic #3558) — `tournaments` joins on the reasoning the
+     * `minutes` entry sets out, because it is the same number told a
+     * different way. A tournament day is where a young player's share of
+     * the pitch is most visible and most compared, so the control they
+     * have over their playing time should not stop at the edge of a
+     * tournament.
+     *
      * No migration is needed to add a key: a player with no row for a
      * section is treated as sharing it (`preferencesForPlayer()`), so
      * every existing parent keeps today's access.
      */
-    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'minutes', 'pdp', 'training' ];
+    public const SECTIONS = [ 'evaluations', 'goals', 'journey', 'measurements', 'minutes', 'pdp', 'tournaments', 'training' ];
 
     private function table(): string {
         global $wpdb;

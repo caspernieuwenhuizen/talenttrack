@@ -30,6 +30,9 @@ That is not a display rule that a future screen might forget. The gate lives in 
 The **PDP** tile opens on a single **player-centric list** for the current season instead of a bare list of files. It starts from the player (CLAUDE.md §1): every player you coach is shown once, with a clear indicator of whether their PDP **for this season** exists yet.
 
 - If you span **more than one team** (or have global scope), you first pick a team — *"Select a team to see its players."* — so you start scoped rather than facing every player at once. A coach with a single team skips straight to their roster.
+- Above that choice sits **PDP coverage by team**: one row per team with the number of players, how many have a plan, how many have actually had a conversation, how many talks are booked in the next four weeks, and how many talks a parent has signed. **Teams with the fewest players talked to come first**, because that is the team you are looking for. Each team name is a link straight into that team's roster.
+ - "With a plan" and "Talked to" are different questions and the gap between them is the point: a team where every player has a file and nobody has sat down yet reads as fully covered on the summary line and is the team that needs chasing.
+ - The parent column counts talks a **parent has signed**. Nothing records who was in the room, so this is the nearest fact the product holds; it is not an attendance register.
 - A summary line at the top reads, for example, *"14 of 18 players have a PDP for the current season (2025/26)."* It counts the same players as the list underneath: a head of development or anyone else who reads every player's PDP counts the whole team, and a coach counts only their own players.
 - Each row shows the **player** (linked to their record), their **team**, and a **PDP this season** status:
  - **Created** — a green *PDP ✓* pill, with conversation progress where available (e.g. *PDP ✓ 1/3*), linking straight to the file.
@@ -39,7 +42,9 @@ The **PDP** tile opens on a single **player-centric list** for the current seaso
 - The **⋯** button at the end of the filter row (for operators who can unarchive or delete) switches the list to the players whose PDP for the season is **archived**, with per-row **Restore** / permanent-delete. This replaces the old separate Files tab — archived files now live in the same list.
 - Clicking a covered row opens the player's PDP file; clicking a missing row jumps into the create flow.
 
-The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `team_id` or `filter[team_id]`, `search`, `only_missing`, `archived`), so a future front end gets the same answer.
+- **Who has not had their talk** — `conducted=0` narrows the list to players with no conducted conversation, including players with no file at all. That last part is deliberate: a player with nothing is the worst case, and a filter built to find people who have not been spoken to must not hide them.
+
+The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `team_id` or `filter[team_id]`, `search`, `only_missing`, `conducted`, `archived`), so a future front end gets the same answer. Its `summary` block carries the headline `total` / `covered` and a `by_team` breakdown with the same five numbers as the screen. Both are computed over the whole filtered scope rather than the page on display — a total that changes when you turn the page is not a total — and both ignore `only_missing` and `conducted`, which narrow a list to look at rather than change what the academy's coverage is.
 
 ## The flow
 

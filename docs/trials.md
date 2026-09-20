@@ -56,6 +56,14 @@ The **Execution** tab on the case page aggregates everything that happens during
 
 If the period needs to be extended, the **Extend trial** button on Overview asks for a new end date and a mandatory justification note. Each extension is logged with who, when, and why.
 
+#### The case tells you what it is waiting for
+
+The **Assigned staff** card on Overview shows each panellist with whether they have handed their input in — *Submitted <date>* or *No input yet*. That state is only shown to people who may already read the case's aggregation; an assigned coach whose only job is to write their own input sees the roster without it.
+
+When the trial is close to its end date and no decision has been recorded, a **Deadline** banner appears under the hero saying how long is left — or how long ago the window closed. It disappears by itself as soon as the decision is recorded or the case is extended; there is nothing to dismiss. How far ahead it starts warning is the `alerts_trial_decision_due_days` setting, three days by default.
+
+The same condition raises a **Trial ending without a decision** alert for the head of development, naming the panellists who have not submitted so you can see what the decision is waiting for. It resolves itself the moment the decision lands or the case is extended.
+
 ### 3. Collect staff input
 
 Each assigned coach has their own input form on the **Staff inputs** tab. They enter an overall rating and notes, save as draft, and submit when ready. A coach sees only their own draft until the head of development clicks **Release submitted inputs to assigned staff** — that prevents groupthink during the period and lets everyone see the picture once everyone has submitted.
@@ -169,6 +177,14 @@ An offer being made is arguably the most significant moment in a trial and still
 When you don't owe the family a formal decision — the family ghosted you, the player moved cities, the case was opened by mistake — the **Archive case** action closes the case without writing a decision row or generating a letter. It's available from the header action bar on the case page (manager / head-of-development cap required). The case stays in the database (you can still find it by searching archived cases); it just stops counting as open work.
 
 If you archive a case that should have had a decision and then realise the family is willing to talk after all, an admin can un-archive from the wp-admin trial-cases list.
+
+## Reading a decision back
+
+Once a decision is recorded, the **Decision** tab on the case stops being a form and becomes the record of what was decided: the outcome, when it was recorded, **who** recorded it, and the motivation they wrote.
+
+The motivation is read-only — there is no edit affordance, because amending a recorded decision is a different question with its own consequences. A case decided before motivations were captured simply shows no motivation, rather than an empty one.
+
+**It stays on the trial case and goes nowhere else.** It is free text about a child, written for an internal panel decision at a moment of judgement. The trial panel is who it was written for; the player file is read by considerably more people, and a decline-flavoured sentence would follow an admitted child around their record for years. It is on no player-facing surface, no player record, and no letter — the parent-meeting view and the letter home carry none of it. Where somebody entitled to the trial case wants the context, the trial case is where it lives.
 
 ## Retention
 

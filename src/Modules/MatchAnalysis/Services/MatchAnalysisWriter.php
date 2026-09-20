@@ -22,6 +22,24 @@ use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
  */
 final class MatchAnalysisWriter {
 
+    /**
+     * The longest a single note may be, in characters (#3853).
+     *
+     * A note item is a **bullet, not a paragraph** — that is the design of
+     * the feature, not an accident of the first schema. The rows exist so
+     * valence is countable in SQL for the season trend (#2725), and a unit
+     * you can count is a unit somebody ended deliberately. Every input on
+     * every surface says so too: 180 characters on a section bullet, 240 on
+     * a player note.
+     *
+     * 255 is the column's width and the boundary the API enforces; the
+     * tighter numbers on the surfaces are house style, not the rule. What
+     * changed in #3853 is only that going over is said out loud. It used to
+     * be `mb_substr( $body, 0, 255 )` in the repository — a 400-character
+     * observation answered 200 and came back ending mid-word.
+     */
+    public const NOTE_MAX = 255;
+
     private MatchAnalysisRepository $repo;
 
     public function __construct( ?MatchAnalysisRepository $repo = null ) {
@@ -167,6 +185,75 @@ final class MatchAnalysisWriter {
     }
 
     /**
+     * Notes in this body that are longer than a note may be, as field
+     * paths (#3853).
+     *
+     * Measured on the cleaned items, because those are what would be
+     * stored: `cleanNoteItems()` splits a blob on its line breaks, drops
+     * the blanks and runs `sanitize_text_field()` first, so a multi-line
+     * note is checked one line at a time and only a single line that is
+     * genuinely too long is reported. The index is the item's position in
+     * that cleaned list — the position it would have been stored at.
+     *
+     * An over-long line is never split for the coach. Where a bullet ends
+     * is their judgement, and guessing a break mid-sentence would invent
+     * one they did not make, with a valence nobody assigned.
+     *
+     * @param array<string,mixed> $body
+     * @return list<string>
+     */
+    public static function overlongNoteFields( array $body ): array {
+        $fields = [];
+
+        if ( isset( $body['sections'] ) ) {
+            foreach ( self::sectionEntries( $body['sections'] ) as $entry ) {
+                foreach ( self::overlongNotes( $entry['notes'] ) as $index ) {
+                    $fields[] = sprintf( '%s.notes[%d]', $entry['path'], $index );
+                }
+            }
+        }
+
+        if ( isset( $body['players'] ) && is_array( $body['players'] ) ) {
+            foreach ( $body['players'] as $player_id => $item ) {
+                if ( ! is_array( $item ) ) continue;
+                foreach ( self::overlongNotes( self::notesOf( $item ) ) as $index ) {
+                    $fields[] = sprintf( 'players[%s].notes[%d]', (string) $player_id, $index );
+                }
+            }
+        }
+
+        return $fields;
+    }
+
+    /**
+     * The positions in one note list that are over `NOTE_MAX` (#3853).
+     *
+     * @param mixed $value
+     * @return list<int>
+     */
+    public static function overlongNotes( $value ): array {
+        $over = [];
+        foreach ( self::cleanNoteItems( $value ) as $index => $item ) {
+            if ( mb_strlen( $item['body'] ) > self::NOTE_MAX ) $over[] = $index;
+        }
+
+        return $over;
+    }
+
+    /**
+     * A player item's notes, in whichever key it carries them.
+     *
+     * `notes` is the shape since #3091; `note` is what every client written
+     * before it sends, and a single note is just a one-item list.
+     *
+     * @param array<string,mixed> $item
+     * @return mixed
+     */
+    public static function notesOf( array $item ) {
+        return array_key_exists( 'notes', $item ) ? $item['notes'] : ( $item['note'] ?? [] );
+    }
+
+    /**
      * Whether a rating can be stored as sent.
      *
      * Null and the empty string are the resting state — the surface's
@@ -211,17 +298,14 @@ final class MatchAnalysisWriter {
         $marker = isset( $item['marker'] ) ? sanitize_key( (string) $item['marker'] ) : '';
         $tag    = isset( $item['team_function'] ) ? sanitize_key( (string) $item['team_function'] ) : '';
 
-        // `notes` is the shape since #3091; `note` is what every client
-        // written before it sends, and a single note is just a one-item
-        // list. Accepting both keeps the endpoint's promise that a client
-        // which knows less cannot destroy what it does not understand.
-        $notes = array_key_exists( 'notes', $item ) ? $item['notes'] : ( $item['note'] ?? [] );
-
+        // Both note keys are accepted, which keeps the endpoint's promise
+        // that a client which knows less cannot destroy what it does not
+        // understand. See `notesOf()`.
         $item_id = $this->repo->savePlayerItem(
             $analysis_id,
             $player_id,
             $marker,
-            self::cleanNoteItems( $notes ),
+            self::cleanNoteItems( self::notesOf( $item ) ),
             $tag !== '' ? $tag : null,
             $minutes
         );

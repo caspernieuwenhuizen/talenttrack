@@ -1,0 +1,79 @@
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial case ending-soon banner"
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "This trial ended %d day ago and no decision has been recorded."
+msgid_plural "This trial ended %d days ago and no decision has been recorded."
+msgstr[0] "Deze stage is %d dag geleden afgelopen en er is nog geen besluit vastgelegd."
+msgstr[1] "Deze stage is %d dagen geleden afgelopen en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "This trial ends today and no decision has been recorded."
+msgstr "Deze stage eindigt vandaag en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "This trial ends in %d day and no decision has been recorded."
+msgid_plural "This trial ends in %d days and no decision has been recorded."
+msgstr[0] "Deze stage eindigt over %d dag en er is nog geen besluit vastgelegd."
+msgstr[1] "Deze stage eindigt over %d dagen en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Submitted %s"
+msgstr "Ingeleverd op %s"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "No input yet"
+msgstr "Nog geen input"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Still waiting on: %s"
+msgstr "Nog in afwachting van: %s"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "Trial ending without a decision"
+msgstr "Stage eindigt zonder besluit"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "A trial period is about to end and no decision has been recorded. The family is waiting on an answer, and the panellists who have not submitted their input are named so you know what the decision is waiting for."
+msgstr "Een stage loopt bijna af en er is nog geen besluit vastgelegd. Het gezin wacht op een antwoord, en de panelleden die hun input nog niet hebben ingeleverd worden genoemd, zodat je weet waar het besluit op wacht."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "A trialist"
+msgstr "Een stagespeler"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%1$s's trial ended %2$d day ago with no decision recorded."
+msgid_plural "%1$s's trial ended %2$d days ago with no decision recorded."
+msgstr[0] "De stage van %1$s is %2$d dag geleden afgelopen zonder vastgelegd besluit."
+msgstr[1] "De stage van %1$s is %2$d dagen geleden afgelopen zonder vastgelegd besluit."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%s's trial ends today and no decision has been recorded."
+msgstr "De stage van %s eindigt vandaag en er is nog geen besluit vastgelegd."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%1$s's trial ends in %2$d day and no decision has been recorded."
+msgid_plural "%1$s's trial ends in %2$d days and no decision has been recorded."
+msgstr[0] "De stage van %1$s eindigt over %2$d dag en er is nog geen besluit vastgelegd."
+msgstr[1] "De stage van %1$s eindigt over %2$d dagen en er is nog geen besluit vastgelegd."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%d other"
+msgid_plural "%d others"
+msgstr[0] "%d ander"
+msgstr[1] "%d anderen"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "Still waiting on %s."
+msgstr "Nog in afwachting van %s."

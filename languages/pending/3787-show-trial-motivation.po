@@ -1,0 +1,4 @@
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial decision summary"
+msgid "Motivation"
+msgstr "Motivatie"

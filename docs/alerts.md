@@ -69,6 +69,12 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Player with no guardian contact** | An active player, or one on an open trial, has no parent account linked and no guardian email or phone. It goes to the team's head coach and to whoever manages parent accounts, and clears once a parent is linked or a guardian email or phone is added. A player whose parent was sent an invitation that is still outstanding is left to the alert above. An invitation that was created but never sent does not count: the family was never asked. | *Who at home hears about this player?* A trial welcome, a published plan or a cancelled training for this player reaches nobody until somebody at home can be reached. |
 | **Certificate expiring** | One of your own certificates is about to expire, or has just expired. | *What does this player need next?* — answered from the other side. Every player in the squad needs the person running their session to be qualified to run it. |
 
+### Trials
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Trial ending without a decision** | A trial period is within the warning window — or has already run out — and no decision has been recorded. The sentence names the panellists who have submitted no input, because that is usually what the decision is waiting for. It goes to whoever may decide trials, not to the team's head coach: deciding is the one job on a trial case nobody else can do. It resolves itself the moment the decision is recorded or the case is extended, and the decision resolves it immediately rather than on the next sweep. | *Where is this player going?* — asked while there is still time to answer it. A trial window closing in silence is a child and a family waiting on an academy that has lost track of them. |
+
 ### Measurements
 
 | Alert | What it means | Which player question it answers |
@@ -147,6 +153,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_goal_overdue_grace_days` | 3 days | How long after a goal's target date before the alert appears. A goal reviewed on Monday for a Sunday deadline is normal practice. |
 | `alerts_goal_overdue_lookback_days` | 365 days | How far past its date a goal is still worth chasing. Beyond that it is abandoned rather than overdue, and the fix is a tidy-up, not an alert. |
 | `alerts_pdp_no_conversation_days` | 45 days | How far into a PDP cycle before "no conversation held" becomes an alert. |
+| `alerts_trial_decision_due_days` | 3 days | How much warning you get before a trial ends with no decision recorded. An academy running two-week trials wants a shorter warning than one running six-week ones. |
 | `alerts_player_turns_18_days` | 30 days | How much notice you get before a player's eighteenth birthday. The age itself is not a setting: it is a fact about the jurisdiction the academy operates in, not a preference. |
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |

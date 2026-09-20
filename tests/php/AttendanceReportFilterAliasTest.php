@@ -4,8 +4,10 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -180,6 +182,51 @@ final class AttendanceReportFilterAliasTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * The other half, and the one that makes the refusal above mean what
+     * its name says. A scope test that only ever asserts a refusal cannot
+     * tell "narrowed correctly" from "refused everything" — which is
+     * exactly what this fixture used to be doing (#3913).
+     */
+    public function test_the_same_caller_reads_their_own_team_through_either_spelling(): void {
+        $this->makeTeamScopedReader( $this->team_a );
+
+        foreach ( self::ROUTES as $route ) {
+            foreach ( [
+                'plain'  => [ 'team_id' => $this->team_a ],
+                'nested' => [ 'filter' => [ 'team_id' => $this->team_a ] ],
+            ] as $spelling => $query ) {
+                $this->assertSame(
+                    200,
+                    $this->request( $route, $query )->get_status(),
+                    "{$route} refused the {$spelling} spelling for the caller's own team"
+                );
+                $this->assertSame(
+                    [ $this->player_a ],
+                    $this->playerIds( $route, $query ),
+                    "{$route} answered the {$spelling} spelling with somebody outside the caller's team"
+                );
+            }
+        }
+    }
+
+    /**
+     * And without a filter at all the answer is still the caller's own
+     * team, not the academy — the scope narrows the query, it does not
+     * merely validate the parameter.
+     */
+    public function test_an_unfiltered_call_by_a_scoped_caller_stays_inside_their_team(): void {
+        $this->makeTeamScopedReader( $this->team_a );
+
+        foreach ( self::ROUTES as $route ) {
+            $this->assertSame(
+                [ $this->player_a ],
+                $this->playerIds( $route, [] ),
+                "{$route} widened an unfiltered call past the caller's team"
+            );
+        }
+    }
+
     public function test_every_attendance_route_declares_the_filter_argument(): void {
         foreach ( self::ROUTES as $route ) {
             $args = [];
@@ -247,32 +294,50 @@ final class AttendanceReportFilterAliasTest extends WP_UnitTestCase {
     }
 
     /**
-     * A reader who holds the analytics capability but no academy-wide
-     * scope: a `tt_people` row plus an active team grant is what
-     * `QueryHelpers::get_teams_for_coach()` reads. The role id is
-     * deliberately one no persona owns, so the matrix grants no global
-     * read and the caller stays narrowed to the one team.
+     * A reader the matrix genuinely grants team-scoped analytics to: the
+     * `team_manager` persona, which the seed gives `analytics [r, team]`,
+     * narrowed to one squad by the `tt_people` row plus the active team
+     * grant `QueryHelpers::get_teams_for_coach()` reads.
+     *
+     * It has to be a real persona. A `subscriber` with `tt_view_analytics`
+     * bolted on via `add_cap()` is refused by the `user_has_cap` bridge —
+     * live in this suite, since `.wp-env.json` activates the plugin and
+     * `Activator::activate()` seeds `tt_authorization_active = 1` — which
+     * overwrites the directly-added cap with the matrix's answer for a
+     * persona that does not resolve. The request never reaches the scope
+     * check, so a 403 proves nothing about scoping.
+     *
+     * The WordPress role comes from migration 0030 rather than
+     * `RolesService`, so it is created when absent: a user created against
+     * a role that does not exist holds no role at all.
      */
     private function makeTeamScopedReader( int $team_id ): void {
         global $wpdb;
-        $user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $user    = new \WP_User( $user_id );
-        $user->add_cap( 'tt_view_analytics' );
+
+        if ( get_role( 'tt_team_manager' ) === null ) {
+            add_role( 'tt_team_manager', 'Team Manager', [ 'read' => true ] );
+        }
+        $user_id = self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
 
         $wpdb->insert( "{$this->p}tt_people", [
             'club_id'    => $this->club,
             'first_name' => 'Scope',
             'last_name'  => 'Reader',
+            'role_type'  => 'team_manager',
             'wp_user_id' => $user_id,
             'status'     => 'active',
         ] );
         $wpdb->insert( "{$this->p}tt_user_role_scopes", [
             'club_id'    => $this->club,
             'person_id'  => (int) $wpdb->insert_id,
-            'role_id'    => 999999,
+            'role_id'    => 1,
             'scope_type' => 'team',
             'scope_id'   => $team_id,
         ] );
+
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
 
         wp_set_current_user( $user_id );
     }

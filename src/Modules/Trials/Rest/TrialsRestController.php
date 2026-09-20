@@ -20,6 +20,7 @@ use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Reminders\TrialReminderScheduler;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 use TT\Modules\Trials\Services\TrialCaseOpener;
+use TT\Modules\Trials\Services\TrialDecisionDeadline;
 
 /**
  * REST surface for #0017 — trial cases.
@@ -28,7 +29,10 @@ use TT\Modules\Trials\Services\TrialCaseOpener;
  *
  *   GET  /trial-cases                 list, filterable
  *   POST /trial-cases                 create case
- *   GET  /trial-cases/{id}            single case
+ *   GET  /trial-cases/{id}            single case, with the panel's
+ *                                     submissions, who is still missing
+ *                                     and the extension history for a
+ *                                     caller who may read the synthesis
  *   PUT  /trial-cases/{id}            patch (track / dates / status)
  *   POST /trial-cases/{id}/extend     log extension + bump end_date
  *   POST /trial-cases/{id}/decision   record decision + status transition
@@ -596,8 +600,130 @@ class TrialsRestController {
         }
         // The motivation is synthesis-level, so it rides along only for a
         // viewer who passes that narrower gate (#3654).
-        $with_motivation = TrialCaseAccessPolicy::canViewSynthesis( get_current_user_id(), $id );
-        return RestResponse::success( [ 'case' => self::format( $case, [], $with_motivation ) ] );
+        $viewer          = get_current_user_id();
+        $with_motivation = TrialCaseAccessPolicy::canViewSynthesis( $viewer, $id );
+        $payload         = [ 'case' => self::format( $case, [], $with_motivation ) ];
+        if ( $with_motivation ) {
+            $payload += self::decisionContext( $case, $viewer );
+        }
+        return RestResponse::success( $payload );
+    }
+
+    /**
+     * #3801 — what a decision needs, composed onto the case record.
+     *
+     * None of this data was missing; it was simply never joined onto the
+     * case. A head of development opening `trial-cases/285` saw a header
+     * and nothing else: not that Lex had handed in a 6, not why the case
+     * had been extended, and — the fact that cost a text message to
+     * discover — not that Sanne had submitted nothing at all.
+     *
+     * Three blocks, each read through the repository that already owns it,
+     * for a caller who has passed `canViewSynthesis()`. The gate is the
+     * existing one, unchanged; this widens what a cleared caller is told,
+     * never who is cleared.
+     *
+     * **The inputs obey the release rules, because they come through the
+     * same method the inputs route uses.** A panellist who may see only
+     * their own before release sees only their own here. The case record
+     * is not a way round `listVisibleForUser()`, and a draft that is not
+     * the reader's own is not here at all — a provisional judgement about
+     * a child stays its author's until they hand it in.
+     *
+     * **Who is still missing is counted from the whole panel**, not from
+     * the caller's visible set, which would tell a panellist that everyone
+     * but themselves had failed to submit. That somebody has handed in is
+     * not their judgement about the child, so it is not release-gated: a
+     * caller cleared for the synthesis is by definition cleared for more
+     * than the fact of a submission.
+     *
+     * Full input bodies stay on `/trial-cases/{id}/inputs`. The case
+     * carries the summary a decision needs; the inputs route carries the
+     * reading.
+     *
+     * @return array<string,mixed>
+     */
+    private static function decisionContext( object $case, int $viewer ): array {
+        $case_id     = (int) ( ( (array) $case )['id'] ?? 0 );
+        $is_manager  = TrialCaseAccessPolicy::isManager( $viewer );
+        $inputs_repo = new TrialStaffInputsRepository();
+        $staff_repo  = new TrialCaseStaffRepository();
+
+        $visible    = $inputs_repo->listVisibleForUser( $case_id, $viewer, $is_manager );
+        $panel      = $staff_repo->listForCase( $case_id );
+        $extensions = ( new TrialExtensionsRepository() )->listForCase( $case_id );
+
+        $accounts = [];
+        foreach ( $visible as $row )     $accounts[] = (int) ( ( (array) $row )['user_id'] ?? 0 );
+        foreach ( $panel as $row )       $accounts[] = (int) ( ( (array) $row )['user_id'] ?? 0 );
+        foreach ( $extensions as $row )  $accounts[] = (int) ( ( (array) $row )['extended_by'] ?? 0 );
+        $names = self::staffNames( $accounts );
+
+        // Who has handed in, across the whole panel rather than across the
+        // caller's visible set — see the docblock.
+        $submitted = [];
+        foreach ( $inputs_repo->listForCase( $case_id, true ) as $row ) {
+            $submitted[ (int) ( ( (array) $row )['user_id'] ?? 0 ) ] = true;
+        }
+
+        $inputs = [];
+        foreach ( $visible as $row ) {
+            $r      = (array) $row;
+            $author = (int) ( $r['user_id'] ?? 0 );
+            $at     = (string) ( $r['submitted_at'] ?? '' );
+            if ( $at === '' ) continue;
+            $released = (string) ( $r['released_at'] ?? '' );
+            $inputs[] = [
+                'input_id'       => (int) ( $r['id'] ?? 0 ),
+                'user_id'        => $author,
+                'author_name'    => (string) ( $names[ $author ] ?? '' ),
+                'submitted_at'   => $at,
+                'released_at'    => $released !== '' ? $released : null,
+                'overall_rating' => isset( $r['overall_rating'] ) ? (float) $r['overall_rating'] : null,
+            ];
+        }
+
+        $awaiting = [];
+        foreach ( $panel as $row ) {
+            $r   = (array) $row;
+            $uid = (int) ( $r['user_id'] ?? 0 );
+            if ( $uid <= 0 || isset( $submitted[ $uid ] ) ) continue;
+            $label      = (string) ( $r['role_label'] ?? '' );
+            $awaiting[] = [
+                'user_id'     => $uid,
+                'author_name' => (string) ( $names[ $uid ] ?? '' ),
+                'role_label'  => $label !== '' ? $label : null,
+            ];
+        }
+
+        $history = [];
+        foreach ( $extensions as $row ) {
+            $r         = (array) $row;
+            $by        = (int) ( $r['extended_by'] ?? 0 );
+            $history[] = [
+                'id'                => (int) ( $r['id'] ?? 0 ),
+                'extended_at'       => (string) ( $r['extended_at'] ?? '' ),
+                'extended_by'       => $by,
+                'extended_by_name'  => (string) ( $names[ $by ] ?? '' ),
+                'previous_end_date' => (string) ( $r['previous_end_date'] ?? '' ),
+                'new_end_date'      => (string) ( $r['new_end_date'] ?? '' ),
+                'justification'     => (string) ( $r['justification'] ?? '' ),
+            ];
+        }
+
+        $end_date = (string) ( ( (array) $case )['end_date'] ?? '' );
+        $decision = ( (array) $case )['decision'] ?? null;
+
+        return [
+            'panel_inputs'   => $inputs,
+            'panel_awaiting' => $awaiting,
+            'extensions'     => $history,
+            'decision_due'   => [
+                'days_remaining' => TrialDecisionDeadline::daysRemaining( $end_date ),
+                'due_soon'       => TrialDecisionDeadline::isDueSoon( $end_date, $decision === null ? null : (string) $decision ),
+                'lead_days'      => TrialDecisionDeadline::leadDays(),
+            ],
+        ];
     }
 
     /**

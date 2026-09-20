@@ -1,0 +1,27 @@
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP coverage by team"
+msgstr "POP-dekking per team"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "With a plan"
+msgstr "Met een plan"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Talked to"
+msgstr "Gesproken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Booked in 4 weeks"
+msgstr "Gepland binnen 4 weken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Signed by a parent"
+msgstr "Ondertekend door een ouder"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Teams with the fewest players talked to come first."
+msgstr "Teams met de minste gevoerde gesprekken staan bovenaan."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "No team"
+msgstr "Geen team"

@@ -196,7 +196,27 @@ Elk spelersrecord heeft een vinkje **Toestemming foto & video**, op het bewerkfo
 medewerker die het registreerde, zodat de vermelding bewijs is en geen bewering. Uitvinken haalt beide weg, want de herkomst van een toestemming die
 niet meer geldt, zou alleen maar misleiden.
 
-Het profiel van de speler toont het antwoord aan de staf — óók als het antwoord nee is, want een leeg veld leest als "er is niet naar gevraagd".
+Het profiel van de speler toont het antwoord aan de staf — óók als het antwoord nee is, want een leeg veld leest als "er is niet naar gevraagd" —
+samen met de datum waarop het is vastgelegd en door wie.
+
+### Waar het antwoord nu te zien is
+
+Het record was alleen zichtbaar op het formulier dat het schreef. Het staat nu overal waar iemand daadwerkelijk naar de beelden van een kind kijkt:
+
+| Scherm | Wat er staat |
+| --- | --- |
+| De identiteitskaart van de speler | *Vastgelegd op 12 maart 2026 door Anna de Vries*, of *Niet geregistreerd*. |
+| Het tabblad Media van de speler | Een regel boven de beelden met hetzelfde in een zin, en — als er geen toestemming is — een markering op elk item. |
+| De spelerslijst | Een kolom **Mediatoestemming**, sorteerbaar, en een filter **Mediatoestemming**. |
+| Het geprinte POP-dossier | Een regel onder de kop, zodat de mededeling meereist als het document geprint of doorgestuurd wordt. |
+
+De eerste filteroptie, **Heeft media, geen toestemming**, is de belangrijkste. "Geen toestemming vastgelegd" levert vooral kinderen op die nooit
+gefotografeerd zijn — een administratieve leemte, geen werk voor deze week. *Heeft media, geen toestemming* levert de kinderen op van wie de
+academie daadwerkelijk beeld bewaart zonder vastgelegd antwoord: de lijst om vóór een wedstrijddag door te lopen.
+
+**Markeren is niet verbergen.** Geen enkel beeld wordt op grond van toestemming voor iemand achtergehouden, op geen van die schermen, ook niet in
+het geprinte dossier. Een trainer die de foto niet kan zien, kan niet beoordelen of hij hem mag gebruiken, en een dossier waaruit beelden stilletjes
+verdwijnen leest als een kapotte export, niet als zorgvuldigheid. De markering verandert; het beeld niet.
 
 **Het legt vast, het beperkt niet.** Bij het toevoegen van een foto wordt dit vinkje nergens gecontroleerd. Een trainer kan media toevoegen bij een
 speler zonder vastgelegde toestemming, en de academie wordt daarin niet tegengehouden. Dat is bewust. De echte beheersmaatregel is het gesprek en het

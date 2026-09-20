@@ -267,16 +267,31 @@ class PdpFilesRepository {
      * one place (the REST controller / view) rather than re-deriving
      * teams here.
      *
+     * #3810 — two more counts ride along, because the head of development's
+     * question is not "does this player have a file" but "is this round
+     * actually happening": `conv_scheduled_soon` (planned in the next four
+     * weeks and not yet held) and `conv_parent_acked`. Both are correlated
+     * subqueries over the same joined file, like the two that were already
+     * here; a coverage list is one roster, so this stays one query.
+     *
+     * `conducted_none` is the "who has not had their talk" filter. It reads
+     * as a `NOT EXISTS` against the conversations rather than a comparison
+     * on the projected count, so it narrows the same rows the count
+     * describes without a HAVING clause the paging would then have to
+     * respect.
+     *
      * @param int        $season_id  current season id
      * @param array{
      *   player_ids?: int[]|null,
      *   team_id?: int,
      *   search?: string,
      *   only_missing?: bool,
+     *   conducted_none?: bool,
+     *   archived_view?: string,
      * } $filters
      * @return object[] one row per player: player_id, first_name,
      *   last_name, team_id, team_name, pdp_file_id, file_status,
-     *   conv_total, conv_conducted.
+     *   conv_total, conv_conducted, conv_scheduled_soon, conv_parent_acked.
      */
     public function coverageForSeason( int $season_id, array $filters = [] ): array {
         if ( $season_id <= 0 ) return [];
@@ -326,7 +341,13 @@ class PdpFilesRepository {
                        pl.team_id, t.name AS team_name,
                        f.id AS pdp_file_id, f.status AS file_status, f.archived_at,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id) AS conv_total,
-                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NOT NULL) AS conv_conducted
+                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NOT NULL) AS conv_conducted,
+                       (SELECT COUNT(*) FROM {$conv} c
+                         WHERE c.pdp_file_id = f.id
+                           AND c.conducted_at IS NULL
+                           AND c.scheduled_at IS NOT NULL
+                           AND c.scheduled_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 28 DAY)) AS conv_scheduled_soon,
+                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.parent_ack_at IS NOT NULL) AS conv_parent_acked
                   FROM {$players} pl
                   LEFT JOIN {$teams} t ON t.id = pl.team_id
                   LEFT JOIN {$this->table} f
@@ -339,10 +360,26 @@ class PdpFilesRepository {
         if ( $archived_view === 'archived' ) {
             // Archived view lists only players with an archived file.
             $sql .= ' AND f.id IS NOT NULL';
-        } elseif ( ! empty( $filters['only_missing'] ) ) {
-            // only_missing toggle filters AFTER the join so it reads off
-            // the joined file row. Meaningless in the archived view.
-            $sql .= ' AND f.id IS NULL';
+        } else {
+            // Both narrowing toggles are meaningless in the archived view,
+            // so they live inside the `else` rather than each re-testing
+            // the same thing.
+            if ( ! empty( $filters['only_missing'] ) ) {
+                // only_missing filters AFTER the join so it reads off the
+                // joined file row.
+                $sql .= ' AND f.id IS NULL';
+            }
+            // #3810 — "who has not had their talk", in one call. A player
+            // with no file at all has had no talk either, so they stay in:
+            // the question is about the player, not about the paperwork,
+            // and dropping them would hide the worst cases from the list
+            // built to find them.
+            if ( ! empty( $filters['conducted_none'] ) ) {
+                $sql .= " AND NOT EXISTS (
+                            SELECT 1 FROM {$conv} c
+                             WHERE c.pdp_file_id = f.id
+                               AND c.conducted_at IS NOT NULL )";
+            }
         }
 
         $sql .= ' ORDER BY pl.last_name ASC, pl.first_name ASC';
@@ -360,11 +397,12 @@ class PdpFilesRepository {
      * `coverageForSeason()` uses (minus `only_missing`, which would
      * make the ratio meaningless).
      *
-     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string } $filters
+     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string,
+     *               only_missing?: bool, conducted_none?: bool, archived_view?: string } $filters
      * @return array{ total:int, covered:int }
      */
     public function coverageSummaryForSeason( int $season_id, array $filters = [] ): array {
-        unset( $filters['only_missing'] );
+        unset( $filters['only_missing'], $filters['conducted_none'] );
         $rows = $this->coverageForSeason( $season_id, $filters );
         $total   = count( $rows );
         $covered = 0;
@@ -372,6 +410,74 @@ class PdpFilesRepository {
             if ( ! empty( $r->pdp_file_id ) ) $covered++;
         }
         return [ 'total' => $total, 'covered' => $covered ];
+    }
+
+    /**
+     * #3810 — the same coverage, broken down by team.
+     *
+     * Seven weeks into a season, one talk of sixty-four had been held and
+     * the head of development had no way to see which teams those
+     * sixty-three sat in: the screen shows one team at a time, and the
+     * ratio above it is a single number for whatever is on screen. Four
+     * coaches got chased by text instead.
+     *
+     * Computed from the same unpaged row set `coverageSummaryForSeason()`
+     * reads, so the breakdown and the headline cannot disagree and a total
+     * never changes when you turn the page.
+     *
+     * `only_missing` and `conducted_none` are dropped for the same reason
+     * the headline drops them: they are ways of narrowing a list to look
+     * at, and "1 of 1 players have had their talk" is not a coverage
+     * figure. The scope filters — team, search, the caller's roster —
+     * stay, so a coach still sees only their own players.
+     *
+     * Ordered worst first. The team that needs chasing is the one this
+     * list exists to surface, and making the reader sort to find it is how
+     * a report becomes something nobody opens.
+     *
+     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string,
+     *               only_missing?: bool, conducted_none?: bool, archived_view?: string } $filters
+     * @return list<array{ team_id:int, team_name:string, players:int, covered:int,
+     *                     conducted:int, scheduled_soon:int, parent_acked:int }>
+     */
+    public function coverageByTeamForSeason( int $season_id, array $filters = [] ): array {
+        unset( $filters['only_missing'], $filters['conducted_none'] );
+
+        /** @var array<int, array{ team_id:int, team_name:string, players:int, covered:int, conducted:int, scheduled_soon:int, parent_acked:int }> $by_team */
+        $by_team = [];
+
+        foreach ( $this->coverageForSeason( $season_id, $filters ) as $row ) {
+            $team_id = (int) ( $row->team_id ?? 0 );
+            if ( ! isset( $by_team[ $team_id ] ) ) {
+                $by_team[ $team_id ] = [
+                    'team_id'        => $team_id,
+                    'team_name'      => (string) ( $row->team_name ?? '' ),
+                    'players'        => 0,
+                    'covered'        => 0,
+                    'conducted'      => 0,
+                    'scheduled_soon' => 0,
+                    'parent_acked'   => 0,
+                ];
+            }
+
+            $by_team[ $team_id ]['players']++;
+            if ( ! empty( $row->pdp_file_id ) ) $by_team[ $team_id ]['covered']++;
+            // A player counts once towards "has had a talk", however many
+            // talks their cycle holds. The question is about people.
+            if ( (int) ( $row->conv_conducted ?? 0 ) > 0 )      $by_team[ $team_id ]['conducted']++;
+            if ( (int) ( $row->conv_scheduled_soon ?? 0 ) > 0 ) $by_team[ $team_id ]['scheduled_soon']++;
+            if ( (int) ( $row->conv_parent_acked ?? 0 ) > 0 )   $by_team[ $team_id ]['parent_acked']++;
+        }
+
+        $out = array_values( $by_team );
+        usort( $out, static function ( array $a, array $b ): int {
+            $a_share = $a['players'] > 0 ? $a['conducted'] / $a['players'] : 0.0;
+            $b_share = $b['players'] > 0 ? $b['conducted'] / $b['players'] : 0.0;
+            if ( $a_share !== $b_share ) return $a_share <=> $b_share;
+            return strcasecmp( $a['team_name'], $b['team_name'] );
+        } );
+
+        return $out;
     }
 
     public function setStatus( int $file_id, string $status ): bool {

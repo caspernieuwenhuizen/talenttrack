@@ -53,6 +53,44 @@ class TrialsModule implements ModuleInterface {
         if ( class_exists( WizardRegistry::class ) ) {
             WizardRegistry::register( new NewTrialCaseWizard() );
         }
+
+        // #3801 — "trial ending, nobody has decided". Registered from the
+        // module rather than from the Alerts catalogue so an academy
+        // without the trials module stops being asked about trials by
+        // construction, with no second toggle to keep in step.
+        add_filter( 'tt_register_alerts', [ self::class, 'registerAlerts' ] );
+
+        // #3801 — resolve the same alert the instant the decision lands,
+        // rather than on the next hourly sweep. The decision is the fix;
+        // telling somebody an hour later that they have already done it is
+        // how a catalogue teaches people to stop reading it.
+        add_filter( 'tt_alert_invalidation_map', [ self::class, 'registerAlertInvalidation' ] );
+    }
+
+    /**
+     * @param list<mixed> $alerts
+     * @return list<mixed>
+     */
+    public static function registerAlerts( array $alerts ): array {
+        if ( ! class_exists( \TT\Modules\Alerts\Definitions\AbstractDataQualityAlert::class ) ) {
+            return $alerts;
+        }
+
+        $alerts[] = new Alerts\TrialDecisionDueSoonAlert();
+        return $alerts;
+    }
+
+    /**
+     * @param array<string,callable> $map
+     * @return array<string,callable>
+     */
+    public static function registerAlertInvalidation( array $map ): array {
+        // trials.decision_due_soon. `tt_trial_decision_recorded` carries
+        // the case id first; the alert's subject is the case.
+        $map['tt_trial_decision_recorded'] = static function ( $case_id ): array {
+            return [ [ 'trial_case', [ (int) $case_id ] ] ];
+        };
+        return $map;
     }
 
     /**

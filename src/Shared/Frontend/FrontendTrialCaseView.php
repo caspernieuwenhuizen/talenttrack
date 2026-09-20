@@ -18,6 +18,7 @@ use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
 use TT\Modules\Trials\Repositories\TrialStaffInputsRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
+use TT\Modules\Trials\Services\TrialDecisionDeadline;
 
 /**
  * FrontendTrialCaseView — the trial case working surface at
@@ -146,6 +147,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             <?php
             self::renderHero( $case, $player, $name );
             self::renderActionRow( $case, $user_id, $is_manager );
+            self::renderEndingSoonBanner( $case );
             ?>
 
             <div class="tt-player-detail__rail">
@@ -360,6 +362,61 @@ class FrontendTrialCaseView extends FrontendViewBase {
      * Key-facts strip — Track · Window · Status · Decision. The same
      * 3/4-up cells the player and team profiles use.
      */
+    /**
+     * #3801 — the trial ends in days and nobody has decided.
+     *
+     * Nothing on this page used to compare `end_date` against
+     * `decision IS NULL`: the key-facts strip printed the window and the
+     * status and left the reader to do the arithmetic, which is how a
+     * case came to end on a Monday with the family still waiting.
+     *
+     * Whether it is close enough to say so is
+     * `TrialDecisionDeadline`'s answer, shared with the REST read and the
+     * `trials.decision_due_soon` alert, so the three cannot disagree about
+     * the same date. Not colour-only: the banner leads with the word
+     * "Deadline" and states the count in words, and it is a `role="status"`
+     * region so a screen reader announces it on load.
+     */
+    private static function renderEndingSoonBanner( object $case ): void {
+        $end     = (string) ( $case->end_date ?? '' );
+        $decided = $case->decision ?? null;
+        if ( ! TrialDecisionDeadline::isDueSoon( $end, $decided === null ? null : (string) $decided ) ) return;
+
+        $days = TrialDecisionDeadline::daysRemaining( $end );
+        if ( $days === null ) return;
+
+        if ( $days < 0 ) {
+            $message = sprintf(
+                /* translators: %d: number of days since the trial window closed. */
+                _n(
+                    'This trial ended %d day ago and no decision has been recorded.',
+                    'This trial ended %d days ago and no decision has been recorded.',
+                    abs( $days ),
+                    'talenttrack'
+                ),
+                abs( $days )
+            );
+        } elseif ( $days === 0 ) {
+            $message = __( 'This trial ends today and no decision has been recorded.', 'talenttrack' );
+        } else {
+            $message = sprintf(
+                /* translators: %d: number of days until the trial window closes. */
+                _n(
+                    'This trial ends in %d day and no decision has been recorded.',
+                    'This trial ends in %d days and no decision has been recorded.',
+                    $days,
+                    'talenttrack'
+                ),
+                $days
+            );
+        }
+
+        echo '<p class="tt-trial-deadline" role="status" data-overdue="' . esc_attr( $days < 0 ? '1' : '0' ) . '">';
+        echo '<strong class="tt-trial-deadline__label">' . esc_html( _x( 'Deadline', 'trial case ending-soon banner', 'talenttrack' ) ) . '</strong> ';
+        echo '<span class="tt-trial-deadline__text">' . esc_html( $message ) . '</span>';
+        echo '</p>';
+    }
+
     private static function renderKeyFacts( object $case ): void {
         $track = ( new TrialTracksRepository() )->find( (int) $case->track_id );
         $track_label = $track
@@ -425,12 +482,42 @@ class FrontendTrialCaseView extends FrontendViewBase {
         if ( ! $staff ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No staff assigned yet.', 'talenttrack' ) . '</p>';
         } else {
+            // #3801 — who has handed in and who has not. The panel roster
+            // used to be a bare list of names, so "has Sanne submitted?"
+            // was a question you answered by texting Sanne. Only for a
+            // reader who may already read the case's aggregation: the
+            // *fact* of a submission is not the judgement inside it, but it
+            // is still more than an input-only assistant coach is here for.
+            $case_id        = (int) ( $case->id ?? 0 );
+            $sees_synthesis = TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id );
+            $submitted      = [];
+            if ( $sees_synthesis ) {
+                foreach ( ( new TrialStaffInputsRepository() )->listForCase( $case_id, true ) as $row ) {
+                    $submitted[ (int) ( $row->user_id ?? 0 ) ] = (string) ( $row->submitted_at ?? '' );
+                }
+            }
+
             echo '<ul class="tt-trial-staff-list">';
             foreach ( $staff as $s ) {
-                $u = get_userdata( (int) $s->user_id );
-                $label = $u ? (string) $u->display_name : '#' . (int) $s->user_id;
+                $uid   = (int) $s->user_id;
+                $u     = get_userdata( $uid );
+                $label = $u ? (string) $u->display_name : '#' . $uid;
                 $role  = $s->role_label ? ' (' . esc_html( (string) $s->role_label ) . ')' : '';
-                echo '<li>' . esc_html( $label ) . $role . '</li>';
+                echo '<li>' . esc_html( $label ) . $role;
+                if ( $sees_synthesis ) {
+                    $has = isset( $submitted[ $uid ] );
+                    echo ' <span class="tt-trial-staff-state" data-submitted="' . esc_attr( $has ? '1' : '0' ) . '">';
+                    echo esc_html( $has
+                        ? sprintf(
+                            /* translators: %s: date and time the input was submitted. */
+                            __( 'Submitted %s', 'talenttrack' ),
+                            $submitted[ $uid ]
+                        )
+                        : __( 'No input yet', 'talenttrack' )
+                    );
+                    echo '</span>';
+                }
+                echo '</li>';
             }
             echo '</ul>';
         }
@@ -615,6 +702,27 @@ class FrontendTrialCaseView extends FrontendViewBase {
             $submitted_count = count( $inputs_repo->listForCase( (int) $case->id, true ) );
             echo '<p class="tt-trial-input-count">' . sprintf( esc_html__( '%1$d of %2$d assigned staff have submitted.', 'talenttrack' ), $submitted_count, $assigned_count ) . '</p>';
 
+            // #3801 — and the count says nothing about *who*. That gap is
+            // what sent a head of development looking for a phone number.
+            $handed_in = [];
+            foreach ( $inputs_repo->listForCase( (int) ( $case->id ?? 0 ), true ) as $row ) {
+                $handed_in[ (int) ( $row->user_id ?? 0 ) ] = true;
+            }
+            $awaiting = [];
+            foreach ( $staff_repo->listForCase( (int) ( $case->id ?? 0 ) ) as $member ) {
+                $uid = (int) ( $member->user_id ?? 0 );
+                if ( $uid <= 0 || isset( $handed_in[ $uid ] ) ) continue;
+                $u          = get_userdata( $uid );
+                $awaiting[] = $u ? (string) $u->display_name : '#' . $uid;
+            }
+            if ( $awaiting ) {
+                echo '<p class="tt-trial-input-awaiting">' . esc_html( sprintf(
+                    /* translators: %s: comma-separated list of panellist names. */
+                    __( 'Still waiting on: %s', 'talenttrack' ),
+                    implode( ', ', $awaiting )
+                ) ) . '</p>';
+            }
+
             if ( $submitted_count > 0 && empty( $case->inputs_released_at ) ) {
                 echo '<form method="post" class="tt-trial-release-form"><input type="hidden" name="tt_trial_action" value="release_inputs">';
                 wp_nonce_field( 'tt_trial_release_' . (int) $case->id, 'tt_trial_release_nonce' );
@@ -745,13 +853,40 @@ class FrontendTrialCaseView extends FrontendViewBase {
         self::cardClose();
     }
 
+    /**
+     * The decision, read back.
+     *
+     * #3787 — the motivation was already here, and two things about it
+     * were not. It said *when* the decision was recorded and never *by
+     * whom*, so the one entry a family may ask about a season later
+     * carried no author; and a long motivation, which is what a
+     * thirty-character floor is asking for, had nothing telling it to
+     * wrap inside the summary grid.
+     *
+     * Read-only, and deliberately only here. The motivation is free text
+     * about a child written for an internal panel decision; the player
+     * file is read by considerably more people, and a decline-flavoured
+     * sentence would follow an admitted child around their record for
+     * years. Whoever is entitled to the trial case can read it on the
+     * trial case.
+     */
     private static function renderPostDecision( object $case ): void {
         self::cardOpen( __( 'Decision recorded', 'talenttrack' ) );
         echo '<dl class="tt-trial-decision-summary">';
         echo '<dt>' . esc_html__( 'Outcome', 'talenttrack' ) . '</dt><dd>' . esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ) . '</dd>';
         echo '<dt>' . esc_html__( 'Recorded at', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_made_at ) . '</dd>';
-        if ( $case->decision_notes ) {
-            echo '<dt>' . esc_html__( 'Justification', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_notes ) . '</dd>';
+
+        $recorded_by = (int) ( $case->decision_made_by ?? 0 );
+        if ( $recorded_by > 0 ) {
+            $user = get_userdata( $recorded_by );
+            echo '<dt>' . esc_html__( 'Recorded by', 'talenttrack' ) . '</dt><dd>'
+                . esc_html( $user ? (string) $user->display_name : '#' . $recorded_by ) . '</dd>';
+        }
+
+        $motivation = trim( (string) $case->decision_notes );
+        if ( $motivation !== '' ) {
+            echo '<dt>' . esc_html( _x( 'Motivation', 'trial decision summary', 'talenttrack' ) ) . '</dt>'
+                . '<dd class="tt-trial-decision-motivation">' . esc_html( $motivation ) . '</dd>';
         }
         echo '</dl>';
 

@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\Delivery\MediaDelivery;
 use TT\Modules\Media\Ingest\MediaIngestService;
@@ -279,12 +280,69 @@ final class MediaRestController {
             }
         }
 
-        return RestResponse::success( [
+        $envelope = [
             'items'       => $shaped,
             'total'       => count( $shaped ),
             'has_more'    => $has_more,
             'next_offset' => $next_offset,
-        ] );
+        ];
+
+        // #3804 — the consent state of the player whose list this is.
+        //
+        // It was reachable only from `GET /players/{id}`, so a coach opening
+        // a player's media tab had no way to know whether the club may use
+        // these pictures. An administrator learned it by opening records one
+        // at a time; that is how a frozen photo policy started.
+        //
+        // Consent is per PLAYER, not per image — `tt_players.media_consent`,
+        // deliberately so: "a likeness belongs to the child, not to the
+        // file" (migration 0232). A team photo therefore reports the consent
+        // of whichever player's list you are reading, which is a statement
+        // about that child rather than a property of the picture.
+        //
+        // A team or activity collection has no single subject, so it carries
+        // no consent block at all rather than an arbitrary one.
+        if ( $entity_type === MediaEntityType::PLAYER ) {
+            $envelope['player_consent'] = self::playerConsent( $entity_id );
+        }
+
+        return RestResponse::success( $envelope );
+    }
+
+    /**
+     * #3804 — the consent record for one player, read-only.
+     *
+     * `recorded` is the flag as stored. `at` and `by` are the provenance
+     * the edit form already shows and every other surface threw away.
+     *
+     * This is a **statement of record, never a gate**: nothing here
+     * filters, hides or blurs an item. Consent in this plugin is recorded
+     * and never enforced — asserted in migration 0232 and pinned by
+     * `tests/php/MediaConsentTest.php`, which must keep passing unchanged.
+     * The safeguarding judgement stays with the person on the screen, who
+     * can now at least see what they are deciding about.
+     *
+     * @return array{recorded:bool,at:?string,by:?int,by_name:?string}
+     */
+    private static function playerConsent( int $player_id ): array {
+        $player = QueryHelpers::get_player( $player_id );
+        if ( ! $player ) {
+            return [ 'recorded' => false, 'at' => null, 'by' => null, 'by_name' => null ];
+        }
+
+        $by      = (int) ( $player->media_consent_by ?? 0 );
+        $by_user = $by > 0 ? get_userdata( $by ) : null;
+
+        return [
+            'recorded' => ! empty( $player->media_consent ),
+            'at'       => ! empty( $player->media_consent_at ) ? (string) $player->media_consent_at : null,
+            'by'       => $by > 0 ? $by : null,
+            'by_name'  => $by_user ? (string) $by_user->display_name : null,
+            // The composed, translated sentence, so a gallery — the JS one
+            // here, a SaaS front end later — renders the same words the PHP
+            // views do instead of each assembling its own.
+            'statement' => \TT\Modules\Players\Services\MediaConsentStatement::sentence( $player ),
+        ];
     }
 
     // Items
@@ -436,7 +494,16 @@ final class MediaRestController {
         if ( $can_edit === null ) $can_edit = self::canEdit();
 
         try {
-            $shaped['tile_html'] = MediaGallery::tileHtml( $media, $can_edit, $roster );
+            // #3804 — a tile inserted after an upload carries the same
+            // no-consent marker as the tiles rendered with the page. The
+            // gallery answers the question, so there is one rule rather
+            // than a server one and a slightly different client one.
+            $shaped['tile_html'] = MediaGallery::tileHtml(
+                $media,
+                $can_edit,
+                $roster,
+                MediaGallery::marksUnconsented( $entity_type, $entity_id )
+            );
         } catch ( \Throwable $e ) {
             // The client falls back to its own minimal row.
             $shaped['tile_html'] = '';

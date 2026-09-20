@@ -24,6 +24,7 @@ use TT\Modules\Comms\Templates\ScheduledReportTemplate;
 use TT\Modules\Comms\Templates\ScoutReportDeliveryTemplate;
 use TT\Modules\Comms\Templates\SelectionLetterTemplate;
 use TT\Modules\Comms\Templates\StaffDevelopmentReminderTemplate;
+use TT\Modules\Comms\Templates\TeamScheduleDigestTemplate;
 use TT\Modules\Comms\Templates\TrainingCancelledTemplate;
 use TT\Modules\Comms\Templates\TrialInputReminderTemplate;
 use TT\Modules\Comms\Templates\TrialPlayerWelcomeTemplate;
@@ -78,6 +79,7 @@ final class TemplateCatalog {
             new GuardianContactRequestTemplate(), // #3794 — account mail, for a family with no account at all
             new NotificationTemplate(),      // #2604 caller-composed copy
             new AlertDigestTemplate(),       // #2634 alerts roll-up
+            new TeamScheduleDigestTemplate(), // #3811 what moved in a team's calendar
 
             // #2604 — the last of the direct `wp_mail()` senders, each now
             // routed through the same opt-out / quiet-hours / rate-limit /

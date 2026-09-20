@@ -940,6 +940,39 @@
     min-height: 28px;
     color: var(--tt-muted, #5b6e75);
 }
+/*
+ * #3810 — PDP coverage by team, above the selection gate. Mobile-first:
+ * the table scrolls sideways inside `.tt-table-wrap` at phone width rather
+ * than pushing the page wider, and the team cell stays put so a number
+ * scrolled into view still says which team it belongs to.
+ */
+.tt-pdp-team-coverage {
+    margin: 0 0 16px;
+}
+.tt-pdp-team-coverage__title {
+    font-size: 1rem;
+    margin: 0 0 8px;
+}
+.tt-pdp-team-coverage__table th[scope="row"] {
+    position: sticky;
+    left: 0;
+    background: var(--tt-paper, #fff);
+    text-align: left;
+    font-weight: 600;
+}
+.tt-pdp-team-coverage__table td {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tt-pdp-team-coverage__table th[scope="col"] + th[scope="col"] {
+    text-align: right;
+}
+.tt-pdp-team-coverage__table a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    touch-action: manipulation;
+}
 .tt-pdp-team-gate {
     background: var(--tt-paper-soft, #f4f6f3);
     border: 1px solid var(--tt-line, #e5e7ea);

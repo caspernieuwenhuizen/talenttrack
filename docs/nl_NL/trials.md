@@ -56,6 +56,14 @@ Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt
 
 Moet de periode verlengd worden, dan vraagt **Stage verlengen** op het Overzicht-tabblad om een nieuwe einddatum en een verplichte motivatie. Elke verlenging wordt vastgelegd met wie, wanneer en waarom.
 
+#### Het dossier vertelt waar het op wacht
+
+De kaart **Toegewezen staf** op Overzicht toont per panellid of de input al is ingeleverd — *Ingeleverd op <datum>* of *Nog geen input*. Die status is alleen zichtbaar voor wie de samenvatting van het dossier al mag lezen; een toegewezen coach die alleen zijn eigen input schrijft, ziet de lijst zonder die status.
+
+Loopt de stage bijna af en is er nog geen besluit vastgelegd, dan verschijnt onder de hero een **Deadline**-melding met hoeveel tijd er nog is — of hoe lang de periode al verstreken is. Die verdwijnt vanzelf zodra het besluit is vastgelegd of het dossier is verlengd; er valt niets weg te klikken. Hoeveel dagen vooraf er gewaarschuwd wordt, staat in de instelling `alerts_trial_decision_due_days`, standaard drie dagen.
+
+Dezelfde situatie levert het hoofd opleiding een melding **Stage eindigt zonder besluit** op, met de namen van de panelleden die nog niets hebben ingeleverd, zodat je ziet waar het besluit op wacht. Die melding lost zichzelf op zodra het besluit binnen is of het dossier wordt verlengd.
+
 ### 3. Verzamel staf-input
 
 Elke toegewezen coach heeft een eigen invoerformulier op **Staf-input**. Hij geeft een algemene beoordeling en aantekeningen op, slaat op als concept en dient definitief in zodra de input klaar is. Een coach ziet alleen de eigen concept-input totdat het hoofd opleiding **Inputs vrijgeven aan toegewezen staf** klikt — zo voorkom je groupthink tijdens de periode en deelt iedereen zijn beeld pas als iedereen heeft ingediend.
@@ -169,6 +177,14 @@ Dat een academie een plek aanbiedt is misschien wel het belangrijkste moment in 
 Wanneer je het gezin geen formele beslissing schuldig bent — het gezin reageert niet meer, de speler is verhuisd, het dossier is per ongeluk geopend — sluit de actie **Dossier archiveren** het dossier zonder beslissingsregel en zonder brief te genereren. De actie staat in de pagina-koprij van de dossierpagina (rol manager / hoofd opleiding vereist). Het dossier blijft in de database staan (te vinden via de gearchiveerde-dossiers-lijst); het telt alleen niet meer als open werk.
 
 Archiveer je een dossier waar wél een beslissing bij hoorde en blijkt het gezin tóch te willen praten, dan kan een admin het dossier weer activeren via de wp-admin lijst met stagedossiers.
+
+## Een beslissing teruglezen
+
+Zodra een beslissing is vastgelegd, is het tabblad **Beslissing** geen formulier meer maar de vastlegging van wat er is besloten: de uitkomst, wanneer die is vastgelegd, **door wie**, en de motivatie die diegene heeft geschreven.
+
+De motivatie is alleen-lezen — er is geen bewerkoptie, want het aanpassen van een vastgelegde beslissing is een andere vraag met eigen gevolgen. Een dossier dat is beslist voordat motivaties werden vastgelegd, toont simpelweg geen motivatie, niet een lege.
+
+**De motivatie blijft op het stagedossier en gaat nergens anders heen.** Het is vrije tekst over een kind, geschreven voor een intern paneelbesluit op een moment van oordeel. Het stagepanel is voor wie het geschreven is; het spelersdossier wordt door aanzienlijk meer mensen gelezen, en een afwijzend geformuleerde zin zou een aangenomen kind jarenlang door het dossier volgen. Ze staat op geen enkel spelersgericht scherm, niet in het spelersdossier en niet in een brief — het oudergesprek en de brief naar huis bevatten er niets van. Wil iemand die toegang heeft tot het stagedossier die context, dan is het stagedossier de plek.
 
 ## Bewaartermijn
 

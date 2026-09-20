@@ -21,6 +21,8 @@ Vier dingen bepalen of een bericht de deur uitgaat en wat er in staat.
 
 **Een ontvangersregel.** Je richt een bericht nooit rechtstreeks aan een kind. Je richt het op een *speler*, en de contactregels voor jeugd bepalen wie het daadwerkelijk krijgt: bij de jongste leeftijdsgroepen de ouders, bij de middengroepen allebei, en vanaf O12 de speler zelf. Die regel staat op één plek en elk bericht houdt zich eraan, zodat geen enkele losse functie het fout kan doen.
 
+Berichten die over een *team* gaan en niet over een speler volgen een tweede regel: ze bereiken de mensen die het team draaien — de hoofdtrainer, de assistent-trainers en de teammanager. Een fysio of materiaalman die aan het team hangt krijgt ze niet, want deze berichten gaan over de agenda en de administratie, en een bericht aan iemand die er niets mee kan leert iedereen om ze niet meer te lezen. Aanwezigheidssignalen gaan daarnaast naar het hoofd opleiding.
+
 **Een kanaal.** E-mail, pushmelding, sms, WhatsApp-link of de inbox in de app. Elk sjabloon geeft aan welke kanalen erbij passen, en het eerste kanaal dat de ontvanger echt bereikt wordt gebruikt. Wie geen telefoonnummer heeft staan, krijgt e-mail; wie de app heeft, krijgt een push.
 
 **Een berichtsoort.** Dit is waar een afmelding en de stiltetijdenregel op werken, en waarop het verzendlogboek is gegroepeerd.
@@ -152,7 +154,11 @@ Berichten vallen in drie groepen.
 
 Het welkomstbericht voor een proefperiode verdient één kanttekening, want het belooft minder dan je zou verwachten. Een proefdossier legt de speler, het traject en de data vast — er is geen locatie en geen lijstje met wat er mee moet — dus het bericht noemt de startdatum en meldt dat een trainer contact opneemt over het tijdstip, de plek en wat er mee moet. Dat is ook wat er in de praktijk gebeurt, en het is beter dan een bericht met twee lege kopjes erin. Het gaat naar de ouders van een jeugdspeler en naar de speler zelf zodra die daar oud genoeg voor is, net als elk ander bericht over een speler.
 
-**Gepland** — een dagelijkse taak zoekt naar een situatie en verstuurt: doelen waar het stil om is geworden, herhaalde afwezigheid, ouders die een maand niet hebben ingelogd, ontwikkelgesprekken van staf die eraan komen.
+**Gepland** — een dagelijkse taak zoekt naar een situatie en verstuurt: doelen waar het stil om is geworden, herhaalde afwezigheid, ouders die een maand niet hebben ingelogd, ontwikkelgesprekken van staf die eraan komen, en wat er in de agenda van elk team is veranderd.
+
+Die laatste heeft twee snelheden, en het is goed om te weten welke je krijgt. Activiteiten die voor een team worden toegevoegd, verplaatst, verhuisd of afgelast worden verzameld en als **één bericht per team per dag** verstuurd, met elke wijziging op een eigen regel — een trainer die in één keer zes aanvangstijden rechtzet levert geen zes e-mails op. De uitzondering is een activiteit die **binnen twee dagen** begint: die gaat meteen de deur uit, want een overzicht morgenochtend komt na de training aan. Niets staat in allebei; het dagoverzicht slaat over wat al direct is verstuurd.
+
+Wie er over herhaalde afwezigheid hoort is hiermee veranderd. Dat ging naar degene die de site beheert; het gaat nu naar de eigen staf van het team en het hoofd opleiding, wat de bedoeling altijd was.
 
 **Wel geregistreerd, nog niet aangesloten** — een klein aantal sjablonen wordt geleverd met de tekst klaar en nog zonder trigger erachter. Die versturen niets. Je ziet ze wel in de sjabloonlijst staan, en aan- of uitzetten verandert er niets aan totdat de functie die ze aanroept er is.
 
