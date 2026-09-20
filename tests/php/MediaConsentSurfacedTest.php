@@ -5,6 +5,8 @@ use WP_UnitTestCase;
 use WP_REST_Request;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Media\Authorization\MediaVisibilityService;
 use TT\Modules\Media\MediaEntityType;
 use TT\Modules\Media\Repositories\MediaRepository;
 use TT\Modules\Players\Services\MediaConsentStatement;
@@ -34,6 +36,34 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
         ( new RolesService() )->ensureCapabilities();
         MatrixRepository::clearCache();
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        // `MediaVisibilityService::filterVisible()` asks the matrix, not the
+        // capability map: without a media read grant the gallery renders
+        // empty for everybody, administrator included. The suite does not
+        // install the authorization seed, so the row is added here — global
+        // scope, because these tests are about consent and not about which
+        // squads a reader can reach.
+        ( new MatrixRepository() )->setRow(
+            'academy_admin',
+            MediaVisibilityService::ENTITY,
+            MatrixGate::READ,
+            MatrixGate::SCOPE_GLOBAL,
+            ''
+        );
+        MatrixRepository::clearCache();
+        MediaVisibilityService::flush();
+    }
+
+    public function tear_down(): void {
+        ( new MatrixRepository() )->removeRow(
+            'academy_admin',
+            MediaVisibilityService::ENTITY,
+            MatrixGate::READ,
+            MatrixGate::SCOPE_GLOBAL
+        );
+        MatrixRepository::clearCache();
+        MediaVisibilityService::flush();
+        parent::tear_down();
     }
 
     // ── nothing is hidden ──────────────────────────────────────────────
