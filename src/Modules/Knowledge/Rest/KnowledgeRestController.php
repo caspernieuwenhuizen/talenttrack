@@ -32,6 +32,7 @@ use WP_REST_Request;
  *   GET    /courses/{slug}                            manifest + per-lesson state
  *   POST   /courses/{slug}/enrolments                 enrol self, or assign
  *   PATCH  /courses/{slug}/progress/{lesson}          mark read, persist tool state
+ *   PATCH  /enrolments/{id}                           move or clear the deadline
  *   DELETE /enrolments/{id}                           withdraw
  *   GET    /people/{id}/learning                      one person's record
  *
@@ -90,10 +91,26 @@ final class KnowledgeRestController {
             'permission_callback' => [ __CLASS__, 'can_view' ],
         ] );
 
+        // #3708 — moving somebody's deadline is the same class of act as
+        // withdrawing them, so it carries the same gate as the DELETE
+        // sibling rather than a softer one.
         register_rest_route( self::NS, '/enrolments/(?P<id>\d+)', [
-            'methods'             => 'DELETE',
-            'callback'            => [ __CLASS__, 'withdraw' ],
-            'permission_callback' => [ __CLASS__, 'can_manage' ],
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'update_enrolment' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => [
+                    'due_at' => [
+                        'required'    => false,
+                        'description' => 'Deadline as YYYY-MM-DD, or null to clear it.',
+                    ],
+                ],
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'withdraw' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
         ] );
 
         register_rest_route( self::NS, '/people/(?P<id>\d+)/learning', [
@@ -685,6 +702,72 @@ final class KnowledgeRestController {
                 'tool_state' => $progress->toolState( $row ),
             ],
         ] );
+    }
+
+    /**
+     * Move or clear the deadline on an existing enrolment (#3708).
+     *
+     * A partial update: `due_at` is read with `array_key_exists` rather
+     * than `isset`, so an explicit `null` clears the deadline and an
+     * omitted key leaves the stored one alone (CLAUDE.md §6). Nothing else
+     * on the row is writable here — status, `started_at` and progress are
+     * derived from what the person actually did, and an admin moving a
+     * target date must not be able to rewrite that.
+     *
+     * The date is validated before it reaches the repository:
+     * `normaliseDate()` runs `strtotime()`, which turns "next tuesday" into
+     * a date and a typo into `null`. A deadline silently becoming "no
+     * deadline" is the failure worth a 400.
+     */
+    public static function update_enrolment( WP_REST_Request $r ) {
+        $repo      = new EnrolmentRepository();
+        $id        = (int) $r['id'];
+        $enrolment = $repo->find( $id );
+
+        if ( $enrolment === null ) {
+            return RestResponse::notFound( 'enrolment_not_found', __( 'That enrolment does not exist.', 'talenttrack' ) );
+        }
+
+        $params = $r->get_params();
+
+        if ( ! array_key_exists( 'due_at', $params ) ) {
+            return RestResponse::success( self::shapeEnrolment( $enrolment ) );
+        }
+
+        $due_at = $params['due_at'];
+
+        if ( $due_at === '' ) {
+            $due_at = null;
+        }
+
+        if ( $due_at !== null ) {
+            if ( ! is_string( $due_at ) || ! self::isCalendarDate( $due_at ) ) {
+                return RestResponse::error(
+                    'invalid_due_at',
+                    __( 'Give the deadline as a date, for example 2026-12-18.', 'talenttrack' ),
+                    400
+                );
+            }
+        }
+
+        $repo->setDueDate( $id, $due_at );
+
+        return RestResponse::success( self::shapeEnrolment( $repo->find( $id ) ) );
+    }
+
+    /**
+     * `YYYY-MM-DD`, optionally with a time, and a date that exists.
+     *
+     * `checkdate` is the half that matters: `strtotime( '2026-02-31' )`
+     * happily returns 3 March, so a fat-fingered deadline would be stored
+     * as a different day than the one the admin typed.
+     */
+    private static function isCalendarDate( string $value ): bool {
+        if ( ! preg_match( '/^(\d{4})-(\d{2})-(\d{2})(?:[ T]\d{2}:\d{2}(?::\d{2})?)?$/', trim( $value ), $m ) ) {
+            return false;
+        }
+
+        return checkdate( (int) $m[2], (int) $m[3], (int) $m[1] );
     }
 
     public static function withdraw( WP_REST_Request $r ) {
