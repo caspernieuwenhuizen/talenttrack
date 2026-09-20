@@ -12,10 +12,13 @@ use TT\Modules\Comms\Template\AbstractTemplate;
  * audience scope (team / age group / whole club) and writes one
  * message. Sender: coach or HoD. Recipients: scoped audience.
  *
- * Spec wizard plan: ships as a multi-step wizard (audience scope →
- * recipients preview → message → confirm + send), gated on
- * `tt_send_announcements`. Wizard wires from the Comms admin page
- * once it lands; the template is the rendering shell either way.
+ * #3693 wired the send: `NewTeamAnnouncementWizard` (audience →
+ * compose → confirm) and the `comms/announcements` routes, behind
+ * `MassAnnouncementSender`. Two capabilities rather than the one this
+ * docblock used to name — `tt_send_team_announcement` for a coach or
+ * team manager reaching their own squads, `tt_send_academy_announcement`
+ * for any team, an age group or the whole academy. This class stays the
+ * rendering shell either way.
  *
  * Tokens: {announcement_subject} {announcement_body} {sender_name}
  */

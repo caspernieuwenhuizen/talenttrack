@@ -87,6 +87,33 @@ Every parent receives one copy, even when they have two children at the academy,
 
 **Afterwards.** It appears in the send log like every other message, one row per recipient. There is no second send path and no separate record.
 
+## Sending an announcement
+
+**Announcement**, on your dashboard.
+
+For the ordinary news a team's families need: the pitch is closed, bring a white shirt on Saturday, the coach on Tuesday is someone else. Until this existed it went out over WhatsApp, which meant it was outside the academy's record, outside its quiet hours, and outside the preferences families had set.
+
+**Who can send one, and how far.** Two permissions, because there are two different acts here.
+
+- A **head coach or team manager** announces to the teams they are assigned to. Nothing else — not another team, not an age group, not the academy. Somebody with the permission and no team assignment reaches nobody, which is why it can be held broadly without being a risk.
+- **Head of Development and the academy admin** announce to any team, to an age group, or to every family at once.
+
+The rule is enforced when the message is sent, not only in the dropdown. A coach who somehow asks for another team's families is refused.
+
+**The three steps.** Audience, then the message, then confirm — in that order, because the order is the safety. Picking the audience first means you write knowing who is about to read it. Nothing is sent until the last step; what you have typed is kept as a draft you can come back to, and abandoning it sends nothing.
+
+The confirm step shows the exact number of people it reaches and the audience in words, and asks you to agree to that number. It also shows you the message as a family will see it.
+
+**What an announcement is not.** It is an ordinary message, and it behaves like one:
+
+- A family who has switched announcements off in *My settings* does not receive it. The log records that the switch stopped it.
+- Outside your academy's messaging hours it is **held and delivered the next morning**. There is no override. A message that cannot wait until seven is not an announcement — a cancelled training has its own message and goes out at once.
+- Nobody can reply to it, and it cannot be recalled.
+
+Every parent receives one copy even when they have two children in the audience, and families whose child has left the academy are not on the list.
+
+**Afterwards.** It appears in the send log, one row per recipient. If you can read the log you land there when it has been sent; if you cannot, you go back to your dashboard.
+
 ## The send log
 
 **Configuration → Message log**, or from a player's record under **⋯ → Messages sent**.

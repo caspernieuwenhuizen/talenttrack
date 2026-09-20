@@ -3695,6 +3695,42 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'selected' => $selected_team,
                 ] ); ?>
                 <?php
+                // #3745 — the coach responsible for running the activity.
+                // Was never asked: `coach_id` was stamped with the logged-in
+                // user, so an administrator typing a season schedule
+                // collected every register reminder for it. Prefilled with
+                // the team's head coach on create, left as stored on edit.
+                //
+                // Options come from the team currently selected. Switching
+                // the team select needs a save + reload before the list
+                // refreshes, the same documented edge case the attendance
+                // roster above has.
+                $coach_options  = \TT\Modules\Activities\Services\ActivityCoachAssignment::optionsForTeam( $selected_team );
+                $selected_coach = $is_edit
+                    ? (int) ( $session->coach_id ?? 0 )
+                    : (int) \TT\Modules\Activities\Services\ActivityCoachAssignment::derivedForTeam( $selected_team );
+                if ( $selected_coach > 0 && ! isset( $coach_options[ $selected_coach ] ) ) {
+                    // Keep the stored coach selectable after they leave the
+                    // team, so opening the form never silently unassigns
+                    // them — the same reasoning as the team select's
+                    // `must_include` (#2866).
+                    $stored_coach_user = get_userdata( $selected_coach );
+                    $coach_options[ $selected_coach ] = $stored_coach_user
+                        ? (string) $stored_coach_user->display_name
+                        : sprintf( /* translators: %d: WordPress user id */ __( 'User #%d', 'talenttrack' ), $selected_coach );
+                }
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-activity-coach"><?php esc_html_e( 'Coach', 'talenttrack' ); ?></label>
+                    <select id="tt-activity-coach" class="tt-input" name="coach_id">
+                        <option value="0"><?php esc_html_e( '— No coach —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $coach_options as $coach_user_id => $coach_name ) : ?>
+                            <option value="<?php echo (int) $coach_user_id; ?>" <?php selected( $selected_coach, $coach_user_id ); ?>><?php echo esc_html( $coach_name ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint"><?php esc_html_e( 'The coach responsible for running this activity and recording its register. Defaults to the team head coach.', 'talenttrack' ); ?></p>
+                </div>
+                <?php
                 // #1126 — optional start + end time. Both empty by
                 // default; renderer omits the time line when both are
                 // blank (no placeholder).

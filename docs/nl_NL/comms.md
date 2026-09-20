@@ -87,6 +87,33 @@ Elke ouder krijgt één exemplaar, ook met twee kinderen op de academie, en gezi
 
 **Daarna.** Het verschijnt in het verzendlogboek als elk ander bericht, één regel per ontvanger. Er is geen tweede verzendpad en geen apart logboek.
 
+## Een aankondiging versturen
+
+**Aankondiging**, op je dashboard.
+
+Voor het gewone nieuws dat de gezinnen van een team moeten weten: het veld is dicht, neem zaterdag een wit shirt mee, dinsdag staat er een andere trainer. Tot dit er was ging dat via WhatsApp — dus buiten het dossier van de academie, buiten de stiltetijden en buiten de voorkeuren die gezinnen hadden ingesteld.
+
+**Wie er een mag versturen, en hoe ver.** Twee rechten, want dit zijn twee verschillende handelingen.
+
+- Een **hoofdtrainer of teammanager** kondigt iets aan bij de teams waaraan hij is gekoppeld. Verder niets — geen ander team, geen leeftijdscategorie, niet de academie. Iemand met het recht maar zonder teamkoppeling bereikt niemand; daarom kan het recht breed worden verleend zonder risico.
+- Het **hoofd ontwikkeling en de academiebeheerder** kondigen iets aan bij elk team, bij een leeftijdscategorie of bij alle gezinnen tegelijk.
+
+De regel wordt afgedwongen bij het versturen, niet alleen in de keuzelijst. Een coach die toch om de gezinnen van een ander team vraagt, krijgt nul op het rekest.
+
+**De drie stappen.** Doelgroep, dan het bericht, dan bevestigen — in die volgorde, want de volgorde is de veiligheid. Eerst de doelgroep kiezen betekent dat je schrijft terwijl je weet wie het gaat lezen. Er wordt niets verstuurd tot de laatste stap; wat je hebt getypt blijft als concept bewaard, en afbreken verstuurt niets.
+
+De bevestigingsstap toont precies hoeveel mensen het bereikt en wat de doelgroep in woorden is, en vraagt je akkoord op dat aantal. Ook zie je het bericht zoals een gezin het krijgt.
+
+**Wat een aankondiging niet is.** Het is een gewoon bericht en gedraagt zich ook zo:
+
+- Een gezin dat aankondigingen heeft uitgezet in *Mijn instellingen* krijgt het niet. Het logboek legt vast dat de voorkeur het tegenhield.
+- Buiten de berichtuurtjes van je academie wordt het **vastgehouden en de volgende ochtend bezorgd**. Daar is geen uitzondering op. Een bericht dat niet tot zeven uur kan wachten is geen aankondiging — een afgelaste training heeft een eigen bericht en gaat meteen de deur uit.
+- Niemand kan erop antwoorden, en terughalen kan niet.
+
+Elke ouder krijgt één exemplaar, ook met twee kinderen in de doelgroep, en gezinnen van wie het kind is vertrokken staan niet op de lijst.
+
+**Daarna.** Het verschijnt in het verzendlogboek, één regel per ontvanger. Mag je het logboek lezen, dan kom je daar uit na het versturen; zo niet, dan ga je terug naar je dashboard.
+
 ## Het verzendlogboek
 
 **Instellingen → Berichtenlogboek**, of vanaf het spelersdossier via **⋯ → Verstuurde berichten**.

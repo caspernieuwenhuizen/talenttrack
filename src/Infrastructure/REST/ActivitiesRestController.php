@@ -85,6 +85,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)', [
@@ -92,6 +93,7 @@ class ActivitiesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::writeArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -1310,7 +1312,14 @@ class ActivitiesRestController {
         if ( $type_error !== null ) return $type_error;
 
         $data = self::extract( $r );
-        $data['coach_id'] = get_current_user_id();
+
+        // #3745 — the coach who runs the activity, not the person who typed
+        // it in. A submitted `coach_id` is honoured (or refused by name);
+        // an absent one derives the team's head coach. The creator is
+        // recorded separately, in `created_by`.
+        $coach = self::coachForWrite( $r, (int) ( $data['team_id'] ?? 0 ) );
+        if ( $coach instanceof \WP_REST_Response ) return $coach;
+        $data['coach_id'] = $coach;
         $data['club_id']  = CurrentClub::id();
         // Source defaults to 'manual' on REST creation. Spond import +
         // demo-data writes set this from their own code paths.
@@ -1411,8 +1420,21 @@ class ActivitiesRestController {
         }
 
         $data = self::extract( self::overlayOnStored( $r, (array) $stored ) );
-        // Preserve original coach on update.
-        unset( $data['coach_id'] );
+
+        // #3745 — the update used to drop a submitted `coach_id` and answer
+        // 200, so a caller had no way to learn the value had been thrown
+        // away. It is now honoured, or refused with a named 400. Omitting
+        // the field still leaves the stored coach alone (§6 partial-update
+        // contract); an explicit 0 clears it.
+        if ( self::coachSupplied( $r ) ) {
+            $coach = self::coachForWrite(
+                $r,
+                (int) ( $data['team_id'] ?? 0 ),
+                (int) ( $stored->coach_id ?? 0 )
+            );
+            if ( $coach instanceof \WP_REST_Response ) return $coach;
+            $data['coach_id'] = $coach;
+        }
 
         // #3586 — checked before anything is written, against the date the
         // activity will have after this save, so a refused register leaves
@@ -1694,6 +1716,67 @@ class ActivitiesRestController {
     }
 
     /**
+     * #3745 — the write args both `POST /activities` and
+     * `PUT /activities/{id}` declare.
+     *
+     * `coach_id` is the only one here because it is the only field whose
+     * value used to be silently discarded; the rest of the payload is
+     * sanitized in `extract()`. `absint` rather than a typed schema so the
+     * form's empty "— No coach —" option still means "clear it" instead of
+     * failing schema validation.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'coach_id' => [
+                'required'          => false,
+                'sanitize_callback' => 'absint',
+                'description'       => __( 'WordPress user id of the coach who runs the activity. Omit on create to derive the team head coach; send 0 to leave it unassigned.', 'talenttrack' ),
+            ],
+        ];
+    }
+
+    /** #3745 — did the caller send a `coach_id` at all? */
+    private static function coachSupplied( \WP_REST_Request $r ): bool {
+        return array_key_exists( 'coach_id', $r->get_params() );
+    }
+
+    /**
+     * #3745 — the coach id a write should store.
+     *
+     * Returns the id, `null` for "nobody assigned", or a 400 response when
+     * the caller named somebody outside their own team scope. A refusal is
+     * the point: the previous behaviour returned 200 and stored the actor.
+     *
+     * @param int $current The coach already stored on the row, so that
+     *                     re-sending it is a no-op rather than an
+     *                     authorization question.
+     *
+     * @return int|null|\WP_REST_Response
+     */
+    private static function coachForWrite( \WP_REST_Request $r, int $team_id, int $current = 0 ) {
+        if ( ! self::coachSupplied( $r ) ) {
+            return \TT\Modules\Activities\Services\ActivityCoachAssignment::derivedForTeam( $team_id );
+        }
+
+        $coach_id = absint( $r['coach_id'] );
+        if ( $coach_id === 0 ) return null;
+        if ( $coach_id === $current ) return $coach_id;
+
+        if ( ! \TT\Modules\Activities\Services\ActivityCoachAssignment::mayAssign( $coach_id, get_current_user_id() ) ) {
+            return RestResponse::error(
+                'coach_out_of_scope',
+                __( 'That coach is not on a team you can assign activities for.', 'talenttrack' ),
+                400,
+                [ 'field' => 'coach_id' ]
+            );
+        }
+
+        return $coach_id;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private static function extract( \WP_REST_Request $r ): array {
@@ -1782,7 +1865,9 @@ class ActivitiesRestController {
             // non-match types null it out.
             'kickoff_time'        => in_array( $type, [ ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true ) ? $start_time : null,
             'team_id'             => absint( $r['team_id'] ?? 0 ),
-            'coach_id'            => get_current_user_id(),
+            // #3745 — `coach_id` is deliberately absent here. It is decided
+            // by `coachForWrite()` on create, and only when the caller sends
+            // it on update, so an omitted field cannot overwrite a coach.
             'location'            => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
             'notes'               => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
             'activity_type_key'   => $type,

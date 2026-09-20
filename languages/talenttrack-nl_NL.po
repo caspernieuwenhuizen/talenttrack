@@ -4,6 +4,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "POT-Creation-Date: 2026-09-20T13:52:24+00:00\n"
 "POT-Creation-Date: 2026-09-20T14:16:16+00:00\n"
+"POT-Creation-Date: 2026-09-20T15:01:36+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -77,7 +78,7 @@ msgstr ""
 #: database/migrations/0025_invitations.php:129
 #: src/Infrastructure/Query/LabelTranslator.php:103
 #: src/Infrastructure/Query/LabelTranslator.php:152
-#: src/Infrastructure/Security/RolesService.php:512
+#: src/Infrastructure/Security/RolesService.php:561
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:267
 #: src/Modules/Documentation/AudienceResolver.php:48
@@ -107,8 +108,8 @@ msgstr "Team Manager"
 
 #: includes/Activator.php:178
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
-#: src/Infrastructure/Security/RolesService.php:508
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
+#: src/Infrastructure/Security/RolesService.php:557
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:290
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:216
@@ -136,8 +137,8 @@ msgstr "Team Manager"
 #: src/Modules/Authorization/Admin/RolesPage.php:440
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:266
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:228
-#: src/Modules/Configuration/Admin/FormSlugContract.php:118
-#: src/Modules/Configuration/Admin/FormSlugContract.php:131
+#: src/Modules/Configuration/Admin/FormSlugContract.php:119
+#: src/Modules/Configuration/Admin/FormSlugContract.php:132
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:23
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:23
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:21
@@ -214,13 +215,13 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/DashboardShortcode.php:282
 #: src/Shared/Frontend/DashboardShortcode.php:315
 #: src/Shared/Frontend/DashboardShortcode.php:2340
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3998
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4010
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4087
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4098
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4252
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4275
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4330
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4034
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4046
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4123
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4134
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4288
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4311
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4366
 #: src/Shared/Frontend/FrontendConfigurationView.php:2974
 #: src/Shared/Frontend/FrontendEvaluationsView.php:174
 #: src/Shared/Frontend/FrontendEvaluationsView.php:189
@@ -254,7 +255,9 @@ msgid "Player"
 msgstr "Speler"
 
 #: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:90
-#: src/Infrastructure/Security/RolesService.php:401
+#: src/Infrastructure/Security/RolesService.php:439
+#: src/Modules/Activities/Admin/ActivitiesPage.php:368
+#: src/Modules/Configuration/Admin/FormSlugContract.php:107
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:193
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
@@ -265,8 +268,10 @@ msgstr "Speler"
 #: src/Modules/Reports/Admin/ReportsPage.php:312
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:276
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:506
+#: src/Modules/Wizards/Activity/ReviewStep.php:152
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3724
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
 #: src/Shared/Frontend/FrontendEvaluationsView.php:176
 #: src/Shared/Frontend/FrontendEvaluationsView.php:454
@@ -283,7 +288,7 @@ msgstr "Trainer"
 #: includes/Activator.php:182 src/Infrastructure/Query/LabelTranslator.php:99
 #: src/Infrastructure/Query/LabelTranslator.php:145
 #: src/Infrastructure/Query/LabelTranslator.php:186
-#: src/Infrastructure/Security/RolesService.php:315
+#: src/Infrastructure/Security/RolesService.php:346
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:513
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
@@ -300,7 +305,7 @@ msgid "Head of Development"
 msgstr "Hoofd opleiding"
 
 #: includes/Activator.php:186 src/Infrastructure/Query/LabelTranslator.php:100
-#: src/Infrastructure/Security/RolesService.php:462
+#: src/Infrastructure/Security/RolesService.php:505
 #: src/Infrastructure/Teams/TeamDetailSections.php:61
 #: src/Modules/Invitations/InvitationKind.php:54
 #: src/Modules/People/Admin/PeoplePage.php:514
@@ -317,7 +322,7 @@ msgid "Staff"
 msgstr "Staf"
 
 #: includes/Admin/Reports.php:55
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:326
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:328
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:590
@@ -937,7 +942,7 @@ msgstr ""
 #: src/Modules/Knowledge/Frontend/LearningReports.php:130
 #: src/Modules/Knowledge/Frontend/LearningReports.php:291
 #: src/Modules/License/FeatureMap.php:409
-#: src/Shared/CoreSurfaceRegistration.php:1772
+#: src/Shared/CoreSurfaceRegistration.php:1809
 #: src/Shared/Modules/ModuleMetadata.php:251
 msgid "Courses"
 msgstr "Cursussen"
@@ -1377,7 +1382,7 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:27
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:304
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:588
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:605
@@ -1468,7 +1473,7 @@ msgid "Docs (nl)"
 msgstr "Documentatie (nl)"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:33
-#: src/Shared/CoreSurfaceRegistration.php:2024
+#: src/Shared/CoreSurfaceRegistration.php:2061
 msgid "Module completeness (dev)"
 msgstr "Modulevolledigheid (dev)"
 
@@ -1720,10 +1725,10 @@ msgid "Age group: %1$s → %2$s"
 msgstr "Leeftijd: %1$s → %2$s"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:80
-#: src/Shared/CoreSurfaceRegistration.php:1671
-#: src/Shared/CoreSurfaceRegistration.php:1687
-#: src/Shared/CoreSurfaceRegistration.php:1703
-#: src/Shared/CoreSurfaceRegistration.php:1719
+#: src/Shared/CoreSurfaceRegistration.php:1708
+#: src/Shared/CoreSurfaceRegistration.php:1724
+#: src/Shared/CoreSurfaceRegistration.php:1740
+#: src/Shared/CoreSurfaceRegistration.php:1756
 msgid "staff"
 msgstr "staf"
 
@@ -2220,7 +2225,7 @@ msgstr "Fysio"
 #: src/Infrastructure/Query/LabelTranslator.php:102
 #: src/Infrastructure/Query/LabelTranslator.php:151
 #: src/Infrastructure/Query/LabelTranslator.php:258
-#: src/Infrastructure/Security/RolesService.php:435
+#: src/Infrastructure/Security/RolesService.php:478
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
 #: src/Modules/Authorization/Admin/RolesPage.php:438
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:271
@@ -2264,7 +2269,7 @@ msgstr "Overig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:117
 #: src/Infrastructure/Query/LabelTranslator.php:494
-#: src/Modules/Activities/Admin/ActivitiesPage.php:120
+#: src/Modules/Activities/Admin/ActivitiesPage.php:121
 #: src/Modules/Analytics/ScheduledReportsRepository.php:78
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
@@ -2303,7 +2308,7 @@ msgid "Archived"
 msgstr "Gearchiveerd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:144
-#: src/Infrastructure/Security/RolesService.php:368
+#: src/Infrastructure/Security/RolesService.php:403
 #: src/Modules/Authorization/Admin/RolesPage.php:431
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:153
 #: src/Shared/Frontend/FrontendRolesView.php:73
@@ -2406,7 +2411,7 @@ msgstr "Teamvergadering"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:260
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:386
 #: src/Shared/CoreSurfaceRegistration.php:998
-#: src/Shared/CoreSurfaceRegistration.php:2112
+#: src/Shared/CoreSurfaceRegistration.php:2149
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1407
 #: src/Shared/Modules/ModuleMetadata.php:221
 msgid "Methodology"
@@ -2426,8 +2431,8 @@ msgstr "Competitiewedstrijd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:242
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:49
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4469
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4531
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4505
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4567
 msgid "Tournament"
 msgstr "Toernooi"
 
@@ -2704,8 +2709,8 @@ msgid "Radar charts"
 msgstr "Radarkaarten"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:44
-#: src/Modules/Activities/Admin/ActivitiesPage.php:98
-#: src/Modules/Activities/Admin/ActivitiesPage.php:345
+#: src/Modules/Activities/Admin/ActivitiesPage.php:99
+#: src/Modules/Activities/Admin/ActivitiesPage.php:346
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:467
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:623
 #: src/Modules/Analytics/AnalyticsModule.php:119
@@ -2729,7 +2734,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Authorization/Admin/RolesPage.php:350
 #: src/Modules/Authorization/Admin/RolesPage.php:490
 #: src/Modules/Configuration/Admin/FormSlugContract.php:64
-#: src/Modules/Configuration/Admin/FormSlugContract.php:106
+#: src/Modules/Configuration/Admin/FormSlugContract.php:102
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:24
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:34
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:34
@@ -2794,7 +2799,7 @@ msgstr "Radarkaarten"
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:717
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
 #: src/Modules/Vct/Wizard/WhenStep.php:52
-#: src/Modules/Wizards/Activity/ReviewStep.php:60
+#: src/Modules/Wizards/Activity/ReviewStep.php:61
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
 #: src/Modules/Wizards/Goal/PlayerStep.php:76
@@ -3007,21 +3012,21 @@ msgctxt "PDP file identity"
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:413
-#: src/Infrastructure/REST/ActivitiesRestController.php:559
-#: src/Infrastructure/REST/ActivitiesRestController.php:731
+#: src/Infrastructure/REST/ActivitiesRestController.php:415
+#: src/Infrastructure/REST/ActivitiesRestController.php:561
+#: src/Infrastructure/REST/ActivitiesRestController.php:733
 msgid "No changes supplied."
 msgstr "Geen wijzigingen ontvangen."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:419
-#: src/Infrastructure/REST/ActivitiesRestController.php:696
-#: src/Infrastructure/REST/ActivitiesRestController.php:1410
-#: src/Infrastructure/REST/ActivitiesRestController.php:1603
-#: src/Infrastructure/REST/ActivitiesRestController.php:1620
-#: src/Infrastructure/REST/ActivitiesRestController.php:1650
-#: src/Infrastructure/REST/ActivitiesRestController.php:2208
-#: src/Infrastructure/REST/ActivitiesRestController.php:2394
-#: src/Infrastructure/REST/ActivitiesRestController.php:2434
+#: src/Infrastructure/REST/ActivitiesRestController.php:421
+#: src/Infrastructure/REST/ActivitiesRestController.php:698
+#: src/Infrastructure/REST/ActivitiesRestController.php:1419
+#: src/Infrastructure/REST/ActivitiesRestController.php:1625
+#: src/Infrastructure/REST/ActivitiesRestController.php:1642
+#: src/Infrastructure/REST/ActivitiesRestController.php:1672
+#: src/Infrastructure/REST/ActivitiesRestController.php:2293
+#: src/Infrastructure/REST/ActivitiesRestController.php:2479
+#: src/Infrastructure/REST/ActivitiesRestController.php:2519
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -3030,30 +3035,30 @@ msgstr "Geen wijzigingen ontvangen."
 msgid "Activity not found."
 msgstr "Activiteit niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:425
+#: src/Infrastructure/REST/ActivitiesRestController.php:427
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #: src/Modules/Authorization/ActivityTeamScope.php:95
 msgid "You do not coach this activity's team."
 msgstr "Je bent geen trainer van het team van deze activiteit."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:534
-#: src/Infrastructure/REST/ActivitiesRestController.php:652
-#: src/Infrastructure/REST/ActivitiesRestController.php:704
+#: src/Infrastructure/REST/ActivitiesRestController.php:536
+#: src/Infrastructure/REST/ActivitiesRestController.php:654
+#: src/Infrastructure/REST/ActivitiesRestController.php:706
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:145
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:126
 msgid "That team is not in your scope."
 msgstr "Dat team valt buiten je bereik."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:691
-#: src/Infrastructure/REST/ActivitiesRestController.php:1399
-#: src/Infrastructure/REST/ActivitiesRestController.php:1597
-#: src/Infrastructure/REST/ActivitiesRestController.php:1615
-#: src/Infrastructure/REST/ActivitiesRestController.php:1640
-#: src/Infrastructure/REST/ActivitiesRestController.php:2204
-#: src/Infrastructure/REST/ActivitiesRestController.php:2318
-#: src/Infrastructure/REST/ActivitiesRestController.php:2369
-#: src/Infrastructure/REST/ActivitiesRestController.php:2390
-#: src/Infrastructure/REST/ActivitiesRestController.php:2431
+#: src/Infrastructure/REST/ActivitiesRestController.php:693
+#: src/Infrastructure/REST/ActivitiesRestController.php:1408
+#: src/Infrastructure/REST/ActivitiesRestController.php:1619
+#: src/Infrastructure/REST/ActivitiesRestController.php:1637
+#: src/Infrastructure/REST/ActivitiesRestController.php:1662
+#: src/Infrastructure/REST/ActivitiesRestController.php:2289
+#: src/Infrastructure/REST/ActivitiesRestController.php:2403
+#: src/Infrastructure/REST/ActivitiesRestController.php:2454
+#: src/Infrastructure/REST/ActivitiesRestController.php:2475
+#: src/Infrastructure/REST/ActivitiesRestController.php:2516
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -3064,19 +3069,19 @@ msgstr "Dat team valt buiten je bereik."
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:711
+#: src/Infrastructure/REST/ActivitiesRestController.php:713
 msgid "Minutes are only recorded for match activities that are still active."
 msgstr ""
 "Speelminuten worden alleen vastgelegd bij wedstrijdactiviteiten die nog "
 "actief zijn."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:802
-#: src/Infrastructure/REST/ActivitiesRestController.php:834
-#: src/Infrastructure/REST/ActivitiesRestController.php:880
+#: src/Infrastructure/REST/ActivitiesRestController.php:804
+#: src/Infrastructure/REST/ActivitiesRestController.php:836
+#: src/Infrastructure/REST/ActivitiesRestController.php:882
 msgid "Unknown match."
 msgstr "Onbekende wedstrijd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:839
+#: src/Infrastructure/REST/ActivitiesRestController.php:841
 msgid ""
 "This score follows the match sheet's goal log. Correct a goal in the post-"
 "match review and the score follows."
@@ -3084,20 +3089,20 @@ msgstr ""
 "Deze stand volgt het doelpuntenlog van het wedstrijdformulier. Pas een "
 "doelpunt aan in de nabespreking en de stand volgt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:847
-#: src/Infrastructure/REST/ActivitiesRestController.php:885
+#: src/Infrastructure/REST/ActivitiesRestController.php:849
+#: src/Infrastructure/REST/ActivitiesRestController.php:887
 msgid "Not your team."
 msgstr "Niet jouw team."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:861
+#: src/Infrastructure/REST/ActivitiesRestController.php:863
 msgid "No score supplied."
 msgstr "Geen uitslag meegegeven."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:874
+#: src/Infrastructure/REST/ActivitiesRestController.php:876
 msgid "No contributions supplied."
 msgstr "Geen bijdragen meegegeven."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:954
+#: src/Infrastructure/REST/ActivitiesRestController.php:956
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:300
 #: src/Infrastructure/REST/GoalsRestController.php:217
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -3106,67 +3111,81 @@ msgstr "Geen bijdragen meegegeven."
 msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:975
+#: src/Infrastructure/REST/ActivitiesRestController.php:977
 #: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:210
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr "Datums moeten worden geschreven als JJJJ-MM-DD."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1320
+#: src/Infrastructure/REST/ActivitiesRestController.php:1329
 msgid "Title and date are required."
 msgstr "Titel en datum zijn verplicht."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1335
+#: src/Infrastructure/REST/ActivitiesRestController.php:1344
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden opgeslagen. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1363
+#: src/Infrastructure/REST/ActivitiesRestController.php:1372
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is opgeslagen, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1430
+#: src/Infrastructure/REST/ActivitiesRestController.php:1452
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 "De activiteit kon niet worden bijgewerkt. De database heeft de actie "
 "geweigerd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1480
+#: src/Infrastructure/REST/ActivitiesRestController.php:1502
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 "De activiteit is bijgewerkt, maar enkele aanwezigheidsrijen konden niet "
 "worden bewaard."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1831
-#: src/Infrastructure/REST/ActivitiesRestController.php:1889
+#: src/Infrastructure/REST/ActivitiesRestController.php:1735
+msgid ""
+"WordPress user id of the coach who runs the activity. Omit on create to "
+"derive the team head coach; send 0 to leave it unassigned."
+msgstr ""
+"WordPress-gebruikers-id van de trainer die de activiteit draait. Laat leeg "
+"bij aanmaken om de hoofdtrainer van het team af te leiden; stuur 0 om hem "
+"zonder trainer te laten."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:1770
+msgid "That coach is not on a team you can assign activities for."
+msgstr ""
+"Die trainer hoort niet bij een team waarvoor jij activiteiten mag indelen."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:1916
+#: src/Infrastructure/REST/ActivitiesRestController.php:1974
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2230
+#: src/Infrastructure/REST/ActivitiesRestController.php:2315
 msgid "A guest is either linked OR anonymous, not both."
 msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2234
+#: src/Infrastructure/REST/ActivitiesRestController.php:2319
 msgid "Pick a player or enter a guest name."
 msgstr "Kies een speler of vul een gastnaam in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2237
+#: src/Infrastructure/REST/ActivitiesRestController.php:2322
 msgid "Linked player does not exist."
 msgstr "Gekoppelde speler bestaat niet."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2300
+#: src/Infrastructure/REST/ActivitiesRestController.php:2385
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2301
+#: src/Infrastructure/REST/ActivitiesRestController.php:2386
 msgid "The guest could not be added."
 msgstr "De gast kon niet worden toegevoegd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2339
+#: src/Infrastructure/REST/ActivitiesRestController.php:2424
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
@@ -3174,28 +3193,28 @@ msgstr ""
 "Hier zijn alleen Annuleren en Heropenen toegestaan. Een activiteit voltooien "
 "verloopt via de evaluatieflow."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2340
+#: src/Infrastructure/REST/ActivitiesRestController.php:2425
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr "Alleen Afronden, Annuleren en Heropenen zijn hier toegestaan."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2346
+#: src/Infrastructure/REST/ActivitiesRestController.php:2431
 msgid "Could not update the activity status."
 msgstr "Kon de activiteitsstatus niet bijwerken."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2372
+#: src/Infrastructure/REST/ActivitiesRestController.php:2457
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2454
-#: src/Infrastructure/REST/ActivitiesRestController.php:2526
+#: src/Infrastructure/REST/ActivitiesRestController.php:2539
+#: src/Infrastructure/REST/ActivitiesRestController.php:2611
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2457
+#: src/Infrastructure/REST/ActivitiesRestController.php:2542
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2492
+#: src/Infrastructure/REST/ActivitiesRestController.php:2577
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
@@ -3203,11 +3222,11 @@ msgstr ""
 "De minuten voor deze wedstrijd worden beheerd op het "
 "wedstrijduitvoeringsscherm. Stel daar een overschrijving per speler in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2513
+#: src/Infrastructure/REST/ActivitiesRestController.php:2598
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2529
+#: src/Infrastructure/REST/ActivitiesRestController.php:2614
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
@@ -4138,10 +4157,10 @@ msgid "Not found."
 msgstr "Niet gevonden."
 
 #: src/Infrastructure/REST/PeekRestController.php:141
-#: src/Modules/Activities/Admin/ActivitiesPage.php:96
-#: src/Modules/Activities/Admin/ActivitiesPage.php:300
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Admin/ActivitiesPage.php:399
+#: src/Modules/Activities/Admin/ActivitiesPage.php:97
+#: src/Modules/Activities/Admin/ActivitiesPage.php:301
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
+#: src/Modules/Activities/Admin/ActivitiesPage.php:423
 #: src/Modules/Analytics/AnalyticsModule.php:157
 #: src/Modules/Analytics/AnalyticsModule.php:196
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
@@ -4152,7 +4171,7 @@ msgstr "Niet gevonden."
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
 #: src/Modules/Configuration/Admin/FormSlugContract.php:71
 #: src/Modules/Configuration/Admin/FormSlugContract.php:83
-#: src/Modules/Configuration/Admin/FormSlugContract.php:121
+#: src/Modules/Configuration/Admin/FormSlugContract.php:122
 #: src/Modules/Configuration/Admin/MigrationsPage.php:88
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:25
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:33
@@ -4212,7 +4231,7 @@ msgstr "Niet gevonden."
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:638
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:216
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:177
-#: src/Modules/Wizards/Activity/ReviewStep.php:62
+#: src/Modules/Wizards/Activity/ReviewStep.php:63
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
@@ -4222,13 +4241,13 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/CoachForms.php:653
 #: src/Shared/Frontend/DashboardShortcode.php:314
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1290
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3999
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4016
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4088
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4099
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4253
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4282
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4331
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4035
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4052
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4124
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4135
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4289
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4318
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4367
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
@@ -4335,7 +4354,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:66
 #: src/Shared/Admin/BackNavigator.php:111
 #: src/Shared/CoreSurfaceRegistration.php:744
-#: src/Shared/CoreSurfaceRegistration.php:2051
+#: src/Shared/CoreSurfaceRegistration.php:2088
 #: src/Shared/Frontend/Components/TeamCard.php:103
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:400
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:445
@@ -4367,8 +4386,8 @@ msgid "Season"
 msgstr "Seizoen"
 
 #: src/Infrastructure/REST/PeekRestController.php:212
-#: src/Modules/Activities/Admin/ActivitiesPage.php:93
-#: src/Modules/Activities/Admin/ActivitiesPage.php:341
+#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:342
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:255
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:501
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
@@ -4405,7 +4424,7 @@ msgstr "Seizoen"
 #: src/Modules/Vct/Wizard/ReviewStep.php:51
 #: src/Modules/Vct/Wizard/WhenStep.php:62
 #: src/Modules/Wizards/Activity/DetailsStep.php:37
-#: src/Modules/Wizards/Activity/ReviewStep.php:71
+#: src/Modules/Wizards/Activity/ReviewStep.php:72
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
 #: src/Shared/Frontend/CoachForms.php:256
 #: src/Shared/Frontend/CoachForms.php:568
@@ -4437,7 +4456,7 @@ msgstr "Datum"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:399
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:263
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
-#: src/Modules/Wizards/Activity/ReviewStep.php:77
+#: src/Modules/Wizards/Activity/ReviewStep.php:78
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1278
 msgid "Time"
 msgstr "Tijd"
@@ -4449,8 +4468,8 @@ msgid "Presence time"
 msgstr "Aanwezigheidstijd"
 
 #: src/Infrastructure/REST/PeekRestController.php:224
-#: src/Modules/Activities/Admin/ActivitiesPage.php:343
-#: src/Modules/Configuration/Admin/FormSlugContract.php:105
+#: src/Modules/Activities/Admin/ActivitiesPage.php:344
+#: src/Modules/Configuration/Admin/FormSlugContract.php:101
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:254
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
@@ -4461,10 +4480,10 @@ msgstr "Aanwezigheidstijd"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
 #: src/Modules/Wizards/Activity/DetailsStep.php:77
-#: src/Modules/Wizards/Activity/ReviewStep.php:79
+#: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachForms.php:574
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3755
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3791
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:130
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:191
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
@@ -4472,8 +4491,8 @@ msgid "Location"
 msgstr "Locatie"
 
 #: src/Infrastructure/REST/PeekRestController.php:228
-#: src/Modules/Activities/Admin/ActivitiesPage.php:95
-#: src/Modules/Activities/Admin/ActivitiesPage.php:290
+#: src/Modules/Activities/Admin/ActivitiesPage.php:96
+#: src/Modules/Activities/Admin/ActivitiesPage.php:291
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:482
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:379
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:454
@@ -4498,7 +4517,7 @@ msgstr "Locatie"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:275
-#: src/Modules/Wizards/Activity/ReviewStep.php:61
+#: src/Modules/Wizards/Activity/ReviewStep.php:62
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:159
 #: src/Modules/Wizards/Player/ReviewStep.php:34
@@ -5170,7 +5189,7 @@ msgstr ""
 "handmatige flow."
 
 # ===== v2.21.0 — Tile-based frontend + Read-Only Observer role =====
-#: src/Infrastructure/Security/RolesService.php:517
+#: src/Infrastructure/Security/RolesService.php:566
 #: src/Shared/Frontend/FrontendRolesView.php:62
 msgid "Read-Only Observer"
 msgstr "Alleen-lezen Waarnemer"
@@ -5201,8 +5220,8 @@ msgstr "In één oogopslag"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:349
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:387
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:42
-#: src/Modules/Wizards/Activity/ReviewStep.php:113
-#: src/Modules/Wizards/Activity/ReviewStep.php:128
+#: src/Modules/Wizards/Activity/ReviewStep.php:114
+#: src/Modules/Wizards/Activity/ReviewStep.php:129
 #: src/Modules/Wizards/Team/RosterStep.php:24
 #: src/Shared/Frontend/FrontendTeamsManageView.php:381
 msgid "Roster"
@@ -5253,7 +5272,7 @@ msgstr ""
 msgid "Medical staff only"
 msgstr "Alleen medische staf"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:56
+#: src/Modules/Activities/Admin/ActivitiesPage.php:57
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:377
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:463
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:459
@@ -5263,8 +5282,8 @@ msgstr "Alleen medische staf"
 msgid "All types"
 msgstr "Alle types"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:68
-#: src/Modules/Activities/Admin/ActivitiesPage.php:222
+#: src/Modules/Activities/Admin/ActivitiesPage.php:69
+#: src/Modules/Activities/Admin/ActivitiesPage.php:223
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:233
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
@@ -5299,7 +5318,7 @@ msgstr "Alle types"
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:185
 #: src/Shared/Admin/BackNavigator.php:122
 #: src/Shared/CoreSurfaceRegistration.php:835
-#: src/Shared/CoreSurfaceRegistration.php:2083
+#: src/Shared/CoreSurfaceRegistration.php:2120
 #: src/Shared/Frontend/Components/EvidencePanel.php:230
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:77
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:81
@@ -5313,7 +5332,7 @@ msgstr "Alle types"
 msgid "Activities"
 msgstr "Activiteiten"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:68
+#: src/Modules/Activities/Admin/ActivitiesPage.php:69
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:555
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:786
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
@@ -5326,7 +5345,7 @@ msgstr "Activiteiten"
 msgid "Add New"
 msgstr "Nieuw toevoegen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:69
+#: src/Modules/Activities/Admin/ActivitiesPage.php:70
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:366
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
@@ -5354,11 +5373,11 @@ msgstr "Nieuw toevoegen"
 msgid "Saved."
 msgstr "Opgeslagen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:78
+#: src/Modules/Activities/Admin/ActivitiesPage.php:79
 msgid "Type:"
 msgstr "Type:"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:84
+#: src/Modules/Activities/Admin/ActivitiesPage.php:85
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:509
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:84
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:178
@@ -5369,10 +5388,10 @@ msgstr "Type:"
 msgid "Filter"
 msgstr "Filteren"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:94
-#: src/Modules/Activities/Admin/ActivitiesPage.php:339
-#: src/Modules/Configuration/Admin/FormSlugContract.php:103
-#: src/Modules/Configuration/Admin/FormSlugContract.php:119
+#: src/Modules/Activities/Admin/ActivitiesPage.php:95
+#: src/Modules/Activities/Admin/ActivitiesPage.php:340
+#: src/Modules/Configuration/Admin/FormSlugContract.php:99
+#: src/Modules/Configuration/Admin/FormSlugContract.php:120
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:22
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:24
 #: src/Modules/DataBrowser/SemanticRegistry.php:67
@@ -5410,7 +5429,7 @@ msgstr "Filteren"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
-#: src/Modules/Wizards/Activity/ReviewStep.php:70
+#: src/Modules/Wizards/Activity/ReviewStep.php:71
 #: src/Shared/Frontend/CoachForms.php:567
 #: src/Shared/Frontend/CoachForms.php:633
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3639
@@ -5421,7 +5440,7 @@ msgstr "Filteren"
 msgid "Title"
 msgstr "Titel"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:97
+#: src/Modules/Activities/Admin/ActivitiesPage.php:98
 #: src/Modules/Authorization/Admin/DebugPage.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:60
@@ -5436,7 +5455,7 @@ msgstr "Titel"
 msgid "Source"
 msgstr "Bron"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:99
+#: src/Modules/Activities/Admin/ActivitiesPage.php:100
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:267
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
@@ -5484,21 +5503,21 @@ msgstr "Bron"
 msgid "Actions"
 msgstr "Acties"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:101
+#: src/Modules/Activities/Admin/ActivitiesPage.php:102
 msgid "No activities."
 msgstr "Geen activiteiten."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #, php-format
 msgid "Delete the activity \"%s\"?"
 msgstr "Activiteit \"%s\" verwijderen?"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 msgid "Delete activity?"
 msgstr "Activiteit verwijderen?"
 
 #. translators: %d: number of activities migrated
-#: src/Modules/Activities/Admin/ActivitiesPage.php:171
+#: src/Modules/Activities/Admin/ActivitiesPage.php:172
 #, php-format
 msgid ""
 "%d existing activities were migrated from sessions and default to type "
@@ -5508,28 +5527,28 @@ msgstr ""
 "type \"Training\". Herclassificeer eventuele historische wedstrijden via het "
 "bewerkformulier."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:175
+#: src/Modules/Activities/Admin/ActivitiesPage.php:176
 #: src/Modules/Backup/Admin/BulkUndoNotice.php:102
 #: src/Shared/Frontend/DashboardShortcode.php:324
 #: src/Shared/Frontend/FlashMessages.php:138
 msgid "Dismiss"
 msgstr "Verbergen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:223
+#: src/Modules/Activities/Admin/ActivitiesPage.php:224
 msgid "You do not have access to this activity."
 msgstr "Je hebt geen toegang tot deze activiteit."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:269
+#: src/Modules/Activities/Admin/ActivitiesPage.php:270
 #: src/Shared/Admin/BackNavigator.php:124
 msgid "Edit Activity"
 msgstr "Activiteit bewerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:269
+#: src/Modules/Activities/Admin/ActivitiesPage.php:270
 #: src/Shared/Admin/BackNavigator.php:123
 msgid "New Activity"
 msgstr "Nieuwe activiteit"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:273
+#: src/Modules/Activities/Admin/ActivitiesPage.php:274
 msgid ""
 "The activity was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -5537,43 +5556,44 @@ msgstr ""
 "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden "
 "ongeldige waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:279
+#: src/Modules/Activities/Admin/ActivitiesPage.php:280
 msgid "The database rejected the save. No activity was created."
 msgstr ""
 "De database heeft de opslag geweigerd. Er is geen activiteit aangemaakt."
 
 # v3.47.0 — activity status + wizard config UX
-#: src/Modules/Activities/Admin/ActivitiesPage.php:315
+#: src/Modules/Activities/Admin/ActivitiesPage.php:316
 msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
 msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:319
+#: src/Modules/Activities/Admin/ActivitiesPage.php:320
 #: src/Modules/Wizards/Activity/DetailsStep.php:62
-#: src/Modules/Wizards/Activity/ReviewStep.php:65
+#: src/Modules/Wizards/Activity/ReviewStep.php:66
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3643
 msgid "Game subtype"
 msgstr "Wedstrijd-subtype"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:322
+#: src/Modules/Activities/Admin/ActivitiesPage.php:323
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:169
 #: src/Modules/Wizards/Activity/DetailsStep.php:63
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:46
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3645
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3748
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3784
 msgid "— Choose —"
 msgstr "— Kies —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:329
+#: src/Modules/Activities/Admin/ActivitiesPage.php:330
 msgid "Optional: friendly, cup, or league."
 msgstr "Optioneel: oefen, beker of competitie."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:333
+#: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/DetailsStep.php:74
-#: src/Modules/Wizards/Activity/ReviewStep.php:68
+#: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3653
 msgid "Other label"
 msgstr "Andere label"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:336
+#: src/Modules/Activities/Admin/ActivitiesPage.php:337
 msgid ""
 "Required when Type is \"Other\". Free text — e.g. team-building day, club "
 "meeting."
@@ -5581,16 +5601,41 @@ msgstr ""
 "Verplicht als Type \"Anders\" is. Vrije tekst — bijv. team-buildingdag, "
 "clubvergadering."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:345
+#: src/Modules/Activities/Admin/ActivitiesPage.php:346
 msgid "— All —"
 msgstr "— Alle —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:348
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Admin/ActivitiesPage.php:400
+#. translators: %d: WordPress user id
+#: src/Modules/Activities/Admin/ActivitiesPage.php:365
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3720
+#, php-format
+msgid "User #%d"
+msgstr "Gebruiker #%d"
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:368
+#: src/Modules/Wizards/Activity/ReviewStep.php:154
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3726
+msgid "— No coach —"
+msgstr "— Geen trainer —"
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:370
+#: src/Modules/Wizards/Activity/ReviewStep.php:160
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3731
+msgid ""
+"The coach responsible for running this activity and recording its register. "
+"Defaults to the team head coach."
+msgstr ""
+"De trainer die verantwoordelijk is voor het draaien van deze activiteit en "
+"het invullen van de presentielijst. Standaard de hoofdtrainer van het team."
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:372
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
+#: src/Modules/Activities/Admin/ActivitiesPage.php:424
 #: src/Modules/Configuration/Admin/FormSlugContract.php:93
-#: src/Modules/Configuration/Admin/FormSlugContract.php:112
-#: src/Modules/Configuration/Admin/FormSlugContract.php:139
+#: src/Modules/Configuration/Admin/FormSlugContract.php:113
+#: src/Modules/Configuration/Admin/FormSlugContract.php:140
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:595
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:819
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:153
@@ -5614,7 +5659,7 @@ msgstr "— Alle —"
 #: src/Modules/Teams/Admin/TeamsPage.php:171
 #: src/Modules/Trials/Wizards/TrialDetailsStep.php:77
 #: src/Modules/Wizards/Activity/DetailsStep.php:79
-#: src/Modules/Wizards/Activity/ReviewStep.php:81
+#: src/Modules/Wizards/Activity/ReviewStep.php:82
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:115
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
@@ -5625,10 +5670,10 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/Components/EvidencePanel.php:156
 #: src/Shared/Frontend/DashboardShortcode.php:318
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:822
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3761
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4254
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4285
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4332
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3797
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4290
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4321
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4368
 #: src/Shared/Frontend/FrontendEvaluationsView.php:178
 #: src/Shared/Frontend/FrontendEvaluationsView.php:533
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:168
@@ -5649,19 +5694,19 @@ msgid "Notes"
 msgstr "Notities"
 
 # v3.110.x — Activities module polish: rename principles label + wizard guest opt-in
-#: src/Modules/Activities/Admin/ActivitiesPage.php:358
+#: src/Modules/Activities/Admin/ActivitiesPage.php:382
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
-#: src/Modules/Wizards/Activity/ReviewStep.php:101
+#: src/Modules/Wizards/Activity/ReviewStep.php:102
 #: src/Shared/Frontend/Components/GoalDetailFields.php:95
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3802
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3838
 msgid "Connected principles"
 msgstr "Verbonden principes"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:369
+#: src/Modules/Activities/Admin/ActivitiesPage.php:393
 msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:379
+#: src/Modules/Activities/Admin/ActivitiesPage.php:403
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:215
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
@@ -5684,7 +5729,7 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:32
 #: src/Shared/Frontend/CoachForms.php:576
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2049
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4069
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4105
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1013
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:342
 #: src/Shared/Frontend/FrontendTeamDetailView.php:631
@@ -5692,33 +5737,33 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 msgid "Attendance"
 msgstr "Aanwezigheid"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:388
+#: src/Modules/Activities/Admin/ActivitiesPage.php:412
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 "Aanwezigheid wordt geregistreerd zodra de activiteit op Voltooid staat."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:395
+#: src/Modules/Activities/Admin/ActivitiesPage.php:419
 msgid "Guest attendees"
 msgstr "Gast-aanwezigen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:398
-#: src/Modules/Activities/Admin/ActivitiesPage.php:409
+#: src/Modules/Activities/Admin/ActivitiesPage.php:422
+#: src/Modules/Activities/Admin/ActivitiesPage.php:433
 #: src/Modules/DataBrowser/SemanticRegistry.php:113
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:191
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2005
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2248
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4013
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4267
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4270
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4277
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4328
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4347
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4348
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4049
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4303
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4306
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4313
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4364
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4383
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4384
 msgid "Guest"
 msgstr "Gast"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:429
+#: src/Modules/Activities/Admin/ActivitiesPage.php:453
 msgid ""
 "Guests are added and edited from the public Activity page. This panel is "
 "read-only."
@@ -5726,7 +5771,7 @@ msgstr ""
 "Gasten worden toegevoegd en bewerkt op de publieke Activiteit-pagina. Dit "
 "paneel is alleen-lezen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:434
+#: src/Modules/Activities/Admin/ActivitiesPage.php:458
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1194
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
@@ -5736,7 +5781,7 @@ msgstr ""
 msgid "Update"
 msgstr "Bijwerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:434
+#: src/Modules/Activities/Admin/ActivitiesPage.php:458
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:379
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:160
@@ -5801,8 +5846,8 @@ msgstr "Bijwerken"
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:469
-#: src/Modules/Activities/Admin/ActivitiesPage.php:593
+#: src/Modules/Activities/Admin/ActivitiesPage.php:493
+#: src/Modules/Activities/Admin/ActivitiesPage.php:640
 #: src/Modules/AdminCenterClient/BroadcastBanner.php:81
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:166
@@ -5914,7 +5959,7 @@ msgstr "Opslaan"
 msgid "Unauthorized"
 msgstr "Geen toegang"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:542
+#: src/Modules/Activities/Admin/ActivitiesPage.php:589
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:970
 #: src/Modules/Goals/Admin/GoalsPage.php:289
 #: src/Modules/Players/Admin/PlayersPage.php:655
@@ -6222,7 +6267,7 @@ msgstr "Aanwezigheid voor %1$s op %2$s"
 #: src/Shared/Frontend/Components/SavedViews.php:479
 #: src/Shared/Frontend/Components/SaveState.php:108
 #: src/Shared/Frontend/DashboardShortcode.php:329
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4340
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4376
 #: src/Shared/Frontend/FrontendBackupsView.php:252
 #: src/Shared/Frontend/FrontendBackupsView.php:430
 #: src/Shared/Frontend/FrontendConfigurationView.php:964
@@ -6620,7 +6665,7 @@ msgid "Scorer not recorded"
 msgstr "Maker niet vastgelegd"
 
 #: src/Modules/Activities/Services/ActivityCompletionResolver.php:123
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4153
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4189
 msgid "Complete activity"
 msgstr "Activiteit voltooien"
 
@@ -6681,7 +6726,7 @@ msgid "Run this training"
 msgstr "Deze training uitvoeren"
 
 #: src/Modules/Activities/Services/ActivityHeaderActions.php:102
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4152
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4188
 msgid "Continue rating"
 msgstr "Doorgaan met beoordelen"
 
@@ -7616,7 +7661,7 @@ msgstr "Berichten"
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
 #: src/Shared/Admin/BackNavigator.php:118
 #: src/Shared/CoreSurfaceRegistration.php:823
-#: src/Shared/CoreSurfaceRegistration.php:2074
+#: src/Shared/CoreSurfaceRegistration.php:2111
 #: src/Shared/Frontend/Components/EvidencePanel.php:148
 #: src/Shared/Frontend/DashboardShortcode.php:930
 #: src/Shared/Frontend/FrontendComparisonView.php:432
@@ -7666,7 +7711,7 @@ msgstr "Evaluaties"
 #: src/Modules/Stats/Admin/UsageStatsPage.php:353
 #: src/Shared/Admin/BackNavigator.php:125
 #: src/Shared/CoreSurfaceRegistration.php:915
-#: src/Shared/CoreSurfaceRegistration.php:2092
+#: src/Shared/CoreSurfaceRegistration.php:2129
 #: src/Shared/Frontend/Components/EvidencePanel.php:291
 #: src/Shared/Frontend/DashboardShortcode.php:931
 #: src/Shared/Frontend/FrontendConfigurationView.php:284
@@ -7704,8 +7749,8 @@ msgstr "Ontwikkelplannen"
 #: src/Shared/Admin/BackNavigator.php:115
 #: src/Shared/CoreSurfaceRegistration.php:714
 #: src/Shared/CoreSurfaceRegistration.php:755
-#: src/Shared/CoreSurfaceRegistration.php:2036
-#: src/Shared/CoreSurfaceRegistration.php:2060
+#: src/Shared/CoreSurfaceRegistration.php:2073
+#: src/Shared/CoreSurfaceRegistration.php:2097
 #: src/Shared/Frontend/FrontendMailComposeView.php:52
 #: src/Shared/Frontend/FrontendPeopleManageView.php:50
 #: src/Shared/Frontend/FrontendPersonDetailView.php:31
@@ -7950,7 +7995,7 @@ msgid "Evaluator"
 msgstr "Beoordelaar"
 
 #: src/Modules/Analytics/AnalyticsModule.php:197
-#: src/Modules/Configuration/Admin/FormSlugContract.php:122
+#: src/Modules/Configuration/Admin/FormSlugContract.php:123
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:182
@@ -8312,7 +8357,7 @@ msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
 #: src/Modules/Documentation/HelpTopics.php:189
 #: src/Shared/CoreSurfaceRegistration.php:1121
 #: src/Shared/CoreSurfaceRegistration.php:1136
-#: src/Shared/CoreSurfaceRegistration.php:2156
+#: src/Shared/CoreSurfaceRegistration.php:2193
 #: src/Shared/Frontend/DashboardShortcode.php:2014
 #: src/Shared/Modules/ModuleMetadata.php:345
 msgid "Analytics"
@@ -8371,7 +8416,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Teams/Admin/TeamsPage.php:32
 #: src/Modules/Teams/Admin/TeamsPage.php:56
 #: src/Shared/Admin/BackNavigator.php:108
-#: src/Shared/CoreSurfaceRegistration.php:2042
+#: src/Shared/CoreSurfaceRegistration.php:2079
 #: src/Shared/Frontend/FrontendMyTeamSpondView.php:47
 #: src/Shared/Frontend/FrontendPersonDetailView.php:180
 #: src/Shared/Frontend/FrontendSpondView.php:185
@@ -8392,7 +8437,7 @@ msgstr "Scouts"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:126
 #: src/Modules/Pdp/Admin/SeasonsPage.php:52
 #: src/Shared/Configuration/ConfigurationSurfaces.php:164
-#: src/Shared/CoreSurfaceRegistration.php:2101
+#: src/Shared/CoreSurfaceRegistration.php:2138
 #: src/Shared/Frontend/FrontendSeasonsView.php:54
 #: src/Shared/Frontend/FrontendSeasonsView.php:57
 #: src/Shared/Frontend/FrontendSeasonsView.php:137
@@ -8438,7 +8483,7 @@ msgstr "Geen vermeldingen."
 #: src/Modules/Stats/Admin/UsageStatsPage.php:354
 #: src/Shared/Admin/BackNavigator.php:128
 #: src/Shared/CoreSurfaceRegistration.php:1175
-#: src/Shared/CoreSurfaceRegistration.php:2162
+#: src/Shared/CoreSurfaceRegistration.php:2199
 #: src/Shared/Frontend/FrontendReportDetailView.php:62
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:52
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:53
@@ -11265,7 +11310,7 @@ msgstr "Je moet administrator zijn om deze pagina te bekijken."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:73
 #: src/Shared/Admin/BackNavigator.php:144
-#: src/Shared/CoreSurfaceRegistration.php:2325
+#: src/Shared/CoreSurfaceRegistration.php:2362
 #: src/Shared/Frontend/FrontendRolesView.php:131
 msgid "Permission Chain Debug"
 msgstr "Debug rechtenketen"
@@ -11513,7 +11558,7 @@ msgstr "beide lagen gaven false terug — controleer persona's + matrix-seed"
 #: src/Modules/Authorization/Admin/RolesPage.php:72
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:314
 #: src/Shared/Admin/BackNavigator.php:143
-#: src/Shared/CoreSurfaceRegistration.php:2308
+#: src/Shared/CoreSurfaceRegistration.php:2345
 #: src/Shared/Frontend/FrontendRolesView.php:130
 msgid "Permission Debug"
 msgstr "Rechten-diagnose"
@@ -11690,7 +11735,7 @@ msgstr "Oude brug: head_coach_id (uitgefaseerd)"
 #: src/Modules/Authorization/Admin/RolesPage.php:71
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:298
 #: src/Shared/Admin/BackNavigator.php:142
-#: src/Shared/CoreSurfaceRegistration.php:2299
+#: src/Shared/CoreSurfaceRegistration.php:2336
 msgid "Functional Roles"
 msgstr "Functionele rollen"
 
@@ -11721,7 +11766,7 @@ msgstr ""
 # v3.47.0 — Roles & rights / Functional roles labelling
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:79
 #: src/Modules/Authorization/Admin/RolesPage.php:59
-#: src/Shared/CoreSurfaceRegistration.php:2290
+#: src/Shared/CoreSurfaceRegistration.php:2327
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:138
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:140
 #: src/Shared/Frontend/FrontendRolesView.php:39
@@ -11759,7 +11804,7 @@ msgstr "Sleutel"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:615
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:775
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:796
-#: src/Modules/Configuration/Admin/FormSlugContract.php:120
+#: src/Modules/Configuration/Admin/FormSlugContract.php:121
 #: src/Modules/DataBrowser/SemanticRegistry.php:138
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:289
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
@@ -11915,7 +11960,7 @@ msgstr "Je hebt geen toestemming om gebruikers te impersoneren."
 
 # v3.82.1 hotfix bundle
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:39
-#: src/Shared/CoreSurfaceRegistration.php:2007
+#: src/Shared/CoreSurfaceRegistration.php:2044
 msgid "Impersonate user"
 msgstr "Imiteer gebruiker"
 
@@ -12056,7 +12101,7 @@ msgstr "Eigen velden"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:331
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:384
 #: src/Shared/CoreSurfaceRegistration.php:1498
-#: src/Shared/CoreSurfaceRegistration.php:2264
+#: src/Shared/CoreSurfaceRegistration.php:2301
 #: src/Shared/Frontend/FrontendMigrationsView.php:35
 #: src/Shared/Frontend/FrontendMigrationsView.php:36
 msgid "Migrations"
@@ -12124,7 +12169,7 @@ msgstr "Workflow-templates"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:46
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:383
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:79
-#: src/Shared/CoreSurfaceRegistration.php:1618
+#: src/Shared/CoreSurfaceRegistration.php:1655
 #: src/Shared/Modules/ModuleMetadata.php:97
 msgid "Invitations"
 msgstr "Uitnodigingen"
@@ -12177,7 +12222,7 @@ msgstr "Stafontwikkeling"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:147
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:40
-#: src/Shared/CoreSurfaceRegistration.php:1823
+#: src/Shared/CoreSurfaceRegistration.php:1860
 msgid "Staff overview"
 msgstr "Stafoverzicht"
 
@@ -12189,7 +12234,7 @@ msgstr "Gesprekken"
 #: src/Modules/License/FeatureMap.php:411
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
 #: src/Shared/Configuration/ConfigurationSurfaces.php:348
-#: src/Shared/CoreSurfaceRegistration.php:2253
+#: src/Shared/CoreSurfaceRegistration.php:2290
 #: src/Shared/Frontend/FrontendSpondView.php:58
 msgid "Spond integration"
 msgstr "Spond-integratie"
@@ -12384,7 +12429,7 @@ msgstr "V"
 # === #0033 Sprints 3+4+5+6+7+8+9 — Authorization matrix admin strings ===
 #: src/Modules/Authorization/Admin/MatrixPage.php:68
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:294
-#: src/Shared/CoreSurfaceRegistration.php:2335
+#: src/Shared/CoreSurfaceRegistration.php:2372
 msgid "Authorization Matrix"
 msgstr "Authorisatie­matrix"
 
@@ -12588,10 +12633,10 @@ msgstr "Wijziging"
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:45
 #: src/Modules/Knowledge/Blocks/CalloutBlock.php:38
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4000
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4023
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4089
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4106
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4036
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4059
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4125
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4142
 #: src/Shared/Frontend/FrontendHolidaysView.php:85
 #: src/Shared/Frontend/FrontendHolidaysView.php:306
 msgid "Note"
@@ -12742,7 +12787,7 @@ msgstr "Je hebt geen rechten om modules te beheren."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:52
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
-#: src/Shared/CoreSurfaceRegistration.php:2365
+#: src/Shared/CoreSurfaceRegistration.php:2402
 #: src/Shared/Frontend/FrontendInstallProfileView.php:372
 #: src/Shared/Frontend/FrontendModulesView.php:236
 #: src/Shared/Frontend/FrontendModulesView.php:237
@@ -12801,7 +12846,7 @@ msgstr "Personen & teams"
 #: src/Modules/TeamDevelopment/Frontend/FrontendChemistryConfigView.php:144
 #: src/Modules/Tournaments/TournamentsModule.php:89
 #: src/Shared/CoreSurfaceRegistration.php:799
-#: src/Shared/CoreSurfaceRegistration.php:2068
+#: src/Shared/CoreSurfaceRegistration.php:2105
 #: src/Shared/Tiles/TileRegistry.php:94
 msgid "Performance"
 msgstr "Prestaties"
@@ -12821,9 +12866,9 @@ msgstr "Prestaties"
 #: src/Modules/TeamDevelopment/TeamDevelopmentModule.php:53
 #: src/Shared/Admin/BackNavigator.php:133
 #: src/Shared/CoreSurfaceRegistration.php:1452
-#: src/Shared/CoreSurfaceRegistration.php:1913
-#: src/Shared/CoreSurfaceRegistration.php:2205
-#: src/Shared/CoreSurfaceRegistration.php:2211
+#: src/Shared/CoreSurfaceRegistration.php:1950
+#: src/Shared/CoreSurfaceRegistration.php:2242
+#: src/Shared/CoreSurfaceRegistration.php:2248
 #: src/Shared/Frontend/FrontendConfigurationView.php:41
 #: src/Shared/Frontend/FrontendConfigurationView.php:171
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
@@ -12875,7 +12920,7 @@ msgid "Off"
 msgstr "Uit"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:155
-#: src/Shared/CoreSurfaceRegistration.php:1846
+#: src/Shared/CoreSurfaceRegistration.php:1883
 #: src/Shared/Frontend/FrontendFeaturesView.php:86
 #: src/Shared/Frontend/FrontendFeaturesView.php:94
 msgid "Features"
@@ -15264,6 +15309,8 @@ msgstr "— Elk —"
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:197
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:262
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:104
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:21
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:47
 #: src/Shared/Frontend/FrontendMailComposeView.php:150
 msgid "Message"
 msgstr "Bericht"
@@ -15379,7 +15426,9 @@ msgid "Security check failed. Please reload the page and try again."
 msgstr "Beveiligingscontrole mislukt. Herlaad de pagina en probeer opnieuw."
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:103
-#: src/Modules/Comms/Rest/CommsRestController.php:452
+#: src/Modules/Comms/Rest/CommsRestController.php:489
+#: src/Modules/Comms/Rest/CommsRestController.php:597
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:111
 msgid "A subject and a message are both required."
 msgstr "Een onderwerp en een bericht zijn allebei verplicht."
 
@@ -15409,15 +15458,18 @@ msgstr ""
 "Je ziet precies hoeveel mensen het bereikt voordat er iets wordt verstuurd."
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:167
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:43
 msgid "Who this reaches"
 msgstr "Wie dit bereikt"
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:172
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:75
 msgid "Every family in the academy"
 msgstr "Elk gezin in de academie"
 
 #. translators: %s: the team's name
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:180
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:53
 #, php-format
 msgid "The families of %s"
 msgstr "De gezinnen van %s"
@@ -15432,6 +15484,7 @@ msgstr ""
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:191
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:256
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:36
 #: src/Shared/Frontend/FrontendMailComposeView.php:146
 msgid "Subject"
 msgstr "Onderwerp"
@@ -15473,6 +15526,7 @@ msgstr ""
 "berichtenlogboek."
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:242
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:64
 msgid ""
 "Nobody in this audience can be reached, so there is nothing to send. Check "
 "the contact details on the player records first."
@@ -15526,37 +15580,40 @@ msgstr[0] "Verstuurd naar %d persoon."
 msgstr[1] "Verstuurd naar %d personen."
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:378
+#: src/Modules/Comms/Send/MassAnnouncementSender.php:297
 msgid "Every family in the academy."
 msgstr "Elk gezin in de academie."
 
 #. translators: %s: the team's name
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:384
+#: src/Modules/Comms/Send/MassAnnouncementSender.php:310
 #, php-format
 msgid "The families of %s."
 msgstr "De gezinnen van %s."
 
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:389
+#: src/Modules/Comms/Send/MassAnnouncementSender.php:315
 msgid "One team."
 msgstr "Eén team."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:326
+#: src/Modules/Comms/Rest/CommsRestController.php:363
 msgid "That message is not in your inbox."
 msgstr "Dat bericht staat niet in je inbox."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:333
+#: src/Modules/Comms/Rest/CommsRestController.php:370
 msgid "The message could not be updated."
 msgstr "Het bericht kon niet worden bijgewerkt."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:388
+#: src/Modules/Comms/Rest/CommsRestController.php:425
 msgid "No such message template."
 msgstr "Dit berichtsjabloon bestaat niet."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:418
 #: src/Modules/Comms/Rest/CommsRestController.php:455
+#: src/Modules/Comms/Rest/CommsRestController.php:492
 msgid "A team-scoped broadcast needs a team."
 msgstr "Een teamgericht bericht heeft een team nodig."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:447
+#: src/Modules/Comms/Rest/CommsRestController.php:484
 msgid ""
 "Confirm you understand this reaches every recipient in the audience and "
 "cannot be refused."
@@ -15564,13 +15621,45 @@ msgstr ""
 "Bevestig dat je begrijpt dat dit elke ontvanger in de doelgroep bereikt en "
 "niet geweigerd kan worden."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:460
+#: src/Modules/Comms/Rest/CommsRestController.php:497
+#: src/Modules/Comms/Rest/CommsRestController.php:611
 msgid "Nobody in this audience could be reached."
 msgstr "Niemand in deze doelgroep was bereikbaar."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:489
+#: src/Modules/Comms/Rest/CommsRestController.php:543
+msgid "A team announcement needs a team."
+msgstr "Een teamaankondiging heeft een team nodig."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:546
+msgid "An age-group announcement needs an age group."
+msgstr ""
+"Een aankondiging voor een leeftijdscategorie heeft een leeftijdscategorie "
+"nodig."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:555
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:98
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:119
+msgid "You cannot send an announcement to that audience."
+msgstr "Je mag geen aankondiging naar die doelgroep versturen."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:600
+msgid "The subject is too long."
+msgstr "Het onderwerp is te lang."
+
+#: src/Modules/Comms/Rest/CommsRestController.php:641
 msgid "Expected a list of message types."
 msgstr "Er werd een lijst met berichtsoorten verwacht."
+
+#. translators: %s: an age group, for example O13
+#: src/Modules/Comms/Send/MassAnnouncementSender.php:302
+#, php-format
+msgid "Every family in %s."
+msgstr "Elk gezin in %s."
+
+#: src/Modules/Comms/Send/MassAnnouncementSender.php:420
+#: src/Modules/Comms/Send/SafeguardingBroadcastSender.php:204
+msgid "The academy"
+msgstr "De academie"
 
 #: src/Modules/Comms/Send/MethodologyDeliveredSend.php:127
 msgid "See the plan for what this training is working on."
@@ -15579,10 +15668,6 @@ msgstr "Bekijk het plan voor waar deze training aan werkt."
 #: src/Modules/Comms/Send/SafeguardingBroadcastSender.php:119
 msgid "Safeguarding"
 msgstr "Veiligheid en welzijn"
-
-#: src/Modules/Comms/Send/SafeguardingBroadcastSender.php:204
-msgid "The academy"
-msgstr "De academie"
 
 #: src/Modules/Comms/Template/TemplateGuide.php:65
 msgid "People need to know now"
@@ -15742,20 +15827,20 @@ msgstr "De teams, leeftijdsgroepen of rollen die de afzender kiest."
 msgid "When somebody sends an announcement."
 msgstr "Zodra iemand een mededeling verstuurt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:203
+#: src/Modules/Comms/Template/TemplateGuide.php:205
 msgid "An email a member of staff typed and sent from inside TalentTrack."
 msgstr ""
 "Een e-mail die een medewerker binnen TalentTrack heeft getypt en verstuurd."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:204
+#: src/Modules/Comms/Template/TemplateGuide.php:206
 msgid "Whoever the sender addressed it to."
 msgstr "Degene aan wie de afzender hem gericht heeft."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:205
+#: src/Modules/Comms/Template/TemplateGuide.php:207
 msgid "When a member of staff sends one."
 msgstr "Zodra een medewerker er een verstuurt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:210
+#: src/Modules/Comms/Template/TemplateGuide.php:212
 msgid ""
 "A confidential one-time link to a player report, for somebody outside the "
 "academy."
@@ -15763,158 +15848,158 @@ msgstr ""
 "Een vertrouwelijke eenmalige link naar een spelersrapport, voor iemand "
 "buiten de academie."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:211
+#: src/Modules/Comms/Template/TemplateGuide.php:213
 msgid "The scout the report was shared with."
 msgstr "De scout met wie het rapport is gedeeld."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:212
+#: src/Modules/Comms/Template/TemplateGuide.php:214
 msgid "When a player report is shared with a scout."
 msgstr "Zodra een spelersrapport met een scout wordt gedeeld."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:217
+#: src/Modules/Comms/Template/TemplateGuide.php:219
 msgid ""
 "Delivers a report on the schedule somebody set up, with the file attached."
 msgstr ""
 "Bezorgt een rapport volgens het schema dat iemand heeft ingesteld, met het "
 "bestand als bijlage."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:218
+#: src/Modules/Comms/Template/TemplateGuide.php:220
 msgid "The recipients on that scheduled report."
 msgstr "De ontvangers van dat geplande rapport."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:219
+#: src/Modules/Comms/Template/TemplateGuide.php:221
 msgid "On the report's own schedule."
 msgstr "Volgens het schema van het rapport zelf."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:224
+#: src/Modules/Comms/Template/TemplateGuide.php:226
 msgid "Emails somebody a link to a screen that needs a bigger display."
 msgstr ""
 "Mailt iemand een link naar een scherm dat een groter beeld nodig heeft."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:225
+#: src/Modules/Comms/Template/TemplateGuide.php:227
 msgid "The person who pressed the button, at their own address."
 msgstr "Degene die op de knop drukte, op het eigen adres."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:226
+#: src/Modules/Comms/Template/TemplateGuide.php:228
 msgid "When somebody asks for the link on a phone."
 msgstr "Zodra iemand op een telefoon om de link vraagt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:234
+#: src/Modules/Comms/Template/TemplateGuide.php:236
 msgid "Tells a family the selection decision for next season."
 msgstr "Vertelt een gezin het selectiebesluit voor komend seizoen."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:235
-#: src/Modules/Comms/Template/TemplateGuide.php:242
+#: src/Modules/Comms/Template/TemplateGuide.php:237
+#: src/Modules/Comms/Template/TemplateGuide.php:244
 msgid "The player and their parents."
 msgstr "De speler en zijn of haar ouders."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:236
+#: src/Modules/Comms/Template/TemplateGuide.php:238
 msgid "When a selection letter is sent."
 msgstr "Zodra een selectiebrief wordt verstuurd."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:241
+#: src/Modules/Comms/Template/TemplateGuide.php:243
 msgid "Says a development plan or evaluation is finished and ready to read."
 msgstr "Meldt dat een ontwikkelplan of evaluatie klaar is om te lezen."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:243
+#: src/Modules/Comms/Template/TemplateGuide.php:245
 msgid "When a plan or evaluation is published."
 msgstr "Zodra een plan of evaluatie wordt gepubliceerd."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:248
+#: src/Modules/Comms/Template/TemplateGuide.php:250
 msgid "Invites parents to a meeting about their child."
 msgstr "Nodigt ouders uit voor een gesprek over hun kind."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:249
+#: src/Modules/Comms/Template/TemplateGuide.php:251
 msgid "The player's parents."
 msgstr "De ouders van de speler."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:250
+#: src/Modules/Comms/Template/TemplateGuide.php:252
 msgid "When a parent meeting is arranged."
 msgstr "Zodra een oudergesprek wordt ingepland."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:255
+#: src/Modules/Comms/Template/TemplateGuide.php:257
 msgid ""
 "Shares an activity plan or a piece of the academy methodology with a coach."
 msgstr ""
 "Deelt een activiteitenplan of een onderdeel van de academiemethodiek met een "
 "trainer."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:256
+#: src/Modules/Comms/Template/TemplateGuide.php:258
 msgid "The coaching staff it was shared with."
 msgstr "De trainers met wie het gedeeld is."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:257
+#: src/Modules/Comms/Template/TemplateGuide.php:259
 msgid "When a plan is delivered to a coach."
 msgstr "Zodra een plan bij een trainer wordt bezorgd."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:265
+#: src/Modules/Comms/Template/TemplateGuide.php:267
 msgid "Reminds a player about a goal nobody has updated in a while."
 msgstr "Herinnert een speler aan een doel dat al een tijd niet is bijgewerkt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:266
+#: src/Modules/Comms/Template/TemplateGuide.php:268
 msgid "The player, and their parents when the player has no account."
 msgstr "De speler, en de ouders wanneer de speler geen account heeft."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:267
+#: src/Modules/Comms/Template/TemplateGuide.php:269
 msgid "Daily check; sends for goals untouched for four weeks or more."
 msgstr ""
 "Dagelijkse controle; gaat de deur uit bij doelen die vier weken of langer "
 "onaangeroerd zijn."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:272
+#: src/Modules/Comms/Template/TemplateGuide.php:274
 msgid "Flags a run of missed trainings so somebody asks why."
 msgstr "Signaleert een reeks gemiste trainingen, zodat iemand ernaar vraagt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:273
+#: src/Modules/Comms/Template/TemplateGuide.php:275
 msgid "The player's coach."
 msgstr "De trainer van de speler."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:274
+#: src/Modules/Comms/Template/TemplateGuide.php:276
 msgid "Daily check; sends after three absences in a row."
 msgstr "Dagelijkse controle; gaat de deur uit na drie keer afwezig op rij."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:279
+#: src/Modules/Comms/Template/TemplateGuide.php:281
 msgid "Nudges a parent who was given an account and has not used it."
 msgstr ""
 "Port een ouder die een account heeft gekregen en er nog niets mee heeft "
 "gedaan."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:280
+#: src/Modules/Comms/Template/TemplateGuide.php:282
 msgid "The parent."
 msgstr "De ouder."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:281
+#: src/Modules/Comms/Template/TemplateGuide.php:283
 msgid "Daily check; sends after 30 days without a sign-in."
 msgstr "Dagelijkse controle; gaat de deur uit na 30 dagen zonder inloggen."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:286
+#: src/Modules/Comms/Template/TemplateGuide.php:288
 msgid "Reminds a member of staff that their own development review is due."
 msgstr ""
 "Herinnert een medewerker eraan dat het eigen ontwikkelgesprek eraan komt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:287
+#: src/Modules/Comms/Template/TemplateGuide.php:289
 msgid "The member of staff."
 msgstr "De medewerker."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:288
+#: src/Modules/Comms/Template/TemplateGuide.php:290
 msgid "Daily check; sends in the week before the review date."
 msgstr ""
 "Dagelijkse controle; gaat de deur uit in de week voor de gespreksdatum."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:293
+#: src/Modules/Comms/Template/TemplateGuide.php:295
 msgid "Chases staff whose verdict on a trial is still missing."
 msgstr ""
 "Port medewerkers van wie het oordeel over een proefperiode nog ontbreekt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:294
+#: src/Modules/Comms/Template/TemplateGuide.php:296
 msgid "The staff assigned to that trial."
 msgstr "De medewerkers die aan die proefperiode zijn toegewezen."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:295
+#: src/Modules/Comms/Template/TemplateGuide.php:297
 msgid "While a trial is open and their input has not been given."
 msgstr "Zolang een proefperiode loopt en hun input nog ontbreekt."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:300
+#: src/Modules/Comms/Template/TemplateGuide.php:302
 msgid ""
 "One email collecting the alerts raised since the last one, instead of an "
 "email each."
@@ -15922,15 +16007,15 @@ msgstr ""
 "Eén e-mail met alle meldingen sinds de vorige, in plaats van een mail per "
 "melding."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:301
+#: src/Modules/Comms/Template/TemplateGuide.php:303
 msgid "The staff those alerts are for."
 msgstr "De medewerkers voor wie die meldingen bedoeld zijn."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:302
+#: src/Modules/Comms/Template/TemplateGuide.php:304
 msgid "On the digest schedule set under Alerts."
 msgstr "Volgens het schema dat onder Meldingen is ingesteld."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:307
+#: src/Modules/Comms/Template/TemplateGuide.php:309
 msgid ""
 "Tells somebody about activity aimed at them — a new message in a "
 "conversation, a task, a reply to an idea."
@@ -15938,11 +16023,11 @@ msgstr ""
 "Vertelt iemand over activiteit die voor hem of haar bedoeld is — een nieuw "
 "bericht in een gesprek, een taak, een reactie op een idee."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:308
+#: src/Modules/Comms/Template/TemplateGuide.php:310
 msgid "The person the activity concerns."
 msgstr "De persoon die het betreft."
 
-#: src/Modules/Comms/Template/TemplateGuide.php:309
+#: src/Modules/Comms/Template/TemplateGuide.php:311
 msgid "When the activity happens."
 msgstr "Zodra de activiteit plaatsvindt."
 
@@ -16326,17 +16411,17 @@ msgstr ""
 "Met vriendelijke groet,\n"
 "{hod_name}"
 
-#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:25
+#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:28
 msgid "Mass announcement"
 msgstr "Massamededeling"
 
-#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:32
-#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:36
+#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:35
+#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:39
 msgid "{announcement_subject}"
 msgstr "{announcement_subject}"
 
-#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:33
-#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:37
+#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:36
+#: src/Modules/Comms/Templates/MassAnnouncementTemplate.php:40
 msgid ""
 "{announcement_body}\n"
 "\n"
@@ -17242,7 +17327,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:538
 #: src/Modules/Stats/Admin/UsageStatsPage.php:358
 #: src/Shared/Admin/BackNavigator.php:137
-#: src/Shared/CoreSurfaceRegistration.php:2229
+#: src/Shared/CoreSurfaceRegistration.php:2266
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:683
 msgid "Evaluation Categories"
 msgstr "Evaluatie-categorieën"
@@ -17257,7 +17342,7 @@ msgstr "Hiërarchie van evaluatiecategorieën (Technisch, Tactisch, …)."
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:539
 #: src/Modules/Stats/Admin/UsageStatsPage.php:359
 #: src/Shared/Admin/BackNavigator.php:140
-#: src/Shared/CoreSurfaceRegistration.php:2238
+#: src/Shared/CoreSurfaceRegistration.php:2275
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:684
 msgid "Category Weights"
 msgstr "Categorie gewichten"
@@ -17308,7 +17393,7 @@ msgid "Inspect the WordPress roles and capabilities TalentTrack uses."
 msgstr "Bekijk de WordPress-rollen en bevoegdheden die TalentTrack gebruikt."
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:304
-#: src/Shared/CoreSurfaceRegistration.php:2345
+#: src/Shared/CoreSurfaceRegistration.php:2382
 #: src/Shared/Frontend/FrontendRolesView.php:128
 msgid "Activate access control"
 msgstr "Toegangsbeheer activeren"
@@ -17357,7 +17442,7 @@ msgstr "Aangepaste gegevens"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:537
 #: src/Modules/Stats/Admin/UsageStatsPage.php:357
 #: src/Shared/Admin/BackNavigator.php:134
-#: src/Shared/CoreSurfaceRegistration.php:2220
+#: src/Shared/CoreSurfaceRegistration.php:2257
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:682
 msgid "Custom Fields"
 msgstr "Aangepaste velden"
@@ -17428,7 +17513,7 @@ msgstr "Toggles opslaan"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:436
 #: src/Modules/Onboarding/OnboardingState.php:61
-#: src/Shared/CoreSurfaceRegistration.php:1944
+#: src/Shared/CoreSurfaceRegistration.php:1981
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:139
 #: src/Shared/Frontend/FrontendTileGrid.php:815
 msgid "Welcome"
@@ -18359,7 +18444,7 @@ msgstr "Alleen waarschuwingen"
 # these into the proper position on next run; meanwhile they land here
 # verbatim so a Dutch install reads correctly today.
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:55
-#: src/Shared/CoreSurfaceRegistration.php:2276
+#: src/Shared/CoreSurfaceRegistration.php:2313
 msgid "Error Log"
 msgstr "Foutenlog"
 
@@ -18612,12 +18697,12 @@ msgstr "WordPress-gebruiker"
 msgid "Role type"
 msgstr "Roltype"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:104
+#: src/Modules/Configuration/Admin/FormSlugContract.php:100
 msgid "Activity date"
 msgstr "Activiteitdatum"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:110
-#: src/Modules/Configuration/Admin/FormSlugContract.php:134
+#: src/Modules/Configuration/Admin/FormSlugContract.php:111
+#: src/Modules/Configuration/Admin/FormSlugContract.php:135
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:452
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
@@ -18629,19 +18714,19 @@ msgstr "Activiteitdatum"
 #: src/Shared/Frontend/CoachForms.php:258
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1233
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1484
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3742
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3778
 #: src/Shared/Frontend/FrontendEvaluationsView.php:292
 #: src/Shared/Frontend/FrontendEvaluationsView.php:467
 msgid "Opponent"
 msgstr "Tegenstander"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:111
+#: src/Modules/Configuration/Admin/FormSlugContract.php:112
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1242
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3746
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3782
 msgid "Home / Away"
 msgstr "Thuis / Uit"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:123
+#: src/Modules/Configuration/Admin/FormSlugContract.php:124
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:26
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:44
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
@@ -18652,15 +18737,15 @@ msgid "Due date"
 msgstr "Deadline"
 
 # New entity slug labels (for Custom Fields "Insert after" dropdown)
-#: src/Modules/Configuration/Admin/FormSlugContract.php:132
+#: src/Modules/Configuration/Admin/FormSlugContract.php:133
 msgid "Evaluation type"
 msgstr "Evaluatietype"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:133
+#: src/Modules/Configuration/Admin/FormSlugContract.php:134
 msgid "Evaluation date"
 msgstr "Evaluatiedatum"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:135
+#: src/Modules/Configuration/Admin/FormSlugContract.php:136
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:455
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:242
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:54
@@ -18669,17 +18754,17 @@ msgstr "Evaluatiedatum"
 msgid "Competition"
 msgstr "Competitie"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:136
+#: src/Modules/Configuration/Admin/FormSlugContract.php:137
 msgid "Match result"
 msgstr "Wedstrijdresultaat"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:137
+#: src/Modules/Configuration/Admin/FormSlugContract.php:138
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Shared/Frontend/CoachForms.php:269
 msgid "Home/Away"
 msgstr "Thuis/Uit"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:138
+#: src/Modules/Configuration/Admin/FormSlugContract.php:139
 #: src/Modules/DataBrowser/SemanticRegistry.php:111
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:56
@@ -18692,7 +18777,7 @@ msgid "Minutes played"
 msgstr "Gespeelde minuten"
 
 #: src/Modules/Configuration/Admin/MigrationsPage.php:40
-#: src/Shared/CoreSurfaceRegistration.php:2263
+#: src/Shared/CoreSurfaceRegistration.php:2300
 msgid "Database Migrations"
 msgstr "Database-migraties"
 
@@ -20618,7 +20703,7 @@ msgid "Basic"
 msgstr "Basis"
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:400
-#: src/Shared/CoreSurfaceRegistration.php:1916
+#: src/Shared/CoreSurfaceRegistration.php:1953
 #: src/Shared/Frontend/FrontendConfigurationView.php:1829
 msgid "Advanced"
 msgstr "Geavanceerd"
@@ -21225,7 +21310,7 @@ msgid "You do not have permission to review demo data."
 msgstr "Je hebt geen toestemming om demogegevens te beoordelen."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:53
-#: src/Shared/CoreSurfaceRegistration.php:1992
+#: src/Shared/CoreSurfaceRegistration.php:2029
 msgid "Demo data review"
 msgstr "Demogegevens beoordelen"
 
@@ -22227,7 +22312,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:541
 #: src/Modules/Stats/Admin/UsageStatsPage.php:361
 #: src/Shared/Admin/BackNavigator.php:145
-#: src/Shared/CoreSurfaceRegistration.php:2387
+#: src/Shared/CoreSurfaceRegistration.php:2424
 #: src/Shared/Frontend/FrontendDocsView.php:40
 #: src/Shared/Frontend/FrontendDocsView.php:41
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:686
@@ -22249,8 +22334,8 @@ msgid "No matching topics."
 msgstr "Geen passende onderwerpen."
 
 #: src/Modules/Documentation/Admin/DocumentationPage.php:215
-#: src/Shared/CoreSurfaceRegistration.php:1915
-#: src/Shared/CoreSurfaceRegistration.php:2381
+#: src/Shared/CoreSurfaceRegistration.php:1952
+#: src/Shared/CoreSurfaceRegistration.php:2418
 #: src/Shared/Frontend/DashboardShortcode.php:2381
 #: src/Shared/Frontend/FrontendDocsView.php:97
 msgid "Help"
@@ -22313,7 +22398,7 @@ msgid "Mobile install"
 msgstr "Mobiele installatie"
 
 #: src/Modules/Documentation/HelpTopics.php:194
-#: src/Shared/CoreSurfaceRegistration.php:1925
+#: src/Shared/CoreSurfaceRegistration.php:1962
 msgid "Developer"
 msgstr "Ontwikkelaar"
 
@@ -22664,7 +22749,7 @@ msgstr "Uitslag"
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1237
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3749
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3785
 #: src/Shared/Frontend/FrontendMyTeamView.php:144
 msgid "Home"
 msgstr "Thuis"
@@ -22676,7 +22761,7 @@ msgstr "Thuis"
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1238
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3750
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3786
 #: src/Shared/Frontend/FrontendMyTeamView.php:144
 msgid "Away"
 msgstr "Uit"
@@ -23709,9 +23794,9 @@ msgstr "Dupliceren"
 #: src/Shared/Frontend/Components/MediaGallery.php:232
 #: src/Shared/Frontend/Components/MediaUploader.php:180
 #: src/Shared/Frontend/DashboardShortcode.php:323
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4299
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4333
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4339
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4335
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4369
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4375
 #: src/Shared/Frontend/FrontendConfigurationView.php:1689
 #: src/Shared/Frontend/FrontendConfigurationView.php:2939
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:128
@@ -26812,7 +26897,7 @@ msgstr[1] "%d uur"
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:21
 #: src/Modules/Training/Wizard/ReviewStep.php:25
 #: src/Modules/Vct/Wizard/ReviewStep.php:41
-#: src/Modules/Wizards/Activity/ReviewStep.php:26
+#: src/Modules/Wizards/Activity/ReviewStep.php:27
 #: src/Modules/Wizards/Evaluation/ReviewStep.php:25
 #: src/Modules/Wizards/Person/ReviewStep.php:22
 #: src/Modules/Wizards/Player/ReviewStep.php:28
@@ -26959,7 +27044,7 @@ msgid "%1$s and %2$s"
 msgstr "%1$s en %2$s"
 
 #: src/Modules/Knowledge/Frontend/FrontendMyLearningView.php:35
-#: src/Shared/CoreSurfaceRegistration.php:1738
+#: src/Shared/CoreSurfaceRegistration.php:1775
 msgid "My learning"
 msgstr "Mijn leren"
 
@@ -27026,7 +27111,7 @@ msgid "Not counted"
 msgstr "Telt niet mee"
 
 #: src/Modules/Knowledge/Frontend/FrontendSubmissionReviewView.php:56
-#: src/Shared/CoreSurfaceRegistration.php:1798
+#: src/Shared/CoreSurfaceRegistration.php:1835
 msgid "Assignments to review"
 msgstr "Opdrachten om te beoordelen"
 
@@ -27752,7 +27837,7 @@ msgstr "TalentTrack — Account"
 #: src/Modules/License/Admin/AccountPage.php:106
 #: src/Modules/Mfa/Wizards/SecretStep.php:110
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:141
-#: src/Shared/CoreSurfaceRegistration.php:1958
+#: src/Shared/CoreSurfaceRegistration.php:1995
 #: src/Shared/Frontend/FrontendMyProfileView.php:297
 #: src/Shared/Frontend/FrontendSpondView.php:127
 #: src/Shared/Frontend/FrontendSpondView.php:218
@@ -27782,7 +27867,7 @@ msgstr "Je moet ingelogd zijn om je MFA-instellingen te beheren."
 #: src/Modules/Mfa/Frontend/FrontendMfaPromptView.php:206
 #: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php:93
 #: src/Modules/Mfa/Frontend/FrontendTwoFactorView.php:103
-#: src/Shared/CoreSurfaceRegistration.php:1882
+#: src/Shared/CoreSurfaceRegistration.php:1919
 msgid "Two-factor authentication"
 msgstr "Tweestapsverificatie"
 
@@ -28615,7 +28700,7 @@ msgstr "Log in om te zien op welk pakket deze academie zit."
 
 #: src/Modules/License/Frontend/FrontendPlanView.php:123
 #: src/Modules/License/Frontend/FrontendPlanView.php:133
-#: src/Shared/CoreSurfaceRegistration.php:1867
+#: src/Shared/CoreSurfaceRegistration.php:1904
 msgid "Plan and restrictions"
 msgstr "Pakket en beperkingen"
 
@@ -32111,6 +32196,7 @@ msgid "Unnamed player"
 msgstr "Naamloze speler"
 
 #: src/Modules/Media/Wizard/MediaConfirmStep.php:31
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:29
 msgid "Confirm"
 msgstr "Bevestigen"
 
@@ -32267,7 +32353,7 @@ msgid "Shipped football actions are read-only."
 msgstr "Geleverde voetbalhandelingen zijn alleen-lezen."
 
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:42
-#: src/Shared/CoreSurfaceRegistration.php:2148
+#: src/Shared/CoreSurfaceRegistration.php:2185
 msgid "Edit football action"
 msgstr "Voetbalhandeling bewerken"
 
@@ -32333,7 +32419,7 @@ msgstr "Voetbalhandeling aanmaken"
 #: src/Modules/Methodology/Frontend/MethodologyView.php:340
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:206
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:238
-#: src/Shared/CoreSurfaceRegistration.php:2140
+#: src/Shared/CoreSurfaceRegistration.php:2177
 msgid "Voetbalhandelingen"
 msgstr "Voetbalhandelingen"
 
@@ -32505,7 +32591,7 @@ msgid "Shipped influence factors are read-only."
 msgstr "Geleverde factoren zijn alleen-lezen."
 
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:53
-#: src/Shared/CoreSurfaceRegistration.php:2125
+#: src/Shared/CoreSurfaceRegistration.php:2162
 msgid "Edit influence factor"
 msgstr "Factor van invloed bewerken"
 
@@ -32554,7 +32640,7 @@ msgid "Shipped learning goals are read-only."
 msgstr "Geleverde leerdoelen zijn alleen-lezen."
 
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:48
-#: src/Shared/CoreSurfaceRegistration.php:2124
+#: src/Shared/CoreSurfaceRegistration.php:2161
 msgid "Edit learning goal"
 msgstr "Leerdoel bewerken"
 
@@ -32864,7 +32950,7 @@ msgstr "Eigen visie schrijven"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:509
 #: src/Modules/Methodology/Admin/VisionEditPage.php:63
-#: src/Shared/CoreSurfaceRegistration.php:2121
+#: src/Shared/CoreSurfaceRegistration.php:2158
 msgid "Edit vision"
 msgstr "Visie bewerken"
 
@@ -32913,7 +32999,7 @@ msgid "Author my own framework"
 msgstr "Eigen raamwerk schrijven"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:573
-#: src/Shared/CoreSurfaceRegistration.php:2122
+#: src/Shared/CoreSurfaceRegistration.php:2159
 msgid "Edit framework"
 msgstr "Raamwerk bewerken"
 
@@ -32944,7 +33030,7 @@ msgid "Shipped phases are read-only. Clone the framework primer first."
 msgstr "Geleverde fasen zijn alleen-lezen. Kloon eerst het raamwerk."
 
 #: src/Modules/Methodology/Admin/PhaseEditPage.php:45
-#: src/Shared/CoreSurfaceRegistration.php:2123
+#: src/Shared/CoreSurfaceRegistration.php:2160
 msgid "Edit phase"
 msgstr "Fase bewerken"
 
@@ -32980,7 +33066,7 @@ msgid "Shipped positions are read-only. Use Clone & Edit instead."
 msgstr "Geleverde posities zijn alleen-lezen. Gebruik Klonen & bewerken."
 
 #: src/Modules/Methodology/Admin/PositionEditPage.php:64
-#: src/Shared/CoreSurfaceRegistration.php:2119
+#: src/Shared/CoreSurfaceRegistration.php:2156
 msgid "Edit position"
 msgstr "Positie bewerken"
 
@@ -33040,7 +33126,7 @@ msgid "Shipped principles are read-only. Use Clone & Edit instead."
 msgstr "Geleverde principes zijn alleen-lezen. Gebruik Klonen & bewerken."
 
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:84
-#: src/Shared/CoreSurfaceRegistration.php:2118
+#: src/Shared/CoreSurfaceRegistration.php:2155
 msgid "Edit principle"
 msgstr "Principe bewerken"
 
@@ -33106,7 +33192,7 @@ msgstr ""
 "Geleverde spelhervattingen zijn alleen-lezen. Gebruik Klonen & bewerken."
 
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:59
-#: src/Shared/CoreSurfaceRegistration.php:2120
+#: src/Shared/CoreSurfaceRegistration.php:2157
 msgid "Edit set piece"
 msgstr "Spelhervatting bewerken"
 
@@ -38413,7 +38499,7 @@ msgstr "Mijn check-ins"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:54
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:62
 #: src/Shared/CoreSurfaceRegistration.php:546
-#: src/Shared/CoreSurfaceRegistration.php:1696
+#: src/Shared/CoreSurfaceRegistration.php:1733
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:127
@@ -38432,7 +38518,7 @@ msgstr "Mijn activiteiten"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59
 #: src/Shared/CoreSurfaceRegistration.php:579
-#: src/Shared/CoreSurfaceRegistration.php:1680
+#: src/Shared/CoreSurfaceRegistration.php:1717
 #: src/Shared/Frontend/FrontendMyGoalsView.php:33
 #: src/Shared/Frontend/FrontendMyGoalsView.php:46
 msgid "My goals"
@@ -38441,7 +38527,7 @@ msgstr "Mijn doelen"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:52
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:600
-#: src/Shared/CoreSurfaceRegistration.php:1662
+#: src/Shared/CoreSurfaceRegistration.php:1699
 msgid "My PDP"
 msgstr "Mijn POP"
 
@@ -38509,7 +38595,7 @@ msgstr "Stages"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:258
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:382
 #: src/Modules/Players/Frontend/FrontendAccountsHubView.php:23
-#: src/Shared/CoreSurfaceRegistration.php:1605
+#: src/Shared/CoreSurfaceRegistration.php:1642
 msgid "Accounts & access"
 msgstr "Accounts & toegang"
 
@@ -41655,6 +41741,7 @@ msgid "Recipient"
 msgstr "Ontvanger"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:26
 #: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgid "Audience"
 msgstr "Doelgroep"
@@ -42389,7 +42476,7 @@ msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:40
-#: src/Shared/CoreSurfaceRegistration.php:1712
+#: src/Shared/CoreSurfaceRegistration.php:1749
 msgid "My certifications"
 msgstr "Mijn certificeringen"
 
@@ -42693,7 +42780,7 @@ msgstr "Niet beoordeeld"
 
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:128
 #: src/Shared/Admin/BackNavigator.php:130
-#: src/Shared/CoreSurfaceRegistration.php:2180
+#: src/Shared/CoreSurfaceRegistration.php:2217
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1919
 msgid "Player Comparison"
 msgstr "Spelersvergelijking"
@@ -42781,7 +42868,7 @@ msgstr "Geen beoordeelde evaluaties in het huidige filtervenster."
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:535
 #: src/Modules/Stats/Admin/UsageStatsPage.php:355
 #: src/Shared/Admin/BackNavigator.php:129
-#: src/Shared/CoreSurfaceRegistration.php:2171
+#: src/Shared/CoreSurfaceRegistration.php:2208
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:680
 msgid "Player Rate Cards"
 msgstr "Speler rapporten"
@@ -42843,7 +42930,7 @@ msgstr ""
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:55
 #: src/Shared/Admin/BackNavigator.php:132
-#: src/Shared/CoreSurfaceRegistration.php:2197
+#: src/Shared/CoreSurfaceRegistration.php:2234
 msgid "Usage Detail"
 msgstr "Gebruiksdetail"
 
@@ -43044,7 +43131,7 @@ msgstr "Geen gebeurtenissen."
 #: src/Modules/Stats/Admin/UsageStatsPage.php:57
 #: src/Modules/Stats/Admin/UsageStatsPage.php:360
 #: src/Shared/Admin/BackNavigator.php:131
-#: src/Shared/CoreSurfaceRegistration.php:2189
+#: src/Shared/CoreSurfaceRegistration.php:2226
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:685
 msgid "Usage Statistics"
 msgstr "Gebruiksstatistieken"
@@ -43835,7 +43922,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:363
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:391
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4309
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4345
 msgid "Add guest"
 msgstr "Gast toevoegen"
 
@@ -44067,8 +44154,8 @@ msgstr "Gedeeld"
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1353
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:399
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3994
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4083
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4030
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4119
 #: src/Shared/Frontend/FrontendTeamsManageView.php:397
 msgid "No players on this team yet."
 msgstr "Nog geen spelers in dit team."
@@ -44130,7 +44217,7 @@ msgid "That player is already on the roster."
 msgstr "Die speler staat al in de selectie."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1369
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4342
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4378
 msgid "Name is required."
 msgstr "Naam is verplicht."
 
@@ -49101,7 +49188,7 @@ msgstr "Voor welk team, op welke datum en welk tijdstip is deze VCT-training?"
 
 #: src/Modules/Vct/Wizard/WhenStep.php:68
 #: src/Modules/Wizards/Activity/DetailsStep.php:39
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3709
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3745
 msgid "Start time (optional)"
 msgstr "Begintijd (optioneel)"
 
@@ -49194,7 +49281,7 @@ msgid "Set attendance later — save the activity with no roster."
 msgstr "Aanwezigheid later instellen — sla de activiteit op zonder selectie."
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3713
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3749
 msgid "End time (optional)"
 msgstr "Eindtijd (optioneel)"
 
@@ -49227,7 +49314,7 @@ msgstr "Eindtijd moet na de starttijd liggen."
 msgid "Please describe what kind of activity this is."
 msgstr "Beschrijf wat voor soort activiteit dit is."
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:31
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:32
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:80
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:92
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:736
@@ -49235,15 +49322,15 @@ msgstr "Beschrijf wat voor soort activiteit dit is."
 msgid "New activity"
 msgstr "Nieuwe activiteit"
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:72
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:73
 msgid "Pick a team before saving as draft."
 msgstr "Kies eerst een team voordat je als concept opslaat."
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:80
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:92
 msgid "Untitled draft"
 msgstr "Concept zonder titel"
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:94
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:111
 msgid "The draft could not be saved."
 msgstr "Het concept kon niet worden opgeslagen."
 
@@ -49270,20 +49357,20 @@ msgstr ""
 "onder Methodologie."
 
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:117
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3863
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3899
 msgid "Other principles"
 msgstr "Overige principes"
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:33
+#: src/Modules/Wizards/Activity/ReviewStep.php:34
 msgid "Looks good? Create the activity to start logging attendance."
 msgstr "Klopt alles? Maak de activiteit aan om aanwezigheid te registreren."
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:113
+#: src/Modules/Wizards/Activity/ReviewStep.php:114
 msgid "Set attendance later"
 msgstr "Aanwezigheid later instellen"
 
 #. translators: %d = number of expected players
-#: src/Modules/Wizards/Activity/ReviewStep.php:118
+#: src/Modules/Wizards/Activity/ReviewStep.php:119
 #, php-format
 msgid "%d player expected"
 msgid_plural "%d players expected"
@@ -49291,24 +49378,24 @@ msgstr[0] "%d speler verwacht"
 msgstr[1] "%d spelers verwacht"
 
 #. translators: %d = number of guest players
-#: src/Modules/Wizards/Activity/ReviewStep.php:124
+#: src/Modules/Wizards/Activity/ReviewStep.php:125
 #, php-format
 msgid "%d guest"
 msgid_plural "%d guests"
 msgstr[0] "%d gast"
 msgstr[1] "%d gasten"
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:152
+#: src/Modules/Wizards/Activity/ReviewStep.php:174
 msgid "Add a guest player after creating (e.g. trial, friendly drop-in)."
 msgstr ""
 "Voeg na het aanmaken een gastspeler toe (bv. stage, vriendschappelijke "
 "trainer)."
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:172
+#: src/Modules/Wizards/Activity/ReviewStep.php:197
 msgid "The activity is missing required fields."
 msgstr "Verplichte velden ontbreken."
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:202
+#: src/Modules/Wizards/Activity/ReviewStep.php:243
 msgid "The activity could not be saved."
 msgstr "De activiteit kon niet worden opgeslagen."
 
@@ -50156,6 +50243,107 @@ msgstr ""
 "Wijs staf toe aan dit team. Elke positie is optioneel — je kunt dit later op "
 "de Personen-pagina invullen."
 
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:35
+msgid ""
+"You are not assigned to a team yet, so there is nobody to announce to. Ask "
+"an administrator to add you to one."
+msgstr ""
+"Je bent nog niet aan een team gekoppeld, dus er is niemand om iets aan te "
+"kondigen. Vraag een beheerder om je aan een team toe te voegen."
+
+#. translators: %s: an age group, for example O13
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:67
+#, php-format
+msgid "Every family in %s"
+msgstr "Elk gezin in %s"
+
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:80
+msgid ""
+"Send to the smallest group the news actually concerns. Families stop reading "
+"announcements that were not for them."
+msgstr ""
+"Stuur het naar de kleinste groep die het nieuws echt aangaat. Gezinnen gaan "
+"aankondigingen negeren die niet voor hen bedoeld waren."
+
+#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:91
+msgid "Choose who this announcement reaches."
+msgstr "Kies wie deze aankondiging bereikt."
+
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:42
+msgid ""
+"This is the line a parent sees in their inbox. Say what happened, not that "
+"there is news."
+msgstr ""
+"Dit is de regel die een ouder in zijn inbox ziet. Zeg wat er aan de hand is, "
+"niet dát er nieuws is."
+
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:50
+msgid "Plain text. Nobody can reply to it, so include anything they would ask."
+msgstr ""
+"Platte tekst. Niemand kan erop antwoorden, dus zet erin wat ze zouden vragen."
+
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:63
+msgid "Give the announcement a subject."
+msgstr "Geef de aankondiging een onderwerp."
+
+#. translators: %d: the maximum number of characters allowed in a subject
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:70
+#, php-format
+msgid "Keep the subject to %d characters or fewer."
+msgstr "Houd het onderwerp op maximaal %d tekens."
+
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:76
+msgid "Write the message before continuing."
+msgstr "Schrijf het bericht voordat je verdergaat."
+
+#. translators: %d: number of people the announcement will be sent to
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:49
+#, php-format
+msgid "This announcement will be sent to %d person."
+msgid_plural "This announcement will be sent to %d people."
+msgstr[0] "Deze aankondiging wordt naar %d persoon verstuurd."
+msgstr[1] "Deze aankondiging wordt naar %d personen verstuurd."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:55
+msgid "Anybody who has switched announcements off will not receive it."
+msgstr "Wie aankondigingen heeft uitgezet, krijgt hem niet."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:56
+msgid ""
+"Outside your academy's messaging hours it is held and delivered the next "
+"morning."
+msgstr ""
+"Buiten de berichtuurtjes van je academie wordt hij vastgehouden en de "
+"volgende ochtend bezorgd."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:57
+msgid ""
+"It cannot be recalled, and nobody can reply to it. Every send is recorded in "
+"the message log."
+msgstr ""
+"Hij is niet terug te halen en niemand kan erop antwoorden. Elke verzending "
+"wordt vastgelegd in het berichtenlogboek."
+
+#. translators: %d: number of people the announcement will be sent to
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:78
+#, php-format
+msgid "I have read it back and it is ready to go to %d person."
+msgid_plural "I have read it back and it is ready to go to %d people."
+msgstr[0] "Ik heb hem nagelezen en hij kan naar %d persoon."
+msgstr[1] "Ik heb hem nagelezen en hij kan naar %d personen."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:95
+msgid "Confirm the announcement is ready before sending it."
+msgstr "Bevestig dat de aankondiging klaar is voordat je hem verstuurt."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:124
+msgid "Nobody in this audience could be reached, so nothing was sent."
+msgstr "Niemand in deze doelgroep was bereikbaar, dus er is niets verstuurd."
+
+#: src/Modules/Wizards/TeamAnnouncement/NewTeamAnnouncementWizard.php:39
+msgid "New announcement"
+msgstr "Nieuwe aankondiging"
+
 #: src/Modules/Wizards/TeamBlueprint/NewTeamBlueprintWizard.php:20
 msgid "New blueprint"
 msgstr "Nieuwe blauwdruk"
@@ -50826,12 +51014,6 @@ msgstr "Aangemaakt (90d)"
 msgid "On-time rate"
 msgstr "Op-tijd-percentage"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
-#, php-format
-msgid "User #%d"
-msgstr "Gebruiker #%d"
-
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:52
 msgid "Your role does not have access to workflow configuration."
 msgstr "Jouw rol heeft geen toegang tot workflow-configuratie."
@@ -51303,7 +51485,7 @@ msgstr "Opslaan mislukt."
 
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:292
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4345
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4381
 #: src/Shared/Frontend/FrontendConfigurationView.php:538
 #: src/Shared/Frontend/FrontendConfigurationView.php:1173
 #: src/Shared/Frontend/FrontendConfigurationView.php:1264
@@ -52124,105 +52306,115 @@ msgstr ""
 "Verstuur een veiligheidsbericht dat elk gezin ontvangt en niemand kan "
 "uitzetten."
 
-#: src/Shared/CoreSurfaceRegistration.php:1588
+#: src/Shared/CoreSurfaceRegistration.php:1589
+msgid "Announcement"
+msgstr "Aankondiging"
+
+#: src/Shared/CoreSurfaceRegistration.php:1590
+msgid "Tell a team, an age group or the academy something, inside the record."
+msgstr ""
+"Vertel een team, een leeftijdscategorie of de academie iets, binnen het "
+"dossier."
+
+#: src/Shared/CoreSurfaceRegistration.php:1625
 #: src/Shared/Frontend/FrontendDataBrowserView.php:62
 #: src/Shared/Frontend/FrontendDataBrowserView.php:63
 #: src/Shared/Frontend/FrontendDataBrowserView.php:201
 msgid "Data Browser"
 msgstr "Databrowser"
 
-#: src/Shared/CoreSurfaceRegistration.php:1589
+#: src/Shared/CoreSurfaceRegistration.php:1626
 msgid "Browse the raw data behind TalentTrack, read-only."
 msgstr "Blader alleen-lezen door de ruwe gegevens achter TalentTrack."
 
-#: src/Shared/CoreSurfaceRegistration.php:1606
+#: src/Shared/CoreSurfaceRegistration.php:1643
 msgid "Link logins to player, parent and staff records."
 msgstr "Koppel logins aan speler-, ouder- en stafdossiers."
 
-#: src/Shared/CoreSurfaceRegistration.php:1619
+#: src/Shared/CoreSurfaceRegistration.php:1656
 msgid "Pending invites + WhatsApp message templates."
 msgstr "Wachtende uitnodigingen + WhatsApp-berichtsjablonen."
 
-#: src/Shared/CoreSurfaceRegistration.php:1637
+#: src/Shared/CoreSurfaceRegistration.php:1674
 msgid "Open wp-admin"
 msgstr "Open wp-admin"
 
-#: src/Shared/CoreSurfaceRegistration.php:1638
+#: src/Shared/CoreSurfaceRegistration.php:1675
 msgid "Drop into the full WordPress admin dashboard."
 msgstr "Spring naar het volledige WordPress-beheerscherm."
 
-#: src/Shared/CoreSurfaceRegistration.php:1663
+#: src/Shared/CoreSurfaceRegistration.php:1700
 msgid "Your personal development plan."
 msgstr "Je persoonlijke ontwikkelingsplan."
 
-#: src/Shared/CoreSurfaceRegistration.php:1681
+#: src/Shared/CoreSurfaceRegistration.php:1718
 msgid "Personal goals, optionally linked to a badge."
 msgstr "Persoonlijke doelen, optioneel gekoppeld aan een badge."
 
-#: src/Shared/CoreSurfaceRegistration.php:1697
+#: src/Shared/CoreSurfaceRegistration.php:1734
 msgid "Self and top-down staff evaluations."
 msgstr "Zelf- en top-down stafevaluaties."
 
-#: src/Shared/CoreSurfaceRegistration.php:1713
+#: src/Shared/CoreSurfaceRegistration.php:1750
 msgid "Coaching badges and certs with expiry tracking."
 msgstr "Coachbadges en certificaten met vervaltracking."
 
-#: src/Shared/CoreSurfaceRegistration.php:1739
+#: src/Shared/CoreSurfaceRegistration.php:1776
 msgid "Courses you are on, and how far you have got."
 msgstr "Cursussen die je volgt, en hoe ver je bent."
 
-#: src/Shared/CoreSurfaceRegistration.php:1764
+#: src/Shared/CoreSurfaceRegistration.php:1801
 msgid "Learning"
 msgstr "Leren"
 
-#: src/Shared/CoreSurfaceRegistration.php:1775
+#: src/Shared/CoreSurfaceRegistration.php:1812
 msgid ""
 "Coach education: methodology, periodisation, and how this academy works."
 msgstr "Coachopleiding: methodiek, periodisering en hoe deze academie werkt."
 
-#: src/Shared/CoreSurfaceRegistration.php:1799
+#: src/Shared/CoreSurfaceRegistration.php:1836
 msgid "Coursework your coaches have handed in and are waiting on."
 msgstr "Opdrachten die je trainers hebben ingeleverd en waarop ze wachten."
 
-#: src/Shared/CoreSurfaceRegistration.php:1824
+#: src/Shared/CoreSurfaceRegistration.php:1861
 msgid "Open goals, overdue reviews, expiring certs."
 msgstr "Open doelen, achterstallige reviews, vervallende certs."
 
-#: src/Shared/CoreSurfaceRegistration.php:1840
+#: src/Shared/CoreSurfaceRegistration.php:1877
 msgid "About"
 msgstr "Over"
 
-#: src/Shared/CoreSurfaceRegistration.php:1847
+#: src/Shared/CoreSurfaceRegistration.php:1884
 msgid "See which parts of TalentTrack are switched on."
 msgstr "Bekijk welke onderdelen van TalentTrack aanstaan."
 
-#: src/Shared/CoreSurfaceRegistration.php:1868
+#: src/Shared/CoreSurfaceRegistration.php:1905
 msgid "The plan this academy is on, and what it locks."
 msgstr "Het pakket van deze academie, en wat daarmee op slot zit."
 
-#: src/Shared/CoreSurfaceRegistration.php:1883
+#: src/Shared/CoreSurfaceRegistration.php:1920
 msgid "Add a second step to your own sign-in."
 msgstr "Voeg een tweede stap toe aan je eigen inlog."
 
-#: src/Shared/CoreSurfaceRegistration.php:1914
+#: src/Shared/CoreSurfaceRegistration.php:1951
 msgid "Data & demo"
 msgstr "Gegevens & demo"
 
-#: src/Shared/CoreSurfaceRegistration.php:1924
-#: src/Shared/CoreSurfaceRegistration.php:2284
+#: src/Shared/CoreSurfaceRegistration.php:1961
+#: src/Shared/CoreSurfaceRegistration.php:2321
 msgid "Access Control"
 msgstr "Toegangsbeheer"
 
-#: src/Shared/CoreSurfaceRegistration.php:1978
+#: src/Shared/CoreSurfaceRegistration.php:2015
 #: src/Shared/Modules/ModuleMetadata.php:433
 msgid "Demo data"
 msgstr "Demogegevens"
 
-#: src/Shared/CoreSurfaceRegistration.php:2025
+#: src/Shared/CoreSurfaceRegistration.php:2062
 msgid "Module completeness"
 msgstr "Modulevolledigheid"
 
-#: src/Shared/CoreSurfaceRegistration.php:2254
+#: src/Shared/CoreSurfaceRegistration.php:2291
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2961
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:39
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:49
@@ -52233,7 +52425,7 @@ msgstr "Modulevolledigheid"
 msgid "Spond"
 msgstr "Spond"
 
-#: src/Shared/CoreSurfaceRegistration.php:2355
+#: src/Shared/CoreSurfaceRegistration.php:2392
 #: src/Shared/Frontend/FrontendRolesView.php:129
 msgid "Compare users"
 msgstr "Gebruikers vergelijken"
@@ -53851,7 +54043,7 @@ msgid "Kick-off %s"
 msgstr "Aftrap %s"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1239
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3751
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3787
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
 
@@ -53995,12 +54187,12 @@ msgstr[0] "%d misschien"
 msgstr[1] "%d misschien"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2000
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3966
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4002
 msgid "Not coming"
 msgstr "Komt niet"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2001
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3967
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4003
 msgid "Maybe"
 msgstr "Misschien"
 
@@ -54179,11 +54371,11 @@ msgstr "Alleen getoond:"
 msgid "Remove filter: %s"
 msgstr "Filter verwijderen: %s"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3717
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3753
 msgid "Presence time (optional)"
 msgstr "Aanwezigheidstijd (optioneel)"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3803
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3839
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
 "to save without links."
@@ -54191,15 +54383,15 @@ msgstr ""
 "Groepeer op teamfunctie + teamtaak; vink aan wat van toepassing is. Laat "
 "alles uitgevinkt om op te slaan zonder koppelingen."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3965
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4001
 msgid "Expected"
 msgstr "Verwacht"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3989
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4025
 msgid "Planned attendance"
 msgstr "Geplande opkomst"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3991
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4027
 msgid ""
 "Set who you expect before the activity happens. This carries into the "
 "attendance defaults once it is completed."
@@ -54207,7 +54399,7 @@ msgstr ""
 "Stel in wie je verwacht voordat de activiteit plaatsvindt. Dit wordt "
 "overgenomen in de aanwezigheidsstandaarden zodra ze is voltooid."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4080
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4116
 msgid ""
 "This activity is completed. Correct who attended below, then Update activity "
 "to save."
@@ -54215,15 +54407,15 @@ msgstr ""
 "Deze activiteit is voltooid. Corrigeer hieronder wie aanwezig was en klik "
 "daarna op Activiteit bijwerken om op te slaan."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4120
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4156
 msgid "Continue rating in the guided flow →"
 msgstr "Ga verder met beoordelen in de begeleide flow →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4121
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4157
 msgid "Open the attendance grid →"
 msgstr "Open het aanwezigheidsraster →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4139
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4175
 msgid ""
 "Attendance and ratings were captured in the guided completion flow. Review "
 "or update them there."
@@ -54231,7 +54423,7 @@ msgstr ""
 "Aanwezigheid en beoordelingen zijn vastgelegd in de begeleide "
 "afrondingsflow. Bekijk of werk ze daar bij."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4140
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4176
 msgid ""
 "Attendance and ratings are captured in the guided completion flow, not on "
 "this form."
@@ -54239,7 +54431,7 @@ msgstr ""
 "Aanwezigheid en beoordelingen worden vastgelegd in de begeleide "
 "voltooiingsflow, niet op dit formulier."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4143
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4179
 msgid ""
 "Attendance is recorded in the attendance grid. Open it to review or correct "
 "it."
@@ -54247,93 +54439,93 @@ msgstr ""
 "De aanwezigheid wordt vastgelegd in het aanwezigheidsraster. Open het raster "
 "om het te bekijken of te corrigeren."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4144
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4180
 msgid "Attendance is recorded in the attendance grid, not on this form."
 msgstr ""
 "De aanwezigheid wordt vastgelegd in het aanwezigheidsraster, niet op dit "
 "formulier."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4155
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4191
 msgid "Open attendance grid"
 msgstr "Aanwezigheidsraster openen"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4198
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4234
 msgid "Update activity"
 msgstr "Activiteit bijwerken"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4198
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4234
 msgid "Save activity"
 msgstr "Activiteit opslaan"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4239
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4275
 msgid "Guests"
 msgstr "Gasten"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4241
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4277
 msgid "Players from outside the squad. Guests do not count toward team stats."
 msgstr ""
 "Spelers van buiten de selectie. Gasten tellen niet mee in teamstatistieken."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4260
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4296
 msgid "No guests added yet."
 msgstr "Nog geen gasten toegevoegd."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4271
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4329
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4307
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4365
 msgid "(unaffiliated)"
 msgstr "(geen team)"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4296
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4346
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4332
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4382
 msgid "Notes…"
 msgstr "Notities…"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4337
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4373
 msgid "Remove this guest?"
 msgstr "Deze gast verwijderen?"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4338
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4374
 msgid "Remove guest"
 msgstr "Gast verwijderen"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4341
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4377
 msgid "Pick a player."
 msgstr "Kies een speler."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4343
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4379
 msgid "Could not add guest."
 msgstr "Gast toevoegen is niet gelukt."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4344
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4380
 msgid "Saving activity first…"
 msgstr "Activiteit wordt eerst opgeslagen…"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4473
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4509
 msgid "Not linked yet. Use the edit form to pick an existing tournament."
 msgstr ""
 "Nog niet gekoppeld. Kies een bestaand toernooi via het bewerkformulier."
 
 #. translators: %d: tournament match count
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4490
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4526
 #, php-format
 msgid "%d match"
 msgid_plural "%d matches"
 msgstr[0] "%d wedstrijd"
 msgstr[1] "%d wedstrijden"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4505
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4541
 msgid "Open tournament planner →"
 msgstr "Open toernooiplanner →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4535
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4571
 msgid "— Not linked —"
 msgstr "— Niet gekoppeld —"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4562
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4598
 msgid "Create new tournament →"
 msgstr "Nieuw toernooi aanmaken →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4567
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4603
 msgid ""
 "No tournament yet? Ask an admin to create one in the Tournaments planner."
 msgstr ""
