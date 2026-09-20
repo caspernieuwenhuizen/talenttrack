@@ -152,9 +152,9 @@ final class ScoutPlayerCard {
         return [
             'from'      => $from,
             'to'        => $to,
-            'minutes'   => $row['minutes'] ?? null,
-            'share_pct' => $row['share_pct'] ?? null,
-            'matches'   => $row['matches'] ?? null,
+            'minutes'   => $row['minutes'],
+            'share_pct' => $row['share_pct'],
+            'matches'   => $row['matches'],
         ];
     }
 
@@ -176,8 +176,11 @@ final class ScoutPlayerCard {
         $prospect = ( new ProspectsRepository() )->findPromotedForPlayer( $player_id );
         if ( ! $prospect ) return [];
 
+        $prospect_id = (int) ( $prospect->id ?? 0 );
+        if ( $prospect_id <= 0 ) return [];
+
         $out = [];
-        foreach ( ( new ProspectVisitObservationsRepository() )->forProspect( (int) $prospect->id ) as $row ) {
+        foreach ( ( new ProspectVisitObservationsRepository() )->forProspect( $prospect_id ) as $row ) {
             if ( (int) ( $row->created_by ?? 0 ) !== $viewer_id ) continue;
             $out[] = [
                 'observed_at' => (string) ( $row->observed_at ?? $row->visit_date ?? '' ),
