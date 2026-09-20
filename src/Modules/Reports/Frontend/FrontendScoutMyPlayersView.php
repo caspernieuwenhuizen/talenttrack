@@ -22,7 +22,9 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendScoutMyPlayersView extends FrontendViewBase {
 
-    private const META_KEY = 'tt_scout_player_ids';
+    // #3566 — the META_KEY constant went with the inline decode it served.
+    // The key now lives once, in ScoutPlayerLinks, which this class reads
+    // through `assignedPlayerIds()` below.
 
     public static function render( int $user_id ): void {
         self::enqueueAssets();
