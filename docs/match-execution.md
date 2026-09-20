@@ -157,6 +157,18 @@ follows the goals you add or undo; it is not edited on its own.
 Correcting a substitution re-runs the minutes calculation, so the recorded
 minutes the reports read stay in step with what you change.
 
+**A late substitution is judged at the half and minute you give it**, not at
+the final whistle. So a first-half swap you forgot can still be added after
+the second half's are logged: the screen asks who was on the pitch at that
+point in that half, which is the question a correction is actually about.
+
+**If match prep set a second-half line-up, that line-up is the pitch from
+the second-half kick-off.** The bench after the interval is whoever is not
+in it, the pitch diagram draws it, and only that half's substitutions apply
+on top of it — the first half's are already accounted for by the line-up
+change itself. Without a second-half line-up nothing changes: the eleven
+who started play on, and every substitution applies in turn.
+
 When you are done, tap **Finalize match** to lock it. A finalized match is
 the record of what the players actually did, so the live controls stay
 locked and the Edit button disappears. (The server enforces the same lock,

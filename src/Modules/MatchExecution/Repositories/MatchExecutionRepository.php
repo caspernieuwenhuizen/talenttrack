@@ -724,28 +724,83 @@ class MatchExecutionRepository {
     }
 
     /**
-     * #2268 — the set of player ids currently on the pitch, derived from
-     * the first-half starting XI plus every non-reversed substitution
-     * applied in chronological order. Used to validate a live / late
+     * #2268 — the set of player ids on the pitch at a point in the match,
+     * derived from the line-up that half started with plus the non-reversed
+     * substitutions up to that point. Used to validate a live / late
      * substitution server-side: the `player_off` must be on the pitch and
      * the `player_on` must not already be. Read-only; no writes.
      *
+     * #3849 — it used to take the first-half XI alone and apply every
+     * substitution to it, whichever half they belonged to. On a match with
+     * a second-half line-up that made the same screen say a player had
+     * played 35 minutes and was available on the bench, and refused the
+     * substitution the coach had come to add in both directions. The half-2
+     * XI is the pitch from the second-half kick-off, exactly as
+     * {@see computeMinutes} has always read it, and a substitution belongs
+     * to the half it was logged in.
+     *
+     * `$half` is the point in the match being asked about; `$minute` narrows
+     * it further within that half, so a first-half substitution added after
+     * the second half is judged on the first half rather than on the final
+     * whistle. Called with neither, the answer is the first half, which is
+     * what the two-argument live path has always meant.
+     *
      * @param list<int> $starting_xi_half1
+     * @param list<int> $starting_xi_half2
      * @return list<int>
      */
-    public function onPitchPlayerIds( int $execution_id, array $starting_xi_half1 ): array {
+    public function onPitchPlayerIds(
+        int $execution_id,
+        array $starting_xi_half1,
+        array $starting_xi_half2 = [],
+        int $half = 1,
+        ?int $minute = null
+    ): array {
+        $half  = $half >= 2 ? 2 : 1;
+        $xi1   = self::playerIdList( $starting_xi_half1 );
+        $xi2   = self::playerIdList( $starting_xi_half2 );
+
+        // A second-half line-up replaces the pitch at the interval, so only
+        // that half's substitutions act on it. Without one the first-half XI
+        // plays on, and so do the substitutions made to it.
+        $restarts = ( $half === 2 && $xi2 !== [] );
+        $from     = $restarts ? 2 : 1;
+
         $on_pitch = [];
-        foreach ( $starting_xi_half1 as $pid ) {
-            $pid = (int) $pid;
-            if ( $pid > 0 ) $on_pitch[ $pid ] = true;
+        foreach ( $restarts ? $xi2 : $xi1 as $pid ) {
+            $on_pitch[ $pid ] = true;
         }
+
         foreach ( $this->listSubstitutions( $execution_id ) as $sub ) {
+            $sub_half = (int) ( $sub->half ?? 1 );
+            if ( $sub_half < $from || $sub_half > $half ) continue;
+            // The minute only narrows the half being asked about; an earlier
+            // half is over, so all of it counts.
+            if ( $minute !== null && $sub_half === $half && (int) ( $sub->minute_in_half ?? 0 ) > $minute ) continue;
+
             $off = (int) $sub->player_off_id;
             $on  = (int) $sub->player_on_id;
             if ( $off > 0 ) unset( $on_pitch[ $off ] );
             if ( $on > 0 )  $on_pitch[ $on ] = true;
         }
         return array_map( 'intval', array_keys( $on_pitch ) );
+    }
+
+    /**
+     * A line-up as a clean list of player ids — no zeroes from unfilled
+     * slots, so "is there a second-half line-up" is a question about
+     * players and not about rows.
+     *
+     * @param array<int|string, mixed> $ids
+     * @return list<int>
+     */
+    private static function playerIdList( array $ids ): array {
+        $out = [];
+        foreach ( $ids as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $out[] = $pid;
+        }
+        return $out;
     }
 
     /**
