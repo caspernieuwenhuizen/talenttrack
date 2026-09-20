@@ -54,7 +54,15 @@ final class TrialDecideScreenRuleTest extends WP_UnitTestCase {
         ] );
         $this->player_id = (int) $wpdb->insert_id;
 
-        $wpdb->insert( "{$this->p}tt_trial_tracks", [ 'club_id' => $this->club, 'name' => 'Standard' ] );
+        // A unique slug, because `uk_slug` is unique and a track inserted
+        // without one takes '' — the next test in the run then silently
+        // fails to create its own track and its `POST /trial-cases`
+        // answers 400.
+        $wpdb->insert( "{$this->p}tt_trial_tracks", [
+            'club_id' => $this->club,
+            'slug'    => 'decide-rule-' . wp_generate_uuid4(),
+            'name'    => 'Standard',
+        ] );
         $track = (int) $wpdb->insert_id;
 
         $wpdb->insert( "{$this->p}tt_trial_cases", [
@@ -86,6 +94,7 @@ final class TrialDecideScreenRuleTest extends WP_UnitTestCase {
         $_SERVER = $this->server_before;
         $_POST   = $this->post_before;
         $this->setDecideError( null );
+        $this->deleteOwnRows();
         wp_set_current_user( 0 );
         parent::tear_down();
     }
@@ -204,6 +213,28 @@ final class TrialDecideScreenRuleTest extends WP_UnitTestCase {
     // ── helpers ────────────────────────────────────────────────────────
 
     private const MOTIVATION = 'Sterk in de duels en leest het spel goed; past bij de selectie.';
+
+    /**
+     * Delete what this test created, by id, rather than trusting the
+     * rollback.
+     *
+     * Recording a decision generates the parent letter, and letter
+     * generation can issue a `CREATE TABLE IF NOT EXISTS`. MySQL commits
+     * implicitly on DDL, so the transaction WP_UnitTestCase relies on is
+     * already gone by the time `tear_down()` rolls it back — and every row
+     * this test wrote would survive into the rest of the run. Three
+     * neighbouring trial suites failed on exactly that before this method
+     * existed.
+     */
+    private function deleteOwnRows(): void {
+        global $wpdb;
+        $wpdb->delete( "{$this->p}tt_trial_cases",  [ 'id' => $this->case_id ] );
+        $wpdb->delete( "{$this->p}tt_players",      [ 'id' => $this->player_id ] );
+        $wpdb->query( $wpdb->prepare(
+            "DELETE FROM {$this->p}tt_player_reports WHERE player_id = %d",
+            $this->player_id
+        ) );
+    }
 
     private function decide( string $decision, string $notes, string $strengths = '', string $growth = '' ): void {
         $_SERVER['REQUEST_METHOD'] = 'POST';
