@@ -289,7 +289,12 @@ class FrontendMyGoalsView extends FrontendViewBase {
         // #0028 conversation thread on the goal — coaches and the
         // player + parent see chat-style messages without leaving
         // this surface.
-        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+        // #3720 — the renderer emits nothing for a viewer who can't
+        // read the thread, so ask before printing the heading.
+        $thread_id = (int) $goal->id;
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', $thread_id, get_current_user_id() )
+        ) {
             // v3.92.2 — was a target=_blank anchor opening the docs page
             // in a new tab; pilot operator wanted the right-side help
             // drawer instead. HelpDrawer::button outputs the
@@ -303,7 +308,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                 __( 'How does this work?', 'talenttrack' )
             );
             echo '</header>';
-            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, get_current_user_id() );
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', $thread_id, get_current_user_id() );
             echo '</section>';
         }
 
