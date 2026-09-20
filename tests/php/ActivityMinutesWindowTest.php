@@ -40,7 +40,12 @@ final class ActivityMinutesWindowTest extends WP_UnitTestCase {
         global $wpdb;
         $this->p = $wpdb->prefix;
         $wpdb->hide_errors();
-        ( new RolesService() )->ensureCapabilities();
+        // The TT roles install on activation, which the wp-env bootstrap does
+        // not fire; without them `tt_coach` holds no `tt_view_activities` and
+        // the scope refusal below would pass on the permission callback
+        // instead of on the team check it is there to prove.
+        ( new RolesService() )->installRoles();
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
 
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
