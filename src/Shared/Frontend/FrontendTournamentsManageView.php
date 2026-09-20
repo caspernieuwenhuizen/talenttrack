@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
@@ -154,6 +155,13 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 echo '<p class="tt-notice">' . esc_html__( 'That tournament no longer exists.', 'talenttrack' ) . '</p>';
                 return;
             }
+            // #3703 — the cap above answers "may you edit tournaments at
+            // all", which a team-scoped grant satisfies for every one of
+            // them. The record decides the record.
+            if ( ! AuthorizationService::canEditTournament( $user_id, $id ) ) {
+                echo '<p class="tt-notice">' . esc_html__( 'This tournament belongs to a team you don’t manage.', 'talenttrack' ) . '</p>';
+                return;
+            }
             self::renderForm( $user_id, $is_admin, $tournament );
             return;
         }
@@ -165,6 +173,13 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             if ( ! $tournament ) {
                 self::renderHeader( $title );
                 echo '<p class="tt-notice">' . esc_html__( 'That tournament no longer exists.', 'talenttrack' ) . '</p>';
+                return;
+            }
+            // #3703 — same reason as the edit branch above: a team-scoped
+            // read grant is per team, so the detail page asks about this one.
+            if ( ! AuthorizationService::canViewTournament( $user_id, $id ) ) {
+                self::renderHeader( $title );
+                echo '<p class="tt-notice">' . esc_html__( 'This tournament belongs to a team you don’t manage.', 'talenttrack' ) . '</p>';
                 return;
             }
             self::renderDetail( $tournament, $user_id, $is_admin );

@@ -365,6 +365,15 @@ return array_merge(
         // (#1060-style narrowing). The library is club-wide (a drill an AC
         // authors is reusable by everyone), so scope is `global`, not `team`.
         'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
+        // #3703 — Tournaments, team-scoped. The v1 admin-only grant left
+        // the people who run the squad and the playing time locked out of
+        // the planner on tournament day; they logged the day as a plain
+        // activity instead, so its matches and minutes never reached the
+        // module. `rcd` because the single legacy `tt_edit_tournaments`
+        // cap has always covered edit + create + delete; the delete half
+        // is narrowed per record in `TournamentAccess::canDelete()`, which
+        // refuses a tournament whose squad reaches past the actor's teams.
+        'tournaments'                => [ 'rcd', 'team',   $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). The raw `tt_send_email`
         // cap is held by the tt_coach WP role, which backs BOTH coach
         // personas — so AC must hold the action-entity too or it silently
@@ -499,6 +508,9 @@ return array_merge(
         // team scoping today). See the assistant_coach note above — BOTH
         // coach personas are seeded so neither loses library write.
         'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
+        // #3703 — Tournaments, team-scoped. See the assistant_coach note
+        // above; both coach personas run the same tournament day.
+        'tournaments'                => [ 'rcd', 'team',   $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). Raw `tt_send_email`
         // is held by the tt_coach role behind this persona; seed `rcd` at
         // `global` (the People-page mailer is academy-wide). See the
@@ -544,6 +556,10 @@ return array_merge(
         'seasons'                    => [ 'r',   'team',   $mod_pdp ],
         'pdp_planning'               => [ 'r',   'team',   $mod_pdp ],
         'team_chemistry'             => [ 'r',   'team',   $mod_team_dev ],
+        // #3703 — Tournaments, team-scoped. The team manager runs the
+        // squad, the transport and the availability on tournament day, so
+        // they get the same team control as the coaches beside them.
+        'tournaments'                => [ 'rcd', 'team',   $mod_tournaments ],
         'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],
         'task_completion'            => [ 'rc',  'self',   $mod_workflow ],
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
@@ -695,6 +711,11 @@ return array_merge(
         // #1944 — Exercises (club-global drill library). HoD curates the
         // academy's methodology, so owns the drill library `rcd` globally.
         'exercises'                     => [ 'rcd', 'global', $mod_exercises ],
+        // #3703 — Tournaments, academy-wide. HoD monitors minutes across
+        // every squad, and tournament days are where the fair-share
+        // question is loudest. Global scope, so the per-record delete
+        // narrowing that applies to a coach does not apply here.
+        'tournaments'                   => [ 'rcd', 'global', $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). HoD oversees the whole
         // academy and reaches every person via the People page, so holds
         // the action-entity `rcd` globally. Raw holder today: tt_head_dev.
