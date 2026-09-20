@@ -32,6 +32,18 @@ Begin met de landcode — `+31 6 12345678`, dus niet `06 12345678`. Een nummer z
 
 Niemand hoeft de wijziging goed te keuren; hij geldt zodra je opslaat. De coaches van je kind en de academiemedewerkers zien het nummer op het dossier van je kind. Andere ouders en andere spelers zien het nooit.
 
+## Wat de academie van jou heeft
+
+Je gegevens staan op meer dan één plek, en die plekken kunnen van elkaar afwijken — het nummer op je account is niet automatisch het nummer dat een beheerder ooit op het dossier van je kind heeft getypt. **Mijn instellingen** sluit af met een alleen-lezen kaart, **Wat de academie van jou heeft**, die alles op één plek laat zien:
+
+- **Je account** — de naam, het e-mailadres en het telefoonnummer die je zelf beheert, in de kaart bovenaan dezelfde pagina.
+- **Je contactgegevens** — de vermelding die de academie over jou bijhoudt, naast die van coaches en andere medewerkers, als je die hebt.
+- **Op het dossier van \<kind\>** — de contactgegevens die op het record van elk van je kinderen staan.
+
+Dat laatste blok toont uitsluitend gegevens die van **jou** zijn. Staat er een andere contactpersoon op het dossier van je kind — de andere ouder, een opa of oma, een noodcontact — dan zie je die niet, net zoals zij die van jou niet zien. Komt er op het dossier van een kind niets van jou voor, dan zegt de kaart dat; dat is het melden waard, want het betekent dat medewerkers je over dat kind niet kunnen bereiken.
+
+Op deze kaart is niets te wijzigen. Je eigen naam, e-mail en telefoonnummer pas je aan in de kaart erboven. Wat op het dossier van een kind staat, wijzigt de academie — geef het door en zij zetten het recht.
+
 Daarna zie je "Mijn kind" op het dashboard. Tik om het profiel van je kind te openen.
 
 Je dashboard spiegelt precies wat je kind ziet: dezelfde ontwikkeltegels, in dezelfde volgorde, met de voornaam van je kind ervoor — "Sven's kaart", "Sven's evaluaties", "Sven's ontwikkelplan", enzovoort. Wat de academie voor spelers aan- of uitzet, zie je ook op jouw scherm, zodat jij en je kind altijd naar dezelfde set onderdelen kijken. Elke tegel opent het dossier van je kind. Je eigen accountinstellingen blijven apart — die worden niet hernoemd of per kind gedupliceerd.

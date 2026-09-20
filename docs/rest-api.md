@@ -929,6 +929,31 @@ Responds with the same payload `GET /me` returns, so a client reads the stored v
 
 **Permission:** logged in, and nothing else. The route takes **no user id in any form** — it writes to `get_current_user_id()` and reads the result back from there — so there is no parameter that could point it at another account.
 
+### `GET /me/contact-details` (#3691)
+
+Every contact detail the academy holds about the caller, and which store holds it. A parent's details sit in three places that can disagree — the account, their `tt_people` row, and the `guardian_*` columns an admin typed onto each child's player file — and nothing showed them the third.
+
+```json
+{ "account": { "display_name": "Ada Vermeer", "first_name": "Ada", "last_name": "Vermeer",
+               "email": "ada@example.test", "phone": "+31612345678" },
+  "person":  { "id": 12, "name": "Ada Vermeer", "email": "ada@example.test",
+               "phone": "+31612345678", "role_type": "parent" },
+  "children": [ { "player_id": 590, "player_name": "Sem Vermeer",
+                  "fields": { "guardian_email": "ada@example.test" } } ] }
+```
+
+- `person` is `null` when the account has no active `tt_people` row in this club.
+- `children` are the caller's active, non-archived children, same set as `GET /me`.
+- `fields` carries a child's `guardian_name` / `guardian_email` / `guardian_phone` **only where the stored value matches the caller's own name, email or phone**. Anything describing somebody else — the other parent, a grandparent, an emergency contact — is absent, which is the rule #1725 set when it made the player detail view's guardians card staff-only. A field that does not match is omitted rather than returned empty: "we hold nothing of yours" and "we hold somebody else's" must read the same.
+- Matching is normalised, because these columns are typed by hand: whitespace collapsed and case folded for names, case folded for email, digits only for phone, with the last nine digits compared so `+31 6 12345678` and `06 12345678` are one number.
+- A child whose file matches nothing of the caller's still appears, with `fields: {}`.
+
+Its own route rather than more of `GET /me`, because the shell asks for `me` on every page load and this reads a row per linked child. The aggregation lives in `OwnContactDetails`, so the rendered card on **My settings** and a SaaS front end get the same answer.
+
+Read-only. The correction path — a family filling in their own guardian contact on a tokened link — is #3794.
+
+**Permission:** logged in. Like the rest of this controller the route takes no id in any form; it answers for `get_current_user_id()`.
+
 ## Parent accounts (#1815, #3571)
 
 Linking a parent's login to a player — the `tt_player_parents` link that decides what a parent can see. Every route is gated on `tt_manage_parent_accounts`.
