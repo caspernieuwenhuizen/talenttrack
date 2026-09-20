@@ -1,0 +1,7 @@
+#: src/Modules/Teams/Frontend/FrontendTeamDetailView.php:77
+msgid "Back to squad"
+msgstr "Terug naar de selectie"
+
+#: src/Modules/Teams/Frontend/FrontendTeamListView.php:120
+msgid "Back to squad"
+msgstr "Terug naar het team"

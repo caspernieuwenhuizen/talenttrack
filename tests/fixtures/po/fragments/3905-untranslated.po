@@ -1,0 +1,3 @@
+#: src/Modules/Reports/Frontend/FrontendReportsView.php:44
+msgid "Export as PDF"
+msgstr ""

@@ -1,0 +1,26 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TalentTrack\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl_NL\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Modules/Teams/Frontend/FrontendTeamDetailView.php:42
+msgid "Squad"
+msgstr "Selectie"
+
+#: src/Modules/Comms/Frontend/FrontendThreadView.php:88
+msgid ""
+"Scheduled sends are skipped while the academy is closed, and resume on the "
+"next working day."
+msgstr ""
+
+#: src/Modules/Players/Frontend/FrontendPlayerDetailView.php:301
+msgctxt "football action"
+msgid "Pass"
+msgstr "Pass"
+
+#~ msgid "Retired label"
+#~ msgstr "Vervallen label"

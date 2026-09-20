@@ -174,6 +174,43 @@ The translation discipline is per audience:
 
 If a doc's audience changes from `dev` to anything else, add the Dutch translation in that PR. If it changes the other way, remove the Dutch counterpart in the same PR.
 
+### Translations go in a fragment, not in the catalogue (#3863)
+
+**A PR that adds a translatable string does not edit `languages/talenttrack-*.po`.** It drops one brand-new file:
+
+```
+languages/pending/<issue>-<short-slug>.po
+```
+
+carrying only the entries that PR introduces, each with its Dutch `msgstr`. A file that exists on exactly one branch cannot conflict with another branch's, which is the whole point — the catalogue was the only file parallel branches ever collided on, and not because the work overlapped. It never did.
+
+```po
+#: src/Modules/Teams/Frontend/FrontendTeamDetailView.php:77
+msgid "Back to squad"
+msgstr "Terug naar de selectie"
+```
+
+Rules, all enforced by `php tools/consolidate-translations.php --check`:
+
+- One file per issue, named `<issue>-<slug>.po`. For a locale other than Dutch, `<issue>-<slug>.<locale>.po`, or a `"Language: de_DE\n"` header inside the fragment.
+- Every entry carries a non-empty `msgstr`. A fragment exists to hold the translation.
+- No obsolete `#~` entries — retiring a string is the catalogue regeneration's job.
+- No duplicate `(msgctxt, msgid)` pair, in the fragment or against the catalogue.
+
+A one-word label still needs `_x()` with a context, carried through into the fragment as a `msgctxt`: a short `msgid` inherits the wrong sense from whatever the translator saw first, which is how `"Pass"` became `"Geslaagd"` on a football screen.
+
+**Editing an existing translation** is a catalogue edit — make it in `languages/talenttrack-nl_NL.po` directly. Fragments are for strings the PR introduces.
+
+**The release folds them in**, once, for the whole batch: `tools/release.ps1` calls `tools/consolidate-translations.php` next to the `changelog.d` step, and `languages/pending/` is empty again afterwards. Run it by hand to see what it would do:
+
+```
+php tools/consolidate-translations.php --dry-run
+```
+
+It keys entries the way gettext does — on the `(msgctxt, msgid)` pair, with wrapped literals **joined by content first**, so `"ab" "cd"` and `"abcd"` are one entry. That detail looks trivial and is not: a repair script that concatenated the quoted literals verbatim reported four entries as missing from `main` that were already there, and appending them produced three duplicate msgids. The consolidator fills in the `msgstr` of a msgid the catalogue already carries untranslated, appends the rest above the obsolete `#~` block, and **refuses to write anything at all** when the result would carry a duplicate msgid, when a fragment collides with an obsolete `#~` entry, or when two fragments translate the same string differently.
+
+Full rules in `languages/pending/README.md`.
+
 ### i18n CI workflows (PR-time + weekly)
 
 Translation drift is gated and reported automatically by two workflows under `.github/workflows/`:

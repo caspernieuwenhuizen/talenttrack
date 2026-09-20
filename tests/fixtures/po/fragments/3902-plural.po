@@ -1,0 +1,13 @@
+#: src/Modules/Players/Frontend/FrontendPlayerListView.php:61
+msgid "%d player in this age group"
+msgid_plural "%d players in this age group"
+msgstr[0] "%d speler in deze leeftijdsgroep"
+msgstr[1] "%d spelers in deze leeftijdsgroep"
+
+#: src/Modules/Players/Frontend/FrontendPlayerListView.php:94
+msgid ""
+"No players match the current filters. Clear a filter to widen the list, or "
+"add a player."
+msgstr ""
+"Geen spelers voldoen aan de huidige filters. Wis een filter om de lijst te "
+"verbreden, of voeg een speler toe."

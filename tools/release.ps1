@@ -4,9 +4,10 @@
 
 .DESCRIPTION
   Consolidates changelog.d/*.md snippets into CHANGES.md + readme.txt,
-  bumps both version lines in talenttrack.php (the `Version:` plugin
-  header and the TT_VERSION constant) and the readme.txt `Stable tag`,
-  then deletes the consumed snippets.
+  folds languages/pending/*.po translation fragments into the shipped
+  catalogues, bumps both version lines in talenttrack.php (the `Version:`
+  plugin header and the TT_VERSION constant) and the readme.txt
+  `Stable tag`, then deletes the consumed snippets and fragments.
 
   Version is auto-determined unless you pass one:
     - current version is read from talenttrack.php;
@@ -181,6 +182,28 @@ Write-Text $plugin $p
 # --- consume snippets ------------------------------------------------------
 foreach ($s in $snips) { Remove-Item $s.FullName -Force }
 
+# --- consolidate translation fragments -------------------------------------
+# Same two-stage split as changelog.d, for the same reason: content PRs
+# drop languages/pending/<issue>-<slug>.po instead of editing a shared
+# catalogue, and the release folds them in once, with nothing in flight.
+# A missing PHP is fatal rather than skipped — quietly shipping a batch
+# whose Dutch never reached the catalogue is the failure this exists to
+# prevent.
+$pendingDir    = Join-Path $root 'languages/pending'
+$fragmentCount = 0
+if (Test-Path $pendingDir) {
+    $fragmentCount = @(Get-ChildItem -Path $pendingDir -Filter *.po -ErrorAction SilentlyContinue).Count
+}
+if ($fragmentCount -gt 0) {
+    if (-not (Get-Command php -ErrorAction SilentlyContinue)) {
+        throw "php is not on PATH, and $fragmentCount translation fragment(s) are waiting in languages/pending/. Install PHP or run 'php tools/consolidate-translations.php' elsewhere before releasing."
+    }
+    & php (Join-Path $root 'tools/consolidate-translations.php') "--root=$root"
+    if ($LASTEXITCODE -ne 0) {
+        throw "tools/consolidate-translations.php refused the fragments (exit $LASTEXITCODE). Nothing was written to the catalogues; fix the fragment it names and re-run."
+    }
+}
+
 $issueRefs = (@($issues) | Sort-Object -Unique | ForEach-Object { "#$_" }) -join ' '
 
 Write-Host ""
@@ -189,10 +212,11 @@ Write-Host "  talenttrack.php  Version: + TT_VERSION bumped ($current -> $Versio
 Write-Host "  readme.txt       Stable tag bumped, $($readmeBlocks.Count) changelog entr$(if($readmeBlocks.Count -eq 1){'y'}else{'ies'}) added"
 Write-Host "  CHANGES.md       $($changesBlocks.Count) block(s) prepended"
 Write-Host "  changelog.d      $((@($snips)).Count) snippet(s) consumed"
+Write-Host "  languages/pending $fragmentCount translation fragment(s) consolidated"
 if ($issueRefs) { Write-Host "  issues           $issueRefs" }
 
 if ($Commit) {
-    git -C $root add -A -- talenttrack.php readme.txt CHANGES.md changelog.d
+    git -C $root add -A -- talenttrack.php readme.txt CHANGES.md changelog.d languages
     $msg = "chore(release): v$Version"
     if ($issueRefs) { $msg += " — batch $issueRefs" }
     git -C $root commit -m $msg
