@@ -474,7 +474,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 (int) $current->id,
                 $scope_player_ids !== null ? [ 'player_ids' => $scope_player_ids ] : []
             );
-            self::renderTeamCoverage( $by_team, (string) $current->name );
+            self::renderTeamCoverage( $by_team );
             self::renderTeamGate( $team_options );
             return;
         }
@@ -570,14 +570,6 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * #2040 — team-selection gate. Renders a single team picker + prompt for
-     * multi-team / global-scope users so they choose a team before the roster
-     * loads. The select submits `filter[team_id]`, which both this gate and
-     * FrontendListTable read, so the list lands scoped on submit.
-     *
-     * @param array<int,string> $team_options id => name
-     */
-    /**
      * #3810 — PDP coverage, one row per team, worst first.
      *
      * Four numbers per team, because "who has a file" is not the question
@@ -598,15 +590,11 @@ class FrontendPdpManageView extends FrontendViewBase {
      * @param list<array{ team_id:int, team_name:string, players:int, covered:int,
      *                    conducted:int, scheduled_soon:int, parent_acked:int }> $rows
      */
-    private static function renderTeamCoverage( array $rows, string $season_name ): void {
+    private static function renderTeamCoverage( array $rows ): void {
         if ( empty( $rows ) ) return;
 
         echo '<section class="tt-pdp-team-coverage">';
-        echo '<h2 class="tt-pdp-team-coverage__title">' . esc_html( sprintf(
-            /* translators: %s: season name */
-            __( 'PDP coverage by team (%s)', 'talenttrack' ),
-            $season_name
-        ) ) . '</h2>';
+        echo '<h2 class="tt-pdp-team-coverage__title">' . esc_html__( 'PDP coverage by team', 'talenttrack' ) . '</h2>';
         echo '<div class="tt-table-wrap"><table class="tt-table tt-pdp-team-coverage__table">';
         echo '<thead><tr>';
         echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
@@ -647,6 +635,14 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '</section>';
     }
 
+    /**
+     * #2040 — team-selection gate. Renders a single team picker + prompt for
+     * multi-team / global-scope users so they choose a team before the roster
+     * loads. The select submits `filter[team_id]`, which both this gate and
+     * FrontendListTable read, so the list lands scoped on submit.
+     *
+     * @param array<int,string> $team_options id => name
+     */
     private static function renderTeamGate( array $team_options ): void {
         $action = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'only_missing', 'archived' ] );
         echo '<div class="tt-pdp-team-gate">';

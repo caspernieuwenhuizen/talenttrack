@@ -99,20 +99,32 @@ final class PdpCoverageByTeamTest extends WP_UnitTestCase {
     public function test_the_breakdown_agrees_with_the_headline(): void {
         wp_set_current_user( $this->headOfDevelopment() );
 
+        // The install this runs on has its own players, so the assertion
+        // that matters is that the parts sum to the whole — not a number
+        // this fixture chose.
         $summary = $this->coverage()['summary'];
-        $by_team = $summary['by_team'];
-
-        $this->assertSame( 5, (int) $summary['total'] );
-        $this->assertSame( 4, (int) $summary['covered'] );
 
         $players = 0;
         $covered = 0;
-        foreach ( $by_team as $team ) {
+        foreach ( $summary['by_team'] as $team ) {
             $players += (int) $team['players'];
             $covered += (int) $team['covered'];
         }
+
         $this->assertSame( (int) $summary['total'], $players );
         $this->assertSame( (int) $summary['covered'], $covered );
+        $this->assertGreaterThanOrEqual( 5, $players );
+    }
+
+    public function test_one_team_at_a_time_agrees_too(): void {
+        wp_set_current_user( $this->headOfDevelopment() );
+
+        $summary = $this->coverage( [ 'filter' => [ 'team_id' => $this->team_a ] ] )['summary'];
+
+        $this->assertSame( 3, (int) $summary['total'] );
+        $this->assertSame( 3, (int) $summary['covered'] );
+        $this->assertCount( 1, $summary['by_team'] );
+        $this->assertSame( $this->team_a, (int) $summary['by_team'][0]['team_id'] );
     }
 
     public function test_each_team_carries_its_own_four_numbers(): void {
@@ -134,9 +146,16 @@ final class PdpCoverageByTeamTest extends WP_UnitTestCase {
 
         $by_team = $this->coverage()['summary']['by_team'];
 
-        // A has talked to 1 of 3, B to 1 of 2. A is further behind.
-        $this->assertSame( $this->team_a, (int) $by_team[0]['team_id'] );
-        $this->assertSame( $this->team_b, (int) $by_team[1]['team_id'] );
+        $position = [];
+        foreach ( $by_team as $index => $team ) {
+            $position[ (int) $team['team_id'] ] = (int) $index;
+        }
+
+        // A has talked to 1 of 3, B to 1 of 2. A is further behind, so it
+        // comes first — relative to B, whatever else this install holds.
+        $this->assertArrayHasKey( $this->team_a, $position );
+        $this->assertArrayHasKey( $this->team_b, $position );
+        $this->assertLessThan( $position[ $this->team_b ], $position[ $this->team_a ] );
     }
 
     public function test_the_totals_do_not_change_when_you_turn_the_page(): void {
@@ -146,30 +165,35 @@ final class PdpCoverageByTeamTest extends WP_UnitTestCase {
         $second = $this->coverage( [ 'per_page' => 10, 'page' => 2 ] );
 
         $this->assertSame( $first['summary'], $second['summary'] );
-        $this->assertSame( 5, (int) $first['total'] );
+        $this->assertSame( (int) $first['total'], (int) $second['total'] );
     }
 
     public function test_conducted_zero_lists_only_players_with_no_talk(): void {
         wp_set_current_user( $this->headOfDevelopment() );
 
-        $filtered = $this->coverage( [ 'conducted' => 0 ] );
+        // Team A: Bram and Cas have a file and no talk.
+        $team_a = $this->coverage( [ 'conducted' => 0, 'filter' => [ 'team_id' => $this->team_a ] ] );
+        $this->assertSame( 2, (int) $team_a['total'] );
 
-        // Bram, Cas and Eva. Eva has no file at all, which is the worst
-        // case and must not be filtered out by a question about talks.
-        $this->assertSame( 3, (int) $filtered['total'] );
+        // Team B: Eva, who has no file at all. That is the worst case and
+        // must not be filtered out by a question about talks.
+        $team_b = $this->coverage( [ 'conducted' => 0, 'filter' => [ 'team_id' => $this->team_b ] ] );
+        $this->assertSame( 1, (int) $team_b['total'] );
 
         // The summary describes the scope, not the narrowed list — a ratio
         // over "everyone who has not had their talk" would always be zero.
-        $this->assertSame( 5, (int) $filtered['summary']['total'] );
-        $this->assertSame( 4, (int) $filtered['summary']['covered'] );
+        $this->assertSame( 3, (int) $team_a['summary']['total'] );
+        $this->assertSame( 3, (int) $team_a['summary']['covered'] );
     }
 
     public function test_a_caller_that_does_not_send_the_parameter_is_unaffected(): void {
         wp_set_current_user( $this->headOfDevelopment() );
 
-        $this->assertSame( 5, (int) $this->coverage()['total'] );
-        $this->assertSame( 5, (int) $this->coverage( [ 'conducted' => '' ] )['total'] );
-        $this->assertSame( 5, (int) $this->coverage( [ 'conducted' => 'all' ] )['total'] );
+        $scope = [ 'filter' => [ 'team_id' => $this->team_a ] ];
+
+        $this->assertSame( 3, (int) $this->coverage( $scope )['total'] );
+        $this->assertSame( 3, (int) $this->coverage( $scope + [ 'conducted' => '' ] )['total'] );
+        $this->assertSame( 3, (int) $this->coverage( $scope + [ 'conducted' => 'all' ] )['total'] );
     }
 
     public function test_a_coach_only_sees_their_own_team_in_the_breakdown(): void {

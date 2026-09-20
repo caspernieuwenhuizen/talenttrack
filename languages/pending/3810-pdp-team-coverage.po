@@ -1,6 +1,6 @@
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
-msgid "PDP coverage by team (%s)"
-msgstr "POP-dekking per team (%s)"
+msgid "PDP coverage by team"
+msgstr "POP-dekking per team"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
 msgid "With a plan"

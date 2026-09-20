@@ -287,6 +287,7 @@ class PdpFilesRepository {
      *   search?: string,
      *   only_missing?: bool,
      *   conducted_none?: bool,
+     *   archived_view?: string,
      * } $filters
      * @return object[] one row per player: player_id, first_name,
      *   last_name, team_id, team_name, pdp_file_id, file_status,
@@ -359,22 +360,26 @@ class PdpFilesRepository {
         if ( $archived_view === 'archived' ) {
             // Archived view lists only players with an archived file.
             $sql .= ' AND f.id IS NOT NULL';
-        } elseif ( ! empty( $filters['only_missing'] ) ) {
-            // only_missing toggle filters AFTER the join so it reads off
-            // the joined file row. Meaningless in the archived view.
-            $sql .= ' AND f.id IS NULL';
-        }
-
-        // #3810 — "who has not had their talk", in one call. A player with
-        // no file at all has had no talk either, so they stay in: the
-        // question is about the player, not about the paperwork, and
-        // dropping them would hide the worst cases from the list built to
-        // find them.
-        if ( ! empty( $filters['conducted_none'] ) && $archived_view !== 'archived' ) {
-            $sql .= " AND NOT EXISTS (
-                        SELECT 1 FROM {$conv} c
-                         WHERE c.pdp_file_id = f.id
-                           AND c.conducted_at IS NOT NULL )";
+        } else {
+            // Both narrowing toggles are meaningless in the archived view,
+            // so they live inside the `else` rather than each re-testing
+            // the same thing.
+            if ( ! empty( $filters['only_missing'] ) ) {
+                // only_missing filters AFTER the join so it reads off the
+                // joined file row.
+                $sql .= ' AND f.id IS NULL';
+            }
+            // #3810 — "who has not had their talk", in one call. A player
+            // with no file at all has had no talk either, so they stay in:
+            // the question is about the player, not about the paperwork,
+            // and dropping them would hide the worst cases from the list
+            // built to find them.
+            if ( ! empty( $filters['conducted_none'] ) ) {
+                $sql .= " AND NOT EXISTS (
+                            SELECT 1 FROM {$conv} c
+                             WHERE c.pdp_file_id = f.id
+                               AND c.conducted_at IS NOT NULL )";
+            }
         }
 
         $sql .= ' ORDER BY pl.last_name ASC, pl.first_name ASC';
@@ -392,7 +397,8 @@ class PdpFilesRepository {
      * `coverageForSeason()` uses (minus `only_missing`, which would
      * make the ratio meaningless).
      *
-     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string } $filters
+     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string,
+     *               only_missing?: bool, conducted_none?: bool, archived_view?: string } $filters
      * @return array{ total:int, covered:int }
      */
     public function coverageSummaryForSeason( int $season_id, array $filters = [] ): array {
@@ -429,7 +435,8 @@ class PdpFilesRepository {
      * list exists to surface, and making the reader sort to find it is how
      * a report becomes something nobody opens.
      *
-     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string } $filters
+     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string,
+     *               only_missing?: bool, conducted_none?: bool, archived_view?: string } $filters
      * @return list<array{ team_id:int, team_name:string, players:int, covered:int,
      *                     conducted:int, scheduled_soon:int, parent_acked:int }>
      */
