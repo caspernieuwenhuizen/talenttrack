@@ -295,6 +295,23 @@ The recruitment funnel introduces two new matrix entities, scoped consent-sensit
 - **`prospects`** — Head Coach reads at team scope (their own age group's funnel). Scout has RCD at *self* scope only — a scout literally cannot see another scout's prospects via any code path, enforced at the SQL layer in `ProspectsRepository`. Head of Development and Academy Admin have RCD globally.
 - **`test_trainings`** — same scoping, except Scout reads globally (so a scout can see the upcoming session their prospect was invited to).
 
+## How a scout holds `player` scope
+
+Most personas hold `player` scope one of two ways: they *are* the player, or they are the player's guardian. A scout is neither, and their matrix rows (`trial_cases`, `trial_inputs`, `evaluations`, `media`) are all written at `player` scope — so until #3566 every one of them resolved to false. Seeded, documented, and dead.
+
+A scout now holds `player` scope for a player through either of two links, resolved in one place (`ScoutPlayerLinks`):
+
+- an **active seat on that player's trial-case panel** (`tt_trial_case_staff` with `unassigned_at IS NULL`); or
+- the player appearing in the scout's **assignment list** (user meta `tt_scout_player_ids`, managed on the scout-access screen).
+
+Three things this deliberately does not do:
+
+- **It is not persona-blind.** The links count for the **scout** persona only. Player scope used to be resolved without reference to persona; left that way, a user who is both a coach and a parent and happens to sit on a panel would pick up the *parent* rows' player-scoped reads over that trialist.
+- **Discovering a prospect is not a link.** A case promoted from a prospect the scout found does not grant access on its own — standing on the panel does.
+- **A release ends it**, exactly as it ends a guardian's link (see #3476). A released player drops out of a scout's scope with no further action.
+
+The scout's `trial_synthesis` row was **removed** rather than woken up. It would have opened the Execution tab — other panellists' inputs, before release — to any scout on any panel. A scout sees their own input before release and the panel's only after it.
+
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
 
 ## Recycle-bin management — `tt_manage_recycle_bin`

@@ -22,7 +22,9 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendScoutMyPlayersView extends FrontendViewBase {
 
-    private const META_KEY = 'tt_scout_player_ids';
+    // #3566 — the META_KEY constant went with the inline decode it served.
+    // The key now lives once, in ScoutPlayerLinks, which this class reads
+    // through `assignedPlayerIds()` below.
 
     public static function render( int $user_id ): void {
         self::enqueueAssets();
@@ -85,15 +87,17 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
     }
 
     /**
+     * #3566 — delegates to {@see ScoutPlayerLinks::assignedPlayerIds()}.
+     *
+     * This list is now an authorization input (a scout's `player` scope
+     * resolves partly through it), so it gets one reader rather than a
+     * copy per surface. Kept as a method here because existing callers
+     * name this class.
+     *
      * @return int[]
      */
     public static function assignedPlayerIds( int $scout_user_id ): array {
-        $raw = get_user_meta( $scout_user_id, self::META_KEY, true );
-        if ( ! is_string( $raw ) || $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        if ( ! is_array( $decoded ) ) return [];
-        $ids = array_map( 'intval', $decoded );
-        return array_values( array_unique( array_filter( $ids, static fn( $i ) => $i > 0 ) ) );
+        return \TT\Infrastructure\Players\ScoutPlayerLinks::assignedPlayerIds( $scout_user_id );
     }
 
     private static function renderReport( int $scout_user_id, int $player_id ): void {

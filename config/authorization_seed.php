@@ -617,7 +617,13 @@ return array_merge(
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'trial_cases'                => [ 'rc',  'player', $mod_trials ],
         'trial_inputs'               => [ 'c',   'player', $mod_trials ],
-        'trial_synthesis'            => [ 'r',   'player', $mod_trials ],
+        // #3566 — `trial_synthesis` dropped. A scout sees their OWN input
+        // before release and the panel's only after it, which is what
+        // `TrialStaffInputsRepository::listVisibleForUser()` already does.
+        // The synthesis row would have opened the Execution tab — other
+        // panellists' inputs, pre-release — to every scout the moment their
+        // player scope started resolving. It never took effect, so nothing
+        // is lost; migration 0280 removes it from installed matrices.
         'trial_letters_generated'    => [ 'r',   'player', $mod_trials ],
         'documentation'              => [ 'r',   'global', $mod_documentation ],
         // #1378 — pdp_file + pdp_verdict dropped entirely: promote/

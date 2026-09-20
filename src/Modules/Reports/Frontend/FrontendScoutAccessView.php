@@ -136,15 +136,15 @@ class FrontendScoutAccessView extends FrontendViewBase {
     }
 
     /**
+     * #3566 — delegates to {@see ScoutPlayerLinks::assignedPlayerIds()}.
+     * This view still WRITES the meta (see `updateAssignment()`); it no
+     * longer decodes it, so the write and the authorization gate cannot
+     * disagree about what the stored value means.
+     *
      * @return int[]
      */
     public static function assignedPlayerIds( int $scout_user_id ): array {
-        $raw = get_user_meta( $scout_user_id, self::META_KEY, true );
-        if ( ! is_string( $raw ) || $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        if ( ! is_array( $decoded ) ) return [];
-        $ids = array_map( 'intval', $decoded );
-        return array_values( array_unique( array_filter( $ids, static fn( $i ) => $i > 0 ) ) );
+        return \TT\Infrastructure\Players\ScoutPlayerLinks::assignedPlayerIds( $scout_user_id );
     }
 
     private static function updateAssignment( int $scout_user_id, int $player_id, bool $assign ): void {

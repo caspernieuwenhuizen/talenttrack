@@ -18,7 +18,8 @@ A **trial case** is a structured way to run a 2–6 week look at a prospective p
 - **Head of development / Club admin** — full management. Open / extend / decide / archive cases. Edit tracks and letter templates. Release staff inputs.
 - **Head coaches** — can open the **Trial cases** tile and browse the list of cases for players on their own teams. They cannot create or delete cases (no *New trial case* button), but they keep the read view their role grants. Creating, deciding and archiving stay with the head of development.
 - **Coaches assigned to a case** — see the case overview and submit their own input on the **Staff inputs** tab. They see other coaches' inputs only after the head of development releases them. Whether they also get the **Execution** tab depends on their role: it aggregates what the other coaches have said, so it needs the same permission as reading the released inputs. An assistant coach assigned to a case gets Overview and Staff inputs.
-- **Other coaches** — do not see the case at all.
+- **Scouts on a case's panel** — the scout who found a player can sit on their panel and write their assessment. They see the case they are assigned to and their **own** input; they do not get the Execution tab, so other panellists' views stay private until the head of development releases them. Their case list shows only the panels they are actually on, never the club's cases. A scout who is unassigned from a panel loses the case immediately.
+- **Other coaches and scouts** — do not see the case at all.
 
 Two of those work differently underneath, and it matters when you are wondering why somebody cannot see something:
 

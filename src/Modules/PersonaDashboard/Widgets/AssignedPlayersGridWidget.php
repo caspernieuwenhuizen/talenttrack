@@ -95,15 +95,11 @@ class AssignedPlayersGridWidget extends AbstractWidget {
      * @return int[]
      */
     private static function assignedIds( int $user_id ): array {
-        if ( class_exists( FrontendScoutMyPlayersView::class ) ) {
-            return FrontendScoutMyPlayersView::assignedPlayerIds( $user_id );
-        }
-        $raw = get_user_meta( $user_id, 'tt_scout_player_ids', true );
-        if ( ! is_string( $raw ) || $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        if ( ! is_array( $decoded ) ) return [];
-        $ids = array_map( 'intval', $decoded );
-        return array_values( array_unique( array_filter( $ids, static fn( $i ) => $i > 0 ) ) );
+        // #3566 — one reader. The inline decode that used to sit here as a
+        // fallback is gone: the list feeds a scout's `player` scope now, and
+        // a second decoder is how the widget and the gate end up disagreeing
+        // about which players a scout may see.
+        return \TT\Infrastructure\Players\ScoutPlayerLinks::assignedPlayerIds( $user_id );
     }
 
     private static function initials( string $name ): string {

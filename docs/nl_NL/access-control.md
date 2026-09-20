@@ -498,6 +498,23 @@ Wil je echt in een andere rol handelen — zien wat een ouder ziet, mét de rech
 
 Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, POP) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.
 
+## Hoe een scout `player`-scope krijgt
+
+De meeste persona's krijgen `player`-scope op een van twee manieren: ze *zijn* de speler, of ze zijn de ouder ervan. Een scout is geen van beide, en zijn matrixrijen (`trial_cases`, `trial_inputs`, `evaluations`, `media`) staan allemaal op `player`-scope — dus tot #3566 gaf elke rij `false` terug. Ingezaaid, gedocumenteerd, en dood.
+
+Een scout krijgt nu `player`-scope voor een speler via een van twee koppelingen, op één plek afgehandeld (`ScoutPlayerLinks`):
+
+- een **actieve plek in het beoordelingspanel** van die speler (`tt_trial_case_staff` met `unassigned_at IS NULL`); of
+- de speler staat in de **toewijzingslijst** van de scout (gebruikersmeta `tt_scout_player_ids`, te beheren op het scherm Scout-toegang).
+
+Drie dingen die dit bewust *niet* doet:
+
+- **Het geldt niet voor elke persona.** De koppelingen tellen alleen voor de persona **scout**. Player-scope werd voorheen zonder persona bepaald; zo gelaten zou iemand die zowel coach als ouder is en toevallig in een panel zit, de player-scope-leesrechten van de *ouder*-rijen over die stagespeler krijgen.
+- **Een prospect vinden is geen koppeling.** Een dossier dat voortkomt uit een prospect die de scout heeft aangedragen, geeft op zichzelf geen toegang — in het panel zitten wel.
+- **Een uitschrijving beëindigt de koppeling**, net zoals bij een ouder (zie #3476). Een uitgeschreven speler valt vanzelf buiten de scope van de scout.
+
+De rij `trial_synthesis` van de scout is **verwijderd** in plaats van geactiveerd. Die zou het tabblad Uitvoering — de input van andere panelleden, vóór vrijgave — openzetten voor elke scout in elk panel. Een scout ziet zijn eigen input vóór vrijgave en die van het panel pas erna.
+
 ## Ouder → kind-koppelmodel
 
 De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is het **enige gezaghebbende** antwoord op de vraag "welke kinderen heeft deze ouder". `ParentChildResolver` leest deze pivot — afgebakend per club, `status = 'active'`, gesorteerd op meest recente koppeling eerst — en elke afnemer (de kindwisselaar op het dashboard, de me-view-autorisatie, de deelnemersgraaf van doel-threads, de ouder-KPI) roept hem aan, zodat ze het allemaal eens zijn over wie ouder van wie is.
