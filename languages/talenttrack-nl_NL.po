@@ -63411,6 +63411,148 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:71
+msgid "Enter the email address to send the request to."
+msgstr "Vul het e-mailadres in waar het verzoek heen moet."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:76
+msgid "That player could not be found."
+msgstr "Die speler is niet gevonden."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:85
+msgid "You are not allowed to send contact requests."
+msgstr "Je mag geen contactverzoeken versturen."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:96
+msgid "You have reached today's limit for sending requests. Try again tomorrow."
+msgstr "Je hebt de limiet voor verzoeken van vandaag bereikt. Probeer het morgen opnieuw."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:117
+msgid "The request could not be saved."
+msgstr "Het verzoek kon niet worden opgeslagen."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:170
+msgid "This link is no longer valid. Ask the academy to send you a new one."
+msgstr "Deze link is niet meer geldig. Vraag de academie om een nieuwe."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:174
+msgid "Please confirm the academy may use these details to contact you."
+msgstr "Bevestig dat de academie deze gegevens mag gebruiken om contact met je op te nemen."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:182
+msgid "Please fill in your name."
+msgstr "Vul je naam in."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:185
+msgid "That email address does not look right. Please check it."
+msgstr "Dat e-mailadres lijkt niet te kloppen. Controleer het even."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:188
+msgid "Please fill in an email address or a phone number, so the academy can reach you."
+msgstr "Vul een e-mailadres of een telefoonnummer in, zodat de academie je kan bereiken."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:191
+msgid "That phone number does not look right. Please check it."
+msgstr "Dat telefoonnummer lijkt niet te kloppen. Controleer het even."
+
+#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:205
+msgid "This link has already been used. Ask the academy to send you a new one."
+msgstr "Deze link is al gebruikt. Vraag de academie om een nieuwe."
+
+#. translators: %s: the email address the request was sent to
+#: src/Modules/Invitations/Frontend/GuardianContactHandlers.php:41
+#, php-format
+msgid "Request sent to %s. The link works once and expires; the details land on the record as soon as the family answers."
+msgstr "Verzoek verstuurd naar %s. De link werkt één keer en vervalt; de gegevens komen op het record zodra het gezin antwoordt."
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:45
+msgid "It may have been used already, or it may have expired. Ask the academy to send you a new one."
+msgstr "Hij is misschien al gebruikt of inmiddels vervallen. Vraag de academie om een nieuwe."
+
+#. translators: %s: the child's name
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:60
+#, php-format
+msgid "Your contact details for %s"
+msgstr "Je contactgegevens voor %s"
+
+#. translators: %s: the academy's name
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:70
+#, php-format
+msgid "%s needs a way to reach you — a cancelled training, a change of time, an injury. Fill in your details below and they go straight onto the record. It takes a minute."
+msgstr "%s heeft een manier nodig om je te bereiken — een training die vervalt, een tijd die verschuift, een blessure. Vul hieronder je gegevens in; ze komen meteen op het record. Het kost een minuut."
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:83
+msgid "Your name"
+msgstr "Je naam"
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:89
+msgid "Your email address"
+msgstr "Je e-mailadres"
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:95
+msgid "Your phone number"
+msgstr "Je telefoonnummer"
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:98
+msgid "A mobile the academy can ring or text. Fill in at least an email address or a phone number."
+msgstr "Een mobiel nummer waarop de academie kan bellen of appen. Vul minstens een e-mailadres of een telefoonnummer in."
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:105
+msgid "These are my details, and the academy may use them to contact me about my child."
+msgstr "Dit zijn mijn gegevens en de academie mag ze gebruiken om contact met me op te nemen over mijn kind."
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:109
+msgid "Send my details"
+msgstr "Verstuur mijn gegevens"
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:112
+msgid "This link works once. Your details are visible to the academy staff who look after your child, and to nobody else."
+msgstr "Deze link werkt één keer. Je gegevens zijn zichtbaar voor de medewerkers van de academie die voor je kind zorgen, en voor niemand anders."
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:121
+msgid "Thank you — that is saved"
+msgstr "Bedankt — dat is opgeslagen"
+
+#: src/Modules/Invitations/Frontend/GuardianContactView.php:122
+msgid "The academy has your details and can reach you. You can close this page."
+msgstr "De academie heeft je gegevens en kan je bereiken. Je kunt deze pagina sluiten."
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:672
+msgid "Ask the family"
+msgstr "Vraag het gezin"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:674
+msgid "Send a one-time link where a parent fills in their own name, email and phone. What they send lands on this record straight away, and the audit log records what changed."
+msgstr "Stuur een eenmalige link waarop een ouder zelf naam, e-mailadres en telefoonnummer invult. Wat ze sturen komt meteen op dit record, en de audit log legt vast wat er wijzigde."
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:678
+msgid "Send the link to"
+msgstr "Stuur de link naar"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:683
+msgid "Send request"
+msgstr "Verzoek versturen"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:27
+msgid "Guardian contact request"
+msgstr "Contactverzoek aan gezin"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
+msgid "Please confirm your contact details for {player_name}"
+msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
+msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
+msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
+msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
+msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:38
+msgid "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
+msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
+
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
 #~ msgstr "De wedstrijdvoorbereiding accepteert niet: %s."
@@ -65306,141 +65448,3 @@ msgstr "Onbekend veldtype: %s"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:71
-msgid "Enter the email address to send the request to."
-msgstr "Vul het e-mailadres in waar het verzoek heen moet."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:76
-msgid "That player could not be found."
-msgstr "Die speler is niet gevonden."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:85
-msgid "You are not allowed to send contact requests."
-msgstr "Je mag geen contactverzoeken versturen."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:96
-msgid "You have reached today's limit for sending requests. Try again tomorrow."
-msgstr "Je hebt de limiet voor verzoeken van vandaag bereikt. Probeer het morgen opnieuw."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:117
-msgid "The request could not be saved."
-msgstr "Het verzoek kon niet worden opgeslagen."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:170
-msgid "This link is no longer valid. Ask the academy to send you a new one."
-msgstr "Deze link is niet meer geldig. Vraag de academie om een nieuwe."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:174
-msgid "Please confirm the academy may use these details to contact you."
-msgstr "Bevestig dat de academie deze gegevens mag gebruiken om contact met je op te nemen."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:182
-msgid "Please fill in your name."
-msgstr "Vul je naam in."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:185
-msgid "That email address does not look right. Please check it."
-msgstr "Dat e-mailadres lijkt niet te kloppen. Controleer het even."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:188
-msgid "Please fill in an email address or a phone number, so the academy can reach you."
-msgstr "Vul een e-mailadres of een telefoonnummer in, zodat de academie je kan bereiken."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:191
-msgid "That phone number does not look right. Please check it."
-msgstr "Dat telefoonnummer lijkt niet te kloppen. Controleer het even."
-
-#: src/Modules/Invitations/GuardianContact/GuardianContactRequest.php:205
-msgid "This link has already been used. Ask the academy to send you a new one."
-msgstr "Deze link is al gebruikt. Vraag de academie om een nieuwe."
-
-#. translators: %s: the email address the request was sent to
-#: src/Modules/Invitations/Frontend/GuardianContactHandlers.php:41
-#, php-format
-msgid "Request sent to %s. The link works once and expires; the details land on the record as soon as the family answers."
-msgstr "Verzoek verstuurd naar %s. De link werkt één keer en vervalt; de gegevens komen op het record zodra het gezin antwoordt."
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:45
-msgid "It may have been used already, or it may have expired. Ask the academy to send you a new one."
-msgstr "Hij is misschien al gebruikt of inmiddels vervallen. Vraag de academie om een nieuwe."
-
-#. translators: %s: the child's name
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:60
-#, php-format
-msgid "Your contact details for %s"
-msgstr "Je contactgegevens voor %s"
-
-#. translators: %s: the academy's name
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:70
-#, php-format
-msgid "%s needs a way to reach you — a cancelled training, a change of time, an injury. Fill in your details below and they go straight onto the record. It takes a minute."
-msgstr "%s heeft een manier nodig om je te bereiken — een training die vervalt, een tijd die verschuift, een blessure. Vul hieronder je gegevens in; ze komen meteen op het record. Het kost een minuut."
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:83
-msgid "Your name"
-msgstr "Je naam"
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:89
-msgid "Your email address"
-msgstr "Je e-mailadres"
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:95
-msgid "Your phone number"
-msgstr "Je telefoonnummer"
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:98
-msgid "A mobile the academy can ring or text. Fill in at least an email address or a phone number."
-msgstr "Een mobiel nummer waarop de academie kan bellen of appen. Vul minstens een e-mailadres of een telefoonnummer in."
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:105
-msgid "These are my details, and the academy may use them to contact me about my child."
-msgstr "Dit zijn mijn gegevens en de academie mag ze gebruiken om contact met me op te nemen over mijn kind."
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:109
-msgid "Send my details"
-msgstr "Verstuur mijn gegevens"
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:112
-msgid "This link works once. Your details are visible to the academy staff who look after your child, and to nobody else."
-msgstr "Deze link werkt één keer. Je gegevens zijn zichtbaar voor de medewerkers van de academie die voor je kind zorgen, en voor niemand anders."
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:121
-msgid "Thank you — that is saved"
-msgstr "Bedankt — dat is opgeslagen"
-
-#: src/Modules/Invitations/Frontend/GuardianContactView.php:122
-msgid "The academy has your details and can reach you. You can close this page."
-msgstr "De academie heeft je gegevens en kan je bereiken. Je kunt deze pagina sluiten."
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:672
-msgid "Ask the family"
-msgstr "Vraag het gezin"
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:674
-msgid "Send a one-time link where a parent fills in their own name, email and phone. What they send lands on this record straight away, and the audit log records what changed."
-msgstr "Stuur een eenmalige link waarop een ouder zelf naam, e-mailadres en telefoonnummer invult. Wat ze sturen komt meteen op dit record, en de audit log legt vast wat er wijzigde."
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:678
-msgid "Send the link to"
-msgstr "Stuur de link naar"
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:683
-msgid "Send request"
-msgstr "Verzoek versturen"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:27
-msgid "Guardian contact request"
-msgstr "Contactverzoek aan gezin"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
-msgid "Please confirm your contact details for {player_name}"
-msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
-msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
-msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
-msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
-msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
