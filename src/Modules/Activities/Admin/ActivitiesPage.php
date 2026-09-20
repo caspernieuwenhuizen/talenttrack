@@ -14,6 +14,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Activities\Services\ActivityCoachAssignment;
 use TT\Modules\Activities\Services\ActivityLifecycle;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\AdminListScope;
@@ -345,6 +346,29 @@ class ActivitiesPage {
                     <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><select name="team_id"><option value="0"><?php esc_html_e( '— All —', 'talenttrack' ); ?></option>
                         <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $team_id, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_ACTIVITY, (int) ( $activity->id ?? 0 ), 'team_id' ); ?>
+                    <?php
+                    // #3745 — who runs the activity, separate from who typed
+                    // it in. Prefills the team's head coach on a new row; the
+                    // register reminders are addressed off this field.
+                    $coach_options  = ActivityCoachAssignment::optionsForTeam( $team_id );
+                    $selected_coach = $activity
+                        ? (int) ( $activity->coach_id ?? 0 )
+                        : (int) ActivityCoachAssignment::derivedForTeam( $team_id );
+                    // The stored coach stays selectable even after they leave
+                    // the team, so opening the form never silently unassigns
+                    // them — the same reasoning as the team select's
+                    // `must_include` (#2866).
+                    if ( $selected_coach > 0 && ! isset( $coach_options[ $selected_coach ] ) ) {
+                        $stored_user = get_userdata( $selected_coach );
+                        $coach_options[ $selected_coach ] = $stored_user
+                            ? (string) $stored_user->display_name
+                            : sprintf( /* translators: %d: WordPress user id */ __( 'User #%d', 'talenttrack' ), $selected_coach );
+                    }
+                    ?>
+                    <tr><th><?php esc_html_e( 'Coach', 'talenttrack' ); ?></th><td><select name="coach_id"><option value="0"><?php esc_html_e( '— No coach —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $coach_options as $coach_user_id => $coach_name ) : ?><option value="<?php echo (int) $coach_user_id; ?>" <?php selected( $selected_coach, $coach_user_id ); ?>><?php echo esc_html( $coach_name ); ?></option><?php endforeach; ?></select>
+                        <p class="description"><?php esc_html_e( 'The coach responsible for running this activity and recording its register. Defaults to the team head coach.', 'talenttrack' ); ?></p></td></tr>
+                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_ACTIVITY, (int) ( $activity->id ?? 0 ), 'coach_id' ); ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $activity->notes ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_ACTIVITY, (int) ( $activity->id ?? 0 ), 'notes' ); ?>
                     <?php
@@ -482,11 +506,34 @@ class ActivitiesPage {
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
         if ( ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
+        $team_id = isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0;
+
+        // #3745 — the coach is the person who runs the activity, picked on
+        // the form and defaulting to the team's head coach. It used to be
+        // `get_current_user_id()`, which made the administrator typing a
+        // season schedule the coach of every activity in it. A picked coach
+        // outside the actor's own scope is ignored rather than stored (the
+        // REST path answers 400; this form only offers in-scope options, so
+        // reaching this branch means a tampered POST).
+        $posted_coach = isset( $_POST['coach_id'] ) ? absint( $_POST['coach_id'] ) : null;
+        $stored_coach = $id ? (int) ( $repo->findByIdIncludingArchived( $id )->coach_id ?? 0 ) : 0;
+        if ( $posted_coach === null ) {
+            $coach_id = ActivityCoachAssignment::derivedForTeam( $team_id );
+        } elseif ( $posted_coach === 0 ) {
+            $coach_id = null;
+        } elseif ( $posted_coach === $stored_coach ) {
+            $coach_id = $posted_coach;
+        } else {
+            $coach_id = ActivityCoachAssignment::mayAssign( $posted_coach, get_current_user_id() )
+                ? $posted_coach
+                : null;
+        }
+
         $data = [
             'title' => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
             'session_date' => isset( $_POST['session_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['session_date'] ) ) : '',
-            'team_id' => isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0,
-            'coach_id' => get_current_user_id(),
+            'team_id' => $team_id,
+            'coach_id' => $coach_id,
             'location' => isset( $_POST['location'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['location'] ) ) : '',
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
             'activity_type_key'   => $type,
