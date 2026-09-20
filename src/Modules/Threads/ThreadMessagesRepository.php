@@ -4,6 +4,7 @@ namespace TT\Modules\Threads;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 
 /**
@@ -133,8 +134,24 @@ final class ThreadMessagesRepository {
     }
 
     /**
+     * #3858 — does moving a message from one visibility to another need
+     * the staff-only right?
+     *
+     * Yes whenever `private_to_coach` is on either side of the move. Both
+     * directions, one rule: hiding a note from a guardian and revealing
+     * one to them are the same decision seen from two sides, and the
+     * author who may not take the first may not take the second either.
+     * A move that leaves the value alone needs nothing.
+     */
+    public static function visibilityChangeNeedsStaffOnlyRight( string $from, string $to ): bool {
+        if ( $from === $to ) return false;
+        return $from === ThreadVisibility::PRIVATE_COACH || $to === ThreadVisibility::PRIVATE_COACH;
+    }
+
+    /**
      * Edit body within the 5-minute window. Returns false when window
-     * elapsed, message missing, or author mismatch.
+     * elapsed, message missing, author mismatch, or — #3858 — when the
+     * author asked to change the staff-only flag without the right to.
      */
     public function update( int $id, int $author_user_id, string $body, ?string $visibility = null ): bool {
         $msg = $this->find( $id );
@@ -149,6 +166,16 @@ final class ThreadMessagesRepository {
             'edited_at' => current_time( 'mysql', true ),
         ];
         if ( $visibility !== null && ThreadVisibility::isValid( $visibility ) ) {
+            // #3858 — the entitlement check lives here as well as in the
+            // controller, because this method accepted any valid value on
+            // validity alone. Author and edit window were checked above;
+            // whether the author was allowed to hide a note from a
+            // guardian, or to reveal one to them, was checked nowhere.
+            if ( self::visibilityChangeNeedsStaffOnlyRight( (string) $msg->visibility, $visibility )
+                && ! ThreadAccess::canWritePrivate( (string) $msg->thread_type, (int) $msg->thread_id, $author_user_id )
+            ) {
+                return false;
+            }
             $update['visibility'] = $visibility;
         }
         $ok = $wpdb->update( $this->table(), $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );

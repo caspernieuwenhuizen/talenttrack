@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend\Components;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\AuthorNameResolver;
+use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadMessagesRepository;
 use TT\Modules\Threads\ThreadReadsRepository;
@@ -42,8 +43,15 @@ final class FrontendThreadView {
         self::enqueueAssets();
 
         $can_post    = $adapter->canPost( $user_id, $thread_id );
-        $is_coach    = current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_view_settings' );
-        $messages    = ( new ThreadMessagesRepository() )->listForThread( $thread_type, $thread_id, $is_coach );
+        // #3858 — both answers come from the domain gate now. This view
+        // used to ask `tt_edit_evaluations || tt_view_settings` on its own,
+        // a third opinion beside the REST controller's and the evidence
+        // packet's, and it decided the staff-only checkbox as well as the
+        // read filter — so the control was offered to exactly the people
+        // the write path then silently overruled.
+        $can_see_private   = ThreadAccess::canSeePrivate( $thread_type, $thread_id, $user_id );
+        $can_write_private = ThreadAccess::canWritePrivate( $thread_type, $thread_id, $user_id );
+        $messages    = ( new ThreadMessagesRepository() )->listForThread( $thread_type, $thread_id, $can_see_private );
         $reads_repo  = new ThreadReadsRepository();
         $last_read   = $reads_repo->lastReadAt( $user_id, $thread_type, $thread_id );
         $reads_repo->markRead( $user_id, $thread_type, $thread_id );
@@ -55,7 +63,7 @@ final class FrontendThreadView {
             'thread_id'       => (int) $thread_id,
             'current_user_id' => $user_id,
             'edit_window_seconds' => ThreadMessagesRepository::EDIT_WINDOW_SECONDS,
-            'is_coach_view'   => $is_coach,
+            'is_coach_view'   => $can_see_private,
             'last_read_at'    => $last_read,
             'i18n'            => self::i18nStrings(),
         ];
@@ -86,7 +94,7 @@ final class FrontendThreadView {
             echo '<label class="screen-reader-text" for="tt-thread-body">' . esc_html__( 'Your message', 'talenttrack' ) . '</label>';
             echo '<textarea id="tt-thread-body" name="body" rows="3" inputmode="text" required placeholder="' . esc_attr__( 'Write a message…', 'talenttrack' ) . '"></textarea>';
             echo '<div class="tt-thread-compose-row">';
-            if ( $is_coach ) {
+            if ( $can_write_private ) {
                 echo '<label class="tt-thread-private">'
                     . '<input type="checkbox" name="visibility" value="' . esc_attr( ThreadVisibility::PRIVATE_COACH ) . '" />'
                     . '<span>' . esc_html__( 'Coaches only', 'talenttrack' ) . '</span>'

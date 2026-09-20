@@ -295,6 +295,13 @@ return array_merge(
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
         // #1060 — `dev_ideas` removed (development authoring).
         'thread_messages'            => [ 'rc',  'team',   $mod_threads ],
+        // #3858 — may mark a note on a conversation staff-only. Its own
+        // entity: the flag used to borrow `tt_edit_evaluations`, which
+        // #1060 took off this persona, so an assistant coach who wrote an
+        // operational note about a child and ticked "staff only" had it
+        // published to the guardian instead, with no warning. `change`
+        // only — the act of hiding a note, not a record of its own.
+        'staff_only_notes'           => [ 'c',   'team',   $mod_threads ],
         'staff_development'          => [ 'rc',  'self',   $mod_staff_dev ],
         'staff_certifications'       => [ 'rc',  'self',   $mod_staff_dev ],
         'my_staff_pdp'               => [ 'rc',  'self',   $mod_staff_dev ],
@@ -434,6 +441,9 @@ return array_merge(
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
         'dev_ideas'                  => [ 'c',   'global', $mod_development ],
         'thread_messages'            => [ 'rc',  'team',   $mod_threads ],
+        // #3858 — the head coach could already mark a note staff-only,
+        // through `tt_edit_evaluations`. The right now says so itself.
+        'staff_only_notes'           => [ 'c',   'team',   $mod_threads ],
         'staff_development'          => [ 'rc',  'team',   $mod_staff_dev ],
         'staff_certifications'       => [ 'r',   'team',   $mod_staff_dev ],
         'staff_mentorships'          => [ 'r',   'team',   $mod_staff_dev ],
@@ -584,6 +594,11 @@ return array_merge(
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
         'dev_ideas'                  => [ 'c',   'global', $mod_development ],
         'thread_messages'            => [ 'rc',  'team',   $mod_threads ],
+        // #3858 — the team manager is one of the two people the issue is
+        // about: they write the operational note about a child and, until
+        // this row, had nowhere internal to write it. Team scope, so it
+        // reaches the squads they manage and no others.
+        'staff_only_notes'           => [ 'c',   'team',   $mod_threads ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'staff_development'          => [ 'rc',  'self',   $mod_staff_dev ],
         'staff_certifications'       => [ 'rc',  'self',   $mod_staff_dev ],
@@ -813,6 +828,8 @@ return array_merge(
         // `workflow_tasks` above are what the HoD actually reads day to day.
         'task_completion'               => [ 'rc',  'self',   $mod_workflow ],
         'thread_messages'               => [ 'rcd', 'global', $mod_threads ],
+        // #3858 — global, like the thread grant above it.
+        'staff_only_notes'              => [ 'c',   'global', $mod_threads ],
         'staff_overview'                => [ 'r',   'global', $mod_staff_dev ],
         'staff_development'             => [ 'rcd', 'global', $mod_staff_dev ],
         'staff_certifications'          => [ 'r',   'global', $mod_staff_dev ],
@@ -983,6 +1000,8 @@ return array_merge(
         'task_completion'               => [ 'rc',  'global', $mod_workflow ],
         'dev_ideas'                     => [ 'rcd', 'global', $mod_development ],
         'thread_messages'               => [ 'rcd', 'global', $mod_threads ],
+        // #3858 — global, like the thread grant above it.
+        'staff_only_notes'              => [ 'c',   'global', $mod_threads ],
         'staff_overview'                => [ 'r',   'global', $mod_staff_dev ],
         'staff_development'             => [ 'rcd', 'global', $mod_staff_dev ],
         'staff_certifications'          => [ 'rcd', 'global', $mod_staff_dev ],

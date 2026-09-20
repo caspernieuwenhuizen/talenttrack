@@ -243,6 +243,33 @@ Beide coach-persona's worden bewust geseed. De ruwe `tt_send_email`-capability i
 
 Migratie `0181_authorization_seed_topup_email_compose` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `email_compose`-rijen loopt).
 
+## Matrix-entiteit `staff_only_notes` — een notitie binnen de staf houden
+
+Een bericht in een gesprek kan als **alleen voor de staf** worden gemarkeerd, en iedereen die dat gesprek verder leest — ook de ouder van het kind — ziet het dan nooit. Markeren is een **handeling** en geen record, dus krijgt het net als `email_compose` en `impersonation_action` een eigen handelingsentiteit: `staff_only_notes`, met `change` als enige activiteit.
+
+Voordat deze entiteit bestond, leende de markering het recht om evaluaties te wijzigen. Daarmee hing een interne notitie over een kind achter het recht om een evaluatie aan te passen — een recht dat de mensen die zulke notities schrijven niet hebben: de teammanager, de EHBO'er, de assistent-coach. Wat het een fout maakte en geen gat, is wat er daarna gebeurde: de notitie werd als **openbaar** opgeslagen en het verzoek antwoordde met succes, dus de schrijver dacht dat het intern was terwijl de ouder het kon lezen.
+
+| Houder | Scope |
+| --- | --- |
+| Assistent-coach | `change`, team |
+| Hoofdcoach | `change`, team |
+| Teammanager | `change`, team |
+| Hoofd opleiding | `change`, global |
+| Academiebeheerder | `change`, global |
+| Speler, ouder, scout, alleen-lezen waarnemer, staf | *(geen)* |
+
+Twee functionele rollen dragen hem ook — **Fysio** en **Manager** — want een EHBO'er of teammanager kan op deze installatie een `tt_staff`-account met een functionele rol hebben in plaats van een eigen persona, en of een notitie binnen de staf blijft, mag daar niet van afhangen. De persona `staff` zelf draagt hem **niet**: die stoel is één persona die fysio en materiaalman tegelijk dekt, wat precies de les is van [de functionele-rol-as](#de-functionele-rol-as-3257-3433).
+
+Drie regels die de entiteit afdwingt:
+
+- **Weigeren, nooit stilzwijgend verbreden.** Een schrijver zonder het recht die een notitie als staf-only markeert, krijgt een 403 die het recht benoemt, en er wordt niets opgeslagen. De tekst blijft in het invoerveld staan, dus er gaat niets verloren.
+- **Beide richtingen, één regel.** Het vlaggetje zetten en het weghalen zijn dezelfde beslissing van twee kanten bekeken. Een notitie *naar* staf-only bewerken en *weg van* staf-only bewerken vragen allebei het recht — gecontroleerd in `ThreadMessagesRepository::update()` én in de REST-controller, want een tweede aanroeper komt eerst langs de repository.
+- **De knop wordt niet aangeboden aan wie hem niet kan gebruiken.** `FrontendThreadView` toont het vinkje alleen aan een schrijver die het recht heeft, zodat de weigering een vangnet is en niet het eerste wat je tegenkomt.
+
+Wie een staf-only notitie mag **lezen** verandert niet: het nieuwe recht komt naast de oude evaluatie-arm in plaats van ervoor in de plaats, dus wie er vandaag één ziet, blijft hem zien, en wie het nieuwe recht bereikt kan teruglezen wat hij net geschreven heeft. Een ouder is geen staf en ziet er nooit één.
+
+Migratie `0282_authorization_seed_topup_staff_only_notes` vult de vijf persona-rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft). Notities van vóór deze wijziging blijven bewust ongemoeid — nergens is vastgelegd dát er iets verbreed is, dus je zou alleen kunnen gokken, en een notitie opnieuw verbergen die een gezin al gelezen heeft en waarop het vertrouwt, is de grotere fout.
+
 ## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld
 
 Rapportgeneratie (`FrontendReportWizardView`, bereikbaar via `?tt_view=report-wizard`; plus de knop "Rapport genereren…" op het spelerdossier in `FrontendPlayersManageView`) wordt afgeschermd door de handelings-capability `tt_generate_report` — los van `tt_generate_scout_report`, die naar `scout_access:create_delete` koppelt. Een rapport genereren is een **create**-handeling, dus `tt_generate_report` koppelt naar `reports:create_delete`:
@@ -514,7 +541,9 @@ Wat die twee mensen wél scheidt, is het werk dat ze op een elftal doen, en dat 
 | `grants` | sleutel van functionele rol → entiteit → activiteiten. Altijd op **team**scope, want een functionele rol wordt op een team gehouden; een andere scope bestaat hier niet. Wordt samengevoegd met wat de persona's van de gebruiker geven. |
 | `supersedes` | persona → de entiteiten waarvan de functionele-rollaag het antwoord bezit. Voor een gebruiker met minstens één functionele rol wordt de eigen matrixrij van die persona op die entiteiten **overgeslagen**. |
 
-Meegeleverde inhoud: `physio` geeft `player_injuries [rc]` en `measurements [r]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` en `analytics [r]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+Meegeleverde inhoud: `physio` geeft `player_injuries [rc]`, `measurements [r]` en `staff_only_notes [c]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]`, `analytics [r]` en `staff_only_notes [c]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+
+`staff_only_notes [c]` op `physio` en `manager` is wat een EHBO'er of teammanager in staat stelt een operationele notitie over een kind binnen de staf te houden — zie [Matrix-entiteit `staff_only_notes`](#matrix-entiteit-staff_only_notes--een-notitie-binnen-de-staf-houden). Eén gevolg verdient het benoemd te worden, want `grants` is optellend over elke persona heen: een ouder die vrijwilliger is als teammanager of fysio van het elftal van het eigen kind, telt voor staf-only notities als staf, dus een staf-only notitie van een coach in het **doel**gesprek van dat kind wordt voor hen leesbaar. De spelersnotitie zelf blijft ongemoeid — `PlayerThreadAdapter` weigert de ouder-persona hoe dan ook, welke functionele rol er ook is. Het is dezelfde afweging die #3257 voor het blessuredossier maakte.
 
 `analytics [r]` op `manager` is de grant achter de aanwezigheidsrapporten. Een Staff-account met de rol Manager is de vorm die een teammanager op een installatie het vaakst heeft, en de risicolijst is het enige scherm dat de spelers benoemt die trainingen blijven missen — precies waarvoor die rol bestaat. De rapporten gelden voor de elftallen waarop de rol wordt gehouden: de regels worden hoe dan ook afgebakend door `get_teams_for_coach()`.
 

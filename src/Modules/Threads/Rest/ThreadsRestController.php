@@ -211,11 +211,20 @@ final class ThreadsRestController {
             return new WP_Error( 'tt_thread_empty', __( 'Message body required.', 'talenttrack' ), [ 'status' => 400 ] );
         }
         $visibility = (string) ( $req->get_param( 'visibility' ) ?? ThreadVisibility::PUBLIC_LEVEL );
-        if ( ! ThreadVisibility::isValid( $visibility ) ) $visibility = ThreadVisibility::PUBLIC_LEVEL;
+        if ( ! ThreadVisibility::isValid( $visibility ) ) {
+            return self::unknownVisibility( $visibility );
+        }
 
-        // private_to_coach is gated to coaches + admins.
-        if ( $visibility === ThreadVisibility::PRIVATE_COACH && ! self::canSeePrivate( $type, $id, get_current_user_id() ) ) {
-            $visibility = ThreadVisibility::PUBLIC_LEVEL;
+        // #3858 — refuse, never rewrite. This used to quietly downgrade a
+        // staff-only note to public and answer 201, so an author who
+        // believed they had kept a note within the staff had in fact
+        // published it to everyone who reads the thread, the child's
+        // guardian included. A refusal loses nothing: the client still
+        // holds the text.
+        if ( $visibility === ThreadVisibility::PRIVATE_COACH
+            && ! ThreadAccess::canWritePrivate( $type, $id, get_current_user_id() )
+        ) {
+            return self::staffOnlyDenied();
         }
 
         $repo = new ThreadMessagesRepository();
@@ -246,8 +255,28 @@ final class ThreadsRestController {
             return new WP_Error( 'tt_thread_empty', __( 'Message body required.', 'talenttrack' ), [ 'status' => 400 ] );
         }
         $visibility = $req->has_param( 'visibility' ) ? (string) $req->get_param( 'visibility' ) : null;
+        if ( $visibility !== null && ! ThreadVisibility::isValid( $visibility ) ) {
+            return self::unknownVisibility( $visibility );
+        }
 
         $repo = new ThreadMessagesRepository();
+
+        // #3858 — the edit path had no entitlement check of any kind, and
+        // failed the opposite way to the post path: an author who could
+        // not create a staff-only note could post it public and edit it to
+        // `private_to_coach`, hiding a note from a guardian with no grant
+        // behind it. Both directions are the same question, so both are
+        // asked here — and again in the repository, which is the gate a
+        // second caller would meet.
+        $existing = $repo->find( $msg_id );
+        if ( $existing !== null
+            && $visibility !== null
+            && ThreadMessagesRepository::visibilityChangeNeedsStaffOnlyRight( (string) $existing->visibility, $visibility )
+            && ! ThreadAccess::canWritePrivate( (string) $existing->thread_type, (int) $existing->thread_id, get_current_user_id() )
+        ) {
+            return self::staffOnlyDenied();
+        }
+
         $ok = $repo->update( $msg_id, get_current_user_id(), $body, $visibility );
         if ( ! $ok ) {
             return new WP_Error( 'tt_thread_edit_denied', __( 'Edit window has expired or you are not the author.', 'talenttrack' ), [ 'status' => 403 ] );
@@ -299,6 +328,39 @@ final class ThreadsRestController {
      */
     private static function canSeePrivate( string $type, int $thread_id, int $user_id ): bool {
         return ThreadAccess::canSeePrivate( $type, $thread_id, $user_id );
+    }
+
+    /**
+     * #3858 — the refusal an author meets when they mark a note staff-only
+     * without the right. It names the right, because "forbidden" leaves
+     * somebody who is entitled to ask for it with nothing to ask for.
+     */
+    private static function staffOnlyDenied(): WP_Error {
+        return new WP_Error(
+            'tt_thread_staff_only_denied',
+            __( 'You do not hold the staff-only notes right, so this note cannot be kept within the staff. Ask an academy admin for it, or post the note where everyone on the conversation can read it.', 'talenttrack' ),
+            [ 'status' => 403, 'entity' => ThreadAccess::STAFF_ONLY_ENTITY ]
+        );
+    }
+
+    /**
+     * #3858 — an unrecognised visibility used to be silently rewritten to
+     * `public`. The route's enum already refuses one, so this is the
+     * belt-and-braces answer for a caller that reaches the handler another
+     * way; either way nothing is stored under a visibility nobody asked
+     * for.
+     */
+    private static function unknownVisibility( string $given ): WP_Error {
+        return new WP_Error(
+            'tt_thread_visibility_unknown',
+            sprintf(
+                /* translators: 1: the visibility the caller sent, 2: comma-separated list of valid values */
+                __( 'Unknown visibility "%1$s". Valid values: %2$s.', 'talenttrack' ),
+                sanitize_key( $given ),
+                implode( ', ', ThreadVisibility::all() )
+            ),
+            [ 'status' => 400 ]
+        );
     }
 
     /**

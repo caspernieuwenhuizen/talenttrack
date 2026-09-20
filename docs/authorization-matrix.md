@@ -247,6 +247,33 @@ Both coach personas are seeded deliberately. The raw `tt_send_email` cap is held
 
 Migration `0181_authorization_seed_topup_email_compose` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `email_compose` rows).
 
+## Matrix entity `staff_only_notes` — keeping a note within the staff
+
+A message on a conversation can be marked **staff only**, and everybody else reading that conversation — including the child's guardian — never sees it. Marking it is an **act** rather than a record, so, like `email_compose` and `impersonation_action`, it has an action-entity of its own: `staff_only_notes`, with `change` as the only activity it carries.
+
+Before this entity existed, the flag borrowed the evaluation-change right. That put an internal note behind the right to change an evaluation, which the people who write those notes do not hold: the team manager, the first aider, the assistant coach. Worse, the write path *corrected* them instead of refusing them — the note was stored as public, the route answered success, and the author went away believing it was internal.
+
+| Persona | Grant |
+| --- | --- |
+| Assistant coach | `change`, team |
+| Head coach | `change`, team |
+| Team manager | `change`, team |
+| Head of development | `change`, global |
+| Academy admin | `change`, global |
+| Player, parent, scout, read-only observer, staff | *(none)* |
+
+Two functional roles carry it as well — **Physio** and **Manager** — because a first aider or a team manager on this install may hold a `tt_staff` account with a functional role rather than a persona of their own, and whether a note stays within the staff must not depend on which. The `staff` persona itself does **not** carry it: that seat is one persona covering physio and kit manager alike, which is the lesson of [the functional-role axis](#the-functional-role-axis-3257-3433).
+
+Three rules the entity enforces:
+
+- **Refuse, never rewrite.** An author without the right who marks a note staff-only gets a 403 naming the right, and no row is written. The text stays in the box, so nothing is lost.
+- **Both directions, one rule.** Setting the flag and clearing it are the same decision seen from two sides. Editing a note *to* staff-only and editing it *away from* staff-only both need the right — checked in `ThreadMessagesRepository::update()` as well as in the REST controller, because a second caller would meet the repository first.
+- **The control is not offered to somebody who cannot use it.** `FrontendThreadView` renders the staff-only checkbox only for an author who holds the right, so the refusal is a backstop rather than the first thing they meet.
+
+Who may **read** a staff-only note is unchanged: the new right is unioned with the old evaluation-change arm rather than swapped for it, so every reader who sees one today still does, and the people the new right reaches can read back what they have just written. A guardian is not staff and never sees one.
+
+Migration `0282_authorization_seed_topup_staff_only_notes` backfills the five persona rows into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, and it reports what it wrote). Notes written before the fix are deliberately left alone — nothing recorded that a widening happened, so they could only be guessed at, and re-hiding a note a family has already read would be the worse mistake.
+
 ## Report generation — `tt_generate_report` is now matrix-bridged
 
 Report generation (`FrontendReportWizardView`, reachable via `?tt_view=report-wizard`; plus the "Generate report…" button on the player file in `FrontendPlayersManageView`) is gated by the act-cap `tt_generate_report` — distinct from `tt_generate_scout_report`, which bridges to `scout_access:create_delete`. Generating a report is a **create** act, so `tt_generate_report` bridges to `reports:create_delete`:
@@ -515,7 +542,9 @@ What separates those two people is the job they do on a squad, which the product
 | `grants` | functional role key → entity → activities. Always **team**-scoped, because a functional role is held on a team; there is no other scope to pick. Unioned with whatever the user's personas grant. |
 | `supersedes` | persona → the entities whose answer the functional-role layer owns. For a user holding at least one functional role, that persona's own matrix row on those entities is **skipped**. |
 
-Shipped contents: `physio` grants `player_injuries [rc]` and `measurements [r]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` and `analytics [r]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+Shipped contents: `physio` grants `player_injuries [rc]`, `measurements [r]` and `staff_only_notes [c]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]`, `analytics [r]` and `staff_only_notes [c]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+
+`staff_only_notes [c]` on `physio` and `manager` is what lets a first aider or a team manager keep an operational note about a child within the staff — see [Matrix entity `staff_only_notes`](#matrix-entity-staff_only_notes--keeping-a-note-within-the-staff). One consequence is worth naming, because `grants` is additive across every persona: a parent who volunteers as their child's team manager or physio counts as staff for staff-only notes, so a coach's staff-only note on that child's **goal** conversation becomes readable to them. The player note itself is unaffected — `PlayerThreadAdapter` refuses the parent persona outright, whatever functional role is held. It is the same trade #3257 made for the injury record.
 
 `analytics [r]` on `manager` is the grant behind the attendance reports. A Staff account holding the Manager role is the shape a team manager most often takes on an install, and the at-risk list is the only surface that names the players who keep missing training — the job the seat exists for. It reads the reports for the squads the role is held on: the report rows are narrowed by `get_teams_for_coach()` regardless of how the grant arrived.
 
