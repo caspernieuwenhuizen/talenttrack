@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T00:24:33+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:26:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -2827,13 +2827,13 @@ msgid "No changes supplied."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:399
-#: src/Infrastructure/REST/ActivitiesRestController.php:1329
-#: src/Infrastructure/REST/ActivitiesRestController.php:1522
-#: src/Infrastructure/REST/ActivitiesRestController.php:1539
-#: src/Infrastructure/REST/ActivitiesRestController.php:1569
-#: src/Infrastructure/REST/ActivitiesRestController.php:2117
-#: src/Infrastructure/REST/ActivitiesRestController.php:2303
-#: src/Infrastructure/REST/ActivitiesRestController.php:2343
+#: src/Infrastructure/REST/ActivitiesRestController.php:1334
+#: src/Infrastructure/REST/ActivitiesRestController.php:1527
+#: src/Infrastructure/REST/ActivitiesRestController.php:1544
+#: src/Infrastructure/REST/ActivitiesRestController.php:1574
+#: src/Infrastructure/REST/ActivitiesRestController.php:2132
+#: src/Infrastructure/REST/ActivitiesRestController.php:2318
+#: src/Infrastructure/REST/ActivitiesRestController.php:2358
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -2881,7 +2881,7 @@ msgid "No contributions supplied."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:878
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:271
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:300
 #: src/Infrastructure/REST/GoalsRestController.php:217
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:200
@@ -2906,15 +2906,15 @@ msgstr ""
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1318
-#: src/Infrastructure/REST/ActivitiesRestController.php:1516
-#: src/Infrastructure/REST/ActivitiesRestController.php:1534
-#: src/Infrastructure/REST/ActivitiesRestController.php:1559
-#: src/Infrastructure/REST/ActivitiesRestController.php:2113
-#: src/Infrastructure/REST/ActivitiesRestController.php:2227
-#: src/Infrastructure/REST/ActivitiesRestController.php:2278
-#: src/Infrastructure/REST/ActivitiesRestController.php:2299
-#: src/Infrastructure/REST/ActivitiesRestController.php:2340
+#: src/Infrastructure/REST/ActivitiesRestController.php:1323
+#: src/Infrastructure/REST/ActivitiesRestController.php:1521
+#: src/Infrastructure/REST/ActivitiesRestController.php:1539
+#: src/Infrastructure/REST/ActivitiesRestController.php:1564
+#: src/Infrastructure/REST/ActivitiesRestController.php:2128
+#: src/Infrastructure/REST/ActivitiesRestController.php:2242
+#: src/Infrastructure/REST/ActivitiesRestController.php:2293
+#: src/Infrastructure/REST/ActivitiesRestController.php:2314
+#: src/Infrastructure/REST/ActivitiesRestController.php:2355
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -2925,79 +2925,79 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1349
+#: src/Infrastructure/REST/ActivitiesRestController.php:1354
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1399
+#: src/Infrastructure/REST/ActivitiesRestController.php:1404
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1750
-#: src/Infrastructure/REST/ActivitiesRestController.php:1808
+#: src/Infrastructure/REST/ActivitiesRestController.php:1755
+#: src/Infrastructure/REST/ActivitiesRestController.php:1813
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2139
+#: src/Infrastructure/REST/ActivitiesRestController.php:2154
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2143
+#: src/Infrastructure/REST/ActivitiesRestController.php:2158
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2146
+#: src/Infrastructure/REST/ActivitiesRestController.php:2161
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2209
+#: src/Infrastructure/REST/ActivitiesRestController.php:2224
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2210
+#: src/Infrastructure/REST/ActivitiesRestController.php:2225
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2248
+#: src/Infrastructure/REST/ActivitiesRestController.php:2263
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2249
+#: src/Infrastructure/REST/ActivitiesRestController.php:2264
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2255
+#: src/Infrastructure/REST/ActivitiesRestController.php:2270
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2281
+#: src/Infrastructure/REST/ActivitiesRestController.php:2296
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2363
-#: src/Infrastructure/REST/ActivitiesRestController.php:2435
+#: src/Infrastructure/REST/ActivitiesRestController.php:2378
+#: src/Infrastructure/REST/ActivitiesRestController.php:2450
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2366
+#: src/Infrastructure/REST/ActivitiesRestController.php:2381
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2401
+#: src/Infrastructure/REST/ActivitiesRestController.php:2416
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2422
+#: src/Infrastructure/REST/ActivitiesRestController.php:2437
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2438
+#: src/Infrastructure/REST/ActivitiesRestController.php:2453
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -3010,7 +3010,7 @@ msgid "The exercise could not be linked."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:144
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:171
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:172
 #: src/Infrastructure/REST/GoalsRestController.php:739
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:437
@@ -3185,7 +3185,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:168
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:158
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:224
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:225
 msgid "Invalid move parameters."
 msgstr ""
 
@@ -3195,7 +3195,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/CustomFieldsRestController.php:223
 #: src/Infrastructure/REST/EvalCategoriesRestController.php:76
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:160
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:161
 msgid "A label is required."
 msgstr ""
 
@@ -3445,78 +3445,82 @@ msgstr ""
 msgid "Whole club"
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:127
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:128
 msgid "A role key and label are required."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:130
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:131
 msgid "A role with this key already exists."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:144
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:145
 msgid "The role type could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:152
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:184
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:153
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:185
 msgid "Invalid role id."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:154
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:186
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:228
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:155
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:187
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:229
 #: src/Modules/Authorization/Admin/RolesPage.php:117
 msgid "Role not found."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:176
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:177
 msgid "The role type could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:188
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:189
 msgid "System role types cannot be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:197
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:198
 msgid ""
 "This role type is in use by current assignments. Reassign or remove those "
 "first."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:205
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:206
 msgid "The role type could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:344
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:336
+msgid "That filter value is not a valid id."
+msgstr ""
+
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:395
 msgid "Team, person, and functional role are all required."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:358
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:409
 msgid ""
 "Could not create the assignment. The person may already hold this role on "
 "this team."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:373
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:409
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:424
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:460
 msgid "Invalid assignment id."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:377
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:428
 msgid "A functional role is required."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:385
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:436
 msgid "Assignment not found."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:398
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:449
 msgid ""
 "Could not update the assignment. The person may already hold this role on "
 "this team."
 msgstr ""
 
-#: src/Infrastructure/REST/FunctionalRolesRestController.php:414
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:465
 msgid "The assignment could not be removed."
 msgstr ""
 
