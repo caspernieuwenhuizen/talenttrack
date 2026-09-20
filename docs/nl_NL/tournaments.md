@@ -87,6 +87,8 @@ snelkoppeling weg zonder de planner te verliezen.
 
 Elke wedstrijd heeft een niveau — standaard **zwakker / gelijkwaardig / sterker / veel sterker**. De pill op de wedstrijdkaart is kleur-gecodeerd groen → grijs → oranje → rood, zodat je in één oogopslag ziet waar je sterkste opstelling nodig is.
 
+Het niveau verschijnt overal met zijn vertaalde label — de pill op de wedstrijdkaart, de keuzelijst op het formulier "Wedstrijd toevoegen", de wedstrijdstap van de wizard en de samenvatting in de wizard. Hernoem je een niveau bij Configuratie → Niveaus tegenstander, dan volgt het nieuwe label op alle vier; wat er bij de wedstrijd is opgeslagen verandert niet, dus bestaande wedstrijden houden hun niveau.
+
 De auto-balancer weegt **niet** automatisch op niveau tegenstander. Dat is de beoordeling van de coach; de tool laat de data zien, jij beslist via handmatige wissels.
 
 ## Aftrap en afsluiten van een wedstrijd
