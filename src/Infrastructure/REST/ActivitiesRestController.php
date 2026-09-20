@@ -525,6 +525,57 @@ class ActivitiesRestController {
     }
 
     /**
+     * #3616 — may the caller write to activities of this team?
+     *
+     * The write routes checked the capability and stopped. `can_edit()` and
+     * `can_delete()` both go through `userCanOrMatrix()`, whose own sibling
+     * docblock says it "does NOT narrow to a team" — and `tt_coach` holds
+     * `tt_edit_activities`, so the gate returned true for every activity in
+     * the club. A head coach could edit, archive, restore or permanently
+     * delete another team's fixtures.
+     *
+     * The read side of this controller has always narrowed: `list_sessions()`
+     * uses `get_teams_for_coach()`, the grids use `gridAllowedTeamIds()`. The
+     * single-record writes were the gap.
+     *
+     * **Scope, not persona.** A caller with `activities` change at *global*
+     * scope writes anything; anyone holding it at *team* scope writes their
+     * own teams — whether they are a coach, a team manager, or a persona that
+     * does not exist yet. Classifying by grant rather than by job title means
+     * a new persona is covered the day it is seeded.
+     *
+     * Returns null when the write is allowed, or the 403 to return.
+     */
+    private static function refuseUnlessTeamWritable( ?int $team_id ): ?\WP_REST_Response {
+        $allowed = self::gridAllowedTeamIds();
+        if ( $allowed === null ) return null; // global scope: any team.
+
+        // An activity with no team has no team to be out of scope for; the
+        // capability gate is the whole answer for it.
+        if ( $team_id === null || $team_id <= 0 ) return null;
+
+        if ( in_array( $team_id, $allowed, true ) ) return null;
+
+        return RestResponse::error(
+            'forbidden_team',
+            __( 'That team is not in your scope.', 'talenttrack' ),
+            403
+        );
+    }
+
+    /**
+     * #3616 — the stored team of an activity, or null when it has none or
+     * the row is gone. Reads archived rows too, because restore and
+     * permanent delete act on them.
+     */
+    private static function activityTeamId( int $activity_id ): ?int {
+        $stored = self::repo()->findByIdIncludingArchived( $activity_id );
+        if ( $stored === null ) return null;
+        $team_id = (int) ( $stored->team_id ?? 0 );
+        return $team_id > 0 ? $team_id : null;
+    }
+
+    /**
      * #2382 — GET /activities/attendance-grid — the players × activities
      * attendance matrix for a team + window, for the desktop grid (and any
      * SaaS consumer, §4). Team scope enforced on the requested team.
@@ -1313,6 +1364,11 @@ class ActivitiesRestController {
 
         $data = self::extract( $r );
 
+        // #3616 — the body's team_id was taken unchecked, so a coach could
+        // create a fixture on any squad in the club.
+        $refusal = self::refuseUnlessTeamWritable( (int) ( $data['team_id'] ?? 0 ) );
+        if ( $refusal !== null ) return $refusal;
+
         // #3745 — the coach who runs the activity, not the person who typed
         // it in. A submitted `coach_id` is honoured (or refused by name);
         // an absent one derives the team's head coach. The creator is
@@ -1420,6 +1476,19 @@ class ActivitiesRestController {
         }
 
         $data = self::extract( self::overlayOnStored( $r, (array) $stored ) );
+
+        // #3616 — both ends of a move. The activity's CURRENT team decides
+        // whether the caller may touch it at all; the team it would end up
+        // on decides whether they may put it there. Checking only one lets a
+        // coach push an unwanted fixture onto another squad, or pull one
+        // away from it — both are writes to a team they have no standing
+        // over. Nothing is written until both pass.
+        $stored_team = (int) ( $stored->team_id ?? 0 );
+        $target_team = (int) ( $data['team_id'] ?? 0 );
+        foreach ( array_unique( [ $stored_team, $target_team ] ) as $team_id ) {
+            $refusal = self::refuseUnlessTeamWritable( $team_id );
+            if ( $refusal !== null ) return $refusal;
+        }
 
         // #3745 — the update used to drop a submitted `coach_id` and answer
         // 200, so a caller had no way to learn the value had been thrown
@@ -1619,6 +1688,12 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
+        // #3616 — archive is a write. It drops the activity off the player's
+        // "what's next" view and takes the attendance and minutes history
+        // with it, so it asks the same team question as an edit.
+        $refusal = self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+        if ( $refusal !== null ) return $refusal;
+
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
             ->archive( 'activity', [ $activity_id ], (int) get_current_user_id() );
         if ( $n === 0 ) {
@@ -1636,6 +1711,9 @@ class ActivitiesRestController {
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
+
+        $refusal = self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+        if ( $refusal !== null ) return $refusal;
 
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'activity', [ $activity_id ] );
         if ( $n === 0 ) {
@@ -1661,6 +1739,12 @@ class ActivitiesRestController {
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
+
+        // #3616 — the issue named four routes; this is the fifth of the same
+        // class and the only irreversible one, so it is covered here rather
+        // than left as the one write a coach can still aim at another team.
+        $refusal = self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+        if ( $refusal !== null ) return $refusal;
 
         try {
             $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )

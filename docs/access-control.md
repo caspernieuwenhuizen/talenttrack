@@ -62,6 +62,22 @@ Two write handlers still name a read capability, and both are recorded rather th
 | Granting / revoking a role on a person | `tt_view_settings` | There is no capability for granting a role. The nearest, `tt_manage_authorization`, means "edit the permission matrix" — a different act. |
 | Archiving a scheduled report | `tt_view_analytics` | There is no analytics write capability. |
 
+## A capability says whether, a scope says whose
+
+Holding `tt_edit_activities` means you plan sessions. It does not say **whose** sessions, and for a while the activity write routes never asked.
+
+`userCanOrMatrix()` answers the capability question and deliberately does not narrow to a team — its own docblock says so. Every coach holds `tt_edit_activities`, so `POST /activities`, `PUT /activities/{id}`, the archive, the restore and the permanent delete all returned true for every activity in the club. The *list* had always narrowed to the caller's own teams, which is exactly why nobody noticed: the coach could not see another team's fixtures, but could edit one by id.
+
+All five single-record writes now ask both questions. The rule is about **scope, not persona**:
+
+- a caller holding `activities` change at **global** scope writes any activity — head of development, academy admin;
+- anyone holding it at **team** scope writes only their own teams, whether they are a coach, a team manager, or a persona that does not exist yet;
+- otherwise the route answers `403 forbidden_team` and nothing is written.
+
+**Moving an activity between teams needs both ends.** An update that changes `team_id` requires the caller to hold the team it leaves *and* the team it joins. Checking only one would let a coach push an unwanted fixture onto another squad, or pull one away from it — both are writes to a team they have no standing over.
+
+An activity with no team has no team to be out of scope for; the capability is the whole answer for it.
+
 ## A view capability is not a club-wide data grant
 
 `tt_view_players` answers *"may this person look at players"*. It does not
