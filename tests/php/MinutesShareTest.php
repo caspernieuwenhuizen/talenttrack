@@ -211,6 +211,58 @@ final class MinutesShareTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #3796 — the window says what it left out. A report drawn over the
+     * wrong months otherwise reads exactly like a team that played nothing.
+     */
+    public function test_the_window_reports_the_played_matches_it_excluded(): void {
+        $team_id = $this->insertTeam( 'U14 narrow window' );
+        $player  = $this->insertPlayer( $team_id, 'Out', 'Of Range' );
+
+        $inside = $this->insertMatch( $team_id, '2026-03-10' );
+        $this->setPrepHalfLength( $inside, 35 );
+        $this->insertAttendance( $inside, $player, 70 );
+
+        foreach ( [ '2025-11-05', '2026-06-20' ] as $date ) {
+            $outside = $this->insertMatch( $team_id, $date );
+            $this->setPrepHalfLength( $outside, 35 );
+            $this->insertAttendance( $outside, $player, 70 );
+        }
+
+        $data = ( new MinutesShareQuery() )->forTeam( $team_id, '2026-03-01', '2026-03-31' );
+
+        $this->assertSame( 1, $data['matches'], 'only the March match is in the window' );
+        $this->assertSame( 2, $data['outside_window']['matches'] );
+        $this->assertSame( '2025-11-05', $data['outside_window']['earliest'] );
+        $this->assertSame( '2026-06-20', $data['outside_window']['latest'] );
+    }
+
+    /**
+     * The two empty states the report has to tell apart: nothing played at
+     * all, versus everything played on the other side of the window.
+     */
+    public function test_an_empty_window_distinguishes_no_matches_from_all_matches_elsewhere(): void {
+        $quiet = $this->insertTeam( 'U14 quiet' );
+        $this->insertPlayer( $quiet, 'No', 'Matches' );
+
+        $elsewhere = $this->insertTeam( 'U14 elsewhere' );
+        $player    = $this->insertPlayer( $elsewhere, 'All', 'Outside' );
+        $match     = $this->insertMatch( $elsewhere, '2025-11-05' );
+        $this->setPrepHalfLength( $match, 35 );
+        $this->insertAttendance( $match, $player, 70 );
+
+        $query = new MinutesShareQuery();
+
+        $nothing = $query->forTeam( $quiet, '2026-03-01', '2026-03-31' );
+        $this->assertSame( 0, $nothing['available_minutes'] );
+        $this->assertSame( 0, $nothing['outside_window']['matches'], 'nothing to widen onto' );
+
+        $mis_aimed = $query->forTeam( $elsewhere, '2026-03-01', '2026-03-31' );
+        $this->assertSame( 0, $mis_aimed['available_minutes'] );
+        $this->assertSame( 1, $mis_aimed['outside_window']['matches'] );
+        $this->assertSame( '2025-11-05', $mis_aimed['outside_window']['earliest'] );
+    }
+
     // ── seed helpers ────────────────────────────────────────────────
 
     private function insertTeam( string $name ): int {

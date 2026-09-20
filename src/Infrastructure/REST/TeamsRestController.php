@@ -104,11 +104,21 @@ class TeamsRestController {
         // per-player minutes out of it. They were gated on the same club-wide
         // cap `GET /teams/{id}` was, and are the same leak seen from the
         // report side, so they take the same predicate.
+        // #3796 (epic #3603) — both have always read `from` / `to`, but
+        // neither declared them, so the route index published a pair of
+        // endpoints that looked like they took no window at all. A board
+        // member reported the rolling year as hardcoded for exactly that
+        // reason: the capability was there and undiscoverable.
+        $minutes_share_window = [
+            'from' => [ 'type' => 'string', 'description' => 'Window start, Y-m-d. Defaults to twelve months before `to`. A value that is not a Y-m-d date is ignored rather than refused.' ],
+            'to'   => [ 'type' => 'string', 'description' => 'Window end, Y-m-d. Defaults to today. A value that is not a Y-m-d date is ignored rather than refused.' ],
+        ];
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_minutes_share' ],
                 'permission_callback' => $can_view_team,
+                'args'                => $minutes_share_window,
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/minutes-share/(?P<player_id>\d+)', [
@@ -116,6 +126,7 @@ class TeamsRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_player_minutes_share' ],
                 'permission_callback' => $can_view_team,
+                'args'                => $minutes_share_window,
             ],
         ] );
         // #3520 (epic #3519) — the team's match output as data: record, form,
@@ -383,6 +394,12 @@ class TeamsRestController {
      * the rendered report enforces it — a coach asking for a team outside
      * their matrix scope gets a 403, not an empty list, because an empty list
      * would read as "this team played nothing".
+     *
+     * #3796 — the payload carries `outside_window`: how many played matches
+     * the resolved window excluded and when they were. Without it a report
+     * aimed at the wrong twelve months is indistinguishable from a team that
+     * played nothing, which is the one thing an empty minutes report must
+     * not be ambiguous about.
      */
     public static function get_minutes_share( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );

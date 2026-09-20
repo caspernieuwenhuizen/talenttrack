@@ -115,6 +115,59 @@ final class MinutesShareQuery {
     }
 
     /**
+     * #3796 — the played matches this window left out, and when they were.
+     *
+     * `availableForTeam()` counts what is inside the window and says nothing
+     * about what it excluded, so a report drawn over the wrong twelve months
+     * reads identically to one drawn over a season the team genuinely sat
+     * out. A board member following one player's minutes plan cannot tell
+     * "this team played nothing" from "everything this team played is on the
+     * other side of your window" — and the second is one click from being
+     * right. The dates are the actionable part: they say where to widen to.
+     *
+     * Same "played match" predicate as the window query, so the two counts
+     * partition the team's matches between them and cannot overlap.
+     *
+     * @return array{matches:int, earliest:string, latest:string}
+     */
+    public function outsideWindowForTeam( int $team_id, string $from, string $to ): array {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = (int) CurrentClub::id();
+        $empty   = [ 'matches' => 0, 'earliest' => '', 'latest' => '' ];
+
+        if ( $team_id <= 0 ) return $empty;
+
+        $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
+        $played_sql = MinutesQuery::playedMatchSql( 'a' );
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(*) AS matches,
+                    MIN( a.{$date_col} ) AS earliest,
+                    MAX( a.{$date_col} ) AS latest
+               FROM {$p}tt_activities a
+              WHERE a.club_id = %d
+                AND a.team_id = %d
+                AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                AND a.{$date_col} IS NOT NULL
+                AND a.{$date_col} NOT BETWEEN %s AND %s
+                AND {$played_sql}
+                AND a.archived_at IS NULL
+                AND a.trashed_at IS NULL
+                AND a.plan_state <> 'cancelled'
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )",
+            $club_id, $team_id, $from, $to
+        ) );
+        if ( ! is_object( $row ) ) return $empty;
+
+        return [
+            'matches'  => (int) ( $row->matches ?? 0 ),
+            'earliest' => substr( (string) ( $row->earliest ?? '' ), 0, 10 ),
+            'latest'   => substr( (string) ( $row->latest ?? '' ), 0, 10 ),
+        ];
+    }
+
+    /**
      * Per-player share for one team over a window, ordered so the
      * under-played players are read first.
      *
@@ -122,8 +175,12 @@ final class MinutesShareQuery {
      * a share of no minutes is undefined, not zero, and rendering 0%
      * there would flag a whole squad for a season that has not started.
      *
+     * `outside_window` (#3796) reports the played matches this window
+     * excluded, so a reader can tell an empty report from a mis-aimed one.
+     *
      * @return array{
      *   available_minutes:int, matches:int, target_pct:int,
+     *   outside_window: array{matches:int, earliest:string, latest:string},
      *   players: list<array{player_id:int, name:string, jersey_number:?int,
      *                       minutes:int, share_pct:?float, below_target:bool}>
      * }
@@ -138,11 +195,13 @@ final class MinutesShareQuery {
             'available_minutes' => 0,
             'matches'           => 0,
             'target_pct'        => $target,
+            'outside_window'    => [ 'matches' => 0, 'earliest' => '', 'latest' => '' ],
             'players'           => [],
         ];
         if ( $team_id <= 0 ) return $empty;
 
         $available = $this->availableForTeam( $team_id, $from, $to );
+        $outside   = $this->outsideWindowForTeam( $team_id, $from, $to );
 
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
@@ -212,6 +271,7 @@ final class MinutesShareQuery {
             'available_minutes' => $available['minutes'],
             'matches'           => $available['matches'],
             'target_pct'        => $target,
+            'outside_window'    => $outside,
             'players'           => $players,
         ];
     }
@@ -222,6 +282,7 @@ final class MinutesShareQuery {
      *
      * @return array{
      *   available_minutes:int, matches:int, target_pct:int,
+     *   outside_window: array{matches:int, earliest:string, latest:string},
      *   minutes:int, share_pct:?float, below_target:bool
      * }|null  null when the player is not in the team's squad for the window
      */
@@ -236,6 +297,7 @@ final class MinutesShareQuery {
                 'available_minutes' => $team['available_minutes'],
                 'matches'           => $team['matches'],
                 'target_pct'        => $team['target_pct'],
+                'outside_window'    => $team['outside_window'],
                 'minutes'           => $row['minutes'],
                 'share_pct'         => $row['share_pct'],
                 'below_target'      => $row['below_target'],
