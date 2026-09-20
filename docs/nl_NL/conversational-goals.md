@@ -33,7 +33,9 @@ Doelen zijn zichtbaar voor:
 - De **trainer** die het doel beheert (of elke trainer toegewezen aan het team van de speler).
 - De **speler** wiens doel het is.
 - **Gekoppelde ouders** — gekoppeld via het guardian-emailadres van de speler.
-- **Beheerders / Head of Development** — standaard alleen-lezen, maar mogen ook posten.
+- **Iedereen met academiebrede toegang tot doelen** — beheerders, de Head of Development en elke rol waarvan de rij in de autorisatiematrix leesrecht op doelen geeft voor de hele academie. Zij lezen elk doelgesprek. Om erin te posten is ook het wijzigrecht op doelen nodig, dus een rol die doelen alleen academiebreed leest ziet de thread zonder tekstvak.
+
+Kun je de thread van een doel niet lezen, dan verschijnt de kop **Gesprek** helemaal niet op dat doel.
 
 Trainers en beheerders kunnen een bericht markeren als **Alleen trainers** door het vinkje *Alleen trainers* aan te zetten voor verzending. Berichten in deze modus blijven onzichtbaar voor spelers en ouders (en triggeren ook geen mailmelding voor hen).
 

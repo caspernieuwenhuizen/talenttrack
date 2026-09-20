@@ -426,7 +426,11 @@ class DemoGenerator {
             self::playersFor( $state ),
             $config,
             (string) $state->get( 'content_language', 'en_US' ),
-            self::formerPlayersFor( $state )
+            self::formerPlayersFor( $state ),
+            // #3775 — the run's clock, not this request's. A context is rebuilt
+            // for every chunk, and a calendar that re-read `time()` each time
+            // moved the window underneath a run that spanned midnight.
+            $state->now()
         );
     }
 

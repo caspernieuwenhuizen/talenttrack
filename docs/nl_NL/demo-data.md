@@ -93,6 +93,12 @@ aftrap om 10:00 en verzamelen om 09:15. Een zaterdag in een wedstrijdweek heeft
 dus altijd een wedstrijd om minuten, de presentielijst en
 wedstrijdbeoordelingen aan op te hangen.
 
+Genereren gebeurt in stappen, verdeeld over zoveel verzoeken als nodig, en de
+hele kalender wordt uitgezet vanaf het moment waarop de run is **gestart**. Een
+lange generatie die doorloopt tot na middernacht, of over de weekgrens heen,
+levert daardoor nog steeds één samenhangend rooster op — en niet een wedstrijd
+in de ene week met de training die eraan voorafgaat in de andere.
+
 Elke wedstrijd heeft een **tegenstander** en wordt afwisselend **thuis en uit**
 gespeeld; bij een uitwedstrijd staat de club van de tegenstander als locatie.
 Een gespeelde wedstrijd staat op **Afgerond** in de lijst met

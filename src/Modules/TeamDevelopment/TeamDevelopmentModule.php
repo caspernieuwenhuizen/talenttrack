@@ -90,13 +90,13 @@ class TeamDevelopmentModule implements ModuleInterface {
      * The matrix is the single source of truth for `team_chemistry`
      * authorization (the render gates + REST permission callbacks resolve
      * through `TeamChemistryAccess` / `MatrixGate`). The matrix omits
-     * `readonly_observer` (no entity rows) and `assistant_coach` (removed
-     * by the #1060 "AC is operational" decision), so the read cap is no
-     * longer granted to the `tt_readonly_observer` role — and the stale
-     * grant is actively revoked on upgrade so WP caps align with matrix
-     * authority. Assistant coaches share the `tt_coach` WP role with head
-     * coaches, so they keep the raw cap but are now denied by the matrix
-     * persona gate; head coaches (also `tt_coach`) retain access.
+     * `readonly_observer` (no entity rows), so the read cap is no longer
+     * granted to the `tt_readonly_observer` role — and the stale grant is
+     * actively revoked on upgrade so WP caps align with matrix authority.
+     * Both coach personas share the `tt_coach` WP role; the matrix
+     * separates them, head coaches holding read + change and assistant
+     * coaches read only (#3706, which restored the read the #1060 "AC is
+     * operational" decision had removed).
      */
     public static function ensureCapabilities(): void {
         $view   = 'tt_view_team_chemistry';
