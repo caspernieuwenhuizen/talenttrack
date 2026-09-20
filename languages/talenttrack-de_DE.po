@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T13:00:42+00:00\n"
+"POT-Creation-Date: 2026-09-20T13:03:46+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -6392,7 +6392,7 @@ msgstr ""
 msgid "Support access is active: %1$s — %2$s. Ends %3$s."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:243
+#: src/Modules/Alerts/Definitions/AbstractPlayerAlert.php:343
 #: src/Modules/Media/Wizard/MediaTargetStep.php:115
 msgid "this player"
 msgstr ""
@@ -6419,11 +6419,11 @@ msgstr ""
 msgid "No attendance was recorded for %s."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:61
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:82
 msgid "Evaluation not shared with the player"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:65
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:86
 msgid ""
 "An evaluation was recorded but nothing was written for the player to read. "
 "The ratings and the internal notes stay with staff, so from the player's "
@@ -6431,9 +6431,31 @@ msgid ""
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:99
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:120
 #, php-format
 msgid "The evaluation recorded for %s has no feedback for the player."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:132
+#, php-format
+msgid "An evaluation of %s is recorded but no feedback has been written yet."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:72
+msgid "New evaluation shared with the family"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:76
+msgid ""
+"Feedback on an evaluation of your child has been shared with you. It appears "
+"only once staff have released it, never when the evaluation is first written."
+msgstr ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:115
+#, php-format
+msgid "New feedback has been shared about %s."
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/EvaluationWindowClosingAlert.php:59
@@ -6461,26 +6483,45 @@ msgid_plural "%1$s has no evaluation in %2$s, which closes in %3$d days."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:67
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:75
 msgid "Goal past its target date"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:71
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:79
 msgid ""
 "A development goal has passed the date it was aimed at and is still open. "
 "Either the player got there and nobody recorded it, or the plan needs "
 "changing."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:106
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:114
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:126
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:99
 #: src/Shared/Frontend/Components/EvidencePanel.php:299
 msgid "Untitled goal"
 msgstr ""
 
 #. translators: 1: player name, 2: goal title
-#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:110
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:118
+#: src/Modules/Alerts/Definitions/GoalPastTargetDateAlert.php:130
 #, php-format
 msgid "%1$s's goal \"%2$s\" is past its target date and still open."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:64
+msgid "A goal for your child was updated"
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:68
+msgid ""
+"A development goal on your child's plan has changed since it was written — "
+"its status, its target date or its wording."
+msgstr ""
+
+#. translators: 1: player name, 2: goal title
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:103
+#, php-format
+msgid "%1$s's goal \"%2$s\" was updated."
 msgstr ""
 
 #: src/Modules/Alerts/Definitions/InvitationNeverSentAlert.php:106
@@ -6638,11 +6679,11 @@ msgid_plural "%1$s is still marked as planned, %2$d days after it took place."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:56
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:64
 msgid "No PDP conversation this cycle"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:60
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:68
 msgid ""
 "A player's PDP file for this season is open but no conversation has actually "
 "been held. The file looks complete on every list and the player has been "
@@ -6650,16 +6691,22 @@ msgid ""
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:102
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:110
 #, php-format
 msgid "No PDP conversation has been held with %s this cycle."
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:46
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:118
+#, php-format
+msgid "%s has not had a PDP conversation this cycle yet."
+msgstr ""
+
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:55
 msgid "Player not evaluated recently"
 msgstr ""
 
-#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:50
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:59
 msgid ""
 "No evaluation has been recorded for a player for longer than the academy's "
 "threshold. Nothing on any screen shows the gap, because a missing record "
@@ -6667,16 +6714,30 @@ msgid ""
 msgstr ""
 
 #. translators: %s: player name
-#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:74
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:83
 #, php-format
 msgid "%s has never been evaluated."
 msgstr ""
 
 #. translators: 1: player name, 2: number of weeks since the last evaluation
-#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:82
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:91
 #, php-format
 msgid "%1$s has not been evaluated for %2$d week."
 msgid_plural "%1$s has not been evaluated for %2$d weeks."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:110
+#, php-format
+msgid "No evaluation of %s has been recorded yet."
+msgstr ""
+
+#. translators: 1: player name, 2: number of weeks since the last evaluation
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:118
+#, php-format
+msgid "There has been no new evaluation of %1$s for %2$d week."
+msgid_plural "There has been no new evaluation of %1$s for %2$d weeks."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -7327,15 +7388,15 @@ msgstr ""
 msgid "Measurements"
 msgstr ""
 
-#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:181
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:182
 msgid "Always on — this one concerns a child's safety."
 msgstr ""
 
-#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:186
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:187
 msgid "Your academy has set this to always on."
 msgstr ""
 
-#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:188
+#: src/Modules/Alerts/Policy/AlertPolicyResolver.php:189
 msgid "Your academy has switched this off for everyone."
 msgstr ""
 
@@ -7358,26 +7419,26 @@ msgid ""
 "\"%s\" protects a child's safety and cannot be switched off for the club."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:193
-#: src/Modules/Alerts/Rest/AlertsRestController.php:211
-#: src/Modules/Alerts/Rest/AlertsRestController.php:218
-#: src/Modules/Alerts/Rest/AlertsRestController.php:222
-#: src/Modules/Alerts/Rest/AlertsRestController.php:468
-#: src/Modules/Alerts/Rest/AlertsRestController.php:472
-#: src/Modules/Alerts/Rest/AlertsRestController.php:479
-#: src/Modules/Alerts/Rest/AlertsRestController.php:487
+#: src/Modules/Alerts/Rest/AlertsRestController.php:194
+#: src/Modules/Alerts/Rest/AlertsRestController.php:212
+#: src/Modules/Alerts/Rest/AlertsRestController.php:219
+#: src/Modules/Alerts/Rest/AlertsRestController.php:223
+#: src/Modules/Alerts/Rest/AlertsRestController.php:469
+#: src/Modules/Alerts/Rest/AlertsRestController.php:473
+#: src/Modules/Alerts/Rest/AlertsRestController.php:480
+#: src/Modules/Alerts/Rest/AlertsRestController.php:488
 msgid "Alert not found."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:199
+#: src/Modules/Alerts/Rest/AlertsRestController.php:200
 msgid "Choose how long to snooze this alert: a day, a week, or a month."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:257
+#: src/Modules/Alerts/Rest/AlertsRestController.php:258
 msgid "Expected a preferences object."
 msgstr ""
 
-#: src/Modules/Alerts/Rest/AlertsRestController.php:334
+#: src/Modules/Alerts/Rest/AlertsRestController.php:335
 msgid "Expected a policy object."
 msgstr ""
 
