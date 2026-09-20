@@ -450,8 +450,8 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
 
     /**
      * Shape one value cell. Status → the level label, filled with the level's
-     * colour (white/dark text per the curated palette). Numeric → the number
-     * with the unit appended. Scale / pass-fail → the recorded text or number.
+     * colour (white/dark text per the curated palette). Numeric → the number in
+     * the entry unit. Scale / pass-fail → the recorded text or number.
      *
      * @param array<string, string> $level_token  label => colour token
      * @return array<string, mixed>
@@ -464,8 +464,11 @@ final class MeasurementResultsXlsxExporter implements ExporterInterface, ScopeGa
         }
 
         // #3273 — the export is read by people, in the unit they measured in.
+        // #3768 — the symbol is not repeated down the column: the header block
+        // above already says "Unit: cm", and a cell carrying it is a string
+        // where the reader wants something they can sum and chart.
         if ( $value_type === 'numeric' && $row->value_numeric !== null ) {
-            return [ 'v' => $units->format( (float) $row->value_numeric ), 'style' => 'td' ];
+            return [ 'v' => $units->format( (float) $row->value_numeric, false ), 'style' => 'td' ];
         }
 
         if ( $row->value_numeric !== null ) {
