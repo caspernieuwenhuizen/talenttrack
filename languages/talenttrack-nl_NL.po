@@ -65852,3 +65852,7 @@ msgstr "Contactverzoek aan gezin"
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
 msgid "Please confirm your contact details for {player_name}"
 msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
+
+#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
+msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
+msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
