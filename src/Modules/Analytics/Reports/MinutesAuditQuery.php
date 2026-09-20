@@ -80,7 +80,7 @@ final class MinutesAuditQuery {
             'players'       => [],
             'column_totals' => [],
             'grand_total'   => 0,
-            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0 ],
+            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0 ],
         ];
         if ( $team_id <= 0 ) return $empty;
 
@@ -391,7 +391,8 @@ final class MinutesAuditQuery {
         foreach ( $activities as $a ) {
             if ( ! self::isTournamentRow( $a ) ) continue;
             $tid = (int) ( $a->tournament_id ?? 0 );
-            if ( $tid > 0 ) $days[ (int) $a->id ] = $tid;
+            $aid = (int) ( $a->id ?? 0 );
+            if ( $tid > 0 && $aid > 0 ) $days[ $aid ] = $tid;
         }
         if ( $days === [] ) return [];
 
