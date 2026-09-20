@@ -20,6 +20,10 @@ msgid "%1$s%% of the team's available minutes — %2$s minutes between %3$s and 
 msgstr "%1$s%% van de beschikbare speelminuten van het team — %2$s minuten tussen %3$s en %4$s."
 
 #: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "Minutes share"
+msgstr "Minutenaandeel"
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
 msgid "Your observations"
 msgstr "Jouw observaties"
 
