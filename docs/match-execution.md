@@ -244,6 +244,11 @@ the substitution log — you never have to type them. Because they're
 derived, the way to fix a wrong figure is normally to correct the
 substitution that produced it.
 
+A player can go off and come back on as often as the match asks for it.
+Every spell on the pitch counts, and the squad timeline draws each one as
+its own bar, so a player who sat out ten minutes in the middle of a half
+gets the rest of it credited rather than losing it.
+
 When a genuine correction can't be expressed through the sub log — a player
 who left with a knock and no substitution was logged, say — the review
 screen's **Recorded minutes → Correct** panel lets you set an explicit

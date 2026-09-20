@@ -8,6 +8,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchExecution\Domain\AttendanceRecomputeOutcome;
+use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
@@ -977,44 +978,28 @@ class MatchExecutionRepository {
     /**
      * Compute per-player minutes from the substitution log + the half
      * lengths. Players who started the half + were never subbed off get
-     * the full half length; subbed-off players get the minute they
-     * came off; subbed-on players get half_length - minute_in_half.
-     * Returns map player_id => minutes.
+     * the full half length; everybody else gets the sum of the spells they
+     * were on the pitch for. Returns map player_id => minutes.
+     *
+     * #3850 — the walk moved to {@see MatchStints}, which the squad
+     * timeline reads too. It used to keep one "came off" and one "came on"
+     * minute per player per half, so a player who came back on in the same
+     * half lost that spell: 20 minutes credited instead of 30 for a
+     * starter, and nothing at all for a substitute who returned, because
+     * the arithmetic ran backwards and clamped at zero.
      *
      * @param list<int> $starting_xi_half1
      * @param list<int> $starting_xi_half2
      * @return array<int, int>
      */
     public function computeMinutes( int $execution_id, array $starting_xi_half1, array $starting_xi_half2, int $half1_length, int $half2_length ): array {
-        $subs    = $this->listSubstitutions( $execution_id );
-        $minutes = [];
-
-        foreach ( [ 1 => [ $starting_xi_half1, $half1_length ], 2 => [ $starting_xi_half2, $half2_length ] ] as $half => $pair ) {
-            [ $starting, $half_length ] = $pair;
-            $on_pitch = array_fill_keys( $starting, 0 );
-            $off_at   = []; // player_id => minute they came off
-            $on_at    = []; // player_id => minute they came on
-
-            foreach ( $subs as $sub ) {
-                if ( (int) $sub->half !== $half ) continue;
-                $minute = (int) $sub->minute_in_half;
-                $off_at[ (int) $sub->player_off_id ] = $minute;
-                $on_at[ (int) $sub->player_on_id ]   = $minute;
-            }
-
-            foreach ( $starting as $pid ) {
-                $minutes_played = isset( $off_at[ $pid ] ) ? $off_at[ $pid ] : $half_length;
-                $minutes[ $pid ] = ( $minutes[ $pid ] ?? 0 ) + $minutes_played;
-            }
-            foreach ( $on_at as $pid => $minute ) {
-                if ( in_array( $pid, $starting, true ) ) continue; // already counted via starting
-                $off_minute = $off_at[ $pid ] ?? $half_length;
-                $minutes_played = max( 0, $off_minute - $minute );
-                $minutes[ $pid ] = ( $minutes[ $pid ] ?? 0 ) + $minutes_played;
-            }
-        }
-
-        return $minutes;
+        return MatchStints::minutes( MatchStints::intervals(
+            $this->listSubstitutions( $execution_id ),
+            $starting_xi_half1,
+            $starting_xi_half2,
+            $half1_length,
+            $half2_length
+        ) );
     }
 
     /**
