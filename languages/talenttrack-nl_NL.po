@@ -63403,6 +63403,12 @@ msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
 #: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Minutes are only recorded for match activities that are still active."
+msgstr ""
+"Speelminuten worden alleen vastgelegd bij wedstrijdactiviteiten die nog "
+"actief zijn."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
 msgid ""
 "WordPress user id of the coach who runs the activity. Omit on create to "
 "derive the team head coach; send 0 to leave it unassigned."
@@ -63431,10 +63437,6 @@ msgid ""
 msgstr ""
 "De trainer die verantwoordelijk is voor het draaien van deze activiteit en "
 "het invullen van de presentielijst. Standaard de hoofdtrainer van het team."
-msgid "Minutes are only recorded for match activities that are still active."
-msgstr ""
-"Speelminuten worden alleen vastgelegd bij wedstrijdactiviteiten die nog "
-"actief zijn."
 
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
