@@ -4,6 +4,7 @@ namespace TT\Modules\Prospects\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\ProspectScope;
@@ -23,7 +24,8 @@ use TT\Modules\Workflow\WorkflowModule;
  *   GET   /talenttrack/v1/prospects         paginated list.
  *   GET   /talenttrack/v1/prospects/{id}    one prospect.
  *   PATCH /talenttrack/v1/prospects/{id}    correct the parent contact
- *                                           block and the consent state.
+ *                                           block, the consent state and
+ *                                           the scouting notes.
  *
  * Subsequent stages (parent confirmation, test-training outcome
  * recording, trial-group review) are handled entirely by `TaskEngine`
@@ -69,8 +71,50 @@ class ProspectsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ self::class, 'update_prospect' ],
                 'permission_callback' => [ self::class, 'can_log' ],
+                'args'                => self::updateArgs(),
             ],
         ] );
+    }
+
+    /**
+     * The fields `PATCH /prospects/{id}` accepts (#3868). Anything else in
+     * the body is refused rather than dropped behind a 200 — the route
+     * used to answer `changed: false` for a body it had not understood, so
+     * a scout who had recorded a consent request was told it was saved.
+     *
+     * Every field takes `null` as well as its type: an explicit null (or
+     * an empty string) clears the value, which is what makes withdrawing
+     * consent expressible at all.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function updateArgs(): array {
+        return [
+            'parent_name' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Name of the parent or guardian. Empty clears it.',
+            ],
+            'parent_email' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Email of the parent or guardian. Empty clears it.',
+            ],
+            'parent_phone' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Phone number of the parent or guardian. Empty clears it.',
+            ],
+            'consent_given_at' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Date the family gave consent, YYYY-MM-DD. Empty withdraws it.',
+            ],
+            'scouting_visit_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'The scouting visit the prospect was found at. Null or 0 unlinks.',
+            ],
+            'scouting_notes' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'What the scout saw, and what happened since. Empty clears it.',
+            ],
+        ];
     }
 
     public static function can_log(): bool {
@@ -250,15 +294,23 @@ class ProspectsRestController {
 
     /**
      * PATCH /prospects/{id} — correct the parent contact block and the
-     * consent state, and (#3600) the scouting visit the prospect was found
-     * at.
+     * consent state, (#3600) the scouting visit the prospect was found at,
+     * and (#3844) the scouting notes.
      *
-     * Scope is deliberately narrow (#2838): the four fields a scout needs
-     * to fix after the fact, not a general-purpose record editor. A
-     * mistyped email and a consent that arrived a day late by text are the
-     * two everyday cases, and the second is the one that matters — a
-     * consent flag that cannot be corrected asserts a state about a minor
-     * that may no longer be true.
+     * Scope is deliberately narrow (#2838): the fields a scout needs to fix
+     * after the fact, not a general-purpose record editor. A mistyped email
+     * and a consent that arrived a day late by text are the two everyday
+     * cases, and the second is the one that matters — a consent flag that
+     * cannot be corrected asserts a state about a minor that may no longer
+     * be true. The scouting notes joined them because the trail of what was
+     * seen and what the family answered lives there, and it could only ever
+     * be written once, at creation.
+     *
+     * Narrow, but no longer silent (#3868): a key outside that set is
+     * `400 unknown_field`, the way the sibling scouting-visit routes
+     * already answer. The route used to build its patch from the keys it
+     * knew and return `changed: false` for everything else, so a caller
+     * could not tell a discarded write from a no-op.
      *
      * `array_key_exists` rather than `isset` throughout, so an explicit
      * null clears a field instead of being read as "not supplied". That is
@@ -278,6 +330,12 @@ class ProspectsRestController {
         if ( ! $row || ! self::visibleTo( $id, get_current_user_id() ) ) {
             return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
         }
+
+        // Checked after the scope test so an id the caller may not see
+        // answers 404 whatever the body says, and before any field is read
+        // so a body mixing a known and an unknown key is refused whole.
+        $bad = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $bad ) return $bad;
 
         $params = $r->get_params();
         $patch  = [];
@@ -322,6 +380,15 @@ class ProspectsRestController {
                     400
                 );
             }
+        }
+
+        // #3844 — the note is a running trail, not a one-off: when the club
+        // asked the family, what the youth coordinator answered, what the
+        // scout saw the second time. The repository allowed it all along;
+        // only the route never mapped it.
+        if ( array_key_exists( 'scouting_notes', $params ) ) {
+            $v = trim( sanitize_textarea_field( (string) $r['scouting_notes'] ) );
+            $patch['scouting_notes'] = $v !== '' ? $v : null;
         }
 
         // #3600 — the visit the prospect was found at. Null or 0 unlinks; a
