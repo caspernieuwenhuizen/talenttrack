@@ -45,6 +45,8 @@ Rijen waar de standaarddeviatie onder **0,5** ligt over **10 of meer beoordeling
 
 Beperkt tot academiebrede rollen (hoofd opleiding / beheerder): coaches kunnen elkaars statistieken niet inzien. De knop **Exporteren (CSV)** downloadt dezelfde rijen; integraties kunnen ze lezen via `GET /wp-json/talenttrack/v1/reports/coach-evaluation-quality` met dezelfde rechtencontrole.
 
+Dat endpoint accepteert `team_id`, `date_from` en `date_to` zowel plat als genest: `filter[team_id]`, `filter[date_from]` (ook te schrijven als `filter[from]`) en `filter[date_to]` (`filter[to]`) — de vorm die de rest van de lijst-API gebruikt — en stuur je ze allebei, dan wint de geneste waarde. Een `team_id` dat geen bruikbaar team-id is, wordt geweigerd met `400 bad_filter`, waarbij `details.parameter` de schrijfwijze noemt die fout is; het wordt nooit stilzwijgend genegeerd, want een weggevallen teamfilter levert een antwoord op over elke coach in de academie terwijl er om één team gevraagd was.
+
 ## Frontendrapporten + Afdrukken/Opslaan als PDF
 
 Team-gemiddelden en Coach-activiteit renderen nu rechtstreeks op het publieke dashboard via `?tt_view=reports&type=team_ratings` en `?type=coach_activity` — geen sprong meer naar wp-admin. Elk rapport heeft bovenaan een knop **Afdrukken / Opslaan als PDF**: bij klikken opent het printvenster van de browser met een stijlblad dat dashboard-elementen verbergt, zodat "Opslaan als PDF" een schone PDF oplevert.
@@ -322,6 +324,18 @@ Coaches zien alleen de teams die ze coachen; academiebrede rollen zien de hele
 club. De filterbalk heeft de gedeelde besturing voor team / periode /
 wedstrijdtype / datumbereik en staat standaard op het venster van het huidige
 seizoen.
+
+Integraties kunnen dezelfde matrix lezen — met dezelfde `tt_view_analytics`-
+controle en dezelfde teamafbakening — via
+`GET /wp-json/talenttrack/v1/reports/minutes-audit`. Dat endpoint accepteert
+`team_id`, `from`, `to` en `type` zowel plat als genest: `filter[team_id]`,
+`filter[from]` (ook te schrijven als `filter[date_from]`), `filter[to]`
+(`filter[date_to]`) en `filter[type]` — de vorm die de rest van de lijst-API
+gebruikt — en stuur je ze allebei, dan wint de geneste waarde. Een team is
+verplicht: laat je het in beide schrijfwijzen weg, of stuur je iets wat geen
+bruikbaar team-id is, dan wordt het verzoek geweigerd met `400 bad_filter`,
+waarbij `details.parameter` de schrijfwijze noemt die fout is — in plaats van een
+lege matrix die leest als "dit team heeft niet gespeeld".
 
 ### Per-wedstrijd minuten-editor
 
