@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Evaluations\EvaluationDateRule;
@@ -504,9 +505,56 @@ class EvaluationsRestController {
         return false;
     }
 
+    /**
+     * The player an existing evaluation is about, or 0 when there is no
+     * such row in the current club.
+     */
+    private static function evaluation_player_id( int $eval_id ): int {
+        global $wpdb; $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT player_id FROM {$p}tt_evaluations WHERE id = %d AND club_id = %d",
+            $eval_id,
+            CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * Refuse a write to an evaluation whose existing player is outside the
+     * writer's scope.
+     *
+     * The submitted `player_id` is checked separately, mirroring
+     * `create_eval`. That is not the same thing: a body that omits
+     * `player_id` never reached a scope check at all, so the row's own
+     * player went unverified on update and archive.
+     */
+    private static function write_refusal( int $eval_id ) {
+        if ( current_user_can( 'tt_edit_settings' ) ) return null;
+        $player_id = self::evaluation_player_id( $eval_id );
+        if ( $player_id > 0 && ! QueryHelpers::coach_owns_player( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
+        }
+        return null;
+    }
+
     public static function get_eval( \WP_REST_Request $r ) {
         $e = QueryHelpers::get_evaluation( (int) $r['id'] );
         if ( ! $e ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
+
+        // The route's capability answers "may read evaluations", not "may
+        // read THIS evaluation". Every holder of the cap includes a parent,
+        // who holds it for their own child — so without the per-player
+        // check the id alone reached any evaluation in the club. The
+        // sibling route `players/{id}/evaluations` has always enforced
+        // this pair; the single-item route did not.
+        $uid       = get_current_user_id();
+        $player_id = (int) ( $e->player_id ?? 0 );
+        if ( $player_id > 0 && ! (
+            AuthorizationService::canViewPlayer( $uid, $player_id )
+            && AuthorizationService::parentCanViewSection( $uid, $player_id, 'evaluations' )
+        ) ) {
+            return RestResponse::error( 'rest_forbidden', __( 'You cannot view this evaluation.', 'talenttrack' ), 403 );
+        }
+
         return RestResponse::success( (array) $e );
     }
 
@@ -604,6 +652,9 @@ class EvaluationsRestController {
         // absence means "leave it alone" — the same contract the goals,
         // PDP-conversation and match-analysis writers already keep.
         $header = self::patch( $r );
+
+        $existing_refusal = self::write_refusal( $id );
+        if ( $existing_refusal !== null ) return $existing_refusal;
 
         // v4.20.37 (#1197) — Audit 2 (#1176) flagged the cross-club
         // rewrite class on this handler. Pre-fix the UPDATE's WHERE
@@ -748,6 +799,9 @@ class EvaluationsRestController {
         // archive's WHERE. Pre-fix the soft-delete bypassed tenancy
         // entirely — a coach in club A who knew an eval id from club B
         // could archive that row.
+        $existing_refusal = self::write_refusal( $id );
+        if ( $existing_refusal !== null ) return $existing_refusal;
+
         $ok = $wpdb->update(
             "{$p}tt_evaluations",
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
