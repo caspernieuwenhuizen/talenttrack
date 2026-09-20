@@ -8,6 +8,8 @@ use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ProspectOutcome;
+use TT\Modules\Prospects\ProspectScope;
+use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 
@@ -71,6 +73,49 @@ class ScoutingVisitsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'archive' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+
+        // #3711 — who was watched at this visit. Nested under the visit
+        // because the visit is what decides access: a scout reads and
+        // writes observations on their own visits, the head of development
+        // on any. A top-level `/observations/{id}` would have to resolve
+        // the visit first to ask the same question.
+        register_rest_route( self::NS, '/scouting-visits/(?P<id>\d+)/observations', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_observations' ],
+                'permission_callback' => [ __CLASS__, 'can_read' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_observation' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => [
+                    'prospect_id' => [
+                        'type'        => 'integer',
+                        'required'    => true,
+                        'description' => 'The existing prospect watched at this visit.',
+                    ],
+                    'observed_at' => [
+                        'type'        => 'string',
+                        'required'    => false,
+                        'description' => 'YYYY-MM-DD. Defaults to the visit date.',
+                    ],
+                    'notes' => [
+                        'type'        => 'string',
+                        'required'    => false,
+                        'description' => 'What was seen. Free text.',
+                    ],
+                ],
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/scouting-visits/(?P<id>\d+)/observations/(?P<observation_id>\d+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_observation' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -436,6 +481,146 @@ class ScoutingVisitsRestController {
      * @param object[] $rows
      * @return list<array<string,mixed>>
      */
+    /**
+     * GET /scouting-visits/{id}/observations — everyone watched at this
+     * visit, with the observation id the DELETE below takes.
+     */
+    public static function list_observations( \WP_REST_Request $r ): \WP_REST_Response {
+        $visit = self::readableVisit( (int) $r['id'] );
+        if ( $visit instanceof \WP_REST_Response ) return $visit;
+
+        $repo = new ScoutingVisitsRepository();
+        return RestResponse::success( [
+            'visit_id'     => (int) $visit->id,
+            'observations' => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+        ] );
+    }
+
+    /**
+     * POST /scouting-visits/{id}/observations — record that an existing
+     * prospect was watched here.
+     *
+     * Linking the same prospect twice returns the existing observation
+     * rather than creating a second one: a double tap is one statement
+     * made twice, not two sightings.
+     */
+    public static function create_observation( \WP_REST_Request $r ): \WP_REST_Response {
+        $visit = self::readableVisit( (int) $r['id'] );
+        if ( $visit instanceof \WP_REST_Response ) return $visit;
+        if ( ! empty( $visit->archived_at ) ) {
+            return RestResponse::error( 'visit_archived',
+                __( 'This scouting visit is archived, so prospects cannot be linked to it.', 'talenttrack' ), 409 );
+        }
+
+        $prospect_id = (int) $r['prospect_id'];
+        if ( $prospect_id <= 0 ) {
+            return RestResponse::error( 'bad_prospect', __( 'Invalid prospect id.', 'talenttrack' ), 400 );
+        }
+        // These are minors: a caller may only link a prospect they could
+        // already see. Without this, the id in the body would be a way to
+        // confirm that a child outside the caller's age groups exists.
+        if ( ! ProspectScope::canSee( get_current_user_id(), $prospect_id ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+
+        $observed_at = sanitize_text_field( (string) ( $r['observed_at'] ?? '' ) );
+        if ( $observed_at === '' ) $observed_at = (string) $visit->visit_date;
+
+        $id = ( new ProspectVisitObservationsRepository() )->link(
+            $prospect_id,
+            (int) $visit->id,
+            $observed_at,
+            sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) )
+        );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'link_failed',
+                __( 'Could not link the prospect to this visit.', 'talenttrack' ), 500 );
+        }
+
+        Logger::info( 'prospect linked to scouting visit', [
+            'observation_id' => $id,
+            'prospect_id'    => $prospect_id,
+            'visit_id'       => (int) $visit->id,
+        ] );
+
+        $repo = new ScoutingVisitsRepository();
+        return RestResponse::success( [
+            'observation_id' => $id,
+            'visit_id'       => (int) $visit->id,
+            'observations'   => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+        ] );
+    }
+
+    /** DELETE /scouting-visits/{id}/observations/{observation_id} — undo a link. */
+    public static function delete_observation( \WP_REST_Request $r ): \WP_REST_Response {
+        $visit = self::readableVisit( (int) $r['id'] );
+        if ( $visit instanceof \WP_REST_Response ) return $visit;
+
+        $observations = new ProspectVisitObservationsRepository();
+        $observation  = $observations->findById( (int) $r['observation_id'] );
+        if ( ! $observation || (int) $observation->scouting_visit_id !== (int) $visit->id ) {
+            return RestResponse::error( 'not_found', __( 'Observation not found.', 'talenttrack' ), 404 );
+        }
+
+        $observations->delete( (int) $observation->id );
+
+        $repo = new ScoutingVisitsRepository();
+        return RestResponse::success( [
+            'visit_id'     => (int) $visit->id,
+            'observations' => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+        ] );
+    }
+
+    /**
+     * The visit behind an observation route, or the refusal to return.
+     * One place, so the three routes cannot answer differently.
+     *
+     * @return object|\WP_REST_Response
+     */
+    private static function readableVisit( int $id ) {
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid scouting visit id.', 'talenttrack' ), 400 );
+        }
+        $row = ( new ScoutingVisitsRepository() )->find( $id );
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Scouting visit not found.', 'talenttrack' ), 404 );
+        }
+        if ( ! ScoutingVisitsAccess::canReadVisit( get_current_user_id(), $row, self::isScopeAdmin() ) ) {
+            return RestResponse::error( 'forbidden',
+                __( 'You can only view your own scouting visits.', 'talenttrack' ), 403 );
+        }
+        return $row;
+    }
+
+    /**
+     * #3711 — the prospect rows plus the observation that put them on this
+     * visit, so a client can undo the link it just made and tell the
+     * discovery sighting from a later one.
+     *
+     * @param object[] $rows rows from `ScoutingVisitsRepository::prospectsForVisit()`
+     * @return array<int, array<string,mixed>>
+     */
+    private static function serialiseObservations( array $rows, int $visit_id ): array {
+        $prospects = self::serialiseProspects( $rows );
+        $out       = [];
+
+        foreach ( array_values( $rows ) as $i => $row ) {
+            $row   = (array) $row;
+            $entry = $prospects[ $i ] ?? [ 'id' => (int) ( $row['id'] ?? 0 ) ];
+
+            $out[] = $entry + [
+                'observation_id' => (int) ( $row['observation_id'] ?? 0 ),
+                'observed_at'    => self::nullableString( $row['observed_at'] ?? null ),
+                'notes'          => self::nullableString( $row['observation_notes'] ?? null ),
+                // The discovery pointer still lives on the prospect, so
+                // "is this the visit they were found at" is answerable
+                // without ordering every sighting again.
+                'is_discovery'   => (int) ( $row['scouting_visit_id'] ?? 0 ) === $visit_id,
+            ];
+        }
+        return $out;
+    }
+
     private static function serialiseProspects( array $rows ): array {
         $out = [];
         foreach ( $rows as $row ) {

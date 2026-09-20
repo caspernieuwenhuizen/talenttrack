@@ -88,6 +88,32 @@ final class ProspectScope {
     }
 
     /**
+     * #3711 — is this one prospect inside the viewer's scope?
+     *
+     * Re-runs the list's own narrowing over a single id rather than
+     * reimplementing it, so a surface that takes a prospect id (the
+     * visit-observation link, `GET /prospects/{id}`) cannot disagree with
+     * the list about who is visible. These are minors; the answer has to
+     * come from one place.
+     */
+    public static function canSee( int $user_id, int $prospect_id ): bool {
+        if ( $prospect_id <= 0 ) return false;
+        if ( self::canSeeAll( $user_id ) ) return true;
+
+        $clause = self::sqlClause( $user_id, '' );
+        if ( $clause === '' ) return true;
+
+        global $wpdb;
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects
+              WHERE id = %d AND club_id = %d {$clause}",
+            $prospect_id,
+            CurrentClub::id()
+        ) ) > 0;
+    }
+
+    /**
      * `AND ( … )` for a query over `tt_prospects`, or an empty string when
      * the viewer may see everything.
      *

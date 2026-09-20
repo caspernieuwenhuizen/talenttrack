@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
+use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 
 /**
@@ -182,9 +183,57 @@ class PipelineGenerator implements DependentGeneratorInterface {
             if ( $id > 0 ) {
                 $this->registry->tag( 'prospect', $id, [ 'visit_id' => $visit_id ] );
                 $total++;
+                // The discovery link is written as an observation by
+                // `ProspectsRepository::create()`; tag it so the batch can
+                // be wiped, then re-sight roughly every third prospect at a
+                // different visit. A pool where nobody was ever watched
+                // twice would demo the feature by hiding it.
+                $total += $this->recordObservations( $id, $visit_id, $visits, $i );
             }
         }
         return $total;
+    }
+
+    /**
+     * #3711 — tag the discovery observation and add a later sighting for
+     * some prospects.
+     *
+     * @param int[] $visits
+     */
+    private function recordObservations( int $prospect_id, ?int $visit_id, array $visits, int $index ): int {
+        $observations = new ProspectVisitObservationsRepository();
+        $added = 0;
+
+        if ( $visit_id !== null && $visit_id > 0 ) {
+            $discovery = $observations->find( $prospect_id, $visit_id );
+            if ( $discovery !== null ) {
+                $this->registry->tag( 'prospect_visit_observation', (int) $discovery->id, [
+                    'prospect_id' => $prospect_id,
+                    'discovery'   => true,
+                ] );
+                $added++;
+            }
+        }
+
+        if ( $index % 3 !== 0 || count( $visits ) < 2 ) return $added;
+
+        // A different visit from the one they were found at.
+        $candidates = array_values( array_filter(
+            array_map( 'intval', $visits ),
+            static fn ( int $v ): bool => $v > 0 && $v !== (int) $visit_id
+        ) );
+        if ( ! $candidates ) return $added;
+
+        $later = $candidates[ $index % count( $candidates ) ];
+        $id    = $observations->link( $prospect_id, $later );
+        if ( $id > 0 ) {
+            $this->registry->tag( 'prospect_visit_observation', $id, [
+                'prospect_id' => $prospect_id,
+                'discovery'   => false,
+            ] );
+            $added++;
+        }
+        return $added;
     }
 
     /** @return array<int,int> lookup ids */

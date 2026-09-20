@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
+use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Dates\TTDate;
@@ -179,7 +180,14 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $row = (array) $prospect;
 
         $notes      = trim( (string) ( $row['scouting_notes'] ?? '' ) );
-        $visit_html = self::renderFocusVisit( (int) ( $row['scouting_visit_id'] ?? 0 ) );
+        $visit_html = self::renderFocusVisit(
+            (int) ( $row['scouting_visit_id'] ?? 0 ),
+            // #3711 — sightings after the first one. The count goes next to
+            // the discovery visit rather than replacing it: "found here, and
+            // watched twice more" is the sentence a head of development is
+            // reading this panel for.
+            ( new ProspectVisitObservationsRepository() )->countForProspect( $prospect_id )
+        );
         if ( $notes === '' && $visit_html === '' ) return '';
 
         ob_start(); ?>
@@ -207,7 +215,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
      * linking past either check would hand them a refusal page instead of a
      * visit. An archived or deleted visit shows nothing.
      */
-    private static function renderFocusVisit( int $visit_id ): string {
+    private static function renderFocusVisit( int $visit_id, int $observation_count = 0 ): string {
         if ( $visit_id <= 0 ) return '';
 
         $user_id  = get_current_user_id();
@@ -248,6 +256,19 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 <p class="tt-pipeline-focus-visit-by"><?php
                     /* translators: %s: name of the scout who made the visit. */
                     echo esc_html( sprintf( __( 'Scout: %s', 'talenttrack' ), $scout_name ) );
+                ?></p>
+            <?php endif; ?>
+            <?php
+            // #3711 — the discovery visit is one observation; anything past
+            // it is a re-sighting, which is what the count reports.
+            $later = max( 0, $observation_count - 1 );
+            if ( $later > 0 ) : ?>
+                <p class="tt-pipeline-focus-visit-more"><?php
+                    echo esc_html( sprintf(
+                        /* translators: %s: number of scouting visits after the one the prospect was discovered at. */
+                        _n( 'Seen at %s later visit', 'Seen at %s later visits', $later, 'talenttrack' ),
+                        number_format_i18n( $later )
+                    ) );
                 ?></p>
             <?php endif; ?>
         </div>

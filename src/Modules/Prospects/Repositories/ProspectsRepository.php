@@ -218,7 +218,15 @@ class ProspectsRepository {
             'consent_given_at'              => $data['consent_given_at'] ?? null,
         ];
         $ok = $this->wpdb->insert( $this->table, $insert );
-        return $ok ? (int) $this->wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+
+        $id = (int) $this->wpdb->insert_id;
+        // #3711 — the discovery link is also the first observation, so the
+        // visit detail (which reads observations) lists a prospect the
+        // moment the wizard creates them, exactly as it did when it read
+        // the column.
+        $this->recordObservation( $id, (int) ( $insert['scouting_visit_id'] ?? 0 ), (string) $insert['discovered_at'] );
+        return $id;
     }
 
     /**
@@ -236,7 +244,30 @@ class ProspectsRepository {
         ];
         $clean = array_intersect_key( $patch, array_flip( $allowed ) );
         if ( ! $clean ) return false;
-        return (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        $ok = (bool) $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+
+        // #3711 — moving the discovery pointer records a sighting too.
+        // Clearing it does NOT remove one: the observation is the fact
+        // that somebody watched this player that day, and that stays true
+        // whichever visit is now called the discovery.
+        if ( $ok && array_key_exists( 'scouting_visit_id', $clean ) ) {
+            $this->recordObservation( $id, (int) $clean['scouting_visit_id'], '' );
+        }
+        return $ok;
+    }
+
+    /**
+     * #3711 — write the (prospect, visit) observation behind a discovery
+     * link, if there is one. Idempotent through the repository's unique
+     * key, so re-saving a prospect never duplicates a sighting.
+     */
+    private function recordObservation( int $prospect_id, int $visit_id, string $observed_at ): void {
+        if ( $prospect_id <= 0 || $visit_id <= 0 ) return;
+        ( new ProspectVisitObservationsRepository() )->link(
+            $prospect_id,
+            $visit_id,
+            $observed_at !== '' ? $observed_at : null
+        );
     }
 
     public function archive( int $id, string $reason, ?int $by = null ): bool {
