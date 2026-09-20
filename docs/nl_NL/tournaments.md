@@ -111,6 +111,21 @@ leg je hem vast.
 nog niet gespeeld hebt, of waar niemand een uitslag van invulde, leest als
 gespeeld-zonder-uitslag en niet als doelpuntloos gelijkspel.
 
+**Een uitslag slaat de uitslag op en verder niets.** Typen in een van beide
+vakjes laat de tegenstander, het niveau, de aftraptijd, de speelduur en de
+wisselmomenten van de wedstrijd precies zoals ze waren. Andersom geldt
+hetzelfde: een wedstrijd korter maken behoudt de wisselmomenten die binnen de
+nieuwe speelduur passen in plaats van ze te wissen.
+
+> **Heb je op v4.126.0 of v4.127.x uitslagen vastgelegd?** Controleer die
+> wedstrijden dan. Tot deze fix wiste het opslaan van een uitslag de
+> tegenstander, het niveau, de aftraptijd, de notities en de wisselmomenten, en
+> zette het de speelduur terug op 20 minuten. Die wedstrijden moet je met de
+> hand opnieuw invullen — de waarden zijn niet uit de wedstrijd zelf terug te
+> halen. Bij een wedstrijd waarvoor je aftrap hebt gegeven staan de
+> tegenstander, de formatie en de aftraptijd nog op de wedstrijdactiviteit die
+> daarbij is aangemaakt; dat is de snelste plek om ze terug te lezen.
+
 Er is bewust **geen dagtotaal**. De balans van het team laat toernooien
 helemaal buiten beschouwing, dus een doelpunten voor/tegen over de dag zou
 nergens gelezen worden. Verandert dat, dan is het zo toegevoegd.

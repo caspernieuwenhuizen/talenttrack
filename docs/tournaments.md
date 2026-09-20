@@ -114,6 +114,20 @@ The result belongs to the fixture, so that is where it is recorded.
 played yet, or one nobody typed a score into, reads as played-without-a-result
 rather than as a goalless draw.
 
+**A score saves the score and nothing else.** Typing into either box leaves the
+fixture's opponent, level, kickoff time, length and substitution windows
+exactly as they were. The same holds the other way: shortening a fixture keeps
+the substitution windows that still fit inside the new length instead of
+clearing them.
+
+> **If you recorded scores on v4.126.0 or v4.127.x**, check those fixtures.
+> Until this was fixed, saving a score blanked the fixture's opponent, level,
+> kickoff time, notes and substitution windows and reset its length to 20
+> minutes. The affected fixtures have to be filled in again by hand — the
+> values are not recoverable from the fixture itself. A fixture that was
+> kicked off still has its opponent, formation and kickoff time on the match
+> activity it created, so that is the quickest place to read them back.
+
 There is deliberately **no day total**. The team's record leaves tournaments
 out entirely, so a goals-for/against figure across the day would have nothing
 reading it. If that changes, it is cheap to add.

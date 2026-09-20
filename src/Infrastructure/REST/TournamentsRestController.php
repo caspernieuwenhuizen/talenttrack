@@ -1222,6 +1222,18 @@ class TournamentsRestController {
         ) );
     }
 
+    /**
+     * PATCH /tournaments/{id}/matches/{match_id} — a true partial update.
+     *
+     * #3557 — this used to rebuild the row from `extractMatch()`, which
+     * defaults every column the request does not mention. The score boxes
+     * (#3532) PATCH one field on blur, so typing "3" into a scoreline wiped
+     * the fixture's opponent, level, kickoff time and substitution windows,
+     * and reset its duration to 20. CLAUDE.md § 6: the endpoint has to accept
+     * partial updates before a per-field caller points at it. Only the keys
+     * the request actually carries are written; anything absent is left as it
+     * is on the row.
+     */
     public static function update_match( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
@@ -1232,9 +1244,16 @@ class TournamentsRestController {
             return RestResponse::notFound( 'match_not_found' );
         }
 
-        $payload = self::extractMatch( (array) $r->get_params() );
-        // Cannot mutate the tournament_id / activity_id through this path.
-        unset( $payload['tournament_id'], $payload['club_id'], $payload['activity_id'] );
+        // The extractor whitelists mutable columns, so tournament_id,
+        // club_id, activity_id and sequence cannot be reached from here.
+        $payload = self::extractMatchPartial( (array) $r->get_params(), $existing );
+
+        if ( $payload === [] ) {
+            // Nothing recognised in the request. Returning the row untouched
+            // beats an UPDATE with no columns, which wpdb reports as a
+            // failure and the caller would read as a save error.
+            return RestResponse::success( $existing );
+        }
 
         $ok = $wpdb->update(
             "{$p}tt_tournament_matches",
@@ -1437,7 +1456,11 @@ class TournamentsRestController {
     }
 
     /**
-     * Sanitise + cast the inbound match payload.
+     * Sanitise + cast a **complete** inbound match payload, applying the
+     * creation defaults for anything absent. Used on the create paths
+     * (`insertMatch`), where there is no row yet and a missing key genuinely
+     * means "no value". The update path wants `extractMatchPartial()`
+     * instead — see #3557.
      */
     private static function extractMatch( array $r ): array {
         $duration = isset( $r['duration_min'] ) ? max( 1, absint( $r['duration_min'] ) ) : 20;
@@ -1445,15 +1468,12 @@ class TournamentsRestController {
         $scheduled = sanitize_text_field( (string) ( $r['scheduled_at'] ?? '' ) );
 
         // #3532 — the fixture's result. Merged in only when the request
-        // mentions it, unlike every field below: those are a full replace, and
-        // a caller that predates the scores must not wipe them by not knowing
-        // they exist. An explicit null or '' clears the column, because a coach
-        // deleting the digits is saying "no result recorded", not "0-0".
+        // mentions it. An explicit null or '' clears the column, because a
+        // coach deleting the digits is saying "no result recorded", not "0-0".
         $scores = [];
         foreach ( [ 'our_score', 'their_score' ] as $col ) {
             if ( ! array_key_exists( $col, $r ) ) continue;
-            $raw = $r[ $col ];
-            $scores[ $col ] = ( $raw === null || $raw === '' ) ? null : min( 99, absint( $raw ) );
+            $scores[ $col ] = self::sanitiseScore( $r[ $col ] );
         }
 
         return $scores + [
@@ -1466,6 +1486,76 @@ class TournamentsRestController {
             'scheduled_at'         => $scheduled !== '' ? $scheduled : null,
             'notes'                => isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null,
         ];
+    }
+
+    /**
+     * Sanitise + cast only the match columns the request actually mentions.
+     *
+     * #3557 — the difference from `extractMatch()` is what an absent key
+     * means. On create it means "no value, use the default"; on update it
+     * means "the caller is not talking about this column", and the row keeps
+     * what it has. An explicit `null` still clears a column, so a coach can
+     * empty the opponent field.
+     *
+     * `$existing` is a formatted row from `fetchMatch()` and is only read for
+     * the duration / windows pair, which cannot be decided in isolation: the
+     * windows are minute marks inside the duration, so normalising one
+     * against a stale copy of the other would silently drop them.
+     *
+     * @param array<string,mixed> $r
+     * @param array<string,mixed> $existing
+     * @return array<string,mixed>
+     */
+    private static function extractMatchPartial( array $r, array $existing ): array {
+        $out = [];
+
+        foreach ( [ 'our_score', 'their_score' ] as $col ) {
+            if ( ! array_key_exists( $col, $r ) ) continue;
+            $out[ $col ] = self::sanitiseScore( $r[ $col ] );
+        }
+
+        foreach ( [ 'label', 'opponent_name', 'opponent_level', 'formation' ] as $col ) {
+            if ( ! array_key_exists( $col, $r ) ) continue;
+            $value = sanitize_text_field( (string) ( $r[ $col ] ?? '' ) );
+            $out[ $col ] = $value !== '' ? $value : null;
+        }
+
+        if ( array_key_exists( 'notes', $r ) ) {
+            $notes = sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) );
+            $out['notes'] = $notes !== '' ? $notes : null;
+        }
+
+        if ( array_key_exists( 'scheduled_at', $r ) ) {
+            $scheduled = sanitize_text_field( (string) ( $r['scheduled_at'] ?? '' ) );
+            $out['scheduled_at'] = $scheduled !== '' ? $scheduled : null;
+        }
+
+        $has_duration = array_key_exists( 'duration_min', $r );
+        $has_windows  = array_key_exists( 'substitution_windows', $r );
+        if ( $has_duration || $has_windows ) {
+            $duration = $has_duration
+                ? max( 1, absint( $r['duration_min'] ) )
+                : max( 1, (int) ( $existing['duration_min'] ?? 20 ) );
+            $windows_raw = $has_windows
+                ? $r['substitution_windows']
+                : ( $existing['substitution_windows'] ?? [] );
+
+            $out['duration_min']         = $duration;
+            $out['substitution_windows'] = self::normaliseWindowsJson( $windows_raw, $duration );
+        }
+
+        return $out;
+    }
+
+    /**
+     * A fixture score: 0–99, or null for "no result recorded". Shared by the
+     * create and update extractors so the two cannot drift.
+     *
+     * @param mixed $raw
+     */
+    private static function sanitiseScore( $raw ): ?int {
+        if ( $raw === null || $raw === '' ) return null;
+        return min( 99, absint( $raw ) );
     }
 
     /**
