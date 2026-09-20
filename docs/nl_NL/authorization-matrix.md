@@ -133,18 +133,42 @@ Acht persona's worden meegeleverd in de seed:
 
 Een gebruiker kan meerdere persona's tegelijk vasthouden (een ouder die ook hoofdcoach is). De matrix gebruikt de **unie** standaard — elke persona die toestemming verleent wint. De persona-switcher in het gebruikersmenu laat multi-persona-gebruikers het dashboard tijdelijk filteren naar de visie van één persona; dat is een UI-lens, geen autorisatiebeperking.
 
-## Toernooien — alleen-beheerder in v1 (#0093, #1943)
+## Toernooien — op teamscope sinds #3703
 
-De toernooiplanner levert twee capabilities mee — `tt_view_tournaments` en `tt_edit_tournaments`. In v1 houden alleen `administrator` + `tt_club_admin` (de Academy Admin-persona) ze vast. Geen enkele andere persona (Coach, HoD, Scout, Speler, Ouder) ziet de functie tot de persona-uitbreiding-vervolglevering.
+De toernooiplanner levert twee capabilities mee — `tt_view_tournaments` en `tt_edit_tournaments`. De WordPress-roldefinities geven ze nog steeds alleen aan `administrator` + `tt_club_admin`; elke andere houder bereikt ze via de matrixbrug, en daar zit de persona-uitbreiding hieronder.
 
-De functie heeft een matrix-entiteit: `tournaments`. De seed verleent **alleen academy_admin `rcd[global]`** — dit reproduceert het alleen-beheerder-ontwerp van v1 (WP-administrators passeren via de matrix-administrator-uitzondering). Geen enkele andere persona heeft een rij. `LegacyCapMapper` overbrugt de ruwe capabilities zodat de bestaande `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )`-controlepunten via de matrix worden opgelost zodra die actief is:
+De functie heeft een matrix-entiteit: `tournaments`. `LegacyCapMapper` overbrugt de ruwe capabilities zodat de bestaande `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )`-controlepunten via de matrix worden opgelost zodra die actief is:
 
 | Ruwe capability | Matrix-tuple |
 | - | - |
 | `tt_view_tournaments` | `tournaments` / `read` |
 | `tt_edit_tournaments` | `tournaments` / `change` |
 
-`tt_edit_tournaments` dekte historisch bewerken **én** aanmaken **én** verwijderen (er is geen aparte beheer-capability), dus de seed-toekenning is volledig `rcd` — het overbruggen van bewerken naar `change` behoudt de aanmaak/verwijder-dekking omdat de enige begunstigde alle drie de handelingen heeft. De ruwe capability-houders (administrator + `tt_club_admin`) komen netjes overeen met de seed-begunstigde, dus routering via de matrix is **toegangsbehoudend** — geen enkele persona wint of verliest toegang. Migratie `0179_authorization_seed_topup_tournaments` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`).
+`tt_edit_tournaments` dekte historisch bewerken **én** aanmaken **én** verwijderen (er is geen aparte beheer-capability), dus elke seed-toekenning is volledig `rcd` — het overbruggen van bewerken naar `change` behoudt de aanmaak/verwijder-dekking omdat elke begunstigde alle drie de handelingen heeft. Migratie `0179_authorization_seed_topup_tournaments` vulde de entiteit destijds bij in `tt_authorization_matrix`; `0278_authorization_seed_topup_tournaments_personas` voegt de persona's hieronder toe (beide idempotent, `INSERT IGNORE`).
+
+### Wie het heeft (#3703)
+
+| Persona | Toekenning |
+| --- | --- |
+| `head_coach` | `rcd`, team |
+| `assistant_coach` | `rcd`, team |
+| `team_manager` | `rcd`, team |
+| `head_of_development` | `rcd`, globaal |
+| `academy_admin` | `rcd`, globaal |
+
+v1 leverde de module alleen voor beheerders en zei in de seed met zoveel woorden dat de coach-uitbreiding "een aparte, bewuste toekomstige wijziging" was. #3703 is die wijziging: op een toernooidag zijn het de trainers en de teammanager die de selectie kiezen en de speeltijd verdelen, en hen buitensluiten betekende dat ze de dag als gewone activiteit vastlegden, waardoor de wedstrijden en minuten de module nooit bereikten.
+
+Een eerdere schets in dit document beschreef een andere verdeling — lezen voor Coach + Hoofd opleiding + **Scout**, bewerken voor Coach en Hoofd opleiding. Dat is niet wat er is gebouwd. Er is **geen scout-toekenning**, en de drie persona's op teamscope hebben schrijfrecht, niet alleen leesrecht.
+
+### Wat "teamscope" betekent bij een toernooi
+
+`tt_tournaments.team_id` is het *ankerteam*, maar de selectie is een lijst spelers en een speler hoort bij een team, dus een toernooidag kan een selectie uit meerdere leeftijdsgroepen trekken. `TT\Modules\Tournaments\TournamentAccess` beslist daarom op de **volledige deelnemersverzameling** — het anker plus het team van elke selectiespeler — en niet op het anker alleen.
+
+- **Lezen en wijzigen** vereisen **één** deelnemend team dat de gebruiker heeft. Plannen doe je aan het deel van de dag dat van jou is.
+- **Verwijderen** vereist **alle**. Verwijderen is niet gedeeltelijk: het haalt de wedstrijddag weg bij elke selectie erin. Een gebruiker op teamscope die sommige maar niet alle teams heeft, wordt geweigerd met `tournament_spans_other_teams` en een tekst die zegt waarom, in plaats van een kale `rest_forbidden` die niet van een fout te onderscheiden is. Een gebruiker op globale scope (hoofd opleiding, academiebeheerder) raakt dit niet.
+- **Aanmaken** wordt beslist op het ankerteam in het verzoek, omdat er nog geen selectie is die het antwoord kan verbreden.
+
+`AuthorizationService::canViewTournament()` / `canEditTournament()` / `canDeleteTournament()` zijn de aanroeppunten; de REST-permission-callbacks, de detail- en bewerktakken van de planner en de dashboardtegel lossen er alle drie via op, zodat ze niet uiteen kunnen lopen. `GET /tournaments` beperkt de eigen regels in SQL tot de teams van de aanvrager — een trainer op teamscope die door de lijst bladert krijgt nooit de selectie van een andere leeftijdsgroep om die vervolgens verborgen te zien.
 
 ## Matrix-entiteit `exercises` — de oefeningenbibliotheek
 

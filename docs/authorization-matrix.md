@@ -133,28 +133,46 @@ Eight personas ship in the seed:
 
 A user can hold multiple personas simultaneously (a parent who's also a head coach). The matrix uses the **union** by default — any persona that grants permission wins. The persona switcher in the user menu lets multi-persona users temporarily lens the dashboard to one persona's view; that's a UI lens, not an authorization restriction.
 
-## Tournaments — admin-only in v1
+## Tournaments — team-scoped since #3703
 
-The Tournament planner ships with two new capabilities — `tt_view_tournaments` and `tt_edit_tournaments`. v1 maps both to `administrator` + `tt_club_admin` only. No other persona (Coach, HoD, Scout, Player, Parent) holds either cap until the persona-expansion follow-up.
+The Tournament planner ships with two capabilities — `tt_view_tournaments` and `tt_edit_tournaments`. The WordPress role definitions still grant them to `administrator` + `tt_club_admin` only; every other holder reaches them through the matrix bridge, which is where the persona expansion below lives.
 
 The caps are intentionally **not** in `RolesService::VIEW_CAPS` / `EDIT_CAPS` so they don't auto-propagate to HoD via `allViewCapsTrue()`. They live in their own `TOURNAMENTS_CAPS` constant; `ensureCapabilities()` grants them to WP `administrator` and the role definition for `tt_club_admin` lists them explicitly.
 
 ### Matrix entity `tournaments`
 
-The feature has a matrix entity: `tournaments`. The seed grants **academy_admin `rcd[global]` only** — reproducing the admin-only v1 design above (WP administrators bypass via the matrix administrator-override). No other persona holds a row. `LegacyCapMapper` bridges the raw caps so the existing `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )` call sites resolve through the matrix once it is active:
+The feature has a matrix entity: `tournaments`. `LegacyCapMapper` bridges the raw caps so the existing `current_user_can( 'tt_view_tournaments' / 'tt_edit_tournaments' )` call sites resolve through the matrix once it is active:
 
 | Raw cap | Matrix tuple |
 | - | - |
 | `tt_view_tournaments` | `tournaments` / `read` |
 | `tt_edit_tournaments` | `tournaments` / `change` |
 
-`tt_edit_tournaments` historically covers edit **and** create **and** delete (there is no separate manage cap), so the seed grant is full `rcd` — bridging edit to `change` preserves create/delete coverage because the sole grantee holds all three activities. The raw cap holders (administrator + `tt_club_admin`) map cleanly onto the seed grantee (administrator bypass + academy_admin persona), so routing through the matrix is **access-preserving** — no persona gains or loses access. Migration `0179_authorization_seed_topup_tournaments` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`).
+`tt_edit_tournaments` historically covers edit **and** create **and** delete (there is no separate manage cap), so every seed grant is full `rcd` — bridging edit to `change` preserves create/delete coverage because each grantee holds all three activities. Migration `0179_authorization_seed_topup_tournaments` backfilled the entity into `tt_authorization_matrix` on existing installs; `0278_authorization_seed_topup_tournaments_personas` adds the personas below (both idempotent `INSERT IGNORE`).
 
-When the persona-expansion ship lands:
+### Who holds it (#3703)
 
-1. Map `tt_view_tournaments` → Coach + HoD + Scout, `tt_edit_tournaments` → Coach (own tournaments) + HoD.
-2. Build `AuthorizationService::canViewTournament` / `canEditTournament` with creator / team-coach / global-staff logic (currently they defer to the cap check).
-3. Swap REST `permission_callback`s from cap-only to per-entity checks.
+| Persona | Grant |
+| --- | --- |
+| `head_coach` | `rcd`, team |
+| `assistant_coach` | `rcd`, team |
+| `team_manager` | `rcd`, team |
+| `head_of_development` | `rcd`, global |
+| `academy_admin` | `rcd`, global |
+
+v1 shipped the module admin-only and said in the seed that the coach expansion was "a separate, deliberate future change". #3703 is that change: on tournament day the people who pick the squad and share out the minutes are the coaches and the team manager, and locking them out meant they logged the day as a plain activity instead, so its matches and minutes never reached the module at all.
+
+An earlier sketch in this document described a narrower split — view for Coach + Head of development + **Scout**, edit for Coach and Head of development. That is not what shipped. There is **no scout grant**, and the three team-scoped personas hold write, not only read.
+
+### What "team scope" means for a tournament
+
+`tt_tournaments.team_id` is the *anchor* team, but the squad is a list of players and a player belongs to a team, so a tournament day can draw its squad from several age groups. `TT\Modules\Tournaments\TournamentAccess` therefore decides against the **full participating set** — the anchor plus every squad member's team — and not against the anchor alone.
+
+- **Read and change** need **any** participating team the actor holds. Planning is something you do to the part of the day that is yours.
+- **Delete** needs **all** of them. Deleting is not partial: it takes the fixture away from every squad in it. A team-scoped actor who holds some but not all of a tournament's teams is refused with `tournament_spans_other_teams` and a message saying why, rather than a bare `rest_forbidden` they cannot tell from a bug. A global-scope actor (head of development, academy admin) is unaffected.
+- **Create** is decided on the anchor team in the request, because there is no squad yet to widen the answer.
+
+`AuthorizationService::canViewTournament()` / `canEditTournament()` / `canDeleteTournament()` are the call sites; the REST permission callbacks, the rendered planner's detail and edit branches, and the dashboard tile all resolve through them, so the three cannot answer differently. `GET /tournaments` narrows its own rows in SQL to the caller's teams — a team-scoped coach paging the list is never handed another age group's squad and then shown it hidden.
 
 ## Matrix entity `exercises` — the drill library
 

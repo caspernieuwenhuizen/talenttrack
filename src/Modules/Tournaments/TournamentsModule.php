@@ -50,9 +50,9 @@ class TournamentsModule implements ModuleInterface {
         // API is available.
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
-        // REST controller — every permission_callback gates on
-        // tt_view_tournaments / tt_edit_tournaments, which are
-        // admin-only in v1.
+        // REST controller. #3703 — the {id}-bearing routes resolve the
+        // tournament's participating teams through TournamentAccess; the
+        // collection routes ask the entity and narrow the list in SQL.
         TournamentsRestController::init();
 
         // v4.8.0 (#975) — admin-post.php handler for the post-creation
@@ -62,7 +62,9 @@ class TournamentsModule implements ModuleInterface {
 
         // #0093 chunk 4 — new-tournament wizard. Five steps: basics →
         // formation → squad → matches → review. Gated on
-        // tt_edit_tournaments (admin-only in v1).
+        // tt_edit_tournaments, which the matrix bridge resolves to the
+        // `tournaments` entity — team-scoped for both coach personas and
+        // the team manager since #3703.
         if ( class_exists( WizardRegistry::class ) ) {
             WizardRegistry::register( new NewTournamentWizard() );
         }
@@ -71,9 +73,10 @@ class TournamentsModule implements ModuleInterface {
         // in v3.110.132 / .133 was reachable only by direct URL
         // (?tt_view=tournaments). The dashboard tile grid had no entry
         // for it, so the academy admin couldn't find the planner from
-        // the admin tile page. Cap gating on tt_view_tournaments is
-        // already admin-only (administrator + tt_club_admin), so the
-        // tile auto-hides for every other persona.
+        // the admin tile page. Cap gating on tt_view_tournaments resolves
+        // through the `tournaments` matrix entity, so the tile appears for
+        // whoever holds read at any scope (#3703) and auto-hides for the
+        // rest.
         //
         // Lives in the Performance group at order 28 — right after
         // Team planner (25), before Goals (30). Tournaments planner
