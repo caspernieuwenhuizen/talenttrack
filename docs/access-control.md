@@ -348,6 +348,43 @@ matrix models scope, and this message has no scope dimension worth expressing
 there — its audience is chosen per send, in front of a confirm step that
 states the recipient count and that recipients cannot refuse it.
 
+## Team announcements — `tt_send_team_announcement` / `tt_send_academy_announcement`
+
+An announcement is the ordinary news a team's families need, so unlike the
+safeguarding broadcast it is refusable and quiet hours hold it. What it still
+needs is a boundary on *how far* one person's news travels, and that is two
+capabilities rather than one, because there are two different acts here.
+
+**`tt_send_team_announcement`** reaches the families of the teams the sender
+is actually assigned to, and no others. Held by the **Coach** and **Staff**
+roles by default — the head coach and the team manager are who this is for.
+The grant is broad and still narrow in effect: the capability says the person
+may announce, the team assignment says to whom, and somebody holding it with
+no team assignment reaches nobody. An academy that has to ask an administrator
+to tell twelve families about a pitch closure goes on using WhatsApp instead,
+which is the outcome this exists to end.
+
+**`tt_send_academy_announcement`** reaches any team, an age group, or every
+family at once. Held by the **WordPress administrator**, **Head of
+Development** and the **Academy Admin** role. Reaching families whose child
+this person does not coach is an academy-level act, so it is an academy-level
+grant. It implies the team tier — somebody who may announce to everybody may
+announce to one squad.
+
+Both are kept out of `RolesService::VIEW_CAPS` / `EDIT_CAPS`, like the two
+blocks above, so neither propagates to the Read-Only Observer.
+
+**The audience is checked on the way in, not only on the way out.** The
+capability opens the routes; `MassAnnouncementSender::canSend()` then decides
+whether this sender may reach *this* audience, and the REST route asks it
+before it sends anything. A team-scoped sender who posts another team's id
+gets a 403. Hiding the option in the dropdown is the courtesy; the refusal is
+the rule.
+
+Pure capability-gated, **no matrix entity**, for the same reason as the
+safeguarding broadcast: the audience is chosen per send rather than modelled
+as a scope.
+
 ## Module management — `tt_manage_modules` / `module_management`
 
 Turning a whole TalentTrack module on or off is an operator-level act, so it

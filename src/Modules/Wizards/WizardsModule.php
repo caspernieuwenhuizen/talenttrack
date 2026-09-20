@@ -14,6 +14,7 @@ use TT\Modules\Wizards\Person\NewPersonWizard;
 use TT\Modules\Wizards\Player\NewPlayerWizard;
 use TT\Modules\Wizards\Prospect\NewProspectWizard;
 use TT\Modules\Wizards\Team\NewTeamWizard;
+use TT\Modules\Wizards\TeamAnnouncement\NewTeamAnnouncementWizard;
 use TT\Modules\Wizards\TeamBlueprint\NewTeamBlueprintWizard;
 use TT\Shared\Frontend\FrontendWizardView;
 use TT\Shared\Wizards\WizardDraftRestController;
@@ -54,6 +55,11 @@ class WizardsModule implements ModuleInterface {
         // path; the frame around them is the coach's "who showed up ·
         // how did they do · save" loop, with rating optional.
         WizardRegistry::register( new MarkAttendanceWizard() );
+
+        // #3693 — a team announcement. Not a record creation, but the
+        // case CLAUDE.md §3 describes anyway: audience, compose, confirm,
+        // and a commit that cannot be taken back once mail has left.
+        WizardRegistry::register( new NewTeamAnnouncementWizard() );
 
         // #0072 — daily cron to prune stale `tt_wizard_drafts` rows.
         WizardDraftCleanupCron::init();

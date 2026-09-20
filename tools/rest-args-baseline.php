@@ -10,10 +10,8 @@
  */
 
 return [
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities | POST',
     'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<activity_id>\\d+)/contributions | PUT',
     'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<activity_id>\\d+)/result | PUT',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+) | PUT',
     'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/evaluation-skipped | PATCH',
     'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/guests | POST',
     'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/ratings/bulk | POST',
