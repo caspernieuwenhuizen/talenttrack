@@ -317,7 +317,14 @@ class MatchAnalysisRepository {
                 'section_key' => $section_key,
                 'player_id'   => $player_id,
                 'valence'     => $valence,
-                'body'        => mb_substr( $body, 0, 255 ),
+                // #3853 — no `mb_substr` here. The repository must never
+                // fit text to the column: a body that did not fit used to
+                // be stored ending mid-word behind a 200, and the coach
+                // whose paragraph it was never heard about it. By the time
+                // this runs the length has been checked against
+                // `MatchAnalysisWriter::NOTE_MAX` and an over-long note has
+                // already been refused with a 400.
+                'body'        => $body,
                 'position'    => $position,
                 'updated_at'  => current_time( 'mysql' ),
             ] );
