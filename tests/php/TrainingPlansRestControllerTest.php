@@ -318,6 +318,100 @@ final class TrainingPlansRestControllerTest extends WP_UnitTestCase {
         $this->assertSame( 'duplicated', $data['plan']['source'] );
     }
 
+    /**
+     * #3766 — a run is dated by the activity it hangs off.
+     *
+     * A coach planning next week's session a week ahead used to get a run
+     * stamped with the day they did the planning, so the plan, the run and
+     * the activity disagreed about when the session happened and any
+     * week-based coverage counted it in the wrong week.
+     */
+    public function test_a_run_takes_its_date_from_the_activity_not_from_today(): void {
+        $this->planner();
+
+        $plan_id = $this->makeRunnablePlan( 'Scannen onder druk' );
+        $future  = gmdate( 'Y-m-d', strtotime( '+5 weeks' ) );
+        $past    = gmdate( 'Y-m-d', strtotime( '-3 weeks' ) );
+        $today   = current_time( 'Y-m-d' );
+
+        $this->assertNotSame( $future, $today, 'the fixture has to be a different day from today' );
+
+        $ahead = $this->makeActivity( $future );
+        [ $status, $data ] = $this->call( 'POST', self::RUNS, [
+            'plan_id'     => $plan_id,
+            'activity_id' => $ahead,
+        ] );
+        $this->assertSame( 201, $status );
+        $this->assertSame( $future, $data['run']['run_date'] );
+
+        // Re-attaching stays idempotent and does not move the date.
+        [ $status, $data ] = $this->call( 'POST', self::RUNS, [
+            'plan_id'     => $plan_id,
+            'activity_id' => $ahead,
+        ] );
+        $this->assertSame( 200, $status );
+        $this->assertSame( $future, $data['run']['run_date'] );
+
+        // A session already played keeps its own date too.
+        $behind = $this->makeActivity( $past );
+        [ , $data ] = $this->call( 'POST', self::RUNS, [
+            'plan_id'     => $plan_id,
+            'activity_id' => $behind,
+        ] );
+        $this->assertSame( $past, $data['run']['run_date'] );
+    }
+
+    public function test_an_explicit_run_date_still_wins_over_the_activity(): void {
+        $this->planner();
+
+        $plan_id  = $this->makeRunnablePlan( 'Handmatige datum' );
+        $activity = $this->makeActivity( gmdate( 'Y-m-d', strtotime( '+2 weeks' ) ) );
+
+        [ , $data ] = $this->call( 'POST', self::RUNS, [
+            'plan_id'     => $plan_id,
+            'activity_id' => $activity,
+            'run_date'    => '2026-08-19',
+        ] );
+        $this->assertSame( '2026-08-19', $data['run']['run_date'] );
+    }
+
+    public function test_an_activity_without_a_readable_date_still_yields_today(): void {
+        $this->planner();
+
+        $plan_id = $this->makeRunnablePlan( 'Geen activiteit' );
+
+        [ $status, $data ] = $this->call( 'POST', self::RUNS, [
+            'plan_id'     => $plan_id,
+            'activity_id' => 990099,
+        ] );
+        $this->assertSame( 201, $status, 'an unreadable activity must not turn the attach into an error' );
+        $this->assertSame( current_time( 'Y-m-d' ), $data['run']['run_date'] );
+    }
+
+    private function makeRunnablePlan( string $title ): int {
+        [ , $data ] = $this->call( 'POST', self::PLANS, [ 'title' => $title, 'team_id' => 7 ] );
+        $plan_id = (int) $data['plan']['id'];
+
+        $this->call( 'PUT', self::PLANS . '/' . $plan_id . '/blocks', [
+            'blocks' => [ [ 'block_type' => 'main', 'duration_minutes' => 30 ] ],
+        ] );
+
+        return $plan_id;
+    }
+
+    private function makeActivity( string $session_date, int $team_id = 7 ): int {
+        global $wpdb;
+
+        $wpdb->insert( $wpdb->prefix . 'tt_activities', [
+            'club_id'           => 1,
+            'team_id'           => $team_id,
+            'session_date'      => $session_date,
+            'activity_type_key' => 'training',
+        ] );
+
+        return (int) $wpdb->insert_id;
+    }
+
     public function test_attach_a_run_and_record_what_happened(): void {
         $this->planner();
 
