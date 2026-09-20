@@ -269,6 +269,8 @@ Marking a player **Not coming** early feeds the later attendance defaults: when 
 
 If you create an activity **already marked Completed** (it happened in the past) and don't enter attendance, the full active roster is recorded as **present** automatically so the activity is immediately rateable — adjust any absences in the guided completion flow afterward.
 
+That only applies to a date that has already arrived. Create an activity as Completed with a date **in the future** — a typo in the date, or a session you planned and closed in one go — and nobody is marked present: the activity is saved, its register stays empty, and you record who turned up on the day. Nothing may say a player was somewhere that has not happened yet, which is the same rule the [attendance grid](attendance-grid.md) applies when you try to tick Present on a future session.
+
 ## Why the type matters
 
 Each activity type can be linked to a workflow template that fires when you save an activity of that type. By default:

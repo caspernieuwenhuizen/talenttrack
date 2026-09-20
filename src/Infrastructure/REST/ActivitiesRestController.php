@@ -1293,9 +1293,14 @@ class ActivitiesRestController {
         // #1636 — an activity created already in "completed" status with no
         // usable attendance is unrateable (the rate step needs present/late
         // rows). Seed the team roster as present so the coach can evaluate
-        // immediately and adjust absences afterward.
+        // immediately and adjust absences afterward. #3744 — the seed itself
+        // declines a date in the future.
         if ( ( $data['activity_status_key'] ?? '' ) === ActivityStatusKey::COMPLETED ) {
-            self::seedCompletedRosterPresent( $activity_id, (int) ( $data['team_id'] ?? 0 ) );
+            self::seedCompletedRosterPresent(
+                $activity_id,
+                (int) ( $data['team_id'] ?? 0 ),
+                (string) ( $data['session_date'] ?? '' )
+            );
         }
 
         // v3.71.6 — fire the workflow event so EventDispatcher hands
@@ -2073,18 +2078,28 @@ class ActivitiesRestController {
      * that was created already completed but ended up with no attendance.
      * No-op when the activity already has attendance rows (so a filled-in
      * form is never overwritten) or when the team / roster is empty.
+     *
+     * #3744 — and never for an activity dated after today. The seed asserts
+     * a whole squad turned up, which is exactly the claim
+     * `AttendanceDateRule` refuses from every user-supplied write path; a
+     * completed status on a future date is a mistyped date or a plan, not a
+     * register somebody took. The activity is still created — it just keeps
+     * an empty register until the day arrives. The rule lives here rather
+     * than at the call site so any future caller inherits it.
      */
-    private static function seedCompletedRosterPresent( int $activity_id, int $team_id ): void {
+    private static function seedCompletedRosterPresent( int $activity_id, int $team_id, string $session_date ): void {
         if ( $activity_id <= 0 || $team_id <= 0 ) return;
 
         // No-op when the activity already has attendance rows.
         if ( self::repo()->countAttendance( $activity_id ) > 0 ) return;
 
-        $players = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
-        if ( ! $players ) return;
-
         $statuses = \TT\Infrastructure\Query\QueryHelpers::get_lookup_names( 'attendance_status' );
         $present  = $statuses[0] ?? 'Present';
+
+        if ( AttendanceDateRule::refuses( $present, $session_date ) ) return;
+
+        $players = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
+        if ( ! $players ) return;
 
         $rows = [];
         foreach ( $players as $pl ) {

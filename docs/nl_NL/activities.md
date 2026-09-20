@@ -272,6 +272,8 @@ Een speler vroeg op **Komt niet** zetten voedt de latere aanwezigheidsstandaarde
 
 Maak je een activiteit aan die **al op Voltooid staat** (ze vond in het verleden plaats) en vul je geen aanwezigheid in, dan wordt de volledige actieve selectie automatisch als **aanwezig** geregistreerd, zodat de activiteit meteen te beoordelen is — pas eventuele afwezigheden daarna aan in de begeleide voltooiingsflow.
 
+Dat geldt alleen voor een datum die al geweest is. Maak je een activiteit als Voltooid aan met een datum **in de toekomst** — een typefout in de datum, of een training die je in één keer plant en afsluit — dan wordt niemand als aanwezig gezet: de activiteit wordt opgeslagen, de presentielijst blijft leeg en je registreert op de dag zelf wie er was. Niets mag beweren dat een speler ergens was wat nog niet heeft plaatsgevonden; dat is dezelfde regel die het [aanwezigheidsraster](attendance-grid.md) toepast als je Aanwezig probeert aan te vinken bij een toekomstige sessie.
+
 ## Waarom het type ertoe doet
 
 Elk activiteittype kan gekoppeld worden aan een workflow-sjabloon dat afgaat zodra je een activiteit van dat type opslaat. Standaard:
