@@ -32,8 +32,10 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         $repo = new MatrixRepository();
-        $repo->removeRow( 'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
-        $repo->removeRow( 'scout', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
+        foreach ( [ MatrixGate::READ, MatrixGate::CHANGE ] as $activity ) {
+            $repo->removeRow( 'head_of_development', 'goals', $activity, MatrixGate::SCOPE_GLOBAL );
+            $repo->removeRow( 'scout', 'goals', $activity, MatrixGate::SCOPE_GLOBAL );
+        }
         MatrixRepository::clearCache();
         parent::tear_down();
     }
@@ -112,9 +114,13 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
         // the test install, not about this adapter. Removing first
         // pins the row to the empty module_class MatrixGateScopeTest
         // uses, so the assertion is about authorization only.
+        // `change` gets the same treatment: `tt_edit_goals` resolves
+        // through its own row, and canPost() asks for that capability.
         $repo = new MatrixRepository();
-        $repo->removeRow( 'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
-        $repo->setRow( 'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, '' );
+        foreach ( [ MatrixGate::READ, MatrixGate::CHANGE ] as $activity ) {
+            $repo->removeRow( 'head_of_development', 'goals', $activity, MatrixGate::SCOPE_GLOBAL );
+            $repo->setRow( 'head_of_development', 'goals', $activity, MatrixGate::SCOPE_GLOBAL, '' );
+        }
         MatrixRepository::clearCache();
 
         // Guard: separates "the matrix doesn't grant it" from "the
