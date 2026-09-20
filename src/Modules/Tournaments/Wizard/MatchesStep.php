@@ -39,7 +39,9 @@ final class MatchesStep implements WizardStepInterface {
             $rows = [ self::blankRow(), self::blankRow(), self::blankRow() ];
         }
 
-        $levels     = QueryHelpers::get_lookup_names( 'tournament_opponent_level' );
+        // #3713 — pairs, not names: the stored key stays the submitted value
+        // while the option text is the translated label.
+        $levels     = QueryHelpers::get_lookup_label_pairs( 'tournament_opponent_level' );
         $formations = QueryHelpers::get_lookup_names( 'tournament_formation' );
         $default_formation = (string) ( $state['default_formation'] ?? '' );
 
@@ -126,7 +128,7 @@ final class MatchesStep implements WizardStepInterface {
     /**
      * Render a single match card.
      *
-     * @param array<int,string> $levels
+     * @param array<string,string> $levels stored key => translated label
      * @param array<int,string> $formations
      */
     private static function renderRow( int $i, array $m, array $levels, array $formations, string $default_formation ): void {
@@ -172,8 +174,8 @@ final class MatchesStep implements WizardStepInterface {
                     <label for="ttw-m-<?php echo (int) $i; ?>-level"><?php esc_html_e( 'Opponent level', 'talenttrack' ); ?></label>
                     <select id="ttw-m-<?php echo (int) $i; ?>-level" data-ttw-field="opponent_level" name="matches[<?php echo (int) $i; ?>][opponent_level]">
                         <option value=""><?php esc_html_e( '— pick one —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $levels as $lv ) : ?>
-                            <option value="<?php echo esc_attr( (string) $lv ); ?>" <?php selected( $level_val, (string) $lv ); ?>><?php echo esc_html( (string) $lv ); ?></option>
+                        <?php foreach ( $levels as $lv_key => $lv_label ) : ?>
+                            <option value="<?php echo esc_attr( (string) $lv_key ); ?>" <?php selected( $level_val, (string) $lv_key ); ?>><?php echo esc_html( (string) $lv_label ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
