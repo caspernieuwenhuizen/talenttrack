@@ -41,7 +41,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function training( string $date, string $title ): int {
+    private function training( string $date, string $title, string $status = 'completed' ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id'             => 1,
@@ -49,7 +49,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
             'title'               => $title,
             'session_date'        => $date,
             'activity_type_key'   => 'training',
-            'activity_status_key' => 'completed',
+            'activity_status_key' => $status,
             'plan_state'          => 'completed',
         ] );
         return (int) $wpdb->insert_id;
@@ -153,6 +153,62 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->assertSame( 2, $coverage['completed'] );
         $this->assertSame( 1, $coverage['with_register'] );
         $this->assertSame( [ $empty ], array_column( $coverage['missing'], 'activity_id' ) );
+    }
+
+    /**
+     * #3746 — the three outcomes counted separately. A session nobody closed
+     * is not "no register": it is its own failure and reads on its own line.
+     */
+    public function test_coverage_separates_a_never_closed_session_from_a_missing_register(): void {
+        $player = $this->player( 'Registered' );
+        $this->present( $this->training( '2020-03-03', 'Tuesday' ), $player );
+        $no_register = $this->training( '2020-03-05', 'Thursday' );
+        $unclosed    = $this->training( '2020-03-10', 'Tuesday after', 'planned' );
+        $this->training( '2020-03-12', 'Called off', 'cancelled' );
+
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'coverage', 'kpi', 'quality' ] );
+
+        $this->assertSame( 3, $report['data']['letterhead']['activity_count'], 'Scheduled, not completed — and never the cancelled one.' );
+        $this->assertSame( 3, $report['data']['kpi']['activities']['value'] );
+
+        $coverage = $report['data']['coverage'];
+        $this->assertSame( 'partial', $coverage['state'] );
+        $this->assertSame( 3, $coverage['scheduled'] );
+        $this->assertSame( 2, $coverage['completed'] );
+        $this->assertSame( 1, $coverage['with_register'] );
+        $this->assertSame( [ $no_register ], array_column( $coverage['missing'], 'activity_id' ) );
+        $this->assertSame( [ $unclosed ], array_column( $coverage['never_closed'], 'activity_id' ) );
+
+        $quality = $report['data']['quality'];
+        $this->assertSame( [ $no_register ], array_column( $quality['activities_without_register'], 'activity_id' ) );
+        $this->assertSame( [ $unclosed ], array_column( $quality['activities_never_closed'], 'activity_id' ) );
+    }
+
+    /** A month of sessions nobody closed is the opposite of nothing to report. */
+    public function test_a_window_of_only_never_closed_sessions_is_not_an_empty_report(): void {
+        $this->player( 'Waiting' );
+        $this->training( '2020-03-03', 'Tuesday', 'planned' );
+        $this->training( '2020-03-05', 'Thursday', 'planned' );
+
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'coverage' ] );
+
+        $this->assertSame( 2, $report['data']['letterhead']['activity_count'] );
+        $this->assertSame( 'partial', $report['data']['coverage']['state'], 'Not "empty": two sessions were scheduled.' );
+        $this->assertSame( 0, $report['data']['coverage']['completed'] );
+        $this->assertSame( 0, $report['data']['coverage']['with_register'] );
+        $this->assertCount( 2, $report['data']['coverage']['never_closed'] );
+    }
+
+    /** A session that has not happened yet is not a gap. */
+    public function test_a_future_dated_activity_counts_but_is_never_a_gap(): void {
+        $year = (int) gmdate( 'Y' ) + 5;
+        $this->training( $year . '-03-03', 'Next season', 'planned' );
+
+        $coverage = ( new TeamMonthlyReport() )->forTeam( $this->team_id, $year . '-03-01', $year . '-03-31', [ 'coverage' ] )['data']['coverage'];
+
+        $this->assertSame( 1, $coverage['scheduled'] );
+        $this->assertSame( [], $coverage['missing'] );
+        $this->assertSame( [], $coverage['never_closed'] );
     }
 
     public function test_the_rest_route_refuses_a_caller_without_reports_read(): void {
