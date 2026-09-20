@@ -925,10 +925,25 @@ final class TeamMonthlyReport {
             ];
         }
 
+        // #3860 — a match with no opponent stored prints as "Unknown
+        // opponent" in the fixtures above, and the reader cannot tell
+        // whether the record is wrong or merely incomplete. Named by date
+        // and title, because the title is where the opponent usually is.
+        $without_opponent = [];
+        foreach ( ( new ActivitiesRepository() )->matchesInWindowForTeam( $this->team_id, $this->from, $this->to ) as $match ) {
+            if ( trim( (string) $match['opponent'] ) !== '' ) continue;
+            $without_opponent[] = [
+                'activity_id' => (int) $match['activity_id'],
+                'date'        => (string) $match['date'],
+                'title'       => (string) $match['title'],
+            ];
+        }
+
         return [
             'activities_without_register'    => $coverage['missing'],
             'activities_never_closed'        => $coverage['never_closed'],
             'matches_without_minutes'        => max( 0, $counts['played'] - $counts['recorded'] ),
+            'matches_without_opponent'       => $without_opponent,
             'players_not_evaluated'          => $not_evaluated,
             'players_with_incomplete_status' => $incomplete,
         ];

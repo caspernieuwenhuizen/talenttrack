@@ -1522,6 +1522,12 @@ class DashboardShortcode {
             case \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::SLUG:
                 \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::render( $user_id, $is_admin );
                 return true;
+            // #3860 — review and commit the opponents that were never
+            // stored. Gates on tt_edit_activities inside, and the commit
+            // re-checks it at the handler.
+            case \TT\Modules\Activities\Frontend\FrontendOpponentBackfillView::SLUG:
+                \TT\Modules\Activities\Frontend\FrontendOpponentBackfillView::render( $user_id, $is_admin );
+                return true;
             // #3134 — the plan explainer, ported from the wp-admin account
             // page's "Plan & restrictions" tab. Open to every signed-in user
             // as that tab is: a coach who cannot find a feature should be

@@ -168,6 +168,10 @@ final class CoreSurfaceRegistration {
         // link between them has to hide when the destination would refuse.
         $reg::register( 'eval-category-weights', 'tt_view_category_weights' );
 
+        // #3860 — the opponent backfill is a write surface on activities,
+        // so it takes the edit capability rather than the list's read one.
+        $reg::register( 'opponent-backfill', 'tt_edit_activities' );
+
         // #3134 — the plan explainer and a user's own two-factor enrolment.
         // Both guard on "signed in" and nothing more, which is the whole
         // point: a coach meeting a locked feature has to be able to read
@@ -323,6 +327,9 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'eval-category-weights', self::M_EVALUATIONS );
+        // #3860 — switch Activities off and there are no fixtures whose
+        // opponent could be missing, so the backfill goes with it.
+        TileRegistry::registerSlugOwnership( 'opponent-backfill', self::M_ACTIVITIES );
         // #3134 — the two ported halves of the account page. Ownership is
         // what makes them switchable (#2599 rule 2): turn the License module
         // off and there is no plan to explain; turn Mfa off and there is no

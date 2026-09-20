@@ -64118,6 +64118,80 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:75
+msgid "Fill in missing opponents"
+msgstr "Ontbrekende tegenstanders invullen"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:80
+msgid "You do not have permission to edit activities."
+msgstr "Je hebt geen rechten om activiteiten te bewerken."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:95
+msgid ""
+"These matches have no opponent stored, so every report, team sheet and "
+"scoreboard shows a placeholder for them. Where the title says who the match "
+"was against, a suggestion is filled in below — check it, correct it, and "
+"save. Nothing is changed until you save."
+msgstr ""
+"Bij deze wedstrijden is geen tegenstander vastgelegd, dus elk rapport, elk "
+"wedstrijdformulier en elk scorebord toont er een tijdelijke aanduiding voor. "
+"Zegt de titel tegen wie er gespeeld is, dan staat hieronder een voorstel — "
+"controleer het, corrigeer het en sla op. Er verandert niets tot je opslaat."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:99
+msgid "Every match has an opponent stored. Nothing to fill in."
+msgstr "Bij elke wedstrijd is een tegenstander vastgelegd. Er valt niets in te vullen."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:110
+msgid "Title as it stands"
+msgstr "Titel zoals die er staat"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:112
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:151
+msgid "Home or away"
+msgstr "Thuis of uit"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:138
+msgid "Apply this row"
+msgstr "Deze regel toepassen"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:153
+msgid "Not known"
+msgstr "Niet bekend"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:127
+msgid "Save opponents"
+msgstr "Tegenstanders opslaan"
+
+#. translators: %d: how many matches were given an opponent
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:167
+#, php-format
+msgid "%d match updated."
+msgid_plural "%d matches updated."
+msgstr[0] "%d wedstrijd bijgewerkt."
+msgstr[1] "%d wedstrijden bijgewerkt."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:177
+msgid "Nothing was applied — tick a row and give it an opponent first."
+msgstr "Er is niets toegepast — vink eerst een regel aan en geef die een tegenstander."
+
+#. translators: 1: number of matches, 2: their dates and titles
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1400
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:748
+#, php-format
+msgid ""
+"%1$d match has no opponent stored, so it reads as \"Unknown opponent\" "
+"above: %2$s."
+msgid_plural ""
+"%1$d matches have no opponent stored, so they read as \"Unknown opponent\" "
+"above: %2$s."
+msgstr[0] ""
+"Bij %1$d wedstrijd is geen tegenstander vastgelegd, dus die leest hierboven "
+"als \"Onbekende tegenstander\": %2$s."
+msgstr[1] ""
+"Bij %1$d wedstrijden is geen tegenstander vastgelegd, dus die lezen "
+"hierboven als \"Onbekende tegenstander\": %2$s."
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

@@ -1675,7 +1675,12 @@ final class ActivitiesRepository {
      * result is derived (`team_score` and `outcome` do not exist as columns),
      * and a shape says exactly what a caller may read.
      *
-     * @return list<array{activity_id:int, date:string, opponent:string, home_away:string,
+     * #3860 — the `title` rides along: when `opponent` is empty the title
+     * is where the opponent actually is, and the report's data-quality
+     * section names the fixture by it so a coach can recognise which match
+     * is missing one.
+     *
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string,
      *         team_score:int|null, opp_score:int|null, outcome:string}>
      */
     public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
@@ -1729,6 +1734,7 @@ final class ActivitiesRepository {
             $out[] = [
                 'activity_id' => (int) $r->id,
                 'date'        => (string) ( $r->session_date ?? '' ),
+                'title'       => (string) ( $r->title ?? '' ),
                 'opponent'    => (string) ( $r->opponent ?? '' ),
                 'home_away'   => $home_away,
                 'team_score'  => $team_score,
