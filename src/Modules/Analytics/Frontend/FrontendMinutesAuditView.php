@@ -139,14 +139,18 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $matrix = ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type_filter );
 
         // #3338 — everything the filters govern, both empty states included.
+        // #3857 — counted over every row, tournament roll-ups included: they
+        // are not games to record, but they are rows on screen, and a window
+        // holding only a tournament day is not an empty window.
+        $row_count = count( (array) $matrix['games'] );
         printf(
             '<div data-tt-filter-region data-tt-filter-count="%d">',
-            (int) $matrix['summary']['total_games']
+            $row_count
         );
 
         // Honest empty state: distinguish "no games in window" from
         // "games present but nothing recorded yet".
-        if ( $matrix['summary']['total_games'] === 0 ) {
+        if ( $row_count === 0 ) {
             echo '<p class="tt-notice">' . esc_html__( 'No games for this team in the selected window. Widen the date range or pick another team.', 'talenttrack' ) . '</p>';
             echo '</div>';
             return;
@@ -154,7 +158,7 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
 
         self::renderKpiStrip( $matrix['summary'], $team_id, $from, $to, $type_filter, $period, $gap );
 
-        if ( $matrix['grand_total'] === 0 ) {
+        if ( $matrix['grand_total'] === 0 && (int) $matrix['summary']['total_games'] > 0 ) {
             echo '<div class="tt-maud-note">';
             echo '<strong>' . esc_html__( 'Games present, no minutes recorded yet.', 'talenttrack' ) . '</strong> ';
             echo esc_html__( 'Minutes come only from recorded actual entries (via match-execution or manual minutes entry). Open a game below and record its minutes.', 'talenttrack' );
@@ -169,7 +173,7 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
      * KPI strip — clickable gap tiles (#2343 href passthrough). Each tile
      * sets `?gap=` to narrow the matrix; the active tile is highlighted.
      *
-     * @param array{total_games:int,complete:int,partial:int,none:int} $summary
+     * @param array{total_games:int,complete:int,partial:int,none:int,rollups?:int} $summary
      */
     private static function renderKpiStrip( array $summary, int $team_id, string $from, string $to, string $type_filter, string $period, string $active_gap ): void {
         $tile_url = static function ( string $gap ) use ( $team_id, $from, $to, $type_filter, $period ): string {
@@ -226,9 +230,13 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $games = $matrix['games'];
 
         // Apply the gap filter to the visible rows.
+        // #3857 — the gap buckets are about matches somebody can record, and
+        // the KPI counts exclude roll-ups, so the filtered view must too.
+        // Otherwise "Not recorded: 2" opens a list of three.
         $visible = array_values( array_filter(
             $games,
-            static fn( array $g ): bool => $gap === 'all' || (string) $g['status'] === $gap
+            static fn( array $g ): bool => $gap === 'all'
+                || ( empty( $g['is_rollup'] ) && (string) $g['status'] === $gap )
         ) );
 
         $dash_url = RecordLink::dashboardUrl();
@@ -261,14 +269,25 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $row_class = [ 'complete' => '', 'partial' => 'is-gap', 'none' => 'is-none' ];
         foreach ( $visible as $g ) {
             $status = (string) $g['status'];
-            $cls    = $row_class[ $status ] ?? '';
+            // #3857 — a tournament day is a roll-up of its fixtures, not a
+            // match somebody forgot to record. It never wears a gap class:
+            // a red row saying "not recorded" on a day nobody can record is
+            // the false alarm this fixes.
+            $rollup = ! empty( $g['is_rollup'] );
+            $cls    = $rollup ? 'is-rollup' : ( $row_class[ $status ] ?? '' );
             echo '<tr' . ( $cls !== '' ? ' class="' . esc_attr( $cls ) . '"' : '' ) . '>';
 
             $date = $g['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $g['session_date'] ) ) : '';
             $title = (string) $g['title'];
-            if ( $title === '' ) $title = __( 'Game', 'talenttrack' );
+            if ( $title === '' ) $title = $rollup ? __( 'Tournament', 'talenttrack' ) : __( 'Game', 'talenttrack' );
             echo '<td class="tt-maud-matrix__game"><b>' . esc_html( $title ) . '</b>';
             if ( $date !== '' ) echo '<small>' . esc_html( $date ) . '</small>';
+            // Said in words, not in colour: the roll-up is legible to a
+            // screen reader and to anyone who cannot tell the rows apart by
+            // their background (CLAUDE.md §2).
+            if ( $rollup ) {
+                echo '<small class="tt-maud-matrix__rollup">' . esc_html__( 'Tournament day — minutes recorded per fixture', 'talenttrack' ) . '</small>';
+            }
             echo '</td>';
 
             /** @var array<int,int> $minutes */
@@ -289,14 +308,28 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             }
 
             echo '<td class="tt-maud-cell tt-maud-cell--tot">' . esc_html( (string) number_format_i18n( (int) $g['total_minutes'] ) ) . '</td>';
-            echo '<td>' . self::statusChip( $status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
+            echo '<td>' . self::statusChip( $rollup ? 'rollup' : $status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
 
             // #2367 — the per-row affordance now deep-links to the minutes
             // EDITOR (?tt_view=minutes-audit&match_id=N), not the activity
             // detail page. §7 — hidden entirely for a user who lacks the
             // write cap the editor + its endpoints enforce; they still see
             // the read-only matrix, just no edit pill.
-            if ( current_user_can( 'tt_edit_activities' ) ) {
+            if ( $rollup ) {
+                // #3857 — one number, one home: the day links to the planner
+                // where its minutes are actually kept, never to an editor
+                // that could write a second copy of them.
+                $tournament_id = (int) ( $g['tournament_id'] ?? 0 );
+                if ( $tournament_id > 0 && current_user_can( 'tt_view_tournaments' ) ) {
+                    $planner_url = BackLink::appendTo( add_query_arg(
+                        [ 'tt_view' => 'tournaments', 'id' => $tournament_id ],
+                        $dash_url
+                    ) );
+                    echo '<td class="tt-maud-matrix__editcell"><a class="tt-record-link" href="' . esc_url( $planner_url ) . '">' . esc_html__( 'Open tournament planner', 'talenttrack' ) . '</a></td>';
+                } else {
+                    echo '<td class="tt-maud-matrix__editcell"></td>';
+                }
+            } elseif ( current_user_can( 'tt_edit_activities' ) ) {
                 $edit_url = BackLink::appendTo( add_query_arg(
                     [ 'tt_view' => 'minutes-audit', 'match_id' => (int) $g['activity_id'] ],
                     $dash_url
@@ -314,6 +347,10 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         $col_tot   = array_fill_keys( array_map( static fn( array $pl ): int => (int) $pl['player_id'], $players ), 0 );
         $grand_tot = 0;
         foreach ( $visible as $g ) {
+            // #3857 — a roll-up's minutes are its fixtures' minutes, and
+            // those rows are in this table too. Adding both would show a
+            // player twice the game time they played.
+            if ( ! empty( $g['is_rollup'] ) ) continue;
             foreach ( $players as $pl ) {
                 $pid = (int) $pl['player_id'];
                 $m   = (int) ( $g['minutes'][ $pid ] ?? 0 );
@@ -341,6 +378,7 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--min"></span>' . esc_html__( 'minutes recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--zero"></span>' . esc_html__( 'in squad, 0 recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--na"></span>' . esc_html__( 'not in squad', 'talenttrack' ) . '</span>';
+        echo '<span>' . esc_html__( 'A tournament day is a roll-up of its fixtures: its minutes are recorded in the tournament planner and are already counted in the fixture rows, so it is left out of the column totals.', 'talenttrack' ) . '</span>';
         echo '</div>';
     }
 
@@ -349,6 +387,11 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             'complete' => [ 'tt-maud-chip--ok',      __( 'Complete',       'talenttrack' ) ],
             'partial'  => [ 'tt-maud-chip--partial', __( 'Incomplete',     'talenttrack' ) ],
             'none'     => [ 'tt-maud-chip--none',    __( 'Not recorded',   'talenttrack' ) ],
+            // #3857 — the roll-up says what it is rather than judging a
+            // completeness nobody can act on from this screen. The context
+            // keeps the one-word label out of the accounting sense of the
+            // word when it is translated.
+            'rollup'   => [ 'tt-maud-chip--rollup',  _x( 'Roll-up', 'minutes audit row: a tournament day summing its fixtures', 'talenttrack' ) ],
         ];
         [ $cls, $label ] = $map[ $status ] ?? $map['none'];
         return '<span class="tt-maud-chip ' . esc_attr( $cls ) . '"><span class="tt-maud-chip__dot"></span>' . esc_html( $label ) . '</span>';

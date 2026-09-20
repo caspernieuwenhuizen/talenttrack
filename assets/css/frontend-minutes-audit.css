@@ -138,6 +138,10 @@ table.tt-maud-matrix {
 /* row accents by completeness */
 .tt-maud-matrix tr.is-gap td.tt-maud-matrix__game { border-left: 4px solid var(--tt-warning, #e8902b); }
 .tt-maud-matrix tr.is-none td.tt-maud-matrix__game { border-left: 4px solid var(--tt-danger, #d8453b); }
+/* #3857 — a tournament day is a roll-up, not a gap: a neutral accent, and
+   the row says so in words above this line ever mattering. */
+.tt-maud-matrix tr.is-rollup td.tt-maud-matrix__game { border-left: 4px dashed var(--tt-ink-soft, #6a6d66); }
+.tt-maud-matrix__rollup { display: block; color: var(--tt-ink-soft, #6a6d66); font-style: italic; }
 .tt-maud-matrix__footrow td { background: var(--tt-line-soft, #eef0ec); }
 
 /* the per-row edit / record affordance — 48px tap target */
@@ -168,6 +172,7 @@ table.tt-maud-matrix {
 .tt-maud-chip--ok { background: var(--tt-success-subtle, #dff5e1); color: #1c6b3f; }
 .tt-maud-chip--partial { background: var(--tt-warning-subtle, #fdf3d8); color: #8a3d10; }
 .tt-maud-chip--none { background: var(--tt-danger-subtle, #fde2e2); color: #9a2b23; }
+.tt-maud-chip--rollup { background: var(--tt-line-soft, #eef0ec); color: #4a4d47; }
 
 /* ---- Legend ---------------------------------------------------- */
 .tt-maud-legend {
