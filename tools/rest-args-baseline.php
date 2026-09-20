@@ -149,7 +149,6 @@ return [
     'src/Modules/Holidays/Rest/HolidaysRestController.php | /holidays/(?P<id>\\d+)/restore | POST',
     'src/Modules/Holidays/Rest/HolidaysRestController.php | /holidays/(?P<id>\\d+)/trash | POST',
     'src/Modules/Knowledge/Rest/KnowledgeRestController.php | /courses/(?P<slug>[a-z0-9-]+)/enrolments | POST',
-    'src/Modules/Knowledge/Rest/KnowledgeRestController.php | /courses/(?P<slug>[a-z0-9-]+)/progress/(?P<lesson>[a-z0-9-]+) | PATCH',
     'src/Modules/Knowledge/Rest/KnowledgeRestController.php | /courses/(?P<slug>[a-z0-9-]+)/quiz/(?P<lesson>[a-z0-9-]+) | POST',
     'src/Modules/Knowledge/Rest/KnowledgeRestController.php | /courses/(?P<slug>[a-z0-9-]+)/submissions/(?P<lesson>[a-z0-9-]+) | POST',
     'src/Modules/Knowledge/Rest/KnowledgeRestController.php | /submissions/(?P<id>\\d+) | PATCH',

@@ -3,6 +3,7 @@ namespace TT\Modules\Knowledge\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Knowledge\CourseAccessResolver;
 use TT\Modules\Knowledge\CourseCompletionService;
@@ -89,6 +90,7 @@ final class KnowledgeRestController {
             'methods'             => 'PATCH',
             'callback'            => [ __CLASS__, 'update_progress' ],
             'permission_callback' => [ __CLASS__, 'can_view' ],
+            'args'                => self::progressArgs(),
         ] );
 
         // #3708 — moving somebody's deadline is the same class of act as
@@ -622,6 +624,31 @@ final class KnowledgeRestController {
      * PATCH rather than PUT: the body carries whichever of the two the
      * reader is reporting, not a whole progress record.
      */
+    /**
+     * #3852 — the two fields `PATCH /courses/{slug}/progress/{lesson}`
+     * writes.
+     *
+     * Declared so the route can say so. Without `args` the route's OPTIONS
+     * response and `describe_route` both answered `"args": {}`, so the only
+     * way to discover the field names was to read the handler. A caller who
+     * guessed `{"completed": true}` — the obvious guess — got `200` with the
+     * unchanged record echoed back, and an hour of study went unrecorded.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function progressArgs(): array {
+        return [
+            'read' => [
+                'type'        => 'boolean',
+                'description' => 'Mark this lesson read.',
+            ],
+            'tool_state' => [
+                'type'        => 'object',
+                'description' => 'Interactive-block state to persist for this lesson.',
+            ],
+        ];
+    }
+
     public static function update_progress( WP_REST_Request $r ) {
         $slug   = (string) $r['slug'];
         $lesson = (string) $r['lesson'];
@@ -657,6 +684,35 @@ final class KnowledgeRestController {
                 $verdict->toArray()
             );
         }
+
+        // #3852 — a body this route cannot act on is refused, before
+        // anything is written. It used to fall through both branches and
+        // answer 200 with the unchanged record embedded, which is
+        // indistinguishable from a successful write unless the caller reads
+        // the echo closely. Refused here rather than at the top of the
+        // handler so a lesson that does not exist still answers 404 and a
+        // locked one still answers 403 — the shape of the body is the least
+        // of a caller's problems in either case.
+        //
+        // It sits above `enrol()` / `markStarted()` on purpose: those ran
+        // first, so a call that recorded nothing still moved the enrolment's
+        // `started_at` and left it reading "started, 0 of 11".
+        if ( ! $r->has_param( 'read' ) && ! $r->has_param( 'tool_state' ) ) {
+            return RestResponse::error(
+                'no_writable_field',
+                __( 'Send "read" (boolean) and/or "tool_state" (object).', 'talenttrack' ),
+                400,
+                [ 'allowed' => array_keys( self::progressArgs() ) ]
+            );
+        }
+
+        // And the standard body contract (#3689) for the rest: a caller who
+        // sent something this route writes AND a key it does not is told
+        // which key was wrong. That order matters — a body with nothing
+        // writable in it needs to hear what this route *does* take, not
+        // which of its keys is unrecognised.
+        $refused = BaseController::checkBody( $r, self::progressArgs() );
+        if ( $refused !== null ) return $refused;
 
         $enrolments = new EnrolmentRepository();
         $enrolment  = $enrolments->findFor( $person_id, $slug );
