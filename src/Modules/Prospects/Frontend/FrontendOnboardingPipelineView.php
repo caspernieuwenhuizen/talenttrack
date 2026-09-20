@@ -578,11 +578,21 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             $stages_init[ $stage ]['cards'][] = self::buildCard( $row, $stage, $stale_cutoff );
         }
 
-        // Reduce to indexed list with counts.
+        // Reduce to indexed list with counts. Spelled out field by field
+        // rather than spreading `$s`: writing into `$stages_init[$stage]`
+        // above, where `$stage` is a union of the stage keys, leaves the
+        // analyser unable to prove `key` and `label` are still there, and
+        // the declared return type stops being provable the moment a
+        // seventh stage joins the six.
         $out = [];
         foreach ( $stages_init as $s ) {
-            $s['count'] = count( $s['cards'] );
-            $out[] = $s;
+            $cards = isset( $s['cards'] ) && is_array( $s['cards'] ) ? array_values( $s['cards'] ) : [];
+            $out[] = [
+                'key'   => (string) ( $s['key'] ?? '' ),
+                'label' => (string) ( $s['label'] ?? '' ),
+                'count' => count( $cards ),
+                'cards' => $cards,
+            ];
         }
         return $out;
     }
