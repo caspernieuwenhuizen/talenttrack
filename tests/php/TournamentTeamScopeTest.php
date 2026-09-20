@@ -274,7 +274,7 @@ final class TournamentTeamScopeTest extends WP_UnitTestCase {
 
         wp_set_current_user( $coach );
         $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/tournaments' );
-        $data    = TournamentsRestController::list_tournaments( $request )->get_data();
+        $data    = TournamentsRestController::list_tournaments( $request )->get_data()['data'];
 
         $ids = array_map( static fn ( $row ): int => (int) $row['id'], (array) $data['rows'] );
         $this->assertSame( [ $mine ], $ids );
@@ -288,7 +288,7 @@ final class TournamentTeamScopeTest extends WP_UnitTestCase {
 
         wp_set_current_user( $hod );
         $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/tournaments' );
-        $data    = TournamentsRestController::list_tournaments( $request )->get_data();
+        $data    = TournamentsRestController::list_tournaments( $request )->get_data()['data'];
 
         $this->assertSame( 2, (int) $data['total'] );
     }
