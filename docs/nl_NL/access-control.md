@@ -56,6 +56,22 @@ Twee schrijfacties noemen nog een leesrecht. Beide zijn vastgelegd in plaats van
 | Een rol toekennen of intrekken bij een persoon | `tt_view_settings` | Er is geen recht voor het toekennen van een rol. Het dichtstbijzijnde, `tt_manage_authorization`, betekent "de rechtenmatrix bewerken" — een andere handeling. |
 | Een geplande rapportage archiveren | `tt_view_analytics` | Er is geen schrijfrecht voor analyse. |
 
+## Een recht zegt óf je mag, een scope zegt van wie
+
+`tt_edit_activities` hebben betekent dat je trainingen plant. Het zegt niet **van wie**, en een tijdlang vroegen de schrijfroutes voor activiteiten daar helemaal niet naar.
+
+`userCanOrMatrix()` beantwoordt de rechtenvraag en beperkt bewust niet tot een team — dat staat ook in de eigen docblock. Elke coach heeft `tt_edit_activities`, dus `POST /activities`, `PUT /activities/{id}`, archiveren, terugzetten en definitief verwijderen gaven allemaal `true` voor élke activiteit in de club. De *lijst* beperkte altijd al tot de eigen teams, en juist daarom viel het niemand op: de coach zag de wedstrijd van een ander team niet, maar kon hem op id wél aanpassen.
+
+Alle vijf de schrijfacties op één record stellen nu beide vragen. De regel gaat over **scope, niet over persona**:
+
+- wie `activities` wijzigen heeft op **globale** scope, schrijft elke activiteit — hoofd opleiding, academiebeheer;
+- wie het op **team**-scope heeft, schrijft alleen de eigen teams: coach, teammanager, of een persona die nog niet bestaat;
+- anders antwoordt de route `403 forbidden_team` en wordt er niets weggeschreven.
+
+**Een activiteit naar een ander team verplaatsen vraagt beide kanten.** Een update die `team_id` wijzigt, vereist dat de aanvrager zowel het team van herkomst als het team van bestemming heeft. Slechts één kant controleren zou een coach de mogelijkheid geven een ongewenste wedstrijd bij een andere selectie neer te leggen, of er juist een weg te halen — allebei zijn het schrijfacties op een team waar hij niets over te zeggen heeft.
+
+Een activiteit zonder team heeft geen team om buiten scope van te vallen; daar is het recht het hele antwoord.
+
 ## Een leesrecht is geen clubbrede gegevenstoegang
 
 `tt_view_players` beantwoordt de vraag *"mag deze persoon naar spelers kijken"*.
