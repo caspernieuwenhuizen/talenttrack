@@ -3,6 +3,7 @@ namespace TT\Modules\MatchAnalysis\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
@@ -81,6 +82,7 @@ class MatchAnalysisRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'put' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::putArgs(),
             ],
         ] );
 
@@ -89,6 +91,7 @@ class MatchAnalysisRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'put_section' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::sectionArgs(),
             ],
         ] );
 
@@ -151,6 +154,65 @@ class MatchAnalysisRestController {
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
+    }
+
+    /**
+     * #3843 — the body `PUT /activities/{id}/analysis` accepts.
+     *
+     * Every field is optional: the route writes any subset, so a client
+     * that only knows about sections cannot wipe the player items by
+     * omission. What the declaration buys is the other half — a key the
+     * route does not take is refused by name instead of dropped behind a
+     * 200, and route discovery finally says what the body looks like.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function putArgs(): array {
+        return [
+            'summary' => [
+                'type'        => 'string',
+                'description' => 'The overall read on the match, in prose. Replaces what is stored.',
+            ],
+            'status' => [
+                'type'        => 'string',
+                'enum'        => [ MatchAnalysisEnums::STATUS_DRAFT, MatchAnalysisEnums::STATUS_FINAL ],
+                'description' => 'draft while it is being written; final once the share link may show it.',
+            ],
+            'sections' => [
+                'type'        => 'object',
+                'description' => 'Either an object of section key to { rating, notes }, or a list of { key, rating, notes }. A section sent replaces that section; one left out is untouched.',
+            ],
+            'players' => [
+                'type'        => 'object',
+                'description' => 'Player id to { marker, team_function, notes }. A player sent replaces that item; one left out is untouched.',
+            ],
+            'base_updated_at' => [
+                'type'        => 'string',
+                'description' => 'The updated_at this document was composed against. When the stored value has moved on the write is refused with 409 rather than merged.',
+            ],
+        ];
+    }
+
+    /**
+     * #3843 — the body `PUT /activities/{id}/analysis/sections/{key}` takes.
+     *
+     * No `enum` on `rating` on purpose. Core checks an enum before the
+     * callback runs and answers without `details.allowed`, and being told
+     * what a rating may be is the whole point of the refusal here.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function sectionArgs(): array {
+        return [
+            'rating' => [
+                'type'        => 'string',
+                'description' => 'went_well, mixed or needs_work. An empty string clears the rating.',
+            ],
+            'notes' => [
+                'type'        => 'array',
+                'description' => 'The bullets on this section, each { body, valence }. A flat list of strings is read as unmarked bullets. Replaces every bullet the section has.',
+            ],
+        ];
     }
 
     public static function can_view(): bool {
@@ -267,6 +329,17 @@ class MatchAnalysisRestController {
     public static function put( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
 
+        // #3843 — the shape first, and before the find-or-create below: a
+        // body this route cannot write must not leave an empty analysis
+        // behind it, and a section it cannot store must refuse the whole
+        // request rather than write the half it understood.
+        $refused = BaseController::checkBody( $r, self::putArgs() );
+        if ( $refused !== null ) return $refused;
+
+        $body     = self::body( $r );
+        $problems = MatchAnalysisWriter::problems( $body );
+        if ( $problems !== [] ) return self::unwritable( $problems );
+
         $composer = new MatchAnalysisComposer();
         $payload  = $composer->forActivity( $activity_id, true );
         if ( $payload === null ) {
@@ -277,8 +350,6 @@ class MatchAnalysisRestController {
         if ( $analysis_id <= 0 ) {
             return RestResponse::error( 'db_error', __( 'The analysis could not be created.', 'talenttrack' ), 500 );
         }
-
-        $body = self::body( $r );
 
         // Query string first: the browser sends it there so the token stays
         // out of the JSON the surface snapshots for undo and revert. The
@@ -326,10 +397,19 @@ class MatchAnalysisRestController {
             );
         }
 
-        $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
-        if ( $payload === null ) return self::not_a_match();
+        // #3843 — same contract as the whole-document PUT, checked before
+        // the find-or-create so a refused write leaves nothing behind.
+        $refused = BaseController::checkBody( $r, self::sectionArgs() );
+        if ( $refused !== null ) return $refused;
 
         $body = self::body( $r );
+
+        if ( array_key_exists( 'rating', $body ) && ! MatchAnalysisWriter::isWritableRating( $body['rating'] ) ) {
+            return self::unwritable( [ 'rating' ] );
+        }
+
+        $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
+        if ( $payload === null ) return self::not_a_match();
 
         ( new MatchAnalysisWriter() )->saveSection(
             (int) $payload['analysis_id'],
@@ -513,6 +593,34 @@ class MatchAnalysisRestController {
                 'match_execution' => (bool) $payload['has_exec'],
             ],
         ];
+    }
+
+    /**
+     * #3843 — a value this resource cannot store, named rather than nulled.
+     *
+     * `details.allowed` carries both closed vocabularies a caller could
+     * have got wrong, because a rejected `sections[0]` is nearly always a
+     * list entry that never said which section it was.
+     *
+     * @param list<string> $fields
+     */
+    private static function unwritable( array $fields ): \WP_REST_Response {
+        return RestResponse::error(
+            'invalid_field',
+            sprintf(
+                /* translators: %s: comma-separated field names */
+                __( 'These fields have a value this request cannot use: %s.', 'talenttrack' ),
+                implode( ', ', $fields )
+            ),
+            400,
+            [
+                'fields'  => $fields,
+                'allowed' => [
+                    'sections' => MatchAnalysisEnums::sectionKeys(),
+                    'rating'   => array_keys( MatchAnalysisEnums::ratings() ),
+                ],
+            ]
+        );
     }
 
     private static function not_a_match(): \WP_REST_Response {
