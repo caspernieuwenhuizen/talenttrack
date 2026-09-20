@@ -307,9 +307,7 @@ class FrontendMeasurementsView extends FrontendViewBase {
         return [
             'name'            => (string) ( $t['name'] ?? '' ),
             'frequency_label' => self::frequencyLabel( (string) ( $t['frequency'] ?? '' ) ),
-            'value'           => $value !== '' && $unit !== '' && self::isNumericType( $type )
-                ? $value . ' ' . $unit
-                : $value,
+            'value'           => self::reading( $value, $unit, $type ),
             'date'            => (string) ( $t['latest_date'] ?? '' ),
             'chip_label'      => $chip_label,
             'chip_class'      => $chip_class,
@@ -466,6 +464,28 @@ class FrontendMeasurementsView extends FrontendViewBase {
     /** Numeric-ish types whose value reads with its unit appended. */
     private static function isNumericType( string $type ): bool {
         return in_array( $type, [ 'numeric', 'scale' ], true );
+    }
+
+    /**
+     * The latest reading as the register prints it: the number spelled for the
+     * reader, then the unit, once.
+     *
+     * #3768 — the service used to hand over "36.3 kg" and the row appended the
+     * unit a second time, so the column read "36.3 kg kg" while the target
+     * beside it read "≤ 2,09 s". `latest_value` is now the bare number, and
+     * the separator comes from the same helper the target and the delta use.
+     *
+     * A duration arrives as `mm:ss` and a level as its own label — neither is
+     * a number, so both pass through untouched.
+     */
+    private static function reading( string $value, string $unit, string $type ): string {
+        if ( $value === '' ) return '';
+
+        $number = is_numeric( $value )
+            ? \TT\Modules\Measurements\Units\UnitContext::localeNumber( (float) $value )
+            : $value;
+
+        return $unit !== '' && self::isNumericType( $type ) ? $number . ' ' . $unit : $number;
     }
 
     /**

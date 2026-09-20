@@ -63423,6 +63423,12 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Minutes are only recorded for match activities that are still active."
+msgstr ""
+"Speelminuten worden alleen vastgelegd bij wedstrijdactiviteiten die nog "
+"actief zijn."
+
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
 #~ msgstr "De wedstrijdvoorbereiding accepteert niet: %s."

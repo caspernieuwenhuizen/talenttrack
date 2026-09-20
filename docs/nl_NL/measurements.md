@@ -438,7 +438,9 @@ van een speler in de tijd bij elkaar staat.
 Bij een **status**-test toont de waardekolom het vastgelegde **niveaulabel**
 (bijvoorbeeld *Op koers*), en de cel krijgt de kleur van dat niveau, zodat
 het werkblad in één oogopslag leesbaar is — net als de statuschip op het
-spelersprofiel. Numerieke tests tonen het getal met de eenheid.
+spelersprofiel. Numerieke tests tonen alleen het getal, in de eenheid die het
+kopblok noemt — een cel die je kunt optellen, sorteren en in een grafiek zetten
+zonder er eerst een symbool uit te halen.
 
 De werkmap heeft een tweede tabblad **Trends** dat de resultaten van elke
 speler **in de tijd** toont: één rij per speler, één kolom per meetdatum (in
