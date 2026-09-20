@@ -53,10 +53,11 @@ is your own intake rather than the whole academy's.
 Clicking a card opens the prospect panel above the board. Besides the name,
 stage and next action it shows the scouting notes you wrote when you logged the
 find, and — when the prospect was linked to a scouting visit — a **Found at**
-line with the visit's date, event and scout, which opens the visit itself. So
-"where did this player come from" is answerable without leaving the board. Both
-are read-only here; the notes are set when the find is logged. A colleague who
-reads the funnel but not the scouting planner, such as a head coach watching
+line with the visit's date, event and scout, which opens the visit itself. When
+they have been watched again since, a line underneath counts the later visits.
+So "where did this player come from" is answerable without leaving the board.
+Both are read-only here; the notes are set when the find is logged. A colleague
+who reads the funnel but not the scouting planner, such as a head coach watching
 their own age group, sees the notes and no visit line.
 
 ### Review your portfolio
@@ -105,10 +106,30 @@ going to and record what came of each trip. Planning them in the system means
 the academy can see coverage — which age groups and which regions are actually
 being watched — instead of it living in your head.
 
-When you spot someone, open the visit and use **Log scouting find**. The
-prospect you log is linked to that visit, which then lists them. The
+When you spot someone for the first time, open the visit and use **Log scouting
+find**. The prospect you log is linked to that visit, which then lists them. The
 event is filled in from the visit, so you don't type it twice. That link is
 where the player came from, and it stays on their record.
+
+### Record that you saw somebody again
+
+Seeing the same player a second time is the normal case, not the exception. At
+the bottom of a visit there is **Link an existing prospect**: start typing a
+name, and the prospects you can already see come back as you type. Tap one and
+they are added to the visit.
+
+The earlier link is not overwritten. The visit that discovered a player keeps
+saying so — it is marked **Discovered here** in the visit's list — and every
+later visit is an additional sighting. On the pipeline board, a prospect's
+**Found at** line still names the first visit and adds "Seen at 2 later visits"
+underneath it, so "where did this player come from" and "how often have we
+watched them" are separate questions with separate answers.
+
+The search only returns prospects you could already open. If somebody you are
+sure exists does not appear, they are outside your view, not missing.
+
+If you link the wrong person, **Remove from visit** on their row undoes it. That
+removes the sighting, not the prospect.
 
 ## What you cannot do yet
 
@@ -116,8 +137,8 @@ One thing scouts reasonably expect is not built:
 
 - **Adding a follow-up note to a prospect you already logged.** Notes are
  captured when you create the prospect and cannot be appended to afterwards.
- Seeing the same player a second time is the normal case, not the exception,
- so this is on the backlog.
+ You can now record *that* you saw them again, by linking them to the later
+ visit; what you thought of them that day still has nowhere to go.
 
 Until it exists, put later observations in the message to the head of
 development rather than assuming the record will carry them.

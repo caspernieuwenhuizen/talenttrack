@@ -65715,3 +65715,91 @@ msgstr "Onbekend veldtype: %s"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid ""
+"Scouting visits across the window, the prospects found on them, and the "
+"later visits some of those prospects were watched at again."
+msgstr ""
+"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
+"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
+
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid ""
+"Saw somebody you have already logged? Find them here instead of logging them "
+"twice."
+msgstr ""
+"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
+"twee keer vast te leggen."
+
+#. translators: %s: number of scouting visits after the one the prospect was discovered at.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Seen at %s later visit"
+msgid_plural "Seen at %s later visits"
+msgstr[0] "Gezien bij %s later bezoek"
+msgstr[1] "Gezien bij %s latere bezoeken"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Prospects watched at this visit"
+msgstr "Prospects die bij dit bezoek zijn bekeken"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgctxt "date a prospect was watched at this scouting visit"
+msgid "Seen"
+msgstr "Gezien op"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgctxt "scouting visit"
+msgid "Discovered here"
+msgstr "Hier ontdekt"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Remove from visit"
+msgstr "Verwijder van bezoek"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Link an existing prospect"
+msgstr "Koppel een bestaande prospect"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Search prospects by name"
+msgstr "Zoek prospects op naam"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Start typing a name…"
+msgstr "Begin een naam te typen…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Searching…"
+msgstr "Bezig met zoeken…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "No prospects match that name."
+msgstr "Geen prospects gevonden met die naam."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Could not link that prospect. Please try again."
+msgstr "Kon die prospect niet koppelen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Could not remove that link. Please try again."
+msgstr "Kon die koppeling niet verwijderen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Remove this prospect from the visit?"
+msgstr "Deze prospect van het bezoek verwijderen?"
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "This scouting visit is archived, so prospects cannot be linked to it."
+msgstr ""
+"Dit scoutingbezoek is gearchiveerd, dus er kunnen geen prospects aan worden "
+"gekoppeld."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "Could not link the prospect to this visit."
+msgstr "Kon de prospect niet aan dit bezoek koppelen."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "Observation not found."
+msgstr "Waarneming niet gevonden."

@@ -243,19 +243,9 @@ class ProspectsRestController {
      * visible.
      */
     private static function visibleTo( int $prospect_id, int $user_id ): bool {
-        if ( ProspectScope::canSeeAll( $user_id ) ) return true;
-
-        global $wpdb;
-        $scope = ProspectScope::sqlClause( $user_id, '' );
-        if ( $scope === '' ) return true;
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects
-              WHERE id = %d AND club_id = %d {$scope}",
-            $prospect_id,
-            \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) ) > 0;
+        // #3711 — moved into `ProspectScope` so the visit-observation link
+        // asks the same question through the same code.
+        return ProspectScope::canSee( $user_id, $prospect_id );
     }
 
     /**
