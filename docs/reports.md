@@ -304,6 +304,25 @@ Above the matrix, four **gap KPIs** — *Games*, *Fully recorded*, *Incomplete*,
 matrix to that completeness bucket, so *Not recorded* jumps straight to the games
 still missing minutes.
 
+### Tournament days are roll-ups
+
+A tournament day is not a match. The play happens in its **fixtures**, and each
+fixture becomes its own match activity the moment a coach kicks it off — that is
+where its squad, its attendance and its minutes are recorded, in the tournament
+planner.
+
+So the day appears in the matrix as a **roll-up row**: its minutes are summed
+from its fixtures, it is labelled *Tournament day — minutes recorded per fixture*
+next to its title, it wears a *Roll-up* chip instead of a completeness chip, and
+its action opens the **tournament planner** rather than a minutes editor. Opening
+its editor directly is refused, with the same pointer to the planner.
+
+Because the fixtures are rows in the same matrix, the roll-up's minutes are
+already counted there. It is therefore left out of the column totals, the grand
+total and the four gap KPIs — otherwise the same afternoon would be counted
+twice and every player's total would read double. A roll-up shows *Not recorded*
+only when its fixtures genuinely hold no minutes.
+
 Because the audit reads the **same** recorded, actual, non-guest minutes as the
 minutes report, its numbers reconcile with that report exactly. The honest-zero
 rules apply here too: a team with games but no recorded minutes shows every game,

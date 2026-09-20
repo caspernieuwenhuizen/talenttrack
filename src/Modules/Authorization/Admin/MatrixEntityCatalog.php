@@ -87,6 +87,10 @@ final class MatrixEntityCatalog {
         'spond_integration',           // Spond admin uses tt_edit_teams
         'strava_integration',          // Strava operator console (tt_view_strava / tt_edit_strava_credentials)
         'thread_messages',             // threads admin (the read path)
+        // #3858 — the staff-only flag on a thread message. Gated inside
+        // the thread composer rather than by a tile's `cap` string, so the
+        // reverse index has nothing to walk; it is wired, not orphaned.
+        'staff_only_notes',
     ];
 
 
@@ -147,10 +151,18 @@ final class MatrixEntityCatalog {
             'staff_overview'                => __( 'Staff overview', 'talenttrack' ),
             // Player-scoped surfaces
             'thread_messages'               => __( 'Threads', 'talenttrack' ),
+            // #3858 — may mark a message on a conversation staff-only.
+            'staff_only_notes'              => __( 'Staff-only notes', 'talenttrack' ),
             'spond_integration'             => __( 'Spond integration', 'talenttrack' ),
             'strava_integration'            => __( 'Strava integration', 'talenttrack' ),
             'player_timeline'               => __( 'Player timeline', 'talenttrack' ),
             'player_potential'              => __( 'Player potential', 'talenttrack' ),
+            // #3703 — the tournament planner, team-scoped.
+            'tournaments'                   => __( 'Tournaments (planner)', 'talenttrack' ),
+            // #3560 (epic #3558) — one player's own tournament record.
+            // Deliberately a different row from the planner above: this
+            // reaches the player and their family, the planner does not.
+            'player_tournaments'            => __( 'Player tournaments', 'talenttrack' ),
             'player_behaviour_ratings'      => __( 'Player behaviour ratings', 'talenttrack' ),
             'player_status'                 => __( 'Player status', 'talenttrack' ),
             'player_status_breakdown'       => __( 'Player status breakdown', 'talenttrack' ),

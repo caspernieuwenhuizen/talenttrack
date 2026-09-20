@@ -59,6 +59,26 @@ final class AllTeamsScope {
     }
 
     /**
+     * #3832 — may this user read the analytics surfaces that have no team
+     * to narrow to?
+     *
+     * `tt_view_analytics` bridges to `analytics: read` and is answered with
+     * `canAnyScope()`, so a **team**-scoped grant makes it true everywhere —
+     * including on surfaces that are club-wide by construction. That was
+     * invisible while the only holders were head of development and academy
+     * admin, both global; #3770's team manager is the first holder for whom
+     * it is reachable, and #3770's own spec says team scope only.
+     *
+     * The rule is narrow-where-you-can, refuse-where-you-can't: a surface
+     * that can show one team shows theirs, and a surface that cannot asks
+     * this question instead. Asking about the entity rather than keeping a
+     * list means a new surface is classified by what it is.
+     */
+    public static function canSeeClubWideAnalytics( int $user_id ): bool {
+        return self::canSeeAllTeams( $user_id, 'analytics' );
+    }
+
+    /**
      * #3152 — may this user read **this** team?
      *
      * The sibling above answers "may you see beyond your own teams". Four

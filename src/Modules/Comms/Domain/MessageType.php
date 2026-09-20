@@ -191,10 +191,16 @@ final class MessageType {
      * would invite a later change to filter the always-sent block, which
      * would be wrong.
      *
-     * Six of these have no sender yet. They take their intended audience
+     * Five of these have no sender yet. They take their intended audience
      * now (issue decision 3): while nothing sends them, a wrong guess
      * hides a toggle for mail nobody is receiving, and each send path
      * confirms or corrects its own row when it lands.
+     *
+     * #3811 — `SCHEDULE_CHANGE_FROM_SPOND` was the sixth. It now carries
+     * two templates, `schedule_change_from_spond` for a single imminent
+     * change and `team_schedule_digest` for the daily roll-up, under this
+     * one type so a reader's single toggle governs both. Its audience row
+     * already named staff and is confirmed rather than corrected.
      *
      * @var array<string, list<string>>
      */

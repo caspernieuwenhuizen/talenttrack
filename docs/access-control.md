@@ -330,6 +330,56 @@ The scout's `trial_synthesis` row was **removed** rather than woken up. It would
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
 
+## Staff-only notes — `staff_only_notes`
+
+A message on a conversation can be marked **staff only**. Everybody else who
+reads that conversation — the player, the guardian, anybody without the
+right — never sees it. That flag has an entitlement of its own, the matrix
+entity **`staff_only_notes`**, carrying `change` and nothing else, because
+marking a note is an act rather than a record.
+
+It used to borrow `tt_edit_evaluations`, which gated an internal note about
+a child on the right to change an evaluation. The people who write those
+notes do not hold that right and have no reason to: the team manager, the
+first aider, the assistant coach. What made it a defect rather than a gap is
+what happened next — the note was stored as **public** and the request
+answered success, so the author believed it was internal while the child's
+guardian could read it.
+
+Who holds it:
+
+| Holder | Scope |
+| --- | --- |
+| Assistant coach, head coach, team manager (personas) | team |
+| Head of development, academy admin (personas) | global |
+| **Physio** and **Manager** (functional roles) | the teams the role is held on |
+
+The `staff` persona does not hold it. That seat is one persona covering the
+physio and the kit manager alike, which is why the grant sits on the
+functional role instead — see [Injuries and measurements follow the
+functional role, not the Staff role](#injuries-and-measurements-follow-the-functional-role-not-the-staff-role).
+
+The rules the right enforces:
+
+- **A request is refused, never quietly widened.** An author without the
+  right who marks a note staff-only gets a refusal naming the right, and
+  nothing is stored. The text stays in the box.
+- **Hiding and revealing are the same decision.** Editing a note *to*
+  staff-only and editing it *away from* staff-only both need the right.
+- **The control is not offered to somebody who cannot use it** — the
+  checkbox is not rendered without the right.
+
+Who may **read** a staff-only note did not change: the new right is added to
+the old evaluation-change arm rather than replacing it, so nobody loses a
+note they can see today, and whoever the new right reaches can read back
+what they have just written. A guardian is not staff, holds neither arm, and
+never sees one.
+
+Notes written before this landed are left exactly as they are. Nothing
+recorded that a widening had happened, so the affected notes could only be
+guessed at from the author's rights at the time — and re-hiding a note a
+family has already read and relied on would be the worse mistake.
+
 ## Recycle-bin management — `tt_manage_recycle_bin`
 
 Permanent deletion is the most destructive act in the product, so it lives
@@ -534,7 +584,7 @@ Player records reference `wp_user_id` directly today. The future SaaS auth model
 
 ## Player-controlled parent visibility
 
-A player can hide individual development sections (evaluations, goals, journey, measurements, PDP) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. Both the rendered views and the section REST reads consult the gate.
+A player can hide individual development sections (evaluations, goals, journey, measurements, playing time, PDP, tournaments, training history) from a **linked parent**. The gate is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, layered on top of `canViewPlayer()`: it only ever restricts a linked parent — the player themselves and staff (team/global) always pass, and any non-gateable section is always visible. Default-visible: absence of a preference row in `tt_player_parent_visibility` means the section is shared, so existing parents keep their access with no backfill. Safeguarding/medical fields are governed by their own caps and are not player-controllable. Both the rendered views and the section REST reads consult the gate.
 
 ## Parent → child link model
 

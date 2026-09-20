@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Recipients\TeamHeadCoachLookup;
+use TT\Infrastructure\Recipients\TeamStaffLookup;
 use TT\Modules\Alerts\Contracts\AlertInterface;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
@@ -116,6 +117,7 @@ abstract class AbstractActivityAlert implements AlertInterface {
             if ( $tid > 0 ) $team_ids[ $tid ] = true;
         }
         $head_coaches = $this->headCoachesByTeam( array_keys( $team_ids ) );
+        $team_staff   = $this->staffByTeam( array_keys( $team_ids ) );
 
         $out = [];
         foreach ( $rows as $row ) {
@@ -129,6 +131,16 @@ abstract class AbstractActivityAlert implements AlertInterface {
             $team_id = (int) ( $row->team_id ?? 0 );
             if ( $team_id > 0 && isset( $head_coaches[ $team_id ] ) ) {
                 $recipients[ $head_coaches[ $team_id ] ] = true;
+            }
+
+            // #3811 — and the rest of the staff who run the team. An
+            // activity alert is about the team's paperwork, not about a
+            // player, and the assistant coach and the team manager are
+            // exactly the people who chase it. Telling only the head coach
+            // is why a team manager could watch seven registers stay open
+            // and never be told about one of them.
+            foreach ( $team_staff[ $team_id ] ?? [] as $staff_user_id ) {
+                $recipients[ $staff_user_id ] = true;
             }
 
             // No resolvable recipient means nobody would ever see this, so
@@ -175,6 +187,26 @@ abstract class AbstractActivityAlert implements AlertInterface {
      */
     protected function headCoachesByTeam( array $team_ids ): array {
         return TeamHeadCoachLookup::forTeams( $team_ids );
+    }
+
+    /**
+     * WP user ids of each team's running staff, keyed by team id, in one
+     * query (#3811).
+     *
+     * Head coach, assistant coach, team manager — the roles that act on an
+     * unmarked activity or an unrecorded register. `TeamStaffLookup` is
+     * deliberately narrowed here rather than returning everyone assigned:
+     * an alert that reaches a physio who cannot act on it is how a channel
+     * stops being read.
+     *
+     * Batched for the same reason its sibling is: the sweep runs across
+     * every team in the academy.
+     *
+     * @param list<int> $team_ids
+     * @return array<int, list<int>> team_id => wp_user_id[]
+     */
+    protected function staffByTeam( array $team_ids ): array {
+        return TeamStaffLookup::forTeams( $team_ids, TeamStaffLookup::RUNS_THE_TEAM );
     }
 
     /**

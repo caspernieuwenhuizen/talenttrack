@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Shared\Dates\TTDate;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 
@@ -731,6 +732,28 @@ final class TeamMonthlyReportPdfDocument {
         $no_minutes = (int) ( $q['matches_without_minutes'] ?? 0 );
         /* translators: %d: matches played without minutes recorded */
         if ( $no_minutes > 0 ) $lines[] = sprintf( _n( '%d match played has no minutes recorded.', '%d matches played have no minutes recorded.', $no_minutes, 'talenttrack' ), $no_minutes );
+        // #3860 — the printed report carries the same line as the screen:
+        // a fixture printed as "Unknown opponent" has to be nameable from
+        // the page somebody takes into the meeting.
+        $no_opponent = is_array( $q['matches_without_opponent'] ?? null ) ? $q['matches_without_opponent'] : [];
+        if ( $no_opponent !== [] ) {
+            $fixtures = [];
+            foreach ( $no_opponent as $match ) {
+                if ( ! is_array( $match ) ) continue;
+                $fixtures[] = trim( TTDate::date( (string) ( $match['date'] ?? '' ) ) . ' ' . trim( (string) ( $match['title'] ?? '' ) ) );
+            }
+            /* translators: 1: number of matches, 2: their dates and titles */
+            $lines[] = sprintf(
+                _n(
+                    '%1$d match has no opponent stored, so it reads as "Unknown opponent" above: %2$s.',
+                    '%1$d matches have no opponent stored, so they read as "Unknown opponent" above: %2$s.',
+                    count( $fixtures ),
+                    'talenttrack'
+                ),
+                count( $fixtures ),
+                implode( '; ', $fixtures )
+            );
+        }
         $not_eval = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
         if ( $not_eval !== [] ) {
             $names = array_map( static fn( $p ): string => is_array( $p ) ? (string) ( $p['name'] ?? '' ) : '', $not_eval );

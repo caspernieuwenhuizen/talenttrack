@@ -136,6 +136,14 @@ there is only one thing to say.
 The ▲ ● ▼ marker stays what it always was: your read on the player's whole
 match. The notes are the evidence under it.
 
+**A note is one short point, not a paragraph.** Each line holds at most
+255 characters, which is why the boxes stop you typing past their own
+limit. Nothing is ever shortened behind your back: a longer note sent in
+from outside the app — an import, an integration — is refused and says so,
+rather than being saved with its tail cut off mid-word. Where one point
+ends and the next begins is your call, so split a long thought onto the
+second line yourself.
+
 Only the players you marked get note fields, so a squad of fourteen fits
 on one phone screen and an analysis you have not started yet has no text
 boxes on it at all.

@@ -196,6 +196,9 @@ class Kernel {
         // #2977 — frontend category weights (save + reset handlers + REST).
         // wp-admin's page stays as it was; both call CategoryWeightsRepository.
         \TT\Modules\Evaluations\Frontend\FrontendCategoryWeightsView::init();
+        // #3860 — the opponent backfill's commit handler. The screen itself
+        // renders through the dispatcher; only the save needs a hook.
+        \TT\Modules\Activities\Frontend\FrontendOpponentBackfillView::init();
         // #3134 — the account page's two user-facing halves on the frontend:
         // the plan explainer (REST endpoint) and a user's own two-factor
         // enrolment. The operator halves stay on wp-admin's tt-account.

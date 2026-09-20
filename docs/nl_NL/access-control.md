@@ -307,6 +307,60 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
+## Staf-only notities — `staff_only_notes`
+
+Een bericht in een gesprek kan als **alleen voor de staf** worden
+gemarkeerd. Iedereen die dat gesprek verder leest — de speler, de ouder,
+iedereen zonder het recht — ziet het dan nooit. Die markering heeft een
+eigen recht: de matrix-entiteit **`staff_only_notes`**, met `change` en
+verder niets, want markeren is een handeling en geen record.
+
+Voorheen leende die markering `tt_edit_evaluations`. Daarmee hing een
+interne notitie over een kind achter het recht om een evaluatie te
+wijzigen. De mensen die zulke notities schrijven hebben dat recht niet en
+hebben het ook niet nodig: de teammanager, de EHBO'er, de assistent-coach.
+Wat het een fout maakte in plaats van een gat, is wat er daarna gebeurde —
+de notitie werd als **openbaar** opgeslagen en het verzoek antwoordde met
+succes, dus de schrijver dacht dat het intern was terwijl de ouder van het
+kind het kon lezen.
+
+Wie het heeft:
+
+| Houder | Scope |
+| --- | --- |
+| Assistent-coach, hoofdcoach, teammanager (persona's) | team |
+| Hoofd opleiding, academiebeheerder (persona's) | global |
+| **Fysio** en **Manager** (functionele rollen) | de teams waarop de rol wordt gehouden |
+
+De persona `staff` heeft het niet. Die stoel is één persona die de fysio en
+de materiaalman tegelijk dekt, en daarom zit de grant op de functionele rol
+— zie [Blessures en metingen volgen de functionele rol, niet de rol
+Staf](#blessures-en-metingen-volgen-de-functionele-rol-niet-de-rol-staf).
+
+De regels die het recht afdwingt:
+
+- **Een verzoek wordt geweigerd, niet stilzwijgend verbreed.** Een
+  schrijver zonder het recht die een notitie als staf-only markeert, krijgt
+  een weigering die het recht benoemt, en er wordt niets opgeslagen. De
+  tekst blijft in het invoerveld staan.
+- **Verbergen en onthullen zijn dezelfde beslissing.** Een notitie *naar*
+  staf-only bewerken en *weg van* staf-only bewerken vragen allebei het
+  recht.
+- **De knop wordt niet aangeboden aan wie hem niet kan gebruiken** — het
+  vinkje wordt zonder het recht niet getoond.
+
+Wie een staf-only notitie mag **lezen** is niet veranderd: het nieuwe recht
+komt naast de oude evaluatie-arm in plaats van ervoor in de plaats, dus
+niemand verliest een notitie die hij vandaag ziet, en wie het nieuwe recht
+bereikt kan teruglezen wat hij net geschreven heeft. Een ouder is geen
+staf, heeft geen van beide armen, en ziet er nooit één.
+
+Notities van vóór deze wijziging blijven precies zoals ze zijn. Nergens is
+vastgelegd dát er iets verbreed is, dus de betrokken notities zijn alleen
+te gokken uit de rechten die de schrijver toen had — en een notitie opnieuw
+verbergen die een gezin al gelezen heeft en waarop het vertrouwt, is de
+grotere fout.
+
 ## Prullenbakbeheer — `tt_manage_recycle_bin`
 
 Definitief verwijderen is de meest destructieve actie in het product en zit
@@ -512,7 +566,7 @@ Wil je echt in een andere rol handelen — zien wat een ouder ziet, mét de rech
 
 ## Speler-gestuurde ouderzichtbaarheid
 
-Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, POP) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.
+Een speler kan afzonderlijke ontwikkelonderdelen (evaluaties, doelen, reis, metingen, speeltijd, POP, toernooien, trainingshistorie) verbergen voor een **gekoppelde ouder**. De poort is `AuthorizationService::parentCanViewSection( $user_id, $player_id, $section )`, bovenop `canViewPlayer()`: hij beperkt alleen een gekoppelde ouder - de speler zelf en staf (team/globaal) komen er altijd langs, en een niet-afschermbaar onderdeel is altijd zichtbaar. Standaard zichtbaar: het ontbreken van een voorkeursrij in `tt_player_parent_visibility` betekent dat het onderdeel gedeeld is, dus bestaande ouders houden hun toegang zonder migratie. Veiligheids-/medische velden vallen onder hun eigen caps en zijn niet door de speler te sturen. Zowel de gerenderde weergaven als de REST-reads van de onderdelen raadplegen de poort.
 
 ## Hoe een scout `player`-scope krijgt
 

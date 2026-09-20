@@ -745,13 +745,40 @@ class FrontendTrialCaseView extends FrontendViewBase {
         self::cardClose();
     }
 
+    /**
+     * The decision, read back.
+     *
+     * #3787 — the motivation was already here, and two things about it
+     * were not. It said *when* the decision was recorded and never *by
+     * whom*, so the one entry a family may ask about a season later
+     * carried no author; and a long motivation, which is what a
+     * thirty-character floor is asking for, had nothing telling it to
+     * wrap inside the summary grid.
+     *
+     * Read-only, and deliberately only here. The motivation is free text
+     * about a child written for an internal panel decision; the player
+     * file is read by considerably more people, and a decline-flavoured
+     * sentence would follow an admitted child around their record for
+     * years. Whoever is entitled to the trial case can read it on the
+     * trial case.
+     */
     private static function renderPostDecision( object $case ): void {
         self::cardOpen( __( 'Decision recorded', 'talenttrack' ) );
         echo '<dl class="tt-trial-decision-summary">';
         echo '<dt>' . esc_html__( 'Outcome', 'talenttrack' ) . '</dt><dd>' . esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ) . '</dd>';
         echo '<dt>' . esc_html__( 'Recorded at', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_made_at ) . '</dd>';
-        if ( $case->decision_notes ) {
-            echo '<dt>' . esc_html__( 'Justification', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_notes ) . '</dd>';
+
+        $recorded_by = (int) ( $case->decision_made_by ?? 0 );
+        if ( $recorded_by > 0 ) {
+            $user = get_userdata( $recorded_by );
+            echo '<dt>' . esc_html__( 'Recorded by', 'talenttrack' ) . '</dt><dd>'
+                . esc_html( $user ? (string) $user->display_name : '#' . $recorded_by ) . '</dd>';
+        }
+
+        $motivation = trim( (string) $case->decision_notes );
+        if ( $motivation !== '' ) {
+            echo '<dt>' . esc_html( _x( 'Motivation', 'trial decision summary', 'talenttrack' ) ) . '</dt>'
+                . '<dd class="tt-trial-decision-motivation">' . esc_html( $motivation ) . '</dd>';
         }
         echo '</dl>';
 

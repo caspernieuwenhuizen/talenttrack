@@ -58,7 +58,30 @@ class FrontendAnalyticsView extends FrontendViewBase {
         // it renders the academy-wide KPI grid + Standard reports.
         // Entity analytics are NOT surfaced on entity detail pages —
         // operator-only, central by design.
+        // #3832 — `tt_view_analytics` is true for a team-scoped grant, so
+        // the capability alone does not say whether this reader may see
+        // the academy. The hub narrows rather than refusing: a team-scoped
+        // reader gets their own squads, players and activities in the rail
+        // and no academy-wide KPI grid, which is the shorter menu rather
+        // than a locked door.
+        $club_wide = $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
+        /** @var list<int>|null $team_ids */
+        $team_ids = $club_wide
+            ? null
+            : array_map(
+                'intval',
+                array_column( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
+            );
+
         [ $selected_type, $selected_id ] = self::selectedEntity();
+        // A narrowed reader cannot open an entity outside their teams by
+        // typing its id: the rail would never offer it, and an id in a URL
+        // is not an authorisation.
+        if ( $team_ids !== null && $selected_type !== '' && ! self::isInScope( $selected_type, $selected_id, $team_ids ) ) {
+            FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'Your analytics access is limited to your own teams, and this is not one of them.', 'talenttrack' ) . '</p>';
+            return;
+        }
         $entity_label = self::labelForSelection( $selected_type, $selected_id );
 
         FrontendBreadcrumbs::fromDashboard(
@@ -71,14 +94,19 @@ class FrontendAnalyticsView extends FrontendViewBase {
 
         echo '<aside class="tt-analytics-rail">';
         echo '<h2 class="tt-analytics-rail-title">' . esc_html__( 'Browse by entity', 'talenttrack' ) . '</h2>';
-        self::renderEntitySelector( $selected_type, $selected_id );
+        self::renderEntitySelector( $selected_type, $selected_id, $team_ids );
         echo '</aside>';
 
         echo '<section class="tt-analytics-main">';
         if ( $selected_type !== '' && $selected_id > 0 ) {
             self::renderEntityAnalytics( $selected_type, $selected_id, $entity_label );
-        } else {
+        } elseif ( $team_ids === null ) {
             self::renderAcademyOverview();
+        } else {
+            // Said in words. An academy-wide KPI grid is the one thing on
+            // this page that cannot be narrowed to a squad, so it is absent
+            // on purpose and the page says so rather than looking broken.
+            echo '<p class="tt-notice">' . esc_html__( 'Academy-wide KPIs need analytics access across the whole club. Pick one of your teams, its players or an activity on the left to see their analytics.', 'talenttrack' ) . '</p>';
         }
         echo '</section>';
 
@@ -175,14 +203,66 @@ class FrontendAnalyticsView extends FrontendViewBase {
      * rows server-side; an operator with more rows uses the relevant
      * tile's main list view via the dashboard.
      */
-    private static function renderEntitySelector( string $selected_type, int $selected_id ): void {
+    /**
+     * @param list<int>|null $team_ids #3832 — null is the club; a list
+     *        narrows the three team-shaped sections to those squads and
+     *        drops the two that have no team to narrow to.
+     */
+    private static function renderEntitySelector( string $selected_type, int $selected_id, ?array $team_ids = null ): void {
         $base = WizardEntryPoint::dashboardBaseUrl();
 
-        self::renderEntitySection( 'player',   __( 'Players',    'talenttrack' ), self::fetchInstancePlayers(),    $base, $selected_type, $selected_id );
-        self::renderEntitySection( 'team',     __( 'Teams',      'talenttrack' ), self::fetchInstanceTeams(),      $base, $selected_type, $selected_id );
-        self::renderEntitySection( 'activity', __( 'Activities', 'talenttrack' ), self::fetchInstanceActivities(), $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'player',   __( 'Players',    'talenttrack' ), self::fetchInstancePlayers( $team_ids ),    $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'team',     __( 'Teams',      'talenttrack' ), self::fetchInstanceTeams( $team_ids ),      $base, $selected_type, $selected_id );
+        self::renderEntitySection( 'activity', __( 'Activities', 'talenttrack' ), self::fetchInstanceActivities( $team_ids ), $base, $selected_type, $selected_id );
+        if ( $team_ids !== null ) return;
+
+        // Scouts and seasons are academy-wide entities: there is no version
+        // of either narrowed to one squad, so a narrowed reader is offered
+        // neither rather than being shown a list they may not read.
         self::renderEntitySection( 'scout',    __( 'Scouts',     'talenttrack' ), self::fetchInstanceScouts(),     $base, $selected_type, $selected_id );
         self::renderEntitySection( 'season',   __( 'Seasons',    'talenttrack' ), self::fetchInstanceSeasons(),    $base, $selected_type, $selected_id );
+    }
+
+    /**
+     * Is the selected entity one this narrowed reader may open? Answered
+     * from the same lists the rail is built from, so the page and its URL
+     * can never disagree.
+     *
+     * @param list<int> $team_ids
+     */
+    private static function isInScope( string $entity_type, int $entity_id, array $team_ids ): bool {
+        if ( $entity_id <= 0 ) return false;
+        if ( $team_ids === [] ) return false;
+
+        $ids = [];
+        switch ( $entity_type ) {
+            case 'player':
+                $ids = array_column( self::fetchInstancePlayers( $team_ids ), 'id' );
+                break;
+            case 'team':
+                $ids = array_column( self::fetchInstanceTeams( $team_ids ), 'id' );
+                break;
+            case 'activity':
+                $ids = array_column( self::fetchInstanceActivities( $team_ids ), 'id' );
+                break;
+            default:
+                // Scouts and seasons have no team to belong to.
+                return false;
+        }
+        return in_array( $entity_id, array_map( 'intval', $ids ), true );
+    }
+
+    /**
+     * `AND team_id IN (…)` for a narrowed reader, or '' for the club.
+     * An empty list produces a clause nothing matches, which is the right
+     * answer for a reader assigned to no team at all.
+     *
+     * @param list<int>|null $team_ids
+     */
+    private static function teamClause( ?array $team_ids, string $alias ): string {
+        if ( $team_ids === null ) return '';
+        if ( $team_ids === [] ) return " AND {$alias}.team_id = 0";
+        return " AND {$alias}.team_id IN ( " . implode( ',', array_map( 'intval', $team_ids ) ) . ' )';
     }
 
     /**
@@ -280,14 +360,19 @@ class FrontendAnalyticsView extends FrontendViewBase {
         }
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
-    private static function fetchInstancePlayers(): array {
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
+    private static function fetchInstancePlayers( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
+        $scope = self::teamClause( $team_ids, 'pl' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — the clause is built from intval'd ids.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, t.name AS team_name
                FROM {$p}tt_players pl
           LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
-              WHERE pl.club_id = %d AND pl.archived_at IS NULL
+              WHERE pl.club_id = %d AND pl.archived_at IS NULL{$scope}
            ORDER BY pl.last_name ASC, pl.first_name ASC
               LIMIT 25",
             \TT\Infrastructure\Tenancy\CurrentClub::id()
@@ -305,12 +390,22 @@ class FrontendAnalyticsView extends FrontendViewBase {
         return $out;
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
-    private static function fetchInstanceTeams(): array {
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
+    private static function fetchInstanceTeams( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
+        $scope = '';
+        if ( $team_ids !== null ) {
+            $scope = $team_ids === []
+                ? ' AND id = 0'
+                : ' AND id IN ( ' . implode( ',', array_map( 'intval', $team_ids ) ) . ' )';
+        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — the clause is built from intval'd ids.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name, age_group FROM {$p}tt_teams
-              WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . "
+              WHERE club_id = %d AND " . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active' ) . $scope . "
            ORDER BY name ASC
               LIMIT 25",
             \TT\Infrastructure\Tenancy\CurrentClub::id()
@@ -326,14 +421,19 @@ class FrontendAnalyticsView extends FrontendViewBase {
         return $out;
     }
 
-    /** @return list<array{id:int,label:string,meta?:string}> */
-    private static function fetchInstanceActivities(): array {
+    /**
+     * @param  list<int>|null $team_ids #3832 — null is the club.
+     * @return list<array{id:int,label:string,meta?:string}>
+     */
+    private static function fetchInstanceActivities( ?array $team_ids = null ): array {
         global $wpdb; $p = $wpdb->prefix;
+        $scope = self::teamClause( $team_ids, 'a' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — the clause is built from intval'd ids.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, t.name AS team_name
                FROM {$p}tt_activities a
           LEFT JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
-              WHERE a.club_id = %d AND a.archived_at IS NULL
+              WHERE a.club_id = %d AND a.archived_at IS NULL{$scope}
            ORDER BY a.session_date DESC, a.id DESC
               LIMIT 25",
             \TT\Infrastructure\Tenancy\CurrentClub::id()

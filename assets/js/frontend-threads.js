@@ -108,8 +108,14 @@
                         // Posted, so the draft has served its purpose.
                         draftWrite('');
                     }
-                }).catch(function () {
-                    alert(cfg.i18n.failed || 'Could not send message.');
+                }).catch(function (err) {
+                    // #3858 — say what the server said. A note marked
+                    // staff-only by an author without the right is now
+                    // refused rather than quietly published, and "Could
+                    // not send message." would leave them guessing at a
+                    // network fault. The typed text stays in the box:
+                    // nothing below this line touches the textarea.
+                    alert((err && err.ttMessage) || cfg.i18n.failed || 'Could not send message.');
                 }).finally(function () {
                     btn.disabled = false;
                     btn.textContent = prev;
@@ -163,7 +169,19 @@
                     'X-WP-Nonce': cfg.rest_nonce
                 },
                 body: JSON.stringify({ body: body, visibility: visibility })
-            }).then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); });
+            }).then(function (r) {
+                if (r.ok) return r.json();
+                // Carry the server's own sentence up to the handler. The
+                // house error envelope nests it under `errors[0].message`;
+                // a plain WP_Error answers with `message` at the top.
+                return r.json().catch(function () { return null; }).then(function (payload) {
+                    var err = new Error('http');
+                    var first = payload && Array.isArray(payload.errors) ? payload.errors[0] : null;
+                    var text = (first && first.message) || (payload && payload.message) || '';
+                    if (text) err.ttMessage = text;
+                    throw err;
+                });
+            });
         }
 
         function appendMessage(msg) {

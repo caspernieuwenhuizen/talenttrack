@@ -151,10 +151,17 @@ final class TemplateGuide {
             ],
             'schedule_change_from_spond' => [
                 'family'    => self::FAMILY_URGENT,
-                'what'      => __( 'Passes on a time, date or location change that came in from Spond.', 'talenttrack' ),
-                'who'       => __( 'The players affected and their parents.', 'talenttrack' ),
-                'when'      => __( 'When a Spond sync brings in a changed training or match.', 'talenttrack' ),
-                'triggered' => false,
+                'what'      => __( 'Passes on a time, date or location change to an activity that is nearly here.', 'talenttrack' ),
+                'who'       => __( 'The staff who run that team — head coach, assistants, team manager.', 'talenttrack' ),
+                'when'      => __( 'Straight away, when an activity starting within two days is changed.', 'talenttrack' ),
+                'triggered' => true,
+            ],
+            'team_schedule_digest' => [
+                'family'    => self::FAMILY_NUDGE,
+                'what'      => __( 'One message listing everything added, moved, re-located or cancelled in a team\'s calendar, instead of a message per change.', 'talenttrack' ),
+                'who'       => __( 'The staff who run that team — head coach, assistants, team manager.', 'talenttrack' ),
+                'when'      => __( 'Once a day, for changes to activities more than two days away.', 'talenttrack' ),
+                'triggered' => true,
             ],
             'safeguarding_broadcast' => [
                 'family'    => self::FAMILY_URGENT,

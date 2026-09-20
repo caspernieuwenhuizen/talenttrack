@@ -957,6 +957,13 @@ final class ActivitiesRepository {
         if ( $uid > 0 ) {
             $data['updated_by'] = $uid;
         }
+        // #3811 — and when. The column has existed since the table did,
+        // carries no `ON UPDATE CURRENT_TIMESTAMP`, and nothing ever wrote
+        // it, so it held the creation time and the detail view's audit
+        // footer said an activity edited this morning was last changed in
+        // August. It is also the only way a nightly job can ask what moved
+        // since yesterday.
+        $data['updated_at'] = current_time( 'mysql' );
         // #3081 — the write is the only place that still knows what the
         // row said before it. Read it only when the payload could be a
         // cancellation, so the common edit keeps its single query.
@@ -1675,7 +1682,12 @@ final class ActivitiesRepository {
      * result is derived (`team_score` and `outcome` do not exist as columns),
      * and a shape says exactly what a caller may read.
      *
-     * @return list<array{activity_id:int, date:string, opponent:string, home_away:string,
+     * #3860 — the `title` rides along: when `opponent` is empty the title
+     * is where the opponent actually is, and the report's data-quality
+     * section names the fixture by it so a coach can recognise which match
+     * is missing one.
+     *
+     * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string,
      *         team_score:int|null, opp_score:int|null, outcome:string}>
      */
     public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
@@ -1729,6 +1741,7 @@ final class ActivitiesRepository {
             $out[] = [
                 'activity_id' => (int) $r->id,
                 'date'        => (string) ( $r->session_date ?? '' ),
+                'title'       => (string) ( $r->title ?? '' ),
                 'opponent'    => (string) ( $r->opponent ?? '' ),
                 'home_away'   => $home_away,
                 'team_score'  => $team_score,
@@ -2247,6 +2260,9 @@ final class ActivitiesRepository {
             [
                 'activity_status_key' => $status_key,
                 'plan_state'          => $plan_state,
+                // #3811 — the other write path stamps it too; a lifecycle
+                // change is a change.
+                'updated_at'          => current_time( 'mysql' ),
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;

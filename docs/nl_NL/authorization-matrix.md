@@ -170,6 +170,27 @@ Een eerdere schets in dit document beschreef een andere verdeling — lezen voor
 
 `AuthorizationService::canViewTournament()` / `canEditTournament()` / `canDeleteTournament()` zijn de aanroeppunten; de REST-permission-callbacks, de detail- en bewerktakken van de planner en de dashboardtegel lossen er alle drie via op, zodat ze niet uiteen kunnen lopen. `GET /tournaments` beperkt de eigen regels in SQL tot de teams van de aanvrager — een trainer op teamscope die door de lijst bladert krijgt nooit de selectie van een andere leeftijdsgroep om die vervolgens verborgen te zien.
 
+### Matrix-entiteit `player_tournaments` — één kind, niet het rotatiebord (#3560)
+
+`tournaments` hierboven is de **planner**: elke selectie, elke wedstrijd, elke minuut die de academie die dag verdeelt. De toernooihistorie van één speler is een andere vraag, en krijgt daarom een andere entiteit — `player_tournaments`, alleen `read` — in plaats van een bredere grant op de planner. De planner aan een gezin geven om hun eigen kind te laten zien, zou hun ook de middag van elk ander kind laten zien.
+
+| Persona | Grant |
+| --- | --- |
+| `player` | `read`, self |
+| `parent` | `read`, player |
+| `assistant_coach`, `head_coach` | `read`, team |
+| `head_of_development`, `academy_admin` | `read`, global |
+| `team_manager`, `scout`, `readonly_observer`, `staff` | *(geen)* |
+
+Twee opmerkingen over de vorm:
+
+- **De planner blijft ongemoeid.** Geen wijziging aan `tt_view_tournaments`, aan de entiteit `tournaments` of aan wie die heeft. Een test legt dat vast, want de planner later verbreden "zodat het gezin de dag kan zien" is precies de wijziging die deze entiteit overbodig maakt.
+- **Het hoofd opleiding staat op global, niet op team.** De vormgeving van de epic zette die persona naast de coaches op teamscope; elke andere rij van het hoofd opleiding in de seed staat op global, en een hoofd opleiding heeft geen eigen teamtoewijzing, dus een teamgebonden rij zou voor precies de persona wier werk de hele academie is, als geen toegang hebben gelezen.
+
+Een ouder passeert twee poorten, geen één: deze entiteit laat hen toe tot hun eigen kind, en daarna vraagt `AuthorizationService::parentCanViewSection( …, 'tournaments' )` of het kind het onderdeel open heeft gelaten. Dat onderdeel is nieuw in `PlayerParentVisibilityRepository::SECTIONS` en staat standaard op gedeeld, dus geen enkel gezin verliest iets bij het uitrollen, en er is geen migratie voor nodig — een ontbrekende voorkeursrij betekent gedeeld.
+
+Migratie `0283_authorization_seed_topup_player_tournaments` vult de zes rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft).
+
 ## Matrix-entiteit `exercises` — de oefeningenbibliotheek
 
 De oefeningen-/drilbibliotheek (`tt_exercises`, bediend door `ExercisesRestController` op `/wp-json/talenttrack/v1/exercises`) is clubbreed: een drill die een coach schrijft, is herbruikbaar voor de hele academie. De bibliotheek staat **los van `activities`**, de teamgebonden sessiekalender — daarom krijgt zij een eigen matrix-entiteit, `exercises`, in plaats van de activiteiten-scope te lenen.
@@ -242,6 +263,33 @@ Vóór #1945 was de handelings-capability `tt_send_email` niet gekoppeld, zodat 
 Beide coach-persona's worden bewust geseed. De ruwe `tt_send_email`-capability is in handen van `administrator` (matrix-uitzondering) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — en `tt_coach` is de WordPress-rol achter **zowel** de head_coach- **als** de assistant_coach-persona. Alleen head_coach seeden zou stilzwijgend de e-mailcomposer van assistent-coaches intrekken (de dubbel-persona-val uit #1944). Beide worden geseed, dus routering via de matrix is **toegangsbehoudend** — elke ruwe capability-houder, inclusief assistent-coaches, behoudt de composer.
 
 Migratie `0181_authorization_seed_topup_email_compose` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `email_compose`-rijen loopt).
+
+## Matrix-entiteit `staff_only_notes` — een notitie binnen de staf houden
+
+Een bericht in een gesprek kan als **alleen voor de staf** worden gemarkeerd, en iedereen die dat gesprek verder leest — ook de ouder van het kind — ziet het dan nooit. Markeren is een **handeling** en geen record, dus krijgt het net als `email_compose` en `impersonation_action` een eigen handelingsentiteit: `staff_only_notes`, met `change` als enige activiteit.
+
+Voordat deze entiteit bestond, leende de markering het recht om evaluaties te wijzigen. Daarmee hing een interne notitie over een kind achter het recht om een evaluatie aan te passen — een recht dat de mensen die zulke notities schrijven niet hebben: de teammanager, de EHBO'er, de assistent-coach. Wat het een fout maakte en geen gat, is wat er daarna gebeurde: de notitie werd als **openbaar** opgeslagen en het verzoek antwoordde met succes, dus de schrijver dacht dat het intern was terwijl de ouder het kon lezen.
+
+| Houder | Scope |
+| --- | --- |
+| Assistent-coach | `change`, team |
+| Hoofdcoach | `change`, team |
+| Teammanager | `change`, team |
+| Hoofd opleiding | `change`, global |
+| Academiebeheerder | `change`, global |
+| Speler, ouder, scout, alleen-lezen waarnemer, staf | *(geen)* |
+
+Twee functionele rollen dragen hem ook — **Fysio** en **Manager** — want een EHBO'er of teammanager kan op deze installatie een `tt_staff`-account met een functionele rol hebben in plaats van een eigen persona, en of een notitie binnen de staf blijft, mag daar niet van afhangen. De persona `staff` zelf draagt hem **niet**: die stoel is één persona die fysio en materiaalman tegelijk dekt, wat precies de les is van [de functionele-rol-as](#de-functionele-rol-as-3257-3433).
+
+Drie regels die de entiteit afdwingt:
+
+- **Weigeren, nooit stilzwijgend verbreden.** Een schrijver zonder het recht die een notitie als staf-only markeert, krijgt een 403 die het recht benoemt, en er wordt niets opgeslagen. De tekst blijft in het invoerveld staan, dus er gaat niets verloren.
+- **Beide richtingen, één regel.** Het vlaggetje zetten en het weghalen zijn dezelfde beslissing van twee kanten bekeken. Een notitie *naar* staf-only bewerken en *weg van* staf-only bewerken vragen allebei het recht — gecontroleerd in `ThreadMessagesRepository::update()` én in de REST-controller, want een tweede aanroeper komt eerst langs de repository.
+- **De knop wordt niet aangeboden aan wie hem niet kan gebruiken.** `FrontendThreadView` toont het vinkje alleen aan een schrijver die het recht heeft, zodat de weigering een vangnet is en niet het eerste wat je tegenkomt.
+
+Wie een staf-only notitie mag **lezen** verandert niet: het nieuwe recht komt naast de oude evaluatie-arm in plaats van ervoor in de plaats, dus wie er vandaag één ziet, blijft hem zien, en wie het nieuwe recht bereikt kan teruglezen wat hij net geschreven heeft. Een ouder is geen staf en ziet er nooit één.
+
+Migratie `0282_authorization_seed_topup_staff_only_notes` vult de vijf persona-rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft). Notities van vóór deze wijziging blijven bewust ongemoeid — nergens is vastgelegd dát er iets verbreed is, dus je zou alleen kunnen gokken, en een notitie opnieuw verbergen die een gezin al gelezen heeft en waarop het vertrouwt, is de grotere fout.
 
 ## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld
 
@@ -395,6 +443,25 @@ Effect op persona's (uit de geleverde seed):
 
 Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terugval op de gerenderde schermen, zodat een operator die de WP-installatie beheert nooit toegang verliest terwijl de matrix van een club nog sluimert. Er is geen matrix-entiteit, seed of migratie gewijzigd — dit is een call-site-refactor op de bestaande toekenningen.
 
+### Analyse: beperk waar het kan, weiger waar het niet kan
+
+`tt_view_analytics` is een matrix-only capability die naar `analytics: read` brugt, en wordt beantwoord met **elke scope**. Een toekenning op *teamscope* maakt de capability dus waar op elk analyse-scherm — ook op schermen die geen team hebben om toe te beperken. Dat bleef onzichtbaar zolang alleen Head of Development en Academy Admin die toekenning hadden, allebei globaal; de teammanager (#3770) is de eerste houder op teamscope, en die toekenning is uitdrukkelijk alleen voor het eigen team.
+
+De capability is op zichzelf dus geen antwoord op de scopevraag. De regel (#3832) luidt:
+
+- **Een scherm dat tot één team kan beperken, doet dat**, en een lezer op teamscope ziet daar zijn eigen teams. De aanwezigheidsrapporten (team, speler, ranglijst), de minutencontrole, het minutenrapport per team, het maandrapport, het cohortbord en het potentieeloverzicht beperken allemaal binnen hun eigen query, via `AllTeamsScope` / `get_teams_for_coach()`.
+- **Een scherm dat niet kan beperken, vraagt om globale leestoegang op `analytics`**, via `AllTeamsScope::canSeeClubWideAnalytics()`, en weigert een lezer op teamscope met een bericht in plaats van een lege pagina:
+
+| Clubbreed analyse-scherm | Waarom er geen team is om toe te beperken |
+| - | - |
+| Evaluatiedekking (`?tt_view=eval-coverage`) | Dekking over één team is een ander rapport; dit scherm is de matrix van de academie. |
+| Dimensieverkenner (`?tt_view=explore`) | De verkenner doorkruist per ontwerp elke dimensie in de club. |
+| Geplande rapporten (`?tt_view=scheduled-reports`) | Planningen beheren is geen team lezen; een planning mailt de academie op een klok. |
+
+Het analyse-startscherm (`?tt_view=analytics`) zit ertussenin: het **beperkt** — een lezer op teamscope krijgt zijn eigen teams, spelers en activiteiten in de linkerkolom, en het academiebrede KPI-raster wordt vervangen door een regel die zegt wat ervoor nodig is. Een entiteit-id meegeven dat de kolom niet zou aanbieden wordt geweigerd; een id in een URL is geen toestemming.
+
+Dit verandert niets aan bestaande toegang: alleen Head of Development en Academy Admin hebben globale leestoegang op `analytics`, en geen enkele WordPress-rol krijgt `tt_view_analytics` rechtstreeks, dus niemand verliest een scherm dat hij vandaag gebruikt.
+
 ## Matrix-entiteit `recycle_bin` — definitief verwijderen
 
 De prullenbak (archiveren → prullenbak → opschonen) introduceert één nieuwe
@@ -514,7 +581,9 @@ Wat die twee mensen wél scheidt, is het werk dat ze op een elftal doen, en dat 
 | `grants` | sleutel van functionele rol → entiteit → activiteiten. Altijd op **team**scope, want een functionele rol wordt op een team gehouden; een andere scope bestaat hier niet. Wordt samengevoegd met wat de persona's van de gebruiker geven. |
 | `supersedes` | persona → de entiteiten waarvan de functionele-rollaag het antwoord bezit. Voor een gebruiker met minstens één functionele rol wordt de eigen matrixrij van die persona op die entiteiten **overgeslagen**. |
 
-Meegeleverde inhoud: `physio` geeft `player_injuries [rc]` en `measurements [r]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` en `analytics [r]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+Meegeleverde inhoud: `physio` geeft `player_injuries [rc]`, `measurements [r]` en `staff_only_notes [c]`; `head_coach` en `assistant_coach` geven `measurements [r]`; `kit_manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` geeft `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]`, `analytics [r]` en `staff_only_notes [c]`. `staff` wordt overruled op `player_injuries` en `measurements`, en verder wordt geen enkele persona overruled.
+
+`staff_only_notes [c]` op `physio` en `manager` is wat een EHBO'er of teammanager in staat stelt een operationele notitie over een kind binnen de staf te houden — zie [Matrix-entiteit `staff_only_notes`](#matrix-entiteit-staff_only_notes--een-notitie-binnen-de-staf-houden). Eén gevolg verdient het benoemd te worden, want `grants` is optellend over elke persona heen: een ouder die vrijwilliger is als teammanager of fysio van het elftal van het eigen kind, telt voor staf-only notities als staf, dus een staf-only notitie van een coach in het **doel**gesprek van dat kind wordt voor hen leesbaar. De spelersnotitie zelf blijft ongemoeid — `PlayerThreadAdapter` weigert de ouder-persona hoe dan ook, welke functionele rol er ook is. Het is dezelfde afweging die #3257 voor het blessuredossier maakte.
 
 `analytics [r]` op `manager` is de grant achter de aanwezigheidsrapporten. Een Staff-account met de rol Manager is de vorm die een teammanager op een installatie het vaakst heeft, en de risicolijst is het enige scherm dat de spelers benoemt die trainingen blijven missen — precies waarvoor die rol bestaat. De rapporten gelden voor de elftallen waarop de rol wordt gehouden: de regels worden hoe dan ook afgebakend door `get_teams_for_coach()`.
 

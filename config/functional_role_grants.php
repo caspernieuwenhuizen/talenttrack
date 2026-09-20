@@ -65,6 +65,12 @@ $mod_vct           = class_exists( '\TT\Modules\Vct\VctModule' )
 $mod_training      = class_exists( '\TT\Modules\Training\TrainingModule' )
     ? \TT\Modules\Training\TrainingModule::class
     : $mod_authorization;
+// #3858 — Threads. Declared here rather than borrowed from
+// `authorization_seed.php`: the two files define their own module
+// variables, and naming one this file does not define yields `null`,
+// which `MatrixGate` reads as "unknown module, treat as enabled" — a
+// silently wider grant than intended, and one `php -l` cannot see.
+$mod_threads       = TT\Modules\Threads\ThreadsModule::class;
 
 return [
 
@@ -96,10 +102,25 @@ return [
         // finds the player. Reading their figures over REST while the
         // screen that lists them says "not authorized" is the drift this
         // grant closes; it adds no data the role could not already read.
+        //
+        // #3858 adds `staff_only_notes [c]`. This is the first aider the
+        // issue is named for: the person who writes "mum rang, he's been
+        // unwell" and needs it to stay within the staff. Until now the
+        // flag borrowed `tt_edit_evaluations`, which this seat does not
+        // hold and should not, so the note was published to the child's
+        // guardian instead — silently, with the author believing it was
+        // internal. `change` only, and team-scoped like everything here,
+        // so it reaches the squads they are the physio for.
+        //
+        // Granted on the functional role rather than the `staff` persona
+        // on purpose: that persona is one seat covering physio and kit
+        // manager alike, and #3257 is the record of what happens when a
+        // grant about a child lands on both.
         'physio' => [
             'player_injuries'         => [ 'rc', $mod_journey ],
             'measurements'            => [ 'r',  $mod_measurements ],
             'coach_player_list_panel' => [ 'r',  $mod_players ],
+            'staff_only_notes'        => [ 'c',  $mod_threads ],
         ],
 
         // ─── HEAD COACH / ASSISTANT COACH ───────────────────────────
@@ -260,6 +281,24 @@ return [
             // Read-only: planning stays with the coach and the HoD.
             'vct_workload'            => [ 'r',  $mod_vct ],
             'training_exposure'       => [ 'r',  $mod_training ],
+            // #3858 — the team manager is the other person the issue is
+            // named for, and the `team_manager` PERSONA gets the same row
+            // in `authorization_seed.php`: a team manager on this install
+            // may be either shape, and whether a note stays within the
+            // staff must not depend on which. `change` only — the act of
+            // marking a note staff-only.
+            //
+            // The widening this carries, named here rather than found
+            // later, in the manner of the `measurements` note above: a
+            // parent who volunteers as their child's team manager or
+            // physio now counts as staff for staff-only notes, so a
+            // coach's staff-only note on that child's GOAL conversation
+            // becomes readable to them. The player note itself is not
+            // affected — `PlayerThreadAdapter` refuses the parent persona
+            // outright, whatever functional role they hold. It is the
+            // same trade #3257 made for the injury record, and it is a
+            // decision to revisit on its own if an academy hits it.
+            'staff_only_notes'        => [ 'c',  $mod_threads ],
             'team_roster_panel'       => [ 'r',  $mod_teams ],
             'coach_player_list_panel' => [ 'r',  $mod_players ],
             'activities_panel'        => [ 'r',  $mod_activities ],

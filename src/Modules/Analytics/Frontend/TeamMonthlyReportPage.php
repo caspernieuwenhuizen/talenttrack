@@ -457,6 +457,15 @@ final class TeamMonthlyReportPage {
      */
     public static function scheduleUrl( int $team_id, string $layout, array $selected, array $options = [] ): string {
         if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
+        // #3832 — the schedules screen is academy-wide and now refuses a
+        // team-scoped analytics grant. Offering the button anyway would be
+        // a link to a door that will not open, which this file's own
+        // `link()` helper exists to avoid.
+        if ( ! current_user_can( 'tt_edit_settings' )
+            && ! \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( get_current_user_id() )
+        ) {
+            return '';
+        }
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) && ! \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' ) ) return '';
         if ( ! CrossViewLink::allows( 'scheduled-reports' ) ) return '';
 
@@ -1372,6 +1381,7 @@ final class TeamMonthlyReportPage {
         $no_register   = is_array( $q['activities_without_register'] ?? null ) ? $q['activities_without_register'] : [];
         $never_closed  = is_array( $q['activities_never_closed'] ?? null ) ? $q['activities_never_closed'] : [];
         $no_minutes    = (int) ( $q['matches_without_minutes'] ?? 0 );
+        $no_opponent   = is_array( $q['matches_without_opponent'] ?? null ) ? $q['matches_without_opponent'] : [];
         $not_evaluated = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
         $incomplete    = is_array( $q['players_with_incomplete_status'] ?? null ) ? $q['players_with_incomplete_status'] : [];
 
@@ -1391,6 +1401,28 @@ final class TeamMonthlyReportPage {
         if ( $no_minutes > 0 ) {
             /* translators: %d: matches played without minutes recorded */
             $lines[] = sprintf( _n( '%d match played has no minutes recorded.', '%d matches played have no minutes recorded.', $no_minutes, 'talenttrack' ), $no_minutes );
+        }
+        if ( $no_opponent !== [] ) {
+            // #3860 — named, not counted: "3 matches have no opponent" tells
+            // a coach nothing they can act on, and the title usually says
+            // who it was against. The opponent screen is where they fix it.
+            $fixtures = [];
+            foreach ( $no_opponent as $match ) {
+                if ( ! is_array( $match ) ) continue;
+                $title = trim( (string) ( $match['title'] ?? '' ) );
+                $fixtures[] = trim( TTDate::date( (string) ( $match['date'] ?? '' ) ) . ' ' . $title );
+            }
+            /* translators: 1: number of matches, 2: their dates and titles */
+            $lines[] = sprintf(
+                _n(
+                    '%1$d match has no opponent stored, so it reads as "Unknown opponent" above: %2$s.',
+                    '%1$d matches have no opponent stored, so they read as "Unknown opponent" above: %2$s.',
+                    count( $fixtures ),
+                    'talenttrack'
+                ),
+                count( $fixtures ),
+                implode( '; ', $fixtures )
+            );
         }
         if ( $not_evaluated !== [] ) {
             $names = array_map( static fn( $p ): string => is_array( $p ) ? (string) ( $p['name'] ?? '' ) : '', $not_evaluated );

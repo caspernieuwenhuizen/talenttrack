@@ -223,6 +223,8 @@ class FrontendMobilePromptView extends FrontendViewBase {
             case 'migrations':
             case 'scout-access':
             case 'recycle-bin':
+            // #3860 — one Save writes an opponent onto every ticked match.
+            case 'opponent-backfill':
                 return __( 'What you change here reaches well past any one record, so it is worth doing sitting down, with everything it affects visible at once.', 'talenttrack' );
 
             // Bulk upload + mapping + confirm.

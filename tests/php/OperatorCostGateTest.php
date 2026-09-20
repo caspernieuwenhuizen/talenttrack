@@ -160,7 +160,7 @@ final class OperatorCostGateTest extends WP_UnitTestCase {
         );
 
         $this->assertCount(
-            4,
+            5,
             CommsScheduledCron::TEMPLATES,
             'every schedule-driven template gets a health entry on a refused run'
         );
@@ -181,7 +181,10 @@ final class OperatorCostGateTest extends WP_UnitTestCase {
         $source = self::source( 'src/Modules/Spond/SpondSync.php' );
 
         $gate = strpos( $source, "allows( 'spond_integration' )" );
-        $sql  = strpos( $source, 'SELECT id, spond_group_id FROM' );
+        // #3860 added `name` to this SELECT (the opponent parser needs it),
+        // so the landmark is the column that makes the query recognisable
+        // rather than the exact column list.
+        $sql  = strpos( $source, 'spond_group_id FROM' );
         $this->assertIsInt( $gate );
         $this->assertIsInt( $sql );
         $this->assertLessThan( $sql, $gate, 'the refusal precedes any work' );

@@ -3,16 +3,19 @@ namespace TT\Modules\Comms\Cron;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 use TT\Modules\Comms\Recipient\RecipientResolver;
+use TT\Modules\Comms\Recipient\TeamStaffRecipientResolver;
+use TT\Modules\Comms\Send\TeamScheduleChangeSend;
 
 /**
  * CommsScheduledCron (#0066, v3.110.18) — daily wp-cron that fires
- * the 4 schedule-driven templates:
+ * the schedule-driven templates:
  *
  *   - goal_nudge: `tt_goals` rows older than 28 days where
  *     `last_nudge_at` is NULL or older than 28 days.
@@ -23,6 +26,10 @@ use TT\Modules\Comms\Recipient\RecipientResolver;
  *     capped at one nudge per 60 days.
  *   - staff_development_reminder: `tt_staff_reviews` due within 7 days
  *     where `last_reminder_at` is NULL or older than 7 days.
+ *   - team_schedule_digest (#3811): activities created, moved, re-located
+ *     or cancelled for a team since the last run, rolled up into one
+ *     message per team for the staff who run it. Its urgent half fires
+ *     from the write itself — see `Send\TeamScheduleChangeSend`.
  *
  * The other 11 templates are event-driven and fire from their owning
  * module via the `tt_comms_dispatch` action — see `CommsDispatcher`.
@@ -53,6 +60,7 @@ final class CommsScheduledCron {
         'attendance_flag',
         'onboarding_nudge_inactive',
         'staff_development_reminder',
+        'team_schedule_digest',
     ];
 
     /**
@@ -104,6 +112,112 @@ final class CommsScheduledCron {
         self::runOne( 'attendance_flag',            [ __CLASS__, 'detectAttendanceFlags' ] );
         self::runOne( 'onboarding_nudge_inactive',  [ __CLASS__, 'detectOnboardingNudges' ] );
         self::runOne( 'staff_development_reminder', [ __CLASS__, 'detectStaffDevReminders' ] );
+        self::runOne( 'team_schedule_digest',       [ __CLASS__, 'detectTeamScheduleDigests' ] );
+    }
+
+    /**
+     * When this detector last completed, as a local timestamp.
+     *
+     * The digest is the one detector with a *window* rather than a fixed
+     * trailing interval, because it must neither repeat a change nor drop
+     * one. A hardcoded 24 hours would do both: wp-cron fires on traffic, so
+     * a quiet Sunday routinely leaves a 30-hour gap, and everything that
+     * changed in the missing six hours would never be reported.
+     *
+     * The health record already stores `ran_at` per template, so there is no
+     * second marker to keep in step. Clamped: at least an hour (a double run
+     * must not re-send this morning's digest) and at most a week (an install
+     * whose cron has been dead since August should not mail a term's worth
+     * of edits the day it comes back).
+     */
+    private static function digestWindowStart(): int {
+        $now    = time();
+        $health = get_option( self::HEALTH_OPTION, [] );
+        $ran_at = is_array( $health ) ? (string) ( $health['team_schedule_digest']['ran_at'] ?? '' ) : '';
+
+        $since = $ran_at !== '' ? strtotime( $ran_at . ' UTC' ) : false;
+        if ( $since === false ) $since = $now - DAY_IN_SECONDS;
+
+        return (int) min( $now - HOUR_IN_SECONDS, max( $since, $now - 7 * DAY_IN_SECONDS ) );
+    }
+
+    /**
+     * One message per team listing what moved in its calendar (#3811).
+     *
+     * The immediate half lives in `Send\TeamScheduleChangeSend`, which fires
+     * on the activity write itself when the session is inside its 48-hour
+     * window. This half carries everything else, and the two partition the
+     * set rather than overlapping: a row is skipped here when its session
+     * was already imminent *at the moment it changed*, which is precisely
+     * the condition the immediate sender tested.
+     */
+    private static function detectTeamScheduleDigests(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        if ( ! self::tableExists( "{$p}tt_activities" ) ) return;
+
+        $since = self::digestWindowStart();
+        $now   = time();
+
+        // `updated_at` is stamped by the repository's write paths (#3811);
+        // rows written before that shipped carry their creation time, which
+        // is the honest answer for them.
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.club_id, a.team_id, a.title, a.session_date,
+                    a.start_time, a.end_time, a.location, a.activity_status_key,
+                    a.created_at, a.updated_at, t.name AS team_name
+                FROM {$p}tt_activities a
+                LEFT JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
+                WHERE a.archived_at IS NULL
+                  AND a.team_id > 0
+                  AND a.session_date >= %s
+                  AND ( a.created_at >= %s OR a.updated_at >= %s )
+                ORDER BY a.team_id ASC, a.session_date ASC, a.id ASC
+                LIMIT 200",
+            (string) gmdate( 'Y-m-d', $now ),
+            (string) gmdate( 'Y-m-d H:i:s', $since ),
+            (string) gmdate( 'Y-m-d H:i:s', $since )
+        ) );
+        if ( ! is_array( $rows ) || $rows === [] ) return;
+
+        /** @var array<int, array{club_id: int, team_name: string, lines: list<string>}> $by_team */
+        $by_team = [];
+
+        foreach ( $rows as $row ) {
+            $starts_at = TeamScheduleChangeSend::startsAt( $row );
+            if ( $starts_at === null || $starts_at <= $now ) continue;
+
+            $created_at = strtotime( (string) ( $row->created_at ?? '' ) . ' UTC' );
+            $updated_at = strtotime( (string) ( $row->updated_at ?? '' ) . ' UTC' );
+            $changed_at = (int) max( $created_at !== false ? $created_at : 0, $updated_at !== false ? $updated_at : 0 );
+            if ( $changed_at <= 0 ) continue;
+
+            // Already sent on the spot; saying it twice is worse than late.
+            if ( TeamScheduleChangeSend::isImminent( $starts_at, $changed_at ) ) continue;
+
+            $team_id = (int) $row->team_id;
+            if ( ! isset( $by_team[ $team_id ] ) ) {
+                $by_team[ $team_id ] = [
+                    'club_id'   => (int) $row->club_id,
+                    'team_name' => (string) ( $row->team_name ?? '' ),
+                    'lines'     => [],
+                ];
+            }
+
+            $created   = $updated_at === false || $created_at === false || $updated_at <= $created_at;
+            $cancelled = (string) ( $row->activity_status_key ?? '' ) === ActivityStatusKey::CANCELLED;
+
+            $by_team[ $team_id ]['lines'][] = TeamScheduleChangeSend::line( $row, $cancelled, $created && ! $cancelled );
+        }
+
+        foreach ( $by_team as $team_id => $digest ) {
+            TeamScheduleChangeSend::dispatchDigest(
+                (int) $team_id,
+                $digest['team_name'],
+                $digest['lines'],
+                $digest['club_id']
+            );
+        }
     }
 
     /**
@@ -244,13 +358,17 @@ final class CommsScheduledCron {
         if ( ! is_array( $rows ) || $rows === [] ) return;
 
         foreach ( $rows as $row ) {
-            // Recipients are coaches of the team + HoD. We don't
-            // resolve coach lists here in v1 — a follow-up wires the
-            // CoachResolver. For now we fire to administrators of the
-            // club so the flag isn't lost. The action hook listener
-            // can override `recipients` via filter if a downstream
-            // module wants finer routing.
-            $recipients = self::clubAdminRecipients( (int) $row->club_id );
+            // #3811 — the team's staff plus the heads of development, as
+            // this detector's own comment has intended since it shipped.
+            // It fired at club administrators instead, because nothing in
+            // the codebase could name a team's coaches: the fallback was
+            // written as a stopgap "so the flag isn't lost" and became the
+            // reason an absence flag reached an office and not the three
+            // people who see the player every week.
+            $recipients = ( new TeamStaffRecipientResolver() )->forTeamWithHeadOfDevelopment(
+                (int) $row->team_id,
+                (int) $row->club_id
+            );
             if ( $recipients === [] ) continue;
             do_action(
                 CommsDispatcher::ACTION_HOOK,
@@ -389,36 +507,6 @@ final class CommsScheduledCron {
                 [ '%d' ]
             );
         }
-    }
-
-    /**
-     * @return Recipient[]
-     */
-    private static function clubAdminRecipients( int $club_id ): array {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT u.ID, u.display_name
-                FROM {$wpdb->users} u
-                JOIN {$wpdb->usermeta} m ON m.user_id = u.ID
-                  AND m.meta_key = %s
-                  AND ( m.meta_value LIKE %s OR m.meta_value LIKE %s )
-                LIMIT 5",
-            $wpdb->prefix . 'capabilities',
-            '%administrator%',
-            '%tt_club_admin%'
-        ) );
-        if ( ! is_array( $rows ) || $rows === [] ) return [];
-        $out = [];
-        foreach ( $rows as $r ) {
-            $out[] = Recipient::coach(
-                (int) $r->ID,
-                null,
-                (string) ( ContactResolver::emailForUser( (int) $r->ID ) ?? '' ),
-                (string) ( ContactResolver::phoneForUser( (int) $r->ID ) ?? '' ),
-                (string) get_user_meta( (int) $r->ID, 'locale', true )
-            );
-        }
-        return $out;
     }
 
     private static function countRecentEvaluations( int $player_id ): int {
