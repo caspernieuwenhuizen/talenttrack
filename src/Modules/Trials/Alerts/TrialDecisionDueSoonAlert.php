@@ -143,7 +143,7 @@ final class TrialDecisionDueSoonAlert extends AbstractDataQualityAlert {
      * complete and the decision is waiting on nobody but the reader.
      */
     private function missingSentence( object $row ): string {
-        $names = array_values( array_filter( (array) ( $row->missing_names ?? [] ) ) );
+        $names = $this->missingFor( $row );
         if ( $names === [] ) return '';
 
         $extra = count( $names ) - self::MAX_NAMED;
@@ -169,11 +169,13 @@ final class TrialDecisionDueSoonAlert extends AbstractDataQualityAlert {
 
     /** @return array<string,mixed> */
     protected function payloadFor( object $row ): array {
+        $missing = $this->missingFor( $row );
+
         return [
             'player_name'   => trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) ),
             'end_date'      => (string) ( $row->end_date ?? '' ),
-            'missing_count' => count( (array) ( $row->missing_names ?? [] ) ),
-            'missing_names' => array_values( array_map( 'strval', (array) ( $row->missing_names ?? [] ) ) ),
+            'missing_count' => count( $missing ),
+            'missing_names' => $missing,
         ];
     }
 
@@ -218,15 +220,33 @@ final class TrialDecisionDueSoonAlert extends AbstractDataQualityAlert {
         /** @var list<object> $rows */
         $rows = array_values( array_filter( $result, 'is_object' ) );
 
-        $missing = $this->missingByCase( array_values( array_map(
+        // Stashed on the definition rather than tacked onto each row as a
+        // dynamic property: `$wpdb` hands back plain `stdClass` rows, and a
+        // property invented on one is invisible to everything that reads
+        // the object afterwards, static analysis included.
+        $this->missing = $this->missingByCase( array_map(
             static fn( object $row ): int => (int) ( $row->subject_id ?? 0 ),
             $rows
-        ) ) );
-        foreach ( $rows as $row ) {
-            $row->missing_names = $missing[ (int) ( $row->subject_id ?? 0 ) ] ?? [];
-        }
+        ) );
 
         return $rows;
+    }
+
+    /**
+     * Panellists who owe an input, keyed by case id, for the current
+     * `rows()` result set.
+     *
+     * @var array<int,list<string>>
+     */
+    private array $missing = [];
+
+    /**
+     * The names this row's sentence should list.
+     *
+     * @return list<string>
+     */
+    private function missingFor( object $row ): array {
+        return $this->missing[ (int) ( $row->subject_id ?? 0 ) ] ?? [];
     }
 
     /**
