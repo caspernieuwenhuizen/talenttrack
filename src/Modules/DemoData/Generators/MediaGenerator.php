@@ -263,10 +263,16 @@ class MediaGenerator implements DependentGeneratorInterface {
     /**
      * #3846 — the players a portrait may be taken of.
      *
+     * Public because it is the decision this generator makes about a
+     * child's photograph, and it is asserted directly: an environment
+     * without JPEG support in GD draws no placeholder at all, and a
+     * consent rule that can only be checked through a written image
+     * would go unverified exactly where it matters most.
+     *
      * @param object[] $roster
      * @return object[]
      */
-    private function consentedIn( array $roster ): array {
+    public function consentedIn( array $roster ): array {
         $out = [];
         foreach ( $roster as $player ) {
             if ( (int) ( $player->id ?? 0 ) <= 0 ) continue;
@@ -285,10 +291,12 @@ class MediaGenerator implements DependentGeneratorInterface {
      * does not, and the mixed-consent image is the case #3804's surfaces
      * were shaped around.
      *
+     * Public for the same reason `consentedIn()` is.
+     *
      * @param object[] $roster
      * @return object[]
      */
-    private function squadPhotoSubjects( array $roster ): array {
+    public function squadPhotoSubjects( array $roster ): array {
         $out = array_slice( $roster, 0, self::PORTRAITS_PER_TEAM );
 
         $picked = [];

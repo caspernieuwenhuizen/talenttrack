@@ -172,17 +172,19 @@ final class DemoMediaConsentTest extends WP_UnitTestCase {
      * consent on record has no photo of their own.
      */
     public function test_no_portrait_is_taken_of_a_player_without_consent(): void {
-        [ $team, $squad ] = $this->generateTeamWithMedia( 'Utrecht JO16-1', 'JO16' );
+        [ $squad, $subjects ] = $this->squadAndPortraitSubjects( 'Utrecht JO16-1', 'JO16' );
+
+        $subject_ids = $this->idsOf( $subjects );
 
         $unconsented = 0;
         foreach ( $squad as $player ) {
             if ( (int) $player->media_consent === 1 ) continue;
             $unconsented++;
 
-            $this->assertSame(
-                [],
-                $this->ownPhotosOf( (int) $player->id ),
-                "player {$player->id} has no media consent but has a photo of their own"
+            $this->assertNotContains(
+                (int) $player->id,
+                $subject_ids,
+                "player {$player->id} has no media consent but is a portrait subject"
             );
         }
 
@@ -190,15 +192,18 @@ final class DemoMediaConsentTest extends WP_UnitTestCase {
     }
 
     public function test_a_consented_player_does_get_a_portrait(): void {
-        [ $team, $squad ] = $this->generateTeamWithMedia( 'Twente JO17-1', 'JO17' );
+        [ $squad, $subjects ] = $this->squadAndPortraitSubjects( 'Twente JO17-1', 'JO17' );
 
-        $with_portrait = 0;
+        $this->assertNotEmpty( $subjects, 'no consented player is a portrait subject — the demo shows nothing' );
+
+        $consented_ids = [];
         foreach ( $squad as $player ) {
-            if ( (int) $player->media_consent !== 1 ) continue;
-            if ( $this->ownPhotosOf( (int) $player->id ) ) $with_portrait++;
+            if ( (int) $player->media_consent === 1 ) $consented_ids[] = (int) $player->id;
         }
 
-        $this->assertGreaterThan( 0, $with_portrait, 'no consented player got a portrait — the demo shows nothing' );
+        foreach ( $this->idsOf( $subjects ) as $id ) {
+            $this->assertContains( $id, $consented_ids );
+        }
     }
 
     /**
@@ -207,51 +212,101 @@ final class DemoMediaConsentTest extends WP_UnitTestCase {
      * is the case the consent surfaces were built to handle.
      */
     public function test_the_squad_photo_keeps_at_least_one_unconsented_player(): void {
-        [ $team, $squad ] = $this->generateTeamWithMedia( 'Vitesse JO19-1', 'JO19' );
+        $team  = $this->makeTeam( 'Vitesse JO19-1', 'JO19', 99 );
+        $this->runPlayers( [ $team ], 12, 'media-consent-batch' );
+        $squad = $this->squad( (int) $team->id );
 
-        $team_photo_ids = $this->mediaLinkedTo( MediaEntityType::TEAM, (int) $team->id );
-        $this->assertNotEmpty( $team_photo_ids, 'the fixture produced no squad photo' );
+        $depicted = $this->idsOf( $this->mediaGeneratorFor( $team, $squad )->squadPhotoSubjects( $squad ) );
 
-        $co_depicted_without_consent = 0;
+        $without_consent = 0;
         foreach ( $squad as $player ) {
             if ( (int) $player->media_consent === 1 ) continue;
-            $linked = $this->mediaLinkedTo( MediaEntityType::PLAYER, (int) $player->id );
-            if ( array_intersect( $linked, $team_photo_ids ) ) $co_depicted_without_consent++;
+            if ( in_array( (int) $player->id, $depicted, true ) ) $without_consent++;
         }
 
         $this->assertGreaterThan(
             0,
-            $co_depicted_without_consent,
+            $without_consent,
             'no unconsented player is on the squad photo — the co-depiction case #3804 exists for is not demonstrated'
         );
+    }
+
+    /**
+     * The same walk, end to end, against the links the generator actually
+     * wrote. Skipped where GD cannot write a JPEG — the generator draws its
+     * placeholders rather than shipping them, so on such an install it
+     * creates no images at all and there is nothing to walk. The selection
+     * tests above cover the rule itself in either environment.
+     */
+    public function test_the_written_links_match_the_selection(): void {
+        if ( ! function_exists( 'imagejpeg' ) ) {
+            $this->markTestSkipped( 'GD cannot write a JPEG here, so MediaGenerator draws no placeholders.' );
+        }
+
+        $team = $this->makeTeam( 'Heerenveen JO18-1', 'JO18', 99 );
+        $this->runPlayers( [ $team ], 12, 'media-consent-batch' );
+        $squad = $this->squad( (int) $team->id );
+
+        $this->mediaGeneratorFor( $team, $squad )->generate();
+
+        $team_photo_ids = $this->mediaLinkedTo( MediaEntityType::TEAM, (int) $team->id );
+        $this->assertNotEmpty( $team_photo_ids, 'the fixture produced no team media at all' );
+
+        $co_depicted = 0;
+        foreach ( $squad as $player ) {
+            if ( (int) $player->media_consent === 1 ) continue;
+
+            $this->assertSame(
+                [],
+                $this->ownPhotosOf( (int) $player->id ),
+                "player {$player->id} has no media consent but has a photo of their own"
+            );
+
+            $linked = $this->mediaLinkedTo( MediaEntityType::PLAYER, (int) $player->id );
+            if ( array_intersect( $linked, $team_photo_ids ) ) $co_depicted++;
+        }
+
+        $this->assertGreaterThan( 0, $co_depicted, 'the squad photo lost its unconsented players' );
     }
 
     // ── media helpers ──────────────────────────────────────────────────
 
     /**
-     * @return array{0:object, 1:object[]} the team row and its squad
+     * @param object[] $squad
      */
-    private function generateTeamWithMedia( string $name, string $age_group ): array {
-        if ( ! function_exists( 'imagecreatetruecolor' ) ) {
-            $this->markTestSkipped( 'GD is not available; MediaGenerator draws its placeholders with it.' );
-        }
-
-        $team = $this->makeTeam( $name, $age_group, 99 );
-        $this->runPlayers( [ $team ], 12, 'media-consent-batch' );
-        $squad = $this->squad( (int) $team->id );
-
-        $media = new MediaGenerator(
+    private function mediaGeneratorFor( object $team, array $squad ): MediaGenerator {
+        return new MediaGenerator(
             new DemoBatchRegistry( 'media-consent-batch' ),
             [ $team ],
             $squad,
             'en_US'
         );
-        $written = $media->generate();
-        if ( $written === 0 ) {
-            $this->markTestSkipped( 'MediaGenerator wrote nothing — no image store available in this environment.' );
-        }
+    }
 
-        return [ $team, $squad ];
+    /**
+     * @return array{0:object[], 1:object[]} the squad, and the players a
+     *   portrait would be taken of
+     */
+    private function squadAndPortraitSubjects( string $name, string $age_group ): array {
+        $team  = $this->makeTeam( $name, $age_group, 99 );
+        $this->runPlayers( [ $team ], 12, 'media-consent-batch' );
+        $squad = $this->squad( (int) $team->id );
+
+        $subjects = array_slice( $this->mediaGeneratorFor( $team, $squad )->consentedIn( $squad ), 0, 3 );
+
+        return [ $squad, $subjects ];
+    }
+
+    /**
+     * @param object[] $players
+     * @return int[]
+     */
+    private function idsOf( array $players ): array {
+        $out = [];
+        foreach ( $players as $player ) {
+            $out[] = (int) ( $player->id ?? 0 );
+        }
+        return $out;
     }
 
     /** @return int[] media ids linked to one entity */
