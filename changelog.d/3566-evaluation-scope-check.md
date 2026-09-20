@@ -1,6 +1,7 @@
-# Single-evaluation routes check the caller's player scope (#3566)
+# Evaluation detail, update and archive are scoped to the caller (#3566)
 
-Security: the single-evaluation routes now verify the evaluation's player is
-within the caller's scope. `GET /evaluations/{id}` checks the same pair the
+The single-evaluation routes now verify that the evaluation's player is within
+the caller's scope. `GET /evaluations/{id}` checks the same pair the
 `players/{id}/evaluations` route has always enforced, and the update and
-archive routes check the row's existing player, not only a submitted one.
+archive routes check the row's existing player rather than only a submitted
+one.
