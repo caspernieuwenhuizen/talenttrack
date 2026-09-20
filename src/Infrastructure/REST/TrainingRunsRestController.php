@@ -149,11 +149,18 @@ final class TrainingRunsRestController {
         $repo     = new TrainingPlanRunsRepository();
         $existing = $repo->findForActivity( $activity_id ) !== null;
 
+        // #3766 — a run belongs on the day its activity is held, not on the
+        // day the coach did the planning. Only an explicitly supplied
+        // `run_date` overrides that; null lets the repository read the
+        // activity's `session_date`.
+        $sent_date = $r->get_param( 'run_date' );
+        $run_date  = is_string( $sent_date ) && trim( $sent_date ) !== '' ? trim( $sent_date ) : null;
+
         $run_id = $repo->attach(
             $plan_id,
             $activity_id,
             $r->get_param( 'team_id' ) !== null ? (int) $r->get_param( 'team_id' ) : null,
-            (string) ( $r->get_param( 'run_date' ) ?? current_time( 'Y-m-d' ) )
+            $run_date
         );
         if ( $run_id <= 0 ) {
             return RestResponse::error(

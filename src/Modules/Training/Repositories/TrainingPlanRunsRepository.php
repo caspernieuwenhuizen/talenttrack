@@ -148,8 +148,14 @@ final class TrainingPlanRunsRepository {
      * Returns the run id. When the activity already has a run, returns
      * that one untouched — re-attaching must never silently replace a
      * snapshot, because a completed session's history would go with it.
+     *
+     * `$run_date` is the date the run belongs on, which is the activity's
+     * own `session_date`, not the day somebody did the planning. Pass null
+     * to have it resolved from the activity (#3766); only pass a date when
+     * the caller genuinely knows better. An activity that cannot be read,
+     * or carries no usable date, still yields today.
      */
-    public function attach( int $plan_id, int $activity_id, ?int $team_id, string $run_date ): int {
+    public function attach( int $plan_id, int $activity_id, ?int $team_id, ?string $run_date = null ): int {
         if ( $plan_id <= 0 || $activity_id <= 0 ) return 0;
 
         $existing = $this->findForActivity( $activity_id );
@@ -164,13 +170,17 @@ final class TrainingPlanRunsRepository {
         $blocks   = ( new TrainingPlanBlocksRepository() )->listForPlan( $plan_id );
         $snapshot = wp_json_encode( $this->snapshotShape( $plan, $blocks ) );
 
+        $date = $run_date !== null && trim( $run_date ) !== ''
+            ? $run_date
+            : $this->activitySessionDate( $activity_id );
+
         $ok = $wpdb->insert( $this->table(), [
             'uuid'                 => wp_generate_uuid4(),
             'club_id'              => CurrentClub::id(),
             'plan_id'              => $plan_id,
             'activity_id'          => $activity_id,
             'team_id'              => $team_id ?: ( $plan->team_id ? (int) $plan->team_id : null ),
-            'run_date'             => $this->validDate( $run_date ),
+            'run_date'             => $this->validDate( $date ),
             'status'               => 'planned',
             'blocks_snapshot_json' => $snapshot,
         ] );
@@ -429,6 +439,27 @@ final class TrainingPlanRunsRepository {
                 'was_skipped'   => 0,
             ] );
         }
+    }
+
+    /**
+     * The date an activity is held on, which is the date a run against it
+     * belongs on (#3766). Returns '' when the activity cannot be read or
+     * its date is the zero date, and `validDate()` then falls back to
+     * today rather than writing something unusable.
+     */
+    private function activitySessionDate( int $activity_id ): string {
+        if ( $activity_id <= 0 ) return '';
+        global $wpdb;
+
+        $date = $wpdb->get_var( $wpdb->prepare(
+            "SELECT session_date FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id,
+            CurrentClub::id()
+        ) );
+
+        $date = is_string( $date ) ? trim( $date ) : '';
+
+        return substr( $date, 0, 10 ) === '0000-00-00' ? '' : $date;
     }
 
     private function validDate( string $date ): string {
