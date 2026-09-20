@@ -65566,17 +65566,56 @@ msgstr "Geef de aankondiging een onderwerp."
 #. translators: %d: the maximum number of characters allowed in a subject
 #: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:70
 #, php-format
-msgid ""
-"Never closed: %1$d activity has passed and was never marked completed — %2$s"
-msgid_plural ""
-"Never closed: %1$d activities have passed and were never marked completed — "
-"%2$s"
-msgstr[0] ""
-"Nooit afgerond: %1$d activiteit is voorbij en is nooit op afgerond gezet — "
-"%2$s"
-msgstr[1] ""
-"Nooit afgerond: %1$d activiteiten zijn voorbij en zijn nooit op afgerond "
-"gezet — %2$s"
+msgid "Keep the subject to %d characters or fewer."
+msgstr "Houd het onderwerp op maximaal %d tekens."
+
+#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:76
+msgid "Write the message before continuing."
+msgstr "Schrijf het bericht voordat je verdergaat."
+
+#. translators: %d: number of people the announcement will be sent to
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:49
+#, php-format
+msgid "This announcement will be sent to %d person."
+msgid_plural "This announcement will be sent to %d people."
+msgstr[0] "Deze aankondiging wordt naar %d persoon verstuurd."
+msgstr[1] "Deze aankondiging wordt naar %d personen verstuurd."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:55
+msgid "Anybody who has switched announcements off will not receive it."
+msgstr "Wie aankondigingen heeft uitgezet, krijgt hem niet."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:56
+msgid "Outside your academy's messaging hours it is held and delivered the next morning."
+msgstr "Buiten de berichtuurtjes van je academie wordt hij vastgehouden en de volgende ochtend bezorgd."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:57
+msgid "It cannot be recalled, and nobody can reply to it. Every send is recorded in the message log."
+msgstr "Hij is niet terug te halen en niemand kan erop antwoorden. Elke verzending wordt vastgelegd in het berichtenlogboek."
+
+#. translators: %d: number of people the announcement will be sent to
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:79
+#, php-format
+msgid "I have read it back and it is ready to go to %d person."
+msgid_plural "I have read it back and it is ready to go to %d people."
+msgstr[0] "Ik heb hem nagelezen en hij kan naar %d persoon."
+msgstr[1] "Ik heb hem nagelezen en hij kan naar %d personen."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:95
+msgid "Confirm the announcement is ready before sending it."
+msgstr "Bevestig dat de aankondiging klaar is voordat je hem verstuurt."
+
+#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:124
+msgid "Nobody in this audience could be reached, so nothing was sent."
+msgstr "Niemand in deze doelgroep was bereikbaar, dus er is niets verstuurd."
+
+#: src/Modules/Wizards/TeamAnnouncement/NewTeamAnnouncementWizard.php:39
+msgid "New announcement"
+msgstr "Nieuwe aankondiging"
+
+#: src/Shared/CoreSurfaceRegistration.php:1589
+msgid "Announcement"
+msgstr "Aankondiging"
 
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:38
 msgid "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
@@ -65715,57 +65754,3 @@ msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
 msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
 msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
-msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
-msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
-msgid "Keep the subject to %d characters or fewer."
-msgstr "Houd het onderwerp op maximaal %d tekens."
-
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:76
-msgid "Write the message before continuing."
-msgstr "Schrijf het bericht voordat je verdergaat."
-
-#. translators: %d: number of people the announcement will be sent to
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:49
-#, php-format
-msgid "This announcement will be sent to %d person."
-msgid_plural "This announcement will be sent to %d people."
-msgstr[0] "Deze aankondiging wordt naar %d persoon verstuurd."
-msgstr[1] "Deze aankondiging wordt naar %d personen verstuurd."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:55
-msgid "Anybody who has switched announcements off will not receive it."
-msgstr "Wie aankondigingen heeft uitgezet, krijgt hem niet."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:56
-msgid "Outside your academy's messaging hours it is held and delivered the next morning."
-msgstr "Buiten de berichtuurtjes van je academie wordt hij vastgehouden en de volgende ochtend bezorgd."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:57
-msgid "It cannot be recalled, and nobody can reply to it. Every send is recorded in the message log."
-msgstr "Hij is niet terug te halen en niemand kan erop antwoorden. Elke verzending wordt vastgelegd in het berichtenlogboek."
-
-#. translators: %d: number of people the announcement will be sent to
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:79
-#, php-format
-msgid "I have read it back and it is ready to go to %d person."
-msgid_plural "I have read it back and it is ready to go to %d people."
-msgstr[0] "Ik heb hem nagelezen en hij kan naar %d persoon."
-msgstr[1] "Ik heb hem nagelezen en hij kan naar %d personen."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:95
-msgid "Confirm the announcement is ready before sending it."
-msgstr "Bevestig dat de aankondiging klaar is voordat je hem verstuurt."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:124
-msgid "Nobody in this audience could be reached, so nothing was sent."
-msgstr "Niemand in deze doelgroep was bereikbaar, dus er is niets verstuurd."
-
-#: src/Modules/Wizards/TeamAnnouncement/NewTeamAnnouncementWizard.php:39
-msgid "New announcement"
-msgstr "Nieuwe aankondiging"
-
-#: src/Shared/CoreSurfaceRegistration.php:1589
-msgid "Announcement"
-msgstr "Aankondiging"
