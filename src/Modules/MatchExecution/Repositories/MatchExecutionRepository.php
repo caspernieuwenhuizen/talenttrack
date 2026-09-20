@@ -362,19 +362,36 @@ class MatchExecutionRepository {
      * The scoreline is never touched. `tt_activities.home_score` is what
      * happened; attribution is what we know about it, and letting the second
      * rewrite the first is how the two came to disagree in the first place.
+     *
+     * `tt_match_execution.home_score` is a different number with a different
+     * rule: #2857 made it a readout of the goal log, so reversing a live row
+     * here re-derives it (#3705). Not a scoreline being rewritten — the same
+     * count, taken again.
      */
     public function setContributions( int $activity_id, int $player_id, int $goals, int $assists ): void {
         if ( $activity_id <= 0 || $player_id <= 0 ) return;
 
-        $this->reconcileGoals( $activity_id, $player_id, max( 0, $goals ) );
-        $this->reconcileAssists( $activity_id, $player_id, max( 0, $assists ) );
+        $touched = array_merge(
+            $this->reconcileGoals( $activity_id, $player_id, max( 0, $goals ) ),
+            $this->reconcileAssists( $activity_id, $player_id, max( 0, $assists ) )
+        );
+
+        // #3705 — the grid is a writer on the goal log like the live routes
+        // are, so the execution's stored score follows it down. Once per
+        // execution, after both reconciles: a player counted down by three
+        // goals is one sync, not three, and a correction that touched only
+        // manual rows is none.
+        foreach ( array_unique( $touched ) as $execution_id ) {
+            $this->syncScoresFromGoals( $execution_id );
+        }
     }
 
-    private function reconcileGoals( int $activity_id, int $player_id, int $target ): void {
+    /** @return list<int> executions whose goal rows this call reversed */
+    private function reconcileGoals( int $activity_id, int $player_id, int $target ): array {
         // Manual rows first in the ordering, so a count-down reverses what
         // was typed before what was observed.
         $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT event_uuid FROM {$this->t_goals}
+            "SELECT event_uuid, execution_id FROM {$this->t_goals}
               WHERE activity_id = %d AND club_id = %d AND player_id = %d
                 AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
            ORDER BY (execution_id IS NULL) DESC, id DESC",
@@ -382,21 +399,25 @@ class MatchExecutionRepository {
         ) );
 
         $current = count( $rows );
-        if ( $current === $target ) return;
+        if ( $current === $target ) return [];
 
         if ( $current < $target ) {
             for ( $i = $current; $i < $target; $i++ ) {
                 $this->insertManualGoal( $activity_id, $player_id, null );
             }
-            return;
+            return [];
         }
 
+        $touched = [];
         foreach ( array_slice( $rows, 0, $current - $target ) as $row ) {
             $this->reverseGoalEvent( (string) $row->event_uuid );
+            if ( $row->execution_id !== null ) $touched[] = (int) $row->execution_id;
         }
+        return $touched;
     }
 
-    private function reconcileAssists( int $activity_id, int $player_id, int $target ): void {
+    /** @return list<int> executions whose goal rows this call reversed */
+    private function reconcileAssists( int $activity_id, int $player_id, int $target ): array {
         $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT event_uuid, player_id, execution_id FROM {$this->t_goals}
               WHERE activity_id = %d AND club_id = %d AND assist_player_id = %d
@@ -406,15 +427,16 @@ class MatchExecutionRepository {
         ) );
 
         $current = count( $rows );
-        if ( $current === $target ) return;
+        if ( $current === $target ) return [];
 
         if ( $current < $target ) {
             for ( $i = $current; $i < $target; $i++ ) {
                 $this->attachAssist( $activity_id, $player_id );
             }
-            return;
+            return [];
         }
 
+        $touched = [];
         foreach ( array_slice( $rows, 0, $current - $target ) as $row ) {
             // A placeholder exists only to carry this assist. Clearing it
             // would leave a goal on the record that nobody scored and nobody
@@ -423,15 +445,24 @@ class MatchExecutionRepository {
 
             if ( $is_placeholder ) {
                 $this->reverseGoalEvent( (string) $row->event_uuid );
+                // Reported as a no-op today — a placeholder is manual by
+                // definition, so the guard above never admits a live row —
+                // but the caller decides on the id, not on that definition
+                // holding for ever.
+                if ( $row->execution_id !== null ) $touched[] = (int) $row->execution_id;
                 continue;
             }
 
+            // Clearing the assister off a live goal leaves the goal standing,
+            // so the score does not move and nothing needs re-deriving.
             $this->wpdb->query( $this->wpdb->prepare(
                 "UPDATE {$this->t_goals} SET assist_player_id = NULL
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
                 (string) $row->event_uuid, CurrentClub::id()
             ) );
         }
+
+        return $touched;
     }
 
     /**
