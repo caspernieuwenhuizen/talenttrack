@@ -513,6 +513,17 @@ class DemoCoverage {
             'written_by'  => PipelineGenerator::class,
             'depends_on'  => [ 'scouting_visit' ],
         ],
+        // #3711 — every sighting of a prospect, not just the discovery.
+        // Written by the same generator: a prospect is created with a
+        // discovery link (which becomes its first observation) and some of
+        // them are re-sighted at a later visit, which is the shape the
+        // feature exists for.
+        'tt_prospect_visit_observations' => [
+            'entity_type' => 'prospect_visit_observation',
+            'category'    => 'pipeline',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'prospect', 'scouting_visit' ],
+        ],
 
         // ===== Tournaments =====
 
@@ -1022,7 +1033,7 @@ class DemoCoverage {
         'pipeline' => [
             'tier'      => 'dependent',
             'run_order' => 150,
-            'cascade'   => [ 'prospect', 'scouting_visit' ],
+            'cascade'   => [ 'prospect_visit_observation', 'prospect', 'scouting_visit' ],
         ],
         'tournaments' => [
             'tier'      => 'dependent',
@@ -1385,7 +1396,7 @@ class DemoCoverage {
             'goals'       => __( 'Per-player development goals.', 'talenttrack' ),
             'journey'     => __( 'Timeline events written by the journey subscriber during generation.', 'talenttrack' ),
             'trials'      => __( 'Historical trial cases on existing players plus a couple of open ones, each with its staff panel, assessments and extensions.', 'talenttrack' ),
-            'pipeline'    => __( 'Scouting visits across the window and the prospects found on them.', 'talenttrack' ),
+            'pipeline'    => __( 'Scouting visits across the window, the prospects found on them, and the later visits some of those prospects were watched at again.', 'talenttrack' ),
             'tournaments' => __( 'A tournament per team with its squad, target minutes, fixtures and per-period assignments.', 'talenttrack' ),
             'staff_development' => __( 'Coaching badges, development plans and goals, evaluations with ratings, and mentor pairings for the club\'s staff.', 'talenttrack' ),
             'comms_ops'   => __( 'Conversations with their read state, saved filters, report presets, workflow tasks and invitations. No email is ever sent.', 'talenttrack' ),

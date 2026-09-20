@@ -9,9 +9,12 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 /**
  * ScoutingVisitsRepository — read/write `tt_scouting_plan_visits`.
  *
- * The visit entity sits next to `tt_prospects` and links many-to-one:
- * a single visit can produce zero or more prospects. The link is
- * carried on `tt_prospects.scouting_visit_id`.
+ * The visit entity sits next to `tt_prospects`. #3711 made the link
+ * many-to-many, in `tt_prospect_visit_observations`: a player can be
+ * watched at several visits, and recording the second one used to mean
+ * overwriting the first. `tt_prospects.scouting_visit_id` stays as the
+ * **discovery** visit — the cheap answer to "where was this player
+ * found" — and the observations table answers "and when else".
  */
 class ScoutingVisitsRepository {
 
@@ -134,12 +137,16 @@ class ScoutingVisitsRepository {
      */
     public function prospectCount( int $visit_id ): int {
         if ( $visit_id <= 0 ) return 0;
-        $prospects = $this->wpdb->prefix . 'tt_prospects';
+        // #3711 — counted from the observations, so the number agrees with
+        // the list below it.
+        $prospects    = $this->wpdb->prefix . 'tt_prospects';
+        $observations = $this->wpdb->prefix . 'tt_prospect_visit_observations';
         return (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT COUNT(*) FROM {$prospects}
-              WHERE club_id = %d
-                AND scouting_visit_id = %d
-                AND archived_at IS NULL",
+            "SELECT COUNT(*) FROM {$observations} o
+         INNER JOIN {$prospects} p ON p.id = o.prospect_id AND p.club_id = o.club_id
+              WHERE o.club_id = %d
+                AND o.scouting_visit_id = %d
+                AND p.archived_at IS NULL",
             CurrentClub::id(), $visit_id
         ) );
     }
@@ -155,14 +162,18 @@ class ScoutingVisitsRepository {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $visit_ids ), static fn( $v ) => $v > 0 ) ) );
         if ( ! $ids ) return [];
         $prospects    = $this->wpdb->prefix . 'tt_prospects';
+        $observations = $this->wpdb->prefix . 'tt_prospect_visit_observations';
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // #3711 — same source as `prospectCount()`, so the list's badge and
+        // the detail page's list cannot disagree.
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT scouting_visit_id AS vid, COUNT(*) AS c
-               FROM {$prospects}
-              WHERE club_id = %d
-                AND scouting_visit_id IN ({$placeholders})
-                AND archived_at IS NULL
-              GROUP BY scouting_visit_id",
+            "SELECT o.scouting_visit_id AS vid, COUNT(*) AS c
+               FROM {$observations} o
+         INNER JOIN {$prospects} p ON p.id = o.prospect_id AND p.club_id = o.club_id
+              WHERE o.club_id = %d
+                AND o.scouting_visit_id IN ({$placeholders})
+                AND p.archived_at IS NULL
+              GROUP BY o.scouting_visit_id",
             CurrentClub::id(), ...$ids
         ) );
         $out = [];
@@ -173,26 +184,40 @@ class ScoutingVisitsRepository {
     }
 
     /**
-     * Prospects logged from a visit (id, names, status).
+     * Prospects watched at a visit (id, names, status).
+     *
+     * #3711 — reads `tt_prospect_visit_observations`, not
+     * `tt_prospects.scouting_visit_id`. The column holds ONE visit, so a
+     * prospect linked to a later sighting would have dropped off the visit
+     * that discovered them. The migration backfills an observation for
+     * every existing discovery link, so this returns at least what the
+     * column used to. `observed_id` and `observed_at` come back with each
+     * row so the caller can offer to undo the link.
+     *
+     * #3604 — the columns are `date_of_birth` and a position LOOKUP id;
+     * the original query asked for `dob` and `position`, which
+     * tt_prospects has never had. MySQL refused it, so every visit
+     * listed nobody.
      *
      * @return object[]
      */
     public function prospectsForVisit( int $visit_id ): array {
         if ( $visit_id <= 0 ) return [];
-        $prospects = $this->wpdb->prefix . 'tt_prospects';
-        $lookups   = $this->wpdb->prefix . 'tt_lookups';
-        // #3604 — the columns are `date_of_birth` and a position LOOKUP id;
-        // the original query asked for `dob` and `position`, which
-        // tt_prospects has never had. MySQL refused it, so every visit
-        // listed nobody.
+        $prospects    = $this->wpdb->prefix . 'tt_prospects';
+        $lookups      = $this->wpdb->prefix . 'tt_lookups';
+        $observations = $this->wpdb->prefix . 'tt_prospect_visit_observations';
+
         $sql = $this->wpdb->prepare(
             "SELECT p.id, p.first_name, p.last_name, p.current_club,
                     p.date_of_birth, l.name AS position, p.archived_at,
-                    p.promoted_to_player_id, p.promoted_to_trial_case_id, p.discovered_at
-              FROM {$prospects} p
-              LEFT JOIN {$lookups} l ON l.id = p.preferred_position_lookup_id
-             WHERE p.club_id = %d
-               AND p.scouting_visit_id = %d
+                    p.promoted_to_player_id, p.promoted_to_trial_case_id, p.discovered_at,
+                    p.scouting_visit_id,
+                    o.id AS observation_id, o.observed_at, o.notes AS observation_notes
+              FROM {$observations} o
+        INNER JOIN {$prospects} p ON p.id = o.prospect_id AND p.club_id = o.club_id
+         LEFT JOIN {$lookups} l ON l.id = p.preferred_position_lookup_id
+             WHERE o.club_id = %d
+               AND o.scouting_visit_id = %d
              ORDER BY p.archived_at IS NULL DESC, p.discovered_at DESC, p.id DESC",
             CurrentClub::id(), $visit_id
         );

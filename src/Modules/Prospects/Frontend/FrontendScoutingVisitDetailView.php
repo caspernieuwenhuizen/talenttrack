@@ -82,13 +82,14 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         );
         FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
 
+        $visit_id = (int) $visit->id;
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
         // Editing and archiving a visit ask the same question as reading it
         // (owner, or the head of development), and the refusal above has
         // already answered it — one rule, one answer, asked once.
         $edit_url = add_query_arg(
-            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => (int) $visit->id ],
+            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => $visit_id ],
             $base_url
         );
         $page_actions[] = [
@@ -99,9 +100,9 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
-                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => (int) $visit->id ], $base_url )
+                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => $visit_id ], $base_url ) /* tt-xview-ok */
             );
-            $wizard_url = add_query_arg( [ 'from_visit' => (int) $visit->id ], $wizard_url );
+            $wizard_url = add_query_arg( [ 'from_visit' => $visit_id ], $wizard_url );
             $page_actions[] = [
                 'label'   => __( 'Log scouting find', 'talenttrack' ),
                 'href'    => $wizard_url,
@@ -118,7 +119,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $page_actions[] = [
             'label'      => __( 'Archive visit', 'talenttrack' ),
             'variant'    => 'danger',
-            'data_attrs' => [ 'tt-archive-visit' => (int) $visit->id ],
+            'data_attrs' => [ 'tt-archive-visit' => $visit_id ],
         ];
 
         wp_enqueue_script(
@@ -144,10 +145,83 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             ],
         ] );
 
+        // #3711 — linking an existing prospect is the write half of this
+        // screen, so it is enqueued under the same capability the
+        // "Log scouting find" action above uses.
+        $can_link = AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
+            && empty( $visit->archived_at );
+        if ( $can_link ) {
+            self::enqueueObservationAssets( $visit_id );
+        }
+
         self::renderHeader( $title, self::pageActionsHtml( $page_actions ) );
 
         self::renderFacts( $visit );
-        self::renderProspects( $visit );
+        self::renderProspects( $visit, $can_link );
+        if ( $can_link ) {
+            self::renderLinkExisting();
+        }
+    }
+
+    /**
+     * Boot data for the link-an-existing-prospect search. The prospects
+     * list route applies `ProspectScope` server-side, so the typeahead
+     * cannot surface a child the viewer may not already see.
+     */
+    private static function enqueueObservationAssets( int $visit_id ): void {
+        wp_enqueue_script(
+            'tt-scouting-visit-observations',
+            TT_PLUGIN_URL . 'assets/js/components/scouting-visit-observations.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-scouting-visit-observations', 'TT_VISIT_OBSERVATIONS', [
+            'rest_nonce'       => wp_create_nonce( 'wp_rest' ),
+            'prospects_url'    => esc_url_raw( rest_url( 'talenttrack/v1/prospects' ) ),
+            'observations_url' => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' . $visit_id . '/observations' ) ),
+            'i18n' => [
+                'searching'      => __( 'Searching…', 'talenttrack' ),
+                'no_results'     => __( 'No prospects match that name.', 'talenttrack' ),
+                'error_generic'  => __( 'Something went wrong. Please try again.', 'talenttrack' ),
+                'error_link'     => __( 'Could not link that prospect. Please try again.', 'talenttrack' ),
+                'error_unlink'   => __( 'Could not remove that link. Please try again.', 'talenttrack' ),
+                'network_error'  => __( 'Network error. Please try again.', 'talenttrack' ),
+                'confirm_unlink' => __( 'Remove this prospect from the visit?', 'talenttrack' ),
+            ],
+        ] );
+    }
+
+    /**
+     * The search box. Deliberately below the list: the question it
+     * answers is "who else was here", which only makes sense once you
+     * have read who is already on it.
+     */
+    private static function renderLinkExisting(): void {
+        ?>
+        <section class="tt-section tt-observation-link" data-tt-observations>
+            <h2 class="tt-section-title"><?php esc_html_e( 'Link an existing prospect', 'talenttrack' ); ?></h2>
+            <p class="tt-observation-hint">
+                <?php esc_html_e( 'Saw somebody you have already logged? Find them here instead of logging them twice.', 'talenttrack' ); ?>
+            </p>
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-observation-search">
+                    <?php esc_html_e( 'Search prospects by name', 'talenttrack' ); ?>
+                </label>
+                <input
+                    type="search"
+                    id="tt-observation-search"
+                    class="tt-input"
+                    inputmode="search"
+                    autocomplete="off"
+                    data-tt-observation-search
+                    placeholder="<?php esc_attr_e( 'Start typing a name…', 'talenttrack' ); ?>"
+                >
+            </div>
+            <p class="tt-observation-status" role="status" aria-live="polite" data-tt-observation-status></p>
+            <ul class="tt-observation-results" data-tt-observation-results></ul>
+        </section>
+        <?php
     }
 
     protected static function enqueueAssets(): void {
@@ -223,18 +297,21 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         <?php
     }
 
-    private static function renderProspects( object $visit ): void {
-        $repo = new ScoutingVisitsRepository();
-        $rows = $repo->prospectsForVisit( (int) $visit->id );
+    private static function renderProspects( object $visit, bool $can_link = false ): void {
+        $repo     = new ScoutingVisitsRepository();
+        $visit_id = (int) $visit->id;
+        $rows     = $repo->prospectsForVisit( $visit_id );
 
-        echo '<section class="tt-section tt-svisit-prospects">';
-        echo '<h2 class="tt-section-title">' . esc_html__( 'Prospects logged from this visit', 'talenttrack' ) . '</h2>';
+        echo '<section class="tt-section tt-svisit-prospects" data-tt-observations>';
+        echo '<h2 class="tt-section-title">' . esc_html__( 'Prospects watched at this visit', 'talenttrack' ) . '</h2>';
         if ( empty( $rows ) ) {
             echo '<p class="tt-empty">' . esc_html__( 'No prospects logged from this visit yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-observation-status" role="status" aria-live="polite" data-tt-observation-status></p>';
             echo '</section>';
             return;
         }
         ?>
+        <p class="tt-observation-status" role="status" aria-live="polite" data-tt-observation-status></p>
         <div class="tt-table-wrap">
             <table class="tt-table tt-table-sortable">
                 <thead>
@@ -243,8 +320,11 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                         <th><?php esc_html_e( 'Birth year', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Club', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Position', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Logged', 'talenttrack' ); ?></th>
+                        <th><?php echo esc_html( _x( 'Seen', 'date a prospect was watched at this scouting visit', 'talenttrack' ) ); ?></th>
                         <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                        <?php if ( $can_link ) : ?>
+                            <th><span class="tt-sr-only"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
@@ -270,10 +350,32 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             <td><?php echo esc_html( $birth_year ); ?></td>
                             <td><?php echo esc_html( (string) ( $p->current_club ?? '' ) ); ?></td>
                             <td><?php echo esc_html( (string) ( $p->position ?? '' ) ); ?></td>
-                            <td data-sort="<?php echo esc_attr( (string) ( $p->discovered_at ?? '' ) ); ?>">
-                                <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $p->discovered_at ?? '' ) ) ); ?>
+                            <?php
+                            // #3711 — the date of THIS sighting, not the
+                            // prospect's discovery date. They are the same
+                            // for a first sighting and different for every
+                            // one after it, which is the whole point.
+                            $seen_at = (string) ( $p->observed_at ?? '' );
+                            if ( $seen_at === '' ) $seen_at = (string) ( $p->discovered_at ?? '' );
+                            $observation_id = (int) ( $p->observation_id ?? 0 );
+                            ?>
+                            <td data-sort="<?php echo esc_attr( $seen_at ); ?>">
+                                <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $seen_at ) ); ?>
+                                <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === $visit_id ) : ?>
+                                    <span class="tt-observation-badge"><?php echo esc_html_x( 'Discovered here', 'scouting visit', 'talenttrack' ); ?></span>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo esc_html( $status ); ?></td>
+                            <?php if ( $can_link ) : ?>
+                                <td>
+                                    <?php if ( $observation_id > 0 ) : ?>
+                                        <button type="button" class="tt-btn tt-btn-secondary tt-observation-unlink"
+                                            data-tt-observation-unlink="<?php echo esc_attr( (string) $observation_id ); ?>">
+                                            <?php esc_html_e( 'Remove from visit', 'talenttrack' ); ?>
+                                        </button>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
                         </tr>
                     <?php endforeach; ?>
                 </tbody>

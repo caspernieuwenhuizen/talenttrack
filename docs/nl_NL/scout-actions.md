@@ -55,7 +55,8 @@ Klik je op een kaart, dan opent het prospectpaneel boven het bord. Naast de
 naam, de fase en de volgende actie toont het de scoutingnotities die je bij het
 vastleggen van de vondst hebt geschreven, en — als de prospect aan een
 scoutingbezoek is gekoppeld — een regel **Gevonden bij** met de datum, het
-evenement en de scout van dat bezoek, die doorlinkt naar het bezoek zelf. Zo is
+evenement en de scout van dat bezoek, die doorlinkt naar het bezoek zelf. Is hij
+sindsdien opnieuw bekeken, dan telt een regel eronder de latere bezoeken. Zo is
 "waar komt deze speler vandaan" te beantwoorden zonder het bord te verlaten.
 Beide zijn hier alleen-lezen; de notities leg je vast bij de vondst. Een collega
 die wel de trechter leest maar niet de scoutingplanner, zoals een hoofdtrainer
@@ -110,23 +111,45 @@ je gaat en leg je vast wat elk bezoek opleverde. Door ze in het systeem te
 plannen ziet de academie de dekking — welke leeftijdsgroepen en welke regio's
 echt worden bekeken — in plaats van dat het in jouw hoofd zit.
 
-Zie je iemand, open dan het bezoek en gebruik **Leg scoutingbevinding vast**. De
-prospect die je vastlegt wordt aan dat bezoek gekoppeld, en het bezoek toont
-hem daarna. Het evenement wordt vanuit het bezoek ingevuld, zodat je het niet
-twee keer typt. Die koppeling is waar de speler vandaan kwam, en blijft op
-zijn dossier staan.
+Zie je iemand voor het eerst, open dan het bezoek en gebruik **Leg
+scoutingbevinding vast**. De prospect die je vastlegt wordt aan dat bezoek
+gekoppeld, en het bezoek toont hem daarna. Het evenement wordt vanuit het bezoek
+ingevuld, zodat je het niet twee keer typt. Die koppeling is waar de speler
+vandaan kwam, en blijft op zijn dossier staan.
+
+### Vastleggen dat je iemand opnieuw hebt gezien
+
+Dezelfde speler een tweede keer zien is eerder regel dan uitzondering. Onderaan
+een bezoek staat **Koppel een bestaande prospect**: typ een naam en de
+prospects die jij al mag inzien verschijnen terwijl je typt. Tik er een aan en
+hij staat bij het bezoek.
+
+De eerdere koppeling wordt niet overschreven. Het bezoek waarop een speler is
+ontdekt blijft dat zeggen — het staat gemarkeerd als **Hier ontdekt** in de
+lijst van dat bezoek — en elk later bezoek is een extra waarneming. Op het
+pipelinebord noemt de regel **Gevonden bij** nog steeds het eerste bezoek, met
+daaronder "Gezien bij 2 latere bezoeken", zodat "waar komt deze speler vandaan"
+en "hoe vaak hebben we hem bekeken" twee vragen met twee antwoorden blijven.
+
+De zoekfunctie geeft alleen prospects terug die je toch al kon openen. Staat
+iemand er niet bij van wie je zeker weet dat hij bestaat, dan valt hij buiten
+jouw inzage — hij ontbreekt niet.
+
+Koppel je de verkeerde persoon, dan maakt **Verwijder van bezoek** op zijn regel
+het ongedaan. Dat verwijdert de waarneming, niet de prospect.
 
 ## Wat nog niet kan
 
 Eén ding dat een scout redelijkerwijs verwacht, is nog niet gebouwd:
 
 - **Een notitie toevoegen aan een prospect die je al hebt vastgelegd.** Notities
- worden bij het aanmaken vastgelegd en kunnen daarna niet worden aangevuld.
- Dezelfde speler een tweede keer zien is eerder regel dan uitzondering, dus dit
- staat op de backlog.
+ worden bij het aanmaken vastgelegd en kunnen daarna niet worden aangevuld. Dát
+ je hem opnieuw hebt gezien kun je nu wel vastleggen, door hem aan het latere
+ bezoek te koppelen; wat je die dag van hem vond heeft nog geen plek.
 
-Zolang dat zo is: zet latere waarnemingen in je bericht aan het hoofd opleiding,
-in plaats van ervan uit te gaan dat het dossier ze meeneemt.
+Zolang dat zo is: zet je oordeel over een latere waarneming in je bericht aan
+het hoofd opleiding, in plaats van ervan uit te gaan dat het dossier het
+meeneemt.
 
 ## Zie ook
 
