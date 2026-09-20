@@ -740,8 +740,46 @@ zonder dat er iets faalt.
 
 `TeamCourseCoverage::forTeam( $team_id, $course_slug )` beantwoordt het in één
 query, met `tt_user_role_scopes` (staf gekoppeld aan het team) tegen
-`tt_course_enrolments`. Bewust een `LEFT JOIN`: wie nooit begonnen is, ís het
-antwoord op de vraag en geen rij om weg te laten.
+`tt_course_enrolments`.
+
+**Alleen ingeschreven staf.** De lijst begon als een `LEFT JOIN` die iedereen
+zonder inschrijving als *niet begonnen* rapporteerde, met als redenering dat
+een trainer die nooit begon bij het antwoord hoort. Dat klopt — maar het is
+een ánder antwoord, en het in de inschrijvingswoordenschat uitdrukken maakte
+de twee ononderscheidbaar. "Niemand heeft deze trainer ooit voor de cursus
+aangemeld" las precies als "we hebben het gevraagd en hij is niet begonnen",
+en het enige onderscheid was iemand proberen in te schrijven en kijken of er
+een nieuwe rij verscheen.
+
+De lijst is dus inschrijvingsgebaseerd, en de vraag die ze beantwoordt is
+*hoe vergaat het dit team met de cursus*. **Wie nog toegewezen moet worden**
+is de vraag van de toewijswizard, want dat is het scherm dat er iets aan kan
+doen. De teamsamenvatting geeft drie getallen in plaats van twee:
+
+| | wat het telt |
+| --- | --- |
+| `total` | de staf van het team die op de cursus zit |
+| `done` | hoeveel daarvan afgerond hebben |
+| `assigned` | de actieve staf van het team, op de cursus of niet |
+
+`assigned` min `total` is hoeveel mensen nog nergens op ingeschreven staan —
+`unenrolled` in de REST-payload. Dat bestaat zodat een scherm *niemand van
+dit team is nog ingeschreven* kan zeggen in plaats van een leeg paneel te
+tonen dat kapot lijkt. Het rapport doet precies dat, en noemt in dezelfde zin
+de toewijswizard.
+
+Elke stafrij draagt zijn `due_at` en een `is_overdue`-vlag, afgeleid uit
+`EnrolmentRepository::isOverdue()` — dezelfde regel als de chip op de
+cursuskaart en de achterstandsteller in het overzicht, zodat een deadline
+niet op het ene scherm te laat en op het andere op tijd kan zijn.
+
+**Eén telpad.** `TeamCourseCoverage::summaryFor()` en
+`LearningStatisticsService::forCourse()` lezen allebei
+`LearningStatisticsService::countsFor()`, dat optioneel een team meekrijgt.
+Daarvóór telde het overzicht clubbrede inschrijvingsrijen en de teamweergave
+aan het team gekoppelde personen, en stonden beide getallen in dezelfde
+`/courses/{slug}/statistics`-response — waar twee eerlijke antwoorden op twee
+verschillende vragen als een fout lezen.
 
 **Dit koppelt niet op methodiek, en het epic zei van wel.** Bij het bouwen
 bleek waarom dat niet kan. `tt_principles` bevat tactische spelprincipes met
