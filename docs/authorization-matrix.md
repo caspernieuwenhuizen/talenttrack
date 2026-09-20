@@ -399,6 +399,25 @@ Effect on personas (from the shipped seed):
 
 The WordPress settings-admin / administrator path is preserved as a fallback on the rendered surfaces, so an operator running the WP install never loses access while a club's matrix is still dormant. No matrix entity, seed, or migration changed — this is a call-site refactor onto the existing grants.
 
+### Analytics: narrow where you can, refuse where you can't
+
+`tt_view_analytics` is a matrix-only capability bridging to `analytics: read`, and it is answered with **any scope**. A *team*-scoped grant therefore makes the capability true on every analytics surface — including those that have no team to narrow to. That was invisible while the only holders were Head of Development and Academy Admin, both global; the team manager (#3770) is the first team-scoped holder, and that grant is explicitly team-only.
+
+So the capability is not, on its own, the scope answer. The rule (#3832) is:
+
+- **A surface that can narrow to one team does**, and a team-scoped reader sees their own squads there. The attendance reports (team, player, leaderboard), the minutes audit, the minutes team report, the monthly team report and the cohort board and potential overview all narrow inside their own queries, through `AllTeamsScope` / `get_teams_for_coach()`.
+- **A surface that cannot narrow asks for global-scope read on `analytics`**, through `AllTeamsScope::canSeeClubWideAnalytics()`, and refuses a team-scoped reader with a message rather than an empty page:
+
+| Club-wide analytics surface | Why it has no team to narrow to |
+| - | - |
+| Evaluation-window coverage (`?tt_view=eval-coverage`) | Coverage over one team is a different report; the screen is the academy's matrix. |
+| Dimension explorer (`?tt_view=explore`) | The explorer roams every dimension in the club by design. |
+| Scheduled reports (`?tt_view=scheduled-reports`) | Managing schedules is not reading a team; a schedule mails the academy on a clock. |
+
+The analytics hub (`?tt_view=analytics`) sits between the two: it **narrows** — a team-scoped reader gets their own squads, their players and their activities in the left rail, and the academy-wide KPI grid is replaced by a line saying what would be needed to see it. Passing an entity id the rail would not offer is refused; an id in a URL is not an authorisation.
+
+This is access-preserving: Head of Development and Academy Admin are the only holders of global `analytics` read, and nothing grants `tt_view_analytics` as a raw WordPress role capability, so nobody loses a surface they use today.
+
 ## Matrix entity `recycle_bin` — permanent deletion
 
 The recycle bin (archive → trash → purge) introduces one new matrix entity:

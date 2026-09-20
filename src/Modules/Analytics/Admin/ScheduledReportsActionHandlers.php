@@ -161,8 +161,18 @@ final class ScheduledReportsActionHandlers {
         self::redirectBack( $msg );
     }
 
+    /**
+     * #3832 — the same pair the management view checks. A refusal on the
+     * screen and an open write handler behind it is not a refusal; the
+     * capability is true for a team-scoped analytics grant, and schedules
+     * are academy-wide.
+     */
     private static function guard(): void {
-        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+        $user_id = get_current_user_id();
+        if ( ! current_user_can( 'tt_view_analytics' )
+            || ! ( current_user_can( 'tt_edit_settings' )
+                || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id ) )
+        ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
     }

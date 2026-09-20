@@ -395,6 +395,25 @@ Effect op persona's (uit de geleverde seed):
 
 Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terugval op de gerenderde schermen, zodat een operator die de WP-installatie beheert nooit toegang verliest terwijl de matrix van een club nog sluimert. Er is geen matrix-entiteit, seed of migratie gewijzigd — dit is een call-site-refactor op de bestaande toekenningen.
 
+### Analyse: beperk waar het kan, weiger waar het niet kan
+
+`tt_view_analytics` is een matrix-only capability die naar `analytics: read` brugt, en wordt beantwoord met **elke scope**. Een toekenning op *teamscope* maakt de capability dus waar op elk analyse-scherm — ook op schermen die geen team hebben om toe te beperken. Dat bleef onzichtbaar zolang alleen Head of Development en Academy Admin die toekenning hadden, allebei globaal; de teammanager (#3770) is de eerste houder op teamscope, en die toekenning is uitdrukkelijk alleen voor het eigen team.
+
+De capability is op zichzelf dus geen antwoord op de scopevraag. De regel (#3832) luidt:
+
+- **Een scherm dat tot één team kan beperken, doet dat**, en een lezer op teamscope ziet daar zijn eigen teams. De aanwezigheidsrapporten (team, speler, ranglijst), de minutencontrole, het minutenrapport per team, het maandrapport, het cohortbord en het potentieeloverzicht beperken allemaal binnen hun eigen query, via `AllTeamsScope` / `get_teams_for_coach()`.
+- **Een scherm dat niet kan beperken, vraagt om globale leestoegang op `analytics`**, via `AllTeamsScope::canSeeClubWideAnalytics()`, en weigert een lezer op teamscope met een bericht in plaats van een lege pagina:
+
+| Clubbreed analyse-scherm | Waarom er geen team is om toe te beperken |
+| - | - |
+| Evaluatiedekking (`?tt_view=eval-coverage`) | Dekking over één team is een ander rapport; dit scherm is de matrix van de academie. |
+| Dimensieverkenner (`?tt_view=explore`) | De verkenner doorkruist per ontwerp elke dimensie in de club. |
+| Geplande rapporten (`?tt_view=scheduled-reports`) | Planningen beheren is geen team lezen; een planning mailt de academie op een klok. |
+
+Het analyse-startscherm (`?tt_view=analytics`) zit ertussenin: het **beperkt** — een lezer op teamscope krijgt zijn eigen teams, spelers en activiteiten in de linkerkolom, en het academiebrede KPI-raster wordt vervangen door een regel die zegt wat ervoor nodig is. Een entiteit-id meegeven dat de kolom niet zou aanbieden wordt geweigerd; een id in een URL is geen toestemming.
+
+Dit verandert niets aan bestaande toegang: alleen Head of Development en Academy Admin hebben globale leestoegang op `analytics`, en geen enkele WordPress-rol krijgt `tt_view_analytics` rechtstreeks, dus niemand verliest een scherm dat hij vandaag gebruikt.
+
 ## Matrix-entiteit `recycle_bin` — definitief verwijderen
 
 De prullenbak (archiveren → prullenbak → opschonen) introduceert één nieuwe

@@ -334,6 +334,20 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * generic copy is kept (used by the scope-guard early-returns, where a
      * filter genuinely does exist upstream).
      */
+    /**
+     * #3832 — a team outside the reader's scope, said as a refusal.
+     *
+     * Six standard reports answered that case with `renderEmpty()`, which
+     * prints "No data for this selection" — a statement about the team's
+     * month, on a team the reader may not open. #2893 settled the
+     * principle for the attendance drill-down and #3792 for the minutes
+     * audit; this is the same mistake on the rendered side, where a reader
+     * could conclude a squad had done nothing.
+     */
+    private static function renderTeamRefused(): void {
+        echo '<p class="tt-notice">' . esc_html__( 'This team is outside your access, so this report cannot be shown for it.', 'talenttrack' ) . '</p>';
+    }
+
     private static function renderEmpty( ?string $message = null ): void {
         echo '<div class="tt-rep-section"><div class="tt-rep-empty">';
         echo '<strong>' . esc_html__( 'No data for this selection', 'talenttrack' ) . '</strong>';
@@ -513,7 +527,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( (int) ( $player->team_id ?? 0 ), $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( __( 'Player · Minutes played', 'talenttrack' ) );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
         $name = QueryHelpers::player_display_name( $player );
@@ -683,7 +697,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( $team_id, $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( __( 'Team · Minutes share', 'talenttrack' ) );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
 
@@ -887,7 +901,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( $team_id, $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( $title );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
 
@@ -963,7 +977,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( $team_id, $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( __( 'Team · Minutes distribution', 'talenttrack' ) );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
 
@@ -1181,7 +1195,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( $team_id, $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( __( 'Team · Squad evaluation summary', 'talenttrack' ) );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
         // #2345 — shared FilterBar + season-default window, replacing the
@@ -1295,7 +1309,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             && ! in_array( $team_id, $scope['allowed_team_ids'], true )
         ) {
             self::renderHeader( $title );
-            self::renderEmpty();
+            self::renderTeamRefused();
             return;
         }
 

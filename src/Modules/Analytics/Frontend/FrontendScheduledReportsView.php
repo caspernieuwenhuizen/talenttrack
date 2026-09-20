@@ -59,9 +59,15 @@ class FrontendScheduledReportsView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+        // #3832 — managing schedules is not reading a team: a schedule
+        // sends a report to people on a clock, academy-wide. A team-scoped
+        // analytics grant is refused rather than handed the whole list.
+        $club_wide = $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
+        if ( ! current_user_can( 'tt_view_analytics' ) || ! $club_wide ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage scheduled reports.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html( current_user_can( 'tt_view_analytics' )
+                ? __( 'Scheduled reports are managed academy-wide, and your analytics access is limited to your own teams.', 'talenttrack' )
+                : __( 'You do not have permission to manage scheduled reports.', 'talenttrack' ) ) . '</p>';
             return;
         }
 

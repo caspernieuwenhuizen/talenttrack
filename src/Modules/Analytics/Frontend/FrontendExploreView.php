@@ -63,9 +63,16 @@ class FrontendExploreView extends FrontendViewBase {
         // First statement, ahead of the CSV and PDF branches below —
         // those stream the fact rows, so a gate after them would be a
         // gate on the page and not on the data.
-        if ( ! current_user_can( 'tt_view_analytics' ) ) {
+        // #3832 — and the scope, not only the capability. The explorer
+        // roams the whole club by design: there is no team to narrow a
+        // dimension to, so a team-scoped analytics grant is refused here
+        // rather than answered with the academy's facts.
+        $club_wide = $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
+        if ( ! current_user_can( 'tt_view_analytics' ) || ! $club_wide ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view central analytics.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html( current_user_can( 'tt_view_analytics' )
+                ? __( 'The explorer reads across the whole academy, and your analytics access is limited to your own teams.', 'talenttrack' )
+                : __( 'You do not have permission to view central analytics.', 'talenttrack' ) ) . '</p>';
             return;
         }
 

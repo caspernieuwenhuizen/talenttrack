@@ -1,0 +1,45 @@
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:56
+msgid ""
+"This report covers the whole academy, and your analytics access is limited "
+"to your own teams."
+msgstr ""
+"Dit rapport gaat over de hele academie, en jouw analysetoegang is beperkt "
+"tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:72
+msgid ""
+"The explorer reads across the whole academy, and your analytics access is "
+"limited to your own teams."
+msgstr ""
+"De verkenner leest over de hele academie, en jouw analysetoegang is beperkt "
+"tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
+msgid ""
+"Scheduled reports are managed academy-wide, and your analytics access is "
+"limited to your own teams."
+msgstr ""
+"Geplande rapporten worden academiebreed beheerd, en jouw analysetoegang is "
+"beperkt tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:76
+msgid ""
+"Your analytics access is limited to your own teams, and this is not one of "
+"them."
+msgstr ""
+"Jouw analysetoegang is beperkt tot je eigen teams, en dit is er daar geen "
+"van."
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:105
+msgid ""
+"Academy-wide KPIs need analytics access across the whole club. Pick one of "
+"your teams, its players or an activity on the left to see their analytics."
+msgstr ""
+"Academiebrede KPI's vragen analysetoegang over de hele club. Kies links een "
+"van je teams, zijn spelers of een activiteit om hun analyses te zien."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:349
+msgid "This team is outside your access, so this report cannot be shown for it."
+msgstr ""
+"Dit team valt buiten jouw toegang, dus dit rapport kan er niet voor worden "
+"getoond."
