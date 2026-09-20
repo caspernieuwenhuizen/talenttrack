@@ -335,6 +335,45 @@ zinvolle bereikdimensie — de doelgroep wordt per verzending gekozen, vóór ee
 bevestigingsstap die het aantal ontvangers noemt en vermeldt dat zij het niet
 kunnen weigeren.
 
+## Teamaankondigingen — `tt_send_team_announcement` / `tt_send_academy_announcement`
+
+Een aankondiging is het gewone nieuws dat de gezinnen van een team moeten
+weten. Anders dan het veiligheidsbericht is hij dus weigerbaar en houden de
+stiltetijden hem vast. Wat wél nodig blijft, is een grens op *hoe ver* het
+nieuws van één persoon reist, en dat zijn twee capabilities in plaats van
+één, want dit zijn twee verschillende handelingen.
+
+**`tt_send_team_announcement`** bereikt de gezinnen van de teams waaraan de
+afzender is gekoppeld, en verder niemand. Standaard bij de rollen **Coach**
+en **Staf** — de hoofdtrainer en de teammanager zijn de mensen om wie het
+gaat. De toekenning is breed en in de praktijk toch smal: de capability zegt
+dát iemand mag aankondigen, de teamkoppeling zegt bij wie, en wie hem heeft
+zonder teamkoppeling bereikt niemand. Een academie die de beheerder moet
+vragen om twaalf gezinnen te vertellen dat het veld dicht is, gebruikt
+gewoon weer WhatsApp — en dat is precies wat dit moet beëindigen.
+
+**`tt_send_academy_announcement`** bereikt elk team, een leeftijdscategorie
+of alle gezinnen tegelijk. Standaard bij de **WordPress-administrator**, het
+**hoofd ontwikkeling** en de rol **Academiebeheerder**. Gezinnen bereiken van
+wie deze persoon het kind niet traint is een handeling op academieniveau, dus
+is het een recht op academieniveau. Het impliceert het teamniveau — wie
+iedereen mag aanschrijven, mag ook één ploeg aanschrijven.
+
+Beide blijven buiten `RolesService::VIEW_CAPS` / `EDIT_CAPS`, net als de twee
+blokken hierboven, zodat geen van beide doorsijpelt naar de Alleen-lezen
+waarnemer.
+
+**De doelgroep wordt bij binnenkomst gecontroleerd, niet pas bij het
+versturen.** De capability opent de routes; `MassAnnouncementSender::canSend()`
+bepaalt vervolgens of deze afzender *deze* doelgroep mag bereiken, en de
+REST-route vraagt dat vóórdat er iets wordt verstuurd. Een teamgebonden
+afzender die het id van een ander team meestuurt, krijgt een 403. De optie
+verbergen in de keuzelijst is de beleefdheid; de weigering is de regel.
+
+Puur capability-gestuurd, **geen matrix-entiteit**, om dezelfde reden als bij
+het veiligheidsbericht: de doelgroep wordt per verzending gekozen en niet als
+scope gemodelleerd.
+
 ## Modulebeheer — `tt_manage_modules` / `module_management`
 
 Een hele TalentTrack-module aan- of uitzetten is een beheerder-niveau

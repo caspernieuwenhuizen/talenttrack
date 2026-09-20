@@ -188,7 +188,9 @@ final class TemplateGuide {
                 'what'      => __( 'An announcement written by the academy and sent to a group at once.', 'talenttrack' ),
                 'who'       => __( 'The teams, age groups or roles the sender picks.', 'talenttrack' ),
                 'when'      => __( 'When somebody sends an announcement.', 'talenttrack' ),
-                'triggered' => false,
+                // #3693 — wired. Before that, ticking this row changed
+                // nothing, because nothing could construct the message.
+                'triggered' => true,
             ],
             'direct_message' => [
                 'family'    => self::FAMILY_TRANSACTIONAL,
