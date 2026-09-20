@@ -1,3 +1,370 @@
+# TalentTrack v4.129.0 — Evaluation detail, update and archive are scoped to the caller (#3566)
+
+The single-evaluation routes now verify that the evaluation's player is within
+the caller's scope. `GET /evaluations/{id}` checks the same pair the
+`players/{id}/evaluations` route has always enforced, and the update and
+archive routes check the row's existing player rather than only a submitted
+one.
+
+# TalentTrack v4.129.0 — A read-only observer can open one player's evaluations, not only export them all (#3644)
+
+The Read-Only Observer could pull every team's evaluations, goals and player
+lists into a spreadsheet and was refused the same data on a single player's
+page. Both routes were asking whether the account may read the record, and they
+were asking two different authorities: the exports resolve through the
+capability matrix, the per-record path did not consult it at all.
+
+It does now. A role whose access is granted purely by the authorization matrix —
+the observer, and a scout with no team assignment, and any future persona in the
+same position — resolves on the per-player routes as well as the bulk ones. The
+fix is not specific to the observer seat, because the gap was not either.
+
+Nothing widens on the write side: only read permissions are bridged, an account
+with no matrix grant and no role assignment is refused exactly as before, and no
+export's capability was narrowed.
+
+# TalentTrack v4.129.0 — Parents can see every contact detail the academy holds about them (#3691)
+
+**My settings** ends with a read-only card, **What the academy holds about you**: the
+account details a parent manages themselves, their contact record when the academy keeps
+one, and — per child — the contact details recorded on that child's file. The three stores
+can disagree, and until now the third was invisible to the family whose number it was.
+
+Only details that are the caller's own are shown. A guardian field naming somebody else —
+the other parent, a grandparent, an emergency contact — stays hidden, the rule that made
+the player file's guardians card staff-only in the first place. Matching ignores case,
+spacing and phone formatting, so `+31 6 12345678` and `06 12345678` are recognised as one
+number.
+
+The same answer is available to a non-WordPress client at `GET /me/contact-details`, which
+like the rest of `me` takes no id and answers only for the caller.
+
+# TalentTrack v4.129.0 — Team announcements: tell a squad's families something, inside the record (#3693)
+
+A coach or team manager with news for a team's families — the pitch is closed,
+bring a white shirt on Saturday — had no way to say it in TalentTrack, so it
+went out over WhatsApp: outside the academy's record, its messaging hours and
+the preferences families had set. The **Announcement** tile now opens a
+three-step wizard — audience, message, confirm — and nothing is sent until the
+last step, which states the exact number of people it reaches and shows the
+message as a family will read it.
+
+Two permissions, because there are two acts. A head coach or team manager
+announces to the teams they are assigned to and no others; Head of Development
+and the academy admin announce to any team, an age group, or every family at
+once. The boundary is enforced when the message is sent, not only in the
+dropdown.
+
+An announcement is an ordinary message and behaves like one: a family who has
+switched announcements off does not receive it, and one written outside your
+academy's messaging hours is held until the morning. There is no override —
+news that cannot wait until seven is a cancellation, which already has its own
+message and goes out at once.
+
+# TalentTrack v4.129.0 — Coaches and team managers can run their own team's tournament (#3703)
+
+The tournament planner shipped admin-only, which meant that on the day a
+tournament is played the people who pick the squad and share out the minutes
+could not open it. They logged the day as a plain activity of type
+"tournament" instead, so its matches, its squad and its fair-share minutes
+never reached the module the feature was built for.
+
+Head coaches, assistant coaches and team managers now see and run the
+tournaments of the teams they are assigned to, creating included. The Head of
+Development sees every tournament in the academy; academy admins are
+unchanged. There is no scout grant.
+
+A tournament's squad can be drawn from more than one team, and access follows
+the whole set rather than the anchor team alone. You can open and plan a
+tournament when any of its teams is one of yours; you can delete it only when
+all of them are, because deleting takes the fixture away from every squad in
+it. A delete that reaches past your teams is refused with a message that says
+so, rather than a bare "not authorized" you cannot tell from a bug. The
+tournaments list narrows to your own teams in the query, so you are never
+handed another age group's squad. Existing installs get the new grants from a
+top-up migration that never overwrites a matrix row an operator has edited.
+
+# TalentTrack v4.129.0 — Assistant coaches read their team's formation, and both coaches read its training load (#3706)
+
+An assistant coach could see the line-up on the pitch but not the formation
+it came from: the #1060 "assistant coach is operational" decision removed the
+`team_chemistry` grant, and that entity also carries the team formation and
+the blueprint. The assistant coach now reads it — own teams only, read-only,
+with authoring still the head coach's. The chemistry board opens with it,
+deliberately: one entity governs both, and the assistant coach already stands
+in front of the squad it describes.
+
+The team training load (`vct/teams/{id}/workload`) refused *both* coach
+personas, not only the assistant — neither held the `vct_workload` row, while
+the VCT documentation already said the head coach did. Both now read the load
+for their own teams. Existing installs get the three rows from a top-up
+migration, which never overwrites a matrix row an operator has edited.
+
+# TalentTrack v4.129.0 — A course deadline can be moved without losing anyone's progress (#3708)
+
+An enrolment's deadline was fixed the moment it was created. When the academy
+moved a staff course target — say from 7 September to 18 December — every
+existing enrolment kept the old date, showed as overdue and fed the overdue
+alerts and the learning statistics against a target that had already been
+dropped. The only way out was to withdraw the coach and re-assign them, which
+threw away everything they had read and handed in.
+
+`PATCH /talenttrack/v1/enrolments/{id}` now moves the deadline, and
+`{"due_at": null}` clears it. Status, start date and progress are left exactly
+as they were. It asks for the same capability as withdrawing somebody, because
+moving their deadline is the same class of decision. Once the new date is in
+the future the enrolment drops out of the overdue listing, so the alert
+resolves on the next reconcile.
+
+# TalentTrack v4.129.0 — Scouts can record that they saw a prospect again (#3711)
+
+A prospect was linked to exactly one scouting visit, on a single column, and no
+screen could change it. A scout who saw a player they had already logged could
+either create a duplicate prospect or leave the second sighting unrecorded —
+and the only way to record it at all would have been to overwrite the first,
+which is the answer to "where did this player come from".
+
+Sightings are now their own records. At the bottom of a scouting visit there is
+**Link an existing prospect**: type a name, pick from the prospects you can
+already see, and they are added to the visit. The visit that discovered a player
+keeps saying so, marked **Discovered here**, and every later visit is an extra
+sighting. The pipeline board's **Found at** line still names the first visit and
+now counts the ones after it. A wrong link comes off again with **Remove from
+visit**.
+
+The search only returns prospects the viewer could already open — these are
+children, and a name that appears in a picker is a disclosure. Existing links
+are carried across by the upgrade, so no discovery context is lost, and the
+sightings are reachable over the API as well as the screen.
+
+# TalentTrack v4.129.0 — Tournament opponent levels show their translated label (#3713)
+
+The opponent level on a tournament match used to print the value stored in the
+database — `equal`, `much_stronger` — rather than the label the academy reads.
+It now resolves through the lookup's translation on all four surfaces that show
+it: the chip on the tournament's match programme, the level dropdown on the
+add-match form, the wizard's match step, and the wizard's review summary. On a
+Dutch install those read "Gelijkwaardig" and "Veel sterker". A level an operator
+added without a translation still shows its own name rather than an empty chip,
+and the value stored on the match is unchanged, so existing matches keep the
+level they were given.
+
+# TalentTrack v4.129.0 — The Head of Development can read and join a goal's conversation (#3720)
+
+The goal thread decided academy-wide access on a settings capability that the Head of Development role is never granted, so they got an empty "Conversation" heading on the goal page and a refusal over the API — on every goal for a player they don't personally coach. Access now follows the authorization matrix's academy-wide read on goals, and writing in a thread additionally needs the goals edit right, so a role that only reads goals across the academy can follow a conversation without joining it. The "Conversation" heading no longer appears at all when the reader can't see the thread underneath it.
+
+# TalentTrack v4.129.0 — The coach of an activity is the coach, not whoever typed it in (#3745)
+
+An activity's **Coach** used to be set to the logged-in user on every save
+path, and `POST` / `PUT /activities` accepted a `coach_id`, answered 200 and
+threw it away. An academy administrator entering a team's season schedule
+therefore became the coach of every session in it and collected all of its
+register reminders, while "upcoming activity has no coach" could never fire
+because the column was never empty.
+
+The activity form, the wp-admin form and the new-activity wizard now all show
+a **Coach** picker. It offers the staff of the selected team and prefills the
+team's head coach; a team with no head coach — or with two — is left on
+*— No coach —* rather than guessed at, which is what lets the alert say so. An
+assistant coach may name a colleague on a team they work with, and naming
+staff from a team you cannot see is refused with a named error instead of
+being silently replaced. The person who created the activity is still recorded,
+in **Created by**. Existing activities are left exactly as they are.
+
+# TalentTrack v4.129.0 — Team monthly report: sessions nobody closed are now reported (#3746)
+
+The team monthly report was built entirely from completed activities, so a
+session that came and went and was never marked completed did not appear
+anywhere in it. A month with eight scheduled sessions and one closed one
+printed "1 activity" and certified the register coverage as complete. The
+report's whole job is to say what is missing before the board reads it, and
+that was the one gap it could not name.
+
+The activity count in the letterhead and the Activities headline now count
+everything on the team's calendar for the period, cancelled sessions excluded —
+the same figure the coach sees on the activities list. Data coverage splits the
+period three ways: completed with a register, completed without one, and past
+its date but never marked completed. The last of those reads on its own line,
+in the coverage block and in Data quality, because it sends the coach to a
+different screen than a missing register does. Future-dated sessions count
+towards the total and towards neither gap. A period holding only unclosed
+sessions no longer reads as an empty report.
+
+Stored report snapshots are unaffected: a snapshot freezes the rendered report,
+so reopening one shows the numbers the meeting saw, and a scheduled report keeps
+its own composition. Only newly composed reports use the new definition, which
+means the same team and month can show a higher activity count than a snapshot
+taken before this release.
+
+# TalentTrack v4.129.0 — The minutes API says which window it used, and can answer for one match (#3748)
+
+`GET /activities/minutes-grid` quietly applied the season default window
+whenever a caller passed no dates, and said nothing about it — so a match
+outside that window simply wasn't in the response, with no way to tell a
+missing column from a missing register. The response now carries a `window`
+object with the `from` and `to` actually applied, whether they were supplied,
+defaulted, or fell back because a malformed date was sent. It comes from
+`MinutesGridQuery` rather than the controller, so the grid screen and every
+other caller of that query report the same thing.
+
+There is also a new route, `GET /activities/{id}/minutes`, for the coach who
+sees "minutes 16/16" on the activities list and wants to read them back: the
+per-player minutes for one match, with its goals, assists and squad flags, and
+no need to know the date or guess a window around it. It is derived from the
+same query the grid uses, so the two can't report different numbers, and it is
+scope-checked per activity like the grid is. The grid itself is unchanged in
+every other respect.
+
+# TalentTrack v4.129.0 — Measurements: the unit is printed once, and the number the way you write it (#3768)
+
+The measurement register printed every reading with its unit twice and with
+an English decimal point — "36.3 kg kg" on a row whose target column already
+read "≤ 2,09 s". Two layers each believed they owned the unit: the profile
+service composed the reading and the screen appended the symbol again. The
+service now returns the bare number, the screen composes it once, and the
+decimal separator comes from the same helper the target and the change
+columns use, so the three numbers on a row are finally spelled alike.
+
+Two consequences worth knowing. The `latest_value` field on
+`GET /players/{id}/measurements` is now a plain number — the symbol travels
+in the sibling `unit` field — so anything reading that endpoint composes the
+reading itself. And the Excel export's value column holds a plain number
+rather than a number with its unit glued on; the unit is named once in the
+sheet's header block, and the cells can now be summed and charted.
+
+# TalentTrack v4.129.0 — Team learning reports the staff who are actually on the course (#3769)
+
+The team learning list gave staff with no enrolment at all the same *not
+started* as staff who were enrolled and had not opened lesson one. Those are
+different answers to different questions — "nobody ever asked this coach to do
+the course" against "we asked and they have not begun" — and the only way to
+tell them apart was to try enrolling the person and watch for a new row. On
+top of that the team figures and the course statistics counted different
+populations and disagreed in the same response.
+
+The list is now enrolment-backed, and each row carries its deadline and
+whether it has passed. The team totals and the course statistics read one
+query, so they agree. A team whose staff are assigned but nobody is enrolled
+says so in as many words and points at the assign-course wizard, instead of
+filling the table with people who were never asked.
+
+# TalentTrack v4.129.0 — Team managers can open the attendance reports for their own team (#3770)
+
+The attendance-at-risk list is the one surface that answers "which of my
+players keep missing training", and a team manager asking for it about their
+own squad was refused. The three attendance report routes gate on the
+analytics capability, which the seed granted to head of development and
+academy admin only; nothing below the gate was wrong, because the report rows
+were already narrowed to the teams the reader is assigned to.
+
+A team manager now reads them — their own squads, and no others. The grant is
+given twice on purpose: to the team-manager persona, and to the Manager
+functional role, because an academy is as likely to run its team managers as
+Staff accounts holding that role. The attendance leaderboard and the
+per-player attendance rows open on the same terms, since all three hang off
+one capability. Existing installs get the persona's row from a top-up
+migration that never overwrites a matrix row an operator has edited.
+
+# TalentTrack v4.129.0 — Demo data: one generation run, one calendar (#3775)
+
+Generating a demo academy runs in steps across several requests, and every
+date it writes is derived from a single instant — but each step re-read the
+clock, so a run that carried on past midnight or across the turn of a week
+laid its later steps out against a window a day further on than its earlier
+ones. A fixture could end up in a different week from the training that
+precedes it. The run now writes its clock down when it starts and every
+later step reads that, so the whole calendar is one grid however long the
+generation takes.
+
+No change to the weekly rhythm, the match times or how far ahead a demo
+generates. Activities from an older generator build that are already in the
+database are left alone — they are indistinguishable from rows an operator
+added on purpose, and a regeneration on current code replaces the tagged ones.
+
+# TalentTrack v4.129.0 — A goal's conversation records a change to its target date, title or progress (#3781)
+
+Until now the thread recorded only the goal being created and its status moving, so a coach could push a target date back three weeks and the parent reading the conversation would still see the old date discussed above, with nothing to say it had moved. The entry is terse and matches the existing ones — "Target date changed to: 19 November 2026" — and changing two or three fields in one sitting writes one entry listing all of them rather than one per field. Because the goal edit form saves as you type, an entry stays open for a few minutes while you keep working: nudging the progress slider repeatedly amends the same line to where you ended up instead of filling the thread, saving a field with the value it already had writes nothing at all, and a value moved and moved straight back takes its entry with it. Changes to the description, priority, linked principles and evidence are deliberately not recorded.
+
+# TalentTrack v4.129.0 — Families can fill in their own guardian contact on a secure link (#3794)
+
+Guardian contact reached the office on paper and was stale within a season; 310 players
+carry the "nobody at home can be reached" alert. Open a player's edit form, find **Ask the
+family** under the guardian fields, and send a one-time link to whatever address the club
+has. The family fills in their name, email and phone on a single page, and the details land
+on the record the moment they answer — no approval queue, because a second inbox would only
+delay the thing the office is already behind on. The alert row links to the same form, so
+the list can be worked down from the alert inbox.
+
+The link works once and expires on the same schedule as an invitation. It creates no
+account and grants nothing: it cannot be redeemed as an invitation, and the page shows the
+child's name and nothing else — not their team, not what is already on file, which may
+belong to the other parent. An expired, spent or unknown link all say the same sentence, so
+it cannot be used to find out whether a token is real.
+
+Every submission is audit-logged against the player with each field's previous and new
+value, which is what makes a wrong answer fixable. The same flow is available over REST at
+`POST /players/{id}/guardian-contact-request` and `GET`/`POST /guardian-contact/{token}`.
+
+# TalentTrack v4.129.0 — Alerts a parent can actually use, about their own child (#3795)
+
+A parent opening their alert settings was shown the whole catalogue — certificates expiring, teams without a head coach, invitations waiting to be sent — twenty-one conditions, not one of them about their child. Meanwhile `GET /alerts` returned an empty list, so the screen was complete-looking and attached to nothing. A family checking their son's record by hand every Sunday was doing it because nothing in TalentTrack ever told them anything had changed.
+
+The alert preferences matrix is now filtered by **audience**: a definition reaches a person when the record it is about is in that person's scope. Deliberately not by capability — the four conditions a family most wants (no recent evaluation, an overdue goal, a PDP cycle with no conversation, an evaluation never shared) all declare a staff capability, because staff are who fixes them, so a capability filter would have removed exactly those. A parent's scope is their own linked children, read from the same guardian link the rest of the product uses, and re-checked on every hourly run.
+
+Six alerts now reach a parent: those four, plus two written for families from the start — **New evaluation shared with the family** and **A goal for your child was updated**. What a family reads is written for a family: the fact, the child's name and nothing else, linking to their own child's record rather than to a staff screen. No ratings, no internal notes, no coach names.
+
+The evaluation alert fires on the **share**, never on the save. An evaluation is recorded days or weeks before anyone decides the player and their family may read it, and an alert on the save would tell a family an assessment of their child exists before the academy chose to release it. Nothing is announced until the player-facing feedback has been written.
+
+Staff matrices are unchanged, the two family-only alerts never appear on one, and email digests stay opt-in for everybody. Folds in #3803, which asked for the reuse half of this from the parent's side.
+
+# TalentTrack v4.129.0 — Minutes share: the report says which matches the window left out (#3796)
+
+Team · Minutes share could read identically for a team that played nothing and
+for a team whose whole season sat on the other side of the chosen period, and
+the empty state's advice — "widen the window" — gave no clue whether widening
+would help or by how much. A board member following one player's minutes plan
+hit exactly that: the match they were looking for was completed, with minutes
+for all sixteen players, and the report simply did not mention it.
+
+The report now counts the played matches outside the resolved window and says
+so, with the dates to widen onto: "3 played matches fall outside this window,
+between 14 September 2024 and 7 June 2025." The empty state tells the two cases
+apart — a team with no played matches on record at all is a different problem
+from a period aimed at the wrong months, and only the second is one click from
+being right. The same count comes back on `GET /teams/{id}/minutes-share` and
+its per-player sibling as `outside_window`, so a non-WordPress client gets the
+same answer.
+
+Both minutes-share routes now declare their `from` and `to` parameters. They
+have always accepted them — the rolling twelve months is only the fallback, and
+the report's From/To range and **This season** pill have set them since the
+report shipped — but undeclared parameters do not appear in the route index,
+which is how they came to be reported as missing. The default window is
+unchanged.
+
+# TalentTrack v4.129.0 — Messages settings: three templates no longer claim they are never sent (#3814)
+
+The Messages settings page and the setup wizard labelled the cancelled-training,
+plan-ready and methodology-delivered messages "Not sent automatically yet", while
+listeners had been firing all three for several releases. That is the wrong way
+round to be wrong: a coach cancelling a training reads the label and concludes the
+squad still has to be rung round by hand, or that nothing went out when it did.
+The three rows now read as triggered, and a test pins the claim to the listeners
+`CommsModule` actually registers, so the page and the code cannot drift apart
+again unnoticed.
+
+# TalentTrack v4.129.0 — The tournament minutes ticker keeps played and planned minutes apart (#3815)
+
+The ticker added the minutes a player was still planned for to the minutes they
+had actually played and printed the total on its own, so a squad that had not
+kicked off yet read as though everybody had already had their game. Each card
+now names the two separately — "0 played + 40 planned / 35 min" — and the bar
+draws the played part solid with the planned part faded behind it. The green /
+amber / red state still follows played plus planned, deliberately: before the
+first whistle that is the only thing that tells a coach whether the plan covers
+the whole squad. The ticker's own labels, which had been written into the script
+in English, now come from the translation catalogue and read in Dutch.
+
 # TalentTrack v4.128.3 — Tournaments: recording a fixture score no longer erases the fixture (#3557)
 
 Typing a score into a tournament fixture wiped everything else on it. The
