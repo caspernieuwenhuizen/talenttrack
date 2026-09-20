@@ -88,7 +88,21 @@ final class MediaGallery {
         // gallery at all, so there was nowhere to put it. An empty
         // `.tt-media-grid` is display:grid with no children and paints
         // nothing, so this costs the reader no whitespace.
-        echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
+        // #3804 — mark, never hide.
+        //
+        // When this gallery belongs to a player who has no media consent on
+        // record, every tile in it carries a marker. Not a blur, not a
+        // removal: a coach who cannot see the picture cannot judge whether
+        // they may use it, and an image that vanishes from a file reads as a
+        // broken page rather than as care.
+        //
+        // A team or activity gallery is left alone. Its images depict many
+        // children and there is no single consent to report; the per-player
+        // answer lives on each player's own tab, which is the only place a
+        // reader can act on it.
+        $unconsented = self::marksUnconsented( $entity_type, $entity_id );
+
+        echo '<div class="tt-media-gallery' . ( $unconsented ? ' tt-media-gallery--no-consent' : '' ) . '" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
 
         // Only genuinely empty when there is no next page either — a first
         // page whose items are all filtered out still has more to fetch.
@@ -106,7 +120,7 @@ final class MediaGallery {
         echo '<ul class="tt-media-grid" data-role="grid">';
 
         foreach ( $items as $item ) {
-            self::renderTile( $item, $can_edit, $tag_players );
+            self::renderTile( $item, $can_edit, $tag_players, $unconsented );
         }
 
         echo '</ul>';
@@ -145,17 +159,33 @@ final class MediaGallery {
      * video badge and the external-link shape for free.
      *
      * @param array<int, string> $tag_players
+     * @param bool $unconsented #3804 — mark this tile as depicting a player
+     *                          with no media consent on record.
      */
-    public static function tileHtml( object $item, bool $can_edit, array $tag_players = [] ): string {
+    public static function tileHtml( object $item, bool $can_edit, array $tag_players = [], bool $unconsented = false ): string {
         ob_start();
-        self::renderTile( $item, $can_edit, $tag_players );
+        self::renderTile( $item, $can_edit, $tag_players, $unconsented );
         return (string) ob_get_clean();
+    }
+
+    /**
+     * #3804 — does this entity's gallery carry the no-consent marker?
+     *
+     * Public so the REST layer can ask the same question when it renders a
+     * freshly uploaded tile, rather than deciding it a second way and
+     * drifting.
+     */
+    public static function marksUnconsented( string $entity_type, int $entity_id ): bool {
+        if ( $entity_type !== MediaEntityType::PLAYER || $entity_id <= 0 ) return false;
+        return ! \TT\Modules\Players\Services\MediaConsentStatement::isRecorded(
+            \TT\Infrastructure\Query\QueryHelpers::get_player( $entity_id )
+        );
     }
 
     // Internals
 
     /** @param array<int, string> $tag_players */
-    private static function renderTile( object $item, bool $can_edit, array $tag_players = [] ): void {
+    private static function renderTile( object $item, bool $can_edit, array $tag_players = [], bool $unconsented = false ): void {
         $uuid = (string) $item->uuid;
         $kind = (string) $item->kind;
         // Nonce-bearing, because <img>/<video> cannot send the header (#2715).
@@ -208,6 +238,14 @@ final class MediaGallery {
         }
 
         echo '<div class="tt-media-tile__meta">';
+        // #3804 — words, not a colour. The marker has to survive a screen
+        // reader, a greyscale printout and a viewer who cannot tell amber
+        // from grey, so it says what it means.
+        if ( $unconsented ) {
+            echo '<span class="tt-media-tile__consent">'
+                . esc_html__( 'No consent on record', 'talenttrack' )
+                . '</span>';
+        }
         echo '<span class="tt-media-tile__title">' . esc_html( $title ) . '</span>';
         if ( $when !== '' ) {
             echo '<span class="tt-media-tile__when">' . esc_html( $when ) . '</span>';
@@ -380,6 +418,16 @@ final class MediaGallery {
         wp_enqueue_style(
             'tt-media',
             plugins_url( 'assets/css/frontend-media.css', TT_PLUGIN_FILE ),
+            [],
+            TT_VERSION
+        );
+
+        // #3804 — the consent marker travels with the gallery, so a team or
+        // activity tab that later grows one is not styled by accident of
+        // which view happened to enqueue the sheet.
+        wp_enqueue_style(
+            'tt-media-consent',
+            plugins_url( 'assets/css/components/media-consent.css', TT_PLUGIN_FILE ),
             [],
             TT_VERSION
         );
