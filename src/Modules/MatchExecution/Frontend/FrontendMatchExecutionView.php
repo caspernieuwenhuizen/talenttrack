@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\MatchClock;
+use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchExecution\Services\MatchEventFeedService;
 use TT\Modules\MatchExecution\Services\PitchLayoutService;
@@ -1869,14 +1870,15 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
     /**
      * #2273 — per-player on-pitch intervals across the whole match, in
-     * absolute match minutes (0 → full-time). Mirrors
-     * MatchExecutionRepository::computeMinutes() exactly: a starter is on
-     * from the half's start until subbed off or the half ends; a subbed-on
-     * player is on from their sub minute until subbed off again or the half
-     * ends. Half 2 is offset by the half length so both halves live on one
-     * 0→FT bar. Returns [ player_id => list<[start,end]> ] plus per-player
-     * total minutes. Display-derivation only — the persisted minutes still
-     * come from the repository's computeMinutes / recompute path.
+     * absolute match minutes (0 → full-time), plus each player's total.
+     * Half 2 is offset by the half length so both halves live on one 0→FT
+     * bar.
+     *
+     * #3850 — the walk itself is {@see MatchStints}, which the persisted
+     * minutes are derived from as well. It used to be a second copy of the
+     * same shape here, which is how the bars came to agree with a wrong
+     * total instead of exposing it: both dropped a player's second spell in
+     * a half.
      *
      * @param object[] $subs             substitution rows (->half, ->minute_in_half, ->player_off_id, ->player_on_id)
      * @param list<int> $starting_half1
@@ -1884,45 +1886,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
      * @return array{intervals: array<int, list<array{0:int,1:int}>>, minutes: array<int, int>}
      */
     private static function computeTimelineIntervals( array $subs, array $starting_half1, array $starting_half2, int $half_length ): array {
-        $intervals = [];
-        $minutes   = [];
+        $intervals = MatchStints::intervals( $subs, $starting_half1, $starting_half2, $half_length, $half_length );
 
-        foreach ( [ 1 => $starting_half1, 2 => $starting_half2 ] as $half => $starting ) {
-            $offset   = ( $half === 2 ) ? $half_length : 0;
-            $half_end = $offset + $half_length;
-
-            $off_at = []; // player_id => absolute minute they came off
-            $on_at  = []; // player_id => absolute minute they came on
-            foreach ( $subs as $sub ) {
-                if ( (int) $sub->half !== $half ) continue;
-                $minute = $offset + (int) $sub->minute_in_half;
-                $off_at[ (int) $sub->player_off_id ] = $minute;
-                $on_at[ (int) $sub->player_on_id ]   = $minute;
-            }
-
-            foreach ( $starting as $pid ) {
-                $pid = (int) $pid;
-                $end = isset( $off_at[ $pid ] ) ? $off_at[ $pid ] : $half_end;
-                $end = max( $offset, min( $half_end, $end ) );
-                if ( $end > $offset ) {
-                    $intervals[ $pid ][] = [ $offset, $end ];
-                    $minutes[ $pid ]     = ( $minutes[ $pid ] ?? 0 ) + ( $end - $offset );
-                }
-            }
-            foreach ( $on_at as $pid => $start ) {
-                $pid = (int) $pid;
-                if ( in_array( $pid, array_map( 'intval', $starting ), true ) ) continue; // already counted as a starter
-                $end = $off_at[ $pid ] ?? $half_end;
-                $start = max( $offset, min( $half_end, $start ) );
-                $end   = max( $offset, min( $half_end, $end ) );
-                if ( $end > $start ) {
-                    $intervals[ $pid ][] = [ $start, $end ];
-                    $minutes[ $pid ]     = ( $minutes[ $pid ] ?? 0 ) + ( $end - $start );
-                }
-            }
-        }
-
-        return [ 'intervals' => $intervals, 'minutes' => $minutes ];
+        return [ 'intervals' => $intervals, 'minutes' => MatchStints::minutes( $intervals ) ];
     }
 
     /**

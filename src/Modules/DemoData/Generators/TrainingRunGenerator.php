@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
+use TT\Modules\Training\Services\PlayerExposureAggregator;
 
 /**
  * TrainingRunGenerator — writes tt_training_plan_runs and
@@ -26,6 +27,16 @@ use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
  * Every run therefore lands on a completed training in the past, with
  * actual durations that wander a little from the plan and the occasional
  * skipped cool-down — which is exactly what real academies record.
+ *
+ * ## And then the exposure is derived from them (#3855)
+ *
+ * Completing a run is what gives a player minutes against a principle.
+ * The app rebuilds that immediately when a coach finishes a run (D17),
+ * but the hook sits on the REST controller and this generator writes
+ * through the repository — so a generated academy used to report a
+ * player's training count next to zero minutes on every principle. The
+ * run loop ends by calling the nightly rebuild, which derives the rows
+ * rather than authoring them, so D18 still holds.
  */
 class TrainingRunGenerator implements DependentGeneratorInterface {
 
@@ -109,6 +120,27 @@ class TrainingRunGenerator implements DependentGeneratorInterface {
                 $this->registry->tag( 'training_plan_run_block', $run_id, [ 'team_id' => $team_id ] );
                 $total++;
             }
+        }
+
+        // #3855 — derive the exposure the runs just created.
+        //
+        // Completing a run in the app rebuilds it immediately (D17), but
+        // that hook lives on the REST controller and the generator writes
+        // through the repository. So a freshly generated academy reported
+        // a player's training count off `tt_training_plan_runs` while
+        // every per-principle figure came from an empty
+        // `tt_player_principle_exposure` — the training tab said "seven
+        // trainings, nothing ever trained" until a nightly job that a
+        // demo install typically never reaches.
+        //
+        // This does not author the derived table, which D18 keeps exempt:
+        // it is the same `rebuildAll()` the nightly task runs, over the
+        // same source rows, so a later rebuild produces the same numbers.
+        // Attendance and the exercise library are both long written by
+        // `run_order` 200, and the aggregator draws nothing from the
+        // seeded stream, so the (seed, preset) fingerprint is unchanged.
+        if ( $total > 0 ) {
+            ( new PlayerExposureAggregator() )->rebuildAll();
         }
 
         return $total;

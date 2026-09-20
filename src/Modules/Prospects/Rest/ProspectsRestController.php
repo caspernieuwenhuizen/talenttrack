@@ -7,6 +7,7 @@ use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Workflow\Templates\LogProspectTemplate;
@@ -26,6 +27,9 @@ use TT\Modules\Workflow\WorkflowModule;
  *   PATCH /talenttrack/v1/prospects/{id}    correct the parent contact
  *                                           block, the consent state and
  *                                           the scouting notes.
+ *   POST  /talenttrack/v1/prospects/{id}/test-training-proposal
+ *                                           put the prospect forward for a
+ *                                           test training.
  *
  * Subsequent stages (parent confirmation, test-training outcome
  * recording, trial-group review) are handled entirely by `TaskEngine`
@@ -78,6 +82,16 @@ class ProspectsRestController {
                 'permission_callback' => [ self::class, 'can_log' ],
                 'args'                => self::updateArgs(),
             ],
+        ] );
+        // #3710 — put a prospect forward for a test training. The invite
+        // task is the only thing that links a prospect to one, and until
+        // this route it could only be spawned by the pipeline chain, so a
+        // prospect whose chain never ran was stuck in the first column.
+        register_rest_route( self::NS, '/prospects/(?P<id>\d+)/test-training-proposal', [
+            'methods'             => 'POST',
+            'callback'            => [ self::class, 'propose_test_training' ],
+            'permission_callback' => [ self::class, 'can_log' ],
+            'args'                => [],
         ] );
     }
 
@@ -450,6 +464,46 @@ class ProspectsRestController {
                 'fields' => array_keys( $contact ),
             ] );
         }
+    }
+
+    /**
+     * POST /prospects/{id}/test-training-proposal — put this prospect
+     * forward for a test training (#3710).
+     *
+     * Takes no body: the prospect is the URL segment and the proposal has
+     * nothing else to say. The decision — may this caller propose, and is
+     * there already an invite in flight — belongs to
+     * `ProposeTestTrainingService`, which the pipeline panel calls too, so
+     * the board and the API cannot answer differently.
+     *
+     * `created` says whether this call made the task or found one already
+     * open, so a caller can tell a first proposal from a repeat without
+     * the route having to refuse the repeat.
+     */
+    public static function propose_test_training( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        $uid = get_current_user_id();
+
+        $repo = new ProspectsRepository();
+        if ( $repo->find( $id ) === null || ! self::visibleTo( $id, $uid ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+
+        $existing = ProposeTestTrainingService::openInviteTaskId( $id );
+        $result   = ProposeTestTrainingService::propose( $uid, $id );
+        if ( is_wp_error( $result ) ) {
+            return RestResponse::error(
+                (string) $result->get_error_code(),
+                (string) $result->get_error_message(),
+                400
+            );
+        }
+
+        return RestResponse::success( [
+            'prospect_id' => $id,
+            'task_id'     => $result,
+            'created'     => $existing === 0,
+        ] );
     }
 
     /**

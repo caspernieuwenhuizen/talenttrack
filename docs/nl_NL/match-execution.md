@@ -269,6 +269,11 @@ het wissellog — je hoeft ze nooit in te typen. Omdat ze worden afgeleid,
 corrigeer je een verkeerde waarde normaal gesproken door de wissel te
 corrigeren die hem veroorzaakte.
 
+Een speler mag er zo vaak af en weer op als de wedstrijd vraagt. Elke
+periode op het veld telt mee, en de squadtijdlijn tekent elke periode als
+een eigen balk. Een speler die midden in een helft tien minuten aan de kant
+zat, krijgt de rest van die helft dus gewoon bijgeschreven.
+
 Als een echte correctie niet via het wissellog uit te drukken is — een
 speler die met een blessure van het veld ging zonder dat er een wissel is
 gelogd, bijvoorbeeld — kun je in het reviewscherm via **Geregistreerde
