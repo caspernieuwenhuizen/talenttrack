@@ -106,6 +106,48 @@ final class EventEmitter {
     }
 
     /**
+     * Rewrite the payload of an event that already exists.
+     *
+     * `emit()` is insert-only on the natural key, so a derived value that
+     * changes after the first emit — the weighted overall of an evaluation
+     * whose ratings were edited afterwards (#3767) — would otherwise stay
+     * at whatever it was the first time. The summary and the date belong to
+     * the moment the event happened and are left alone; only the payload is
+     * re-derived.
+     *
+     * Returns true when the row was rewritten, false when it already held
+     * this payload or the update failed.
+     *
+     * @param array<string, mixed> $payload
+     */
+    public static function refreshPayload( int $event_id, string $event_type, array $payload ): bool {
+        if ( $event_id <= 0 ) return false;
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_player_events';
+
+        $encoded = (string) wp_json_encode( $payload );
+        $current = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$table} WHERE id = %d AND club_id = %d",
+            $event_id,
+            CurrentClub::id()
+        ) );
+        if ( $current === $encoded ) return false;
+
+        $ok = $wpdb->update(
+            $table,
+            [
+                'payload'       => $encoded,
+                'payload_valid' => EventTypeRegistry::validatePayload( $event_type, $payload ) ? 1 : 0,
+            ],
+            [ 'id' => $event_id, 'club_id' => CurrentClub::id() ],
+            [ '%s', '%d' ],
+            [ '%d', '%d' ]
+        );
+        return $ok !== false && $ok > 0;
+    }
+
+    /**
      * Soft-correct: link an existing event to a freshly emitted replacement.
      * Both rows persist — default timeline reads filter superseded events
      * unless the caller passes `?include_superseded=1`.

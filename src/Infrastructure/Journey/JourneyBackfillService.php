@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
+use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -48,6 +49,8 @@ final class JourneyBackfillService {
      *   event type (the counter is the row-walk count, not strictly the
      *   number of new inserts — EventEmitter is idempotent so the same
      *   number of `emit` calls fire whether or not the rows existed).
+     *   `position_repaired` is the exception: it counts rows actually
+     *   rewritten, so a second run reports zero.
      */
     public static function rebuildAll(): array {
         $stats = [
@@ -57,6 +60,7 @@ final class JourneyBackfillService {
             'joined_academy'       => 0,
             'trial_started'        => 0,
             'trial_ended'          => 0,
+            'position_repaired'    => 0,
         ];
 
         $club_id = CurrentClub::id();
@@ -68,10 +72,24 @@ final class JourneyBackfillService {
         [ $started, $ended ]           = self::backfillTrials( $club_id );
         $stats['trial_started']        = $started;
         $stats['trial_ended']          = $ended;
+        $stats['position_repaired']    = self::repairPositionEvents( $club_id );
 
         return $stats;
     }
 
+    /**
+     * #3767 — the same overall the live hook writes, batched.
+     *
+     * `EvalRatingsRepository::overallRatingsForEvaluations()` resolves every
+     * evaluation in two roundtrips, so the rebuild agrees with
+     * `JourneyEventSubscriber` without a query per row. An evaluation with
+     * neither a weighted overall nor a legacy `rating` gets no `overall`
+     * key at all — "not scored" is not the same claim as "scored zero".
+     *
+     * Existing rows are rewritten rather than skipped: `EventEmitter::emit()`
+     * is insert-only, so the installs carrying `overall: 0` on every
+     * evaluation are exactly the ones a rebuild would otherwise leave wrong.
+     */
     private static function backfillEvaluations( int $club_id ): int {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -81,21 +99,98 @@ final class JourneyBackfillService {
               ORDER BY id ASC",
             $club_id
         ) );
+        $rows = (array) $rows;
+        if ( $rows === [] ) return 0;
+
+        $legacy = [];
+        foreach ( $rows as $r ) {
+            $legacy[ (int) $r->id ] = $r->rating;
+        }
+        $overalls = ( new EvalRatingsRepository() )->overallRatingsForEvaluations( array_keys( $legacy ) );
+
         $n = 0;
-        foreach ( (array) $rows as $r ) {
+        foreach ( $rows as $r ) {
+            $eval_id   = (int) $r->id;
             $eval_date = self::dateOnly( $r->eval_date ) . ' 00:00:00';
-            EventEmitter::emit(
+
+            $payload = [ 'evaluation_id' => $eval_id ];
+            $overall = $overalls[ $eval_id ]['value'] ?? null;
+            if ( $overall === null && $legacy[ $eval_id ] !== null && $legacy[ $eval_id ] !== '' ) {
+                $overall = (float) $legacy[ $eval_id ];
+            }
+            if ( $overall !== null ) $payload['overall'] = (float) $overall;
+
+            $event_id = EventEmitter::emit(
                 (int) $r->player_id,
                 JourneyEventType::EVALUATION_COMPLETED,
                 $eval_date,
                 sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
-                [
-                    'evaluation_id' => (int) $r->id,
-                    'overall'       => isset( $r->rating ) ? (float) $r->rating : 0.0,
-                ],
+                $payload,
                 'Evaluations',
                 'evaluation',
-                (int) $r->id
+                $eval_id
+            );
+            if ( $event_id !== null ) {
+                EventEmitter::refreshPayload( $event_id, JourneyEventType::EVALUATION_COMPLETED, $payload );
+            }
+            $n++;
+        }
+        return $n;
+    }
+
+    /**
+     * #3767 — scrub the raw `[]` older position-change rows baked in.
+     *
+     * Clearing a player's preferred positions used to emit "Position:
+     * Centre forward → []", and the emit is insert-only so the row stays
+     * wrong however often the source is re-saved. The literal is replaced
+     * with the same "none" wording a first-time position would read, in
+     * the summary and in the `from` / `to` payload keys alike. Idempotent:
+     * a row with no `[]` left in it is skipped.
+     *
+     * Migration 0185 did the same job for the raw-code case; this is the
+     * empty-array case it did not reach.
+     */
+    private static function repairPositionEvents( int $club_id ): int {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_player_events';
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, summary, payload
+               FROM {$table}
+              WHERE source_entity_type = %s
+                AND club_id = %d
+                AND ( summary LIKE %s OR payload LIKE %s )",
+            'position_change',
+            $club_id,
+            '%[]%',
+            '%[]%'
+        ) );
+
+        $none = __( 'none', 'talenttrack' );
+        $n    = 0;
+        foreach ( (array) $rows as $r ) {
+            $summary = str_replace( '[]', $none, (string) $r->summary );
+            $payload = (string) $r->payload;
+            $decoded = json_decode( $payload, true );
+            if ( is_array( $decoded ) ) {
+                foreach ( [ 'from', 'to' ] as $k ) {
+                    if ( isset( $decoded[ $k ] ) && is_string( $decoded[ $k ] ) && trim( $decoded[ $k ] ) === '[]' ) {
+                        $decoded[ $k ] = '';
+                    }
+                }
+                $encoded = wp_json_encode( $decoded );
+                if ( $encoded !== false ) $payload = $encoded;
+            }
+
+            if ( $summary === (string) $r->summary && $payload === (string) $r->payload ) continue;
+
+            $wpdb->update(
+                $table,
+                [ 'summary' => mb_substr( $summary, 0, 500 ), 'payload' => $payload ],
+                [ 'id' => (int) $r->id, 'club_id' => $club_id ],
+                [ '%s', '%s' ],
+                [ '%d', '%d' ]
             );
             $n++;
         }

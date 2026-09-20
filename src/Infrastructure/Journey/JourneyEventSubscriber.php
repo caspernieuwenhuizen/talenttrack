@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Enums\GoalOrigin;
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -46,19 +47,55 @@ final class JourneyEventSubscriber {
         $eval_date = (string) $row->eval_date;
         if ( strlen( $eval_date ) === 10 ) $eval_date .= ' 00:00:00';
 
-        EventEmitter::emit(
+        $payload = self::evaluationPayload( (int) $row->id, $row->rating );
+
+        $event_id = EventEmitter::emit(
             $player_id,
             JourneyEventType::EVALUATION_COMPLETED,
             $eval_date,
             sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
-            [
-                'evaluation_id' => (int) $row->id,
-                'overall'       => isset( $row->rating ) ? (float) $row->rating : 0.0,
-            ],
+            $payload,
             'Evaluations',
             'evaluation',
             $evaluation_id
         );
+
+        // The emit is insert-only, so a coach who re-scores an evaluation
+        // would leave the first overall on the timeline forever (#3767).
+        if ( $event_id !== null ) {
+            EventEmitter::refreshPayload( $event_id, JourneyEventType::EVALUATION_COMPLETED, $payload );
+        }
+    }
+
+    /**
+     * #3767 — the score on the timeline is the score on the evaluation.
+     *
+     * `tt_evaluations.rating` is the legacy single-score column and is null
+     * on every evaluation written the normal way; the real overall is the
+     * weighted mean of `tt_eval_ratings` that the evaluation screen shows.
+     * Casting that null to a float wrote a real-looking `0` into the
+     * payload, so a parent reading their son's journey was told he scored
+     * zero on evaluations averaging 6.5.
+     *
+     * With neither a weighted overall nor a legacy rating the key is left
+     * out altogether: a reader must be able to tell "not scored" from
+     * "scored zero".
+     *
+     * @param mixed $legacy_rating the `rating` column, usually null.
+     * @return array<string, mixed>
+     */
+    private static function evaluationPayload( int $evaluation_id, mixed $legacy_rating ): array {
+        $payload = [ 'evaluation_id' => $evaluation_id ];
+
+        $overall = ( new EvalRatingsRepository() )->overallRating( $evaluation_id )['value'];
+        if ( $overall === null && $legacy_rating !== null && $legacy_rating !== '' ) {
+            $overall = (float) $legacy_rating;
+        }
+        if ( $overall !== null ) {
+            $payload['overall'] = (float) $overall;
+        }
+
+        return $payload;
     }
 
     /**
@@ -245,22 +282,29 @@ final class JourneyEventSubscriber {
         // array (e.g. ["CB","LB"]); compare the raw values but render a
         // readable comma-separated list in the summary + payload (#1818)
         // instead of the raw JSON.
+        //
+        // #3767 — the guard is on the readable value, not on the raw one.
+        // A cleared positions field stores `[]`, which is not the empty
+        // string, so clearing a player's positions emitted "Position:
+        // Centre forward → []" onto a timeline the family reads.
         $old_raw = (string) ( $old['preferred_positions'] ?? '' );
         $new_raw = (string) ( $new['preferred_positions'] ?? '' );
-        if ( $old_raw !== $new_raw && $new_raw !== '' ) {
+        if ( $old_raw !== $new_raw ) {
             $old_pos = self::formatPositions( $old_raw );
             $new_pos = self::formatPositions( $new_raw );
-            $synthetic_id = (int) ( ( $player_id * 1000 ) + ( crc32( $new_raw ) % 1000 ) );
-            EventEmitter::emit(
-                $player_id,
-                JourneyEventType::POSITION_CHANGED,
-                current_time( 'mysql' ),
-                sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'none', 'talenttrack' ), $new_pos !== '' ? $new_pos : __( 'none', 'talenttrack' ) ),
-                [ 'from' => $old_pos, 'to' => $new_pos ],
-                'Players',
-                'position_change',
-                $synthetic_id
-            );
+            if ( $new_pos !== '' ) {
+                $synthetic_id = (int) ( ( $player_id * 1000 ) + ( crc32( $new_raw ) % 1000 ) );
+                EventEmitter::emit(
+                    $player_id,
+                    JourneyEventType::POSITION_CHANGED,
+                    current_time( 'mysql' ),
+                    sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'none', 'talenttrack' ), $new_pos ),
+                    [ 'from' => $old_pos, 'to' => $new_pos ],
+                    'Players',
+                    'position_change',
+                    $synthetic_id
+                );
+            }
         }
     }
 
@@ -270,7 +314,12 @@ final class JourneyEventSubscriber {
      * readable, human-friendly list. Each position code is resolved to its
      * long form via LabelTranslator::positionLabel() ("CB" → "Centre back"
      * / "Centrale verdediger"); unknown / custom positions pass through
-     * unchanged. Falls back to the raw string when it holds nothing usable.
+     * unchanged.
+     *
+     * #3767 — a decoded JSON structure holding nothing usable (the `[]` a
+     * cleared positions field stores) has no label, so it returns the empty
+     * string. Raw JSON must never reach a summary; only a value that was
+     * never JSON in the first place falls back to itself.
      */
     private static function formatPositions( string $raw ): string {
         $raw = trim( $raw );
@@ -284,7 +333,8 @@ final class JourneyEventSubscriber {
             ),
             static fn ( string $v ): bool => $v !== ''
         ) );
-        return $parts !== [] ? implode( ', ', $parts ) : $raw;
+        if ( $parts !== [] ) return implode( ', ', $parts );
+        return is_array( $decoded ) ? '' : $raw;
     }
 
     public static function on_trial_started( int $case_id, int $player_id ): void {
