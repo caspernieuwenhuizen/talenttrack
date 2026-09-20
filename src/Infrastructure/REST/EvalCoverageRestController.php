@@ -32,6 +32,24 @@ final class EvalCoverageRestController extends BaseController {
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'matrix' ],
                 'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                // #3802 — declared, so the route index publishes them. They
+                // were accepted and silently ignored before, which is worse
+                // than refusing: a caller asking for one team got every team
+                // and had no way to tell.
+                'args'                => [
+                    'team_id' => [
+                        'type'              => 'integer',
+                        'required'          => false,
+                        'sanitize_callback' => 'absint',
+                        'description'       => 'Narrow the matrix to one team. Omit for every team.',
+                    ],
+                    'season_id' => [
+                        'type'              => 'integer',
+                        'required'          => false,
+                        'sanitize_callback' => 'absint',
+                        'description'       => 'Reserved for the seasons entity; the configured windows are the current season today.',
+                    ],
+                ],
             ],
         ] );
         register_rest_route( self::NS, '/eval-coverage/windows', [
@@ -52,8 +70,14 @@ final class EvalCoverageRestController extends BaseController {
     }
 
     public static function matrix( WP_REST_Request $request ): \WP_REST_Response {
+        // #3802 — this used to accept `$request` and never read it. The
+        // service went further and `unset()` its only parameter, so a
+        // `team_id` filter was dropped twice over.
+        $team_id   = absint( (int) $request->get_param( 'team_id' ) );
+        $season_id = absint( (int) $request->get_param( 'season_id' ) );
+
         $service  = new EvalCoverageService();
-        $coverage = $service->coverage();
+        $coverage = $service->coverage( $season_id, $team_id );
 
         $compliance = [];
         foreach ( $coverage['windows'] as $window ) {
@@ -64,6 +88,11 @@ final class EvalCoverageRestController extends BaseController {
         }
 
         return RestResponse::success( [
+            // #3802 — read this before reading a zero. With no window
+            // configured the gap counts below are structurally zero, not
+            // measured, and a caller that treats them as "all covered" is
+            // reporting a clean bill of health nobody earned.
+            'configured'             => $coverage['configured'],
             'windows'                => $coverage['windows'],
             'teams'                  => $coverage['teams'],
             'coach_gaps'             => $coverage['coach_gaps'],
@@ -71,6 +100,7 @@ final class EvalCoverageRestController extends BaseController {
             'total_gaps'             => $coverage['total_gaps'],
             'attendance_compliance'  => $compliance,
             'evaluators'             => $service->evaluators(),
+            'team_id'                => $team_id ?: null,
         ] );
     }
 
