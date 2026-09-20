@@ -1206,6 +1206,13 @@ class DashboardShortcode {
                 }
                 FrontendPlayersManageView::render( $user_id, $is_admin );
                 return true;
+            // #3807 — the thin card a scout may read about a squad player.
+            // Its own slug rather than a branch of `players`: that surface
+            // renders the full record, and the whole point of the card is
+            // the field list it does NOT carry.
+            case 'scout-player-card':
+                \TT\Modules\Players\Frontend\FrontendScoutPlayerCardView::render( $user_id, $is_admin );
+                return true;
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 return true;

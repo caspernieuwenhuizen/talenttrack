@@ -157,6 +157,17 @@ class FrontendPlayersManageView extends FrontendViewBase {
             return;
         }
 
+        // #3807 — say it out loud here too. The list below fetches from
+        // `GET /players`, which now refuses a caller entitled to nobody
+        // rather than answering 200 with an empty table; a screen that
+        // renders the filters and an empty grid over that refusal reads
+        // as "nothing found", which is how a scout came to report the
+        // screen as broken. One predicate, one sentence, both surfaces.
+        if ( ! $is_admin && ! \TT\Infrastructure\Players\PlayerVisibility::entitledToAny( $user_id ) ) {
+            echo '<p class="tt-notice">' . esc_html( \TT\Infrastructure\Players\PlayerVisibility::refusalMessage() ) . '</p>';
+            return;
+        }
+
         // v3.85.5 — surface the upgrade nudge above the list when at
         // the free-tier 25-player cap. The `+ New player` action in
         // the header is suppressed by the same check in render().

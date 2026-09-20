@@ -129,6 +129,7 @@ return [
     'prospects-overview'            => [ 'viewable', 'A list view over the funnel.' ],
     'scout-history'                 => [ 'viewable', 'A scout’s own past activity.' ],
     'scout-my-players'              => [ 'viewable', 'A scout’s portfolio list.' ],
+    'scout-player-card'             => [ 'viewable', 'Eight facts about one squad player, read on a touchline.' ],
     'scouting-visit'                => [ 'viewable', 'One planned visit. Nothing on it needs width.' ],
     'scouting-visits'               => [ 'viewable', 'Planned visits, scanned in a list.' ],
     'plan'                          => [ 'viewable', 'The plan, two cap counters and a feature matrix. The matrix is wide, so it scrolls inside its own container rather than pushing the page sideways; nothing here is edited, and a coach meeting a locked feature is as likely to be on a phone as at a desk.' ],

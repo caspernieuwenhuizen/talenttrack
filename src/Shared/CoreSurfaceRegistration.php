@@ -323,6 +323,11 @@ final class CoreSurfaceRegistration {
      */
     private static function registerSlugOwnerships(): void {
         TileRegistry::registerSlugOwnership( 'players-import',     self::M_PLAYERS );
+        // #3807 — the scout's player card. No tile of its own: it is
+        // reached from the scout's player list, so ownership has to be
+        // declared here or switching Players off would leave the card
+        // rendering.
+        TileRegistry::registerSlugOwnership( 'scout-player-card',  self::M_PLAYERS );
         TileRegistry::registerSlugOwnership( 'teammate',           self::M_TEAMS );
         TileRegistry::registerSlugOwnership( 'custom-fields',      self::M_CONFIG );
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );

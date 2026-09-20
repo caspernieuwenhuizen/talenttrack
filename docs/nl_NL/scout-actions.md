@@ -3,7 +3,7 @@ title: Scout — het seizoen in acties
 group: basics
 summary: Wat een scout in TalentTrack doet gedurende een lopend seizoen.
 audience: [user]
-views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits, prospect-edit]
+views: [scout-access, scout-history, scout-my-players, scout-player-card, scouting-visit, scouting-visits, prospect-edit]
 order: 34
 ---
 
@@ -85,6 +85,14 @@ als wekelijkse bijpraatronde.
 Let op twee dingen: prospects die in één fase stil zijn blijven staan, en welk
 soort vindcontext daadwerkelijk doorstroomt. Dat tweede verandert waar je je
 zaterdagen doorbrengt.
+
+### Vergelijk een stagespeler met de selectie
+
+Beoordelen of een speler die je gevonden hebt een stage waard is, betekent meestal de vraag wat de club op die positie al heeft. **Mijn spelers** (`?tt_view=scout-my-players`) heeft nu naast elke speler een link **Spelerskaart**: naam, geboortejaar, team, positie, welk deel van de beschikbare speelminuten hij het afgelopen jaar speelde, de status die de club hem geeft, en wat je zelf schreef toen je hem zag.
+
+Dat is de hele kaart, met opzet. Evaluaties, metingen, contactgegevens van het gezin en alles wat medisch is blijven bij de technische staf — de kaart bestaat om te kunnen vergelijken, niet om het dossier te lezen.
+
+Open je de spelerslijst en krijg je te horen dat je geen spelers mag inzien, dan wordt dat nu hardop gezegd in plaats van als een lege tabel getoond. Het betekent dat er nog geen spelers aan je account gekoppeld zijn; vraag het hoofd opleiding om ze aan je lijst toe te voegen of je in een stagepanel te zetten.
 
 ### Corrigeer contactgegevens of toestemming
 

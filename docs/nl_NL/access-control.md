@@ -307,6 +307,32 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
+## Wat een scout mag lezen over een selectiespeler — de spelerskaart
+
+Tot het werk van een scout hoort het vergelijken van een stagespeler met de spelers die de club al heeft, en daarvoor is iets nodig om **mee** te vergelijken. Dat was er niet: `GET /players` gaf een scout een geslaagde, lege pagina en elke route per speler weigerde. Het scherm zag er kapot uit in plaats van gesloten.
+
+Er zijn twee dingen veranderd.
+
+**"Niet toegestaan" en "niets gevonden" zijn nu verschillende antwoorden.** Wie helemaal geen spelers mag zien, krijgt een weigering — in de API én op het scherm — met een zin die dat zegt en wat eraan te doen is. Wie *sommige* spelers mag zien, krijgt nog gewoon een leeg resultaat als een filter terecht niets oplevert: de weigering gaat over de persoon, nooit over de zoekopdracht. Weigeren op de zoekopdracht zou iemand namelijk verklappen dat er een speler bestaat die hij niet mag zien.
+
+**Een scout leest een spelerskaart, niet het spelersdossier.** `?tt_view=scout-player-card&id=N` en `GET /players/{id}/scout-card` bevatten precies:
+
+| Op de kaart | Waarom |
+| --- | --- |
+| Naam | Wie dit is. |
+| Geboortejaar | De leeftijdscategorie. Niet de geboortedatum — dat is een identiteitsgegeven. |
+| Team | Wat de club op die plek heeft. |
+| Positie | Idem. |
+| Speelminutenaandeel | Hoeveel hij daadwerkelijk speelt, over het afgelopen jaar. |
+| Spelersstatus | Het eigen staande oordeel van de club, en het **enige** oordeel op de kaart. Het blijft een statuslabel, nooit de evaluatie erachter. |
+| De eigen observaties van de scout | Wat *deze* scout schreef toen hij de speler zag. Aantekeningen van een andere scout staan er niet op. |
+
+**En verder niets.** Bewust niet op de kaart, en een reviewer hoort een wijziging te weigeren die er een van toevoegt: naam, e-mail of telefoon van de ouder; maatwerkvelden in welke vorm dan ook; evaluaties; metingen; blessures of iets medisch; gedragsbeoordelingen; POP-inhoud; veiligheidsnotities.
+
+De kaart is precies daarom een aparte route en geen verruiming van `GET /players/{id}`. Het volledige spelersdossier bevat de contactgegevens van de ouders en élk maatwerkveld dat een academie heeft ingericht, zonder filter per veld — wat een club daar ook in heeft gezet, inclusief medische of veiligheidsnotities, gaat mee naar buiten. Een scout komt nog steeds niet bij die route, en voor iedereen anders verandert er niets.
+
+Wie een kaart mag lezen: iedereen die het volledige spelersdossier al mag lezen (de kaart is een deelverzameling daarvan), of een scout die via de twee links hierboven aan die speler **gekoppeld** is.
+
 ## Prullenbakbeheer — `tt_manage_recycle_bin`
 
 Definitief verwijderen is de meest destructieve actie in het product en zit

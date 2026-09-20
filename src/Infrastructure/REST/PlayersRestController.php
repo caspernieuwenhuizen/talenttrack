@@ -8,11 +8,13 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Players\PlayerDates;
+use TT\Infrastructure\Players\PlayerVisibility;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\PlayerCsvImporter;
+use TT\Modules\Players\Services\ScoutPlayerCard;
 use TT\Shared\Validation\CustomFieldValidator;
 
 /**
@@ -61,6 +63,20 @@ class PlayersRestController {
                 'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
             ],
         ]);
+        // #3807 — the thin scout card. Its own route on purpose, NOT a
+        // widening of `players/{id}`: that one returns the full record,
+        // guardian contact and every custom field a club has defined
+        // included, with no per-field filter. The field list lives in
+        // `ScoutPlayerCard` and is the point of it.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/scout-card', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_scout_card' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return ScoutPlayerCard::canRead( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+        ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
@@ -303,6 +319,28 @@ class PlayersRestController {
         ) );
         $total = count( $auth_ids );
 
+        // #3807 — say "forbidden" out loud. The door and the rows used to
+        // disagree about which gate matters: this route admits anyone
+        // holding `tt_view_players`, then filters every row away with
+        // `canViewPlayer` and answers 200 with `{"rows":[],"total":0}`.
+        // A scout lost a week believing the screen was broken, and
+        // reported a bug instead of asking for access.
+        //
+        // The distinction is the caller's entitlement, NOT this query's
+        // result. Refusing whenever the filter's own rows all fail the
+        // check would tell a coach searching "Jansen" that a Jansen exists
+        // on somebody else's team — a 403 would be the disclosure the
+        // filtering exists to prevent. So a caller entitled to nobody is
+        // refused; a caller entitled to somebody gets an honest empty page
+        // when their filter matched nothing they may see.
+        if ( $auth_ids === [] && ! PlayerVisibility::entitledToAny( $user_id ) ) {
+            return RestResponse::error(
+                'no_players_visible',
+                PlayerVisibility::refusalMessage(),
+                403
+            );
+        }
+
         // Page the authorized ids, then hydrate full rows for just this page.
         // #3572 — the parent comes from `tt_player_parents`, the one parent
         // model every access check already reads: the primary link (then
@@ -348,6 +386,24 @@ class PlayersRestController {
             'page'     => $page,
             'per_page' => $per_page,
         ] );
+    }
+
+    /**
+     * #3807 — `GET /players/{id}/scout-card`.
+     *
+     * Composition only: the field list and the entitlement both live in
+     * `ScoutPlayerCard`, so the rendered card and a non-WordPress front
+     * end cannot disagree about what a scout may read about a child
+     * (CLAUDE.md §4).
+     */
+    public static function get_scout_card( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = absint( $r['id'] );
+        $card      = ScoutPlayerCard::forPlayer( $player_id, get_current_user_id() );
+        if ( $card === null ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [ 'card' => $card ] );
     }
 
     private static function clamp_per_page( $value ): int {
