@@ -170,6 +170,14 @@ When you don't owe the family a formal decision — the family ghosted you, the 
 
 If you archive a case that should have had a decision and then realise the family is willing to talk after all, an admin can un-archive from the wp-admin trial-cases list.
 
+## Reading a decision back
+
+Once a decision is recorded, the **Decision** tab on the case stops being a form and becomes the record of what was decided: the outcome, when it was recorded, **who** recorded it, and the motivation they wrote.
+
+The motivation is read-only — there is no edit affordance, because amending a recorded decision is a different question with its own consequences. A case decided before motivations were captured simply shows no motivation, rather than an empty one.
+
+**It stays on the trial case and goes nowhere else.** It is free text about a child, written for an internal panel decision at a moment of judgement. The trial panel is who it was written for; the player file is read by considerably more people, and a decline-flavoured sentence would follow an admitted child around their record for years. It is on no player-facing surface, no player record, and no letter — the parent-meeting view and the letter home carry none of it. Where somebody entitled to the trial case wants the context, the trial case is where it lives.
+
 ## Retention
 
 Letters are persisted with a 2-year expiry. Archive is the default — denial letters are not deleted automatically because the club may need them as evidence for reconsiderations or appeals. A separate GDPR deletion flow handles permanent erasure on parent request.

@@ -170,6 +170,14 @@ Wanneer je het gezin geen formele beslissing schuldig bent — het gezin reageer
 
 Archiveer je een dossier waar wél een beslissing bij hoorde en blijkt het gezin tóch te willen praten, dan kan een admin het dossier weer activeren via de wp-admin lijst met stagedossiers.
 
+## Een beslissing teruglezen
+
+Zodra een beslissing is vastgelegd, is het tabblad **Beslissing** geen formulier meer maar de vastlegging van wat er is besloten: de uitkomst, wanneer die is vastgelegd, **door wie**, en de motivatie die diegene heeft geschreven.
+
+De motivatie is alleen-lezen — er is geen bewerkoptie, want het aanpassen van een vastgelegde beslissing is een andere vraag met eigen gevolgen. Een dossier dat is beslist voordat motivaties werden vastgelegd, toont simpelweg geen motivatie, niet een lege.
+
+**De motivatie blijft op het stagedossier en gaat nergens anders heen.** Het is vrije tekst over een kind, geschreven voor een intern paneelbesluit op een moment van oordeel. Het stagepanel is voor wie het geschreven is; het spelersdossier wordt door aanzienlijk meer mensen gelezen, en een afwijzend geformuleerde zin zou een aangenomen kind jarenlang door het dossier volgen. Ze staat op geen enkel spelersgericht scherm, niet in het spelersdossier en niet in een brief — het oudergesprek en de brief naar huis bevatten er niets van. Wil iemand die toegang heeft tot het stagedossier die context, dan is het stagedossier de plek.
+
 ## Bewaartermijn
 
 Brieven worden bewaard met een vervaldatum van 2 jaar. Archiveren is de standaard — afwijzingsbrieven worden niet automatisch verwijderd omdat de club ze nodig kan hebben bij heroverwegingen of bezwaar. Een aparte AVG-verwijderfunctie regelt definitieve verwijdering op verzoek van de ouder.
