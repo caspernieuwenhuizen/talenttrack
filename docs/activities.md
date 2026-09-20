@@ -289,6 +289,10 @@ The activity list shows the type as a colour-coded pill so trainings, games, tou
 
 When you create an activity you pick which players are expected — the roster step defaults to the whole team, and you untick anyone you already know is away. Those picks are the activity's **planned roster**.
 
+**An activity created without that step still gets one.** Anything made for a team — over the API, from the app, or any route that does not ask who is expected — starts with the team's active players expected. Before, only the creation wizard filled the roster in, so a session created another way began with nobody expected and the register could not be prepped; coaches were opening the activity and saving it again to force a roster, which looked like a repair and was really the first time it had ever been written.
+
+Three things this does not do. A roster you supply yourself is kept exactly as you gave it — nobody is added to it. A squad you have **trimmed stays trimmed**: the roster is filled in only when it is empty, so a player you deliberately took off does not come back the next time anything touches the activity. And an activity you create **already marked Completed** gets no planned roster at all — it did not need planning, it needs a register, and the rule further down this page fills that in as present instead.
+
 Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up happens in the guided completion flow (**Complete activity** / **Continue rating**) — the planned roster is what you expected, the marked attendance is what happened. The detail view keeps a read-only attendance summary on completed activities.
 
 ### Adjusting the plan

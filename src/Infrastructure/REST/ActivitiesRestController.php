@@ -1420,6 +1420,24 @@ class ActivitiesRestController {
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'notes',    (string) $data['notes'] );
         \TT\Modules\Translations\TranslationLayer::detectAndCache( 'activity', $activity_id, 'location', (string) $data['location'] );
 
+        // #2248 — a planned roster supplied with the create is honoured as
+        // given; the caller has said who is expected.
+        if ( isset( $r['planned'] ) && is_array( $r['planned'] ) ) {
+            $repo->replacePlannedAttendance( $activity_id, self::planned_attendance_from_request( $r ) );
+        }
+
+        // #3800 — and when none was supplied, the team is. Seeding used to
+        // be the activity wizard's job alone, so anything created over REST
+        // or through a path that posts no `planned[]` began with a planned
+        // roster of 0 and no way to prep the register. The seeder is a
+        // no-op when a roster already exists, including the one just
+        // written above.
+        \TT\Modules\Activities\Services\PlannedRosterSeeder::seed(
+            $activity_id,
+            (int) ( $data['team_id'] ?? 0 ),
+            (string) ( $data['activity_status_key'] ?? '' )
+        );
+
         $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
         if ( $att_failures ) {
             Logger::error( 'session.attendance.save.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );

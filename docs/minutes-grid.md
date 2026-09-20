@@ -108,6 +108,11 @@ reversed rather than deleted, and typed entries are undone before
 live-recorded ones, so a correction can never destroy something that was
 actually watched at the time.
 
+If a correction does reach a live-recorded goal — because there were no typed
+ones left to undo first — **the match sheet's score follows it down.** That
+score is a reading of the goal log, so a goal taken off the log is a goal off
+the scoreboard; the two cannot end up disagreeing about the same match.
+
 ### Attributed / score
 
 The bottom row of the grid reads, per match, how many goals have a scorer

@@ -60,7 +60,11 @@ final class LookupCanonicalSeedsRetiredTypesTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'game_subtype', $map );
         $this->assertArrayHasKey( 'tournament_formation', $map );
         $this->assertSame( TournamentFormation::ALL, $map['tournament_formation'] );
-        $this->assertArrayHasKey( 'opponent_level', $map );
+        // #3559 — keyed by the lookup type migration 0098 seeds, which is
+        // `tournament_opponent_level`. It was `opponent_level`, one key to
+        // the left of the vocabulary it described.
+        $this->assertArrayHasKey( 'tournament_opponent_level', $map );
+        $this->assertArrayNotHasKey( 'opponent_level', $map );
     }
 
     /** The class that described the renamed lookup is gone. */

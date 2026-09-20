@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
+use TT\Domain\Vocabularies\Lookups\TournamentOpponentLevel;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
@@ -476,6 +478,14 @@ class TournamentsRestController {
             return RestResponse::error( 'start_date_required', __( 'Start date is required.', 'talenttrack' ), 422 );
         }
 
+        // #3559 — the nested fixtures are checked before the tournament
+        // row is written, so a bad level refuses the request rather than
+        // leaving a tournament behind with some of its matches missing.
+        foreach ( ( is_array( $r['matches'] ?? null ) ? $r['matches'] : [] ) as $nested ) {
+            $bad_level = self::rejectUnknownOpponentLevel( (array) $nested );
+            if ( $bad_level !== null ) return $bad_level;
+        }
+
         $payload['club_id']    = CurrentClub::id();
         $payload['uuid']       = wp_generate_uuid4();
         $payload['created_by'] = get_current_user_id();
@@ -634,6 +644,9 @@ class TournamentsRestController {
             "SELECT COALESCE(MAX(sequence), 0) FROM {$p}tt_tournament_matches WHERE tournament_id = %d AND club_id = %d",
             $tournament_id, CurrentClub::id()
         ) );
+
+        $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
+        if ( $bad_level !== null ) return $bad_level;
 
         $match_id = self::insertMatch( $tournament_id, (array) $r->get_params(), $next_seq );
         if ( $match_id === 0 ) {
@@ -1303,6 +1316,9 @@ class TournamentsRestController {
             return RestResponse::notFound( 'match_not_found' );
         }
 
+        $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
+        if ( $bad_level !== null ) return $bad_level;
+
         // The extractor whitelists mutable columns, so tournament_id,
         // club_id, activity_id and sequence cannot be reached from here.
         $payload = self::extractMatchPartial( (array) $r->get_params(), $existing );
@@ -1521,6 +1537,59 @@ class TournamentsRestController {
      * means "no value". The update path wants `extractMatchPartial()`
      * instead — see #3557.
      */
+    /**
+     * #3559 — the opponent level a match may carry.
+     *
+     * The operator-editable `tournament_opponent_level` vocabulary is the
+     * authority; the typed constants are the floor for an install whose
+     * rows were deleted, so an emptied vocabulary refuses everything
+     * rather than accepting anything.
+     *
+     * @return list<string>
+     */
+    private static function allowedOpponentLevels(): array {
+        $out = [];
+        foreach ( QueryHelpers::get_lookups( 'tournament_opponent_level' ) as $row ) {
+            $name = (string) ( $row->name ?? '' );
+            if ( $name !== '' && ! in_array( $name, $out, true ) ) $out[] = $name;
+        }
+        return $out ?: TournamentOpponentLevel::ALL;
+    }
+
+    /**
+     * #3559 — refuse a level the vocabulary does not carry.
+     *
+     * The column is a plain `VARCHAR(64)` and every write path sanitised
+     * the string without ever checking it, so `opponent_level: "banana"`
+     * stored and then rendered as itself on the planner. An empty value
+     * stays allowed: it clears the column, which is "not recorded".
+     *
+     * @param array<string,mixed> $params
+     * @return \WP_REST_Response|null the 400, or null when there is
+     *   nothing to object to
+     */
+    private static function rejectUnknownOpponentLevel( array $params ): ?\WP_REST_Response {
+        if ( ! array_key_exists( 'opponent_level', $params ) ) return null;
+
+        $value = sanitize_text_field( (string) ( $params['opponent_level'] ?? '' ) );
+        if ( $value === '' ) return null;
+
+        $allowed = self::allowedOpponentLevels();
+        if ( in_array( $value, $allowed, true ) ) return null;
+
+        return RestResponse::error(
+            'opponent_level_invalid',
+            sprintf(
+                /* translators: 1: the rejected value, 2: comma-separated list of allowed values. */
+                __( '"%1$s" is not an opponent level. Allowed values: %2$s.', 'talenttrack' ),
+                $value,
+                implode( ', ', $allowed )
+            ),
+            400,
+            [ 'allowed' => $allowed ]
+        );
+    }
+
     private static function extractMatch( array $r ): array {
         $duration = isset( $r['duration_min'] ) ? max( 1, absint( $r['duration_min'] ) ) : 20;
         $windows  = self::normaliseWindowsJson( $r['substitution_windows'] ?? null, $duration );

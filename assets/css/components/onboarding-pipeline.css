@@ -264,6 +264,12 @@ a.tt-pipeline-card:focus-visible {
 }
 @media (max-width: 480px) { .tt-dashboard .tt-pipeline-focus-stage { display: none; } }
 
+/* #3710 — the proposal carries nothing but a nonce and the prospect id, and
+   its submit button lives in the action row above via the `form` attribute,
+   so the form itself never renders. Hiding it keeps the row's wrapping and
+   spacing exactly as it was; a hidden form still submits. */
+.tt-dashboard .tt-pipeline-focus-propose { display: none; }
+
 /* #3677 — the scouting record on the focus panel: the notes the scout wrote
    and the visit the prospect was found at. Mobile-first: the two blocks stack
    at 360px and sit side by side from 768px, where there is room for both

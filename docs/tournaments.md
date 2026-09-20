@@ -95,7 +95,9 @@ the shortcut without losing the planner.
 
 ## Opponent level
 
-Each match has an opponent level — by default **weaker / equal / stronger / much stronger**. The pill on the match card is colour-coded green → grey → amber → red so you see at a glance which matches need your strongest lineup.
+Each match has an opponent level — by default **weaker / equal / stronger / much stronger**. The pill on the match card is colour-coded green → grey → amber → red so you see at a glance which matches need your strongest lineup. The pill takes its colour from the level itself, so recolouring a level under Configuration recolours the pill; its text switches between dark and light to stay readable on whatever colour you pick.
+
+A match can only carry a level the vocabulary actually holds. An import or an integration sending something else is refused with a message naming the levels that are allowed, rather than storing a word the planner would then show as-is. Leaving the level empty is still fine — that reads as "not recorded".
 
 The level shows as its translated label everywhere you meet it — the pill on the match card, the level dropdown on the add-match form, the wizard's match step and the wizard's review summary. Rename a level under Configuration → Opponent levels and the new label follows to all four; what's stored on the match doesn't change, so existing matches keep their level.
 

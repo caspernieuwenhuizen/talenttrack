@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
@@ -47,6 +48,10 @@ use TT\Shared\Wizards\WizardEntryPoint;
  */
 class FrontendOnboardingPipelineView extends FrontendViewBase {
 
+    /** #3710 — nonce action and field for the "propose a test training" post. */
+    private const PROPOSE_ACTION = 'tt_propose_test_training';
+    private const PROPOSE_NONCE  = 'tt_propose_nonce';
+
     public static function render( int $user_id ): void {
         if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -63,6 +68,11 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         );
         FrontendBreadcrumbs::fromDashboard( __( 'Onboarding pipeline', 'talenttrack' ) );
         self::renderHeader( __( 'Onboarding pipeline', 'talenttrack' ) );
+
+        // #3710 — handled before the board is computed, so the proposal the
+        // scout just made is already the prospect's next action by the time
+        // the focus panel renders.
+        echo self::handleProposal( $user_id );
 
         $can_edit = AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
         if ( $can_edit ) {
@@ -88,6 +98,36 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         }
 
         echo self::renderKanban( $stages );
+    }
+
+    /**
+     * #3710 — the scout's proposal, posted from the focus panel.
+     *
+     * A plain form post rather than a fetch: the panel is server-rendered,
+     * the action is a single idempotent write, and a scout on a phone at a
+     * pitch should not need JavaScript to put a player forward. There is no
+     * redirect afterwards because the page is already streaming by the time
+     * a view runs; the service's idempotency guard is what makes a re-post
+     * harmless.
+     */
+    private static function handleProposal( int $user_id ): string {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return '';
+        if ( ! isset( $_POST[ self::PROPOSE_NONCE ], $_POST['tt_propose_prospect_id'] ) ) return '';
+
+        $prospect_id = absint( wp_unslash( $_POST['tt_propose_prospect_id'] ) );
+        $nonce       = sanitize_text_field( wp_unslash( (string) $_POST[ self::PROPOSE_NONCE ] ) );
+        if ( $prospect_id <= 0 || ! wp_verify_nonce( $nonce, self::PROPOSE_ACTION . '_' . $prospect_id ) ) {
+            return '';
+        }
+
+        $result = ProposeTestTrainingService::propose( $user_id, $prospect_id );
+        if ( is_wp_error( $result ) ) {
+            return '<div class="tt-notice tt-notice-error">' . esc_html( $result->get_error_message() ) . '</div>';
+        }
+
+        return '<div class="tt-notice tt-notice-success">'
+            . esc_html__( 'Put forward. The head of development has been asked to arrange a test training.', 'talenttrack' )
+            . '</div>';
     }
 
     /**
@@ -126,6 +166,25 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             ? RecordLink::detailUrlForWithBack( 'prospect-edit', $focus_pid )
             : '';
 
+        // #3710 — a prospect whose chain never produced the invite task had
+        // no way forward at all: the panel showed "Edit contact" and
+        // nothing else, and the invite task is the only thing that links a
+        // prospect to a test training. The service decides whether this
+        // viewer may put this prospect forward; the panel only asks.
+        $viewer      = get_current_user_id();
+        $stuck       = ! $has_action && ProposeTestTrainingService::canPropose( $viewer, $focus_pid );
+        $can_invite  = AuthorizationService::userCanOrMatrix( $viewer, 'tt_invite_prospects' );
+        // Somebody who may issue the invitation themselves does not need to
+        // ask for it: they go straight to the surface where a test training
+        // is arranged, rather than addressing a task to themselves.
+        $invite_url  = $stuck && $can_invite
+            ? BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'test-trainings', 'action' => 'new' ],
+                RecordLink::dashboardUrl()
+            ) )
+            : '';
+        $can_propose = $stuck && ! $can_invite;
+
         ob_start(); ?>
         <section class="tt-pipeline-focus" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: prospect name */ __( 'Prospect: %s', 'talenttrack' ), $name ) ); ?>">
             <div class="tt-pipeline-focus-head">
@@ -144,15 +203,28 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             // #3677 — the scouting record behind the prospect.
             echo self::renderFocusScouting( $focus_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source.
             ?>
-            <?php if ( $has_action || $can_edit ) : ?>
+            <?php if ( $has_action || $can_edit || $can_propose || $invite_url !== '' ) : ?>
                 <p class="tt-pipeline-focus-actions">
                     <?php if ( $has_action ) : ?>
                         <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                    <?php if ( $invite_url !== '' ) : ?>
+                        <?php // long label: "Arrange" alone reads as arranging the prospect, not the training. ?>
+                        <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $invite_url ); ?>"><?php esc_html_e( 'Arrange test training', 'talenttrack' ); ?></a>
+                    <?php elseif ( $can_propose ) : ?>
+                        <?php // long label: "Propose" alone does not say what is being proposed. ?>
+                        <button type="submit" form="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Propose test training', 'talenttrack' ); ?></button>
                     <?php endif; ?>
                     <?php if ( $can_edit ) : ?>
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit contact', 'talenttrack' ); ?></a>
                     <?php endif; ?>
                 </p>
+                <?php if ( $can_propose ) : ?>
+                    <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( self::prospectFocusUrl( $focus_pid ) ); ?>">
+                        <?php wp_nonce_field( self::PROPOSE_ACTION . '_' . $focus_pid, self::PROPOSE_NONCE ); ?>
+                        <input type="hidden" name="tt_propose_prospect_id" value="<?php echo (int) $focus_pid; ?>">
+                    </form>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
         <?php

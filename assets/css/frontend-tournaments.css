@@ -163,10 +163,13 @@
     border-color: var(--tt-primary, #0b3d2e);
     color: #fff;
 }
+/* #3559 — the level's own colour when the lookup row carries one, with an
+   ink the view derived from it. The literals are the fallback for a level
+   an operator left uncoloured. */
 .tt-dashboard .tt-tour-chip--level {
-    background: #fdf6e3;
-    border-color: #f0dca0;
-    color: #8a6d18;
+    background: var(--tt-chip-bg, #fdf6e3);
+    border-color: var(--tt-chip-bg, #f0dca0);
+    color: var(--tt-chip-ink, #8a6d18);
 }
 
 /* ---- Planner action buttons row ------------------------------------ */

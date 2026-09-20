@@ -62,6 +62,20 @@ Beide zijn hier alleen-lezen; de notities leg je vast bij de vondst. Een collega
 die wel de trechter leest maar niet de scoutingplanner, zoals een hoofdtrainer
 die zijn eigen leeftijdsgroep volgt, ziet de notities en geen bezoekregel.
 
+### Draag een speler voor
+
+Staat er niets meer open op een prospect — geen klus, niemand aan zet — dan
+biedt het paneel **Testtraining voorstellen**. Gebruik het voor de speler die je
+nu twee keer hebt gezien en die je op de club wilt laten bekijken: het vraagt de
+Hoofd Opleidingen om een testtraining te regelen, en de volgende actie van de
+prospect wordt die uitnodiging. De kaart schuift naar **Uitgenodigd** zodra de
+Hoofd Opleidingen hem verstuurt.
+
+Je draagt voor, je boekt niet. De uitnodiging blijft bij de Hoofd Opleidingen,
+die de sessie kiest en de familie schrijft. Twee keer voordragen verandert
+niets, en heeft een collega dezelfde speler al voorgedragen, dan komt je klik op
+hun verzoek uit in plaats van dat er een tweede bij komt.
+
 ### Bekijk je portefeuille
 
 Het **Prospectoverzicht** (`?tt_view=prospects-overview`) toont jouw prospects

@@ -952,10 +952,29 @@ class DashboardShortcode {
 
     private static function resolveMePlayer( int $user_id, ?object $own ): ?object {
         $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
-        if ( $pid > 0
-            && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $pid ) ) {
+        if ( $pid > 0 ) {
+            // #3859 — an explicit ?player_id the viewer may not see is
+            // REFUSED, not quietly swapped for one they may.
+            //
+            // This used to fall through to the viewer's own record or
+            // default child, which made `requirePlayerOrDeny()`'s stated
+            // contract unreachable: its docblock says "a stranger supplying
+            // someone else's player_id is denied even though a record
+            // loaded", and that denial could never fire, because the subject
+            // had already been replaced with one that passes.
+            //
+            // A parent who edited the id in the address bar saw their own
+            // child's rows under a heading that named nobody, and reasonably
+            // concluded they had just read another family's record. The API
+            // refuses the same subject with a 403; the view now agrees.
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $pid ) ) {
+                return null;
+            }
             $child = QueryHelpers::get_player( $pid );
             if ( $child ) return $child;
+
+            // An id that passes the check but has no row is a stale link,
+            // not a permission problem: fall through to the default subject.
         }
         if ( $own ) return $own;
 

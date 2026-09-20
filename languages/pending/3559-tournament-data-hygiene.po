@@ -1,0 +1,3 @@
+#: src/Infrastructure/REST/TournamentsRestController.php:1567
+msgid "\"%1$s\" is not an opponent level. Allowed values: %2$s."
+msgstr "\"%1$s\" is geen niveau tegenstander. Toegestane waarden: %2$s."

@@ -60,6 +60,19 @@ Both are read-only here; the notes are set when the find is logged. A colleague
 who reads the funnel but not the scouting planner, such as a head coach watching
 their own age group, sees the notes and no visit line.
 
+### Put a player forward
+
+When a prospect has nothing waiting on them — no open task, nobody's turn — the
+panel offers **Propose test training**. Use it for the player you have now
+watched twice and want seen at the club: it asks the Head of Development to
+arrange a test training, and the prospect's next action becomes that invitation.
+The card moves to **Invited** once the HoD sends it.
+
+You are proposing, not booking. The invitation stays with the Head of
+Development, who picks the session and writes to the family. Proposing twice
+changes nothing, and if a colleague has already put the same player forward your
+click lands on their request rather than making a second one.
+
 ### Review your portfolio
 
 The **Prospects overview** (`?tt_view=prospects-overview`) lists your prospects

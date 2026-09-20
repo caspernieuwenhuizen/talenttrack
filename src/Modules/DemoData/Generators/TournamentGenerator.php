@@ -23,16 +23,34 @@ use TT\Modules\DemoData\SeedLoader;
 class TournamentGenerator implements DependentGeneratorInterface {
 
     private const MATCHES_PER_TOURNAMENT = 4;
-    private const PERIODS_PER_MATCH      = 2;
     private const MATCH_MINUTES          = 20;
 
-    /** Position groups a squad player can cover, cycled across the squad. */
+    /**
+     * The pitch, in the planner's own codes (#3559).
+     *
+     * Seven-a-side, the shape a youth tournament is played in. The codes
+     * used to be `GK` plus `OF1`…`OF6`, which are outside the set
+     * `TournamentsRestController` allows and which no other surface knows
+     * how to read.
+     *
+     * @var list<string>
+     */
+    private const PITCH_POSITIONS = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'AM', 'ST' ];
+
+    /**
+     * Position groups a squad player can cover, cycled across the squad.
+     *
+     * #3559 — was `DF` / `MF` / `FW`, which `normalisePositionsJson()`
+     * only accepts as legacy tokens it coerces away. Stored directly by
+     * the generator they were simply outside the allowed set, so the
+     * auto-planner could not match a demo player to any slot.
+     */
     private const ELIGIBLE_POSITIONS = [
-        [ 'DF', 'MF' ],
-        [ 'MF' ],
-        [ 'MF', 'FW' ],
-        [ 'FW' ],
-        [ 'DF' ],
+        [ 'CB', 'LB' ],
+        [ 'DM', 'CM' ],
+        [ 'CM', 'AM' ],
+        [ 'AM', 'ST' ],
+        [ 'RB', 'CB' ],
     ];
 
     /** @var array<string, array{name:string, notes:string, label:string}> */
@@ -148,7 +166,7 @@ class TournamentGenerator implements DependentGeneratorInterface {
                 // validity constraint — NULL is rejected, so both always get
                 // a real value rather than being left empty.
                 $eligible = (string) wp_json_encode(
-                    $slot === 0 ? [ 'GK', 'DF' ] : self::ELIGIBLE_POSITIONS[ $slot % count( self::ELIGIBLE_POSITIONS ) ]
+                    $slot === 0 ? [ 'GK', 'CB' ] : self::ELIGIBLE_POSITIONS[ $slot % count( self::ELIGIBLE_POSITIONS ) ]
                 );
 
                 $ok = $wpdb->query( $wpdb->prepare(
@@ -165,6 +183,11 @@ class TournamentGenerator implements DependentGeneratorInterface {
             }
             $this->registry->tag( 'tournament_squad', $tournament_id, [ 'players' => count( $squad ) ] );
 
+            // One substitution window, halfway. The planner reads this as
+            // the period count: windows + 1 (#3559).
+            $windows      = [ (int) floor( self::MATCH_MINUTES / 2 ) ];
+            $period_count = count( $windows ) + 1;
+
             $cursor = 0;
             for ( $m = 1; $m <= self::MATCHES_PER_TOURNAMENT; $m++ ) {
                 $kick_off = $start_ts + ( ( $m - 1 ) * 45 * MINUTE_IN_SECONDS );
@@ -180,7 +203,7 @@ class TournamentGenerator implements DependentGeneratorInterface {
                     'formation'      => (string) $formations[ mt_rand( 0, count( $formations ) - 1 ) ],
                     'duration_min'   => self::MATCH_MINUTES,
                     // JSON validity constraint — see the squad insert above.
-                    'substitution_windows' => (string) wp_json_encode( [ (int) floor( self::MATCH_MINUTES / 2 ) ] ),
+                    'substitution_windows' => (string) wp_json_encode( $windows ),
                     'scheduled_at'   => gmdate( 'Y-m-d H:i:s', $kick_off ),
                     'kicked_off_at'  => $played ? gmdate( 'Y-m-d H:i:s', $kick_off ) : null,
                     'completed_at'   => $played ? gmdate( 'Y-m-d H:i:s', $kick_off + ( self::MATCH_MINUTES * MINUTE_IN_SECONDS ) ) : null,
@@ -192,28 +215,77 @@ class TournamentGenerator implements DependentGeneratorInterface {
 
                 // Rotate through the squad so minutes spread rather than the
                 // same seven playing every period.
-                for ( $period = 1; $period <= self::PERIODS_PER_MATCH; $period++ ) {
-                    for ( $slot = 0; $slot < 7; $slot++ ) {
-                        $player_id = (int) $squad[ $cursor % count( $squad ) ];
-                        $cursor++;
+                //
+                // #3559 — periods are 0-based, because period 0 is the
+                // opening lineup and is what `computeTotals()` counts as a
+                // start. Generating 1 and 2 gave every demo player zero
+                // starts and put an assignment on a period the fixture does
+                // not have.
+                $slots = array_slice(
+                    self::PITCH_POSITIONS,
+                    0,
+                    min( count( self::PITCH_POSITIONS ), count( $squad ) )
+                );
 
-                        $wpdb->insert( "{$wpdb->prefix}tt_tournament_assignments", [
-                            'club_id'       => CurrentClub::id(),
-                            'match_id'      => $match_id,
-                            'period_index'  => $period,
-                            'player_id'     => $player_id,
-                            'position_code' => $slot === 0 ? 'GK' : 'OF' . $slot,
-                        ] );
-                        $assignment_id = (int) $wpdb->insert_id;
-                        if ( $assignment_id ) {
-                            $this->registry->tag( 'tournament_assignment', $assignment_id );
-                            $total++;
+                for ( $period = 0; $period < $period_count; $period++ ) {
+                    $on_pitch = [];
+
+                    foreach ( $slots as $code ) {
+                        // Walk on until an unused squad member turns up: a
+                        // squad smaller than the pitch would otherwise put
+                        // the same child in two positions at once.
+                        $player_id = 0;
+                        for ( $step = 0; $step < count( $squad ); $step++ ) {
+                            $candidate = (int) $squad[ $cursor % count( $squad ) ];
+                            $cursor++;
+                            if ( ! in_array( $candidate, $on_pitch, true ) ) {
+                                $player_id = $candidate;
+                                break;
+                            }
                         }
+                        if ( $player_id <= 0 ) continue;
+                        $on_pitch[] = $player_id;
+
+                        $total += $this->assign( $match_id, $period, $player_id, (string) $code );
+                    }
+
+                    // #3559 — and everyone else is on the bench for it.
+                    // The planner writes a BENCH row per squad member per
+                    // period; without them a player's tournament history
+                    // cannot tell "did not play" from "was never picked".
+                    foreach ( $squad as $squad_player_id ) {
+                        $squad_player_id = (int) $squad_player_id;
+                        if ( in_array( $squad_player_id, $on_pitch, true ) ) continue;
+                        $total += $this->assign( $match_id, $period, $squad_player_id, 'BENCH' );
                     }
                 }
             }
         }
         return $total;
+    }
+
+    /**
+     * Write one assignment row and tag it.
+     *
+     * @return int 1 when a row landed, 0 otherwise — so the caller can add
+     *   it straight to the run's total.
+     */
+    private function assign( int $match_id, int $period, int $player_id, string $position_code ): int {
+        global $wpdb;
+
+        $wpdb->insert( "{$wpdb->prefix}tt_tournament_assignments", [
+            'club_id'       => CurrentClub::id(),
+            'match_id'      => $match_id,
+            'period_index'  => $period,
+            'player_id'     => $player_id,
+            'position_code' => $position_code,
+        ] );
+
+        $assignment_id = (int) $wpdb->insert_id;
+        if ( $assignment_id <= 0 ) return 0;
+
+        $this->registry->tag( 'tournament_assignment', $assignment_id );
+        return 1;
     }
 
     /** @return string[] */

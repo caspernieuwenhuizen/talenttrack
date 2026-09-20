@@ -191,7 +191,6 @@ return [
     'src/Modules/Pdp/Rest/SeasonsRestController.php | /seasons | POST',
     'src/Modules/Pdp/Rest/SeasonsRestController.php | /seasons/(?P<id>\\d+) | PATCH',
     'src/Modules/Pdp/Rest/SeasonsRestController.php | /seasons/(?P<id>\\d+)/current | PATCH',
-    'src/Modules/Prospects/Rest/ProspectsRestController.php | /prospects/(?P<id>\\d+) | PATCH',
     'src/Modules/Prospects/Rest/ProspectsRestController.php | /prospects/log | POST',
     'src/Modules/Prospects/Rest/TestTrainingsRestController.php | /test-trainings | POST',
     'src/Modules/Push/Rest/PushSubscriptionsRestController.php | /push-subscriptions | POST',

@@ -8,6 +8,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\MatchExecution\Domain\AttendanceRecomputeOutcome;
+use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
@@ -362,19 +363,34 @@ class MatchExecutionRepository {
      * The scoreline is never touched. `tt_activities.home_score` is what
      * happened; attribution is what we know about it, and letting the second
      * rewrite the first is how the two came to disagree in the first place.
+     *
+     * `tt_match_execution.home_score` is a different number with a different
+     * rule: #2857 made it a readout of the goal log, so reversing a live row
+     * here re-derives it (#3705). Not a scoreline being rewritten — the same
+     * count, taken again.
      */
     public function setContributions( int $activity_id, int $player_id, int $goals, int $assists ): void {
         if ( $activity_id <= 0 || $player_id <= 0 ) return;
 
-        $this->reconcileGoals( $activity_id, $player_id, max( 0, $goals ) );
+        $touched = $this->reconcileGoals( $activity_id, $player_id, max( 0, $goals ) );
         $this->reconcileAssists( $activity_id, $player_id, max( 0, $assists ) );
+
+        // #3705 — the grid is a writer on the goal log like the live routes
+        // are, so the execution's stored score follows it down. Once per
+        // execution, after both reconciles: a player counted down by three
+        // goals is one sync, not three, and a correction that touched only
+        // manual rows is none.
+        foreach ( array_unique( $touched ) as $execution_id ) {
+            $this->syncScoresFromGoals( $execution_id );
+        }
     }
 
-    private function reconcileGoals( int $activity_id, int $player_id, int $target ): void {
+    /** @return list<int> executions whose goal rows this call reversed */
+    private function reconcileGoals( int $activity_id, int $player_id, int $target ): array {
         // Manual rows first in the ordering, so a count-down reverses what
         // was typed before what was observed.
         $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT event_uuid FROM {$this->t_goals}
+            "SELECT event_uuid, execution_id FROM {$this->t_goals}
               WHERE activity_id = %d AND club_id = %d AND player_id = %d
                 AND team = 'home' AND is_own_goal = 0 AND reversed_at IS NULL
            ORDER BY (execution_id IS NULL) DESC, id DESC",
@@ -382,20 +398,29 @@ class MatchExecutionRepository {
         ) );
 
         $current = count( $rows );
-        if ( $current === $target ) return;
+        if ( $current === $target ) return [];
 
         if ( $current < $target ) {
             for ( $i = $current; $i < $target; $i++ ) {
                 $this->insertManualGoal( $activity_id, $player_id, null );
             }
-            return;
+            return [];
         }
 
+        $touched = [];
         foreach ( array_slice( $rows, 0, $current - $target ) as $row ) {
             $this->reverseGoalEvent( (string) $row->event_uuid );
+            if ( $row->execution_id !== null ) $touched[] = (int) $row->execution_id;
         }
+        return $touched;
     }
 
+    /**
+     * Reports nothing back to {@see setContributions}, unlike its sibling:
+     * neither branch below can move an execution's score. It either reverses
+     * a placeholder — manual by definition, so no execution owns it — or
+     * clears the assister off a goal that stays exactly where it was.
+     */
     private function reconcileAssists( int $activity_id, int $player_id, int $target ): void {
         $rows = (array) $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT event_uuid, player_id, execution_id FROM {$this->t_goals}
@@ -426,6 +451,8 @@ class MatchExecutionRepository {
                 continue;
             }
 
+            // Clearing the assister off a live goal leaves the goal standing,
+            // so the score does not move and nothing needs re-deriving.
             $this->wpdb->query( $this->wpdb->prepare(
                 "UPDATE {$this->t_goals} SET assist_player_id = NULL
                   WHERE event_uuid = %s AND club_id = %d AND reversed_at IS NULL",
@@ -724,28 +751,83 @@ class MatchExecutionRepository {
     }
 
     /**
-     * #2268 — the set of player ids currently on the pitch, derived from
-     * the first-half starting XI plus every non-reversed substitution
-     * applied in chronological order. Used to validate a live / late
+     * #2268 — the set of player ids on the pitch at a point in the match,
+     * derived from the line-up that half started with plus the non-reversed
+     * substitutions up to that point. Used to validate a live / late
      * substitution server-side: the `player_off` must be on the pitch and
      * the `player_on` must not already be. Read-only; no writes.
      *
+     * #3849 — it used to take the first-half XI alone and apply every
+     * substitution to it, whichever half they belonged to. On a match with
+     * a second-half line-up that made the same screen say a player had
+     * played 35 minutes and was available on the bench, and refused the
+     * substitution the coach had come to add in both directions. The half-2
+     * XI is the pitch from the second-half kick-off, exactly as
+     * {@see computeMinutes} has always read it, and a substitution belongs
+     * to the half it was logged in.
+     *
+     * `$half` is the point in the match being asked about; `$minute` narrows
+     * it further within that half, so a first-half substitution added after
+     * the second half is judged on the first half rather than on the final
+     * whistle. Called with neither, the answer is the first half, which is
+     * what the two-argument live path has always meant.
+     *
      * @param list<int> $starting_xi_half1
+     * @param list<int> $starting_xi_half2
      * @return list<int>
      */
-    public function onPitchPlayerIds( int $execution_id, array $starting_xi_half1 ): array {
+    public function onPitchPlayerIds(
+        int $execution_id,
+        array $starting_xi_half1,
+        array $starting_xi_half2 = [],
+        int $half = 1,
+        ?int $minute = null
+    ): array {
+        $half  = $half >= 2 ? 2 : 1;
+        $xi1   = self::playerIdList( $starting_xi_half1 );
+        $xi2   = self::playerIdList( $starting_xi_half2 );
+
+        // A second-half line-up replaces the pitch at the interval, so only
+        // that half's substitutions act on it. Without one the first-half XI
+        // plays on, and so do the substitutions made to it.
+        $restarts = ( $half === 2 && $xi2 !== [] );
+        $from     = $restarts ? 2 : 1;
+
         $on_pitch = [];
-        foreach ( $starting_xi_half1 as $pid ) {
-            $pid = (int) $pid;
-            if ( $pid > 0 ) $on_pitch[ $pid ] = true;
+        foreach ( $restarts ? $xi2 : $xi1 as $pid ) {
+            $on_pitch[ $pid ] = true;
         }
+
         foreach ( $this->listSubstitutions( $execution_id ) as $sub ) {
+            $sub_half = (int) ( $sub->half ?? 1 );
+            if ( $sub_half < $from || $sub_half > $half ) continue;
+            // The minute only narrows the half being asked about; an earlier
+            // half is over, so all of it counts.
+            if ( $minute !== null && $sub_half === $half && (int) ( $sub->minute_in_half ?? 0 ) > $minute ) continue;
+
             $off = (int) $sub->player_off_id;
             $on  = (int) $sub->player_on_id;
             if ( $off > 0 ) unset( $on_pitch[ $off ] );
             if ( $on > 0 )  $on_pitch[ $on ] = true;
         }
         return array_map( 'intval', array_keys( $on_pitch ) );
+    }
+
+    /**
+     * A line-up as a clean list of player ids — no zeroes from unfilled
+     * slots, so "is there a second-half line-up" is a question about
+     * players and not about rows.
+     *
+     * @param array<int|string, mixed> $ids
+     * @return list<int>
+     */
+    private static function playerIdList( array $ids ): array {
+        $out = [];
+        foreach ( $ids as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $out[] = $pid;
+        }
+        return $out;
     }
 
     /**
@@ -896,44 +978,28 @@ class MatchExecutionRepository {
     /**
      * Compute per-player minutes from the substitution log + the half
      * lengths. Players who started the half + were never subbed off get
-     * the full half length; subbed-off players get the minute they
-     * came off; subbed-on players get half_length - minute_in_half.
-     * Returns map player_id => minutes.
+     * the full half length; everybody else gets the sum of the spells they
+     * were on the pitch for. Returns map player_id => minutes.
+     *
+     * #3850 — the walk moved to {@see MatchStints}, which the squad
+     * timeline reads too. It used to keep one "came off" and one "came on"
+     * minute per player per half, so a player who came back on in the same
+     * half lost that spell: 20 minutes credited instead of 30 for a
+     * starter, and nothing at all for a substitute who returned, because
+     * the arithmetic ran backwards and clamped at zero.
      *
      * @param list<int> $starting_xi_half1
      * @param list<int> $starting_xi_half2
      * @return array<int, int>
      */
     public function computeMinutes( int $execution_id, array $starting_xi_half1, array $starting_xi_half2, int $half1_length, int $half2_length ): array {
-        $subs    = $this->listSubstitutions( $execution_id );
-        $minutes = [];
-
-        foreach ( [ 1 => [ $starting_xi_half1, $half1_length ], 2 => [ $starting_xi_half2, $half2_length ] ] as $half => $pair ) {
-            [ $starting, $half_length ] = $pair;
-            $on_pitch = array_fill_keys( $starting, 0 );
-            $off_at   = []; // player_id => minute they came off
-            $on_at    = []; // player_id => minute they came on
-
-            foreach ( $subs as $sub ) {
-                if ( (int) $sub->half !== $half ) continue;
-                $minute = (int) $sub->minute_in_half;
-                $off_at[ (int) $sub->player_off_id ] = $minute;
-                $on_at[ (int) $sub->player_on_id ]   = $minute;
-            }
-
-            foreach ( $starting as $pid ) {
-                $minutes_played = isset( $off_at[ $pid ] ) ? $off_at[ $pid ] : $half_length;
-                $minutes[ $pid ] = ( $minutes[ $pid ] ?? 0 ) + $minutes_played;
-            }
-            foreach ( $on_at as $pid => $minute ) {
-                if ( in_array( $pid, $starting, true ) ) continue; // already counted via starting
-                $off_minute = $off_at[ $pid ] ?? $half_length;
-                $minutes_played = max( 0, $off_minute - $minute );
-                $minutes[ $pid ] = ( $minutes[ $pid ] ?? 0 ) + $minutes_played;
-            }
-        }
-
-        return $minutes;
+        return MatchStints::minutes( MatchStints::intervals(
+            $this->listSubstitutions( $execution_id ),
+            $starting_xi_half1,
+            $starting_xi_half2,
+            $half1_length,
+            $half2_length
+        ) );
     }
 
     /**

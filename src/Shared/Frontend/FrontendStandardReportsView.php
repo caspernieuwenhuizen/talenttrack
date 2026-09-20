@@ -1693,13 +1693,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     // ── #1367 Coach · Evaluation quality ─────────────────────────────
 
     /**
-     * @return array{team_id:int, date_from:string, date_to:string}
+     * #3809 — `from` / `to` lead, `date_from` / `date_to` are still
+     * honoured so links saved before the rename keep working.
+     *
+     * @return array{team_id:int, from:string, to:string}
      */
     private static function coachEvalQualityFilters(): array {
+        $date = static function ( string $key, string $alias ): string {
+            foreach ( [ $key, $alias ] as $name ) {
+                if ( isset( $_GET[ $name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    $value = sanitize_text_field( (string) wp_unslash( $_GET[ $name ] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+                    if ( $value !== '' ) return $value;
+                }
+            }
+            return '';
+        };
         return [
-            'team_id'   => isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0,
-            'date_from' => isset( $_GET['date_from'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['date_from'] ) ) : '',
-            'date_to'   => isset( $_GET['date_to'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['date_to'] ) ) : '',
+            'team_id' => isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            'from'    => $date( 'from', 'date_from' ),
+            'to'      => $date( 'to', 'date_to' ),
         ];
     }
 
@@ -1718,7 +1730,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
 
         $filters = self::coachEvalQualityFilters();
-        $rows    = ( new \TT\Modules\Analytics\Reports\CoachEvalQualityQuery() )->rows( $filters );
+        $report  = ( new \TT\Modules\Analytics\Reports\CoachEvalQualityQuery() )->report( $filters );
+        $rows    = $report['rows'];
+        // #3809 — the window the query actually ran on, season fallback
+        // included, so the filter bar and the subtitle name the period
+        // the numbers describe rather than leaving it blank.
+        $from    = $report['from'];
+        $to      = $report['to'];
 
         $explore_url = ExplorerUrl::build(
             'evaluations_received',
@@ -1732,7 +1750,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         self::renderPageHead(
             __( 'Evaluation quality — per coach', 'talenttrack' ),
-            __( 'Rating distribution and variance per coach. Low variance with a real sample size usually means everyone gets the same number.', 'talenttrack' ),
+            sprintf(
+                /* translators: %s: the date window the report covers */
+                __( 'Rating distribution and variance per coach, over %s. Low variance with a real sample size usually means everyone gets the same number.', 'talenttrack' ),
+                self::windowLabel( $from, $to )
+            ),
             $explore_url,
             $export_url
         );
@@ -1749,9 +1771,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '</select></label>';
         echo '<label><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="date_from" value="' . esc_attr( $filters['date_from'] ) . '" /></label>';
+        echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
         echo '<label><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="date_to" value="' . esc_attr( $filters['date_to'] ) . '" /></label>';
+        echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
         echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
         echo '</form>';
 
@@ -1760,9 +1782,22 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $means        = array_filter( array_column( $rows, 'mean_rating' ), static fn( $v ) => $v !== null );
         $academy_mean = $means ? round( array_sum( $means ) / count( $means ), 2 ) : null;
 
+        // #3809 — the chase number: how much of the squad was evaluated in
+        // the window, across the selection. "0 of 16" is the sentence the
+        // head of development needs, and it used to take a monthly-report
+        // call per team to assemble.
+        $squad_total     = array_sum( array_column( $rows, 'squad_size' ) );
+        $squad_evaluated = array_sum( array_column( $rows, 'players_evaluated' ) );
+
         self::renderKpiStrip( [
             [ 'num' => (string) count( $rows ), 'label' => __( 'Coaches in selection', 'talenttrack' ) ],
             [ 'num' => (string) $total_evals,   'label' => __( 'Evaluations', 'talenttrack' ) ],
+            [
+                // Numerals and a slash, so the headline reads the same in
+                // every locale without a two-word msgid to mistranslate.
+                'num'   => number_format_i18n( $squad_evaluated ) . ' / ' . number_format_i18n( $squad_total ),
+                'label' => __( 'Squad evaluated this period', 'talenttrack' ),
+            ],
             [ 'num' => $academy_mean !== null ? number_format_i18n( $academy_mean, 2 ) : '—', 'label' => __( 'Mean of coach means', 'talenttrack' ) ],
             [
                 'num'   => (string) $flagged,
@@ -1775,19 +1810,23 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ],
         ] );
         if ( ! $rows ) {
-            self::renderEmpty( __( 'No coaches have evaluations in this selection.', 'talenttrack' ) );
+            self::renderEmpty( __( 'No coaches to report on in this selection.', 'talenttrack' ) );
             return;
         }
 
-        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count, so a coach who evaluated nobody in this period sits at the bottom with a row of zeroes. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>'
             . '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Squad size', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Evaluated this period', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Never evaluated this season', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Ratings', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Mean', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Std dev', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Most-given rating', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Days since', 'talenttrack' ) . '</th>'
             . '</tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $row_class = $r['low_variance'] ? ' class="tt-rep-row--flag"' : '';
@@ -1797,6 +1836,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 echo ' <span class="tt-rep-flag-tag">' . esc_html__( 'low variance', 'talenttrack' ) . '</span>';
             }
             echo '</td>';
+            echo '<td class="num">' . (int) $r['squad_size'] . '</td>';
+            echo '<td class="num">' . (int) $r['players_evaluated'] . '</td>';
+            echo '<td class="num">' . (int) $r['players_never_evaluated'] . '</td>';
             echo '<td class="num">' . (int) $r['eval_count'] . '</td>';
             echo '<td class="num">' . (int) $r['rating_count'] . '</td>';
             echo '<td class="num">' . ( $r['mean_rating'] !== null ? esc_html( number_format_i18n( $r['mean_rating'], 2 ) ) : '—' ) . '</td>';
@@ -1812,6 +1854,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 echo '<td>—</td>';
             }
             echo '<td>' . esc_html( $r['last_eval_date'] ?? '—' ) . '</td>';
+            echo '<td class="num">' . ( $r['days_since_last_eval'] !== null ? esc_html( number_format_i18n( $r['days_since_last_eval'] ) ) : '—' ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';
@@ -1830,10 +1873,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $rows = ( new \TT\Modules\Analytics\Reports\CoachEvalQualityQuery() )->rows( self::coachEvalQualityFilters() );
 
         $out = fopen( 'php://temp', 'r+' );
-        fputcsv( $out, [ 'coach', 'evaluations', 'ratings', 'mean_rating', 'stddev', 'modal_value', 'modal_pct', 'last_evaluation', 'low_variance' ] );
+        fputcsv( $out, [ 'coach', 'squad_size', 'players_evaluated', 'players_never_evaluated', 'evaluations', 'ratings', 'mean_rating', 'stddev', 'modal_value', 'modal_pct', 'last_evaluation', 'days_since_last_evaluation', 'low_variance' ] );
         foreach ( $rows as $r ) {
             fputcsv( $out, [
                 $r['coach_name'],
+                $r['squad_size'],
+                $r['players_evaluated'],
+                $r['players_never_evaluated'],
                 $r['eval_count'],
                 $r['rating_count'],
                 $r['mean_rating'] ?? '',
@@ -1841,6 +1887,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 $r['modal_value'] ?? '',
                 $r['modal_pct'] ?? '',
                 $r['last_eval_date'] ?? '',
+                $r['days_since_last_eval'] ?? '',
                 $r['low_variance'] ? '1' : '0',
             ] );
         }
