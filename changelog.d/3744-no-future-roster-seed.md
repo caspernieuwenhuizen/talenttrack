@@ -1,0 +1,3 @@
+# Creating an activity as completed no longer marks a future roster present (#3744)
+
+Creating an activity already marked Completed seeds the whole active roster as present so a just-played session is rateable straight away. It did that without looking at the date, so an activity dated weeks ahead was saved with a full register nobody had taken — and read as a 100% attended session in the activities list, the attendance grid and every attendance figure. The seed now declines a date in the future: the activity is still created, its register stays empty, and the coach records who turned up on the day. A completed activity dated today or earlier is unchanged.
