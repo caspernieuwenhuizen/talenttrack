@@ -16,6 +16,7 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
 use TT\Modules\Trials\Repositories\TrialStaffInputsRepository;
+use TT\Modules\Trials\Domain\TrialDecisionMotivation;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Reminders\TrialReminderScheduler;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
@@ -53,11 +54,12 @@ class TrialsRestController {
     /**
      * Shortest motivation the decision route accepts, in characters.
      *
-     * Admitting or releasing a child is the hand-off point of a trial and
-     * the one entry a family may ask to see a season later, so a one-word
-     * "Yes" is refused on purpose.
+     * #3786 — the number now lives in `TrialDecisionMotivation`, because
+     * the case screen kept a second copy of this rule and its copy counted
+     * bytes. Kept as an alias so the route reads the same as it did; there
+     * is one definition behind it.
      */
-    private const DECISION_NOTES_MIN = 30;
+    private const DECISION_NOTES_MIN = TrialDecisionMotivation::MIN_CHARS;
 
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
@@ -770,20 +772,18 @@ class TrialsRestController {
 
         $decision = sanitize_key( (string) ( $payload['decision'] ?? '' ) );
         $notes    = sanitize_textarea_field( (string) ( $payload['notes'] ?? '' ) );
-        // Counted in characters, not bytes: the message promises characters,
-        // and a Dutch motivation carrying a few accents used to clear a
-        // byte-counted floor several characters early.
-        $length   = mb_strlen( $notes );
-        if ( $length < self::DECISION_NOTES_MIN ) {
+        // #3786 — one validator, called by this route and by the decide
+        // action on the case screen. Counted in characters, not bytes: the
+        // message promises characters, and a Dutch motivation carrying a
+        // few accents used to clear a byte-counted floor several characters
+        // early on whichever surface still counted bytes.
+        $refusal = TrialDecisionMotivation::refusal( $notes );
+        if ( $refusal !== null ) {
             return RestResponse::error(
                 'bad_request',
-                sprintf(
-                    /* translators: %d: minimum number of characters. */
-                    __( 'The motivation in "notes" must be at least %d characters.', 'talenttrack' ),
-                    self::DECISION_NOTES_MIN
-                ),
+                TrialDecisionMotivation::refusalMessage( $refusal['min_length'], $refusal['length'] ),
                 400,
-                [ 'field' => 'notes', 'min_length' => self::DECISION_NOTES_MIN, 'length' => $length ]
+                $refusal
             );
         }
         // #3138 — `recordDecision()` accepts all six decisions now, because

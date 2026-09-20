@@ -164,6 +164,27 @@
 .tt-dashboard .tt-trial-input-form textarea,
 .tt-dashboard .tt-trial-decision-form textarea { min-height: 72px; }
 
+/* #3786 — a refused motivation, under its own field.
+ *
+ * Not colour-only: it opens with the words "Not saved", which is the part
+ * that matters and the part a red border cannot say. Defined here rather
+ * than reusing `.tt-field-error`, which ships in frontend-admin.css and is
+ * not enqueued on this surface. */
+.tt-dashboard .tt-trial-decision-error {
+    margin: 0;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-danger);
+    border-left-width: 4px;
+    border-radius: var(--tt-radius);
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger-ink);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+.tt-dashboard .tt-trial-decision-form textarea[aria-invalid="true"] {
+    border-color: var(--tt-danger);
+}
+
 /* Standalone action forms (release / accept / regenerate) keep a
  * comfortable gap from the content above and a tappable button. */
 .tt-dashboard .tt-trial-release-form,

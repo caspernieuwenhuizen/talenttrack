@@ -131,7 +131,11 @@ Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `De
 - Stamps `decision_made_at` + `decision_made_by` for the audit trail.
 - Keeps the justification note itself, readable afterwards by anyone who may read the case's staff inputs — the head of development and the coaches assigned to it. It does **not** go to the family: the letter and the parent-meeting view carry none of it.
 
-The 30-character floor is counted in characters, so a short motivation written with accents or other non-Latin letters is measured the same way as one written without them.
+The 30-character floor is counted in characters, so a short motivation written with accents or other non-Latin letters is measured the same way as one written without them. The screen and the API apply the same rule — there is one definition of it — so a motivation either surface accepts is accepted by both.
+
+If the motivation is too short, the Decision tab says so under the field, naming the minimum and how many characters you wrote, **and keeps what you typed**. Nothing is recorded, nothing is sent, and the outcome you picked is still selected when the page comes back.
+
+Recording the decision moves the player's status once, through the decision itself — see the table below. No screen writes that status separately, so the status a player ends up with does not depend on whether the decision was recorded on the page or through the API.
 
 | Decision | The player becomes | Archived? |
 | --- | --- | --- |
