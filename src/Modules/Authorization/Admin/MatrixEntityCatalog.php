@@ -151,6 +151,12 @@ final class MatrixEntityCatalog {
             'strava_integration'            => __( 'Strava integration', 'talenttrack' ),
             'player_timeline'               => __( 'Player timeline', 'talenttrack' ),
             'player_potential'              => __( 'Player potential', 'talenttrack' ),
+            // #3703 — the tournament planner, team-scoped.
+            'tournaments'                   => __( 'Tournaments (planner)', 'talenttrack' ),
+            // #3560 (epic #3558) — one player's own tournament record.
+            // Deliberately a different row from the planner above: this
+            // reaches the player and their family, the planner does not.
+            'player_tournaments'            => __( 'Player tournaments', 'talenttrack' ),
             'player_behaviour_ratings'      => __( 'Player behaviour ratings', 'talenttrack' ),
             'player_status'                 => __( 'Player status', 'talenttrack' ),
             'player_status_breakdown'       => __( 'Player status breakdown', 'talenttrack' ),

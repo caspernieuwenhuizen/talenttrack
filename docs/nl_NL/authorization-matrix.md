@@ -170,6 +170,27 @@ Een eerdere schets in dit document beschreef een andere verdeling — lezen voor
 
 `AuthorizationService::canViewTournament()` / `canEditTournament()` / `canDeleteTournament()` zijn de aanroeppunten; de REST-permission-callbacks, de detail- en bewerktakken van de planner en de dashboardtegel lossen er alle drie via op, zodat ze niet uiteen kunnen lopen. `GET /tournaments` beperkt de eigen regels in SQL tot de teams van de aanvrager — een trainer op teamscope die door de lijst bladert krijgt nooit de selectie van een andere leeftijdsgroep om die vervolgens verborgen te zien.
 
+### Matrix-entiteit `player_tournaments` — één kind, niet het rotatiebord (#3560)
+
+`tournaments` hierboven is de **planner**: elke selectie, elke wedstrijd, elke minuut die de academie die dag verdeelt. De toernooihistorie van één speler is een andere vraag, en krijgt daarom een andere entiteit — `player_tournaments`, alleen `read` — in plaats van een bredere grant op de planner. De planner aan een gezin geven om hun eigen kind te laten zien, zou hun ook de middag van elk ander kind laten zien.
+
+| Persona | Grant |
+| --- | --- |
+| `player` | `read`, self |
+| `parent` | `read`, player |
+| `assistant_coach`, `head_coach` | `read`, team |
+| `head_of_development`, `academy_admin` | `read`, global |
+| `team_manager`, `scout`, `readonly_observer`, `staff` | *(geen)* |
+
+Twee opmerkingen over de vorm:
+
+- **De planner blijft ongemoeid.** Geen wijziging aan `tt_view_tournaments`, aan de entiteit `tournaments` of aan wie die heeft. Een test legt dat vast, want de planner later verbreden "zodat het gezin de dag kan zien" is precies de wijziging die deze entiteit overbodig maakt.
+- **Het hoofd opleiding staat op global, niet op team.** De vormgeving van de epic zette die persona naast de coaches op teamscope; elke andere rij van het hoofd opleiding in de seed staat op global, en een hoofd opleiding heeft geen eigen teamtoewijzing, dus een teamgebonden rij zou voor precies de persona wier werk de hele academie is, als geen toegang hebben gelezen.
+
+Een ouder passeert twee poorten, geen één: deze entiteit laat hen toe tot hun eigen kind, en daarna vraagt `AuthorizationService::parentCanViewSection( …, 'tournaments' )` of het kind het onderdeel open heeft gelaten. Dat onderdeel is nieuw in `PlayerParentVisibilityRepository::SECTIONS` en staat standaard op gedeeld, dus geen enkel gezin verliest iets bij het uitrollen, en er is geen migratie voor nodig — een ontbrekende voorkeursrij betekent gedeeld.
+
+Migratie `0283_authorization_seed_topup_player_tournaments` vult de zes rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft).
+
 ## Matrix-entiteit `exercises` — de oefeningenbibliotheek
 
 De oefeningen-/drilbibliotheek (`tt_exercises`, bediend door `ExercisesRestController` op `/wp-json/talenttrack/v1/exercises`) is clubbreed: een drill die een coach schrijft, is herbruikbaar voor de hele academie. De bibliotheek staat **los van `activities`**, de teamgebonden sessiekalender — daarom krijgt zij een eigen matrix-entiteit, `exercises`, in plaats van de activiteiten-scope te lenen.

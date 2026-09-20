@@ -157,6 +157,14 @@ return array_merge(
         'measurements'            => [ 'r',   'self',   $mod_measurements ],
         // #2591 (epic #2589) — a player sees their own photos and video.
         'media'                   => [ 'r',   'self',   $mod_media ],
+        // #3560 (epic #3558) — a player's own tournament history: the
+        // days they played, the fixtures inside them, their own minutes.
+        // A SEPARATE entity from `tournaments`, which is the planner and
+        // stays admin-and-staff-only: reading one child's record is a
+        // different question from opening the rotation board, and
+        // widening the planner would expose every squad's rotation to
+        // every family.
+        'player_tournaments'      => [ 'r',   'self',   $mod_tournaments ],
         // #2153 — a player connects their own Strava (personal activity
         // data). Self-scoped read/change mirrors `my_profile`; a player
         // can never touch another player's integration.
@@ -204,6 +212,12 @@ return array_merge(
         'measurements'            => [ 'r',   'player', $mod_measurements ],
         // #2591 — a parent sees their own child's media, and no other.
         'media'                   => [ 'r',   'player', $mod_media ],
+        // #3560 (epic #3558) — their own child's tournament history, and
+        // no other child's. Player-scoped for the same reason `media` is.
+        // The child can close it: `tournaments` is a section in
+        // `PlayerParentVisibilityRepository`, so this grant is the outer
+        // gate and the child's choice is the inner one.
+        'player_tournaments'      => [ 'r',   'player', $mod_tournaments ],
         // #2500 (epic #2493) — what their own child has been taught.
         // Read-only and player-scoped: a parent seeing another family's
         // training history would be the same breach as seeing their
@@ -374,6 +388,11 @@ return array_merge(
         // is narrowed per record in `TournamentAccess::canDelete()`, which
         // refuses a tournament whose squad reaches past the actor's teams.
         'tournaments'                => [ 'rcd', 'team',   $mod_tournaments ],
+        // #3560 (epic #3558) — one player's tournament record, on the
+        // player file. Separate from the planner above so it can reach the
+        // family without the rotation board going with it; team-scoped, so
+        // a coach reads it for their own squads' players and nobody else's.
+        'player_tournaments'         => [ 'r',   'team',   $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). The raw `tt_send_email`
         // cap is held by the tt_coach WP role, which backs BOTH coach
         // personas — so AC must hold the action-entity too or it silently
@@ -511,6 +530,9 @@ return array_merge(
         // #3703 — Tournaments, team-scoped. See the assistant_coach note
         // above; both coach personas run the same tournament day.
         'tournaments'                => [ 'rcd', 'team',   $mod_tournaments ],
+        // #3560 (epic #3558) — see the assistant_coach note: one player's
+        // tournament record, on their own squads.
+        'player_tournaments'         => [ 'r',   'team',   $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). Raw `tt_send_email`
         // is held by the tt_coach role behind this persona; seed `rcd` at
         // `global` (the People-page mailer is academy-wide). See the
@@ -741,6 +763,13 @@ return array_merge(
         // question is loudest. Global scope, so the per-record delete
         // narrowing that applies to a coach does not apply here.
         'tournaments'                   => [ 'rcd', 'global', $mod_tournaments ],
+        // #3560 (epic #3558) — one player's tournament record, academy-wide.
+        // Global rather than team, unlike the coaches: the head of
+        // development oversees every squad and holds no team assignment of
+        // their own, so a team-scoped row here would read as "no access"
+        // for the persona the epic names first. Same shape as
+        // `training_exposure` and `tournaments` above.
+        'player_tournaments'            => [ 'r',   'global', $mod_tournaments ],
         // #1945 — Email compose (in-product mailer). HoD oversees the whole
         // academy and reaches every person via the People page, so holds
         // the action-entity `rcd` globally. Raw holder today: tt_head_dev.
@@ -1042,6 +1071,8 @@ return array_merge(
         // persona — the coach/HoD/scout persona-expansion (docs §99-104)
         // is a separate, deliberate future change.
         'tournaments'                   => [ 'rcd', 'global', $mod_tournaments ],
+        // #3560 (epic #3558) — one player's tournament record, academy-wide.
+        'player_tournaments'            => [ 'r',   'global', $mod_tournaments ],
         // #2020 (epic #2018) — recycle bin. The single owner of permanent
         // deletion (archive → trash → purge). Admin-only: only academy_admin
         // (and WP administrators, who bypass) reach the bin. No purge path may
