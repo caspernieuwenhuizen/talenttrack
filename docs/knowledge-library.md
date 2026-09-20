@@ -687,8 +687,45 @@ without anything failing.
 
 `TeamCourseCoverage::forTeam( $team_id, $course_slug )` answers it in one
 query, joining `tt_user_role_scopes` (staff assigned to the team) to
-`tt_course_enrolments`. A `LEFT JOIN`, deliberately: somebody who never
-started the course is the answer to the question, not a row to omit.
+`tt_course_enrolments`.
+
+**Enrolled staff only.** The list started out as a `LEFT JOIN` that reported
+anybody without an enrolment as *not started*, on the reasoning that a coach
+who never began is part of the answer. They are — but it is a different
+answer, and saying it in the enrolment vocabulary made the two
+indistinguishable. "Nobody ever asked this coach to do the course" read
+exactly like "we asked and they have not begun", and the only way to tell was
+to try enrolling the person and watch for a new row appearing.
+
+So the list is enrolment-backed, and the question it answers is *how is this
+team getting on with the course*. **Who still needs assigning** is the
+assignment wizard's question, because the wizard is the surface that can act
+on the answer. The team summary reports three numbers rather than two:
+
+| | what it counts |
+| --- | --- |
+| `total` | the team's staff who are on the course |
+| `done` | how many of those finished |
+| `assigned` | the team's active staff, on the course or not |
+
+`assigned` minus `total` is how many nobody has put on the course yet —
+`unenrolled` in the REST payload. It exists so a screen can say *nobody on
+this team is enrolled yet* rather than render an empty panel that looks
+broken. The report does exactly that, and names the assign-course wizard in
+the same sentence.
+
+Each staff row carries its `due_at` and an `is_overdue` flag derived from
+`EnrolmentRepository::isOverdue()` — the same rule the course card's chip and
+the roll-up's overdue count use, so a deadline cannot be late on one surface
+and fine on another.
+
+**One counting path.** `TeamCourseCoverage::summaryFor()` and
+`LearningStatisticsService::forCourse()` both read
+`LearningStatisticsService::countsFor()`, which takes an optional team.
+Before that the roll-up counted enrolment rows club-wide while the team view
+counted team-assigned people, and both numbers appeared in the same
+`/courses/{slug}/statistics` response — where two honest answers to two
+different questions read as a bug.
 
 **This does not join on methodology, and the epic said it would.** Building it
 showed why it cannot. `tt_principles` holds tactical game principles keyed

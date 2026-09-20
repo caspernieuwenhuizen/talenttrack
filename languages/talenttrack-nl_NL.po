@@ -27132,6 +27132,18 @@ msgstr[1] "%d te laat"
 msgid "All trained"
 msgstr "Allemaal opgeleid"
 
+#: src/Modules/Knowledge/Frontend/LearningReports.php:188
+msgid "Nobody on these teams is enrolled in this course yet."
+msgstr "Niemand van deze teams is al voor deze cursus ingeschreven."
+
+#: src/Modules/Knowledge/Frontend/LearningReports.php:251
+msgid "Assign the course to staff"
+msgstr "Wijs de cursus toe aan staf"
+
+#: src/Modules/Knowledge/Frontend/LearningReports.php:336
+msgid "Nobody enrolled"
+msgstr "Niemand ingeschreven"
+
 #: src/Modules/Knowledge/Frontend/LearningReports.php:290
 msgid "None trained"
 msgstr "Niemand opgeleid"

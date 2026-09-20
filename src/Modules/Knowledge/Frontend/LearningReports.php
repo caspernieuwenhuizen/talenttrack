@@ -172,26 +172,53 @@ final class LearningReports {
             $any = true;
 
             echo '<h2 class="tt-rep-subhead">' . esc_html( $manifest->title() ) . '</h2>';
+
+            // #3769 — the table counts enrolled staff, so a course nobody
+            // has been put on yet has no rows worth printing. Saying so is
+            // the point: the old table filled itself with staff reported as
+            // "not started" who had never been asked to do the course at
+            // all, which read as a team falling behind rather than as work
+            // nobody had assigned.
+            $enrolled = 0;
+            foreach ( $teams as $team ) {
+                $enrolled += (int) $team['total'];
+            }
+
+            if ( $enrolled === 0 ) {
+                self::renderAssignPrompt( __( 'Nobody on these teams is enrolled in this course yet.', 'talenttrack' ) );
+                continue;
+            }
+
             echo '<div class="tt-report-card"><div class="tt-table-wrap">';
             echo '<table class="tt-table tt-learning-report">';
             echo '<thead><tr>';
             echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+            echo '<th scope="col" class="num">' . esc_html__( 'Enrolled', 'talenttrack' ) . '</th>';
             echo '<th scope="col" class="num">' . esc_html__( 'Staff trained', 'talenttrack' ) . '</th>';
             echo '<th scope="col">' . esc_html__( 'Coverage', 'talenttrack' ) . '</th>';
             echo '</tr></thead><tbody>';
 
             foreach ( $teams as $team ) {
-                $done  = (int) $team['done'];
-                $total = (int) $team['total'];
+                $done     = (int) $team['done'];
+                $total    = (int) $team['total'];
+                $assigned = (int) $team['assigned'];
 
                 echo '<tr>';
                 echo '<th scope="row">' . esc_html( (string) $team['team_name'] ) . '</th>';
                 echo '<td class="num">' . esc_html( sprintf(
-                    /* translators: 1: how many staff finished, 2: how many staff there are */
+                    /* translators: 1: how many of the team's staff are on the course, 2: how many staff the team has */
                     __( '%1$d of %2$d', 'talenttrack' ),
-                    $done,
-                    $total
+                    $total,
+                    $assigned
                 ) ) . '</td>';
+                echo '<td class="num">' . ( $total === 0
+                    ? '<span class="tt-learning-report__zero">—</span>'
+                    : esc_html( sprintf(
+                        /* translators: 1: how many staff finished, 2: how many staff are on the course */
+                        __( '%1$d of %2$d', 'talenttrack' ),
+                        $done,
+                        $total
+                    ) ) ) . '</td>';
                 echo '<td>' . self::coverageCell( $done, $total ) . '</td>';
                 echo '</tr>';
             }
@@ -202,6 +229,30 @@ final class LearningReports {
         if ( ! $any ) {
             self::renderEmpty( __( 'No team has staff assigned to it yet, so there is nothing to measure coverage against.', 'talenttrack' ) );
         }
+    }
+
+    /**
+     * The empty state for a course nobody has been put on yet (#3769).
+     *
+     * Names the way out rather than leaving a blank panel: a head of
+     * development reading "nobody is enrolled" needs the wizard that fixes
+     * it, not a second screen to go looking for. The link only appears when
+     * the wizard is actually available — `urlFor()` answers with the
+     * fallback when it is switched off, and an empty fallback means there
+     * is nothing to offer.
+     */
+    private static function renderAssignPrompt( string $message ): void {
+        $url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'assign-course', '' );
+
+        echo '<p class="tt-notice">' . esc_html( $message );
+
+        if ( $url !== '' && current_user_can( 'tt_manage_knowledge' ) ) {
+            echo ' <a href="' . esc_url( $url ) . '">'
+                . esc_html__( 'Assign the course to staff', 'talenttrack' )
+                . '</a>';
+        }
+
+        echo '</p>';
     }
 
     /* ===== shared bits ===== */
@@ -276,8 +327,13 @@ final class LearningReports {
 
     /** Coverage as a chip carrying the word as well as the colour. */
     private static function coverageCell( int $done, int $total ): string {
+        // No enrolments is not nought per cent (#3769). Nobody on this team
+        // has been put on the course, which is a fact about the assignment
+        // and not about the team's progress; the neutral chip says so
+        // instead of colouring it like a team falling behind.
         if ( $total === 0 ) {
-            return '<span class="tt-learning-report__zero">—</span>';
+            return '<span class="tt-learning-chip tt-learning-chip--none">'
+                . esc_html__( 'Nobody enrolled', 'talenttrack' ) . '</span>';
         }
 
         if ( $done === $total ) {
