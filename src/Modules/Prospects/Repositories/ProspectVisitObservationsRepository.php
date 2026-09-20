@@ -162,6 +162,10 @@ class ProspectVisitObservationsRepository {
               WHERE club_id = %d AND scouting_visit_id = %d",
             CurrentClub::id(), $visit_id
         ) );
-        return array_map( 'intval', (array) $ids );
+        $out = [];
+        foreach ( (array) $ids as $id ) {
+            $out[] = (int) $id;
+        }
+        return $out;
     }
 }
