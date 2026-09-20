@@ -40,7 +40,8 @@ use TT\Shared\Frontend\Components\RecordLink;
  * ## The family may switch this on, and what they are told is bounded
  *
  * #3795 / #3803. The family asked for this one by name: it is the answer to
- * "was anything said to my son about that session, or was it just filed?".
+ * whether anything was said to their son about that training, or whether it
+ * was only filed.
  *
  * It is also the definition in the parent set that needs the most care, so
  * the family sentence is deliberately thin. It names the child, says
