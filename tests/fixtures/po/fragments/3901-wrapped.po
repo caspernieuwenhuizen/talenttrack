@@ -1,0 +1,7 @@
+#: src/Modules/Comms/Frontend/FrontendThreadView.php:88
+msgid "Scheduled sends are skipped while the academy is closed, and resume on the next working day."
+msgstr "Geplande verzendingen worden overgeslagen zolang de academie gesloten is, en hervatten op de eerstvolgende werkdag."
+
+#: src/Modules/Teams/Frontend/FrontendTeamDetailView.php:77
+msgid "Back to squad"
+msgstr "Terug naar de selectie"
