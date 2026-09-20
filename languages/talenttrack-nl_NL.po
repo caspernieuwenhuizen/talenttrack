@@ -65470,6 +65470,10 @@ msgstr[1] ""
 "Nooit afgerond: %1$d activiteiten zijn voorbij en zijn nooit op afgerond "
 "gezet — %2$s"
 
+#: src/Shared/CoreSurfaceRegistration.php:1590
+msgid "Tell a team, an age group or the academy something, inside the record."
+msgstr "Vertel een team, een leeftijdscategorie of de academie iets, binnen het dossier."
+
 #. translators: %s: an age group, for example O13
 #: src/Modules/Comms/Send/MassAnnouncementSender.php:302
 #, php-format
