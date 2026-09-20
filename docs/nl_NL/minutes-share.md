@@ -71,10 +71,23 @@ die alleen rood is zegt niets in zwart-wit of voor een kleurenblinde lezer.
 De rijen staan gesorteerd op **laagste aandeel eerst**. De spelers waar dit
 rapport over gaat, horen niet onderaan een scroll.
 
+## Wat er buiten de periode viel
+
+Het rapport gaat over de periode die je koos, en het vertelt nu ook wat daar
+buiten viel: *"3 gespeelde wedstrijden vallen buiten deze periode, tussen
+14 september 2024 en 7 juni 2025."* Die wedstrijden telden nergens op de pagina
+mee. Gaat het je om een seizoen in plaats van de laatste twaalf maanden, stel
+dat dan in met het **Van** / **Tot**-bereik of de pil **Dit seizoen** boven het
+rapport.
+
 ## Als het rapport leeg is
 
-- *Geen wedstrijden gespeeld in deze periode* — de noemer is nul, dus er valt
- geen aandeel te berekenen. Verruim de periode.
+- *Geen wedstrijden gespeeld in deze periode, maar er vallen er wel buiten* —
+ de periode staat op de verkeerde maanden. De melding geeft de datums waarheen
+ je kunt verruimen.
+- *Dit team heeft helemaal geen gespeelde wedstrijden vastgelegd* — er valt
+ niets te verruimen. Kijk in het activiteitenlogboek: of de wedstrijden staan
+ er nog niet in, of ze staan er wel maar zijn niet als gespeeld gemarkeerd.
 - *Er zijn wedstrijden gespeeld maar geen minuten vastgelegd* — de wedstrijden
  zijn er, de minuten niet. Leg ze vast vanuit de activiteit;
  **Minutenverdeling** laat zien welke wedstrijden ze missen.
