@@ -65701,5 +65701,17 @@ msgstr[1] ""
 "mee te nemen."
 
 #: src/Infrastructure/REST/TournamentsRestController.php
+msgid ""
+"This tournament includes teams you don’t manage, so it can’t be deleted from "
+"here."
+msgstr ""
+"Dit toernooi bevat teams die jij niet begeleidt, dus het kan hier niet "
+"worden verwijderd."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "This tournament belongs to a team you don’t manage."
+msgstr "Dit toernooi hoort bij een team dat jij niet begeleidt."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
 msgid "You do not have permission to delete this tournament."
 msgstr "Je hebt geen toestemming om dit toernooi te verwijderen."
