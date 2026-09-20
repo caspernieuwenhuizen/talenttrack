@@ -270,10 +270,12 @@ De beslissing wordt opgelost via de matrixentiteit `team_chemistry` (`MatrixGate
 
 Omdat de matrix nu de enige bron van waarheid is, krijgen twee persona's die voorheen de ruwe leescapability hadden geen `team_chemistry`-toegang meer:
 
-- **Assistent-coaches verliezen `team_chemistry`-leestoegang.** De matrix laat `team_chemistry` weg bij `assistant_coach` (verwijderd door de redactionele beslissing #1060 "AC is operationeel, HC is ontwikkeling"). Assistent-coaches delen de WP-rol `tt_coach` met hoofdcoaches, dus de rol draagt de capability nog, maar de persona-bewuste matrixcontrole weigert hen. Hoofdcoaches (ook `tt_coach`) houden toegang via hun rij `team_chemistry [rc, team]`.
+- **Assistent-trainers verloren `team_chemistry`-leestoegang en hebben die alleen-lezen terug.** De redactionele beslissing #1060 "AC is operationeel, HC is ontwikkeling" haalde de rij weg als ontwikkelingsanalyse. De entiteit draagt ook de team**formatie** en de **blauwdruk**, dus die verwijdering nam de vorm weg waarmee de assistent-trainer werkt — hij zag de opstelling op het veld, maar niet de formatie waar die uit voortkomt. De assistent-trainer heeft nu `team_chemistry [r, team]`: alleen lezen, alleen eigen teams. Formaties, blauwdrukken en koppels opstellen blijft bij de hoofdtrainer, die `change` houdt.
 - **Alleen-lezen-waarnemers verliezen `team_chemistry`-leestoegang.** De alles-ziende waarnemer (`tt_readonly_observer`) heeft geen `team_chemistry`-matrixrij, dus de controle weigert hem. De verouderde `tt_view_team_chemistry`-roltoekenning wordt bij upgrade ingetrokken zodat de WP-capabilities samenvallen met de matrixautoriteit.
 
-Persona's die toegang houden: `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
+Persona's met toegang: `assistant_coach` (lezen, teamscope), `head_coach` (lezen + beheren, teamscope), `team_manager` (lezen, teamscope), `scout` (lezen, globaal), `head_of_development` (lezen, globaal), `academy_admin` (lezen + beheren, globaal). WP-beheerders en andere houders van `tt_edit_settings` omzeilen de per-team-leescontrole zoals voorheen.
+
+Het chemiebord (voorgestelde basiself, door de trainer gemarkeerde koppels, dieptekaart) gaat samen met de formatie open voor de assistent-trainer. Dat is aanvaard en niet omzeild: één entiteit regelt beide, en ze splitsen zou een seed-entiteit toevoegen om een blik op de selectie te verbergen waar de assistent-trainer al voor staat.
 
 ### Resterende blauwdruk-oppervlakken via `TeamChemistryAccess`
 

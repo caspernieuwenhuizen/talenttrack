@@ -36,8 +36,11 @@ use TT\Modules\Authorization\MatrixGate;
  *   - scout             — `team_chemistry [r,  global]`(read only)
  *   - head_of_development — `team_chemistry [r, global]` (read only)
  *   - academy_admin     — `team_chemistry [rcd, global]`(read + manage)
- *   - assistant_coach   — NO row (removed by the #1060 "AC is operational"
- *                         decision) → no read, no manage.
+ *   - assistant_coach   — `team_chemistry [r,  team]`  (read only). #1060
+ *                         removed the row as development analytics; #3706
+ *                         restored it as read-only, because the entity also
+ *                         carries the formation and the blueprint the
+ *                         assistant coach coaches from. Manage stays HC.
  *   - readonly_observer — no `team_chemistry` row → no read, no manage.
  *                         (#3177 gave the observer eight read rows, none
  *                         of them this entity, so the answer is unchanged.)
