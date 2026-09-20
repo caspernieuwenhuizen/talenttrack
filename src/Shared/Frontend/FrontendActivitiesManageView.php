@@ -2103,6 +2103,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
             echo '</div>';
 
+            self::renderRegisterLastSaved( $activity_id );
+
             // If recorded rows < current roster, surface the gap.
             if ( $total < $roster_size ) {
                 $unrecorded = $roster_size - $total;
@@ -2136,6 +2138,48 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</div>';
         echo '</div>';
+    }
+
+    /**
+     * #3655 — "Register last saved by X on <date>", under the attendance
+     * bar.
+     *
+     * A head coach opened a completed trial training carrying one mark
+     * neither they nor their assistant had entered, and the page could not
+     * say where it came from. Attendance feeds minutes, exposure and
+     * evaluation eligibility, so a coach has to be able to trust or
+     * correct a mark they did not make.
+     *
+     * It says **last saved**, deliberately. Saving a register deletes and
+     * re-inserts its recorded rows, so every row of one save carries the
+     * same author and time; a line reading "recorded by" would promise
+     * per-mark history the table does not hold.
+     *
+     * Renders nothing when no row on the register is stamped — every
+     * activity registered before migration 0275, which stays blank rather
+     * than gaining a fabricated author.
+     */
+    private static function renderRegisterLastSaved( int $activity_id ): void {
+        // The answer is the domain service's, not the view's (CLAUDE.md
+        // §4); the view formats the UTC stamp for a reader and nothing
+        // more. Already primed by the card's own counts, so this costs no
+        // extra query.
+        $last_saved = \TT\Modules\Activities\Services\ActivityRegisterProgress::lastSavedFor( $activity_id );
+        if ( $last_saved === null ) return;
+
+        $when = \TT\Shared\Dates\TTDate::dateTimeFromGmt( $last_saved['at'] );
+        if ( $when === '' ) return;
+
+        $who = $last_saved['name'] !== ''
+            ? $last_saved['name']
+            : __( 'a former user', 'talenttrack' );
+
+        echo '<p class="tt-act-att__saved">' . esc_html( sprintf(
+            /* translators: 1: user name, 2: date and time */
+            __( 'Register last saved by %1$s on %2$s', 'talenttrack' ),
+            $who,
+            $when
+        ) ) . '</p>';
     }
 
     /**

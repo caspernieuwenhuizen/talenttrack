@@ -271,6 +271,15 @@ class ActivityGenerator implements DependentGeneratorInterface {
                         'player_id'  => $player_id,
                         'status'     => $status,
                         'notes'      => '',
+                        // #3655 — the register was saved by the team's head
+                        // coach on the evening of the activity, not by
+                        // whoever ran the seeder at whatever hour. Passing
+                        // both stamps explicitly is what `AttendanceWriter`
+                        // leaves room for, and it is what makes the
+                        // "Register last saved by …" line show something
+                        // plausible on a demo install.
+                        'recorded_by' => $coach_id > 0 ? $coach_id : null,
+                        'recorded_at' => $when . ' 19:30:00',
                     ] ) ?? 0 );
                     if ( $att_id ) {
                         $this->registry->tag( 'attendance', $att_id );

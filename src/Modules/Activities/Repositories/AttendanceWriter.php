@@ -54,6 +54,15 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * and lingers when it is recorded another, and that reads as a bug rather
  * than as staleness.
  *
+ * ## The stamp (#3655)
+ *
+ * Every RECORDED row gets `recorded_by` / `recorded_at` from here, and
+ * from nowhere else — a coach who finds a mark they did not make has to
+ * be able to ask who did. It is the **last save of the register**, not
+ * per-mark history: a register save deletes and re-inserts its rows, so
+ * one save stamps them all alike. Planned rows are never stamped, and an
+ * update only restamps when it carries a `status`.
+ *
  * ## What it is not
  *
  * It is not a read layer. Reads stay where they are, scoped by the
@@ -110,6 +119,9 @@ final class AttendanceWriter {
         $row['record_type'] = $record_type;
         if ( ! array_key_exists( 'club_id', $row ) ) {
             $row['club_id'] = CurrentClub::id();
+        }
+        if ( $record_type === self::RECORDED ) {
+            $row = self::stamp( $row );
         }
 
         $ok = $wpdb->insert( $this->table(), $row );
@@ -268,6 +280,7 @@ final class AttendanceWriter {
 
         unset( $fields['record_type'] );
         if ( $fields === [] ) return false;
+        $fields = self::stampIfRegisterSave( $fields );
 
         $ok = $wpdb->update( $this->table(), $fields, [ 'id' => $row_id, 'club_id' => CurrentClub::id() ] ) !== false; /* both-kinds-ok */
         self::announce( $this->activityIdOfRow( $row_id ) );
@@ -290,6 +303,7 @@ final class AttendanceWriter {
 
         unset( $fields['record_type'] );
         if ( $fields === [] ) return false;
+        $fields = self::stampIfRegisterSave( $fields );
 
         $ok = $wpdb->update( $this->table(), $fields, [ /* both-kinds-ok */
             'id'       => $row_id,
@@ -408,6 +422,55 @@ final class AttendanceWriter {
             'lineup_role'     => $lineup_role,
             'position_played' => $position_played,
         ] );
+    }
+
+    /* ---------------------------------------------------------------
+     * Who saved the register, and when (#3655)
+     * ------------------------------------------------------------- */
+
+    /**
+     * Stamp `recorded_by` / `recorded_at` onto a row about to be written.
+     *
+     * The stamp says **who saved the register last**, not who made each
+     * mark. Saving a register deletes and re-inserts the recorded rows, so
+     * every row of one save carries the same author and time — the copy
+     * above it says exactly that rather than pretending to per-mark
+     * history.
+     *
+     * A caller-supplied value wins, which is what lets the demo generator
+     * and the Excel importer stamp the coach and the activity's own date
+     * instead of whoever happened to run the job. `recorded_by` is NULL
+     * where there is no current user (WP-CLI, cron), because 0 is a user
+     * id nobody has and rendering it would invent an author.
+     *
+     * @param array<string, mixed> $row
+     * @return array<string, mixed>
+     */
+    private static function stamp( array $row ): array {
+        if ( ! array_key_exists( 'recorded_by', $row ) ) {
+            $uid = get_current_user_id();
+            $row['recorded_by'] = $uid > 0 ? $uid : null;
+        }
+        if ( ! array_key_exists( 'recorded_at', $row ) ) {
+            $row['recorded_at'] = (string) current_time( 'mysql', true );
+        }
+        return $row;
+    }
+
+    /**
+     * Restamp an update only when it is a register save.
+     *
+     * `status` is what a register save writes. Minutes, the line-up
+     * projection (`upsertLineupProjection()`) and a notes-only edit are
+     * not somebody taking a register, and restamping on those would move
+     * the author of the register onto whoever last typed a minute.
+     *
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private static function stampIfRegisterSave( array $fields ): array {
+        if ( ! array_key_exists( 'status', $fields ) ) return $fields;
+        return self::stamp( $fields );
     }
 
     /* ---------------------------------------------------------------

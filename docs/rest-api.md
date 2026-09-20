@@ -405,7 +405,10 @@ Every row the activity list endpoint returns carries a `register` object saying 
 ```json
 {
   "register": {
-    "attendance": { "recorded": 9, "expected": 13, "state": "partial" },
+    "attendance": {
+      "recorded": 9, "expected": 13, "state": "partial",
+      "last_saved": { "user_id": 12, "name": "Anna Bakker", "at": "2026-09-14 19:30:00" }
+    },
     "minutes":    { "recorded": 0, "expected": 11, "state": "none" }
   }
 }
@@ -419,6 +422,10 @@ What the counts mean:
 - **Minutes** — of the actual rows whose status is `Present` or `Late`, the ones carrying `minutes_played`, over all of them. A player who was absent is not missing minutes.
 
 **Actual rows only.** The planned roster lives in the same table under `record_type = 'expected'` and carries real statuses, so a count that omitted the predicate would report a full register for exactly the activity whose register is missing.
+
+`attendance.last_saved` (#3655) says **who saved the register last, and when** — `user_id` (the WP user id), `name` (display name, `""` when the account is gone or the write had no user behind it) and `at`, the stored UTC `DATETIME`. It is `null` where no row on the register is stamped, which is every register recorded before migration 0275 as well as one written by a job with no author; those stay blank rather than gaining a fabricated one.
+
+It is **not** per-mark history. Saving a register deletes and re-inserts its recorded rows, so every row of one save carries the same stamp and the newest one is the answer. A client presenting it must say "last saved by", not "recorded by" — three people each correcting one player leaves only the third visible. Guests are excluded on the same grounds the counts exclude them. The stamp is written by `AttendanceWriter` and nowhere else, and only for `record_type = 'actual'` rows and only when the write carries a `status`; minutes, the line-up projection and a notes-only edit are not somebody taking a register.
 
 Both shapes are the same service. `ActivityRegisterProgress::state()` answers for one activity and is what `register_state` carries; `prime()` + `forRow()` answer for a page and are what this field carries, batched into one `GROUP BY activity_id` plus one roster count for the teams on the page. One `rate()` grades both, so the completion guard and the list readout cannot disagree about the same register.
 
