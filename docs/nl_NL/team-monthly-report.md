@@ -39,7 +39,10 @@ kiest.
 **Secties** zijn de onderdelen van het rapport. Vink aan wat je wilt zien en het
 rapport past zich direct aan. Het adres in je browser verandert mee, dus als je
 de link kopieert opent een collega precies hetzelfde rapport. Het briefhoofd —
-team, periode, hoofdtrainer — staat er altijd in.
+team, periode, hoofdtrainer — staat er altijd in. Het aantal activiteiten daarin
+is alles wat in de periode op de teamkalender staat, of het nu op afgerond staat
+of niet, zodat het overeenkomt met wat je in de activiteitenlijst ziet.
+Geannuleerde sessies blijven erbuiten.
 
 Van sommige secties kun je meer instellen dan of ze meedoen. Vink je zo'n sectie
 aan, dan verschijnen de instellingen eronder.
@@ -128,7 +131,11 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 - **Datadekking** — hoeveel van de afgeronde trainingen en wedstrijden in de
   periode een presentielijst hebben, en welke niet. Dit staat boven de cijfers
   omdat elk percentage eronder ervan afhangt. Als er niets ontbreekt, staat dat
-  er in het groen — het blok verdwijnt dan niet gewoon.
+  er in het groen — het blok verdwijnt dan niet gewoon. Op een eigen regel
+  noemt het ook elke sessie waarvan de datum voorbij is en die niemand op
+  **afgerond** heeft gezet. Die leveren geen aanwezigheid, geen minuten en geen
+  evaluaties op, dus ze tellen nergens hieronder mee totdat je ze afrondt. Dat
+  is iets anders dan een ontbrekende presentielijst, en daarom staat het apart.
 - **Kerncijfers** — activiteiten, aanwezigheid, mediaan minutenaandeel,
   evaluatiedekking, selectiebeoordeling en het aantal spelers dat aandacht nodig
   heeft, elk vergeleken met de periode ervoor. Is er niets om mee te vergelijken,
