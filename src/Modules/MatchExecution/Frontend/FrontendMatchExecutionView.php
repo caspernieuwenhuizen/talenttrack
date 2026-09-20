@@ -175,6 +175,33 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         echo $part( 'overlays' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
     }
 
+    /**
+     * #2222 — the explicit edit affordance. Read-only by default; shown
+     * only for a state that still accepts writes and is not being played
+     * (`hasEditToggle()`, so never on FINALIZED and never mid-match, where
+     * the controls are simply there). It flips the container's
+     * `data-edit-mode`, which is what the CSS reveals the score steppers,
+     * the goal and substitution buttons and the late-event panels against.
+     *
+     * #3848 — rendered in two places under the sectioned shell: the header,
+     * which lives on the Pitch tab, and the top of the review panel, which
+     * is the tab a post-match screen opens on and the one telling the coach
+     * to turn Edit on. There is still one source of truth — the root
+     * attribute — and the JS keeps every toggle showing the same state.
+     */
+    private static function renderEditToggle( string $state, string $initial_edit_mode ): void {
+        if ( ! MatchExecutionState::hasEditToggle( $state ) ) return;
+        $edit_on = ( $initial_edit_mode === 'on' );
+        ?>
+                    <div class="tt-mexec-edit-toggle">
+                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
+                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
+                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php echo $edit_on ? esc_html__( 'Done editing', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ); ?></span>
+                        </button>
+                    </div>
+        <?php
+    }
+
     /** One tab panel. Hidden unless it is the state's default. */
     private static function panel( string $id, string $default_id, string $html ): void {
         printf(
@@ -498,22 +525,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <span class="tt-mexec-when"><?php echo esc_html( $when ); ?></span>
                     <?php endif; ?>
                 </p>
-                <?php // #2222 — explicit edit affordance. Read-only by default;
-                      // shown only for states that still accept live-data writes
-                      // (never on FINALIZED). Toggles the container's
-                      // data-edit-mode so the CSS reveals/hides the score
-                      // steppers, goal/sub buttons, and late-event panels.
-                      // #3549 — post-match review only. Before and during
-                      // the match the controls are simply there. ?>
-                <?php if ( MatchExecutionState::hasEditToggle( $state ) ) : ?>
-                    <?php $edit_on = ( $initial_edit_mode === 'on' ); ?>
-                    <div class="tt-mexec-edit-toggle">
-                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
-                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
-                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php echo $edit_on ? esc_html__( 'Done editing', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ); ?></span>
-                        </button>
-                    </div>
-                <?php endif; ?>
+                <?php self::renderEditToggle( $state, $initial_edit_mode ); ?>
             </header>
 
             <?php // #2857 — the scoreline is a readout of the goal log, not a
@@ -1210,6 +1222,18 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         }
                         ?>
                     </p>
+                    <?php
+                    // #3848 — the toggle, here, where the copy below asks for
+                    // it. Under the sectioned shell the header's copy of it
+                    // lives on the Pitch tab, two taps from the tab a
+                    // post-match screen opens on, so the first thing a coach
+                    // does after a match read as "you cannot do this here".
+                    // Only under that shell: the classic shell renders the
+                    // header in the same column, a few centimetres up.
+                    if ( $tt_sections ) {
+                        self::renderEditToggle( $state, $initial_edit_mode );
+                    }
+                    ?>
                     <?php
                     // #3445 — a match that closed with no register says so
                     // here, where the coach lands after the final whistle.

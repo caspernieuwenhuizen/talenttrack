@@ -96,7 +96,11 @@ goals, actions and substitutions are always one tap away.
 
 In the **post-match review window** the screen opens read-only to guard
 against accidental taps: the score, goals, and substitutions are shown but
-not editable until you tap **Edit** in the header.
+not editable until you tap **Edit** in the header. On the sectioned layout
+the Review tab carries its own **Edit** button, so the tab that opens after
+the final whistle is the tab you can switch editing on from. There is one
+setting behind the two buttons — turn it on anywhere and every tab is
+editable, with both buttons reading *Done editing*.
 
 ## The match clock
 
