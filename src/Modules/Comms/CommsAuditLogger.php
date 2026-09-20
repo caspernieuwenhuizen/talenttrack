@@ -71,6 +71,32 @@ final class CommsAuditLogger {
                 'error_code'          => $result->errorCode,
                 'attempt'             => 1,
                 'attached_export_id'  => $request->attachedExportId,
+
+                // #3696 — stamp the time from the clock the product reasons
+                // in, not the one the database happens to run on.
+                //
+                // `created_at` used to be left to the column's
+                // `DEFAULT CURRENT_TIMESTAMP` (migration 0075), which is the
+                // MySQL server's local time. Every time decision in Comms
+                // uses `wp_timezone()` — `QuietHoursPolicy::shouldDefer()`
+                // above all — so on an install whose database zone differs
+                // from WordPress's, the log showed a time the decision was
+                // not made at.
+                //
+                // Measured on the pilot install: MariaDB `NOW()` read
+                // 23:26 (Europe/Berlin) where WordPress read 21:26 (UTC).
+                // A `trial_input_reminder` correctly held for quiet hours at
+                // 06:10 WordPress time was logged at 08:10 — outside the
+                // 21:00-07:00 window it had just been deferred by. An
+                // operator reading that row would reasonably conclude the
+                // quiet-hours policy was broken.
+                //
+                // Rows written before this carry the database server's local
+                // time and are deliberately left alone: there is no per-row
+                // record of what that offset was, so rewriting them would
+                // move timestamps that are already correct wherever the two
+                // zones happened to agree.
+                'created_at'          => current_time( 'mysql', true ),
             ];
 
             // #3383 — the second fact, written beside the status rather than
