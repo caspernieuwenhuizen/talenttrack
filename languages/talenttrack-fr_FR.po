@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T13:52:24+00:00\n"
+"POT-Creation-Date: 2026-09-20T14:49:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -99,7 +99,7 @@ msgstr ""
 #: includes/Activator.php:178
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:43
 #: src/Infrastructure/Security/RolesService.php:508
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:290
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:237
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:216
@@ -117,9 +117,9 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:207
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:231
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:175
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1079
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1233
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1291
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1114
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1268
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1326
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:291
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:319
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:160
@@ -127,8 +127,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:440
 #: src/Modules/Authorization/Matrix/MatrixEditService.php:266
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:228
-#: src/Modules/Configuration/Admin/FormSlugContract.php:118
-#: src/Modules/Configuration/Admin/FormSlugContract.php:131
+#: src/Modules/Configuration/Admin/FormSlugContract.php:119
+#: src/Modules/Configuration/Admin/FormSlugContract.php:132
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:23
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:23
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:21
@@ -148,8 +148,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:245
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:379
 #: src/Modules/Export/Exporters/MeasurementResultsXlsxExporter.php:498
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:581
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:642
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:610
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:671
 #: src/Modules/Goals/Admin/GoalsPage.php:75
 #: src/Modules/Goals/Admin/GoalsPage.php:174
 #: src/Modules/Invitations/InvitationKind.php:52
@@ -205,13 +205,13 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:282
 #: src/Shared/Frontend/DashboardShortcode.php:315
 #: src/Shared/Frontend/DashboardShortcode.php:2340
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3998
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4010
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4087
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4098
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4252
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4275
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4330
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4034
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4046
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4123
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4134
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4288
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4311
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4366
 #: src/Shared/Frontend/FrontendConfigurationView.php:2974
 #: src/Shared/Frontend/FrontendEvaluationsView.php:174
 #: src/Shared/Frontend/FrontendEvaluationsView.php:189
@@ -246,6 +246,8 @@ msgstr "Joueur"
 
 #: includes/Activator.php:179 src/Infrastructure/Query/LabelTranslator.php:90
 #: src/Infrastructure/Security/RolesService.php:401
+#: src/Modules/Activities/Admin/ActivitiesPage.php:368
+#: src/Modules/Configuration/Admin/FormSlugContract.php:107
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:193
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:240
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:52
@@ -256,8 +258,10 @@ msgstr "Joueur"
 #: src/Modules/Reports/Admin/ReportsPage.php:312
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:276
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:506
+#: src/Modules/Wizards/Activity/ReviewStep.php:152
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3724
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
 #: src/Shared/Frontend/FrontendEvaluationsView.php:176
 #: src/Shared/Frontend/FrontendEvaluationsView.php:454
@@ -308,7 +312,7 @@ msgid "Staff"
 msgstr "Personnel"
 
 #: includes/Admin/Reports.php:55
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:326
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:328
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:590
@@ -1236,7 +1240,7 @@ msgid "Detail"
 msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:27
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:304
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:588
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:605
@@ -1767,7 +1771,7 @@ msgstr ""
 #. translators: %s: comma-separated list of missing inputs
 #: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:202
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:149
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:853
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:888
 #, php-format
 msgid "Computed without %s."
 msgstr ""
@@ -2082,7 +2086,7 @@ msgstr "Autre"
 
 #: src/Infrastructure/Query/LabelTranslator.php:117
 #: src/Infrastructure/Query/LabelTranslator.php:494
-#: src/Modules/Activities/Admin/ActivitiesPage.php:120
+#: src/Modules/Activities/Admin/ActivitiesPage.php:121
 #: src/Modules/Analytics/ScheduledReportsRepository.php:78
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
@@ -2244,8 +2248,8 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:242
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:49
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4469
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4531
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4505
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4567
 msgid "Tournament"
 msgstr "Tournoi"
 
@@ -2518,8 +2522,8 @@ msgid "Radar charts"
 msgstr ""
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:44
-#: src/Modules/Activities/Admin/ActivitiesPage.php:98
-#: src/Modules/Activities/Admin/ActivitiesPage.php:345
+#: src/Modules/Activities/Admin/ActivitiesPage.php:99
+#: src/Modules/Activities/Admin/ActivitiesPage.php:346
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:467
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:623
 #: src/Modules/Analytics/AnalyticsModule.php:119
@@ -2543,7 +2547,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:350
 #: src/Modules/Authorization/Admin/RolesPage.php:490
 #: src/Modules/Configuration/Admin/FormSlugContract.php:64
-#: src/Modules/Configuration/Admin/FormSlugContract.php:106
+#: src/Modules/Configuration/Admin/FormSlugContract.php:102
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:24
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:34
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:34
@@ -2608,7 +2612,7 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:717
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
 #: src/Modules/Vct/Wizard/WhenStep.php:52
-#: src/Modules/Wizards/Activity/ReviewStep.php:60
+#: src/Modules/Wizards/Activity/ReviewStep.php:61
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
 #: src/Modules/Wizards/Goal/PlayerStep.php:76
@@ -2821,21 +2825,21 @@ msgctxt "PDP file identity"
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:413
-#: src/Infrastructure/REST/ActivitiesRestController.php:559
-#: src/Infrastructure/REST/ActivitiesRestController.php:731
+#: src/Infrastructure/REST/ActivitiesRestController.php:415
+#: src/Infrastructure/REST/ActivitiesRestController.php:561
+#: src/Infrastructure/REST/ActivitiesRestController.php:733
 msgid "No changes supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:419
-#: src/Infrastructure/REST/ActivitiesRestController.php:696
-#: src/Infrastructure/REST/ActivitiesRestController.php:1410
-#: src/Infrastructure/REST/ActivitiesRestController.php:1603
-#: src/Infrastructure/REST/ActivitiesRestController.php:1620
-#: src/Infrastructure/REST/ActivitiesRestController.php:1650
-#: src/Infrastructure/REST/ActivitiesRestController.php:2208
-#: src/Infrastructure/REST/ActivitiesRestController.php:2394
-#: src/Infrastructure/REST/ActivitiesRestController.php:2434
+#: src/Infrastructure/REST/ActivitiesRestController.php:421
+#: src/Infrastructure/REST/ActivitiesRestController.php:698
+#: src/Infrastructure/REST/ActivitiesRestController.php:1419
+#: src/Infrastructure/REST/ActivitiesRestController.php:1625
+#: src/Infrastructure/REST/ActivitiesRestController.php:1642
+#: src/Infrastructure/REST/ActivitiesRestController.php:1672
+#: src/Infrastructure/REST/ActivitiesRestController.php:2293
+#: src/Infrastructure/REST/ActivitiesRestController.php:2479
+#: src/Infrastructure/REST/ActivitiesRestController.php:2519
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:108
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:71
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:88
@@ -2844,30 +2848,30 @@ msgstr ""
 msgid "Activity not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:425
+#: src/Infrastructure/REST/ActivitiesRestController.php:427
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:116
 #: src/Modules/Authorization/ActivityTeamScope.php:95
 msgid "You do not coach this activity's team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:534
-#: src/Infrastructure/REST/ActivitiesRestController.php:652
-#: src/Infrastructure/REST/ActivitiesRestController.php:704
+#: src/Infrastructure/REST/ActivitiesRestController.php:536
+#: src/Infrastructure/REST/ActivitiesRestController.php:654
+#: src/Infrastructure/REST/ActivitiesRestController.php:706
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:145
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:126
 msgid "That team is not in your scope."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:691
-#: src/Infrastructure/REST/ActivitiesRestController.php:1399
-#: src/Infrastructure/REST/ActivitiesRestController.php:1597
-#: src/Infrastructure/REST/ActivitiesRestController.php:1615
-#: src/Infrastructure/REST/ActivitiesRestController.php:1640
-#: src/Infrastructure/REST/ActivitiesRestController.php:2204
-#: src/Infrastructure/REST/ActivitiesRestController.php:2318
-#: src/Infrastructure/REST/ActivitiesRestController.php:2369
-#: src/Infrastructure/REST/ActivitiesRestController.php:2390
-#: src/Infrastructure/REST/ActivitiesRestController.php:2431
+#: src/Infrastructure/REST/ActivitiesRestController.php:693
+#: src/Infrastructure/REST/ActivitiesRestController.php:1408
+#: src/Infrastructure/REST/ActivitiesRestController.php:1619
+#: src/Infrastructure/REST/ActivitiesRestController.php:1637
+#: src/Infrastructure/REST/ActivitiesRestController.php:1662
+#: src/Infrastructure/REST/ActivitiesRestController.php:2289
+#: src/Infrastructure/REST/ActivitiesRestController.php:2403
+#: src/Infrastructure/REST/ActivitiesRestController.php:2454
+#: src/Infrastructure/REST/ActivitiesRestController.php:2475
+#: src/Infrastructure/REST/ActivitiesRestController.php:2516
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:212
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:229
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:247
@@ -2878,36 +2882,36 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:711
+#: src/Infrastructure/REST/ActivitiesRestController.php:713
 msgid "Minutes are only recorded for match activities that are still active."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:802
-#: src/Infrastructure/REST/ActivitiesRestController.php:834
-#: src/Infrastructure/REST/ActivitiesRestController.php:880
+#: src/Infrastructure/REST/ActivitiesRestController.php:804
+#: src/Infrastructure/REST/ActivitiesRestController.php:836
+#: src/Infrastructure/REST/ActivitiesRestController.php:882
 msgid "Unknown match."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:839
+#: src/Infrastructure/REST/ActivitiesRestController.php:841
 msgid ""
 "This score follows the match sheet's goal log. Correct a goal in the post-"
 "match review and the score follows."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:847
-#: src/Infrastructure/REST/ActivitiesRestController.php:885
+#: src/Infrastructure/REST/ActivitiesRestController.php:849
+#: src/Infrastructure/REST/ActivitiesRestController.php:887
 msgid "Not your team."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:861
+#: src/Infrastructure/REST/ActivitiesRestController.php:863
 msgid "No score supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:874
+#: src/Infrastructure/REST/ActivitiesRestController.php:876
 msgid "No contributions supplied."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:954
+#: src/Infrastructure/REST/ActivitiesRestController.php:956
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:300
 #: src/Infrastructure/REST/GoalsRestController.php:217
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -2916,96 +2920,106 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:975
+#: src/Infrastructure/REST/ActivitiesRestController.php:977
 #: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:210
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1320
+#: src/Infrastructure/REST/ActivitiesRestController.php:1329
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1335
+#: src/Infrastructure/REST/ActivitiesRestController.php:1344
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1363
+#: src/Infrastructure/REST/ActivitiesRestController.php:1372
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1430
+#: src/Infrastructure/REST/ActivitiesRestController.php:1452
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1480
+#: src/Infrastructure/REST/ActivitiesRestController.php:1502
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1831
-#: src/Infrastructure/REST/ActivitiesRestController.php:1889
+#: src/Infrastructure/REST/ActivitiesRestController.php:1735
+msgid ""
+"WordPress user id of the coach who runs the activity. Omit on create to "
+"derive the team head coach; send 0 to leave it unassigned."
+msgstr ""
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:1770
+msgid "That coach is not on a team you can assign activities for."
+msgstr ""
+
+#: src/Infrastructure/REST/ActivitiesRestController.php:1916
+#: src/Infrastructure/REST/ActivitiesRestController.php:1974
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:2230
+#: src/Infrastructure/REST/ActivitiesRestController.php:2315
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2234
+#: src/Infrastructure/REST/ActivitiesRestController.php:2319
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2237
+#: src/Infrastructure/REST/ActivitiesRestController.php:2322
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2300
+#: src/Infrastructure/REST/ActivitiesRestController.php:2385
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2301
+#: src/Infrastructure/REST/ActivitiesRestController.php:2386
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2339
+#: src/Infrastructure/REST/ActivitiesRestController.php:2424
 msgid ""
 "Only Cancel and Reopen are allowed here. Completing an activity runs through "
 "the evaluation flow."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2340
+#: src/Infrastructure/REST/ActivitiesRestController.php:2425
 msgid "Only Complete, Cancel and Reopen are allowed here."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2346
+#: src/Infrastructure/REST/ActivitiesRestController.php:2431
 msgid "Could not update the activity status."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2372
+#: src/Infrastructure/REST/ActivitiesRestController.php:2457
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2454
-#: src/Infrastructure/REST/ActivitiesRestController.php:2526
+#: src/Infrastructure/REST/ActivitiesRestController.php:2539
+#: src/Infrastructure/REST/ActivitiesRestController.php:2611
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2457
+#: src/Infrastructure/REST/ActivitiesRestController.php:2542
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2492
+#: src/Infrastructure/REST/ActivitiesRestController.php:2577
 msgid ""
 "Minutes for this match are managed on the match-execution screen. Set a per-"
 "player override there."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2513
+#: src/Infrastructure/REST/ActivitiesRestController.php:2598
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:2529
+#: src/Infrastructure/REST/ActivitiesRestController.php:2614
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -3898,10 +3912,10 @@ msgid "Not found."
 msgstr ""
 
 #: src/Infrastructure/REST/PeekRestController.php:141
-#: src/Modules/Activities/Admin/ActivitiesPage.php:96
-#: src/Modules/Activities/Admin/ActivitiesPage.php:300
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Admin/ActivitiesPage.php:399
+#: src/Modules/Activities/Admin/ActivitiesPage.php:97
+#: src/Modules/Activities/Admin/ActivitiesPage.php:301
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
+#: src/Modules/Activities/Admin/ActivitiesPage.php:423
 #: src/Modules/Analytics/AnalyticsModule.php:157
 #: src/Modules/Analytics/AnalyticsModule.php:196
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:144
@@ -3912,7 +3926,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
 #: src/Modules/Configuration/Admin/FormSlugContract.php:71
 #: src/Modules/Configuration/Admin/FormSlugContract.php:83
-#: src/Modules/Configuration/Admin/FormSlugContract.php:121
+#: src/Modules/Configuration/Admin/FormSlugContract.php:122
 #: src/Modules/Configuration/Admin/MigrationsPage.php:88
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:25
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:33
@@ -3972,7 +3986,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:638
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:216
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:177
-#: src/Modules/Wizards/Activity/ReviewStep.php:62
+#: src/Modules/Wizards/Activity/ReviewStep.php:63
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
@@ -3982,13 +3996,13 @@ msgstr ""
 #: src/Shared/Frontend/CoachForms.php:653
 #: src/Shared/Frontend/DashboardShortcode.php:314
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1290
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3999
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4016
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4088
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4099
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4253
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4282
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4331
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4035
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4052
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4124
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4135
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4289
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4318
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4367
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
@@ -4127,8 +4141,8 @@ msgid "Season"
 msgstr ""
 
 #: src/Infrastructure/REST/PeekRestController.php:212
-#: src/Modules/Activities/Admin/ActivitiesPage.php:93
-#: src/Modules/Activities/Admin/ActivitiesPage.php:341
+#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:342
 #: src/Modules/Comms/Frontend/FrontendMessageLogView.php:255
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:501
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
@@ -4165,7 +4179,7 @@ msgstr ""
 #: src/Modules/Vct/Wizard/ReviewStep.php:51
 #: src/Modules/Vct/Wizard/WhenStep.php:62
 #: src/Modules/Wizards/Activity/DetailsStep.php:37
-#: src/Modules/Wizards/Activity/ReviewStep.php:71
+#: src/Modules/Wizards/Activity/ReviewStep.php:72
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:155
 #: src/Shared/Frontend/CoachForms.php:256
 #: src/Shared/Frontend/CoachForms.php:568
@@ -4197,7 +4211,7 @@ msgstr "Date"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:399
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:263
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
-#: src/Modules/Wizards/Activity/ReviewStep.php:77
+#: src/Modules/Wizards/Activity/ReviewStep.php:78
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1278
 msgid "Time"
 msgstr ""
@@ -4209,8 +4223,8 @@ msgid "Presence time"
 msgstr ""
 
 #: src/Infrastructure/REST/PeekRestController.php:224
-#: src/Modules/Activities/Admin/ActivitiesPage.php:343
-#: src/Modules/Configuration/Admin/FormSlugContract.php:105
+#: src/Modules/Activities/Admin/ActivitiesPage.php:344
+#: src/Modules/Configuration/Admin/FormSlugContract.php:101
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:254
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
@@ -4221,10 +4235,10 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
 #: src/Modules/Wizards/Activity/DetailsStep.php:77
-#: src/Modules/Wizards/Activity/ReviewStep.php:79
+#: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachForms.php:574
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3755
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3791
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:130
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:191
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
@@ -4232,8 +4246,8 @@ msgid "Location"
 msgstr "Lieu"
 
 #: src/Infrastructure/REST/PeekRestController.php:228
-#: src/Modules/Activities/Admin/ActivitiesPage.php:95
-#: src/Modules/Activities/Admin/ActivitiesPage.php:290
+#: src/Modules/Activities/Admin/ActivitiesPage.php:96
+#: src/Modules/Activities/Admin/ActivitiesPage.php:291
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:482
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:379
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:454
@@ -4258,7 +4272,7 @@ msgstr "Lieu"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:275
-#: src/Modules/Wizards/Activity/ReviewStep.php:61
+#: src/Modules/Wizards/Activity/ReviewStep.php:62
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:159
 #: src/Modules/Wizards/Player/ReviewStep.php:34
@@ -4930,8 +4944,8 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:349
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:387
 #: src/Modules/Wizards/Activity/AttendanceRosterStep.php:42
-#: src/Modules/Wizards/Activity/ReviewStep.php:113
-#: src/Modules/Wizards/Activity/ReviewStep.php:128
+#: src/Modules/Wizards/Activity/ReviewStep.php:114
+#: src/Modules/Wizards/Activity/ReviewStep.php:129
 #: src/Modules/Wizards/Team/RosterStep.php:24
 #: src/Shared/Frontend/FrontendTeamsManageView.php:381
 msgid "Roster"
@@ -4979,7 +4993,7 @@ msgstr ""
 msgid "Medical staff only"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:56
+#: src/Modules/Activities/Admin/ActivitiesPage.php:57
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:377
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:463
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:459
@@ -4989,8 +5003,8 @@ msgstr ""
 msgid "All types"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:68
-#: src/Modules/Activities/Admin/ActivitiesPage.php:222
+#: src/Modules/Activities/Admin/ActivitiesPage.php:69
+#: src/Modules/Activities/Admin/ActivitiesPage.php:223
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:233
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:174
 #: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:377
@@ -5001,14 +5015,14 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:215
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:162
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:171
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:654
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:689
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:486
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
 #: src/Modules/DemoData/DemoCoverage.php:1351
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:244
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:273
 #: src/Modules/License/FeatureMap.php:380
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:671
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:48
@@ -5039,7 +5053,7 @@ msgstr ""
 msgid "Activities"
 msgstr "Activités"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:68
+#: src/Modules/Activities/Admin/ActivitiesPage.php:69
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:555
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:786
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:87
@@ -5052,7 +5066,7 @@ msgstr "Activités"
 msgid "Add New"
 msgstr "Ajouter"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:69
+#: src/Modules/Activities/Admin/ActivitiesPage.php:70
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:366
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
@@ -5080,11 +5094,11 @@ msgstr "Ajouter"
 msgid "Saved."
 msgstr "Enregistré."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:78
+#: src/Modules/Activities/Admin/ActivitiesPage.php:79
 msgid "Type:"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:84
+#: src/Modules/Activities/Admin/ActivitiesPage.php:85
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:509
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:84
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:178
@@ -5095,10 +5109,10 @@ msgstr ""
 msgid "Filter"
 msgstr "Filtrer"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:94
-#: src/Modules/Activities/Admin/ActivitiesPage.php:339
-#: src/Modules/Configuration/Admin/FormSlugContract.php:103
-#: src/Modules/Configuration/Admin/FormSlugContract.php:119
+#: src/Modules/Activities/Admin/ActivitiesPage.php:95
+#: src/Modules/Activities/Admin/ActivitiesPage.php:340
+#: src/Modules/Configuration/Admin/FormSlugContract.php:99
+#: src/Modules/Configuration/Admin/FormSlugContract.php:120
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:22
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:24
 #: src/Modules/DataBrowser/SemanticRegistry.php:67
@@ -5136,7 +5150,7 @@ msgstr "Filtrer"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:293
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
-#: src/Modules/Wizards/Activity/ReviewStep.php:70
+#: src/Modules/Wizards/Activity/ReviewStep.php:71
 #: src/Shared/Frontend/CoachForms.php:567
 #: src/Shared/Frontend/CoachForms.php:633
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3639
@@ -5147,7 +5161,7 @@ msgstr "Filtrer"
 msgid "Title"
 msgstr "Titre"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:97
+#: src/Modules/Activities/Admin/ActivitiesPage.php:98
 #: src/Modules/Authorization/Admin/DebugPage.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:60
@@ -5162,7 +5176,7 @@ msgstr "Titre"
 msgid "Source"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:99
+#: src/Modules/Activities/Admin/ActivitiesPage.php:100
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:258
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:267
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
@@ -5210,105 +5224,128 @@ msgstr ""
 msgid "Actions"
 msgstr "Actions"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:101
+#: src/Modules/Activities/Admin/ActivitiesPage.php:102
 msgid "No activities."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 #, php-format
 msgid "Delete the activity \"%s\"?"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:144
+#: src/Modules/Activities/Admin/ActivitiesPage.php:145
 msgid "Delete activity?"
 msgstr ""
 
 #. translators: %d: number of activities migrated
-#: src/Modules/Activities/Admin/ActivitiesPage.php:171
+#: src/Modules/Activities/Admin/ActivitiesPage.php:172
 #, php-format
 msgid ""
 "%d existing activities were migrated from sessions and default to type "
 "\"Training\". Reclassify any historical games via the edit form."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:175
+#: src/Modules/Activities/Admin/ActivitiesPage.php:176
 #: src/Modules/Backup/Admin/BulkUndoNotice.php:102
 #: src/Shared/Frontend/DashboardShortcode.php:324
 #: src/Shared/Frontend/FlashMessages.php:138
 msgid "Dismiss"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:223
+#: src/Modules/Activities/Admin/ActivitiesPage.php:224
 msgid "You do not have access to this activity."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:269
+#: src/Modules/Activities/Admin/ActivitiesPage.php:270
 #: src/Shared/Admin/BackNavigator.php:124
 msgid "Edit Activity"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:269
+#: src/Modules/Activities/Admin/ActivitiesPage.php:270
 #: src/Shared/Admin/BackNavigator.php:123
 msgid "New Activity"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:273
+#: src/Modules/Activities/Admin/ActivitiesPage.php:274
 msgid ""
 "The activity was saved, but one or more custom fields had invalid values and "
 "were not updated."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:279
+#: src/Modules/Activities/Admin/ActivitiesPage.php:280
 msgid "The database rejected the save. No activity was created."
 msgstr ""
 
 # v3.47.0 — activity status + wizard config UX
-#: src/Modules/Activities/Admin/ActivitiesPage.php:315
+#: src/Modules/Activities/Admin/ActivitiesPage.php:316
 msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:319
+#: src/Modules/Activities/Admin/ActivitiesPage.php:320
 #: src/Modules/Wizards/Activity/DetailsStep.php:62
-#: src/Modules/Wizards/Activity/ReviewStep.php:65
+#: src/Modules/Wizards/Activity/ReviewStep.php:66
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3643
 msgid "Game subtype"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:322
+#: src/Modules/Activities/Admin/ActivitiesPage.php:323
 #: src/Modules/Comms/Frontend/FrontendSafeguardingBroadcastView.php:169
 #: src/Modules/Wizards/Activity/DetailsStep.php:63
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3645
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3748
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3784
 msgid "— Choose —"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:329
+#: src/Modules/Activities/Admin/ActivitiesPage.php:330
 msgid "Optional: friendly, cup, or league."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:333
+#: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/DetailsStep.php:74
-#: src/Modules/Wizards/Activity/ReviewStep.php:68
+#: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3653
 msgid "Other label"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:336
+#: src/Modules/Activities/Admin/ActivitiesPage.php:337
 msgid ""
 "Required when Type is \"Other\". Free text — e.g. team-building day, club "
 "meeting."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:345
+#: src/Modules/Activities/Admin/ActivitiesPage.php:346
 msgid "— All —"
 msgstr "— Tous —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:348
-#: src/Modules/Activities/Admin/ActivitiesPage.php:380
-#: src/Modules/Activities/Admin/ActivitiesPage.php:400
+#. translators: %d: WordPress user id
+#: src/Modules/Activities/Admin/ActivitiesPage.php:365
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3720
+#, php-format
+msgid "User #%d"
+msgstr ""
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:368
+#: src/Modules/Wizards/Activity/ReviewStep.php:154
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3726
+msgid "— No coach —"
+msgstr ""
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:370
+#: src/Modules/Wizards/Activity/ReviewStep.php:160
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3731
+msgid ""
+"The coach responsible for running this activity and recording its register. "
+"Defaults to the team head coach."
+msgstr ""
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php:372
+#: src/Modules/Activities/Admin/ActivitiesPage.php:404
+#: src/Modules/Activities/Admin/ActivitiesPage.php:424
 #: src/Modules/Configuration/Admin/FormSlugContract.php:93
-#: src/Modules/Configuration/Admin/FormSlugContract.php:112
-#: src/Modules/Configuration/Admin/FormSlugContract.php:139
+#: src/Modules/Configuration/Admin/FormSlugContract.php:113
+#: src/Modules/Configuration/Admin/FormSlugContract.php:140
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:595
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:819
 #: src/Modules/Exercises/Frontend/FrontendExerciseCsvImportView.php:153
@@ -5332,7 +5369,7 @@ msgstr "— Tous —"
 #: src/Modules/Teams/Admin/TeamsPage.php:171
 #: src/Modules/Trials/Wizards/TrialDetailsStep.php:77
 #: src/Modules/Wizards/Activity/DetailsStep.php:79
-#: src/Modules/Wizards/Activity/ReviewStep.php:81
+#: src/Modules/Wizards/Activity/ReviewStep.php:82
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:115
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
@@ -5343,10 +5380,10 @@ msgstr "— Tous —"
 #: src/Shared/Frontend/Components/EvidencePanel.php:156
 #: src/Shared/Frontend/DashboardShortcode.php:318
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:822
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3761
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4254
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4285
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4332
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3797
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4290
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4321
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4368
 #: src/Shared/Frontend/FrontendEvaluationsView.php:178
 #: src/Shared/Frontend/FrontendEvaluationsView.php:533
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:168
@@ -5367,31 +5404,31 @@ msgid "Notes"
 msgstr "Notes"
 
 # v3.110.x — Activities module polish: rename principles label + wizard guest opt-in
-#: src/Modules/Activities/Admin/ActivitiesPage.php:358
+#: src/Modules/Activities/Admin/ActivitiesPage.php:382
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
-#: src/Modules/Wizards/Activity/ReviewStep.php:101
+#: src/Modules/Wizards/Activity/ReviewStep.php:102
 #: src/Shared/Frontend/Components/GoalDetailFields.php:95
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3802
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3838
 msgid "Connected principles"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:369
+#: src/Modules/Activities/Admin/ActivitiesPage.php:393
 msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:379
+#: src/Modules/Activities/Admin/ActivitiesPage.php:403
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:215
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:281
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:195
 #: src/Modules/Analytics/AnalyticsModule.php:115
 #: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php:147
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:657
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1293
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:692
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1328
 #: src/Modules/DataBrowser/SemanticRegistry.php:102
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:245
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:644
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:274
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:673
 #: src/Modules/License/FeatureMap.php:379
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:149
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:127
@@ -5402,7 +5439,7 @@ msgstr ""
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:32
 #: src/Shared/Frontend/CoachForms.php:576
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2049
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4069
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4105
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1013
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:342
 #: src/Shared/Frontend/FrontendTeamDetailView.php:631
@@ -5410,38 +5447,38 @@ msgstr ""
 msgid "Attendance"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:388
+#: src/Modules/Activities/Admin/ActivitiesPage.php:412
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:395
+#: src/Modules/Activities/Admin/ActivitiesPage.php:419
 msgid "Guest attendees"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:398
-#: src/Modules/Activities/Admin/ActivitiesPage.php:409
+#: src/Modules/Activities/Admin/ActivitiesPage.php:422
+#: src/Modules/Activities/Admin/ActivitiesPage.php:433
 #: src/Modules/DataBrowser/SemanticRegistry.php:113
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:368
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:191
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2005
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2248
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4013
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4267
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4270
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4277
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4328
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4347
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4348
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4049
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4303
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4306
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4313
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4364
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4383
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4384
 msgid "Guest"
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:429
+#: src/Modules/Activities/Admin/ActivitiesPage.php:453
 msgid ""
 "Guests are added and edited from the public Activity page. This panel is "
 "read-only."
 msgstr ""
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:434
+#: src/Modules/Activities/Admin/ActivitiesPage.php:458
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1194
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:622
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:779
@@ -5451,7 +5488,7 @@ msgstr ""
 msgid "Update"
 msgstr "Mettre à jour"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:434
+#: src/Modules/Activities/Admin/ActivitiesPage.php:458
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:379
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:340
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:160
@@ -5516,8 +5553,8 @@ msgstr "Mettre à jour"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:469
-#: src/Modules/Activities/Admin/ActivitiesPage.php:593
+#: src/Modules/Activities/Admin/ActivitiesPage.php:493
+#: src/Modules/Activities/Admin/ActivitiesPage.php:640
 #: src/Modules/AdminCenterClient/BroadcastBanner.php:81
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:166
@@ -5629,7 +5666,7 @@ msgstr "Enregistrer"
 msgid "Unauthorized"
 msgstr "Non autorisé"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:542
+#: src/Modules/Activities/Admin/ActivitiesPage.php:589
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:970
 #: src/Modules/Goals/Admin/GoalsPage.php:289
 #: src/Modules/Players/Admin/PlayersPage.php:655
@@ -5795,10 +5832,10 @@ msgstr ""
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:218
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:446
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:208
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1294
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1329
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:322
 #: src/Modules/Exercises/Frontend/FrontendExerciseLibraryView.php:201
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:646
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:675
 #: src/Modules/Training/Frontend/FrontendTrainingPhotoView.php:289
 #: src/Modules/Training/Frontend/FrontendTrainingRunView.php:650
 #: src/Shared/Frontend/Components/EvidencePanel.php:257
@@ -5919,7 +5956,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/SavedViews.php:479
 #: src/Shared/Frontend/Components/SaveState.php:108
 #: src/Shared/Frontend/DashboardShortcode.php:329
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4340
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4376
 #: src/Shared/Frontend/FrontendBackupsView.php:252
 #: src/Shared/Frontend/FrontendBackupsView.php:430
 #: src/Shared/Frontend/FrontendConfigurationView.php:964
@@ -6283,7 +6320,7 @@ msgid "Scorer not recorded"
 msgstr ""
 
 #: src/Modules/Activities/Services/ActivityCompletionResolver.php:123
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4153
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4189
 msgid "Complete activity"
 msgstr ""
 
@@ -6343,7 +6380,7 @@ msgid "Run this training"
 msgstr ""
 
 #: src/Modules/Activities/Services/ActivityHeaderActions.php:102
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4152
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4188
 msgid "Continue rating"
 msgstr ""
 
@@ -7503,7 +7540,7 @@ msgid "Evaluator"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:197
-#: src/Modules/Configuration/Admin/FormSlugContract.php:122
+#: src/Modules/Configuration/Admin/FormSlugContract.php:123
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/Goals/Admin/GoalsPage.php:182
@@ -8506,8 +8543,8 @@ msgid "Coverage matrix"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:280
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:665
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:251
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:700
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:280
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1210
 msgid "Evaluated"
 msgstr ""
@@ -9438,8 +9475,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:93
 msgid ""
-"This team has no completed trainings or matches in this window, so there is "
-"nothing to report yet. Pick another period above."
+"This team has no trainings or matches in this window, so there is nothing to "
+"report yet. Pick another period above."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:356
@@ -9538,7 +9575,7 @@ msgid "Team, period, head coach — always included"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:549
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:616
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:617
 msgctxt "team monthly report section"
 msgid "Data coverage"
 msgstr ""
@@ -9557,8 +9594,8 @@ msgid "Six figures against last period"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:551
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:684
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:267
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:719
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:296
 msgctxt "team monthly report section"
 msgid "Squad status"
 msgstr ""
@@ -9568,7 +9605,7 @@ msgid "How many players are on track"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:552
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:725
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:760
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:160
 msgctxt "team monthly report section"
 msgid "Attendance"
@@ -9579,7 +9616,7 @@ msgid "Per player, lowest first"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:553
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:757
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:792
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:161
 msgctxt "team monthly report section"
 msgid "Minutes share"
@@ -9590,8 +9627,8 @@ msgid "Per player, against the target"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:554
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:992
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:380
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1027
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:409
 msgctxt "team monthly report section"
 msgid "Matches"
 msgstr ""
@@ -9601,8 +9638,8 @@ msgid "Results, scorers and squads"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:555
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:819
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:322
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:854
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:351
 msgctxt "team monthly report section"
 msgid "Needs a conversation"
 msgstr ""
@@ -9612,8 +9649,8 @@ msgid "The agenda"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:556
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:869
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:352
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:904
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:381
 msgctxt "team monthly report section"
 msgid "What changed"
 msgstr ""
@@ -9623,8 +9660,8 @@ msgid "Injuries, moves, signings"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:557
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:897
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:519
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:932
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:548
 msgctxt "team monthly report section"
 msgid "Tests"
 msgstr ""
@@ -9634,8 +9671,8 @@ msgid "Test rounds held and who moved"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:558
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1288
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:635
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1323
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:664
 msgctxt "team monthly report section"
 msgid "Player by player"
 msgstr ""
@@ -9645,9 +9682,9 @@ msgid "Every measure in one table"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:559
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1326
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:684
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:690
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1361
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:713
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:719
 msgctxt "team monthly report section"
 msgid "Decisions and actions"
 msgstr ""
@@ -9657,8 +9694,8 @@ msgid "Space to write on"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:560
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1343
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:715
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1379
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:747
 msgctxt "team monthly report section"
 msgid "Data quality"
 msgstr ""
@@ -9700,14 +9737,27 @@ msgid_plural "%d players"
 msgstr[0] "%d speler"
 msgstr[1] "%d spelers"
 
-#. translators: %d: completed trainings and matches
+#. translators: %d: trainings and matches on the team's calendar for the window
+#. translators: %d: count of activities touching the principle in the last 8 weeks.
+#. translators: %d: count of past activities
+#. translators: %d: count of activities today
+#. translators: %d: count of activities
+#. translators: %d: count of archived activities
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:594
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:197
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:786
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2648
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2672
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2685
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2698
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2711
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2724
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2765
 #, php-format
-msgid "%d completed activity"
-msgid_plural "%d completed activities"
-msgstr[0] ""
-msgstr[1] ""
+msgid "%d activity"
+msgid_plural "%d activities"
+msgstr[0] "%d activiteit"
+msgstr[1] "%d activiteiten"
 
 #. translators: %s: team name
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:599
@@ -9715,229 +9765,250 @@ msgstr[1] ""
 msgid "Monthly report — %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:618
-msgid "Complete."
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:619
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:248
+msgid "No trainings or matches in this window."
 msgstr ""
 
-#. translators: %d: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:620
-msgid "The one completed activity has an attendance register."
-msgid_plural "All %d completed activities have an attendance register."
-msgstr[0] ""
-msgstr[1] ""
-
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:624
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:625
 msgid "Read the numbers with this in mind:"
 msgstr ""
 
 #. translators: 1: activities with a register, 2: completed activities
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:626
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:627
 #, php-format
 msgid ""
 "the figures below are based on %1$d of %2$d completed activities. These have "
 "no attendance register:"
 msgstr ""
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:633
+msgid "Complete."
+msgstr ""
+
+#. translators: %d: completed activities
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:635
+msgid "The one completed activity has an attendance register."
+msgid_plural "All %d completed activities have an attendance register."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:643
+msgid "Never closed."
+msgstr ""
+
+#. translators: %d: activities whose date has passed and that were never marked completed
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:645
+#, php-format
+msgid ""
+"%d activity in this window has passed and was never marked completed, so "
+"nothing it produced counts towards the figures below:"
+msgid_plural ""
+"%d activities in this window have passed and were never marked completed, so "
+"nothing they produced counts towards the figures below:"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:657
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:249
+msgid "Nothing in this window has taken place yet."
+msgstr ""
+
 #. translators: 1: activity title, 2: activity date
 #. translators: 1: who wrote the note, 2: when
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:636
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:675
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportSnapshotPage.php:246
 #, php-format
 msgid "%1$s, %2$s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:644
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:235
-msgid "No completed activities with a register in this window."
-msgstr ""
-
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:657
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:660
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:665
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:242
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:692
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:695
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:700
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:271
 msgctxt "percentage points"
 msgid "pts"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:660
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:246
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:695
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:275
 msgid "Median minutes share"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:668
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:255
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:703
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:284
 #: src/Shared/Frontend/FrontendTeamDetailView.php:639
 msgid "Squad rating"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:671
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:256
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:706
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:285
 msgid "Need attention"
 msgstr ""
 
 #. translators: %s: last period's status split, e.g. "10 on track, 3 to watch, 1 needing action"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:699
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:734
 #, php-format
 msgid "Last period: %s."
 msgstr ""
 
 #. translators: %s: team average attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:728
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:763
 #, php-format
 msgid "Team average %s. Lowest first."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:729
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:764
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:136
 msgid "No attendance recorded."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:730
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:765
 msgid "Open the attendance report"
 msgstr ""
 
 #. translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:760
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:795
 #, php-format
 msgid "Minutes recorded for %1$d of %2$d matches played. Target %3$d%%."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:765
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:800
 msgid "Open the minutes share report"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:768
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:803
 msgid "No minutes recorded in this window."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:805
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:840
 msgctxt "a player well below the attendance or minutes line"
 msgid "low"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:806
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:841
 msgctxt "a player just below the attendance or minutes line"
 msgid "watch"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:820
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:855
 msgid "Players the status model flags, most urgent first."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:823
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:324
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:858
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:353
 msgid "Nobody is flagged this period."
 msgstr ""
 
 #. translators: %s: attendance percentage
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:840
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:333
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:875
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:362
 #, php-format
 msgid "Attendance %s"
 msgstr ""
 
 #. translators: %d: players with an open injury
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:872
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:907
 #, php-format
 msgid "%d player currently injured."
 msgid_plural "%d players currently injured."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:877
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:354
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:912
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:383
 msgid "No injuries, moves or other changes recorded this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:899
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:521
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:934
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:550
 msgid "No tests taken this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:911
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1224
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:536
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:574
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:946
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1259
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:565
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:603
 msgid "No readings this period."
 msgstr ""
 
 #. translators: 1: players tested, 2: squad size
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:920
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:955
 #, php-format
 msgid "%1$d of %2$d tested"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:932
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:967
 #, php-format
 msgid "Improved: %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:933
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:968
 #, php-format
 msgid "Declined: %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:963
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:998
 msgctxt "team monthly report panel"
 msgid "Matches"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:978
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1013
 msgid ""
 "Squads and minutes per match are the longest part, and repeat the minutes "
 "section."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:995
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:383
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1030
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:412
 msgid "No matches played this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1004
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1039
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:179
 msgctxt "monthly report match record"
 msgid "Played"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1005
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1040
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:180
 msgctxt "monthly report match record"
 msgid "Won"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1006
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1041
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:181
 msgctxt "monthly report match record"
 msgid "Drawn"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1007
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1042
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:182
 msgctxt "monthly report match record"
 msgid "Lost"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1008
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1043
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:183
 msgctxt "monthly report match record"
 msgid "Goals for"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1009
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1044
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:184
 msgctxt "monthly report match record"
 msgid "Goals against"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1010
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1045
 msgctxt "monthly report match record"
 msgid "Difference"
 msgstr ""
 
 #. translators: %d: number of matches with no score recorded
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1024
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1059
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:205
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:392
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:421
 #, php-format
 msgid "%d match has no score recorded and is not counted in the record."
 msgid_plural ""
@@ -9946,9 +10017,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of tournaments in the period
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1060
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1095
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:219
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:440
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:469
 #, php-format
 msgid ""
 "%d tournament this period is not included — a tournament is a multi-game day."
@@ -9958,160 +10029,169 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1073
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:494
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1108
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:523
 msgid "No goals or assists recorded this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1080
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1115
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:277
 msgctxt "monthly report matches column"
 msgid "Goals"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1081
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1116
 #: src/Modules/Analytics/Frontend/TeamStatisticsTab.php:278
 msgctxt "monthly report matches column"
 msgid "Assists"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1110
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:479
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1145
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:508
 msgid "no score recorded"
 msgstr ""
 
 #. translators: 1: player name, 2: minutes played
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1124
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1159
 #, php-format
 msgctxt "player and minutes in a match squad"
 msgid "%1$s %2$d′"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1131
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1166
 msgid "No minutes recorded for this match."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1139
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:469
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1174
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:498
 msgid "Unknown opponent"
 msgstr ""
 
 #. translators: %s: opponent name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1144
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:472
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1179
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:501
 #, php-format
 msgid "away to %s"
 msgstr ""
 
 #. translators: %s: opponent name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1148
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:475
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1183
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:504
 #, php-format
 msgid "home to %s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1180
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1215
 msgctxt "team monthly report panel"
 msgid "Tests"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1186
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1221
 msgid "Which tests"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1199
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1234
 msgid "Tick none to show every test taken this period."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1204
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1239
 msgid "How much to show"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1210
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1245
 msgid ""
 "Readings and change print as a table, which the one-pager shortens to the "
 "summary."
 msgstr ""
 
 #. translators: %s: unit of measurement, e.g. "s" or "cm"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1238
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:586
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1273
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:615
 #, php-format
 msgctxt "monthly report tests column"
 msgid "Result (%s)"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1239
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:587
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1274
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:616
 msgctxt "monthly report tests column"
 msgid "Result"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1243
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:591
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1278
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:620
 msgctxt "monthly report tests column"
 msgid "Change"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1292
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:643
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1327
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:672
 msgctxt "team monthly report column"
 msgid "Status"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1295
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:647
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1330
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:676
 msgctxt "minutes share column"
 msgid "Share"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1296
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1331
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:17
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:649
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:678
 msgid "Open goals"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1297
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:650
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1332
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:679
 msgctxt "team monthly report column"
 msgid "Injured"
 msgstr ""
 
 #. translators: 1: jersey number, 2: player name
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1307
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1342
 #: src/Shared/Frontend/FrontendStandardReportsView.php:793
 #, php-format
 msgid "#%1$d %2$s"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1317
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:675
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1352
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:704
 #: src/Modules/Pdp/Admin/SeasonsPage.php:80
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1528
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:94
 msgid "Yes"
 msgstr "Oui"
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1327
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1362
 msgid "Ruled lines on the printed copy, for what the meeting agrees."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1344
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1380
 msgid "Fix these before next month and the report gets sharper."
 msgstr ""
 
 #. translators: %d: activities without an attendance register
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1349
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:698
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1385
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:727
 #, php-format
 msgid "%d completed activity has no attendance register."
 msgid_plural "%d completed activities have no attendance register."
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: %d: activities whose date has passed and that were never marked completed
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1389
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:730
+#, php-format
+msgid "%d activity has passed without being marked completed."
+msgid_plural "%d activities have passed without being marked completed."
+msgstr[0] ""
+msgstr[1] ""
+
 #. translators: %d: matches played without minutes recorded
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1353
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:701
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1393
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:733
 #, php-format
 msgid "%d match played has no minutes recorded."
 msgid_plural "%d matches played have no minutes recorded."
@@ -10119,8 +10199,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: number of players, 2: their names
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1358
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:706
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1398
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:738
 #, php-format
 msgid "%1$d player has no evaluation this period: %2$s."
 msgid_plural "%1$d players have no evaluation this period: %2$s."
@@ -10128,22 +10208,22 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: players whose status was computed on incomplete evidence
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1362
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:710
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1402
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:742
 #, php-format
 msgid "%d player's status was computed on incomplete evidence."
 msgid_plural "%d players' statuses were computed on incomplete evidence."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1366
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:712
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1406
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:744
 msgid ""
 "Nothing missing. Every register, minute and evaluation this report looks for "
 "is in."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1376
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1416
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:75
 msgid ""
 "Confidential — staff only. This report names minors and describes their "
@@ -10152,38 +10232,38 @@ msgid ""
 msgstr ""
 
 #. translators: %s: signed change against the previous period, e.g. "+3 pts"
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1441
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1481
 #, php-format
 msgid "%s vs last period"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1459
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:767
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1499
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:799
 msgctxt "player status, staff report"
 msgid "On track"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1460
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:768
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1500
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:800
 msgctxt "player status, staff report"
 msgid "Watch"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1461
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:769
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1501
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:801
 msgctxt "player status, staff report"
 msgid "Needs action"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1462
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:770
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1502
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:802
 msgctxt "player status, staff report"
 msgid "No read yet"
 msgstr ""
 
 #. translators: 1: on track, 2: to watch, 3: needing action, 4: without a read yet
-#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1470
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:279
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1510
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:308
 #, php-format
 msgid ""
 "%1$d on track, %2$d to watch, %3$d needing action, %4$d without a read yet"
@@ -11078,7 +11158,7 @@ msgstr "Clé"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:615
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:775
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:796
-#: src/Modules/Configuration/Admin/FormSlugContract.php:120
+#: src/Modules/Configuration/Admin/FormSlugContract.php:121
 #: src/Modules/DataBrowser/SemanticRegistry.php:138
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:289
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
@@ -11862,10 +11942,10 @@ msgstr ""
 #: src/Modules/Journey/Wizards/InjuryWhenStep.php:45
 #: src/Modules/Knowledge/Blocks/CalloutBlock.php:38
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4000
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4023
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4089
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4106
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4036
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4059
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4125
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4142
 #: src/Shared/Frontend/FrontendHolidaysView.php:85
 #: src/Shared/Frontend/FrontendHolidaysView.php:306
 msgid "Note"
@@ -17156,12 +17236,12 @@ msgstr ""
 msgid "Role type"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:104
+#: src/Modules/Configuration/Admin/FormSlugContract.php:100
 msgid "Activity date"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:110
-#: src/Modules/Configuration/Admin/FormSlugContract.php:134
+#: src/Modules/Configuration/Admin/FormSlugContract.php:111
+#: src/Modules/Configuration/Admin/FormSlugContract.php:135
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:452
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
@@ -17173,19 +17253,19 @@ msgstr ""
 #: src/Shared/Frontend/CoachForms.php:258
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1233
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1484
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3742
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3778
 #: src/Shared/Frontend/FrontendEvaluationsView.php:292
 #: src/Shared/Frontend/FrontendEvaluationsView.php:467
 msgid "Opponent"
 msgstr "Adversaire"
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:111
+#: src/Modules/Configuration/Admin/FormSlugContract.php:112
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1242
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3746
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3782
 msgid "Home / Away"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:123
+#: src/Modules/Configuration/Admin/FormSlugContract.php:124
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:26
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:44
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:105
@@ -17196,15 +17276,15 @@ msgid "Due date"
 msgstr ""
 
 # New entity slug labels (for Custom Fields "Insert after" dropdown)
-#: src/Modules/Configuration/Admin/FormSlugContract.php:132
+#: src/Modules/Configuration/Admin/FormSlugContract.php:133
 msgid "Evaluation type"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:133
+#: src/Modules/Configuration/Admin/FormSlugContract.php:134
 msgid "Evaluation date"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:135
+#: src/Modules/Configuration/Admin/FormSlugContract.php:136
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:455
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:242
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:54
@@ -17213,17 +17293,17 @@ msgstr ""
 msgid "Competition"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:136
+#: src/Modules/Configuration/Admin/FormSlugContract.php:137
 msgid "Match result"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:137
+#: src/Modules/Configuration/Admin/FormSlugContract.php:138
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:471
 #: src/Shared/Frontend/CoachForms.php:269
 msgid "Home/Away"
 msgstr ""
 
-#: src/Modules/Configuration/Admin/FormSlugContract.php:138
+#: src/Modules/Configuration/Admin/FormSlugContract.php:139
 #: src/Modules/DataBrowser/SemanticRegistry.php:111
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:244
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:56
@@ -20883,7 +20963,7 @@ msgstr "Résultat"
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:325
 #: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1237
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3749
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3785
 #: src/Shared/Frontend/FrontendMyTeamView.php:144
 msgid "Home"
 msgstr "Domicile"
@@ -20895,7 +20975,7 @@ msgstr "Domicile"
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:326
 #: src/Shared/Frontend/CoachForms.php:269
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1238
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3750
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3786
 #: src/Shared/Frontend/FrontendMyTeamView.php:144
 msgid "Away"
 msgstr "Extérieur"
@@ -21852,9 +21932,9 @@ msgstr ""
 #: src/Shared/Frontend/Components/MediaGallery.php:232
 #: src/Shared/Frontend/Components/MediaUploader.php:180
 #: src/Shared/Frontend/DashboardShortcode.php:323
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4299
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4333
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4339
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4335
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4369
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4375
 #: src/Shared/Frontend/FrontendConfigurationView.php:1689
 #: src/Shared/Frontend/FrontendConfigurationView.php:2939
 #: src/Shared/Frontend/FrontendMediaRetentionView.php:128
@@ -22490,30 +22570,41 @@ msgstr ""
 
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:64
 msgid ""
-"This team has no completed trainings or matches in this window, so there is "
-"nothing to report yet."
+"This team has no trainings or matches in this window, so there is nothing to "
+"report yet."
 msgstr ""
 
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:200
 msgid "Monthly report"
 msgstr ""
 
+#. translators: 1: activities with a register, 2: completed activities, 3: the activities without one
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:221
+#, php-format
+msgid "Based on %1$d of %2$d completed activities. No register: %3$s"
+msgstr ""
+
 #. translators: %d: completed activities
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:219
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:229
 msgid "Complete: the one completed activity has an attendance register."
 msgid_plural ""
 "Complete: all %d completed activities have an attendance register."
 msgstr[0] ""
 msgstr[1] ""
 
-#. translators: 1: activities with a register, 2: completed activities, 3: the activities without one
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:229
+#. translators: 1: number of activities, 2: their titles and dates
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:236
 #, php-format
-msgid "Based on %1$d of %2$d completed activities. No register: %3$s"
-msgstr ""
+msgid ""
+"Never closed: %1$d activity has passed and was never marked completed — %2$s"
+msgid_plural ""
+"Never closed: %1$d activities have passed and were never marked completed — "
+"%2$s"
+msgstr[0] ""
+msgstr[1] ""
 
 #. translators: 1: number of players left out, 2: lowest value, 3: highest value
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:296
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:325
 #, php-format
 msgid "… %1$d player between %2$s and %3$s …"
 msgid_plural "… %1$d players between %2$s and %3$s …"
@@ -22521,7 +22612,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of players left out
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:298
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:327
 #, php-format
 msgid "… %d more player …"
 msgid_plural "… %d more players …"
@@ -22529,7 +22620,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: players on the agenda not printed on this page
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:344
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:373
 #, php-format
 msgid "…and %d more on the online report."
 msgid_plural "…and %d more on the online report."
@@ -22537,32 +22628,32 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: 1: played, 2: won, 3: drawn, 4: lost, 5: goals for, 6: goals against, 7: signed goal difference
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:454
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:483
 #, php-format
 msgid "Played %1$d · W %2$d D %3$d L %4$d · %5$d–%6$d (%7$s)"
 msgstr ""
 
 #. translators: 1: date, 2: opponent with home/away, 3: score
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:484
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:513
 #, php-format
 msgctxt "one match line in the monthly report"
 msgid "%1$s, %2$s — %3$s"
 msgstr ""
 
 #. translators: 1: player name, 2: goals, 3: assists
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:502
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:531
 #, php-format
 msgid "%1$s %2$dG %3$dA"
 msgstr ""
 
 #. translators: 1: test name, 2: date, 3: players tested, 4: squad size
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:542
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:571
 #, php-format
 msgid "%1$s, %2$s — %3$d of %4$d tested"
 msgstr ""
 
 #. translators: 1: players improved, 2: players declined
-#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:557
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:586
 #, php-format
 msgid "Improved %1$d · declined %2$d"
 msgstr ""
@@ -24747,7 +24838,7 @@ msgstr[1] ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:21
 #: src/Modules/Training/Wizard/ReviewStep.php:25
 #: src/Modules/Vct/Wizard/ReviewStep.php:41
-#: src/Modules/Wizards/Activity/ReviewStep.php:26
+#: src/Modules/Wizards/Activity/ReviewStep.php:27
 #: src/Modules/Wizards/Evaluation/ReviewStep.php:25
 #: src/Modules/Wizards/Person/ReviewStep.php:22
 #: src/Modules/Wizards/Player/ReviewStep.php:28
@@ -37056,25 +37147,6 @@ msgstr ""
 msgid "Principles trained — last 8 weeks"
 msgstr ""
 
-#. translators: %d: count of activities touching the principle in the last 8 weeks.
-#. translators: %d: count of past activities
-#. translators: %d: count of activities today
-#. translators: %d: count of activities
-#. translators: %d: count of archived activities
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:786
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2648
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2672
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2685
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2698
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2711
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2724
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2765
-#, php-format
-msgid "%d activity"
-msgid_plural "%d activities"
-msgstr[0] "%d activiteit"
-msgstr[1] "%d activiteiten"
-
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:892
 msgid "Previous week"
 msgstr ""
@@ -40625,7 +40697,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:363
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:391
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4309
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4345
 msgid "Add guest"
 msgstr ""
 
@@ -40849,8 +40921,8 @@ msgstr ""
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1353
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:399
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3994
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4083
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4030
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4119
 #: src/Shared/Frontend/FrontendTeamsManageView.php:397
 msgid "No players on this team yet."
 msgstr ""
@@ -40912,7 +40984,7 @@ msgid "That player is already on the roster."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1369
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4342
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4378
 msgid "Name is required."
 msgstr ""
 
@@ -45444,7 +45516,7 @@ msgstr ""
 
 #: src/Modules/Vct/Wizard/WhenStep.php:68
 #: src/Modules/Wizards/Activity/DetailsStep.php:39
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3709
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3745
 msgid "Start time (optional)"
 msgstr ""
 
@@ -45520,7 +45592,7 @@ msgid "Set attendance later — save the activity with no roster."
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3713
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3749
 msgid "End time (optional)"
 msgstr ""
 
@@ -45553,7 +45625,7 @@ msgstr ""
 msgid "Please describe what kind of activity this is."
 msgstr ""
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:31
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:32
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:80
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:92
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:736
@@ -45561,15 +45633,15 @@ msgstr ""
 msgid "New activity"
 msgstr "Nouvelle activité"
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:72
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:73
 msgid "Pick a team before saving as draft."
 msgstr ""
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:80
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:92
 msgid "Untitled draft"
 msgstr ""
 
-#: src/Modules/Wizards/Activity/NewActivityWizard.php:94
+#: src/Modules/Wizards/Activity/NewActivityWizard.php:111
 msgid "The draft could not be saved."
 msgstr ""
 
@@ -45591,20 +45663,20 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:117
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3863
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3899
 msgid "Other principles"
 msgstr ""
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:33
+#: src/Modules/Wizards/Activity/ReviewStep.php:34
 msgid "Looks good? Create the activity to start logging attendance."
 msgstr ""
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:113
+#: src/Modules/Wizards/Activity/ReviewStep.php:114
 msgid "Set attendance later"
 msgstr ""
 
 #. translators: %d = number of expected players
-#: src/Modules/Wizards/Activity/ReviewStep.php:118
+#: src/Modules/Wizards/Activity/ReviewStep.php:119
 #, php-format
 msgid "%d player expected"
 msgid_plural "%d players expected"
@@ -45612,22 +45684,22 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d = number of guest players
-#: src/Modules/Wizards/Activity/ReviewStep.php:124
+#: src/Modules/Wizards/Activity/ReviewStep.php:125
 #, php-format
 msgid "%d guest"
 msgid_plural "%d guests"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:152
+#: src/Modules/Wizards/Activity/ReviewStep.php:174
 msgid "Add a guest player after creating (e.g. trial, friendly drop-in)."
 msgstr ""
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:172
+#: src/Modules/Wizards/Activity/ReviewStep.php:197
 msgid "The activity is missing required fields."
 msgstr ""
 
-#: src/Modules/Wizards/Activity/ReviewStep.php:202
+#: src/Modules/Wizards/Activity/ReviewStep.php:243
 msgid "The activity could not be saved."
 msgstr ""
 
@@ -47029,12 +47101,6 @@ msgstr ""
 msgid "On-time rate"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
-#, php-format
-msgid "User #%d"
-msgstr ""
-
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:52
 msgid "Your role does not have access to workflow configuration."
 msgstr ""
@@ -47455,7 +47521,7 @@ msgstr ""
 
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:292
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4345
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4381
 #: src/Shared/Frontend/FrontendConfigurationView.php:538
 #: src/Shared/Frontend/FrontendConfigurationView.php:1173
 #: src/Shared/Frontend/FrontendConfigurationView.php:1264
@@ -49859,7 +49925,7 @@ msgid "Kick-off %s"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1239
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3751
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3787
 msgid "Neutral ground"
 msgstr ""
 
@@ -49993,12 +50059,12 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2000
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3966
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4002
 msgid "Not coming"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2001
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3967
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4003
 msgid "Maybe"
 msgstr ""
 
@@ -50172,145 +50238,145 @@ msgstr ""
 msgid "Remove filter: %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3717
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3753
 msgid "Presence time (optional)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3803
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:3839
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
 "to save without links."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3965
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4001
 msgid "Expected"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3989
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4025
 msgid "Planned attendance"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:3991
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4027
 msgid ""
 "Set who you expect before the activity happens. This carries into the "
 "attendance defaults once it is completed."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4080
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4116
 msgid ""
 "This activity is completed. Correct who attended below, then Update activity "
 "to save."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4120
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4156
 msgid "Continue rating in the guided flow →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4121
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4157
 msgid "Open the attendance grid →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4139
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4175
 msgid ""
 "Attendance and ratings were captured in the guided completion flow. Review "
 "or update them there."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4140
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4176
 msgid ""
 "Attendance and ratings are captured in the guided completion flow, not on "
 "this form."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4143
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4179
 msgid ""
 "Attendance is recorded in the attendance grid. Open it to review or correct "
 "it."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4144
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4180
 msgid "Attendance is recorded in the attendance grid, not on this form."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4155
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4191
 msgid "Open attendance grid"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4198
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4234
 msgid "Update activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4198
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4234
 msgid "Save activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4239
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4275
 msgid "Guests"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4241
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4277
 msgid "Players from outside the squad. Guests do not count toward team stats."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4260
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4296
 msgid "No guests added yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4271
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4329
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4307
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4365
 msgid "(unaffiliated)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4296
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4346
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4332
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4382
 msgid "Notes…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4337
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4373
 msgid "Remove this guest?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4338
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4374
 msgid "Remove guest"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4341
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4377
 msgid "Pick a player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4343
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4379
 msgid "Could not add guest."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4344
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4380
 msgid "Saving activity first…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4473
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4509
 msgid "Not linked yet. Use the edit form to pick an existing tournament."
 msgstr ""
 
 #. translators: %d: tournament match count
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4490
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4526
 #, php-format
 msgid "%d match"
 msgid_plural "%d matches"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4505
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4541
 msgid "Open tournament planner →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4535
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4571
 msgid "— Not linked —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4562
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4598
 msgid "Create new tournament →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:4567
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:4603
 msgid ""
 "No tournament yet? Ask an admin to create one in the Tournaments planner."
 msgstr ""

@@ -95,15 +95,16 @@ class FormSlugContract {
     }
 
     private static function sessionSlugs(): array {
-        // Note: coach_id is not listed. The Sessions edit form doesn't
-        // render a coach picker — coach_id is set to get_current_user_id()
-        // at save time. Exposing it in the "Insert after" dropdown would
-        // be a footgun since custom fields anchored to it would never render.
         return [
             'title'        => __( 'Title', 'talenttrack' ),
             'session_date' => __( 'Activity date', 'talenttrack' ),
             'location'     => __( 'Location', 'talenttrack' ),
             'team_id'      => __( 'Team', 'talenttrack' ),
+            // #3745 — the activity form renders a coach picker now that
+            // `coach_id` means the coach who runs it rather than whoever
+            // typed the schedule in, so a custom field can be anchored to
+            // it and will actually render.
+            'coach_id'     => __( 'Coach', 'talenttrack' ),
             // #3530 — match-only rows. They render on fixtures and hide on
             // everything else, so a custom field anchored to one only shows
             // on the activities it makes sense for.

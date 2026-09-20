@@ -10,6 +10,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Modules\Activities\Services\ActivityCoachAssignment;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -138,6 +139,27 @@ final class ReviewStep implements WizardStepInterface {
         }
         echo '</tbody></table></div>';
 
+        // #3745 — who runs the activity, which is not automatically who is
+        // filling the wizard in. Prefilled with the team's head coach when
+        // the team has exactly one; left unassigned when it has none or
+        // two, so `NoCoachAssignedAlert` can say so rather than the wizard
+        // guessing. The register reminders are addressed off this field.
+        $coach_options  = ActivityCoachAssignment::optionsForTeam( $tid );
+        $selected_coach = array_key_exists( 'coach_id', $state )
+            ? (int) $state['coach_id']
+            : (int) ActivityCoachAssignment::derivedForTeam( $tid );
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt-wizard-activity-coach">' . esc_html__( 'Coach', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-wizard-activity-coach" class="tt-input" name="coach_id">';
+        echo '<option value="0">' . esc_html__( '— No coach —', 'talenttrack' ) . '</option>';
+        foreach ( $coach_options as $coach_user_id => $coach_name ) {
+            echo '<option value="' . (int) $coach_user_id . '"' . selected( $selected_coach, $coach_user_id, false ) . '>'
+                . esc_html( $coach_name ) . '</option>';
+        }
+        echo '</select>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'The coach responsible for running this activity and recording its register. Defaults to the team head coach.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+
         // v3.110.x — opt-in path to add guests right after creation.
         // The flat-form (FrontendActivitiesManageView::renderForm) has
         // shipped a guest section on create AND edit since #0037; the
@@ -157,6 +179,9 @@ final class ReviewStep implements WizardStepInterface {
     public function validate( array $post, array $state ) {
         return [
             'continue_to_guests' => ! empty( $post['continue_to_guests'] ),
+            // #3745 — 0 is a real answer here ("nobody assigned yet"), so it
+            // is carried into state rather than treated as absent.
+            'coach_id'           => isset( $post['coach_id'] ) ? absint( $post['coach_id'] ) : 0,
         ];
     }
 
@@ -179,10 +204,20 @@ final class ReviewStep implements WizardStepInterface {
         if ( ! in_array( $type,   $valid_types,    true ) ) $type   = ActivityTypeKey::TRAINING;
         if ( ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
+        // #3745 — the coach who runs it, not the person who filled the
+        // wizard in. The picker on this step carries the choice; a choice
+        // outside the actor's own scope is dropped rather than stored.
+        $coach_id = array_key_exists( 'coach_id', $state )
+            ? (int) $state['coach_id']
+            : (int) ActivityCoachAssignment::derivedForTeam( $tid );
+        if ( $coach_id > 0 && ! ActivityCoachAssignment::mayAssign( $coach_id, get_current_user_id() ) ) {
+            $coach_id = 0;
+        }
+
         $row = [
             'club_id'             => CurrentClub::id(),
             'team_id'             => $tid,
-            'coach_id'            => get_current_user_id(),
+            'coach_id'            => $coach_id > 0 ? $coach_id : null,
             'title'               => $title,
             'session_date'        => $date,
             'start_time'          => ! empty( $state['start_time'] ) ? (string) $state['start_time'] : null,
@@ -195,6 +230,12 @@ final class ReviewStep implements WizardStepInterface {
             'game_subtype_key'    => $type === ActivityTypeKey::GAME  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
             'other_label'         => $type === ActivityTypeKey::OTHER && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
         ];
+
+        // #3745 — the creator keeps their own column now that `coach_id`
+        // means the coach. `ActivitiesRepository::create()` stamps this for
+        // every other write path; the wizard inserts directly.
+        $creator = get_current_user_id();
+        if ( $creator > 0 ) $row['created_by'] = $creator;
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_activities', $row );
         if ( $ok === false ) {

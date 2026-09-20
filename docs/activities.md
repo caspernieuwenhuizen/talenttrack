@@ -163,6 +163,7 @@ about the result, not the result itself.
 3. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
 4. If you picked **Other**, give it a short label.
 5. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
+   - **Coach** — who is running it. The picker offers the staff assigned to the selected team and prefills the team's head coach, so an academy administrator typing a season schedule doesn't end up down as the coach of every session in it. Leave it on *— No coach —* if it isn't settled yet; see [Who runs it](#who-runs-it).
 6. For a **match** type (Game, Tournament, or a custom match/friendly type) three extra fields appear:
  - **Presence time** (optional) — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
  - **Opponent** — who you're playing. This is what makes the detail page read `Your team vs Opponent`, and it names the away column on the match sheet, the team-sheet PDF and the weekly planner.
@@ -324,9 +325,21 @@ Every activity carries two extra fields beyond the headline type:
 
 The Head of Development's 90-day quarterly rollup also uses these types: it shows one row per type in use, so renaming or adding types reflects there automatically.
 
+## Who runs it
+
+The **Coach** on the form is the person responsible for running the activity and taking its register. It is a separate fact from who typed the activity in, and the reminders follow it: *"attendance not recorded"* and *"past activity still planned"* go to the coach on the activity and to the team's head coach, not to whoever created the row.
+
+The form fills it in for you:
+
+- A team with **one head coach** prefills to that coach.
+- A team with **no head coach, or two**, is left on *— No coach —* rather than guessed at. That is deliberate: an upcoming activity with nobody down to run it raises the **"upcoming activity has no coach"** alert, which is more useful than a confident wrong answer. See [Alerts](alerts.md).
+- You can always pick somebody else from the team's staff, and an assistant coach may name a colleague on a team they work with. You can't name staff from a team you don't have access to — the save is refused rather than quietly changed.
+
+Activities created before this shipped keep whatever is in the field today, which for most of them is the person who created them. Change the coach on the ones that matter by editing the activity; nothing is rewritten behind your back.
+
 ## Who created and changed it
 
-The activity detail page shows a small line at the bottom of the detail panel: **Created by** whoever added the activity, on the date they did, and **Last changed by** whoever most recently edited it. This is recorded automatically from now on — activities created before this was added show nothing there (there's no history to fill in), and the line only appears once an author is known.
+The activity detail page shows a small line at the bottom of the detail panel: **Created by** whoever added the activity, on the date they did, and **Last changed by** whoever most recently edited it. This is recorded automatically from now on — activities created before this was added show nothing there (there's no history to fill in), and the line only appears once an author is known. **Created by** is not the same as the **Coach** above: one is who typed it in, the other is who runs it.
 
 ## Guests
 
