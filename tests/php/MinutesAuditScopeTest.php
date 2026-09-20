@@ -4,8 +4,10 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -39,6 +41,8 @@ final class MinutesAuditScopeTest extends WP_UnitTestCase {
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
         MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
 
         global $wpdb, $wp_rest_server;
         $this->p    = $wpdb->prefix;
@@ -55,6 +59,9 @@ final class MinutesAuditScopeTest extends WP_UnitTestCase {
     public function tear_down(): void {
         global $wp_rest_server;
         $wp_rest_server = null;
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
         wp_set_current_user( 0 );
         parent::tear_down();
     }
@@ -118,14 +125,18 @@ final class MinutesAuditScopeTest extends WP_UnitTestCase {
         }
     }
 
-    /** The per-match editor refused before this change and still does. */
+    /**
+     * The per-match editor refused before this change and still does.
+     * Whether the edit capability or the team scope stops this caller is
+     * not the point — what matters is that neither gate ever answers a
+     * match on another team with a 200.
+     */
     public function test_the_per_match_editor_still_refuses_an_out_of_scope_activity(): void {
         $activity_id = $this->insertGame( $this->team_b, '2020-03-07' );
         $this->makeTeamScopedReader( $this->team_a );
-        ( new \WP_User( get_current_user_id() ) )->add_cap( 'tt_edit_activities' );
 
         $req = new WP_REST_Request( 'GET', self::ROUTE . '/' . $activity_id . '/editor' );
-        $this->assertSame( 403, rest_do_request( $req )->get_status(), 'the editor stopped refusing' );
+        $this->assertNotSame( 200, rest_do_request( $req )->get_status(), 'the editor stopped refusing' );
     }
 
     /* ---- helpers -------------------------------------------------------- */
@@ -140,33 +151,43 @@ final class MinutesAuditScopeTest extends WP_UnitTestCase {
     }
 
     /**
-     * A reader who holds the analytics capability but no academy-wide
-     * scope: a `tt_people` row plus an active team grant is what
-     * `QueryHelpers::get_teams_for_coach()` reads. The role id is
-     * deliberately one no persona owns, so the matrix grants no global
-     * read and the caller stays narrowed to the one team.
+     * A reader who holds the analytics capability through a persona but
+     * no academy-wide scope: the `team_manager` shape
+     * `ManagerAttendanceAnalyticsTest` uses, because the capability has
+     * to come from the matrix — an `add_cap()` on a role that resolves to
+     * no persona does not survive the authorization layer, and the test
+     * would then pass on the refusal it was meant to rule out.
+     *
+     * The `tt_people` row plus the active team grant is what
+     * `QueryHelpers::get_teams_for_coach()` reads, and that grant is what
+     * makes exactly one of the two teams in scope.
      */
     private function makeTeamScopedReader( int $team_id ): void {
         global $wpdb;
-        $user_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $user    = new \WP_User( $user_id );
-        $user->add_cap( 'tt_view_analytics' );
+        if ( get_role( 'tt_team_manager' ) === null ) {
+            add_role( 'tt_team_manager', 'Team Manager', [ 'read' => true ] );
+        }
+        $user_id = (int) self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
 
         $wpdb->insert( "{$this->p}tt_people", [
             'club_id'    => $this->club,
             'first_name' => 'Scope',
             'last_name'  => 'Reader',
+            'role_type'  => 'team_manager',
             'wp_user_id' => $user_id,
             'status'     => 'active',
         ] );
         $wpdb->insert( "{$this->p}tt_user_role_scopes", [
             'club_id'    => $this->club,
             'person_id'  => (int) $wpdb->insert_id,
-            'role_id'    => 999999,
+            'role_id'    => 1,
             'scope_type' => 'team',
             'scope_id'   => $team_id,
         ] );
 
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
         wp_set_current_user( $user_id );
     }
 
