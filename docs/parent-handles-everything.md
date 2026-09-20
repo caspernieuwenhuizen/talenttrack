@@ -32,6 +32,18 @@ Start with the country code — `+31 6 12345678`, not `06 12345678`. A number wi
 
 Nobody has to approve the change; it takes effect the moment you save. Your child's coaches and the academy staff see it on your child's file. Other parents and other players never do.
 
+## What the academy holds about you
+
+Your details are kept in more than one place, and those places can disagree — the number on your account is not automatically the number an admin once typed onto your child's file. **My settings** ends with a read-only card, **What the academy holds about you**, that lays all of it out in one place:
+
+- **Your account** — the name, email address and phone number you manage yourself, in the card at the top of the same page.
+- **Your contact record** — the entry the academy keeps about you alongside the coaches and other staff, when you have one.
+- **On \<child\>'s file** — the contact details recorded on each of your children's records.
+
+The last block only ever shows details that are **yours**. If your child's file names another guardian — the other parent, a grandparent, an emergency contact — you do not see them, just as they do not see yours. When nothing on a child's file matches you, the card says so; that is worth telling the academy, because it means staff have no way to reach you about that child.
+
+Nothing on this card can be edited. Your own name, email and phone are yours to change in the card above. Anything recorded on a child's file is changed by the academy — tell them and they will correct it.
+
 After that you'll see "My child" in the dashboard. Tap to open your child's profile.
 
 Your dashboard mirrors exactly what your child sees: the same development tiles, in the same order, relabeled to your child's first name — "Sven's card", "Sven's evaluations", "Sven's development plan", and so on. Whatever the academy switches on or off for players is reflected on your screen too, so you and your child are always looking at the same set of surfaces. Every tile opens your child's record. Your own account settings stay separate — they're not relabeled or duplicated per child.
