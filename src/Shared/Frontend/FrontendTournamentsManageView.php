@@ -11,6 +11,7 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\ArchiveRowActions;
+use TT\Shared\Frontend\Components\LookupColourChip;
 
 /**
  * FrontendTournamentsManageView (#0093 chunk 3) — list + detail +
@@ -334,6 +335,12 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         // with no translation falls back to the stored key.
         $level_labels = QueryHelpers::get_lookup_label_pairs( 'tournament_opponent_level' );
 
+        // #3559 — and each level's own colour, with an ink derived from it.
+        // The seeded amber is 1.8:1 against white, so a chip that painted
+        // the background and assumed white text would be unreadable at
+        // exactly the level a coach most wants to notice.
+        $level_colours = LookupColourChip::colours( 'tournament_opponent_level' );
+
         $squad = $wpdb->get_results( $wpdb->prepare(
             "SELECT s.*, pl.first_name, pl.last_name
                FROM {$p}tt_tournament_squad s
@@ -417,8 +424,9 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             } elseif ( $m->kicked_off_at ) {
                                 echo '<span class="tt-tour-chip tt-tour-chip--live">' . esc_html__( 'In progress', 'talenttrack' ) . '</span>';
                             } elseif ( $m->opponent_level ) {
-                                $level_key = (string) $m->opponent_level;
-                                echo '<span class="tt-tour-chip tt-tour-chip--level">' . esc_html( $level_labels[ $level_key ] ?? $level_key ) . '</span>';
+                                $level_key   = (string) $m->opponent_level;
+                                $level_style = LookupColourChip::styleFor( (string) ( $level_colours[ $level_key ] ?? '' ) );
+                                echo '<span class="tt-tour-chip tt-tour-chip--level"' . ( $level_style !== '' ? ' style="' . esc_attr( $level_style ) . '"' : '' ) . '>' . esc_html( $level_labels[ $level_key ] ?? $level_key ) . '</span>'; /* tt-inline-ok: the level's operator-chosen colour, and the ink derived from it */
                             }
                             ?>
                         </div>

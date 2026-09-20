@@ -1097,6 +1097,25 @@ Soft-deletes a message: the body is blanked and `deleted_at` stamped. The author
 
 Marks the thread read for the caller without listing it. `POST /threads/{type}/{id}` does the same. Returns `{ ok: true }`.
 
+## Tournament matches — `opponent_level` (#3559)
+
+`POST /tournaments`, `POST /tournaments/{id}/matches` and
+`PATCH /tournaments/{id}/matches/{match_id}` validate `opponent_level`
+against the `tournament_opponent_level` lookup. An unknown value returns
+**400** `opponent_level_invalid`, with `details.allowed` carrying the values
+the vocabulary holds and the message naming them. An empty string or `null`
+clears the column and is accepted.
+
+On `POST /tournaments`, the nested `matches[]` are checked before the
+tournament row is written, so a bad level refuses the whole request rather
+than leaving a tournament behind with some of its fixtures missing.
+
+The column is operator-editable vocabulary, not a fixed enum: the allowed
+set is read from the lookup at request time, so a club that adds a level
+gets it accepted without a release. `TournamentOpponentLevel::ALL` is the
+floor for an install whose rows were deleted — an emptied vocabulary refuses
+everything rather than accepting anything.
+
 ## Adding a new resource
 
 1. Add a controller under `src/Infrastructure/REST/` (or per-module `Rest/` directory) following the existing pattern: `init()` adds the `rest_api_init` action, `register()` registers the routes, `can_view()` / `can_edit()` return capability checks, handlers extract via `\WP_REST_Request`, validate, write via `$wpdb`, return `RestResponse::success()` / `RestResponse::error()`.

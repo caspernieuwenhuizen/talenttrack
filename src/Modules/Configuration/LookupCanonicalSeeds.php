@@ -132,7 +132,12 @@ final class LookupCanonicalSeeds {
             // of truth so this map can't drift away from migration 0098
             // + REST validation in the future.
             'tournament_formation' => TournamentFormation::ALL,
-            'opponent_level'       => TournamentOpponentLevel::ALL,
+            // #3559 — keyed `opponent_level` until now, while the lookup
+            // type migration 0098 seeds is `tournament_opponent_level`.
+            // The map is keyed by lookup type, so the normalisation screen
+            // offered no canonical values for the vocabulary at all — it
+            // was looking one key to the left of where they were.
+            'tournament_opponent_level' => TournamentOpponentLevel::ALL,
 
             // 0110-0117 — workflow + status lookups (these ones use
             // lowercase internal keys, per migration design)

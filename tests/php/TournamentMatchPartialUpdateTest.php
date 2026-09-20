@@ -163,7 +163,10 @@ final class TournamentMatchPartialUpdateTest extends WP_UnitTestCase {
         $this->patch( [
             'label'                => 'Semi-final',
             'opponent_name'        => 'PSV O13-2',
-            'opponent_level'       => 'similar',
+            // #3559 — a value the `tournament_opponent_level` vocabulary
+            // actually carries. `similar` was refused the moment the level
+            // started being validated, and it never meant anything.
+            'opponent_level'       => 'much_stronger',
             'formation'            => '1-2-3-1',
             'duration_min'         => 30,
             'substitution_windows' => [ 15 ],
@@ -174,7 +177,7 @@ final class TournamentMatchPartialUpdateTest extends WP_UnitTestCase {
         $row = $this->row();
         $this->assertSame( 'Semi-final', $row['label'] );
         $this->assertSame( 'PSV O13-2', $row['opponent_name'] );
-        $this->assertSame( 'similar', $row['opponent_level'] );
+        $this->assertSame( 'much_stronger', $row['opponent_level'] );
         $this->assertSame( '1-2-3-1', $row['formation'] );
         $this->assertSame( '30', (string) $row['duration_min'] );
         $this->assertSame( [ 15 ], json_decode( (string) $row['substitution_windows'], true ) );
