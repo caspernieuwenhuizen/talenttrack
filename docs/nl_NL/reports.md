@@ -39,13 +39,19 @@ Alleen coaches binnen je eigen club worden meegeteld — het rapport is beperkt 
 
 ## Coach · Evaluatiekwaliteit
 
-De evaluatie-steekproef van het hoofd opleiding als rapport: één rij per coach met het aantal evaluaties, het aantal beoordelingen, de gemiddelde score, de standaarddeviatie, de meest gegeven score (en welk aandeel van alle beoordelingen daarop zit) en de datum van de laatste evaluatie. Filterbaar op team en datumbereik.
+De evaluatie-steekproef van het hoofd opleiding als rapport: één rij per coach met de selectiegrootte, hoeveel van die selectie in de periode zijn beoordeeld, hoeveel er dit seizoen nog nooit zijn beoordeeld, het aantal evaluaties, het aantal beoordelingen, de gemiddelde score, de standaarddeviatie, de meest gegeven score (en welk aandeel van alle beoordelingen daarop zit), de datum van de laatste evaluatie en hoeveel dagen geleden dat was. Filterbaar op team en datumbereik.
+
+**Elke coach met een team krijgt een rij, ook wie niemand heeft beoordeeld.** Dat is juist de rij waar het rapport voor bestaat: een coach met een lege maand toont `0` evaluaties naast de selectiegrootte, in plaats van te verdwijnen omdat er niets te groeperen viel. Coaches worden bepaald via hetzelfde teamstaf-pad dat het rapport evaluatiedekking gebruikt, zodat de twee rapporten het nooit oneens zijn over wie de coach van een team is; een coach die evaluaties schreef zonder een team te hebben verschijnt nog steeds, met selectiegrootte `0`. Een team zonder toegewezen hoofdcoach heeft hier geen rij — die gaten zie je in de evaluatiedekking.
+
+Twee kolommen vragen om aandacht. **Beoordeeld in deze periode** telt spelers uit de selectie van de coach die door *wie dan ook* zijn beoordeeld — heeft een collega het gedaan, dan is de selectie gedekt en valt er niets achteraan te zitten, dezelfde toerekening die evaluatiedekking hanteert. **Dagen geleden** rekent vanaf de meest recente evaluatie van de coach, wanneer die ook was, niet vanaf een evaluatie binnen de periode; begrensd tot de periode zou die kolom leeg zijn bij precies de coach die je wilt bellen.
+
+Stel je geen datumbereik in, dan beslaat het rapport het huidige seizoen, en de koptekst noemt het gebruikte venster — de cijfers zeggen altijd over welke periode ze gaan.
 
 Rijen waar de standaarddeviatie onder **0,5** ligt over **10 of meer beoordelingen** krijgen de vlag *lage variatie* — het statistische kenmerk van een coach die iedereen hetzelfde cijfer geeft. Een coach met maar een handvol beoordelingen wordt nooit gevlagd; er valt dan nog geen zinvolle variatie te meten.
 
 Beperkt tot academiebrede rollen (hoofd opleiding / beheerder): coaches kunnen elkaars statistieken niet inzien. De knop **Exporteren (CSV)** downloadt dezelfde rijen; integraties kunnen ze lezen via `GET /wp-json/talenttrack/v1/reports/coach-evaluation-quality` met dezelfde rechtencontrole.
 
-Dat endpoint accepteert `team_id`, `date_from` en `date_to` zowel plat als genest: `filter[team_id]`, `filter[date_from]` (ook te schrijven als `filter[from]`) en `filter[date_to]` (`filter[to]`) — de vorm die de rest van de lijst-API gebruikt — en stuur je ze allebei, dan wint de geneste waarde. Een `team_id` dat geen bruikbaar team-id is, wordt geweigerd met `400 bad_filter`, waarbij `details.parameter` de schrijfwijze noemt die fout is; het wordt nooit stilzwijgend genegeerd, want een weggevallen teamfilter levert een antwoord op over elke coach in de academie terwijl er om één team gevraagd was.
+Dat endpoint accepteert `team_id`, `from` en `to` zowel plat als genest: `filter[team_id]`, `filter[from]` (ook te schrijven als `filter[date_from]`) en `filter[to]` (`filter[date_to]`) — de vorm die de rest van de lijst-API gebruikt — en stuur je ze allebei, dan wint de geneste waarde. `date_from` / `date_to` waren eerder de aangegeven namen en werken nog steeds, plat én genest. Een grens die je weglaat valt terug op het venster van het huidige seizoen, en het antwoord echoot de toegepaste `from` / `to` terug zodat een lezer de periode kan benoemen. Een `team_id` dat geen bruikbaar team-id is, wordt geweigerd met `400 bad_filter`, waarbij `details.parameter` de schrijfwijze noemt die fout is; het wordt nooit stilzwijgend genegeerd, want een weggevallen teamfilter levert een antwoord op over elke coach in de academie terwijl er om één team gevraagd was.
 
 ## Frontendrapporten + Afdrukken/Opslaan als PDF
 
@@ -336,6 +342,12 @@ verplicht: laat je het in beide schrijfwijzen weg, of stuur je iets wat geen
 bruikbaar team-id is, dan wordt het verzoek geweigerd met `400 bad_filter`,
 waarbij `details.parameter` de schrijfwijze noemt die fout is — in plaats van een
 lege matrix die leest als "dit team heeft niet gespeeld".
+
+Een team buiten je eigen afbakening wordt ook geweigerd, met `403 forbidden_team`
+in beide schrijfwijzen — dezelfde weigering die de aanwezigheidsrapporten geven.
+Een team dat je *wel* mag lezen maar waarvoor geen minuten zijn vastgelegd, komt
+nog steeds terug als een lege matrix met `200`. Zo blijven "hier staat niets" en
+"hier mag je niet kijken" twee verschillende antwoorden.
 
 ### Per-wedstrijd minuten-editor
 

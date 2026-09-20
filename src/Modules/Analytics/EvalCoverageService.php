@@ -235,7 +235,7 @@ final class EvalCoverageService {
      * team-staff path the coverage matrix uses, or '' when the team has none.
      */
     public function headCoachNameForTeam( int $team_id ): string {
-        $map = $this->fetchHeadCoaches();
+        $map = $this->headCoaches();
         return isset( $map[ $team_id ] ) ? $map[ $team_id ]['coach_name'] : '';
     }
 
@@ -287,7 +287,7 @@ final class EvalCoverageService {
     private function fetchPlayers(): array {
         global $wpdb;
 
-        $coaches = $this->fetchHeadCoaches();
+        $coaches = $this->headCoaches();
 
         /** @var list<object> $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -332,9 +332,13 @@ final class EvalCoverageService {
      * Map team_id → its head coach (wp_user_id + display name). Where a
      * team has several head-coach assignments, the first by surname wins.
      *
+     * #3809 — public because the coach-evaluation-quality report resolves
+     * its coaches through this too. Two implementations of "who coaches
+     * this team" would let the two reports disagree about it.
+     *
      * @return array<int,array{coach_id:int,coach_name:string}>
      */
-    private function fetchHeadCoaches(): array {
+    public function headCoaches(): array {
         global $wpdb;
         /** @var list<object> $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(

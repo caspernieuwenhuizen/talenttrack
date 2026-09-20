@@ -333,8 +333,13 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
      * @return array<string,mixed>
      */
     private function coachQualityPayload( array $query ): array {
+        // #3809 — the report now resolves an unsupplied bound to the season
+        // window rather than reading all of history, so the fixture's two
+        // evaluations need the window spelled out. A nested spelling in
+        // `$query` still wins over the plain default added here, which is
+        // the property these tests are about.
         $response = ReportsRestController::coachEvalQuality(
-            $this->requestFor( '/talenttrack/v1/reports/coach-evaluation-quality', $query )
+            $this->requestFor( '/talenttrack/v1/reports/coach-evaluation-quality', $query + self::WINDOW )
         );
         $this->assertSame( 200, $response->get_status(), 'the coach quality report refused a request it should answer' );
         return $this->payloadOf( $response );

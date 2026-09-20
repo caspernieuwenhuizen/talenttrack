@@ -152,6 +152,20 @@ final class MatchExecutionState {
     }
 
     /**
+     * #3849 — the half the match has reached, which is what decides whose
+     * line-up is on the pitch. The second half is reached once it has
+     * started and stays reached afterwards, so a post-match screen asks
+     * about the second half rather than falling back to the first.
+     *
+     * Half time answers 1: the second-half line-up takes the pitch at the
+     * second-half kick-off, not at the interval, and the bench during the
+     * break is still the bench of the half just played.
+     */
+    public static function halfReached( string $value ): int {
+        return ( $value === self::SECOND_HALF || self::isPostLive( $value ) ) ? 2 : 1;
+    }
+
+    /**
      * #1473 / #1520 — is the given activity date "match day"? Starting a
      * match is gated to the server's current date. Shared by the match
      * execution view's start-lock and the activity detail-page button so

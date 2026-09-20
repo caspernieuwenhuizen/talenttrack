@@ -258,30 +258,39 @@ class MatchExecutionRestController {
         $prep_repo = new MatchPrepRepository();
         $lineup    = $prep_repo->listLineup( (int) $prep->id );
 
-        $slot_to_player = [];
-        $xi_half1       = [];
+        $slots_by_half = [ 1 => [], 2 => [] ];
+        $xi_half1      = [];
+        $xi_half2      = [];
         foreach ( $lineup as $l ) {
-            if ( (int) $l->half !== 1 ) {
+            $half = (int) $l->half;
+            if ( $half !== 1 && $half !== 2 ) {
                 continue;
             }
             $slot = (int) $l->slot_number;
             $pid  = (int) $l->player_id;
-            if ( $pid > 0 ) $xi_half1[] = $pid;
-            if ( $slot >= 1 && $slot <= 11 && $pid > 0 ) {
-                $slot_to_player[ $slot ] = $pid;
+            if ( $pid <= 0 ) continue;
+            if ( $half === 1 ) $xi_half1[] = $pid; else $xi_half2[] = $pid;
+            if ( $slot >= 1 && $slot <= 11 ) {
+                $slots_by_half[ $half ][ $slot ] = $pid;
             }
         }
+        $slot_to_player = $slots_by_half[1];
 
         // #3554 — the line-up as it stands now, not as it was at kickoff:
         // every logged substitution is applied, so a client redrawing the
         // pitch after a sub shows who is actually on it.
+        // #3849 — "now" includes which half it is: a second-half line-up
+        // takes the pitch at the interval, and only its own half's
+        // substitutions act on it.
         $exec_repo = new MatchExecutionRepository();
         $exec      = $exec_repo->findByActivity( $activity_id );
         $on_pitch  = $xi_half1;
         if ( $exec ) {
             $exec_id        = (int) ( $exec->id ?? 0 );
-            $slot_to_player = PitchLayoutService::applySubstitutions( $slot_to_player, $exec_repo->listSubstitutions( $exec_id ) );
-            $on_pitch       = $exec_repo->onPitchPlayerIds( $exec_id, $xi_half1 );
+            $half_reached   = MatchExecutionState::halfReached( (string) ( $exec->state ?? '' ) );
+            $subs           = $exec_repo->listSubstitutions( $exec_id );
+            $slot_to_player = PitchLayoutService::pitchAtHalf( $slots_by_half[1], $slots_by_half[2], $subs, $half_reached );
+            $on_pitch       = $exec_repo->onPitchPlayerIds( $exec_id, $xi_half1, $xi_half2, $half_reached );
         }
 
         $player_meta = self::playerMeta( array_values( $slot_to_player ) );
@@ -711,11 +720,17 @@ class MatchExecutionRestController {
         // so it must fall through to the idempotent INSERT IGNORE unchanged
         // rather than fail the roster check and retry-loop in the queue.
         if ( ! $repo->substitutionExists( $event_uuid ) ) {
-            [ $half_length, $starting_xi ] = self::prepContext( absint( $r['activity_id'] ) );
+            [ $half_length, $xi_half1, $xi_half2 ] = self::prepContext( absint( $r['activity_id'] ) );
             $minute_err = self::assertMinuteInRange( $minute, $half_length );
             if ( $minute_err ) return $minute_err;
 
-            $on_pitch = $repo->onPitchPlayerIds( $exec_id, $starting_xi );
+            // #3849 — judged at the substitution's own half and minute, not
+            // at the final whistle. A forgotten first-half swap added after
+            // the second half is a question about the first half, and on a
+            // match with a second-half line-up the whistle answer was wrong
+            // in both directions: the player coming off was never "on" and
+            // the player coming on always was.
+            $on_pitch = $repo->onPitchPlayerIds( $exec_id, $xi_half1, $xi_half2, $half, $minute );
             if ( ! in_array( $player_off_id, $on_pitch, true ) ) {
                 return RestResponse::error(
                     'player_off_not_on_pitch',
@@ -1235,30 +1250,37 @@ class MatchExecutionRestController {
     }
 
     /**
-     * #2268 — half length + first-half starting XI for the activity's
-     * match prep, used to validate substitution rosters + minute ranges.
-     * Returns [ half_length_minutes, list<int> starting_xi_half1 ]. A
-     * missing prep yields the locked default half length + an empty XI.
+     * #2268 — half length + starting XI per half for the activity's match
+     * prep, used to validate substitution rosters + minute ranges. Returns
+     * [ half_length_minutes, list<int> half 1, list<int> half 2 ]. A
+     * missing prep yields the locked default half length + empty XIs.
      *
-     * @return array{0:int, 1:list<int>}
+     * #3849 — the second half was read nowhere here, which is how the
+     * roster check came to judge every substitution against the first-half
+     * XI. Both halves are returned because both are needed to say who is
+     * on the pitch at a given point.
+     *
+     * @return array{0:int, 1:list<int>, 2:list<int>}
      */
     private static function prepContext( int $activity_id ): array {
         $prep_repo = new MatchPrepRepository();
         $prep      = $prep_repo->findByActivity( $activity_id );
         if ( ! $prep ) {
-            return [ 35, [] ];
+            return [ 35, [], [] ];
         }
         $half_length = (int) $prep->half_length_minutes;
         if ( $half_length <= 0 ) $half_length = 35;
 
-        $starting_xi = [];
+        $xi_half1 = [];
+        $xi_half2 = [];
         foreach ( $prep_repo->listLineup( (int) $prep->id ) as $l ) {
-            if ( (int) $l->half === 1 ) {
-                $pid = (int) $l->player_id;
-                if ( $pid > 0 ) $starting_xi[] = $pid;
-            }
+            $pid  = (int) $l->player_id;
+            $half = (int) $l->half;
+            if ( $pid <= 0 ) continue;
+            if ( $half === 1 ) $xi_half1[] = $pid;
+            if ( $half === 2 ) $xi_half2[] = $pid;
         }
-        return [ $half_length, $starting_xi ];
+        return [ $half_length, $xi_half1, $xi_half2 ];
     }
 
     /**

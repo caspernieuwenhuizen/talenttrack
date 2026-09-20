@@ -35,7 +35,7 @@ Three matrix-only caps, no role baselines:
 - **`tt_vct_admin_library`** — edit the exercise library + age-profiles + macro-blocks.
 - **`tt_vct_view_load`** — read workload aggregates.
 
-Per `config/authorization_seed.php`, the four personas have:
+Per `config/authorization_seed.php`, **every** persona, including the ones with no access at all — a dash means *considered and not granted*, which is a different statement from a persona being absent from the table (#3741 settled that for injuries):
 
 | Persona | tt_vct_plan | tt_vct_admin_library | tt_vct_view_load |
 | --- | --- | --- | --- |
@@ -43,6 +43,14 @@ Per `config/authorization_seed.php`, the four personas have:
 | `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
+| `team_manager` | — | — | — |
+| `staff` (incl. the `manager` functional role) | — | — | — |
+| `scout` | — | — | — |
+| `player` | — | — | — |
+| `parent` | — | — | — |
+| `observer` | — | — | — |
+
+The VCT capabilities are **matrix-only by design** (`RolesService::VCT_CAPS`): they are deliberately in no role's capability list, so `user_can()` always answers false for them and only the matrix can grant them. A persona with a dash above therefore gets a 403 from every VCT route, which is the intended answer rather than a gap.
 
 Both coach personas read the load for their own teams only. The `vct_workload`
 row behind `tt_vct_view_load` was missing from both of them until #3706, so

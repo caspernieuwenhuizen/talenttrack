@@ -50,9 +50,15 @@ final class ReportsRestController extends BaseController {
                 },
                 'args'                => [
                     'team_id'   => $team_arg,
-                    'date_from' => [ 'type' => 'string', 'description' => 'Earliest evaluation date as YYYY-MM-DD. Same as filter[date_from] or filter[from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'date_to'   => [ 'type' => 'string', 'description' => 'Latest evaluation date as YYYY-MM-DD. Same as filter[date_to] or filter[to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'filter'    => [ 'description' => 'Nested filters: team_id, date_from (or from), date_to (or to). A nested value wins over the plain parameter of the same name.' ],
+                    // #3809 — `from` / `to` are the declared names, the
+                    // spelling every sibling report on this controller
+                    // uses; `date_from` / `date_to` stay as accepted
+                    // aliases for the callers that already send them.
+                    'from'      => [ 'type' => 'string', 'description' => 'Window start as YYYY-MM-DD. Anything else falls back to the season window, which the response echoes. Same as date_from, filter[from] or filter[date_from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'to'        => [ 'type' => 'string', 'description' => 'Window end as YYYY-MM-DD. Anything else falls back to the season window, which the response echoes. Same as date_to, filter[to] or filter[date_to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'date_from' => [ 'type' => 'string', 'description' => 'Alias of from.', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'date_to'   => [ 'type' => 'string', 'description' => 'Alias of to.', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'filter'    => [ 'description' => 'Nested filters: team_id, from (or date_from), to (or date_to). A nested value wins over the plain parameter of the same name.' ],
                 ],
             ],
         ] );
@@ -292,7 +298,8 @@ final class ReportsRestController extends BaseController {
      * the same persisted `record_type='actual'` minutes as the minutes
      * report (#2193), so the two reconcile exactly. Team scope is enforced
      * via {@see attendanceScope()} — a coach who passes a team they don't
-     * coach gets an empty matrix, not another team's data.
+     * coach is refused, the way the three attendance readers on this
+     * controller refuse (#3792).
      */
     public static function minutesAudit( WP_REST_Request $req ): \WP_REST_Response {
         // #3790 — either spelling, nested wins, and a team nobody can
@@ -314,15 +321,13 @@ final class ReportsRestController extends BaseController {
         if ( ! in_array( $type, [ 'League', 'Cup', 'Friendly' ], true ) ) $type = 'all';
 
         $allowed = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] ) {
-            return RestResponse::success( [
-                'games'         => [],
-                'players'       => [],
-                'column_totals' => [],
-                'grand_total'   => 0,
-                'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0 ],
-            ] );
-        }
+        // #3792 — a permission block is not an empty result (#2893). The
+        // empty matrix this used to return says "this team recorded no
+        // minutes", which a coach checking another age group cannot tell
+        // apart from a refusal — a confident, wrong answer. The three
+        // attendance readers below refuse the same situation, and the
+        // per-match editor above already does.
+        if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $matrix = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type );
         return RestResponse::success( $matrix );
@@ -672,25 +677,40 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function coachEvalQuality( WP_REST_Request $req ): \WP_REST_Response {
-        // #3790 — either spelling, nested wins. The dates keep their
-        // pass-through behaviour: a blank one means "no bound", and the
-        // query binds whatever is supplied.
+        // #3790 — either spelling, nested wins. #3809 — `from` / `to`
+        // lead, the way they do on every sibling report here, and an
+        // unusable or absent bound resolves to the season window that
+        // the response echoes.
         $read = self::filterValues( $req, [
-            'team_id'   => [ 'team_id' ],
-            'date_from' => [ 'date_from', 'from' ],
-            'date_to'   => [ 'date_to', 'to' ],
+            'team_id' => [ 'team_id' ],
+            'from'    => [ 'from', 'date_from' ],
+            'to'      => [ 'to', 'date_to' ],
         ] );
         if ( $read['error'] !== null ) return $read['error'];
         $team = self::filterTeamId( $read );
         if ( $team['error'] !== null ) return $team['error'];
 
-        $rows = ( new CoachEvalQualityQuery() )->rows( [
-            'team_id'   => $team['team_id'],
-            'date_from' => sanitize_text_field( $read['values']['date_from'] ),
-            'date_to'   => sanitize_text_field( $read['values']['date_to'] ),
+        // The plain aliases, which `filterValues()` only reads under the
+        // nested spelling: `date_from` / `date_to` were this route's
+        // declared names until #3809 and an integration still sending them
+        // must not silently get the season default instead.
+        $from = sanitize_text_field( $read['values']['from'] );
+        $to   = sanitize_text_field( $read['values']['to'] );
+        if ( $from === '' ) $from = sanitize_text_field( (string) $req->get_param( 'date_from' ) );
+        if ( $to === '' )   $to   = sanitize_text_field( (string) $req->get_param( 'date_to' ) );
+
+        $report = ( new CoachEvalQualityQuery() )->report( [
+            'team_id' => $team['team_id'],
+            'from'    => $from,
+            'to'      => $to,
         ] );
         return RestResponse::success( [
-            'rows'                   => $rows,
+            'rows'                   => $report['rows'],
+            // #3809 — the window the rows describe, season fallback
+            // included. Without it the numbers name no period, and the
+            // reader cannot tell a quiet month from a narrow filter.
+            'from'                   => $report['from'],
+            'to'                     => $report['to'],
             'low_variance_threshold' => CoachEvalQualityQuery::LOW_VARIANCE_THRESHOLD,
             'min_ratings_for_flag'   => CoachEvalQualityQuery::MIN_RATINGS_FOR_FLAG,
         ] );

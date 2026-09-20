@@ -239,6 +239,12 @@ Staat JavaScript uit in je browser, dan gebeurt de hele run in die ene aanvraag
 zoals voorheen. Voor de kleinere presets werkt dat prima; de grote preset is
 degene die de stappen nodig heeft.
 
+De trainingsstap sluit af met het uitrekenen van **hoeveel minuten elke speler
+aan elk principe heeft besteed**, precies de berekening die de nachtelijke taak
+doet. Het trainingstabblad van een speler klopt daardoor zodra de run klaar is,
+in plaats van "zeven trainingen, nooit iets getraind" te tonen tot een geplande
+taak waar op een demo-installatie niemand op wacht.
+
 ## Twee keer genereren in dezelfde club
 
 Een tweede run vult aan bij wat er al staat in plaats van het te vervangen. Elke
@@ -297,6 +303,17 @@ De demo-WP-accounts blijven bestaan na het wissen van data. Ze verwijderen
 is een aparte actie ("Demogebruikers wissen"), met waarborgen: hij weigert
 een account waarvan het e-mailadres buiten het ingestelde demodomein valt,
 het account waarmee je bent ingelogd, en de laatst overgebleven beheerder.
+
+### Als een wisbeurt niet afkomt
+
+Een batch wordt in begrensde stappen verwijderd in plaats van met één
+opdracht per soort rij, zodat een batch met honderdduizenden rijen van
+één soort — meestal evaluatiebeoordelingen — er volledig uit komt. Weigert
+de database toch een van die stappen, dan meldt de wisbeurt dat: de
+bevestiging wordt een waarschuwing met de soorten die niet gewist konden
+worden, en die rijen houden hun demolabel zodat een volgende wisbeurt ze
+alsnog oppakt. Een wisbeurt die een aantal rijen meldt en geen
+waarschuwing toont, heeft alles verwijderd waar je om vroeg.
 
 ## Dekking
 

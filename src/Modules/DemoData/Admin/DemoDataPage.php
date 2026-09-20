@@ -244,8 +244,13 @@ class DemoDataPage {
             $cats_str = isset( $_GET['tt_demo_wiped_cats'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_wiped_cats'] ) ) : '';
             $cats     = $cats_str !== '' ? array_filter( explode( ',', $cats_str ) ) : [];
             $rows_n   = isset( $_GET['tt_demo_wiped_n'] ) ? (int) $_GET['tt_demo_wiped_n'] : 0;
+            // #3813 — entity types whose delete statement failed. Their
+            // rows are still in the database and their demo tags were
+            // kept, so running the wipe again is the right next step.
+            $fail_str = isset( $_GET['tt_demo_wipe_failed'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['tt_demo_wipe_failed'] ) ) : '';
+            $failed   = $fail_str !== '' ? array_filter( explode( ',', $fail_str ) ) : [];
             ?>
-            <div class="notice notice-success">
+            <div class="notice notice-<?php echo $failed ? 'warning' : 'success'; ?>">
                 <p>
                     <?php
                     if ( $cats ) {
@@ -260,6 +265,15 @@ class DemoDataPage {
                     }
                     ?>
                 </p>
+                <?php if ( $failed ) : ?>
+                    <p>
+                        <?php echo esc_html( sprintf(
+                            /* translators: %s is a comma-separated list of entity types. */
+                            __( 'The wipe was incomplete: the delete failed for %s. Those rows are still in the database and keep their demo tags — run the wipe again.', 'talenttrack' ),
+                            implode( ', ', array_map( 'strval', $failed ) )
+                        ) ); ?>
+                    </p>
+                <?php endif; ?>
             </div>
             <?php
         } elseif ( $notice === 'users_wiped' ) {
@@ -1294,13 +1308,19 @@ class DemoDataPage {
         if ( $batch_id === 'all' ) $batch_id = '';
 
         $deleted = DemoDataCleaner::wipeData( $cats, $batch_id !== '' ? $batch_id : null );
-        $total   = array_sum( $deleted );
+        // #3813 — a failed delete is not "0 rows". Sum only what landed,
+        // and carry the failed entity types through to the notice so the
+        // operator is told the wipe was incomplete instead of being shown
+        // a success message over rows that are still there.
+        $total  = DemoDataCleaner::deletedTotal( $deleted );
+        $failed = DemoDataCleaner::failedTypes( $deleted );
 
         $redirect = add_query_arg(
             [
-                'tt_demo_msg'        => 'wiped',
-                'tt_demo_wiped_cats' => rawurlencode( implode( ',', $cats ) ),
-                'tt_demo_wiped_n'    => (int) $total,
+                'tt_demo_msg'         => 'wiped',
+                'tt_demo_wiped_cats'  => rawurlencode( implode( ',', $cats ) ),
+                'tt_demo_wiped_n'     => (int) $total,
+                'tt_demo_wipe_failed' => rawurlencode( implode( ',', $failed ) ),
             ],
             $redirect
         );

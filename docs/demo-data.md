@@ -248,6 +248,12 @@ If your browser has JavaScript switched off, the whole run happens in the one
 request as before. That still works for the smaller presets; the large one is
 what needs the steps.
 
+The training step finishes by working out **how many minutes each player has
+spent on each principle**, the same calculation the nightly job does. So a
+player's training tab is right the moment the run ends, rather than reading
+"seven trainings, nothing ever trained" until a scheduled job nobody on a demo
+install waits for.
+
 ## Generating twice into the same club
 
 A second run adds to what is already there rather than replacing it. Each run
@@ -302,6 +308,16 @@ The demo WP user accounts survive a data wipe. Removing them is a separate
 action ("Wipe demo users"), guarded so it refuses to delete an account whose
 email is outside the configured demo domain, the account you are logged in
 as, or the last remaining administrator.
+
+### When a wipe cannot finish
+
+A batch is removed in bounded steps rather than one statement per entity
+type, so a batch with hundreds of thousands of rows of one kind — evaluation
+ratings, usually — comes out in full. If the database still refuses one of
+those steps, the wipe says so: the confirmation turns into a warning naming
+the entity types it could not clear, and those rows keep their demo tags so
+running the wipe again picks them up. A wipe that reports a row count and no
+warning has removed everything it was asked to.
 
 ## Coverage
 

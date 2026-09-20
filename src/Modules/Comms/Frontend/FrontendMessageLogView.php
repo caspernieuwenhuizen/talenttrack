@@ -97,6 +97,18 @@ final class FrontendMessageLogView extends FrontendViewBase {
             : $title;
         self::renderHeader( $heading );
 
+        // #3696 — until this release the times here came from the database
+        // server's clock while every send decision used the site's, so on an
+        // install where the two differ, an older row can show a time the
+        // decision was not made at. Say so rather than leave a reader to
+        // discover it from a message that looks wrongly held.
+        echo '<p class="tt-muted tt-small">'
+            . esc_html__(
+                'Times are shown in the site timezone. Older rows may carry the database server’s local time, which on some installs differs from the site’s.',
+                'talenttrack'
+            )
+            . '</p>';
+
         self::renderCronHealth();
         self::renderFilters( $filters, $players );
 

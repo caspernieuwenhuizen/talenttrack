@@ -157,6 +157,18 @@ follows the goals you add or undo; it is not edited on its own.
 Correcting a substitution re-runs the minutes calculation, so the recorded
 minutes the reports read stay in step with what you change.
 
+**A late substitution is judged at the half and minute you give it**, not at
+the final whistle. So a first-half swap you forgot can still be added after
+the second half's are logged: the screen asks who was on the pitch at that
+point in that half, which is the question a correction is actually about.
+
+**If match prep set a second-half line-up, that line-up is the pitch from
+the second-half kick-off.** The bench after the interval is whoever is not
+in it, the pitch diagram draws it, and only that half's substitutions apply
+on top of it — the first half's are already accounted for by the line-up
+change itself. Without a second-half line-up nothing changes: the eleven
+who started play on, and every substitution applies in turn.
+
 **When a correction is refused, the screen says why** — "The player coming
 off is not currently on the pitch", not a status code. The refusal names
 the thing to change, so it is usually one dropdown away from being
@@ -237,6 +249,11 @@ Minutes played are **derived automatically** from the starting eleven and
 the substitution log — you never have to type them. Because they're
 derived, the way to fix a wrong figure is normally to correct the
 substitution that produced it.
+
+A player can go off and come back on as often as the match asks for it.
+Every spell on the pitch counts, and the squad timeline draws each one as
+its own bar, so a player who sat out ten minutes in the middle of a half
+gets the rest of it credited rather than losing it.
 
 When a genuine correction can't be expressed through the sub log — a player
 who left with a knock and no substitution was logged, say — the review
