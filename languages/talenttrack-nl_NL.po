@@ -65470,7 +65470,32 @@ msgstr[1] ""
 "Nooit afgerond: %1$d activiteiten zijn voorbij en zijn nooit op afgerond "
 "gezet — %2$s"
 
+#: src/Modules/Activities/Admin/ActivitiesPage.php
+#: src/Modules/Wizards/Activity/ReviewStep.php
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid ""
+"The coach responsible for running this activity and recording its register. "
+"Defaults to the team head coach."
+msgstr ""
+"De trainer die verantwoordelijk is voor het draaien van deze activiteit en "
+"het invullen van de presentielijst. Standaard de hoofdtrainer van het team."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid ""
+"WordPress user id of the coach who runs the activity. Omit on create to "
+"derive the team head coach; send 0 to leave it unassigned."
+msgstr ""
+"WordPress-gebruikers-id van de trainer die de activiteit draait. Laat leeg "
+"bij aanmaken om de hoofdtrainer van het team af te leiden; stuur 0 om hem "
+"zonder trainer te laten."
+
 #: src/Infrastructure/REST/ActivitiesRestController.php
 msgid "That coach is not on a team you can assign activities for."
 msgstr ""
 "Die trainer hoort niet bij een team waarvoor jij activiteiten mag indelen."
+
+#: src/Modules/Activities/Admin/ActivitiesPage.php
+#: src/Modules/Wizards/Activity/ReviewStep.php
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "— No coach —"
+msgstr "— Geen trainer —"
