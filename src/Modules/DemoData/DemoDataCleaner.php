@@ -49,6 +49,22 @@ class DemoDataCleaner {
     }
 
     /**
+     * Ids per `DELETE … WHERE id IN (…)` statement.
+     *
+     * #3813 — the wipe used to put one placeholder per tagged row in a
+     * single statement. `tt_eval_ratings` reaches ~25 rows per evaluation,
+     * so a medium batch produced a statement of roughly 300,000
+     * placeholders, several megabytes long. MySQL refused it,
+     * `$wpdb->query()` returned `false`, `(int) false` was recorded as
+     * "0 rows deleted", and the tags were dropped anyway — leaving 298k
+     * rows alive with nothing left to say they were demo data.
+     *
+     * 1,000 sits far inside any realistic `max_allowed_packet` while
+     * keeping the statement count low enough not to matter.
+     */
+    private const DELETE_CHUNK = 1000;
+
+    /**
      * Operator-facing categories the wipe form exposes. Kept as a constant
      * for back-compat with callers doing `array_keys( self::CATEGORIES )`;
      * the cascade semantics now live in `DemoCoverage::CATEGORIES`.
@@ -66,7 +82,13 @@ class DemoDataCleaner {
      *   that `batch_id` only; the matching `tt_demo_tags` rows for
      *   that batch are also dropped. Other batches' demo rows survive.
      *   `null` / empty preserves the all-batches behaviour.
-     * @return array<string,int> Rows deleted per entity type.
+     * @return array<string,int|false> Rows deleted per entity type, or
+     *   `false` for a type whose delete failed. #3813 — `0` and `false`
+     *   are different answers: `0` means the batch held no rows of that
+     *   type, `false` means the statement was refused and the rows are
+     *   still there. A `false` also means the type's `tt_demo_tags` rows
+     *   were deliberately left in place, so a second wipe can still find
+     *   the rows; callers must report it rather than summing it away.
      */
     public static function wipeData( ?array $categories = null, ?string $batch_id = null ): array {
         global $wpdb;
@@ -80,13 +102,14 @@ class DemoDataCleaner {
         // Only fires when player rows are actually being wiped.
         if ( in_array( 'player', $types_to_wipe, true ) ) {
             $player_ids = DemoBatchRegistry::allEntityIds( 'player', $batch_id );
-            if ( $player_ids ) {
-                $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
-                // #1772 — unlink via NULL, not 0 (UNIQUE on
-                // (club_id, wp_user_id) now rejects duplicate 0s).
+            // #1772 — unlink via NULL, not 0 (UNIQUE on
+            // (club_id, wp_user_id) now rejects duplicate 0s).
+            // #3813 — chunked like every other id-set statement here.
+            foreach ( array_chunk( $player_ids, self::DELETE_CHUNK ) as $chunk ) {
+                $placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
                 $wpdb->query( $wpdb->prepare(
                     "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = NULL WHERE id IN ({$placeholders}) AND club_id = %d",
-                    ...array_merge( $player_ids, [ CurrentClub::id() ] )
+                    ...array_merge( $chunk, [ CurrentClub::id() ] )
                 ) );
             }
         }
@@ -115,28 +138,83 @@ class DemoDataCleaner {
                     $deleted[ $type ] = 0;
                     continue;
                 }
-                $column       = (string) $delete_by['column'];
-                $placeholders = implode( ',', array_fill( 0, count( $parent_ids ), '%d' ) );
-                $n = $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$wpdb->prefix}{$table} WHERE {$column} IN ({$placeholders}){$club_clause}",
-                    ...array_merge( $parent_ids, $club_args )
-                ) );
-                $deleted[ $type ] = (int) $n;
-                self::dropTags( $type, $batch_id );
+                $column = (string) $delete_by['column'];
+                $n = self::deleteInChunks( $table, $column, $parent_ids, $club_clause, $club_args );
+                $deleted[ $type ] = $n;
+                if ( $n !== false ) {
+                    self::dropTags( $type, $batch_id );
+                }
                 continue;
             }
 
-            $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $n = self::deleteInChunks( $table, $id_col, $ids, $club_clause, $club_args );
+            $deleted[ $type ] = $n;
 
-            $n = $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$id_col} IN ({$placeholders}){$club_clause}",
-                ...array_merge( $ids, $club_args )
-            ) );
-            $deleted[ $type ] = (int) $n;
-
-            self::dropTags( $type, $batch_id );
+            // #3813 — the tags are the only record that these rows are
+            // demo data. Dropping them after a failed delete orphans the
+            // rows permanently: a second wipe can no longer find them.
+            if ( $n !== false ) {
+                self::dropTags( $type, $batch_id );
+            }
         }
         return $deleted;
+    }
+
+    /**
+     * Delete rows whose `$column` is in `$ids`, one bounded statement per
+     * `DELETE_CHUNK` ids.
+     *
+     * @param int[]   $ids        Already-validated integer ids.
+     * @param string  $club_clause Either '' or ' AND club_id = %d'.
+     * @param int[]   $club_args   Args matching `$club_clause`.
+     * @return int|false Total affected rows, or `false` as soon as one
+     *   statement fails — a partial delete is reported as a failure so the
+     *   caller keeps the tags and can try again.
+     */
+    private static function deleteInChunks( string $table, string $column, array $ids, string $club_clause, array $club_args ) {
+        global $wpdb;
+        $total = 0;
+        foreach ( array_chunk( $ids, self::DELETE_CHUNK ) as $chunk ) {
+            $placeholders = implode( ',', array_fill( 0, count( $chunk ), '%d' ) );
+            $n = $wpdb->query( $wpdb->prepare(
+                "DELETE FROM {$wpdb->prefix}{$table} WHERE {$column} IN ({$placeholders}){$club_clause}",
+                ...array_merge( $chunk, $club_args )
+            ) );
+            if ( $n === false ) {
+                return false;
+            }
+            $total += (int) $n;
+        }
+        return $total;
+    }
+
+    /**
+     * The entity types whose delete failed in a `wipeData()` result.
+     *
+     * @param array<string,int|false> $result
+     * @return string[]
+     */
+    public static function failedTypes( array $result ): array {
+        $failed = [];
+        foreach ( $result as $type => $n ) {
+            if ( $n === false ) $failed[] = (string) $type;
+        }
+        return $failed;
+    }
+
+    /**
+     * Rows actually deleted across a `wipeData()` result, ignoring the
+     * types that failed. `array_sum()` on the raw result would fold a
+     * `false` into 0 and read as success.
+     *
+     * @param array<string,int|false> $result
+     */
+    public static function deletedTotal( array $result ): int {
+        $total = 0;
+        foreach ( $result as $n ) {
+            if ( $n !== false ) $total += $n;
+        }
+        return $total;
     }
 
     /**
@@ -231,15 +309,15 @@ class DemoDataCleaner {
         global $wpdb;
         $person_ids = DemoBatchRegistry::persistentEntityIds( 'person' );
         if ( $person_ids ) {
-            $placeholders = implode( ',', array_fill( 0, count( $person_ids ), '%d' ) );
-            $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}tt_people WHERE id IN ({$placeholders}) AND club_id = %d",
-                ...array_merge( $person_ids, [ CurrentClub::id() ] )
-            ) );
-            $wpdb->query( $wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = 'person' AND club_id = %d",
-                CurrentClub::id()
-            ) );
+            // #3813 — chunked, and the tag delete only runs when every
+            // chunk landed.
+            $n = self::deleteInChunks( 'tt_people', 'id', $person_ids, ' AND club_id = %d', [ CurrentClub::id() ] );
+            if ( $n !== false ) {
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$wpdb->prefix}tt_demo_tags WHERE entity_type = 'person' AND club_id = %d",
+                    CurrentClub::id()
+                ) );
+            }
         }
 
         $current_user_id = (int) get_current_user_id();

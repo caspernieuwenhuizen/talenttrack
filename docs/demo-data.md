@@ -44,6 +44,7 @@ removes exactly what was generated and never touches real records.
 | Trial cases | Historical trials on existing players plus open ones, each with a staff panel, assessments and extensions |
 | Tournaments | A tournament per team with its squad, target minutes, fixtures and per-period assignments |
 | Staff development | Coaching badges, development plans and goals, evaluations with ratings, mentor pairings |
+| Media | A squad photo per team, portraits of the players whose family gave media consent, and one external video link |
 | Messages and operator records | Conversations with read state, saved filters, report presets, workflow tasks, invitations |
 | Behaviour and potential | Behaviour ratings across the window, and dated potential histories for squads old enough to be asked |
 
@@ -70,6 +71,19 @@ Ratings are written **on the scale the install is configured for** and land on
 values that scale can express — no 6.4 on a step of 1. An archetype that
 improves moves at least one whole step across a season, so the development
 story is legible from the list without opening a chart.
+
+**Media consent is stated on every player**, and deliberately not the same
+for all of them. Every fifth player in a squad has no consent on record; the
+rest carry a yes with the date they joined and the coach who took it. Which
+players those are follows their position in the squad rather than chance, so
+regenerating with the same seed gives the same answer.
+
+Photos follow from that. A **portrait** — a photo of one child — is only taken
+of a player whose family gave consent, which is what makes the consent field
+visibly do something. The **squad photo** keeps everyone, including the
+players without consent. That is on purpose: one image depicting children of
+mixed consent is exactly the case the media tab has to handle, and a demo that
+quietly left those players out of the team photo could not show it.
 
 **Behaviour and potential** are seeded with their gaps intact. Roughly one player in five old enough to have a potential band does not have one, one per squad is left overdue, and one is revised **down** rather than up. That is deliberate: the traffic light, the *Potential not revisited* alert and the potential trajectory all exist to make missing and moving data visible, and a demo where nothing is ever missing or overdue makes them look like features that never fire. Potential is not seeded below age 13 at all — the product does not ask for it there, so neither does the demo.
 
@@ -248,6 +262,12 @@ If your browser has JavaScript switched off, the whole run happens in the one
 request as before. That still works for the smaller presets; the large one is
 what needs the steps.
 
+The training step finishes by working out **how many minutes each player has
+spent on each principle**, the same calculation the nightly job does. So a
+player's training tab is right the moment the run ends, rather than reading
+"seven trainings, nothing ever trained" until a scheduled job nobody on a demo
+install waits for.
+
 ## Generating twice into the same club
 
 A second run adds to what is already there rather than replacing it. Each run
@@ -302,6 +322,16 @@ The demo WP user accounts survive a data wipe. Removing them is a separate
 action ("Wipe demo users"), guarded so it refuses to delete an account whose
 email is outside the configured demo domain, the account you are logged in
 as, or the last remaining administrator.
+
+### When a wipe cannot finish
+
+A batch is removed in bounded steps rather than one statement per entity
+type, so a batch with hundreds of thousands of rows of one kind — evaluation
+ratings, usually — comes out in full. If the database still refuses one of
+those steps, the wipe says so: the confirmation turns into a warning naming
+the entity types it could not clear, and those rows keep their demo tags so
+running the wipe again picks them up. A wipe that reports a row count and no
+warning has removed everything it was asked to.
 
 ## Coverage
 

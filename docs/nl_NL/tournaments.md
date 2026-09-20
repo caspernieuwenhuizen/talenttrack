@@ -95,7 +95,9 @@ snelkoppeling weg zonder de planner te verliezen.
 
 ## Niveau tegenstander
 
-Elke wedstrijd heeft een niveau — standaard **zwakker / gelijkwaardig / sterker / veel sterker**. De pill op de wedstrijdkaart is kleur-gecodeerd groen → grijs → oranje → rood, zodat je in één oogopslag ziet waar je sterkste opstelling nodig is.
+Elke wedstrijd heeft een niveau — standaard **zwakker / gelijkwaardig / sterker / veel sterker**. De pill op de wedstrijdkaart is kleur-gecodeerd groen → grijs → oranje → rood, zodat je in één oogopslag ziet waar je sterkste opstelling nodig is. De pill neemt de kleur van het niveau zelf over: geef je een niveau bij Configuratie een andere kleur, dan verandert de pill mee. De tekst wisselt tussen donker en licht, zodat hij leesbaar blijft op elke kleur die je kiest.
+
+Een wedstrijd kan alleen een niveau dragen dat in de lijst staat. Stuurt een import of een koppeling iets anders, dan wordt dat geweigerd met een melding die de toegestane niveaus noemt, in plaats van een woord op te slaan dat de planner daarna letterlijk toont. Het niveau leeg laten mag nog steeds — dat leest als "niet vastgelegd".
 
 Het niveau verschijnt overal met zijn vertaalde label — de pill op de wedstrijdkaart, de keuzelijst op het formulier "Wedstrijd toevoegen", de wedstrijdstap van de wizard en de samenvatting in de wizard. Hernoem je een niveau bij Configuratie → Niveaus tegenstander, dan volgt het nieuwe label op alle vier; wat er bij de wedstrijd is opgeslagen verandert niet, dus bestaande wedstrijden houden hun niveau.
 

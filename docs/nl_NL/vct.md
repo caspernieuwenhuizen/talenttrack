@@ -35,7 +35,7 @@ Drie matrix-only caps, geen role-baselines:
 - **`tt_vct_admin_library`** — oefeningenbibliotheek + leeftijdsprofielen + macro-blokken bewerken.
 - **`tt_vct_view_load`** — workload-aggregaten lezen.
 
-Per `config/authorization_seed.php` hebben de vier persona's:
+Per `config/authorization_seed.php`, **alle** persona's — ook die zonder enige toegang. Een streepje betekent *afgewogen en niet toegekend*, en dat is iets anders dan een persona die helemaal niet in de tabel staat (#3741 heeft dat voor blessures vastgelegd):
 
 | Persona | tt_vct_plan | tt_vct_admin_library | tt_vct_view_load |
 | --- | --- | --- | --- |
@@ -43,6 +43,14 @@ Per `config/authorization_seed.php` hebben de vier persona's:
 | `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
+| `team_manager` | — | — | — |
+| `staff` (incl. de functionele rol `manager`) | — | — | — |
+| `scout` | — | — | — |
+| `player` | — | — | — |
+| `parent` | — | — | — |
+| `observer` | — | — | — |
+
+De VCT-rechten zijn **bewust matrix-only** (`RolesService::VCT_CAPS`): ze staan in geen enkele rollenlijst, dus `user_can()` antwoordt er altijd `false` op en alleen de matrix kan ze toekennen. Een persona met een streepje hierboven krijgt dus van elke VCT-route een 403 — dat is het bedoelde antwoord, geen gat.
 
 Beide trainerspersona's lezen de belasting alleen van hun eigen teams. De
 `vct_workload`-rij achter `tt_vct_view_load` ontbrak tot #3706 bij allebei,

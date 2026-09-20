@@ -45,6 +45,7 @@ records nooit raakt.
 | Proefdossiers | Historische proefperiodes van bestaande spelers plus lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen |
 | Toernooien | Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode |
 | Stafontwikkeling | Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, mentorkoppels |
+| Media | Een teamfoto per team, portretten van de spelers van wie de familie toestemming gaf voor beeldmateriaal, en één externe videolink |
 | Berichten en beheerdersgegevens | Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, workflowtaken, uitnodigingen |
 | Gedrag en potentieel | Gedragsbeoordelingen over de periode, en gedateerde potentieelhistories voor teams die oud genoeg zijn om ernaar gevraagd te worden |
 
@@ -73,6 +74,21 @@ landen op waarden die die schaal kan uitdrukken — geen 6,4 bij een stap van 1.
 Een archetype dat vooruitgaat schuift per seizoen minstens een hele stap op,
 zodat het ontwikkelverhaal uit de lijst te lezen is zonder een grafiek te
 openen.
+
+**Bij elke speler staat vast of er toestemming voor beeldmateriaal is**, en
+bewust niet bij iedereen hetzelfde. Elke vijfde speler in een team heeft geen
+toestemming vastgelegd; de rest heeft een ja, met de datum waarop ze binnenkwamen
+en de trainer die het noteerde. Welke spelers dat zijn, volgt uit hun plek in de
+selectie en niet uit toeval, dus een nieuwe run met dezelfde seed geeft hetzelfde
+antwoord.
+
+De foto's volgen daaruit. Een **portret** — een foto van één kind — wordt alleen
+gemaakt van een speler van wie de familie toestemming gaf; daardoor is te zien
+wat het toestemmingsveld doet. De **teamfoto** houdt iedereen erop, ook de
+spelers zonder toestemming. Dat is met opzet: één foto waarop kinderen met en
+zonder toestemming samen staan is precies het geval waar het mediatabblad voor
+is, en een demo die die spelers stilletjes van de teamfoto liet, kon dat niet
+laten zien.
 
 **Gedrag en potentieel** worden mét hun gaten gevuld. Ongeveer één op de vijf spelers die oud genoeg is voor een potentieelklasse heeft er geen, per team blijft er één te lang onaangeroerd, en bij één wordt de klasse naar **beneden** bijgesteld in plaats van omhoog. Dat is bewust: het stoplicht, de melding *Potentieel niet herzien* en het potentieelverloop bestaan juist om ontbrekende en bewegende gegevens zichtbaar te maken, en een demo waarin nooit iets ontbreekt of te laat is, laat ze lijken op functies die nooit afgaan. Onder de 13 jaar wordt helemaal geen potentieel gevuld — het product vraagt er daar niet naar, dus de demo ook niet.
 
@@ -239,6 +255,12 @@ Staat JavaScript uit in je browser, dan gebeurt de hele run in die ene aanvraag
 zoals voorheen. Voor de kleinere presets werkt dat prima; de grote preset is
 degene die de stappen nodig heeft.
 
+De trainingsstap sluit af met het uitrekenen van **hoeveel minuten elke speler
+aan elk principe heeft besteed**, precies de berekening die de nachtelijke taak
+doet. Het trainingstabblad van een speler klopt daardoor zodra de run klaar is,
+in plaats van "zeven trainingen, nooit iets getraind" te tonen tot een geplande
+taak waar op een demo-installatie niemand op wacht.
+
 ## Twee keer genereren in dezelfde club
 
 Een tweede run vult aan bij wat er al staat in plaats van het te vervangen. Elke
@@ -297,6 +319,17 @@ De demo-WP-accounts blijven bestaan na het wissen van data. Ze verwijderen
 is een aparte actie ("Demogebruikers wissen"), met waarborgen: hij weigert
 een account waarvan het e-mailadres buiten het ingestelde demodomein valt,
 het account waarmee je bent ingelogd, en de laatst overgebleven beheerder.
+
+### Als een wisbeurt niet afkomt
+
+Een batch wordt in begrensde stappen verwijderd in plaats van met één
+opdracht per soort rij, zodat een batch met honderdduizenden rijen van
+één soort — meestal evaluatiebeoordelingen — er volledig uit komt. Weigert
+de database toch een van die stappen, dan meldt de wisbeurt dat: de
+bevestiging wordt een waarschuwing met de soorten die niet gewist konden
+worden, en die rijen houden hun demolabel zodat een volgende wisbeurt ze
+alsnog oppakt. Een wisbeurt die een aantal rijen meldt en geen
+waarschuwing toont, heeft alles verwijderd waar je om vroeg.
 
 ## Dekking
 

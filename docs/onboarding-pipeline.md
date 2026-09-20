@@ -85,6 +85,19 @@ Each prospect belongs to **exactly one** column. The classifier runs in this ord
 
 The dashboard widget uses the same classifier for its compact count strip, so the numbers on the dashboard match the columns on the standalone page. A prospect counts once, in one column, however many tasks are open against them.
 
+## Putting a stuck prospect forward
+
+A prospect only reaches *Invited* when somebody holds the **Invite to test training** task, and that task used to be created in one place only: the moment a prospect was logged through the wizard. So a prospect whose chain was cancelled, who was logged while the pipeline workflow was switched off, who was imported, or who was seeded by the demo generator stayed in the first column with nothing to click.
+
+Click their card, and the panel that opens above the board now offers a way forward:
+
+- **Propose test training** — for a scout, or anyone else who may add to the funnel but not issue the invitation. It asks the Head of Development to arrange one. The prospect's next action becomes *Invite to test training* straight away, and the card moves to **Invited** once the HoD sends it.
+- **Arrange test training** — for the Head of Development and anyone else holding `tt_invite_prospects`. They do not need to ask themselves for permission, so the button takes them to the New test training form instead of creating a task.
+
+Proposing twice does nothing the second time, and two scouts proposing the same prospect produce one request between them — the Head of Development is asked about a child once.
+
+The button appears only when there is nothing else to do: a prospect with any open pipeline task, one who has already been invited, one who has been promoted to a player or a trial case, and an archived one all show their own next action instead. With the `onboarding_pipeline_workflow` feature switched off there is no button at all, because there would be no task to create.
+
 ## What the wizard skips
 
 The legacy chain dispatched a `LogProspectTemplate` task as the first step, which then handed off to `InviteToTestTrainingTemplate`. The wizard *is* the form that LogProspect's task wrapped, so creating that task to capture data the wizard already collected was a redundant step. The wizard goes straight to `InviteToTestTrainingTemplate`.

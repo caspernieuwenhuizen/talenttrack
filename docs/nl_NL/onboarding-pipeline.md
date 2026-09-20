@@ -87,6 +87,19 @@ Elke prospect hoort in **precies één** kolom. De classifier loopt in deze volg
 
 De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, dus de getallen op het dashboard kloppen met de kolommen op de standalone pagina. Een prospect telt één keer, in één kolom, hoeveel klussen er ook openstaan.
 
+## Een vastgelopen prospect vlot trekken
+
+Een prospect bereikt **Uitgenodigd** pas als iemand de klus **Uitnodigen voor testtraining** heeft, en die klus ontstond maar op één plek: op het moment dat een prospect via de wizard werd vastgelegd. Een prospect van wie de keten is afgebroken, die is vastgelegd terwijl de pijplijn-workflow uit stond, die is geïmporteerd of die door de demogenerator is aangemaakt, bleef dus in de eerste kolom staan zonder iets om op te klikken.
+
+Klik je op zijn kaart, dan biedt het paneel boven het bord nu een weg vooruit:
+
+- **Testtraining voorstellen** — voor een scout, of iedereen die wel aan de trechter mag toevoegen maar de uitnodiging niet mag versturen. Het vraagt de Hoofd Opleidingen er een te regelen. De volgende actie van de prospect wordt meteen *Uitnodigen voor testtraining*, en de kaart schuift naar **Uitgenodigd** zodra de Hoofd Opleidingen hem verstuurt.
+- **Testtraining regelen** — voor de Hoofd Opleidingen en iedereen met `tt_invite_prospects`. Die hoeft zichzelf niets te vragen, dus de knop brengt hem naar het formulier Nieuwe testtraining in plaats van een klus aan te maken.
+
+Twee keer voorstellen doet de tweede keer niets, en twee scouts die dezelfde prospect voorstellen leveren samen één verzoek op — de Hoofd Opleidingen wordt één keer over een kind gevraagd.
+
+De knop verschijnt alleen als er niets anders te doen is: een prospect met een openstaande pijplijnklus, een die al is uitgenodigd, een die is gepromoveerd naar een speler of een proefperiode, en een gearchiveerde tonen allemaal hun eigen volgende actie. Staat de feature `onboarding_pipeline_workflow` uit, dan is er helemaal geen knop, want er zou geen klus aangemaakt kunnen worden.
+
 ## Wat de wizard overslaat
 
 De legacy-keten startte met een `LogProspectTemplate`-klus en gaf daarna door aan `InviteToTestTrainingTemplate`. De wizard *is* het formulier dat de LogProspect-klus omhulde, dus die klus aanmaken om data te vragen die de wizard al verzamelde, was een overbodige stap. De wizard gaat direct naar `InviteToTestTrainingTemplate`.

@@ -49,7 +49,7 @@ final class DemoConversionService {
      *       intent there is "skip the delete", so the override is processed
      *       BEFORE the per-batch delete loop instead (see below).
      * @return array{
-     *   deleted_per_batch:  array<string, array<string,int>>,
+     *   deleted_per_batch:  array<string, array<string,int|false>>,
      *   promoted_per_batch: array<string, int>,
      *   per_record_overrides_applied: array<string, array<int, string>>,
      * }

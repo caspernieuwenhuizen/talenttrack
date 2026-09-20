@@ -66,6 +66,53 @@ final class MatchExecutionLiveLineupTest extends WP_UnitTestCase {
         $this->assertSame( [ 1 => 10 ], $slots );
     }
 
+    // ---- #3849: the pitch is drawn for the half the match has reached ----
+
+    private static function subIn( int $half, int $off, int $on ): object {
+        return (object) [ 'half' => $half, 'player_off_id' => $off, 'player_on_id' => $on ];
+    }
+
+    public function test_the_second_half_line_up_takes_the_pitch(): void {
+        $slots = PitchLayoutService::pitchAtHalf(
+            [ 1 => 10, 2 => 11, 3 => 12 ],
+            [ 1 => 10, 2 => 20, 3 => 12 ],
+            [ self::subIn( 2, 12, 21 ) ],
+            2
+        );
+        $this->assertSame( [ 1 => 10, 2 => 20, 3 => 21 ], $slots );
+    }
+
+    /** The half-2 line-up already accounts for the first half's swaps. */
+    public function test_a_first_half_sub_is_not_applied_on_top_of_the_half_two_line_up(): void {
+        $slots = PitchLayoutService::pitchAtHalf(
+            [ 1 => 10, 2 => 11 ],
+            [ 1 => 10, 2 => 20 ],
+            [ self::subIn( 1, 11, 30 ) ],
+            2
+        );
+        $this->assertSame( [ 1 => 10, 2 => 20 ], $slots );
+    }
+
+    public function test_without_a_half_two_line_up_the_first_one_plays_on(): void {
+        $slots = PitchLayoutService::pitchAtHalf(
+            [ 1 => 10, 2 => 11 ],
+            [],
+            [ self::subIn( 1, 11, 20 ), self::subIn( 2, 20, 21 ) ],
+            2
+        );
+        $this->assertSame( [ 1 => 10, 2 => 21 ], $slots );
+    }
+
+    public function test_the_first_half_never_sees_a_second_half_sub(): void {
+        $slots = PitchLayoutService::pitchAtHalf(
+            [ 1 => 10, 2 => 11 ],
+            [ 1 => 10, 2 => 20 ],
+            [ self::subIn( 2, 20, 21 ) ],
+            1
+        );
+        $this->assertSame( [ 1 => 10, 2 => 11 ], $slots );
+    }
+
     public function test_pitch_lineup_returns_the_current_lineup_and_ignores_an_undone_sub(): void {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_activities', [

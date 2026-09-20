@@ -39,13 +39,19 @@ Only coaches within your own club are counted — the report is scoped to the cu
 
 ## Coach · Evaluation quality
 
-The head-of-development's evaluation spot-check as a report: one row per coach with their evaluation count, rating count, mean rating, standard deviation, the most-given rating (and what share of all their ratings sits at it), and the date of their last evaluation. Filterable by team and date range.
+The head-of-development's evaluation spot-check as a report: one row per coach with their squad size, how many of that squad were evaluated in the period, how many have not been evaluated at all this season, their evaluation count, rating count, mean rating, standard deviation, the most-given rating (and what share of all their ratings sits at it), the date of their last evaluation and how many days ago that was. Filterable by team and date range.
+
+**Every coach who holds a team gets a row, including the ones who evaluated nobody.** That is the row the report exists for: a coach with an empty month shows `0` evaluations against their squad size, rather than disappearing because there was nothing to group. Coaches are resolved through the same team-staff path the evaluation-coverage report uses, so the two reports never disagree about who a team's coach is; a coach who wrote evaluations without holding a team still appears, with a squad size of `0`. A team with no head coach assigned has no row here — its gaps show up in evaluation coverage instead.
+
+Two of the columns need reading carefully. **Evaluated this period** counts players in the coach's squad who were evaluated by *anyone* — if a colleague did it, the squad is covered and there is nothing to chase, which is the same attribution evaluation coverage uses. **Days since** is measured from the coach's most recent evaluation whenever it happened, not from one inside the period; bounded by the period it would be empty for exactly the coach worth ringing.
+
+When you don't set a date range the report covers the current season, and the header names the window it used — the numbers always say which period they describe.
 
 Rows where the standard deviation is below **0.5** across **10 or more ratings** are flagged *low variance* — the statistical signature of a coach rating everyone the same number. A coach with only a handful of ratings is never flagged; there's no meaningful variance to measure yet.
 
 Restricted to academy-wide roles (head of development / admin): coaches cannot see each other's statistics. The **Export (CSV)** button downloads the same rows; integrations can read them from `GET /wp-json/talenttrack/v1/reports/coach-evaluation-quality` with the same permission gate.
 
-That endpoint takes `team_id`, `date_from` and `date_to` either plainly or nested as `filter[team_id]`, `filter[date_from]` (also spelled `filter[from]`) and `filter[date_to]` (`filter[to]`) — the form the rest of the list API uses — and a nested value wins when both are sent. A `team_id` that is not a usable team id is refused with `400 bad_filter`, whose `details.parameter` names the spelling at fault; it is never dropped, because a dropped team filter answers for every coach in the academy under a filter somebody had asked for.
+That endpoint takes `team_id`, `from` and `to` either plainly or nested as `filter[team_id]`, `filter[from]` (also spelled `filter[date_from]`) and `filter[to]` (`filter[date_to]`) — the form the rest of the list API uses — and a nested value wins when both are sent. `date_from` / `date_to` were the declared names before and still work, plainly or nested. A bound you leave out resolves to the current-season window, and the response echoes the `from` / `to` it applied so a reader can label the period. A `team_id` that is not a usable team id is refused with `400 bad_filter`, whose `details.parameter` names the spelling at fault; it is never dropped, because a dropped team filter answers for every coach in the academy under a filter somebody had asked for.
 
 ## Frontend reports + Print/Save as PDF
 
@@ -337,6 +343,12 @@ when both are sent. A team is required: leave it out of both spellings, or send
 something that is not a usable team id, and the request is refused with
 `400 bad_filter` whose `details.parameter` names the spelling at fault, rather
 than answered with an empty matrix that reads as "this team played nothing".
+
+A team outside your own scope is refused too, with `403 forbidden_team` through
+either spelling — the same refusal the attendance readers answer with. A team
+you *may* read that simply has no minutes recorded still comes back as an empty
+matrix with `200`, so "there is nothing here" and "you may not look here" remain
+two different answers.
 
 ### Per-match minutes editor
 

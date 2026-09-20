@@ -13,10 +13,16 @@ use TT\Modules\Vct\Repositories\VctWorkloadSnapshotsRepository;
  *   GET /vct/players/{id}/workload?from=...&to=...
  *   GET /vct/teams/{id}/workload?from=...&to=...
  *
- * Cap: `tt_vct_view_load` (HoD/admin in MVP — coaches see the
- * aggregates indirectly through the wizard preview). Scope check
- * for player endpoints resolves the player's team_id and applies
- * the team scope check.
+ * Cap: `tt_vct_view_load`, held at **team** scope by the head coach and
+ * the assistant coach (#3706) and at global scope by the head of
+ * development and the academy admin. Scope check for player endpoints
+ * resolves the player's team_id and applies the team scope check.
+ *
+ * This docblock read "HoD/admin in MVP — coaches see the aggregates
+ * indirectly through the wizard preview" for a release after #3706 had
+ * already given both coach personas the grant. A stale docblock is how
+ * the wrong rule survives a review, and it is why #3854 was filed
+ * against a permission model that had already changed.
  *
  * Phase 2 ships the dashboard UI consuming these endpoints; MVP
  * surfaces them for the wizard's `near_weekly_envelope` callout.

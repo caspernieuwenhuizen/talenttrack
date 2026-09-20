@@ -50,4 +50,29 @@ final class MatchExecutionStateLiveEditModeTest extends WP_UnitTestCase {
         $this->assertFalse( MatchExecutionState::opensInEditMode( MatchExecutionState::FINALIZED ) );
         $this->assertFalse( MatchExecutionState::hasEditToggle( MatchExecutionState::FINALIZED ) );
     }
+
+    /**
+     * #3849 — which half's line-up is on the pitch. Half time answers the
+     * first half: the second-half XI takes the pitch at the kick-off after
+     * the interval, not at the whistle before it.
+     */
+    public function test_half_reached_follows_the_state(): void {
+        foreach ( [
+            MatchExecutionState::NOT_STARTED,
+            MatchExecutionState::FIRST_HALF,
+            MatchExecutionState::HALF_TIME,
+            '',
+        ] as $state ) {
+            $this->assertSame( 1, MatchExecutionState::halfReached( $state ), $state . ' is still the first half' );
+        }
+
+        foreach ( [
+            MatchExecutionState::SECOND_HALF,
+            MatchExecutionState::PENDING_REVIEW,
+            MatchExecutionState::FINALIZED,
+            MatchExecutionState::FINISHED,
+        ] as $state ) {
+            $this->assertSame( 2, MatchExecutionState::halfReached( $state ), $state . ' has reached the second half' );
+        }
+    }
 }

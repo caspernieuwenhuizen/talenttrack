@@ -91,6 +91,40 @@ final class PitchLayoutService {
     }
 
     /**
+     * #3849 — the pitch at a point in the match, drawn from the line-up
+     * that half started with. `applySubstitutions()` alone assumed the
+     * first half: on a match with a second-half line-up it drew the
+     * first-half XI for the whole match, disagreeing with the minutes and
+     * the timeline on the same screen.
+     *
+     * A second-half line-up replaces the pitch at the interval, so only
+     * that half's substitutions act on it. Without one the first-half XI
+     * plays on and every substitution applies, which is what this did
+     * before and what it still does. Mirrors
+     * {@see \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository::onPitchPlayerIds()}
+     * so the diagram and the list of who is on it cannot disagree.
+     *
+     * @param array<int,int>   $slots_half1 slot_number => player_id at kickoff.
+     * @param array<int,int>   $slots_half2 slot_number => player_id at the second-half kickoff; empty when none was set.
+     * @param iterable<object> $subs        non-reversed substitutions, chronological (->half, ->player_off_id, ->player_on_id).
+     * @param int              $half        the half the match has reached.
+     * @return array<int,int>
+     */
+    public static function pitchAtHalf( array $slots_half1, array $slots_half2, iterable $subs, int $half ): array {
+        $half     = $half >= 2 ? 2 : 1;
+        $restarts = ( $half === 2 && array_filter( $slots_half2 ) !== [] );
+        $from     = $restarts ? 2 : 1;
+
+        $in_range = [];
+        foreach ( $subs as $sub ) {
+            $sub_half = (int) ( $sub->half ?? 1 );
+            if ( $sub_half >= $from && $sub_half <= $half ) $in_range[] = $sub;
+        }
+
+        return self::applySubstitutions( $restarts ? $slots_half2 : $slots_half1, $in_range );
+    }
+
+    /**
      * #2223 — the pitch labels a player by first name + last initial
      * ("Daan P."), the way a coach names them from the sideline. A
      * single-word name is shown as-is; empty stays empty.
