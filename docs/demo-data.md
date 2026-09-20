@@ -248,6 +248,12 @@ If your browser has JavaScript switched off, the whole run happens in the one
 request as before. That still works for the smaller presets; the large one is
 what needs the steps.
 
+The training step finishes by working out **how many minutes each player has
+spent on each principle**, the same calculation the nightly job does. So a
+player's training tab is right the moment the run ends, rather than reading
+"seven trainings, nothing ever trained" until a scheduled job nobody on a demo
+install waits for.
+
 ## Generating twice into the same club
 
 A second run adds to what is already there rather than replacing it. Each run
