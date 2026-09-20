@@ -61934,13 +61934,15 @@ msgstr "Dit rapport is beperkt tot academiebrede rollen."
 msgid "Evaluation quality — per coach"
 msgstr "Evaluatiekwaliteit — per coach"
 
+#. translators: %s: the date window the report covers
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1735
+#, php-format
 msgid ""
-"Rating distribution and variance per coach. Low variance with a real sample "
-"size usually means everyone gets the same number."
+"Rating distribution and variance per coach, over %s. Low variance with a "
+"real sample size usually means everyone gets the same number."
 msgstr ""
-"Beoordelingsverdeling en variatie per coach. Lage variatie bij een echte "
-"steekproefomvang betekent meestal dat iedereen hetzelfde cijfer krijgt."
+"Beoordelingsverdeling en variatie per coach, over %s. Lage variatie bij een "
+"echte steekproefomvang betekent meestal dat iedereen hetzelfde cijfer krijgt."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1764
 msgid "Coaches in selection"
@@ -61960,9 +61962,13 @@ msgstr "Lage-variatievlaggen"
 msgid "σ below %s with 10+ ratings"
 msgstr "σ onder %s met 10+ beoordelingen"
 
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1764
+msgid "Squad evaluated this period"
+msgstr "Selectie beoordeeld in deze periode"
+
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1778
-msgid "No coaches have evaluations in this selection."
-msgstr "Geen trainers met beoordelingen in deze selectie."
+msgid "No coaches to report on in this selection."
+msgstr "Geen coaches om over te rapporteren in deze selectie."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1782
 msgid "Per coach"
@@ -61970,11 +61976,29 @@ msgstr "Per coach"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1782
 msgid ""
-"Sorted by evaluation count. Flagged rows: standard deviation under the "
-"threshold with a meaningful sample."
+"Sorted by evaluation count, so a coach who evaluated nobody in this period "
+"sits at the bottom with a row of zeroes. Flagged rows: standard deviation "
+"under the threshold with a meaningful sample."
 msgstr ""
-"Gesorteerd op aantal evaluaties. Gevlagde rijen: standaarddeviatie onder de "
-"drempel met een betekenisvolle steekproef."
+"Gesorteerd op aantal evaluaties, dus een coach die in deze periode niemand "
+"heeft beoordeeld staat onderaan met een rij nullen. Gevlagde rijen: "
+"standaarddeviatie onder de drempel met een betekenisvolle steekproef."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1785
+msgid "Squad size"
+msgstr "Selectiegrootte"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1786
+msgid "Evaluated this period"
+msgstr "Beoordeeld in deze periode"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1787
+msgid "Never evaluated this season"
+msgstr "Dit seizoen nooit beoordeeld"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:1793
+msgid "Days since"
+msgstr "Dagen geleden"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1787
 msgid "Mean"
