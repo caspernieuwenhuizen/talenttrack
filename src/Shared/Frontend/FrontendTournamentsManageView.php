@@ -81,6 +81,20 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #3815 — the ticker builds its cards client-side, so every string
+        // it prints has to reach it from the catalogue rather than being
+        // written into the script (CLAUDE.md §4).
+        wp_localize_script( 'tt-tournament-ticker', 'TT_TournamentTicker', [
+            'i18n' => [
+                'emptySquad'           => __( 'Add players to the squad to see minute totals.', 'talenttrack' ),
+                'starts'               => _x( 'Starts', 'tournament minutes ticker: matches this player started', 'talenttrack' ),
+                'fullMatches'          => _x( 'Full matches', 'tournament minutes ticker: matches played end to end', 'talenttrack' ),
+                /* translators: tournament minutes ticker. 1: minutes already played, 2: the player's minutes target. */
+                'minutesPlayed'        => _x( '%1$s played / %2$s min', 'tournament minutes ticker', 'talenttrack' ),
+                /* translators: tournament minutes ticker. 1: minutes already played, 2: minutes the planner still has them down for, 3: the player's minutes target. */
+                'minutesPlayedPlanned' => _x( '%1$s played + %2$s planned / %3$s min', 'tournament minutes ticker', 'talenttrack' ),
+            ],
+        ] );
         self::$planner_assets_enqueued = true;
     }
 

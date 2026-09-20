@@ -46,7 +46,8 @@ The detail view of a tournament shows:
 - **Facts strip** — team, dates, default formation, squad size, match count.
 - **Matches** — one card per match. Tap **Open planner grid** to expand the per-match lineup grid.
 - **Minutes ticker** — sticky bottom strip on mobile, right sidebar on desktop. Always visible. One card per squad player showing:
- - A green/amber/red bar with played + scheduled minutes vs the equal-share target.
+ - The minutes, played and planned kept apart: *0 played + 40 planned / 35 min*. Once a player has been on the pitch the first number moves; a player with nothing still planned reads simply *40 played / 35 min*. Before any match kicks off the whole squad reads **0 played**, which is the point — the planned column is the plan, not the record.
+ - A green/amber/red bar for the two together, played as the solid part and planned faded behind it. The colour follows played **plus** planned against the equal-share target, so the ticker works as a planner before kick-off instead of showing the entire squad red.
  - ⚡ start count.
  - 🏆 full-match count.
  - Sort dropdown: **Default / Fewest minutes / Fewest starts / No full matches** so under-served players bubble to the front.
