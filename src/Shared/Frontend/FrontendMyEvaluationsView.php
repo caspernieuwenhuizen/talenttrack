@@ -124,8 +124,23 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
      */
     public static function render( object $player ): void {
         self::enqueueAssets();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );
-        self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
+
+        // #3859 — name the subject. `SubjectVoice` shipped for #3477 with
+        // the stated goal "every Me-view routed through it", and every one
+        // of them was — My goals, My activities, My team, My development,
+        // My PDP, measurements, journey — except this one. The view that
+        // was missed is also the view that never said whose evaluations
+        // these are, so a parent reading "Mijn evaluaties" over somebody
+        // else's rows had nothing on screen to tell them otherwise.
+        $voice = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
+        $title = $voice->pick(
+            __( 'My evaluations', 'talenttrack' ),
+            /* translators: %s = the player's name, to a parent or a coach. */
+            sprintf( __( "%s's evaluations", 'talenttrack' ), $voice->name() )
+        );
+
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $player_id = (int) $player->id;
         $scope     = ( isset( $_GET['eval_scope'] ) && sanitize_key( (string) wp_unslash( $_GET['eval_scope'] ) ) === PlayerEvaluationsReader::SCOPE_ALL ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
