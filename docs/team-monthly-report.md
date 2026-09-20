@@ -38,7 +38,10 @@ On screen, every section you pick is always shown in full, whatever the type.
 **Sections** are the parts of the report. Tick the ones you want and the report
 updates straight away. The address in your browser changes with it, so you can
 copy the link and a colleague opens exactly the same report. The letterhead —
-team, period, head coach — is always included.
+team, period, head coach — is always included. Its activity count is everything
+on the team's calendar for the period, whether or not it has been marked
+completed, so it matches what you see on the activities list. Cancelled
+sessions are left out.
 
 Some sections can be told more than whether to appear. When you tick a section
 that has settings, its controls appear under the section list.
@@ -122,7 +125,11 @@ Scheduled reports are part of the Standard plan and above.
 - **Data coverage** — how many of the period's completed trainings and matches
   have an attendance register, and which do not. It sits above the numbers
   because every percentage below depends on it. When nothing is missing it says
-  so in green, rather than simply not appearing.
+  so in green, rather than simply not appearing. It also names, on a line of
+  its own, any session whose date has passed and that nobody marked
+  **completed** — those produce no attendance, no minutes and no evaluations,
+  so they count towards nothing below until you close them. That is a different
+  job from taking a missing register, which is why it reads separately.
 - **Headline numbers** — activities, attendance, median minutes share,
   evaluation coverage, squad rating and the number of players needing attention,
   each compared with the period before. Where there is nothing to compare with,
