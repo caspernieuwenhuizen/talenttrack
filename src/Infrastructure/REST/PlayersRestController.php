@@ -37,6 +37,7 @@ class PlayersRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_players' ],
+                'args'                => self::listArgs(),
                 // #0052 PR-B — gate on `tt_view_players` instead of bare
                 // login. The list query already filters per-row by team
                 // scoping; this prevents a logged-in user without any
@@ -170,19 +171,121 @@ class PlayersRestController {
     ];
 
     /**
+     * #3856 — the list filters, each readable under its plain name as well
+     * as nested under `filter[...]`. The nested spelling wins when both are
+     * sent, the precedence #3584, #3607, #3668, #3765 and #3790 settled on.
+     *
+     * @var array<string,string>
+     */
+    private const LIST_FILTERS = [
+        'team_id'        => 'Only players on this team.',
+        'position'       => 'Only players with this preferred position.',
+        'preferred_foot' => 'left, right or both.',
+        'age_group'      => "Only players whose team sits in this age group, e.g. U13.",
+        'archived'       => 'active (default) or archived.',
+        'status'         => 'active, trial, released, inactive — matches the player status.',
+        'assignment'     => 'unassigned — active players who sit without a team.',
+        'media_consent'  => 'no_consent, recorded, or media_no_consent (pictures on file, no consent).',
+    ];
+
+    /**
+     * #3856 — the list's parameters, so route discovery publishes them and
+     * a caller can see that both spellings are read.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function listArgs(): array {
+        $args = [];
+        foreach ( self::LIST_FILTERS as $key => $description ) {
+            $args[ $key ] = [
+                'type'        => $key === 'team_id' ? [ 'integer', 'string' ] : 'string',
+                'description' => $description,
+            ];
+        }
+        return $args + [
+            'filter'   => [ 'type' => 'object', 'description' => 'The same filters, nested: filter[team_id]=…' ],
+            'search'   => [ 'type' => 'string', 'description' => 'Matches the first or last name.' ],
+            'orderby'  => [ 'type' => 'string', 'description' => 'Column to sort on.' ],
+            'order'    => [ 'type' => 'string', 'description' => 'asc or desc.' ],
+            'page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Rows per page.' ],
+        ];
+    }
+
+    /**
+     * #3856 — fold the plain filter names into the nested array the query
+     * below reads, and refuse a value nobody can act on.
+     *
+     * `?team_id=73` used to be neither applied nor refused: WP REST drops a
+     * query parameter no route declared, without a word, so an
+     * administrator asking for one squad got every player they may read
+     * back — 64 children across four age groups, each row carrying a real
+     * team name that made the answer look deliberate. Dropping the filter
+     * is the widening; refusing an unusable one is the fix.
+     *
+     * @param array<mixed> $filter the nested `filter[...]` array as sent
+     * @return array{filter:array<mixed>, error:\WP_REST_Response|null}
+     */
+    private static function resolveListFilters( \WP_REST_Request $r, array $filter ): array {
+        foreach ( array_keys( self::LIST_FILTERS ) as $key ) {
+            if ( array_key_exists( $key, $filter ) ) {
+                if ( ! is_scalar( $filter[ $key ] ) ) {
+                    return [ 'filter' => [], 'error' => self::badFilter( 'filter[' . $key . ']' ) ];
+                }
+                if ( (string) $filter[ $key ] !== '' ) continue;
+                unset( $filter[ $key ] );
+            }
+            $plain = $r->get_param( $key );
+            if ( $plain === null ) continue;
+            if ( ! is_scalar( $plain ) ) {
+                return [ 'filter' => [], 'error' => self::badFilter( $key ) ];
+            }
+            if ( (string) $plain === '' ) continue;
+            $filter[ $key ] = $plain;
+        }
+
+        // The squad filter is the one that carries an id, so it is the one
+        // that can be present and still unreadable. An id that resolves to
+        // nothing is refused rather than ignored — see above.
+        if ( isset( $filter['team_id'] ) && absint( $filter['team_id'] ) <= 0 ) {
+            $name = array_key_exists( 'team_id', is_array( $r->get_param( 'filter' ) ) ? $r->get_param( 'filter' ) : [] )
+                ? 'filter[team_id]'
+                : 'team_id';
+            return [ 'filter' => [], 'error' => self::badFilter( $name ) ];
+        }
+
+        return [ 'filter' => $filter, 'error' => null ];
+    }
+
+    /** #3856 — the one refusal a filter nobody can resolve earns, naming the spelling at fault. */
+    private static function badFilter( string $parameter ): \WP_REST_Response {
+        return RestResponse::error(
+            'bad_filter',
+            __( 'That filter value cannot be read.', 'talenttrack' ),
+            400,
+            [ 'parameter' => $parameter ]
+        );
+    }
+
+    /**
      * GET /players — paginated list with search, filters, sort.
      *
      * #0019 Sprint 3 session 3.1 — replaces the v2.x bare-bones list
      * with the Sprint 2 contract that `FrontendListTable` consumes.
      *
+     * Every filter below is read from `filter[<name>]` first and the plain
+     * `<name>` second (#3856); the nested spelling wins when both are sent.
+     *
      * Query params:
      *   ?search=<text>             — first/last name LIKE
-     *   ?filter[team_id]=<int>
-     *   ?filter[position]=<string> — matches anywhere in preferred_positions JSON array
-     *   ?filter[preferred_foot]=<string>
-     *   ?filter[age_group]=<string> — matches the team's age_group (e.g. "U13")
-     *   ?filter[archived]=<active|archived> — default active only
-     *   ?filter[status]=<active|trial|released|inactive|…> — optional, matches `tt_players.status`
+     *   ?team_id=<int> | ?filter[team_id]=<int>
+     *   ?position=<string>         — matches anywhere in preferred_positions JSON array
+     *   ?preferred_foot=<string>
+     *   ?age_group=<string>        — matches the team's age_group (e.g. "U13")
+     *   ?archived=<active|archived> — default active only
+     *   ?status=<active|trial|released|inactive|…> — optional, matches `tt_players.status`
+     *   ?assignment=unassigned     — active players without a team
+     *   ?media_consent=<no_consent|recorded|media_no_consent>
      *   ?orderby=last_name|first_name|team_name|jersey_number|date_of_birth|date_joined
      *   ?order=asc|desc                                   (default: asc on last_name, desc otherwise)
      *   ?page=<int>                                       (default 1)
@@ -215,6 +318,11 @@ class PlayersRestController {
         $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $read   = self::resolveListFilters( $r, $filter );
+        if ( $read['error'] !== null ) {
+            return $read['error'];
+        }
+        $filter = $read['filter'];
         // #2023 — go through filterClause so the archived/active views also
         // exclude trashed (recycle-bin) rows. A trashed minor's row must
         // never surface in an ordinary list — only in the bin view.

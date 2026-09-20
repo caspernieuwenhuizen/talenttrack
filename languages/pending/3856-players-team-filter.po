@@ -1,0 +1,3 @@
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "That filter value cannot be read."
+msgstr "Die filterwaarde kan niet gelezen worden."
