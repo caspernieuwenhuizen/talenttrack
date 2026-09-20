@@ -118,6 +118,13 @@ als teruggedraaid gemarkeerd in plaats van verwijderd, en getypte invoer wordt
 eerder teruggedraaid dan live vastgelegde. Zo kan een correctie nooit iets
 vernietigen dat destijds echt gezien is.
 
+Raakt een correctie tóch een live vastgelegd doelpunt — omdat er geen getypte
+meer over waren om eerst terug te draaien — dan **volgt de stand op het
+wedstrijdformulier mee naar beneden.** Die stand is een aflezing van het
+doelpuntenlogboek: een doelpunt dat uit het logboek gaat, gaat ook van het
+scorebord. De twee kunnen dus niet over dezelfde wedstrijd van mening
+verschillen.
+
 ### Toegekend / stand
 
 De onderste rij van het raster laat per wedstrijd zien hoeveel doelpunten een

@@ -213,7 +213,122 @@ final class MinutesGridContributionsTest extends WP_UnitTestCase {
         $this->assertSame( 3, (int) $score );
     }
 
+    // ---- #3705: the execution score follows the log through the grid ------
+
+    public function test_counting_a_live_goal_down_re_derives_the_execution_score(): void {
+        $execution_id = $this->makeExecution();
+        $this->repo->logGoalEvent( $execution_id, 'live-uuid-3', $this->scorer, 1, 12, 'home' );
+        $this->repo->syncScoresFromGoals( $execution_id );
+
+        $this->assertSame( 1, $this->execScore( $execution_id, 'home' ) );
+
+        $this->repo->setContributions( $this->activity_id, $this->scorer, 0, 0 );
+
+        $this->assertSame( 0, $this->goals( $this->scorer ) );
+        $this->assertSame( 0, $this->execScore( $execution_id, 'home' ), 'the scoreboard reads the log, so it follows it down' );
+    }
+
+    /** Our correction is ours. The opponent's goals are not in the grid at all. */
+    public function test_the_opponent_score_survives_a_correction_on_our_side(): void {
+        $execution_id = $this->makeExecution();
+        $this->repo->logGoalEvent( $execution_id, 'live-uuid-4', $this->scorer, 1, 12, 'home' );
+        $this->repo->logGoalEvent( $execution_id, 'live-uuid-5', 0, 2, 40, 'away' );
+        $this->repo->syncScoresFromGoals( $execution_id );
+
+        $this->repo->setContributions( $this->activity_id, $this->scorer, 0, 0 );
+
+        $this->assertSame( 0, $this->execScore( $execution_id, 'home' ) );
+        $this->assertSame( 1, $this->execScore( $execution_id, 'away' ) );
+    }
+
+    /**
+     * Three goals counted down in one call is one re-derivation. Per row it
+     * would be three identical COUNTs and two of them reading a half-done
+     * reversal.
+     */
+    public function test_several_reversals_sync_the_execution_once(): void {
+        $execution_id = $this->makeExecution();
+        $repo         = $this->spyingRepo();
+
+        foreach ( [ 'live-uuid-6', 'live-uuid-7', 'live-uuid-8' ] as $i => $uuid ) {
+            $repo->logGoalEvent( $execution_id, $uuid, $this->scorer, 1, 10 + $i, 'home' );
+        }
+        $repo->syncScoresFromGoals( $execution_id );
+        $repo->synced = [];
+
+        $repo->setContributions( $this->activity_id, $this->scorer, 0, 0 );
+
+        $this->assertSame( [ $execution_id ], $repo->synced );
+        $this->assertSame( 0, $this->execScore( $execution_id, 'home' ) );
+    }
+
+    /** A grid correction that reverses only typed rows owns no execution. */
+    public function test_a_correction_on_manual_rows_only_syncs_nothing(): void {
+        $execution_id = $this->makeExecution();
+        $repo         = $this->spyingRepo();
+
+        $repo->setContributions( $this->activity_id, $this->scorer, 2, 0 );
+        $repo->synced = [];
+
+        $repo->setContributions( $this->activity_id, $this->scorer, 1, 0 );
+
+        $this->assertSame( [], $repo->synced, 'a manual row belongs to no execution' );
+        $this->assertSame( 1, $this->goals( $this->scorer ) );
+    }
+
+    /**
+     * The invariant behind all of the above: whatever the grid did, the
+     * stored score equals the live rows still standing.
+     */
+    public function test_the_score_after_a_reconcile_equals_the_live_rows_standing(): void {
+        $execution_id = $this->makeExecution();
+        $this->repo->logGoalEvent( $execution_id, 'live-uuid-9', $this->scorer, 1, 12, 'home' );
+        $this->repo->logGoalEvent( $execution_id, 'live-uuid-10', $this->scorer, 2, 33, 'home' );
+        $this->repo->syncScoresFromGoals( $execution_id );
+
+        // Two watched, two typed, then back down to three: one typed row goes.
+        $this->repo->setContributions( $this->activity_id, $this->scorer, 4, 0 );
+        $this->repo->setContributions( $this->activity_id, $this->scorer, 3, 0 );
+        $this->assertSame( 2, $this->execScore( $execution_id, 'home' ), 'a typed row was reversed, so both live goals stand' );
+
+        // Down to one: both typed rows are gone and a watched one follows.
+        $this->repo->setContributions( $this->activity_id, $this->scorer, 1, 0 );
+        $this->assertSame( 1, $this->execScore( $execution_id, 'home' ) );
+        $this->assertSame( $this->liveGoals( $execution_id ), $this->execScore( $execution_id, 'home' ) );
+    }
+
     // ---- helpers ----------------------------------------------------------
+
+    private function execScore( int $execution_id, string $team ): int {
+        global $wpdb;
+        $column = $team === 'away' ? 'away_score' : 'home_score';
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT {$column} FROM {$wpdb->prefix}tt_match_execution WHERE id = %d",
+            $execution_id
+        ) );
+    }
+
+    private function liveGoals( int $execution_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_match_execution_goal_events
+              WHERE execution_id = %d AND team = 'home' AND reversed_at IS NULL",
+            $execution_id
+        ) );
+    }
+
+    /** A repository that records which executions it re-derived, and still does it. */
+    private function spyingRepo(): MatchExecutionRepository {
+        return new class extends MatchExecutionRepository {
+            /** @var list<int> */
+            public array $synced = [];
+
+            public function syncScoresFromGoals( int $execution_id ): void {
+                $this->synced[] = $execution_id;
+                parent::syncScoresFromGoals( $execution_id );
+            }
+        };
+    }
 
     private function goals( int $player_id ): int {
         $counts = $this->repo->contributionsByActivity( [ $this->activity_id ] );
