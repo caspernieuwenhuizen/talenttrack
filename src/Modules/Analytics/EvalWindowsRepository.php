@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * EvalWindowsRepository (#1380) — read / write the evaluation windows
@@ -50,14 +51,20 @@ final class EvalWindowsRepository {
      * Only ever fills an absent key. An install that has configured windows,
      * or has deliberately saved an empty list, is left alone.
      *
-     * @return list<EvalWindow> The windows now configured.
+     * @return list<array{name:string,start:string,end:string}> The windows now configured.
      */
     public function seedDefaultsIfAbsent(): array {
-        // A sentinel default separates "never set" from "set to an empty
-        // list". `getJson()` returns [] for both, and overwriting the second
-        // would undo a deliberate clearing — an administrator who emptied
-        // the windows must not find four of them back tomorrow.
-        if ( $this->config->get( self::CONFIG_KEY, "\0absent" ) !== "\0absent" ) {
+        // "Never set" and "set to an empty list" must be told apart:
+        // `getJson()` returns [] for both, and re-seeding the second would
+        // undo a deliberate clearing — an administrator who emptied the
+        // windows must not find four of them back tomorrow.
+        //
+        // A sentinel default through `ConfigService::get()` does NOT work
+        // for this. It memoises per key, so any earlier read of the key in
+        // the same request — `all()` on the line above a caller, say —
+        // caches the '' default and the sentinel never comes back. The
+        // existence question goes straight to the table instead.
+        if ( self::keyExists() ) {
             return $this->all();
         }
 
@@ -83,6 +90,23 @@ final class EvalWindowsRepository {
         }
 
         return $this->save( $windows );
+    }
+
+    /**
+     * Has this club ever saved a window list? Reads the config table
+     * directly, bypassing `ConfigService`'s per-key memo, which is what
+     * makes this answer "never set" rather than "reads as empty".
+     */
+    private static function keyExists(): bool {
+        global $wpdb;
+        $found = $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}tt_config
+              WHERE club_id = %d AND config_key = %s
+              LIMIT 1",
+            CurrentClub::id(),
+            self::CONFIG_KEY
+        ) );
+        return $found !== null;
     }
 
     /**

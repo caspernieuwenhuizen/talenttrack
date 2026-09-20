@@ -1,0 +1,3 @@
+#: src/Modules/Analytics/EvalWindowsRepository.php:79
+msgid "Round %d"
+msgstr "Ronde %d"

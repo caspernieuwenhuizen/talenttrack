@@ -19,7 +19,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * @phpstan-type CoveragePlayer array{player_id:int,player_name:string,coach_id:int,coach_name:string,cells:list<CoverageCell>,gap_count:int}
  * @phpstan-type CoverageTeam array{team_id:int,team_name:string,players:list<CoveragePlayer>}
  * @phpstan-type CoachGap array{coach_id:int,coach_name:string,gap_count:int}
- * @phpstan-type CoverageData array{windows:list<EvalWindow>,teams:list<CoverageTeam>,coach_gaps:list<CoachGap>,total_players:int,total_gaps:int}
+ * @phpstan-type CoverageData array{windows:list<EvalWindow>,teams:list<CoverageTeam>,coach_gaps:list<CoachGap>,total_players:int,total_gaps:int,configured:bool}
  * @phpstan-type AttendanceRow array{team_id:int,team_name:string,completed:int,with_attendance:int,percent:float|null}
  * @phpstan-type Evaluator array{coach_id:int,coach_name:string}
  */
