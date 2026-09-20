@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T01:31:25+00:00\n"
+"POT-Creation-Date: 2026-09-20T09:45:45+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -4977,19 +4977,19 @@ msgstr ""
 msgid "Add players to the squad before auto-planning."
 msgstr "Voeg spelers toe aan de selectie voordat je automatisch plant."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1246
+#: src/Infrastructure/REST/TournamentsRestController.php:1265
 msgid "The match could not be updated."
 msgstr "De wedstrijd kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1267
+#: src/Infrastructure/REST/TournamentsRestController.php:1286
 msgid "The match could not be deleted."
 msgstr "De wedstrijd kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1287
+#: src/Infrastructure/REST/TournamentsRestController.php:1306
 msgid "Squad payload must be an array."
 msgstr "Selectie-payload moet een array zijn."
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1353
+#: src/Infrastructure/REST/TournamentsRestController.php:1372
 msgid "The squad member could not be removed."
 msgstr "Het selectielid kon niet worden verwijderd."
 
