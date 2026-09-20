@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Alerts\Contracts\AlertInterface;
+use TT\Modules\Alerts\Domain\AlertAudience;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
@@ -100,11 +101,11 @@ final class AlertEvaluator {
         foreach ( $occurrences as $occ ) {
             if ( ! $occ instanceof AlertOccurrence ) continue;
 
-            // Capability gate, applied on every run rather than trusted from
+            // Recipient gate, applied on every run rather than trusted from
             // the definition's audience resolution. Roles change between
             // sweeps; a coach who moved teams last week must stop receiving
             // this at the next tick, not at the next release.
-            if ( ! $this->recipientMayReceive( $occ->recipientUserId, $alert->capRequired() ) ) {
+            if ( ! $this->recipientMayReceive( $occ, $alert ) ) {
                 $stat['skipped']++;
                 continue;
             }
@@ -217,15 +218,34 @@ final class AlertEvaluator {
     }
 
     /**
-     * Whether a resolved recipient may actually receive this alert.
+     * Whether a resolved recipient may actually receive this occurrence.
      *
-     * `user_can()` rather than `current_user_can()`: the sweep runs on a
-     * cron tick with no logged-in user, so the current-user variant would
-     * evaluate against nobody and deny everything.
+     * Two gates, because the two audiences are asked different questions
+     * (#3795). Staff are gated on the capability that would let them fix the
+     * thing — `user_can()` rather than `current_user_can()`, because the
+     * sweep runs on a cron tick with no logged-in user and the current-user
+     * variant would evaluate against nobody and deny everything.
+     *
+     * A family is gated on the guardian link to the player instead. Asking a
+     * parent for `tt_evaluate_players` would deny every family occurrence
+     * ever produced; asking whether this is their child is both the right
+     * question and the stricter one — a link removed, or a child released,
+     * stops delivery at the next tick.
+     *
+     * A parent-audience occurrence with no player attached is refused
+     * outright. There is nothing to check it against, and "cannot tell whose
+     * child this is" must never resolve to "send it".
      */
-    private function recipientMayReceive( int $userId, string $cap ): bool {
-        if ( $userId <= 0 ) return false;
+    private function recipientMayReceive( AlertOccurrence $occ, AlertInterface $alert ): bool {
+        if ( $occ->recipientUserId <= 0 ) return false;
+
+        if ( $occ->audience === AlertAudience::PARENT ) {
+            if ( ! AlertAudience::definitionAddresses( $alert, AlertAudience::PARENT ) ) return false;
+            return AlertAudience::isGuardianOf( $occ->recipientUserId, (int) $occ->playerId );
+        }
+
+        $cap = $alert->capRequired();
         if ( $cap === '' ) return true;
-        return user_can( $userId, $cap );
+        return user_can( $occ->recipientUserId, $cap );
     }
 }

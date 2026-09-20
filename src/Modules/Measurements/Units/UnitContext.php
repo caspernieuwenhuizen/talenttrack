@@ -180,7 +180,12 @@ final class UnitContext {
     }
 
     /**
-     * Render a canonical value the way this test's staff read it.
+     * Render a canonical value in the unit this test's staff type in.
+     *
+     * The number is machine-spelled (dot decimal), so this is the form for a
+     * payload, an input or a spreadsheet cell. A surface rendering the value
+     * for a person passes `$with_symbol = false` and composes the reading
+     * itself from `localeNumber()` and `symbol()`.
      */
     public function format( ?float $base, bool $with_symbol = true ): string {
         if ( $base === null ) return '';
@@ -189,7 +194,7 @@ final class UnitContext {
             return DurationFormat::format( $base );
         }
 
-        $number = $this->number( $this->fromBase( $base ) );
+        $number = self::machineNumber( $this->fromBase( $base ) );
         $symbol = $this->symbol();
 
         return $with_symbol && $symbol !== '' ? $number . ' ' . $symbol : $number;
@@ -203,7 +208,7 @@ final class UnitContext {
         if ( $base === null ) return '';
         return $this->isDuration()
             ? DurationFormat::format( $base )
-            : $this->number( $this->fromBase( $base ) );
+            : self::machineNumber( $this->fromBase( $base ) );
     }
 
     /**
@@ -278,8 +283,33 @@ final class UnitContext {
      * conversion (182 cm round-trips as 182.00000000000003 otherwise) and the
      * trim keeps 30.000 reading as "30", which is what the module has always
      * shown.
+     *
+     * A dot decimal and no thousands separator: this is the spelling for
+     * anything that is not being read by a person — a REST payload, an
+     * `<input value="">`, a spreadsheet cell. Use `localeNumber()` for the
+     * other case.
      */
-    private function number( float $value ): string {
+    private static function machineNumber( float $value ): string {
         return rtrim( rtrim( number_format( $value, 3, '.', '' ), '0' ), '.' );
+    }
+
+    /**
+     * The same number spelled the way the reader writes it — `36,3` on a Dutch
+     * surface, `36.3` on an English one.
+     *
+     * It lives here rather than in one view because a value and the target it
+     * is checked against were being formatted by two different helpers, so the
+     * register printed "2.03 s" beside "≤ 2,09 s". Any surface rendering a
+     * measurement for a person calls this; nothing that crosses a wire does.
+     *
+     * The decimal count is taken from the machine spelling so both say the same
+     * number: 30.000 reads as "30" in either.
+     */
+    public static function localeNumber( float $value ): string {
+        $machine  = self::machineNumber( $value );
+        $dot      = strpos( $machine, '.' );
+        $decimals = $dot === false ? 0 : strlen( $machine ) - $dot - 1;
+
+        return number_format_i18n( $value, $decimals );
     }
 }

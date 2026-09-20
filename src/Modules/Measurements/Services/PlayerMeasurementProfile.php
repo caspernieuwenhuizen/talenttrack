@@ -50,6 +50,10 @@ class PlayerMeasurementProfile {
      *     'direction', 'latest_value', 'latest_date', 'flag', 'band',
      *     'series', 'overdue' ]
      *
+     * `latest_value` is the reading in the test's entry unit, as a bare number
+     * with a dot decimal (`mm:ss` for a duration, the recorded text for a level
+     * or a pass). `unit` carries the symbol; a surface composes the two.
+     *
      * `band` (#2536) is the age-group "on target" range as
      * `[ 'min' => ?float, 'max' => ?float ]`, or null when the test has no
      * target for this player's age group. The trend chart shades it; the
@@ -244,9 +248,18 @@ class PlayerMeasurementProfile {
     }
 
     /**
-     * Render a result's value for display, honouring the test's value type.
-     * #3273 — through the same unit context MeasurementResultsBrowse uses, so
-     * the profile and the results browser cannot disagree about a number.
+     * A result's value in the unit the test is entered in, honouring the value
+     * type. #3273 — through the same unit context MeasurementResultsBrowse
+     * uses, so nothing here can disagree with it about a number.
+     *
+     * #3768 — the number only, never the symbol and never a localised
+     * separator. This is what `latest_value` carries to a REST consumer, and a
+     * front end that is handed "36,3 kg" cannot render it any other way, nor
+     * read it back as a number (CLAUDE.md §4). The symbol travels once, in the
+     * sibling `unit` field, and the surface composes the two.
+     *
+     * A duration keeps its `mm:ss` spelling — that is the canonical shape of a
+     * clock time rather than a localisation of it.
      */
     private function displayValue( object $def, ?object $row ): string {
         if ( ! $row ) return '';
@@ -254,7 +267,7 @@ class PlayerMeasurementProfile {
             return (string) $row->value_text;
         }
         if ( $row->value_numeric === null ) return '';
-        return UnitContext::forDefinition( $def )->format( (float) $row->value_numeric );
+        return UnitContext::forDefinition( $def )->format( (float) $row->value_numeric, false );
     }
 
     /**
