@@ -19,6 +19,7 @@ use TT\Modules\Comms\Rest\CommsRestController;
 use TT\Modules\Comms\Retention\CommsRetentionCron;
 use TT\Modules\Comms\Send\MethodologyDeliveredSend;
 use TT\Modules\Comms\Send\PdpReadySend;
+use TT\Modules\Comms\Send\TeamScheduleChangeSend;
 use TT\Modules\Comms\Send\TrainingCancelledSend;
 use TT\Modules\Comms\Send\TrialPlayerWelcomeSend;
 use TT\Modules\Comms\Template\TemplateCatalog;
@@ -179,13 +180,23 @@ class CommsModule implements ModuleInterface {
         // the same way. See `TrialPlayerWelcomeSend`.
         TrialPlayerWelcomeSend::init();
 
+        // #3811 — use case 9's trigger, finally. `schedule_change_from_spond`
+        // shipped with a template, an audience row and a user-facing opt-out
+        // toggle, and no sender: `MessageType` recorded the gap in its own
+        // docblock and the settings screen offered a switch for mail nobody
+        // could receive. The urgent half fires here on the activity write;
+        // everything else is rolled up by the daily cron's
+        // `team_schedule_digest` detector.
+        TeamScheduleChangeSend::init();
+
         // Schedule-driven triggers — wp-cron once a day. Each triggers
         // its own template's send loop scoped per club:
         //   - goal_nudge: goals 4+ weeks old without recent nudge
         //   - attendance_flag: players with 3+ consecutive absences
         //   - onboarding_nudge_inactive: parents with 30+ days inactive
         //   - staff_development_reminder: reviews due in <= 7 days
-        // The other 11 templates are event-driven and fire from their
+        //   - team_schedule_digest: what moved in each team's calendar
+        // The other templates are event-driven and fire from their
         // owning module via the `tt_comms_dispatch` action.
         // #1538 — scheduled sends are an optional sub-feature; when off,
         // the daily cron is never registered (operational overhead for

@@ -21,6 +21,8 @@ Four things decide whether a message leaves the building and what it says.
 
 **A recipient rule.** You never address a message at a child directly. You address it at a *player*, and the youth-contact rules decide who actually receives it: for the youngest age groups the parents, for the middle groups both, and from U12 up the player themselves. That rule lives in one place and every message obeys it, so no individual feature can get it wrong.
 
+Messages about a *team* rather than a player follow a second rule: they reach the people who run that team — its head coach, its assistant coaches and its team manager. A physio or kit manager assigned to the team is not included, because these messages are about the calendar and the paperwork, and a message to somebody who cannot act on it teaches everyone to stop reading them. Absence flags additionally reach the head of development.
+
 **A channel.** Email, push notification, SMS, WhatsApp link, or the in-app inbox. Each template declares which channels suit it, and the first one that can actually reach that recipient is used. Someone with no phone number on file gets email; someone with the app installed gets a push.
 
 **A message type.** This is what an opt-out and the quiet-hours rule act on, and what the send log is grouped by.
@@ -152,7 +154,11 @@ Messages fall into three groups.
 
 The trial welcome is worth one note, because it promises less than you might expect. A trial case records the player, the trajectory and the dates — it has no place and no kit list — so the message names the start date and says a coach will be in touch with the time, the place and what to bring. That is what actually happens, and it is better than a message with two empty headings on it. It goes to the parents of a youth player and to the player themselves once they are old enough, like every other message about a player.
 
-**Scheduled** — a daily job looks for a condition and sends: goals that have gone quiet, repeated absences, parents who have not logged in for a month, staff development reviews coming due.
+**Scheduled** — a daily job looks for a condition and sends: goals that have gone quiet, repeated absences, parents who have not logged in for a month, staff development reviews coming due, and what moved in each team's calendar.
+
+The calendar one has two speeds, and it is worth knowing which you will get. Activities added, moved, re-located or cancelled for a team are collected and sent as **one message per team per day**, listing each change on its own line — a coach who fixes six kick-off times in one sitting does not produce six emails. The exception is an activity starting **within the next two days**: that one sends straight away, because a summary tomorrow morning arrives after the session. Nothing appears in both; the roll-up skips whatever was already sent on the spot.
+
+Who hears about repeated absences changed with this. It used to go to whoever administers the site; it now goes to the team's own staff and the head of development, which is what the feature always meant.
 
 **Registered but not yet connected** — a small number of templates ship with their wording ready and no trigger behind them yet. They send nothing. You will see them in the template list, and switching them on or off changes nothing until the feature that raises them lands.
 
