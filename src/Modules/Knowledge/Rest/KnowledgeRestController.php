@@ -1039,6 +1039,12 @@ final class KnowledgeRestController {
      * reported, because "is my staff trained" is rarely about one course when
      * a club runs several.
      *
+     * `staff` lists the team's *enrolled* staff only (#3769). Somebody the
+     * academy never put on the course has no state on it, and reporting
+     * them as `not_started` made "never asked" indistinguishable from
+     * "asked and not begun". `assigned` and `unenrolled` say how many are
+     * missing without inventing a status for them.
+     *
      * @return \WP_REST_Response
      */
     public static function team_learning( WP_REST_Request $r ) {
@@ -1064,7 +1070,18 @@ final class KnowledgeRestController {
         return RestResponse::success( [ 'team_id' => $team_id, 'courses' => $out ] );
     }
 
-    /** @return array<string, mixed> */
+    /**
+     * One course's state for one team.
+     *
+     * `total` is the team's staff who are enrolled, and `done` how many of
+     * those finished — the same two numbers the course roll-up reports, now
+     * from the same query (#3769). `assigned` is the team's staff count, so
+     * a consumer can say "nobody here is on the course yet" rather than
+     * render an empty panel; `unenrolled` is the difference, which is what
+     * the assignment wizard would be opened for.
+     *
+     * @return array<string, mixed>
+     */
     private static function shapeTeamCourse( int $team_id, string $slug ): array {
         $manifest = CourseRegistry::get( $slug );
         $summary  = TeamCourseCoverage::summaryFor( $team_id, $slug );
@@ -1074,6 +1091,8 @@ final class KnowledgeRestController {
             'title'       => $manifest !== null ? $manifest->title() : $slug,
             'done'        => $summary['done'],
             'total'       => $summary['total'],
+            'assigned'    => $summary['assigned'],
+            'unenrolled'  => max( 0, $summary['assigned'] - $summary['total'] ),
             'staff'       => TeamCourseCoverage::forTeam( $team_id, $slug ),
         ];
     }

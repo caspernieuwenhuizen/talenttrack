@@ -40,9 +40,17 @@ Per `config/authorization_seed.php` hebben de vier persona's:
 | Persona | tt_vct_plan | tt_vct_admin_library | tt_vct_view_load |
 | --- | --- | --- | --- |
 | `head_coach` | team | — | team |
-| `assistant_coach` | team | — | — |
+| `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
+
+Beide trainerspersona's lezen de belasting alleen van hun eigen teams. De
+`vct_workload`-rij achter `tt_vct_view_load` ontbrak tot #3706 bij allebei,
+waardoor `GET vct/teams/{id}/workload` juist de twee persona's weigerde die
+erop plannen terwijl de tabel hierboven al iets anders zei. De teamweergave
+beantwoordt "is deze week te zwaar voor de training die ik zo geef"; de
+weergave per speler (`GET vct/players/{id}/workload`) gebruikt dezelfde
+teamgrant, dus een trainer bereikt spelers van de eigen teams en niet verder.
 
 ## Wat is gelanceerd
 

@@ -18,8 +18,8 @@ use TT\Modules\Threads\Rest\ThreadsRestController;
  *   - ThreadTypeRegistry (v1 wires `goal` from inside this module).
  *   - REST: /threads/{type}/{id}/* — list, post, edit, delete, read.
  *   - Frontend component: TT\Shared\Frontend\Components\FrontendThreadView.
- *   - GoalSystemMessageSubscriber: hooks tt_goal_saved + tt_goal_status_changed
- *     to write is_system=1 messages.
+ *   - GoalSystemMessageSubscriber: hooks tt_goal_saved, tt_goal_status_changed
+ *     and tt_goal_updated to write is_system=1 messages.
  *   - GoalNotificationSubscriber: forwards thread_message_posted events to
  *     EmailDispatcher fan-out (and PushDispatcher when #0042 ships).
  *   - Audit: 4 event types (thread_message_posted, _edited, _deleted,

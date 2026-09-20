@@ -54,6 +54,7 @@ $mod_measurements  = class_exists( '\TT\Modules\Measurements\MeasurementsModule'
 $mod_holidays      = class_exists( '\TT\Modules\Holidays\HolidaysModule' )
     ? \TT\Modules\Holidays\HolidaysModule::class
     : $mod_authorization;
+$mod_analytics     = TT\Modules\Analytics\AnalyticsModule::class;
 
 return [
 
@@ -222,6 +223,18 @@ return [
         // already read the same list, it is academy-wide and carries
         // nothing about a player. Read only, and no `holidays_panel`:
         // maintaining the calendar is not a logistics seat's job.
+        //
+        // #3770 adds `analytics [r]`. Chasing the players who keep
+        // missing training is the job, and the attendance-at-risk list
+        // is the only surface that names them; without it a manager
+        // taking the register could see today's absence and not the
+        // pattern behind it. The three attendance report routes gate on
+        // `tt_view_analytics`, which bridges to `analytics: read`, so
+        // this is the grant that answers them. Their rows still narrow
+        // through `get_teams_for_coach()` to the teams the role is held
+        // on. The `team_manager` PERSONA gets the same row in
+        // `authorization_seed.php` — a team manager on this install may
+        // be either shape, and the report should not depend on which.
         'manager' => [
             'team'                    => [ 'r',  $mod_teams ],
             'players'                 => [ 'r',  $mod_players ],
@@ -230,6 +243,7 @@ return [
             'attendance'              => [ 'rc', $mod_activities ],
             'player_status'           => [ 'r',  $mod_players ],
             'holidays'                => [ 'r',  $mod_holidays ],
+            'analytics'               => [ 'r',  $mod_analytics ],
             'team_roster_panel'       => [ 'r',  $mod_teams ],
             'coach_player_list_panel' => [ 'r',  $mod_players ],
             'activities_panel'        => [ 'r',  $mod_activities ],

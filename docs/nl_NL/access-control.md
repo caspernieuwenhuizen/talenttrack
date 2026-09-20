@@ -150,6 +150,19 @@ Gebruiksgevallen:
 
 Die grens is precies waar de rol om draait. "Alleen-lezen" klinkt onschuldig, en een stoel die de zorgnotities van een kind kon lezen zou dat niet zijn, hoe weinig die ook kan wijzigen.
 
+### Per speler, niet alleen in bulk
+
+Tot #3644 kon de waarnemer de evaluaties van alle teams naar een spreadsheet exporteren en werd hem dezelfde data op de pagina van één speler geweigerd. Beide routes vroegen "mag jij dit lezen", en ze vroegen het aan twee verschillende autoriteiten.
+
+De bulkexports controleren op de ruwe leescapability, die de matrixbrug beantwoordt, dus `evaluations [r, global]` uit de seed liet hen door. Het pad per record — `AuthorizationService::canViewPlayer()` → `userHasPermission()` — bepaalde de scopes van een gebruiker uit `tt_user_role_scopes`, de functionele-rolkoppeling en de afgeleide speler-/ouderlinks, en **raadpleegde de matrix nooit**. Een waarnemer heeft geen van die rijen: zijn hele toekenning is de seed. Hij kwam dus op nul scopes uit en elke beslissing per record werd fout.
+
+`userHasPermission()` raadpleegt nu als laatste de matrix, ná de scopebronnen, voor de leesrechten die daar een equivalent hebben (`players.view`, `players.view_own_children`, `evaluations.view`, `people.view`, `team.view`). Twee gevolgen zijn het benoemen waard:
+
+- **Dit is geen waarnemersfix.** Elke persona wiens toekenning alleen in `config/authorization_seed.php` staat liep tegen dezelfde muur — een scout zonder rolscope-rij ook. De rolnaam van de waarnemer apart behandelen had de melding gesloten en het defect laten staan.
+- **Bewust alleen lezen.** `change` en `create_delete` worden niet overbrugd. Dit ging over een geweigerde leesactie; een schrijfrecht overbruggen verruimt de toegang aan de kant waar een fout in het dossier van een kind terechtkomt, en is een eigen beslissing.
+
+Een gebruiker zonder matrixrij én zonder scoperij wordt precies zo geweigerd als voorheen, en van geen enkele export is de capability versmald — de export was juist de route die met de seed overeenkwam.
+
 ## Staf
 
 De rol Staf is de stoel voor de fysio, de materiaalman en algemene clubstaf. Ze is afgebakend tot **de elftallen waaraan die persoon verbonden is**, niet tot de academie:

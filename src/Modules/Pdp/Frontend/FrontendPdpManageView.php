@@ -1868,11 +1868,14 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '</div>';
 
             // Right column — this goal's own conversation thread (#1754).
-            echo '<div class="tt-pop-goal__convo">';
-            echo '<div class="tt-pop-goal__convo-h"><b>' . esc_html__( 'Conversation', 'talenttrack' )
-                . '</b><span>' . esc_html__( 'player & coach', 'talenttrack' ) . '</span></div>';
-            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $g->id, $viewer_id );
-            echo '</div>';
+            // #3720 — the heading only goes out when the thread does.
+            if ( \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', (int) $g->id, $viewer_id ) ) {
+                echo '<div class="tt-pop-goal__convo">';
+                echo '<div class="tt-pop-goal__convo-h"><b>' . esc_html__( 'Conversation', 'talenttrack' )
+                    . '</b><span>' . esc_html__( 'player & coach', 'talenttrack' ) . '</span></div>';
+                \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $g->id, $viewer_id );
+                echo '</div>';
+            }
 
             echo '</div>'; // .tt-pop-goal__body
             echo '</details>';

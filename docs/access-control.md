@@ -154,6 +154,19 @@ Use cases:
 
 That boundary is the point of the role. "Read-only" sounds harmless, and a seat that could read a child's safeguarding record would not be, however little it could change.
 
+### One player at a time, not only in bulk
+
+Until #3644 the observer could pull every team's evaluations into a spreadsheet and was refused the same data on one player's page. Both routes were asking "may you read this", and they were asking two different authorities.
+
+The bulk exports gate on the raw view capability, which the matrix bridge answers, so the seed's `evaluations [r, global]` let them through. The per-record path — `AuthorizationService::canViewPlayer()` → `userHasPermission()` — resolved a user's scopes from `tt_user_role_scopes`, the functional-role mapping and the derived player/parent links, and **never consulted the matrix**. An observer has none of those rows: their whole grant is the seed. So they resolved to nothing and every per-record decision came back false.
+
+`userHasPermission()` now asks the matrix last, after the scope sources, for the read permissions that have an equivalent there (`players.view`, `players.view_own_children`, `evaluations.view`, `people.view`, `team.view`). Two consequences worth stating:
+
+- **This is not an observer fix.** Any persona whose grant lives only in `config/authorization_seed.php` hit the same wall — a scout with no role-scope row did too. Special-casing the observer's role name would have closed the report and left the defect.
+- **Read only, deliberately.** `change` and `create_delete` are not bridged. This was a read being refused; bridging a write would widen access on the side where a mistake writes to a child's record, and belongs to its own decision.
+
+A user with neither a matrix row nor a scope row is refused exactly as before, and no exporter's capability was narrowed — the export was the route that happened to agree with the seed.
+
 ## Staff
 
 The Staff role is the physio, kit manager and general club-staff seat. It is scoped to **the squads that person is attached to**, not to the academy:

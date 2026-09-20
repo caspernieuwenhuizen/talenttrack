@@ -56,6 +56,9 @@ final class DemoRunState {
             'error'      => '',
             'steps'      => array_values( $steps ),
             'done'       => [],
+            // #3775 — the run's clock, pinned here and read by every later
+            // chunk. `$context` comes last, so a caller may supply its own.
+            'now'        => time(),
             'started_at' => time(),
             'updated_at' => time(),
         ], $context ) );
@@ -163,6 +166,31 @@ final class DemoRunState {
     /** @param mixed $value */
     public function set( string $key, $value ): void {
         $this->data[ $key ] = $value;
+    }
+
+    /**
+     * The moment this run calls "now" — fixed for its whole life.
+     *
+     * #3775 — a run is a list of steps spread over as many requests, and
+     * `DemoCalendar` derives every date from a single instant. Letting each
+     * chunk read the wall clock meant a run that straddled midnight, or a slow
+     * one near a week boundary, built its later steps against a window one day
+     * further on than its earlier ones: a fixture and the training of the same
+     * week could land in different weeks. The run's clock is written down once
+     * and read back thereafter, which is the property `DemoCalendar` has always
+     * documented ("the same answers in any step of a run split across thirty
+     * requests") but could not keep on its own.
+     *
+     * Pinned lazily as well as at `create()`, so a run already on file when
+     * this shipped picks up a clock on its next chunk instead of none.
+     */
+    public function now(): int {
+        $now = (int) $this->get( 'now', 0 );
+        if ( $now <= 0 ) {
+            $now = time();
+            $this->set( 'now', $now );
+        }
+        return $now;
     }
 
     /**
