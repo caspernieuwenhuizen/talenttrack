@@ -87,6 +87,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_assignments' ],
                 'permission_callback' => function () { return current_user_can( 'tt_view_people' ) || current_user_can( 'tt_edit_people' ); },
+                'args'                => self::assignmentListArgs(),
             ],
             [
                 'methods'             => 'POST',
@@ -258,6 +259,34 @@ class FunctionalRolesRestController {
         'start_date'  => 'tp.start_date',
     ];
 
+    /** @var array<string,string> assignment filters, and the column each narrows (#3765) */
+    private const ASSIGNMENT_FILTER_COLUMNS = [
+        'team_id'            => 'tp.team_id',
+        'functional_role_id' => 'tp.functional_role_id',
+    ];
+
+    /**
+     * #3765 — the assignment list's parameters, so route discovery shows
+     * them. Values the handler clamps itself (`page`, `per_page`, `order`)
+     * are described rather than enforced, so a caller that relied on the
+     * clamp is not now refused. The descriptions are API documentation for
+     * integrators, not UI copy, so they are not translated.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function assignmentListArgs(): array {
+        return [
+            'team_id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only assignments on this team. Same as filter[team_id].' ],
+            'functional_role_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only assignments of this functional role. Same as filter[functional_role_id].' ],
+            'filter'             => [ 'description' => 'Nested filters: team_id, functional_role_id. A nested value wins over the plain parameter of the same name.' ],
+            'search'             => [ 'type' => 'string', 'description' => 'Matches the team name, the person\'s first or last name, or the role label.' ],
+            'orderby'            => [ 'type' => 'string', 'description' => 'Column to sort on: team_name, person_name, role or start_date.' ],
+            'order'              => [ 'type' => 'string', 'description' => 'asc or desc.' ],
+            'page'               => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'Rows per page: 10, 25, 50 or 100. Any other value is treated as 25.' ],
+        ];
+    }
+
     public static function list_assignments( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
 
@@ -281,14 +310,36 @@ class FunctionalRolesRestController {
         $params = [ CurrentClub::id() ];
         $scope  = QueryHelpers::apply_demo_scope( 't', 'team' );
 
-        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
-        if ( ! empty( $filter['team_id'] ) ) {
-            $where[]  = 'tp.team_id = %d';
-            $params[] = absint( $filter['team_id'] );
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+        // #3765 — only `filter[team_id]` was read, so a plain `?team_id=52`
+        // was dropped and the caller got every team's staff back, which a
+        // client renders as one team's. Nothing else narrows this query —
+        // there is no coach-scope clause here — so a dropped filter widens
+        // the answer to the whole academy rather than merely failing to cut
+        // it down. The plain names fold into `filter[...]` (the nested value
+        // wins when both are sent), the same convention as #3584, #3607 and
+        // #3668; a value that is present but is not a usable id is refused
+        // rather than ignored, because ignoring it is what widened the read.
+        foreach ( array_keys( self::ASSIGNMENT_FILTER_COLUMNS ) as $key ) {
+            if ( isset( $filter[ $key ] ) && is_scalar( $filter[ $key ] ) && (string) $filter[ $key ] !== '' ) continue;
+            $plain = $r->get_param( $key );
+            if ( is_scalar( $plain ) && (string) $plain !== '' ) $filter[ $key ] = $plain;
         }
-        if ( ! empty( $filter['functional_role_id'] ) ) {
-            $where[]  = 'tp.functional_role_id = %d';
-            $params[] = absint( $filter['functional_role_id'] );
+        foreach ( self::ASSIGNMENT_FILTER_COLUMNS as $key => $column ) {
+            if ( ! isset( $filter[ $key ] ) ) continue;
+            $raw = $filter[ $key ];
+            if ( is_scalar( $raw ) && (string) $raw === '' ) continue;
+            $id = is_scalar( $raw ) ? absint( $raw ) : 0;
+            if ( $id <= 0 ) {
+                return RestResponse::error(
+                    'bad_filter',
+                    __( 'That filter value is not a valid id.', 'talenttrack' ),
+                    400,
+                    [ 'parameter' => $key ]
+                );
+            }
+            $where[]  = $column . ' = %d';
+            $params[] = $id;
         }
 
         if ( ! empty( $r['search'] ) ) {
