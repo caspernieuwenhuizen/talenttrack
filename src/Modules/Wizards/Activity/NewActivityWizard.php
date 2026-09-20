@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\ActivityCoachAssignment;
 use TT\Shared\Wizards\SupportsCancelAsDraft;
 use TT\Shared\Wizards\WizardInterface;
 
@@ -73,10 +74,21 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
         }
 
         $type = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
+
+        // #3745 — a draft carries the same derived coach a finished
+        // activity would, so reopening it does not start from the wrong
+        // person. The creator is recorded in `created_by` instead.
+        $coach_id = array_key_exists( 'coach_id', $state )
+            ? (int) $state['coach_id']
+            : (int) ActivityCoachAssignment::derivedForTeam( $tid );
+        if ( $coach_id > 0 && ! ActivityCoachAssignment::mayAssign( $coach_id, get_current_user_id() ) ) {
+            $coach_id = 0;
+        }
+
         $row  = [
             'club_id'             => CurrentClub::id(),
             'team_id'             => $tid,
-            'coach_id'            => get_current_user_id(),
+            'coach_id'            => $coach_id > 0 ? $coach_id : null,
             'title'               => (string) ( $state['title'] ?? __( 'Untitled draft', 'talenttrack' ) ),
             'session_date'        => (string) ( $state['session_date'] ?? current_time( 'Y-m-d' ) ),
             'location'            => (string) ( $state['location'] ?? '' ),
@@ -87,6 +99,11 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
             'game_subtype_key'    => $type === ActivityTypeKey::GAME  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
             'other_label'         => $type === ActivityTypeKey::OTHER && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
         ];
+
+        // #3745 — the creator, recorded where every other write path
+        // records it, now that `coach_id` is the coach and not the typist.
+        $creator = get_current_user_id();
+        if ( $creator > 0 ) $row['created_by'] = $creator;
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_activities', $row );
         if ( $ok === false ) {
