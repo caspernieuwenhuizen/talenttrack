@@ -188,8 +188,111 @@ class FrontendMySettingsView extends FrontendViewBase {
             <?php self::renderMessagePreferencesCard( $user_id ); ?>
 
             <?php self::renderParentVisibilityCard( $user_id ); ?>
+
+            <?php self::renderHeldContactCard( $user_id ); ?>
         </div>
         <?php
+    }
+
+    /**
+     * #3691 — what the academy holds about you, read-only.
+     *
+     * A parent's details live in three stores that drift apart: this
+     * account, their People record, and the guardian columns an admin
+     * typed onto each child's file. The third was invisible to them, so a
+     * corrected number could still be wrong on the file staff ring.
+     *
+     * Composition only. Which values are the caller's own — including the
+     * normalised name / email / phone match that keeps a co-guardian's
+     * details hidden (#1725) — is decided in `OwnContactDetails`.
+     */
+    private static function renderHeldContactCard( int $user_id ): void {
+        $held = \TT\Infrastructure\Identity\OwnContactDetails::forUser( $user_id );
+
+        $account_rows = array_filter( [
+            __( 'Name', 'talenttrack' )  => trim( $held['account']['display_name'] ),
+            __( 'Email', 'talenttrack' ) => trim( $held['account']['email'] ),
+            __( 'Phone', 'talenttrack' ) => trim( $held['account']['phone'] ),
+        ], static fn( $v ) => $v !== '' );
+
+        $person_rows = [];
+        if ( $held['person'] !== null ) {
+            $person_rows = array_filter( [
+                __( 'Name', 'talenttrack' )  => trim( $held['person']['name'] ),
+                __( 'Email', 'talenttrack' ) => trim( $held['person']['email'] ),
+                __( 'Phone', 'talenttrack' ) => trim( $held['person']['phone'] ),
+            ], static fn( $v ) => $v !== '' );
+        }
+
+        $field_labels = [
+            'guardian_name'  => __( 'Name', 'talenttrack' ),
+            'guardian_email' => __( 'Email', 'talenttrack' ),
+            'guardian_phone' => __( 'Phone', 'talenttrack' ),
+        ];
+        ?>
+        <section class="tt-msettings-card tt-msettings-held">
+            <h3><?php esc_html_e( 'What the academy holds about you', 'talenttrack' ); ?></h3>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Your contact details are kept in more than one place, and they can disagree. This is everything the academy holds about you, and where each detail is kept. Only details that are yours are shown — anyone else named on your child\'s file stays private to them.', 'talenttrack' ); ?>
+            </p>
+
+            <?php if ( ! empty( $account_rows ) ) : ?>
+                <h4 class="tt-held-heading"><?php esc_html_e( 'Your account', 'talenttrack' ); ?></h4>
+                <?php self::renderHeldRows( $account_rows ); ?>
+            <?php endif; ?>
+
+            <?php if ( ! empty( $person_rows ) ) : ?>
+                <h4 class="tt-held-heading"><?php esc_html_e( 'Your contact record', 'talenttrack' ); ?></h4>
+                <?php self::renderHeldRows( $person_rows ); ?>
+            <?php endif; ?>
+
+            <?php foreach ( $held['children'] as $child ) : ?>
+                <h4 class="tt-held-heading">
+                    <?php
+                    printf(
+                        /* translators: %s: the child's name */
+                        esc_html__( 'On %s\'s file', 'talenttrack' ),
+                        esc_html( $child['player_name'] )
+                    );
+                    ?>
+                </h4>
+                <?php if ( empty( $child['fields'] ) ) : ?>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'This file records no contact details of yours. Ask the academy to add them so staff can reach you.', 'talenttrack' ); ?>
+                    </p>
+                <?php else : ?>
+                    <?php
+                    $rows = [];
+                    foreach ( $child['fields'] as $field => $value ) {
+                        $rows[ $field_labels[ $field ] ?? $field ] = $value;
+                    }
+                    self::renderHeldRows( $rows );
+                    ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Something wrong or out of date? Your account details are yours to change above. Anything recorded on your child\'s file is changed by the academy — ask them and they will correct it.', 'talenttrack' ); ?>
+            </p>
+        </section>
+        <?php
+    }
+
+    /**
+     * One label / value block per detail. A description list, because
+     * that is what this is — no inputs, nothing that commits.
+     *
+     * @param array<string,string> $rows
+     */
+    private static function renderHeldRows( array $rows ): void {
+        echo '<dl class="tt-held-list">';
+        foreach ( $rows as $label => $value ) {
+            echo '<div class="tt-held-row">';
+            echo '<dt class="tt-held-label">' . esc_html( (string) $label ) . '</dt>';
+            echo '<dd class="tt-held-value">' . esc_html( (string) $value ) . '</dd>';
+            echo '</div>';
+        }
+        echo '</dl>';
     }
 
     /**

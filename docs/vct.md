@@ -40,9 +40,17 @@ Per `config/authorization_seed.php`, the four personas have:
 | Persona | tt_vct_plan | tt_vct_admin_library | tt_vct_view_load |
 | --- | --- | --- | --- |
 | `head_coach` | team | — | team |
-| `assistant_coach` | team | — | — |
+| `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
+
+Both coach personas read the load for their own teams only. The `vct_workload`
+row behind `tt_vct_view_load` was missing from both of them until #3706, so
+`GET vct/teams/{id}/workload` refused the two personas who plan against it
+while the table above already said otherwise. The team view answers "is this
+week too heavy for the session I am about to run"; the per-player view
+(`GET vct/players/{id}/workload`) resolves the same team grant, so a coach
+reaches it for players on their own teams and no further.
 
 ## What's shipped
 

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Contracts\AlertInterface;
+use TT\Modules\Alerts\Domain\AlertAudience;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Repositories\AlertPreferencesRepository;
 
@@ -216,11 +217,24 @@ final class AlertPolicyResolver {
      * Every definition's effective state for one user, for the settings
      * screen. Keyed by alert key, grouped by the caller.
      *
+     * #3795 — filtered by audience. A parent used to be shown every staff
+     * and admin condition in the catalogue: certificates expiring, teams
+     * without a head coach, invitations never sent. None of it was about
+     * their child and none of it was theirs to act on, which is how a
+     * preferences screen teaches a family to mute the lot.
+     *
+     * Audience, note, and not capability. The four conditions a family most
+     * wants — no recent evaluation, an overdue goal, a PDP cycle with no
+     * conversation, an evaluation never shared — all declare a staff
+     * capability, because staff are who fixes them. A capability filter
+     * would have removed exactly those. See `AlertAudience`.
+     *
      * @return array<string,array{definition:AlertInterface,surfaces:list<string>,locked:?string,choosable:list<string>}>
      */
     public function matrixFor( int $userId ): array {
         $out = [];
         foreach ( AlertRegistry::all() as $key => $definition ) {
+            if ( ! AlertAudience::isEligible( $userId, $definition ) ) continue;
             $out[ $key ] = [
                 'definition' => $definition,
                 'surfaces'   => $this->surfacesFor( $userId, $key ),

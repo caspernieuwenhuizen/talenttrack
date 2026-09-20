@@ -46,6 +46,27 @@ te annuleren. Toevoegen vraagt nog wel om Opslaan, en dat is met opzet: er
 mag geen leeg doel in het dossier van een speler achterblijven omdat je het
 formulier opende en je bedacht.
 
+### Het gesprek legt vast wat je wijzigt
+
+Drie velden op een doel zijn dingen waar de speler en het gezin omheen
+plannen, dus een wijziging daarvan schrijft een regel in het
+[gesprek](conversational-goals.md) bij het doel: de **titel**, de
+**streefdatum** en het **voortgangspercentage**. De regel is kort —
+*Streefdatum gewijzigd naar: 19 november 2026* — en staat in de thread
+naast de regels over het aanmaken van het doel en statuswijzigingen.
+
+Wijzig je er twee of drie in één keer, dan komt er **één** regel met
+alles erin, niet één per veld. Omdat het bewerkformulier zichzelf
+opslaat, blijft een regel een paar minuten openstaan terwijl je
+doorwerkt: vier keer aan de voortgangsschuif trekken past diezelfde
+regel aan naar waar je uitkwam in plaats van vier regels achter te
+laten. Sla je een veld op met de waarde die het al had, dan wordt er
+niets geschreven, en een waarde die je verzet en weer terugzet neemt
+zijn regel mee.
+
+Wijzigingen in andere velden — omschrijving, prioriteit, gekoppelde
+principes, bewijslast — komen niet in het gesprek terecht.
+
 ## Voortgang volgen
 
 Werk de status en omschrijving in de loop van de tijd bij naarmate de speler vordert. Het **Status**-filter op de doelenlijst groepeert doelen in **Actief**, **Behaald** en **Gemist**, en staat standaard op Actief zodat de lijst opent met wat er nog loopt. Archiveren staat daar los van: de lijst opent met niet-gearchiveerde doelen, en met de **⋯**-knop aan het eind van de filterrij schakel je naar de gearchiveerde.

@@ -39,12 +39,29 @@ use TT\Modules\Knowledge\Repositories\EnrolmentRepository;
 final class TeamCourseCoverage {
 
     /**
-     * Who is assigned to this team, and whether they finished the course.
+     * This team's staff who are on the course, and how they are getting on.
      *
      * One query. The alternative — list the staff, then ask per person — is
      * how a squad overview becomes slow exactly on the biggest squads.
      *
-     * @return list<array{person_id: int, name: string, status: string, completed_at: ?string}>
+     * ## Enrolled staff only (#3769)
+     *
+     * This used to LEFT JOIN the enrolments and report anybody without a
+     * row as `not_started`, on the reasoning that a coach who never started
+     * is part of the answer. It is — but it is a *different* answer, and
+     * saying it in the enrolment vocabulary made the two indistinguishable:
+     * "nobody ever asked this coach to do the course" read exactly like "we
+     * asked and they have not begun", and an admin could only tell them
+     * apart by trying to enrol the person and watching for a new row.
+     *
+     * So the list is enrolment-backed, and the question it answers is "how
+     * is this team getting on with the course". *Who still needs assigning*
+     * is the assignment wizard's question, because the wizard is the
+     * surface that can act on the answer. `summaryFor()` keeps an
+     * `assigned` count purely so a caller can tell an empty list apart from
+     * a team with no staff at all.
+     *
+     * @return list<array{person_id: int, name: string, status: string, completed_at: ?string, due_at: ?string, is_overdue: bool}>
      */
     public static function forTeam( int $team_id, string $course_slug ): array {
         if ( $team_id <= 0 || $course_slug === '' ) return [];
@@ -53,29 +70,30 @@ final class TeamCourseCoverage {
         $p     = $wpdb->prefix;
         $today = current_time( 'Y-m-d' );
 
-        // LEFT JOIN, not INNER: a coach who never started the course is the
-        // answer to this question, not a row to leave out.
+        // The scope predicate below is the same population
+        // `LearningStatisticsService::countsFor()` counts when it is given a
+        // team. Change one and change the other, or the list and its own
+        // summary start disagreeing.
         $sql = $wpdb->prepare(
             "SELECT pe.id AS person_id, pe.first_name, pe.last_name,
-                    e.status, e.completed_at
-               FROM {$p}tt_user_role_scopes s
+                    e.status, e.completed_at, e.due_at
+               FROM {$p}tt_course_enrolments e
          INNER JOIN {$p}tt_people pe
-                 ON pe.id = s.person_id AND pe.club_id = %d
-          LEFT JOIN {$p}tt_course_enrolments e
-                 ON e.person_id = pe.id
+                 ON pe.id = e.person_id AND pe.club_id = e.club_id
+         INNER JOIN {$p}tt_user_role_scopes s
+                 ON s.person_id = pe.id
+              WHERE e.club_id = %d
                 AND e.course_slug = %s
-                AND e.club_id = %d
-              WHERE s.scope_type = 'team'
+                AND s.scope_type = 'team'
                 AND s.scope_id = %d
                 AND ( s.start_date IS NULL OR s.start_date <= %s )
                 AND ( s.end_date   IS NULL OR s.end_date   >= %s )
                 AND pe.archived_at IS NULL
                 AND pe.trashed_at IS NULL
-           GROUP BY pe.id, pe.first_name, pe.last_name, e.status, e.completed_at
+           GROUP BY pe.id, pe.first_name, pe.last_name, e.status, e.completed_at, e.due_at
               ORDER BY pe.last_name ASC, pe.first_name ASC",
             CurrentClub::id(),
             $course_slug,
-            CurrentClub::id(),
             $team_id,
             $today,
             $today
@@ -87,15 +105,20 @@ final class TeamCourseCoverage {
 
         $out = [];
         foreach ( $rows as $row ) {
-            $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+            $name   = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+            $status = (string) $row->status;
+            $due_at = $row->due_at !== null ? (string) $row->due_at : null;
 
             $out[] = [
                 'person_id'    => (int) $row->person_id,
                 'name'         => $name !== '' ? $name : __( 'A staff member', 'talenttrack' ),
-                // A person with no enrolment row has not started, which is a
-                // different answer from "in progress" and worth saying so.
-                'status'       => (string) ( $row->status ?? EnrolmentRepository::STATUS_NOT_STARTED ),
+                'status'       => $status,
                 'completed_at' => $row->completed_at ?? null,
+                'due_at'       => $due_at,
+                // Derived here rather than in a view, so the REST consumer
+                // and the rendered table agree (CLAUDE.md §4), and from the
+                // same rule the roll-up's overdue count uses.
+                'is_overdue'   => EnrolmentRepository::isOverdue( $due_at, $status ),
             ];
         }
 
@@ -105,16 +128,56 @@ final class TeamCourseCoverage {
     /**
      * The one-line summary: how many of this team's staff have finished.
      *
-     * @return array{done: int, total: int}
+     * `done` and `total` come from `LearningStatisticsService::countsFor()`,
+     * the same query the course roll-up reads (#3769). Before that the two
+     * counted different populations — enrolment rows club-wide against
+     * team-assigned people — and both appeared in one response, where they
+     * read as a bug.
+     *
+     * `assigned` is the third number, and the only one not about
+     * enrolments: how many active staff the team has. It exists so a caller
+     * can tell "this team has nobody on the course yet" from "this team has
+     * no staff", which are the same empty list and very different problems.
+     *
+     * @return array{done: int, total: int, assigned: int}
      */
     public static function summaryFor( int $team_id, string $course_slug ): array {
-        $rows = self::forTeam( $team_id, $course_slug );
-
-        $done = 0;
-        foreach ( $rows as $row ) {
-            if ( $row['status'] === EnrolmentRepository::STATUS_COMPLETED ) $done++;
+        if ( $team_id <= 0 || $course_slug === '' ) {
+            return [ 'done' => 0, 'total' => 0, 'assigned' => 0 ];
         }
 
-        return [ 'done' => $done, 'total' => count( $rows ) ];
+        $counts = ( new LearningStatisticsService() )->countsFor( $course_slug, $team_id );
+
+        return [
+            'done'     => $counts['completed'],
+            'total'    => $counts['enrolled'],
+            'assigned' => self::assignedCount( $team_id ),
+        ];
+    }
+
+    /** Active staff scoped to this team, however many courses they are on. */
+    public static function assignedCount( int $team_id ): int {
+        if ( $team_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $today = current_time( 'Y-m-d' );
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT( DISTINCT pe.id )
+               FROM {$p}tt_user_role_scopes s
+         INNER JOIN {$p}tt_people pe
+                 ON pe.id = s.person_id AND pe.club_id = %d
+              WHERE s.scope_type = 'team'
+                AND s.scope_id = %d
+                AND ( s.start_date IS NULL OR s.start_date <= %s )
+                AND ( s.end_date   IS NULL OR s.end_date   >= %s )
+                AND pe.archived_at IS NULL
+                AND pe.trashed_at IS NULL",
+            CurrentClub::id(),
+            $team_id,
+            $today,
+            $today
+        ) );
     }
 }

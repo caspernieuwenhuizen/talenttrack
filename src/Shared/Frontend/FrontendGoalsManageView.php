@@ -237,10 +237,16 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // v3.110.53 — Edit + Archive moved to the page-header actions
         // slot rendered by render() before this method runs.
 
-        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+        // #3720 — ask first: the thread renderer emits nothing for a
+        // viewer who can't read it, which used to leave the heading
+        // standing over an empty section.
+        $thread_id = (int) $goal->id;
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', $thread_id, $user_id )
+        ) {
             echo '<section class="tt-pde-section">';
             echo '<h3>' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
-            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', $thread_id, $user_id );
             echo '</section>';
         }
 
@@ -650,8 +656,13 @@ class FrontendGoalsManageView extends FrontendViewBase {
         </form>
         <?php
         // #0028 — chat-style conversation thread for the goal. Only on
-        // edit (existing goal) and only when the viewer can read the thread.
-        if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' ) ) {
+        // edit (existing goal) and only when the viewer can read the
+        // thread. On the create form there is no goal yet, and $is_edit
+        // is exactly "the row exists", so it guards the id read.
+        $thread_id = $is_edit ? (int) $goal->id : 0;
+        if ( $thread_id > 0 && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', $thread_id, $user_id )
+        ) {
             echo '<section class="tt-goal-conversation" style="margin-top:1.5rem;">';
             echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 0 0 0.5rem;">';
             echo '<h2 style="font-size:1.0625rem; margin:0;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
@@ -666,7 +677,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
             echo '<a class="tt-link" href="' . esc_url( $help_url ) . '" target="_blank" rel="noopener" style="font-size:12px; color:#5b6e75;">'
                . esc_html__( 'How does this work?', 'talenttrack' ) . '</a>';
             echo '</header>';
-            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', $thread_id, $user_id );
             echo '</section>';
         }
     }

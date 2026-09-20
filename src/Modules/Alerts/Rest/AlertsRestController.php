@@ -8,6 +8,7 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Diagnostics\AlertDiagnostics;
+use TT\Modules\Alerts\Domain\AlertAudience;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Policy\ClubAlertPolicy;
@@ -489,10 +490,20 @@ final class AlertsRestController extends BaseController {
         return RestResponse::success( [ 'read' => true ] );
     }
 
-    /** The catalogue that backs the settings matrix in #2632. */
+    /**
+     * The catalogue that backs the settings matrix in #2632.
+     *
+     * #3795 — audience-filtered, the same way `matrixFor()` is. This route
+     * is what told a parent the catalogue contained twenty conditions about
+     * other people's work, and a catalogue that disagrees with the settings
+     * screen it backs is worse than either answer on its own.
+     */
     public static function definitions(): \WP_REST_Response {
+        $user_id = get_current_user_id();
+
         $out = [];
         foreach ( AlertRegistry::all() as $key => $alert ) {
+            if ( ! AlertAudience::isEligible( $user_id, $alert ) ) continue;
             $out[] = [
                 'key'              => $key,
                 'module'           => $alert->module(),

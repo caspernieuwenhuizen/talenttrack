@@ -18,11 +18,16 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  *   - Linked parent users — resolved from the canonical tt_player_parents
  *     pivot (#1993), so thread membership and the dashboard child switcher
  *     agree on who is a parent (guardian_email is no longer a live link).
- *   - Plus admins / HoD with `tt_view_settings` for read access (not
- *     auto-pinged on new messages).
+ *   - Plus anyone the authorization matrix grants `goals` read at
+ *     global scope — admins, Head of Development (not auto-pinged on
+ *     new messages).
  *
- * canPost == canRead. private_to_coach messages are filtered at the
- * repository level for non-coach viewers.
+ * Reading and posting part ways on the academy-wide rung: a global
+ * goals reader follows the conversation, but only writes in it when
+ * they also hold `tt_edit_goals`. Participants (owning coach, goal
+ * author, the player, linked parents) read and post as before.
+ * private_to_coach messages are filtered at the repository level for
+ * non-coach viewers.
  */
 final class GoalThreadAdapter implements ThreadTypeAdapter {
 
@@ -62,13 +67,40 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         $goal = $this->findEntity( $thread_id );
         if ( ! $goal ) return false;
 
-        // Admin / HoD always reads.
-        if ( user_can( $user_id, 'tt_view_settings' ) ) return true;
+        // Academy-wide reader — admin, Head of Development, anyone the
+        // matrix grants `goals` read at global scope. #3720: this rung
+        // used to test `tt_view_settings`, a capability the
+        // head_of_development persona is granted nowhere, so the HoD
+        // was locked out of every goal conversation.
+        if ( QueryHelpers::user_has_global_entity_read( $user_id, 'goals' ) ) return true;
 
-        // Coach owning the player can read.
+        return $this->isParticipant( $user_id, $goal );
+    }
+
+    public function canPost( int $user_id, int $thread_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        $goal = $this->findEntity( $thread_id );
+        if ( ! $goal ) return false;
+
+        // Participants write in their own conversation regardless of
+        // the academy-wide grant.
+        if ( $this->isParticipant( $user_id, $goal ) ) return true;
+
+        // #3720 — an academy-wide goals *reader* follows the
+        // conversation read-only; writing in it needs the change right.
+        return QueryHelpers::user_has_global_entity_read( $user_id, 'goals' )
+            && user_can( $user_id, 'tt_edit_goals' );
+    }
+
+    /**
+     * The goal's own people: the coach owning the player, the goal's
+     * author, the player themselves and their linked parents.
+     */
+    private function isParticipant( int $user_id, object $goal ): bool {
+        // Coach owning the player.
         if ( QueryHelpers::coach_owns_player( $user_id, (int) $goal->player_id ) ) return true;
 
-        // Goal author can always read.
+        // Goal author.
         if ( $user_id === (int) ( $goal->created_by ?? 0 ) ) return true;
 
         // Player whose goal it is.
@@ -77,14 +109,7 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
 
         // #1993 — parent linked via the canonical tt_player_parents pivot.
         $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $goal->player_id );
-        if ( in_array( $user_id, $parents, true ) ) {
-            return true;
-        }
-        return false;
-    }
-
-    public function canPost( int $user_id, int $thread_id ): bool {
-        return $this->canRead( $user_id, $thread_id );
+        return in_array( $user_id, $parents, true );
     }
 
     public function entityLabel( int $thread_id ): string {
