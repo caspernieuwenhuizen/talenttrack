@@ -97,11 +97,10 @@ final class GoalFieldChangeMessageTest extends WP_UnitTestCase {
         $messages = $this->systemMessages( $goal_id );
         $this->assertCount( 1, $messages, 'a target-date move writes exactly one system entry' );
 
-        $expected = wp_date( (string) get_option( 'date_format', 'Y-m-d' ), (int) strtotime( '2026-11-19 12:00:00' ) );
         $this->assertStringContainsString(
-            (string) $expected,
+            \TT\Shared\Dates\TTDate::date( '2026-11-19' ),
             (string) $messages[0]->body,
-            'the date renders in the site format, not the raw stored value'
+            'the date renders in the academy notation, not the raw stored value'
         );
     }
 

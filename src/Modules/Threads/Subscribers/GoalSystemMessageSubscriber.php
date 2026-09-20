@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadMessagesRepository;
+use TT\Shared\Dates\TTDate;
 
 /**
  * GoalSystemMessageSubscriber (#0028) — writes is_system=1 messages
@@ -230,13 +231,14 @@ final class GoalSystemMessageSubscriber {
         return implode( '<br />', array_map( 'esc_html', $lines ) );
     }
 
-    /** Render a stored `Y-m-d` in the site's own date format. */
+    /**
+     * Render a stored `Y-m-d` in the academy's configured notation.
+     * TTDate is the one place that resolves a date format (#1481); it
+     * returns '' for input it can't parse, so the raw value stands in.
+     */
     private static function formatDate( string $date ): string {
-        $dt = \DateTimeImmutable::createFromFormat( 'Y-m-d', substr( $date, 0, 10 ), wp_timezone() );
-        if ( $dt === false ) return $date;
-        // Midday, so a timezone offset can't drag the label onto the
-        // day before.
-        return wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $dt->setTime( 12, 0 )->getTimestamp() );
+        $formatted = TTDate::date( substr( $date, 0, 10 ) );
+        return $formatted !== '' ? $formatted : $date;
     }
 
     private static function countMessages( int $goal_id ): int {
