@@ -11,8 +11,10 @@ use TT\Modules\Alerts\Cron\AlertRetentionCron;
 use TT\Modules\Alerts\Cron\AlertSweepCron;
 use TT\Modules\Alerts\Definitions\AttendanceUnrecordedAlert;
 use TT\Modules\Alerts\Definitions\EvaluationNotSharedAlert;
+use TT\Modules\Alerts\Definitions\EvaluationSharedWithFamilyAlert;
 use TT\Modules\Alerts\Definitions\EvaluationWindowClosingAlert;
 use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
+use TT\Modules\Alerts\Definitions\GoalUpdatedForMyChildAlert;
 use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
@@ -28,6 +30,7 @@ use TT\Modules\Alerts\Definitions\PlayerTurns18Alert;
 use TT\Modules\Alerts\Definitions\PlayerWithoutTeamAlert;
 use TT\Modules\Alerts\Definitions\StaffCertificateExpiringAlert;
 use TT\Modules\Alerts\Definitions\TeamWithoutHeadCoachAlert;
+use TT\Modules\Alerts\Domain\AlertAudience;
 use TT\Modules\Alerts\Frontend\AlertBanner;
 use TT\Modules\Alerts\Invalidation\AlertInvalidationBuffer;
 use TT\Modules\Alerts\Frontend\AlertBell;
@@ -79,6 +82,12 @@ final class AlertsModule implements ModuleInterface {
         // three were wired directly into the registry, the extension point
         // would be untested on the day someone first needs it.
         add_filter( 'tt_register_alerts', [ self::class, 'registerCoreAlerts' ] );
+
+        // #3795 — the audience resolution caches the guardian link for the
+        // length of a request. Linking or unlinking a parent fires this
+        // action, and a request that links a parent and then renders their
+        // settings screen must not read the answer from before the link.
+        add_action( 'tt_role_granted', [ AlertAudience::class, 'flush' ] );
     }
 
     public function boot( Container $container ): void {
@@ -162,6 +171,17 @@ final class AlertsModule implements ModuleInterface {
         // definition's docblock for why it does not introduce a subject
         // type.
         $alerts[] = new MessagingNeverConfiguredAlert();
+
+        // #3795 — the first two definitions written for a family rather than
+        // for staff. Both are parent-audience only, so they do not appear on
+        // any staff matrix; the four staff definitions a family may also
+        // switch on declare the parent audience on top of their own.
+        //
+        // `evaluations.shared_with_family` fires on the share and never on a
+        // save — see its docblock, which is the privacy argument for the
+        // whole parent set and not a note about implementation.
+        $alerts[] = new EvaluationSharedWithFamilyAlert();
+        $alerts[] = new GoalUpdatedForMyChildAlert();
 
         return $alerts;
     }

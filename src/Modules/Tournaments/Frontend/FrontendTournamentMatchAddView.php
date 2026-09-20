@@ -68,7 +68,9 @@ final class FrontendTournamentMatchAddView extends FrontendViewBase {
     }
 
     private static function renderForm( object $tournament ): void {
-        $levels     = QueryHelpers::get_lookup_names( 'tournament_opponent_level' );
+        // #3713 — pairs, not names: the stored key stays the submitted value
+        // while the option text is the translated label.
+        $levels     = QueryHelpers::get_lookup_label_pairs( 'tournament_opponent_level' );
         $formations = QueryHelpers::get_lookup_names( 'tournament_formation' );
         $default_form = (string) ( $tournament->default_formation ?? '' );
 
@@ -123,8 +125,8 @@ final class FrontendTournamentMatchAddView extends FrontendViewBase {
                             <label for="ttw-am-level"><?php esc_html_e( 'Opponent level', 'talenttrack' ); ?></label>
                             <select id="ttw-am-level" name="opponent_level">
                                 <option value=""><?php esc_html_e( '— pick one —', 'talenttrack' ); ?></option>
-                                <?php foreach ( $levels as $lv ) : ?>
-                                    <option value="<?php echo esc_attr( (string) $lv ); ?>"><?php echo esc_html( (string) $lv ); ?></option>
+                                <?php foreach ( $levels as $lv_key => $lv_label ) : ?>
+                                    <option value="<?php echo esc_attr( (string) $lv_key ); ?>"><?php echo esc_html( (string) $lv_label ); ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
