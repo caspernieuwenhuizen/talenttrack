@@ -130,6 +130,14 @@ final class EvalWindowsRepository {
         return [ sprintf( '%d-08-01', $year ), sprintf( '%d-06-30', $year + 1 ) ];
     }
 
+    /**
+     * Every configured window, earliest first. Invalid entries are dropped.
+     *
+     * The shape is spelled out rather than named: `EvalWindow` is declared
+     * in EvalCoverageService and is not visible from here.
+     *
+     * @return list<array{name:string,start:string,end:string}>
+     */
     public function all(): array {
         $raw = $this->config->getJson( self::CONFIG_KEY, [] );
         $out = [];
