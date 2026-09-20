@@ -38,6 +38,26 @@ msgstr ""
 "\n"
 "Open de agenda: {deep_link}"
 
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Passes on a time, date or location change to an activity that is nearly here."
+msgstr "Geeft een wijziging in tijd, datum of locatie door van een activiteit die er bijna is."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The staff who run that team — head coach, assistants, team manager."
+msgstr "De staf die het team draait — hoofdtrainer, assistenten, teammanager."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Straight away, when an activity starting within two days is changed."
+msgstr "Meteen, als een activiteit die binnen twee dagen begint wordt gewijzigd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "One message listing everything added, moved, re-located or cancelled in a team's calendar, instead of a message per change."
+msgstr "Eén bericht met alles wat is toegevoegd, verplaatst, verhuisd of afgelast in de agenda van een team, in plaats van een bericht per wijziging."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Once a day, for changes to activities more than two days away."
+msgstr "Eén keer per dag, voor wijzigingen aan activiteiten die verder dan twee dagen weg zijn."
+
 #: src/Modules/Comms/Send/TeamScheduleChangeSend.php
 msgid "Cancelled: %s"
 msgstr "Afgelast: %s"

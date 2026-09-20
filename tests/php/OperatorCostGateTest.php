@@ -160,7 +160,7 @@ final class OperatorCostGateTest extends WP_UnitTestCase {
         );
 
         $this->assertCount(
-            4,
+            5,
             CommsScheduledCron::TEMPLATES,
             'every schedule-driven template gets a health entry on a refused run'
         );
