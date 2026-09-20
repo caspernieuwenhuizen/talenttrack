@@ -957,6 +957,13 @@ final class ActivitiesRepository {
         if ( $uid > 0 ) {
             $data['updated_by'] = $uid;
         }
+        // #3811 — and when. The column has existed since the table did,
+        // carries no `ON UPDATE CURRENT_TIMESTAMP`, and nothing ever wrote
+        // it, so it held the creation time and the detail view's audit
+        // footer said an activity edited this morning was last changed in
+        // August. It is also the only way a nightly job can ask what moved
+        // since yesterday.
+        $data['updated_at'] = current_time( 'mysql' );
         // #3081 — the write is the only place that still knows what the
         // row said before it. Read it only when the payload could be a
         // cancellation, so the common edit keeps its single query.
@@ -2247,6 +2254,9 @@ final class ActivitiesRepository {
             [
                 'activity_status_key' => $status_key,
                 'plan_state'          => $plan_state,
+                // #3811 — the other write path stamps it too; a lifecycle
+                // change is a change.
+                'updated_at'          => current_time( 'mysql' ),
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;

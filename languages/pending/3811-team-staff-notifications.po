@@ -1,0 +1,51 @@
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Team schedule digest"
+msgstr "Agendaoverzicht team"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Calendar changes — {team_name}"
+msgstr "Agendawijzigingen — {team_name}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid ""
+"{change_count} change(s) to the {team_name} calendar:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open the calendar: {deep_link}"
+msgstr ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Agendawijzigingen — {team_name}"
+msgstr "Agendawijzigingen — {team_name}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+msgstr ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Cancelled: %s"
+msgstr "Afgelast: %s"
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Added: %s"
+msgstr "Toegevoegd: %s"
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Changed: %s"
+msgstr "Gewijzigd: %s"
