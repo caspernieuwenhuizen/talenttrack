@@ -102,8 +102,9 @@ final class PlayerNotEvaluatedAlert extends AbstractPlayerAlert implements Audie
     /** The same fact, said to the family rather than to the coach. */
     protected function familyTitleFor( object $row ): string {
         $name = $this->playerName( $row );
+        $last = (string) ( $row->last_eval_date ?? '' );
 
-        if ( (string) ( $row->last_eval_date ?? '' ) === '' ) {
+        if ( $last === '' ) {
             return sprintf(
                 /* translators: %s: player name */
                 __( 'No evaluation of %s has been recorded yet.', 'talenttrack' ),
@@ -111,7 +112,7 @@ final class PlayerNotEvaluatedAlert extends AbstractPlayerAlert implements Audie
             );
         }
 
-        $weeks = (int) floor( $this->daysSince( (string) $row->last_eval_date ) / 7 );
+        $weeks = (int) floor( $this->daysSince( $last ) / 7 );
         return sprintf(
             /* translators: 1: player name, 2: number of weeks since the last evaluation */
             _n(
