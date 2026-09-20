@@ -48,4 +48,50 @@ abstract class Migration {
         }
         return (int) $result;
     }
+
+    /**
+     * #3854 — say what a migration did, and say when it did nothing.
+     *
+     * `exec()` above covers a statement that *fails*. It does not cover the
+     * other way a migration comes to nothing: an early `return` on a guard.
+     * The authorization seed top-ups (0276, 0277, 0278) all open with three
+     * of them — the matrix table is missing, the seed file is unreadable,
+     * the seed did not parse — and each returns without writing and without
+     * saying so. The runner then records the migration as **run**.
+     *
+     * A missing table, an unreadable file and a complete success are
+     * therefore indistinguishable afterwards: no rows, no error, no trace.
+     * That is why #3706's grant was believed to be in place while a
+     * reproduction said otherwise, and why nobody could tell from the
+     * outside whether the top-up had run or had quietly done nothing.
+     *
+     * Call this on every exit path of a migration whose job is to write a
+     * known set of rows. `$written` of 0 where rows were expected is a
+     * failure to look into, not a no-op to shrug at.
+     */
+    protected function report( int $written, string $note = '' ): void {
+        $line = sprintf(
+            '[TT migration] %s: %d row(s) written%s',
+            $this->getName(),
+            $written,
+            $note !== '' ? ' — ' . $note : ''
+        );
+
+        if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+            if ( $written === 0 ) {
+                \TT\Infrastructure\Logging\Logger::warning( 'migration.wrote_nothing', [
+                    'migration' => $this->getName(),
+                    'note'      => $note,
+                ] );
+            } else {
+                \TT\Infrastructure\Logging\Logger::info( 'migration.applied', [
+                    'migration' => $this->getName(),
+                    'written'   => $written,
+                ] );
+            }
+            return;
+        }
+
+        error_log( $line );
+    }
 }
