@@ -90,7 +90,7 @@ final class TeamMonthlyReportPage {
 
         if ( (int) ( $head['activity_count'] ?? 0 ) === 0 ) {
             echo '<div class="tt-rep-section"><p class="tt-mr-empty">'
-                . esc_html__( 'This team has no completed trainings or matches in this window, so there is nothing to report yet. Pick another period above.', 'talenttrack' )
+                . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet. Pick another period above.', 'talenttrack' )
                 . '</p></div>';
             self::renderConfidential();
             return;
@@ -590,8 +590,8 @@ final class TeamMonthlyReportPage {
         /* translators: %d: players in the squad */
         $bits[] = sprintf( _n( '%d player', '%d players', $squad, 'talenttrack' ), $squad );
         $acts = (int) ( $head['activity_count'] ?? 0 );
-        /* translators: %d: completed trainings and matches */
-        $bits[] = sprintf( _n( '%d completed activity', '%d completed activities', $acts, 'talenttrack' ), $acts );
+        /* translators: %d: trainings and matches on the team's calendar for the window */
+        $bits[] = sprintf( _n( '%d activity', '%d activities', $acts, 'talenttrack' ), $acts );
 
         echo '<header class="tt-rep-page-head tt-mr-head">';
         echo '<h1>' . esc_html( sprintf(
@@ -605,45 +605,80 @@ final class TeamMonthlyReportPage {
 
     /** @param array<string,mixed> $c */
     private static function renderCoverage( array $c ): void {
-        $state     = (string) ( $c['state'] ?? 'empty' );
-        $completed = (int) ( $c['completed'] ?? 0 );
-        $with      = (int) ( $c['with_register'] ?? 0 );
-        $missing   = is_array( $c['missing'] ?? null ) ? $c['missing'] : [];
+        $state        = (string) ( $c['state'] ?? 'empty' );
+        $completed    = (int) ( $c['completed'] ?? 0 );
+        $with         = (int) ( $c['with_register'] ?? 0 );
+        $missing      = is_array( $c['missing'] ?? null ) ? $c['missing'] : [];
+        $never_closed = is_array( $c['never_closed'] ?? null ) ? $c['never_closed'] : [];
 
         // "Complete" is rendered, not left out: the absence of a warning has
         // to read as evidence, or a reader cannot tell "all recorded" from
         // "the check did not run".
         echo '<section class="tt-mr-coverage is-' . esc_attr( $state ) . '" aria-label="' . esc_attr_x( 'Data coverage', 'team monthly report section', 'talenttrack' ) . '">';
-        if ( $state === 'complete' ) {
-            echo '<p><strong>' . esc_html__( 'Complete.', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
-                /* translators: %d: completed activities */
-                _n( 'The one completed activity has an attendance register.', 'All %d completed activities have an attendance register.', $completed, 'talenttrack' ),
-                $completed
-            ) ) . '</p>';
-        } elseif ( $state === 'partial' ) {
+        if ( $state === 'empty' ) {
+            echo '<p>' . esc_html__( 'No trainings or matches in this window.', 'talenttrack' ) . '</p>';
+            echo '</section>';
+            return;
+        }
+
+        if ( $missing !== [] ) {
             echo '<p><strong>' . esc_html__( 'Read the numbers with this in mind:', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
                 /* translators: 1: activities with a register, 2: completed activities */
                 __( 'the figures below are based on %1$d of %2$d completed activities. These have no attendance register:', 'talenttrack' ),
                 $with,
                 $completed
             ) ) . '</p>';
-            echo '<ul class="tt-mr-coverage__list">';
-            foreach ( $missing as $m ) {
-                if ( ! is_array( $m ) ) continue;
-                $url   = RecordLink::detailUrlForWithBack( 'activities', (int) ( $m['activity_id'] ?? 0 ) );
-                $label = sprintf(
-                    /* translators: 1: activity title, 2: activity date */
-                    __( '%1$s, %2$s', 'talenttrack' ),
-                    (string) ( $m['title'] ?? '' ),
-                    TTDate::date( (string) ( $m['date'] ?? '' ) )
-                );
-                echo '<li>' . self::link( 'activities', $url, $label ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-            }
-            echo '</ul>';
-        } else {
-            echo '<p>' . esc_html__( 'No completed activities with a register in this window.', 'talenttrack' ) . '</p>';
+            self::renderCoverageList( $missing );
+        } elseif ( $completed > 0 ) {
+            echo '<p><strong>' . esc_html__( 'Complete.', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
+                /* translators: %d: completed activities */
+                _n( 'The one completed activity has an attendance register.', 'All %d completed activities have an attendance register.', $completed, 'talenttrack' ),
+                $completed
+            ) ) . '</p>';
+        }
+
+        // A session nobody closed is a different failure from one closed
+        // without a register, and it sends the coach to a different screen.
+        if ( $never_closed !== [] ) {
+            echo '<p><strong>' . esc_html__( 'Never closed.', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
+                /* translators: %d: activities whose date has passed and that were never marked completed */
+                _n(
+                    '%d activity in this window has passed and was never marked completed, so nothing it produced counts towards the figures below:',
+                    '%d activities in this window have passed and were never marked completed, so nothing they produced counts towards the figures below:',
+                    count( $never_closed ),
+                    'talenttrack'
+                ),
+                count( $never_closed )
+            ) ) . '</p>';
+            self::renderCoverageList( $never_closed );
+        }
+
+        if ( $completed === 0 && $never_closed === [] ) {
+            echo '<p>' . esc_html__( 'Nothing in this window has taken place yet.', 'talenttrack' ) . '</p>';
         }
         echo '</section>';
+    }
+
+    /**
+     * The named activities under a coverage sentence, each a link where the
+     * reader may open it.
+     *
+     * @param array<array-key,mixed> $rows
+     */
+    private static function renderCoverageList( array $rows ): void {
+        echo '<ul class="tt-mr-coverage__list">';
+        foreach ( $rows as $m ) {
+            if ( ! is_array( $m ) ) continue;
+            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) ( $m['activity_id'] ?? 0 ) );
+            $label = sprintf(
+                /* translators: 1: activity title, 2: activity date */
+                __( '%1$s, %2$s', 'talenttrack' ),
+                (string) ( $m['title'] ?? '' ),
+                TTDate::date( (string) ( $m['date'] ?? '' ) )
+            );
+            echo '<li>' . self::link( 'activities', $url, $label ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+        }
+        echo '</ul>';
     }
 
     /** @param array<string,mixed> $k */
@@ -1335,6 +1370,7 @@ final class TeamMonthlyReportPage {
     /** @param array<string,mixed> $q */
     private static function renderQuality( array $q ): void {
         $no_register   = is_array( $q['activities_without_register'] ?? null ) ? $q['activities_without_register'] : [];
+        $never_closed  = is_array( $q['activities_never_closed'] ?? null ) ? $q['activities_never_closed'] : [];
         $no_minutes    = (int) ( $q['matches_without_minutes'] ?? 0 );
         $not_evaluated = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
         $incomplete    = is_array( $q['players_with_incomplete_status'] ?? null ) ? $q['players_with_incomplete_status'] : [];
@@ -1347,6 +1383,10 @@ final class TeamMonthlyReportPage {
         if ( $no_register !== [] ) {
             /* translators: %d: activities without an attendance register */
             $lines[] = sprintf( _n( '%d completed activity has no attendance register.', '%d completed activities have no attendance register.', count( $no_register ), 'talenttrack' ), count( $no_register ) );
+        }
+        if ( $never_closed !== [] ) {
+            /* translators: %d: activities whose date has passed and that were never marked completed */
+            $lines[] = sprintf( _n( '%d activity has passed without being marked completed.', '%d activities have passed without being marked completed.', count( $never_closed ), 'talenttrack' ), count( $never_closed ) );
         }
         if ( $no_minutes > 0 ) {
             /* translators: %d: matches played without minutes recorded */

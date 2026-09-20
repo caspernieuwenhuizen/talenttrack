@@ -61,7 +61,7 @@ final class TeamMonthlyReportPdfDocument {
 
         $body = '';
         if ( $empty ) {
-            $body = $head . '<p class="empty">' . esc_html__( 'This team has no completed trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>';
+            $body = $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>';
         } elseif ( $layout === TeamMonthlyReportLayout::PACK ) {
             $body = self::pack( $data, $blocks, $head );
         } elseif ( $wide ) {
@@ -193,8 +193,8 @@ final class TeamMonthlyReportPdfDocument {
         /* translators: %d: players in the squad */
         $meta[] = sprintf( _n( '%d player', '%d players', $squad, 'talenttrack' ), $squad );
         $acts = (int) ( $h['activity_count'] ?? 0 );
-        /* translators: %d: completed trainings and matches */
-        $meta[] = sprintf( _n( '%d completed activity', '%d completed activities', $acts, 'talenttrack' ), $acts );
+        /* translators: %d: trainings and matches on the team's calendar for the window */
+        $meta[] = sprintf( _n( '%d activity', '%d activities', $acts, 'talenttrack' ), $acts );
 
         return '<table class="lh"><tr>'
             . '<td class="lh-title"><div class="lh-kicker">' . esc_html__( 'Monthly report', 'talenttrack' ) . '</div>'
@@ -208,33 +208,62 @@ final class TeamMonthlyReportPdfDocument {
 
     /** @param array<string,mixed> $c */
     private static function coverage( array $c ): string {
-        $state     = (string) ( $c['state'] ?? 'empty' );
-        $completed = (int) ( $c['completed'] ?? 0 );
-        $with      = (int) ( $c['with_register'] ?? 0 );
-        $missing   = is_array( $c['missing'] ?? null ) ? $c['missing'] : [];
+        $state        = (string) ( $c['state'] ?? 'empty' );
+        $completed    = (int) ( $c['completed'] ?? 0 );
+        $with         = (int) ( $c['with_register'] ?? 0 );
+        $missing      = is_array( $c['missing'] ?? null ) ? $c['missing'] : [];
+        $never_closed = is_array( $c['never_closed'] ?? null ) ? $c['never_closed'] : [];
 
-        if ( $state === 'complete' ) {
-            $text = sprintf(
-                /* translators: %d: completed activities */
-                _n( 'Complete: the one completed activity has an attendance register.', 'Complete: all %d completed activities have an attendance register.', $completed, 'talenttrack' ),
-                $completed
-            );
-        } elseif ( $state === 'partial' ) {
-            $names = [];
-            foreach ( $missing as $m ) {
-                if ( is_array( $m ) ) $names[] = (string) ( $m['title'] ?? '' ) . ' (' . self::shortDate( (string) ( $m['date'] ?? '' ) ) . ')';
-            }
-            $text = sprintf(
+        $parts = [];
+        if ( $missing !== [] ) {
+            $parts[] = sprintf(
                 /* translators: 1: activities with a register, 2: completed activities, 3: the activities without one */
                 __( 'Based on %1$d of %2$d completed activities. No register: %3$s', 'talenttrack' ),
                 $with,
                 $completed,
-                implode( ', ', $names )
+                self::coverageNames( $missing )
             );
-        } else {
-            $text = __( 'No completed activities with a register in this window.', 'talenttrack' );
+        } elseif ( $completed > 0 ) {
+            $parts[] = sprintf(
+                /* translators: %d: completed activities */
+                _n( 'Complete: the one completed activity has an attendance register.', 'Complete: all %d completed activities have an attendance register.', $completed, 'talenttrack' ),
+                $completed
+            );
         }
-        return '<table class="cov"><tr><td class="cov-' . esc_attr( $state ) . '">' . esc_html( self::cut( $text, 150 ) ) . '</td></tr></table>';
+        if ( $never_closed !== [] ) {
+            $parts[] = sprintf(
+                /* translators: 1: number of activities, 2: their titles and dates */
+                _n(
+                    'Never closed: %1$d activity has passed and was never marked completed — %2$s',
+                    'Never closed: %1$d activities have passed and were never marked completed — %2$s',
+                    count( $never_closed ),
+                    'talenttrack'
+                ),
+                count( $never_closed ),
+                self::coverageNames( $never_closed )
+            );
+        }
+        if ( $parts === [] ) {
+            $parts[] = $state === 'empty'
+                ? __( 'No trainings or matches in this window.', 'talenttrack' )
+                : __( 'Nothing in this window has taken place yet.', 'talenttrack' );
+        }
+
+        return '<table class="cov"><tr><td class="cov-' . esc_attr( $state ) . '">' . esc_html( self::cut( implode( ' ', $parts ), 150 ) ) . '</td></tr></table>';
+    }
+
+    /**
+     * "Tuesday (3 Mar), Thursday (5 Mar)" — the activities a coverage sentence
+     * names, short enough to survive the line's character budget.
+     *
+     * @param array<array-key,mixed> $rows
+     */
+    private static function coverageNames( array $rows ): string {
+        $names = [];
+        foreach ( $rows as $m ) {
+            if ( is_array( $m ) ) $names[] = (string) ( $m['title'] ?? '' ) . ' (' . self::shortDate( (string) ( $m['date'] ?? '' ) ) . ')';
+        }
+        return implode( ', ', $names );
     }
 
     /** @param array<string,mixed> $k */
@@ -696,6 +725,9 @@ final class TeamMonthlyReportPdfDocument {
         $no_register = is_array( $q['activities_without_register'] ?? null ) ? count( $q['activities_without_register'] ) : 0;
         /* translators: %d: activities without an attendance register */
         if ( $no_register > 0 ) $lines[] = sprintf( _n( '%d completed activity has no attendance register.', '%d completed activities have no attendance register.', $no_register, 'talenttrack' ), $no_register );
+        $never_closed = is_array( $q['activities_never_closed'] ?? null ) ? count( $q['activities_never_closed'] ) : 0;
+        /* translators: %d: activities whose date has passed and that were never marked completed */
+        if ( $never_closed > 0 ) $lines[] = sprintf( _n( '%d activity has passed without being marked completed.', '%d activities have passed without being marked completed.', $never_closed, 'talenttrack' ), $never_closed );
         $no_minutes = (int) ( $q['matches_without_minutes'] ?? 0 );
         /* translators: %d: matches played without minutes recorded */
         if ( $no_minutes > 0 ) $lines[] = sprintf( _n( '%d match played has no minutes recorded.', '%d matches played have no minutes recorded.', $no_minutes, 'talenttrack' ), $no_minutes );

@@ -295,6 +295,7 @@ final class TeamMonthlyReportLayout {
     public static function qualityLines( array $block_data ): int {
         $lines = 0;
         if ( self::listOf( $block_data, 'activities_without_register' ) !== [] ) $lines++;
+        if ( self::listOf( $block_data, 'activities_never_closed' ) !== [] ) $lines++;
         if ( (int) ( $block_data['matches_without_minutes'] ?? 0 ) > 0 ) $lines++;
         if ( self::listOf( $block_data, 'players_not_evaluated' ) !== [] ) $lines++;
         if ( self::listOf( $block_data, 'players_with_incomplete_status' ) !== [] ) $lines++;
