@@ -37,7 +37,12 @@ final class EvalCoverageService {
      * @return list<EvalWindow>
      */
     public function windows(): array {
-        return $this->windows->all();
+        // #3802 — seed the defaults the first time anybody asks, rather than
+        // on every boot. `seedDefaultsIfAbsent()` short-circuits on a single
+        // cached config read once the key exists, so the cost is paid once
+        // per install and never again; a boot-time seed would charge every
+        // request for a value that changes about twice a season.
+        return $this->windows->seedDefaultsIfAbsent();
     }
 
     /**
@@ -50,10 +55,10 @@ final class EvalCoverageService {
      *
      * @return CoverageData
      */
-    public function coverage( int $season_id = 0 ): array {
+    public function coverage( int $season_id = 0, int $team_id = 0 ): array {
         unset( $season_id );
         $windows = $this->windows();
-        $players = $this->fetchPlayers();
+        $players = $this->fetchPlayers( $team_id );
         $covered = $windows === [] ? [] : $this->fetchCoveredEvaluations( $windows );
 
         /** @var array<int,CoverageTeam> $teams */
@@ -123,6 +128,20 @@ final class EvalCoverageService {
             'coach_gaps'    => $coach_gap_list,
             'total_players' => count( $players ),
             'total_gaps'    => $total_gaps,
+
+            // #3802 — green must be earned.
+            //
+            // With no windows configured the loop over `$windows` above
+            // never runs, so `gap_count` and `total_gaps` are STRUCTURALLY
+            // zero — not computed-as-covered. Every player still comes back,
+            // each reporting no gaps, and `coach_gaps` is empty for every
+            // coach. The report gave a clean bill of health because it had
+            // been asked nothing, while the last evaluation anywhere was
+            // seven weeks old.
+            //
+            // A report that cannot answer the question says so. Callers read
+            // this flag before they read a zero.
+            'configured'    => $windows !== [],
         ];
     }
 
@@ -284,12 +303,20 @@ final class EvalCoverageService {
      *   coach_id:int,coach_name:string
      * }>
      */
-    private function fetchPlayers(): array {
+    private function fetchPlayers( int $team_id = 0 ): array {
         global $wpdb;
 
         $coaches = $this->fetchHeadCoaches();
 
+        // #3802 — the `team_id` filter used to be accepted by the route and
+        // then dropped on the floor: `matrix()` never read the request and
+        // this method took no argument, so a caller asking for one team
+        // always got every team and was told nothing about it.
+        $team_clause = $team_id > 0 ? 'AND p.team_id = %d' : '';
+        $args        = $team_id > 0 ? [ CurrentClub::id(), $team_id ] : [ CurrentClub::id() ];
+
         /** @var list<object> $rows */
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
                 p.id AS player_id,
@@ -305,8 +332,9 @@ final class EvalCoverageService {
              WHERE p.club_id = %d
                AND p.status = 'active'
                AND p.archived_at IS NULL
+               {$team_clause}
              ORDER BY t.name ASC, p.last_name ASC, p.first_name ASC",
-            CurrentClub::id()
+            ...$args
         ) );
 
         $out = [];
