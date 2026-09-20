@@ -43,14 +43,19 @@ Per `config/authorization_seed.php`, **alle** persona's — ook die zonder enige
 | `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
-| `team_manager` | — | — | — |
-| `staff` (incl. de functionele rol `manager`) | — | — | — |
+| `team_manager` | — | — | team (alleen lezen) |
+| `staff` met de functionele rol `manager` | — | — | team (alleen lezen) |
+| `staff` zonder die rol | — | — | — |
 | `scout` | — | — | — |
 | `player` | — | — | — |
 | `parent` | — | — | — |
 | `observer` | — | — | — |
 
 De VCT-rechten zijn **bewust matrix-only** (`RolesService::VCT_CAPS`): ze staan in geen enkele rollenlijst, dus `user_can()` antwoordt er altijd `false` op en alleen de matrix kan ze toekennen. Een persona met een streepje hierboven krijgt dus van elke VCT-route een 403 — dat is het bedoelde antwoord, geen gat.
+
+**De teammanager leest de belasting en kan die niet plannen** (#3808). Hij is degene die ouders bellen als een jongen moe is, en die bepaalt wie een keer rust krijgt, dus hij leest de geplande belasting van zijn eigen team naast de speelminuten die hij al zag — die twee helften van hetzelfde gesprek zaten eerder in verschillende kamers. `tt_vct_plan` en `tt_vct_admin_config` blijven bij de trainer en het hoofd opleiding: `vct/sessions`, `vct/team-cycles` en `vct/age-profiles` blijven een teammanager weigeren, en die weigering is bewust. Bepalen hoe zwaar kinderen belast worden is geen taak van een logistieke rol.
+
+Een teammanager kan op een installatie de persona `team_manager` zijn **of** de functionele rol `manager` boven op `staff` — dat staat ook zo in `config/functional_role_grants.php` — dus beide vormen krijgen dezelfde twee leesrechten. Het antwoord mag niet afhangen van welke vorm een club toevallig gebruikt.
 
 Beide trainerspersona's lezen de belasting alleen van hun eigen teams. De
 `vct_workload`-rij achter `tt_vct_view_load` ontbrak tot #3706 bij allebei,
