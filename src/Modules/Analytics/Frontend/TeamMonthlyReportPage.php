@@ -457,6 +457,15 @@ final class TeamMonthlyReportPage {
      */
     public static function scheduleUrl( int $team_id, string $layout, array $selected, array $options = [] ): string {
         if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
+        // #3832 — the schedules screen is academy-wide and now refuses a
+        // team-scoped analytics grant. Offering the button anyway would be
+        // a link to a door that will not open, which this file's own
+        // `link()` helper exists to avoid.
+        if ( ! current_user_can( 'tt_edit_settings' )
+            && ! \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( get_current_user_id() )
+        ) {
+            return '';
+        }
         if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) && ! \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' ) ) return '';
         if ( ! CrossViewLink::allows( 'scheduled-reports' ) ) return '';
 
