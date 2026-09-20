@@ -18,10 +18,47 @@ use TT\Modules\Reports\ScoutReportsRepository;
  *
  * The service writes a row, returns its id, and can revoke earlier
  * versions if the HoD regenerates.
+ *
+ * #3683 — it also records the delivery that follows. Sending stays a
+ * human step; what the club gets back is an answer to "does this family
+ * have the letter", which the case screen had no way to give.
  */
 final class TrialLetterService {
 
     private const RETENTION_YEARS = 2;
+
+    /**
+     * How a letter reached the family (#3683).
+     *
+     * TalentTrack sends nothing itself — generating a letter has never
+     * delivered it, and that stays true. What the club records here is
+     * the human step that followed: the letter came off the printer and
+     * went in the post, it was attached to an email, or it was put in a
+     * parent's hand after the meeting.
+     *
+     * @var list<string>
+     */
+    public const DELIVERY_METHODS = [ 'printed', 'emailed', 'handed_over' ];
+
+    public static function isDeliveryMethod( string $method ): bool {
+        return in_array( $method, self::DELIVERY_METHODS, true );
+    }
+
+    /**
+     * Reader-facing name for a delivery method; the raw key when unknown.
+     *
+     * `_x()` rather than `__()`: "Emailed" alone reads as a send status
+     * elsewhere in the product and picks up the wrong Dutch sense, so the
+     * three carry the context that says what kind of thing they name.
+     */
+    public static function methodLabel( string $method ): string {
+        switch ( $method ) {
+            case 'printed':     return _x( 'Printed and posted', 'letter delivery method', 'talenttrack' );
+            case 'emailed':     return _x( 'Emailed', 'letter delivery method', 'talenttrack' );
+            case 'handed_over': return _x( 'Handed over in person', 'letter delivery method', 'talenttrack' );
+        }
+        return $method;
+    }
 
     /**
      * @return int Inserted row id, or 0 on failure.
@@ -123,12 +160,82 @@ final class TrialLetterService {
     }
 
     /**
+     * One letter, but only if it belongs to this case and this club.
+     *
+     * The ownership test lives here rather than in the caller: a letter
+     * id is a guessable integer, and "letter 4711" says nothing about
+     * whose child it is about. Every delivery write goes through it.
+     */
+    public function findInCase( int $letter_id, int $case_id ): ?object {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_player_reports';
+        $sql = "SELECT * FROM {$table}
+                 WHERE id = %d
+                   AND JSON_EXTRACT(config_json, '$.case_id') = %d
+                   AND club_id = %d
+                 LIMIT 1";
+        $row = $wpdb->get_row( $wpdb->prepare( $sql, $letter_id, $case_id, CurrentClub::id() ) );
+        return $row ?: null;
+    }
+
+    /**
+     * Record that the family has the letter (#3683).
+     *
+     * Refuses a method outside {@see self::DELIVERY_METHODS} and a letter
+     * that is not on this case, so a caller cannot stamp a delivery onto
+     * another family's letter by id.
+     *
+     * Returns the updated row, or null when it refused — the caller wants
+     * the stored record back, and handing it over here saves a second
+     * read that would otherwise have to re-prove the same ownership.
+     */
+    public function recordDelivery( int $letter_id, int $case_id, string $method, int $user_id ): ?object {
+        if ( ! self::isDeliveryMethod( $method ) ) return null;
+        if ( ! $this->findInCase( $letter_id, $case_id ) ) return null;
+
+        return $this->writeDelivery( $letter_id, $case_id, [
+            'delivered_at'    => current_time( 'mysql', true ),
+            'delivered_by'    => $user_id,
+            'delivery_method' => $method,
+        ] );
+    }
+
+    /** Undo a delivery record — the HoD ticked the wrong letter. */
+    public function clearDelivery( int $letter_id, int $case_id ): ?object {
+        if ( ! $this->findInCase( $letter_id, $case_id ) ) return null;
+
+        return $this->writeDelivery( $letter_id, $case_id, [
+            'delivered_at'    => null,
+            'delivered_by'    => null,
+            'delivery_method' => null,
+        ] );
+    }
+
+    /**
+     * @param array<string,mixed> $data
+     */
+    private function writeDelivery( int $letter_id, int $case_id, array $data ): ?object {
+        global $wpdb;
+
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_player_reports',
+            $data,
+            [ 'id' => $letter_id, 'club_id' => CurrentClub::id() ]
+        );
+
+        if ( $ok === false ) return null;
+
+        return $this->findInCase( $letter_id, $case_id );
+    }
+
+    /**
      * @return object[]
      */
     public function listForCase( int $case_id ): array {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_reports';
-        $sql = "SELECT id, audience, created_at, revoked_at, generated_by
+        $sql = "SELECT id, audience, created_at, revoked_at, generated_by,
+                       delivered_at, delivered_by, delivery_method
                   FROM {$table}
                  WHERE JSON_EXTRACT(config_json, '$.case_id') = %d
                    AND club_id = %d

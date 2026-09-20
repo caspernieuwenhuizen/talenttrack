@@ -53633,6 +53633,7 @@ msgstr "Aftrap %s"
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1265
 msgid "Kick-off"
 msgstr "Aftrap"
@@ -61955,9 +61956,84 @@ msgstr ""
 msgid "Print view"
 msgstr "Afdrukweergave openen"
 
+#: src/Shared/Frontend/FrontendTrialCaseView.php:792
+msgid ""
+"Generating a letter does not send it. Print or email it, then record the "
+"delivery below."
+msgstr ""
+"Een brief genereren verstuurt hem niet. Print of mail hem en leg de "
+"aflevering hieronder vast."
+
 #: src/Shared/Frontend/FrontendTrialCaseView.php:802
 msgid "Letter history"
 msgstr "Briefgeschiedenis"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:810
+msgctxt "trial letter"
+msgid "Delivered"
+msgstr "Afgeleverd"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:845
+msgctxt "trial letter"
+msgid "Delivery"
+msgstr "Aflevering"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:849
+msgid "someone no longer on the staff list"
+msgstr "iemand die niet meer op de stafflijst staat"
+
+#. translators: 1: date, 2: staff member name, 3: delivery method
+#: src/Shared/Frontend/FrontendTrialCaseView.php:852
+#, php-format
+msgid "Delivered on %1$s by %2$s (%3$s)."
+msgstr "Afgeleverd op %1$s door %2$s (%3$s)."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:865
+msgid "Clear delivery record"
+msgstr "Afleverregistratie wissen"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:873
+msgid "Not recorded as delivered yet."
+msgstr "Nog niet als afgeleverd vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:879
+msgid "How did the family get it?"
+msgstr "Hoe heeft het gezin de brief gekregen?"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:886
+msgid "Record delivery"
+msgstr "Aflevering vastleggen"
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:44
+msgctxt "letter delivery method"
+msgid "Printed and posted"
+msgstr "Geprint en verstuurd"
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:45
+msgctxt "letter delivery method"
+msgid "Emailed"
+msgstr "Gemaild"
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:46
+msgctxt "letter delivery method"
+msgid "Handed over in person"
+msgstr "Persoonlijk overhandigd"
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:924
+msgid "That letter is not on this trial case."
+msgstr "Die brief hoort niet bij dit stagedossier."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:937
+msgid "A valid delivery method is required."
+msgstr "Er is een geldige manier van afleveren vereist."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:944
+msgid "The delivery could not be recorded."
+msgstr "De aflevering kon niet worden vastgelegd."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:967
+msgid "The delivery record could not be cleared."
+msgstr "De afleverregistratie kon niet worden gewist."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:819
 msgid "Parent meeting mode"

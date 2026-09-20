@@ -36,6 +36,8 @@ use TT\Modules\Trials\Services\TrialCaseOpener;
  *   POST /trial-cases/{id}/inputs/release  manager-only release
  *   GET  /trial-cases/{id}/letters    letters generated for the case
  *   POST /trial-cases/{id}/letters    generate one (supersedes the active)
+ *   PUT    /trial-cases/{id}/letters/{letter_id}/delivery  record delivery
+ *   DELETE /trial-cases/{id}/letters/{letter_id}/delivery  clear it again
  *
  *   GET  /trial-tracks                list non-archived tracks (for pickers)
  *
@@ -180,6 +182,24 @@ class TrialsRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'generate_letter' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
+
+        // #3683 — delivery is a human step, and until now nothing wrote it
+        // down: a letter read "Active" whether it had gone to the family
+        // that afternoon or was still sitting unprinted three weeks later.
+        // Same manager gate as the letter itself.
+        register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/letters/(?P<letter_id>\d+)/delivery', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'record_letter_delivery' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::deliveryArgs(),
+            ],
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'clear_letter_delivery' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
             ],
         ] );
@@ -800,17 +820,131 @@ class TrialsRestController {
 
         $out = [];
         foreach ( ( new TrialLetterService() )->listForCase( $id ) as $row ) {
-            $out[] = [
-                'id'           => (int) ( $row->id ?? 0 ),
-                'audience'     => (string) ( $row->audience ?? '' ),
-                'created_at'   => (string) ( $row->created_at ?? '' ),
-                'revoked_at'   => (string) ( $row->revoked_at ?? '' ),
-                'generated_by' => (int) ( $row->generated_by ?? 0 ),
-                'is_active'    => empty( $row->revoked_at ),
-            ];
+            $out[] = self::letterRow( $row );
         }
 
         return RestResponse::success( [ 'case_id' => $id, 'letters' => $out ] );
+    }
+
+    /**
+     * The wire shape of one letter, shared by the list and the delivery
+     * writes so the two cannot drift.
+     *
+     * `delivered` is derived rather than stored: a caller asking "does
+     * this family have the letter" should not have to know that the
+     * answer is "delivered_at is not null".
+     *
+     * @return array<string,mixed>
+     */
+    private static function letterRow( object $row ): array {
+        $delivered_at = (string) ( $row->delivered_at ?? '' );
+        $method       = (string) ( $row->delivery_method ?? '' );
+        $delivered_by = (int) ( $row->delivered_by ?? 0 );
+
+        return [
+            'id'              => (int) ( $row->id ?? 0 ),
+            'audience'        => (string) ( $row->audience ?? '' ),
+            'created_at'      => (string) ( $row->created_at ?? '' ),
+            'revoked_at'      => (string) ( $row->revoked_at ?? '' ),
+            'generated_by'    => (int) ( $row->generated_by ?? 0 ),
+            'is_active'       => empty( $row->revoked_at ),
+            'delivered'       => $delivered_at !== '',
+            'delivered_at'    => $delivered_at !== '' ? $delivered_at : null,
+            'delivered_by'    => $delivered_by > 0 ? $delivered_by : null,
+            'delivery_method' => $method !== '' ? $method : null,
+        ];
+    }
+
+    /**
+     * What the delivery route takes (#3683).
+     *
+     * The enum is declared so a caller can read the allowed methods off
+     * the route rather than guess at them — #3674's lesson. The handler
+     * re-checks it, because a bad method must be answered the same way
+     * whichever path reached it.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function deliveryArgs(): array {
+        return [
+            'method' => [
+                'type'        => 'string',
+                'required'    => true,
+                'enum'        => TrialLetterService::DELIVERY_METHODS,
+                'description' => 'How the letter reached the family: printed, emailed or handed_over.',
+            ],
+        ];
+    }
+
+    /**
+     * Record that a letter reached the family.
+     *
+     * TalentTrack sends nothing — this is the club writing down a human
+     * step, so that the next person to open the case can tell a family
+     * still waiting from one already told.
+     */
+    public static function record_letter_delivery( \WP_REST_Request $r ): \WP_REST_Response {
+        $id        = absint( $r['id'] );
+        $letter_id = absint( $r['letter_id'] );
+
+        if ( ! ( new TrialCasesRepository() )->find( $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        }
+
+        $svc = new TrialLetterService();
+        if ( ! $svc->findInCase( $letter_id, $id ) ) {
+            return RestResponse::error( 'letter_not_found', __( 'That letter is not on this trial case.', 'talenttrack' ), 404 );
+        }
+
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::deliveryArgs() );
+        if ( $refused !== null ) return $refused;
+
+        $payload = (array) $r->get_json_params();
+        $method  = sanitize_key( (string) ( $payload['method'] ?? '' ) );
+
+        if ( ! TrialLetterService::isDeliveryMethod( $method ) ) {
+            return RestResponse::error(
+                'bad_delivery_method',
+                __( 'A valid delivery method is required.', 'talenttrack' ),
+                400,
+                [ 'field' => 'method', 'allowed' => TrialLetterService::DELIVERY_METHODS ]
+            );
+        }
+
+        $row = $svc->recordDelivery( $letter_id, $id, $method, get_current_user_id() );
+        if ( $row === null ) {
+            return RestResponse::error( 'delivery_failed', __( 'The delivery could not be recorded.', 'talenttrack' ), 500 );
+        }
+
+        return RestResponse::success( [
+            'case_id' => $id,
+            'letter'  => self::letterRow( $row ),
+        ] );
+    }
+
+    /** Undo a delivery record — the wrong letter was ticked. */
+    public static function clear_letter_delivery( \WP_REST_Request $r ): \WP_REST_Response {
+        $id        = absint( $r['id'] );
+        $letter_id = absint( $r['letter_id'] );
+
+        if ( ! ( new TrialCasesRepository() )->find( $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        }
+
+        $svc = new TrialLetterService();
+        if ( ! $svc->findInCase( $letter_id, $id ) ) {
+            return RestResponse::error( 'letter_not_found', __( 'That letter is not on this trial case.', 'talenttrack' ), 404 );
+        }
+
+        $row = $svc->clearDelivery( $letter_id, $id );
+        if ( $row === null ) {
+            return RestResponse::error( 'delivery_failed', __( 'The delivery record could not be cleared.', 'talenttrack' ), 500 );
+        }
+
+        return RestResponse::success( [
+            'case_id' => $id,
+            'letter'  => self::letterRow( $row ),
+        ] );
     }
 
     /**

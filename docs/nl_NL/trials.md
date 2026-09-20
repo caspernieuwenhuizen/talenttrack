@@ -93,6 +93,16 @@ Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het t
 
 Boven elke brief staat de naam van de academie, en `{club_name}` levert diezelfde naam op waar je hem ook in een sjabloon gebruikt. Die naam komt uit **Configuratie → Naam academie**; vul hem in vóór de eerste brief de deur uit gaat, want laat je het veld leeg, dan komt de sitetitel van WordPress op het briefhoofd te staan. Een naamswijziging verandert niets aan al gegenereerde brieven — genereer een brief opnieuw als de nieuwe naam erop moet staan.
 
+### Vastleggen dat het gezin de brief heeft
+
+Een brief genereren is **niet** hetzelfde als hem versturen. TalentTrack maakt de brief en bewaart hem; hem bij het gezin krijgen blijft mensenwerk — je print en post hem, hangt hem aan een mail, of geeft hem na het gesprek mee.
+
+Zodat de volgende die het dossier opent ziet of een gezin nog wacht of al bericht heeft, staat onder de brief op het tabblad **Brief** een kaart **Aflevering**. Daar staat *Nog niet als afgeleverd vastgelegd* totdat iemand aangeeft hoe het gezin de brief kreeg — **Geprint en verstuurd**, **Gemaild** of **Persoonlijk overhandigd** — en op **Aflevering vastleggen** drukt. Daarna staat er *Afgeleverd op 3 oktober 2026 door Anne de Vries (Gemaild)*, met **Afleverregistratie wissen** voor als de verkeerde brief is aangevinkt.
+
+In de briefgeschiedenis staat een kolom **Afgeleverd**, zodat je bij een dossier met meerdere brieven in één oogopslag ziet welke het gezin daadwerkelijk bereikt heeft. Brieven van vóór deze functie staan op *Niet vastgelegd* — er viel niets met terugwerkende kracht in te vullen, en een gok is slechter dan een leeg veld.
+
+Er gaat hiermee geen mail de deur uit, er wordt geen herinnering gezet en niemand wordt aangespoord. Het is een registratie.
+
 De meegeleverde Nederlandse brieven gebruiken een warme, informele clubtoon ("je/jullie"). Past de tekst niet helemaal bij jullie club? Met **Briefsjablonen** (onder de groep Stagedossiers) pas je elke brief per taal aan. De editor opent met een korte uitleg, toont elke brief onder een begrijpelijke naam ("Aanbod van een plek", "Geen plek — met aanmoediging", …) en biedt een zijpaneel met alle beschikbare variabelen (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus een live voorbeeld met voorbeeldgegevens. Onbekende variabelen blijven letterlijk `{foo}` staan zodat ontbrekende stukken zichtbaar zijn in de voorbeeldweergave.
 
 ### 6. Het gesprek met de ouders

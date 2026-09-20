@@ -96,6 +96,8 @@ first in tab order and Save on the right where the thumb finds it.
 - Short record forms: player, team, person, activity, and the rest.
 - The **Result** card on a match — see [Activities](activities.md#recording-the-result).
 - Creating an evaluation or a goal — as opposed to editing one.
+- The **Delivery** card on a trial case's [Letter tab](trials.md), where the
+  head of development records that the family has the letter.
 - Configuration screens and lookup lists.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.
@@ -112,6 +114,11 @@ get **one commit point**, so the record is either the session they entered or
 the session before it, never a half-finished mixture of the two. And Cancel
 means cancel. A half-finished commit is worse than a lost one when the thing
 being committed is a set of judgements that only make sense together.
+
+**Why the delivery card.** One radio and a commit — nothing is being composed.
+What a debounce would do here is record the method the cursor happened to
+land on rather than the one the head of development meant, on a statement
+about a family that a colleague will act on.
 
 **Why the short record forms.** The fields are a small known set, and Save is
 a useful pause — the beat where you check the date is right before you commit
