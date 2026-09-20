@@ -682,6 +682,18 @@ release-plumbing files:
   `.claude/settings.json` (the auto-mode classifier blocks it otherwise);
   if that rule is absent, stop after listing the ready PRs and ask the user
   to merge them or add the rule.
+- **`drain tthq`** → the sequential drain from *"drain the queue"*, scoped to
+  the issues the Academy HQ filed:
+  `gh issue list --repo caspernieuwenhuizen/talenttrack --label ready-for-dev --label from-hq --state open --sort created`.
+  Everything else in §7 applies unchanged: the `in-progress` / open-PR claim
+  check, one worktree per issue, skip-and-flag, merge to `main`, and
+  `git pull --ff-only` at the end. After the last merge, make the build live
+  on the local install, so the HQ can re-check the original findings against
+  it.
+
+  Not to be confused with **`drain hq`**, which is not a TalentTrack trigger.
+  That means draining the Academy HQ app's own backlog
+  (`talenttrack-hq/BACKLOG.md`), which happens in that project, not here.
 
 ### Never stage text with a shell heredoc — it stalls an unattended agent
 
@@ -743,6 +755,7 @@ audit history.
 | Action | Command |
 | --- | --- |
 | List the queue (oldest first) | `gh issue list --repo caspernieuwenhuizen/talenttrack --label ready-for-dev --state open --sort created --json number,title,body` |
+| List the HQ's queue (oldest first) | `gh issue list --repo caspernieuwenhuizen/talenttrack --label ready-for-dev --label from-hq --state open --sort created` |
 | Add an issue to the queue | `gh issue edit <num> --add-label ready-for-dev` |
 | Pause an issue (remove from queue) | `gh issue edit <num> --remove-label ready-for-dev` |
 | Board view | https://github.com/users/caspernieuwenhuizen/projects/2 with the `ready-for-dev` label filter |
