@@ -313,6 +313,27 @@ geregistreerd*, *Onvolledig*, *Niet geregistreerd* — de periode samen. Elke KP
 klikbaar en filtert de matrix op die volledigheidscategorie, zodat *Niet
 geregistreerd* meteen naar de wedstrijden springt die nog minuten missen.
 
+### Toernooidagen zijn samenvattingen
+
+Een toernooidag is geen wedstrijd. Het spelen gebeurt in de **wedstrijden van dat
+toernooi**, en elke wedstrijd wordt een eigen wedstrijdactiviteit zodra een coach
+hem aftrapt — daar worden de selectie, de aanwezigheid en de minuten vastgelegd,
+in de toernooiplanner.
+
+De dag verschijnt daarom als **samenvattingsrij** in de matrix: de minuten worden
+opgeteld uit de wedstrijden van het toernooi, naast de titel staat *Toernooidag —
+minuten per wedstrijd geregistreerd*, de rij draagt een *Samenvatting*-chip in
+plaats van een volledigheidschip, en de actie opent de **toernooiplanner** in
+plaats van een minuten-editor. De editor rechtstreeks openen wordt geweigerd, met
+dezelfde verwijzing naar de planner.
+
+Omdat de wedstrijden zelf ook rijen in deze matrix zijn, zijn de minuten van de
+samenvatting daar al geteld. De rij blijft daarom buiten de kolomtotalen, het
+eindtotaal en de vier gat-KPI's — anders zou dezelfde middag dubbel worden geteld
+en zou het totaal van elke speler verdubbelen. Een samenvatting toont alleen
+*Niet geregistreerd* als de wedstrijden van het toernooi echt geen minuten
+bevatten.
+
 Omdat de audit **dezelfde** geregistreerde, werkelijke, niet-gast-minuten leest
 als het minutenrapport, sluiten de cijfers exact aan op dat rapport. De
 eerlijke-nul-regels gelden hier ook: een team met wedstrijden maar zonder

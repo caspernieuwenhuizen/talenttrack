@@ -103,11 +103,28 @@ final class FrontendMinutesAuditEditView extends FrontendViewBase {
             return;
         }
 
-        $activity_id = isset( $_GET['match_id'] ) ? absint( $_GET['match_id'] ) : 0;
-        $data = $activity_id > 0 ? ( new MinutesAuditQuery() )->editorRows( $activity_id ) : null;
+        $activity_id = isset( $_GET['match_id'] ) ? absint( $_GET['match_id'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $query = new MinutesAuditQuery();
+        $data  = $activity_id > 0 ? $query->editorRows( $activity_id ) : null;
 
         if ( $data === null ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Record minutes', 'talenttrack' ), [ $reports_crumb, $audit_crumb ] );
+            // #3857 — a tournament day used to open here with an empty squad
+            // and no way to add anybody, so the audit row could never leave
+            // "not recorded". Its minutes live per fixture; say so, and link
+            // to where they are kept.
+            $day = $activity_id > 0 ? $query->tournamentDay( $activity_id ) : null;
+            if ( $day !== null ) {
+                echo '<p class="tt-notice">' . esc_html__( 'Tournament minutes are recorded per fixture, in the tournament planner. This day is a roll-up of those fixtures, so there is nothing to record here.', 'talenttrack' ) . '</p>';
+                if ( $day['tournament_id'] > 0 && current_user_can( 'tt_view_tournaments' ) ) {
+                    $planner = add_query_arg(
+                        [ 'tt_view' => 'tournaments', 'id' => $day['tournament_id'] ],
+                        RecordLink::dashboardUrl()
+                    );
+                    echo '<p><a class="tt-record-link" href="' . esc_url( $planner ) . '">' . esc_html__( 'Open tournament planner', 'talenttrack' ) . '</a></p>';
+                }
+                return;
+            }
             echo '<p class="tt-notice">' . esc_html__( 'That match was not found, or it is not a game activity.', 'talenttrack' ) . '</p>';
             return;
         }

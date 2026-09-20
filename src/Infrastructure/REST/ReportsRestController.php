@@ -269,8 +269,33 @@ final class ReportsRestController extends BaseController {
 
     public static function minutesAuditEditor( WP_REST_Request $req ): \WP_REST_Response {
         $activity_id = (int) $req->get_param( 'activity_id' );
-        $data = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->editorRows( $activity_id );
+        $query = new \TT\Modules\Analytics\Reports\MinutesAuditQuery();
+        $data  = $query->editorRows( $activity_id );
         if ( $data === null ) {
+            // #3857 — a tournament day is not a match with a missing squad;
+            // it is a day whose minutes are recorded per fixture. It used to
+            // answer 200 with `players: []`, an editor with nothing in it and
+            // no way to add anybody. The refusal names where the minutes live.
+            $day = $query->tournamentDay( $activity_id );
+            if ( $day !== null ) {
+                $scope = self::attendanceScope( $day['team_id'] );
+                if ( $scope['blocked'] ) {
+                    return RestResponse::error(
+                        'forbidden_team',
+                        __( 'You do not coach this match’s team.', 'talenttrack' ),
+                        403
+                    );
+                }
+                return RestResponse::error(
+                    'minutes_recorded_per_fixture',
+                    __( 'Tournament minutes are recorded per fixture. Open the tournament planner to edit them.', 'talenttrack' ),
+                    409,
+                    [
+                        'tournament_id' => $day['tournament_id'],
+                        'type_key'      => 'tournament',
+                    ]
+                );
+            }
             return RestResponse::error( 'not_found', __( 'Match not found.', 'talenttrack' ), 404 );
         }
 
