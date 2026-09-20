@@ -65725,9 +65725,84 @@ msgstr ""
 "latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
 
 
-#: src/Infrastructure/REST/TournamentsRestController.php
-msgid "You do not have permission to delete this tournament."
-msgstr "Je hebt geen toestemming om dit toernooi te verwijderen."
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid ""
+"Saw somebody you have already logged? Find them here instead of logging them "
+"twice."
+msgstr ""
+"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
+"twee keer vast te leggen."
+
+#. translators: %s: number of scouting visits after the one the prospect was discovered at.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Seen at %s later visit"
+msgid_plural "Seen at %s later visits"
+msgstr[0] "Gezien bij %s later bezoek"
+msgstr[1] "Gezien bij %s latere bezoeken"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Prospects watched at this visit"
+msgstr "Prospects die bij dit bezoek zijn bekeken"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgctxt "date a prospect was watched at this scouting visit"
+msgid "Seen"
+msgstr "Gezien op"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgctxt "scouting visit"
+msgid "Discovered here"
+msgstr "Hier ontdekt"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Remove from visit"
+msgstr "Verwijder van bezoek"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Link an existing prospect"
+msgstr "Koppel een bestaande prospect"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Search prospects by name"
+msgstr "Zoek prospects op naam"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Start typing a name…"
+msgstr "Begin een naam te typen…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Searching…"
+msgstr "Bezig met zoeken…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "No prospects match that name."
+msgstr "Geen prospects gevonden met die naam."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Could not link that prospect. Please try again."
+msgstr "Kon die prospect niet koppelen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Could not remove that link. Please try again."
+msgstr "Kon die koppeling niet verwijderen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Remove this prospect from the visit?"
+msgstr "Deze prospect van het bezoek verwijderen?"
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "This scouting visit is archived, so prospects cannot be linked to it."
+msgstr ""
+"Dit scoutingbezoek is gearchiveerd, dus er kunnen geen prospects aan worden "
+"gekoppeld."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "Could not link the prospect to this visit."
+msgstr "Kon de prospect niet aan dit bezoek koppelen."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
+msgid "Observation not found."
+msgstr "Waarneming niet gevonden."
 
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
 msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
@@ -65866,85 +65941,3 @@ msgstr "Contactverzoek aan gezin"
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
 msgid "Please confirm your contact details for {player_name}"
 msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
-msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
-msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid ""
-"Saw somebody you have already logged? Find them here instead of logging them "
-"twice."
-msgstr ""
-"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
-"twee keer vast te leggen."
-
-#. translators: %s: number of scouting visits after the one the prospect was discovered at.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "Seen at %s later visit"
-msgid_plural "Seen at %s later visits"
-msgstr[0] "Gezien bij %s later bezoek"
-msgstr[1] "Gezien bij %s latere bezoeken"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Prospects watched at this visit"
-msgstr "Prospects die bij dit bezoek zijn bekeken"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgctxt "date a prospect was watched at this scouting visit"
-msgid "Seen"
-msgstr "Gezien op"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgctxt "scouting visit"
-msgid "Discovered here"
-msgstr "Hier ontdekt"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Remove from visit"
-msgstr "Verwijder van bezoek"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Link an existing prospect"
-msgstr "Koppel een bestaande prospect"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Search prospects by name"
-msgstr "Zoek prospects op naam"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Start typing a name…"
-msgstr "Begin een naam te typen…"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Searching…"
-msgstr "Bezig met zoeken…"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "No prospects match that name."
-msgstr "Geen prospects gevonden met die naam."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Could not link that prospect. Please try again."
-msgstr "Kon die prospect niet koppelen. Probeer het opnieuw."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Could not remove that link. Please try again."
-msgstr "Kon die koppeling niet verwijderen. Probeer het opnieuw."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Remove this prospect from the visit?"
-msgstr "Deze prospect van het bezoek verwijderen?"
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "This scouting visit is archived, so prospects cannot be linked to it."
-msgstr ""
-"Dit scoutingbezoek is gearchiveerd, dus er kunnen geen prospects aan worden "
-"gekoppeld."
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "Could not link the prospect to this visit."
-msgstr "Kon de prospect niet aan dit bezoek koppelen."
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "Observation not found."
-msgstr "Waarneming niet gevonden."
