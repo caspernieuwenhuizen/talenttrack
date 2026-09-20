@@ -43,8 +43,18 @@ use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
  * `from` / `to` are the contract; period keys resolve to them before a report
  * is composed. Every KPI carries a delta against the preceding window of equal
  * length — the previous calendar month when the window is a calendar month, the
- * immediately preceding N days otherwise. A predecessor with no completed
- * activities yields a `null` delta, which surfaces render as "—" and never as 0%.
+ * immediately preceding N days otherwise. A predecessor with nothing scheduled
+ * yields a `null` delta, which surfaces render as "—" and never as 0%.
+ *
+ * ## Scheduled versus completed
+ *
+ * Two activity sets, deliberately. "Scheduled" is every live, uncancelled
+ * activity dated in the window — what a coach sees on the activities list, and
+ * what `letterhead.activity_count` reports. "Completed" is the subset somebody
+ * closed. The gap between them is the report's most important finding: a
+ * session that came and went and was never marked completed is a coach failure
+ * of its own kind, distinct from one that was closed with nobody on the
+ * register, and the coverage block names the two separately.
  *
  * ## Denominators
  *
@@ -84,6 +94,9 @@ final class TeamMonthlyReport {
 
     /** @var array<string,list<object>> window key => completed activities */
     private array $activities = [];
+
+    /** @var array<string,list<object>> window key => scheduled (uncancelled) activities */
+    private array $scheduled = [];
 
     /** @var list<AttendanceRow>|null */
     private ?array $attendance = null;
@@ -296,46 +309,85 @@ final class TeamMonthlyReport {
             'from'           => $this->from,
             'to'             => $this->to,
             'squad_size'     => count( $this->players() ),
-            'activity_count' => count( $this->activitiesIn( $this->from, $this->to ) ),
+            // Everything on the coach's activities list for the window, not
+            // only what was closed (#3746). A month with eight sessions and
+            // one closed one used to print "1 activity".
+            'activity_count' => count( $this->scheduledIn( $this->from, $this->to ) ),
             'generated_at'   => gmdate( 'Y-m-d H:i:s' ),
         ];
     }
 
     /**
-     * The confidence statement: how many of the window's completed activities
-     * have a register, and which do not. An activity completed without one does
-     * not show up as a gap anywhere else — it silently shrinks every
-     * denominator — which is why this block exists at all.
+     * The confidence statement, over the window's scheduled activities.
      *
-     * @return array{completed:int, with_register:int, missing:list<array{activity_id:int,title:string,date:string}>, state:string}
+     * Three outcomes, counted separately because they are three different
+     * things to fix (#3746):
+     *
+     *   - completed with a register — the evidence every other block divides by;
+     *   - completed without one — it silently shrinks every denominator, which
+     *     is why this block exists at all;
+     *   - past its date and never marked completed — nobody closed the session,
+     *     so there is no register to be missing yet. Reporting that as "no
+     *     register" would send a coach to the wrong screen.
+     *
+     * A future-dated activity in the window is not yet due and counts as
+     * neither gap.
+     *
+     * @return array{scheduled:int, completed:int, with_register:int, missing:list<array{activity_id:int,title:string,date:string}>, never_closed:list<array{activity_id:int,title:string,date:string}>, state:string}
      */
     private function coverage(): array {
-        $activities = $this->activitiesIn( $this->from, $this->to );
-        ActivityRegisterProgress::prime( $activities );
+        $scheduled = $this->scheduledIn( $this->from, $this->to );
+        $today     = (string) current_time( 'Y-m-d' );
+
+        $closed       = [];
+        $never_closed = [];
+        foreach ( $scheduled as $a ) {
+            if ( strtolower( trim( (string) ( $a->activity_status_key ?? '' ) ) ) === 'completed' ) {
+                $closed[] = $a;
+                continue;
+            }
+            $date = substr( (string) ( $a->session_date ?? '' ), 0, 10 );
+            if ( $date !== '' && $date <= $today ) $never_closed[] = self::activityRef( $a );
+        }
+
+        ActivityRegisterProgress::prime( $closed );
 
         $with    = 0;
         $missing = [];
-        foreach ( $activities as $a ) {
+        foreach ( $closed as $a ) {
             $progress = ActivityRegisterProgress::forRow( $a );
             if ( $progress === null ) continue;
             if ( $progress['attendance']['recorded'] > 0 ) {
                 $with++;
                 continue;
             }
-            $missing[] = [
-                'activity_id' => (int) ( $a->id ?? 0 ),
-                'title'       => (string) ( $a->title ?? '' ),
-                'date'        => (string) ( $a->session_date ?? '' ),
-            ];
+            $missing[] = self::activityRef( $a );
         }
         $counted = $with + count( $missing );
 
         return [
+            'scheduled'     => count( $scheduled ),
             'completed'     => $counted,
             'with_register' => $with,
             'missing'       => $missing,
+            'never_closed'  => $never_closed,
+            // "empty" means nothing was scheduled at all. A window full of
+            // sessions nobody closed is the opposite of nothing to report.
             // "complete" is positive evidence, not merely the absence of a warning.
-            'state'         => $counted === 0 ? 'empty' : ( $missing === [] ? 'complete' : 'partial' ),
+            'state'         => $scheduled === [] ? 'empty' : ( $missing === [] && $never_closed === [] ? 'complete' : 'partial' ),
+        ];
+    }
+
+    /**
+     * One activity as the coverage and quality blocks name it.
+     *
+     * @return array{activity_id:int,title:string,date:string}
+     */
+    private static function activityRef( object $a ): array {
+        return [
+            'activity_id' => (int) ( $a->id ?? 0 ),
+            'title'       => (string) ( $a->title ?? '' ),
+            'date'        => (string) ( $a->session_date ?? '' ),
         ];
     }
 
@@ -346,7 +398,9 @@ final class TeamMonthlyReport {
     private function kpi( array $previous ): array {
         $kpis     = new TeamKpisRepository();
         $cover    = new EvalCoverageService();
-        $prev_n   = count( $this->activitiesIn( $previous['from'], $previous['to'] ) );
+        // Both windows counted the same way, or the delta compares a scheduled
+        // count against a completed one (#3746).
+        $prev_n   = count( $this->scheduledIn( $previous['from'], $previous['to'] ) );
         $has_prev = $prev_n > 0;
 
         $att_now  = $kpis->avgAttendanceBetween( $this->team_id, $this->from, $this->to );
@@ -370,7 +424,7 @@ final class TeamMonthlyReport {
         $attention_prev = $has_prev ? self::attentionCount( $this->verdictsAt( $previous['to'] ) ) : null;
 
         return [
-            'activities'               => self::measure( count( $this->activitiesIn( $this->from, $this->to ) ), $has_prev ? $prev_n : null ),
+            'activities'               => self::measure( count( $this->scheduledIn( $this->from, $this->to ) ), $has_prev ? $prev_n : null ),
             'attendance_pct'           => self::measure( $att_now, $att_prev ),
             'minutes_share_median_pct' => self::measure( $min_now, $min_prev ),
             'evaluated'                => [
@@ -873,6 +927,7 @@ final class TeamMonthlyReport {
 
         return [
             'activities_without_register'    => $coverage['missing'],
+            'activities_never_closed'        => $coverage['never_closed'],
             'matches_without_minutes'        => max( 0, $counts['played'] - $counts['recorded'] ),
             'players_not_evaluated'          => $not_evaluated,
             'players_with_incomplete_status' => $incomplete,
@@ -948,6 +1003,35 @@ final class TeamMonthlyReport {
             $this->activities[ $key ] = $rows ?? [];
         }
         return $this->activities[ $key ];
+    }
+
+    /**
+     * Every live activity of the team in a window that was not cancelled,
+     * whatever its status — what the coach sees on the activities list for
+     * that month. A cancelled session never happened and never will, so it is
+     * not a gap and does not belong in a count of what the month held.
+     *
+     * @return list<object>
+     */
+    private function scheduledIn( string $from, string $to ): array {
+        $key = $from . '|' . $to;
+        if ( ! isset( $this->scheduled[ $key ] ) ) {
+            global $wpdb;
+            /** @var list<object>|null $rows */
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT a.id, a.team_id, a.title, a.session_date, a.activity_type_key, a.activity_status_key
+                   FROM {$wpdb->prefix}tt_activities a
+                  WHERE a.team_id = %d
+                    AND a.club_id = %d
+                    AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
+                    AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
+                    AND a.session_date BETWEEN %s AND %s
+                  ORDER BY a.session_date ASC, a.id ASC",
+                $this->team_id, CurrentClub::id(), $from, $to
+            ) );
+            $this->scheduled[ $key ] = $rows ?? [];
+        }
+        return $this->scheduled[ $key ];
     }
 
     /** @return list<AttendanceRow> */
