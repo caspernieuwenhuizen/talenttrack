@@ -476,7 +476,9 @@ Migration `0249_authorization_seed_topup_observer_and_staff` backfills both pers
 
 By default **Head of development** and **Academy admin** hold read and change, globally. A persona you give read only, for example an observer who should see coverage, sees the windows listed but has no form to change them, and the API refuses the write.
 
-Existing installs get the change right for those two personas with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`). It adds that one tuple with `INSERT IGNORE` and leaves every row an admin has edited alone.
+**Team manager** holds read at **team** scope. The attendance reports — the at-risk list, the leaderboard and the per-player rows — all gate on this entity, and chasing the players who keep missing training is the job the seat exists for. The rows those reports return are narrowed separately, by the teams the reader is assigned to, so the grant reaches the manager's own squads and no others. The same grant sits on the **Manager functional role** (see the axis below), because a team manager on a given install is as likely to be a Staff account holding that role as to hold the persona.
+
+Existing installs get the change right for head of development and academy admin with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`), and the team manager's read with `0277_authorization_seed_topup_manager_analytics`. Both add their tuples with `INSERT IGNORE` and leave every row an admin has edited alone.
 
 ## The functional-role axis (#3257, #3433)
 
@@ -493,7 +495,9 @@ What separates those two people is the job they do on a squad, which the product
 | `grants` | functional role key → entity → activities. Always **team**-scoped, because a functional role is held on a team; there is no other scope to pick. Unioned with whatever the user's personas grant. |
 | `supersedes` | persona → the entities whose answer the functional-role layer owns. For a user holding at least one functional role, that persona's own matrix row on those entities is **skipped**. |
 
-Shipped contents: `physio` grants `player_injuries [rc]` and `measurements [r]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+Shipped contents: `physio` grants `player_injuries [rc]` and `measurements [r]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` and `analytics [r]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+
+`analytics [r]` on `manager` is the grant behind the attendance reports. A Staff account holding the Manager role is the shape a team manager most often takes on an install, and the at-risk list is the only surface that names the players who keep missing training — the job the seat exists for. It reads the reports for the squads the role is held on: the report rows are narrowed by `get_teams_for_coach()` regardless of how the grant arrived.
 
 ### Why `measurements` followed, one release later (#3433)
 

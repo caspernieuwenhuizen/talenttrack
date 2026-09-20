@@ -505,6 +505,13 @@ return array_merge(
         'attendance'                 => [ 'rc',  'team',   $mod_activities ],
         'goals'                      => [ 'r',   'team',   $mod_goals ],
         'evaluations'                => [ 'r',   'team',   $mod_evals ],
+        // #3770 — the attendance reports. Chasing the players who keep
+        // missing training is the job, and the three attendance report
+        // routes all hang off `tt_view_analytics`, which bridges here.
+        // `team` scope: the reports narrow their own rows through
+        // `AllTeamsScope` / `get_teams_for_coach()`, so a manager reads
+        // their own squads and no others.
+        'analytics'                  => [ 'r',   'team',   $mod_analytics ],
         // #1856 — team manager views the team's measurements + sessions.
         'measurements'               => [ 'r',   'team',   $mod_measurements ],
         // #2591 — read-only: a team manager administers a squad, they do
