@@ -1,6 +1,6 @@
 # Training module — mockup notes (#0096)
 
-Spec: [`specs/0096-epic-training-module.md`](../../specs/0096-epic-training-module.md).
+Spec: [`specs/shipped/0096-epic-training-module.md`](../../specs/shipped/0096-epic-training-module.md).
 Open [`index.html`](index.html) for the hub linking every surface.
 
 These mockups are the design-of-record for the epic's nine waves. The
