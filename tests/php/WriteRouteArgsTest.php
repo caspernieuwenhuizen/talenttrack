@@ -301,6 +301,43 @@ final class WriteRouteArgsTest extends WP_UnitTestCase {
         $this->assertSame( 'de Vries',        (string) ( $row['last_name'] ?? '' ) );
     }
 
+    // ---- the trap this slice nearly walked into ----------------------------
+
+    /**
+     * Declaring a field `required` in a route's `args` moves the refusal
+     * **ahead of the permission callback**: core checks required params in
+     * `WP_REST_Request::has_valid_params()`, which `dispatch()` runs before
+     * `respond_to_request()` gets to the capability gate. An anonymous
+     * `POST /activities` then answers `400` naming the body's fields
+     * instead of the `401` it owes — an authorization answer decided by
+     * the shape of the body.
+     *
+     * So none of these routes declares `required`; their handlers name the
+     * missing fields behind the gate. `RestSmokeTest` covers the same
+     * ground across every route, and caught this; this test says why the
+     * declarations look the way they do.
+     *
+     * @dataProvider provideWriteRoutes
+     */
+    public function test_an_anonymous_write_is_denied_before_the_body_is_read( string $method, string $path ): void {
+        wp_set_current_user( 0 );
+
+        [ , $status ] = $this->send( $method, $path, [] );
+
+        $this->assertContains( $status, [ 401, 403 ], "$method $path must answer the auth question first" );
+    }
+
+    /** @return array<string, array{0:string,1:string}> */
+    public static function provideWriteRoutes(): array {
+        return [
+            'POST /activities'                     => [ 'POST', 'activities' ],
+            'PUT /activities/{id}'                 => [ 'PUT',  'activities/1' ],
+            'POST /people'                         => [ 'POST', 'people' ],
+            'PUT /people/{id}'                     => [ 'PUT',  'people/1' ],
+            'POST /functional-roles/assignments'   => [ 'POST', 'functional-roles/assignments' ],
+        ];
+    }
+
     // ---- POST /functional-roles/assignments --------------------------------
 
     public function test_creating_an_assignment_with_an_empty_body_names_all_three_ids(): void {

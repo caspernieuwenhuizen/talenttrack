@@ -388,18 +388,23 @@ class FunctionalRolesRestController {
     /**
      * #3816 — the body `POST /functional-roles/assignments` accepts.
      *
-     * The three ids are required, so core names every one that is missing
-     * in a single answer instead of the hand-written message that named
-     * none of them. Dates are optional: an assignment with no start is
+     * The three ids are all needed, and `create_assignment()` names every
+     * one that is missing in a single answer instead of the hand-written
+     * message that named none of them. They are deliberately **not**
+     * declared `required`: core checks required params before the
+     * permission callback runs, so that would answer an unauthenticated
+     * caller with a 400 naming the fields instead of the 401 it owes.
+     *
+     * Dates are optional either way: an assignment with no start is
      * current, and one with no end is still running.
      *
      * @return array<string, array<string, mixed>>
      */
     private static function assignmentArgs(): array {
         return [
-            'team_id'            => [ 'type' => [ 'integer', 'string' ], 'required' => true, 'description' => 'The team the person takes the role on.' ],
-            'person_id'          => [ 'type' => [ 'integer', 'string' ], 'required' => true, 'description' => 'The person taking it.' ],
-            'functional_role_id' => [ 'type' => [ 'integer', 'string' ], 'required' => true, 'description' => 'Which role type, from tt_functional_role_types.' ],
+            'team_id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the person takes the role on. Required.' ],
+            'person_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The person taking it. Required.' ],
+            'functional_role_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which role type, from tt_functional_role_types. Required.' ],
             'start_date'         => [ 'type' => 'string', 'description' => 'When the assignment starts, as YYYY-MM-DD. Empty means it is already current.' ],
             'end_date'           => [ 'type' => 'string', 'description' => 'When it ends, as YYYY-MM-DD. Empty while the assignment is running.' ],
         ];

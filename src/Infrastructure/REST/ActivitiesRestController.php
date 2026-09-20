@@ -85,7 +85,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => self::createArgs(),
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)', [
@@ -93,7 +93,7 @@ class ActivitiesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => self::writeArgs(),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -1362,7 +1362,7 @@ class ActivitiesRestController {
         // #3816 — the body's shape before its values. A key this route does
         // not take used to be read by nothing and answered 200, so a typo
         // in a field name looked exactly like a save.
-        $refused = BaseController::checkBody( $r, self::createArgs() );
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
         if ( $refused !== null ) return $refused;
 
         $type_error = self::validateActivityType( $r );
@@ -1388,7 +1388,17 @@ class ActivitiesRestController {
         $data['activity_source_key'] = 'manual';
 
         if ( $data['title'] === '' || $data['session_date'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
+            // #3816 — name them. The message said "Title and date are
+            // required" and left a caller to guess the field spellings.
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Title and date are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $data['title']        === '' ? 'title'        : null,
+                    $data['session_date'] === '' ? 'session_date' : null,
+                ] ) ) ]
+            );
         }
 
         $future = self::futureAttendanceRefusal( self::attendance_from_request( $r ), (string) $data['session_date'] );
@@ -1493,7 +1503,7 @@ class ActivitiesRestController {
         // partial-update contract the edit form and every PATCH-ing
         // caller rely on. The check only refuses keys the route cannot
         // write at all.
-        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
         if ( $refused !== null ) return $refused;
 
         $type_error = self::validateActivityType( $r );
@@ -1842,8 +1852,16 @@ class ActivitiesRestController {
      * publishes what the body looks like.
      *
      * Every field is optional on update — an omitted one keeps its stored
-     * value, via `overlayOnStored()` (CLAUDE.md §6). `createArgs()` adds
-     * the two the create genuinely needs.
+     * value, via `overlayOnStored()` (CLAUDE.md §6).
+     *
+     * **Nothing is declared `required`, on either verb**, and that is a
+     * decision rather than an oversight. Core checks required params in
+     * `WP_REST_Request::has_valid_params()`, which `dispatch()` runs
+     * **before** the permission callback, so a required field turns an
+     * unauthenticated `POST` into a `400` that names the fields instead of
+     * the `401` it owes the caller. `create_session()` names the two
+     * fields it needs itself, behind the capability gate, in the same
+     * `missing_fields` envelope.
      *
      * `coach_id` keeps `absint` rather than a typed schema so the form's
      * empty "— No coach —" option still means "clear it".
@@ -1885,20 +1903,20 @@ class ActivitiesRestController {
     }
 
     /**
-     * #3816 — `POST /activities` on top of `writeArgs()`.
+     * #3816 — `PUT /activities/{id}` on top of `writeArgs()`.
      *
-     * Title and date were already refused by hand, with a message that
-     * named neither. Declaring them required moves the refusal ahead of
-     * the callback and names both in `details.fields`, in the same
-     * envelope every other route answers in.
+     * `id` is the URL segment, and it is declared because a client that
+     * echoes the record's own id back in the body is doing something
+     * harmless and should not be refused for it. It is read from the URL
+     * either way; the body copy is ignored.
      *
      * @return array<string, array<string, mixed>>
      */
-    private static function createArgs(): array {
-        $args = self::writeArgs();
-        $args['title']['required']        = true;
-        $args['session_date']['required'] = true;
-        return $args;
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
     }
 
     /** #3745 — did the caller send a `coach_id` at all? */

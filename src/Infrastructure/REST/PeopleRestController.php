@@ -191,21 +191,38 @@ class PeopleRestController {
      * that misspells `phone` should learn that the number was not stored,
      * not find out when nobody can reach them.
      *
-     * Name is required on create and optional on update, because an update
-     * that leaves a field out must leave it standing (CLAUDE.md §6).
+     * The name is needed on create and optional on update, because an
+     * update that leaves a field out must leave it standing
+     * (CLAUDE.md §6). It is **not** declared `required` even on create:
+     * core checks required params before the permission callback runs, so
+     * that would answer an unauthenticated `POST` with a 400 naming the
+     * fields instead of the 401 it owes. `create_person()` names them
+     * itself, behind the capability gate.
+     *
+     * `id` on the update is the URL segment, declared so a client that
+     * echoes the record's own id back in the body is not refused for it.
      *
      * @return array<string, array<string, mixed>>
      */
     private static function writeArgs( bool $for_create ): array {
-        return [
-            'first_name' => [ 'type' => 'string', 'required' => $for_create, 'description' => 'Given name.' ],
-            'last_name'  => [ 'type' => 'string', 'required' => $for_create, 'description' => 'Family name.' ],
+        $args = [
+            'first_name' => [ 'type' => 'string', 'description' => 'Given name.' ],
+            'last_name'  => [ 'type' => 'string', 'description' => 'Family name.' ],
             'email'      => [ 'type' => 'string', 'description' => 'Email address the academy writes to.' ],
             'phone'      => [ 'type' => 'string', 'description' => 'Phone number.' ],
             'role_type'  => [ 'type' => 'string', 'description' => 'What kind of person this is in the academy (staff, guardian, …).' ],
             'wp_user_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The WordPress account this person signs in with, when they have one. A mapping to one authentication backend, never the identity itself.' ],
             'status'     => [ 'type' => 'string', 'description' => 'active or inactive.' ],
         ];
+
+        if ( ! $for_create ) {
+            $args = [ 'id' => [
+                'type'        => [ 'integer', 'string' ],
+                'description' => 'The person, from the URL. A copy in the body is accepted and ignored.',
+            ] ] + $args;
+        }
+
+        return $args;
     }
 
     public static function create_person( \WP_REST_Request $r ) {

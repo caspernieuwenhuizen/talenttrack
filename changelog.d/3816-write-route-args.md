@@ -9,9 +9,10 @@ had stored. Each now declares the whole body it accepts and refuses a key
 outside it with `400 unknown_field`, naming the key and listing what the route
 does take — before anything is written.
 
-The required fields are declared too, so `POST /activities` with an empty body
-names `title` and `session_date`, and `POST /functional-roles/assignments`
-names all three ids at once instead of a message that named none of them.
+The fields a write cannot do without are named too, so `POST /activities` with
+an empty body answers `missing_fields` carrying `title` and `session_date`, and
+`POST /functional-roles/assignments` names all three ids at once instead of a
+message that named none of them.
 
 One data fix travelled with it: `PUT /people/{id}` wrote both name columns on
 every call, defaulted to empty, so a request carrying only a phone number
