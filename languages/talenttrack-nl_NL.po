@@ -65616,4 +65616,3 @@ msgstr "Nieuwe aankondiging"
 #: src/Shared/CoreSurfaceRegistration.php:1589
 msgid "Announcement"
 msgstr "Aankondiging"
-
