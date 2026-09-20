@@ -174,18 +174,21 @@ final class ActivityCoachAssignmentTest extends WP_UnitTestCase {
     // ── the refusal that replaced the silent 200 ───────────────────────
 
     public function test_a_coach_outside_the_actors_scope_is_refused_by_name(): void {
-        $team     = $this->insertTeam( 'U11' );
-        $coach    = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
-        $outsider = self::factory()->user->create( [ 'role' => 'administrator' ] );
-        $this->assignRole( $team, $coach, 'head_coach' );
+        $my_team    = $this->insertTeam( 'U11 mine' );
+        $other_team = $this->insertTeam( 'U15 theirs' );
+        $coach      = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $outsider   = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
 
-        // A coach, not an administrator: the actor's scope is their own
-        // teams, and `$outsider` is on none of them.
+        // A coach, not an administrator: the actor's scope is the one team
+        // they are granted, and `$outsider` works on a different one.
+        $this->grantTeamScope( $this->assignRole( $my_team, $coach, 'head_coach' ), $my_team );
+        $this->assignRole( $other_team, $outsider, 'head_coach' );
+
         wp_set_current_user( $coach );
         $response = $this->post( [
             'title'        => 'Training',
             'session_date' => '2026-11-09',
-            'team_id'      => $team,
+            'team_id'      => $my_team,
             'coach_id'     => $outsider,
         ] );
 
