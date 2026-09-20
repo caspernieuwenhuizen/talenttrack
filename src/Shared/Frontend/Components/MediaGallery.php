@@ -102,7 +102,13 @@ final class MediaGallery {
         // reader can act on it.
         $unconsented = self::marksUnconsented( $entity_type, $entity_id );
 
-        echo '<div class="tt-media-gallery' . ( $unconsented ? ' tt-media-gallery--no-consent' : '' ) . '" data-entity-type="' . esc_attr( $entity_type ) . '" data-entity-id="' . (int) $entity_id . '">';
+        // A data attribute rather than a modifier class: this is state the
+        // same component moves through, not a second kind of gallery, and
+        // `class="tt-media-gallery"` is a DOM contract the suite asserts on
+        // exactly (MediaGalleryTest, #2742).
+        echo '<div class="tt-media-gallery" data-entity-type="' . esc_attr( $entity_type ) . '"'
+            . ' data-entity-id="' . (int) $entity_id . '"'
+            . ( $unconsented ? ' data-consent="missing"' : '' ) . '>';
 
         // Only genuinely empty when there is no next page either — a first
         // page whose items are all filtered out still has more to fetch.

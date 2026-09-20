@@ -118,13 +118,13 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
         $this->attachVideoLink( $player, 'Same picture either way' );
 
         $before = $this->galleryHtml( $player );
-        $this->assertStringContainsString( 'tt-media-gallery--no-consent', $before );
+        $this->assertStringContainsString( 'data-consent="missing"', $before );
         $this->assertStringContainsString( 'No consent on record', $before );
 
         $this->recordConsent( $player );
 
         $after = $this->galleryHtml( $player );
-        $this->assertStringNotContainsString( 'tt-media-gallery--no-consent', $after );
+        $this->assertStringNotContainsString( 'data-consent="missing"', $after );
         $this->assertStringNotContainsString( 'No consent on record', $after );
         $this->assertStringContainsString( 'Same picture either way', $after, 'the media itself is untouched' );
     }
@@ -288,11 +288,35 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
         $this->fail( 'the player was not in the list at all' );
     }
 
+    /**
+     * Records consent straight on the row, not through `PUT /players/{id}`.
+     *
+     * The write path is not what this file is about, and reaching it would
+     * need a second matrix grant on a different entity: with
+     * `tt_authorization_active` set — and the suite activates the plugin, so
+     * it is — `AuthorizationModule::filterUserHasCap` overwrites
+     * `tt_edit_players` with the matrix's answer, so the request is refused
+     * and the fixture silently does nothing. That failure mode is exactly
+     * what #3913 was filed about.
+     *
+     * `MediaConsentTest` (#2744) already pins the route, including that it
+     * stamps the provenance. Here the provenance is set directly, because
+     * the surfaces under test read it.
+     */
     private function recordConsent( int $player_id ): void {
-        $request = new WP_REST_Request( 'PUT', '/talenttrack/v1/players/' . $player_id );
-        $request->set_param( 'id', $player_id );
-        $request->set_param( 'media_consent', '1' );
-        rest_do_request( $request );
+        global $wpdb;
+
+        $updated = $wpdb->update(
+            "{$wpdb->prefix}tt_players",
+            [
+                'media_consent'    => 1,
+                'media_consent_at' => current_time( 'mysql' ),
+                'media_consent_by' => get_current_user_id(),
+            ],
+            [ 'id' => $player_id ]
+        );
+
+        $this->assertSame( 1, $updated, 'the consent fixture must actually write' );
     }
 
     private function attachVideoLink( int $player_id, string $title ): void {
