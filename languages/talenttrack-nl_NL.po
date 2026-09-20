@@ -44912,6 +44912,27 @@ msgstr "Bericht kon niet worden verwijderd."
 msgid "Status changed to: %s"
 msgstr "Status gewijzigd naar: %s"
 
+#. translators: %s is the goal's new title
+#, php-format
+msgid "Title changed to: %s"
+msgstr "Titel gewijzigd naar: %s"
+
+#. translators: %s is the goal's new target date
+#, php-format
+msgid "Target date changed to: %s"
+msgstr "Streefdatum gewijzigd naar: %s"
+
+msgid "Target date removed"
+msgstr "Streefdatum verwijderd"
+
+#. translators: %s is the goal's new progress, e.g. "60%"
+#, php-format
+msgid "Progress changed to: %s"
+msgstr "Voortgang gewijzigd naar: %s"
+
+msgid "Progress removed"
+msgstr "Voortgang verwijderd"
+
 #. translators: %s is the goal title
 #: src/Modules/Threads/Subscribers/GoalSystemMessageSubscriber.php:42
 #, php-format
