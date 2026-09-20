@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
+use TT\Infrastructure\Identity\AuthorNameResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -104,7 +105,7 @@ final class ActivityRegisterProgress {
      * `prime()` and read by `forRow()`, `recordedCount()` and
      * `expectedCount()`, so a card that has been primed costs nothing.
      *
-     * @var array<int, array{recorded:int, planned:int, min_expected:int, min_recorded:int}>
+     * @var array<int, array{recorded:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int}>
      */
     private static array $counts = [];
 
@@ -115,6 +116,14 @@ final class ActivityRegisterProgress {
      * @var array<int, int>
      */
     private static array $rosters = [];
+
+    /**
+     * #3655 — wp_user_id → the academy's name for them, or '' where
+     * nothing resolves. Filled in one batch by `loadCounts()`.
+     *
+     * @var array<int, string>
+     */
+    private static array $names = [];
 
     public static function state( int $activity_id ): string {
         if ( $activity_id <= 0 ) return self::NOT_APPLICABLE;
@@ -211,7 +220,10 @@ final class ActivityRegisterProgress {
      * and because the batch is keyed off the same two fields.
      *
      * @return array{
-     *   attendance: array{recorded:int, expected:int, state:string},
+     *   attendance: array{
+     *     recorded:int, expected:int, state:string,
+     *     last_saved: array{user_id:int, name:string, at:string}|null
+     *   },
      *   minutes: array{recorded:int, expected:int, state:string}|null
      * }|null
      */
@@ -248,12 +260,66 @@ final class ActivityRegisterProgress {
 
         return [
             'attendance' => [
-                'recorded' => $recorded,
-                'expected' => $expected,
-                'state'    => self::rate( $recorded, $expected ),
+                'recorded'   => $recorded,
+                'expected'   => $expected,
+                'state'      => self::rate( $recorded, $expected ),
+                // #3655 — who saved this register last, and when. Rides on
+                // the object the payload already carries, so a non-WP
+                // client gets it with no new route.
+                'last_saved' => self::lastSavedFor( $id ),
             ],
             'minutes' => $minutes,
         ];
+    }
+
+    /**
+     * #3655 — who saved this activity's register last, and when.
+     *
+     * The stamp `AttendanceWriter` writes is per save, not per mark: a
+     * register save deletes and re-inserts its recorded rows, so the whole
+     * save carries one author and one time and the newest stamped row is
+     * the answer. `null` where nothing on the register is stamped — an
+     * activity registered before migration 0275, or one with no register
+     * at all. Guests are excluded on the same grounds the counts exclude
+     * them: the register is a roster's.
+     *
+     * `at` is the stored UTC `DATETIME`; formatting for a reader is the
+     * caller's job, because a REST consumer and the PHP view want
+     * different things from it.
+     *
+     * @return array{user_id:int, name:string, at:string}|null
+     */
+    public static function lastSavedFor( int $activity_id ): ?array {
+        if ( $activity_id <= 0 ) return null;
+        if ( ! isset( self::$counts[ $activity_id ] ) ) self::loadCounts( [ $activity_id ] );
+
+        $counts = self::$counts[ $activity_id ] ?? self::emptyCounts();
+        if ( $counts['last_at'] === '' ) return null;
+
+        return [
+            'user_id' => $counts['last_by'],
+            'name'    => self::displayName( $counts['last_by'] ),
+            'at'      => $counts['last_at'],
+        ];
+    }
+
+    /**
+     * The academy's name for the account that saved the register, or ''
+     * when nothing resolves — the account is gone, or a job with no user
+     * behind it wrote the row.
+     *
+     * Through `AuthorNameResolver` (#3672) rather than `display_name`
+     * directly: a coach's staff record is the academy's name for them,
+     * and an account's `display_name` is whatever WordPress was told at
+     * sign-up. Empty rather than a made-up label, because what a reader
+     * sees instead is the caller's choice and a REST consumer wants the
+     * blank.
+     */
+    private static function displayName( int $user_id ): string {
+        if ( $user_id <= 0 ) return '';
+        if ( isset( self::$names[ $user_id ] ) ) return self::$names[ $user_id ];
+
+        return self::$names[ $user_id ] = AuthorNameResolver::nameFor( $user_id );
     }
 
     /** Test seam — the memo outlives a single fixture otherwise. */
@@ -265,6 +331,7 @@ final class ActivityRegisterProgress {
         self::$memo    = [];
         self::$counts  = [];
         self::$rosters = [];
+        self::$names   = [];
     }
 
     private static function resolve( int $activity_id ): string {
@@ -308,9 +375,16 @@ final class ActivityRegisterProgress {
         ) );
     }
 
-    /** @return array{recorded:int, planned:int, min_expected:int, min_recorded:int} */
+    /** @return array{recorded:int, planned:int, min_expected:int, min_recorded:int, last_at:string, last_by:int} */
     private static function emptyCounts(): array {
-        return [ 'recorded' => 0, 'planned' => 0, 'min_expected' => 0, 'min_recorded' => 0 ];
+        return [
+            'recorded'     => 0,
+            'planned'      => 0,
+            'min_expected' => 0,
+            'min_recorded' => 0,
+            'last_at'      => '',
+            'last_by'      => 0,
+        ];
     }
 
     /**
@@ -340,7 +414,14 @@ final class ActivityRegisterProgress {
                                    AND status IN ( 'Present', 'Late' ) THEN 1 ELSE 0 END ) AS min_expected,
                     SUM( CASE WHEN record_type = 'actual' AND is_guest = 0
                                    AND status IN ( 'Present', 'Late' )
-                                   AND minutes_played IS NOT NULL THEN 1 ELSE 0 END ) AS min_recorded
+                                   AND minutes_played IS NOT NULL THEN 1 ELSE 0 END ) AS min_recorded,
+                    SUBSTRING_INDEX(
+                        GROUP_CONCAT(
+                            CASE WHEN record_type = 'actual' AND is_guest = 0 AND recorded_at IS NOT NULL
+                                 THEN CONCAT( recorded_at, '#', COALESCE( recorded_by, 0 ) ) END
+                            ORDER BY recorded_at DESC SEPARATOR '|'
+                        ), '|', 1
+                    ) AS last_saved
                FROM {$p}tt_attendance
               WHERE club_id = %d AND activity_id IN ({$placeholders})
               GROUP BY activity_id",
@@ -349,15 +430,53 @@ final class ActivityRegisterProgress {
 
         $found = [];
         foreach ( $rows ?: [] as $r ) {
+            // #3655 — read through an array rather than a second property
+            // access on an untyped row: the newest stamped row wins, and
+            // `GROUP_CONCAT`'s length cap only ever truncates the tail,
+            // which the DESC ordering has already made the oldest.
+            $fields = (array) $r;
+            $pair   = isset( $fields['last_saved'] ) && is_string( $fields['last_saved'] )
+                ? $fields['last_saved']
+                : '';
+            $at     = '';
+            $by     = 0;
+            $cut    = strpos( $pair, '#' );
+            if ( $cut !== false ) {
+                $at = substr( $pair, 0, $cut );
+                $by = (int) substr( $pair, $cut + 1 );
+            }
+
             $found[ (int) $r->activity_id ] = [
                 'recorded'     => (int) $r->recorded,
                 'planned'      => (int) $r->planned,
                 'min_expected' => (int) $r->min_expected,
                 'min_recorded' => (int) $r->min_recorded,
+                'last_at'      => $at,
+                'last_by'      => $by,
             ];
         }
         foreach ( $activity_ids as $id ) {
             self::$counts[ $id ] = $found[ $id ] ?? self::emptyCounts();
+        }
+
+        // #3655 — resolve the page's register authors in one batch rather
+        // than one lookup per card. A list of fifty completed activities
+        // is a list of at most a handful of distinct coaches. Unresolved
+        // ids are memoised as '' too, so a deleted account is not looked
+        // up again for every card it stamped. Skipped entirely when
+        // nothing is stamped, which is every activity registered before
+        // migration 0275.
+        $authors = [];
+        foreach ( $found as $counts ) {
+            $by = $counts['last_by'];
+            if ( $by > 0 && ! isset( self::$names[ $by ] ) ) $authors[ $by ] = true;
+        }
+        if ( $authors !== [] ) {
+            $ids   = array_keys( $authors );
+            $names = AuthorNameResolver::namesFor( $ids );
+            foreach ( $ids as $id ) {
+                self::$names[ $id ] = (string) ( $names[ $id ] ?? '' );
+            }
         }
     }
 

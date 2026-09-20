@@ -52247,6 +52247,12 @@ msgstr "Laatst gewijzigd door %1$s op %2$s"
 msgid "a former user"
 msgstr "een voormalige gebruiker"
 
+#. translators: 1: user name, 2: date and time
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2190
+#, php-format
+msgid "Register last saved by %1$s on %2$s"
+msgstr "Presentielijst laatst opgeslagen door %1$s op %2$s"
+
 # v3.110.2 — URL-borne back-navigation pill ("Back to where you came from")
 #: src/Shared/Frontend/Components/BackLabelResolver.php:27
 #: src/Shared/Frontend/Components/BackLabelResolver.php:33

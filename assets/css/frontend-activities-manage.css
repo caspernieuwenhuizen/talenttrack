@@ -646,6 +646,7 @@
      .tt-act-att__head           — attendance headline
      .tt-act-att__bar            — attendance breakdown bar
      .tt-act-att__legend         — bar legend (wraps)
+     .tt-act-att__saved          — "Register last saved by X on …"
      .tt-act-att__warn           — missing-row / empty notice
    ============================================================= */
 
@@ -1216,6 +1217,14 @@
     height: 10px;
     border-radius: 3px;
     margin-right: 5px;
+}
+/* #3655 — who saved the register last. Muted provenance, deliberately
+ * quieter than the counts above it: it answers a question a coach only
+ * asks about a mark that surprised them. */
+.tt-dashboard .tt-act-att__saved {
+    margin: 10px 0 0;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #5b6e75);
 }
 .tt-dashboard .tt-act-att__warn {
     margin: 10px 0 0;
