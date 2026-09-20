@@ -153,7 +153,7 @@ opende en zich bedacht.
 op de laatste stap.
 
 **Waar.** Elke wizard — nieuwe speler, nieuwe evaluatie, nieuw doel, nieuwe
-wedstrijdanalyse, installatie en import.
+wedstrijdanalyse, nieuwe teamaankondiging, installatie en import.
 
 **Waarom.** Een wizard houdt tussen de stappen al zijn eigen concept bij, dus
 er gaat niets verloren als je halverwege stopt en later terugkomt. Wat hij niet

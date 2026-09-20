@@ -299,6 +299,37 @@ class RolesService {
     ];
 
     /**
+     * #3693 — sending a team announcement. Two caps, because there are
+     * two acts hiding under one word.
+     *
+     * `tt_send_team_announcement` is ordinary team business: the head
+     * coach or team manager telling their own squad that Saturday is off.
+     * They reach the families of the teams they are actually assigned
+     * to and no others — the cap says they may announce, the team
+     * assignment says to whom, and a person with the cap and no team
+     * reaches nobody. So it can be held broadly without being a risk,
+     * which is why coach and staff both get it: an academy that has to
+     * ask an administrator to tell twelve families about a pitch closure
+     * will go on using WhatsApp, and the message leaves the record.
+     *
+     * `tt_send_academy_announcement` is the academy speaking — any team,
+     * an age group, or every family at once. Reaching families whose
+     * child this person does not coach is an academy-level act, so it is
+     * an academy-level grant: Head of Development and academy admin.
+     *
+     * DELIBERATELY NOT in VIEW_CAPS / EDIT_CAPS, like the three blocks
+     * above: those propagate through `allViewCapsTrue()` and would hand
+     * the academy-wide tier to the Read-Only Observer, whose entire
+     * definition is that it changes nothing.
+     *
+     * @var list<string>
+     */
+    public const ANNOUNCEMENT_CAPS = [
+        'tt_send_team_announcement',
+        'tt_send_academy_announcement',
+    ];
+
+    /**
      * Option holding the plugin version whose role + capability shape was
      * last asserted — see syncForVersion() (#3432).
      *
@@ -358,6 +389,10 @@ class RolesService {
                         'tt_generate_report'       => true,
                         'tt_generate_scout_report' => true,
                         'tt_send_email'            => true,
+                        // #3693 — the academy tier: any team, an age
+                        // group, or every family. The team tier follows
+                        // from it, so it is not listed twice.
+                        'tt_send_academy_announcement' => true,
                     ],
                     array_fill_keys( self::TRIAL_CAPS,    true ),  // full trials
                     array_fill_keys( self::JOURNEY_CAPS,  true ),  // medical + safeguarding (sensitive)
@@ -393,6 +428,9 @@ class RolesService {
                         // #3423 — the only role that sends a message every
                         // family gets and none of them can refuse.
                         'tt_send_safeguarding_broadcast' => true,
+                        // #3693 — announcements to any team, an age group
+                        // or the whole academy.
+                        'tt_send_academy_announcement'   => true,
                     ],
                     array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
@@ -416,6 +454,11 @@ class RolesService {
                         'tt_edit_activities'    => true,
                         'tt_edit_goals'       => true,
                         // NOT tt_edit_players/teams/people/settings
+                        // #3693 — announce to the squads they are
+                        // assigned to. A coach with no team assignment
+                        // reaches nobody, so the grant is safe to make
+                        // at the role level.
+                        'tt_send_team_announcement' => true,
                     ],
                     [
                         'tt_evaluate_players' => true,
@@ -501,7 +544,13 @@ class RolesService {
                     // per the matrix `r/c[team]` grant. The
                     // PlayerThreadAdapter scope check enforces team
                     // ownership at runtime.
-                    [ 'tt_view_player_notes' => true, 'tt_edit_player_notes' => true ]
+                    [ 'tt_view_player_notes' => true, 'tt_edit_player_notes' => true ],
+                    // #3693 — the team manager is a functional role on a
+                    // `tt_staff` seat, and telling their own squad's
+                    // families that the pitch is closed is the job. Scoped
+                    // by team assignment, so a physio with no team reaches
+                    // nobody.
+                    [ 'tt_send_team_announcement' => true ]
                 ),
             ],
             'tt_player' => [
@@ -600,6 +649,7 @@ class RolesService {
             self::DATA_BROWSER_CAPS,
             self::RECYCLE_BIN_CAPS,
             self::SAFEGUARDING_BROADCAST_CAPS,
+            self::ANNOUNCEMENT_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 

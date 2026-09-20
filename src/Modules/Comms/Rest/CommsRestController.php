@@ -10,6 +10,7 @@ use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\OptOut\OptOutPolicy;
 use TT\Modules\Comms\Repositories\CommsInboxRepository;
 use TT\Modules\Comms\Repositories\CommsLogRepository;
+use TT\Modules\Comms\Send\MassAnnouncementSender;
 use TT\Modules\Comms\Send\SafeguardingBroadcastSender;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
@@ -28,6 +29,8 @@ use WP_REST_Request;
  *   PUT   /comms/preferences       replace them
  *   GET   /comms/safeguarding-broadcasts/recipients  how many an audience reaches
  *   POST  /comms/safeguarding-broadcasts             compose and send one
+ *   GET   /comms/announcements/recipients            how many an audience reaches
+ *   POST  /comms/announcements                       compose and send one
  *
  * Comms was the last module of its size with no REST surface at all, which
  * put it outside CLAUDE.md §4: every feature has to be reachable by a
@@ -60,6 +63,14 @@ use WP_REST_Request;
  * the academy admin and nobody else by default. Not `tt_send_email`,
  * which every coach holds: writing to one parent and writing to every
  * family unrefusably are not the same act.
+ *
+ * The announcement routes (#3693) gate on holding either announcement
+ * cap, and then ask `MassAnnouncementSender::canSend()` about the
+ * audience the caller actually posted. The cap says whether this person
+ * announces at all; the audience check says to whom. A team manager who
+ * posts another team's id gets a 403 from the second question, not a
+ * screen that simply did not offer them the option — which is the
+ * difference between an enforced rule and a hidden one.
  */
 final class CommsRestController extends BaseController {
 
@@ -185,6 +196,32 @@ final class CommsRestController extends BaseController {
                     'team_id' => [ 'sanitize_callback' => 'absint', 'required' => false ],
                     'acknowledged' => [ 'sanitize_callback' => 'rest_sanitize_boolean', 'required' => true ],
                 ],
+            ],
+        ] );
+
+        // #3693 — team announcements. Same two-route shape as the
+        // safeguarding broadcast above and for the same reason: the
+        // confirm step has to state the blast radius before anything is
+        // committed, and a count that came back from the send would be a
+        // fact about the past.
+        register_rest_route( self::NS, '/comms/announcements/recipients', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'listAnnouncementRecipients' ],
+                'permission_callback' => [ self::class, 'permCanAnnounce' ],
+                'args'                => self::announcementAudienceArgs(),
+            ],
+        ] );
+
+        register_rest_route( self::NS, '/comms/announcements', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'createAnnouncement' ],
+                'permission_callback' => [ self::class, 'permCanAnnounce' ],
+                'args'                => array_merge( self::announcementAudienceArgs(), [
+                    'subject' => [ 'sanitize_callback' => 'sanitize_text_field',     'required' => true ],
+                    'body'    => [ 'sanitize_callback' => 'sanitize_textarea_field', 'required' => true ],
+                ] ),
             ],
         ] );
 
@@ -463,6 +500,121 @@ final class CommsRestController extends BaseController {
         return RestResponse::success( [
             'scope'      => $scope,
             'team_id'    => $team_id > 0 ? $team_id : null,
+            'recipients' => count( $results ),
+            'sent'       => CommsOutcomeSummary::sentCount( $results ),
+            'problems'   => CommsOutcomeSummary::hasProblems( $results ),
+        ] );
+    }
+
+    // ── team announcements (#3693) ──────────────────────────────────────
+
+    /**
+     * Holding either announcement cap opens the routes. Which audiences
+     * this caller may then reach is a separate question, asked per
+     * request below — a permission_callback sees the capability but not
+     * the team id, and the team id is where the rule lives.
+     */
+    public static function permCanAnnounce(): bool {
+        return MassAnnouncementSender::canAnnounce( get_current_user_id() );
+    }
+
+    /**
+     * @return array<string, array<string, mixed>>
+     */
+    private static function announcementAudienceArgs(): array {
+        return [
+            'scope'     => [ 'sanitize_callback' => 'sanitize_key',        'default'  => MassAnnouncementSender::SCOPE_TEAM ],
+            'team_id'   => [ 'sanitize_callback' => 'absint',              'required' => false ],
+            'age_group' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+        ];
+    }
+
+    /**
+     * The audience the request asks for, or a refusal.
+     *
+     * @return array{scope:string,team_id:int,age_group:string}|\WP_REST_Response
+     */
+    private static function announcementAudience( WP_REST_Request $req ) {
+        $scope     = MassAnnouncementSender::sanitizeScope( (string) $req->get_param( 'scope' ) );
+        $team_id   = (int) $req->get_param( 'team_id' );
+        $age_group = trim( (string) $req->get_param( 'age_group' ) );
+
+        if ( $scope === MassAnnouncementSender::SCOPE_TEAM && $team_id <= 0 ) {
+            return RestResponse::error( 'team_required', __( 'A team announcement needs a team.', 'talenttrack' ), 400 );
+        }
+        if ( $scope === MassAnnouncementSender::SCOPE_AGE_GROUP && $age_group === '' ) {
+            return RestResponse::error( 'age_group_required', __( 'An age-group announcement needs an age group.', 'talenttrack' ), 400 );
+        }
+
+        // The audience gate, at the route. Not a nicety: the wizard hides
+        // the options a team-scoped sender may not use, and hiding is not
+        // refusing — anything can post this endpoint.
+        if ( ! ( new MassAnnouncementSender() )->canSend( get_current_user_id(), $scope, $team_id, $age_group ) ) {
+            return RestResponse::error(
+                'audience_denied',
+                __( 'You cannot send an announcement to that audience.', 'talenttrack' ),
+                403
+            );
+        }
+
+        return [ 'scope' => $scope, 'team_id' => $team_id, 'age_group' => $age_group ];
+    }
+
+    public static function listAnnouncementRecipients( WP_REST_Request $req ): \WP_REST_Response {
+        $audience = self::announcementAudience( $req );
+        if ( $audience instanceof \WP_REST_Response ) return $audience;
+
+        $sender = new MassAnnouncementSender();
+
+        return RestResponse::success( [
+            'scope'          => $audience['scope'],
+            'team_id'        => $audience['team_id'] > 0 ? $audience['team_id'] : null,
+            'age_group'      => $audience['age_group'] !== '' ? $audience['age_group'] : null,
+            'audience_label' => $sender->audienceLabel( $audience['scope'], $audience['team_id'], $audience['age_group'] ),
+            'count'          => $sender->recipientCount( $audience['scope'], $audience['team_id'], $audience['age_group'] ),
+            'can_opt_out'    => true,
+            'quiet_hours'    => 'respected',
+        ] );
+    }
+
+    /**
+     * Compose and send one.
+     *
+     * No acknowledgement flag, unlike the safeguarding broadcast. That
+     * one asks because a recipient cannot refuse it; an announcement is
+     * opt-outable and quiet-hours-bound, so the confirm step in the
+     * wizard is where the sender reads the count back, and the API does
+     * not need a second ceremony to say the same thing.
+     */
+    public static function createAnnouncement( WP_REST_Request $req ): \WP_REST_Response {
+        $audience = self::announcementAudience( $req );
+        if ( $audience instanceof \WP_REST_Response ) return $audience;
+
+        $subject = trim( (string) $req->get_param( 'subject' ) );
+        $body    = trim( (string) $req->get_param( 'body' ) );
+
+        if ( $subject === '' || $body === '' ) {
+            return RestResponse::error( 'bad_payload', __( 'A subject and a message are both required.', 'talenttrack' ), 400 );
+        }
+        if ( mb_strlen( $subject ) > MassAnnouncementSender::MAX_SUBJECT ) {
+            return RestResponse::error( 'subject_too_long', __( 'The subject is too long.', 'talenttrack' ), 400 );
+        }
+
+        $results = ( new MassAnnouncementSender() )->send(
+            $subject,
+            $body,
+            $audience['scope'],
+            $audience['team_id'],
+            $audience['age_group']
+        );
+        if ( $results === [] ) {
+            return RestResponse::error( 'no_recipients', __( 'Nobody in this audience could be reached.', 'talenttrack' ), 409 );
+        }
+
+        return RestResponse::success( [
+            'scope'      => $audience['scope'],
+            'team_id'    => $audience['team_id'] > 0 ? $audience['team_id'] : null,
+            'age_group'  => $audience['age_group'] !== '' ? $audience['age_group'] : null,
             'recipients' => count( $results ),
             'sent'       => CommsOutcomeSummary::sentCount( $results ),
             'problems'   => CommsOutcomeSummary::hasProblems( $results ),
