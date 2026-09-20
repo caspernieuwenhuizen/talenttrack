@@ -1,3 +1,0 @@
-# Trial panel inputs can be read over the API (#3673)
-
-The staff inputs on a trial case could be written through the API and read only by opening the Staff inputs tab, so anyone deciding a trial from outside the screen — an integration, a future app — had to record the decision without being able to check what the panel had said about the child. `GET /trial-cases/{id}/inputs` now answers that: the head of development reads every input on the case plus the "N of M submitted" count and the release time, and an assigned panel member reads their own input, and the others once the inputs are released. It applies exactly the rule the tab applies, so the screen and the API cannot disagree. A draft somebody else has not handed in yet shows who is writing it and nothing more.

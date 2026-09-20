@@ -1,3 +1,209 @@
+# TalentTrack v4.128.0 — A team manager can open the screens their role already lets them read (#3643)
+
+A Staff account holding the **Manager** functional role could read its squad,
+its players and its schedule through the API, and met *"You do not have access
+to this surface"* on Teams, Players and Activities — the three screens the job
+is actually done on. The dashboard decides whether to offer a surface from a
+separate tile-visibility entity, and no functional role held one. Manager and
+Kit manager now do, and Physio is offered the squad list their injury and
+measurement access hangs off. The screens render read-only: creating, editing
+and archiving still need a coach's rights, and nobody sees a team they hold no
+role on.
+
+The register follows. A manager may take attendance but not edit the activity,
+so the **Attendance grid** shortcut on an activity — which asked for activity
+editing while the grid itself asked the attendance question — now asks the same
+question the grid does, and appears for the people who may use it.
+
+# TalentTrack v4.128.0 — The Reports launcher no longer offers a report you cannot open (#3647)
+
+Five tiles on the Reports launcher — team attendance statistics, player attendance statistics, the attendance leaderboard, minutes played per team and the minutes audit — lead to reports that need statistics access, while the launcher itself only asks for reports access. A role with the first and not the second, such as a read-only board observer, was shown the tiles and met "You do not have permission to view this report" on opening one. The tiles now carry the capability their destination reads, so they are simply not offered to a viewer who cannot open them, and the Attendance heading no longer stands over an empty section. Nothing changes for a coach or head of development, who hold both.
+
+# TalentTrack v4.128.0 — Demo trial assessments are no longer submitted in the future (#3648)
+
+The demo generator stamped every trial panel assessment with the case's end
+date. On an open trial that date has not arrived yet, so a demo academy showed
+assessments submitted next week: the case read as already assessed, a panel
+member's own screen reported a submission time that had not happened, and the
+trial-input reminder never fired because it skips an input that already carries
+a submission time. A seeded assessment is now dated inside its trial and never
+later than the moment the demo was generated — a decided case keeps its
+end-date stamp, and an open one gets a submission from the last few days.
+
+# TalentTrack v4.128.0 — The trial decision API says which field the motivation goes in, and gives it back (#3654)
+
+Recording a trial decision over the API used to answer "Justification must be at least 30 characters." whatever was wrong with the request — including a request whose motivation was a thousand characters long but sent under a name the route did not read. The route now declares what it takes: the `decision` with its three outcomes, the required `notes` carrying the motivation, and the optional `strengths_summary` and `growth_areas`. A missing motivation is answered as a missing `notes`, a field the route does not take is named back, and a motivation that really is too short says how short it was and how long it must be. The 30-character floor is counted in characters, so a motivation written with accents is measured the same way as one without. Afterwards, reading the case returns the motivation itself, when the decision was recorded and by whom — so the reasoning behind admitting or releasing a player can be read back rather than only written. The motivation rides on the single-case reads only: the list stays capability-gated, and free text about whether the academy wants a child does not travel to a coach who is not on the case. The decision screen in the plugin is unchanged.
+
+# TalentTrack v4.128.0 — The attendance grid is only offered where there is a register to enter (#3656)
+
+Opening next week's training and pressing **Record attendance** used to land a
+coach on an empty attendance grid: since v4.126.0 the grid shows an upcoming
+activity only once something is recorded on it, but the buttons leading into it
+did not know that rule. The **Attendance grid** action, the list card's fix
+link and the **Record attendance** button in the mark-completed dialog now
+follow the grid's own column rule, so they appear on an activity that has taken
+place or that already carries a pre-recorded absence, and stay hidden on an
+upcoming one that carries nothing. The grid and its entry links now read that
+rule from one place, so they cannot drift apart again.
+
+Also on that screen: the period pills and the **Clear** link kept the "back to"
+target intact when it carried a query string of its own, instead of spilling
+its parameters into the link and leaving the back pill pointing at a mangled
+URL.
+
+# TalentTrack v4.128.0 — Player comparison fills its headline numbers and category averages (#3659)
+
+The player comparison showed a rolling and an all-time average but left "Most recent" and "Evaluations" on a dash, and always claimed there was no category data — even for players with dozens of rated evaluations. Both comparison screens (the frontend one and the wp-admin twin) asked the stats service for keys it never returned. They now read the right ones, so you can see the latest overall rating, how many evaluations the averages rest on, and the average per main category. A category nobody in the comparison has been rated on is left out instead of showing a row of dashes; the empty state now appears only when there really is no rating in the filter window.
+
+# TalentTrack v4.128.0 — Goal conversations name the person, not the login account (#3672)
+
+A message in a goal conversation now carries the academy's name for whoever wrote it — the player record for a player, the people record for a coach or parent — instead of whatever their WordPress account happens to be called. A player whose account was linked from an existing login, or who was renamed after the link was made, used to post under a stranger's name, which left parents unable to tell which messages were their child's. The account itself is never renamed; accounts TalentTrack holds no record for still fall back to their account name. System messages such as "Goal created: …" no longer count towards the message tally on a goal card, so a goal nobody has written on yet invites you to start the conversation rather than claiming one already exists.
+
+# TalentTrack v4.128.0 — Trial panel inputs can be read over the API (#3673)
+
+The staff inputs on a trial case could be written through the API and read only by opening the Staff inputs tab, so anyone deciding a trial from outside the screen — an integration, a future app — had to record the decision without being able to check what the panel had said about the child. `GET /trial-cases/{id}/inputs` now answers that: the head of development reads every input on the case plus the "N of M submitted" count and the release time, and an assigned panel member reads their own input, and the others once the inputs are released. It applies exactly the rule the tab applies, so the screen and the API cannot disagree. A draft somebody else has not handed in yet shows who is writing it and nothing more.
+
+# TalentTrack v4.128.0 — The activity detail shows the presence time and the end time (#3678)
+
+A match day's detail page said "Kick-off 18:45" and nothing more about
+when anyone had to be anywhere. The meet-up time was captured on the edit
+form, saved, and then read back by no surface at all; the end time existed
+only inside the `18:45–19:45` time window, which the Kick-off cell cut to
+its first five characters. The facts strip now carries all three, in the
+order the day happens — Presence time, Kick-off, End time — and leaves out
+any of them that has no value. A friendly, a tournament or a training that
+has a presence time stored shows it too, beside its time range.
+
+# TalentTrack v4.128.0 — The activity summary over REST says when and where (#3679)
+
+Opening an activity in the peek panel, or reading `GET /activities/{id}/summary`
+from an app, showed only the date and the type. A parent looking at Tuesday's
+training could not tell what time to be there or which pitch, so she fell back
+on the team's WhatsApp group. The summary now carries the time window, the
+presence time and the location, alongside the date and the type. An activity
+with no times and no location still shows just the date and the type — empty
+facts are left out rather than rendered blank.
+
+# TalentTrack v4.128.0 — My evaluations names the type in your own language (#3681)
+
+A player or parent opening My evaluations saw the evaluation type in raw
+English — a card labelled "Match" on a page that says *Wedstrijd* everywhere
+else — and a match with no score recorded read "vs FC Groningen (—)". The type
+is now resolved the same way the coach list has resolved it since v3.110, using
+whatever label the academy gave it, and a match without a score simply names
+the opponent instead of promising a result in brackets that was never there.
+`GET /players/{id}/evaluations` gains a `type_localised` field alongside the
+unchanged canonical `type`, so a non-WordPress front end prints the same word
+the page does.
+
+# TalentTrack v4.128.0 — Trial letters: record that the family has it (#3683)
+
+Generating a trial letter has never sent it — printing, emailing or
+handing it over is a human step — but nothing wrote that step down, so a
+letter read "Active" whether it had gone to the family that afternoon or
+was still sitting unprinted three weeks later. The head of development
+reopening a case had no way to tell a family still waiting from one
+already told.
+
+The Letter tab now carries a **Delivery** card under the letter: pick how
+the family got it (printed and posted, emailed, handed over in person)
+and press Record delivery, and the card reads back the date, who recorded
+it and the method. Clear delivery record undoes a mistake. The letter
+history table gains a Delivered column, and a line next to Print view
+says outright that generating does not send. TalentTrack still sends
+nothing itself.
+
+Over the API each letter row carries `delivered`, `delivered_at`,
+`delivered_by` and `delivery_method`, written through
+`PUT/DELETE /trial-cases/{id}/letters/{letter_id}/delivery`, with the
+allowed methods declared on the route. Letters generated before this read
+as not recorded — there was nothing to backfill from.
+
+# TalentTrack v4.128.0 — Parents can add and update their own phone number (#3684)
+
+**My settings** now carries a **Phone number** field, so a parent — or an adult player — gives the academy a number themselves instead of an admin typing every guardian's mobile in by hand. Enter it with its country code (`+31 6 12345678`); a number without one is refused and whatever was saved before is left exactly as it was, so a half-finished edit can never wipe a working number. An empty box removes it. The number reaches the linked person record, feeds every message the academy already sends by phone, and now shows on the child's **Parents · Guardians** card for coaches and academy staff — which read the wrong store and so had always been blank. `PATCH /me` does the same over REST, for the caller's own account only.
+
+# TalentTrack v4.128.0 — Team managers and kit managers can read the academy holiday calendar (#3686)
+
+A staff account holding the Manager or Kit manager functional role on a team could read that team's schedule but was refused the academy holiday calendar, so a gap between two trainings looked like missing data instead of a planned break. Both roles now read the calendar, which is what puts the holiday banners on the team planner. Creating, editing, archiving and restoring holidays are unchanged, and neither role is offered the Holidays management screen.
+
+Found alongside it and fixed here: saving an edited holiday failed with "not found". The edit route was registered under a method name that no request could ever match, so every save from the holiday edit screen was rejected whoever made it.
+
+# TalentTrack v4.128.0 — A development talk that was never held now reads "Overdue" on My PDP (#3692)
+
+On My PDP a development conversation that had not been held read "Planned" however long its date had passed, so a player and their parent saw a date weeks in the past under the word "Planned" and could not tell whether the talk had happened, been moved or been forgotten. A talk whose planned date has gone by with nothing recorded against it now carries a red "Overdue" chip instead, on the screen and in `GET /players/{id}/pdp`. A talk planned for later today still reads "Planned", and the chip clears the moment the talk is conducted or signed off. It remains the next talk in the cycle — only what it says about itself has changed.
+
+# TalentTrack v4.128.0 — Top performers loads again: the player card no longer queries per evaluation (#3702)
+
+The "Top performers" podium timed out for anyone who sees more than a
+couple of teams. Each card worked out its per-category averages by looping
+over the player's entire evaluation history and running one or two queries
+per main category, per evaluation — twelve cards over a couple of hundred
+evaluations each came to tens of thousands of queries in a single page
+render, and the screen never finished.
+
+The rollup is now batched: `EvalRatingsRepository` answers "the effective
+main-category rating for these evaluations" in three queries regardless of
+how many evaluations are asked about, applying the same rule as before — a
+direct main rating wins, otherwise the mean of that main's sub-category
+ratings (retired sub-categories included, so switching one off never
+restates a player's history), otherwise unrated. The rate-card breakdown,
+the trend chart and the radar snapshots all read through it, so the player
+profile, My team, Overview, player comparison and the player report get the
+same relief. The podium also ranks every team in one pass instead of three
+queries per team. The numbers on screen are unchanged.
+
+# TalentTrack v4.128.0 — Assigning a course to someone already on it no longer claims to have moved their deadline (#3707)
+
+Assigning a course over the API to a coach who was already enrolled answered
+"created" and handed back the old deadline, so an academy admin trying to push
+a missed deadline forward was told it had worked while nothing had changed. The
+enrolment is still left untouched — re-assigning must never reset a
+half-finished course — but the answer is now honest: it says the person was
+already enrolled, and, when the request carried a different deadline, that the
+new one was not applied. Enrolling someone new is unchanged, and the assign-course
+wizard already reported this correctly on screen.
+
+# TalentTrack v4.128.0 — Audit-log API names the actor (#3712)
+
+The audit-log API now returns the actor's name alongside their id. `GET /audit-log` used to hand back a bare numeric `user_id`, while the audit-log screen showed the person's name for the same rows — and nothing else in the API could turn that id into a person. An administrator reading the log over the API could see that someone exported twelve thousand evaluation rows, and not who. Every entry now carries `user_name` as well, resolved exactly as the screen resolves it. It is empty for an entry written by the system itself or by an account that has since been deleted; the id stays either way, so attribution is never lost. Filtering the same list by action also works now: the filter used to quietly strip the dot out of values like `player.updated`, so it matched nothing.
+
+# TalentTrack v4.128.0 — The profile's "history" links open the history (#3715)
+
+The **Status · history** and **Potential · history** links on a player's profile
+opened an empty page for any staff member who is not allowed to record behaviour
+or potential — a head coach reading a player's file, or anyone at an academy that
+has switched both halves off. The screen behind those links refused on the
+capture question and returned before it rendered anything, even though the same
+person can read the same entries over the API.
+
+It now becomes a read-only history for a viewer who may read that player's file:
+the recent behaviour ratings, the current potential band, and the trajectory
+behind it, newest first, with no capture form. The line explaining that nothing
+is being recorded here stays; a viewer without access to the player still gets
+that line and nothing else.
+
+# TalentTrack v4.128.0 — Attendance reports read the same period over the API as on screen (#3717)
+
+The three attendance report endpoints — at-risk, leaderboard and the per-player rows — used to fall back to a rolling 90 days when no dates were sent, while the matching screens open on the current season. The same report could therefore flag a different set of players for an integration than for the coach looking at it. They now seed the season window the screens use, with the 90-day window kept only as the fallback for an install with no current season. Each response also carries the `from` and `to` it actually read over, so a period can be labelled and an empty list can be read in context.
+
+# TalentTrack v4.128.0 — The install banner's "Install instructions" link now opens the instructions (#3739)
+
+The banner that asks players and parents to put TalentTrack on their phone
+built its "Install instructions" link on the site's home page rather than on
+the page hosting the TalentTrack dashboard. On any install where those are
+not the same page — which is most of them — the link dropped the reader on
+the website's front page instead of the walkthrough, at the one step that
+gets notifications working. It now resolves the same way every other help
+link does, for the iPhone, Android and generic articles alike. When an
+academy switches the Documentation module off, the link is left out
+altogether rather than pointing at a reader that is no longer there; the
+banner's other two buttons are unchanged.
+
+# TalentTrack v4.128.0 — The Injuries help page now names the role that carries the injury log (#3741)
+
+The "Who can do what" table on the Injuries help page was written before functional roles existed, so it listed WordPress roles only. A team manager who also does the first aid was refused the injury log, read the page, found no row for themselves and no way forward — and the knock ended up on a paper first-aid sheet instead of on the player's journey. The table now has a row for team staff holding the **Physio** functional role (see and record on their own teams, never delete) and a row for team staff holding any other functional role (nothing), plus a paragraph saying that injuries follow the functional role rather than the account type: a team manager who also does first aid is given Physio as a second functional role on that team. Both the English and the Dutch page changed. No access changed — this is what the product already did, written down.
+
 # TalentTrack v4.127.0 — Trial staff input stays editable on screen until the decision (#3649)
 
 On a trial case's Staff inputs tab, your own input used to disappear behind "You submitted on …" and "To edit after submit, ask the head of development" the moment you submitted it — even though the rule everywhere else in Trials is that the decision, not the submission, is the line, and the API went on accepting corrections. The message also showed to the head of development, and there was no reopen action anywhere to ask for. While the case is Open or Extended, a submitted input now keeps its form, prefilled, under a line saying when you handed it in and that you can still edit it until the trial is decided. It saves with a single **Save changes** button, which leaves the submission time alone: the "N of M assigned staff have submitted" count and the Release button do not move. Once the case is Decided or Archived the form is gone, as before.

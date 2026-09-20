@@ -1,3 +1,0 @@
-# Attendance reports read the same period over the API as on screen (#3717)
-
-The three attendance report endpoints — at-risk, leaderboard and the per-player rows — used to fall back to a rolling 90 days when no dates were sent, while the matching screens open on the current season. The same report could therefore flag a different set of players for an integration than for the coach looking at it. They now seed the season window the screens use, with the 90-day window kept only as the fallback for an install with no current season. Each response also carries the `from` and `to` it actually read over, so a period can be labelled and an empty list can be read in context.

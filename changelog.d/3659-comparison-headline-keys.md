@@ -1,3 +1,0 @@
-# Player comparison fills its headline numbers and category averages (#3659)
-
-The player comparison showed a rolling and an all-time average but left "Most recent" and "Evaluations" on a dash, and always claimed there was no category data — even for players with dozens of rated evaluations. Both comparison screens (the frontend one and the wp-admin twin) asked the stats service for keys it never returned. They now read the right ones, so you can see the latest overall rating, how many evaluations the averages rest on, and the average per main category. A category nobody in the comparison has been rated on is left out instead of showing a row of dashes; the empty state now appears only when there really is no rating in the filter window.
