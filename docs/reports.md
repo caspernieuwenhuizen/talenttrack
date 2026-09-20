@@ -319,6 +319,12 @@ something that is not a usable team id, and the request is refused with
 `400 bad_filter` whose `details.parameter` names the spelling at fault, rather
 than answered with an empty matrix that reads as "this team played nothing".
 
+A team outside your own scope is refused too, with `403 forbidden_team` through
+either spelling — the same refusal the attendance readers answer with. A team
+you *may* read that simply has no minutes recorded still comes back as an empty
+matrix with `200`, so "there is nothing here" and "you may not look here" remain
+two different answers.
+
 ### Per-match minutes editor
 
 The *Edit* / *Record* link on a matrix row opens the **per-match minutes editor**

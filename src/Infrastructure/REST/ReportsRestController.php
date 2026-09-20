@@ -292,7 +292,8 @@ final class ReportsRestController extends BaseController {
      * the same persisted `record_type='actual'` minutes as the minutes
      * report (#2193), so the two reconcile exactly. Team scope is enforced
      * via {@see attendanceScope()} — a coach who passes a team they don't
-     * coach gets an empty matrix, not another team's data.
+     * coach is refused, the way the three attendance readers on this
+     * controller refuse (#3792).
      */
     public static function minutesAudit( WP_REST_Request $req ): \WP_REST_Response {
         // #3790 — either spelling, nested wins, and a team nobody can
@@ -314,15 +315,13 @@ final class ReportsRestController extends BaseController {
         if ( ! in_array( $type, [ 'League', 'Cup', 'Friendly' ], true ) ) $type = 'all';
 
         $allowed = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] ) {
-            return RestResponse::success( [
-                'games'         => [],
-                'players'       => [],
-                'column_totals' => [],
-                'grand_total'   => 0,
-                'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0 ],
-            ] );
-        }
+        // #3792 — a permission block is not an empty result (#2893). The
+        // empty matrix this used to return says "this team recorded no
+        // minutes", which a coach checking another age group cannot tell
+        // apart from a refusal — a confident, wrong answer. The three
+        // attendance readers below refuse the same situation, and the
+        // per-match editor above already does.
+        if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $matrix = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type );
         return RestResponse::success( $matrix );

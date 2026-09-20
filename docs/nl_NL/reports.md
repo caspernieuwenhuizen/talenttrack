@@ -337,6 +337,12 @@ bruikbaar team-id is, dan wordt het verzoek geweigerd met `400 bad_filter`,
 waarbij `details.parameter` de schrijfwijze noemt die fout is — in plaats van een
 lege matrix die leest als "dit team heeft niet gespeeld".
 
+Een team buiten je eigen afbakening wordt ook geweigerd, met `403 forbidden_team`
+in beide schrijfwijzen — dezelfde weigering die de aanwezigheidsrapporten geven.
+Een team dat je *wel* mag lezen maar waarvoor geen minuten zijn vastgelegd, komt
+nog steeds terug als een lege matrix met `200`. Zo blijven "hier staat niets" en
+"hier mag je niet kijken" twee verschillende antwoorden.
+
 ### Per-wedstrijd minuten-editor
 
 De link *Bewerk* / *Registreer* op een matrixrij opent de **per-wedstrijd
