@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player tournaments tab — mockup</title>
+<style>
+/* ================================================================
+   Mockup — the Tournaments tab on the player file.
+
+   Production classes copied verbatim:
+     .tt-exposure__fact*   assets/css/frontend-training-exposure.css
+     .tt-notice, .tt-muted, .tt-small   public.css
+     tokens                 assets/css/tokens.css
+   New classes are .tt-ptour__* (would live in
+   assets/css/frontend-player-tournaments.css, mobile-first).
+   Level pill colours come from the tournament_opponent_level lookup's
+   meta.color, exactly as seeded by migration 0098.
+   ================================================================ */
+
+:root {
+  --tt-ink: #0e1a14; --tt-ink-soft: #6a6d66; --tt-paper: #fff; --tt-bg-soft: #f4f6f3;
+  --tt-line: #e3e6e1; --tt-line-soft: #eef0ec; --tt-primary: #0b3d2e;
+  --tt-success: #2f9e5e; --tt-success-subtle: #dff5e1; --tt-success-ink: #1f6d41;
+  --tt-warning-subtle: #fdf3d8; --tt-warning-ink: #8a5300;
+  --tt-info-subtle: #e6f0fa; --tt-info-ink: #1c5aa0; --tt-link: #2d6fb3;
+  --tt-radius: 8px; --tt-radius-lg: 14px;
+  --tt-sp-1: 4px; --tt-sp-2: 8px; --tt-sp-3: 12px; --tt-sp-4: 16px; --tt-sp-5: 20px;
+  --tt-fs-sm: 0.85rem;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 20px 16px; background: #f3f6f3; color: var(--tt-ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+
+/* ---- mockup chrome (NOT production) ---- */
+.mk-bar { background: #fff; border: 1px solid var(--tt-line); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+.mk-bar h1 { margin: 0 0 6px; font-size: 15px; }
+.mk-bar p { margin: 0 0 10px; font-size: 12.5px; line-height: 1.55; color: #3f4a44; max-width: 90ch; }
+.mk-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.mk-tabs button { font: inherit; font-size: 12.5px; padding: 8px 12px; min-height: 40px; border-radius: 8px;
+  border: 1px solid var(--tt-line); background: #fff; cursor: pointer; }
+.mk-tabs button[aria-pressed="true"] { background: var(--tt-primary); color: #fff; border-color: var(--tt-primary); }
+.mk-state { display: none; }
+.mk-state.is-on { display: block; }
+.mk-note { font-size: 12px; color: #3f4a44; background: #fffbea; border: 1px dashed #e0c860;
+  border-radius: 8px; padding: 8px 10px; margin: 12px 0; line-height: 1.5; }
+.mk-phone { width: 360px; margin: 0 auto; border: 10px solid #1d2320; border-radius: 28px; overflow: hidden; background: #fff; }
+.mk-phone .mk-screen { padding: 12px 16px 20px; }
+
+/* ---- page frame (simplified production chrome) ---- */
+.pf { background: #fff; border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: 16px; }
+.pf-crumbs { font-size: 12.5px; color: var(--tt-ink-soft); margin-bottom: 10px; }
+.pf-crumbs a { color: var(--tt-link); text-decoration: none; }
+.pf-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.pf-avatar { width: 48px; height: 48px; border-radius: 50%; background: #cfd8d2; flex: none; }
+.pf-name { font-weight: 800; font-size: 1.15rem; }
+.pf-sub { font-size: 12.5px; color: var(--tt-ink-soft); }
+.pf-strip { display: flex; gap: 4px; overflow-x: auto; border-bottom: 1px solid var(--tt-line); margin: 0 -16px 16px; padding: 0 16px; }
+.pf-strip a { flex: none; padding: 12px 10px; min-height: 48px; font-size: 13.5px; color: var(--tt-ink-soft);
+  text-decoration: none; border-bottom: 3px solid transparent; }
+.pf-strip a.is-active { color: var(--tt-ink); font-weight: 700; border-bottom-color: var(--tt-primary); }
+.pf-strip .ct { font-size: 11px; background: var(--tt-bg-soft); border-radius: 999px; padding: 1px 6px; margin-left: 4px; }
+
+/* ---- production: .tt-exposure__fact* (copied) ---- */
+.tt-exposure__facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--tt-sp-2); margin-bottom: var(--tt-sp-4); }
+.tt-exposure__fact { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--tt-radius-lg); padding: var(--tt-sp-3); }
+.tt-exposure__fact-value { display: block; font-size: 1.375rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.tt-exposure__fact-label { display: block; margin-top: 2px; font-size: 0.6875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tt-ink-soft); }
+.tt-exposure__fact-sub { display: block; margin-top: 2px; font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); }
+.tt-muted { color: var(--tt-ink-soft); }
+.tt-small { font-size: var(--tt-fs-sm); }
+.tt-notice { background: var(--tt-bg-soft); border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 12px; }
+
+/* ---- new: .tt-ptour__* ---- */
+.tt-ptour__upcoming { display: grid; gap: 2px; background: var(--tt-info-subtle); color: var(--tt-info-ink);
+  border-radius: var(--tt-radius); padding: var(--tt-sp-3); margin-bottom: var(--tt-sp-4); }
+.tt-ptour__upcoming strong { font-size: 0.95rem; }
+.tt-ptour__upcoming span { font-size: var(--tt-fs-sm); }
+
+.tt-ptour__title { margin: var(--tt-sp-5) 0 var(--tt-sp-2); font-size: 1rem; font-weight: 800; }
+.tt-ptour__list { display: grid; gap: var(--tt-sp-2); }
+
+.tt-ptour__tournament { border: 1px solid var(--tt-line); border-radius: var(--tt-radius); background: var(--tt-paper); }
+.tt-ptour__summary { list-style: none; cursor: pointer; display: grid; gap: 6px; padding: var(--tt-sp-3);
+  min-height: 48px; touch-action: manipulation; }
+.tt-ptour__summary::-webkit-details-marker { display: none; }
+.tt-ptour__summary:focus-visible { outline: 3px solid var(--tt-link); outline-offset: 2px; }
+.tt-ptour__summary-head { display: flex; justify-content: space-between; gap: var(--tt-sp-2); align-items: baseline; }
+.tt-ptour__name { font-weight: 700; }
+.tt-ptour__name::before { content: "▸ "; color: var(--tt-ink-soft); }
+.tt-ptour__tournament[open] .tt-ptour__name::before { content: "▾ "; }
+.tt-ptour__date { font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); white-space: nowrap; }
+.tt-ptour__meta { font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); }
+
+/* target bar: the only computed style (width = share of target) */
+.tt-ptour__target { display: grid; grid-template-columns: 1fr auto; gap: var(--tt-sp-2); align-items: center; }
+.tt-ptour__bar { height: 8px; border-radius: 999px; background: var(--tt-line-soft); overflow: hidden; }
+.tt-ptour__bar i { display: block; height: 100%; background: var(--tt-primary); }
+.tt-ptour__target.is-short .tt-ptour__bar i { background: #e8902b; }
+.tt-ptour__target-label { font-size: var(--tt-fs-sm); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tt-ptour__target.is-short .tt-ptour__target-label { color: var(--tt-warning-ink); font-weight: 700; }
+
+.tt-ptour__fixtures { list-style: none; margin: 0; padding: 0 var(--tt-sp-3) var(--tt-sp-3); display: grid; gap: 6px; }
+.tt-ptour__fixture { display: grid; grid-template-columns: 1fr auto; gap: 4px var(--tt-sp-2);
+  border-top: 1px solid var(--tt-line-soft); padding-top: var(--tt-sp-2); }
+.tt-ptour__opp { font-weight: 600; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tt-ptour__score { font-variant-numeric: tabular-nums; font-weight: 700; text-align: right; }
+.tt-ptour__score.is-none { color: var(--tt-ink-soft); font-weight: 400; }
+.tt-ptour__line { grid-column: 1 / -1; font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.tt-ptour__role { font-weight: 700; color: var(--tt-ink); }
+.tt-ptour__fixture.is-bench .tt-ptour__role { color: var(--tt-ink-soft); }
+.tt-ptour__fixture.is-upcoming .tt-ptour__opp { color: var(--tt-ink-soft); }
+
+.tt-ptour__level { font-size: 11px; font-weight: 700; border-radius: 999px; padding: 2px 8px; color: #fff; }
+.tt-ptour__level.lvl-weaker { background: #16a34a; }
+.tt-ptour__level.lvl-equal { background: #5b6e75; }
+.tt-ptour__level.lvl-stronger { background: #b45309; } /* #f59e0b fails 4.5:1 on white text; production darkens */
+.tt-ptour__level.lvl-much_stronger { background: #dc2626; }
+
+.tt-ptour__source { margin-top: var(--tt-sp-4); font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); line-height: 1.5; }
+
+@media (min-width: 768px) {
+  .tt-ptour__fixture { grid-template-columns: minmax(12rem, 2fr) 4rem 1fr 1fr 1fr; align-items: center; }
+  .tt-ptour__line { grid-column: auto; display: contents; }
+  .tt-ptour__line > span { font-size: var(--tt-fs-sm); color: var(--tt-ink-soft); }
+  .tt-ptour__score { text-align: center; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="mk-bar">
+  <h1>Player file · Tournaments tab (idea 0094)</h1>
+  <p>A player's tournament history in one place: minutes per the rotation plan, starts, full matches, minutes against stronger opponents, each tournament measured against the player's own target, and what is scheduled next. Decisions locked 2026-09-18. See <code>notes.md</code>.</p>
+  <div class="mk-tabs" role="group" aria-label="Mockup state">
+    <button type="button" data-state="staff" aria-pressed="true">A · Coach, desktop</button>
+    <button type="button" data-state="phone" aria-pressed="false">B · Player, 360px</button>
+    <button type="button" data-state="empty" aria-pressed="false">C · Never in a tournament squad</button>
+    <button type="button" data-state="hidden" aria-pressed="false">D · Parent, section not shared</button>
+  </div>
+</div>
+
+<!-- ============ A · coach, desktop ============ -->
+<section class="mk-state is-on" data-state="staff">
+<div class="pf">
+  <div class="pf-crumbs"><a href="#">Dashboard</a> › <a href="#">Spelers</a> › Daan de Vries</div>
+  <div class="pf-head">
+    <div class="pf-avatar" aria-hidden="true"></div>
+    <div><div class="pf-name">Daan de Vries</div><div class="pf-sub">JO13-1 · #7 · Middenvelder</div></div>
+  </div>
+  <nav class="pf-strip" aria-label="Speler">
+    <a href="#">Profiel</a><a href="#">Doelen<span class="ct">3</span></a><a href="#">Evaluaties<span class="ct">8</span></a>
+    <a href="#">Activiteiten<span class="ct">41</span></a><a href="#">Training</a>
+    <a href="#" class="is-active" aria-current="page">Toernooien<span class="ct">3</span></a><a href="#">POP</a><a href="#">Kaart</a>
+  </nav>
+
+  <div class="tt-ptour__upcoming" role="status">
+    <strong>Za 26 sep · Najaarstoernooi Hedel</strong>
+    <span>50 min gepland over 4 wedstrijden · 2× in de basis</span>
+  </div>
+
+  <div class="tt-exposure__facts">
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">215</span><span class="tt-exposure__fact-label">Minuten</span><span class="tt-exposure__fact-sub">11 wedstrijden, 3 toernooien</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">7 / 11</span><span class="tt-exposure__fact-label">Basisplaatsen</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">4</span><span class="tt-exposure__fact-label">Hele wedstrijden</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">95</span><span class="tt-exposure__fact-label">Tegen sterkere tegenstanders</span><span class="tt-exposure__fact-sub">44% van zijn minuten</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">2 / 3</span><span class="tt-exposure__fact-label">Doel gehaald</span><span class="tt-exposure__fact-sub">toernooien met een minutendoel</span></div>
+  </div>
+
+  <h3 class="tt-ptour__title">Per toernooi</h3>
+  <div class="tt-ptour__list">
+
+    <details class="tt-ptour__tournament" open>
+      <summary class="tt-ptour__summary">
+        <span class="tt-ptour__summary-head"><span class="tt-ptour__name">Voorjaarstoernooi Vught</span><span class="tt-ptour__date">zo 14 jun</span></span>
+        <span class="tt-ptour__target is-short"><span class="tt-ptour__bar"><i style="width:75%"></i></span><span class="tt-ptour__target-label">45 van 60 min doel</span></span>
+        <span class="tt-ptour__meta">JO13-1 · 4 wedstrijden · 3× basis</span>
+      </summary>
+      <ul class="tt-ptour__fixtures">
+        <li class="tt-ptour__fixture"><span class="tt-ptour__opp">RKSV Nuenen <span class="tt-ptour__level lvl-equal">Gelijk</span></span><span class="tt-ptour__score">2–1</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Basis</span><span>20 van 20 min</span><span>CM</span></span></li>
+        <li class="tt-ptour__fixture"><span class="tt-ptour__opp">PSV <span class="tt-ptour__level lvl-much_stronger">Veel sterker</span></span><span class="tt-ptour__score">0–4</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Basis</span><span>10 van 20 min</span><span>CM</span></span></li>
+        <li class="tt-ptour__fixture is-bench"><span class="tt-ptour__opp">Den Dungen <span class="tt-ptour__level lvl-weaker">Zwakker</span></span><span class="tt-ptour__score">3–0</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Wissel</span><span>0 van 20 min</span><span>—</span></span></li>
+        <li class="tt-ptour__fixture"><span class="tt-ptour__opp">FC Den Bosch <span class="tt-ptour__level lvl-stronger">Sterker</span></span><span class="tt-ptour__score is-none">geen uitslag</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Basis</span><span>15 van 20 min</span><span>CM, LB</span></span></li>
+      </ul>
+    </details>
+
+    <details class="tt-ptour__tournament">
+      <summary class="tt-ptour__summary">
+        <span class="tt-ptour__summary-head"><span class="tt-ptour__name">Paastoernooi Rosmalen</span><span class="tt-ptour__date">ma 6 apr</span></span>
+        <span class="tt-ptour__target"><span class="tt-ptour__bar"><i style="width:100%"></i></span><span class="tt-ptour__target-label">80 van 70 min doel</span></span>
+        <span class="tt-ptour__meta">JO13-1 · 4 wedstrijden · 3× basis</span>
+      </summary>
+    </details>
+
+    <details class="tt-ptour__tournament">
+      <summary class="tt-ptour__summary">
+        <span class="tt-ptour__summary-head"><span class="tt-ptour__name">Zaalvoetbal Kerst</span><span class="tt-ptour__date">za 20 dec</span></span>
+        <span class="tt-ptour__meta">JO12-1 · 3 wedstrijden · 1× basis · 90 min · geen minutendoel</span>
+      </summary>
+    </details>
+  </div>
+
+  <p class="tt-ptour__source">Minuten volgen het rotatieplan van afgeronde wedstrijden. Minuten die na afloop in het minutenoverzicht zijn ingevoerd staan op het tabblad Activiteiten.</p>
+</div>
+<div class="mk-note"><b>Why a target, not a squad average:</b> the planner already stores <code>target_minutes</code> per squad member for fair-share rotation. "45 of 60" is about this player alone, so it can go in front of a parent. Only a shortfall is coloured. <b>Upcoming</b> reads the fixture plan directly, because fixtures that haven't kicked off are not activities.</div>
+</section>
+
+<!-- ============ B · player, phone ============ -->
+<section class="mk-state" data-state="phone">
+<div class="mk-phone"><div class="mk-screen">
+  <div class="pf-crumbs"><a href="#">Dashboard</a> › Mijn profiel</div>
+  <nav class="pf-strip" aria-label="Speler">
+    <a href="#">Profiel</a><a href="#">Doelen</a><a href="#" class="is-active" aria-current="page">Toernooien<span class="ct">3</span></a><a href="#">POP</a>
+  </nav>
+  <div class="tt-ptour__upcoming" role="status">
+    <strong>Za 26 sep · Najaarstoernooi Hedel</strong>
+    <span>50 min gepland over 4 wedstrijden · 2× in de basis</span>
+  </div>
+  <div class="tt-exposure__facts">
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">215</span><span class="tt-exposure__fact-label">Minuten</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">7 / 11</span><span class="tt-exposure__fact-label">Basisplaatsen</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">4</span><span class="tt-exposure__fact-label">Hele wedstrijden</span></div>
+    <div class="tt-exposure__fact"><span class="tt-exposure__fact-value">95</span><span class="tt-exposure__fact-label">Tegen sterkere</span></div>
+  </div>
+  <h3 class="tt-ptour__title">Per toernooi</h3>
+  <div class="tt-ptour__list">
+    <details class="tt-ptour__tournament" open>
+      <summary class="tt-ptour__summary">
+        <span class="tt-ptour__summary-head"><span class="tt-ptour__name">Voorjaarstoernooi Vught</span><span class="tt-ptour__date">14 jun</span></span>
+        <span class="tt-ptour__target is-short"><span class="tt-ptour__bar"><i style="width:75%"></i></span><span class="tt-ptour__target-label">45 / 60 min</span></span>
+      </summary>
+      <ul class="tt-ptour__fixtures">
+        <li class="tt-ptour__fixture"><span class="tt-ptour__opp">RKSV Nuenen <span class="tt-ptour__level lvl-equal">Gelijk</span></span><span class="tt-ptour__score">2–1</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Basis</span><span>20 van 20 min</span><span>CM</span></span></li>
+        <li class="tt-ptour__fixture"><span class="tt-ptour__opp">PSV <span class="tt-ptour__level lvl-much_stronger">Veel sterker</span></span><span class="tt-ptour__score">0–4</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Basis</span><span>10 van 20 min</span><span>CM</span></span></li>
+        <li class="tt-ptour__fixture is-bench"><span class="tt-ptour__opp">Den Dungen <span class="tt-ptour__level lvl-weaker">Zwakker</span></span><span class="tt-ptour__score">3–0</span>
+          <span class="tt-ptour__line"><span class="tt-ptour__role">Wissel</span><span>0 min</span></span></li>
+      </ul>
+    </details>
+    <details class="tt-ptour__tournament">
+      <summary class="tt-ptour__summary">
+        <span class="tt-ptour__summary-head"><span class="tt-ptour__name">Paastoernooi Rosmalen</span><span class="tt-ptour__date">6 apr</span></span>
+        <span class="tt-ptour__target"><span class="tt-ptour__bar"><i style="width:100%"></i></span><span class="tt-ptour__target-label">80 / 70 min</span></span>
+      </summary>
+    </details>
+  </div>
+</div></div>
+<div class="mk-note">360px: the facts wrap to two columns, the fixture lines stack, and every summary row is a 48px tap target. A player sees only their own minutes. Teammates never appear, which is why the comparison is against the player's own target.</div>
+</section>
+
+<!-- ============ C · empty ============ -->
+<section class="mk-state" data-state="empty">
+<div class="pf">
+  <nav class="pf-strip" aria-label="Speler"><a href="#">Profiel</a><a href="#" class="is-active" aria-current="page">Toernooien</a><a href="#">POP</a></nav>
+  <p class="tt-muted">Daan heeft nog in geen enkele toernooiselectie gezeten.</p>
+</div>
+<div class="mk-note">No count badge on the tab when the count is 0, the same rule as the other counted tabs. The tab still shows, because a coach checking fair-share play needs to see "never selected" as a finding.</div>
+</section>
+
+<!-- ============ D · parent, hidden ============ -->
+<section class="mk-state" data-state="hidden">
+<div class="pf">
+  <nav class="pf-strip" aria-label="Speler"><a href="#">Profiel</a><a href="#" class="is-active" aria-current="page">Toernooien</a></nav>
+  <p class="tt-notice">Daan heeft ervoor gekozen zijn toernooigeschiedenis niet te delen.</p>
+</div>
+<div class="mk-note">A new <code>tournaments</code> parent-visibility section, next to goals, evaluations, PDP and training. The REST route applies the same check, so the screen and the API agree (the #1867 pattern <code>PlayerTrainingTab</code> already follows).</div>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('.mk-tabs button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.mk-tabs button').forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+    document.querySelectorAll('.mk-state').forEach(function (s) { s.classList.toggle('is-on', s.getAttribute('data-state') === b.getAttribute('data-state')); });
+  });
+});
+</script>
+</body>
+</html>

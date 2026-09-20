@@ -1,0 +1,1207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team monthly report — mockup</title>
+<style>
+/* ===========================================================================
+   Team monthly report — composition panel + three paper layouts + online view.
+
+   TOKENS: the shipped 2026 green/gold set from assets/css/tokens.css.
+   --tt-primary / --tt-secondary are the operator's club colours (BrandStyles
+   emits them on :root); the hex here is the shipped fallback.
+
+   LAYOUT CONSTRAINT — read before "improving" the markup:
+   the PDF path is DomPDF 3.0 (composer.json), which implements CSS 2.1 only:
+   TABLES, floats and inline-block. NO flexbox, NO CSS grid. Every paper
+   layout below is therefore built on <table>, deliberately. The composition
+   panel and the online view are browser-only and use modern CSS.
+   =========================================================================== */
+:root {
+    --tt-primary:   #0b3d2e;
+    --tt-secondary: #e8b624;
+
+    --tt-ink:       #0e1a14;
+    --tt-ink-soft:  #6a6d66;
+    --tt-muted:     #6a6d66;
+    --tt-paper:     #ffffff;
+    --tt-bg-soft:   #f4f6f3;
+    --tt-line:      #e3e6e1;
+    --tt-line-soft: #eef0ec;
+
+    --tt-success:   #2f9e5e;
+    --tt-danger:    #d8453b;
+    --tt-warning:   #e8902b;
+    --tt-info:      #2d6fb3;
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle:  #fde2e2;
+    --tt-info-subtle:    #e6f0fa;
+
+    --tt-radius:    8px;
+    --tt-radius-lg: 14px;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: var(--tt-ink);
+    background: #6b7280;
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+[hidden] { display: none !important; }
+
+/* ---- Mockup-only strip ------------------------------------------------- */
+.mockup-bar {
+    background: #1c1f1e; color: #eee; font-size: 12px;
+    padding: 8px 12px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.mockup-bar strong { color: var(--tt-secondary); }
+.mockup-bar button {
+    background: #3a403d; color: #eee; border: 1px solid #5a615d;
+    padding: 5px 10px; border-radius: 4px; font: inherit; cursor: pointer; font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: var(--tt-secondary); color: #1c1f1e; border-color: var(--tt-secondary); font-weight: 700; }
+
+/* ===========================================================================
+   COMPOSITION PANEL — the proposed production surface, not mockup chrome.
+   =========================================================================== */
+.compose {
+    position: sticky; top: 0; z-index: 90;
+    background: var(--tt-paper);
+    border-bottom: 3px solid var(--tt-primary);
+    padding: 14px 16px 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+.compose__in { max-width: 1180px; margin: 0 auto; display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 900px) { .compose__in { grid-template-columns: 250px 1fr 210px; } }
+
+.compose__h {
+    font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+    color: var(--tt-muted); margin: 0 0 8px;
+}
+
+/* Report type — three cards */
+.types { display: grid; gap: 6px; }
+.type {
+    display: flex; gap: 9px; align-items: flex-start;
+    border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    padding: 8px 10px; cursor: pointer; background: var(--tt-paper);
+    min-height: 48px; text-align: left; font: inherit; color: inherit; width: 100%;
+}
+.type:hover { border-color: var(--tt-primary); }
+.type[aria-pressed="true"] { border-color: var(--tt-primary); border-width: 2px; background: #f3f8f5; padding: 7px 9px; }
+.type__ico { flex: 0 0 auto; width: 20px; height: 26px; border: 1.5px solid var(--tt-primary); border-radius: 2px; position: relative; margin-top: 2px; }
+.type__ico i { position: absolute; left: 2px; right: 2px; height: 1.5px; background: var(--tt-primary); opacity: .45; }
+.type__ico--stack { box-shadow: 3px 3px 0 -1px var(--tt-paper), 4px 4px 0 -1px var(--tt-primary); }
+.type__ico--land { width: 28px; height: 19px; }
+.type__t { font-weight: 700; font-size: .84rem; display: block; line-height: 1.25; }
+.type__d { font-size: .72rem; color: var(--tt-muted); display: block; margin-top: 2px; line-height: 1.35; }
+
+/* Blocks */
+.blocks { display: grid; gap: 5px; grid-template-columns: 1fr; }
+@media (min-width: 560px) { .blocks { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .blocks { grid-template-columns: 1fr 1fr 1fr; } }
+.blk {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 9px; border: 1px solid var(--tt-line); border-radius: var(--tt-radius);
+    font-size: .8rem; min-height: 40px; cursor: pointer; background: var(--tt-paper);
+}
+.blk:hover { border-color: var(--tt-primary); }
+.blk input { width: 17px; height: 17px; accent-color: var(--tt-primary); flex: 0 0 auto; margin: 0; }
+.blk__t { line-height: 1.2; }
+.blk__n { font-size: .68rem; color: var(--tt-muted); display: block; }
+.blk--locked { background: var(--tt-bg-soft); cursor: not-allowed; color: var(--tt-muted); }
+.blk--locked .blk__t { color: var(--tt-ink); }
+.blk--na { opacity: .45; cursor: not-allowed; background: var(--tt-bg-soft); }
+.blk--na .blk__n { color: var(--tt-danger); }
+
+/* Budget meter */
+.budget { border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 10px 11px; background: var(--tt-bg-soft); }
+.budget__n { font-size: 1.35rem; font-weight: 800; color: var(--tt-primary); line-height: 1.1; }
+.budget__s { font-size: .72rem; color: var(--tt-muted); }
+.budget__bars { display: grid; gap: 5px; margin: 9px 0 0; }
+.budget__row { display: flex; align-items: center; gap: 6px; font-size: .68rem; color: var(--tt-muted); }
+.budget__lbl { flex: 0 0 34px; font-weight: 700; }
+.budget__track { flex: 1; height: 8px; border-radius: 4px; background: var(--tt-line-soft); overflow: hidden; }
+.budget__fill { display: block; height: 8px; background: var(--tt-success); }
+.budget__fill.warn { background: var(--tt-warning); }
+.budget__fill.over { background: var(--tt-danger); }
+.budget__pct { flex: 0 0 30px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.budget__msg { font-size: .72rem; margin: 9px 0 0; line-height: 1.4; padding: 7px 8px; border-radius: 6px; }
+.budget__msg.ok   { background: var(--tt-success-subtle); color: #14603a; }
+.budget__msg.warn { background: var(--tt-warning-subtle); color: #7a4a06; }
+.budget__msg.over { background: var(--tt-danger-subtle); color: #a32b22; }
+
+.compose__acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.btn {
+    display: inline-flex; align-items: center; justify-content: center; min-height: 44px;
+    padding: 8px 15px; border-radius: var(--tt-radius); border: 1px solid var(--tt-line);
+    background: var(--tt-paper); color: var(--tt-ink); font: inherit; font-size: .82rem;
+    font-weight: 600; cursor: pointer; text-decoration: none;
+}
+.btn--primary { background: var(--tt-primary); border-color: var(--tt-primary); color: #fff; }
+.preset { font-size: .75rem; color: var(--tt-muted); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.preset select { font: inherit; font-size: .75rem; padding: 6px 8px; border: 1px solid var(--tt-line); border-radius: 6px; min-height: 36px; }
+
+/* ---- Stage / paper ----------------------------------------------------- */
+.stage { padding: 20px 12px 60px; }
+.variant { display: none; }
+body[data-variant="A"] #v-A,
+body[data-variant="B"] #v-B,
+body[data-variant="C"] #v-C,
+body[data-variant="online"] #v-online { display: block; }
+body[data-variant="online"] .compose__budgetwrap { display: none; }
+
+.sheet {
+    background: var(--tt-paper);
+    width: 210mm; min-height: 297mm;
+    margin: 0 auto 20px;
+    padding: 12mm 12mm 14mm;
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    position: relative;
+    font-size: 8.6pt;
+    line-height: 1.34;
+}
+.sheet--land { width: 297mm; min-height: 210mm; }
+.sheet--over { outline: 3px solid var(--tt-danger); outline-offset: 4px; }
+.sheet__over {
+    position: absolute; top: -13px; right: 10px; background: var(--tt-danger); color: #fff;
+    font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; letter-spacing: .04em;
+}
+.sheet__num { position: absolute; bottom: 5mm; right: 12mm; font-size: 7pt; color: var(--tt-muted); }
+.sheet__foot {
+    position: absolute; bottom: 5mm; left: 12mm; right: 30mm;
+    font-size: 6.6pt; color: var(--tt-muted);
+    border-top: 1px solid var(--tt-line); padding-top: 2mm;
+}
+/* The line the content must not cross — mockup aid, never printed. */
+.sheet__limit {
+    position: absolute; left: 0; right: 0; bottom: 14mm;
+    border-top: 1px dashed var(--tt-danger); pointer-events: none;
+}
+.sheet__limit::after {
+    content: 'page limit'; position: absolute; right: 12mm; top: -13px;
+    font-size: 8px; color: var(--tt-danger); font-weight: 700; letter-spacing: .04em;
+}
+body:not([data-guides="on"]) .sheet__limit { display: none; }
+
+/* ---- Letterhead -------------------------------------------------------- */
+.lh { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+.lh td { vertical-align: middle; padding: 0; }
+.lh__crest {
+    width: 14mm; height: 14mm; border-radius: 3mm;
+    background: var(--tt-primary); color: var(--tt-secondary);
+    text-align: center; font-weight: 800; font-size: 11pt; line-height: 14mm; letter-spacing: -.5px;
+}
+.lh__crest-cell { width: 18mm; }
+.lh__title { font-size: 15pt; font-weight: 800; color: var(--tt-primary); line-height: 1.1; margin: 0; }
+.lh__sub { font-size: 8pt; color: var(--tt-muted); margin: 1mm 0 0; }
+.lh__right { text-align: right; font-size: 7.2pt; color: var(--tt-muted); line-height: 1.5; }
+.lh__right b { color: var(--tt-ink); font-weight: 700; }
+.lh__rule { height: 2px; background: var(--tt-primary); margin: 2.5mm 0 3.5mm; }
+.lh__rule i { display: block; height: 2px; width: 28mm; background: var(--tt-secondary); }
+
+/* ---- Coverage banner --------------------------------------------------- */
+.cov {
+    border: 1px solid var(--tt-warning); background: var(--tt-warning-subtle);
+    border-radius: var(--tt-radius); padding: 2mm 3mm; margin: 0 0 3.5mm;
+    font-size: 7.2pt; color: #7a4a06;
+}
+.cov b { color: #5c3703; }
+
+/* ---- Sections ---------------------------------------------------------- */
+.sec { margin: 0 0 3.5mm; }
+.sec__h {
+    font-size: 8.4pt; font-weight: 800; color: var(--tt-primary);
+    text-transform: uppercase; letter-spacing: .07em;
+    border-bottom: 1px solid var(--tt-line); padding-bottom: 1mm; margin: 0 0 2mm;
+}
+.sec__h span { float: right; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--tt-muted); font-size: 7.2pt; }
+
+/* ---- KPI strip --------------------------------------------------------- */
+.kpi { width: 100%; border-collapse: separate; border-spacing: 2mm 0; margin: 0 0 3.5mm; table-layout: fixed; }
+.kpi td { background: var(--tt-bg-soft); border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 2mm 2.2mm; vertical-align: top; }
+.kpi__n { font-size: 15pt; font-weight: 800; color: var(--tt-primary); line-height: 1; display: block; }
+.kpi__n small { font-size: 8pt; font-weight: 700; color: var(--tt-muted); }
+.kpi__l { font-size: 6.6pt; color: var(--tt-muted); text-transform: uppercase; letter-spacing: .05em; display: block; margin-top: 1.2mm; font-weight: 700; }
+.kpi__d { font-size: 6.6pt; display: block; margin-top: .8mm; font-weight: 700; }
+.kpi__d--up { color: var(--tt-success); } .kpi__d--down { color: var(--tt-danger); } .kpi__d--flat { color: var(--tt-muted); }
+.kpi td.is-alert { background: var(--tt-danger-subtle); border-color: var(--tt-danger); }
+.kpi td.is-alert .kpi__n { color: #a32b22; }
+
+/* ---- Status band ------------------------------------------------------- */
+.band { width: 100%; border-collapse: collapse; margin: 0 0 1.5mm; }
+.band td { height: 7mm; color: #fff; font-size: 7.4pt; font-weight: 800; text-align: center; vertical-align: middle; }
+.band .g { background: var(--tt-success); } .band .a { background: var(--tt-warning); }
+.band .r { background: var(--tt-danger); }  .band .u { background: #b9bfba; }
+.band__key { font-size: 6.8pt; color: var(--tt-muted); }
+
+/* ---- Bars -------------------------------------------------------------- */
+.bars { width: 100%; border-collapse: collapse; }
+.bars td { padding: .7mm 0; vertical-align: middle; font-size: 7.4pt; }
+.bars .nm { width: 30mm; white-space: nowrap; overflow: hidden; }
+.bars .vl { width: 12mm; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.track { background: var(--tt-line-soft); border-radius: 2px; height: 3.4mm; position: relative; }
+.track i { display: block; height: 3.4mm; border-radius: 2px; background: var(--tt-primary); }
+.track i.w { background: var(--tt-warning); } .track i.d { background: var(--tt-danger); }
+.track b { position: absolute; top: -.6mm; bottom: -.6mm; width: 0; border-left: 1px dashed var(--tt-ink-soft); }
+body:not([data-full="on"]) .bars tr[data-xtra] { display: none; }
+body[data-full="on"] .bars tr[data-elide] { display: none; }
+
+/* ---- Tables ------------------------------------------------------------ */
+.tbl { width: 100%; border-collapse: collapse; font-size: 7.3pt; }
+.tbl th { background: var(--tt-primary); color: #fff; text-align: left; padding: 1.4mm; font-size: 6.6pt; text-transform: uppercase; letter-spacing: .04em; font-weight: 700; }
+.tbl th.n, .tbl td.n { text-align: right; }
+.tbl th.c, .tbl td.c { text-align: center; }
+.tbl td { padding: 1.3mm 1.4mm; border-bottom: 1px solid var(--tt-line); vertical-align: middle; font-variant-numeric: tabular-nums; }
+.tbl tr:nth-child(even) td { background: #fafbfa; }
+.tbl td.nm { font-weight: 600; font-variant-numeric: normal; }
+.dot { display: inline-block; width: 2.6mm; height: 2.6mm; border-radius: 50%; vertical-align: -.3mm; }
+.dot.g { background: var(--tt-success); } .dot.a { background: var(--tt-warning); }
+.dot.r { background: var(--tt-danger); }  .dot.u { background: #b9bfba; }
+.lo { color: var(--tt-danger); font-weight: 700; }
+.mid { color: var(--tt-warning); font-weight: 700; }
+.mute { color: var(--tt-muted); }
+
+/* ---- Attention --------------------------------------------------------- */
+.att { width: 100%; border-collapse: separate; border-spacing: 0 1.6mm; }
+.att td { border: 1px solid var(--tt-line); border-left-width: 3px; padding: 1.8mm 2.2mm; }
+.att td.r { border-left-color: var(--tt-danger); }
+.att td.a { border-left-color: var(--tt-warning); }
+.att__n { font-weight: 800; font-size: 8pt; }
+.att__w { font-size: 7.2pt; margin: .6mm 0 0; }
+.att__x { font-size: 7.2pt; color: var(--tt-primary); margin: .6mm 0 0; font-weight: 700; }
+body:not([data-full="on"]) .att tr[data-xtra] { display: none; }
+
+/* ---- Changes / tests --------------------------------------------------- */
+.chg { width: 100%; border-collapse: collapse; font-size: 7.3pt; }
+.chg td { padding: 1.1mm 0; border-bottom: 1px dotted var(--tt-line); vertical-align: top; }
+.chg .dt { width: 16mm; color: var(--tt-muted); white-space: nowrap; }
+.tag { display: inline-block; padding: 0 1.4mm; border-radius: 3px; font-size: 6.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+.tag--inj { background: var(--tt-danger-subtle); color: #a32b22; }
+.tag--pos { background: var(--tt-info-subtle); color: #1d4e80; }
+.tag--pdp { background: var(--tt-success-subtle); color: #14603a; }
+.tag--tm  { background: var(--tt-warning-subtle); color: #7a4a06; }
+.mv { width: 100%; border-collapse: collapse; font-size: 7.3pt; }
+.mv td { padding: 1.1mm 0; border-bottom: 1px dotted var(--tt-line); }
+.mv .d { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.mv .d.up { color: var(--tt-success); } .mv .d.dn { color: var(--tt-danger); }
+
+/* ---- Notes ------------------------------------------------------------- */
+.notes { border: 1px solid var(--tt-line); border-radius: var(--tt-radius); padding: 2.4mm; }
+.notes__l { border-bottom: 1px solid var(--tt-line-soft); height: 6mm; }
+.notes__cap { font-size: 6.8pt; color: var(--tt-muted); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin: 0 0 1.5mm; }
+body:not([data-full="on"]) .notes__l[data-xtra] { display: none; }
+
+/* ---- Two-column pairs (table, DomPDF-safe) ----------------------------- */
+.cols { width: 100%; border-collapse: separate; border-spacing: 4mm 0; table-layout: fixed; }
+.cols > tbody > tr > td { vertical-align: top; padding: 0; }
+
+/* ===========================================================================
+   ONLINE view
+   =========================================================================== */
+.tt-dashboard { max-width: 1040px; margin: 0 auto; background: var(--tt-bg-soft); padding: 16px; border-radius: 14px; font-size: 15px; }
+.tt-rep-page-head { background: var(--tt-paper); padding: 16px; border-radius: 14px; border: 1px solid var(--tt-line); margin: 0 0 16px; }
+.tt-rep-page-head h1 { margin: 0 0 4px; font-size: 1.75rem; font-weight: 800; line-height: 1.2; }
+.tt-rep-page-head__sub { margin: 0; font-size: .85rem; color: var(--tt-muted); }
+.tt-rep-page-head__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.tt-rep-kpi-row { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 0 0 16px; }
+@media (min-width: 768px) { .tt-rep-kpi-row { grid-template-columns: repeat(auto-fit, minmax(150px,1fr)); } }
+.tt-kpi { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: 14px; padding: 14px; }
+.tt-kpi__n { font-size: 1.6rem; font-weight: 800; color: var(--tt-primary); line-height: 1; display: block; }
+.tt-kpi__l { font-size: .72rem; color: var(--tt-muted); text-transform: uppercase; letter-spacing: .05em; font-weight: 700; display: block; margin-top: 6px; }
+.tt-kpi__d { font-size: .72rem; font-weight: 700; display: block; margin-top: 4px; }
+.tt-rep-section { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: 14px; padding: 16px; margin: 0 0 16px; }
+.tt-rep-section__title { margin: 0 0 12px; font-size: 1.125rem; font-weight: 700; }
+.tt-rep-section .tbl { font-size: .82rem; }
+.tt-rep-section .tbl th { font-size: .68rem; padding: 8px; }
+.tt-rep-section .tbl td { padding: 9px 8px; }
+.tt-rep-section .bars td { font-size: .82rem; padding: 3px 0; }
+.tt-rep-section .bars .nm { width: 160px; }
+.tt-rep-section .bars .vl { width: 52px; }
+.tt-rep-section .track, .tt-rep-section .track i { height: 14px; border-radius: 4px; }
+.online-note { background: var(--tt-info-subtle); border: 1px solid var(--tt-info); border-radius: 8px; padding: 10px 12px; font-size: .8rem; color: #1d4e80; margin: 0 0 16px; }
+
+/* ---- Print ------------------------------------------------------------- */
+@page { size: A4 portrait; margin: 12mm; }
+@media print {
+    body { background: #fff; }
+    .mockup-bar, .compose, .online-note, .sheet__limit, .sheet__over { display: none !important; }
+    .stage { padding: 0; }
+    .sheet { width: auto; min-height: 0; margin: 0; padding: 0; box-shadow: none; outline: none; page-break-after: always; }
+    .sheet:last-child { page-break-after: auto; }
+}
+</style>
+</head>
+<body data-variant="B" data-guides="on" data-full="on">
+
+<div class="mockup-bar">
+    <strong>Mockup</strong>
+    <span>The panel below is the proposed production surface. Toggle blocks and watch the paper reflow.</span>
+    <button type="button" id="guides" aria-pressed="true">Page-limit guide</button>
+    <button type="button" id="goOnline" aria-pressed="false">Online view</button>
+</div>
+
+<!-- =======================================================================
+     COMPOSITION PANEL
+     ======================================================================= -->
+<div class="compose">
+<div class="compose__in">
+
+    <div>
+        <p class="compose__h">Report type</p>
+        <div class="types">
+            <button type="button" class="type" data-v="A" aria-pressed="false">
+                <span class="type__ico"><i style="top:4px"></i><i style="top:8px"></i><i style="top:12px"></i></span>
+                <span><span class="type__t">One-pager</span><span class="type__d">A4 portrait, 1 page. Hand a copy to everyone.</span></span>
+            </button>
+            <button type="button" class="type" data-v="B" aria-pressed="true">
+                <span class="type__ico type__ico--stack"><i style="top:4px"></i><i style="top:8px"></i><i style="top:12px"></i></span>
+                <span><span class="type__t">Three-page pack</span><span class="type__d">A4 portrait, up to 3 pages. Room for the roster table.</span></span>
+            </button>
+            <button type="button" class="type" data-v="C" aria-pressed="false">
+                <span class="type__ico type__ico--land"><i style="top:4px"></i><i style="top:8px"></i><i style="top:12px"></i></span>
+                <span><span class="type__t">Landscape matrix</span><span class="type__d">A4 landscape, 1 page. Whole squad comparable in one read.</span></span>
+            </button>
+        </div>
+    </div>
+
+    <div>
+        <p class="compose__h">Blocks</p>
+        <div class="blocks" id="blocks"></div>
+        <div class="compose__acts">
+            <button type="button" class="btn btn--primary">Download PDF</button>
+            <button type="button" class="btn">Open online</button>
+            <button type="button" class="btn">Email to staff</button>
+            <button type="button" class="btn">Schedule monthly</button>
+        </div>
+        <p class="preset" style="margin:10px 0 0;">
+            <span>Preset</span>
+            <select><option>Staff meeting (default)</option><option>Short — HoD summary</option><option>Full pack with roster</option><option>Save current as…</option></select>
+            <span style="color:var(--tt-muted)">— remembered per coach per team, and reused by the monthly schedule.</span>
+        </p>
+    </div>
+
+    <div class="compose__budgetwrap">
+        <p class="compose__h">Fit</p>
+        <div class="budget">
+            <div><span class="budget__n" id="bPages">3</span> <span class="budget__s" id="bPagesL">pages</span></div>
+            <div class="budget__bars" id="bBars"></div>
+            <p class="budget__msg ok" id="bMsg">Everything fits.</p>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<div class="stage">
+
+<!-- =======================================================================
+     A — ONE-PAGER
+     ======================================================================= -->
+<div class="variant" id="v-A">
+<div class="sheet" data-page>
+    <div class="sheet__limit"></div>
+
+    <div data-block="letterhead">
+        <table class="lh"><tr>
+            <td class="lh__crest-cell"><div class="lh__crest">VCT</div></td>
+            <td>
+                <p class="lh__title">JO13-1 — Monthly report</p>
+                <p class="lh__sub">August 2026 &middot; 1&ndash;31 Aug &middot; Head coach: C. Nieuwenhuizen</p>
+            </td>
+            <td class="lh__right"><b>Staff meeting</b><br>2 September 2026<br>Generated 1 Sep 2026 06:00<br>14 players &middot; 17 activities</td>
+        </tr></table>
+        <div class="lh__rule"><i></i></div>
+    </div>
+
+    <div class="cov" data-block="coverage">
+        <b>Read the numbers with this in mind:</b> based on 16 of 17 completed activities.
+        The match on 24 Aug has no attendance recorded, and minutes are recorded for 3 of 4 matches.
+        2 of 14 players have no evaluation in this window.
+    </div>
+
+    <table class="kpi" data-block="kpi"><tr>
+        <td><span class="kpi__n">16</span><span class="kpi__l">Activities</span><span class="kpi__d kpi__d--flat">12 training &middot; 4 match</span></td>
+        <td><span class="kpi__n">82<small>%</small></span><span class="kpi__l">Attendance</span><span class="kpi__d kpi__d--down">&darr; 5 pts vs July</span></td>
+        <td><span class="kpi__n">91<small>%</small></span><span class="kpi__l">Median min share</span><span class="kpi__d kpi__d--up">&uarr; 4 pts</span></td>
+        <td><span class="kpi__n">12<small>/14</small></span><span class="kpi__l">Evaluated</span><span class="kpi__d kpi__d--flat">86% coverage</span></td>
+        <td><span class="kpi__n">12<small>/14</small></span><span class="kpi__l">Tested</span><span class="kpi__d kpi__d--flat">6 Aug session</span></td>
+        <td class="is-alert"><span class="kpi__n">5</span><span class="kpi__l">Need attention</span><span class="kpi__d kpi__d--down">1 red &middot; 4 amber</span></td>
+    </tr></table>
+
+    <div class="sec" data-block="status">
+        <p class="sec__h">Squad status <span>Composite of rating, behaviour, attendance and potential</span></p>
+        <table class="band"><tr>
+            <td class="g" style="width:64.3%">9 on track</td><td class="a" style="width:28.6%">4 watch</td><td class="r" style="width:7.1%">1</td>
+        </tr></table>
+        <p class="band__key">Green 9 &middot; Amber 4 &middot; Red 1 &middot; Unknown 0. Last month: 10 / 3 / 1.</p>
+    </div>
+
+    <table class="cols" data-pair><tr>
+        <td data-cell="attendance" style="width:50%">
+            <div class="sec">
+                <p class="sec__h">Attendance <span>team 82%</span></p>
+                <table class="bars">
+                    <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+                    <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+                    <tr><td class="nm">Joep Vermeulen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+                    <tr data-xtra><td class="nm">Sem de Vries</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+                    <tr data-xtra><td class="nm">Noah Smit</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+                    <tr data-xtra><td class="nm">Sven Dekker</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+                    <tr data-xtra><td class="nm">Daan Bakker</td><td><div class="track"><i style="width:88%"></i></div></td><td class="vl">88%</td></tr>
+                    <tr data-xtra><td class="nm">Tim Bos</td><td><div class="track"><i style="width:88%"></i></div></td><td class="vl">88%</td></tr>
+                    <tr data-xtra><td class="nm">Finn Visser</td><td><div class="track"><i style="width:81%"></i></div></td><td class="vl">81%</td></tr>
+                    <tr data-xtra><td class="nm">Jesse Mulder</td><td><div class="track"><i style="width:75%"></i></div></td><td class="vl">75%</td></tr>
+                    <tr data-elide><td class="nm mute" colspan="3" style="padding:1.4mm 0 .6mm;font-size:6.6pt;">&hellip; 7 players between 75% and 94% &hellip;</td></tr>
+                    <tr><td class="nm">Bram Hendriks</td><td><div class="track"><i class="w" style="width:69%"></i></div></td><td class="vl mid">69%</td></tr>
+                    <tr><td class="nm">Milan de Boer</td><td><div class="track"><i class="w" style="width:63%"></i></div></td><td class="vl mid">63%</td></tr>
+                    <tr><td class="nm">Thijs Koning</td><td><div class="track"><i class="d" style="width:56%"></i></div></td><td class="vl lo">56%</td></tr>
+                    <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:44%"></i></div></td><td class="vl lo">44%</td></tr>
+                </table>
+            </div>
+        </td>
+        <td data-cell="minutes" style="width:50%">
+            <div class="sec">
+                <p class="sec__h">Minutes share <span>of 180 available</span></p>
+                <table class="bars">
+                    <tr><td class="nm">Sem de Vries</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">180</td></tr>
+                    <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">180</td></tr>
+                    <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">180</td></tr>
+                    <tr data-xtra><td class="nm">Sven Dekker</td><td><div class="track"><i style="width:97%"></i></div></td><td class="vl">175</td></tr>
+                    <tr data-xtra><td class="nm">Noah Smit</td><td><div class="track"><i style="width:96%"></i></div></td><td class="vl">172</td></tr>
+                    <tr data-xtra><td class="nm">Tim Bos</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">170</td></tr>
+                    <tr data-xtra><td class="nm">Daan Bakker</td><td><div class="track"><i style="width:93%"></i></div></td><td class="vl">168</td></tr>
+                    <tr data-xtra><td class="nm">Finn Visser</td><td><div class="track"><i style="width:89%"></i></div></td><td class="vl">160</td></tr>
+                    <tr data-xtra><td class="nm">Jesse Mulder</td><td><div class="track"><i style="width:83%"></i></div></td><td class="vl">150</td></tr>
+                    <tr data-elide><td class="nm mute" colspan="3" style="padding:1.4mm 0 .6mm;font-size:6.6pt;">&hellip; 6 players between 83% and 97% &hellip;</td></tr>
+                    <tr><td class="nm">Bram Hendriks</td><td><div class="track"><i style="width:78%"></i></div></td><td class="vl">140</td></tr>
+                    <tr><td class="nm">Milan de Boer</td><td><div class="track"><i class="w" style="width:61%"></i></div></td><td class="vl mid">110</td></tr>
+                    <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:33%"></i></div></td><td class="vl lo">60</td></tr>
+                    <tr><td class="nm">Joep Vermeulen</td><td><div class="track"><i class="d" style="width:14%"></i></div></td><td class="vl lo">25</td></tr>
+                </table>
+            </div>
+        </td>
+    </tr></table>
+
+    <div class="sec" data-block="attention">
+        <p class="sec__h">Needs a conversation <span>5 of 14</span></p>
+        <table class="att">
+            <tr><td class="r">
+                <span class="att__n">Lars Meijer &middot; red</span>
+                <p class="att__w">Ankle injury since 10 Aug. 44% attendance, 60 minutes, no evaluation and no test this window.</p>
+                <p class="att__x">Next: physio return-to-play date, then re-evaluate before the next block.</p>
+            </td></tr>
+            <tr><td class="a">
+                <span class="att__n">Joep Vermeulen &middot; amber</span>
+                <p class="att__w">Trained every single session (100%) and played 25 minutes across four matches &mdash; the lowest share in the squad by 19 points.</p>
+                <p class="att__x">Next: name his route into the team, or agree he plays up a week in JO13-2.</p>
+            </td></tr>
+            <tr data-xtra><td class="a">
+                <span class="att__n">Thijs Koning &middot; amber</span>
+                <p class="att__w">Attendance fell from 81% in July to 56%. No evaluation and no test this window, so the rating is two months old.</p>
+                <p class="att__x">Next: call home about the Tuesday absences; evaluate in week 1.</p>
+            </td></tr>
+            <tr data-xtra><td class="a">
+                <span class="att__n">Milan de Boer &middot; amber</span>
+                <p class="att__w">63% attendance, 61% minutes share, and 10m sprint 0.08s slower than the June test &mdash; the only player who went backwards.</p>
+                <p class="att__x">Next: check load and growth (PHV) before reading the test as form.</p>
+            </td></tr>
+            <tr data-xtra><td class="a">
+                <span class="att__n">Bram Hendriks &middot; amber</span>
+                <p class="att__w">PDP verdict recorded 26 Aug. Attendance 69%, still the lowest of the regular starters.</p>
+                <p class="att__x">Next: the PDP actions are agreed &mdash; review them at the October meeting.</p>
+            </td></tr>
+        </table>
+    </div>
+
+    <table class="cols" data-pair><tr>
+        <td data-cell="changes" style="width:50%">
+            <div class="sec">
+                <p class="sec__h">What changed <span>August</span></p>
+                <table class="chg">
+                    <tr><td class="dt">3 Aug</td><td><span class="tag tag--tm">Team</span> Sven Dekker trained up with JO14-1 (2&times;)</td></tr>
+                    <tr><td class="dt">10 Aug</td><td><span class="tag tag--inj">Injury</span> Lars Meijer &mdash; ankle, ongoing</td></tr>
+                    <tr><td class="dt">19 Aug</td><td><span class="tag tag--pos">Position</span> Jesse Mulder &mdash; midfield &rarr; right back</td></tr>
+                    <tr><td class="dt">26 Aug</td><td><span class="tag tag--pdp">PDP</span> Bram Hendriks &mdash; verdict recorded</td></tr>
+                </table>
+            </div>
+        </td>
+        <td data-cell="tests" style="width:50%">
+            <div class="sec">
+                <p class="sec__h">Tests <span>6 Aug &middot; 12 of 14</span></p>
+                <table class="mv">
+                    <tr><td>Ruben Willems &mdash; 10m sprint</td><td class="d up">&minus;0.11s</td></tr>
+                    <tr><td>Noah Smit &mdash; Yo-Yo IR1</td><td class="d up">+120m</td></tr>
+                    <tr><td>Sem de Vries &mdash; 30m sprint</td><td class="d up">&minus;0.07s</td></tr>
+                    <tr><td>Milan de Boer &mdash; 10m sprint</td><td class="d dn">+0.08s</td></tr>
+                    <tr><td class="mute" colspan="2" style="font-size:6.6pt;border:0;padding-top:1.2mm;">Not tested: Lars Meijer (injured), Thijs Koning (absent)</td></tr>
+                </table>
+            </div>
+        </td>
+    </tr></table>
+
+    <div class="sec" data-block="roster">
+        <p class="sec__h">Player by player <span>compressed &mdash; the pack has room for the full table</span></p>
+        <table class="tbl">
+            <thead><tr><th style="width:6mm"></th><th>Player</th><th class="n">Att</th><th class="n">Min</th><th class="n">Share</th><th class="n">Rating</th><th class="c">Test</th><th>Note</th></tr></thead>
+            <tbody>
+                <tr><td class="c"><span class="dot r"></span></td><td class="nm">Lars Meijer</td><td class="n lo">44%</td><td class="n">60</td><td class="n lo">33%</td><td class="n mute">&mdash;</td><td class="c mute">&mdash;</td><td>Injured since 10 Aug</td></tr>
+                <tr><td class="c"><span class="dot a"></span></td><td class="nm">Joep Vermeulen</td><td class="n">100%</td><td class="n">25</td><td class="n lo">14%</td><td class="n">7.1</td><td class="c">&#10003;</td><td>Trains every week, barely plays</td></tr>
+                <tr><td class="c"><span class="dot a"></span></td><td class="nm">Bram Hendriks</td><td class="n mid">69%</td><td class="n">140</td><td class="n">78%</td><td class="n">6.5</td><td class="c">&#10003;</td><td>PDP verdict 26 Aug</td></tr>
+                <tr><td class="c"><span class="dot a"></span></td><td class="nm">Milan de Boer</td><td class="n mid">63%</td><td class="n">110</td><td class="n mid">61%</td><td class="n">6.4</td><td class="c">&#10003;</td><td>10m slower than June</td></tr>
+                <tr><td class="c"><span class="dot a"></span></td><td class="nm">Thijs Koning</td><td class="n lo">56%</td><td class="n">110</td><td class="n mid">61%</td><td class="n mute">&mdash;</td><td class="c mute">&mdash;</td><td>Attendance down 25 pts</td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Luuk Jansen</td><td class="n">100%</td><td class="n">180</td><td class="n">100%</td><td class="n">7.8</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Ruben Willems</td><td class="n">100%</td><td class="n">180</td><td class="n">100%</td><td class="n">7.6</td><td class="c">&#10003;</td><td>Fastest 10m in the squad</td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sem de Vries</td><td class="n">94%</td><td class="n">180</td><td class="n">100%</td><td class="n">7.4</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sven Dekker</td><td class="n">94%</td><td class="n">175</td><td class="n">97%</td><td class="n">7.3</td><td class="c">&#10003;</td><td>Trained up with JO14-1</td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Noah Smit</td><td class="n">94%</td><td class="n">172</td><td class="n">96%</td><td class="n">7.2</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Daan Bakker</td><td class="n">88%</td><td class="n">168</td><td class="n">93%</td><td class="n">7.1</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Tim Bos</td><td class="n">88%</td><td class="n">170</td><td class="n">94%</td><td class="n">7.0</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Finn Visser</td><td class="n">81%</td><td class="n">160</td><td class="n">89%</td><td class="n">6.9</td><td class="c">&#10003;</td><td></td></tr>
+                <tr><td class="c"><span class="dot g"></span></td><td class="nm">Jesse Mulder</td><td class="n">75%</td><td class="n">150</td><td class="n">83%</td><td class="n">6.7</td><td class="c">&#10003;</td><td>Moved to right back 19 Aug</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="sec notes" data-block="notes">
+        <p class="notes__cap">Decisions and actions from this meeting</p>
+        <div class="notes__l"></div><div class="notes__l"></div><div class="notes__l"></div>
+    </div>
+
+    <div class="sec" data-block="quality">
+        <p class="sec__h">Data quality <span>fix before the October report</span></p>
+        <table class="chg">
+            <tr><td class="dt">24 Aug</td><td>Match vs Feyenoord JO13-3 &mdash; <b>no attendance and no minutes recorded</b>. Every number above excludes it.</td></tr>
+            <tr><td class="dt">&mdash;</td><td>2 of 14 players have no evaluation in this window (Lars Meijer, Thijs Koning).</td></tr>
+        </table>
+    </div>
+
+    <p class="sheet__foot">TalentTrack &middot; JO13-1 &middot; August 2026 &middot; Confidential &mdash; contains data about minors. Do not circulate outside the academy staff.</p>
+    <span class="sheet__num">1 / 1</span>
+</div>
+</div>
+
+<!-- =======================================================================
+     B — THREE-PAGE PACK
+     ======================================================================= -->
+<div class="variant" id="v-B">
+
+<div class="sheet" data-page>
+    <div class="sheet__limit"></div>
+    <div data-block="letterhead">
+        <table class="lh"><tr>
+            <td class="lh__crest-cell"><div class="lh__crest">VCT</div></td>
+            <td><p class="lh__title">JO13-1 — Monthly report</p>
+            <p class="lh__sub">August 2026 &middot; 1&ndash;31 Aug &middot; Head coach: C. Nieuwenhuizen</p></td>
+            <td class="lh__right"><b>Staff meeting</b><br>2 September 2026<br>Generated 1 Sep 2026 06:00<br>14 players &middot; 17 activities</td>
+        </tr></table>
+        <div class="lh__rule"><i></i></div>
+    </div>
+
+    <div class="cov" data-block="coverage">
+        <b>Read the numbers with this in mind:</b> based on 16 of 17 completed activities.
+        The match on 24 Aug has no attendance recorded, and minutes are recorded for 3 of 4 matches.
+        2 of 14 players have no evaluation in this window.
+    </div>
+
+    <table class="kpi" data-block="kpi"><tr>
+        <td><span class="kpi__n">16</span><span class="kpi__l">Activities</span><span class="kpi__d kpi__d--flat">12 training &middot; 4 match</span></td>
+        <td><span class="kpi__n">82<small>%</small></span><span class="kpi__l">Attendance</span><span class="kpi__d kpi__d--down">&darr; 5 pts vs July</span></td>
+        <td><span class="kpi__n">91<small>%</small></span><span class="kpi__l">Median min share</span><span class="kpi__d kpi__d--up">&uarr; 4 pts</span></td>
+        <td><span class="kpi__n">12<small>/14</small></span><span class="kpi__l">Evaluated</span><span class="kpi__d kpi__d--flat">86% coverage</span></td>
+        <td><span class="kpi__n">7.1</span><span class="kpi__l">Squad rating</span><span class="kpi__d kpi__d--up">&uarr; 0.2</span></td>
+        <td class="is-alert"><span class="kpi__n">5</span><span class="kpi__l">Need attention</span><span class="kpi__d kpi__d--down">1 red &middot; 4 amber</span></td>
+    </tr></table>
+
+    <div class="sec" data-block="status">
+        <p class="sec__h">Squad status <span>Composite of rating, behaviour, attendance and potential</span></p>
+        <table class="band"><tr>
+            <td class="g" style="width:64.3%">9 on track</td><td class="a" style="width:28.6%">4 watch</td><td class="r" style="width:7.1%">1</td>
+        </tr></table>
+        <p class="band__key">Green 9 &middot; Amber 4 &middot; Red 1 &middot; Unknown 0. Last month: 10 / 3 / 1.</p>
+    </div>
+
+    <div class="sec" data-block="attendance">
+        <p class="sec__h">Attendance per player <span>team 82% &middot; 16 activities</span></p>
+        <table class="bars">
+            <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Joep Vermeulen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Sem de Vries</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+            <tr><td class="nm">Noah Smit</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+            <tr><td class="nm">Sven Dekker</td><td><div class="track"><i style="width:94%"></i></div></td><td class="vl">94%</td></tr>
+            <tr><td class="nm">Daan Bakker</td><td><div class="track"><i style="width:88%"></i></div></td><td class="vl">88%</td></tr>
+            <tr><td class="nm">Tim Bos</td><td><div class="track"><i style="width:88%"></i></div></td><td class="vl">88%</td></tr>
+            <tr><td class="nm">Finn Visser</td><td><div class="track"><i style="width:81%"></i></div></td><td class="vl">81%</td></tr>
+            <tr><td class="nm">Jesse Mulder</td><td><div class="track"><i style="width:75%"></i></div></td><td class="vl">75%</td></tr>
+            <tr><td class="nm">Bram Hendriks</td><td><div class="track"><i class="w" style="width:69%"></i></div></td><td class="vl mid">69%</td></tr>
+            <tr><td class="nm">Milan de Boer</td><td><div class="track"><i class="w" style="width:63%"></i></div></td><td class="vl mid">63%</td></tr>
+            <tr><td class="nm">Thijs Koning</td><td><div class="track"><i class="d" style="width:56%"></i></div></td><td class="vl lo">56%</td></tr>
+            <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:44%"></i></div></td><td class="vl lo">44%</td></tr>
+        </table>
+    </div>
+
+    <div class="sec" data-block="minutes">
+        <p class="sec__h">Minutes share <span>of 180 available &middot; dashed line = 50% academy target</span></p>
+        <table class="bars">
+            <tr><td class="nm">Sem de Vries</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Sven Dekker</td><td><div class="track"><i style="width:97%"></i><b style="left:50%"></b></div></td><td class="vl">97%</td></tr>
+            <tr><td class="nm">Noah Smit</td><td><div class="track"><i style="width:96%"></i><b style="left:50%"></b></div></td><td class="vl">96%</td></tr>
+            <tr><td class="nm">Tim Bos</td><td><div class="track"><i style="width:94%"></i><b style="left:50%"></b></div></td><td class="vl">94%</td></tr>
+            <tr><td class="nm">Daan Bakker</td><td><div class="track"><i style="width:93%"></i><b style="left:50%"></b></div></td><td class="vl">93%</td></tr>
+            <tr><td class="nm">Finn Visser</td><td><div class="track"><i style="width:89%"></i><b style="left:50%"></b></div></td><td class="vl">89%</td></tr>
+            <tr><td class="nm">Jesse Mulder</td><td><div class="track"><i style="width:83%"></i><b style="left:50%"></b></div></td><td class="vl">83%</td></tr>
+            <tr><td class="nm">Bram Hendriks</td><td><div class="track"><i style="width:78%"></i><b style="left:50%"></b></div></td><td class="vl">78%</td></tr>
+            <tr><td class="nm">Milan de Boer</td><td><div class="track"><i class="w" style="width:61%"></i><b style="left:50%"></b></div></td><td class="vl mid">61%</td></tr>
+            <tr><td class="nm">Thijs Koning</td><td><div class="track"><i class="w" style="width:61%"></i><b style="left:50%"></b></div></td><td class="vl mid">61%</td></tr>
+            <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:33%"></i><b style="left:50%"></b></div></td><td class="vl lo">33%</td></tr>
+            <tr><td class="nm">Joep Vermeulen</td><td><div class="track"><i class="d" style="width:14%"></i><b style="left:50%"></b></div></td><td class="vl lo">14%</td></tr>
+        </table>
+    </div>
+
+    <p class="sheet__foot">TalentTrack &middot; JO13-1 &middot; August 2026 &middot; Confidential &mdash; contains data about minors.</p>
+    <span class="sheet__num">1</span>
+</div>
+
+<div class="sheet" data-page data-block="roster">
+    <div class="sheet__limit"></div>
+    <table class="lh"><tr>
+        <td class="lh__crest-cell"><div class="lh__crest">VCT</div></td>
+        <td><p class="lh__title">Player by player</p>
+        <p class="lh__sub">JO13-1 &middot; August 2026 &middot; sorted by status, then attendance</p></td>
+        <td class="lh__right">JO13-1 &middot; August 2026</td>
+    </tr></table>
+    <div class="lh__rule"><i></i></div>
+
+    <table class="tbl">
+        <thead><tr>
+            <th style="width:6mm"></th><th>Player</th><th>Pos</th><th class="n">Att</th><th class="n">Sess</th>
+            <th class="n">Min</th><th class="n">Share</th><th class="n">Rating</th><th>Last eval</th>
+            <th class="c">Test</th><th class="c">Goals</th><th>Note</th>
+        </tr></thead>
+        <tbody>
+            <tr><td class="c"><span class="dot r"></span></td><td class="nm">Lars Meijer</td><td>CB</td><td class="n lo">44%</td><td class="n">7/16</td><td class="n">60</td><td class="n lo">33%</td><td class="n mute">&mdash;</td><td class="mute">12 Jun</td><td class="c mute">&mdash;</td><td class="c">0</td><td>Injured since 10 Aug</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Joep Vermeulen</td><td>ST</td><td class="n">100%</td><td class="n">16/16</td><td class="n">25</td><td class="n lo">14%</td><td class="n">7.1</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Trains every week, barely plays</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Bram Hendriks</td><td>CM</td><td class="n mid">69%</td><td class="n">11/16</td><td class="n">140</td><td class="n">78%</td><td class="n">6.5</td><td>26 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td>PDP verdict 26 Aug</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Milan de Boer</td><td>LW</td><td class="n mid">63%</td><td class="n">10/16</td><td class="n">110</td><td class="n mid">61%</td><td class="n">6.4</td><td>5 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td>10m sprint slower than June</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Thijs Koning</td><td>RB</td><td class="n lo">56%</td><td class="n">9/16</td><td class="n">110</td><td class="n mid">61%</td><td class="n mute">&mdash;</td><td class="mute">19 Jun</td><td class="c mute">&mdash;</td><td class="c">1</td><td>Attendance down 25 pts</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Luuk Jansen</td><td>CM</td><td class="n">100%</td><td class="n">16/16</td><td class="n">180</td><td class="n">100%</td><td class="n">7.8</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Ruben Willems</td><td>RW</td><td class="n">100%</td><td class="n">16/16</td><td class="n">180</td><td class="n">100%</td><td class="n">7.6</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">3</td><td>Fastest 10m in the squad</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sem de Vries</td><td>GK</td><td class="n">94%</td><td class="n">15/16</td><td class="n">180</td><td class="n">100%</td><td class="n">7.4</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sven Dekker</td><td>CM</td><td class="n">94%</td><td class="n">15/16</td><td class="n">175</td><td class="n">97%</td><td class="n">7.3</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Trained up with JO14-1</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Noah Smit</td><td>CB</td><td class="n">94%</td><td class="n">15/16</td><td class="n">172</td><td class="n">96%</td><td class="n">7.2</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Daan Bakker</td><td>LB</td><td class="n">88%</td><td class="n">14/16</td><td class="n">168</td><td class="n">93%</td><td class="n">7.1</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Tim Bos</td><td>ST</td><td class="n">88%</td><td class="n">14/16</td><td class="n">170</td><td class="n">94%</td><td class="n">7.0</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Finn Visser</td><td>CB</td><td class="n">81%</td><td class="n">13/16</td><td class="n">160</td><td class="n">89%</td><td class="n">6.9</td><td>19 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Jesse Mulder</td><td>RB</td><td class="n">75%</td><td class="n">12/16</td><td class="n">150</td><td class="n">83%</td><td class="n">6.7</td><td>19 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Moved to right back 19 Aug</td></tr>
+        </tbody>
+    </table>
+
+    <p class="mute" style="font-size:6.8pt;margin-top:2mm;">
+        <b>Att</b> = share of the 16 completed activities with a recorded present or late status.
+        <b>Share</b> = recorded minutes as a share of the 180 available across the three matches with minutes recorded.
+        <b>Rating</b> = average of the evaluations in this window; &mdash; means none was recorded.
+    </p>
+
+    <p class="sheet__foot">TalentTrack &middot; JO13-1 &middot; August 2026 &middot; Confidential &mdash; contains data about minors.</p>
+    <span class="sheet__num">2</span>
+</div>
+
+<div class="sheet" data-page>
+    <div class="sheet__limit"></div>
+    <table class="lh"><tr>
+        <td class="lh__crest-cell"><div class="lh__crest">VCT</div></td>
+        <td><p class="lh__title">Attention, changes and tests</p>
+        <p class="lh__sub">JO13-1 &middot; August 2026 &middot; the agenda for this meeting</p></td>
+        <td class="lh__right">JO13-1 &middot; August 2026</td>
+    </tr></table>
+    <div class="lh__rule"><i></i></div>
+
+    <div class="sec" data-block="attention">
+        <p class="sec__h">Needs a conversation <span>5 of 14</span></p>
+        <table class="att">
+            <tr><td class="r">
+                <span class="att__n">Lars Meijer &middot; red</span>
+                <p class="att__w">Ankle injury since 10 Aug. 44% attendance, 60 minutes, no evaluation and no test this window &mdash; four weeks of no signal at all.</p>
+                <p class="att__x">Next: physio return-to-play date, then re-evaluate before the next block.</p>
+            </td></tr>
+            <tr><td class="a">
+                <span class="att__n">Joep Vermeulen &middot; amber</span>
+                <p class="att__w">Trained every single session (100%) and played 25 minutes across four matches &mdash; the lowest share in the squad by 19 points. Rated 7.1, so this is not a level problem.</p>
+                <p class="att__x">Next: name his route into the team, or agree he plays up a week in JO13-2.</p>
+            </td></tr>
+            <tr><td class="a">
+                <span class="att__n">Thijs Koning &middot; amber</span>
+                <p class="att__w">Attendance fell from 81% in July to 56%. No evaluation and no test this window, so his rating is two months old and the verdict leans on stale evidence.</p>
+                <p class="att__x">Next: call home about the Tuesday absences; evaluate in week 1.</p>
+            </td></tr>
+            <tr><td class="a">
+                <span class="att__n">Milan de Boer &middot; amber</span>
+                <p class="att__w">63% attendance, 61% minutes share, and a 10m sprint 0.08s slower than the June test &mdash; the only player in the squad who went backwards on a test.</p>
+                <p class="att__x">Next: check load and growth (PHV) before reading the test as a form drop.</p>
+            </td></tr>
+            <tr><td class="a">
+                <span class="att__n">Bram Hendriks &middot; amber</span>
+                <p class="att__w">PDP verdict recorded 26 Aug. Attendance 69%, still the lowest of the regular starters, and his rating is the lowest of the outfield regulars at 6.5.</p>
+                <p class="att__x">Next: the PDP actions are agreed &mdash; review them at the October meeting.</p>
+            </td></tr>
+        </table>
+    </div>
+
+    <table class="cols" data-pair><tr>
+        <td data-cell="changes" style="width:46%">
+            <div class="sec">
+                <p class="sec__h">What changed <span>August</span></p>
+                <table class="chg">
+                    <tr><td class="dt">3 Aug</td><td><span class="tag tag--tm">Team</span> Sven Dekker trained up with JO14-1 (2&times;)</td></tr>
+                    <tr><td class="dt">10 Aug</td><td><span class="tag tag--inj">Injury</span> Lars Meijer &mdash; ankle, ongoing</td></tr>
+                    <tr><td class="dt">19 Aug</td><td><span class="tag tag--pos">Position</span> Jesse Mulder &mdash; midfield &rarr; right back</td></tr>
+                    <tr><td class="dt">26 Aug</td><td><span class="tag tag--pdp">PDP</span> Bram Hendriks &mdash; verdict recorded</td></tr>
+                </table>
+            </div>
+        </td>
+        <td data-cell="tests" style="width:54%">
+            <div class="sec">
+                <p class="sec__h">Tests <span>6 Aug &middot; 12 of 14 tested</span></p>
+                <table class="mv">
+                    <tr><td>Ruben Willems &mdash; 10m sprint</td><td class="d up">&minus;0.11s</td></tr>
+                    <tr><td>Noah Smit &mdash; Yo-Yo IR1</td><td class="d up">+120m</td></tr>
+                    <tr><td>Sem de Vries &mdash; 30m sprint</td><td class="d up">&minus;0.07s</td></tr>
+                    <tr><td>Luuk Jansen &mdash; Yo-Yo IR1</td><td class="d up">+80m</td></tr>
+                    <tr><td>Milan de Boer &mdash; 10m sprint</td><td class="d dn">+0.08s</td></tr>
+                    <tr><td class="mute" colspan="2" style="font-size:6.6pt;border:0;padding-top:1.2mm;">Squad median 10m: 2.04s (June 2.09s). Not tested: Lars Meijer (injured), Thijs Koning (absent).</td></tr>
+                </table>
+            </div>
+        </td>
+    </tr></table>
+
+    <div class="sec notes" data-block="notes">
+        <p class="notes__cap">Decisions and actions from this meeting</p>
+        <div class="notes__l"></div><div class="notes__l"></div><div class="notes__l"></div>
+        <div class="notes__l" data-xtra></div><div class="notes__l" data-xtra></div><div class="notes__l" data-xtra></div>
+    </div>
+
+    <div class="sec" data-block="quality" style="margin-top:3mm;">
+        <p class="sec__h">Data quality <span>fix these before the October report</span></p>
+        <table class="chg">
+            <tr><td class="dt">24 Aug</td><td>Match vs Feyenoord JO13-3 &mdash; <b>no attendance and no minutes recorded</b>. Every number on page 1 excludes it.</td></tr>
+            <tr><td class="dt">&mdash;</td><td>2 of 14 players have no evaluation in this window (Lars Meijer, Thijs Koning), so their status verdict leans on June data.</td></tr>
+        </table>
+    </div>
+
+    <p class="sheet__foot">TalentTrack &middot; JO13-1 &middot; August 2026 &middot; Confidential &mdash; contains data about minors.</p>
+    <span class="sheet__num">3</span>
+</div>
+</div>
+
+<!-- =======================================================================
+     C — LANDSCAPE MATRIX
+     ======================================================================= -->
+<div class="variant" id="v-C">
+<div class="sheet sheet--land" data-page>
+    <div class="sheet__limit"></div>
+    <div data-block="letterhead">
+        <table class="lh"><tr>
+            <td class="lh__crest-cell"><div class="lh__crest">VCT</div></td>
+            <td>
+                <p class="lh__title">JO13-1 — Monthly report</p>
+                <p class="lh__sub">August 2026 &middot; 1&ndash;31 Aug &middot; Head coach: C. Nieuwenhuizen &middot; Staff meeting 2 Sep</p>
+            </td>
+            <td class="lh__right">
+                16 activities &middot; 82% attendance &middot; 91% median minutes share<br>
+                12 of 14 evaluated &middot; squad rating 7.1 &middot; <b style="color:#a32b22">5 need attention</b><br>
+                Generated 1 Sep 2026 06:00
+            </td>
+        </tr></table>
+        <div class="lh__rule"><i></i></div>
+    </div>
+
+    <div class="cov" data-block="coverage">
+        <b>Read the numbers with this in mind:</b> based on 16 of 17 completed activities. The match on 24 Aug has no attendance recorded, and minutes are recorded for 3 of 4 matches.
+    </div>
+
+    <table class="kpi" data-block="kpi"><tr>
+        <td><span class="kpi__n">16</span><span class="kpi__l">Activities</span></td>
+        <td><span class="kpi__n">82<small>%</small></span><span class="kpi__l">Attendance</span></td>
+        <td><span class="kpi__n">91<small>%</small></span><span class="kpi__l">Median min share</span></td>
+        <td><span class="kpi__n">12<small>/14</small></span><span class="kpi__l">Evaluated</span></td>
+        <td><span class="kpi__n">7.1</span><span class="kpi__l">Squad rating</span></td>
+        <td class="is-alert"><span class="kpi__n">5</span><span class="kpi__l">Need attention</span></td>
+    </tr></table>
+
+    <div class="sec" data-block="status">
+        <table class="band"><tr>
+            <td class="g" style="width:64.3%">9 on track</td><td class="a" style="width:28.6%">4 watch</td><td class="r" style="width:7.1%">1</td>
+        </tr></table>
+        <p class="band__key">Green 9 &middot; Amber 4 &middot; Red 1 &middot; Unknown 0. Last month: 10 / 3 / 1.</p>
+    </div>
+
+    <div data-block="roster">
+    <table class="tbl">
+        <thead><tr>
+            <th style="width:6mm"></th><th style="width:36mm">Player</th><th style="width:10mm">Pos</th>
+            <th class="n" style="width:12mm">Att</th><th style="width:44mm">Attendance</th>
+            <th class="n" style="width:12mm">Min</th><th style="width:44mm">Minutes share</th>
+            <th class="n" style="width:13mm">Rating</th><th style="width:18mm">Last eval</th>
+            <th class="c" style="width:11mm">Test</th><th class="c" style="width:11mm">Goals</th><th>Note for the meeting</th>
+        </tr></thead>
+        <tbody>
+            <tr><td class="c"><span class="dot r"></span></td><td class="nm">Lars Meijer</td><td>CB</td><td class="n lo">44%</td><td><div class="track"><i class="d" style="width:44%"></i></div></td><td class="n">60</td><td><div class="track"><i class="d" style="width:33%"></i><b style="left:50%"></b></div></td><td class="n mute">&mdash;</td><td class="mute">12 Jun</td><td class="c mute">&mdash;</td><td class="c">0</td><td>Ankle since 10 Aug &mdash; need a return date</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Joep Vermeulen</td><td>ST</td><td class="n">100%</td><td><div class="track"><i style="width:100%"></i></div></td><td class="n">25</td><td><div class="track"><i class="d" style="width:14%"></i><b style="left:50%"></b></div></td><td class="n">7.1</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Trains every week, barely plays</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Bram Hendriks</td><td>CM</td><td class="n mid">69%</td><td><div class="track"><i class="w" style="width:69%"></i></div></td><td class="n">140</td><td><div class="track"><i style="width:78%"></i><b style="left:50%"></b></div></td><td class="n">6.5</td><td>26 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td>PDP agreed &mdash; review in October</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Milan de Boer</td><td>LW</td><td class="n mid">63%</td><td><div class="track"><i class="w" style="width:63%"></i></div></td><td class="n">110</td><td><div class="track"><i class="w" style="width:61%"></i><b style="left:50%"></b></div></td><td class="n">6.4</td><td>5 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td>Only player slower than June &mdash; check PHV</td></tr>
+            <tr><td class="c"><span class="dot a"></span></td><td class="nm">Thijs Koning</td><td>RB</td><td class="n lo">56%</td><td><div class="track"><i class="d" style="width:56%"></i></div></td><td class="n">110</td><td><div class="track"><i class="w" style="width:61%"></i><b style="left:50%"></b></div></td><td class="n mute">&mdash;</td><td class="mute">19 Jun</td><td class="c mute">&mdash;</td><td class="c">1</td><td>Down 25 pts &mdash; call home</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Luuk Jansen</td><td>CM</td><td class="n">100%</td><td><div class="track"><i style="width:100%"></i></div></td><td class="n">180</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="n">7.8</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Ruben Willems</td><td>RW</td><td class="n">100%</td><td><div class="track"><i style="width:100%"></i></div></td><td class="n">180</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="n">7.6</td><td>14 Aug</td><td class="c">&#10003;</td><td class="c">3</td><td>Fastest 10m in the squad</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sem de Vries</td><td>GK</td><td class="n">94%</td><td><div class="track"><i style="width:94%"></i></div></td><td class="n">180</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="n">7.4</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Sven Dekker</td><td>CM</td><td class="n">94%</td><td><div class="track"><i style="width:94%"></i></div></td><td class="n">175</td><td><div class="track"><i style="width:97%"></i><b style="left:50%"></b></div></td><td class="n">7.3</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Trained up with JO14-1 &mdash; keep going?</td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Noah Smit</td><td>CB</td><td class="n">94%</td><td><div class="track"><i style="width:94%"></i></div></td><td class="n">172</td><td><div class="track"><i style="width:96%"></i><b style="left:50%"></b></div></td><td class="n">7.2</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Daan Bakker</td><td>LB</td><td class="n">88%</td><td><div class="track"><i style="width:88%"></i></div></td><td class="n">168</td><td><div class="track"><i style="width:93%"></i><b style="left:50%"></b></div></td><td class="n">7.1</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Tim Bos</td><td>ST</td><td class="n">88%</td><td><div class="track"><i style="width:88%"></i></div></td><td class="n">170</td><td><div class="track"><i style="width:94%"></i><b style="left:50%"></b></div></td><td class="n">7.0</td><td>12 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Finn Visser</td><td>CB</td><td class="n">81%</td><td><div class="track"><i style="width:81%"></i></div></td><td class="n">160</td><td><div class="track"><i style="width:89%"></i><b style="left:50%"></b></div></td><td class="n">6.9</td><td>19 Aug</td><td class="c">&#10003;</td><td class="c">1</td><td></td></tr>
+            <tr><td class="c"><span class="dot g"></span></td><td class="nm">Jesse Mulder</td><td>RB</td><td class="n">75%</td><td><div class="track"><i style="width:75%"></i></div></td><td class="n">150</td><td><div class="track"><i style="width:83%"></i><b style="left:50%"></b></div></td><td class="n">6.7</td><td>19 Aug</td><td class="c">&#10003;</td><td class="c">2</td><td>Moved to right back 19 Aug &mdash; settling</td></tr>
+        </tbody>
+    </table>
+    </div>
+
+    <table class="cols" data-pair style="margin-top:3.5mm;"><tr>
+        <td data-cell="changes" style="width:34%">
+            <div class="sec">
+                <p class="sec__h">What changed</p>
+                <table class="chg">
+                    <tr><td class="dt">3 Aug</td><td><span class="tag tag--tm">Team</span> Sven Dekker trained up with JO14-1</td></tr>
+                    <tr><td class="dt">10 Aug</td><td><span class="tag tag--inj">Injury</span> Lars Meijer &mdash; ankle</td></tr>
+                    <tr><td class="dt">19 Aug</td><td><span class="tag tag--pos">Position</span> Jesse Mulder &rarr; right back</td></tr>
+                    <tr><td class="dt">26 Aug</td><td><span class="tag tag--pdp">PDP</span> Bram Hendriks &mdash; verdict</td></tr>
+                </table>
+            </div>
+        </td>
+        <td data-cell="tests" style="width:30%">
+            <div class="sec">
+                <p class="sec__h">Tests <span>6 Aug</span></p>
+                <table class="mv">
+                    <tr><td>Ruben Willems &mdash; 10m</td><td class="d up">&minus;0.11s</td></tr>
+                    <tr><td>Noah Smit &mdash; Yo-Yo</td><td class="d up">+120m</td></tr>
+                    <tr><td>Sem de Vries &mdash; 30m</td><td class="d up">&minus;0.07s</td></tr>
+                    <tr><td>Milan de Boer &mdash; 10m</td><td class="d dn">+0.08s</td></tr>
+                </table>
+            </div>
+        </td>
+        <td data-cell="notes" style="width:36%">
+            <div class="sec notes">
+                <p class="notes__cap">Decisions and actions</p>
+                <div class="notes__l"></div><div class="notes__l"></div><div class="notes__l"></div>
+            </div>
+        </td>
+    </tr></table>
+
+    <div class="sec" data-block="attention" style="margin-top:2mm;">
+        <p class="sec__h">Needs a conversation <span>5 of 14 &mdash; detail is in the Note column above</span></p>
+        <table class="att">
+            <tr><td class="r">
+                <span class="att__n">Lars Meijer &middot; red</span>
+                <p class="att__w">Ankle since 10 Aug. Four weeks of no signal &mdash; no evaluation, no test, 60 minutes.</p>
+                <p class="att__x">Next: physio return-to-play date, then re-evaluate.</p>
+            </td></tr>
+        </table>
+    </div>
+
+    <div class="sec" data-block="quality">
+        <p class="sec__h">Data quality</p>
+        <table class="chg">
+            <tr><td class="dt">24 Aug</td><td>Match vs Feyenoord JO13-3 &mdash; <b>no attendance and no minutes recorded</b>. Every number above excludes it.</td></tr>
+        </table>
+    </div>
+
+    <p class="sheet__foot">TalentTrack &middot; JO13-1 &middot; August 2026 &middot; Confidential &mdash; contains data about minors. Do not circulate outside the academy staff.</p>
+    <span class="sheet__num">1 / 1</span>
+</div>
+</div>
+
+<!-- =======================================================================
+     ONLINE
+     ======================================================================= -->
+<div class="variant" id="v-online">
+<div class="tt-dashboard">
+
+    <div class="online-note">
+        The same composition at <code>?tt_view=standard-report&amp;slug=team-monthly&amp;team_id=7&amp;month=2026-08</code>.
+        Online there is no page budget, so every selected block renders in full &mdash; the panel's fit meter
+        applies only to the paper layouts.
+    </div>
+
+    <div class="tt-rep-page-head" data-block="letterhead">
+        <h1>JO13-1 — Monthly report</h1>
+        <p class="tt-rep-page-head__sub">August 2026 · 1–31 Aug · 14 players · 16 of 17 activities counted</p>
+        <div class="tt-rep-page-head__actions">
+            <button class="btn btn--primary" type="button">Download PDF</button>
+            <button class="btn" type="button">← July</button>
+            <button class="btn" type="button">Change team</button>
+            <button class="btn" type="button">Email to staff</button>
+        </div>
+    </div>
+
+    <div class="cov" data-block="coverage" style="font-size:.8rem;padding:10px 12px;margin-bottom:16px;">
+        <b>Read the numbers with this in mind:</b> the match on 24 Aug has no attendance recorded, and minutes are
+        recorded for 3 of 4 matches. 2 of 14 players have no evaluation in this window.
+    </div>
+
+    <div class="tt-rep-kpi-row" data-block="kpi">
+        <div class="tt-kpi"><span class="tt-kpi__n">16</span><span class="tt-kpi__l">Activities</span><span class="tt-kpi__d" style="color:var(--tt-muted)">12 training · 4 match</span></div>
+        <div class="tt-kpi"><span class="tt-kpi__n">82%</span><span class="tt-kpi__l">Attendance</span><span class="tt-kpi__d" style="color:var(--tt-danger)">↓ 5 pts vs July</span></div>
+        <div class="tt-kpi"><span class="tt-kpi__n">91%</span><span class="tt-kpi__l">Median min share</span><span class="tt-kpi__d" style="color:var(--tt-success)">↑ 4 pts</span></div>
+        <div class="tt-kpi"><span class="tt-kpi__n">12/14</span><span class="tt-kpi__l">Evaluated</span><span class="tt-kpi__d" style="color:var(--tt-muted)">86% coverage</span></div>
+        <div class="tt-kpi"><span class="tt-kpi__n">7.1</span><span class="tt-kpi__l">Squad rating</span><span class="tt-kpi__d" style="color:var(--tt-success)">↑ 0.2</span></div>
+        <div class="tt-kpi" style="background:var(--tt-danger-subtle);border-color:var(--tt-danger)"><span class="tt-kpi__n" style="color:#a32b22">5</span><span class="tt-kpi__l">Need attention</span><span class="tt-kpi__d" style="color:#a32b22">1 red · 4 amber</span></div>
+    </div>
+
+    <div class="tt-rep-section" data-block="status">
+        <h2 class="tt-rep-section__title">Squad status</h2>
+        <table class="band"><tr>
+            <td class="g" style="width:64.3%;height:32px;font-size:.8rem">9 on track</td>
+            <td class="a" style="width:28.6%;height:32px;font-size:.8rem">4 watch</td>
+            <td class="r" style="width:7.1%;height:32px;font-size:.8rem">1</td>
+        </tr></table>
+        <p style="font-size:.78rem;color:var(--tt-muted);margin:8px 0 0;">Green 9 · Amber 4 · Red 1 · Unknown 0. Last month: 10 / 3 / 1.</p>
+    </div>
+
+    <div class="tt-rep-section" data-block="attention">
+        <h2 class="tt-rep-section__title">Needs a conversation</h2>
+        <table class="att">
+            <tr><td class="r" style="padding:12px 14px">
+                <span class="att__n" style="font-size:.95rem">Lars Meijer · red</span>
+                <p class="att__w" style="font-size:.85rem">Ankle injury since 10 Aug. 44% attendance, 60 minutes, no evaluation and no test this window.</p>
+                <p class="att__x" style="font-size:.85rem">Next: physio return-to-play date, then re-evaluate before the next block.</p>
+            </td></tr>
+            <tr><td class="a" style="padding:12px 14px">
+                <span class="att__n" style="font-size:.95rem">Joep Vermeulen · amber</span>
+                <p class="att__w" style="font-size:.85rem">Trained every session (100%) and played 25 minutes across four matches — the lowest share in the squad by 19 points.</p>
+                <p class="att__x" style="font-size:.85rem">Next: name his route into the team, or agree he plays up a week in JO13-2.</p>
+            </td></tr>
+        </table>
+        <p style="font-size:.8rem;color:var(--tt-muted);margin:12px 0 0;">…and 3 more (Thijs Koning, Milan de Boer, Bram Hendriks).</p>
+    </div>
+
+    <div class="tt-rep-section" data-block="minutes">
+        <h2 class="tt-rep-section__title">Minutes share</h2>
+        <table class="bars">
+            <tr><td class="nm">Sem de Vries</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i><b style="left:50%"></b></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Milan de Boer</td><td><div class="track"><i class="w" style="width:61%"></i><b style="left:50%"></b></div></td><td class="vl mid">61%</td></tr>
+            <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:33%"></i><b style="left:50%"></b></div></td><td class="vl lo">33%</td></tr>
+            <tr><td class="nm">Joep Vermeulen</td><td><div class="track"><i class="d" style="width:14%"></i><b style="left:50%"></b></div></td><td class="vl lo">14%</td></tr>
+        </table>
+    </div>
+
+    <div class="tt-rep-section" data-block="attendance">
+        <h2 class="tt-rep-section__title">Attendance per player</h2>
+        <table class="bars">
+            <tr><td class="nm">Luuk Jansen</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Ruben Willems</td><td><div class="track"><i style="width:100%"></i></div></td><td class="vl">100%</td></tr>
+            <tr><td class="nm">Bram Hendriks</td><td><div class="track"><i class="w" style="width:69%"></i></div></td><td class="vl mid">69%</td></tr>
+            <tr><td class="nm">Thijs Koning</td><td><div class="track"><i class="d" style="width:56%"></i></div></td><td class="vl lo">56%</td></tr>
+            <tr><td class="nm">Lars Meijer</td><td><div class="track"><i class="d" style="width:44%"></i></div></td><td class="vl lo">44%</td></tr>
+        </table>
+    </div>
+
+</div>
+</div>
+
+</div>
+
+<script>
+(function () {
+    var body = document.body;
+
+    /* ---------------------------------------------------------------
+       Block catalogue. `locked` = always rendered; `na` lists the
+       layouts where the block cannot be offered at all.
+       --------------------------------------------------------------- */
+    var BLOCKS = [
+        { k: 'letterhead', t: 'Letterhead',            n: 'Team, month, meeting date', locked: true },
+        { k: 'coverage',   t: 'Coverage banner',       n: 'What the report could not see', on: true, warn: true },
+        { k: 'kpi',        t: 'KPI strip',             n: '6 headline numbers', on: true },
+        { k: 'status',     t: 'Squad status',          n: 'Green / amber / red band', on: true },
+        { k: 'attendance', t: 'Attendance',            n: 'Per player, ranked', on: true },
+        { k: 'minutes',    t: 'Minutes share',         n: 'Per player, vs target', on: true },
+        { k: 'attention',  t: 'Needs a conversation',  n: 'The agenda', on: true },
+        { k: 'changes',    t: 'What changed',          n: 'Journey events', on: true },
+        { k: 'tests',      t: 'Tests',                 n: 'Session + movers', on: true },
+        { k: 'roster',     t: 'Player by player',      n: 'Full table', on: true, na: ['A'], naNote: 'compressed on the one-pager' },
+        { k: 'notes',      t: 'Decisions and actions', n: 'Ruled lines', on: true },
+        { k: 'quality',    t: 'Data quality',          n: 'What to fix', on: true }
+    ];
+
+    var state = {};
+    BLOCKS.forEach(function (b) { state[b.k] = b.locked || !!b.on; });
+
+    var wrap = document.getElementById('blocks');
+
+    function paintBlockList() {
+        var v = body.getAttribute('data-variant');
+        var layout = v === 'online' ? 'B' : v;
+        wrap.innerHTML = '';
+        BLOCKS.forEach(function (b) {
+            var na = b.na && b.na.indexOf(layout) !== -1;
+            var l = document.createElement('label');
+            l.className = 'blk' + (b.locked ? ' blk--locked' : '') + (na ? ' blk--na' : '');
+            var cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = b.locked ? true : state[b.k];
+            cb.disabled = !!b.locked;
+            cb.addEventListener('change', function () { state[b.k] = cb.checked; apply(); });
+            var s = document.createElement('span');
+            s.className = 'blk__t';
+            s.innerHTML = b.t + '<span class="blk__n">' + (na ? (b.naNote || 'not available here') : b.n) + '</span>';
+            l.appendChild(cb); l.appendChild(s);
+            wrap.appendChild(l);
+        });
+    }
+
+    /* ---------------------------------------------------------------
+       Apply the selection to every layout, then measure.
+       Pairs: a two-column row whose partner is off goes full width.
+       --------------------------------------------------------------- */
+    function apply() {
+        document.querySelectorAll('[data-block]').forEach(function (el) {
+            var on = state[el.getAttribute('data-block')];
+            el.hidden = !on;
+        });
+        document.querySelectorAll('[data-pair]').forEach(function (tbl) {
+            var cells = Array.prototype.slice.call(tbl.querySelectorAll('[data-cell]'));
+            var live = cells.filter(function (td) { return state[td.getAttribute('data-cell')]; });
+            cells.forEach(function (td) { td.hidden = !state[td.getAttribute('data-cell')]; });
+            tbl.hidden = live.length === 0;
+            live.forEach(function (td) { td.style.width = (100 / live.length) + '%'; });
+        });
+        measure();
+    }
+
+    /* ---------------------------------------------------------------
+       Fit meter. The sheets render at true mm, so measuring the rendered
+       content against the printable box is a real answer, not a model.
+       On overflow the one-pager compresses (elides the middle of each
+       ranked list, drops the extra attention cards) before it gives up.
+       --------------------------------------------------------------- */
+    var PX_MM = 96 / 25.4;
+
+    function contentMm(sheet) {
+        var cs = getComputedStyle(sheet);
+        var pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+        var h = 0;
+        Array.prototype.forEach.call(sheet.children, function (el) {
+            if (el.hidden) return;
+            var p = getComputedStyle(el).position;
+            if (p === 'absolute' || p === 'fixed') return;
+            var r = el.getBoundingClientRect();
+            var m = getComputedStyle(el);
+            h += r.height + parseFloat(m.marginTop) + parseFloat(m.marginBottom);
+        });
+        return { used: h / PX_MM, box: (sheet.offsetHeight / PX_MM) - (pad / PX_MM) };
+    }
+
+    function measure() {
+        var v = body.getAttribute('data-variant');
+        if (v === 'online') return;
+
+        var sheets = Array.prototype.slice.call(
+            document.querySelectorAll('#v-' + v + ' .sheet')
+        ).filter(function (s) { return !s.hidden; });
+
+        // The one-pager compresses before it overflows.
+        if (v === 'A') {
+            body.setAttribute('data-full', 'on');
+            var m = contentMm(sheets[0]);
+            if (m.used > m.box) body.setAttribute('data-full', 'off');
+        } else {
+            body.setAttribute('data-full', 'on');
+        }
+
+        var bars = document.getElementById('bBars');
+        bars.innerHTML = '';
+        var over = 0, compressed = body.getAttribute('data-full') === 'off';
+
+        sheets.forEach(function (s, i) {
+            var m = contentMm(s);
+            var pct = Math.round((m.used / m.box) * 100);
+            if (pct > 100) over++;
+            s.classList.toggle('sheet--over', pct > 100);
+            var badge = s.querySelector('.sheet__over');
+            if (pct > 100 && !badge) {
+                badge = document.createElement('span');
+                badge.className = 'sheet__over';
+                badge.textContent = 'overflows';
+                s.appendChild(badge);
+            } else if (pct <= 100 && badge) { badge.remove(); }
+
+            var row = document.createElement('div');
+            row.className = 'budget__row';
+            row.innerHTML =
+                '<span class="budget__lbl">p' + (i + 1) + '</span>' +
+                '<span class="budget__track"><i class="budget__fill ' +
+                (pct > 100 ? 'over' : pct > 92 ? 'warn' : '') +
+                '" style="width:' + Math.min(pct, 100) + '%"></i></span>' +
+                '<span class="budget__pct">' + pct + '%</span>';
+            bars.appendChild(row);
+        });
+
+        document.getElementById('bPages').textContent = sheets.length;
+        document.getElementById('bPagesL').textContent = sheets.length === 1 ? 'page' : 'pages';
+
+        var msg = document.getElementById('bMsg');
+        if (over) {
+            msg.className = 'budget__msg over';
+            msg.textContent = v === 'A'
+                ? 'This selection does not fit on one page even compressed. Drop a block, or switch to the three-page pack.'
+                : 'A page overflows. Drop a block or move it to another page.';
+        } else if (compressed) {
+            msg.className = 'budget__msg warn';
+            msg.textContent = 'Fits, but the ranked lists are compressed to their top and bottom rows. Deselect a block to show every player.';
+        } else {
+            msg.className = 'budget__msg ok';
+            msg.textContent = 'Everything fits, every player listed.';
+        }
+    }
+
+    /* ---- Report type ---- */
+    function setVariant(v) {
+        body.setAttribute('data-variant', v);
+        document.querySelectorAll('.type').forEach(function (b) {
+            b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === v));
+        });
+        document.getElementById('goOnline').setAttribute('aria-pressed', String(v === 'online'));
+        var st = document.getElementById('pagestyle');
+        if (!st) { st = document.createElement('style'); st.id = 'pagestyle'; document.head.appendChild(st); }
+        st.textContent = '@page { size: A4 ' + (v === 'C' ? 'landscape' : 'portrait') + '; margin: 12mm; }';
+        paintBlockList();
+        apply();
+    }
+
+    document.querySelectorAll('.type').forEach(function (b) {
+        b.addEventListener('click', function () { setVariant(b.getAttribute('data-v')); });
+    });
+    document.getElementById('goOnline').addEventListener('click', function () {
+        setVariant(body.getAttribute('data-variant') === 'online' ? 'B' : 'online');
+    });
+    document.getElementById('guides').addEventListener('click', function () {
+        var on = body.getAttribute('data-guides') === 'on';
+        body.setAttribute('data-guides', on ? 'off' : 'on');
+        this.setAttribute('aria-pressed', String(!on));
+    });
+
+    paintBlockList();
+    apply();
+    window.addEventListener('resize', measure);
+})();
+</script>
+</body>
+</html>
