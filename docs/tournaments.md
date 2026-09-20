@@ -87,6 +87,8 @@ the shortcut without losing the planner.
 
 Each match has an opponent level — by default **weaker / equal / stronger / much stronger**. The pill on the match card is colour-coded green → grey → amber → red so you see at a glance which matches need your strongest lineup.
 
+The level shows as its translated label everywhere you meet it — the pill on the match card, the level dropdown on the add-match form, the wizard's match step and the wizard's review summary. Rename a level under Configuration → Opponent levels and the new label follows to all four; what's stored on the match doesn't change, so existing matches keep their level.
+
 The auto-balancer **does not** auto-weight by opponent level. That's coach judgment; the tool shows the data and you apply the judgment via manual swaps.
 
 ## Kicking off and completing a match

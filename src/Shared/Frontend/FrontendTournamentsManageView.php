@@ -299,6 +299,12 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             (int) $tournament->id, CurrentClub::id()
         ) ) ?: [];
 
+        // #3713 — the chip below shows the opponent level. The column stores
+        // the lookup's raw name, so it has to be resolved through the pair
+        // map to render in the reader's language; an operator-added level
+        // with no translation falls back to the stored key.
+        $level_labels = QueryHelpers::get_lookup_label_pairs( 'tournament_opponent_level' );
+
         $squad = $wpdb->get_results( $wpdb->prepare(
             "SELECT s.*, pl.first_name, pl.last_name
                FROM {$p}tt_tournament_squad s
@@ -382,7 +388,8 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             } elseif ( $m->kicked_off_at ) {
                                 echo '<span class="tt-tour-chip tt-tour-chip--live">' . esc_html__( 'In progress', 'talenttrack' ) . '</span>';
                             } elseif ( $m->opponent_level ) {
-                                echo '<span class="tt-tour-chip tt-tour-chip--level">' . esc_html( (string) $m->opponent_level ) . '</span>';
+                                $level_key = (string) $m->opponent_level;
+                                echo '<span class="tt-tour-chip tt-tour-chip--level">' . esc_html( $level_labels[ $level_key ] ?? $level_key ) . '</span>';
                             }
                             ?>
                         </div>
