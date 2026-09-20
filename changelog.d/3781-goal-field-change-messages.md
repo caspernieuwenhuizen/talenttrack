@@ -1,0 +1,5 @@
+# A goal's conversation records a change to its target date, title or progress (#3781)
+
+Bump: patch
+
+Until now the thread recorded only the goal being created and its status moving, so a coach could push a target date back three weeks and the parent reading the conversation would still see the old date discussed above, with nothing to say it had moved. The entry is terse and matches the existing ones — "Target date changed to: 19 November 2026" — and changing two or three fields in one sitting writes one entry listing all of them rather than one per field. Because the goal edit form saves as you type, an entry stays open for a few minutes while you keep working: nudging the progress slider repeatedly amends the same line to where you ended up instead of filling the thread, saving a field with the value it already had writes nothing at all, and a value moved and moved straight back takes its entry with it. Changes to the description, priority, linked principles and evidence are deliberately not recorded.

@@ -48,6 +48,13 @@ class GeneratorContext {
     /** Locale the generated content is written in, e.g. `nl_NL`. */
     public string $contentLanguage;
 
+    /**
+     * The instant this run calls "now" (#3775). Carried from `DemoRunState`,
+     * because a context is rebuilt per chunk and the calendar must not move
+     * underneath a run that spans requests.
+     */
+    public int $now;
+
     private ?DemoCalendar $calendar = null;
 
     private ?DemoRoster $roster = null;
@@ -59,6 +66,7 @@ class GeneratorContext {
      * @param object[]           $players
      * @param array{teams:int, players_per_team:int, weeks:int} $preset
      * @param object[]           $formerPlayers
+     * @param ?int               $now      the run's pinned clock; the wall clock when absent
      */
     public function __construct(
         DemoBatchRegistry $registry,
@@ -68,7 +76,8 @@ class GeneratorContext {
         array $players,
         array $preset,
         string $contentLanguage,
-        array $formerPlayers = []
+        array $formerPlayers = [],
+        ?int $now = null
     ) {
         $this->registry        = $registry;
         $this->users           = $users;
@@ -78,6 +87,7 @@ class GeneratorContext {
         $this->preset          = $preset;
         $this->contentLanguage = $contentLanguage;
         $this->formerPlayers   = $formerPlayers;
+        $this->now             = $now ?? time();
     }
 
     public function weeks(): int {
@@ -98,10 +108,14 @@ class GeneratorContext {
         return array_merge( $this->players, $this->formerPlayers );
     }
 
-    /** The run's seasons, round dates and fixture slots. Built once. */
+    /**
+     * The run's seasons, round dates and fixture slots. Built once, against
+     * the run's pinned clock rather than the wall clock of whichever request
+     * happens to be executing this chunk (#3775).
+     */
     public function calendar(): DemoCalendar {
         if ( $this->calendar === null ) {
-            $this->calendar = new DemoCalendar( $this->weeks() );
+            $this->calendar = new DemoCalendar( $this->weeks(), $this->now );
         }
         return $this->calendar;
     }

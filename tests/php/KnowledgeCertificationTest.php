@@ -207,7 +207,14 @@ final class KnowledgeCertificationTest extends WP_UnitTestCase {
         $this->assertSame( 1, $after['done'] );
     }
 
-    public function test_team_coverage_lists_staff_who_never_started(): void {
+    /**
+     * #3769 reversed this. The list used to report somebody with no
+     * enrolment as `not_started`, which made "nobody ever asked this coach
+     * to do the course" read exactly like "we asked and they have not
+     * begun". The list is enrolment-backed now, and the count of staff
+     * nobody has put on the course is its own number.
+     */
+    public function test_team_coverage_counts_never_enrolled_staff_rather_than_listing_them(): void {
         global $wpdb;
 
         $team_id = 4243;
@@ -218,11 +225,11 @@ final class KnowledgeCertificationTest extends WP_UnitTestCase {
             'scope_id'   => $team_id,
         ] );
 
-        $rows = TeamCourseCoverage::forTeam( $team_id, self::COURSE );
+        $this->assertSame( [], TeamCourseCoverage::forTeam( $team_id, self::COURSE ) );
 
-        // Somebody who never enrolled is the answer to "is my staff trained",
-        // not a row to leave out.
-        $this->assertCount( 1, $rows );
-        $this->assertSame( EnrolmentRepository::STATUS_NOT_STARTED, $rows[0]['status'] );
+        $summary = TeamCourseCoverage::summaryFor( $team_id, self::COURSE );
+
+        $this->assertSame( 0, $summary['total'], 'nobody is enrolled' );
+        $this->assertSame( 1, $summary['assigned'], 'but the team still has a staff member' );
     }
 }
