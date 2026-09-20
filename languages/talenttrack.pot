@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-20T01:03:38+00:00\n"
+"POT-Creation-Date: 2026-09-20T01:31:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -3329,7 +3329,7 @@ msgid "The role type could not be deleted."
 msgstr ""
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:336
-#: src/Infrastructure/REST/ReportsRestController.php:492
+#: src/Infrastructure/REST/ReportsRestController.php:569
 msgid "That filter value is not a valid id."
 msgstr ""
 
@@ -4268,16 +4268,16 @@ msgstr ""
 msgid "Record not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:248
+#: src/Infrastructure/REST/ReportsRestController.php:274
 msgid "Match not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:255
+#: src/Infrastructure/REST/ReportsRestController.php:281
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:125
 msgid "You do not coach this match’s team."
 msgstr ""
 
-#: src/Infrastructure/REST/ReportsRestController.php:509
+#: src/Infrastructure/REST/ReportsRestController.php:585
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
 msgid "You do not have access to this team’s players."
 msgstr ""
