@@ -38,7 +38,8 @@ final class MinutesGridQuery {
      *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:bool, opponent:string, is_tournament:bool, attributed_goals:int }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int}>>,
-     *   summary: array{ total_activities:int, total_players:int }
+     *   summary: array{ total_activities:int, total_players:int },
+     *   window: array{ from:string, to:string }
      * }
      */
     public function matrix( int $team_id, string $from, string $to ): array {
@@ -46,11 +47,20 @@ final class MinutesGridQuery {
         $p       = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
 
+        // #3748 — the window the answer was computed over, carried back with
+        // it. The caller that passed nothing got the season default applied
+        // silently, so a match outside it was simply absent with no way to
+        // tell a missing register from a missing column. Answered here rather
+        // than in the REST controller so every caller of the query benefits,
+        // the way `MinutesQuery::playingTimeForPlayer()` already does.
+        $window = [ 'from' => $from, 'to' => $to ];
+
         $empty = [
             'activities' => [],
             'players'    => [],
             'cells'      => [],
             'summary'    => [ 'total_activities' => 0, 'total_players' => 0 ],
+            'window'     => $window,
         ];
         if ( $team_id <= 0 ) return $empty;
 
@@ -127,6 +137,7 @@ final class MinutesGridQuery {
                 'players'    => $players,
                 'cells'      => [],
                 'summary'    => [ 'total_activities' => count( $activities ), 'total_players' => count( $players ) ],
+                'window'     => $window,
             ];
         }
 
@@ -202,6 +213,91 @@ final class MinutesGridQuery {
             'summary'    => [
                 'total_activities' => count( $activities ),
                 'total_players'    => count( $players ),
+            ],
+            'window'     => $window,
+        ];
+    }
+
+    /**
+     * #3748 — the minutes for ONE activity, behind `GET /activities/{id}/minutes`.
+     *
+     * Derived from `matrix()` over a single-day window rather than from a
+     * query of its own. That is the point: the per-activity read and the grid
+     * then share the ownership arbitration, the
+     * `COALESCE(minutes_override, minutes_played)` rule and the squad
+     * definition by construction, so a coach checking one match cannot be
+     * told a different number from the one the grid shows for it.
+     *
+     * Rows are the team's roster, like the grid's, so a player who was not in
+     * the squad is present at zero rather than absent — "he did not play" is
+     * an answer, and leaving him out looks like missing data.
+     *
+     * Null when the activity is not one the grid would ever column: it does
+     * not exist in this club, has no team or date, or is not an active match.
+     *
+     * @return array{
+     *   activity: array<string, mixed>,
+     *   players: list<array<string, mixed>>,
+     *   summary: array{ total_players:int, squad_players:int, total_minutes:int }
+     * }|null
+     */
+    public function forActivity( int $activity_id ): ?array {
+        if ( $activity_id <= 0 ) return null;
+
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT team_id, {$date_col} AS session_date
+               FROM {$p}tt_activities
+              WHERE id = %d AND club_id = %d
+              LIMIT 1",
+            $activity_id,
+            (int) CurrentClub::id()
+        ) );
+        if ( ! is_object( $row ) ) return null;
+
+        $team_id = (int) ( $row->team_id ?? 0 );
+        $date    = (string) ( $row->session_date ?? '' );
+        if ( $team_id <= 0 || $date === '' ) return null;
+
+        $matrix = $this->matrix( $team_id, $date, $date );
+
+        $activity = null;
+        foreach ( $matrix['activities'] as $candidate ) {
+            if ( $candidate['activity_id'] === $activity_id ) {
+                $activity = $candidate;
+                break;
+            }
+        }
+        if ( $activity === null ) return null;
+
+        $players       = [];
+        $total_minutes = 0;
+        $squad_players = 0;
+        foreach ( $matrix['players'] as $player ) {
+            $cell = $matrix['cells'][ $player['player_id'] ][ $activity_id ] ?? null;
+            $minutes = (int) ( $cell['minutes'] ?? 0 );
+            $squad   = (bool) ( $cell['squad'] ?? false );
+            $total_minutes += $minutes;
+            if ( $squad ) $squad_players++;
+            $players[] = $player + [
+                'minutes' => $minutes,
+                'squad'   => $squad,
+                'goals'   => (int) ( $cell['goals'] ?? 0 ),
+                'assists' => (int) ( $cell['assists'] ?? 0 ),
+            ];
+        }
+
+        return [
+            'activity' => $activity,
+            'players'  => $players,
+            'summary'  => [
+                'total_players' => count( $players ),
+                'squad_players' => $squad_players,
+                'total_minutes' => $total_minutes,
             ],
         ];
     }
