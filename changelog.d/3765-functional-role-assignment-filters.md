@@ -1,0 +1,3 @@
+# Team staff list honours the team filter (#3765)
+
+Asking the functional-role assignments list for one team returned every team's staff instead. The list read only the nested `filter[team_id]` form, so a plain `team_id` was dropped without a word and the answer quietly widened to the whole academy — an administrator checking which role links one person to U11 got the full staff list back. Both `team_id` and `functional_role_id` are now accepted plainly as well as nested (the nested value wins when both are sent), a filter that is sent but is not a usable id is refused instead of ignored, and the endpoint now advertises all of its parameters.

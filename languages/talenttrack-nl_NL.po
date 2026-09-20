@@ -3672,6 +3672,10 @@ msgstr "Het roltype kon niet worden aangemaakt."
 msgid "Invalid role id."
 msgstr "Ongeldig rol-id."
 
+#: src/Infrastructure/REST/FunctionalRolesRestController.php:320
+msgid "That filter value is not a valid id."
+msgstr "Die filterwaarde is geen geldig id."
+
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:154
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:186
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:228
