@@ -473,7 +473,7 @@
             if (state.state !== ST.FIRST_HALF && state.state !== ST.SECOND_HALF) return;
             if (!armOrCommit(els.endScheduled, i18n.end_scheduled_arm || 'Tap again to end the half')) return;
             var fail = function (err) {
-                window.alert((i18n.end_scheduled_error || 'Could not end the half:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                window.alert((i18n.end_scheduled_error || 'Could not end the half:') + ' ' + failureText(err));
             };
             freezeClock(0);
             state.elapsed_ms_before_pause = HALF_LENGTH * 60 * 1000;
@@ -1499,14 +1499,58 @@
             body: body ? JSON.stringify(body) : undefined
         }).then(function (r) {
             if (!r.ok) {
-                var httpErr = new Error('HTTP ' + r.status);
-                httpErr.isHttp = true;
-                httpErr.status = r.status;
-                throw httpErr;
+                // #3851 — the server names every refusal, already
+                // translated ("The player coming off is not currently on
+                // the pitch."). Throwing before reading the body left the
+                // screen nothing to show but the status code, which reads
+                // as "the app is broken" to a coach who only has to swap
+                // two dropdowns.
+                return r.json().catch(function () { return null; }).then(function (data) {
+                    throw httpError(r.status, data);
+                });
             }
             updateConnectionStatus(true);
             return r.json();
         });
+    }
+    // Build the rejection for a response that arrived with a status. The
+    // message is kept apart from the Error's own so the display can tell
+    // "the server said this" from "all we know is the status".
+    function httpError(status, data) {
+        var err = new Error('HTTP ' + status);
+        err.isHttp = true;
+        err.status = status;
+        var said = serverRefusal(data);
+        if (said) {
+            err.code = said.code;
+            if (said.message) {
+                err.serverMessage = said.message;
+                err.message = said.message;
+            }
+        }
+        return err;
+    }
+    // Two envelopes reach here: the plugin's own
+    // { success, data, errors: [ { code, message } ] }, and WordPress's
+    // { code, message } for the refusals it makes itself (a stale nonce,
+    // a failed permission callback). Read either, and nothing at all from
+    // a body that was empty or not JSON.
+    function serverRefusal(data) {
+        if (!data || typeof data !== 'object') return null;
+        var first = (data.errors && data.errors.length) ? data.errors[0] : data;
+        if (!first || typeof first !== 'object') return null;
+        var code = (typeof first.code === 'string') ? first.code : '';
+        var message = (typeof first.message === 'string') ? first.message : '';
+        return (code || message) ? { code: code, message: message } : null;
+    }
+    // What to put in front of the coach when a write is refused: the
+    // server's sentence when there is one, the status when the body held
+    // nothing usable, and the connection wording when the request never
+    // arrived at all.
+    function failureText(err) {
+        if (err && err.serverMessage) return err.serverMessage;
+        if (err && err.status) return 'HTTP ' + err.status;
+        return 'network error.';
     }
     function enqueue(req) {
         try {
@@ -1613,19 +1657,31 @@
     // controls (score steppers, +action / →on buttons, sub-target, late
     // events) are hidden via CSS until the coach opts in. Toggling flips
     // the attribute; the button label + aria-pressed follow.
+    // #3848 — there is more than one of these now: the header's, on the
+    // Pitch tab, and the review panel's, on the tab a post-match screen
+    // opens on. One root attribute still decides, and pressing either moves
+    // both, so a tab change never shows a toggle that disagrees with the
+    // controls it unlocked.
     (function wireEditToggle() {
-        var btn = root.querySelector('[data-tt-mexec-edit-toggle]');
-        if (!btn) return;
-        var label = btn.querySelector('.tt-mexec-edit-label');
-        btn.addEventListener('click', function () {
-            var on = root.getAttribute('data-edit-mode') !== 'on';
+        var btns = root.querySelectorAll('[data-tt-mexec-edit-toggle]');
+        if (!btns.length) return;
+
+        function paint(on) {
             root.setAttribute('data-edit-mode', on ? 'on' : 'off');
-            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            if (label) {
+            Array.prototype.forEach.call(btns, function (btn) {
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                var label = btn.querySelector('.tt-mexec-edit-label');
+                if (!label) return;
                 label.textContent = on
                     ? (label.getAttribute('data-label-done') || 'Done editing')
                     : (label.getAttribute('data-label-edit') || 'Edit');
-            }
+            });
+        }
+
+        Array.prototype.forEach.call(btns, function (btn) {
+            btn.addEventListener('click', function () {
+                paint(root.getAttribute('data-edit-mode') !== 'on');
+            });
         });
     })();
 
@@ -1762,7 +1818,7 @@
                     player_id: c.player_id,
                     minutes: c.minutes
                 }).then(function () { return null; }).catch(function (err) {
-                    return (err && err.status) ? ('HTTP ' + err.status) : 'network error';
+                    return failureText(err);
                 });
             })).then(function (results) {
                 var errs = results.filter(function (x) { return x; });
@@ -1800,7 +1856,7 @@
                 window.location.reload();
             }).catch(function (err) {
                 btn.disabled = false;
-                window.alert((i18n.finalize_error || 'Could not finalize:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                window.alert((i18n.finalize_error || 'Could not finalize:') + ' ' + failureText(err));
             });
         });
     })();
@@ -1817,7 +1873,7 @@
                 window.location.reload();
             }).catch(function (err) {
                 btn.disabled = false;
-                window.alert((i18n.reopen_error || 'Could not re-open the match:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                window.alert((i18n.reopen_error || 'Could not re-open the match:') + ' ' + failureText(err));
             });
         });
     })();
@@ -1878,7 +1934,10 @@
                     window.location.reload();
                 }).catch(function (err) {
                     reenable();
-                    window.alert((i18n.late_save_error || 'Could not save:') + ' ' + ((err && err.status) ? ('HTTP ' + err.status) : 'network error.'));
+                    // #3851 — a toast rather than a system dialog: the form
+                    // stays filled in behind it, which is where the coach
+                    // has to change something anyway.
+                    toast((i18n.late_save_error || 'Could not save:') + ' ' + failureText(err));
                 });
             });
         }
@@ -1918,6 +1977,32 @@
             if (half !== 1 && half !== 2) return null;
             if (isNaN(minute) || minute < 0 || minute > MINUTE_MAX) return null;
             return { event_uuid: uuidv4(), half: half, minute: minute, player_off: off, player_on: on };
+        });
+    })();
+
+    // #3861 — complete the activity behind a played match, from the screen
+    // "Complete activity" sends the coach to. The activity is flipped on the
+    // final whistle and nowhere else, so an activity reopened for a
+    // correction had no way back to completed and fell out of every
+    // completed count.
+    //
+    // Posted straight at the activities endpoint rather than through api():
+    // this is a status flip on a different resource, and it must not land in
+    // the offline queue, which replays match events against the match's own
+    // base URL.
+    (function wireCompleteActivity() {
+        var btn = root.querySelector('[data-tt-mexec-complete-activity]');
+        if (!btn || !cfg.activity_status_url) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.complete_activity_confirm || 'Mark this activity completed? You can reopen it later.')) return;
+            btn.disabled = true;
+            rawFetch(cfg.activity_status_url, 'POST', { status: 'completed' }).then(function () {
+                window.location.reload();
+            }).catch(function (err) {
+                btn.disabled = false;
+                var why = (err && err.status) ? (' HTTP ' + err.status) : '';
+                window.alert((i18n.complete_activity_error || 'Could not update the activity status.') + why);
+            });
         });
     })();
 })();

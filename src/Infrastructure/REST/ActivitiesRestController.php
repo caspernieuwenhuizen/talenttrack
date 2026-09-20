@@ -2498,7 +2498,9 @@ class ActivitiesRestController {
      * Only Cancel (→ cancelled) and Reopen (→ planned) go through here;
      * Completion is intentionally rejected because it runs through the
      * evaluation flow (which flips the status at its final save), never
-     * as a bare field write.
+     * as a bare field write. The two exceptions are the flows that have no
+     * such final save: the wizard switched off, and (#3861) a match that
+     * has already been played, whose register the match execution wrote.
      */
     public static function set_status( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2515,7 +2517,15 @@ class ActivitiesRestController {
         // grids write attendance in bulk and never touch status — so
         // without this an activity could never leave `planned` at all.
         $wizard_on = \TT\Modules\Activities\Services\ActivityCompletionResolver::wizardAvailable( get_current_user_id() );
-        if ( ! $wizard_on ) {
+        // #3861 — and for a match that has already been played. Its register
+        // was written on the final whistle and re-derived on every edit
+        // since, so the condition the guard protects against cannot hold.
+        // Without this, reopening a played match was permanent: the only
+        // writer of `completed` for such an activity is the final whistle,
+        // which is unreachable once the match is over, so the activity fell
+        // out of every completed count for good.
+        $played_match = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionIsOwnedByAPlayedMatch( $id );
+        if ( ! $wizard_on || $played_match ) {
             $allowed[] = ActivityStatusKey::COMPLETED;
         }
 

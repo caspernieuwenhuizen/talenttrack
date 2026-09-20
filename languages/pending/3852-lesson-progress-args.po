@@ -1,0 +1,3 @@
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:700
+msgid "Send \"read\" (boolean) and/or \"tool_state\" (object)."
+msgstr "Stuur \"read\" (boolean) en/of \"tool_state\" (object)."

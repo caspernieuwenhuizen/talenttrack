@@ -96,7 +96,11 @@ goals, actions and substitutions are always one tap away.
 
 In the **post-match review window** the screen opens read-only to guard
 against accidental taps: the score, goals, and substitutions are shown but
-not editable until you tap **Edit** in the header.
+not editable until you tap **Edit** in the header. On the sectioned layout
+the Review tab carries its own **Edit** button, so the tab that opens after
+the final whistle is the tab you can switch editing on from. There is one
+setting behind the two buttons — turn it on anywhere and every tab is
+editable, with both buttons reading *Done editing*.
 
 ## The match clock
 
@@ -168,6 +172,12 @@ in it, the pitch diagram draws it, and only that half's substitutions apply
 on top of it — the first half's are already accounted for by the line-up
 change itself. Without a second-half line-up nothing changes: the eleven
 who started play on, and every substitution applies in turn.
+
+**When a correction is refused, the screen says why** — "The player coming
+off is not currently on the pitch", not a status code. The refusal names
+the thing to change, so it is usually one dropdown away from being
+accepted. If the phone is offline the write is queued as usual and nothing
+is refused; that is the connection line at the top, not an error.
 
 When you are done, tap **Finalize match** to lock it. A finalized match is
 the record of what the players actually did, so the live controls stay

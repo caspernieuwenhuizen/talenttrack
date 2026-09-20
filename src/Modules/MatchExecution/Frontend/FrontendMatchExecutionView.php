@@ -175,6 +175,33 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         echo $part( 'overlays' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — already-escaped view output.
     }
 
+    /**
+     * #2222 — the explicit edit affordance. Read-only by default; shown
+     * only for a state that still accepts writes and is not being played
+     * (`hasEditToggle()`, so never on FINALIZED and never mid-match, where
+     * the controls are simply there). It flips the container's
+     * `data-edit-mode`, which is what the CSS reveals the score steppers,
+     * the goal and substitution buttons and the late-event panels against.
+     *
+     * #3848 — rendered in two places under the sectioned shell: the header,
+     * which lives on the Pitch tab, and the top of the review panel, which
+     * is the tab a post-match screen opens on and the one telling the coach
+     * to turn Edit on. There is still one source of truth — the root
+     * attribute — and the JS keeps every toggle showing the same state.
+     */
+    private static function renderEditToggle( string $state, string $initial_edit_mode ): void {
+        if ( ! MatchExecutionState::hasEditToggle( $state ) ) return;
+        $edit_on = ( $initial_edit_mode === 'on' );
+        ?>
+                    <div class="tt-mexec-edit-toggle">
+                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
+                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
+                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php echo $edit_on ? esc_html__( 'Done editing', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ); ?></span>
+                        </button>
+                    </div>
+        <?php
+    }
+
     /** One tab panel. Hidden unless it is the state's default. */
     private static function panel( string $id, string $default_id, string $html ): void {
         printf(
@@ -498,22 +525,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         <span class="tt-mexec-when"><?php echo esc_html( $when ); ?></span>
                     <?php endif; ?>
                 </p>
-                <?php // #2222 — explicit edit affordance. Read-only by default;
-                      // shown only for states that still accept live-data writes
-                      // (never on FINALIZED). Toggles the container's
-                      // data-edit-mode so the CSS reveals/hides the score
-                      // steppers, goal/sub buttons, and late-event panels.
-                      // #3549 — post-match review only. Before and during
-                      // the match the controls are simply there. ?>
-                <?php if ( MatchExecutionState::hasEditToggle( $state ) ) : ?>
-                    <?php $edit_on = ( $initial_edit_mode === 'on' ); ?>
-                    <div class="tt-mexec-edit-toggle">
-                        <button type="button" class="tt-mexec-edit-btn" data-tt-mexec-edit-toggle aria-pressed="<?php echo $edit_on ? 'true' : 'false'; ?>">
-                            <span class="tt-mexec-edit-icon" aria-hidden="true">✎</span>
-                            <span class="tt-mexec-edit-label" data-label-edit="<?php esc_attr_e( 'Edit', 'talenttrack' ); ?>" data-label-done="<?php esc_attr_e( 'Done editing', 'talenttrack' ); ?>"><?php echo $edit_on ? esc_html__( 'Done editing', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ); ?></span>
-                        </button>
-                    </div>
-                <?php endif; ?>
+                <?php self::renderEditToggle( $state, $initial_edit_mode ); ?>
             </header>
 
             <?php // #2857 — the scoreline is a readout of the goal log, not a
@@ -1211,6 +1223,18 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         ?>
                     </p>
                     <?php
+                    // #3848 — the toggle, here, where the copy below asks for
+                    // it. Under the sectioned shell the header's copy of it
+                    // lives on the Pitch tab, two taps from the tab a
+                    // post-match screen opens on, so the first thing a coach
+                    // does after a match read as "you cannot do this here".
+                    // Only under that shell: the classic shell renders the
+                    // header in the same column, a few centimetres up.
+                    if ( $tt_sections ) {
+                        self::renderEditToggle( $state, $initial_edit_mode );
+                    }
+                    ?>
+                    <?php
                     // #3445 — a match that closed with no register says so
                     // here, where the coach lands after the final whistle.
                     // The gap is read back out of the database rather than
@@ -1263,6 +1287,23 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         </button>
                         <p class="tt-mexec-finalize-help">
                             <?php esc_html_e( 'Re-opening lets you correct the score, subs, goals or minutes. The change is logged.', 'talenttrack' ); ?>
+                        </p>
+                    <?php endif; ?>
+                    <?php
+                    // #3861 — "Complete activity" routes a played match to this
+                    // screen, which until now had no control that completed
+                    // anything: the activity is flipped on the final whistle
+                    // and nowhere else, so a coach who had reopened the
+                    // activity to correct it landed here with nothing to tap
+                    // and no way back to completed. Shown only while the
+                    // activity is not completed, so it is a repair rather than
+                    // a second way in.
+                    if ( (string) ( $activity->activity_status_key ?? '' ) !== 'completed' ) : ?>
+                        <button type="button" class="tt-mexec-reopen-btn" data-tt-mexec-complete-activity>
+                            <?php esc_html_e( 'Mark activity completed', 'talenttrack' ); ?>
+                        </button>
+                        <p class="tt-mexec-finalize-help">
+                            <?php esc_html_e( 'The match is played, but its activity is not marked completed. Completed activities are what the reports count.', 'talenttrack' ); ?>
                         </p>
                     <?php endif; ?>
                     <?php
@@ -1668,6 +1709,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             // endpoint. Row-scoped avoids the destructive wipe-and-rewrite
             // the whole-activity PUT performs.
             'attendance_rest_base' => esc_url_raw( rest_url( 'talenttrack/v1/attendance/' ) ),
+            // #3861 — completing the activity behind a played match is a
+            // write on the activity, not on the match, so it goes to the
+            // activities endpoint with its own URL.
+            'activity_status_url'  => esc_url_raw( rest_url( 'talenttrack/v1/activities/' . $activity_id . '/status' ) ),
             'rest_nonce'  => wp_create_nonce( 'wp_rest' ),
             'activity_id' => $activity_id,
             'i18n'        => [
@@ -1722,6 +1767,11 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 // #2271 — re-open a finalized match for corrections.
                 'reopen_confirm'    => __( 'Re-open this finalized match for corrections?', 'talenttrack' ),
                 'reopen_error'      => __( 'Could not re-open the match:', 'talenttrack' ),
+                // #3861 — the same sentences the activity detail's own
+                // "Mark completed" action uses, so the two surfaces ask the
+                // question the same way.
+                'complete_activity_confirm' => __( 'Mark this activity completed? You can reopen it later.', 'talenttrack' ),
+                'complete_activity_error'   => __( 'Could not update the activity status.', 'talenttrack' ),
                 // #2224 — recorded-minutes correction feedback.
                 'minutes_saved'     => __( 'Recorded minutes saved.', 'talenttrack' ),
                 'minutes_save_error'=> __( 'Could not save recorded minutes:', 'talenttrack' ),
@@ -1820,7 +1870,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT a.id, a.team_id, a.title, a.session_date, a.activity_type_key,
-                    a.opponent, a.home_away, a.kickoff_time,
+                    a.opponent, a.home_away, a.kickoff_time, a.activity_status_key,
                     t.name AS team_name
                FROM {$wpdb->prefix}tt_activities a
                LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id

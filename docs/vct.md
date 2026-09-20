@@ -43,14 +43,19 @@ Per `config/authorization_seed.php`, **every** persona, including the ones with 
 | `assistant_coach` | team | — | team |
 | `head_of_development` | global | global | global |
 | `admin` | global | global | global |
-| `team_manager` | — | — | — |
-| `staff` (incl. the `manager` functional role) | — | — | — |
+| `team_manager` | — | — | team (read-only) |
+| `staff` carrying the `manager` functional role | — | — | team (read-only) |
+| `staff` without it | — | — | — |
 | `scout` | — | — | — |
 | `player` | — | — | — |
 | `parent` | — | — | — |
 | `observer` | — | — | — |
 
 The VCT capabilities are **matrix-only by design** (`RolesService::VCT_CAPS`): they are deliberately in no role's capability list, so `user_can()` always answers false for them and only the matrix can grant them. A persona with a dash above therefore gets a 403 from every VCT route, which is the intended answer rather than a gap.
+
+**The team manager reads load and cannot plan it** (#3808). They are who parents ring when a boy is tired, and who decides who sits out, so they read the planned load for their own team beside the minutes they could already see — the two halves of that conversation used to sit in different rooms. `tt_vct_plan` and `tt_vct_admin_config` stay with the coach and the head of development: `vct/sessions`, `vct/team-cycles` and `vct/age-profiles` keep refusing a manager, and that refusal is deliberate. Deciding how hard children are worked is not a logistics seat's job.
+
+A team manager on an install may be the `team_manager` persona **or** the `manager` functional role layered on `staff` — `config/functional_role_grants.php` says so itself — so both shapes carry the same two reads. The answer must not depend on which shape a club happens to use.
 
 Both coach personas read the load for their own teams only. The `vct_workload`
 row behind `tt_vct_view_load` was missing from both of them until #3706, so

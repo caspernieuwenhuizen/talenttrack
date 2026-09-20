@@ -541,6 +541,25 @@ return array_merge(
         // `AllTeamsScope` / `get_teams_for_coach()`, so a manager reads
         // their own squads and no others.
         'analytics'                  => [ 'r',   'team',   $mod_analytics ],
+        // #3808 — the load half of the availability conversation.
+        //
+        // The team manager is who parents ring when a boy is tired or sore,
+        // and who decides who sits out. They could already read `minutes`
+        // (what has been played) and nothing at all about `vct_workload`
+        // (what is planned), so the two halves of that conversation sat in
+        // different rooms and the one in their hands was paper.
+        //
+        // Read-only, team scope. `vct` and `vct_library` are deliberately
+        // NOT here: building cycles, macro-blocks and age profiles stays
+        // with the coach and the head of development. `vct/sessions`,
+        // `vct/team-cycles` and `vct/age-profiles` keep refusing a manager,
+        // which is correct.
+        'vct_workload'               => [ 'r',   'team',   $mod_vct ],
+        // The sentence at LegacyCapMapper.php:437-440 — "a scout or team
+        // manager could reasonably be trusted to read a player's training
+        // history" — was written when the capability was split out and the
+        // seed never followed through. It does now, for the manager.
+        'training_exposure'          => [ 'r',   'team',   $mod_training ],
         // #1856 — team manager views the team's measurements + sessions.
         'measurements'               => [ 'r',   'team',   $mod_measurements ],
         // #2591 — read-only: a team manager administers a squad, they do

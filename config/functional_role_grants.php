@@ -55,6 +55,16 @@ $mod_holidays      = class_exists( '\TT\Modules\Holidays\HolidaysModule' )
     ? \TT\Modules\Holidays\HolidaysModule::class
     : $mod_authorization;
 $mod_analytics     = TT\Modules\Analytics\AnalyticsModule::class;
+// #3808 — guarded like the optional modules above: both are Pro-tier and
+// may be absent, and a missing class here would make the grant's
+// module_class null, which `MatrixGate` reads as "unknown module, treat as
+// enabled" — a silently wider grant than intended.
+$mod_vct           = class_exists( '\TT\Modules\Vct\VctModule' )
+    ? \TT\Modules\Vct\VctModule::class
+    : $mod_authorization;
+$mod_training      = class_exists( '\TT\Modules\Training\TrainingModule' )
+    ? \TT\Modules\Training\TrainingModule::class
+    : $mod_authorization;
 
 return [
 
@@ -244,6 +254,12 @@ return [
             'player_status'           => [ 'r',  $mod_players ],
             'holidays'                => [ 'r',  $mod_holidays ],
             'analytics'               => [ 'r',  $mod_analytics ],
+            // #3808 — the same two reads the `team_manager` persona gains,
+            // because the comment above says a team manager on this install
+            // may be either shape and the answer must not depend on which.
+            // Read-only: planning stays with the coach and the HoD.
+            'vct_workload'            => [ 'r',  $mod_vct ],
+            'training_exposure'       => [ 'r',  $mod_training ],
             'team_roster_panel'       => [ 'r',  $mod_teams ],
             'coach_player_list_panel' => [ 'r',  $mod_players ],
             'activities_panel'        => [ 'r',  $mod_activities ],

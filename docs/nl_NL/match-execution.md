@@ -102,7 +102,12 @@ fluitsignaal zijn doelpunten, acties en wissels altijd één tik weg.
 
 In de **nabesprekingsperiode** opent het scherm alleen-lezen om per ongeluk
 tikken te voorkomen: de stand, doelpunten en wissels worden getoond maar
-zijn niet bewerkbaar totdat je op **Bewerken** tikt in de kop.
+zijn niet bewerkbaar totdat je op **Bewerken** tikt in de kop. In de
+sectie-indeling heeft de tab Controle een eigen knop **Bewerken**, zodat de
+tab die na het laatste fluitsignaal opengaat ook de tab is waar je het
+bewerken aanzet. Achter beide knoppen zit één instelling: zet je hem ergens
+aan, dan is elke tab bewerkbaar en staat op allebei de knoppen *Klaar met
+bewerken*.
 
 ## De wedstrijdklok
 
@@ -181,6 +186,13 @@ wissels van die helft komen er nog bovenop — die van de eerste helft zitten
 al in de opstellingswissel zelf. Zonder opstelling voor de tweede helft
 verandert er niets: de elf die begonnen spelen door en elke wissel telt op
 volgorde mee.
+
+**Wordt een correctie geweigerd, dan zegt het scherm waarom** — "De speler
+die eruit gaat, staat momenteel niet in het veld", niet een statuscode. De
+weigering benoemt wat er moet veranderen, en dat is meestal één keuzelijst.
+Is de telefoon offline, dan wordt de actie zoals altijd in de wachtrij
+gezet en wordt er niets geweigerd; dat is de verbindingsregel bovenin, geen
+foutmelding.
 
 Als je klaar bent, tik je op **Wedstrijd afsluiten** om te vergrendelen.
 Een afgesloten wedstrijd is de vastlegging van wat de spelers werkelijk

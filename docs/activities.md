@@ -188,6 +188,8 @@ The activity flips to **Completed** only when the flow finishes (the wizard's fi
 
 The detail view also carries **Cancel activity** (on a planned activity) and **Reopen** (on a completed or cancelled one) — direct, confirmed status changes.
 
+**Reopening a match you have already played is not a one-way door.** A match that was run through the live screen carries its own register — attendance and minutes were written at the final whistle and re-derived on every correction since — so such an activity offers **Mark completed** next to Cancel once it is back to *Planned*, and the match screen itself offers **Mark activity completed** in its review panel. Finalizing the match again does the same thing. This is the one case where completing is a direct status change on a match: everywhere else it stays the end of the completion flow, so an activity cannot be completed with nothing recorded against it.
+
 **The header actions follow the status.** A planned activity is the only one you can change, so it is the only one that offers **Edit** and the run actions. Once an activity is completed or cancelled the header switches to reading what happened:
 
 - **Edit** disappears. **Reopen** is the way back to an editable record — it returns the activity to *Planned* and Edit comes back with it.

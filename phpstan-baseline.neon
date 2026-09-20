@@ -20001,7 +20001,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property object\:\:\$id\.$#'
 			identifier: property.notFound
-			count: 55
+			count: 56
 			path: src/Shared/Frontend/FrontendActivitiesManageView.php
 
 		-
