@@ -14,7 +14,16 @@ A **tournament** in TalentTrack is a container for a set of matches you play in 
 
 > *Across these matches, who plays which position when, how does it compare to everyone else, and who haven't I started yet?*
 
-Tournaments are admin-only in v1. Academy Admins create and run them; Coaches and Head of Development don't see the feature until a follow-up ship adds them.
+## Who can see this
+
+Head coaches, assistant coaches and team managers see and run the tournaments of the teams they are assigned to — the whole planner, including creating one. The Head of Development and Academy Admins see every tournament in the academy.
+
+A tournament's squad can be drawn from more than one team, and access follows the whole set, not just the anchor team. So:
+
+- You can open and plan a tournament when **any** of its teams is one of yours.
+- You can delete one only when **all** of them are. Deleting takes the fixture away from every squad in it, so if a tournament includes a team you don't manage, TalentTrack refuses the delete and tells you why. The Head of Development or an Academy Admin can still delete it.
+
+Players and parents do not see the tournament planner.
 
 ## Creating a tournament
 

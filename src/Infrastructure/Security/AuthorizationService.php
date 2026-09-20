@@ -331,25 +331,47 @@ class AuthorizationService {
     }
 
     /**
-     * #0093 Tournament view check. v1 is admin-only — the per-entity
-     * check just verifies the user holds `tt_view_tournaments`, which
-     * is mapped to administrator + tt_club_admin only by the role
-     * registrar. The persona-expansion follow-up swaps this for the
-     * proper creator/team-coach/global-staff logic without changing
-     * the REST permission_callback signatures.
+     * #0093 Tournament view check, made real by #3703.
+     *
+     * v1 shipped admin-only and this body re-asked the global capability,
+     * ignoring the id it was handed — the signature existed so the
+     * persona expansion could fill it in without touching a single REST
+     * permission callback, and this is that expansion. The decision now
+     * lives in `TournamentAccess`, against the `tournaments` matrix
+     * entity and the tournament's participating teams.
      */
     public static function canViewTournament( int $user_id, int $tournament_id ): bool {
-        return self::decide( 'view_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id ) {
-            return user_can( $user_id, 'tt_view_tournaments' );
+        return self::decide( 'view_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id, $tournament_id ) {
+            return \TT\Modules\Tournaments\TournamentAccess::canView( $user_id, $tournament_id );
         } );
     }
 
     /**
-     * #0093 Tournament edit check. v1 is admin-only — see canViewTournament.
+     * #0093 / #3703 Tournament edit check — squad, matches, assignments,
+     * kickoff and complete. See `canViewTournament()`.
+     *
+     * Deleting is NOT this decision: it takes the tournament away from
+     * every squad in it, so it has its own method below.
      */
     public static function canEditTournament( int $user_id, int $tournament_id ): bool {
-        return self::decide( 'edit_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id ) {
-            return user_can( $user_id, 'tt_edit_tournaments' );
+        return self::decide( 'edit_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id, $tournament_id ) {
+            return \TT\Modules\Tournaments\TournamentAccess::canEdit( $user_id, $tournament_id );
+        } );
+    }
+
+    /**
+     * #3703 Tournament delete check.
+     *
+     * Separate from `canEditTournament()` because the answer is
+     * deliberately narrower: a tournament day can pull its squad from
+     * several age groups, and a team-scoped actor deleting one would take
+     * the fixture away from squads that are not theirs. They may delete
+     * only when every participating team is one they hold; a global-scope
+     * actor is unaffected.
+     */
+    public static function canDeleteTournament( int $user_id, int $tournament_id ): bool {
+        return self::decide( 'delete_tournament', $user_id, 'tournament', $tournament_id, function () use ( $user_id, $tournament_id ) {
+            return \TT\Modules\Tournaments\TournamentAccess::canDelete( $user_id, $tournament_id );
         } );
     }
 

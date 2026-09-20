@@ -14,7 +14,16 @@ Een **toernooi** in TalentTrack is een container voor een set wedstrijden die je
 
 > *Over deze wedstrijden heen: wie speelt welke positie wanneer, hoe staat dat tegenover de rest, en wie heb ik nog niet in de basis gehad?*
 
-Toernooien zijn in v1 alleen beschikbaar voor de Academy Admin. Coaches en Head of Development zien de functie niet totdat een vervolg-release ze toevoegt.
+## Wie dit ziet
+
+Hoofdtrainers, assistent-trainers en teammanagers zien en draaien de toernooien van de teams waaraan ze zijn toegewezen — de hele planner, inclusief er een aanmaken. Het Hoofd opleiding en de academiebeheerders zien elk toernooi in de academie.
+
+De selectie van een toernooi kan uit meer dan één team komen, en de toegang volgt de hele verzameling, niet alleen het ankerteam. Dus:
+
+- Je opent en plant een toernooi zodra **één** van de teams van jou is.
+- Je verwijdert het alleen als **alle** teams van jou zijn. Verwijderen haalt de wedstrijddag weg bij elke selectie erin, dus als er een team bij zit dat jij niet begeleidt, weigert TalentTrack het verwijderen en zegt waarom. Het Hoofd opleiding of een academiebeheerder kan het wel verwijderen.
+
+Spelers en ouders zien de toernooiplanner niet.
 
 ## Een toernooi aanmaken
 
