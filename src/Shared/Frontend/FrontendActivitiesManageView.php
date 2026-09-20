@@ -1939,9 +1939,23 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * #1453 — "Expected attendance" section on the activity detail
      * page. Lists the planned roster captured at activity creation
      * (the `record_type='expected'` rows from AttendanceRosterStep),
-     * so a coach knows who to expect before the session. Guests are
-     * tagged. Renders nothing when no planned roster was captured
-     * (the "Set later" path), keeping the surface uncluttered.
+     * so a coach knows who to expect before the activity. Guests are
+     * tagged.
+     *
+     * #3847 — an empty roster renders an **empty state**, not nothing.
+     * It used to return early, and the card is the only place on this
+     * page that links into the plan editor, so an activity with no squad
+     * showed no players, no prompt and no way in: a coach opening it the
+     * evening before saw date, time, type and notes, and fell back to
+     * paper. A screen that renders nothing where a thing should be is
+     * indistinguishable from a broken one, and it takes the only route
+     * onward with it.
+     *
+     * A **completed** activity is the one exception: the attendance
+     * summary below has the answer for it, and offering to compose a
+     * squad for a match that has been played is a stale affordance. A
+     * cancelled one keeps the card but not the link — there is nothing
+     * left to build.
      *
      * Composition only — the repository owns the query so REST and the
      * match-prep step read the same planned roster (CLAUDE.md §4).
@@ -1950,9 +1964,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $activity_id = (int) ( $session->id ?? 0 );
         if ( $activity_id <= 0 ) return;
 
+        $status = strtolower( trim( (string) ( $session->activity_status_key ?? '' ) ) );
+
+        // #2248 — matrix-aware edit gate for the header link.
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+
         $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
             ->plannedRosterForActivity( $activity_id );
-        if ( empty( $roster ) ) return;
+
+        if ( empty( $roster ) ) {
+            if ( $status === ActivityStatusKey::COMPLETED ) return;
+            self::renderPlannedAttendanceEmpty(
+                $activity_id,
+                $can_edit && $status !== ActivityStatusKey::CANCELLED
+            );
+            return;
+        }
 
         // #2248 — the plan now carries a per-player status (Expected /
         // Not coming / Maybe). Summarise the non-expected ones so a coach
@@ -1965,17 +1992,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( $s === 'excused' ) $maybe++;
         }
 
-        // #2248 — matrix-aware edit gate for the "Edit plan" link.
-        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
-        $edit_url = '';
-        if ( $can_edit ) {
-            $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
-                add_query_arg(
-                    [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
-                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                )
-            );
-        }
+        $edit_url = $can_edit ? self::plannedAttendanceEditUrl( $activity_id ) : '';
 
         echo '<div class="tt-act-card-d">';
         echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
@@ -2023,6 +2040,50 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
         echo '</div>';
         echo '</div>';
+    }
+
+    /**
+     * #3847 — the card an activity with no squad yet shows.
+     *
+     * Read-only, deliberately: the coach's question the evening before is
+     * *who is expected*, which is reading, and the edit form stays the
+     * single write path for the plan. Adding a second one here while
+     * #3656 and #3652 are unresolved would build on ground that is still
+     * moving.
+     *
+     * Most activities never see this card after #3800 — creating a team
+     * activity seeds its roster now. It is the floor under the ones that
+     * cannot be seeded: an activity with no team, one created before that
+     * shipped, and one whose squad a coach emptied on purpose.
+     */
+    private static function renderPlannedAttendanceEmpty( int $activity_id, bool $can_edit ): void {
+        echo '<div class="tt-act-card-d">';
+        echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
+            . esc_html__( 'Expected attendance', 'talenttrack' )
+            . '</h3>';
+        if ( $can_edit ) {
+            echo '<a class="tt-act-card-d__link" href="'
+                . esc_url( self::plannedAttendanceEditUrl( $activity_id ) ) . '">'
+                . esc_html__( 'Pick the squad', 'talenttrack' ) . ' →</a>';
+        }
+        echo '</div>';
+        echo '<div class="tt-act-card-d__body tt-act-card-d__muted">'
+            . esc_html__( 'No squad picked yet.', 'talenttrack' )
+            . '</div>';
+        echo '</div>';
+    }
+
+    /**
+     * The plan editor for one activity, carrying a back-target so the
+     * editor can offer the §5 pill back to this page.
+     */
+    private static function plannedAttendanceEditUrl( int $activity_id ): string {
+        return \TT\Shared\Frontend\Components\BackLink::appendTo(
+            add_query_arg(
+                [ 'tt_view' => 'activities', 'id' => $activity_id, 'action' => 'edit' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            )
+        );
     }
 
     private static function renderAttendanceSummary( object $session ): void {
