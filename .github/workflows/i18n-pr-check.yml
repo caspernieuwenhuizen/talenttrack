@@ -1,26 +1,34 @@
 name: i18n PR check
 
-# Per-PR translation-drift guard. Refreshes a snapshot .pot against
-# the PR's branch, msgmerges into a fresh copy of the nl_NL .po, and
-# fails when the empty-msgstr count grew vs. the same operation on
-# `main`. The author can override by labelling the PR
-# `i18n-drift-acceptable` (e.g. when the translator hasn't caught up
-# yet but the PR ships an exit-criteria feature).
+# Per-PR translation gate. Two independent halves in one job.
 #
-# Bonus regex grep — Table C leak classes (Audit 4 / #1178):
-#   - literal English in `wp_die(...)`
-#   - literal English as 2nd arg to `WP_Error(...)`
-#   - literal English as `sprintf(...)` format string
-# These three patterns cover the hardcoded leak class without
-# triggering on legitimate uses. The job fails if any new occurrence
-# is found in the PR's diff (vs. main).
+# 1. Fragment gate. Every new translatable string on this PR's added
+#    lines must have an entry with a non-empty msgstr in the PR's
+#    fragment under `languages/pending/` (or already ship translated).
+#    `tools/check-i18n-fragment.php` names the strings that don't.
 #
-# See #1223 + Audit 4. Separation of concerns vs. existing workflows:
+#    This replaced (#3864) a gate that regenerated the .pot on both the
+#    merge base and the head, msgmerged each into a copy of the .po, and
+#    failed when the untranslated count grew. That was accurate and hard
+#    to act on — it reported "Empty-msgstr delta: 3 (baseline=9,
+#    head=12)" next to "New untranslated msgids: 0", and reading the two
+#    together as "you added three strings and translated none" took real
+#    effort. It also needed wp-cli, gettext and a second worktree to
+#    produce a number nobody could reproduce locally.
+#
+#    The author can still override with the `i18n-drift-acceptable`
+#    label, e.g. when a feature lands faster than the translator.
+#
+# 2. Hardcoded-English leak grep — Table C leak classes (Audit 4 /
+#    #1178): literal English in `wp_die(...)`, as the 2nd arg to
+#    `WP_Error(...)`, or as a `sprintf(...)` format string. Unchanged.
+#
+# Separation of concerns vs. the other workflows:
 # - `translations.yml` validates .po syntax + warns on empty msgstr
 #   counts. It doesn't gate.
-# - `i18n-sync.yml` runs on main, not on PRs. It commits structural
-#   changes (msgmerge after .pot refresh).
-# - This workflow gates PRs that grow the gap.
+# - `po-duplicate-lint.yml` runs `tools/check-po-duplicates.php`, which
+#   covers the fragments too.
+# - `i18n-drift-report.yml` reports the whole-catalogue gap weekly.
 
 on:
   pull_request:
@@ -34,199 +42,81 @@ permissions:
 
 jobs:
   drift-gate:
-    name: Empty-msgstr delta + hardcoded-English grep
+    name: Fragment gate + hardcoded-English grep
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
         with:
-          # We need main's tree to compute the baseline delta.
+          # The gate diffs against the merge base, so it needs history.
           fetch-depth: 0
 
-      - name: Setup PHP + wp-cli
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
-          tools: wp-cli
 
-      - name: Install gettext (msgmerge)
-        run: |
-          sudo apt-get update -o Acquire::Retries=3 \
-            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
-          sudo apt-get install -y gettext -o Acquire::Retries=3 \
-            -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15
-
-      # Compute baseline empty-msgstr count for nl_NL on the merge
-      # base. We checkout main into a sibling worktree so the PR
-      # branch's working tree stays intact.
-      - name: Compute baseline (main) empty-msgstr count
-        id: baseline
+      # A fragment that duplicates a msgid, carries an obsolete entry or
+      # leaves a msgstr empty is refused here, in the PR that wrote it —
+      # not at release time, where it blocks the whole batch and the
+      # author who could fix it in a minute has moved on.
+      - name: Validate the PR's translation fragments
         shell: bash
         run: |
           set -e
-          mkdir -p .drift-baseline
-          # Get the merge-base of the PR vs. main.
           git fetch origin main:refs/remotes/origin/main
-          base_sha=$(git merge-base HEAD origin/main)
-          echo "Merge base: $base_sha"
+          php tools/consolidate-translations.php --check
+          php tools/check-po-duplicates.php --base=origin/main
 
-          # Worktree at the merge-base.
-          git worktree add .drift-baseline-tree "$base_sha"
-
-          (
-            cd .drift-baseline-tree
-            wp i18n make-pot . ../.drift-baseline/talenttrack.pot \
-              --slug=talenttrack --skip-audit
-            cp languages/talenttrack-nl_NL.po ../.drift-baseline/nl_NL.po
-          )
-
-          # #1338 — capture stderr instead of silencing it. `msgmerge
-          # --update` can return 0 even when it logged a fatal-parse
-          # 'duplicate message definition' error and wrote a partial
-          # file. We surface both the non-zero exit AND the fatal-error
-          # line in stderr.
-          if ! msgmerge --update --backup=none --no-fuzzy-matching \
-               .drift-baseline/nl_NL.po .drift-baseline/talenttrack.pot \
-               2> .drift-baseline/msgmerge.err; then
-            echo "::error::msgmerge failed on baseline (main) — see error below."
-            cat .drift-baseline/msgmerge.err || true
-            exit 1
-          fi
-          if grep -q 'fatal error' .drift-baseline/msgmerge.err; then
-            echo "::error::msgmerge reported a fatal error on baseline (main) — see below."
-            cat .drift-baseline/msgmerge.err
-            exit 1
-          fi
-
-          # #1395 — count untranslated ENTRIES via msgattrib, not
-          # `^msgstr ""$` lines: a wrapped multi-line translated msgstr
-          # also starts with a bare `msgstr ""` line, so the line-grep
-          # miscounted every long translation as empty. msgattrib parses
-          # entries; the header (translated metadata) is excluded by
-          # --untranslated, fuzzies are excluded to match msgfmt stats.
-          baseline_empty=$(msgattrib --untranslated --no-fuzzy --no-obsolete \
-            .drift-baseline/nl_NL.po 2>/dev/null | grep -c '^msgid ' || true)
-          echo "baseline_empty=$baseline_empty" >> "$GITHUB_OUTPUT"
-          echo "Baseline (main) untranslated entry count: $baseline_empty"
-
-          # Snapshot baseline msgids for later diffing.
-          msgattrib --untranslated .drift-baseline/nl_NL.po \
-            -o .drift-baseline/nl_NL.untranslated.po || true
-
-      - name: Compute PR-branch empty-msgstr count
-        id: head
-        shell: bash
-        run: |
-          set -e
-          mkdir -p .drift-head
-          wp i18n make-pot . .drift-head/talenttrack.pot \
-            --slug=talenttrack --skip-audit
-          cp languages/talenttrack-nl_NL.po .drift-head/nl_NL.po
-          # #1338 — same fatal-error surfacing as the baseline step.
-          if ! msgmerge --update --backup=none --no-fuzzy-matching \
-               .drift-head/nl_NL.po .drift-head/talenttrack.pot \
-               2> .drift-head/msgmerge.err; then
-            echo "::error::msgmerge failed on PR branch — see error below."
-            cat .drift-head/msgmerge.err || true
-            exit 1
-          fi
-          if grep -q 'fatal error' .drift-head/msgmerge.err; then
-            echo "::error::msgmerge reported a fatal error on PR branch — see below."
-            cat .drift-head/msgmerge.err
-            exit 1
-          fi
-
-          # #1338 — defence-in-depth: even when msgmerge stays quiet,
-          # `msguniq` will flag duplicate msgids that survive into the
-          # committed .po (e.g. an active block colliding with an
-          # obsolete `#~` block from a past bulk-translation import).
-          # Targets the committed file directly so we catch landmines
-          # that pre-date this PR's diff as soon as a change touches
-          # the .po.
-          if ! msguniq --no-wrap languages/talenttrack-nl_NL.po \
-               -o /dev/null 2> .drift-head/msguniq.err; then
-            echo "::error::Duplicate msgid found in nl_NL.po — see locations below."
-            cat .drift-head/msguniq.err
-            exit 1
-          fi
-
-          # #1395 — entry-based count; see the baseline step's comment.
-          head_empty=$(msgattrib --untranslated --no-fuzzy --no-obsolete \
-            .drift-head/nl_NL.po 2>/dev/null | grep -c '^msgid ' || true)
-          echo "head_empty=$head_empty" >> "$GITHUB_OUTPUT"
-          echo "PR-branch untranslated entry count: $head_empty"
-
-          msgattrib --untranslated .drift-head/nl_NL.po \
-            -o .drift-head/nl_NL.untranslated.po || true
-
-      # Compare deltas. If new untranslated msgids appeared (HEAD has
-      # entries the baseline didn't), surface them in the failure
-      # comment. The override label short-circuits the failure.
-      - name: Compare deltas + comment on PR
-        id: compare
+      - name: Every new string has a translation
+        id: fragment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
         run: |
+          set +e
+          php tools/check-i18n-fragment.php --base=origin/main --format=github \
+            2>&1 | tee "$RUNNER_TEMP/i18n-fragment.log"
+          status=${PIPESTATUS[0]}
           set -e
-          baseline=${{ steps.baseline.outputs.baseline_empty }}
-          head=${{ steps.head.outputs.head_empty }}
-          delta=$(( head - baseline ))
-          echo "delta=$delta" >> "$GITHUB_OUTPUT"
-          echo "Empty-msgstr delta: $delta (baseline=$baseline, head=$head)"
 
-          if [ "$delta" -le 0 ]; then
-            echo "OK — no new empty msgstr entries."
+          if [ "$status" -eq 0 ]; then
             exit 0
           fi
+          if [ "$status" -ne 1 ]; then
+            echo "::error::check-i18n-fragment could not run (exit $status)."
+            exit "$status"
+          fi
 
-          # Extract msgids that are untranslated in HEAD but were not
-          # untranslated (or didn't exist) in baseline. We diff the
-          # `msgid "..."` lines of the two untranslated .po snapshots.
-          grep -E '^msgid "' .drift-baseline/nl_NL.untranslated.po \
-            | sort -u > .drift-baseline/untranslated_msgids.txt || true
-          grep -E '^msgid "' .drift-head/nl_NL.untranslated.po \
-            | sort -u > .drift-head/untranslated_msgids.txt || true
-          comm -23 \
-            .drift-head/untranslated_msgids.txt \
-            .drift-baseline/untranslated_msgids.txt \
-            > .drift-head/new_untranslated.txt || true
-
-          new_count=$(wc -l < .drift-head/new_untranslated.txt | tr -d ' ')
-          echo "New untranslated msgids in this PR: $new_count"
-
-          # Check for the override label.
           override=$(jq -r '.pull_request.labels[]?.name' "$GITHUB_EVENT_PATH" \
             | grep -Fxc 'i18n-drift-acceptable' || true)
           if [ "$override" -gt 0 ]; then
-            echo "::notice::Label 'i18n-drift-acceptable' present — drift accepted."
+            echo "::notice::Label 'i18n-drift-acceptable' present — untranslated strings accepted."
             exit 0
           fi
 
           {
-            echo "## i18n drift detected"
+            echo "## Untranslated strings in this PR"
             echo ""
-            echo "This PR introduces **$delta new empty \`msgstr\` entries** in \`languages/talenttrack-nl_NL.po\` (baseline: $baseline, head: $head)."
+            echo "Every new translatable string needs an entry with a Dutch \`msgstr\` in this PR's fragment — one new file, \`languages/pending/<issue>-<slug>.po\`. Do not edit \`languages/talenttrack-nl_NL.po\`; see [\`languages/pending/README.md\`](../blob/main/languages/pending/README.md)."
             echo ""
-            echo "Add the Dutch translations in the same PR, or label this PR \`i18n-drift-acceptable\` to override."
+            echo '```'
+            cat "$RUNNER_TEMP/i18n-fragment.log"
+            echo '```'
             echo ""
-            if [ -s .drift-head/new_untranslated.txt ]; then
-              echo "<details><summary>New untranslated msgids ($new_count shown, first 50)</summary>"
-              echo ""
-              echo '```'
-              head -50 .drift-head/new_untranslated.txt
-              echo '```'
-              echo ""
-              echo "</details>"
-            fi
+            echo "Reproduce locally — no gettext tooling needed:"
             echo ""
-            echo "_Refs #1223._"
-          } > .drift-head/comment.md
+            echo '```'
+            echo "php tools/check-i18n-fragment.php"
+            echo '```'
+            echo ""
+            echo "Or label this PR \`i18n-drift-acceptable\` to ship the English for now; the weekly drift report still records the strings."
+          } > "$RUNNER_TEMP/i18n-fragment-comment.md"
 
           gh pr comment "${{ github.event.pull_request.number }}" \
-            --body-file .drift-head/comment.md || true
+            --body-file "$RUNNER_TEMP/i18n-fragment-comment.md" || true
 
-          echo "::error::PR adds $delta untranslated msgids without 'i18n-drift-acceptable' label."
+          echo "::error::This PR adds translatable strings with no Dutch translation."
           exit 1
 
       # Bonus: hardcoded-English leak grep (Audit 4 Table C).
@@ -250,7 +140,7 @@ jobs:
           fi
 
           fail=0
-          report=".drift-head/leak-report.md"
+          report="$RUNNER_TEMP/leak-report.md"
           : > "$report"
 
           # Pattern A: wp_die(" Capital   — literal English in wp_die().
@@ -308,10 +198,10 @@ jobs:
               cat "$report"
               echo ""
               echo "_Refs #1223 + #1178. False positive? Reply on this PR and we'll tune the pattern._"
-            } > .drift-head/leak-comment.md
+            } > "$RUNNER_TEMP/leak-comment.md"
 
             gh pr comment "${{ github.event.pull_request.number }}" \
-              --body-file .drift-head/leak-comment.md || true
+              --body-file "$RUNNER_TEMP/leak-comment.md" || true
             echo "::error::Hardcoded English leak(s) found in changed PHP files."
             exit 1
           fi

@@ -4,17 +4,27 @@
  *
  * ## What goes wrong without this
  *
- * `.gitattributes` gives `languages/*.po` the union merge driver, so parallel
- * branches stop conflicting on the catalogue. The cost is that a union merge
- * takes BOTH sides of every hunk. When `i18n-sync` has relocated and rewrapped
- * a branch's appended entries into their sorted position on `main`, merging
- * `main` back into that branch produces the appended copy *and* the relocated
- * copy — and git reports no conflict, because as far as the driver is
- * concerned nothing disagreed.
+ * `languages/*.po` used to carry the union merge driver, so parallel branches
+ * stopped conflicting on the catalogue. The cost was that a union merge takes
+ * BOTH sides of every hunk. When the catalogue regeneration had relocated and
+ * rewrapped a branch's appended entries into their sorted position on `main`,
+ * merging `main` back into that branch produced the appended copy *and* the
+ * relocated copy — and git reported no conflict, because as far as the driver
+ * was concerned nothing disagreed.
  *
  * It happened four times in one day, on four separate branches, and the clean
- * one is the tell: the damage depends on whether `main` has relocated an entry
- * the branch also carries, which is timing, not anything the author did.
+ * one is the tell: the damage depended on whether `main` had relocated an
+ * entry the branch also carried, which is timing, not anything the author did.
+ *
+ * The union driver is gone (#3864) and a PR now drops a fragment under
+ * `languages/pending/` instead of editing the catalogue, so the mechanism
+ * above cannot fire again. This check stays because duplicates arrive by other
+ * routes too — a fragment that carries the same string twice, a hand-merge, a
+ * bulk import — and because what it is really guarding is the compile: a
+ * duplicate msgid is what `msgfmt` refuses, whoever wrote it.
+ *
+ * Fragments are checked alongside the catalogues, so a bad one fails in the PR
+ * that added it rather than blocking a whole batch at release time.
  *
  * Duplicates are what `msgfmt` refuses, so one reaching `main` can break the
  * `.mo` compile for every locale. The quieter case is worse: when the two
@@ -104,6 +114,12 @@ if ( (string) $options['file'] !== '' ) {
     ) as $found ) {
         $files[] = 'languages/' . basename( $found );
     }
+    // The per-PR fragments too. A duplicate inside one is cheapest to find
+    // in the PR that wrote it — at release time it blocks the whole batch,
+    // and the author who could fix it in a minute has moved on.
+    foreach ( glob( $root . '/languages/pending/*.po' ) ?: [] as $found ) {
+        $files[] = 'languages/pending/' . basename( $found );
+    }
     sort( $files );
 }
 
@@ -137,7 +153,12 @@ foreach ( $files as $relative ) {
             // A missing base is not a failure: a fresh clone, a detached CI
             // checkout, or a brand-new catalogue all land here, and failing
             // the build over it would teach people to ignore this check.
-            fwrite( STDOUT, "check-po-duplicates: no {$relative} at {$base_ref}; reporting without a comparison.\n" );
+            //
+            // A fragment is brand-new on every branch by construction, so
+            // saying so on each one is noise rather than information.
+            if ( strncmp( $relative, 'languages/pending/', 18 ) !== 0 ) {
+                fwrite( STDOUT, "check-po-duplicates: no {$relative} at {$base_ref}; reporting without a comparison.\n" );
+            }
         } else {
             $base_dups = duplicates_in( $base_source );
             $base_obs  = obsolete_duplicates_in( $base_source );
@@ -234,21 +255,23 @@ if ( ! $failed ) {
 
 fwrite( STDERR, <<<'TXT'
 
-This is almost always the union merge driver taking both sides after
-i18n-sync relocated your entries on main. Git reported no conflict because
-nothing disagreed — both copies are "correct".
+A duplicate in a FRAGMENT: delete the second copy. A fragment states the
+strings one PR introduces, so the same (msgctxt, msgid) twice is always a
+mistake, and the consolidator would refuse the whole batch over it.
 
-To fix, rebuild the catalogue rather than hand-deleting lines:
+A duplicate in a CATALOGUE: your branch is carrying a hand-merged copy.
+Rebuild rather than hand-deleting lines —
 
   git checkout origin/main -- languages/talenttrack-nl_NL.po
-  # re-add ONLY the strings this branch introduces, with their Dutch msgstr
+  # put ONLY the strings this branch introduces in
+  # languages/pending/<issue>-<slug>.po, with their Dutch msgstr
   php tools/check-po-duplicates.php
 
 Deleting one of each pair by hand works too, but the copies can disagree —
-one translated, one emptied by a msgmerge that lost the string — and
-gettext takes the first. Rebuilding removes that coin flip.
+one translated, one emptied by a merge that lost the string — and gettext
+takes the first. Rebuilding removes that coin flip.
 
-See docs/contributing.md § Translation catalogue.
+See docs/contributing.md § Translations go in a fragment.
 
 TXT );
 

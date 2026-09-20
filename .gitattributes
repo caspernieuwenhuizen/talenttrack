@@ -12,8 +12,22 @@
 CHANGES.md        merge=union
 readme.txt        merge=union
 SEQUENCE.md       merge=union
-languages/*.po    merge=union
 languages/*.mo    binary
+
+# `languages/*.po merge=union` was here and is deliberately gone (#3864).
+#
+# A .po is not append-only, which is the only case union is safe for: the
+# catalogue regeneration RELOCATES entries, so union kept the appended copy
+# and the relocated one, produced a duplicate msgid that msgfmt refuses, and
+# reported no conflict while doing it — both copies were "correct".
+#
+# It did not even buy the conflict reduction it was added for: branches that
+# `git merge-tree` resolved cleanly locally were still reported CONFLICTING
+# by GitHub on the .po, because the driver runs on a developer's machine and
+# not on the server-side merge that actually gates a PR.
+#
+# A PR now drops languages/pending/<issue>-<slug>.po instead of editing the
+# catalogue, so there is nothing left to union. See languages/pending/README.md.
 
 # Report docs are append-heavy (each report change adds its own section),
 # so parallel report branches collide on them the same way the release

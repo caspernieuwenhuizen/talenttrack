@@ -215,22 +215,32 @@ Full rules in `languages/pending/README.md`.
 
 Translation drift is gated and reported automatically by two workflows under `.github/workflows/`:
 
-- **`i18n-pr-check.yml`** runs on every PR that touches `src/**/*.php` or `languages/**`. It refreshes a snapshot `.pot` against the PR branch, `msgmerge`s it into `talenttrack-nl_NL.po`, and fails when the empty-`msgstr` count grew vs. `main`. The failure comment lists the new English msgids. The PR also fails if it adds an obvious hardcoded English leak (`wp_die("Capital…")`, `WP_Error('code', "Capital…")`, `sprintf("Capital…")` — wrap those in `__()` / `_e()` / `esc_html__()`). **Since #1338** the same job also surfaces `msgmerge` fatal-error output and runs `msguniq` over the committed `.po` so duplicate `msgid` definitions (e.g. an active block colliding with an obsolete `#~` block) fail at PR review instead of breaking `i18n-sync.yml` on `main`.
+- **`i18n-pr-check.yml`** runs on every PR that touches `src/**/*.php` or `languages/**`. It asks one question: **does every new translatable string on this PR's added lines have an entry, with a non-empty `msgstr`, in the PR's fragment?** The failure names the msgids and the `file:line` that introduced them. It also validates the fragments themselves (`consolidate-translations.php --check`, `check-po-duplicates.php`), and fails on an obvious hardcoded English leak (`wp_die("Capital…")`, `WP_Error('code', "Capital…")`, `sprintf("Capital…")` — wrap those in `__()` / `_e()` / `esc_html__()`). Run the same check before pushing, with nothing installed but PHP:
+
+  ```
+  php tools/check-i18n-fragment.php
+  ```
+
+  **Since #3864** this replaced a gate that regenerated the `.pot` on both sides and diffed untranslated counts. It was accurate and hard to act on: `Empty-msgstr delta: 3 (baseline=9, head=12)` alongside `New untranslated msgids: 0` are two true statements whose combination takes real effort to read as "you added three strings and translated none of them". It also needed `wp-cli`, `gettext` and a second worktree to produce a number nobody could reproduce locally.
+
+  A string that is already untranslated on `main` is reported as a **note** and does not fail the PR — that drift predates you, and failing on it only teaches people to reach for the override label.
 - **`i18n-drift-report.yml`** runs every Monday 06:00 UTC and on manual dispatch. It refreshes the `.pot`, `msgmerge`s every locale `.po`, counts empty + fuzzy entries, and writes the result into an auto-managed tracking issue titled `i18n drift report`. The body lists per-locale counts, the top 10 source files driving the `nl_NL` gap, and PRs merged in the last 7 days that touched PHP under `src/`.
 
 **Override**: when a PR genuinely needs to ship new untranslated msgids (typically because a feature lands faster than the translator), label the PR `i18n-drift-acceptable`. The PR-check passes; the weekly drift report still records the new entries.
 
 Neither workflow commits anything — `i18n-sync.yml` (structural `.pot` regeneration + `msgmerge`) is the only workflow that writes to `languages/`.
 
-### The translation catalogue duplicates itself when you merge `main` (#2765)
+### Duplicate msgids, and why the catalogue is no longer union-merged (#2765, #3864)
 
-This one bites without warning, so read it before it does.
+`languages/*.po` used to carry the **union** merge driver, so parallel branches would not conflict on the catalogue. It is gone, and it is worth knowing why before anyone adds it back.
 
-`.gitattributes` gives `languages/*.po` the **union** merge driver. That is what stops parallel branches conflicting on the catalogue — and the cost is that a union merge takes **both** sides of every hunk. When `i18n-sync` has relocated and rewrapped your appended entries into their sorted position on `main`, merging `main` back into your branch leaves you holding the appended copy **and** the relocated one. **Git reports no conflict**, because as far as the driver is concerned nothing disagreed.
+A union merge takes **both** sides of every hunk, which is safe only for append-only text. A `.po` is not append-only: the catalogue regeneration **relocates** and re-wraps entries, so merging `main` into a branch that had appended an entry left you holding the appended copy **and** the relocated one. **Git reported no conflict**, because as far as the driver was concerned nothing disagreed. It happened four times in one day, on four separate branches, and the clean case is the tell — the damage depended on whether `main` had relocated an entry your branch also carried, which is timing, not anything you did.
 
-It happened four times in one day, on four separate branches. The clean case is the tell: the damage depends on whether `main` has relocated an entry your branch also carries — timing, not anything you did.
+It also did not buy the conflict reduction it was added for: branches that `git merge-tree` resolved cleanly locally were still reported `CONFLICTING` by GitHub on the `.po`, because the driver runs on a developer's machine and not on the server-side merge that actually gates a PR.
 
-Why it matters: duplicate `msgid`s are what `msgfmt` refuses, so one reaching `main` can break the `.mo` compile for every locale. The quieter case is worse — when the two copies disagree, one translated and one emptied by a `msgmerge` that lost the string, gettext takes the first, and a Dutch string silently reverts to English with no error anywhere.
+So the collision surface was removed instead: a PR drops a fragment under `languages/pending/` and never touches the catalogue, and the release folds the fragments in with nothing else in flight.
+
+Duplicates still matter, and the check stays. Duplicate `msgid`s are what `msgfmt` refuses, so one reaching `main` can break the `.mo` compile for every locale. The quieter case is worse — when the two copies disagree, one translated and one emptied by a merge that lost the string, gettext takes the first, and a Dutch string silently reverts to English with no error anywhere.
 
 **`po-duplicate-lint.yml` fails a PR that duplicates a msgid the base does not**, and names the strings. Run the same check locally:
 
@@ -265,11 +275,16 @@ Each of those cases has a fixture under `tests/fixtures/po/` and an assertion in
 
 That distinction is the point: the check used to fail only on duplicates `main` did not already have, so when `main` itself went red every branch inherited the pair, found nothing "introduced", and reported OK. On a machine without `msgfmt` — the normal case here — that OK was the only signal available. If this check passes, the catalogue compiles; you do not need `msgfmt` locally to trust it.
 
-**When it fires, rebuild rather than hand-delete:**
+**It covers the fragments too**, so a fragment that carries the same `(msgctxt, msgid)` twice fails in the PR that wrote it rather than blocking a whole batch at release time.
+
+**When it fires on a fragment**, delete the second copy — a fragment states the strings one PR introduces, so the pair is always a mistake.
+
+**When it fires on a catalogue**, your branch is carrying a hand-merged copy. Rebuild rather than hand-deleting lines:
 
 ```
 git checkout origin/main -- languages/talenttrack-nl_NL.po
-# re-add ONLY the strings this branch introduces, with their Dutch msgstr
+# put ONLY the strings this branch introduces in
+# languages/pending/<issue>-<slug>.po, with their Dutch msgstr
 php tools/check-po-duplicates.php
 ```
 
