@@ -394,7 +394,7 @@ final class TeamAnnouncementTest extends WP_UnitTestCase {
                 'only the last step submits'
             );
             if ( ! $last ) {
-                $this->assertNull( $step->submit( [] ) );
+                $this->assertSame( [], $step->submit( [] ), 'a step that is not the last has nothing to commit' );
             }
         }
 

@@ -79,7 +79,13 @@ final class ComposeStep implements WizardStepInterface {
         return [ 'subject' => $subject, 'body' => $body ];
     }
 
-    public function nextStep( array $state ): ?string { return 'confirm'; }
+    /** Always names the next step, so the framework never submits from here. */
+    public function nextStep( array $state ): string { return 'confirm'; }
 
-    public function submit( array $state ) { return null; }
+    /**
+     * Unreachable, for the same reason as `AudienceStep::submit()`.
+     *
+     * @return array<string,mixed>
+     */
+    public function submit( array $state ): array { return []; }
 }

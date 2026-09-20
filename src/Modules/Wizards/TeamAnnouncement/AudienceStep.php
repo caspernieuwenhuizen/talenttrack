@@ -107,7 +107,16 @@ final class AudienceStep implements WizardStepInterface {
         ];
     }
 
-    public function nextStep( array $state ): ?string { return 'compose'; }
+    /** Always names the next step, so the framework never submits from here. */
+    public function nextStep( array $state ): string { return 'compose'; }
 
-    public function submit( array $state ) { return null; }
+    /**
+     * Unreachable: `submit()` runs only on the step whose `nextStep()`
+     * answered null, and this one never does. Empty rather than null
+     * because the contract is a result array, and a step that cannot
+     * commit has nothing to put in it.
+     *
+     * @return array<string,mixed>
+     */
+    public function submit( array $state ): array { return []; }
 }
