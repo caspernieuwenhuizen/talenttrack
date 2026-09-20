@@ -63434,6 +63434,11 @@ msgstr[1] ""
 "Geen wedstrijden gespeeld voor dit team in deze periode. %1$d gespeelde "
 "wedstrijden vallen erbuiten, tussen %2$s en %3$s — verruim de periode om ze "
 "mee te nemen."
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "Minutes are only recorded for match activities that are still active."
+msgstr ""
+"Speelminuten worden alleen vastgelegd bij wedstrijdactiviteiten die nog "
+"actief zijn."
 
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
