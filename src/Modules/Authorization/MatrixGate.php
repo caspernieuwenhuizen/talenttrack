@@ -121,7 +121,7 @@ class MatrixGate {
 
                 if ( $scope_kind === self::SCOPE_GLOBAL ) return true;
                 if ( $scope_kind === self::SCOPE_SELF )   return true;
-                if ( self::userHasAnyScope( $user_id, $scope_kind ) )    return true;
+                if ( self::userHasAnyScope( $user_id, $scope_kind, $persona ) ) return true;
             }
         }
 
@@ -195,7 +195,7 @@ class MatrixGate {
                         'source_row_id' => $repo->rowIdFor( $persona, $entity, $activity, $scope_kind ),
                     ];
                 }
-                $assigned = self::firstScopeAssignment( $user_id, $scope_kind );
+                $assigned = self::firstScopeAssignment( $user_id, $scope_kind, $persona );
                 if ( $assigned !== null ) {
                     return [
                         'allowed'       => true,
@@ -232,7 +232,7 @@ class MatrixGate {
      * in `userHasAnyScope()` but returns the matching id (team / player)
      * so the admin can show "scope_value=42".
      */
-    private static function firstScopeAssignment( int $user_id, string $scope_kind ): ?int {
+    private static function firstScopeAssignment( int $user_id, string $scope_kind, string $persona = '' ): ?int {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -247,7 +247,15 @@ class MatrixGate {
             // rest. The resolver orders most-recent link first, which is the
             // same default subject the dashboard and the Me-views resolve.
             $children = \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id );
-            return $children[0] ?? null;
+            if ( $children !== [] ) return $children[0];
+
+            // #3566 — the scout branch, for the scout persona alone.
+            if ( $persona === 'scout' ) {
+                $linked = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id );
+                return $linked[0] ?? null;
+            }
+
+            return null;
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
@@ -369,7 +377,7 @@ class MatrixGate {
                 continue;
             }
 
-            if ( self::userHasScope( $user_id, $scope_kind, $scope_target_id ) ) {
+            if ( self::userHasScope( $user_id, $scope_kind, $scope_target_id, $persona ) ) {
                 return true;
             }
         }
@@ -380,21 +388,32 @@ class MatrixGate {
     /**
      * Does the user actually hold the requested runtime scope?
      *
-     * Sprint 1 covers the three scope kinds in active use:
+     * The three scope kinds in active use:
      *   - team:   assigned via tt_user_role_scopes.scope_type='team' AND scope_id=$target.
-     *   - player: linked via tt_players.wp_user_id (the player themselves)
-     *             OR via tt_player_parents (a parent of the player).
-     *             Scouts (#0017) pick up trial-case access via the same
-     *             tt_user_role_scopes table; until #0017 ships there's
-     *             no surface to exercise that path.
+     *   - player: linked via tt_players.wp_user_id (the player themselves),
+     *             via tt_player_parents (a guardian), or — for the scout
+     *             persona only — via an active trial-case panel seat or the
+     *             scout's assignment list (#3566, {@see ScoutPlayerLinks}).
      *   - self:   $target_id matches the user_id.
+     *
+     * ## Why the persona is a parameter (#3566)
+     *
+     * This used to claim scouts picked up trial-case access "via the same
+     * tt_user_role_scopes table". They do not, and never did: there was no
+     * scout branch at all, so every player-scoped scout row in the seed was
+     * a dead grant. That wrong comment is why the rows were believed to work.
+     *
+     * The scout links are added **per persona**, not for everyone, because
+     * player scope is otherwise persona-blind: a user who is both a coach and
+     * a parent and happens to sit on a panel would otherwise pick up the
+     * *parent* rows' player-scoped reads over that trialist.
      */
     /**
      * Does the user hold ANY assignment of the given scope kind? Used
      * by `canAnyScope()` where the question is "is there any team /
      * any linked player at all", not "the specific team N".
      */
-    private static function userHasAnyScope( int $user_id, string $scope_kind ): bool {
+    private static function userHasAnyScope( int $user_id, string $scope_kind, string $persona = '' ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -409,7 +428,14 @@ class MatrixGate {
             // This used to be an inline pivot query with neither filter, so
             // a guardian of a released child still satisfied `player` scope
             // here while the dashboard showed them nothing.
-            return \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [];
+            if ( \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [] ) return true;
+
+            // #3566 — the scout branch, for the scout persona alone.
+            if ( $persona === 'scout' ) {
+                return \TT\Infrastructure\Players\ScoutPlayerLinks::hasAnyLink( $user_id );
+            }
+
+            return false;
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {
@@ -435,7 +461,7 @@ class MatrixGate {
         return false;
     }
 
-    private static function userHasScope( int $user_id, string $scope_kind, int $target_id ): bool {
+    private static function userHasScope( int $user_id, string $scope_kind, int $target_id, string $persona = '' ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -453,7 +479,14 @@ class MatrixGate {
 
             // Parent of the player? #3476 — one club-scoped implementation,
             // not a fifth copy of the pivot query.
-            return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $target_id );
+            if ( \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $target_id ) ) return true;
+
+            // #3566 — the scout branch, for the scout persona alone.
+            if ( $persona === 'scout' ) {
+                return \TT\Infrastructure\Players\ScoutPlayerLinks::isLinkedTo( $user_id, $target_id );
+            }
+
+            return false;
         }
 
         if ( $scope_kind === self::SCOPE_TEAM ) {

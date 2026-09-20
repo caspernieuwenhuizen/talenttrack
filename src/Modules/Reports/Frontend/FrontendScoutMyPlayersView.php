@@ -85,15 +85,17 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
     }
 
     /**
+     * #3566 — delegates to {@see ScoutPlayerLinks::assignedPlayerIds()}.
+     *
+     * This list is now an authorization input (a scout's `player` scope
+     * resolves partly through it), so it gets one reader rather than a
+     * copy per surface. Kept as a method here because existing callers
+     * name this class.
+     *
      * @return int[]
      */
     public static function assignedPlayerIds( int $scout_user_id ): array {
-        $raw = get_user_meta( $scout_user_id, self::META_KEY, true );
-        if ( ! is_string( $raw ) || $raw === '' ) return [];
-        $decoded = json_decode( $raw, true );
-        if ( ! is_array( $decoded ) ) return [];
-        $ids = array_map( 'intval', $decoded );
-        return array_values( array_unique( array_filter( $ids, static fn( $i ) => $i > 0 ) ) );
+        return \TT\Infrastructure\Players\ScoutPlayerLinks::assignedPlayerIds( $scout_user_id );
     }
 
     private static function renderReport( int $scout_user_id, int $player_id ): void {

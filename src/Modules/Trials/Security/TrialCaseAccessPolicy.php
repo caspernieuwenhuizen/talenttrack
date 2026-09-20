@@ -77,8 +77,23 @@ final class TrialCaseAccessPolicy {
      * on it *now*", which stops at the decision.
      */
     public static function isInputAuthor( int $user_id, int $case_id ): bool {
-        if ( ! user_can( $user_id, 'tt_submit_trial_input' ) ) return false;
+        // #3566 — this was a bare `user_can()`, which answers from WP role
+        // capabilities alone. A scout holds `trial_inputs [change, player]`
+        // in the matrix and the cap in no role, so they were refused here
+        // before their panel assignment was ever looked at — the whole
+        // reason a scout on a panel could not submit their input.
+        $entitled = \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_submit_trial_input' )
+            || \TT\Modules\Authorization\MatrixGate::canAnyScope(
+                $user_id,
+                'trial_inputs',
+                \TT\Modules\Authorization\MatrixGate::CHANGE
+            );
+        if ( ! $entitled ) return false;
+
         if ( self::isManager( $user_id ) ) return true;
+
+        // Assignment still decides WHICH case. Entitlement says they may
+        // write an input somewhere; this says it is this one.
         return ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id );
     }
 

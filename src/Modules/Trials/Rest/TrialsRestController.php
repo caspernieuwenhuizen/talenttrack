@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Trials\Letters\TrialLetterService;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
@@ -232,22 +234,86 @@ class TrialsRestController {
         ] );
     }
 
+    /**
+     * #3566 — these read through `userCanOrMatrix()` rather than bare
+     * `current_user_can()`, as `ActivitiesRestController::can_view()`
+     * already does.
+     *
+     * The bare call answers from WP role capabilities alone, so a persona
+     * whose access is granted in the matrix and not as a raw role cap is
+     * refused before the matrix is ever consulted — which is exactly what
+     * happened to the scout. `userCanOrMatrix()` asks both, so the answer
+     * no longer depends on whether the `user_has_cap` bridge is active on
+     * this install.
+     */
     public static function can_view(): bool {
         // v3.85.5 — license gate. Trials is a Pro-tier feature; the
         // capability gate alone wasn't enough since free-tier installs
         // could still hold tt_manage_trials.
         if ( ! self::licenseAllowsTrials() ) return false;
-        return current_user_can( 'tt_view_trial_synthesis' ) || current_user_can( 'tt_manage_trials' );
+        $uid = get_current_user_id();
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_view_trial_synthesis' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_trials' )
+            // A scout holds neither cap, but does hold `trial_cases [r, player]`.
+            // The per-case narrowing below decides which cases they reach.
+            || MatrixGate::canAnyScope( $uid, 'trial_cases', MatrixGate::READ );
     }
 
     public static function can_manage(): bool {
         if ( ! self::licenseAllowsTrials() ) return false;
-        return current_user_can( 'tt_manage_trials' );
+        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_trials' );
+    }
+
+    /**
+     * #3566 — does this caller read trials club-wide, or only for the
+     * players they are linked to?
+     *
+     * True for anyone holding the trials capabilities proper. False for a
+     * caller who got through `can_view()` on the scout's player-scoped
+     * matrix row alone — they are entitled to *a* case, never *the* list.
+     */
+    private static function readsAllCases( int $user_id ): bool {
+        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' )
+            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_trial_synthesis' );
+    }
+
+    /**
+     * #3566 — restrict a case query to the caller's linked players when
+     * they are not a club-wide reader.
+     *
+     * Returns the filters to use, or **null** when the caller has no
+     * links at all — the caller then returns an empty list rather than
+     * running an unfiltered query. Null is deliberately distinct from an
+     * empty `player_ids`, which a repository could read as "no filter".
+     *
+     * @param  array<string,mixed> $filters
+     * @return array<string,mixed>|null
+     */
+    private static function narrowToLinkedPlayers( array $filters ): ?array {
+        $uid = get_current_user_id();
+        if ( self::readsAllCases( $uid ) ) return $filters;
+
+        $linked = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $uid );
+        if ( $linked === [] ) return null;
+
+        // An explicit player_id filter narrows further; it never widens.
+        if ( ! empty( $filters['player_ids'] ) && is_array( $filters['player_ids'] ) ) {
+            $linked = array_values( array_intersect( $filters['player_ids'], $linked ) );
+            if ( $linked === [] ) return null;
+        }
+
+        $filters['player_ids'] = $linked;
+        return $filters;
     }
 
     public static function can_submit_input(): bool {
         if ( ! self::licenseAllowsTrials() ) return false;
-        return current_user_can( 'tt_submit_trial_input' ) || current_user_can( 'tt_manage_trials' );
+        $uid = get_current_user_id();
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_submit_trial_input' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_trials' )
+            // The scout's seed row is `trial_inputs [c, player]` — `c` is
+            // `change` in the seed's letter map, not `create_delete`.
+            || MatrixGate::canAnyScope( $uid, 'trial_inputs', MatrixGate::CHANGE );
     }
 
     /**
@@ -278,6 +344,16 @@ class TrialsRestController {
         // along; the route never passed it, so `player_id` returned everyone.
         $player_id = absint( (int) $r->get_param( 'player_id' ) );
         if ( $player_id > 0 ) $filters['player_ids'] = [ $player_id ];
+
+        // #3566 — narrow BEFORE the query, not after. A caller who reached
+        // this route through the scout's player-scoped matrix row sees only
+        // the cases they sit on; without this, resolving their scope would
+        // hand them every case in the club.
+        $narrowed = self::narrowToLinkedPlayers( $filters );
+        if ( $narrowed === null ) {
+            return RestResponse::success( [ 'cases' => [] ] );
+        }
+        $filters = $narrowed;
 
         $rows  = ( new TrialCasesRepository() )->search( $filters );
         $names = self::playerNames( array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) ) );
@@ -351,11 +427,17 @@ class TrialsRestController {
         $id = absint( $r['id'] );
         $case = ( new TrialCasesRepository() )->find( $id );
         if ( ! $case ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
-        if ( ! TrialCaseAccessPolicy::canViewSynthesis( get_current_user_id(), $id ) ) {
+        // #3566 — `canOpenCase()`, not `canViewSynthesis()`. A scout on the
+        // panel may read the case they are assessing; the synthesis (other
+        // panellists' inputs before release) stays behind its own gate, which
+        // is why the motivation below is still asked for separately.
+        if ( ! TrialCaseAccessPolicy::canOpenCase( get_current_user_id(), $id ) ) {
             return RestResponse::error( 'forbidden', __( 'No access to this case.', 'talenttrack' ), 403 );
         }
-        // Past `canViewSynthesis()`, so the motivation rides along (#3654).
-        return RestResponse::success( [ 'case' => self::format( $case, [], true ) ] );
+        // The motivation is synthesis-level, so it rides along only for a
+        // viewer who passes that narrower gate (#3654).
+        $with_motivation = TrialCaseAccessPolicy::canViewSynthesis( get_current_user_id(), $id );
+        return RestResponse::success( [ 'case' => self::format( $case, [], $with_motivation ) ] );
     }
 
     /**
@@ -566,6 +648,13 @@ class TrialsRestController {
 
     public static function list_staff( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
+        // #3566 — this had no per-case check at all: `can_view()` admitted
+        // the caller and the panel of any case in the club came back. With a
+        // scout's player scope now resolving, that would have been every
+        // panel. Assignment decides.
+        if ( ! TrialCaseAccessPolicy::canOpenCase( get_current_user_id(), $id ) ) {
+            return RestResponse::error( 'forbidden', __( 'No access to this case.', 'talenttrack' ), 403 );
+        }
         $rows = ( new TrialCaseStaffRepository() )->listForCase( $id );
         return RestResponse::success( [ 'staff' => $rows ] );
     }

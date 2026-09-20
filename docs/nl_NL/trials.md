@@ -18,7 +18,8 @@ Een **stagedossier** is een gestructureerde manier om gedurende 2–6 weken naar
 - **Hoofd opleiding / Clubbeheer** — volledig beheer. Dossiers openen, verlengen, besluiten, archiveren. Trajecten en briefsjablonen aanpassen. Staf-input vrijgeven.
 - **Hoofdcoaches** — kunnen de tegel **Stagedossiers** openen en de lijst met dossiers bekijken voor spelers van hun eigen teams. Ze kunnen geen dossiers aanmaken of verwijderen (geen knop *Nieuw stagedossier*), maar houden het leesrecht dat hun rol geeft. Aanmaken, besluiten en archiveren blijven bij het hoofd opleiding.
 - **Coaches die zijn toegewezen aan een dossier** — zien het overzicht en geven op het tabblad **Staf-input** hun eigen input. Andere inputs zien ze pas nadat het hoofd opleiding die heeft vrijgegeven. Of ze ook het tabblad **Uitvoering** krijgen, hangt van hun rol af: daar staat bij elkaar wat de andere coaches hebben opgeschreven, dus daarvoor geldt hetzelfde recht als voor het lezen van vrijgegeven input. Een assistent-trainer die aan een dossier is toegewezen krijgt Overzicht en Staf-input.
-- **Overige coaches** — zien het dossier niet.
+- **Scouts in het beoordelingspanel** — de scout die een speler heeft gevonden kan in diens panel zitten en zijn beoordeling schrijven. Hij ziet het dossier waaraan hij is toegewezen en zijn **eigen** input; het tabblad Uitvoering krijgt hij niet, dus wat de andere panelleden vinden blijft privé tot het hoofd opleiding het vrijgeeft. Zijn dossierlijst toont alleen de panels waarin hij daadwerkelijk zit, nooit alle dossiers van de club. Wordt een scout uit een panel gehaald, dan vervalt de toegang meteen.
+- **Overige coaches en scouts** — zien het dossier niet.
 
 Twee daarvan werken onderwater anders, en dat is precies wat je wilt weten als je je afvraagt waarom iemand iets niet ziet:
 
