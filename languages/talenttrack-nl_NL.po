@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T00:33:29+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:41:06+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -5070,23 +5070,23 @@ msgstr "Trainingsuitvoering niet gevonden."
 msgid "Both a plan and an activity are required."
 msgstr "Zowel een plan als een activiteit zijn verplicht."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:161
+#: src/Infrastructure/REST/TrainingRunsRestController.php:168
 msgid "The plan could not be attached to this activity."
 msgstr "Het plan kon niet aan deze activiteit worden gekoppeld."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:189
+#: src/Infrastructure/REST/TrainingRunsRestController.php:196
 msgid "A status is required."
 msgstr "Een status is verplicht."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:194
+#: src/Infrastructure/REST/TrainingRunsRestController.php:201
 msgid "That is not a training-run status."
 msgstr "Dat is geen status voor een trainingsuitvoering."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:248
+#: src/Infrastructure/REST/TrainingRunsRestController.php:255
 msgid "An observation is about a player, so it needs one."
 msgstr "Een waarneming gaat over een speler, dus die is verplicht."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:271
+#: src/Infrastructure/REST/TrainingRunsRestController.php:278
 msgid ""
 "This player isn't marked present at this training, so an observation can't "
 "be recorded for them."
@@ -5094,7 +5094,7 @@ msgstr ""
 "Deze speler staat bij deze training niet als aanwezig, dus er kan geen "
 "waarneming voor worden vastgelegd."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:290
+#: src/Infrastructure/REST/TrainingRunsRestController.php:297
 msgid ""
 "An observation needs a rating, a note, or both. A rating outside the "
 "configured scale is refused rather than rounded."
@@ -5102,11 +5102,11 @@ msgstr ""
 "Een waarneming heeft een cijfer, een notitie of allebei nodig. Een cijfer "
 "buiten de ingestelde schaal wordt geweigerd en niet afgerond."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:309
+#: src/Infrastructure/REST/TrainingRunsRestController.php:316
 msgid "That observation no longer exists."
 msgstr "Die waarneming bestaat niet meer."
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:343
+#: src/Infrastructure/REST/TrainingRunsRestController.php:350
 msgid "That block does not belong to this training run."
 msgstr "Dat blok hoort niet bij deze trainingsuitvoering."
 

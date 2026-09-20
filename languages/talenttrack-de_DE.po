@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T00:33:29+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:41:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -4816,39 +4816,39 @@ msgstr ""
 msgid "Both a plan and an activity are required."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:161
+#: src/Infrastructure/REST/TrainingRunsRestController.php:168
 msgid "The plan could not be attached to this activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:189
+#: src/Infrastructure/REST/TrainingRunsRestController.php:196
 msgid "A status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:194
+#: src/Infrastructure/REST/TrainingRunsRestController.php:201
 msgid "That is not a training-run status."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:248
+#: src/Infrastructure/REST/TrainingRunsRestController.php:255
 msgid "An observation is about a player, so it needs one."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:271
+#: src/Infrastructure/REST/TrainingRunsRestController.php:278
 msgid ""
 "This player isn't marked present at this training, so an observation can't "
 "be recorded for them."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:290
+#: src/Infrastructure/REST/TrainingRunsRestController.php:297
 msgid ""
 "An observation needs a rating, a note, or both. A rating outside the "
 "configured scale is refused rather than rounded."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:309
+#: src/Infrastructure/REST/TrainingRunsRestController.php:316
 msgid "That observation no longer exists."
 msgstr ""
 
-#: src/Infrastructure/REST/TrainingRunsRestController.php:343
+#: src/Infrastructure/REST/TrainingRunsRestController.php:350
 msgid "That block does not belong to this training run."
 msgstr ""
 
