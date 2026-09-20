@@ -730,6 +730,26 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             __( 'Last 12 months', 'talenttrack' )
         );
 
+        // #3796 — what the window left out. Without this the report is
+        // indistinguishable from one drawn over a season the team sat out,
+        // and the reader has no way to know a widening would fill it.
+        $outside   = $data['outside_window'];
+        $outside_n = (int) $outside['matches'];
+        if ( $outside_n > 0 ) {
+            echo '<p class="tt-rep-note">' . esc_html( sprintf(
+                /* translators: 1: number of played matches outside the window, 2: the earliest of their dates, 3: the latest */
+                _n(
+                    '%1$d played match falls outside this window, on %2$s. Widen the window to include it.',
+                    '%1$d played matches fall outside this window, between %2$s and %3$s. Widen the window to include them.',
+                    $outside_n,
+                    'talenttrack'
+                ),
+                $outside_n,
+                \TT\Shared\Dates\TTDate::date( $outside['earliest'] ),
+                \TT\Shared\Dates\TTDate::date( $outside['latest'] )
+            ) ) . '</p>';
+        }
+
         // The Minutes distribution report is the trace for both numbers: it
         // names which matches were counted and which are missing minutes.
         $distribution_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
@@ -765,7 +785,24 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         ] );
 
         if ( $available <= 0 ) {
-            self::renderEmpty( __( 'No matches played for this team in this window, so there are no minutes to share out. Widen the window or check the Activities log.', 'talenttrack' ) );
+            // "Widen the window" is only advice worth giving when there is
+            // something to widen onto. Told apart, because the two ask the
+            // reader to do completely different things (#3796).
+            self::renderEmpty( $outside_n > 0
+                ? sprintf(
+                    /* translators: 1: number of played matches outside the window, 2: the earliest of their dates, 3: the latest */
+                    _n(
+                        'No matches played for this team in this window. %1$d played match falls outside it, on %2$s — widen the window to include it.',
+                        'No matches played for this team in this window. %1$d played matches fall outside it, between %2$s and %3$s — widen the window to include them.',
+                        $outside_n,
+                        'talenttrack'
+                    ),
+                    $outside_n,
+                    \TT\Shared\Dates\TTDate::date( $outside['earliest'] ),
+                    \TT\Shared\Dates\TTDate::date( $outside['latest'] )
+                )
+                : __( 'This team has no played matches on record at all, so there are no minutes to share out. Check the Activities log.', 'talenttrack' )
+            );
             return;
         }
         if ( ! $players ) {

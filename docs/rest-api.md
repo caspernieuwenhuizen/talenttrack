@@ -465,6 +465,7 @@ and a non-WordPress front end cannot disagree.
 {
   "team_id": 12, "from": "2025-08-25", "to": "2026-08-25",
   "matches": 10, "available_minutes": 700, "target_pct": 30,
+  "outside_window": { "matches": 3, "earliest": "2024-09-14", "latest": "2025-06-07" },
   "players": [
     { "player_id": 41, "name": "…", "jersey_number": 9, "minutes": 140, "share_pct": 20.0, "below_target": true },
     { "player_id": 38, "name": "…", "jersey_number": 4, "minutes": 350, "share_pct": 50.0, "below_target": false }
@@ -477,13 +478,26 @@ match-prep half length doubled, else the age-group default, else 35 a half) —
 the same "played" predicate the two other minutes reports use, so a fixture
 kicking off tonight is not yet in the denominator. `share_pct` is `null` when
 the team has played nothing: a share of no minutes is undefined, not zero.
-Rows come back lowest share first. `from` / `to` (`YYYY-MM-DD`) narrow the
-window; both default to the rolling twelve months, and anything unparseable
-falls back to that default rather than 400'ing.
+Rows come back lowest share first.
+
+**The window.** `from` and `to` are declared query parameters, both
+`YYYY-MM-DD`. `to` defaults to today and `from` to twelve months before it, so
+the unfiltered answer is the rolling year the minutes reports show. A value
+that is not a `YYYY-MM-DD` date is ignored and the default applies, rather than
+400'ing — a client sending junk gets the same answer the report gives.
+
+**`outside_window` (#3796)** counts the team's **played** matches that fall
+outside the resolved window, with the earliest and latest of their dates
+(empty strings when there are none). It is the difference between "this team
+played nothing" and "everything this team played is on the other side of your
+window", which an `available_minutes` of `0` alone cannot express. It uses the
+same "played" predicate as the in-window figures, so the two counts partition
+the team's matches and never overlap.
 
 `GET /teams/{id}/minutes-share/{player_id}` returns one player's row out of the
 same answer (`minutes`, `share_pct`, `below_target`, plus the team's
-`available_minutes`, `matches` and `target_pct`), so a player-facing client
+`available_minutes`, `matches`, `target_pct` and `outside_window`), so a
+player-facing client
 need not fetch and filter the whole squad. A player with no recorded minutes on
 that team in the window is a 404 rather than a zero row — they were not in the
 squad, which is different from having played none of it.
