@@ -1,3 +1,26 @@
+# TalentTrack v4.128.3 — Tournaments: recording a fixture score no longer erases the fixture (#3557)
+
+Typing a score into a tournament fixture wiped everything else on it. The
+opponent, the level, the kickoff time and the notes were blanked, the
+substitution windows were cleared and the fixture's length was reset to 20
+minutes — which in turn changed the day's planned minutes, starts and
+full-match counts. The score boxes save one field when they lose focus, and the
+fixture endpoint behind them rebuilt the whole row from whatever the request
+happened to carry.
+
+The endpoint is now a true partial update: it writes only the fields the
+request mentions and leaves the rest of the row alone. Sending an empty value
+still clears a field, so a mistyped opponent can be corrected. Length and
+substitution windows keep travelling together — changing the length keeps the
+windows that still fit inside it rather than discarding them — and creating a
+fixture still applies the defaults.
+
+Fixtures damaged before this fix stay damaged; their old values are not
+recoverable from the fixture row. If you recorded scores on v4.126.0 or
+v4.127.x, re-check those fixtures' opponent and kickoff time. A fixture that
+was kicked off still carries its opponent, formation and kickoff time on the
+match activity it created.
+
 # TalentTrack v4.128.2 — The remaining reports answer for the team you asked about (#3790)
 
 Asking the minutes audit, the potential overview or the coach evaluation quality report for one team over the API could return every team you may read. Like the attendance reports before them, all three read only a plain `team_id`, so the nested `filter[team_id]` form the rest of the list API uses was dropped without a word — and because the rows carry real team and player names, the answer looked deliberate: a full, plausible report, just not the one asked for, with another age group's players in it. All three now take their filters in either spelling (the nested value wins when both are sent), a `team_id` that is not a usable id is refused rather than ignored, and each endpoint advertises every parameter it accepts. The potential overview's `bands` filter, which was read but never advertised and so never arrived, works over the API too. Team scope is unchanged.
