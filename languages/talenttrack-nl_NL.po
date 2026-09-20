@@ -27326,6 +27326,10 @@ msgstr ""
 msgid "Could not record progress."
 msgstr "Voortgang vastleggen is niet gelukt."
 
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:747
+msgid "Give the deadline as a date, for example 2026-12-18."
+msgstr "Geef de deadline als datum op, bijvoorbeeld 2026-12-18."
+
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:694
 msgid "That enrolment does not exist."
 msgstr "Die inschrijving bestaat niet."
@@ -63354,6 +63358,33 @@ msgstr[0] ""
 msgstr[1] ""
 "Nooit afgerond: %1$d activiteiten zijn voorbij en zijn nooit op afgerond "
 "gezet — %2$s"
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:89
+msgid "Add players to the squad to see minute totals."
+msgstr "Voeg spelers toe aan de selectie om de speeltijd te zien."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:90
+msgctxt "tournament minutes ticker: matches this player started"
+msgid "Starts"
+msgstr "Basisplaatsen"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:91
+msgctxt "tournament minutes ticker: matches played end to end"
+msgid "Full matches"
+msgstr "Volledige wedstrijden"
+
+#. translators: tournament minutes ticker. 1: minutes already played, 2: the player's minutes target.
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:93
+#, php-format
+msgctxt "tournament minutes ticker"
+msgid "%1$s played / %2$s min"
+msgstr "%1$s gespeeld / %2$s min"
+
+#. translators: tournament minutes ticker. 1: minutes already played, 2: minutes the planner still has them down for, 3: the player's minutes target.
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:95
+#, php-format
+msgctxt "tournament minutes ticker"
+msgid "%1$s played + %2$s planned / %3$s min"
+msgstr "%1$s gespeeld + %2$s gepland / %3$s min"
 
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
