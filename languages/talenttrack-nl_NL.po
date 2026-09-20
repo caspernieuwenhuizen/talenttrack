@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-19T23:56:51+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:00:50+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1314,6 +1314,7 @@ msgstr "Vrouw"
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:436
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2197
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1487
+#: src/Shared/Frontend/FrontendTrialCaseView.php:820
 msgid "Not recorded"
 msgstr "Niet geregistreerd"
 
@@ -2087,7 +2088,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:349
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
-#: src/Shared/Frontend/FrontendTrialCaseView.php:806
+#: src/Shared/Frontend/FrontendTrialCaseView.php:814
 #: src/Shared/Frontend/FrontendTrialsManageView.php:321
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
@@ -3211,8 +3212,8 @@ msgstr "De oefening kon niet worden gekoppeld."
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:739
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:417
-#: src/Modules/Trials/Rest/TrialsRestController.php:426
+#: src/Modules/Trials/Rest/TrialsRestController.php:437
+#: src/Modules/Trials/Rest/TrialsRestController.php:446
 msgid "No fields to update."
 msgstr "Geen velden om bij te werken."
 
@@ -4226,7 +4227,7 @@ msgstr "Niet gevonden."
 #: src/Shared/Frontend/FrontendTeamDetailView.php:949
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 #: src/Shared/Frontend/FrontendTrialsManageView.php:396
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -23895,7 +23896,7 @@ msgid "Snapshot range to"
 msgstr "Momentopname-bereik tot"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgid "Generated at"
 msgstr "Gegenereerd op"
 
@@ -25863,7 +25864,7 @@ msgstr "Verlopen"
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:71
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:806
+#: src/Shared/Frontend/FrontendTrialCaseView.php:814
 msgid "Revoked"
 msgstr "Ingetrokken"
 
@@ -41494,7 +41495,7 @@ msgid "Recipient"
 msgstr "Ontvanger"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgid "Audience"
 msgstr "Doelgroep"
 
@@ -47204,6 +47205,21 @@ msgstr "Handtekening:"
 msgid "Datum:"
 msgstr "Datum:"
 
+#: src/Modules/Trials/Letters/TrialLetterService.php:56
+msgctxt "letter delivery method"
+msgid "Printed and posted"
+msgstr "Geprint en verstuurd"
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:57
+msgctxt "letter delivery method"
+msgid "Emailed"
+msgstr "Gemaild"
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:58
+msgctxt "letter delivery method"
+msgid "Handed over in person"
+msgstr "Persoonlijk overhandigd"
+
 #: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
 msgid "Log in to print this letter."
 msgstr "Log in om deze brief te printen."
@@ -47264,70 +47280,72 @@ msgstr "Aangeboden plek afgewezen"
 msgid "Continue in trial group"
 msgstr "Doorgaan in stagegroep"
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:333
-#: src/Modules/Trials/Rest/TrialsRestController.php:355
-#: src/Modules/Trials/Rest/TrialsRestController.php:385
-#: src/Modules/Trials/Rest/TrialsRestController.php:439
-#: src/Modules/Trials/Rest/TrialsRestController.php:582
-#: src/Modules/Trials/Rest/TrialsRestController.php:798
-#: src/Modules/Trials/Rest/TrialsRestController.php:828
+#: src/Modules/Trials/Rest/TrialsRestController.php:353
+#: src/Modules/Trials/Rest/TrialsRestController.php:375
+#: src/Modules/Trials/Rest/TrialsRestController.php:405
+#: src/Modules/Trials/Rest/TrialsRestController.php:459
+#: src/Modules/Trials/Rest/TrialsRestController.php:602
+#: src/Modules/Trials/Rest/TrialsRestController.php:818
+#: src/Modules/Trials/Rest/TrialsRestController.php:891
+#: src/Modules/Trials/Rest/TrialsRestController.php:931
+#: src/Modules/Trials/Rest/TrialsRestController.php:962
 msgid "Trial case not found."
 msgstr "Stagedossier niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:335
+#: src/Modules/Trials/Rest/TrialsRestController.php:355
 msgid "No access to this case."
 msgstr "Geen toegang tot dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:349
+#: src/Modules/Trials/Rest/TrialsRestController.php:369
 msgid "Invalid trial case id."
 msgstr "Ongeldig proefdossier-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:366
+#: src/Modules/Trials/Rest/TrialsRestController.php:386
 msgid "Invalid trial track id."
 msgstr "Ongeldig proeftraject-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:368
-#: src/Modules/Trials/Rest/TrialsRestController.php:377
+#: src/Modules/Trials/Rest/TrialsRestController.php:388
+#: src/Modules/Trials/Rest/TrialsRestController.php:397
 msgid "Trial track not found."
 msgstr "Proeftraject niet gevonden."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:370
+#: src/Modules/Trials/Rest/TrialsRestController.php:390
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:398
+#: src/Modules/Trials/Rest/TrialsRestController.php:418
 msgid "Unknown trial case status."
 msgstr "Onbekende status voor een stagedossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:435
+#: src/Modules/Trials/Rest/TrialsRestController.php:455
 msgid "New end date and justification are required."
 msgstr "Nieuwe einddatum en motivering zijn verplicht."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:441
+#: src/Modules/Trials/Rest/TrialsRestController.php:461
 msgid "New end date must be after the current end date."
 msgstr "Nieuwe einddatum moet na de huidige einddatum liggen."
 
 #. translators: %d: minimum number of characters.
-#: src/Modules/Trials/Rest/TrialsRestController.php:512
+#: src/Modules/Trials/Rest/TrialsRestController.php:532
 #, php-format
 msgid "The motivation in \"notes\" must be at least %d characters."
 msgstr "De motivatie in \"notes\" moet minstens %d tekens bevatten."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:531
-#: src/Modules/Trials/Rest/TrialsRestController.php:544
+#: src/Modules/Trials/Rest/TrialsRestController.php:551
+#: src/Modules/Trials/Rest/TrialsRestController.php:564
 msgid "Could not record decision."
 msgstr "Besluit kon niet worden geregistreerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:557
+#: src/Modules/Trials/Rest/TrialsRestController.php:577
 msgid "Invalid user id."
 msgstr "Ongeldig gebruiker-id."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:588
-#: src/Modules/Trials/Rest/TrialsRestController.php:645
+#: src/Modules/Trials/Rest/TrialsRestController.php:608
+#: src/Modules/Trials/Rest/TrialsRestController.php:665
 msgid "Not assigned to this case."
 msgstr "Niet toegewezen aan dit dossier."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:660
+#: src/Modules/Trials/Rest/TrialsRestController.php:680
 msgid ""
 "This trial has been decided, so its staff inputs can no longer be changed. "
 "They are the record of what the decision was based on."
@@ -47335,29 +47353,46 @@ msgstr ""
 "Deze stage is beslist, dus de staf-input kan niet meer worden gewijzigd. Het "
 "is de vastlegging waarop de beslissing is gebaseerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:674
+#: src/Modules/Trials/Rest/TrialsRestController.php:694
 msgid "Send a rating, notes, or submit."
 msgstr "Stuur een beoordeling, notities of een indiening."
 
 #. translators: 1: rating min, 2: rating max
-#: src/Modules/Trials/Rest/TrialsRestController.php:692
+#: src/Modules/Trials/Rest/TrialsRestController.php:712
 #, php-format
 msgid "The overall rating must be a number from %1$s to %2$s."
 msgstr "De totaalbeoordeling moet een getal van %1$s tot %2$s zijn."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:714
+#: src/Modules/Trials/Rest/TrialsRestController.php:734
 msgid "Add a rating or notes before submitting."
 msgstr "Voeg een beoordeling of notities toe voordat je indient."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:837
+#: src/Modules/Trials/Rest/TrialsRestController.php:896
+#: src/Modules/Trials/Rest/TrialsRestController.php:936
+msgid "That letter is not on this trial case."
+msgstr "Die brief hoort niet bij dit stagedossier."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:908
+msgid "A valid delivery method is required."
+msgstr "Er is een geldige manier van afleveren vereist."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:916
+msgid "The delivery could not be recorded."
+msgstr "De aflevering kon niet worden vastgelegd."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:941
+msgid "The delivery record could not be cleared."
+msgstr "De afleverregistratie kon niet worden gewist."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:971
 msgid "A valid trial-letter audience is required."
 msgstr "Er is een geldige doelgroep voor de stagebrief nodig."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:859
+#: src/Modules/Trials/Rest/TrialsRestController.php:993
 msgid "The letter could not be generated."
 msgstr "De brief kon niet worden gegenereerd."
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:895
+#: src/Modules/Trials/Rest/TrialsRestController.php:1029
 msgid "No reminders were due."
 msgstr "Er stonden geen herinneringen open."
 
@@ -53633,7 +53668,6 @@ msgstr "Aftrap %s"
 msgid "Neutral ground"
 msgstr "Neutraal terrein"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1250
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1265
 msgid "Kick-off"
 msgstr "Aftrap"
@@ -61754,7 +61788,7 @@ msgid "Staff inputs"
 msgstr "Staf-input"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:234
-#: src/Shared/Frontend/FrontendTrialCaseView.php:781
+#: src/Shared/Frontend/FrontendTrialCaseView.php:782
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:86
 msgid "Letter"
 msgstr "Brief"
@@ -61944,7 +61978,7 @@ msgstr "Acceptatiestrook als ontvangen markeren"
 msgid "Regenerate letter"
 msgstr "Brief opnieuw genereren"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:784
+#: src/Shared/Frontend/FrontendTrialCaseView.php:785
 msgid ""
 "No letter generated yet. Record a decision on the Decision tab to produce "
 "one."
@@ -61952,7 +61986,7 @@ msgstr ""
 "Nog geen brief gegenereerd. Leg een beslissing vast op het tabblad "
 "Beslissing om er een te maken."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:788
+#: src/Shared/Frontend/FrontendTrialCaseView.php:789
 msgid "Print view"
 msgstr "Afdrukweergave openen"
 
@@ -61964,82 +61998,51 @@ msgstr ""
 "Een brief genereren verstuurt hem niet. Print of mail hem en leg de "
 "aflevering hieronder vast."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:802
+#: src/Shared/Frontend/FrontendTrialCaseView.php:810
 msgid "Letter history"
 msgstr "Briefgeschiedenis"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:810
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgctxt "trial letter"
 msgid "Delivered"
 msgstr "Afgeleverd"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:845
+#: src/Shared/Frontend/FrontendTrialCaseView.php:853
 msgctxt "trial letter"
 msgid "Delivery"
 msgstr "Aflevering"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:849
+#: src/Shared/Frontend/FrontendTrialCaseView.php:857
 msgid "someone no longer on the staff list"
 msgstr "iemand die niet meer op de stafflijst staat"
 
 #. translators: 1: date, 2: staff member name, 3: delivery method
-#: src/Shared/Frontend/FrontendTrialCaseView.php:852
+#: src/Shared/Frontend/FrontendTrialCaseView.php:860
 #, php-format
 msgid "Delivered on %1$s by %2$s (%3$s)."
 msgstr "Afgeleverd op %1$s door %2$s (%3$s)."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:865
+#: src/Shared/Frontend/FrontendTrialCaseView.php:871
 msgid "Clear delivery record"
 msgstr "Afleverregistratie wissen"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:873
+#: src/Shared/Frontend/FrontendTrialCaseView.php:878
 msgid "Not recorded as delivered yet."
 msgstr "Nog niet als afgeleverd vastgelegd."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:879
+#: src/Shared/Frontend/FrontendTrialCaseView.php:884
 msgid "How did the family get it?"
 msgstr "Hoe heeft het gezin de brief gekregen?"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:886
+#: src/Shared/Frontend/FrontendTrialCaseView.php:891
 msgid "Record delivery"
 msgstr "Aflevering vastleggen"
 
-#: src/Modules/Trials/Letters/TrialLetterService.php:44
-msgctxt "letter delivery method"
-msgid "Printed and posted"
-msgstr "Geprint en verstuurd"
-
-#: src/Modules/Trials/Letters/TrialLetterService.php:45
-msgctxt "letter delivery method"
-msgid "Emailed"
-msgstr "Gemaild"
-
-#: src/Modules/Trials/Letters/TrialLetterService.php:46
-msgctxt "letter delivery method"
-msgid "Handed over in person"
-msgstr "Persoonlijk overhandigd"
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:924
-msgid "That letter is not on this trial case."
-msgstr "Die brief hoort niet bij dit stagedossier."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:937
-msgid "A valid delivery method is required."
-msgstr "Er is een geldige manier van afleveren vereist."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:944
-msgid "The delivery could not be recorded."
-msgstr "De aflevering kon niet worden vastgelegd."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php:967
-msgid "The delivery record could not be cleared."
-msgstr "De afleverregistratie kon niet worden gewist."
-
-#: src/Shared/Frontend/FrontendTrialCaseView.php:819
+#: src/Shared/Frontend/FrontendTrialCaseView.php:905
 msgid "Parent meeting mode"
 msgstr "Oudergesprek-modus"
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:820
+#: src/Shared/Frontend/FrontendTrialCaseView.php:906
 msgid ""
 "A sanitized fullscreen view for the conversation with the parents. No "
 "internal data is shown — only the decision, the player photo and basics, and "
@@ -62049,7 +62052,7 @@ msgstr ""
 "wordt geen interne data getoond — alleen de beslissing, de foto en "
 "basisgegevens van de speler, en de brief."
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:821
+#: src/Shared/Frontend/FrontendTrialCaseView.php:907
 msgid "Open meeting"
 msgstr "Gespreksweergave openen"
 

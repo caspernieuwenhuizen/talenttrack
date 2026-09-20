@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-19T23:56:51+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:00:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1066,6 +1066,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php:436
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2197
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1487
+#: src/Shared/Frontend/FrontendTrialCaseView.php:820
 msgid "Not recorded"
 msgstr ""
 
@@ -1766,7 +1767,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:349
 #: src/Shared/Frontend/FrontendTeamsManageView.php:197
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
-#: src/Shared/Frontend/FrontendTrialCaseView.php:806
+#: src/Shared/Frontend/FrontendTrialCaseView.php:814
 #: src/Shared/Frontend/FrontendTrialsManageView.php:321
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:93
 msgid "Active"
@@ -2862,8 +2863,8 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:171
 #: src/Infrastructure/REST/GoalsRestController.php:739
 #: src/Infrastructure/REST/LookupsRestController.php:229
-#: src/Modules/Trials/Rest/TrialsRestController.php:417
-#: src/Modules/Trials/Rest/TrialsRestController.php:426
+#: src/Modules/Trials/Rest/TrialsRestController.php:437
+#: src/Modules/Trials/Rest/TrialsRestController.php:446
 msgid "No fields to update."
 msgstr ""
 
@@ -3810,7 +3811,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php:949
 #: src/Shared/Frontend/FrontendTrialCaseView.php:380
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 #: src/Shared/Frontend/FrontendTrialsManageView.php:396
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
@@ -20787,7 +20788,7 @@ msgid "Snapshot range to"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:169
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgid "Generated at"
 msgstr ""
 
@@ -22517,7 +22518,7 @@ msgstr ""
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:71
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:151
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:238
-#: src/Shared/Frontend/FrontendTrialCaseView.php:806
+#: src/Shared/Frontend/FrontendTrialCaseView.php:814
 msgid "Revoked"
 msgstr ""
 
@@ -36216,7 +36217,7 @@ msgid "Recipient"
 msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Shared/Frontend/FrontendTrialCaseView.php:804
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
 msgid "Audience"
 msgstr ""
 
@@ -41159,6 +41160,21 @@ msgstr ""
 msgid "Datum:"
 msgstr ""
 
+#: src/Modules/Trials/Letters/TrialLetterService.php:56
+msgctxt "letter delivery method"
+msgid "Printed and posted"
+msgstr ""
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:57
+msgctxt "letter delivery method"
+msgid "Emailed"
+msgstr ""
+
+#: src/Modules/Trials/Letters/TrialLetterService.php:58
+msgctxt "letter delivery method"
+msgid "Handed over in person"
+msgstr ""
+
 #: src/Modules/Trials/Print/TrialLetterPrintRouter.php:60
 msgid "Log in to print this letter."
 msgstr ""
@@ -41219,96 +41235,115 @@ msgstr ""
 msgid "Continue in trial group"
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:333
-#: src/Modules/Trials/Rest/TrialsRestController.php:355
-#: src/Modules/Trials/Rest/TrialsRestController.php:385
-#: src/Modules/Trials/Rest/TrialsRestController.php:439
-#: src/Modules/Trials/Rest/TrialsRestController.php:582
-#: src/Modules/Trials/Rest/TrialsRestController.php:798
-#: src/Modules/Trials/Rest/TrialsRestController.php:828
+#: src/Modules/Trials/Rest/TrialsRestController.php:353
+#: src/Modules/Trials/Rest/TrialsRestController.php:375
+#: src/Modules/Trials/Rest/TrialsRestController.php:405
+#: src/Modules/Trials/Rest/TrialsRestController.php:459
+#: src/Modules/Trials/Rest/TrialsRestController.php:602
+#: src/Modules/Trials/Rest/TrialsRestController.php:818
+#: src/Modules/Trials/Rest/TrialsRestController.php:891
+#: src/Modules/Trials/Rest/TrialsRestController.php:931
+#: src/Modules/Trials/Rest/TrialsRestController.php:962
 msgid "Trial case not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:335
+#: src/Modules/Trials/Rest/TrialsRestController.php:355
 msgid "No access to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:349
+#: src/Modules/Trials/Rest/TrialsRestController.php:369
 msgid "Invalid trial case id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:366
+#: src/Modules/Trials/Rest/TrialsRestController.php:386
 msgid "Invalid trial track id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:368
-#: src/Modules/Trials/Rest/TrialsRestController.php:377
+#: src/Modules/Trials/Rest/TrialsRestController.php:388
+#: src/Modules/Trials/Rest/TrialsRestController.php:397
 msgid "Trial track not found."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:370
+#: src/Modules/Trials/Rest/TrialsRestController.php:390
 msgid "Built-in trial tracks cannot be deleted."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:398
+#: src/Modules/Trials/Rest/TrialsRestController.php:418
 msgid "Unknown trial case status."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:435
+#: src/Modules/Trials/Rest/TrialsRestController.php:455
 msgid "New end date and justification are required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:441
+#: src/Modules/Trials/Rest/TrialsRestController.php:461
 msgid "New end date must be after the current end date."
 msgstr ""
 
 #. translators: %d: minimum number of characters.
-#: src/Modules/Trials/Rest/TrialsRestController.php:512
+#: src/Modules/Trials/Rest/TrialsRestController.php:532
 #, php-format
 msgid "The motivation in \"notes\" must be at least %d characters."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:531
-#: src/Modules/Trials/Rest/TrialsRestController.php:544
+#: src/Modules/Trials/Rest/TrialsRestController.php:551
+#: src/Modules/Trials/Rest/TrialsRestController.php:564
 msgid "Could not record decision."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:557
+#: src/Modules/Trials/Rest/TrialsRestController.php:577
 msgid "Invalid user id."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:588
-#: src/Modules/Trials/Rest/TrialsRestController.php:645
+#: src/Modules/Trials/Rest/TrialsRestController.php:608
+#: src/Modules/Trials/Rest/TrialsRestController.php:665
 msgid "Not assigned to this case."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:660
+#: src/Modules/Trials/Rest/TrialsRestController.php:680
 msgid "This trial has been decided, so its staff inputs can no longer be changed. They are the record of what the decision was based on."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:674
+#: src/Modules/Trials/Rest/TrialsRestController.php:694
 msgid "Send a rating, notes, or submit."
 msgstr ""
 
 #. translators: 1: rating min, 2: rating max
-#: src/Modules/Trials/Rest/TrialsRestController.php:692
+#: src/Modules/Trials/Rest/TrialsRestController.php:712
 #, php-format
 msgid "The overall rating must be a number from %1$s to %2$s."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:714
+#: src/Modules/Trials/Rest/TrialsRestController.php:734
 msgid "Add a rating or notes before submitting."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:837
+#: src/Modules/Trials/Rest/TrialsRestController.php:896
+#: src/Modules/Trials/Rest/TrialsRestController.php:936
+msgid "That letter is not on this trial case."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:908
+msgid "A valid delivery method is required."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:916
+msgid "The delivery could not be recorded."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:941
+msgid "The delivery record could not be cleared."
+msgstr ""
+
+#: src/Modules/Trials/Rest/TrialsRestController.php:971
 msgid "A valid trial-letter audience is required."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:859
+#: src/Modules/Trials/Rest/TrialsRestController.php:993
 msgid "The letter could not be generated."
 msgstr ""
 
-#: src/Modules/Trials/Rest/TrialsRestController.php:895
+#: src/Modules/Trials/Rest/TrialsRestController.php:1029
 msgid "No reminders were due."
 msgstr ""
 
@@ -53357,7 +53392,7 @@ msgid "Staff inputs"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:234
-#: src/Shared/Frontend/FrontendTrialCaseView.php:781
+#: src/Shared/Frontend/FrontendTrialCaseView.php:782
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:86
 msgid "Letter"
 msgstr ""
@@ -53539,27 +53574,67 @@ msgstr ""
 msgid "Regenerate letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:784
+#: src/Shared/Frontend/FrontendTrialCaseView.php:785
 msgid "No letter generated yet. Record a decision on the Decision tab to produce one."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:788
+#: src/Shared/Frontend/FrontendTrialCaseView.php:789
 msgid "Print view"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:802
+#: src/Shared/Frontend/FrontendTrialCaseView.php:792
+msgid "Generating a letter does not send it. Print or email it, then record the delivery below."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:810
 msgid "Letter history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:819
+#: src/Shared/Frontend/FrontendTrialCaseView.php:812
+msgctxt "trial letter"
+msgid "Delivered"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:853
+msgctxt "trial letter"
+msgid "Delivery"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:857
+msgid "someone no longer on the staff list"
+msgstr ""
+
+#. translators: 1: date, 2: staff member name, 3: delivery method
+#: src/Shared/Frontend/FrontendTrialCaseView.php:860
+#, php-format
+msgid "Delivered on %1$s by %2$s (%3$s)."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:871
+msgid "Clear delivery record"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:878
+msgid "Not recorded as delivered yet."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:884
+msgid "How did the family get it?"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:891
+msgid "Record delivery"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php:905
 msgid "Parent meeting mode"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:820
+#: src/Shared/Frontend/FrontendTrialCaseView.php:906
 msgid "A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:821
+#: src/Shared/Frontend/FrontendTrialCaseView.php:907
 msgid "Open meeting"
 msgstr ""
 
