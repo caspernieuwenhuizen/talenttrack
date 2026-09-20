@@ -611,6 +611,38 @@ Permission: any logged-in user. **The gate is per row, not per route.**
 | `team` | `tt_teams` | `tt_view_teams`, then narrowed in SQL to the caller's team scope — the same narrowing `GET /teams` applies (#3159) |
 | `activity` | `tt_activities` | `tt_view_activities` |
 
+### `GET /me/search` (#3806)
+
+`?q=<string>`
+
+The parent's search, and a different question from the one above: not "what
+in the academy matches this" filtered down, but "what in **my own
+children's** records matches this". `ParentSearchService` resolves the
+caller's children through the guardian link first and bounds every query by
+those player ids, so there is no global index to forget to filter. A caller
+with no linked child gets an empty result, not an error — whether anybody is
+linked to them is not something a status code should disclose.
+
+Permission: any logged-in user. Four record types, by title and by date:
+activities the child is on (including future ones), evaluations, goals, and
+the caller's own inbox messages. Fewer than two characters returns nothing.
+
+```json
+{ "query": "3 nov",
+  "children": [ { "id": 577, "name": "Sem de Vries" } ],
+  "results": [
+    { "type": "activity", "id": 6810, "player_id": 577,
+      "title": "Training dinsdag 3 nov (O11)", "subtitle": "O11-1 · Trainingsveld",
+      "date": "2026-11-03", "url": "https://…/?tt_view=my-activities&id=6810&player_id=577" }
+  ],
+  "total": 1 }
+```
+
+A query that would match another family's record returns the same empty
+`results` as a query matching nothing at all: no count, no suggestion, no
+distinguishable message. Telling the two apart is a way of discovering that
+another child exists.
+
 Two constraints that are load-bearing rather than cosmetic:
 
 - **Player rows are filtered per record**, using the same authorization the

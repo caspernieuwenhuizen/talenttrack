@@ -68,6 +68,8 @@ Below it, your **history**: the trainings, games and other activities you have a
 
 The detail names the times your coach saved, so you can see when to be there without asking. A **presence time** shows whenever one is set. A game then reads **kick-off** and, when it is filled in, an **end time**; a training, tournament or other activity reads a single **time** covering the whole window. An activity with no times saved shows none — there are no empty placeholders. These are the same times staff see on the same activity.
 
+**Show upcoming**, just above the list, turns the history around: everything still to come, soonest first, with the date filter working the same way. **Show what has happened** turns it back. Which mode you are in is in the address, so a link to "everything coming up" can be sent to somebody else. This is how you reach a session that is weeks away — **Coming up** only holds the next few, and a fixture beyond those used to be in the product and on no screen you could get to.
+
 Widening the date range yourself shows activities beyond today again; they simply carry no attendance until one is recorded.
 
 While your history loads, the list shows **Loading…**. The "nothing recorded yet" message only appears once loading has worked and there really is nothing. If loading fails, for example on a bad connection, you see an error with a **Retry** button; tap it to try again. The same goes for every list in TalentTrack, not just this one. The list needs JavaScript.

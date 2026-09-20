@@ -170,6 +170,55 @@
     background: rgba(255, 255, 255, 0.08);
 }
 
+/* ---- Parent search field (#3806) ---------------------------------
+   Sits in the actions row beside the help icon. Mobile-first: on a
+   phone the field itself is hidden and the magnifier remains, because
+   a 360px header cannot hold a text input, a help button, a persona
+   chip and still be tappable. The magnifier is a plain link to
+   `?tt_view=search`, where the full-width field lives, so nothing is
+   unreachable without the input.
+   Shown from 768px up, where there is room to type in place. */
+.tt-dashboard .tt-dash-search {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.tt-dashboard .tt-dash-search__input {
+    display: none;
+}
+.tt-dashboard .tt-dash-search__go {
+    color: rgba(255, 255, 255, 0.85);
+    display: inline-grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-dash-search__go:hover,
+.tt-dashboard .tt-dash-search__go:focus-visible {
+    color: var(--tt-secondary);
+    background: rgba(255, 255, 255, 0.08);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-dash-search__input {
+        display: block;
+        /* 16px keeps iOS from zooming the whole header on focus. */
+        font-size: 1rem;
+        min-height: 40px;
+        width: 12rem;
+        max-width: 30vw;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+    .tt-dashboard .tt-dash-search__input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+}
+
 /* ---- Persona chip (doubles as the user-menu trigger) -------------- */
 /* #2797 — 48px for the same reason as .tt-dash-help above: the persona
    chip ships on every surface, so it missed the floor everywhere. */

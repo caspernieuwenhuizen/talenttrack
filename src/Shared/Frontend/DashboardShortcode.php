@@ -1086,6 +1086,21 @@ class DashboardShortcode {
             case 'my-messages':
                 \TT\Modules\Comms\Frontend\FrontendMyMessagesView::render( $user_id );
                 return true;
+            // #3806 — a parent's search over their own children's records.
+            // In the account group for the same reason `my-messages` is:
+            // the scope is "the caller", resolved in SQL by
+            // `ParentSearchService`, so being signed in is the whole of the
+            // question this dispatcher has to answer. A signed-in user with
+            // no linked child gets the view and an empty result, which is
+            // the honest answer and not a 404.
+            // The slug is spelled out rather than read off the class
+            // constant so the route gates can see it: `check-docs` and
+            // `check-mobile-classes` resolve `?tt_view=` slugs statically
+            // and report a constant as unclassifiable.
+            case 'search':
+                if ( $user_id <= 0 ) return self::renderSignInRequired();
+                FrontendParentSearchView::render();
+                return true;
             default:
                 return false;
         }
@@ -2323,6 +2338,39 @@ class DashboardShortcode {
             echo '<span class="tt-dash-version" style="align-self:center;font-size:.75rem;color:#90a0a6;">'
                 . esc_html( 'v' . TT_VERSION )
                 . '</span>';
+        }
+
+        // #3806 — the parent's search field, beside the help icon in the
+        // shell's actions row rather than inside any view. It is chrome, in
+        // the same row as the help button and the user menu, so it adds no
+        // affordance to a view (CLAUDE.md §5) and no module-level navigation
+        // — it reaches one destination, `?tt_view=search`, which resolves
+        // its own scope.
+        //
+        // Rendered only for a reader who has a linked child, because it is
+        // the only thing it can search. Staff search is unchanged and
+        // elsewhere.
+        if ( \TT\Infrastructure\Players\ParentChildResolver::childCount( (int) $user->ID ) > 0 ) {
+            // Gated above by the linked-child check, which is the same
+            // question the view answers, so `CrossViewLink` would ask it
+            // twice. Shell chrome, not an in-body cross-view link.
+            $search_url = add_query_arg( [ 'tt_view' => \TT\Shared\Frontend\FrontendParentSearchView::SLUG ], $base_url ); /* tt-xview-ok */
+            echo '<form class="tt-dash-search" method="get" action="' . esc_url( $base_url ) . '" role="search">';
+            echo '<input type="hidden" name="tt_view" value="' . esc_attr( \TT\Shared\Frontend\FrontendParentSearchView::SLUG ) . '" />';
+            echo '<label class="screen-reader-text" for="tt-dash-search-q">' . esc_html__( 'Search', 'talenttrack' ) . '</label>';
+            echo '<input id="tt-dash-search-q" class="tt-dash-search__input" type="search" name="q" inputmode="search"'
+                . ' autocomplete="off" autocapitalize="off" spellcheck="false"'
+                . ' placeholder="' . esc_attr__( 'Search', 'talenttrack' ) . '" />';
+            // The submit doubles as the link a reader can open with no
+            // query, so the destination is reachable with an empty field.
+            echo '<a class="tt-dash-search__go" href="' . esc_url( $search_url ) . '"'
+                . ' aria-label="' . esc_attr__( 'Search', 'talenttrack' ) . '" title="' . esc_attr__( 'Search', 'talenttrack' ) . '">'
+                . '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
+                . '<circle cx="11" cy="11" r="7"></circle>'
+                . '<path d="M20 20l-3.5-3.5"></path>'
+                . '</svg>'
+                . '</a>';
+            echo '</form>';
         }
 
         // Help icon — opens the context-aware docs drawer. Visible to
