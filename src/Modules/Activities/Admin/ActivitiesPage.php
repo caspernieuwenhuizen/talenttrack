@@ -580,7 +580,7 @@ class ActivitiesPage {
                 \TT\Modules\Activities\Services\PlannedRosterSeeder::seed(
                     $id,
                     (int) $data['team_id'],
-                    (string) ( $data['activity_status_key'] ?? '' )
+                    (string) $data['activity_status_key']
                 );
             }
         }
