@@ -657,9 +657,9 @@ class FrontendGoalsManageView extends FrontendViewBase {
         <?php
         // #0028 — chat-style conversation thread for the goal. Only on
         // edit (existing goal) and only when the viewer can read the
-        // thread. On the create form there is no goal yet, hence the
-        // null check before the id is read.
-        $thread_id = ( $is_edit && $goal !== null ) ? (int) $goal->id : 0;
+        // thread. On the create form there is no goal yet, and $is_edit
+        // is exactly "the row exists", so it guards the id read.
+        $thread_id = $is_edit ? (int) $goal->id : 0;
         if ( $thread_id > 0 && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' )
              && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', $thread_id, $user_id )
         ) {
