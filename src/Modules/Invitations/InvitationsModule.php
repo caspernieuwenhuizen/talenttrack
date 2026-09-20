@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\GuardianContactRestController;
 use TT\Infrastructure\REST\InvitationsRestController;
 use TT\Modules\Invitations\Notifications\InvitationAuditLogger;
 
@@ -38,6 +39,18 @@ class InvitationsModule implements ModuleInterface {
         add_action( 'init', [ InvitationAuditLogger::class, 'register' ] );
         // #1902 — email the accept link on invite creation (via Comms).
         InvitationEmailNotifier::register();
+
+        // #3794 — the guardian-contact link. Same table, same token
+        // machinery, a kind that grants nothing: a family with no account
+        // fills in the contact details the academy holds about them.
+        GuardianContact\GuardianContactAuditLogger::register();
+        GuardianContact\GuardianContactEmailNotifier::register();
+        GuardianContactRestController::init();
+        add_action( 'template_redirect', [ Frontend\GuardianContactView::class, 'guardIndexing' ], 5 );
+        add_action( 'admin_post_tt_guardian_contact_request', [ Frontend\GuardianContactHandlers::class, 'request' ] );
+        add_action( 'admin_post_tt_guardian_contact_submit', [ Frontend\GuardianContactHandlers::class, 'submit' ] );
+        // The family has no account — that is the point of the link.
+        add_action( 'admin_post_nopriv_tt_guardian_contact_submit', [ Frontend\GuardianContactHandlers::class, 'submit' ] );
 
         // #0052 PR-B — REST surface so the future SaaS frontend can drive
         // invitation create / accept / revoke without going through the

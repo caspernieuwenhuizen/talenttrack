@@ -1,0 +1,114 @@
+/*
+ * frontend-guardian-contact.css — the public guardian-contact form
+ * (#3794). One short form on a link, opened by a parent on a phone with
+ * no account and no app chrome around it, so this sheet stands alone on
+ * top of tokens.css.
+ *
+ * Mobile-first per CLAUDE.md §2: base rules are the 360px layout, the
+ * media query only widens it. Tokens only, no raw hex.
+ */
+
+.tt-guardian-contact {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: var(--tt-sp-5, 20px) 16px calc(var(--tt-sp-6, 24px) + env(safe-area-inset-bottom));
+    color: var(--tt-ink, #0e1a14);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.tt-guardian-contact-title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 1.4rem;
+    line-height: 1.25;
+}
+
+.tt-guardian-contact-lead {
+    margin: 0 0 var(--tt-sp-5, 20px);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-guardian-contact-form {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+}
+
+.tt-gc-field { display: grid; gap: 6px; }
+
+.tt-gc-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.tt-gc-input {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px;
+    /* 16px keeps iOS from zooming the page on focus. */
+    font-size: 1rem;
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    touch-action: manipulation;
+}
+
+.tt-gc-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
+}
+
+.tt-gc-hint {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-gc-consent-label {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-start;
+    min-height: 48px;
+    padding: 8px 0;
+    touch-action: manipulation;
+}
+
+.tt-gc-consent-label input {
+    width: 24px;
+    height: 24px;
+    margin: 2px 0 0;
+    flex: 0 0 auto;
+}
+
+.tt-gc-submit {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--tt-primary, #0b3d2e);
+    border: 0;
+    border-radius: var(--tt-radius, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-gc-submit:active { transform: translateY(1px); }
+
+.tt-gc-submit:focus-visible {
+    outline: 2px solid var(--tt-ink, #0e1a14);
+    outline-offset: 2px;
+}
+
+@media (min-width: 480px) {
+    .tt-guardian-contact { padding-left: var(--tt-sp-6, 24px); padding-right: var(--tt-sp-6, 24px); }
+    .tt-guardian-contact-title { font-size: 1.6rem; }
+    .tt-gc-submit { justify-self: start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-gc-submit:active { transform: none; }
+}

@@ -107,6 +107,30 @@ Every invitation event is logged to `tt_audit_log` with the actor + entity:
 - `invitation.accepted` — recipient followed the link; IP + user-agent recorded for forensics.
 - `invitation.revoked` — admin revoked.
 - `invitation.cap_overridden` — admin clicked through the daily cap (records the reason).
+- `guardian_contact.requested` — staff asked a family for their contact details; filed against the **player**, recording where it was sent.
+- `guardian_contact.submitted` — the family answered; filed against the player, recording each field's previous and new value so the write can be undone.
+
+## Asking a family for their contact details
+
+Not every family needs an account. Sometimes the academy only needs a name, an email address and a phone number on the player's file, so staff can ring home when a training is cancelled or a child picks up a knock — and that is exactly the data that arrives on paper, gets retyped at the gate and is stale within a season.
+
+Open the player's edit form and scroll to **Ask the family**, under the guardian fields. Type the address to send to and press **Send request**. The family gets a short message naming their child and a link to a one-page form where they fill in their own name, email and phone, and confirm the academy may use them.
+
+The **Player with no guardian contact** alert links straight to this form, so the office can work down the list from the alert inbox.
+
+What happens when they answer:
+
+- The details land on the player's record **immediately**. There is no approval queue — a second inbox would only delay the thing the office is already behind on.
+- Only the fields they filled in are written; anything they leave blank is left exactly as it was.
+- The audit log records what changed, from what to what, and which request was used. That is what makes a wrong answer fixable: the previous value is in the trail, so an admin can put it back.
+
+What the link does **not** do:
+
+- It never creates an account, and it grants nothing. It is not an invitation and cannot be redeemed as one.
+- The page shows the **child's name and nothing else** — no team, no birthday, no evaluations, and never the contact details already on file, which may belong to the other parent.
+- It works **once**, and expires after the same number of days as an invitation (**Invite link lifetime**, 14 days by default). An expired, spent or unknown link shows the same sentence: *this link is no longer valid, ask the academy for a new one*. Send a fresh one if a family needs it.
+
+A parent with an account sees their own side of this under **My settings** → *What the academy holds about you*.
 
 ## Hooks for extensions
 
@@ -116,6 +140,11 @@ The InvitationsModule fires four actions for plugin extensions:
 - `do_action( 'tt_invitation_sent', $id )` — fires after a held invitation is delivered and `sent_at` is stamped.
 - `do_action( 'tt_invitation_accepted', $id, $kind, $user_id )` — fires after the WP user is created and the linking step succeeded.
 - `do_action( 'tt_invitation_revoked', $id )` — fires after revocation.
+
+And two for the guardian-contact link:
+
+- `do_action( 'tt_guardian_contact_requested', $request_id, $player_id, $email )` — fires after the request row is persisted, before it is mailed.
+- `do_action( 'tt_guardian_contact_submitted', $request_id, $player_id, $changes )` — fires after the family's answer is written, with each changed field's previous and new value.
 
 Phase 1 ships no workflow template subscribing to `tt_invitation_accepted`; the hook is reserved for the v1.5 "welcome / set jersey number" task that lands inside #0022 Phase 2.
 

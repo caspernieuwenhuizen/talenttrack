@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Invitations\InvitationKind;
 use TT\Modules\Invitations\InvitationsRepository;
 use TT\Modules\Invitations\InvitationStatus;
 use WP_REST_Request;
@@ -124,7 +125,7 @@ final class InvitationsRestController extends BaseController {
     }
 
     public static function getByToken( WP_REST_Request $req ): \WP_REST_Response {
-        $row = ( new InvitationsRepository() )->findByToken( (string) $req->get_param( 'token' ) );
+        $row = self::accountInvitationByToken( (string) $req->get_param( 'token' ) );
         if ( ! $row ) {
             return RestResponse::error( 'invitation_not_found', __( 'Invitation not found.', 'talenttrack' ), 404 );
         }
@@ -139,7 +140,7 @@ final class InvitationsRestController extends BaseController {
 
     public static function accept( WP_REST_Request $req ): \WP_REST_Response {
         $repo = new InvitationsRepository();
-        $row = $repo->findByToken( (string) $req->get_param( 'token' ) );
+        $row = self::accountInvitationByToken( (string) $req->get_param( 'token' ) );
         if ( ! $row ) {
             return RestResponse::error( 'invitation_not_found', __( 'Invitation not found.', 'talenttrack' ), 404 );
         }
@@ -163,6 +164,22 @@ final class InvitationsRestController extends BaseController {
         }
         do_action( 'tt_invitation_revoked', $id, get_current_user_id() );
         return RestResponse::success( [ 'id' => $id, 'revoked' => true ] );
+    }
+
+    /**
+     * An invitation that actually invites somebody to an account.
+     *
+     * #3794 — `tt_invitations` also holds guardian-contact requests,
+     * whose `kind` is not an `InvitationKind`. They grant nothing, and
+     * these routes must not read or spend one: accepting a request would
+     * burn a family's link and tell them nothing about why it stopped
+     * working. An unknown kind answers exactly as an unknown token does.
+     */
+    private static function accountInvitationByToken( string $token ): ?object {
+        $row = ( new InvitationsRepository() )->findByToken( $token );
+        if ( ! $row ) return null;
+        $fields = (array) $row;
+        return InvitationKind::isValid( (string) ( $fields['kind'] ?? '' ) ) ? $row : null;
     }
 
     /** @return array<string,mixed> */

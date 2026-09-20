@@ -68,6 +68,7 @@ return [
     'accept-invite'                 => [ 'native', 'A parent or player accepting an invitation, from an email, on a phone.' ],
     'activities'                    => [ 'native', 'Attendance is three trainings and a match every week, taken standing up with a ball under one arm. The most repeated action in the product.' ],
     'evaluations'                   => [ 'native', 'Submitting a periodic evaluation — head-coach action 9.' ],
+    'guardian-contact'              => [ 'native', 'A parent filling in their own contact details from a link in an email, on the phone they are giving the academy the number of.' ],
     'lost-password'                 => [ 'native', 'Recovery, reached from the login screen.' ],
     'match-execution'               => [ 'native', 'Live, during the match, on the touchline.' ],
     'match-executions'              => [ 'native', 'The list behind match-execution, which is native.' ],

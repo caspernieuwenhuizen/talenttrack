@@ -39,6 +39,17 @@ class AcceptanceView {
             return;
         }
 
+        // #3794 — `tt_invitations` also carries rows that are not account
+        // invitations at all (a guardian-contact request). They grant
+        // nothing and must never reach a page that creates an account, so
+        // a kind this flow does not know is refused outright rather than
+        // falling through to the default role.
+        $invitation = (array) $row;
+        if ( ! InvitationKind::isValid( (string) ( $invitation['kind'] ?? '' ) ) ) {
+            self::renderNotice( __( 'This invitation link is invalid.', 'talenttrack' ) );
+            return;
+        }
+
         $status = (string) $row->status;
         if ( $status === InvitationStatus::ACCEPTED ) {
             self::renderNotice( __( 'This invitation has already been accepted. Sign in to your account.', 'talenttrack' ) );

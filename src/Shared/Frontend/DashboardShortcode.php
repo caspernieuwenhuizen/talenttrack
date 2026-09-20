@@ -353,6 +353,20 @@ class DashboardShortcode {
             return (string) ob_get_clean();
         }
 
+        // #3794 — the guardian-contact link, for the same reason: the
+        // token IS the credential, and the family it was sent to has no
+        // account at all — not having one is why the academy cannot
+        // reach them. The view refuses anything but a live, unspent
+        // token and shows the child's name and nothing else.
+        if ( $tt_view_param === \TT\Modules\Invitations\GuardianContact\GuardianContactRequest::VIEW_SLUG ) {
+            ob_start();
+            echo '<div class="tt-dashboard">';
+            FlashMessages::render();
+            \TT\Modules\Invitations\Frontend\GuardianContactView::render();
+            echo '</div>';
+            return (string) ob_get_clean();
+        }
+
         // #2709 — the match-analysis share link renders before the login
         // guard for the same reason the invitation does: the signed token
         // IS the credential, and the assistant coach it was sent to may

@@ -99,6 +99,28 @@ Een zachte limiet van **50 uitnodigingen per admin per 24 uur** wordt afgedwonge
 - **Filter** — `apply_filters('tt_invitation_daily_cap', 50, $user_id)` — voor hosts die de limiet permanent willen verhogen.
 - **Toch doorgaan** — wanneer een admin de limiet halverwege raakt, biedt de share-popover een inline redenveld en een "Toch doorgaan"-knop. De override + reden wordt vastgelegd in de audit log.
 
+## Een gezin om hun contactgegevens vragen
+
+Niet elk gezin heeft een account nodig. Soms wil de academie alleen een naam, een e-mailadres en een telefoonnummer op het dossier van de speler, zodat medewerkers naar huis kunnen bellen als een training vervalt of een kind een blessure oploopt — en juist die gegevens komen op papier binnen, worden bij het hek overgetypt en zijn binnen een seizoen verouderd.
+
+Open het bewerkformulier van de speler en ga naar **Vraag het gezin**, onder de contactvelden. Typ het adres waar de vraag heen moet en druk op **Verzoek versturen**. Het gezin krijgt een kort bericht met de naam van hun kind en een link naar een formulier van één pagina waar ze hun eigen naam, e-mailadres en telefoonnummer invullen en bevestigen dat de academie die mag gebruiken.
+
+De melding **Speler zonder contactpersoon** linkt rechtstreeks naar dat formulier, zodat het kantoor de lijst vanuit de meldingen kan afwerken.
+
+Wat er gebeurt als ze antwoorden:
+
+- De gegevens komen **direct** op het spelersrecord. Er is geen goedkeuringswachtrij — een tweede postvak zou alleen vertragen waar het kantoor toch al mee achterloopt.
+- Alleen de velden die ze invullen worden weggeschreven; wat ze leeg laten blijft precies zoals het was.
+- De audit log legt vast wat er wijzigde, van wat naar wat, en met welk verzoek. Daarmee is een verkeerd antwoord te herstellen: de vorige waarde staat in het spoor, dus een beheerder kan het terugzetten.
+
+Wat de link **niet** doet:
+
+- Hij maakt nooit een account aan en geeft geen rechten. Het is geen uitnodiging en kan ook niet als uitnodiging worden gebruikt.
+- De pagina toont **de naam van het kind en verder niets** — geen team, geen geboortedatum, geen evaluaties, en nooit de contactgegevens die al op het dossier staan; die kunnen van de andere ouder zijn.
+- Hij werkt **één keer** en vervalt na evenveel dagen als een uitnodiging (**Geldigheid uitnodigingslink**, standaard 14 dagen). Een vervallen, gebruikte of onbekende link toont dezelfde zin: *deze link is niet meer geldig, vraag de academie om een nieuwe*. Stuur er gerust een nieuwe.
+
+Een ouder met een account ziet zijn eigen kant hiervan bij **Mijn instellingen** → *Wat de academie van jou heeft*.
+
 ## Audit log
 
 Elke gebeurtenis wordt geregistreerd in `tt_audit_log` met de actor + entiteit:
@@ -107,6 +129,8 @@ Elke gebeurtenis wordt geregistreerd in `tt_audit_log` met de actor + entiteit:
 - `invitation.accepted` — ontvanger volgde de link; IP + user-agent geregistreerd voor forensisch onderzoek.
 - `invitation.revoked` — admin heeft ingetrokken.
 - `invitation.cap_overridden` — admin klikte door de dagelijkse limiet (legt de reden vast).
+- `guardian_contact.requested` — medewerker vroeg een gezin om contactgegevens; vastgelegd bij de **speler**, met waar het verzoek heen ging.
+- `guardian_contact.submitted` — het gezin antwoordde; vastgelegd bij de speler, met per veld de vorige en de nieuwe waarde, zodat de wijziging terug te draaien is.
 
 ## Hooks voor uitbreidingen
 
@@ -116,6 +140,11 @@ De InvitationsModule vuurt vier acties voor plugin-uitbreidingen:
 - `do_action( 'tt_invitation_sent', $id )` — vuurt nadat een vastgehouden uitnodiging is verstuurd en `sent_at` is gezet.
 - `do_action( 'tt_invitation_accepted', $id, $kind, $user_id )` — vuurt nadat de WP-gebruiker is aangemaakt en de koppelstap is geslaagd.
 - `do_action( 'tt_invitation_revoked', $id )` — vuurt na intrekken.
+
+En twee voor de contactlink van het gezin:
+
+- `do_action( 'tt_guardian_contact_requested', $request_id, $player_id, $email )` — vuurt nadat de verzoekrij is opgeslagen, vóór het versturen.
+- `do_action( 'tt_guardian_contact_submitted', $request_id, $player_id, $changes )` — vuurt nadat het antwoord van het gezin is weggeschreven, met per gewijzigd veld de vorige en de nieuwe waarde.
 
 Fase 1 levert geen workflow-template dat zich abonneert op `tt_invitation_accepted`; de hook is gereserveerd voor de v1.5 "welkom / rugnummer instellen"-taak die in #0022 Fase 2 landt.
 

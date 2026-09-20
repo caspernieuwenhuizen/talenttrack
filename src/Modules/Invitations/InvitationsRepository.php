@@ -106,18 +106,33 @@ class InvitationsRepository {
         return is_int( $affected ) && $affected > 0;
     }
 
-    /** @return list<object> */
+    /**
+     * The invitations an academy manages — account invitations only.
+     *
+     * #3794 — the table also holds guardian-contact requests, which
+     * invite nobody to anything and carry no status an admin can act on
+     * here. The kinds are SQL literals on purpose: the stored values are
+     * the contract, as `Vocabularies\Lookups\InvitationKind` says.
+     *
+     * @return list<object>
+     */
     public function listAll( int $limit = 200, ?string $status = null ): array {
         if ( $status !== null ) {
             $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-                "SELECT * FROM {$this->table} WHERE status = %s AND club_id = %d ORDER BY created_at DESC LIMIT %d",
+                "SELECT * FROM {$this->table}
+                  WHERE kind IN ( 'player', 'parent', 'staff' )
+                    AND status = %s AND club_id = %d
+                  ORDER BY created_at DESC LIMIT %d",
                 $status,
                 CurrentClub::id(),
                 $limit
             ) );
         } else {
             $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-                "SELECT * FROM {$this->table} WHERE club_id = %d ORDER BY created_at DESC LIMIT %d",
+                "SELECT * FROM {$this->table}
+                  WHERE kind IN ( 'player', 'parent', 'staff' )
+                    AND club_id = %d
+                  ORDER BY created_at DESC LIMIT %d",
                 CurrentClub::id(),
                 $limit
             ) );
