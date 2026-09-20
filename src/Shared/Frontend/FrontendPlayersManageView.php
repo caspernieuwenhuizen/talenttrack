@@ -53,6 +53,13 @@ class FrontendPlayersManageView extends FrontendViewBase {
             [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #3804 — the consent cell's three states.
+        wp_enqueue_style(
+            'tt-media-consent',
+            TT_PLUGIN_URL . 'assets/css/components/media-consent.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         self::$players_css_enqueued = true;
     }
 
@@ -229,6 +236,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
                 'jersey_number'  => [ 'label' => __( '#',    'talenttrack' ), 'sortable' => true ],
                 'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html' ],
+                // #3804 — media consent, on the list rather than sixteen
+                // visits to sixteen player files. The cell says which of
+                // the three states a child is in; a child with pictures
+                // and no consent says how many pictures.
+                'media_consent'  => [ 'label' => __( 'Media consent', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'media_consent_pill_html' ],
             ],
             'filters' => [
                 'team_id' => [
@@ -272,6 +284,24 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'label'   => __( 'Assignment', 'talenttrack' ),
                     'options' => [
                         'unassigned' => __( 'Unassigned (no team)', 'talenttrack' ),
+                    ],
+                ],
+                // #3804 — the lens the issue was raised for. "No consent"
+                // on its own is mostly children nobody has photographed;
+                // the one that needs acting on this week is the child who
+                // has pictures on file and no consent recorded, and that
+                // is its own option rather than something to eyeball.
+                'media_consent' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Media consent', 'talenttrack' ),
+                    'options' => [
+                        // "Media", not "images": a clip of a child is as
+                        // sensitive as a photograph of one, so the lens
+                        // counts both rather than the narrower set the
+                        // question was first asked about.
+                        'media_no_consent' => __( 'Has media, no consent', 'talenttrack' ),
+                        'no_consent'       => __( 'No consent recorded', 'talenttrack' ),
+                        'recorded'         => __( 'Consent on file', 'talenttrack' ),
                     ],
                 ],
             ],

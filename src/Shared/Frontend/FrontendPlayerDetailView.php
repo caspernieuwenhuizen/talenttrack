@@ -47,6 +47,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #3804 — the consent line above the media tab and on the
+        // identity card. The sheet is small and every persona that
+        // reaches this view can see at least one of the two.
+        wp_enqueue_style(
+            'tt-media-consent',
+            TT_PLUGIN_URL . 'assets/css/components/media-consent.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         self::$detail_css_enqueued = true;
     }
 
@@ -1478,14 +1487,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // #2744 — shown to staff only, and always, including when the
         // answer is no. A blank row would be read as "not asked", which is
         // the one thing a consent record must never be ambiguous about.
+        // #3804 — and now with its provenance. "On record" alone leaves
+        // the next question ("since when, and who asked?") to the edit
+        // form, which is the wrong place to have to open to answer it.
         if ( self::viewerIsStaffForPlayer( $player_id ) ) {
             $identity_rows[] = [
                 __( 'Photo & video consent', 'talenttrack' ),
-                esc_html(
-                    ! empty( $player->media_consent )
-                        ? __( 'On record', 'talenttrack' )
-                        : __( 'Not recorded', 'talenttrack' )
-                ),
+                esc_html( \TT\Modules\Players\Services\MediaConsentStatement::summary( $player ) ),
             ];
         }
         if ( $status_label !== '' ) {
@@ -2558,6 +2566,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $can_upload = ( new MediaVisibilityService() )
             ->canAttachTo( $user_id, MediaEntityType::PLAYER, $player_id );
 
+        // #3804 — say whether the club may use these pictures, above the
+        // pictures. A coach opening this tab with the parents opposite them
+        // had nothing here that answered it, and an administrator learned it
+        // by opening records one at a time.
+        //
+        // A statement, not a gate: nothing below is hidden or blurred on
+        // account of it. Consent is recorded and never enforced (migration
+        // 0232, pinned by MediaConsentTest), so the judgement stays with the
+        // person reading the screen — who can now see what they are deciding
+        // about.
+        self::renderMediaConsentLine( $player_id );
+
         MediaGallery::render( [
             'entity_type'     => MediaEntityType::PLAYER,
             'entity_id'       => $player_id,
@@ -2565,6 +2585,26 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'empty_headline'  => __( 'No photos or video yet', 'talenttrack' ),
             'empty_explainer' => __( 'A clip of a moment in training says more about how a player is developing than a score does. Anything added here sits on their timeline under the day it was taken.', 'talenttrack' ),
         ] );
+    }
+
+    /**
+     * #3804 — the consent line above the media grid.
+     *
+     * Carries the date and the recorder, which the data has held since
+     * migration 0232 and only the edit form ever showed. Not colour alone:
+     * the state is in the words, so it survives a screen reader and a
+     * printout.
+     */
+    private static function renderMediaConsentLine( int $player_id ): void {
+        $player = QueryHelpers::get_player( $player_id );
+        if ( ! $player ) return;
+
+        $recorded = \TT\Modules\Players\Services\MediaConsentStatement::isRecorded( $player );
+        printf(
+            '<p class="tt-media-consent%s">%s</p>',
+            $recorded ? '' : ' tt-media-consent--missing',
+            esc_html( \TT\Modules\Players\Services\MediaConsentStatement::sentence( $player ) )
+        );
     }
 
     private static function renderInjuriesTab( int $player_id, int $user_id ): void {

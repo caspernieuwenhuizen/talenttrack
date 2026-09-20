@@ -151,6 +151,12 @@ class PdpPrintRouter {
         .signature { margin-top: 12mm; display: flex; gap: 16mm; }
         .signature .sig-line { flex: 1; border-top: 1px solid #1a1d21; padding-top: 2mm; font-size: 9pt; color: #5b6e75; }
         .verdict { background: #f0f7f6; border-left: 3px solid #1d7874; padding: 4mm 6mm; margin-top: 6mm; }
+        /* #3804 — the consent statement that travels with the photo. The
+           picture is never withheld from this hand-out; the document says
+           what is known about permission for it, and says so in words so
+           it survives a black-and-white printer. */
+        .consent { margin: 0 0 6mm; padding: 2mm 4mm; border-left: 2px solid #1d7874; font-size: 9pt; color: #5b6e75; }
+        .consent-missing { border-left-color: #b45309; color: #92400e; }
         .toolbar { display: flex; gap: 8px; margin-bottom: 6mm; }
         .toolbar button, .toolbar a { padding: 6px 12px; border: 1px solid #c5c8cc; background: #fff; cursor: pointer; border-radius: 4px; font-size: 10pt; color: #1a1d21; text-decoration: none; }
         @media print { .toolbar { display: none; } }
@@ -206,6 +212,18 @@ class PdpPrintRouter {
             <p><strong><?php esc_html_e( 'Cycle size:', 'talenttrack' ); ?></strong> <?php echo (int) ( $file->cycle_size ?? 0 ); ?></p>
         </div>
     </div>
+
+    <?php
+    // #3804 — this file gets handed to a parent, printed, and emailed on.
+    // The photo above it stays whatever the consent says, because a file
+    // whose picture silently disappears reads as a broken export rather
+    // than as care. What changes is that the document now states the
+    // permission position next to the picture it carries.
+    $consent_recorded = \TT\Modules\Players\Services\MediaConsentStatement::isRecorded( $player );
+    ?>
+    <p class="consent<?php echo $consent_recorded ? '' : ' consent-missing'; ?>">
+        <?php echo esc_html( \TT\Modules\Players\Services\MediaConsentStatement::sentence( $player ) ); ?>
+    </p>
 
     <h2><?php esc_html_e( 'Current goals', 'talenttrack' ); ?></h2>
     <?php if ( $goals ) : ?>

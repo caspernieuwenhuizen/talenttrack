@@ -164,6 +164,9 @@ class PlayersRestController {
         'jersey_number' => 'p.jersey_number',
         'date_of_birth' => 'p.date_of_birth',
         'date_joined'   => 'p.date_joined',
+        // #3804 — sorts the unconsented to the top, which is the order
+        // somebody working through the gap wants to read the list in.
+        'media_consent' => 'p.media_consent',
     ];
 
     /**
@@ -261,6 +264,29 @@ class PlayersRestController {
             $where[]  = 't.age_group = %s';
             $params[] = sanitize_text_field( (string) $filter['age_group'] );
         }
+        // #3804 — the administrator's actual question, in one call.
+        //
+        // `no_consent` is the plain flag. `media_no_consent` is the one this
+        // issue exists for: children who HAVE pictures on file and no
+        // consent recorded. Reading down a list of every unconsented child
+        // does not answer it — most of them have no photos, and the ones
+        // that matter are lost among them.
+        $consent_filter = sanitize_key( (string) ( $filter['media_consent'] ?? '' ) );
+        if ( $consent_filter === 'no_consent' ) {
+            $where[] = "( p.media_consent IS NULL OR p.media_consent = 0 )";
+        } elseif ( $consent_filter === 'recorded' ) {
+            $where[] = 'p.media_consent = 1';
+        } elseif ( $consent_filter === 'media_no_consent' ) {
+            $where[] = "( p.media_consent IS NULL OR p.media_consent = 0 )
+                        AND EXISTS (
+                            SELECT 1 FROM {$p}tt_media_links ml
+                              JOIN {$p}tt_media m ON m.id = ml.media_id
+                             WHERE ml.entity_type = 'player'
+                               AND ml.entity_id = p.id
+                               AND ml.club_id = p.club_id
+                               AND m.archived_at IS NULL
+                        )";
+        }
 
         if ( ! empty( $r['search'] ) ) {
             $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
@@ -320,7 +346,20 @@ class PlayersRestController {
                                 pu.ID AS parent_id,
                                 pu.display_name AS parent_display_name,
                                 ( SELECT COUNT(*) FROM {$p}tt_player_parents ppc
-                                   WHERE ppc.player_id = p.id AND ppc.club_id = p.club_id ) AS parent_count
+                                   WHERE ppc.player_id = p.id AND ppc.club_id = p.club_id ) AS parent_count,
+                                -- #3804 — how many media items hang off this
+                                -- player. Counts ATTACHMENTS (tt_media_links),
+                                -- which is the right unit: one squad photo
+                                -- linked to eleven children is one item each,
+                                -- not one item. Archived items are excluded,
+                                -- so a cleared-out player reads as clear.
+                                ( SELECT COUNT(*)
+                                    FROM {$p}tt_media_links ml
+                                    JOIN {$p}tt_media m ON m.id = ml.media_id
+                                   WHERE ml.entity_type = 'player'
+                                     AND ml.entity_id = p.id
+                                     AND ml.club_id = p.club_id
+                                     AND m.archived_at IS NULL ) AS media_count
                          FROM {$p}tt_players p
                          LEFT JOIN {$p}tt_teams t ON t.id = p.team_id AND t.club_id = p.club_id
                          LEFT JOIN {$users} pu ON pu.ID = (
@@ -421,6 +460,37 @@ class PlayersRestController {
         return RestResponse::success( $summary );
     }
 
+    /**
+     * #3804 — the media-consent cell for the players list.
+     *
+     * Three states, because two would hide the one that matters. A child
+     * with no consent and no pictures is an administrative gap; a child
+     * with no consent and pictures on file is the thing somebody has to
+     * act on this week, and it says how many.
+     *
+     * Nothing here hides an image. The cell reports; the media surfaces
+     * still show every picture they showed before.
+     */
+    private static function mediaConsentPill( bool $consented, int $media_count ): string {
+        if ( $consented ) {
+            return '<span class="tt-consent-pill tt-consent-pill--ok">'
+                . esc_html__( 'Consent on file', 'talenttrack' ) . '</span>';
+        }
+        if ( $media_count > 0 ) {
+            return '<span class="tt-consent-pill tt-consent-pill--gap">'
+                . esc_html(
+                    sprintf(
+                        /* translators: %d: number of photos and clips held for this player. */
+                        _n( 'No consent, %d media item', 'No consent, %d media items', $media_count, 'talenttrack' ),
+                        $media_count
+                    )
+                )
+                . '</span>';
+        }
+        return '<span class="tt-consent-pill tt-consent-pill--none">'
+            . esc_html__( 'No consent', 'talenttrack' ) . '</span>';
+    }
+
     /** Compact row format for list responses (no custom fields). */
     private static function fmtRow( object $pl ): array {
         $name = trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) );
@@ -489,6 +559,17 @@ class PlayersRestController {
             'date_of_birth'    => PlayerDates::forOutput( $pl->date_of_birth ?? null ),
             'sex'              => (string) ( $pl->sex ?? '' ),
             'status'           => (string) ( $pl->status ?? 'active' ),
+            // #3804 — consent on the list row, so "which children may we
+            // show?" stops being sixteen calls to players/{id}. The row
+            // hydration already selects `p.*`, so these columns were being
+            // fetched and thrown away.
+            'media_consent'    => ! empty( $pl->media_consent ),
+            'media_consent_at' => ! empty( $pl->media_consent_at ) ? (string) $pl->media_consent_at : null,
+            'media_count'      => isset( $pl->media_count ) ? (int) $pl->media_count : null,
+            'media_consent_pill_html' => self::mediaConsentPill(
+                ! empty( $pl->media_consent ),
+                isset( $pl->media_count ) ? (int) $pl->media_count : 0
+            ),
             // v3.110.170 — row-link standard (#758).
             'detail_url'       => $detail_url,
             // #2023 — archived_at + trashed_at via the shared lifecycle helper.
