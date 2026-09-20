@@ -39,5 +39,6 @@ return [
     'match-prep-share'     => 'The same arrangement for match preparation: a signed link for an assistant coach, analyst or keeper coach who may have no account here. Pre-auth, no shell.',
     'lost-password'        => 'The branded "email me a reset link" form. Renders before the login guard and carries its own instructions; the password-reset topic documents the flow for anyone reading the corpus.',
     'reset-password'       => 'The branded "choose a new password" form, reached from the emailed link. Pre-auth and self-explanatory, for the same reason as lost-password.',
+    'guardian-contact'     => 'The one-time form where a family fills in their own guardian contact details (#3794). Pre-auth — the family has no account, which is why the academy cannot reach them — single-purpose, and noindex. It shows the child\'s name and a short form and nothing else, so there is no product here to open help about.',
     'mfa-prompt'           => 'The second-factor challenge. The session is half-authenticated, chrome is stripped to the prompt itself, and anything but entering the code is a distraction at this step.',
 ];

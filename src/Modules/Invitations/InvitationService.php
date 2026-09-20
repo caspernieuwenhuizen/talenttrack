@@ -233,6 +233,13 @@ class InvitationService {
      * @return array{ok:bool, user_id:?int, error:?string}
      */
     public function accept( object $invitation, array $payload ): array {
+        // #3794 — the table also holds rows that grant nothing (a
+        // guardian-contact request). Accepting one would create an
+        // account on the `resolveWpRoleForKind()` default, so a kind
+        // this flow does not know never gets that far.
+        if ( ! self::isAccountInvitation( $invitation ) ) {
+            return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
+        }
         if ( ! ( new FeatureToggleService( $this->config ) )->isEnabled( 'allow_registration' ) ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'New user registration is currently disabled.', 'talenttrack' ) ];
         }
@@ -293,6 +300,11 @@ class InvitationService {
      * linking step against their existing user, mark accepted.
      */
     public function silentLink( object $invitation, int $existingUserId, array $payload = [] ): array {
+        // #3794 — as in accept(): a row that is not an account invitation
+        // links nobody to anything.
+        if ( ! self::isAccountInvitation( $invitation ) ) {
+            return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
+        }
         if ( (string) $invitation->status !== InvitationStatus::PENDING ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
         }
@@ -430,6 +442,19 @@ class InvitationService {
      * person row is the thing being corrected, so resolving through it
      * would just hand back the stale value we are replacing.
      */
+    /**
+     * Whether a row actually invites somebody to an account.
+     *
+     * #3794 — `tt_invitations` also holds guardian-contact requests,
+     * whose `kind` is not an `InvitationKind`. Redeeming one would
+     * create an account on the `resolveWpRoleForKind()` default, so
+     * both redemption paths ask this first.
+     */
+    private static function isAccountInvitation( object $invitation ): bool {
+        $row = (array) $invitation;
+        return InvitationKind::isValid( (string) ( $row['kind'] ?? '' ) );
+    }
+
     private static function accountEmail( int $userId ): string {
         $user = get_userdata( $userId );
         if ( ! $user ) return '';

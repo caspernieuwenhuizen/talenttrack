@@ -116,3 +116,33 @@
     border-color: var(--tt-success, #2f9e5e);
     color: var(--tt-ink, #0e1a14);
 }
+
+/* #3794 — "Ask the family": its own form below the player form, because
+   pressing it sends an email rather than saving a field. */
+.tt-dashboard .tt-players-guardian-request {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    margin-top: var(--tt-sp-5, 20px);
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+}
+
+.tt-dashboard .tt-players-guardian-request-title {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-players-guardian-request .tt-help-text,
+.tt-dashboard .tt-players-guardian-request .tt-field {
+    margin: 0;
+}
+
+.tt-dashboard .tt-players-guardian-request .tt-btn {
+    justify-self: start;
+    min-height: 48px;
+}

@@ -612,6 +612,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
             <div class="tt-form-msg"></div>
         </form>
 
+        <?php if ( $is_edit ) self::renderGuardianContactRequest( $player ); ?>
+
         <script>
         (function(){
             // Position multi-tag toggle (re-uses the multitag CSS without
@@ -632,6 +634,55 @@ class FrontendPlayersManageView extends FrontendViewBase {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * #3794 — ask the family to fill their own contact details in.
+     *
+     * Its own form, deliberately outside the player form: it sends an
+     * email the moment it is pressed, which is not something a Save
+     * button should also do, and a form cannot be nested in another.
+     *
+     * This is where the `people.no_guardian_contact` alert already
+     * points — its `urlFor()` opens this record's edit form — so the
+     * office reaches it from the alert row without a second affordance
+     * being invented.
+     */
+    private static function renderGuardianContactRequest( object $player ): void {
+        if ( ! current_user_can( \TT\Modules\Invitations\GuardianContact\GuardianContactRequest::CAP ) ) return;
+
+        $player_id = (int) ( $player->id ?? 0 );
+        if ( $player_id <= 0 ) return;
+
+        $known = trim( (string) ( $player->guardian_email ?? '' ) );
+        ?>
+        <form method="post" class="tt-players-guardian-request" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_guardian_contact_request' ); ?>
+            <input type="hidden" name="action" value="tt_guardian_contact_request" />
+            <input type="hidden" name="player_id" value="<?php echo (int) $player_id; ?>" />
+            <input type="hidden" name="_redirect" value="<?php echo esc_attr( self::currentUrl() ); ?>" />
+
+            <h4 class="tt-players-guardian-request-title"><?php esc_html_e( 'Ask the family', 'talenttrack' ); ?></h4>
+            <p class="tt-help-text">
+                <?php esc_html_e( 'Send a one-time link where a parent fills in their own name, email and phone. What they send lands on this record straight away, and the audit log records what changed.', 'talenttrack' ); ?>
+            </p>
+
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-guardian-request-email"><?php esc_html_e( 'Send the link to', 'talenttrack' ); ?></label>
+                <input type="email" inputmode="email" id="tt-guardian-request-email" name="email" class="tt-input"
+                       autocomplete="email" value="<?php echo esc_attr( $known ); ?>" required />
+            </div>
+
+            <button type="submit" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Send request', 'talenttrack' ); ?></button>
+        </form>
+        <?php
+    }
+
+    /** Where a form post should land the user back. */
+    private static function currentUrl(): string {
+        $request = isset( $_SERVER['REQUEST_URI'] ) ? (string) wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+        if ( $request === '' ) return home_url( '/' );
+        return esc_url_raw( home_url( $request ) );
     }
 
     /**

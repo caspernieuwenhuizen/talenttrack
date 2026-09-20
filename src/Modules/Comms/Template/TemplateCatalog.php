@@ -8,6 +8,7 @@ use TT\Modules\Comms\Templates\AttendanceFlagTemplate;
 use TT\Modules\Comms\Templates\DesktopLinkTemplate;
 use TT\Modules\Comms\Templates\DirectMessageTemplate;
 use TT\Modules\Comms\Templates\GoalNudgeTemplate;
+use TT\Modules\Comms\Templates\GuardianContactRequestTemplate;
 use TT\Modules\Comms\Templates\GuestPlayerInviteTemplate;
 use TT\Modules\Comms\Templates\InvitationEmailTemplate;
 use TT\Modules\Comms\Templates\LetterDeliveryTemplate;
@@ -74,6 +75,7 @@ final class TemplateCatalog {
             new SafeguardingBroadcastTemplate(),
 
             new InvitationEmailTemplate(),   // #1902 — account mail, not switchable (#3110)
+            new GuardianContactRequestTemplate(), // #3794 — account mail, for a family with no account at all
             new NotificationTemplate(),      // #2604 caller-composed copy
             new AlertDigestTemplate(),       // #2634 alerts roll-up
 

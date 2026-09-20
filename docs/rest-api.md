@@ -949,6 +949,33 @@ Link an account: `{ "wp_user_id": 46 }`, or create one and link it: `{ "create":
 
 Unlink. The parent role is removed from the account only when it guards no other player in this club.
 
+## Guardian contact requests (#3794)
+
+Asking a family with no account to fill in their own contact details, and taking the answer straight onto the player record. Rides `tt_invitations` — a request is a row whose `kind` is `guardian_contact`, deliberately **not** one of the three `InvitationKind` values, so no account-creating path will touch it.
+
+### `POST /players/{id}/guardian-contact-request`
+
+Send one family a link: `{ "email": "parent@example.test" }`. Returns `{ id, sent: true }` with **201**.
+
+- Gated on `tt_edit_players` — asking a family is editing the player's contact details by proxy.
+- The token is **not** in the response. It is one family's credential, it travels by email, and an API that hands it back invites a staff surface to print it on a screen.
+- Subject to the same daily ceiling as invitations (`tt_invitation_daily_cap`, 50 by default).
+
+### `GET /guardian-contact/{token}`
+
+What the public form may know: `{ player_name, expires_at, fields }`. Nothing else about the player, and never the contact details already on file — those may describe the other parent.
+
+### `POST /guardian-contact/{token}`
+
+The family's answer: `{ guardian_name, guardian_email, guardian_phone, consent }`. Returns `{ saved: true, fields_changed: ["guardian_phone"] }`.
+
+- `guardian_name` and `consent` are required, plus at least one of `guardian_email` / `guardian_phone`. A field left blank is **left alone** on the record rather than cleared.
+- The write is direct — no approval queue — and audited: `guardian_contact.submitted` records each field's previous and new value against the **player**, which is what makes it revertable.
+- The token is **single-use**: the submission atomically flips the row `pending → accepted` before anything is written, so a double tap or a forwarded link writes once. Validation runs first, so a typo does not burn the link.
+- The submitted values are not echoed back. The submitter typed them, and a response is not a place to reprint a minor's family contact details.
+
+**Permission:** both token routes are `__return_true` — the family has no account, which is precisely why the academy cannot reach them, so the token is the credential, as it is for the invitation lookup. Unknown, tampered, expired, revoked and already-used all answer **404 `guardian_contact_link_invalid`** with one message, so neither route can be used to find out whether a token exists.
+
 ## Operator broadcasts (#3499)
 
 Notices the operator's Admin Center sends to this install (maintenance windows, service announcements), for the logged-in user. They arrive on the phone-home response; these routes only read and dismiss them.
