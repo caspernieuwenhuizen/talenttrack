@@ -282,7 +282,14 @@ return array_merge(
         // removed. Safeguarding territory. `pdp_calendar_export` stays
         // because it's `self`-scoped (AC exports their OWN calendar slots).
         'pdp_calendar_export'        => [ 'rc',  'self',   $mod_pdp ],
-        // #1060 — `team_chemistry` removed (development analytics).
+        // #3706 — `team_chemistry [r, team]` restored after #1060 removed
+        // it. The entity carries the team formation and the blueprint as
+        // well as the chemistry board, and an assistant coach who runs the
+        // session and makes the substitutions needs the shape the line-up
+        // comes from. Read-only: authoring formations stays with the head
+        // coach. The board (suggested XI, pairings, depth chart) opens with
+        // it — one entity, and the AC already sees the XI on the pitch.
+        'team_chemistry'             => [ 'r',   'team',   $mod_team_dev ],
         'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],
         'task_completion'            => [ 'rc',  'self',   $mod_workflow ],
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
@@ -335,6 +342,12 @@ return array_merge(
         // VCT sessions on their team scope (same as head coach — both
         // share the team scope). Matrix-only cap.
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #3706 — team-level training load on their own teams. The load a
+        // coach plans against is operational ("is this week too heavy for
+        // my session"), not per-player development data. Read-only, team
+        // scope: `VctWorkloadRestController::can_team()` runs
+        // `canPlanForTeam()` after the cap check.
+        'vct_workload'               => [ 'r',   'team',   $mod_vct ],
         // #2496 — Training plans (epic #2493). Plans on their own team
         // scope, same as VCT sessions above. Matrix-only cap.
         'training_plan'              => [ 'rcd', 'team',   $mod_training ],
@@ -470,6 +483,10 @@ return array_merge(
         // for publish + create_delete for c+d). Matrix-only cap;
         // bridged via LegacyCapMapper as tt_vct_plan → (vct, read).
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #3706 — team-level training load on their own teams. The head
+        // coach had no `vct_workload` row either, so the load view 403'd
+        // for the persona that plans against it.
+        'vct_workload'               => [ 'r',   'team',   $mod_vct ],
         // #2496 — Training plans (epic #2493). Plans on their own team
         // scope, same as VCT sessions above. Matrix-only cap.
         'training_plan'              => [ 'rcd', 'team',   $mod_training ],
@@ -505,6 +522,13 @@ return array_merge(
         'attendance'                 => [ 'rc',  'team',   $mod_activities ],
         'goals'                      => [ 'r',   'team',   $mod_goals ],
         'evaluations'                => [ 'r',   'team',   $mod_evals ],
+        // #3770 — the attendance reports. Chasing the players who keep
+        // missing training is the job, and the three attendance report
+        // routes all hang off `tt_view_analytics`, which bridges here.
+        // `team` scope: the reports narrow their own rows through
+        // `AllTeamsScope` / `get_teams_for_coach()`, so a manager reads
+        // their own squads and no others.
+        'analytics'                  => [ 'r',   'team',   $mod_analytics ],
         // #1856 — team manager views the team's measurements + sessions.
         'measurements'               => [ 'r',   'team',   $mod_measurements ],
         // #2591 — read-only: a team manager administers a squad, they do

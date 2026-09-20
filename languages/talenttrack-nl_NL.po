@@ -27207,6 +27207,18 @@ msgstr[1] "%d te laat"
 msgid "All trained"
 msgstr "Allemaal opgeleid"
 
+#: src/Modules/Knowledge/Frontend/LearningReports.php:188
+msgid "Nobody on these teams is enrolled in this course yet."
+msgstr "Niemand van deze teams is al voor deze cursus ingeschreven."
+
+#: src/Modules/Knowledge/Frontend/LearningReports.php:251
+msgid "Assign the course to staff"
+msgstr "Wijs de cursus toe aan staf"
+
+#: src/Modules/Knowledge/Frontend/LearningReports.php:336
+msgid "Nobody enrolled"
+msgstr "Niemand ingeschreven"
+
 #: src/Modules/Knowledge/Frontend/LearningReports.php:290
 msgid "None trained"
 msgstr "Niemand opgeleid"
@@ -44911,6 +44923,27 @@ msgstr "Bericht kon niet worden verwijderd."
 #, php-format
 msgid "Status changed to: %s"
 msgstr "Status gewijzigd naar: %s"
+
+#. translators: %s is the goal's new title
+#, php-format
+msgid "Title changed to: %s"
+msgstr "Titel gewijzigd naar: %s"
+
+#. translators: %s is the goal's new target date
+#, php-format
+msgid "Target date changed to: %s"
+msgstr "Streefdatum gewijzigd naar: %s"
+
+msgid "Target date removed"
+msgstr "Streefdatum verwijderd"
+
+#. translators: %s is the goal's new progress, e.g. "60%"
+#, php-format
+msgid "Progress changed to: %s"
+msgstr "Voortgang gewijzigd naar: %s"
+
+msgid "Progress removed"
+msgstr "Voortgang verwijderd"
 
 #. translators: %s is the goal title
 #: src/Modules/Threads/Subscribers/GoalSystemMessageSubscriber.php:42
@@ -63410,6 +63443,32 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:230
+msgid "What the academy holds about you"
+msgstr "Wat de academie van jou heeft"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:232
+msgid "Your contact details are kept in more than one place, and they can disagree. This is everything the academy holds about you, and where each detail is kept. Only details that are yours are shown — anyone else named on your child's file stays private to them."
+msgstr "Je contactgegevens staan op meer dan één plek, en die kunnen van elkaar afwijken. Dit is alles wat de academie van jou heeft, en waar elk gegeven wordt bewaard. Alleen gegevens die van jou zijn, worden getoond — wie er verder op het dossier van je kind staat, blijft privé voor hen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:241
+msgid "Your contact record"
+msgstr "Je contactgegevens"
+
+#. translators: %s: the child's name
+#: src/Shared/Frontend/FrontendMySettingsView.php:250
+#, php-format
+msgid "On %s's file"
+msgstr "Op het dossier van %s"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:259
+msgid "This file records no contact details of yours. Ask the academy to add them so staff can reach you."
+msgstr "Op dit dossier staan geen contactgegevens van jou. Vraag de academie om ze toe te voegen, zodat medewerkers je kunnen bereiken."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:274
+msgid "Something wrong or out of date? Your account details are yours to change above. Anything recorded on your child's file is changed by the academy — ask them and they will correct it."
+msgstr "Klopt er iets niet of is het verouderd? Je accountgegevens pas je hierboven zelf aan. Wat op het dossier van je kind staat, wijzigt de academie — geef het door en zij zetten het recht."
 
 #, php-format
 #~ msgid "Match preparation does not accept: %s."

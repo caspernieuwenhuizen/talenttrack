@@ -368,6 +368,11 @@ final class LegacyCapMapper {
         // new `analytics` matrix entity. Default seed grants HoD + Admin
         // read globally; coaches reach analytics through per-entity tabs
         // (Child 4) on the players + teams + activities they have access to.
+        // #3770 — and the team manager reads it at TEAM scope, for the
+        // three attendance report routes that gate on this cap. The same
+        // grant sits on the `manager` functional role, because a team
+        // manager is a `staff` account holding that role about as often as
+        // they are the `team_manager` persona.
         'tt_view_analytics'              => [ 'analytics',             'read' ],
         // #3610 — the write side, for the evaluation windows. They were
         // gated on the read cap, so any read grant of analytics was a write.

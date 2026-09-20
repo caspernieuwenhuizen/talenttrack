@@ -42,39 +42,103 @@ final class LearningStatisticsService {
      * }
      */
     public function forCourse( string $course_slug ): array {
+        return [ 'course_slug' => $course_slug ]
+            + $this->countsFor( $course_slug )
+            + [ 'median_days_to_complete' => $this->medianDaysFor( $course_slug ) ];
+    }
+
+    /**
+     * The enrolment counts, club-wide or narrowed to one team's staff.
+     *
+     * The single implementation of "how many are enrolled, and how many of
+     * those are done" (#3769). `forCourse()` reads it club-wide;
+     * `TeamCourseCoverage::summaryFor()` reads it for one team. Before this
+     * the two counted different populations from different queries — the
+     * roll-up counted enrolment rows, the team view counted team-assigned
+     * people — and reported both in the same response, where they read as a
+     * bug rather than as two answers to two questions.
+     *
+     * `$team_id` narrows to staff currently scoped to that team, matching
+     * the population `TeamCourseCoverage::forTeam()` lists row by row.
+     * `COUNT(DISTINCT e.id)` because a person can hold two scope rows for
+     * the same team across two spells and must still count once.
+     *
+     * @return array{enrolled: int, not_started: int, in_progress: int, completed: int, overdue: int}
+     */
+    public function countsFor( string $course_slug, ?int $team_id = null ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT
-                COUNT(*) AS enrolled,
-                SUM( CASE WHEN status = %s THEN 1 ELSE 0 END ) AS not_started,
-                SUM( CASE WHEN status = %s THEN 1 ELSE 0 END ) AS in_progress,
-                SUM( CASE WHEN status = %s THEN 1 ELSE 0 END ) AS completed,
-                SUM(
-                    CASE WHEN status <> %s
-                          AND due_at IS NOT NULL
-                          AND due_at < NOW()
-                         THEN 1 ELSE 0 END
-                ) AS overdue
-               FROM {$p}tt_course_enrolments
-              WHERE club_id = %d AND course_slug = %s",
-            EnrolmentRepository::STATUS_NOT_STARTED,
-            EnrolmentRepository::STATUS_IN_PROGRESS,
-            EnrolmentRepository::STATUS_COMPLETED,
-            EnrolmentRepository::STATUS_COMPLETED,
-            CurrentClub::id(),
-            $course_slug
-        ) );
+        // Every figure counts distinct enrolments rather than rows: the
+        // team-scoped query joins a scope table that can hold two spells
+        // for the same person on the same team, and a plain SUM would
+        // count their one enrolment twice.
+        $counts = "COUNT( DISTINCT e.id ) AS enrolled,
+                COUNT( DISTINCT CASE WHEN e.status = %s THEN e.id END ) AS not_started,
+                COUNT( DISTINCT CASE WHEN e.status = %s THEN e.id END ) AS in_progress,
+                COUNT( DISTINCT CASE WHEN e.status = %s THEN e.id END ) AS completed,
+                COUNT( DISTINCT
+                    CASE WHEN e.status <> %s
+                          AND e.due_at IS NOT NULL
+                          AND e.due_at < %s
+                         THEN e.id END
+                ) AS overdue";
+
+        $now = current_time( 'mysql' );
+
+        if ( $team_id === null || $team_id <= 0 ) {
+            $sql = $wpdb->prepare(
+                "SELECT {$counts}
+                   FROM {$p}tt_course_enrolments e
+                  WHERE e.club_id = %d AND e.course_slug = %s",
+                EnrolmentRepository::STATUS_NOT_STARTED,
+                EnrolmentRepository::STATUS_IN_PROGRESS,
+                EnrolmentRepository::STATUS_COMPLETED,
+                EnrolmentRepository::STATUS_COMPLETED,
+                $now,
+                CurrentClub::id(),
+                $course_slug
+            );
+        } else {
+            $today = current_time( 'Y-m-d' );
+
+            $sql = $wpdb->prepare(
+                "SELECT {$counts}
+                   FROM {$p}tt_course_enrolments e
+             INNER JOIN {$p}tt_people pe
+                     ON pe.id = e.person_id AND pe.club_id = e.club_id
+             INNER JOIN {$p}tt_user_role_scopes s
+                     ON s.person_id = pe.id
+                  WHERE e.club_id = %d
+                    AND e.course_slug = %s
+                    AND s.scope_type = 'team'
+                    AND s.scope_id = %d
+                    AND ( s.start_date IS NULL OR s.start_date <= %s )
+                    AND ( s.end_date   IS NULL OR s.end_date   >= %s )
+                    AND pe.archived_at IS NULL
+                    AND pe.trashed_at IS NULL",
+                EnrolmentRepository::STATUS_NOT_STARTED,
+                EnrolmentRepository::STATUS_IN_PROGRESS,
+                EnrolmentRepository::STATUS_COMPLETED,
+                EnrolmentRepository::STATUS_COMPLETED,
+                $now,
+                CurrentClub::id(),
+                $course_slug,
+                $team_id,
+                $today,
+                $today
+            );
+        }
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $row = $wpdb->get_row( $sql );
 
         return [
-            'course_slug'             => $course_slug,
-            'enrolled'                => (int) ( $row->enrolled ?? 0 ),
-            'not_started'             => (int) ( $row->not_started ?? 0 ),
-            'in_progress'             => (int) ( $row->in_progress ?? 0 ),
-            'completed'               => (int) ( $row->completed ?? 0 ),
-            'overdue'                 => (int) ( $row->overdue ?? 0 ),
-            'median_days_to_complete' => $this->medianDaysFor( $course_slug ),
+            'enrolled'    => (int) ( $row->enrolled ?? 0 ),
+            'not_started' => (int) ( $row->not_started ?? 0 ),
+            'in_progress' => (int) ( $row->in_progress ?? 0 ),
+            'completed'   => (int) ( $row->completed ?? 0 ),
+            'overdue'     => (int) ( $row->overdue ?? 0 ),
         ];
     }
 
@@ -321,7 +385,13 @@ final class LearningStatisticsService {
      * the report and any other consumer agree about who counts as "the staff
      * around this squad".
      *
-     * @return list<array{team_id: int, team_name: string, done: int, total: int}>
+     * `total` is how many of the team's staff are *enrolled*; `assigned` is
+     * how many staff the team has at all. A team where those differ has
+     * people nobody has put on the course yet, which is what the report's
+     * empty state says out loud rather than filling the table with rows
+     * that claim they have not started (#3769).
+     *
+     * @return list<array{team_id: int, team_name: string, done: int, total: int, assigned: int}>
      */
     public function forTeams( string $course_slug ): array {
         global $wpdb;
@@ -339,14 +409,17 @@ final class LearningStatisticsService {
             $summary = TeamCourseCoverage::summaryFor( (int) $team->id, $course_slug );
 
             // A team with no staff assigned answers nothing; listing it as
-            // "0 of 0" reads as a failure when it is an absence of data.
-            if ( $summary['total'] === 0 ) continue;
+            // "0 of 0" reads as a failure when it is an absence of data. A
+            // team with staff but no enrolments is kept, because "nobody
+            // here has been put on the course" is an answer.
+            if ( $summary['assigned'] === 0 ) continue;
 
             $out[] = [
                 'team_id'   => (int) $team->id,
                 'team_name' => (string) $team->name,
                 'done'      => $summary['done'],
                 'total'     => $summary['total'],
+                'assigned'  => $summary['assigned'],
             ];
         }
 
