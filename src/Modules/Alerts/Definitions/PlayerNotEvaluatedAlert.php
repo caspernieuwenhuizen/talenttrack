@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Definitions;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Alerts\Contracts\AudienceAwareAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 
@@ -26,8 +27,16 @@ use TT\Modules\Alerts\Domain\Severity;
  * joined, not from the beginning of time. Telling a coach that the trialist
  * who arrived on Tuesday is overdue an evaluation is the kind of wrongness
  * that teaches people to mute the whole feature.
+ *
+ * #3795 — the child's family may switch this on too. It is the condition
+ * they said they were checking by hand every Sunday, and the fact it states
+ * — that nothing has been written down for a while — is the family's
+ * business as much as the coach's. It carries no evaluation content because
+ * there is none to carry.
  */
-final class PlayerNotEvaluatedAlert extends AbstractPlayerAlert {
+final class PlayerNotEvaluatedAlert extends AbstractPlayerAlert implements AudienceAwareAlert {
+
+    use FamilyAudienceTrait;
 
     /** tt_config key holding the staleness threshold, in weeks. */
     public const CONFIG_KEY_WEEKS = 'alerts_eval_stale_weeks';
@@ -90,8 +99,39 @@ final class PlayerNotEvaluatedAlert extends AbstractPlayerAlert {
         );
     }
 
+    /** The same fact, said to the family rather than to the coach. */
+    protected function familyTitleFor( object $row ): string {
+        $name = $this->playerName( $row );
+
+        if ( (string) ( $row->last_eval_date ?? '' ) === '' ) {
+            return sprintf(
+                /* translators: %s: player name */
+                __( 'No evaluation of %s has been recorded yet.', 'talenttrack' ),
+                $name
+            );
+        }
+
+        $weeks = (int) floor( $this->daysSince( (string) $row->last_eval_date ) / 7 );
+        return sprintf(
+            /* translators: 1: player name, 2: number of weeks since the last evaluation */
+            _n(
+                'There has been no new evaluation of %1$s for %2$d week.',
+                'There has been no new evaluation of %1$s for %2$d weeks.',
+                $weeks,
+                'talenttrack'
+            ),
+            $name,
+            $weeks
+        );
+    }
+
     /** @return array<string,mixed> */
     protected function payloadFor( object $row ): array {
+        return [ 'last_eval_date' => (string) ( $row->last_eval_date ?? '' ) ];
+    }
+
+    /** @return array<string,mixed> */
+    protected function familyPayloadFor( object $row ): array {
         return [ 'last_eval_date' => (string) ( $row->last_eval_date ?? '' ) ];
     }
 

@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Definitions;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Alerts\Contracts\AudienceAwareAlert;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -35,8 +36,27 @@ use TT\Shared\Frontend\Components\RecordLink;
  * the definition's results down with it. Two thresholds bound it, both in
  * `tt_config`: a grace period before the alert appears, and a lookback
  * after which it stops.
+ *
+ * ## The family may switch this on, and what they are told is bounded
+ *
+ * #3795 / #3803. The family asked for this one by name: it is the answer to
+ * "was anything said to my son about that session, or was it just filed?".
+ *
+ * It is also the definition in the parent set that needs the most care, so
+ * the family sentence is deliberately thin. It names the child, says
+ * feedback is still outstanding, and stops. No rating, no note, no coach,
+ * not even the date — the internal `notes` field and the ratings are staff
+ * analysis (#1386) and none of it travels with the occurrence. The family
+ * copy links to the child's own record, not to the evaluation.
+ *
+ * Note this is not the same alert as `evaluations.shared_with_family`,
+ * which announces that something *has* been released. That one fires on the
+ * share and never on a save; this one reports the absence of a share and
+ * carries nothing that was withheld.
  */
-final class EvaluationNotSharedAlert extends AbstractPlayerAlert {
+final class EvaluationNotSharedAlert extends AbstractPlayerAlert implements AudienceAwareAlert {
+
+    use FamilyAudienceTrait;
 
     public const SUBJECT_TYPE = 'evaluation';
 
@@ -97,6 +117,18 @@ final class EvaluationNotSharedAlert extends AbstractPlayerAlert {
         return sprintf(
             /* translators: %s: player name */
             __( 'The evaluation recorded for %s has no feedback for the player.', 'talenttrack' ),
+            $this->playerName( $row )
+        );
+    }
+
+    /**
+     * Deliberately the shortest sentence in the parent set: the fact, the
+     * child's name, nothing else. See the class docblock.
+     */
+    protected function familyTitleFor( object $row ): string {
+        return sprintf(
+            /* translators: %s: player name */
+            __( 'An evaluation of %s is recorded but no feedback has been written yet.', 'talenttrack' ),
             $this->playerName( $row )
         );
     }
