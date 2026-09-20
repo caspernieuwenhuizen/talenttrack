@@ -168,6 +168,20 @@ los in. Een wissel corrigeren herberekent de minuten, dus de
 geregistreerde minuten die de rapporten lezen blijven in lijn met wat je
 wijzigt.
 
+**Een late wissel wordt beoordeeld op de helft en de minuut die je opgeeft**,
+niet op het laatste fluitsignaal. Een vergeten wissel uit de eerste helft
+kun je dus nog toevoegen nadat die van de tweede helft al vastliggen: het
+scherm kijkt wie op dát moment in díe helft op het veld stond, en daar gaat
+een correctie ook over.
+
+**Staat er in de wedstrijdvoorbereiding een opstelling voor de tweede helft,
+dan is dat het veld vanaf de aftrap na rust.** De bank na rust is iedereen
+die er niet in staat, het veldschema tekent die opstelling, en alleen de
+wissels van die helft komen er nog bovenop — die van de eerste helft zitten
+al in de opstellingswissel zelf. Zonder opstelling voor de tweede helft
+verandert er niets: de elf die begonnen spelen door en elke wissel telt op
+volgorde mee.
+
 Als je klaar bent, tik je op **Wedstrijd afsluiten** om te vergrendelen.
 Een afgesloten wedstrijd is de vastlegging van wat de spelers werkelijk
 deden, dus de live-knoppen blijven vergrendeld en de knop Bewerken

@@ -317,14 +317,14 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // the chronological "Live verloop" feed. Both come from domain
         // services so the REST endpoints and this render agree.
         $slot_to_player_h1 = [];
+        $slot_to_player_h2 = [];
         foreach ( $lineup as $l ) {
-            if ( (int) $l->half === 1 ) {
-                $slot = (int) $l->slot_number;
-                $pid  = (int) $l->player_id;
-                if ( $slot >= 1 && $slot <= 11 && $pid > 0 ) {
-                    $slot_to_player_h1[ $slot ] = $pid;
-                }
-            }
+            $lineup_half = (int) $l->half;
+            $slot        = (int) $l->slot_number;
+            $pid         = (int) $l->player_id;
+            if ( $slot < 1 || $slot > 11 || $pid <= 0 ) continue;
+            if ( $lineup_half === 1 ) $slot_to_player_h1[ $slot ] = $pid;
+            if ( $lineup_half === 2 ) $slot_to_player_h2[ $slot ] = $pid;
         }
         $pitch_meta = [];
         foreach ( $players_by_id as $ppid => $ppl ) {
@@ -337,16 +337,26 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // match as it stands, subs applied, not the kickoff line-up: a
         // reload mid-match used to put the players who had come off back
         // on the pitch and offer them again as the ones to take off.
+        // #3849 — and which half it has got to: with a second-half line-up
+        // set, the pitch at the final whistle is that XI plus its own
+        // substitutions. Reading the first half alone put the four players
+        // who had played the second half on the bench panel, beside their
+        // own 35-minute bars.
+        $half_reached = MatchExecutionState::halfReached( (string) ( $execution->state ?? '' ) );
         $on_pitch_now = $execution
-            ? $exec_repo->onPitchPlayerIds( $execution_id, $starting_xi_half1 )
+            ? $exec_repo->onPitchPlayerIds( $execution_id, $starting_xi_half1, $starting_xi_half2, $half_reached )
             : array_values( array_filter( $starting_xi_half1 ) );
         $bench_now_ids = array_values( array_diff(
-            array_values( array_unique( array_merge( $available_ids, array_filter( $starting_xi_half1 ) ) ) ),
+            array_values( array_unique( array_merge(
+                $available_ids,
+                array_filter( $starting_xi_half1 ),
+                array_filter( $starting_xi_half2 )
+            ) ) ),
             $on_pitch_now
         ) );
         $pitch_slots = ( new PitchLayoutService() )->positionedXi(
             (int) ( $prep->formation_template_id ?? 0 ),
-            PitchLayoutService::applySubstitutions( $slot_to_player_h1, $substitutions ),
+            PitchLayoutService::pitchAtHalf( $slot_to_player_h1, $slot_to_player_h2, $substitutions, $half_reached ),
             $pitch_meta,
             (int) ( $activity->team_id ?? 0 )
         );
