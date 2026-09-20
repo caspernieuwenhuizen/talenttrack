@@ -191,6 +191,8 @@ De activiteit gaat pas op **Voltooid** als de flow is afgerond (de laatste stap 
 
 Het detailscherm toont ook **Activiteit annuleren** (bij een geplande activiteit) en **Heropenen** (bij een voltooide of geannuleerde) — directe, bevestigde statuswijzigingen.
 
+**Een gespeelde wedstrijd heropenen is geen eenrichtingsweg.** Een wedstrijd die via het live-scherm is gespeeld heeft zijn eigen registratie — aanwezigheid en minuten zijn bij het laatste fluitsignaal vastgelegd en bij elke correctie opnieuw afgeleid — dus zo'n activiteit toont **Markeren als afgerond** naast Annuleren zodra hij weer op *Gepland* staat, en het wedstrijdscherm zelf biedt **Activiteit markeren als afgerond** in het controlepaneel. De wedstrijd opnieuw afronden doet hetzelfde. Dit is het enige geval waarin afronden bij een wedstrijd een directe statuswijziging is: overal elders blijft het het einde van de voltooiingsflow, zodat een activiteit nooit afgerond kan worden zonder dat er iets is vastgelegd.
+
 **De knoppen in de kop volgen de status.** Alleen een geplande activiteit kun je nog wijzigen, dus alleen daar staan **Bewerken** en de uitvoerknoppen. Zodra een activiteit voltooid of geannuleerd is, schakelt de kop over op teruglezen wat er gebeurd is:
 
 - **Bewerken** verdwijnt. **Heropenen** is de weg terug naar een bewerkbaar record — de activiteit gaat terug naar *Gepland* en Bewerken komt daarmee terug.

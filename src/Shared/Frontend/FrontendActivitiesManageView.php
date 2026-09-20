@@ -427,7 +427,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // the wizard's final save there, and a second path could
                     // complete an activity with no attendance recorded.
                     // `tt_edit_activities` comes from the enclosing block.
-                    if ( ! $wizard_on ) {
+                    //
+                    // #3861 — except on a match that has been played, where
+                    // the register was written by the match itself. Reopening
+                    // one used to be a one-way door: "Complete activity" sends
+                    // the coach to the match-execution screen, which writes
+                    // `completed` only on the final whistle, and that is long
+                    // past. This is the way back, and it is the surface the
+                    // coach reopened it from.
+                    $played_match = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionIsOwnedByAPlayedMatch(
+                        (int) $session->id,
+                        (string) ( $session->activity_type_key ?? '' )
+                    );
+                    if ( ! $wizard_on || $played_match ) {
                         // #3446 — the confirm used to be the same sentence
                         // whether or not a register existed, and the half of
                         // it that mattered ("record attendance first if you
