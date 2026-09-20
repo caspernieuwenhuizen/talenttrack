@@ -17,7 +17,7 @@ final class SpondTypeResolver {
     private const KEYWORDS = [
         'game' => [
             'match', 'wedstrijd', 'kamp', 'spiel', 'partita', 'partido',
-            ' vs ', ' vs.', '-vs-', 'thuis', 'uit ',
+            ' vs ', ' vs.', '-vs-', 'thuis', 'uit',
         ],
         'tournament' => [
             'tournament', 'toernooi', 'turnier',
@@ -31,17 +31,38 @@ final class SpondTypeResolver {
         ],
     ];
 
+    /**
+     * Needles that only count as a whole word.
+     *
+     * `kamp` is Norwegian/Danish for *match* and earns its place — Spond is
+     * a Norwegian product — but in Dutch `-kamp` is the ordinary suffix for
+     * *camp*, so as a bare substring it turned "Trainingskamp" into a
+     * fixture. `uit` ("away") has the same shape inside "vooruit". Both are
+     * matched on a word boundary instead; every other needle stays a
+     * substring so compounds that really are games ("thuiswedstrijd",
+     * "trainingswedstrijd") keep classifying as one.
+     */
+    private const WHOLE_WORD_NEEDLES = [ 'kamp', 'uit' ];
+
     public static function classify( string $summary, string $description = '' ): string {
         $haystack = strtolower( $summary . ' ' . $description );
 
         foreach ( self::KEYWORDS as $type => $needles ) {
             foreach ( $needles as $needle ) {
-                if ( strpos( $haystack, $needle ) !== false ) {
+                if ( self::matches( $haystack, $needle ) ) {
                     return (string) apply_filters( 'tt_spond_classify_event', $type, $summary, $description );
                 }
             }
         }
 
         return (string) apply_filters( 'tt_spond_classify_event', 'training', $summary, $description );
+    }
+
+    private static function matches( string $haystack, string $needle ): bool {
+        if ( ! in_array( $needle, self::WHOLE_WORD_NEEDLES, true ) ) {
+            return strpos( $haystack, $needle ) !== false;
+        }
+
+        return preg_match( '/\b' . preg_quote( $needle, '/' ) . '\b/u', $haystack ) === 1;
     }
 }
