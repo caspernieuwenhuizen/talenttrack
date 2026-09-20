@@ -195,7 +195,9 @@ final class ActivityCoachAssignmentTest extends WP_UnitTestCase {
         $this->assertSame( 400, $response->get_status() );
         $data = $response->get_data();
         $this->assertSame( 'coach_out_of_scope', $data['errors'][0]['code'] );
-        $this->assertSame( 'coach_id', $data['errors'][0]['details']['field'] );
+        // `details` is cast to an object by the envelope so empty details
+        // serialize as `{}` rather than `[]`.
+        $this->assertSame( 'coach_id', $data['errors'][0]['details']->field );
     }
 
     /**
