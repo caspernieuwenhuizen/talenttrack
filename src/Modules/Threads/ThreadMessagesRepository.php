@@ -171,8 +171,13 @@ final class ThreadMessagesRepository {
             // validity alone. Author and edit window were checked above;
             // whether the author was allowed to hide a note from a
             // guardian, or to reveal one to them, was checked nowhere.
-            if ( self::visibilityChangeNeedsStaffOnlyRight( (string) $msg->visibility, $visibility )
-                && ! ThreadAccess::canWritePrivate( (string) $msg->thread_type, (int) $msg->thread_id, $author_user_id )
+            $row = (array) $msg;
+            if ( self::visibilityChangeNeedsStaffOnlyRight( (string) ( $row['visibility'] ?? '' ), $visibility )
+                && ! ThreadAccess::canWritePrivate(
+                    (string) ( $row['thread_type'] ?? '' ),
+                    (int) ( $row['thread_id'] ?? 0 ),
+                    $author_user_id
+                )
             ) {
                 return false;
             }

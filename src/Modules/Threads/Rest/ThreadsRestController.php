@@ -269,10 +269,17 @@ final class ThreadsRestController {
         // asked here — and again in the repository, which is the gate a
         // second caller would meet.
         $existing = $repo->find( $msg_id );
-        if ( $existing !== null
+        // Read through an array cast: `find()` hands back the row `$wpdb`
+        // built, whose shape the type system does not know.
+        $row = $existing !== null ? (array) $existing : [];
+        if ( $row !== []
             && $visibility !== null
-            && ThreadMessagesRepository::visibilityChangeNeedsStaffOnlyRight( (string) $existing->visibility, $visibility )
-            && ! ThreadAccess::canWritePrivate( (string) $existing->thread_type, (int) $existing->thread_id, get_current_user_id() )
+            && ThreadMessagesRepository::visibilityChangeNeedsStaffOnlyRight( (string) ( $row['visibility'] ?? '' ), $visibility )
+            && ! ThreadAccess::canWritePrivate(
+                (string) ( $row['thread_type'] ?? '' ),
+                (int) ( $row['thread_id'] ?? 0 ),
+                get_current_user_id()
+            )
         ) {
             return self::staffOnlyDenied();
         }
