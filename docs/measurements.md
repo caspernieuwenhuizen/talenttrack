@@ -415,7 +415,8 @@ grouped per player so a player's longitudinal series reads together.
 For a **status** test the value column shows the recorded **level label**
 (e.g. *On track*), and the cell is filled with that level's colour so the
 sheet reads at a glance the same way the player-profile chip does. Numeric
-tests show the number with its unit.
+tests show the plain number, in the unit the header block names — a cell you
+can sum, sort and chart without first stripping a symbol out of it.
 
 The workbook has a second **Trends** sheet that shows each player's results
 **over time**: one row per player, one column per recorded date (in
