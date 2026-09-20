@@ -955,7 +955,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
     /* ===== POST handlers ===== */
 
     private static function handlePost( int $user_id, int $case_id ): void {
-        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
+        // `?? ''` because the key is not guaranteed: WP-CLI, cron and the
+        // test runner all reach a render without one, and an undefined-key
+        // notice inside `the_content` is a warning printed into the page.
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return;
         $action = isset( $_POST['tt_trial_action'] ) ? sanitize_key( (string) $_POST['tt_trial_action'] ) : '';
         if ( $action === '' ) return;
 

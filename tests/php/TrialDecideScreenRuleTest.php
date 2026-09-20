@@ -36,6 +36,8 @@ final class TrialDecideScreenRuleTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->server_before = $_SERVER;
+        $this->post_before   = $_POST;
         ( new RolesService() )->ensureCapabilities();
         TrialDecisionPlayerStatusSubscriber::init();
 
@@ -70,9 +72,19 @@ final class TrialDecideScreenRuleTest extends WP_UnitTestCase {
         wp_set_current_user( $this->manager );
     }
 
+    /** @var array<string,mixed> */
+    private array $server_before = [];
+
+    /** @var array<string,mixed> */
+    private array $post_before = [];
+
     public function tear_down(): void {
-        $_POST = [];
-        unset( $_SERVER['REQUEST_METHOD'] );
+        // Restored, never unset. `$_SERVER` and `$_POST` are process-global
+        // and outlive the test: emptying `REQUEST_METHOD` here left every
+        // later test in the run without one, which `rest_do_request()` and
+        // `handlePost()` both read.
+        $_SERVER = $this->server_before;
+        $_POST   = $this->post_before;
         $this->setDecideError( null );
         wp_set_current_user( 0 );
         parent::tear_down();
