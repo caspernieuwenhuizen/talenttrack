@@ -9,6 +9,8 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
+use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Tournaments\TournamentAccess;
 
 /**
  * TournamentsRestController — /wp-json/talenttrack/v1/tournaments
@@ -17,12 +19,12 @@ use TT\Modules\Activities\Repositories\AttendanceWriter;
  * (kickoff / complete) and the planner-grid + auto-balance endpoints
  * land in later chunks.
  *
- * v1 admin-only: every permission_callback gates on
- * `tt_view_tournaments` / `tt_edit_tournaments`. Per-entity checks
- * via AuthorizationService::canViewTournament / canEditTournament
- * are wired in but currently just defer to the cap check (see those
- * methods). The plumbing is in place so the persona-expansion
- * follow-up can swap the implementation without changing call sites.
+ * #3703 — team-scoped, not admin-only. Every `{id}`-bearing route asks
+ * `AuthorizationService::canViewTournament` / `canEditTournament` /
+ * `canDeleteTournament`, which resolve the tournament's participating
+ * teams against the caller's `tournaments` matrix grants. The collection
+ * routes have no id to resolve, so they ask the same entity for "do you
+ * hold this anywhere" and the list narrows its own rows below.
  *
  * Tenant-scoped: every query filters on `club_id = CurrentClub::id()`.
  * Writes set `club_id` from the same source.
@@ -66,12 +68,52 @@ class TournamentsRestController {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
 
+    /**
+     * #3703 — the delete gate, which has two different refusals to give.
+     *
+     * "You cannot delete tournaments" and "you can, but not this one,
+     * because it belongs to squads that are not yours" are the same 403
+     * to a client and entirely different facts to a coach. The second
+     * gets its own message, because a coach who holds delete on their own
+     * team and is refused without explanation has no way to tell the
+     * difference from a bug.
+     *
+     * @return true|\WP_Error
+     */
+    public static function deleteGate( int $tournament_id ) {
+        $user_id = get_current_user_id();
+        if ( AuthorizationService::canDeleteTournament( $user_id, $tournament_id ) ) {
+            return true;
+        }
+
+        if ( TournamentAccess::spansTeamsOutsideScope( $user_id, $tournament_id ) ) {
+            return new \WP_Error(
+                'tournament_spans_other_teams',
+                __( 'This tournament includes teams you don’t manage, so it can’t be deleted from here.', 'talenttrack' ),
+                [ 'status' => 403 ]
+            );
+        }
+
+        return new \WP_Error(
+            'rest_forbidden',
+            __( 'You do not have permission to delete this tournament.', 'talenttrack' ),
+            [ 'status' => 403 ]
+        );
+    }
+
     public static function register(): void {
+        // #3703 — the collection routes carry no tournament id, so they
+        // ask the entity rather than a record: may you read tournaments
+        // at all, may you create one on the team you are posting. The
+        // list narrows its own rows in `list_tournaments()`.
         $can_view = static function (): bool {
-            return current_user_can( 'tt_view_tournaments' );
+            return TournamentAccess::canAnywhere( get_current_user_id(), MatrixGate::READ );
         };
-        $can_edit = static function (): bool {
-            return current_user_can( 'tt_edit_tournaments' );
+        $can_create = static function ( \WP_REST_Request $r ): bool {
+            return TournamentAccess::canCreateForTeam(
+                get_current_user_id(),
+                absint( $r['team_id'] ?? 0 )
+            );
         };
 
         // Tournament collection.
@@ -84,7 +126,7 @@ class TournamentsRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'create_tournament' ] ),
-                'permission_callback' => $can_edit,
+                'permission_callback' => $can_create,
             ],
         ] );
 
@@ -114,10 +156,7 @@ class TournamentsRestController {
                 'methods'             => 'DELETE',
                 'callback'            => self::gate( [ __CLASS__, 'delete_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
-                    return AuthorizationService::canEditTournament(
-                        get_current_user_id(),
-                        (int) $r['id']
-                    );
+                    return self::deleteGate( (int) $r['id'] );
                 },
             ],
         ] );
@@ -364,6 +403,26 @@ class TournamentsRestController {
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 't.team_id = %d';
             $params[] = absint( $filter['team_id'] );
+        }
+
+        // #3703 — narrow to the caller's own teams unless they hold the
+        // club-wide read. In SQL, not after the fact: a team-scoped coach
+        // paging through the list must never be handed another age group's
+        // squad and then have it hidden. A tournament counts as theirs
+        // when they hold its anchor team OR any team its squad is drawn
+        // from, the same set `TournamentAccess` decides a single record on.
+        if ( ! TournamentAccess::hasGlobal( get_current_user_id(), MatrixGate::READ ) ) {
+            $scope_ids = TournamentAccess::readableTeamIds( get_current_user_id() );
+            if ( $scope_ids === [] ) {
+                $where[] = '1 = 0';
+            } else {
+                $placeholders = implode( ',', array_fill( 0, count( $scope_ids ), '%d' ) );
+                $where[] = "( t.team_id IN ({$placeholders})"
+                    . " OR EXISTS ( SELECT 1 FROM {$p}tt_tournament_squad s"
+                    . " INNER JOIN {$p}tt_players pl ON pl.id = s.player_id"
+                    . " WHERE s.tournament_id = t.id AND pl.team_id IN ({$placeholders}) ) )";
+                $params = array_merge( $params, $scope_ids, $scope_ids );
+            }
         }
 
         if ( ! empty( $r['search'] ) ) {

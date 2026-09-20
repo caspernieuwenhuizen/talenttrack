@@ -68,10 +68,21 @@ that is only red says nothing in black and white or to a colour-blind reader.
 Rows are sorted **lowest share first**. The players this report is about
 should not be at the bottom of a scroll.
 
+## What the window left out
+
+The report covers the period you picked, and it now tells you what fell
+outside it: *"3 played matches fall outside this window, between 14 September
+2024 and 7 June 2025."* Those matches counted towards nothing on the page. If
+the period you want is a season rather than the last twelve months, set it with
+the **From** / **To** range or the **This season** pill above the report.
+
 ## When the report is empty
 
-- *No matches played in this window* — the denominator is zero, so no share
- can be worked out. Widen the window.
+- *No matches played in this window, but some fall outside it* — the period is
+ aimed at the wrong months. The message gives you the dates to widen onto.
+- *This team has no played matches on record at all* — nothing to widen onto.
+ Check the Activities log: either the fixtures are not in yet, or they are
+ there but not marked as played.
 - *Matches were played but no minutes are recorded* — the matches are there,
  the minutes are not. Record them from the activity; **Minutes distribution**
  shows which matches are missing them.
