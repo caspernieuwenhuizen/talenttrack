@@ -4362,10 +4362,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     private static function enqueueGuestAddAssets(): void {
+        // #3816 — `tt-public` is a real dependency now: the modal's
+        // save-then-open path serialises the activity form with
+        // `TT.formToJSON` rather than a private copy of it.
         wp_enqueue_script(
             'tt-guest-add',
             plugins_url( 'assets/js/components/guest-add.js', TT_PLUGIN_FILE ),
-            [],
+            [ 'tt-public' ],
             TT_VERSION,
             true
         );
