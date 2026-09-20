@@ -524,6 +524,18 @@ class DemoCoverage {
             'written_by'  => PipelineGenerator::class,
             'depends_on'  => [ 'prospect', 'scouting_visit' ],
         ],
+        // #3812 — the dated log of asking a child's own club to pass a
+        // consent request on to the family. Written by the same generator
+        // as the prospects themselves: a demo academy with no consent
+        // trail would show the "Consent requested" column empty, which
+        // demos the step by hiding it. The rows name a club and never a
+        // family, exactly as the real ones must.
+        'tt_prospect_consent_requests' => [
+            'entity_type' => 'prospect_consent_request',
+            'category'    => 'pipeline',
+            'written_by'  => PipelineGenerator::class,
+            'depends_on'  => [ 'prospect' ],
+        ],
 
         // ===== Tournaments =====
 
@@ -1033,7 +1045,9 @@ class DemoCoverage {
         'pipeline' => [
             'tier'      => 'dependent',
             'run_order' => 150,
-            'cascade'   => [ 'prospect_visit_observation', 'prospect', 'scouting_visit' ],
+            // #3812 — the consent log deletes before the prospect it hangs
+            // off, like the observations beside it.
+            'cascade'   => [ 'prospect_consent_request', 'prospect_visit_observation', 'prospect', 'scouting_visit' ],
         ],
         'tournaments' => [
             'tier'      => 'dependent',

@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * accepted them after trial).
  *
  *     log_prospect open                                    → Prospects
+ *     request_consent open                                 → Consent requested
  *     invite_to_test_training open                         → Prospects
  *     invite_to_test_training completed                    → Invited
  *     confirm_test_training open                           → Invited
@@ -38,7 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *     promoted_to_player_id + player.status != 'trial'     → Joined
  *
  * Mutually exclusive — returns exactly one of
- * prospects / invited / test / trial / offer / joined, or null when the
+ * prospects / consent / invited / test / trial / offer / joined, or null when the
  * prospect should not appear (joined > 90 days ago — they belong to
  * the players surface now, not the funnel).
  *
@@ -54,6 +55,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                                  Trial group from Joined when the
  *                                  prospect has been admitted to trial.
  *   - created_at                 (string, mysql datetime; for joined window)
+ *   - open_consent               (0/1 or task id) — #3812, `request_consent`
+ *                                  in open / in_progress / overdue
  *   - open_invite                (0/1 or task id; both work with !empty)
  *   - open_confirm               (0/1 or task id)
  *   - open_outcome               (0/1 or task id)
@@ -67,7 +70,7 @@ final class ProspectStageClassifier {
     /**
      * @param object $row           query row (see class docblock for required columns)
      * @param int    $joined_cutoff unix ts; promotions older than this fall off the funnel
-     * @return ?string  one of: 'prospects', 'invited', 'test', 'trial', 'offer', 'joined'
+     * @return ?string  one of: 'prospects', 'consent', 'invited', 'test', 'trial', 'offer', 'joined'
      *                  null = excluded from the funnel (joined >90d ago)
      */
     public static function classify( object $row, int $joined_cutoff ): ?string {
@@ -131,6 +134,20 @@ final class ProspectStageClassifier {
         // waiting to go out.
         if ( ! empty( $row->open_confirm ) || ! empty( $row->done_invite ) ) {
             return 'invited';
+        }
+
+        // #3812 — Consent requested. An OPEN `request_consent` task means
+        // the academy has asked the child's own club to pass the request
+        // on and is waiting. Unlike the milestone rules above this one
+        // reads an open task, because "waiting for an answer" IS the
+        // reached state — there is nothing else the academy can do until
+        // the family replies, and that is exactly what the column is for.
+        //
+        // It sits below the invite rules deliberately: a prospect who has
+        // been invited has plainly got past consent, whatever a stale
+        // consent task still says.
+        if ( ! empty( $row->open_consent ) ) {
+            return 'consent';
         }
 
         // Default: drafted but no outbound action yet. Covers (a) fresh

@@ -14,11 +14,12 @@ The **Onboarding pipeline** is the recruitment funnel — every player who arriv
 
 ## What it shows
 
-Six columns laid out left to right, one per stage of the journey from "scout spotted them" to "playing for the academy":
+Seven columns laid out left to right, one per stage of the journey from "scout spotted them" to "playing for the academy":
 
 | Column | What's in it |
 |---|---|
 | **Prospects** | Drafted but not yet handed off to the Head of Development. New entries created via the wizard skip this column — they go straight to *Invited*. Anything in here is either a legacy `log_prospect` task draft or a chain that abandoned mid-flow. |
+| **Consent requested** | The academy has asked this child's own club to pass a consent request on to the family, and is waiting for an answer. |
 | **Invited** | The HoD is composing or has sent the test-training invitation, or the parent's confirmation is pending. |
 | **Test training** | The test training has been scheduled or has happened — the HoD is recording the outcome. |
 | **Trial group** | The prospect was admitted to the trial group and is being assessed there. |
@@ -35,7 +36,7 @@ Click **+ New prospect** at the top. The wizard walks through:
 
 1. **Identity** — first / last name, date of birth, current club. Duplicate detection runs here — if a prospect with the same name already exists, you have to tick the "this is a new entry" override before continuing.
 2. **Discovery** — where you spotted them (event / match), short scouting notes.
-3. **Parent contact** — name, email, phone. At least an email or a phone is required so the HoD can reach the parent. Tick the consent box (required for the academy to hold parent contact data).
+3. **Parent contact** — name, email, phone. **All of it is optional.** If the family has not been approached yet, leave the whole step empty: a scout who spotted a child at another club has no family details and must not go and collect them. What has *not* relaxed is the consent rule — enter any contact detail and you must tick the consent box. You may hold nothing about a family, or hold their details with their agreement; never their details without it.
 4. **Review** — confirm the answers and create.
 
 On submit:
@@ -81,9 +82,32 @@ Each prospect belongs to **exactly one** column. The classifier runs in this ord
 3. Has been admitted to a trial group → **Trial group**.
 4. Has an open *Record test training outcome* task → **Test training**.
 5. Has an open *Invite to test training* or *Confirm test training* task → **Invited**.
-6. Otherwise (no open task, not promoted, not archived) → **Prospects**.
+6. Has an open *Request consent from the family* task → **Consent requested**.
+7. Otherwise (no open task, not promoted, not archived) → **Prospects**.
+
+Rule 6 sits below the invite rules on purpose: a prospect who has been invited has plainly got past consent, whatever a stale consent task still says.
 
 The dashboard widget uses the same classifier for its compact count strip, so the numbers on the dashboard match the columns on the standalone page. A prospect counts once, in one column, however many tasks are open against them.
+
+## Asking the family, and recording that you asked
+
+Between "I spotted a child at another club" and "the family has said yes" there is a real step: asking the child's own club to pass the request on. It has a place of its own now.
+
+**The task.** *Request consent from the family* is a workflow task, assigned to the scout who found the prospect, due in 21 days. While it is open the prospect sits in the **Consent requested** column. It spawns nothing on completion — a request that came back *declined* must not produce an invitation.
+
+**The log.** Completing the task, or posting to `POST /prospects/{id}/consent-requests`, writes a dated entry: the date you asked, the club or coordinator you asked, the outcome, and optional notes. Every entry for a prospect shows on the focus panel when you click their card, newest first. That trail is the answer to "did the consent requests go out?", which used to live only in a scout's memory.
+
+Four outcomes: *waiting for an answer*, *the family agreed*, *the family declined*, *no reply*.
+
+**The log holds nothing about the family.** No name, no email, no phone, no address — only the route the academy used. That is the whole point of the step: the academy went through the child's club and did not collect family data before it was allowed to. Family contact lives on the prospect record, behind the consent rule that has always guarded it.
+
+**An open request holds the retention clock.** A prospect with no progress is purged after 90 days. An entry with the outcome *waiting for an answer* counts as progress, so an academy that is genuinely waiting does not lose the child out from under it. The clock runs from the entry, not the prospect, so a request nobody ever chased still ages out on the normal rule. When a prospect is purged its consent entries go with it.
+
+## No invitation without consent
+
+*Invite to test training* refuses to submit unless there is consent on record — either a consent date on the prospect, or a consent request that came back *agreed*.
+
+**There is no override and no exception.** A child whose family has not agreed is not invited to a test training, and there is no button that says otherwise. If consent genuinely arrived by a route the system does not know about — a conversation at the touchline, a reply to a club's own email — the way forward is to **record** it, on the prospect or as a consent-request entry marked agreed, and then send the invitation. Completing the invite task is what moves a prospect to *Invited*, so this is the same seam as the stage transition.
 
 ## Putting a stuck prospect forward
 

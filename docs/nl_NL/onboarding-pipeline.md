@@ -14,11 +14,12 @@ De **Aannamepijplijn** is de werving-trechter — elke speler die bij de academi
 
 ## Wat zie je
 
-Zes kolommen naast elkaar, één per fase van de reis van "scout heeft hem gespot" tot "speelt voor de academie":
+Zeven kolommen naast elkaar, één per fase van de reis van "scout heeft hem gespot" tot "speelt voor de academie":
 
 | Kolom | Wat erin zit |
 |---|---|
 | **Prospects** | Geconcept maar nog niet doorgegeven aan de Hoofd Ontwikkeling. Nieuwe inschrijvingen via de wizard slaan deze kolom over — die landen direct in *Uitgenodigd*. Wat hier staat, is óf een legacy `log_prospect`-conceptklus óf een keten die halverwege werd afgebroken. |
+| **Toestemming gevraagd** | De academie heeft de eigen club van dit kind gevraagd het toestemmingsverzoek door te geven aan het gezin, en wacht op antwoord. |
 | **Uitgenodigd** | De HoD stelt de uitnodiging voor de testtraining op of heeft hem verstuurd, of de bevestiging van de ouder is in afwachting. |
 | **Testtraining** | De testtraining is gepland of heeft plaatsgevonden — de HoD legt de uitkomst vast. |
 | **Trialgroep** | De prospect is in de trialgroep opgenomen en wordt daar beoordeeld. |
@@ -35,7 +36,7 @@ Klik op **+ Nieuwe prospect** bovenaan. De wizard loopt door:
 
 1. **Identiteit** — voornaam / achternaam, geboortedatum, huidige club. Duplicaatdetectie draait hier — als er al een prospect met dezelfde naam bestaat, moet je het vinkje "dit is een nieuwe inschrijving" zetten voordat je verder kunt.
 2. **Ontdekking** — waar je hem hebt gespot (evenement / wedstrijd), korte scoutnotities.
-3. **Oudercontact** — naam, e-mail, telefoon. Minimaal een e-mail of een telefoonnummer is vereist zodat de HoD de ouder kan bereiken. Vink het toestemmingsvakje aan (verplicht om als academie oudercontactdata te mogen bewaren).
+3. **Oudercontact** — naam, e-mail, telefoon. **Alles is optioneel.** Is het gezin nog niet benaderd, laat de hele stap dan leeg: een scout die een kind bij een andere club heeft gezien, heeft geen gezinsgegevens en mag die ook niet gaan ophalen. Wat níét versoepeld is, is de toestemmingsregel — vul je een contactgegeven in, dan moet je het toestemmingsvakje aanvinken. Je mag niets over een gezin vastleggen, of hun gegevens mét hun instemming; nooit hun gegevens zonder.
 4. **Controleren** — bevestig de antwoorden en maak aan.
 
 Bij verzenden:
@@ -83,9 +84,32 @@ Elke prospect hoort in **precies één** kolom. De classifier loopt in deze volg
 3. Is opgenomen in een trialgroep → **Trialgroep**.
 4. Heeft een openstaande klus *Uitkomst testtraining vastleggen* → **Testtraining**.
 5. Heeft een openstaande klus *Uitnodigen voor testtraining* of *Bevestiging testtraining* → **Uitgenodigd**.
-6. Anders (geen openstaande klus, niet gepromoveerd, niet gearchiveerd) → **Prospects**.
+6. Heeft een openstaande klus *Toestemming vragen aan het gezin* → **Toestemming gevraagd**.
+7. Anders (geen openstaande klus, niet gepromoveerd, niet gearchiveerd) → **Prospects**.
+
+Regel 6 staat bewust ónder de uitnodigingsregels: wie eenmaal is uitgenodigd, is duidelijk voorbij de toestemming, wat een blijven hangen toestemmingsklus ook nog beweert.
 
 De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, dus de getallen op het dashboard kloppen met de kolommen op de standalone pagina. Een prospect telt één keer, in één kolom, hoeveel klussen er ook openstaan.
+
+## Het gezin vragen, en vastleggen dát je het gevraagd hebt
+
+Tussen "ik heb een kind bij een andere club gezien" en "het gezin heeft ja gezegd" zit een echte stap: de eigen club van het kind vragen het verzoek door te geven. Die stap heeft nu een eigen plek.
+
+**De klus.** *Toestemming vragen aan het gezin* is een workflow-klus, toegewezen aan de scout die de prospect vond, met een deadline van 21 dagen. Zolang die openstaat, staat de prospect in de kolom **Toestemming gevraagd**. Er volgt niets automatisch op: een verzoek dat *afgewezen* terugkomt, mag geen uitnodiging opleveren.
+
+**Het logboek.** Het afronden van de klus, of een `POST /prospects/{id}/consent-requests`, schrijft een gedateerde regel: de datum waarop je het vroeg, de club of coördinator die je vroeg, de uitkomst en optionele notities. Alle regels van een prospect staan op het focuspaneel als je op het kaartje klikt, nieuwste eerst. Dat spoor is het antwoord op "zijn de toestemmingsverzoeken eruit gegaan?", dat tot nu toe alleen in het hoofd van een scout zat.
+
+Vier uitkomsten: *wacht op antwoord*, *het gezin ging akkoord*, *het gezin wees af*, *geen reactie*.
+
+**Het logboek bevat niets over het gezin.** Geen naam, geen e-mail, geen telefoon, geen adres — alleen de route die de academie gebruikte. Dat is precies waar de stap voor bestaat: de academie ging via de club van het kind en legde geen gezinsgegevens vast voordat dat mocht. Oudercontact hoort op het prospectrecord, achter de toestemmingsregel die het altijd al beschermde.
+
+**Een openstaand verzoek zet de bewaarklok stil.** Een prospect zonder voortgang wordt na 90 dagen verwijderd. Een regel met de uitkomst *wacht op antwoord* telt als voortgang, zodat een academie die echt zit te wachten het kind niet onder zich vandaan verliest. De klok loopt vanaf die regel, niet vanaf de prospect, dus een verzoek dat nooit is nagebeld verjaart alsnog volgens de normale regel. Wordt een prospect verwijderd, dan gaan de toestemmingsregels mee.
+
+## Geen uitnodiging zonder toestemming
+
+*Uitnodigen voor testtraining* weigert te verzenden zolang er geen toestemming vastligt — óf een toestemmingsdatum op de prospect, óf een toestemmingsverzoek dat *akkoord* terugkwam.
+
+**Er is geen uitzondering en geen omweg.** Een kind van wie het gezin niet akkoord is, wordt niet uitgenodigd voor een testtraining, en er is geen knop die iets anders zegt. Kwam de toestemming echt binnen langs een route die het systeem niet kent — een gesprek langs de lijn, een antwoord op de mail van een club — dan is de weg vooruit: **vastleggen**, op de prospect of als toestemmingsregel met uitkomst akkoord, en dán de uitnodiging versturen. Het afronden van de uitnodigingsklus is wat een prospect naar *Uitgenodigd* brengt, dus dit is dezelfde naad als de faseovergang.
 
 ## Een vastgelopen prospect vlot trekken
 

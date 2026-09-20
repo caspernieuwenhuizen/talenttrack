@@ -107,31 +107,56 @@ final class ProspectRetentionCron {
         // are protected — promotion turns them into PII for an
         // academy player and PlayerDataMap registers the row under
         // the player's identity for #0073 erasure.
+        // #3812 — an open consent request holds the clock. A prospect the
+        // academy is genuinely waiting on must not be purged out from
+        // under the people waiting, so an `awaiting` entry counts as
+        // progress. Measured from the entry itself, not from the
+        // prospect: a request nobody ever followed up on still ages out
+        // on the normal rule, which is what keeps this a pause and not a
+        // permanent exemption.
+        $consent_table = "{$p}tt_prospect_consent_requests";
+        $has_consent_table = $wpdb->get_var( $wpdb->prepare(
+            'SHOW TABLES LIKE %s', $consent_table
+        ) ) === $consent_table;
+        $consent_hold = $has_consent_table
+            ? "AND NOT EXISTS (
+                     SELECT 1 FROM {$consent_table} cr
+                      WHERE cr.prospect_id = pr.id
+                        AND cr.club_id = pr.club_id
+                        AND cr.outcome = 'awaiting'
+                        AND cr.created_at >= %s
+               )"
+            : '';
+
         if ( $tasks_has_prospect_col ) {
-            $stale_sql = $wpdb->prepare(
-                "SELECT pr.id, pr.club_id
-                   FROM {$prospects_table} pr
-                  WHERE pr.created_at < %s
-                    AND pr.promoted_to_player_id IS NULL
-                    AND pr.archived_at IS NULL
-                    AND NOT EXISTS (
-                          SELECT 1 FROM {$tasks_table} wt
-                           WHERE wt.prospect_id = pr.id
-                             AND wt.status IN ('open','in_progress','overdue')
-                    )
-                  LIMIT %d",
-                $no_progress_cutoff, self::BATCH_SIZE
-            );
+            $sql = "SELECT pr.id, pr.club_id
+                      FROM {$prospects_table} pr
+                     WHERE pr.created_at < %s
+                       AND pr.promoted_to_player_id IS NULL
+                       AND pr.archived_at IS NULL
+                       AND NOT EXISTS (
+                             SELECT 1 FROM {$tasks_table} wt
+                              WHERE wt.prospect_id = pr.id
+                                AND wt.status IN ('open','in_progress','overdue')
+                       )
+                       {$consent_hold}
+                     LIMIT %d";
         } else {
-            $stale_sql = $wpdb->prepare(
-                "SELECT id, club_id FROM {$prospects_table}
-                  WHERE created_at < %s
-                    AND promoted_to_player_id IS NULL
-                    AND archived_at IS NULL
-                  LIMIT %d",
-                $no_progress_cutoff, self::BATCH_SIZE
-            );
+            $sql = "SELECT pr.id, pr.club_id
+                      FROM {$prospects_table} pr
+                     WHERE pr.created_at < %s
+                       AND pr.promoted_to_player_id IS NULL
+                       AND pr.archived_at IS NULL
+                       {$consent_hold}
+                     LIMIT %d";
         }
+
+        $args = [ $no_progress_cutoff ];
+        if ( $consent_hold !== '' ) $args[] = $no_progress_cutoff;
+        $args[] = self::BATCH_SIZE;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $stale_sql = $wpdb->prepare( $sql, $args );
 
         $stale = $wpdb->get_results( $stale_sql );
         foreach ( (array) $stale as $row ) {
@@ -191,6 +216,19 @@ final class ProspectRetentionCron {
         ) );
         if ( $has_prospect_col === 'prospect_id' ) {
             $wpdb->delete( $tasks_table, [ 'prospect_id' => $prospect_id ] );
+        }
+
+        // #3812 — and the consent log, which is about this child and must
+        // not outlive them. The table names no family member, but it
+        // records that an academy asked about a named prospect, and a
+        // retention purge that left it behind would keep exactly the trace
+        // the purge exists to remove.
+        $consent_table = "{$p}tt_prospect_consent_requests";
+        $has_consent_table = $wpdb->get_var( $wpdb->prepare(
+            'SHOW TABLES LIKE %s', $consent_table
+        ) ) === $consent_table;
+        if ( $has_consent_table ) {
+            $wpdb->delete( $consent_table, [ 'prospect_id' => $prospect_id, 'club_id' => $club_id ] );
         }
 
         // Audit row. Reason embedded in `note` so the audit trail is

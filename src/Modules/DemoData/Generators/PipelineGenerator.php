@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
+use TT\Modules\Prospects\Domain\ConsentOutcome;
+use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
@@ -189,9 +191,50 @@ class PipelineGenerator implements DependentGeneratorInterface {
                 // different visit. A pool where nobody was ever watched
                 // twice would demo the feature by hiding it.
                 $total += $this->recordObservations( $id, $visit_id, $visits, $i );
+                // #3812 — some of them have been asked about. A pool with
+                // no consent trail leaves the "Consent requested" column
+                // empty, which demos the step by hiding it.
+                $total += $this->recordConsentRequest( $id, $discovered, $i );
             }
         }
         return $total;
+    }
+
+    /**
+     * #3812 — a dated consent request for roughly half the pool, cycling
+     * through the outcomes so the log reads like real correspondence:
+     * some still waiting, some agreed, some declined, some never answered.
+     *
+     * The row names the CLUB the academy went through and nothing about
+     * the family — the same rule the real table is built on.
+     */
+    private function recordConsentRequest( int $prospect_id, int $discovered_ts, int $index ): int {
+        if ( $index % 2 !== 0 ) return 0;
+        if ( ! ProspectConsentRequestsRepository::tableExists() ) return 0;
+
+        $outcomes = [
+            ConsentOutcome::AWAITING,
+            ConsentOutcome::AGREED,
+            ConsentOutcome::DECLINED,
+            ConsentOutcome::AGREED,
+            ConsentOutcome::NO_REPLY,
+        ];
+        $outcome = $outcomes[ ( $index / 2 ) % count( $outcomes ) ];
+
+        // A few days after the sighting: an academy rings the club once
+        // the scout has written the player up, not on the touchline.
+        $asked = gmdate( 'Y-m-d', $discovered_ts + mt_rand( 1, 10 ) * DAY_IN_SECONDS );
+        $who   = sprintf(
+            /* translators: %s: the club the prospect currently plays for */
+            __( 'Youth coordinator at %s', 'talenttrack' ),
+            self::CURRENT_CLUBS[ $index % count( self::CURRENT_CLUBS ) ]
+        );
+
+        $id = ( new ProspectConsentRequestsRepository() )->create( $prospect_id, $asked, $who, $outcome );
+        if ( $id <= 0 ) return 0;
+
+        $this->registry->tag( 'prospect_consent_request', $id, [ 'prospect_id' => $prospect_id ] );
+        return 1;
     }
 
     /**

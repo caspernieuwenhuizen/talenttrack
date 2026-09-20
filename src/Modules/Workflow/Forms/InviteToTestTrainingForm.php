@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Forms;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Prospects\Domain\ConsentGate;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
 use TT\Modules\Workflow\Contracts\FormInterface;
@@ -98,6 +99,19 @@ class InviteToTestTrainingForm implements FormInterface {
 
     public function validate( array $raw, array $task ): array {
         $errors = [];
+
+        // #3812 — a hard block, with no override. Completing this task is
+        // what moves a prospect to Invited, so this is the same seam as
+        // the stage transition: a child whose family has not agreed is not
+        // invited to a test training, and there is no button that says
+        // otherwise. If consent arrived by a route the system does not
+        // know about, the way forward is to record it — on the prospect,
+        // or as a consent-request entry that came back `agreed`.
+        $prospect_id = (int) ( $task['prospect_id'] ?? 0 );
+        if ( $prospect_id > 0 && ! ConsentGate::hasConsent( $prospect_id ) ) {
+            $errors['__form'] = ConsentGate::missingConsentMessage();
+            return $errors;
+        }
 
         $existing_id = isset( $raw['test_training_id'] ) ? (int) $raw['test_training_id'] : 0;
         $new_date    = trim( (string) ( $raw['new_date'] ?? '' ) );
