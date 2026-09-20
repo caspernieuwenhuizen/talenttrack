@@ -62,13 +62,24 @@ final class ReportsRestController extends BaseController {
         // (the same cap the PHP-rendered report + leaderboard check);
         // results are additionally narrowed to the caller's team scope
         // below, so coaches never read other teams' rows.
+        // #3780 — every one of these is also taken nested as `filter[...]`,
+        // the form the rest of the list API uses. The descriptions are API
+        // documentation for integrators, not UI copy, so they are not
+        // translated.
+        $window = 'as YYYY-MM-DD. Anything else falls back to the season window, which the response echoes.';
         $attendance_args = [
-            'team_id'           => [ 'sanitize_callback' => 'absint',              'required' => false ],
-            'from'              => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-            'to'                => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            'team_id'           => [
+                'type'              => [ 'integer', 'string' ],
+                'description'       => 'Only this team\'s players. Same as filter[team_id]. A value that is not a usable team id is refused with 400 bad_filter rather than dropped.',
+                'sanitize_callback' => 'sanitize_text_field',
+                'required'          => false,
+            ],
+            'from'              => [ 'type' => 'string', 'description' => 'Window start ' . $window . ' Same as filter[from] or filter[date_from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            'to'                => [ 'type' => 'string', 'description' => 'Window end ' . $window . ' Same as filter[to] or filter[date_to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
             // #2136 — optional activity-type narrowing, threaded into the
             // shared AttendanceRankingQuery so render + REST stay in lockstep.
-            'activity_type_key' => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+            'activity_type_key' => [ 'type' => 'string', 'description' => 'Only activities of this type. Same as filter[activity_type_key].', 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+            'filter'            => [ 'description' => 'Nested filters: team_id, from (or date_from), to (or date_to), activity_type_key. A nested value wins over the plain parameter of the same name.' ],
         ];
         register_rest_route( self::NS, '/reports/attendance-leaderboard', [
             [
@@ -294,9 +305,12 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function attendanceRows( WP_REST_Request $req ): \WP_REST_Response {
-        [ $from, $to ] = self::attendanceWindow( $req );
-        $team_id       = (int) $req->get_param( 'team_id' );
-        $type_key      = (string) $req->get_param( 'activity_type_key' );
+        $query = self::attendanceQuery( $req );
+        if ( $query['error'] !== null ) return $query['error'];
+        $from          = $query['from'];
+        $to            = $query['to'];
+        $team_id       = $query['team_id'];
+        $type_key      = $query['activity_type_key'];
         $allowed       = self::attendanceScope( $team_id );
         // #2893 — a permission block is not an empty result. Returning
         // success([]) made the client print "No player attendance in this
@@ -317,12 +331,15 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function attendanceLeaderboard( WP_REST_Request $req ): \WP_REST_Response {
-        [ $from, $to ]   = self::attendanceWindow( $req );
-        $team_id         = (int) $req->get_param( 'team_id' );
+        $query           = self::attendanceQuery( $req );
+        if ( $query['error'] !== null ) return $query['error'];
+        $from            = $query['from'];
+        $to              = $query['to'];
+        $team_id         = $query['team_id'];
         // #2205 — unset/blank `n` means all players in the window; a
         // supplied positive number narrows each column.
         $n               = (int) $req->get_param( 'n' );
-        $type_key        = (string) $req->get_param( 'activity_type_key' );
+        $type_key        = $query['activity_type_key'];
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
@@ -334,9 +351,12 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function attendanceAtRisk( WP_REST_Request $req ): \WP_REST_Response {
-        [ $from, $to ]   = self::attendanceWindow( $req );
-        $team_id         = (int) $req->get_param( 'team_id' );
-        $type_key        = (string) $req->get_param( 'activity_type_key' );
+        $query           = self::attendanceQuery( $req );
+        if ( $query['error'] !== null ) return $query['error'];
+        $from            = $query['from'];
+        $to              = $query['to'];
+        $team_id         = $query['team_id'];
+        $type_key        = $query['activity_type_key'];
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
@@ -365,13 +385,115 @@ final class ReportsRestController extends BaseController {
      *
      * @return array{0:string,1:string}
      */
-    private static function attendanceWindow( WP_REST_Request $req ): array {
-        $from    = (string) $req->get_param( 'from' );
-        $to      = (string) $req->get_param( 'to' );
+    private static function attendanceWindow( string $from, string $to ): array {
         $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
         return [ $from, $to ];
+    }
+
+    /**
+     * #3780 — resolve the three attendance readers' parameters from either
+     * the plain names or the nested `filter[...]` form the rest of the list
+     * API uses. The nested value wins when both are sent, the same
+     * precedence #3584, #3607, #3668 and #3765 settled on.
+     *
+     * `filter[team_id]` used to be discarded — WP REST drops a query
+     * parameter no route declared, without a word — so an administrator
+     * asking for one squad's at-risk list got every team in the academy
+     * back, each row carrying a `team_name` that made the answer look
+     * deliberate. A player from another age group could end up named in a
+     * team's absence conversation. A filter that is sent but cannot be
+     * resolved is therefore refused rather than dropped: dropping it is
+     * exactly what widened the read.
+     *
+     * Widening access is still impossible either way — `attendanceScope()`
+     * runs on the resolved team, so a team outside the caller's scope
+     * answers 403 rather than the caller's own teams.
+     *
+     * @return array{team_id:int, from:string, to:string, activity_type_key:string, error:\WP_REST_Response|null}
+     */
+    private static function attendanceQuery( WP_REST_Request $req ): array {
+        $nested = $req->get_param( 'filter' );
+        $nested = is_array( $nested ) ? $nested : [];
+
+        $team = self::attendanceParam( $req, $nested, 'team_id', [ 'team_id' ] );
+        $from = self::attendanceParam( $req, $nested, 'from', [ 'from', 'date_from' ] );
+        $to   = self::attendanceParam( $req, $nested, 'to', [ 'to', 'date_to' ] );
+        $type = self::attendanceParam( $req, $nested, 'activity_type_key', [ 'activity_type_key' ] );
+
+        foreach ( [ $team, $from, $to, $type ] as $param ) {
+            if ( ! $param['usable'] ) return self::attendanceBadFilter( $param['name'] );
+        }
+
+        $team_id = 0;
+        if ( $team['value'] !== '' ) {
+            $team_id = absint( $team['value'] );
+            if ( $team_id <= 0 ) return self::attendanceBadFilter( $team['name'] );
+        }
+
+        // A malformed date is not refused: #3717 settled that it falls back
+        // to the season window and the response echoes the window actually
+        // read, so the caller can see which period they got. An unknown
+        // activity type narrows to nothing, which is also not a widening.
+        [ $window_from, $window_to ] = self::attendanceWindow( $from['value'], $to['value'] );
+
+        return [
+            'team_id'           => $team_id,
+            'from'              => $window_from,
+            'to'                => $window_to,
+            'activity_type_key' => sanitize_key( $type['value'] ),
+            'error'             => null,
+        ];
+    }
+
+    /**
+     * One attendance parameter, read from the nested `filter[...]` form
+     * first and the plain name second, carrying the spelling it was read
+     * from so a refusal can name it.
+     *
+     * `usable` is false when a nested key holds an array or an object where
+     * a value belongs. That is not a filter anybody can act on, and reading
+     * it as absent is the widening this whole fix is about.
+     *
+     * @param array<mixed> $nested
+     * @param list<string> $keys the nested keys, in precedence order
+     * @return array{value:string, name:string, usable:bool}
+     */
+    private static function attendanceParam( WP_REST_Request $req, array $nested, string $flat, array $keys ): array {
+        foreach ( $keys as $key ) {
+            if ( ! array_key_exists( $key, $nested ) ) continue;
+            $candidate = $nested[ $key ];
+            if ( ! is_scalar( $candidate ) ) {
+                return [ 'value' => '', 'name' => 'filter[' . $key . ']', 'usable' => false ];
+            }
+            if ( (string) $candidate === '' ) continue;
+            return [ 'value' => (string) $candidate, 'name' => 'filter[' . $key . ']', 'usable' => true ];
+        }
+        $plain = $req->get_param( $flat );
+        return [
+            'value'  => is_scalar( $plain ) ? (string) $plain : '',
+            'name'   => $flat,
+            'usable' => true,
+        ];
+    }
+
+    /**
+     * @return array{team_id:int, from:string, to:string, activity_type_key:string, error:\WP_REST_Response}
+     */
+    private static function attendanceBadFilter( string $parameter ): array {
+        return [
+            'team_id'           => 0,
+            'from'              => '',
+            'to'                => '',
+            'activity_type_key' => '',
+            'error'             => RestResponse::error(
+                'bad_filter',
+                __( 'That filter value is not a valid id.', 'talenttrack' ),
+                400,
+                [ 'parameter' => $parameter ]
+            ),
+        ];
     }
 
     /**
