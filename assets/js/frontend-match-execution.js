@@ -1657,19 +1657,31 @@
     // controls (score steppers, +action / →on buttons, sub-target, late
     // events) are hidden via CSS until the coach opts in. Toggling flips
     // the attribute; the button label + aria-pressed follow.
+    // #3848 — there is more than one of these now: the header's, on the
+    // Pitch tab, and the review panel's, on the tab a post-match screen
+    // opens on. One root attribute still decides, and pressing either moves
+    // both, so a tab change never shows a toggle that disagrees with the
+    // controls it unlocked.
     (function wireEditToggle() {
-        var btn = root.querySelector('[data-tt-mexec-edit-toggle]');
-        if (!btn) return;
-        var label = btn.querySelector('.tt-mexec-edit-label');
-        btn.addEventListener('click', function () {
-            var on = root.getAttribute('data-edit-mode') !== 'on';
+        var btns = root.querySelectorAll('[data-tt-mexec-edit-toggle]');
+        if (!btns.length) return;
+
+        function paint(on) {
             root.setAttribute('data-edit-mode', on ? 'on' : 'off');
-            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
-            if (label) {
+            Array.prototype.forEach.call(btns, function (btn) {
+                btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+                var label = btn.querySelector('.tt-mexec-edit-label');
+                if (!label) return;
                 label.textContent = on
                     ? (label.getAttribute('data-label-done') || 'Done editing')
                     : (label.getAttribute('data-label-edit') || 'Edit');
-            }
+            });
+        }
+
+        Array.prototype.forEach.call(btns, function (btn) {
+            btn.addEventListener('click', function () {
+                paint(root.getAttribute('data-edit-mode') !== 'on');
+            });
         });
     })();
 

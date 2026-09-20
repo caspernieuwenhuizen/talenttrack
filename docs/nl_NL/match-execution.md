@@ -102,7 +102,12 @@ fluitsignaal zijn doelpunten, acties en wissels altijd één tik weg.
 
 In de **nabesprekingsperiode** opent het scherm alleen-lezen om per ongeluk
 tikken te voorkomen: de stand, doelpunten en wissels worden getoond maar
-zijn niet bewerkbaar totdat je op **Bewerken** tikt in de kop.
+zijn niet bewerkbaar totdat je op **Bewerken** tikt in de kop. In de
+sectie-indeling heeft de tab Controle een eigen knop **Bewerken**, zodat de
+tab die na het laatste fluitsignaal opengaat ook de tab is waar je het
+bewerken aanzet. Achter beide knoppen zit één instelling: zet je hem ergens
+aan, dan is elke tab bewerkbaar en staat op allebei de knoppen *Klaar met
+bewerken*.
 
 ## De wedstrijdklok
 
