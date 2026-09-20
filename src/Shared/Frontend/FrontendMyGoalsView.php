@@ -289,7 +289,11 @@ class FrontendMyGoalsView extends FrontendViewBase {
         // #0028 conversation thread on the goal — coaches and the
         // player + parent see chat-style messages without leaving
         // this surface.
-        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+        // #3720 — the renderer emits nothing for a viewer who can't
+        // read the thread, so ask before printing the heading.
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', (int) $goal->id, get_current_user_id() )
+        ) {
             // v3.92.2 — was a target=_blank anchor opening the docs page
             // in a new tab; pilot operator wanted the right-side help
             // drawer instead. HelpDrawer::button outputs the

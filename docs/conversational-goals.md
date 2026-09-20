@@ -33,7 +33,9 @@ Goals are seen by:
 - The **coach** who owns the goal (or any coach assigned to the player's team).
 - The **player** whose goal it is.
 - **Linked parents** — matched on the player's guardian email.
-- **Admins / Head of Development** — read-only by default but can post too.
+- **Anyone with academy-wide access to goals** — admins, the Head of Development, and any role whose authorization matrix row grants goals read across the whole academy. They read every goal conversation. Posting in one needs the goals *change* right as well, so a role that only reads goals academy-wide sees the thread without a compose box.
+
+If you can't read a goal's thread, the **Conversation** heading doesn't appear on the goal at all.
 
 Coaches and admins can mark a message as **Coaches only** by ticking the *Coaches only* checkbox before sending. Coaches-only messages stay invisible to players and parents (and don't trigger their email notifications).
 

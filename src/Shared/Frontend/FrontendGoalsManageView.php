@@ -237,7 +237,12 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // v3.110.53 — Edit + Archive moved to the page-header actions
         // slot rendered by render() before this method runs.
 
-        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' ) ) {
+        // #3720 — ask first: the thread renderer emits nothing for a
+        // viewer who can't read it, which used to leave the heading
+        // standing over an empty section.
+        if ( class_exists( '\TT\Shared\Frontend\Components\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', (int) $goal->id, $user_id )
+        ) {
             echo '<section class="tt-pde-section">';
             echo '<h3>' . esc_html__( 'Conversation', 'talenttrack' ) . '</h3>';
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
@@ -651,7 +656,9 @@ class FrontendGoalsManageView extends FrontendViewBase {
         <?php
         // #0028 — chat-style conversation thread for the goal. Only on
         // edit (existing goal) and only when the viewer can read the thread.
-        if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' ) ) {
+        if ( $is_edit && class_exists( '\\TT\\Shared\\Frontend\\Components\\FrontendThreadView' )
+             && \TT\Shared\Frontend\Components\FrontendThreadView::canRender( 'goal', (int) $goal->id, $user_id )
+        ) {
             echo '<section class="tt-goal-conversation" style="margin-top:1.5rem;">';
             echo '<header style="display:flex; align-items:baseline; gap:8px; margin: 0 0 0.5rem;">';
             echo '<h2 style="font-size:1.0625rem; margin:0;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
