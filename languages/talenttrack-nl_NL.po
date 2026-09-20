@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T00:51:01+00:00\n"
+"POT-Creation-Date: 2026-09-20T01:03:38+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3701,6 +3701,7 @@ msgid "The role type could not be deleted."
 msgstr "Het roltype kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:336
+#: src/Infrastructure/REST/ReportsRestController.php:492
 msgid "That filter value is not a valid id."
 msgstr "Die filterwaarde is geen geldig id."
 
@@ -4689,16 +4690,16 @@ msgstr "Onbekend type of id."
 msgid "Record not found."
 msgstr "Record niet gevonden."
 
-#: src/Infrastructure/REST/ReportsRestController.php:237
+#: src/Infrastructure/REST/ReportsRestController.php:248
 msgid "Match not found."
 msgstr "Wedstrijd niet gevonden."
 
-#: src/Infrastructure/REST/ReportsRestController.php:244
+#: src/Infrastructure/REST/ReportsRestController.php:255
 #: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:125
 msgid "You do not coach this match’s team."
 msgstr "Je coacht het team van deze wedstrijd niet."
 
-#: src/Infrastructure/REST/ReportsRestController.php:387
+#: src/Infrastructure/REST/ReportsRestController.php:509
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:55
 msgid "You do not have access to this team’s players."
 msgstr "Je hebt geen toegang tot de spelers van dit team."
