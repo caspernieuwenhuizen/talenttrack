@@ -1,0 +1,65 @@
+/*
+ * Opponent backfill (#3860) — the review screen for matches with no
+ * opponent stored.
+ *
+ * Mobile-first (CLAUDE.md §2): the base rules are the 360px layout, where
+ * the table scrolls sideways inside its wrapper rather than squeezing five
+ * columns into the viewport, and every control is a 48px target.
+ */
+
+.tt-opponent-backfill .tt-ob-table {
+    width: 100%;
+    min-width: 40rem; /* below this the inputs are unusable; the wrap scrolls */
+}
+
+.tt-opponent-backfill .tt-ob-table th,
+.tt-opponent-backfill .tt-ob-table td {
+    vertical-align: middle;
+}
+
+/* The tick is the commit decision per row: a full-size target, not a
+   12px checkbox somebody has to aim at with a thumb. */
+.tt-ob-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-ob-apply input[type="checkbox"] {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.tt-opponent-backfill .tt-input {
+    width: 100%;
+    min-height: 48px;
+    /* 16px, so iOS does not zoom the page on focus. */
+    font-size: 1rem;
+}
+
+.tt-ob-title {
+    max-width: 22rem;
+}
+
+/* Said in words, because a colour alone cannot say "the suggestion here is
+   a guess" to a screen reader or to a colour-blind reader. */
+.tt-ob-flag {
+    display: inline-block;
+    margin-left: 0.25rem;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: #8a3d10;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+    .tt-ob-title {
+        max-width: none;
+    }
+}

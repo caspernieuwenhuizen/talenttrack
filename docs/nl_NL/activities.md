@@ -3,7 +3,7 @@ title: Activiteiten
 group: performance
 summary: Wedstrijden, trainingen en andere activiteiten — typering, aanwezigheid en evaluaties na wedstrijden.
 audience: [user]
-views: [activities, my-sessions]
+views: [activities, my-sessions, opponent-backfill]
 module: TT\Modules\Activities\ActivitiesModule
 capability: tt_view_activities
 order: 30
@@ -114,6 +114,38 @@ De twee getallen staan altijd **jouw doelpunten links en die van hen rechts**, o
 welk veld je ook speelde. Waár er gespeeld is, is een apart gegeven — het veld
 **Thuis / uit** op het activiteitenformulier — dus een uitoverwinning blijft een
 overwinning.
+
+### Tegen wie er gespeeld is
+
+De **tegenstander** is een veld op de activiteit, niet iets wat uit de titel
+wordt gelezen. Alles wat de andere club noemt — het maandrapport, het live
+scorebord, het minutenraster, het wedstrijdformulier, de weekplanning — leest dat
+veld en toont *Onbekende tegenstander* zodra het leeg is.
+
+Twee dingen lieten het leeg: wedstrijden van vóór v4.x, toen niets het veld
+vulde, en wedstrijden die uit Spond komen, dat zelf geen tegenstanderveld heeft
+en de naam van de andere club in de titel van het evenement zet.
+
+**Geïmporteerde wedstrijden vullen het veld nu wel.** Zegt de titel tegen wie er
+gespeeld wordt — "Hedel JO12-1 - Ajax JO12-1", "uit tegen DVVC" — dan worden de
+tegenstander, en waar mogelijk thuis of uit, daaruit gelezen bij het importeren.
+Zegt de titel niets bruikbaars, dan blijft het veld leeg in plaats van dat er
+gegokt wordt: een verkeerde tegenstander op vijf schermen is erger dan een lege.
+De import vult het veld alleen bij de eerste keer dat de wedstrijd binnenkomt,
+zodat een correctie die je daarna maakt de volgende synchronisatie overleeft.
+
+**Bestaande wedstrijden vul je in via een controlescherm**, op
+*?tt_view=opponent-backfill*. Dat toont elke wedstrijd zonder vastgelegde
+tegenstander: de datum, de titel zoals die er staat, en een voorstel voor
+tegenstander en thuis/uit waar de titel daar aanleiding toe geeft. Controleer de
+voorstellen, corrigeer wat niet klopt, vink uit wat je liever laat staan, en
+sla op. Er wordt niets weggeschreven tot je dat doet, en regels waar het voorstel
+onzeker over is krijgen het label *controleer deze*. Je ziet de teams die je
+coacht; academiebrede rollen zien de hele club.
+
+Wat daarna nog zonder tegenstander staat, verschijnt in het maandrapport onder
+**Datakwaliteit**, met datum en titel, zodat het blijft vragen tot iemand het
+invult.
 
 ### Als je de wedstrijd op het live wedstrijdformulier hebt gedraaid
 

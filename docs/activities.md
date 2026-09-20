@@ -3,7 +3,7 @@ title: Activities
 group: performance
 summary: Games, trainings, and other activities — typing, attendance, and post-game evaluations.
 audience: [user]
-views: [activities, my-sessions]
+views: [activities, my-sessions, opponent-backfill]
 module: TT\Modules\Activities\ActivitiesModule
 capability: tt_view_activities
 order: 30
@@ -114,6 +114,37 @@ The two numbers are always **yours on the left and theirs on the right**,
 whichever ground you played on. Where the match was played is a separate fact —
 the **Home / Away** field on the activity form — so an away win still reads as a
 win.
+
+### Who the match was against
+
+The **opponent** is a field on the activity, not something read out of the title.
+Everything that names the other club — the monthly report, the live scoreboard,
+the minutes grid, the team sheet, the week plan — reads that field, and shows
+*Unknown opponent* when it is empty.
+
+Two things used to leave it empty: fixtures created before v4.x, when nothing
+wrote the field at all, and fixtures imported from Spond, which has no opponent
+field of its own and puts the other club's name in the event title.
+
+**Imported fixtures now fill it in.** Where the title says who the match is
+against — "Hedel JO12-1 - Ajax JO12-1", "uit tegen DVVC" — the opponent, and
+where possible home or away, is read from it on import. A title that says nothing
+useful leaves the field empty rather than guessing: a wrong opponent printed on
+five screens is worse than a blank one. The import fills the field only when the
+fixture first arrives, so a correction you make afterwards survives the next
+sync.
+
+**Fixtures that already exist are filled in from a review screen**, at
+*?tt_view=opponent-backfill*. It lists every match with no opponent stored: its
+date, its title as it stands, and a suggested opponent and home/away where the
+title gives one. Check the suggestions, correct anything wrong, untick anything
+you would rather leave, and save. Nothing is written until you do, and matches
+the suggestion is unsure about are flagged *check this one*. You see the teams
+you coach; academy-wide roles see the club.
+
+Anything still missing an opponent shows up in the monthly team report's **Data
+quality** section by date and title, so it keeps asking until somebody fills it
+in.
 
 ### If you ran the match on the live match sheet
 
