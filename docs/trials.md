@@ -56,6 +56,14 @@ The **Execution** tab on the case page aggregates everything that happens during
 
 If the period needs to be extended, the **Extend trial** button on Overview asks for a new end date and a mandatory justification note. Each extension is logged with who, when, and why.
 
+#### The case tells you what it is waiting for
+
+The **Assigned staff** card on Overview shows each panellist with whether they have handed their input in — *Submitted <date>* or *No input yet*. That state is only shown to people who may already read the case's aggregation; an assigned coach whose only job is to write their own input sees the roster without it.
+
+When the trial is close to its end date and no decision has been recorded, a **Deadline** banner appears under the hero saying how long is left — or how long ago the window closed. It disappears by itself as soon as the decision is recorded or the case is extended; there is nothing to dismiss. How far ahead it starts warning is the `alerts_trial_decision_due_days` setting, three days by default.
+
+The same condition raises a **Trial ending without a decision** alert for the head of development, naming the panellists who have not submitted so you can see what the decision is waiting for. It resolves itself the moment the decision lands or the case is extended.
+
 ### 3. Collect staff input
 
 Each assigned coach has their own input form on the **Staff inputs** tab. They enter an overall rating and notes, save as draft, and submit when ready. A coach sees only their own draft until the head of development clicks **Release submitted inputs to assigned staff** — that prevents groupthink during the period and lets everyone see the picture once everyone has submitted.

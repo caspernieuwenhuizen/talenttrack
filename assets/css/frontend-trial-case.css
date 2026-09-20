@@ -240,3 +240,49 @@
     border-radius: var(--tt-radius);
     line-height: var(--tt-lh-body);
 }
+
+/* ---- Ending-soon banner (#3801) -------------------------------------- *
+ * Never colour-only: the "Deadline" label carries the meaning in words
+ * and the leading rule gives it a second, non-chromatic signal, so the
+ * banner still reads as a warning in greyscale or with a colour-vision
+ * deficiency. A window that has already closed goes from warning to
+ * danger, because that one cannot be planned for any more. */
+.tt-dashboard .tt-trial-deadline {
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    border: 1px solid var(--tt-warning);
+    border-left-width: 4px;
+    border-radius: var(--tt-radius);
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+.tt-dashboard .tt-trial-deadline[data-overdue="1"] {
+    border-color: var(--tt-danger);
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger-ink);
+}
+.tt-dashboard .tt-trial-deadline__label {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--tt-fs-xs, 0.75rem);
+}
+
+/* ---- Panel submission state (#3801) ---------------------------------- *
+ * Tacked onto the roster pill rather than given a column of its own: the
+ * roster is already a wrapping pill list at 360px, and a table there
+ * would scroll sideways. "Submitted <date>" / "No input yet" says it in
+ * words, so the weight change is decoration. */
+.tt-dashboard .tt-trial-staff-state {
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-trial-staff-state[data-submitted="0"] {
+    color: var(--tt-warning-ink);
+    font-weight: 700;
+}
+.tt-dashboard .tt-trial-input-awaiting {
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-warning-ink);
+    font-size: var(--tt-fs-sm);
+}

@@ -69,6 +69,12 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Speler zonder contact thuis** | Een actieve speler, of een speler in een lopende proefperiode, heeft geen gekoppeld ouderaccount en geen e-mailadres of telefoonnummer van een verzorger. De melding gaat naar de hoofdtrainer van het team en naar wie ouderaccounts beheert, en verdwijnt zodra er een ouder gekoppeld is of een e-mailadres of telefoonnummer van een verzorger is ingevuld. Een speler van wie de ouder een uitnodiging heeft ontvangen die nog openstaat, valt onder de melding hierboven. Een uitnodiging die wel is aangemaakt maar nooit verstuurd, telt niet mee: het gezin is nooit iets gevraagd. | *Wie thuis hoort iets over deze speler?* Een welkomstbericht voor een proefperiode, een gepubliceerd plan of een afgelaste training voor deze speler bereikt niemand zolang niemand thuis te bereiken is. |
 | **Certificaat verloopt** | Een van je eigen certificaten verloopt binnenkort, of is net verlopen. | *Wat heeft deze speler nu nodig?* — van de andere kant bekeken. Elke speler in de selectie heeft er belang bij dat wie zijn training geeft daarvoor gekwalificeerd is. |
 
+### Stages
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Stage eindigt zonder besluit** | Een stage valt binnen de waarschuwingstermijn — of is al verstreken — en er is nog geen besluit vastgelegd. De zin noemt de panelleden die nog geen input hebben ingeleverd, want daar wacht het besluit meestal op. De melding gaat naar wie stages mag besluiten, niet naar de hoofdtrainer van het team: besluiten is het enige werk op een stagedossier dat niemand anders kan doen. Ze lost zichzelf op zodra het besluit is vastgelegd of het dossier is verlengd, en het besluit ruimt haar meteen op in plaats van bij de volgende ronde. | *Waar gaat deze speler heen?* — gevraagd terwijl er nog tijd is om te antwoorden. Een stage die in stilte afloopt, is een kind en een gezin dat wacht op een academie die hen uit het oog verloren is. |
+
 ### Metingen
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
@@ -148,6 +154,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_goal_overdue_grace_days` | 3 dagen | Hoeveel dagen na de streefdatum van een doel de melding verschijnt. Een doel dat je maandag bespreekt voor een deadline van zondag is normale praktijk. |
 | `alerts_goal_overdue_lookback_days` | 365 dagen | Hoe lang na de streefdatum een doel nog de moeite waard is om achteraan te gaan. Daarna is het niet te laat maar opgegeven, en is opruimen de oplossing, geen melding. |
 | `alerts_pdp_no_conversation_days` | 45 dagen | Hoe ver in een PDP-cyclus voordat "nog geen gesprek gevoerd" een melding wordt. |
+| `alerts_trial_decision_due_days` | 3 dagen | Hoeveel dagen van tevoren je hoort dat een stage afloopt zonder vastgelegd besluit. Een academie met stages van twee weken wil eerder gewaarschuwd worden dan een met stages van zes weken. |
 | `alerts_player_turns_18_days` | 30 dagen | Hoeveel dagen van tevoren je hoort dat een speler achttien wordt. De leeftijd zelf is geen instelling: dat is een gegeven van het rechtsgebied waarin de academie werkt, geen voorkeur. |
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |

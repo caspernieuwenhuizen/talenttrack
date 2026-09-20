@@ -56,6 +56,14 @@ Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt
 
 Moet de periode verlengd worden, dan vraagt **Stage verlengen** op het Overzicht-tabblad om een nieuwe einddatum en een verplichte motivatie. Elke verlenging wordt vastgelegd met wie, wanneer en waarom.
 
+#### Het dossier vertelt waar het op wacht
+
+De kaart **Toegewezen staf** op Overzicht toont per panellid of de input al is ingeleverd — *Ingeleverd op <datum>* of *Nog geen input*. Die status is alleen zichtbaar voor wie de samenvatting van het dossier al mag lezen; een toegewezen coach die alleen zijn eigen input schrijft, ziet de lijst zonder die status.
+
+Loopt de stage bijna af en is er nog geen besluit vastgelegd, dan verschijnt onder de hero een **Deadline**-melding met hoeveel tijd er nog is — of hoe lang de periode al verstreken is. Die verdwijnt vanzelf zodra het besluit is vastgelegd of het dossier is verlengd; er valt niets weg te klikken. Hoeveel dagen vooraf er gewaarschuwd wordt, staat in de instelling `alerts_trial_decision_due_days`, standaard drie dagen.
+
+Dezelfde situatie levert het hoofd opleiding een melding **Stage eindigt zonder besluit** op, met de namen van de panelleden die nog niets hebben ingeleverd, zodat je ziet waar het besluit op wacht. Die melding lost zichzelf op zodra het besluit binnen is of het dossier wordt verlengd.
+
 ### 3. Verzamel staf-input
 
 Elke toegewezen coach heeft een eigen invoerformulier op **Staf-input**. Hij geeft een algemene beoordeling en aantekeningen op, slaat op als concept en dient definitief in zodra de input klaar is. Een coach ziet alleen de eigen concept-input totdat het hoofd opleiding **Inputs vrijgeven aan toegewezen staf** klikt — zo voorkom je groupthink tijdens de periode en deelt iedereen zijn beeld pas als iedereen heeft ingediend.
