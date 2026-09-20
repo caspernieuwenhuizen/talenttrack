@@ -125,9 +125,26 @@
     background: var(--tt-bg-soft, #f4f6f3);
 }
 
+/* #3771 — day and clock time share the first cell, so a row without a
+   stored time keeps the same three-column shape as one with it. They sit
+   side by side when there is room and wrap onto two lines at 360px. */
+.tt-dashboard .tt-myact-upcoming__when {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--tt-sp-2, 8px);
+}
+
 .tt-dashboard .tt-myact-upcoming__date {
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-myact-upcoming__time {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink, #0e1a14);
 }
 
 .tt-dashboard .tt-myact-upcoming__label {
@@ -142,7 +159,9 @@
 
 @media (min-width: 480px) {
     .tt-dashboard .tt-myact-upcoming__link {
-        grid-template-columns: 7rem 1fr auto;
+        /* #3771 — a touch wider than the 7rem this held, so "za 31 okt"
+           and "10:00–11:15" can sit on one line before wrapping. */
+        grid-template-columns: minmax(7rem, 11rem) 1fr auto;
         align-items: center;
         gap: var(--tt-sp-3, 12px);
     }

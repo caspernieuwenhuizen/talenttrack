@@ -1528,7 +1528,14 @@ final class ActivitiesRepository {
      * the rest of this repository so the home sees the same activity
      * universe as the activities list.
      *
-     * @return array<int, object> rows with id, title, session_date, location
+     * #3771 — the clock times ride along. "Coming up" told a player which
+     * day their next training was and nothing about when to be there, so
+     * the one question the card exists to answer needed a text to a coach.
+     * The columns are cheap to carry and every consumer of this method is
+     * a "what's next" peek, which is exactly where a time belongs.
+     *
+     * @return array<int, object> rows with id, title, session_date, location,
+     *                            start_time, end_time, time_of_presence
      */
     public function upcomingForTeam( int $team_id, int $limit = 3 ): array {
         if ( $team_id <= 0 ) return [];
@@ -1540,7 +1547,8 @@ final class ActivitiesRepository {
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.location
+            "SELECT a.id, a.title, a.session_date, a.location,
+                    a.start_time, a.end_time, a.time_of_presence
                FROM {$p}tt_activities a
               WHERE a.team_id = %d
                 AND a.club_id = %d

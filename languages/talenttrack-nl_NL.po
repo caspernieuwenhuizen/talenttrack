@@ -41700,6 +41700,22 @@ msgstr "Coach:"
 msgid "Date:"
 msgstr "Datum:"
 
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:297
+msgid "Presence time:"
+msgstr "Aanwezigheidstijd:"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:301
+msgid "Kick-off:"
+msgstr "Aftrap:"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:304
+msgid "End time:"
+msgstr "Eindtijd:"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:307
+msgid "Time:"
+msgstr "Tijd:"
+
 #: src/Modules/Reports/PlayerReportRenderer.php:615
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:367
 msgid "Improving"
