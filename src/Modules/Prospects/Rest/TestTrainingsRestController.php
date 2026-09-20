@@ -4,6 +4,7 @@ namespace TT\Modules\Prospects\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
@@ -38,6 +39,7 @@ class TestTrainingsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -52,6 +54,40 @@ class TestTrainingsRestController {
                 'permission_callback' => static function () { return current_user_can( 'tt_manage_recycle_bin' ); },
             ],
         ] );
+    }
+
+    /**
+     * What `POST /test-trainings` takes (#3818). Mirrors the repository's
+     * create surface exactly; a key outside it is refused by name rather
+     * than dropped, which is what a caller sending `age_group` or `coach`
+     * used to get back as a quietly-empty session.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'date' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'When the test training is, YYYY-MM-DD or YYYY-MM-DD HH:MM:SS. A bare date is stored at 18:00.',
+            ],
+            'location' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Where it is held.',
+            ],
+            'age_group_lookup_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'The age group it targets. Omit for a mixed-age session.',
+            ],
+            'coach_user_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'The coach running it. Defaults to the caller.',
+            ],
+            'notes' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Logistics, what to bring, contact instructions.',
+            ],
+        ];
     }
 
     /** #1784 — permanently delete a test training (irreversible). Gated by tt_edit_settings. */
@@ -75,6 +111,9 @@ class TestTrainingsRestController {
     }
 
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        $bad = BaseController::checkBody( $r, self::createArgs() );
+        if ( $bad ) return $bad;
+
         $date = sanitize_text_field( (string) ( $r['date'] ?? '' ) );
         if ( $date === '' ) {
             return RestResponse::error( 'missing_fields',

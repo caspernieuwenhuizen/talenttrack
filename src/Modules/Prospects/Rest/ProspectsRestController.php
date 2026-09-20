@@ -50,6 +50,11 @@ class ProspectsRestController {
             'methods'             => 'POST',
             'callback'            => [ self::class, 'log_prospect' ],
             'permission_callback' => [ self::class, 'can_log' ],
+            // #3818 — the route takes no body at all: it starts the chain
+            // for the calling user and the form that follows collects
+            // everything. An empty declaration is what says so, and what
+            // makes a body arriving here a refusal rather than a shrug.
+            'args'                => [],
         ] );
         // v3.110.99 — list endpoint backing FrontendListTable on the new
         // ?tt_view=prospects-overview page.
@@ -467,6 +472,13 @@ class ProspectsRestController {
         if ( $uid <= 0 ) {
             return RestResponse::error( 'not_logged_in', __( 'You must be logged in to log a prospect.', 'talenttrack' ), 401 );
         }
+
+        // #3818 — a caller that sends the prospect's details here is told
+        // so. Nothing in this body was ever read: the row is written by the
+        // form the task opens, so a POST carrying a name used to start a
+        // chain and drop the name.
+        $bad = BaseController::checkBody( $r, [] );
+        if ( $bad ) return $bad;
 
         $context = new TaskContext(
             null, null, null, null, null, null, null, null,

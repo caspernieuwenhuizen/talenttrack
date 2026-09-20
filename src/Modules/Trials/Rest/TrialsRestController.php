@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
@@ -80,6 +81,7 @@ class TrialsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_case' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::createCaseArgs(),
             ],
         ] );
 
@@ -93,6 +95,7 @@ class TrialsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_case' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::updateCaseArgs(),
             ],
         ] );
 
@@ -114,6 +117,7 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'extend_case' ],
             'permission_callback' => [ __CLASS__, 'can_manage' ],
+            'args'                => self::extendArgs(),
         ] );
 
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/decision', [
@@ -135,6 +139,7 @@ class TrialsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'assign_staff' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::assignStaffArgs(),
             ],
         ] );
 
@@ -164,6 +169,9 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'release_inputs' ],
             'permission_callback' => [ __CLASS__, 'can_manage' ],
+            // Releasing takes no body: the case is the URL segment and the
+            // release is the whole of the request.
+            'args'                => [],
         ] );
 
         // #3223 — the letters had no REST surface at all. `TrialLetterService`
@@ -185,6 +193,7 @@ class TrialsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'generate_letter' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::letterArgs(),
             ],
         ] );
 
@@ -231,7 +240,155 @@ class TrialsRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'run_reminders' ],
             'permission_callback' => [ __CLASS__, 'can_manage' ],
+            // "Send reminders now" takes no body — what is due is decided
+            // by the scheduler, not by the caller.
+            'args'                => [],
         ] );
+    }
+
+    /**
+     * The fields `POST /trial-cases` takes (#3818).
+     *
+     * Only `player_id` is required. The dates default to today, which is
+     * how a case opened from the manage form behaves when its operator
+     * leaves them alone, and the track is optional because an academy that
+     * runs one kind of trial never picks one.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function createCaseArgs(): array {
+        return [
+            'player_id' => [
+                'type'        => 'integer',
+                'required'    => true,
+                'description' => 'The player on trial.',
+            ],
+            'track_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'The trial track to run them through.',
+            ],
+            'start_date' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'First day of the trial, YYYY-MM-DD. Defaults to today.',
+            ],
+            'end_date' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Last day of the trial, YYYY-MM-DD. Defaults to today.',
+            ],
+            'notes' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Why the case was opened.',
+            ],
+        ];
+    }
+
+    /**
+     * The fields `PUT /trial-cases/{id}` takes (#3818).
+     *
+     * Every one of them is optional, and the route writes only what the
+     * body carried — a PUT that sends `notes` alone leaves the dates and
+     * the track exactly as they were (CLAUDE.md §6). Nothing here is
+     * defaulted, because a default on an update route is how an omitted
+     * field becomes a cleared one.
+     *
+     * `status` deliberately carries no `enum`: the route already answers
+     * an unknown status with `bad_status` and the set it will take, which
+     * is a better refusal than core's, and it treats `archived` as the
+     * archive operation rather than as a column value.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function updateCaseArgs(): array {
+        return [
+            'track_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'Move the case to this trial track.',
+            ],
+            'start_date' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'First day of the trial, YYYY-MM-DD.',
+            ],
+            'end_date' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Last day of the trial, YYYY-MM-DD.',
+            ],
+            'status' => [
+                'type'        => 'string',
+                'description' => 'open, extended, decided or archived. Sending archived archives the case.',
+            ],
+            'notes' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'Why the case was opened, or what has changed about it.',
+            ],
+        ];
+    }
+
+    /**
+     * The fields `POST /trial-cases/{id}/extend` takes (#3818). Both are
+     * required: extending a trial without saying why leaves a child in
+     * assessment for longer with nothing on the record explaining it.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function extendArgs(): array {
+        return [
+            'new_end_date' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'The new last day, YYYY-MM-DD. Must be after the current end date.',
+            ],
+            'justification' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'Why the trial is being extended.',
+            ],
+        ];
+    }
+
+    /**
+     * The fields `POST /trial-cases/{id}/staff` takes (#3818).
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function assignStaffArgs(): array {
+        return [
+            'user_id' => [
+                'type'        => 'integer',
+                'required'    => true,
+                'description' => 'The staff member to put on the panel.',
+            ],
+            'role_label' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'What they are there as, e.g. "Keeper coach". Free text.',
+            ],
+        ];
+    }
+
+    /**
+     * The fields `POST /trial-cases/{id}/letters` takes (#3818).
+     *
+     * `audience` carries no `enum` for the same reason `status` does not:
+     * the route answers an unknown audience with the set it accepts, and
+     * that list comes from `AudienceType`, which is where it belongs.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function letterArgs(): array {
+        return [
+            'audience' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'Which letter to generate — one of the trial-letter audiences.',
+            ],
+            'strengths_summary' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'What the player is good at, for the letter home.',
+            ],
+            'growth_areas' => [
+                'type'        => [ 'string', 'null' ],
+                'description' => 'What the player should work on, for the letter home.',
+            ],
+        ];
     }
 
     /**
@@ -391,6 +548,9 @@ class TrialsRestController {
     }
 
     public static function create_case( \WP_REST_Request $r ): \WP_REST_Response {
+        $refused = BaseController::checkBody( $r, self::createCaseArgs() );
+        if ( $refused ) return $refused;
+
         $payload = (array) $r->get_json_params();
 
         // #3577 — through `TrialCaseOpener`, the path the manage form and the
@@ -486,6 +646,11 @@ class TrialsRestController {
         $case    = $repo->find( $id );
         if ( ! $case ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
 
+        // #3818 — after the 404, so an id the caller cannot have is answered
+        // as a missing case whatever the body says.
+        $refused = BaseController::checkBody( $r, self::updateCaseArgs() );
+        if ( $refused ) return $refused;
+
         $payload = (array) $r->get_json_params();
         $patch   = array_intersect_key( $payload, array_flip( [ 'track_id','start_date','end_date','status','notes' ] ) );
 
@@ -530,6 +695,9 @@ class TrialsRestController {
 
     public static function extend_case( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
+        $refused = BaseController::checkBody( $r, self::extendArgs() );
+        if ( $refused ) return $refused;
+
         $payload = (array) $r->get_json_params();
         $new_end = sanitize_text_field( (string) ( $payload['new_end_date'] ?? '' ) );
         $just    = sanitize_textarea_field( (string) ( $payload['justification'] ?? '' ) );
@@ -661,6 +829,9 @@ class TrialsRestController {
 
     public static function assign_staff( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
+        $refused = BaseController::checkBody( $r, self::assignStaffArgs() );
+        if ( $refused ) return $refused;
+
         $payload = (array) $r->get_json_params();
         $u = absint( $payload['user_id'] ?? 0 );
         if ( $u <= 0 ) return RestResponse::error( 'bad_request', __( 'Invalid user id.', 'talenttrack' ), 400 );
@@ -1051,6 +1222,9 @@ class TrialsRestController {
             return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
         }
 
+        $refused = BaseController::checkBody( $r, self::letterArgs() );
+        if ( $refused ) return $refused;
+
         $payload  = (array) $r->get_json_params();
         $audience = isset( $payload['audience'] ) ? sanitize_key( (string) $payload['audience'] ) : '';
 
@@ -1091,6 +1265,9 @@ class TrialsRestController {
 
     public static function release_inputs( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused ) return $refused;
+
         ( new TrialStaffInputsRepository() )->release( $id, get_current_user_id() );
         ( new TrialCasesRepository() )->releaseInputs( $id, get_current_user_id() );
         return RestResponse::success( [ 'released' => true ] );
@@ -1108,7 +1285,10 @@ class TrialsRestController {
      * failure, but it is not a send either, and the caller has to be able
      * to tell the operator which.
      */
-    public static function run_reminders(): \WP_REST_Response {
+    public static function run_reminders( \WP_REST_Request $r ): \WP_REST_Response {
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused ) return $refused;
+
         $results = TrialReminderScheduler::run();
 
         // No results means no case was due a reminder — a different thing
