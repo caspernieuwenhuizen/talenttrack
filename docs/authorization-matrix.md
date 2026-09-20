@@ -174,6 +174,27 @@ An earlier sketch in this document described a narrower split — view for Coach
 
 `AuthorizationService::canViewTournament()` / `canEditTournament()` / `canDeleteTournament()` are the call sites; the REST permission callbacks, the rendered planner's detail and edit branches, and the dashboard tile all resolve through them, so the three cannot answer differently. `GET /tournaments` narrows its own rows in SQL to the caller's teams — a team-scoped coach paging the list is never handed another age group's squad and then shown it hidden.
 
+### Matrix entity `player_tournaments` — one child's record, not the rotation board (#3560)
+
+`tournaments` above is the **planner**: every squad, every fixture, every minute the academy is sharing out that day. A player's own tournament history is a different question, so it gets a different entity — `player_tournaments`, `read` only — rather than a wider grant on the planner. Granting `tournaments` to a family to show them their own child's afternoon would have shown them every other child's afternoon too.
+
+| Persona | Grant |
+| --- | --- |
+| `player` | `read`, self |
+| `parent` | `read`, player |
+| `assistant_coach`, `head_coach` | `read`, team |
+| `head_of_development`, `academy_admin` | `read`, global |
+| `team_manager`, `scout`, `readonly_observer`, `staff` | *(none)* |
+
+Two notes on the shape:
+
+- **The planner is untouched.** No change to `tt_view_tournaments`, to the `tournaments` entity, or to who holds it. A test asserts it, because a later widening of the planner "so the family can see the day" is exactly the change this entity exists to make unnecessary.
+- **The head of development is global, not team.** The epic's shaping listed them beside the coaches at team scope; every other head-of-development row in the seed is global, and a head of development holds no team assignment of their own, so a team-scoped row would have read as no access for the persona whose job is the whole academy.
+
+A parent passes two gates, not one: this entity admits them to their own child, and then `AuthorizationService::parentCanViewSection( …, 'tournaments' )` asks whether the child has left the section open. The section is new in `PlayerParentVisibilityRepository::SECTIONS` and defaults to shared, so no family loses anything when this ships, and no migration is needed for it — an absent preference row means shared.
+
+Migration `0283_authorization_seed_topup_player_tournaments` backfills the six rows on existing installs (idempotent `INSERT IGNORE`, and it reports what it wrote).
+
 ## Matrix entity `exercises` — the drill library
 
 The exercise / drill library (`tt_exercises`, served by `ExercisesRestController` at `/wp-json/talenttrack/v1/exercises`) is club-global: a drill any coach authors is reusable across the whole academy. It is **distinct from `activities`**, which is the per-team session calendar — so the library gets its own matrix entity, `exercises`, rather than borrowing the activities scope.
