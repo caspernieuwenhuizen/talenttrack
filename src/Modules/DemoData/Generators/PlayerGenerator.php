@@ -36,6 +36,11 @@ use TT\Modules\DemoData\SeedLoader;
  *      players via wp_user_id so they can log in and see a real
  *      profile. Bindings are reset on re-run (users survive wipes;
  *      only the binding is transient).
+ *   7. Media consent (#3846) is stated on every player rather than left
+ *      to the column default. Every fifth player in a squad has none on
+ *      record, so a generated academy carries both states and the
+ *      dossier check has something to find. Positional, not random —
+ *      see hasMediaConsent().
  */
 class PlayerGenerator implements GeneratorInterface {
 
@@ -122,6 +127,7 @@ class PlayerGenerator implements GeneratorInterface {
             $team_id = (int) $team->id;
             $age     = $this->ageFromGroup( (string) $team->age_group );
             $used_jerseys = [];
+            $recorder = $this->consentRecorderFor( $team );
 
             for ( $i = 0; $i < $this->perTeam; $i++ ) {
                 $fn = $first[ mt_rand( 0, count( $first ) - 1 ) ];
@@ -142,6 +148,7 @@ class PlayerGenerator implements GeneratorInterface {
                 }
 
                 $date_joined = $this->randomJoinDate();
+                $consented   = $this->hasMediaConsent( $i, $this->perTeam );
                 $wpdb->insert( "{$wpdb->prefix}tt_players", [
                     'club_id'             => CurrentClub::id(),
                     'first_name'          => $fn,
@@ -169,6 +176,16 @@ class PlayerGenerator implements GeneratorInterface {
                     // the UNIQUE (club_id, wp_user_id) index holds.
                     'wp_user_id'          => $wp_user_id > 0 ? $wp_user_id : null,
                     'status'              => PlayerStatus::ACTIVE,
+                    // #3846 — consent is stated, not left to the column
+                    // default. A demo where every child is unconsented
+                    // cannot show the field doing anything, and it ships
+                    // a dossier state that would be a real problem in a
+                    // real club. Provenance is written only alongside a
+                    // yes: a recorded date under "no consent" would be a
+                    // contradiction the surfaces have to guess about.
+                    'media_consent'       => $consented ? 1 : 0,
+                    'media_consent_at'    => $consented ? $date_joined . ' 09:00:00' : null,
+                    'media_consent_by'    => $consented && $recorder > 0 ? $recorder : null,
                 ] );
                 $player_id = (int) $wpdb->insert_id;
 
@@ -214,6 +231,53 @@ class PlayerGenerator implements GeneratorInterface {
     }
 
     /**
+     * #3846 — does this player's family have media consent on record?
+     *
+     * Every fifth player in a squad does not. The rule is positional, not
+     * random, because `run_order` is a reproducibility contract: the same
+     * (seed, preset) has to produce the same academy, and a consent flag
+     * drawn from the shared MT stream would both move with any upstream
+     * change and shift every value after it.
+     *
+     * The point of the mix is that a demo academy has to be able to show
+     * both states. A squad where every child is consented cannot
+     * demonstrate the dossier gap an administrator checks for; one where
+     * nobody is cannot show the field doing anything at all.
+     *
+     * @param int $index      0-based position in the squad
+     * @param int $squad_size how many players that squad holds
+     */
+    private function hasMediaConsent( int $index, int $squad_size ): bool {
+        // A squad of one has no room for both states; consent is the
+        // less surprising of the two to show on its own.
+        if ( $squad_size <= 1 ) return true;
+        // Under five, "every fifth" would never fire — put the
+        // unconsented case last so every team still carries one.
+        if ( $squad_size < 5 ) return $index !== $squad_size - 1;
+        return ( $index % 5 ) !== 4;
+    }
+
+    /**
+     * #3846 — the staff member recorded as having taken the consent.
+     *
+     * The team's head coach is who a club would name; the academy
+     * administrator is the fallback for a squad with no coach on record,
+     * and the operator running the generation is the last resort so a
+     * consented player always carries a recorder as well as a date.
+     *
+     * @param object|null $team a generated team row, or null off-squad
+     */
+    private function consentRecorderFor( ?object $team ): int {
+        $coach = (int) ( $team->head_coach_user_id ?? 0 );
+        if ( $coach > 0 ) return $coach;
+
+        $admin = (int) ( $this->users['admin'] ?? 0 );
+        if ( $admin > 0 ) return $admin;
+
+        return (int) get_current_user_id();
+    }
+
+    /**
      * #3402 — the squad has to change between seasons.
      *
      * A handful of players per team left the academy at the end of the last
@@ -245,12 +309,19 @@ class PlayerGenerator implements GeneratorInterface {
         // academy has between seasons.
         $count = max( 1, (int) floor( $this->perTeam / 4 ) );
 
+        // A departed player's consent was taken by the academy
+        // administrator — `generateDeparted()` works from a team id, not
+        // the team row the coach hangs off.
+        $recorder = $this->consentRecorderFor( null );
+
         $out = [];
         for ( $i = 0; $i < $count; $i++ ) {
             $fn = $first[ mt_rand( 0, count( $first ) - 1 ) ];
             $ln = $last[ mt_rand( 0, count( $last ) - 1 ) ];
 
-            $height = $this->heightForAge( $age );
+            $height      = $this->heightForAge( $age );
+            $date_joined = gmdate( 'Y-m-d', strtotime( '-' . ( $this->weeks + 52 ) . ' weeks' ) ?: time() );
+            $consented   = $this->hasMediaConsent( $i, $count );
             $wpdb->insert( "{$wpdb->prefix}tt_players", [
                 'club_id'             => CurrentClub::id(),
                 'first_name'          => $fn,
@@ -264,9 +335,15 @@ class PlayerGenerator implements GeneratorInterface {
                 'preferred_positions' => (string) wp_json_encode( $this->pickPositions() ),
                 'jersey_number'       => null,
                 'team_id'             => $team_id,
-                'date_joined'         => gmdate( 'Y-m-d', strtotime( '-' . ( $this->weeks + 52 ) . ' weeks' ) ?: time() ),
+                'date_joined'         => $date_joined,
                 'wp_user_id'          => null,
                 'status'              => PlayerStatus::RELEASED,
+                // #3846 — a departed player states their consent too. It
+                // is what the club held while they were here, and it is
+                // what a dossier check finds when it reaches back.
+                'media_consent'       => $consented ? 1 : 0,
+                'media_consent_at'    => $consented ? $date_joined . ' 09:00:00' : null,
+                'media_consent_by'    => $consented && $recorder > 0 ? $recorder : null,
             ] );
             $player_id = (int) $wpdb->insert_id;
             if ( $player_id <= 0 ) continue;

@@ -266,6 +266,13 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 'date_joined'         => gmdate( 'Y-m-d', $start_ts ),
                 'wp_user_id'          => null,
                 'status'              => PlayerStatus::TRIAL,
+                // #3846 — a child on trial has not signed anything yet,
+                // so the flag is a deliberate no rather than the column
+                // default nobody chose. Provenance stays null: there is
+                // no consent to have a date or a recorder.
+                'media_consent'       => 0,
+                'media_consent_at'    => null,
+                'media_consent_by'    => null,
             ] );
             $player_id = (int) $wpdb->insert_id;
             if ( $player_id <= 0 ) continue;
