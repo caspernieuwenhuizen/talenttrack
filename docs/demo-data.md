@@ -86,6 +86,12 @@ the Thursday training gives way to a **match on Saturday**, kicking off at 10:00
 with players reporting at 09:15. So a Saturday in a match week always has a
 fixture to hang minutes, the register and match evaluations on.
 
+Generating runs in steps, over as many requests as it takes, and the whole
+calendar is laid out against the moment the run **started**. A long generation
+that carries on past midnight, or across the turn of a week, still produces one
+consistent grid rather than a fixture in one week and the training that
+precedes it in another.
+
 Every fixture has an **opponent** and alternates between **home and away**; an
 away game gives the opponent's ground as its location. A match that has been
 played shows as **Finalized** on the match executions list, the way a match
