@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.128.1
+Stable tag: 4.128.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.128.2 — The remaining reports answer for the team you asked about (#3790) Asking the minutes audit, the potential overview or the coach evaluation quality report for one team over the API could return every team you may read. Like the attendance reports before them, all three read only a plain `team_id`, so the nested `filter[team_id]` form the rest of the list API uses was dropped without a word — and because the rows carry real team and player names, the answer looked deliberate: a full, plausible report, just not the one asked for, with another age group's players in it. All three now take their filters in either spelling (the nested value wins when both are sent), a `team_id` that is not a usable id is refused rather than ignored, and each endpoint advertises every parameter it accepts. The potential overview's `bands` filter, which was read but never advertised and so never arrived, works over the API too. Team scope is unchanged. =
 
 = 4.128.1 — Attendance registers now say who saved them (#3655) A completed activity's Attendance card shows a line under the breakdown bar reading "Register last saved by <name> on <date>", so a coach who finds a mark neither they nor their assistant entered can see where it came from. It is the last save of the register rather than the author of each mark — saving a register rewrites all of its rows at once — and the wording says so. Minutes, the line-up and a notes-only edit don't count as a save, and a register recorded before this release stays blank rather than gaining a guessed author. The same information rides on the activity API's `register.attendance.last_saved`, so a non-WordPress client gets it without a new route. =
 
