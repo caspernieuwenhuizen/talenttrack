@@ -182,6 +182,13 @@ al in de opstellingswissel zelf. Zonder opstelling voor de tweede helft
 verandert er niets: de elf die begonnen spelen door en elke wissel telt op
 volgorde mee.
 
+**Wordt een correctie geweigerd, dan zegt het scherm waarom** — "De speler
+die eruit gaat, staat momenteel niet in het veld", niet een statuscode. De
+weigering benoemt wat er moet veranderen, en dat is meestal één keuzelijst.
+Is de telefoon offline, dan wordt de actie zoals altijd in de wachtrij
+gezet en wordt er niets geweigerd; dat is de verbindingsregel bovenin, geen
+foutmelding.
+
 Als je klaar bent, tik je op **Wedstrijd afsluiten** om te vergrendelen.
 Een afgesloten wedstrijd is de vastlegging van wat de spelers werkelijk
 deden, dus de live-knoppen blijven vergrendeld en de knop Bewerken

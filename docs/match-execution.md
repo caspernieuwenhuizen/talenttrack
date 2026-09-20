@@ -169,6 +169,12 @@ on top of it — the first half's are already accounted for by the line-up
 change itself. Without a second-half line-up nothing changes: the eleven
 who started play on, and every substitution applies in turn.
 
+**When a correction is refused, the screen says why** — "The player coming
+off is not currently on the pitch", not a status code. The refusal names
+the thing to change, so it is usually one dropdown away from being
+accepted. If the phone is offline the write is queued as usual and nothing
+is refused; that is the connection line at the top, not an error.
+
 When you are done, tap **Finalize match** to lock it. A finalized match is
 the record of what the players actually did, so the live controls stay
 locked and the Edit button disappears. (The server enforces the same lock,
