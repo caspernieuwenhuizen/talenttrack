@@ -1,3 +1,66 @@
+# TalentTrack v4.129.1 — Translations ship as per-PR fragments instead of edits to the shared catalogue (#3863)
+
+A pull request that adds a translatable string no longer edits
+`languages/talenttrack-nl_NL.po`. It drops one brand-new file,
+`languages/pending/<issue>-<slug>.po`, holding only the entries it
+introduces with their Dutch translations — the same move `changelog.d`
+makes for the changelog, for the same reason. A file that exists on one
+branch cannot collide with another branch's, and the catalogue was the
+only file parallel work ever collided on.
+
+The release step folds the fragments in, once, for the whole batch:
+`tools/release.ps1` now calls `tools/consolidate-translations.php`
+alongside the changelog consolidation, and `languages/pending/` is empty
+again afterwards. The consolidator keys entries on the `(msgctxt, msgid)`
+pair with wrapped literals joined by content — so a string written across
+continuation lines and the same string on one line are recognised as one
+entry — fills in the translation for a msgid the catalogue already carries
+untranslated, and refuses to write at all if the result would contain a
+duplicate msgid or collide with a retired entry. No user-visible change:
+this is how translations reach the catalogue, not what they say.
+
+# TalentTrack v4.129.1 — The i18n pull-request gate reads the fragment, and the catalogue is no longer union-merged (#3864)
+
+The translation gate now asks one question: does every new translatable
+string on this pull request's added lines have an entry, with a Dutch
+translation, in the request's own fragment? It names the strings that
+don't, with the file and line that introduced them, and it runs in a
+second with nothing installed but PHP, so the same command that decides
+the request can be run before opening it. It replaces a check that
+regenerated the string template on both sides and compared untranslated
+counts — accurate, but it reported "delta 3 (baseline 9, head 12)"
+alongside "new untranslated msgids: 0", and reading the two together as
+"three strings, none translated" took real effort. The override label
+and the hardcoded-English check are untouched.
+
+The duplicate-msgid check covers the fragments too, so a bad one fails in
+the request that wrote it rather than blocking a release. And
+`languages/*.po` loses its union merge setting: a catalogue is not
+append-only, so union quietly kept both copies of a relocated entry and
+produced duplicates that stop every locale compiling — and it never
+delivered the conflict reduction it was added for, since the setting
+applies on a developer's machine but not to the merge that gates a pull
+request. Nothing about how the plugin behaves changes.
+
+# TalentTrack v4.129.1 — Translation catalogue is refreshed at release instead of after every merge (#3865)
+
+The `.pot` regeneration and `msgmerge` that keep `languages/` in step with
+the source tree used to run on every push to `main` that touched PHP, and
+commit the result. That put every open pull request one commit behind on
+`languages/*.po` — a file GitHub cannot auto-merge — so merging one branch
+forced a manual merge and a full CI re-run on all the others. On a 22-branch
+drain that was around twenty avoidable re-integrations.
+
+The refresh now runs once per release, inside `auto-release.yml`, immediately
+before the `.mo` files are compiled, so the translations a release publishes
+are built from the freshly synced catalogue and `main` ends up as current as
+it was before. The shared mechanics live in `tools/i18n-sync.sh`, and the old
+`i18n-sync` workflow remains as a manual **Run workflow** button for
+re-baselining between releases. The release-time step is deliberately
+non-fatal: if the refresh cannot run, the release still ships and the run
+carries a warning, because an untranslated string falls back to English while
+a blocked release reaches nobody.
+
 # TalentTrack v4.129.0 — Evaluation detail, update and archive are scoped to the caller (#3566)
 
 The single-evaluation routes now verify that the evaluation's player is within
