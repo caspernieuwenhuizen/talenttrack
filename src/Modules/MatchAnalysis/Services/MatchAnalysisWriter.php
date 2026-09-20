@@ -33,6 +33,12 @@ final class MatchAnalysisWriter {
      * Anything absent is left alone — a client that only knows about
      * sections must not be able to wipe the player items by omission.
      *
+     * `sections` is read through `sectionEntries()`, so both wire shapes
+     * land here: the object the form posts and the list an API client
+     * writes. An entry this writer cannot place is skipped; the REST
+     * controller refuses the request before reaching this point, so
+     * nothing arrives here half-written (#3843).
+     *
      * @param array<string,mixed> $body
      * @param array<int,?int>     $minutes player id => minutes, for the snapshot
      */
@@ -51,14 +57,13 @@ final class MatchAnalysisWriter {
         }
         if ( $patch ) $this->repo->update( $analysis_id, $patch );
 
-        if ( isset( $body['sections'] ) && is_array( $body['sections'] ) ) {
-            foreach ( $body['sections'] as $key => $section ) {
-                if ( ! is_array( $section ) ) continue;
+        if ( isset( $body['sections'] ) ) {
+            foreach ( self::sectionEntries( $body['sections'] ) as $entry ) {
                 $this->saveSection(
                     $analysis_id,
-                    sanitize_key( (string) $key ),
-                    $section['rating'] ?? null,
-                    $section['notes'] ?? []
+                    $entry['key'],
+                    $entry['rating'],
+                    $entry['notes']
                 );
             }
         }
@@ -83,6 +88,99 @@ final class MatchAnalysisWriter {
         // summary edit, and the concurrency check in the REST controller
         // would wave through a write composed against a stale document.
         $this->repo->touch( $analysis_id );
+    }
+
+    /**
+     * `sections` in either wire shape, flattened into entries that carry
+     * their own key.
+     *
+     * An object (`{"aanvallen": {…}}`) keys each entry by its property
+     * name — what the form, the wizard and the shared surface all post. A
+     * JSON list (`[{"key":"aanvallen", …}]`) keys it by the entry's own
+     * `key` / `section_key`, which is what an API client reaches for
+     * first, and which used to be discarded: the list index was taken for
+     * the section key, `saveSection()` refused `"0"`, and `apply()` threw
+     * the refusal away, so six written-up sections answered 200 and stored
+     * nothing (#3843).
+     *
+     * A non-array entry, and a list entry that names no section, come back
+     * with an empty key. They are not silently dropped here — `problems()`
+     * has to be able to name them, and `apply()` skips them the same way
+     * `saveSection()` always has.
+     *
+     * @param mixed $sections
+     * @return list<array{key:string, path:string, rating:mixed, has_rating:bool, notes:mixed}>
+     */
+    public static function sectionEntries( $sections ): array {
+        if ( ! is_array( $sections ) ) return [];
+
+        $out = [];
+        foreach ( $sections as $index => $section ) {
+            $section = is_array( $section ) ? $section : [];
+
+            if ( is_int( $index ) ) {
+                $named = $section['key'] ?? $section['section_key'] ?? '';
+                $key   = is_scalar( $named ) ? sanitize_key( (string) $named ) : '';
+            } else {
+                $key = sanitize_key( (string) $index );
+            }
+
+            $out[] = [
+                'key'        => $key,
+                'path'       => sprintf( 'sections[%s]', $key !== '' ? $key : (string) $index ),
+                'rating'     => $section['rating'] ?? null,
+                'has_rating' => array_key_exists( 'rating', $section ),
+                'notes'      => $section['notes'] ?? [],
+            ];
+        }
+
+        return $out;
+    }
+
+    /**
+     * What in this body cannot be written, as field paths, so a caller is
+     * told rather than answered 200 over an empty document (#3843).
+     *
+     * Read before anything is stored: a body carrying one unusable section
+     * writes none of them, because a coach who has just typed up a match
+     * should not have to work out which half of it landed.
+     *
+     * @param array<string,mixed> $body
+     * @return list<string>
+     */
+    public static function problems( array $body ): array {
+        if ( ! array_key_exists( 'sections', $body ) || $body['sections'] === null ) return [];
+        if ( ! is_array( $body['sections'] ) ) return [ 'sections' ];
+
+        $problems = [];
+        foreach ( self::sectionEntries( $body['sections'] ) as $entry ) {
+            if ( ! MatchAnalysisEnums::isSectionKey( $entry['key'] ) ) {
+                $problems[] = $entry['path'];
+                continue;
+            }
+            if ( $entry['has_rating'] && ! self::isWritableRating( $entry['rating'] ) ) {
+                $problems[] = $entry['path'] . '.rating';
+            }
+        }
+
+        return $problems;
+    }
+
+    /**
+     * Whether a rating can be stored as sent.
+     *
+     * Null and the empty string are the resting state — the surface's
+     * fourth radio clears the rating, and clearing is a real answer. A
+     * number, or a word that is not one of the three, is not a rating at
+     * all: `cleanRating()` turns both into null, which is why a `6.5` used
+     * to vanish behind a success (#3843).
+     *
+     * @param mixed $value
+     */
+    public static function isWritableRating( $value ): bool {
+        if ( $value === null || $value === '' ) return true;
+
+        return is_string( $value ) && MatchAnalysisEnums::isRating( sanitize_key( $value ) );
     }
 
     /**
