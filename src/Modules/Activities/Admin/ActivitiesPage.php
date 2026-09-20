@@ -574,6 +574,10 @@ class ActivitiesPage {
                 $id = $new_id;
                 // v3.76.2 — auto-tag demo-on rows.
                 \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $id );
+                // #3800 — the same seeder the REST create calls, so the two
+                // doors cannot drift apart about what a new team activity
+                // starts with. No-op when a roster already exists.
+                \TT\Modules\Activities\Services\PlannedRosterSeeder::seed( $id, (int) ( $data['team_id'] ?? 0 ) );
             }
         }
 
