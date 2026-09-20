@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T15:32:08+00:00\n"
+"POT-Creation-Date: 2026-09-20T16:01:37+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -186,7 +186,7 @@ msgstr "Team Manager"
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:250
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:316
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:325
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:328
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:349
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:85
 #: src/Modules/Stats/Admin/PlayerCardView.php:303
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:69
@@ -933,7 +933,7 @@ msgstr ""
 "van inzetbaarheid, gelijke speelminuten en spreiding van basisplaatsen. "
 "Handmatig wisselen via klikken blijft beschikbaar als dit uit staat."
 
-#: src/Core/FeatureRegistry.php:552 src/Modules/DemoData/DemoCoverage.php:1371
+#: src/Core/FeatureRegistry.php:552 src/Modules/DemoData/DemoCoverage.php:1382
 #: src/Modules/Knowledge/Frontend/FrontendCourseView.php:37
 #: src/Modules/Knowledge/Frontend/FrontendKnowledgeLibraryView.php:36
 #: src/Modules/Knowledge/Frontend/FrontendLessonView.php:46
@@ -2232,7 +2232,7 @@ msgstr "Fysio"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:390
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:311
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:366
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:211
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:285
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
@@ -2644,7 +2644,7 @@ msgid "Mixed"
 msgstr "Gemengd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:464
-#: src/Modules/DemoData/DemoCoverage.php:1364
+#: src/Modules/DemoData/DemoCoverage.php:1375
 #: src/Modules/Documentation/HelpTopics.php:186
 #: src/Shared/Frontend/FrontendConfigurationView.php:1945
 msgid "Match day"
@@ -2689,7 +2689,7 @@ msgstr "Gepubliceerd"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:302
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:394
-#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
+#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:39
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:585
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
@@ -2936,7 +2936,7 @@ msgstr "Vakantie"
 
 #: src/Infrastructure/RecycleBin/RecycleBinEntities.php:52
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:234
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:419
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:440
 msgid "Test training"
 msgstr "Proeftraining"
 
@@ -3110,7 +3110,7 @@ msgid "Unknown orderby column."
 msgstr "Onbekende sorteerkolom."
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:977
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:210
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:255
 msgid "Dates must be written as YYYY-MM-DD."
 msgstr "Datums moeten worden geschreven als JJJJ-MM-DD."
 
@@ -3663,7 +3663,7 @@ msgstr "Meegeleverd"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:666
 #: src/Modules/Methodology/Admin/MethodologyPage.php:701
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:81
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:244
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:321
 #: src/Modules/Wizards/Prospect/IdentityStep.php:99
 msgid "Club"
 msgstr "Club"
@@ -4220,8 +4220,8 @@ msgstr "Niet gevonden."
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:84
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:391
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:207
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:247
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:281
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:324
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:90
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:184
@@ -4329,7 +4329,7 @@ msgstr "Geboortedatum"
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:483
 #: src/Modules/DataBrowser/SemanticRegistry.php:43
-#: src/Modules/DemoData/DemoCoverage.php:1350
+#: src/Modules/DemoData/DemoCoverage.php:1361
 #: src/Modules/DemoData/DemoRunPlan.php:109
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:82
 #: src/Modules/License/Admin/AccountPage.php:561
@@ -4416,7 +4416,7 @@ msgstr "Seizoen"
 #: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:267
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:181
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:255
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:110
 #: src/Modules/Training/Wizard/WhenStep.php:48
 #: src/Modules/Vct/Wizard/ReviewStep.php:51
@@ -4453,7 +4453,7 @@ msgstr "Datum"
 #: src/Infrastructure/REST/PeekRestController.php:216
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:399
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:263
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:260
 #: src/Modules/Wizards/Activity/ReviewStep.php:78
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1278
 msgid "Time"
@@ -4476,7 +4476,7 @@ msgstr "Aanwezigheidstijd"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:264
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:368
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:191
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:265
 #: src/Modules/Wizards/Activity/DetailsStep.php:77
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
@@ -5310,7 +5310,7 @@ msgstr "Alle types"
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:486
 #: src/Modules/DataBrowser/SemanticRegistry.php:63
-#: src/Modules/DemoData/DemoCoverage.php:1351
+#: src/Modules/DemoData/DemoCoverage.php:1362
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:273
 #: src/Modules/License/FeatureMap.php:380
 #: src/Modules/MatchAnalysis/Frontend/FrontendMatchAnalysisView.php:671
@@ -5494,6 +5494,7 @@ msgstr "Bron"
 #: src/Modules/People/Admin/PeoplePage.php:189
 #: src/Modules/People/Admin/TeamStaffPanel.php:55
 #: src/Modules/Players/Admin/PlayersPage.php:183
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:326
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:92
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:124
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:277
@@ -5664,7 +5665,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:859
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:399
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:216
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:290
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:122
 #: src/Modules/Teams/Admin/TeamsPage.php:171
 #: src/Modules/Trials/Wizards/TrialDetailsStep.php:77
@@ -7655,7 +7656,7 @@ msgstr "Berichten"
 #: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:488
 #: src/Modules/DataBrowser/SemanticRegistry.php:73
-#: src/Modules/DemoData/DemoCoverage.php:1352
+#: src/Modules/DemoData/DemoCoverage.php:1363
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:40
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:139
 #: src/Modules/License/Admin/AccountPage.php:566
@@ -7707,7 +7708,7 @@ msgstr "Evaluaties"
 #: src/Modules/Backup/MigrationExporter.php:40
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/DataBrowser/SemanticRegistry.php:95
-#: src/Modules/DemoData/DemoCoverage.php:1353
+#: src/Modules/DemoData/DemoCoverage.php:1364
 #: src/Modules/Goals/Admin/GoalsPage.php:44
 #: src/Modules/Goals/Admin/GoalsPage.php:65
 #: src/Modules/License/FeatureMap.php:378
@@ -7750,7 +7751,7 @@ msgstr "Ontwikkelplannen"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:484
-#: src/Modules/DemoData/DemoCoverage.php:1349
+#: src/Modules/DemoData/DemoCoverage.php:1360
 #: src/Modules/Journey/JourneyModule.php:67
 #: src/Modules/People/Admin/PeoplePage.php:151
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:254
@@ -7885,7 +7886,7 @@ msgstr ""
 "gekregen. Je krijgt niet per team een eigen melding."
 
 #: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php:510
-#: src/Modules/DemoData/DemoCoverage.php:1361
+#: src/Modules/DemoData/DemoCoverage.php:1372
 #: src/Shared/Frontend/DashboardShortcode.php:934
 #: src/Shared/Frontend/FrontendMySettingsView.php:669
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:223
@@ -8055,7 +8056,7 @@ msgstr "Besloten door"
 #: src/Modules/Analytics/AnalyticsModule.php:231
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:170
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:417
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:438
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:44
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:49
@@ -8084,7 +8085,7 @@ msgid "Promoted"
 msgstr "Gepromoveerd"
 
 #: src/Modules/Analytics/AnalyticsModule.php:250
-#: src/Modules/DemoData/DemoCoverage.php:1354
+#: src/Modules/DemoData/DemoCoverage.php:1365
 msgid "Journey events"
 msgstr "Reisgebeurtenissen"
 
@@ -8185,7 +8186,7 @@ msgstr "In uitvoering"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:160
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:307
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:395
-#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:37
+#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:40
 #: src/Modules/Workflow/TaskStatus.php:69
 #: src/Shared/Frontend/Components/MediaUploader.php:179
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2556
@@ -8199,7 +8200,7 @@ msgstr "Geannuleerd"
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:404
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:298
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:393
-#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
+#: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:38
 #: src/Modules/Training/Frontend/FrontendTrainingPlansView.php:588
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:2241
 msgid "Planned"
@@ -8280,7 +8281,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:41
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:46
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:51
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:52
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:48
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:43
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:92
@@ -8408,7 +8409,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:485
 #: src/Modules/DataBrowser/SemanticRegistry.php:55
 #: src/Modules/DemoData/Admin/DemoDataPage.php:571
-#: src/Modules/DemoData/DemoCoverage.php:1348
+#: src/Modules/DemoData/DemoCoverage.php:1359
 #: src/Modules/DemoData/DemoGenerator.php:527
 #: src/Modules/DemoData/DemoRunPlan.php:107
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:46
@@ -8919,7 +8920,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/Players/Admin/PlayersPage.php:180
 #: src/Modules/Prospects/Frontend/FrontendProspectEditView.php:107
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:242
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:319
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:148
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:60
 #: src/Modules/Teams/Admin/TeamsPage.php:66
@@ -12203,7 +12204,7 @@ msgid "My profile"
 msgstr "Mijn profiel"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
-#: src/Modules/DemoData/DemoCoverage.php:1355
+#: src/Modules/DemoData/DemoCoverage.php:1366
 #: src/Modules/License/FeatureMap.php:387
 #: src/Shared/CoreSurfaceRegistration.php:1035
 #: src/Shared/Frontend/FrontendTrialCaseView.php:87
@@ -12225,7 +12226,7 @@ msgstr "Stage-samenvatting"
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
-#: src/Modules/DemoData/DemoCoverage.php:1369
+#: src/Modules/DemoData/DemoCoverage.php:1380
 #: src/Shared/Modules/ModuleMetadata.php:233
 msgid "Staff development"
 msgstr "Stafontwikkeling"
@@ -12342,7 +12343,7 @@ msgid "Impersonation"
 msgstr "Impersonatie"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
-#: src/Modules/DemoData/DemoCoverage.php:1365
+#: src/Modules/DemoData/DemoCoverage.php:1376
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr "Proeftrainingen"
@@ -17221,7 +17222,7 @@ msgstr "Wedstrijd-subtype"
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:308
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:146
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1945
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:245
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:322
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
 #: src/Modules/Wizards/Goal/LinkStep.php:73
 #: src/Modules/Wizards/Goal/LinkStep.php:108
@@ -20437,7 +20438,7 @@ msgid "The kind of transition."
 msgstr "Het soort overgang."
 
 #: src/Modules/DataBrowser/SemanticRegistry.php:125
-#: src/Modules/DemoData/DemoCoverage.php:1357
+#: src/Modules/DemoData/DemoCoverage.php:1368
 #: src/Modules/Journey/Frontend/FrontendInjuriesView.php:33
 #: src/Modules/Journey/JourneyModule.php:70
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:273
@@ -21484,44 +21485,44 @@ msgstr "Geen batches geselecteerd."
 msgid "TalentTrack is running in demo mode. Real data is hidden."
 msgstr "TalentTrack draait in demomodus. Echte gegevens zijn verborgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1356
+#: src/Modules/DemoData/DemoCoverage.php:1367
 msgid "Guardians"
 msgstr "Verzorgers"
 
-#: src/Modules/DemoData/DemoCoverage.php:1358
+#: src/Modules/DemoData/DemoCoverage.php:1369
 #: src/Shared/Frontend/FrontendTrialCaseView.php:268
 msgid "Player profile"
 msgstr "Spelersprofiel"
 
-#: src/Modules/DemoData/DemoCoverage.php:1359
+#: src/Modules/DemoData/DemoCoverage.php:1370
 msgid "Player reports"
 msgstr "Spelersrapporten"
 
-#: src/Modules/DemoData/DemoCoverage.php:1360
+#: src/Modules/DemoData/DemoCoverage.php:1371
 msgid "Meeting snapshots"
 msgstr "Momentopnamen overleg"
 
-#: src/Modules/DemoData/DemoCoverage.php:1362
+#: src/Modules/DemoData/DemoCoverage.php:1373
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:257
 msgid "PDP cycle"
 msgstr "PDP-cyclus"
 
-#: src/Modules/DemoData/DemoCoverage.php:1363
+#: src/Modules/DemoData/DemoCoverage.php:1374
 msgid "Training content"
 msgstr "Trainingsinhoud"
 
-#: src/Modules/DemoData/DemoCoverage.php:1366
+#: src/Modules/DemoData/DemoCoverage.php:1377
 #: src/Shared/Frontend/FrontendTeamsManageView.php:576
 #: src/Shared/Modules/ModuleMetadata.php:227
 msgid "Team development"
 msgstr "Teamontwikkeling"
 
-#: src/Modules/DemoData/DemoCoverage.php:1367
+#: src/Modules/DemoData/DemoCoverage.php:1378
 msgid "Scouting pipeline"
 msgstr "Scoutingpijplijn"
 
 # v3.110.131+ — #0093 Tournament planner
-#: src/Modules/DemoData/DemoCoverage.php:1368
+#: src/Modules/DemoData/DemoCoverage.php:1379
 #: src/Modules/License/FeatureMap.php:402
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:48
 #: src/Modules/Tournaments/TournamentsModule.php:95
@@ -21531,15 +21532,15 @@ msgstr "Scoutingpijplijn"
 msgid "Tournaments"
 msgstr "Toernooien"
 
-#: src/Modules/DemoData/DemoCoverage.php:1370
+#: src/Modules/DemoData/DemoCoverage.php:1381
 msgid "Messages and operator records"
 msgstr "Berichten en beheerdersgegevens"
 
-#: src/Modules/DemoData/DemoCoverage.php:1372
+#: src/Modules/DemoData/DemoCoverage.php:1383
 msgid "Behaviour and potential"
 msgstr "Gedrag en potentieel"
 
-#: src/Modules/DemoData/DemoCoverage.php:1380
+#: src/Modules/DemoData/DemoCoverage.php:1391
 msgid ""
 "Also wipes team_person, activities, attendance, evaluations and eval_ratings "
 "on those teams."
@@ -21547,7 +21548,7 @@ msgstr ""
 "Wist ook team_person, activiteiten, aanwezigheid, evaluaties en "
 "beoordelingen van die teams."
 
-#: src/Modules/DemoData/DemoCoverage.php:1381
+#: src/Modules/DemoData/DemoCoverage.php:1392
 msgid ""
 "Also wipes team_person assignments. The matching WP users stay — use \"Wipe "
 "demo users\" below for those."
@@ -21555,7 +21556,7 @@ msgstr ""
 "Wist ook de team_person-koppelingen. De bijbehorende WP-gebruikers blijven "
 "staan — gebruik daarvoor \"Demogebruikers wissen\" hieronder."
 
-#: src/Modules/DemoData/DemoCoverage.php:1382
+#: src/Modules/DemoData/DemoCoverage.php:1393
 msgid ""
 "Also wipes attendance, evaluations, eval_ratings, goals, journey events and "
 "trial cases tied to those players."
@@ -21563,25 +21564,25 @@ msgstr ""
 "Wist ook de aanwezigheid, evaluaties, beoordelingen, doelen, "
 "tijdlijngebeurtenissen en proefdossiers van die spelers."
 
-#: src/Modules/DemoData/DemoCoverage.php:1383
+#: src/Modules/DemoData/DemoCoverage.php:1394
 msgid "Also wipes attendance for those activities."
 msgstr "Wist ook de aanwezigheid bij die activiteiten."
 
-#: src/Modules/DemoData/DemoCoverage.php:1384
+#: src/Modules/DemoData/DemoCoverage.php:1395
 msgid "Also wipes per-category eval_ratings."
 msgstr "Wist ook de beoordelingen per categorie."
 
-#: src/Modules/DemoData/DemoCoverage.php:1385
+#: src/Modules/DemoData/DemoCoverage.php:1396
 msgid "Per-player development goals."
 msgstr "Ontwikkeldoelen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1386
+#: src/Modules/DemoData/DemoCoverage.php:1397
 msgid "Timeline events written by the journey subscriber during generation."
 msgstr ""
 "Tijdlijngebeurtenissen die tijdens het genereren door de tijdlijnsubscriber "
 "zijn geschreven."
 
-#: src/Modules/DemoData/DemoCoverage.php:1387
+#: src/Modules/DemoData/DemoCoverage.php:1398
 msgid ""
 "Historical trial cases on existing players plus a couple of open ones, each "
 "with its staff panel, assessments and extensions."
@@ -21589,12 +21590,15 @@ msgstr ""
 "Historische proefdossiers van bestaande spelers plus enkele lopende "
 "dossiers, elk met beoordelingspanel, beoordelingen en verlengingen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1388
-msgid "Scouting visits across the window and the prospects found on them."
+#: src/Modules/DemoData/DemoCoverage.php:1399
+msgid ""
+"Scouting visits across the window, the prospects found on them, and the "
+"later visits some of those prospects were watched at again."
 msgstr ""
-"Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
+"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
+"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
 
-#: src/Modules/DemoData/DemoCoverage.php:1389
+#: src/Modules/DemoData/DemoCoverage.php:1400
 msgid ""
 "A tournament per team with its squad, target minutes, fixtures and per-"
 "period assignments."
@@ -21602,7 +21606,7 @@ msgstr ""
 "Een toernooi per team met selectie, streefminuten, wedstrijden en "
 "opstellingen per periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1390
+#: src/Modules/DemoData/DemoCoverage.php:1401
 msgid ""
 "Coaching badges, development plans and goals, evaluations with ratings, and "
 "mentor pairings for the club's staff."
@@ -21610,7 +21614,7 @@ msgstr ""
 "Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, en "
 "mentorkoppels voor de staf van de club."
 
-#: src/Modules/DemoData/DemoCoverage.php:1391
+#: src/Modules/DemoData/DemoCoverage.php:1402
 msgid ""
 "Conversations with their read state, saved filters, report presets, workflow "
 "tasks and invitations. No email is ever sent."
@@ -21618,7 +21622,7 @@ msgstr ""
 "Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, "
 "workflowtaken en uitnodigingen. Er wordt nooit e-mail verstuurd."
 
-#: src/Modules/DemoData/DemoCoverage.php:1392
+#: src/Modules/DemoData/DemoCoverage.php:1403
 msgid ""
 "Guardian links to the demo parent accounts, plus each player's parent-"
 "visibility grants."
@@ -21626,7 +21630,7 @@ msgstr ""
 "Koppelingen van verzorgers aan de demo-ouderaccounts, plus de "
 "zichtbaarheidsinstellingen per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1393
+#: src/Modules/DemoData/DemoCoverage.php:1404
 msgid ""
 "Injury records with their return-to-play dates and the journey events they "
 "raise."
@@ -21634,7 +21638,7 @@ msgstr ""
 "Blessuredossiers met hersteldatums en de tijdlijngebeurtenissen die daaruit "
 "volgen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1394
+#: src/Modules/DemoData/DemoCoverage.php:1405
 msgid ""
 "Age-group history, attribute values, the club's custom fields and their "
 "values, and goal-to-evaluation links."
@@ -21642,13 +21646,13 @@ msgstr ""
 "Historie per leeftijdsgroep, attribuutwaarden, de eigen velden van de club "
 "met hun waarden, en koppelingen tussen doelen en evaluaties."
 
-#: src/Modules/DemoData/DemoCoverage.php:1395
+#: src/Modules/DemoData/DemoCoverage.php:1406
 msgid "Generated player reports. No share links or recipients are created."
 msgstr ""
 "Gegenereerde spelersrapporten. Er worden geen deel-links of ontvangers "
 "aangemaakt."
 
-#: src/Modules/DemoData/DemoCoverage.php:1396
+#: src/Modules/DemoData/DemoCoverage.php:1407
 msgid ""
 "One monthly report frozen for a staff meeting, with the notes the meeting "
 "wrote on it."
@@ -21656,7 +21660,7 @@ msgstr ""
 "Eén maandrapport bevroren voor een stafoverleg, met de notities die het "
 "overleg erop schreef."
 
-#: src/Modules/DemoData/DemoCoverage.php:1397
+#: src/Modules/DemoData/DemoCoverage.php:1408
 msgid ""
 "The testing battery, its per-age-group target bands, team testing sessions "
 "and one result per player."
@@ -21664,7 +21668,7 @@ msgstr ""
 "De testbatterij, de streefwaarden per leeftijdsgroep, testsessies per team "
 "en één resultaat per speler."
 
-#: src/Modules/DemoData/DemoCoverage.php:1398
+#: src/Modules/DemoData/DemoCoverage.php:1409
 msgid ""
 "The season, one development dossier per player, its conversation cycle, "
 "calendar links and verdicts."
@@ -21672,7 +21676,7 @@ msgstr ""
 "Het seizoen, één ontwikkeldossier per speler, de gesprekscyclus, "
 "agendakoppelingen en eindoordelen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1399
+#: src/Modules/DemoData/DemoCoverage.php:1410
 msgid ""
 "Exercises and methodology principles on each training, per-team exercise "
 "overrides, and the season's holiday windows."
@@ -21680,7 +21684,7 @@ msgstr ""
 "Oefeningen en methodiekprincipes per training, oefeningsuitzonderingen per "
 "team, en de vakantieperiodes van het seizoen."
 
-#: src/Modules/DemoData/DemoCoverage.php:1400
+#: src/Modules/DemoData/DemoCoverage.php:1411
 msgid ""
 "Match prep for every fixture — availability, lineup, roles, per-player "
 "intent — plus results, goals, substitutions and match evaluations for the "
@@ -21690,14 +21694,14 @@ msgstr ""
 "rollen, aandachtspunten per speler — plus uitslagen, doelpunten, wissels en "
 "wedstrijdevaluaties voor de gespeelde wedstrijden."
 
-#: src/Modules/DemoData/DemoCoverage.php:1401
+#: src/Modules/DemoData/DemoCoverage.php:1412
 msgid ""
 "Open sessions for invited players, one past and one upcoming per age group."
 msgstr ""
 "Open trainingen voor uitgenodigde spelers, één in het verleden en één komend "
 "per leeftijdsgroep."
 
-#: src/Modules/DemoData/DemoCoverage.php:1402
+#: src/Modules/DemoData/DemoCoverage.php:1413
 msgid ""
 "A formation and playing-style mix per team, a match-day blueprint with its "
 "assignments, coach-marked pairings, and a chemistry series across the window."
@@ -21706,7 +21710,7 @@ msgstr ""
 "opstelling, door de trainer gemarkeerde koppels, en een chemiereeks over de "
 "periode."
 
-#: src/Modules/DemoData/DemoCoverage.php:1403
+#: src/Modules/DemoData/DemoCoverage.php:1414
 msgid ""
 "Staff enrolled on the shipped courses, with a mixed spread: some finished, "
 "some mid-course, one overdue and one assignment awaiting review. The courses "
@@ -21717,7 +21721,7 @@ msgstr ""
 "die op beoordeling wacht. De cursussen zelf worden met de plug-in "
 "meegeleverd en nooit gegenereerd."
 
-#: src/Modules/DemoData/DemoCoverage.php:1404
+#: src/Modules/DemoData/DemoCoverage.php:1415
 msgid ""
 "Two of the four traffic-light inputs: behaviour ratings spread across the "
 "window, and dated potential histories for squads old enough to be asked. "
@@ -38582,9 +38586,9 @@ msgstr "VCT-ontwerper"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:244
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:51
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:80
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:52
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:63
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:53
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:64
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:65
 #: src/Shared/CoreSurfaceRegistration.php:1051
 msgid "Onboarding pipeline"
 msgstr "Instroompijplijn"
@@ -38971,7 +38975,7 @@ msgstr "Op stage"
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:237
 #: src/Modules/Prospects/Domain/ProspectOutcome.php:40
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:422
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:443
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:67
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:207
 #: src/Modules/Wizards/Prospect/IdentityStep.php:121
@@ -39637,19 +39641,19 @@ msgstr[1] "Open %1$s in de kanbanweergave — %2$d prospects"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:134
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:418
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:439
 msgid "Invited"
 msgstr "Uitgenodigd"
 
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:235
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:420
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:441
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr "Stagegroep"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:236
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:421
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:442
 msgid "Team offer"
 msgstr "Teamaanbod"
 
@@ -40481,6 +40485,7 @@ msgstr "Deze ouder ontkoppelen van de speler?"
 
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:164
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:124
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:186
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:230
 #: src/Modules/Strava/Frontend/FrontendStravaView.php:125
 #: src/Shared/Frontend/Components/SavedViews.php:465
@@ -40492,7 +40497,8 @@ msgstr "Er ging iets mis. Probeer het opnieuw."
 
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:165
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:125
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:143
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:144
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:189
 #: src/Modules/Spond/SpondScriptData.php:42
 #: src/Modules/Strava/Frontend/FrontendStravaAdminView.php:231
 #: src/Shared/Frontend/FrontendBackupsView.php:458
@@ -41005,16 +41011,16 @@ msgid "Discovery"
 msgstr "Ontdekking"
 
 # Standalone view
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:53
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:54
 msgid "You do not have access to the onboarding pipeline."
 msgstr "Je hebt geen toegang tot de instroompijplijn."
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:74
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:75
 msgid "Add prospect"
 msgstr "+ Nieuwe prospect"
 
 #. translators: %s: prospect name
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:129
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:130
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
@@ -41022,83 +41028,91 @@ msgstr "+ Nieuwe prospect"
 msgid "Prospect: %s"
 msgstr "Prospect: %s"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:133
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:134
 msgid "(unnamed prospect)"
 msgstr "(naamloze prospect)"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:137
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:138
 msgid "Back to pipeline"
 msgstr "Terug naar pijplijn"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:149
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:150
 msgid "Open next action"
 msgstr "Open volgende actie"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:152
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:153
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:92
 msgid "Edit contact"
 msgstr "Contact bewerken"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:189
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:197
 #: src/Modules/Wizards/Prospect/DiscoveryStep.php:30
 #: src/Modules/Workflow/Forms/LogProspectForm.php:95
 msgid "Scouting notes"
 msgstr "Scoutingnotities"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:241
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:249
 msgctxt "the scouting visit a prospect was discovered at"
 msgid "Found at"
 msgstr "Gevonden bij"
 
 #. translators: %s: name of the scout who made the visit.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:250
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:258
 #, php-format
 msgid "Scout: %s"
 msgstr "Scout: %s"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:332
+#. translators: %s: number of scouting visits after the one the prospect was discovered at.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:269
+#, php-format
+msgid "Seen at %s later visit"
+msgid_plural "Seen at %s later visits"
+msgstr[0] "Gezien bij %s later bezoek"
+msgstr[1] "Gezien bij %s latere bezoeken"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:353
 msgid "Action needed"
 msgstr "Actie nodig"
 
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:456
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:477
 #, php-format
 msgid "born %s"
 msgstr "geboren %s"
 
 # v3.110.99 — kanban context lines added in v3.110.81 missed the NL run.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:505
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:526
 msgid "Awaiting HoD to send the invite"
 msgstr "Wacht tot HoO de uitnodiging verstuurt"
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:508
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:529
 #, php-format
 msgid "Discovered: %s"
 msgstr "Ontdekt: %s"
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:509
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:530
 msgid "Drafted, not yet handed to HoD"
 msgstr "Geconcept, nog niet doorgegeven aan HoD"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:512
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:533
 msgid "Invitation sent, awaiting parent"
 msgstr "Uitnodiging verstuurd, wacht op ouder"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:514
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:535
 msgid "Awaiting outcome"
 msgstr "Wachten op uitkomst"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:516
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:537
 msgid "In trial group"
 msgstr "In stagegroep"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:518
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:539
 msgid "Team offer pending"
 msgstr "Teamaanbod in afwachting"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:520
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:541
 msgid "Promoted to academy"
 msgstr "Gepromoveerd naar academie"
 
@@ -41254,7 +41268,7 @@ msgid "e.g. U13 regional tournament"
 msgstr "bijv. O13 regionaal toernooi"
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:377
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:202
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:276
 msgid "Age groups expected"
 msgstr "Verwachte leeftijdsgroepen"
 
@@ -41272,7 +41286,8 @@ msgid "This scouting visit does not exist or you do not have access."
 msgstr "Dit scoutingbezoek bestaat niet of je hebt er geen toegang toe."
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:73
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:248
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:293
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:588
 msgid "You can only view your own scouting visits."
 msgstr "Je kunt alleen je eigen scoutingbezoeken bekijken."
 
@@ -41282,47 +41297,97 @@ msgstr "Je kunt alleen je eigen scoutingbezoeken bekijken."
 msgid "Visit on %1$s — %2$s"
 msgstr "Bezoek op %1$s — %2$s"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:95
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:96
 msgid "Edit visit"
 msgstr "Bezoek bewerken"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:106
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:107
 msgid "Log scouting find"
 msgstr "Leg scoutingbevinding vast"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:119
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:120
 msgid "Archive visit"
 msgstr "Bezoek archiveren"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:141
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:142
 msgid "Archive this scouting visit? It will be removed from the list."
 msgstr "Dit scoutingbezoek archiveren? Het verdwijnt uit de lijst."
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:142
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:143
 msgid "Could not archive the visit. Please try again."
 msgstr "Kon het bezoek niet archiveren. Probeer het opnieuw."
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:196
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:184
+msgid "Searching…"
+msgstr "Bezig met zoeken…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:185
+msgid "No prospects match that name."
+msgstr "Geen prospects gevonden met die naam."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:187
+msgid "Could not link that prospect. Please try again."
+msgstr "Kon die prospect niet koppelen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:188
+msgid "Could not remove that link. Please try again."
+msgstr "Kon die koppeling niet verwijderen. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:190
+msgid "Remove this prospect from the visit?"
+msgstr "Deze prospect van het bezoek verwijderen?"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:203
+msgid "Link an existing prospect"
+msgstr "Koppel een bestaande prospect"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:205
+msgid ""
+"Saw somebody you have already logged? Find them here instead of logging them "
+"twice."
+msgstr ""
+"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
+"twee keer vast te leggen."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:209
+msgid "Search prospects by name"
+msgstr "Zoek prospects op naam"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:218
+msgid "Start typing a name…"
+msgstr "Begin een naam te typen…"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:270
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:456
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:497
 msgid "Event"
 msgstr "Gebeurtenis"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:231
-msgid "Prospects logged from this visit"
-msgstr "Prospects vastgelegd vanuit dit bezoek"
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:306
+msgid "Prospects watched at this visit"
+msgstr "Prospects die bij dit bezoek zijn bekeken"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:233
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:308
 msgid "No prospects logged from this visit yet."
 msgstr "Nog geen prospects vastgelegd vanuit dit bezoek."
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:243
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:320
 msgid "Birth year"
 msgstr "Geboortejaar"
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:246
-msgid "Logged"
-msgstr "Vastgelegd"
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:323
+msgctxt "date a prospect was watched at this scouting visit"
+msgid "Seen"
+msgstr "Gezien op"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:365
+msgctxt "scouting visit"
+msgid "Discovered here"
+msgstr "Hier ontdekt"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:374
+msgid "Remove from visit"
+msgstr "Verwijder van bezoek"
 
 # ParentConfirmationController errors
 #: src/Modules/Prospects/Rest/ParentConfirmationController.php:81
@@ -41358,31 +41423,33 @@ msgstr "Kon je reactie niet vastleggen. Probeer het opnieuw."
 
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:226
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:233
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:289
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:279
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:516
 msgid "Prospect not found."
 msgstr "Prospect niet gevonden."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:280
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:270
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:510
 msgid "Invalid prospect id."
 msgstr "Ongeldig prospect-id."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:308
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:298
 msgid "That does not look like an email address."
 msgstr "Dat ziet er niet uit als een e-mailadres."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:331
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:321
 msgid "Consent date must be YYYY-MM-DD."
 msgstr "De toestemmingsdatum moet JJJJ-MM-DD zijn."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:347
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:337
 msgid "That scouting visit does not exist."
 msgstr "Dat scouting-bezoek bestaat niet."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:411
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:401
 msgid "You must be logged in to log a prospect."
 msgstr "Je moet ingelogd zijn om een prospect vast te leggen."
 
-#: src/Modules/Prospects/Rest/ProspectsRestController.php:423
+#: src/Modules/Prospects/Rest/ProspectsRestController.php:413
 msgid ""
 "Could not start the prospect-logging chain. Check the workflow templates are "
 "enabled."
@@ -41390,42 +41457,58 @@ msgstr ""
 "Kan de prospect-vastlegketen niet starten. Controleer of de "
 "workflowsjablonen aanstaan."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:238
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:320
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:387
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:283
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:365
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:432
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:580
 msgid "Invalid scouting visit id."
 msgstr "Ongeldig scouting-bezoek-id."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:244
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:326
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:392
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:289
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:371
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:437
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:584
 msgid "Scouting visit not found."
 msgstr "Scouting-bezoek niet gevonden."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:269
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:314
 msgid "Visit date is required."
 msgstr "Bezoekdatum is verplicht."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:273
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:337
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:318
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:382
 msgid "Visit date must be YYYY-MM-DD."
 msgstr "Bezoekdatum moet JJJJ-MM-DD zijn."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:277
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:322
 msgid "Location is required."
 msgstr "Locatie is verplicht."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:304
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:349
 msgid "The scouting visit could not be saved."
 msgstr "Het scouting-bezoek kon niet worden opgeslagen."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:329
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:374
 msgid "You can only edit your own scouting visits."
 msgstr "Je kunt alleen je eigen scouting-bezoeken bewerken."
 
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:395
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:440
 msgid "You can only archive your own scouting visits."
 msgstr "Je kunt alleen je eigen scouting-bezoeken archiveren."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:505
+msgid "This scouting visit is archived, so prospects cannot be linked to it."
+msgstr ""
+"Dit scoutingbezoek is gearchiveerd, dus er kunnen geen prospects aan worden "
+"gekoppeld."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:530
+msgid "Could not link the prospect to this visit."
+msgstr "Kon de prospect niet aan dit bezoek koppelen."
+
+#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:556
+msgid "Observation not found."
+msgstr "Waarneming niet gevonden."
 
 #: src/Modules/Prospects/Rest/TestTrainingsRestController.php:60
 msgid "Invalid test training id."
@@ -63790,6 +63873,16 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#~ msgid "Scouting visits across the window and the prospects found on them."
+#~ msgstr ""
+#~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
+
+#~ msgid "Prospects logged from this visit"
+#~ msgstr "Prospects vastgelegd vanuit dit bezoek"
+
+#~ msgid "Logged"
+#~ msgstr "Vastgelegd"
+
 #~ msgid ""
 #~ "No matches played for this team in this window, so there are no minutes "
 #~ "to share out. Widen the window or check the Activities log."
@@ -65715,91 +65808,3 @@ msgstr "Onbekend veldtype: %s"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-#: src/Modules/DemoData/DemoCoverage.php
-msgid ""
-"Scouting visits across the window, the prospects found on them, and the "
-"later visits some of those prospects were watched at again."
-msgstr ""
-"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
-"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
-
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid ""
-"Saw somebody you have already logged? Find them here instead of logging them "
-"twice."
-msgstr ""
-"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
-"twee keer vast te leggen."
-
-#. translators: %s: number of scouting visits after the one the prospect was discovered at.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "Seen at %s later visit"
-msgid_plural "Seen at %s later visits"
-msgstr[0] "Gezien bij %s later bezoek"
-msgstr[1] "Gezien bij %s latere bezoeken"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Prospects watched at this visit"
-msgstr "Prospects die bij dit bezoek zijn bekeken"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgctxt "date a prospect was watched at this scouting visit"
-msgid "Seen"
-msgstr "Gezien op"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgctxt "scouting visit"
-msgid "Discovered here"
-msgstr "Hier ontdekt"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Remove from visit"
-msgstr "Verwijder van bezoek"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Link an existing prospect"
-msgstr "Koppel een bestaande prospect"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Search prospects by name"
-msgstr "Zoek prospects op naam"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Start typing a name…"
-msgstr "Begin een naam te typen…"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Searching…"
-msgstr "Bezig met zoeken…"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "No prospects match that name."
-msgstr "Geen prospects gevonden met die naam."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Could not link that prospect. Please try again."
-msgstr "Kon die prospect niet koppelen. Probeer het opnieuw."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Could not remove that link. Please try again."
-msgstr "Kon die koppeling niet verwijderen. Probeer het opnieuw."
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid "Remove this prospect from the visit?"
-msgstr "Deze prospect van het bezoek verwijderen?"
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "This scouting visit is archived, so prospects cannot be linked to it."
-msgstr ""
-"Dit scoutingbezoek is gearchiveerd, dus er kunnen geen prospects aan worden "
-"gekoppeld."
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "Could not link the prospect to this visit."
-msgstr "Kon de prospect niet aan dit bezoek koppelen."
-
-#: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
-msgid "Observation not found."
-msgstr "Waarneming niet gevonden."
