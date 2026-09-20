@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T00:26:58+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:33:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1425,90 +1425,91 @@ msgid ""
 "Another account already uses %s, so the sign-in email was left unchanged."
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:91
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:53
+#: src/Infrastructure/Journey/JourneyBackfillService.php:127
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:56
 #, php-format
 msgid "Evaluation on %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:124
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:190
+#: src/Infrastructure/Journey/JourneyBackfillService.php:170
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:301
+msgid "none"
+msgstr ""
+
+#: src/Infrastructure/Journey/JourneyBackfillService.php:219
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:227
 #, php-format
 msgid "PDP verdict: %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:151
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:171
+#: src/Infrastructure/Journey/JourneyBackfillService.php:246
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:208
 #, php-format
 msgid "Goal set: %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:151
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:172
+#: src/Infrastructure/Journey/JourneyBackfillService.php:246
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:209
 msgid "Goal set"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:181
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:213
+#: src/Infrastructure/Journey/JourneyBackfillService.php:276
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:250
 msgid "Joined the academy"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:214
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:295
+#: src/Infrastructure/Journey/JourneyBackfillService.php:309
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:345
 msgid "Trial started"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyBackfillService.php:226
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:327
+#: src/Infrastructure/Journey/JourneyBackfillService.php:321
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:377
 #, php-format
 msgid "Trial ended: %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:97
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:134
 msgid "Observed in training"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:162
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:199
 #, php-format
 msgid "Goal carried over: %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:163
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:200
 msgid "Goal carried over"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:167
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:204
 #, php-format
 msgid "Goal opened from a development idea: %s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:168
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:205
 msgid "Goal opened from a development idea"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:258
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:301
 #, php-format
 msgid "Position: %1$s → %2$s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:258
-msgid "none"
-msgstr ""
-
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:343
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:393
 msgid "Signed after trial"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:354
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:404
 msgid "Released after trial"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:369
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:419
 msgid "Signed"
 msgstr "Firmado"
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:371
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:421
 #: src/Infrastructure/Query/LabelTranslator.php:65
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:209
 #: src/Modules/Players/Admin/PlayersPage.php:298
@@ -1518,27 +1519,27 @@ msgid "Released"
 msgstr ""
 
 #. translators: %s: reason
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:373
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:423
 #: src/Infrastructure/Query/LabelTranslator.php:66
 #: src/Modules/Players/SeasonRollover/FrontendSeasonRolloverView.php:527
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:247
 msgid "Graduated"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:399
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:449
 #, php-format
 msgid "Team: %1$s → %2$s"
 msgstr ""
 
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:399
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:416
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:449
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:466
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:205
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:206
 msgid "unset"
 msgstr ""
 
 #. translators: 1: from age group, 2: to age group
-#: src/Infrastructure/Journey/JourneyEventSubscriber.php:416
+#: src/Infrastructure/Journey/JourneyEventSubscriber.php:466
 #: src/Modules/Players/SeasonRollover/SeasonRolloverService.php:204
 #, php-format
 msgid "Age group: %1$s → %2$s"
