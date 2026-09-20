@@ -2,7 +2,9 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Authorization\PersonaResolver;
@@ -47,7 +49,7 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
         $wpdb->insert( "{$p}tt_players", [
             'first_name' => 'Thread',
             'last_name'  => 'Subject',
-            'club_id'    => 1,
+            'club_id'    => CurrentClub::id(),
             'status'     => 'active',
         ] );
         $player_id = (int) $wpdb->insert_id;
@@ -58,10 +60,17 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
             'title'      => 'Win more duels',
             'status'     => 'pending',
             'created_by' => 999001,
-            'club_id'    => 1,
+            'club_id'    => CurrentClub::id(),
         ] );
         $goal_id = (int) $wpdb->insert_id;
         $this->assertGreaterThan( 0, $goal_id );
+
+        // Guard: the adapter resolves the goal by id + club, and every
+        // assertion below is meaningless if it can't find the row.
+        $this->assertNotNull(
+            ( new GoalThreadAdapter() )->findEntity( $goal_id ),
+            'the fixture goal must be visible to the adapter'
+        );
 
         return $goal_id;
     }
@@ -80,12 +89,24 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
             'the HoD must not reach the thread through a settings capability'
         );
 
-        // The academy-wide goals read the seed grants HoD. Written here
-        // explicitly so the assertion doesn't depend on seed timing.
-        ( new MatrixRepository() )->setRow(
-            'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, ''
-        );
+        // The academy-wide goals read the seed grants HoD. Rewritten
+        // here rather than relied upon: `setRow` leaves an existing
+        // row's `module_class` alone, and a row carrying one is only
+        // granted while that module reports enabled — which is about
+        // the test install, not about this adapter. Removing first
+        // pins the row to the empty module_class MatrixGateScopeTest
+        // uses, so the assertion is about authorization only.
+        $repo = new MatrixRepository();
+        $repo->removeRow( 'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
+        $repo->setRow( 'head_of_development', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, '' );
         MatrixRepository::clearCache();
+
+        // Guard: separates "the matrix doesn't grant it" from "the
+        // adapter doesn't ask the matrix", which is the actual bug.
+        $this->assertTrue(
+            QueryHelpers::user_has_global_entity_read( $uid, 'goals' ),
+            'the matrix must resolve an academy-wide goals read for the HoD'
+        );
 
         $adapter = new GoalThreadAdapter();
 
@@ -110,10 +131,15 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
             'the scout role holds no goals change right — the premise of this test'
         );
 
-        ( new MatrixRepository() )->setRow(
-            'scout', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, ''
-        );
+        $repo = new MatrixRepository();
+        $repo->removeRow( 'scout', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
+        $repo->setRow( 'scout', 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL, '' );
         MatrixRepository::clearCache();
+
+        $this->assertTrue(
+            QueryHelpers::user_has_global_entity_read( $uid, 'goals' ),
+            'the matrix must resolve an academy-wide goals read for the scout'
+        );
 
         $adapter = new GoalThreadAdapter();
 
