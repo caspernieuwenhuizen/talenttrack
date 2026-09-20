@@ -577,7 +577,11 @@ class ActivitiesPage {
                 // #3800 — the same seeder the REST create calls, so the two
                 // doors cannot drift apart about what a new team activity
                 // starts with. No-op when a roster already exists.
-                \TT\Modules\Activities\Services\PlannedRosterSeeder::seed( $id, (int) ( $data['team_id'] ?? 0 ) );
+                \TT\Modules\Activities\Services\PlannedRosterSeeder::seed(
+                    $id,
+                    (int) $data['team_id'],
+                    (string) ( $data['activity_status_key'] ?? '' )
+                );
             }
         }
 

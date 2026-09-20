@@ -1434,7 +1434,8 @@ class ActivitiesRestController {
         // written above.
         \TT\Modules\Activities\Services\PlannedRosterSeeder::seed(
             $activity_id,
-            (int) ( $data['team_id'] ?? 0 )
+            (int) ( $data['team_id'] ?? 0 ),
+            (string) ( $data['activity_status_key'] ?? '' )
         );
 
         $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );

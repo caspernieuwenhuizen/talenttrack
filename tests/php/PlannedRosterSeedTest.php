@@ -143,6 +143,27 @@ final class PlannedRosterSeedTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * The regression this nearly shipped. #1636 seeds a just-played
+     * activity's roster as **present** so the coach can rate it straight
+     * away, and that seed no-ops when the activity has *any* attendance row
+     * — `countAttendance()` does not distinguish `expected` from `actual`.
+     *
+     * A planned roster written first would therefore suppress it silently
+     * and leave a completed session unrateable. An activity created already
+     * completed is not planned, it is recorded.
+     */
+    public function test_an_activity_created_completed_is_not_seeded(): void {
+        $activity = $this->makeActivity( $this->teamId );
+
+        $this->assertSame(
+            0,
+            PlannedRosterSeeder::seed( $activity, $this->teamId, 'completed' ),
+            'a completed activity must be left for #1636 to seed as present'
+        );
+        $this->assertSame( [], $this->expectedPlayerIds( $activity ) );
+    }
+
     public function test_a_tournament_day_is_seeded_like_anything_else(): void {
         $activity = $this->makeActivity( $this->teamId, 'tournament' );
 

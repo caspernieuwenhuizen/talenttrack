@@ -3,6 +3,7 @@ namespace TT\Modules\Activities\Services;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 
@@ -50,12 +51,30 @@ final class PlannedRosterSeeder {
     /**
      * Seed an activity's planned roster from its team, if it has neither.
      *
+     * @param string $activity_status_key The status the activity is being
+     *        created with. An activity created already **completed** is
+     *        never seeded — see below.
+     *
      * @return int The number of players written. 0 means nothing was done,
      *             which is the normal answer for a teamless activity, an
-     *             empty team, or one that already has a roster.
+     *             empty team, a completed one, or one that already has a
+     *             roster.
      */
-    public static function seed( int $activity_id, int $team_id ): int {
+    public static function seed( int $activity_id, int $team_id, string $activity_status_key = '' ): int {
         if ( $activity_id <= 0 || $team_id <= 0 ) return 0;
+
+        // An activity created already completed is not planned, it is
+        // recorded — and #1636 seeds its roster as *present* so the coach
+        // can rate it straight away. That seed no-ops when the activity has
+        // any attendance row at all, so a planned roster written first would
+        // silently suppress it and leave a just-played session unrateable.
+        //
+        // The rule lives here rather than at the call site so a future
+        // caller inherits it, which is the same reason
+        // `seedCompletedRosterPresent()` keeps its own date rule internal.
+        if ( $activity_status_key !== '' && $activity_status_key === ActivityStatusKey::COMPLETED ) {
+            return 0;
+        }
 
         // Idempotent by design — see the class docblock.
         if ( self::hasPlannedRoster( $activity_id ) ) return 0;
