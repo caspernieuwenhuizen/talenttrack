@@ -488,6 +488,7 @@ PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     mark read, persist t
 POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  hand in an assignment
 GET    /talenttrack/v1/submissions                          your review queue
 PATCH  /talenttrack/v1/submissions/{id}                     record a verdict
+PATCH  /talenttrack/v1/enrolments/{id}                      move or clear the deadline
 DELETE /talenttrack/v1/enrolments/{id}                      withdraw
 GET    /talenttrack/v1/people/{id}/learning                 one person's record
 ```
@@ -503,6 +504,32 @@ the stored one, `due_at_ignored: true` and a message say so: the API must not
 report a change it did not make. Moving an existing deadline is a separate
 decision, and the assign-course wizard has always said the same thing on
 screen.
+
+### Moving a deadline
+
+`PATCH /talenttrack/v1/enrolments/{id}` with `{"due_at": "2026-12-18"}` moves
+the deadline on an enrolment that already exists, and `{"due_at": null}` clears
+it. Nothing else on the row is writable: status, start date and progress are a
+record of what the person actually did, and an academy pushing a course target
+from September to December must not pay for it with everybody's progress.
+Before this route the only way to move a date was to withdraw and re-assign,
+which threw that progress away.
+
+Leaving `due_at` out of the body changes nothing and answers `200` with the
+enrolment as it stands — a partial update, so a later field can be added here
+without every caller having to resend the deadline to keep it.
+
+The date has to be a real calendar date in `YYYY-MM-DD`; anything else answers
+`400` and writes nothing. That is stricter than it looks: `2026-02-31` would
+otherwise be stored as 3 March, and `next tuesday` as no deadline at all.
+
+Same gate as withdrawing — `tt_manage_knowledge`. Moving somebody's deadline is
+the same class of act as taking them off the course, so it asks for the same
+capability. A coach cannot extend their own.
+
+Once the date is in the future the enrolment drops out of the overdue listing,
+so the overdue alert resolves on the next reconcile and the learning report
+stops counting them late against a target the academy has already dropped.
 
 A verdict is a `PATCH` on the submission rather than an `/approve` verb: the
 outcome is a field on a record, and modelling it as an action would need a

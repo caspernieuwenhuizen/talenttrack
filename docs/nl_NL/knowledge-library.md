@@ -500,6 +500,7 @@ PATCH  /talenttrack/v1/courses/{slug}/progress/{lesson}     gelezen markeren, to
 POST   /talenttrack/v1/courses/{slug}/submissions/{lesson}  een opdracht inleveren
 GET    /talenttrack/v1/submissions                          jouw beoordelingswachtrij
 PATCH  /talenttrack/v1/submissions/{id}                     een oordeel vastleggen
+PATCH  /talenttrack/v1/enrolments/{id}                      deadline verzetten of wissen
 DELETE /talenttrack/v1/enrolments/{id}                      uitschrijven
 GET    /talenttrack/v1/people/{id}/learning                 het dossier van één persoon
 ```
@@ -516,6 +517,34 @@ deadline die niet de opgeslagen is, dan zeggen `due_at_ignored: true` en een
 bericht dat ook: de API mag geen wijziging melden die ze niet heeft
 doorgevoerd. Een bestaande deadline verzetten is een aparte beslissing, en de
 toewijswizard zegt op het scherm al hetzelfde.
+
+### Een deadline verzetten
+
+`PATCH /talenttrack/v1/enrolments/{id}` met `{"due_at": "2026-12-18"}` verzet de
+deadline op een inschrijving die al bestaat, en `{"due_at": null}` wist hem.
+Verder is niets op de rij schrijfbaar: status, startdatum en voortgang zijn een
+verslag van wat de persoon werkelijk gedaan heeft, en een academie die een
+cursusdoel van september naar december schuift mag dat niet betalen met
+andermans voortgang. Vóór deze route kon een datum alleen verzet worden door
+uit te schrijven en opnieuw toe te wijzen, en dat gooide die voortgang weg.
+
+`due_at` weglaten uit de body verandert niets en levert `200` op met de
+inschrijving zoals ze is — een gedeeltelijke update, zodat hier later een veld
+bij kan zonder dat elke aanroeper de deadline moet meesturen om hem te behouden.
+
+De datum moet een bestaande kalenderdatum in `YYYY-MM-DD` zijn; al het andere
+levert `400` op en schrijft niets. Strenger dan het lijkt: `2026-02-31` zou
+anders als 3 maart worden opgeslagen, en `next tuesday` als helemaal geen
+deadline.
+
+Dezelfde poort als uitschrijven — `tt_manage_knowledge`. Iemands deadline
+verzetten is dezelfde soort handeling als hem van de cursus halen, dus vraagt
+het om dezelfde bevoegdheid. Een trainer kan zijn eigen deadline niet oprekken.
+
+Zodra de datum in de toekomst ligt, valt de inschrijving uit de lijst met
+achterstallige inschrijvingen: de melding lost bij de volgende reconcile op en
+het leerrapport telt de persoon niet langer als te laat voor een doel dat de
+academie al heeft laten vallen.
 
 Een oordeel is een `PATCH` op de inzending en geen `/approve`-werkwoord: de
 uitkomst is een veld op een record, en het als actie modelleren zou een tweede

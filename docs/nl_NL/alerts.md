@@ -120,6 +120,19 @@ Het is **geen** fout, en de melding is bewust stil: alleen bij de bel, nooit als
 
 Eén ding betekent het níét: uitnodigingen werken gewoon. De e-mail waarmee een nieuwe trainer, speler of ouder een account instelt, is accountinrichting en geen bericht uit deze lijst, dus die gaat sowieso de deur uit.
 
+### Voor het gezin
+
+Twee meldingen bestaan alleen voor ouders en verzorgers, over hun eigen kind.
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Nieuwe evaluatie gedeeld met het gezin** | Er is feedback over een evaluatie van je kind met je gedeeld. | *Waar staat deze speler nu?* — gevraagd door de mensen die elke zondag zelf gingen kijken omdat niets ze ooit vertelde dat er iets veranderd was. |
+| **Een doel van je kind is bijgewerkt** | Een ontwikkeldoel in het plan van je kind is veranderd sinds het werd opgeschreven — de status, de streefdatum of de formulering. | *Wat heeft deze speler nu nodig?* Het gezin leest hetzelfde doel als de trainer; verschuift dat, dan verschuift het antwoord mee. |
+
+**De evaluatiemelding verschijnt pas als de staf iets gedeeld heeft, nooit bij het opslaan van de evaluatie.** Dat is juist de bedoeling. Een evaluatie wordt dagen of weken eerder vastgelegd dan iemand besluit dat de speler en het gezin hem mogen lezen, en een melding bij het opslaan zou een gezin vertellen dat er een beoordeling van hun kind bestaat voordat de academie die heeft vrijgegeven. Er wordt niets aangekondigd voordat de spelersfeedback geschreven is.
+
+Beide zijn nieuws en geen probleem, dus ze verschijnen stil en verdwijnen na twee weken vanzelf.
+
 Daarmee is de catalogus voorlopig compleet. Ze komen module voor module, en elke release benoemt welke meldingen erbij komen — zie "Nieuwe meldingen staan meteen aan" hieronder.
 
 ### Instellingen die bepalen wanneer deze meldingen verschijnen
@@ -143,6 +156,8 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_player_without_team_grace_days` | 7 dagen | Hoe lang een nieuw toegevoegde speler zonder team mag blijven voordat de melding verschijnt. Het team toewijzen is vaak de volgende stap in dezelfde sessie. |
 | `alerts_invitation_stale_days` | 14 dagen | Hoe lang een uitnodiging voor een speler of staflid ongeaccepteerd mag blijven — geteld vanaf de dag dat hij is verstuurd — voordat de melding verschijnt. |
 | `alerts_invitation_unsent_days` | 1 dag | Hoe lang een uitnodiging aangemaakt maar onverstuurd mag blijven voordat de melding verschijnt. De eerste uren vasthouden is de functie zoals bedoeld — je bent nog mensen aan het toevoegen. Zet hem hoger als jouw academie uitnodigingen over meerdere dagen voorbereidt. |
+| `alerts_eval_shared_recent_days` | 14 dagen | Hoe lang net gedeelde feedback nieuws blijft voor het gezin. Daarna verdwijnt de melding vanzelf, zoals een ongelezen melding op een gegeven moment geen nieuws meer is. |
+| `alerts_goal_updated_recent_days` | 14 dagen | Hoe lang een wijziging in een doel nieuws blijft voor het gezin. |
 
 ## Nieuwe meldingen staan meteen aan
 
@@ -160,6 +175,27 @@ Hoofden Opleiding en beheerders krijgen **niet** voor elk team een melding. Meld
 
 Je krijgt bovendien alleen meldingen over records die je mag zien. Dat wordt elk uur opnieuw gecontroleerd, dus een trainer die van team wisselt krijgt de meldingen van dat team vanzelf niet meer.
 
+### Ouders en verzorgers
+
+In de meldingsinstellingen van een ouder stond eerst de hele catalogus — verlopende certificaten, teams zonder hoofdtrainer, uitnodigingen die nog verstuurd moeten worden. Niets daarvan ging over hun kind en niets daarvan konden ze zelf oplossen. Zo leer je een gezin om alles uit te zetten.
+
+Een ouder ziet nu **zes** meldingen, allemaal over het eigen gekoppelde kind en over niemand anders:
+
+| Melding | Waarom een gezin die krijgt |
+| --- | --- |
+| **Speler recent niet geëvalueerd** | Er is al een tijd niets over je kind vastgelegd. |
+| **Evaluatie niet gedeeld met de speler** | Er ligt een evaluatie en er is nog geen feedback voor jullie geschreven. |
+| **Nieuwe evaluatie gedeeld met het gezin** | Er is feedback gedeeld — de enige melding met goed nieuws in plaats van een gat. |
+| **Doel over de streefdatum** | Een doel in het plan is over de datum die ervoor stond. |
+| **Een doel van je kind is bijgewerkt** | Er is iets in het plan veranderd sinds het werd opgeschreven. |
+| **Geen PDP-gesprek deze cyclus** | Het gesprek waar de academie zich aan verbond, heeft nog niet plaatsgevonden. |
+
+Vier daarvan zijn dezelfde meldingen die een trainer krijgt. Wat een gezin leest, is voor een gezin geschreven: het feit, de naam van het kind, en verder niets. Geen scores, geen interne notities, geen naam van een trainer — en de link gaat naar het dossier van je eigen kind, niet naar een stafscherm. De melding verandert *wanneer* je kijkt, nooit *wat* je mag zien.
+
+**Een ouder hoort alleen iets over de eigen gekoppelde kinderen.** Die koppeling staat in het dossier van het kind, wordt bij elke uurcontrole opnieuw nagelopen en eindigt zodra de speler vertrekt.
+
+Je zet ze aan zoals al het andere, onder **Account → Meldingsinstellingen**, en e-mailsamenvattingen blijven uit tot je er zelf om vraagt.
+
 ## Wanneer een melding verdwijnt
 
 Los je op waar de melding over gaat, dan is hij weg zodra je opslaat. Rond de activiteit af, noteer de aanwezigheid, koppel de hoofdtrainer — op het volgende scherm staat hij er niet meer. Je hoeft niets te bevestigen en er is geen knop "afgehandeld": de melding was alleen een beschrijving van je gegevens, en die beschrijving klopt niet meer.
@@ -170,7 +206,7 @@ Alleen bij een grote wijziging in één keer — spelers importeren, een seizoen
 
 ## Kiezen welke meldingen je ziet
 
-**Account → Meldingsinstellingen** toont elke melding, gegroepeerd per onderdeel van het systeem, met een vinkje per plek waar hij kan verschijnen:
+**Account → Meldingsinstellingen** toont elke melding die jou kan bereiken, gegroepeerd per onderdeel van het systeem, met een vinkje per plek waar hij kan verschijnen. Staf ziet de hele catalogus; een ouder ziet de zes over het eigen kind (zie "Ouders en verzorgers" hierboven).
 
 - **In de bel** — meegeteld in het getal rechtsboven.
 - **Balk op het dashboard** — een balk bovenaan de pagina.
