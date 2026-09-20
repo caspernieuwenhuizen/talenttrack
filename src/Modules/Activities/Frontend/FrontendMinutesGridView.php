@@ -256,6 +256,15 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         self::renderScoreRows( $activities );
 
         echo '<tr class="tt-agrid__subhead">';
+        // #3845 — the corner cell under the Player header. Every other row
+        // emits its own leading cell; this one relied on the `rowspan` #3531
+        // removed, so every label had been sitting one column left of the
+        // column it names ever since: "Min" in the frozen player column, and
+        // `G` above the box a coach types minutes into. Nothing to name here
+        // — the per-cell aria-labels carry "minutes", "goals" and "assists"
+        // in full — so it is empty, and `tt-agrid__player` keeps it frozen
+        // and dark under the header above it.
+        echo '<th class="tt-agrid__player" scope="col"></th>';
         foreach ( $activities as $a ) {
             self::renderSubHeadCells();
         }
