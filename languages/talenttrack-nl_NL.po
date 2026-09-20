@@ -9889,11 +9889,11 @@ msgstr "Maandrapport · %s"
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:93
 msgid ""
-"This team has no completed trainings or matches in this window, so there is "
-"nothing to report yet. Pick another period above."
+"This team has no trainings or matches in this window, so there is nothing to "
+"report yet. Pick another period above."
 msgstr ""
-"Dit team heeft in deze periode geen afgeronde trainingen of wedstrijden, dus "
-"er valt nog niets te rapporteren. Kies hierboven een andere periode."
+"Dit team heeft in deze periode geen trainingen of wedstrijden, dus er valt "
+"nog niets te rapporteren. Kies hierboven een andere periode."
 
 #: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:356
 msgctxt "team monthly report panel"
@@ -24239,11 +24239,11 @@ msgstr "TalentTrack-activiteiten"
 
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:64
 msgid ""
-"This team has no completed trainings or matches in this window, so there is "
-"nothing to report yet."
+"This team has no trainings or matches in this window, so there is nothing to "
+"report yet."
 msgstr ""
-"Dit team heeft in deze periode geen afgeronde trainingen of wedstrijden, dus "
-"er is nog niets te rapporteren."
+"Dit team heeft in deze periode geen trainingen of wedstrijden, dus er is nog "
+"niets te rapporteren."
 
 #: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:200
 msgid "Monthly report"
@@ -63302,6 +63302,58 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #, php-format
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:618
+msgid "No trainings or matches in this window."
+msgstr "Geen trainingen of wedstrijden in deze periode."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:641
+msgid "Never closed."
+msgstr "Nooit afgerond."
+
+#. translators: %d: activities whose date has passed and that were never marked completed
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:644
+#, php-format
+msgid ""
+"%d activity in this window has passed and was never marked completed, so "
+"nothing it produced counts towards the figures below:"
+msgid_plural ""
+"%d activities in this window have passed and were never marked completed, so "
+"nothing they produced counts towards the figures below:"
+msgstr[0] ""
+"%d activiteit in deze periode is voorbij en is nooit op afgerond gezet, dus "
+"wat die heeft opgeleverd telt hieronder nergens mee:"
+msgstr[1] ""
+"%d activiteiten in deze periode zijn voorbij en zijn nooit op afgerond "
+"gezet, dus wat die hebben opgeleverd telt hieronder nergens mee:"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:657
+msgid "Nothing in this window has taken place yet."
+msgstr "Er heeft in deze periode nog niets plaatsgevonden."
+
+#. translators: %d: activities whose date has passed and that were never marked completed
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1409
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:726
+#, php-format
+msgid "%d activity has passed without being marked completed."
+msgid_plural "%d activities have passed without being marked completed."
+msgstr[0] "%d activiteit is voorbij zonder op afgerond te zijn gezet."
+msgstr[1] "%d activiteiten zijn voorbij zonder op afgerond te zijn gezet."
+
+#. translators: 1: number of activities, 2: their titles and dates
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:230
+#, php-format
+msgid ""
+"Never closed: %1$d activity has passed and was never marked completed — %2$s"
+msgid_plural ""
+"Never closed: %1$d activities have passed and were never marked completed — "
+"%2$s"
+msgstr[0] ""
+"Nooit afgerond: %1$d activiteit is voorbij en is nooit op afgerond gezet — "
+"%2$s"
+msgstr[1] ""
+"Nooit afgerond: %1$d activiteiten zijn voorbij en zijn nooit op afgerond "
+"gezet — %2$s"
 
 #, php-format
 #~ msgid "Match preparation does not accept: %s."

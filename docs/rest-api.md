@@ -759,9 +759,10 @@ refused caller never reaches the composer.
   "previous": { "from": "2026-07-01", "to": "2026-07-31" },
   "blocks": [ "letterhead", "coverage", "kpi" ],
   "data": {
-    "letterhead": { "team_name": "JO14-1", "head_coach": "…", "squad_size": 14, "activity_count": 17, … },
-    "coverage":   { "completed": 17, "with_register": 16,
+    "letterhead": { "team_name": "JO14-1", "head_coach": "…", "squad_size": 14, "activity_count": 19, … },
+    "coverage":   { "scheduled": 19, "completed": 17, "with_register": 16,
                     "missing": [ { "activity_id": 881, "title": "Training 4.2", "date": "2026-08-20" } ],
+                    "never_closed": [ { "activity_id": 902, "title": "Training 5.1", "date": "2026-08-27" } ],
                     "state": "partial" },
     "kpi": {
       "activities":               { "value": 17,   "previous": 15,   "delta": 2 },
@@ -774,9 +775,25 @@ refused caller never reaches the composer.
   } }
 ```
 
+**Scheduled versus completed (#3746).** `letterhead.activity_count`,
+`coverage.scheduled` and `kpi.activities` count every uncancelled activity dated
+in the window, whatever its status — what the coach sees on the activities list.
+`coverage.completed` is the subset somebody marked completed, and is the
+denominator every register figure divides by. `coverage.missing` lists the
+completed ones with no attendance register; `coverage.never_closed` lists the
+ones whose date has passed and that were never marked completed — a different
+gap, so never merged into `missing`. Future-dated activities are in `scheduled`
+and in neither list. `quality` echoes both as `activities_without_register` and
+`activities_never_closed`. `coverage.state` is `empty` only when nothing at all
+was scheduled.
+
+Before #3746 `activity_count` and `kpi.activities` counted completed activities
+only, so a stored report snapshot taken earlier can show a lower count than a
+freshly composed one for the same team and window.
+
 **Deltas** are against the preceding window of equal length — the previous
 calendar month when the window is exactly one, otherwise the N days before
-`from`. When that window had no completed activities every `previous` and
+`from`. When that window had nothing scheduled every `previous` and
 `delta` is `null`; consumers render "—", never `0%`.
 
 **Denominators.** Attendance: the planned roster where one was captured, else
