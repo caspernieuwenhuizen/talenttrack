@@ -480,8 +480,8 @@ class PlayersRestController {
             return '<span class="tt-consent-pill tt-consent-pill--gap">'
                 . esc_html(
                     sprintf(
-                        /* translators: %d: number of media items held for this player. */
-                        _n( 'No consent, %d image', 'No consent, %d images', $media_count, 'talenttrack' ),
+                        /* translators: %d: number of photos and clips held for this player. */
+                        _n( 'No consent, %d media item', 'No consent, %d media items', $media_count, 'talenttrack' ),
                         $media_count
                     )
                 )

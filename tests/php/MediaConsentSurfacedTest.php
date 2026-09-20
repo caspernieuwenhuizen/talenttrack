@@ -66,7 +66,7 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Still rendered', $html );
         $this->assertSame(
             1,
-            substr_count( $html, 'tt-media-tile ' ) + substr_count( $html, 'tt-media-tile--' ),
+            substr_count( $html, '<li class="tt-media-tile' ),
             'the tile is present exactly once, not dropped and not doubled'
         );
     }
@@ -224,9 +224,11 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
 
         $data = rest_do_request( $request )->get_data();
 
+        // The players list answers `rows`, not `items` — the media list's
+        // envelope is the one with `items`, and they are different shapes.
         return array_map(
             static fn( array $row ): int => (int) $row['id'],
-            (array) ( $data['data']['items'] ?? [] )
+            (array) ( $data['data']['rows'] ?? [] )
         );
     }
 
@@ -237,7 +239,7 @@ final class MediaConsentSurfacedTest extends WP_UnitTestCase {
 
         $data = rest_do_request( $request )->get_data();
 
-        foreach ( (array) ( $data['data']['items'] ?? [] ) as $row ) {
+        foreach ( (array) ( $data['data']['rows'] ?? [] ) as $row ) {
             if ( (int) $row['id'] === $player_id ) return (array) $row;
         }
 

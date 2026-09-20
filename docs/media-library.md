@@ -199,8 +199,8 @@ The record used to be visible only on the form that wrote it. It is now shown ev
 | The players list | A **Media consent** column, sortable, and a **Media consent** filter. |
 | The printed PDP file | A line under the header, so the statement travels with the document when it is printed or emailed on. |
 
-The filter's first option, **Has images, no consent**, is the one worth knowing about. "No consent recorded" on its own returns mostly children
-nobody has ever photographed, which is an administrative gap rather than something to act on this week. *Has images, no consent* returns the
+The filter's first option, **Has media, no consent**, is the one worth knowing about. "No consent recorded" on its own returns mostly children
+nobody has ever photographed, which is an administrative gap rather than something to act on this week. *Has media, no consent* returns the
 children the academy is actually holding pictures of without a recorded answer — the list to work through before a matchday.
 
 **Marking is not hiding.** No image is withheld from anyone on account of consent, on any of those surfaces, including the printed file. A coach

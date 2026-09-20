@@ -210,8 +210,8 @@ Het record was alleen zichtbaar op het formulier dat het schreef. Het staat nu o
 | De spelerslijst | Een kolom **Mediatoestemming**, sorteerbaar, en een filter **Mediatoestemming**. |
 | Het geprinte POP-dossier | Een regel onder de kop, zodat de mededeling meereist als het document geprint of doorgestuurd wordt. |
 
-De eerste filteroptie, **Heeft beeld, geen toestemming**, is de belangrijkste. "Geen toestemming vastgelegd" levert vooral kinderen op die nooit
-gefotografeerd zijn — een administratieve leemte, geen werk voor deze week. *Heeft beeld, geen toestemming* levert de kinderen op van wie de
+De eerste filteroptie, **Heeft media, geen toestemming**, is de belangrijkste. "Geen toestemming vastgelegd" levert vooral kinderen op die nooit
+gefotografeerd zijn — een administratieve leemte, geen werk voor deze week. *Heeft media, geen toestemming* levert de kinderen op van wie de
 academie daadwerkelijk beeld bewaart zonder vastgelegd antwoord: de lijst om vóór een wedstrijddag door te lopen.
 
 **Markeren is niet verbergen.** Geen enkel beeld wordt op grond van toestemming voor iemand achtergehouden, op geen van die schermen, ook niet in

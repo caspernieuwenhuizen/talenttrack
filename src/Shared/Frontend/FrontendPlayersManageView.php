@@ -295,7 +295,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'type'    => 'select',
                     'label'   => __( 'Media consent', 'talenttrack' ),
                     'options' => [
-                        'media_no_consent' => __( 'Has images, no consent', 'talenttrack' ),
+                        // "Media", not "images": a clip of a child is as
+                        // sensitive as a photograph of one, so the lens
+                        // counts both rather than the narrower set the
+                        // question was first asked about.
+                        'media_no_consent' => __( 'Has media, no consent', 'talenttrack' ),
                         'no_consent'       => __( 'No consent recorded', 'talenttrack' ),
                         'recorded'         => __( 'Consent on file', 'talenttrack' ),
                     ],
