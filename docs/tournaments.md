@@ -46,7 +46,8 @@ The detail view of a tournament shows:
 - **Facts strip** — team, dates, default formation, squad size, match count.
 - **Matches** — one card per match. Tap **Open planner grid** to expand the per-match lineup grid.
 - **Minutes ticker** — sticky bottom strip on mobile, right sidebar on desktop. Always visible. One card per squad player showing:
- - A green/amber/red bar with played + scheduled minutes vs the equal-share target.
+ - The minutes, played and planned kept apart: *0 played + 40 planned / 35 min*. Once a player has been on the pitch the first number moves; a player with nothing still planned reads simply *40 played / 35 min*. Before any match kicks off the whole squad reads **0 played**, which is the point — the planned column is the plan, not the record.
+ - A green/amber/red bar for the two together, played as the solid part and planned faded behind it. The colour follows played **plus** planned against the equal-share target, so the ticker works as a planner before kick-off instead of showing the entire squad red.
  - ⚡ start count.
  - 🏆 full-match count.
  - Sort dropdown: **Default / Fewest minutes / Fewest starts / No full matches** so under-served players bubble to the front.
@@ -86,6 +87,8 @@ the shortcut without losing the planner.
 ## Opponent level
 
 Each match has an opponent level — by default **weaker / equal / stronger / much stronger**. The pill on the match card is colour-coded green → grey → amber → red so you see at a glance which matches need your strongest lineup.
+
+The level shows as its translated label everywhere you meet it — the pill on the match card, the level dropdown on the add-match form, the wizard's match step and the wizard's review summary. Rename a level under Configuration → Opponent levels and the new label follows to all four; what's stored on the match doesn't change, so existing matches keep their level.
 
 The auto-balancer **does not** auto-weight by opponent level. That's coach judgment; the tool shows the data and you apply the judgment via manual swaps.
 
