@@ -2,10 +2,6 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-09-20T13:52:24+00:00\n"
-"POT-Creation-Date: 2026-09-20T14:16:16+00:00\n"
-"POT-Creation-Date: 2026-09-20T15:01:36+00:00\n"
-"POT-Creation-Date: 2026-09-20T15:14:47+00:00\n"
 "POT-Creation-Date: 2026-09-20T15:32:08+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
@@ -65720,6 +65716,30 @@ msgstr "Onbekend veldtype: %s"
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
+#: src/Modules/DemoData/DemoCoverage.php
+msgid ""
+"Scouting visits across the window, the prospects found on them, and the "
+"later visits some of those prospects were watched at again."
+msgstr ""
+"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
+"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
+
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid ""
+"Saw somebody you have already logged? Find them here instead of logging them "
+"twice."
+msgstr ""
+"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
+"twee keer vast te leggen."
+
+#. translators: %s: number of scouting visits after the one the prospect was discovered at.
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Seen at %s later visit"
+msgid_plural "Seen at %s later visits"
+msgstr[0] "Gezien bij %s later bezoek"
+msgstr[1] "Gezien bij %s latere bezoeken"
+
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
 msgid "Prospects watched at this visit"
 msgstr "Prospects die bij dit bezoek zijn bekeken"
@@ -65741,14 +65761,6 @@ msgstr "Verwijder van bezoek"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
 msgid "Link an existing prospect"
 msgstr "Koppel een bestaande prospect"
-
-#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
-msgid ""
-"Saw somebody you have already logged? Find them here instead of logging them "
-"twice."
-msgstr ""
-"Iemand gezien die je al had vastgelegd? Zoek hem hier op in plaats van hem "
-"twee keer vast te leggen."
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
 msgid "Search prospects by name"
@@ -65791,18 +65803,3 @@ msgstr "Kon de prospect niet aan dit bezoek koppelen."
 #: src/Modules/Prospects/Rest/ScoutingVisitsRestController.php
 msgid "Observation not found."
 msgstr "Waarneming niet gevonden."
-
-#. translators: %s: number of scouting visits after the one the prospect was discovered at.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "Seen at %s later visit"
-msgid_plural "Seen at %s later visits"
-msgstr[0] "Gezien bij %s later bezoek"
-msgstr[1] "Gezien bij %s latere bezoeken"
-
-#: src/Modules/DemoData/DemoCoverage.php
-msgid ""
-"Scouting visits across the window, the prospects found on them, and the "
-"later visits some of those prospects were watched at again."
-msgstr ""
-"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
-"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."
