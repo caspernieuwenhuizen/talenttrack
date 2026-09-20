@@ -236,4 +236,61 @@ final class MeasurementRegisterTest extends WP_UnitTestCase {
             'nothing was said about how often to measure, so there is nothing to be late for'
         );
     }
+
+    // ---------------------------------------------------------------
+    // #3768 — the value, the unit and the separator
+    // ---------------------------------------------------------------
+
+    public function test_the_latest_value_carries_no_unit_so_a_consumer_can_format_it(): void {
+        $this->record( $this->define( 'Weight', 'neutral', 'annual', 'kg' ), '2026-06-01', 36.3 );
+
+        $test = ( new PlayerMeasurementProfile() )->forPlayer( $this->player_id )[0]['tests'][0];
+
+        $this->assertSame( '36.3', (string) $test['latest_value'], 'a bare number, dot decimal' );
+        $this->assertSame( 'kg', (string) $test['unit'], 'the symbol travels once, in its own field' );
+    }
+
+    public function test_the_value_column_prints_the_unit_exactly_once(): void {
+        $this->record( $this->define( 'Height', 'neutral', 'annual', 'cm' ), '2026-06-01', 168.0 );
+
+        $html = $this->render();
+
+        $this->assertStringContainsString( '168 cm', $html );
+        $this->assertStringNotContainsString( '168 cm cm', $html, 'the service and the row both used to append it' );
+    }
+
+    public function test_the_value_column_spells_its_decimal_the_way_the_reader_does(): void {
+        $this->record( $this->define( 'Sprint 30m', 'lower', 'quarterly', 's' ), '2026-06-01', 2.03 );
+
+        $original = $GLOBALS['wp_locale']->number_format;
+        $GLOBALS['wp_locale']->number_format = [ 'decimal_point' => ',', 'thousands_sep' => '.' ];
+
+        try {
+            $html = $this->render();
+        } finally {
+            $GLOBALS['wp_locale']->number_format = $original;
+        }
+
+        $this->assertStringContainsString( '2,03 s', $html );
+        $this->assertStringNotContainsString( '2.03 s', $html, 'the column beside it already read 2,09' );
+    }
+
+    public function test_a_level_value_is_not_read_as_a_number(): void {
+        $id = ( new MeasurementDefinitionsRepository() )->create( [
+            'category_id' => 1,
+            'name'        => 'Coordination',
+            'value_type'  => 'status',
+            'unit'        => '',
+            'frequency'   => 'annual',
+            'direction'   => 'neutral',
+        ] );
+        ( new MeasurementResultsRepository() )->create( [
+            'player_id'     => $this->player_id,
+            'definition_id' => $id,
+            'recorded_date' => '2026-06-01',
+            'value_text'    => 'Goed',
+        ] );
+
+        $this->assertStringContainsString( 'Goed', $this->render() );
+    }
 }
