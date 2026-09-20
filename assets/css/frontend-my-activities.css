@@ -166,3 +166,16 @@
         gap: var(--tt-sp-3, 12px);
     }
 }
+
+/* #3806 — history / upcoming switch above the list. */
+.tt-dashboard .tt-myact-mode {
+    margin: 0 0 12px;
+}
+
+.tt-dashboard .tt-myact-mode .tt-btn {
+    min-height: 48px;
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
