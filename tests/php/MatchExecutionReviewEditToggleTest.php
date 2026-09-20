@@ -5,7 +5,7 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Security\RolesService;
-use TT\Modules\MatchExecution\Domain\MatchExecutionLayout;
+use TT\Modules\MatchExecution\MatchExecutionLayout;
 use TT\Modules\MatchExecution\Frontend\FrontendMatchExecutionView;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
