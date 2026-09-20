@@ -340,6 +340,9 @@ class MatchAnalysisRestController {
         $problems = MatchAnalysisWriter::problems( $body );
         if ( $problems !== [] ) return self::unwritable( $problems );
 
+        $too_long = MatchAnalysisWriter::overlongNoteFields( $body );
+        if ( $too_long !== [] ) return self::noteTooLong( $too_long );
+
         $composer = new MatchAnalysisComposer();
         $payload  = $composer->forActivity( $activity_id, true );
         if ( $payload === null ) {
@@ -408,6 +411,12 @@ class MatchAnalysisRestController {
             return self::unwritable( [ 'rating' ] );
         }
 
+        // #3853 — every bullet in one answer, before any of them is
+        // written: a request that carries one over-long point writes none
+        // of them, rather than storing three and shortening the fourth.
+        $too_long = self::overlongIn( $body['notes'] ?? [] );
+        if ( $too_long !== [] ) return self::noteTooLong( $too_long );
+
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
         if ( $payload === null ) return self::not_a_match();
 
@@ -429,6 +438,13 @@ class MatchAnalysisRestController {
         $activity_id = absint( $r['activity_id'] );
         $player_id   = absint( $r['player_id'] );
 
+        $body = self::body( $r );
+
+        // #3853 — before the find-or-create, so a refused write leaves
+        // neither a shortened note nor an analysis row behind it.
+        $too_long = self::overlongIn( MatchAnalysisWriter::notesOf( $body ) );
+        if ( $too_long !== [] ) return self::noteTooLong( $too_long );
+
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
         if ( $payload === null ) return self::not_a_match();
 
@@ -437,7 +453,7 @@ class MatchAnalysisRestController {
         ( new MatchAnalysisWriter() )->savePlayerItem(
             (int) $payload['analysis_id'],
             $player_id,
-            self::body( $r ),
+            $body,
             $minutes[ $player_id ] ?? null
         );
 
@@ -620,6 +636,46 @@ class MatchAnalysisRestController {
                     'rating'   => array_keys( MatchAnalysisEnums::ratings() ),
                 ],
             ]
+        );
+    }
+
+    /**
+     * The over-long items in one note list, as the granular routes name
+     * them (#3853).
+     *
+     * @param mixed $notes
+     * @return list<string>
+     */
+    private static function overlongIn( $notes ): array {
+        return array_map(
+            static fn( int $index ): string => sprintf( 'notes[%d]', $index ),
+            MatchAnalysisWriter::overlongNotes( $notes )
+        );
+    }
+
+    /**
+     * #3853 — a note longer than a note may be, refused rather than cut.
+     *
+     * The old answer was a 200 over a body that had lost its tail
+     * mid-word, which is the worst of both: the coach believes the
+     * observation is filed, and the selection call that later quotes it is
+     * quoting half a sentence. The maximum is in the message and in
+     * `details.max_length`, so a client can say it on the way in rather
+     * than discover it on the way out.
+     *
+     * @param list<string> $fields
+     */
+    private static function noteTooLong( array $fields ): \WP_REST_Response {
+        return RestResponse::error(
+            'invalid_field',
+            sprintf(
+                /* translators: 1: maximum number of characters, 2: comma-separated field names */
+                __( 'A note is one short point, at most %1$d characters. Shorten these and save again: %2$s.', 'talenttrack' ),
+                MatchAnalysisWriter::NOTE_MAX,
+                implode( ', ', $fields )
+            ),
+            400,
+            [ 'fields' => $fields, 'max_length' => MatchAnalysisWriter::NOTE_MAX ]
         );
     }
 

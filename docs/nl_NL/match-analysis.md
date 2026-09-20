@@ -139,6 +139,14 @@ leeg als er maar één ding te melden is.
 De markering ▲ ● ▼ blijft wat hij was: jouw beeld van de hele wedstrijd van
 die speler. De notities zijn de onderbouwing eronder.
 
+**Een notitie is één kort punt, geen alinea.** Elke regel bevat maximaal
+255 tekens; daarom laten de vakken je niet verder typen dan hun eigen
+limiet. Er wordt nooit stilletjes iets ingekort: een langere notitie die
+van buiten de app binnenkomt — een import, een koppeling — wordt geweigerd
+en zegt dat ook, in plaats van opgeslagen te worden met de staart er
+middenin een woord afgeknipt. Waar het ene punt ophoudt en het volgende
+begint, bepaal jij; zet een lange gedachte dus zelf op de tweede regel.
+
 Alleen de spelers die je markeert krijgen notitievelden, dus een selectie
 van veertien past op één telefoonscherm en een analyse waar je nog niet aan
 begonnen bent bevat helemaal geen tekstvakken.
