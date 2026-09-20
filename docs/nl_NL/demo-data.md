@@ -239,6 +239,12 @@ Staat JavaScript uit in je browser, dan gebeurt de hele run in die ene aanvraag
 zoals voorheen. Voor de kleinere presets werkt dat prima; de grote preset is
 degene die de stappen nodig heeft.
 
+De trainingsstap sluit af met het uitrekenen van **hoeveel minuten elke speler
+aan elk principe heeft besteed**, precies de berekening die de nachtelijke taak
+doet. Het trainingstabblad van een speler klopt daardoor zodra de run klaar is,
+in plaats van "zeven trainingen, nooit iets getraind" te tonen tot een geplande
+taak waar op een demo-installatie niemand op wacht.
+
 ## Twee keer genereren in dezelfde club
 
 Een tweede run vult aan bij wat er al staat in plaats van het te vervangen. Elke
