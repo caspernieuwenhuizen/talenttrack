@@ -30,37 +30,49 @@ use TT\Shared\Frontend\Components\MediaGallery;
  */
 final class MediaConsentSurfacedTest extends WP_UnitTestCase {
 
+    /** @var list<array{0:string,1:string}> */
+    private $granted = [];
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
         ( new RolesService() )->ensureCapabilities();
         MatrixRepository::clearCache();
-        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        MediaVisibilityService::flush();
 
         // `MediaVisibilityService::filterVisible()` asks the matrix, not the
-        // capability map: without a media read grant the gallery renders
-        // empty for everybody, administrator included. The suite does not
-        // install the authorization seed, so the row is added here — global
-        // scope, because these tests are about consent and not about which
-        // squads a reader can reach.
-        ( new MatrixRepository() )->setRow(
-            'academy_admin',
-            MediaVisibilityService::ENTITY,
-            MatrixGate::READ,
-            MatrixGate::SCOPE_GLOBAL,
-            ''
-        );
+        // capability map, and the suite does not install the authorization
+        // seed — so without these rows the gallery renders empty for
+        // everybody and the assertions below would be measuring the
+        // visibility layer instead of the consent marker.
+        //
+        // Global scope on the academy admin, because these tests are about
+        // what the surfaces say about consent; a squad boundary would only
+        // give them a second reason to fail. `MediaVisibilityTest` pins that
+        // this is the persona a `tt_club_admin` resolves to — a WordPress
+        // `administrator` does not, which is why the user below is not one.
+        foreach ( [ MatrixGate::READ, MatrixGate::CREATE_DELETE, MatrixGate::CHANGE ] as $activity ) {
+            ( new MatrixRepository() )->setRow(
+                'academy_admin',
+                MediaVisibilityService::ENTITY,
+                $activity,
+                MatrixGate::SCOPE_GLOBAL,
+                ''
+            );
+            $this->granted[] = [ $activity, MatrixGate::SCOPE_GLOBAL ];
+        }
         MatrixRepository::clearCache();
         MediaVisibilityService::flush();
+
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'tt_club_admin' ] ) );
     }
 
     public function tear_down(): void {
-        ( new MatrixRepository() )->removeRow(
-            'academy_admin',
-            MediaVisibilityService::ENTITY,
-            MatrixGate::READ,
-            MatrixGate::SCOPE_GLOBAL
-        );
+        $repo = new MatrixRepository();
+        foreach ( $this->granted as [ $activity, $scope ] ) {
+            $repo->removeRow( 'academy_admin', MediaVisibilityService::ENTITY, $activity, $scope );
+        }
+        $this->granted = [];
         MatrixRepository::clearCache();
         MediaVisibilityService::flush();
         parent::tear_down();
