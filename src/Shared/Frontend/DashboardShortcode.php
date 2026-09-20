@@ -2351,7 +2351,10 @@ class DashboardShortcode {
         // the only thing it can search. Staff search is unchanged and
         // elsewhere.
         if ( \TT\Infrastructure\Players\ParentChildResolver::childCount( (int) $user->ID ) > 0 ) {
-            $search_url = add_query_arg( [ 'tt_view' => \TT\Shared\Frontend\FrontendParentSearchView::SLUG ], $base_url );
+            // Gated above by the linked-child check, which is the same
+            // question the view answers, so `CrossViewLink` would ask it
+            // twice. Shell chrome, not an in-body cross-view link.
+            $search_url = add_query_arg( [ 'tt_view' => \TT\Shared\Frontend\FrontendParentSearchView::SLUG ], $base_url ); /* tt-xview-ok */
             echo '<form class="tt-dash-search" method="get" action="' . esc_url( $base_url ) . '" role="search">';
             echo '<input type="hidden" name="tt_view" value="' . esc_attr( \TT\Shared\Frontend\FrontendParentSearchView::SLUG ) . '" />';
             echo '<label class="screen-reader-text" for="tt-dash-search-q">' . esc_html__( 'Search', 'talenttrack' ) . '</label>';

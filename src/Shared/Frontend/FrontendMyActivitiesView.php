@@ -120,6 +120,11 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $upcoming = ! empty( $_GET['upcoming'] );
         self::renderModeToggle( $upcoming );
 
+        // Built rather than branched: the two modes differ by one key, and
+        // writing the player scope twice would be two places to forget it.
+        $static_filters = [ 'player_id' => (int) $player->id ];
+        $static_filters[ $upcoming ? 'date_from' : 'date_to' ] = current_time( 'Y-m-d' );
+
         echo '<div class="tt-myact-list">';
         echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
             'rest_path' => 'activities',
@@ -130,15 +135,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             // default is history, and a player who deliberately widens the
             // range sees what they asked for — with no status pill on it,
             // because the column now reads recorded attendance only.
-            'static_filters' => $upcoming
-                ? [
-                    'player_id' => (int) $player->id,
-                    'date_from' => current_time( 'Y-m-d' ),
-                ]
-                : [
-                    'player_id' => (int) $player->id,
-                    'date_to'   => current_time( 'Y-m-d' ),
-                ],
+            'static_filters' => $static_filters,
             // #1986 — player surface: rows are NOT clickable (the only detail
             // link pointed at the staff `?tt_view=activities` view, which a
             // player isn't authorised for). All player-allowed information is

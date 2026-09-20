@@ -49,6 +49,9 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * Domain layer, not a view (CLAUDE.md §4): the REST route and the rendered
  * page call this and get the same answer.
+ *
+ * @phpstan-type Hit array{type: string, id: int, player_id: int, title: string,
+ *                        subtitle: string, date: string, url: string}
  */
 final class ParentSearchService {
 
@@ -66,7 +69,7 @@ final class ParentSearchService {
      * @return array{
      *   query: string,
      *   children: list<array{id:int, name:string}>,
-     *   results: list<array{type:string, id:int, player_id:int, title:string, subtitle:string, date:string, url:string}>,
+     *   results: list<Hit>,
      *   total: int
      * }
      */
@@ -74,15 +77,21 @@ final class ParentSearchService {
         $query    = trim( $query );
         $children = $this->children( $parent_user_id );
 
+        // `ParentChildResolver` hands back `tt_players` rows as plain
+        // stdClass, so the fields are read through an array cast rather
+        // than as declared properties.
+        $named = [];
+        foreach ( $children as $child ) {
+            $row     = (array) $child;
+            $named[] = [
+                'id'   => (int) ( $row['id'] ?? 0 ),
+                'name' => trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) ),
+            ];
+        }
+
         $empty = [
             'query'    => $query,
-            'children' => array_map(
-                static fn ( object $c ): array => [
-                    'id'   => (int) $c->id,
-                    'name' => trim( (string) ( $c->first_name ?? '' ) . ' ' . (string) ( $c->last_name ?? '' ) ),
-                ],
-                $children
-            ),
+            'children' => $named,
             'results'  => [],
             'total'    => 0,
         ];
@@ -94,8 +103,13 @@ final class ParentSearchService {
             return $empty;
         }
 
-        $player_ids = array_values( array_map( static fn ( object $c ): int => (int) $c->id, $children ) );
-        $date       = self::asDate( $query );
+        $player_ids = [];
+        foreach ( $named as $child ) {
+            if ( $child['id'] > 0 ) $player_ids[] = $child['id'];
+        }
+        if ( $player_ids === [] ) return $empty;
+
+        $date = self::asDate( $query );
 
         $results = array_merge(
             $this->activities( $player_ids, $query, $date ),
@@ -117,7 +131,7 @@ final class ParentSearchService {
 
         return [
             'query'    => $query,
-            'children' => $empty['children'],
+            'children' => $named,
             'results'  => $results,
             'total'    => count( $results ),
         ];
@@ -153,7 +167,7 @@ final class ParentSearchService {
 
     /**
      * @param list<int> $player_ids
-     * @return list<array<string,mixed>>
+     * @return list<Hit>
      */
     private function activities( array $player_ids, string $query, string $date ): array {
         global $wpdb;
@@ -223,7 +237,7 @@ final class ParentSearchService {
 
     /**
      * @param list<int> $player_ids
-     * @return list<array<string,mixed>>
+     * @return list<Hit>
      */
     private function evaluations( array $player_ids, string $query, string $date ): array {
         global $wpdb;
@@ -276,7 +290,7 @@ final class ParentSearchService {
 
     /**
      * @param list<int> $player_ids
-     * @return list<array<string,mixed>>
+     * @return list<Hit>
      */
     private function goals( array $player_ids, string $query, string $date ): array {
         global $wpdb;
@@ -325,7 +339,7 @@ final class ParentSearchService {
      * The caller's own inbox. Not the child's: a message is addressed to a
      * person, and this one is addressed to the reader.
      *
-     * @return list<array<string,mixed>>
+     * @return list<Hit>
      */
     private function messages( int $parent_user_id, string $query, string $date ): array {
         global $wpdb;
