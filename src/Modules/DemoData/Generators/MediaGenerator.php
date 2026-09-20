@@ -19,6 +19,14 @@ use TT\Modules\Media\Storage\MediaStorage;
  * team, a handful of player portraits, and one external video link so the
  * provider badge and the link path are both visible.
  *
+ * **Consent decides portraits, not the squad photo** (#3846). A portrait
+ * is of one child, so it is only taken of a player whose family gave
+ * media consent. The squad photo is linked to several players including
+ * at least one with no consent on record, because one image depicting
+ * children of mixed consent is the co-depiction case epic #2589 decided
+ * on (D5) and the case #3804's surfaces exist to display — a demo that
+ * excluded it could not show the product's real state.
+ *
  * **Images are drawn at runtime, not shipped.** Committing a folder of
  * JPEGs to the repository to make demo data look real is a poor trade —
  * it inflates every clone forever, and a generated gradient with initials
@@ -79,6 +87,11 @@ class MediaGenerator implements DependentGeneratorInterface {
             if ( $team_id <= 0 ) continue;
 
             $roster = $this->rosterFor( $team_id );
+            // #3846 — portrait subjects are drawn from the players whose
+            // family gave media consent, not from the front of the
+            // roster. A portrait of one child is exactly the case the
+            // consent field governs.
+            $portrait_subjects = array_slice( $this->consentedIn( $roster ), 0, self::PORTRAITS_PER_TEAM );
 
             $squad_id = $this->storeImage(
                 $media,
@@ -92,14 +105,24 @@ class MediaGenerator implements DependentGeneratorInterface {
                 $total++;
 
                 // The squad photo depicts the whole team, which is the
-                // co-depiction case the epic decided on (D5) — so the demo
-                // shows it rather than leaving that policy abstract.
-                foreach ( array_slice( $roster, 0, self::PORTRAITS_PER_TEAM ) as $player ) {
+                // co-depiction case epic #2589 decided on (D5) — so the
+                // demo shows it rather than leaving that policy abstract.
+                //
+                // #3846 — and it keeps its unconsented players on
+                // purpose. One image, several children, mixed consent is
+                // the state #3804's surfaces exist to display: the marker
+                // reflects the viewing player's consent, so the same team
+                // photo is marked on one child's tab and not on another's.
+                // Excluding the unconsented here would leave the demo
+                // unable to demonstrate the one case those surfaces are
+                // for. No portrait without consent; the squad photo keeps
+                // everyone.
+                foreach ( $this->squadPhotoSubjects( $roster ) as $player ) {
                     $links->link( $squad_id, MediaEntityType::PLAYER, (int) $player->id );
                 }
             }
 
-            foreach ( array_slice( $roster, 0, self::PORTRAITS_PER_TEAM ) as $offset => $player ) {
+            foreach ( $portrait_subjects as $offset => $player ) {
                 $player_id = (int) ( $player->id ?? 0 );
                 if ( $player_id <= 0 ) continue;
 
@@ -225,6 +248,63 @@ class MediaGenerator implements DependentGeneratorInterface {
             if ( $part !== '' ) $out .= strtoupper( substr( $part, 0, 1 ) );
         }
         return $out !== '' ? $out : 'TT';
+    }
+
+    /**
+     * #3846 — does this player's family have media consent on record?
+     *
+     * Absent column, absent row, anything that is not a stored 1: no
+     * consent. The default has to be the restrictive one.
+     */
+    private function hasConsent( object $player ): bool {
+        return (int) ( $player->media_consent ?? 0 ) === 1;
+    }
+
+    /**
+     * #3846 — the players a portrait may be taken of.
+     *
+     * @param object[] $roster
+     * @return object[]
+     */
+    private function consentedIn( array $roster ): array {
+        $out = [];
+        foreach ( $roster as $player ) {
+            if ( (int) ( $player->id ?? 0 ) <= 0 ) continue;
+            if ( $this->hasConsent( $player ) ) $out[] = $player;
+        }
+        return $out;
+    }
+
+    /**
+     * #3846 — the players the squad photo is linked to as co-depicted.
+     *
+     * The front of the roster, plus one player with no consent on record
+     * if the front of the roster happens not to include one. That last
+     * part is the whole point: a squad photo whose co-depicted players
+     * are all consented demonstrates nothing that a per-player portrait
+     * does not, and the mixed-consent image is the case #3804's surfaces
+     * were shaped around.
+     *
+     * @param object[] $roster
+     * @return object[]
+     */
+    private function squadPhotoSubjects( array $roster ): array {
+        $out = array_slice( $roster, 0, self::PORTRAITS_PER_TEAM );
+
+        $picked = [];
+        foreach ( $out as $player ) {
+            $picked[] = (int) ( $player->id ?? 0 );
+        }
+
+        foreach ( $roster as $player ) {
+            if ( $this->hasConsent( $player ) ) continue;
+            $id = (int) ( $player->id ?? 0 );
+            if ( $id <= 0 ) continue;
+            if ( ! in_array( $id, $picked, true ) ) $out[] = $player;
+            break;
+        }
+
+        return $out;
     }
 
     /** @return object[] */

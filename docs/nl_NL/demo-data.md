@@ -45,6 +45,7 @@ records nooit raakt.
 | Proefdossiers | Historische proefperiodes van bestaande spelers plus lopende dossiers, elk met beoordelingspanel, beoordelingen en verlengingen |
 | Toernooien | Een toernooi per team met selectie, streefminuten, wedstrijden en opstellingen per periode |
 | Stafontwikkeling | Trainersdiploma's, ontwikkelplannen en -doelen, beoordelingen met scores, mentorkoppels |
+| Media | Een teamfoto per team, portretten van de spelers van wie de familie toestemming gaf voor beeldmateriaal, en één externe videolink |
 | Berichten en beheerdersgegevens | Gesprekken met leesstatus, opgeslagen filters, rapportsjablonen, workflowtaken, uitnodigingen |
 | Gedrag en potentieel | Gedragsbeoordelingen over de periode, en gedateerde potentieelhistories voor teams die oud genoeg zijn om ernaar gevraagd te worden |
 
@@ -73,6 +74,21 @@ landen op waarden die die schaal kan uitdrukken — geen 6,4 bij een stap van 1.
 Een archetype dat vooruitgaat schuift per seizoen minstens een hele stap op,
 zodat het ontwikkelverhaal uit de lijst te lezen is zonder een grafiek te
 openen.
+
+**Bij elke speler staat vast of er toestemming voor beeldmateriaal is**, en
+bewust niet bij iedereen hetzelfde. Elke vijfde speler in een team heeft geen
+toestemming vastgelegd; de rest heeft een ja, met de datum waarop ze binnenkwamen
+en de trainer die het noteerde. Welke spelers dat zijn, volgt uit hun plek in de
+selectie en niet uit toeval, dus een nieuwe run met dezelfde seed geeft hetzelfde
+antwoord.
+
+De foto's volgen daaruit. Een **portret** — een foto van één kind — wordt alleen
+gemaakt van een speler van wie de familie toestemming gaf; daardoor is te zien
+wat het toestemmingsveld doet. De **teamfoto** houdt iedereen erop, ook de
+spelers zonder toestemming. Dat is met opzet: één foto waarop kinderen met en
+zonder toestemming samen staan is precies het geval waar het mediatabblad voor
+is, en een demo die die spelers stilletjes van de teamfoto liet, kon dat niet
+laten zien.
 
 **Gedrag en potentieel** worden mét hun gaten gevuld. Ongeveer één op de vijf spelers die oud genoeg is voor een potentieelklasse heeft er geen, per team blijft er één te lang onaangeroerd, en bij één wordt de klasse naar **beneden** bijgesteld in plaats van omhoog. Dat is bewust: het stoplicht, de melding *Potentieel niet herzien* en het potentieelverloop bestaan juist om ontbrekende en bewegende gegevens zichtbaar te maken, en een demo waarin nooit iets ontbreekt of te laat is, laat ze lijken op functies die nooit afgaan. Onder de 13 jaar wordt helemaal geen potentieel gevuld — het product vraagt er daar niet naar, dus de demo ook niet.
 
