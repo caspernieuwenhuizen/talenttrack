@@ -63336,6 +63336,68 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:117
+#, php-format
+msgid "No evaluation of %s has been recorded yet."
+msgstr "Er is nog geen evaluatie van %s vastgelegd."
+
+#. translators: 1: player name, 2: number of weeks since the last evaluation
+#: src/Modules/Alerts/Definitions/PlayerNotEvaluatedAlert.php:126
+#, php-format
+msgid "There has been no new evaluation of %1$s for %2$d week."
+msgid_plural "There has been no new evaluation of %1$s for %2$d weeks."
+msgstr[0] "Er is al %2$d week geen nieuwe evaluatie van %1$s geweest."
+msgstr[1] "Er is al %2$d weken geen nieuwe evaluatie van %1$s geweest."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/PdpNoConversationAlert.php:137
+#, php-format
+msgid "%s has not had a PDP conversation this cycle yet."
+msgstr "%s heeft deze cyclus nog geen PDP-gesprek gehad."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationNotSharedAlert.php:135
+#, php-format
+msgid "An evaluation of %s is recorded but no feedback has been written yet."
+msgstr "Er ligt een evaluatie van %s, maar er is nog geen feedback geschreven."
+
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:71
+msgid "New evaluation shared with the family"
+msgstr "Nieuwe evaluatie gedeeld met het gezin"
+
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:75
+msgid ""
+"Feedback on an evaluation of your child has been shared with you. It appears "
+"only once staff have released it, never when the evaluation is first written."
+msgstr ""
+"Er is feedback over een evaluatie van je kind met je gedeeld. Die verschijnt "
+"pas als de staf hem heeft vrijgegeven, nooit bij het opslaan van de evaluatie."
+
+#. translators: %s: player name
+#: src/Modules/Alerts/Definitions/EvaluationSharedWithFamilyAlert.php:113
+#, php-format
+msgid "New feedback has been shared about %s."
+msgstr "Er is nieuwe feedback over %s gedeeld."
+
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:64
+msgid "A goal for your child was updated"
+msgstr "Een doel van je kind is bijgewerkt"
+
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:68
+msgid ""
+"A development goal on your child's plan has changed since it was written — "
+"its status, its target date or its wording."
+msgstr ""
+"Een ontwikkeldoel in het plan van je kind is veranderd sinds het werd "
+"opgeschreven — de status, de streefdatum of de formulering."
+
+#. translators: 1: player name, 2: goal title
+#: src/Modules/Alerts/Definitions/GoalUpdatedForMyChildAlert.php:105
+#, php-format
+msgid "%1$s's goal \"%2$s\" was updated."
+msgstr "Het doel \"%2$s\" van %1$s is bijgewerkt."
+
 #, php-format
 #~ msgid "Match preparation does not accept: %s."
 #~ msgstr "De wedstrijdvoorbereiding accepteert niet: %s."

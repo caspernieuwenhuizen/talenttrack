@@ -7,6 +7,7 @@ use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Recipients\TeamHeadCoachLookup;
 use TT\Modules\Alerts\Contracts\AlertInterface;
+use TT\Modules\Alerts\Domain\AlertAudience;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\AlertOccurrence;
 use TT\Modules\Alerts\Domain\Severity;
@@ -144,58 +145,157 @@ abstract class AbstractPlayerAlert implements AlertInterface {
     }
 
     /**
+     * Guardians of the players in the result set, keyed by player id.
+     *
+     * Empty by default: a definition reaches a family only when it says so,
+     * which it does by using `FamilyAudienceTrait` (#3795). Batched for the
+     * same reason `headCoachesByTeam()` is — the sweep runs over the whole
+     * academy and a per-row lookup here would be hundreds of queries.
+     *
+     * @param list<int> $player_ids
+     * @return array<int,list<int>> player_id => list of wp_user_id
+     */
+    protected function familyRecipients( array $player_ids ): array {
+        return [];
+    }
+
+    /**
+     * The sentence a family reads. Defaults to the staff one, which is only
+     * ever used by a definition that addresses families and forgot to
+     * override it — `FamilyAudienceTrait`'s docblock says why it should.
+     */
+    protected function familyTitleFor( object $row ): string {
+        return $this->titleFor( $row );
+    }
+
+    /**
+     * Where a family's occurrence takes them: their own child's record.
+     *
+     * Deliberately not `urlFor()`. The staff destination is wherever the fix
+     * lives — an evaluation form, a PDP file — and a parent has no business
+     * on those screens. The child's own record is a surface they can already
+     * open, so the alert changes *when* they look, never *what* they may see.
+     */
+    protected function familyUrlFor( object $row ): string {
+        return RecordLink::detailUrlFor( 'players', $this->playerIdFor( $row ) );
+    }
+
+    /**
      * @return list<AlertOccurrence>
      */
     public function evaluate( AlertContext $context ): array {
         $rows = $this->rows( $context );
         if ( empty( $rows ) ) return [];
 
-        $team_ids = [];
+        $audiences  = AlertAudience::forDefinition( $this );
+        $has_staff  = in_array( AlertAudience::STAFF, $audiences, true );
+        $has_family = in_array( AlertAudience::PARENT, $audiences, true );
+
+        $team_ids   = [];
+        $player_ids = [];
         foreach ( $rows as $row ) {
             $tid = (int) ( $row->team_id ?? 0 );
             if ( $tid > 0 ) $team_ids[ $tid ] = true;
+            $pid = $this->playerIdFor( $row );
+            if ( $pid > 0 ) $player_ids[ $pid ] = true;
         }
-        $head_coaches = $this->headCoachesByTeam( array_keys( $team_ids ) );
+        $head_coaches = $has_staff ? $this->headCoachesByTeam( array_keys( $team_ids ) ) : [];
+        $guardians    = $has_family ? $this->familyRecipients( array_keys( $player_ids ) ) : [];
 
         $out = [];
         foreach ( $rows as $row ) {
             $subject_id = $this->subjectIdFor( $row );
             if ( $subject_id <= 0 ) continue;
 
+            $player_id = $this->playerIdFor( $row );
+            $severity  = $this->severityFor( $row );
+
             $recipients = [];
-            $team_id    = (int) ( $row->team_id ?? 0 );
-            if ( $team_id > 0 && isset( $head_coaches[ $team_id ] ) ) {
-                $recipients[ $head_coaches[ $team_id ] ] = true;
+            if ( $has_staff ) {
+                $team_id = (int) ( $row->team_id ?? 0 );
+                if ( $team_id > 0 && isset( $head_coaches[ $team_id ] ) ) {
+                    $recipients[ $head_coaches[ $team_id ] ] = true;
+                }
+                foreach ( $this->extraRecipientsFor( $row ) as $extra ) {
+                    $extra = (int) $extra;
+                    if ( $extra > 0 ) $recipients[ $extra ] = true;
+                }
             }
-            foreach ( $this->extraRecipientsFor( $row ) as $extra ) {
-                $extra = (int) $extra;
-                if ( $extra > 0 ) $recipients[ $extra ] = true;
+
+            $family = [];
+            if ( $has_family && $player_id > 0 ) {
+                foreach ( $guardians[ $player_id ] ?? [] as $guardian ) {
+                    $guardian = (int) $guardian;
+                    // A staff recipient who is also this child's guardian
+                    // keeps the staff occurrence; the dedupe key is (alert,
+                    // subject, recipient), so a second one would collide
+                    // with it and flip the payload from sweep to sweep.
+                    if ( $guardian > 0 && ! isset( $recipients[ $guardian ] ) ) $family[ $guardian ] = true;
+                }
             }
 
             // No resolvable recipient means nobody would ever see this, so
             // writing it would be inventing work for the retention cron.
-            if ( empty( $recipients ) ) continue;
+            if ( empty( $recipients ) && empty( $family ) ) continue;
 
-            $payload = array_merge( [
-                'title'       => $this->titleFor( $row ),
-                'url'         => $this->urlFor( $row ),
-                'player_name' => $this->playerName( $row ),
-            ], $this->payloadFor( $row ) );
+            if ( ! empty( $recipients ) ) {
+                $payload = array_merge( [
+                    'title'       => $this->titleFor( $row ),
+                    'url'         => $this->urlFor( $row ),
+                    'player_name' => $this->playerName( $row ),
+                ], $this->payloadFor( $row ) );
 
-            foreach ( array_keys( $recipients ) as $user_id ) {
-                $out[] = new AlertOccurrence(
-                    $this->key(),
-                    (int) $user_id,
-                    $this->subjectType(),
-                    $subject_id,
-                    $this->severityFor( $row ),
-                    $payload,
-                    $this->playerIdFor( $row )
-                );
+                foreach ( array_keys( $recipients ) as $user_id ) {
+                    $out[] = new AlertOccurrence(
+                        $this->key(),
+                        (int) $user_id,
+                        $this->subjectType(),
+                        $subject_id,
+                        $severity,
+                        $payload,
+                        $player_id,
+                        AlertAudience::STAFF
+                    );
+                }
+            }
+
+            if ( ! empty( $family ) ) {
+                $family_payload = array_merge( [
+                    'title'       => $this->familyTitleFor( $row ),
+                    'url'         => $this->familyUrlFor( $row ),
+                    'player_name' => $this->playerName( $row ),
+                ], $this->familyPayloadFor( $row ) );
+
+                foreach ( array_keys( $family ) as $user_id ) {
+                    $out[] = new AlertOccurrence(
+                        $this->key(),
+                        (int) $user_id,
+                        $this->subjectType(),
+                        $subject_id,
+                        $severity,
+                        $family_payload,
+                        $player_id,
+                        AlertAudience::PARENT
+                    );
+                }
             }
         }
 
         return $out;
+    }
+
+    /**
+     * Extra payload keys for a family's occurrence.
+     *
+     * Defaults to nothing rather than to `payloadFor()`: the staff payload is
+     * written for a staff surface and may carry detail — a coach id, an
+     * internal date — that has no business in a family's copy. A definition
+     * that wants a field there puts it there on purpose.
+     *
+     * @return array<string,mixed>
+     */
+    protected function familyPayloadFor( object $row ): array {
+        return [];
     }
 
     /**
