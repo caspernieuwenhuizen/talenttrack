@@ -65711,107 +65711,9 @@ msgstr ""
 msgid "This tournament belongs to a team you don’t manage."
 msgstr "Dit toernooi hoort bij een team dat jij niet begeleidt."
 
-#: src/Modules/Comms/Rest/CommsRestController.php:543
-msgid "A team announcement needs a team."
-msgstr "Een teamaankondiging heeft een team nodig."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:546
-msgid "An age-group announcement needs an age group."
-msgstr "Een aankondiging voor een leeftijdscategorie heeft een leeftijdscategorie nodig."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:555
-#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:98
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:119
-msgid "You cannot send an announcement to that audience."
-msgstr "Je mag geen aankondiging naar die doelgroep versturen."
-
-#: src/Modules/Comms/Rest/CommsRestController.php:600
-msgid "The subject is too long."
-msgstr "Het onderwerp is te lang."
-
-#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:35
-msgid "You are not assigned to a team yet, so there is nobody to announce to. Ask an administrator to add you to one."
-msgstr "Je bent nog niet aan een team gekoppeld, dus er is niemand om iets aan te kondigen. Vraag een beheerder om je aan een team toe te voegen."
-
-#. translators: %s: an age group, for example O13
-#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:67
-#, php-format
-msgid "Every family in %s"
-msgstr "Elk gezin in %s"
-
-#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:80
-msgid "Send to the smallest group the news actually concerns. Families stop reading announcements that were not for them."
-msgstr "Stuur het naar de kleinste groep die het nieuws echt aangaat. Gezinnen gaan aankondigingen negeren die niet voor hen bedoeld waren."
-
-#: src/Modules/Wizards/TeamAnnouncement/AudienceStep.php:91
-msgid "Choose who this announcement reaches."
-msgstr "Kies wie deze aankondiging bereikt."
-
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:42
-msgid "This is the line a parent sees in their inbox. Say what happened, not that there is news."
-msgstr "Dit is de regel die een ouder in zijn inbox ziet. Zeg wat er aan de hand is, niet dát er nieuws is."
-
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:50
-msgid "Plain text. Nobody can reply to it, so include anything they would ask."
-msgstr "Platte tekst. Niemand kan erop antwoorden, dus zet erin wat ze zouden vragen."
-
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:63
-msgid "Give the announcement a subject."
-msgstr "Geef de aankondiging een onderwerp."
-
-#. translators: %d: the maximum number of characters allowed in a subject
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:70
-#, php-format
-msgid "Keep the subject to %d characters or fewer."
-msgstr "Houd het onderwerp op maximaal %d tekens."
-
-#: src/Modules/Wizards/TeamAnnouncement/ComposeStep.php:76
-msgid "Write the message before continuing."
-msgstr "Schrijf het bericht voordat je verdergaat."
-
-#. translators: %d: number of people the announcement will be sent to
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:49
-#, php-format
-msgid "This announcement will be sent to %d person."
-msgid_plural "This announcement will be sent to %d people."
-msgstr[0] "Deze aankondiging wordt naar %d persoon verstuurd."
-msgstr[1] "Deze aankondiging wordt naar %d personen verstuurd."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:55
-msgid "Anybody who has switched announcements off will not receive it."
-msgstr "Wie aankondigingen heeft uitgezet, krijgt hem niet."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:56
-msgid "Outside your academy's messaging hours it is held and delivered the next morning."
-msgstr "Buiten de berichtuurtjes van je academie wordt hij vastgehouden en de volgende ochtend bezorgd."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:57
-msgid "It cannot be recalled, and nobody can reply to it. Every send is recorded in the message log."
-msgstr "Hij is niet terug te halen en niemand kan erop antwoorden. Elke verzending wordt vastgelegd in het berichtenlogboek."
-
-#. translators: %d: number of people the announcement will be sent to
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:79
-#, php-format
-msgid "I have read it back and it is ready to go to %d person."
-msgid_plural "I have read it back and it is ready to go to %d people."
-msgstr[0] "Ik heb hem nagelezen en hij kan naar %d persoon."
-msgstr[1] "Ik heb hem nagelezen en hij kan naar %d personen."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:95
-msgid "Confirm the announcement is ready before sending it."
-msgstr "Bevestig dat de aankondiging klaar is voordat je hem verstuurt."
-
-#: src/Modules/Wizards/TeamAnnouncement/ConfirmStep.php:124
-msgid "Nobody in this audience could be reached, so nothing was sent."
-msgstr "Niemand in deze doelgroep was bereikbaar, dus er is niets verstuurd."
-
-#: src/Modules/Wizards/TeamAnnouncement/NewTeamAnnouncementWizard.php:39
-msgid "New announcement"
-msgstr "Nieuwe aankondiging"
-
-#: src/Shared/CoreSurfaceRegistration.php:1589
-msgid "Announcement"
-msgstr "Aankondiging"
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "You do not have permission to delete this tournament."
+msgstr "Je hebt geen toestemming om dit toernooi te verwijderen."
 
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:37
 msgid "Wil je je contactgegevens voor {player_name} doorgeven?"
@@ -65950,10 +65852,3 @@ msgstr "Contactverzoek aan gezin"
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
 msgid "Please confirm your contact details for {player_name}"
 msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
-
-#: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:34
-msgid "Hello,\n\n{academy_name} needs a way to reach you about {player_name} — a cancelled training, a change of time, or an injury.\n\nFill in your details here:\n{form_url}\n\nIt takes a minute, and the link works once. It expires in {ttl_days} days; ask us for a new one if it does.\n\nThank you,\n{academy_name}"
-msgstr "Hallo,\n\n{academy_name} heeft een manier nodig om je te bereiken over {player_name} — een training die vervalt, een tijd die verschuift of een blessure.\n\nVul je gegevens hier in:\n{form_url}\n\nHet kost een minuut en de link werkt één keer. Hij vervalt over {ttl_days} dagen; vraag ons gerust om een nieuwe.\n\nBedankt,\n{academy_name}"
-#: src/Infrastructure/REST/TournamentsRestController.php
-msgid "You do not have permission to delete this tournament."
-msgstr "Je hebt geen toestemming om dit toernooi te verwijderen."
