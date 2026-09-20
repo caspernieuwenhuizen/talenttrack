@@ -3,8 +3,10 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Activities\PlayerActivityReader;
+use TT\Modules\Activities\Services\ActivityTimeWindow;
 
 /**
  * FrontendMyActivitiesView — the "My activities" tile destination.
@@ -207,6 +209,14 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                     if ( $title === '' ) $title = __( 'Activity', 'talenttrack' );
                     $location = trim( (string) ( $row->location ?? '' ) );
                     $date     = \TT\Shared\Dates\TTDate::dateWithDay( (string) ( $row->session_date ?? '' ) );
+                    // #3771 — the clock time, from the same helper the peek
+                    // panel and the staff detail use (#3679), so "Coming up"
+                    // can answer when as well as which day. Empty when the
+                    // activity has no start time; no placeholder dash.
+                    $when = ActivityTimeWindow::format(
+                        (string) ( $row->start_time ?? '' ),
+                        (string) ( $row->end_time ?? '' )
+                    );
                     $url      = add_query_arg(
                         [ 'tt_view' => 'my-activities', 'id' => $activity_id ],
                         \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
@@ -214,7 +224,12 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                     ?>
                     <li class="tt-myact-upcoming__item">
                         <a class="tt-myact-upcoming__link" href="<?php echo esc_url( $url ); ?>">
-                            <span class="tt-myact-upcoming__date"><?php echo esc_html( $date ); ?></span>
+                            <span class="tt-myact-upcoming__when">
+                                <span class="tt-myact-upcoming__date"><?php echo esc_html( $date ); ?></span>
+                                <?php if ( $when !== '' ) : ?>
+                                    <span class="tt-myact-upcoming__time"><?php echo esc_html( $when ); ?></span>
+                                <?php endif; ?>
+                            </span>
                             <span class="tt-myact-upcoming__label"><?php echo esc_html( $title ); ?></span>
                             <?php if ( $location !== '' ) : ?>
                                 <span class="tt-myact-upcoming__loc"><?php echo esc_html( $location ); ?></span>
@@ -278,6 +293,25 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $att_status   = $att ? (string) ( $att->status ?? '' ) : '';
         $att_notes    = $att && ! empty( $att->notes ) ? (string) $att->notes : '';
         $type_key     = (string) ( $row->activity_type_key ?? '' );
+
+        // #3771 — the times. `findForPlayer()` selects `a.*`, so they were
+        // already on the row and this screen simply never read them: a player
+        // could learn the day of their next match here and then had to text a
+        // coach to find out when to turn up. Same helper (#3679) and same
+        // vocabulary as the staff facts strip (#3678), so the two screens
+        // agree about what a match day's clock looks like.
+        //
+        // `$is_match` is game/match alone, matching FrontendActivitiesManageView:
+        // a tournament is a multi-game day (#2686) and has no single kick-off,
+        // so it reads as a window like a training does.
+        $is_match     = in_array( strtolower( $type_key ), [ ActivityTypeKey::GAME, ActivityTypeKey::LEGACY_GAME ], true );
+        $presence     = ActivityTimeWindow::clock( (string) ( $row->time_of_presence ?? '' ) );
+        $start_time   = (string) ( $row->start_time ?? '' );
+        $end_time     = (string) ( $row->end_time ?? '' );
+        $kick_off     = ActivityTimeWindow::clock( (string) ( $row->kickoff_time ?? '' ) );
+        if ( $kick_off === '' ) $kick_off = ActivityTimeWindow::clock( $start_time );
+        $end_clock    = ActivityTimeWindow::clock( $end_time );
+        $window       = ActivityTimeWindow::format( $start_time, $end_time );
         // #2909 — compare against the canonical member, not a lowercased copy.
         // This used to `strtolower()` and compare to a constant that was also
         // lowercase; once AttendanceStatus became Title Case that comparison
@@ -292,6 +326,19 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             <p class="tt-activity-detail-meta">
                 <?php if ( $session_date !== '' ) : ?>
                     <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::dateWithDay( $session_date ) ); ?></span>
+                <?php endif; ?>
+                <?php if ( $presence !== '' ) : ?>
+                    <span class="tt-meta-chip"><?php esc_html_e( 'Presence time:', 'talenttrack' ); ?> <strong><?php echo esc_html( $presence ); ?></strong></span>
+                <?php endif; ?>
+                <?php if ( $is_match ) : ?>
+                    <?php if ( $kick_off !== '' ) : ?>
+                        <span class="tt-meta-chip"><?php esc_html_e( 'Kick-off:', 'talenttrack' ); ?> <strong><?php echo esc_html( $kick_off ); ?></strong></span>
+                    <?php endif; ?>
+                    <?php if ( $end_clock !== '' ) : ?>
+                        <span class="tt-meta-chip"><?php esc_html_e( 'End time:', 'talenttrack' ); ?> <strong><?php echo esc_html( $end_clock ); ?></strong></span>
+                    <?php endif; ?>
+                <?php elseif ( $window !== '' ) : ?>
+                    <span class="tt-meta-chip"><?php esc_html_e( 'Time:', 'talenttrack' ); ?> <strong><?php echo esc_html( $window ); ?></strong></span>
                 <?php endif; ?>
                 <?php if ( $team_name !== '' ) : ?>
                     <span class="tt-meta-chip"><?php esc_html_e( 'Team:', 'talenttrack' ); ?> <strong><?php echo esc_html( $team_name ); ?></strong></span>
