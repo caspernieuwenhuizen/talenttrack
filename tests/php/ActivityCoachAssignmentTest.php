@@ -41,7 +41,11 @@ final class ActivityCoachAssignmentTest extends WP_UnitTestCase {
         global $wpdb;
         $this->p = $wpdb->prefix;
         $wpdb->hide_errors();
-        ( new RolesService() )->ensureCapabilities();
+        // The TT roles install on activation, which the wp-env bootstrap does
+        // not fire; without them `tt_coach` holds no `tt_edit_activities` and
+        // the scope assertions below would pass on a flat permission refusal.
+        ( new RolesService() )->installRoles();
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
 
         $this->admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
         wp_set_current_user( $this->admin );

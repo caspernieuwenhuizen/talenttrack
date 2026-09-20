@@ -153,9 +153,9 @@ final class ActivityCoachAssignment {
         // activities you can see.
         if ( QueryHelpers::user_has_global_entity_read( $actor_id, 'activities' ) ) return null;
 
-        return array_values( array_map(
+        return array_map(
             'intval',
             array_column( QueryHelpers::get_teams_for_coach( $actor_id ), 'id' )
-        ) );
+        );
     }
 }
