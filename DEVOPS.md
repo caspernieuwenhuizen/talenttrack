@@ -146,7 +146,7 @@ These three are always bundled with the code change, not chased later.
 Never hardcode a list of user-facing values. When you need a finite set the admin might edit, translate, or extend, use a `tt_lookups` lookup type (or `tt_config` for singletons). Strings that appear in the UI go through `__('...', 'talenttrack')`. If you're about to type a PHP `const ARR = ['Foo','Bar'];` for something a user might see, stop and add a lookup instead.
 
 **2. Translations updated in the same PR.**
-Any change that adds, renames, or removes a `__()` / `_e()` / `esc_html__()` string must also edit `languages/talenttrack-nl_NL.po`. Dutch msgstr filled in. If the repo has a `.pot` regeneration script, run it; otherwise edit the `.po` by hand. `.mo` recompile noted in the PR description if `msgfmt` isn't available locally.
+Any change that adds, renames, or removes a `__()` / `_e()` / `esc_html__()` string must also edit `languages/talenttrack-nl_NL.po`. Dutch msgstr filled in. Add the entry by hand — don't regenerate `talenttrack.pot` in a feature PR; the release refreshes it (see § "The translation catalogue"). `.mo` files are never committed from a PR either; CI compiles them.
 
 **3. Documentation updated in the same PR.**
 If a change alters user-visible behaviour — new field, moved button, changed wording, new admin page, new workflow — the relevant topic in `docs/<slug>.md` **and** its Dutch translation `docs/nl_NL/<slug>.md` must be updated alongside the code. If there's no matching topic yet, create both files with a front-matter block; the block **is** the registry, so there is no PHP list to edit. `CHANGES.md` is a separate artifact (per-release); the docs are the *current* state of the feature.
@@ -202,9 +202,59 @@ define('TT_GITHUB_TOKEN', 'github_pat_...');
 
 The fine-grained PAT creation page is at https://github.com/settings/personal-access-tokens/new. Pick **Only select repositories** → talenttrack, **Repository permissions** → Contents: Read & write. Nothing else.
 
-## Before tagging a release — POT regeneration check
+## The translation catalogue — regenerated at release, by the release
 
-For any ship that adds or modifies user-facing strings (`__()`, `_e()`, `esc_html__()`, `_n()`, `_x()`, etc.), regenerate `talenttrack.pot` so the canonical msgid set stays in sync with the codebase. Stale POT means new locale files (`fr_FR`, `de_DE`, `es_ES` per #0010) build against gaps.
+**Who owns it: `.github/workflows/auto-release.yml`.** Since #3865 the
+`.pot` refresh and the `msgmerge` into every `.po` run exactly once per
+release, as a step in the auto-release job, immediately **before** it
+recompiles the `.mo` files. So the `.mo` a release publishes is always
+built from the `.po` that step just synced, and the job pushes the synced
+`languages/talenttrack.pot` + `languages/*.po` back to `main` as a single
+`chore(i18n): sync .pot …` commit.
+
+A push made with `GITHUB_TOKEN` does not trigger further workflows, so the
+`.mo` files committed on `main` trail that sync commit until the next
+human `.po` edit lands and `translations.yml` recompiles them. That is
+cosmetic: the entries the sync adds are untranslated by definition, and
+the release ZIP compiled its own `.mo` a moment earlier.
+
+The mechanics live in one place, `tools/i18n-sync.sh`, so the release path
+and the manual re-sync cannot drift. Run it locally the same way
+(`bash tools/i18n-sync.sh`) if you have `wp-cli` and `gettext` on PATH; it
+leaves the regenerated catalogue in the working tree and commits nothing.
+
+**Why it moved.** It used to run on every push to `main` that touched
+PHP, and commit. Merging PR *n* therefore put PRs *n+1…N* one commit
+behind on `languages/*.po` — a file GitHub cannot auto-merge — so each
+needed a local merge and a fresh CI run before it could land. On the
+2026-09-20 parallel drain that was roughly twenty forced re-integrations
+across 22 PRs, and the tail of the drain took longer than the
+implementation. At release time no branch is waiting on the catalogue, so
+the same work costs nothing.
+
+**If the sync fails, the release still ships.** The step is deliberately
+non-fatal: a failed extraction or a rejected push emits a `::warning::`
+annotation and the job carries on. An unsynced msgid falls back to its
+English source string, which is exactly what it did before the sync ran;
+a blocked release, by contrast, means pilot sites get no update at all.
+`tools/i18n-sync.sh` restores `languages/` to HEAD on any failure — and
+validates every merged `.po` with `msgfmt --check` before handing it
+back — so a half-merged catalogue can never reach the ZIP.
+
+**Escape hatch.** `.github/workflows/i18n-sync.yml` is now
+`workflow_dispatch`-only: hit **Run workflow** on the Actions page to
+re-baseline between releases, or to catch `main` up after a release-time
+sync warned that it could not push. It runs the same script and commits
+the same way.
+
+Note that the tag-push path in `release.yml` (the manual escape hatch)
+does **not** sync — it compiles `.mo` from whatever `.po` the tag carries.
+That is intentional: a tag is a fixed tree, and a workflow pushing to
+`main` from a tag build would be surprising.
+
+### Checking the catalogue yourself
+
+For any ship that adds or modifies user-facing strings (`__()`, `_e()`, `esc_html__()`, `_n()`, `_x()`, etc.), you can regenerate `talenttrack.pot` locally to see what the release will pick up. Stale POT means new locale files (`fr_FR`, `de_DE`, `es_ES` per #0010) build against gaps.
 
 ```
 wp i18n make-pot . languages/talenttrack.pot
@@ -214,8 +264,8 @@ Then:
 
 1. **Diff the regenerated POT against the previous one.** Any new msgids?
 2. **If yes**: each active `.po` file (`nl_NL`, `fr_FR`, `de_DE`, `es_ES`) now has new untranslated entries. Either translate them locally or leave the `msgstr` empty — at runtime, an empty msgstr falls back to the English msgid (no broken UI; just untranslated). Add a translator note (`/* translators: */`) on any new string whose tone or context isn't obvious from the msgid alone.
-3. **`.mo` compilation lands automatically** via `.github/workflows/translations.yml` on the push to main — no local `msgfmt` step needed. Confirm the workflow ran (green checkmark) before tagging the release.
-4. **Commit the regenerated POT + updated POs** in the same merge as the strings they describe.
+3. **`.mo` compilation lands automatically** via `.github/workflows/translations.yml` on the push to main — no local `msgfmt` step needed. The release ZIP compiles its own `.mo` from the synced `.po` regardless, so a release never depends on that workflow having run.
+4. **Commit the Dutch `msgstr` for your new strings** in the same PR as the strings themselves — that is what the i18n PR gate checks. Do **not** hand-commit a regenerated `talenttrack.pot`: the release owns the `.pot`, and a PR that rewrites it just re-creates the merge collisions #3865 removed.
 
 The `Validate .po syntax` job on every PR uses `msgfmt --check --statistics` so syntax errors fail loud before merge. Treat that gate the same as PHP-syntax-lint: don't merge with it red.
 
