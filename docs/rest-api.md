@@ -294,9 +294,11 @@ A write route (`POST`, `PUT`, `PATCH`) declares the body fields it takes in its 
 | `unknown_field` | A body key the route does not declare. Refused before anything is written. | `fields`: the refused keys. `allowed`: every key the route takes. |
 | `missing_fields` | A `required` field that is absent, `null` or `""`. Every missing key is named in one answer. | `fields`: the missing keys. |
 | `invalid_field` | A value that fails the declared `type` or validation. | `fields`: the keys. `reasons`: key to core's message for it. |
-| `no_input_fields` | Route-specific, for example `POST /trial-cases/{id}/inputs`: none of the fields that route needs was sent. | `allowed` |
+| `no_input_fields` / `no_writable_field` | Route-specific: the body is well formed but holds none of the fields that route writes. `POST /trial-cases/{id}/inputs` answers the first; `PATCH /courses/{slug}/progress/{lesson}` answers the second. The message names the fields the route does take. | `allowed` |
 
 Only the body is checked. URL segments (`id`, `activity_id`) and query parameters are never reported as unknown.
+
+A route that carries both checks runs the route-specific one **first**: a caller who sent nothing this route can write needs to hear what it does take, not which of its keys was unrecognised. A caller who sent one recognised field and one unknown one gets `unknown_field`, naming the key that was wrong. `PATCH /courses/{slug}/progress/{lesson}` is the worked example — it takes `read` (boolean) and `tool_state` (object), and before #3852 it declared neither, so a body of `{"completed": true}` answered `200` with the unchanged progress record echoed back and an hour of study went unrecorded.
 
 - **In a controller**, call `BaseController::checkBody( $request, $args )` with the same array the route declares (keep it in one static method such as `self::putArgs()` so the two can not drift). It returns `null` for an acceptable body and the error response otherwise. It is `public static`, so a controller that does not extend `BaseController` can call it.
 - **Core's own refusals** (a declared `required` arg that is absent, a value of the wrong `type`) are translated on the `talenttrack/v1` namespace from `rest_missing_callback_param` / `rest_invalid_param` to `missing_fields` / `invalid_field` in the envelope above, by `CoreParamErrors`. Routes outside the namespace keep core's shape.
