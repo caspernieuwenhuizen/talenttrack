@@ -280,10 +280,12 @@ The decision resolves through the `team_chemistry` matrix entity (`MatrixGate`),
 
 Because the matrix is now the single source of truth, two personas that previously held the raw read capability are no longer granted `team_chemistry` access:
 
-- **Assistant coaches lose `team_chemistry` read.** The matrix omits `team_chemistry` from `assistant_coach` (removed by the #1060 "AC is operational, HC is development" editorial decision). Assistant coaches share the `tt_coach` WP role with head coaches, so the role still carries the cap, but the persona-aware matrix gate denies them. Head coaches (also `tt_coach`) keep access via their `team_chemistry [rc, team]` row.
+- **Assistant coaches lost `team_chemistry` read, and have it back read-only.** The #1060 "AC is operational, HC is development" editorial decision removed the row as development analytics. The entity also carries the team **formation** and the **blueprint**, so the removal took the shape the assistant coach coaches from — they saw the line-up on the pitch but not the formation it came from. The assistant coach now holds `team_chemistry [r, team]`: read-only, own teams only. Authoring formations, blueprints and pairings stays with the head coach, who holds `change`.
 - **Readonly observers lose `team_chemistry` read.** The all-areas observer (`tt_readonly_observer`) has no `team_chemistry` matrix row, so the gate denies it. The stale `tt_view_team_chemistry` role grant is revoked on upgrade so WP caps converge on the matrix authority.
 
-Personas that keep access: `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
+Personas with access: `assistant_coach` (read, team scope), `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
+
+The chemistry board (suggested XI, coach-marked pairings, depth chart) opens to the assistant coach along with the formation. That is accepted rather than worked around: one entity governs both, and splitting them would add a seed entity to hide a view of the squad the assistant coach already stands in front of.
 
 ### Remaining blueprint surfaces routed through `TeamChemistryAccess`
 
