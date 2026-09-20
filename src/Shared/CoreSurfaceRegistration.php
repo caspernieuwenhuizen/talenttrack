@@ -1570,6 +1570,43 @@ final class CoreSurfaceRegistration {
             'color'        => '#8a2c1c',
             'cap'          => 'tt_send_safeguarding_broadcast',
         ]);
+        // #3693 — team announcements. The flow is a wizard, so there is
+        // deliberately no `?tt_view=team-announcement`: the slug is the
+        // registry key and the `url_callback` supplies the destination,
+        // the same shape `vct-planner` uses. `check-tile-routes.php`
+        // knows about that pattern and exempts it.
+        //
+        // Gated on the team tier, which the academy tier implies, so the
+        // tile appears for a head coach and a team manager as well as for
+        // an academy admin. Which audiences each may then reach is
+        // decided per send in `MassAnnouncementSender::canSend()`.
+        TileRegistry::register([
+            'module_class' => self::M_COMMS,
+            'view_slug'    => 'team-announcement',
+            'group'        => $admin_group,
+            'kind'         => 'work',
+            'order'        => 33,
+            'label'        => __( 'Announcement', 'talenttrack' ),
+            'description'  => __( 'Tell a team, an age group or the academy something, inside the record.', 'talenttrack' ),
+            'icon'         => 'audit-log',
+            'color'        => '#2271b1',
+            // `cap_callback` alone, no `cap`: the two rungs are AND-ed, so
+            // naming the team cap here would hide the tile from an
+            // academy-only holder — a Head of Development who may announce
+            // to the whole academy and coaches no team is exactly that
+            // person.
+            'cap_callback' => static function ( int $user_id ): bool {
+                return \TT\Modules\Comms\Send\MassAnnouncementSender::canAnnounce( $user_id );
+            },
+            'url_callback' => static function ( int $user_id ): string {
+                // Slug from the wizard class — one source of truth, and
+                // no bare literal for the #0035 vocabulary lint.
+                return \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    ( new \TT\Modules\Wizards\TeamAnnouncement\NewTeamAnnouncementWizard() )->slug(),
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+            },
+        ]);
         // #1859 — Data Browser. Read-only browser over the live tt_* schema,
         // matrix/academy-admin only. Pure cap-gated (no matrix entity) on the
         // dedicated tt_view_data_browser cap so only administrator + Club Admin

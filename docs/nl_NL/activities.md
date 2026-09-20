@@ -165,6 +165,7 @@ de uitslag zelf.
 3. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
 4. Bij **Overig**: geef het een korte omschrijving.
 5. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe. Bij een wedstrijd vult het invoeren van de aftraptijd automatisch de eindtijd 105 minuten later in (90' spelen + 15' rust); je kunt die altijd aanpassen.
+   - **Trainer** — wie hem draait. De keuzelijst toont de staf van het gekozen team en vult de hoofdtrainer van dat team voor, zodat een academiebeheerder die een seizoensplanning intypt niet bij elke training als trainer komt te staan. Laat hem op *— Geen trainer —* staan als het nog niet rond is; zie [Wie hem draait](#wie-hem-draait).
 6. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnen drie extra velden:
  - **Aanwezigheidstijd** (optioneel) — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
  - **Tegenstander** — tegen wie je speelt. Dit is wat de detailpagina `Jouw team vs Tegenstander` laat lezen, en het benoemt de uitkolom op het wedstrijdformulier, de PDF met het wedstrijdformulier en de weekplanner.
@@ -329,9 +330,21 @@ Naast het type heeft elke activiteit twee extra velden:
 
 De 90-daagse rollup die het Hoofd Opleidingen gebruikt toont één regel per actief type — hernoem of voeg types toe en de rollup volgt automatisch.
 
+## Wie hem draait
+
+De **Trainer** op het formulier is degene die verantwoordelijk is voor het draaien van de activiteit en het invullen van de presentielijst. Dat is een ander gegeven dan wie de activiteit heeft ingetypt, en de herinneringen volgen dit veld: *"aanwezigheid niet vastgelegd"* en *"activiteit uit het verleden staat nog op gepland"* gaan naar de trainer op de activiteit en naar de hoofdtrainer van het team, niet naar wie de regel heeft aangemaakt.
+
+Het formulier vult het voor je in:
+
+- Een team met **één hoofdtrainer** krijgt die trainer voorgevuld.
+- Een team met **geen of twee hoofdtrainers** blijft op *— Geen trainer —* staan in plaats van dat er gegokt wordt. Dat is bewust: een komende activiteit waar niemand voor staat ingedeeld geeft de melding **"komende activiteit heeft geen trainer"**, en dat is nuttiger dan een zelfverzekerd verkeerd antwoord. Zie [Meldingen](alerts.md).
+- Je kunt altijd iemand anders uit de staf van het team kiezen, en een assistent-trainer mag een collega aanwijzen op een team waar hij of zij werkt. Staf van een team waar je geen toegang toe hebt kun je niet aanwijzen — het opslaan wordt geweigerd in plaats van stilletjes aangepast.
+
+Activiteiten van vóór deze wijziging houden wat er nu in het veld staat, wat voor de meeste neerkomt op degene die ze heeft aangemaakt. Pas de trainer aan op de activiteiten waar het toe doet door ze te bewerken; er wordt niets achter je rug om herschreven.
+
 ## Wie het heeft aangemaakt en gewijzigd
 
-Onderaan het detailpaneel van een activiteit staat een kleine regel: **Aangemaakt door** wie de activiteit heeft toegevoegd en op welke datum, en **Laatst gewijzigd door** wie het laatst heeft bewerkt. Dit wordt vanaf nu automatisch vastgelegd — activiteiten die vóór deze toevoeging zijn aangemaakt tonen hier niets (er is geen historie om in te vullen), en de regel verschijnt pas zodra er een auteur bekend is.
+Onderaan het detailpaneel van een activiteit staat een kleine regel: **Aangemaakt door** wie de activiteit heeft toegevoegd en op welke datum, en **Laatst gewijzigd door** wie het laatst heeft bewerkt. Dit wordt vanaf nu automatisch vastgelegd — activiteiten die vóór deze toevoeging zijn aangemaakt tonen hier niets (er is geen historie om in te vullen), en de regel verschijnt pas zodra er een auteur bekend is. **Aangemaakt door** is niet hetzelfde als de **Trainer** hierboven: de een is wie het heeft ingetypt, de ander is wie hem draait.
 
 ## Gasten
 
