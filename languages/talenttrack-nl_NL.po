@@ -65950,4 +65950,3 @@ msgstr "Contactverzoek aan gezin"
 #: src/Modules/Comms/Templates/GuardianContactRequestTemplate.php:33
 msgid "Please confirm your contact details for {player_name}"
 msgstr "Wil je je contactgegevens voor {player_name} doorgeven?"
-
