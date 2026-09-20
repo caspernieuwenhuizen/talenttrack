@@ -586,7 +586,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         // seventh stage joins the six.
         $out = [];
         foreach ( $stages_init as $s ) {
-            $cards = isset( $s['cards'] ) && is_array( $s['cards'] ) ? array_values( $s['cards'] ) : [];
+            $cards = $s['cards'];
             $out[] = [
                 'key'   => (string) ( $s['key'] ?? '' ),
                 'label' => (string) ( $s['label'] ?? '' ),
