@@ -65547,3 +65547,11 @@ msgid "Seen at %s later visit"
 msgid_plural "Seen at %s later visits"
 msgstr[0] "Gezien bij %s later bezoek"
 msgstr[1] "Gezien bij %s latere bezoeken"
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid ""
+"Scouting visits across the window, the prospects found on them, and the "
+"later visits some of those prospects were watched at again."
+msgstr ""
+"Scoutingbezoeken over de periode, de prospects die daar zijn gevonden en de "
+"latere bezoeken waarbij sommige van die prospects opnieuw zijn bekeken."

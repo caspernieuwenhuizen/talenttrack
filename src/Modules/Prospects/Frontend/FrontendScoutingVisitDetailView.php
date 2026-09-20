@@ -82,13 +82,14 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         );
         FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
 
+        $visit_id = (int) $visit->id;
         $base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
         // Editing and archiving a visit ask the same question as reading it
         // (owner, or the head of development), and the refusal above has
         // already answered it — one rule, one answer, asked once.
         $edit_url = add_query_arg(
-            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => (int) $visit->id ],
+            [ 'tt_view' => 'scouting-visits', 'action' => 'edit', 'id' => $visit_id ],
             $base_url
         );
         $page_actions[] = [
@@ -99,9 +100,9 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
-                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => (int) $visit->id ], $base_url )
+                add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => $visit_id ], $base_url )
             );
-            $wizard_url = add_query_arg( [ 'from_visit' => (int) $visit->id ], $wizard_url );
+            $wizard_url = add_query_arg( [ 'from_visit' => $visit_id ], $wizard_url );
             $page_actions[] = [
                 'label'   => __( 'Log scouting find', 'talenttrack' ),
                 'href'    => $wizard_url,
@@ -118,7 +119,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $page_actions[] = [
             'label'      => __( 'Archive visit', 'talenttrack' ),
             'variant'    => 'danger',
-            'data_attrs' => [ 'tt-archive-visit' => (int) $visit->id ],
+            'data_attrs' => [ 'tt-archive-visit' => $visit_id ],
         ];
 
         wp_enqueue_script(
@@ -150,7 +151,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $can_link = AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
             && empty( $visit->archived_at );
         if ( $can_link ) {
-            self::enqueueObservationAssets( (int) $visit->id );
+            self::enqueueObservationAssets( $visit_id );
         }
 
         self::renderHeader( $title, self::pageActionsHtml( $page_actions ) );
@@ -297,8 +298,9 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
     }
 
     private static function renderProspects( object $visit, bool $can_link = false ): void {
-        $repo = new ScoutingVisitsRepository();
-        $rows = $repo->prospectsForVisit( (int) $visit->id );
+        $repo     = new ScoutingVisitsRepository();
+        $visit_id = (int) $visit->id;
+        $rows     = $repo->prospectsForVisit( $visit_id );
 
         echo '<section class="tt-section tt-svisit-prospects" data-tt-observations>';
         echo '<h2 class="tt-section-title">' . esc_html__( 'Prospects watched at this visit', 'talenttrack' ) . '</h2>';
@@ -359,7 +361,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             ?>
                             <td data-sort="<?php echo esc_attr( $seen_at ); ?>">
                                 <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $seen_at ) ); ?>
-                                <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === (int) $visit->id ) : ?>
+                                <?php if ( (int) ( $p->scouting_visit_id ?? 0 ) === $visit_id ) : ?>
                                     <span class="tt-observation-badge"><?php echo esc_html_x( 'Discovered here', 'scouting visit', 'talenttrack' ); ?></span>
                                 <?php endif; ?>
                             </td>

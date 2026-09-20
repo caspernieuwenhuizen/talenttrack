@@ -473,26 +473,18 @@ class ScoutingVisitsRestController {
     }
 
     /**
-     * The prospects logged from a visit, as the detail view lists them.
-     *
-     * Birth YEAR only, never the date of birth: these are children, and
-     * "who did we watch" does not need the day they were born.
-     *
-     * @param object[] $rows
-     * @return list<array<string,mixed>>
-     */
-    /**
      * GET /scouting-visits/{id}/observations — everyone watched at this
      * visit, with the observation id the DELETE below takes.
      */
     public static function list_observations( \WP_REST_Request $r ): \WP_REST_Response {
         $visit = self::readableVisit( (int) $r['id'] );
         if ( $visit instanceof \WP_REST_Response ) return $visit;
+        $visit_id = (int) ( $visit['id'] ?? 0 );
 
         $repo = new ScoutingVisitsRepository();
         return RestResponse::success( [
-            'visit_id'     => (int) $visit->id,
-            'observations' => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+            'visit_id'     => $visit_id,
+            'observations' => self::serialiseObservations( $repo->prospectsForVisit( $visit_id ), $visit_id ),
         ] );
     }
 
@@ -507,7 +499,8 @@ class ScoutingVisitsRestController {
     public static function create_observation( \WP_REST_Request $r ): \WP_REST_Response {
         $visit = self::readableVisit( (int) $r['id'] );
         if ( $visit instanceof \WP_REST_Response ) return $visit;
-        if ( ! empty( $visit->archived_at ) ) {
+        $visit_id = (int) ( $visit['id'] ?? 0 );
+        if ( ! empty( $visit['archived_at'] ) ) {
             return RestResponse::error( 'visit_archived',
                 __( 'This scouting visit is archived, so prospects cannot be linked to it.', 'talenttrack' ), 409 );
         }
@@ -524,11 +517,11 @@ class ScoutingVisitsRestController {
         }
 
         $observed_at = sanitize_text_field( (string) ( $r['observed_at'] ?? '' ) );
-        if ( $observed_at === '' ) $observed_at = (string) $visit->visit_date;
+        if ( $observed_at === '' ) $observed_at = (string) ( $visit['visit_date'] ?? '' );
 
         $id = ( new ProspectVisitObservationsRepository() )->link(
             $prospect_id,
-            (int) $visit->id,
+            $visit_id,
             $observed_at,
             sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) )
         );
@@ -540,14 +533,14 @@ class ScoutingVisitsRestController {
         Logger::info( 'prospect linked to scouting visit', [
             'observation_id' => $id,
             'prospect_id'    => $prospect_id,
-            'visit_id'       => (int) $visit->id,
+            'visit_id'       => $visit_id,
         ] );
 
         $repo = new ScoutingVisitsRepository();
         return RestResponse::success( [
             'observation_id' => $id,
-            'visit_id'       => (int) $visit->id,
-            'observations'   => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+            'visit_id'       => $visit_id,
+            'observations'   => self::serialiseObservations( $repo->prospectsForVisit( $visit_id ), $visit_id ),
         ] );
     }
 
@@ -555,19 +548,20 @@ class ScoutingVisitsRestController {
     public static function delete_observation( \WP_REST_Request $r ): \WP_REST_Response {
         $visit = self::readableVisit( (int) $r['id'] );
         if ( $visit instanceof \WP_REST_Response ) return $visit;
+        $visit_id = (int) ( $visit['id'] ?? 0 );
 
         $observations = new ProspectVisitObservationsRepository();
         $observation  = $observations->findById( (int) $r['observation_id'] );
-        if ( ! $observation || (int) $observation->scouting_visit_id !== (int) $visit->id ) {
+        if ( $observation === null || (int) ( $observation['scouting_visit_id'] ?? 0 ) !== $visit_id ) {
             return RestResponse::error( 'not_found', __( 'Observation not found.', 'talenttrack' ), 404 );
         }
 
-        $observations->delete( (int) $observation->id );
+        $observations->delete( (int) ( $observation['id'] ?? 0 ) );
 
         $repo = new ScoutingVisitsRepository();
         return RestResponse::success( [
-            'visit_id'     => (int) $visit->id,
-            'observations' => self::serialiseObservations( $repo->prospectsForVisit( (int) $visit->id ), (int) $visit->id ),
+            'visit_id'     => $visit_id,
+            'observations' => self::serialiseObservations( $repo->prospectsForVisit( $visit_id ), $visit_id ),
         ] );
     }
 
@@ -575,7 +569,11 @@ class ScoutingVisitsRestController {
      * The visit behind an observation route, or the refusal to return.
      * One place, so the three routes cannot answer differently.
      *
-     * @return object|\WP_REST_Response
+     * The row comes back as an associative array: the three callers read
+     * a handful of columns out of it, and a bare `object` return has no
+     * declared properties for the static analyser to check them against.
+     *
+     * @return array<string,mixed>|\WP_REST_Response
      */
     private static function readableVisit( int $id ) {
         if ( $id <= 0 ) {
@@ -589,7 +587,7 @@ class ScoutingVisitsRestController {
             return RestResponse::error( 'forbidden',
                 __( 'You can only view your own scouting visits.', 'talenttrack' ), 403 );
         }
-        return $row;
+        return (array) $row;
     }
 
     /**
@@ -621,6 +619,15 @@ class ScoutingVisitsRestController {
         return $out;
     }
 
+    /**
+     * The prospects logged from a visit, as the detail view lists them.
+     *
+     * Birth YEAR only, never the date of birth: these are children, and
+     * "who did we watch" does not need the day they were born.
+     *
+     * @param object[] $rows
+     * @return list<array<string,mixed>>
+     */
     private static function serialiseProspects( array $rows ): array {
         $out = [];
         foreach ( $rows as $row ) {

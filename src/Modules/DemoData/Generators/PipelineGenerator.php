@@ -205,9 +205,9 @@ class PipelineGenerator implements DependentGeneratorInterface {
         $added = 0;
 
         if ( $visit_id !== null && $visit_id > 0 ) {
-            $discovery = $observations->find( $prospect_id, $visit_id );
-            if ( $discovery !== null ) {
-                $this->registry->tag( 'prospect_visit_observation', (int) $discovery->id, [
+            $discovery_id = $observations->findId( $prospect_id, $visit_id );
+            if ( $discovery_id > 0 ) {
+                $this->registry->tag( 'prospect_visit_observation', $discovery_id, [
                     'prospect_id' => $prospect_id,
                     'discovery'   => true,
                 ] );
