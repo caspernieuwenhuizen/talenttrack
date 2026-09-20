@@ -77,7 +77,7 @@ class TestTrainingsRestController {
             ],
             'age_group_lookup_id' => [
                 'type'        => [ 'integer', 'null' ],
-                'description' => 'The age group it targets. Omit for a mixed-age session.',
+                'description' => 'The age group it targets. Omit for a mixed-age test training.',
             ],
             'coach_user_id' => [
                 'type'        => [ 'integer', 'null' ],
