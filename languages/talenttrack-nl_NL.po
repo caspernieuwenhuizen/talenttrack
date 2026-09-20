@@ -27326,6 +27326,10 @@ msgstr ""
 msgid "Could not record progress."
 msgstr "Voortgang vastleggen is niet gelukt."
 
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:747
+msgid "Give the deadline as a date, for example 2026-12-18."
+msgstr "Geef de deadline als datum op, bijvoorbeeld 2026-12-18."
+
 #: src/Modules/Knowledge/Rest/KnowledgeRestController.php:694
 msgid "That enrolment does not exist."
 msgstr "Die inschrijving bestaat niet."
