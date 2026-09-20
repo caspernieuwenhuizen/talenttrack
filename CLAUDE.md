@@ -580,16 +580,19 @@ a time). When the user explicitly asks to run several agents at once
 agent"*), switch to **content-only mode** so the agents never collide on
 release-plumbing files:
 
-- **Implementation agents touch content + docs + their own new-string
-  `nl_NL.po` translations ONLY.** They do **NOT** bump `TT_VERSION` or
-  the `talenttrack.php` `Version:` header, do **NOT** edit `CHANGES.md`
-  or `readme.txt`, do **NOT** commit `.mo`, do **NOT** edit
-  `SEQUENCE.md`. Each instead drops a one-paragraph
-  `changelog.d/<issue>-<slug>.md` snippet — a brand-new file, so it never
-  conflicts. Those five files are the *only* ones every PR would
-  otherwise touch, which is exactly why parallel merges collide on them.
-  (New-string Dutch translations stay per-PR because `i18n-pr-check.yml`
-  fails a PR that adds untranslated msgids.)
+- **Implementation agents touch content + docs ONLY.** They do **NOT**
+  bump `TT_VERSION` or the `talenttrack.php` `Version:` header, do
+  **NOT** edit `CHANGES.md` or `readme.txt`, do **NOT** commit `.mo`, do
+  **NOT** edit `SEQUENCE.md`, and do **NOT** edit
+  `languages/talenttrack-*.po`. Each instead drops two brand-new files,
+  which by construction never conflict: a one-paragraph
+  `changelog.d/<issue>-<slug>.md` snippet, and — when the PR adds a
+  translatable string — a `languages/pending/<issue>-<slug>.po` fragment
+  carrying just those entries with their Dutch `msgstr`. Those files are
+  the *only* ones every PR would otherwise touch, which is exactly why
+  parallel merges collide on them. The Dutch still lands per-PR:
+  `i18n-pr-check.yml` fails a PR whose new strings have no entry in its
+  fragment.
 - **The release agent owns all plumbing, once, for the whole batch.**
   After the content branches merge, it runs `tools/release.ps1 <version>`
   — consolidates the `changelog.d/` snippets into `CHANGES.md` +
@@ -608,9 +611,11 @@ release-plumbing files:
   and let the E2E/lint gate run. git auto-merges non-overlapping hunks but
   cannot catch a *semantic* conflict (two textually-clean hunks that are
   jointly wrong) — the gate is the safety net. `.gitattributes` carries
-  `union` drivers for `CHANGES.md` / `readme.txt` / `SEQUENCE.md` / `*.po`
-  and marks `*.mo` binary; `git config rerere.enabled true` replays known
-  resolutions. Together these keep residual friction near zero.
+  `union` drivers for `CHANGES.md` / `readme.txt` / `SEQUENCE.md` and
+  marks `*.mo` binary; the catalogue is **not** unioned any more — a `.po`
+  is not append-only, so union produced duplicate msgids in silence, and
+  a PR drops a fragment instead. `git config rerere.enabled true` replays
+  known resolutions. Together these keep residual friction near zero.
 - **Never run two schema/migration changes in parallel** (the AGENTS.md
   rule stands). A migration agent runs alone, or alongside non-migration
   work only.
@@ -637,9 +642,10 @@ release-plumbing files:
      sharing one virtual `__migration__` resource (shared numbering), so
      they coalesce into a single batch.
   3. **Ignore `.po` / `.mo` and the release-plumbing files** as collision
-     sources (union-merged / release-only). The exception is a *broad*
-     i18n sweep that rewrites `nl_NL.po` wholesale — schedule it **solo,
-     last**, after the content batches merge.
+     sources — translations ship as a per-PR fragment under
+     `languages/pending/`, and the rest are release-only. The exception is
+     a *broad* i18n sweep that rewrites `nl_NL.po` wholesale — schedule it
+     **solo, last**, after the content batches merge.
   4. Distribute the resulting components across `<N>` batches, balancing
      count; never split a component, never put two schema/migration
      changes in different parallel batches.
@@ -653,12 +659,12 @@ release-plumbing files:
   `gh issue edit <issue> --add-label in-progress` (do this per issue before
   starting it; the issue auto-closes on merge via `Closes #<issue>`, so the
   label needs no manual cleanup). Then: work it in its own worktree;
-  change ONLY its feature/fix files, its docs (EN + `docs/nl_NL/`), and
-  its new `languages/talenttrack-nl_NL.po` strings; drop a
-  `changelog.d/<issue>-<slug>.md` note (add a `Bump: minor` / `major` line
-  when the change warrants it per §9 — default patch); open a PR. Do
-  **NOT** bump the version or touch `CHANGES.md` / `readme.txt` /
-  `SEQUENCE.md` / `.mo`.
+  change ONLY its feature/fix files and its docs (EN + `docs/nl_NL/`);
+  put its new strings' Dutch in `languages/pending/<issue>-<slug>.po`;
+  drop a `changelog.d/<issue>-<slug>.md` note (add a `Bump: minor` /
+  `major` line when the change warrants it per §9 — default patch); open
+  a PR. Do **NOT** bump the version or touch `CHANGES.md` / `readme.txt` /
+  `SEQUENCE.md` / `.mo` / `languages/talenttrack-*.po`.
   Multiple issues after one trigger (`co #1731 #1732`) = one agent doing
   them in sequence; separate agents are launched per the user's parallel
   set.
@@ -814,8 +820,11 @@ A PR is not ready to merge until **all** of these hold:
 **From `DEVOPS.md` ship-along rules:**
 - [ ] User-facing strings go through `__()` / `_e()` and `tt_lookups` /
       `tt_config` for editable lists.
-- [ ] `languages/talenttrack-nl_NL.po` updated in the same PR. Dutch
-      `msgstr` filled in.
+- [ ] Every new translatable string has an entry with its Dutch `msgstr`
+      in `languages/pending/<issue>-<slug>.po` — a brand-new file per PR.
+      The shipped catalogues are **not** edited by a feature PR; the
+      release step consolidates the fragments. Verify with
+      `php tools/check-i18n-fragment.php`. See `languages/pending/README.md`.
 - [ ] `docs/<slug>.md` AND `docs/nl_NL/<slug>.md` updated for any user-
       visible behaviour change.
 - [ ] **`php tools/check-docs.php` passes.** Enforced by the `docs-lint`
