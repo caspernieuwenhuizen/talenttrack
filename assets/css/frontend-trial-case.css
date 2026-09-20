@@ -231,6 +231,18 @@
     color: var(--tt-ink);
 }
 
+/* #3787 — the motivation read back.
+ *
+ * A thirty-character floor is asking for paragraphs, and this is the one
+ * value in the summary that is free text rather than a label or a date.
+ * `pre-wrap` keeps the line breaks the author typed; `anywhere` stops a
+ * pasted URL or an unbroken word pushing the grid sideways at 360px. */
+.tt-dashboard .tt-trial-decision-motivation {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: var(--tt-lh-body);
+}
+
 /* ---- Letter preview ------------------------------------------------- */
 .tt-dashboard .tt-trial-letter-preview {
     margin-top: var(--tt-sp-3);
