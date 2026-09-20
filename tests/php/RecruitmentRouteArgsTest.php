@@ -182,9 +182,17 @@ final class RecruitmentRouteArgsTest extends WP_UnitTestCase {
         $this->assertSame( $this->track, (int) $row['track_id'] );
     }
 
+    /**
+     * The body carries both required keys, so this is the route's own
+     * refusal rather than core's missing-parameter one: core checks the
+     * declared `required` keys before the callback runs, and a body that is
+     * missing one never reaches `checkBody()` to be told about the unknown.
+     */
     public function test_an_undeclared_extension_key_is_refused(): void {
         [ $data, $status ] = $this->send( 'POST', 'trial-cases/' . $this->case . '/extend', [
-            'new_end_date' => '2026-10-31', 'reason' => 'Nog een blok nodig.',
+            'new_end_date'  => '2026-10-31',
+            'justification' => 'Nog een blok nodig om de keeper te zien.',
+            'reason'        => 'Nog een blok nodig.',
         ] );
 
         $this->assertSame( 400, $status );
