@@ -23,3 +23,48 @@
     font-size: var(--tt-fs-h3, 1.25rem);
     color: var(--tt-ink, #0e1a14);
 }
+
+/*
+ * "What the academy holds about you" (#3691) — a read-only card, so a
+ * description list rather than a form. One column on a phone; the label
+ * sits above its value and only pairs up once there is room.
+ */
+.tt-dashboard .tt-msettings-held .tt-held-heading {
+    margin: var(--tt-sp-4, 16px) 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-msettings-held .tt-held-list {
+    margin: 0;
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-msettings-held .tt-held-row {
+    display: grid;
+    gap: 2px;
+    padding-bottom: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-msettings-held .tt-held-row:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+}
+.tt-dashboard .tt-msettings-held .tt-held-label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-msettings-held .tt-held-value {
+    margin: 0;
+    color: var(--tt-ink, #0e1a14);
+    overflow-wrap: anywhere;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-msettings-held .tt-held-row {
+        grid-template-columns: minmax(6rem, 30%) 1fr;
+        gap: var(--tt-sp-3, 12px);
+        align-items: baseline;
+    }
+}

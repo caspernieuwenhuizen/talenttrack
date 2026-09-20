@@ -156,6 +156,64 @@ final class ThreadMessagesRepository {
     }
 
     /**
+     * #3781 — rewrite the body of a system message the plugin wrote
+     * itself. `update()` above refuses system messages on purpose: a
+     * person may not edit them. This is the plugin amending its own
+     * entry while a coach is still saving the same goal, so twelve
+     * progress edits read as one line instead of twelve.
+     *
+     * No `edited_at` stamp: the entry has no author header and no edit
+     * marker in the thread, and an "(edited)" badge on a machine line
+     * would be noise.
+     *
+     * Refuses once anyone has said anything after it — rewriting an
+     * entry somebody has already replied to would put the newer fact
+     * above the reply to the older one. The caller then writes a fresh
+     * entry instead.
+     */
+    public function updateSystemBody( int $id, string $body ): bool {
+        global $wpdb;
+        // Presence, not affected rows: `$wpdb->update` reports 0 for an
+        // unchanged body as well as for a missing row, and the caller
+        // reads a false here as "gone, write a new one".
+        $exists = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table()} m
+              WHERE m.id = %d AND m.club_id = %d AND m.is_system = 1 AND m.deleted_at IS NULL
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$this->table()} n
+                     WHERE n.thread_type = m.thread_type
+                       AND n.thread_id   = m.thread_id
+                       AND n.club_id     = m.club_id
+                       AND n.id          > m.id
+                )",
+            $id, CurrentClub::id()
+        ) );
+        if ( $exists === 0 ) return false;
+
+        $wpdb->update(
+            $this->table(),
+            [ 'body' => $body ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id(), 'is_system' => 1 ]
+        );
+        return true;
+    }
+
+    /**
+     * #3781 — remove a system message the plugin wrote and then found it
+     * had nothing left to say (a coach who moved a value and moved it
+     * straight back). Guarded on `is_system` so it can never reach a
+     * person's message; those soft-delete instead.
+     */
+    public function deleteSystemMessage( int $id ): bool {
+        global $wpdb;
+        $ok = $wpdb->delete(
+            $this->table(),
+            [ 'id' => $id, 'club_id' => CurrentClub::id(), 'is_system' => 1 ]
+        );
+        return (bool) $ok;
+    }
+
+    /**
      * Soft-delete: blank the body, stamp deleted_by/at. Author can do
      * this at any time; the controller permits admin override too.
      */

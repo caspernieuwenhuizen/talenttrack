@@ -4,6 +4,7 @@ namespace TT\Infrastructure\REST;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactSync;
+use TT\Infrastructure\Identity\OwnContactDetails;
 use TT\Infrastructure\Identity\PhoneMeta;
 use TT\Infrastructure\Players\AccountPlayerLinks;
 
@@ -76,6 +77,14 @@ class MeRestController {
                 'args'                => self::updateArgs(),
             ],
         ] );
+
+        register_rest_route( self::NS, '/me/contact-details', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_contact_details' ],
+                'permission_callback' => [ __CLASS__, 'is_signed_in' ],
+            ],
+        ] );
     }
 
     public static function is_signed_in(): bool {
@@ -84,6 +93,22 @@ class MeRestController {
 
     public static function get_me( \WP_REST_Request $r ): \WP_REST_Response {
         return RestResponse::success( self::payload( get_current_user_id() ) );
+    }
+
+    /**
+     * Every contact detail the academy holds about the caller (#3691).
+     *
+     * Its own route rather than more of `GET me`, because the shell asks
+     * for `me` on every page load and this reads a row per linked child.
+     *
+     * Like the rest of this controller it takes no id: the answer is
+     * assembled for `get_current_user_id()` and nothing in the request
+     * can point it elsewhere. What it discloses from a child's file is
+     * narrowed further by `OwnContactDetails` to values that match the
+     * caller's own — a co-guardian's details never leave the database.
+     */
+    public static function get_contact_details( \WP_REST_Request $r ): \WP_REST_Response {
+        return RestResponse::success( OwnContactDetails::forUser( get_current_user_id() ) );
     }
 
     /**

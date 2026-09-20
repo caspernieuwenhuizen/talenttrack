@@ -695,6 +695,49 @@ class GoalsRestController {
         return $out;
     }
 
+    /**
+     * #3781 — the fields a goal's conversation should record a change to,
+     * compared between the stored row and the values this save is about to
+     * write. Only keys the request actually sent are considered, so an
+     * autosave PATCH of one field can never look like a change to another;
+     * a field submitted with the value it already holds drops out.
+     *
+     * `status` is not here on purpose — `update_status()` announces it.
+     *
+     * @param  array<string,mixed> $before The stored row.
+     * @param  array<string,mixed> $data   Values about to be written.
+     * @return array<string,array{from:mixed,to:mixed}>
+     */
+    private static function materialGoalDiff( array $before, array $data ): array {
+        $diff = [];
+
+        foreach ( [ 'title', 'due_date', 'progress_pct' ] as $field ) {
+            if ( ! array_key_exists( $field, $data ) ) continue;
+
+            $from = $before[ $field ] ?? null;
+            $to   = $data[ $field ];
+
+            if ( $field === 'progress_pct' ) {
+                $from = ( is_numeric( $from ) ) ? (int) $from : null;
+                $to   = ( is_numeric( $to ) ) ? (int) $to : null;
+            } else {
+                $from = is_scalar( $from ) ? (string) $from : '';
+                $to   = is_scalar( $to ) ? (string) $to : '';
+                // Stored DATE columns come back as `Y-m-d`; a client may
+                // send `Y-m-d H:i:s`. Compare the date part only.
+                if ( $field === 'due_date' ) {
+                    $from = substr( $from, 0, 10 );
+                    $to   = substr( $to, 0, 10 );
+                }
+            }
+
+            if ( $from === $to ) continue;
+            $diff[ $field ] = [ 'from' => $from, 'to' => $to ];
+        }
+
+        return $diff;
+    }
+
     public static function update_goal( \WP_REST_Request $r ) {
         global $wpdb;
         $goal_id = absint( $r['id'] );
@@ -739,6 +782,18 @@ class GoalsRestController {
             return RestResponse::error( 'empty_update', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
 
+        // #3781 — the row as it stands, so the write below can say what
+        // actually moved. Read before the update or the diff is empty.
+        $before = [];
+        if ( $data ) {
+            $before = (array) $wpdb->get_row( $wpdb->prepare(
+                "SELECT player_id, title, due_date, progress_pct
+                   FROM {$wpdb->prefix}tt_goals
+                  WHERE id = %d AND club_id = %d",
+                $goal_id, CurrentClub::id()
+            ), ARRAY_A );
+        }
+
         if ( $data ) {
             $ok = $wpdb->update( $wpdb->prefix . 'tt_goals', $data, [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
             if ( $ok === false ) {
@@ -752,6 +807,24 @@ class GoalsRestController {
                 );
             }
         }
+        // #3781 — announce what materially changed, so the goal's
+        // conversation records it. Status is deliberately absent: it has
+        // its own `tt_goal_status_changed` announcement on update_status().
+        if ( $before ) {
+            $diff = self::materialGoalDiff( $before, $data );
+            if ( $diff ) {
+                /**
+                 * Fires after a goal row is updated, once per save, with
+                 * only the material fields that genuinely changed.
+                 *
+                 * @param int                                       $player_id The goal's player.
+                 * @param int                                       $goal_id   The goal.
+                 * @param array<string,array{from:mixed,to:mixed}>  $diff      Changed fields.
+                 */
+                do_action( 'tt_goal_updated', (int) ( $before['player_id'] ?? 0 ), $goal_id, $diff );
+            }
+        }
+
         // #0025 — re-detect source language for any updated free-text
         // fields. detectAndCache is idempotent on unchanged content.
         if ( isset( $data['title'] ) ) {

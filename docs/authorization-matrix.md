@@ -280,10 +280,12 @@ The decision resolves through the `team_chemistry` matrix entity (`MatrixGate`),
 
 Because the matrix is now the single source of truth, two personas that previously held the raw read capability are no longer granted `team_chemistry` access:
 
-- **Assistant coaches lose `team_chemistry` read.** The matrix omits `team_chemistry` from `assistant_coach` (removed by the #1060 "AC is operational, HC is development" editorial decision). Assistant coaches share the `tt_coach` WP role with head coaches, so the role still carries the cap, but the persona-aware matrix gate denies them. Head coaches (also `tt_coach`) keep access via their `team_chemistry [rc, team]` row.
+- **Assistant coaches lost `team_chemistry` read, and have it back read-only.** The #1060 "AC is operational, HC is development" editorial decision removed the row as development analytics. The entity also carries the team **formation** and the **blueprint**, so the removal took the shape the assistant coach coaches from — they saw the line-up on the pitch but not the formation it came from. The assistant coach now holds `team_chemistry [r, team]`: read-only, own teams only. Authoring formations, blueprints and pairings stays with the head coach, who holds `change`.
 - **Readonly observers lose `team_chemistry` read.** The all-areas observer (`tt_readonly_observer`) has no `team_chemistry` matrix row, so the gate denies it. The stale `tt_view_team_chemistry` role grant is revoked on upgrade so WP caps converge on the matrix authority.
 
-Personas that keep access: `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
+Personas with access: `assistant_coach` (read, team scope), `head_coach` (read + manage, team scope), `team_manager` (read, team scope), `scout` (read, global), `head_of_development` (read, global), `academy_admin` (read + manage, global). WP administrators and other holders of `tt_edit_settings` continue to bypass the per-team read gate as before.
+
+The chemistry board (suggested XI, coach-marked pairings, depth chart) opens to the assistant coach along with the formation. That is accepted rather than worked around: one entity governs both, and splitting them would add a seed entity to hide a view of the squad the assistant coach already stands in front of.
 
 ### Remaining blueprint surfaces routed through `TeamChemistryAccess`
 
@@ -476,7 +478,9 @@ Migration `0249_authorization_seed_topup_observer_and_staff` backfills both pers
 
 By default **Head of development** and **Academy admin** hold read and change, globally. A persona you give read only, for example an observer who should see coverage, sees the windows listed but has no form to change them, and the API refuses the write.
 
-Existing installs get the change right for those two personas with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`). It adds that one tuple with `INSERT IGNORE` and leaves every row an admin has edited alone.
+**Team manager** holds read at **team** scope. The attendance reports — the at-risk list, the leaderboard and the per-player rows — all gate on this entity, and chasing the players who keep missing training is the job the seat exists for. The rows those reports return are narrowed separately, by the teams the reader is assigned to, so the grant reaches the manager's own squads and no others. The same grant sits on the **Manager functional role** (see the axis below), because a team manager on a given install is as likely to be a Staff account holding that role as to hold the persona.
+
+Existing installs get the change right for head of development and academy admin with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`), and the team manager's read with `0277_authorization_seed_topup_manager_analytics`. Both add their tuples with `INSERT IGNORE` and leave every row an admin has edited alone.
 
 ## The functional-role axis (#3257, #3433)
 
@@ -493,7 +497,9 @@ What separates those two people is the job they do on a squad, which the product
 | `grants` | functional role key → entity → activities. Always **team**-scoped, because a functional role is held on a team; there is no other scope to pick. Unioned with whatever the user's personas grant. |
 | `supersedes` | persona → the entities whose answer the functional-role layer owns. For a user holding at least one functional role, that persona's own matrix row on those entities is **skipped**. |
 
-Shipped contents: `physio` grants `player_injuries [rc]` and `measurements [r]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+Shipped contents: `physio` grants `player_injuries [rc]` and `measurements [r]`; `head_coach` and `assistant_coach` grant `measurements [r]`; `kit_manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`; `manager` grants `team [r]`, `players [r]`, `people [r]`, `activities [r]`, `attendance [rc]`, `player_status [r]`, `holidays [r]` and `analytics [r]`. `staff` is superseded on `player_injuries` and `measurements`, and no other persona is superseded at all.
+
+`analytics [r]` on `manager` is the grant behind the attendance reports. A Staff account holding the Manager role is the shape a team manager most often takes on an install, and the at-risk list is the only surface that names the players who keep missing training — the job the seat exists for. It reads the reports for the squads the role is held on: the report rows are narrowed by `get_teams_for_coach()` regardless of how the grant arrived.
 
 ### Why `measurements` followed, one release later (#3433)
 

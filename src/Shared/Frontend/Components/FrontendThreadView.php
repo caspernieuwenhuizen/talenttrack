@@ -24,6 +24,16 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  */
 final class FrontendThreadView {
 
+    /**
+     * #3720 — would render() emit anything? Callers wrap their own
+     * "Conversation" heading in this so a reader who can't see the
+     * thread doesn't get the heading standing over nothing.
+     */
+    public static function canRender( string $thread_type, int $thread_id, int $user_id ): bool {
+        $adapter = ThreadTypeRegistry::get( $thread_type );
+        return $adapter !== null && $adapter->canRead( $user_id, $thread_id );
+    }
+
     public static function render( string $thread_type, int $thread_id, int $user_id ): void {
         $adapter = ThreadTypeRegistry::get( $thread_type );
         if ( ! $adapter || ! $adapter->canRead( $user_id, $thread_id ) ) {
