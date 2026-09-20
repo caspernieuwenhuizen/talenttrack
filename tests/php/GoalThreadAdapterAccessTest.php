@@ -75,6 +75,22 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
         return $goal_id;
     }
 
+    /**
+     * The three facts behind an academy-wide read, spelled out for the
+     * assertion message: which personas the user resolves to, whether
+     * the matrix holds the row, and which module gates it.
+     */
+    private function grantState( int $uid, string $persona ): string {
+        $repo = new MatrixRepository();
+        return sprintf(
+            'the matrix must resolve an academy-wide goals read for %s — personas=[%s], row=%s, module=%s',
+            $persona,
+            implode( ',', PersonaResolver::personasFor( $uid ) ),
+            $repo->lookup( $persona, 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) ? 'present' : 'absent',
+            var_export( $repo->moduleFor( $persona, 'goals', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ), true )
+        );
+    }
+
     public function test_head_of_development_reads_and_posts_via_the_matrix(): void {
         $goal_id = $this->seed_goal();
 
@@ -103,9 +119,12 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
 
         // Guard: separates "the matrix doesn't grant it" from "the
         // adapter doesn't ask the matrix", which is the actual bug.
+        // The message carries the three facts that decide it, so a
+        // failure here names the layer instead of sending the next
+        // reader back through MatrixGate by hand.
         $this->assertTrue(
             QueryHelpers::user_has_global_entity_read( $uid, 'goals' ),
-            'the matrix must resolve an academy-wide goals read for the HoD'
+            $this->grantState( $uid, 'head_of_development' )
         );
 
         $adapter = new GoalThreadAdapter();
@@ -138,7 +157,7 @@ final class GoalThreadAdapterAccessTest extends WP_UnitTestCase {
 
         $this->assertTrue(
             QueryHelpers::user_has_global_entity_read( $uid, 'goals' ),
-            'the matrix must resolve an academy-wide goals read for the scout'
+            $this->grantState( $uid, 'scout' )
         );
 
         $adapter = new GoalThreadAdapter();
