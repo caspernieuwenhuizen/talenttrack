@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-20T00:41:06+00:00\n"
+"POT-Creation-Date: 2026-09-20T00:51:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -2497,7 +2497,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:395
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:401
 #: src/Shared/Frontend/FrontendGoalsManageView.php:365
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:127
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:129
 #: src/Shared/Frontend/FrontendMyProfileView.php:102
 #: src/Shared/Frontend/FrontendPeopleManageView.php:122
 #: src/Shared/Frontend/FrontendPeopleManageView.php:256
@@ -2553,8 +2553,8 @@ msgstr ""
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:38
 #: src/Shared/Frontend/DashboardShortcode.php:284
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1141
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:207
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:265
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:209
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:280
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:199
 msgid "Activity"
 msgstr ""
@@ -3990,7 +3990,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:173
 #: src/Shared/Frontend/FrontendEvaluationsView.php:288
 #: src/Shared/Frontend/FrontendEvaluationsView.php:418
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:124
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:126
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
 #: src/Shared/Frontend/FrontendStandardReportsView.php:633
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1644
@@ -4033,7 +4033,7 @@ msgstr ""
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachForms.php:574
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3755
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:128
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:130
 #: src/Shared/Frontend/FrontendSpondMonitorView.php:191
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
 msgid "Location"
@@ -4080,7 +4080,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:195
 #: src/Shared/Frontend/FrontendEvaluationsView.php:438
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:126
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:128
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:111
 #: src/Shared/Frontend/FrontendPeopleManageView.php:117
@@ -4925,7 +4925,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachForms.php:633
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:3639
 #: src/Shared/Frontend/FrontendGoalsManageView.php:518
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:125
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:127
 #: src/Shared/Frontend/FrontendTeamDetailView.php:947
 #: src/Shared/Frontend/FrontendTrialCaseView.php:580
 msgid "Title"
@@ -9784,7 +9784,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendAuditLogView.php:512
 #: src/Shared/Frontend/FrontendConfigurationView.php:2842
 #: src/Shared/Frontend/FrontendEvaluationsView.php:203
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:144
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:146
 #: src/Shared/Frontend/FrontendReportWizardView.php:209
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1714
 msgid "From"
@@ -9808,7 +9808,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:2843
 #: src/Shared/Frontend/FrontendEvaluationsView.php:204
 #: src/Shared/Frontend/FrontendMailComposeView.php:142
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:145
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:147
 #: src/Shared/Frontend/FrontendStandardReportsView.php:1716
 msgid "To"
 msgstr ""
@@ -33392,7 +33392,7 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:50
 #: src/Shared/CoreSurfaceRegistration.php:561
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:55
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:57
 msgid "My activities"
 msgstr ""
 
@@ -36414,7 +36414,7 @@ msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:496
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:187
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:294
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:328
 msgid "Date:"
 msgstr ""
 
@@ -46603,7 +46603,7 @@ msgid "Switch back to all personas"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:86
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:69
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:71
 msgid "Activity detail"
 msgstr ""
 
@@ -46614,7 +46614,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:113
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:665
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:246
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:261
 msgid "Activity not found"
 msgstr ""
 
@@ -49733,83 +49733,99 @@ msgid "Turn TalentTrack modules on or off."
 msgstr ""
 
 #. translators: %s = the player's name, to a parent or a coach.
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:57
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:59
 #, php-format
 msgid "%s's activities"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:131
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:133
 msgid "Your status"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:132
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:134
 msgctxt "my activities column, about the player"
 msgid "Attendance"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:148
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:150
 msgid "Search title, location, team…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:151
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:153
 msgid "No activities recorded for you yet."
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:153
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:155
 #, php-format
 msgid "No activities recorded for %s yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:161
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:163
 msgid "No activities recorded for you yet"
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:163
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:165
 #, php-format
 msgid "No activities recorded for %s yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:166
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:168
 msgid "When your coach plans trainings or matches for your team, they show up here together with your attendance."
 msgstr ""
 
 #. translators: %s = the player's first name.
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:168
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:170
 #, php-format
 msgid "When a coach plans trainings or matches for %s's team, they show up here together with the attendance."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:202
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:204
 #: src/Shared/Frontend/FrontendMyDevelopmentView.php:434
 msgid "Coming up"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:247
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:262
 msgid "That activity is no longer available."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:297
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:331
+msgid "Presence time:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:335
+msgid "Kick-off:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:338
+msgid "End time:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:341
+msgid "Time:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:344
 #: src/Shared/Frontend/FrontendPlayersManageView.php:740
 msgid "Team:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:300
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:347
 msgid "Opponent:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:303
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:350
 msgid "Location:"
 msgstr ""
 
 #. translators: %s = attendance status label (Present / Absent / Late / etc.)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:319
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:366
 #, php-format
 msgid "Your attendance: %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:329
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:376
 msgid "Notes from your coach"
 msgstr ""
 
