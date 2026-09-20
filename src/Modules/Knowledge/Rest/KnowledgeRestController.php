@@ -719,7 +719,7 @@ final class KnowledgeRestController {
      * a date and a typo into `null`. A deadline silently becoming "no
      * deadline" is the failure worth a 400.
      */
-    public static function update_enrolment( WP_REST_Request $r ) {
+    public static function update_enrolment( WP_REST_Request $r ): \WP_REST_Response {
         $repo      = new EnrolmentRepository();
         $id        = (int) $r['id'];
         $enrolment = $repo->find( $id );
