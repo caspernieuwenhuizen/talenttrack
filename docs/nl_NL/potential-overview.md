@@ -72,3 +72,5 @@ Verder volgt het scherm de analytics-bevoegdheid en je teamscope, net als elke a
 ## Voor integraties
 
 `GET /wp-json/talenttrack/v1/reports/potential-overview` geeft dezelfde rijen terug die het scherm je toont, voor hetzelfde account: `scope` (`team` of `age_group`), `team_id` of `age_group`, optioneel `bands`, `sort` en `dir`. Het antwoord bevat de rijen, de teams in scope en dezelfde samenvattingscijfers. Schrijven gaat naar `POST /players/{id}/potential`, hetzelfde endpoint dat het spelersdossier gebruikt.
+
+`team_id` en `age_group` accepteert het endpoint zowel plat als genest: `filter[team_id]` en `filter[age_group]` — de vorm die de rest van de lijst-API gebruikt — en stuur je ze allebei, dan wint de geneste waarde. Een `team_id` dat geen bruikbaar team-id is, wordt geweigerd met `400 bad_filter`, waarbij `details.parameter` de schrijfwijze noemt die fout is; het wordt nooit stilzwijgend genegeerd, want een weggevallen teamfilter levert een antwoord op over elke selectie die je mag lezen terwijl er om één team gevraagd was.

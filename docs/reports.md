@@ -45,6 +45,8 @@ Rows where the standard deviation is below **0.5** across **10 or more ratings**
 
 Restricted to academy-wide roles (head of development / admin): coaches cannot see each other's statistics. The **Export (CSV)** button downloads the same rows; integrations can read them from `GET /wp-json/talenttrack/v1/reports/coach-evaluation-quality` with the same permission gate.
 
+That endpoint takes `team_id`, `date_from` and `date_to` either plainly or nested as `filter[team_id]`, `filter[date_from]` (also spelled `filter[from]`) and `filter[date_to]` (`filter[to]`) — the form the rest of the list API uses — and a nested value wins when both are sent. A `team_id` that is not a usable team id is refused with `400 bad_filter`, whose `details.parameter` names the spelling at fault; it is never dropped, because a dropped team filter answers for every coach in the academy under a filter somebody had asked for.
+
 ## Frontend reports + Print/Save as PDF
 
 Team rating averages and Coach activity now render natively on the public dashboard at `?tt_view=reports&type=team_ratings` and `?type=coach_activity` — no more wp-admin tab jump. Each report has a **Print / Save as PDF** button at the top: clicking it opens the browser's print dialog with a stylesheet that strips dashboard chrome, so picking "Save as PDF" produces a clean tabular PDF.
@@ -305,6 +307,17 @@ honest *Not recorded* chips, and a clear next-action note — never a misleading
 Coaches see only the teams they coach; academy-wide roles see the whole club. The
 filter bar carries the shared team / period / match-type / date-range controls
 and defaults to the current-season window.
+
+Integrations can read the same matrix — with the same `tt_view_analytics` gate
+and the same team scope — from
+`GET /wp-json/talenttrack/v1/reports/minutes-audit`. It takes `team_id`, `from`,
+`to` and `type` either plainly or nested as `filter[team_id]`, `filter[from]`
+(also spelled `filter[date_from]`), `filter[to]` (`filter[date_to]`) and
+`filter[type]` — the form the rest of the list API uses — and a nested value wins
+when both are sent. A team is required: leave it out of both spellings, or send
+something that is not a usable team id, and the request is refused with
+`400 bad_filter` whose `details.parameter` names the spelling at fault, rather
+than answered with an empty matrix that reads as "this team played nothing".
 
 ### Per-match minutes editor
 

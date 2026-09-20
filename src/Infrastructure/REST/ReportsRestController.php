@@ -29,6 +29,17 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function register(): void {
+        // #3780, #3790 — every report filter is taken under its plain name
+        // and under the nested `filter[...]` form the rest of the list API
+        // uses, and both spellings are declared so route discovery shows
+        // them. The descriptions are API documentation for integrators, not
+        // UI copy, so they are not translated.
+        $team_arg = [
+            'type'              => [ 'integer', 'string' ],
+            'description'       => 'Only this team\'s players. Same as filter[team_id]. A value that is not a usable team id is refused with 400 bad_filter rather than dropped.',
+            'sanitize_callback' => 'sanitize_text_field',
+            'required'          => false,
+        ];
         register_rest_route( self::NS, '/reports/coach-evaluation-quality', [
             [
                 'methods'             => 'GET',
@@ -38,9 +49,10 @@ final class ReportsRestController extends BaseController {
                         && \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( get_current_user_id() );
                 },
                 'args'                => [
-                    'team_id'   => [ 'sanitize_callback' => 'absint',              'required' => false ],
-                    'date_from' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'date_to'   => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'team_id'   => $team_arg,
+                    'date_from' => [ 'type' => 'string', 'description' => 'Earliest evaluation date as YYYY-MM-DD. Same as filter[date_from] or filter[from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'date_to'   => [ 'type' => 'string', 'description' => 'Latest evaluation date as YYYY-MM-DD. Same as filter[date_to] or filter[to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'filter'    => [ 'description' => 'Nested filters: team_id, date_from (or from), date_to (or to). A nested value wins over the plain parameter of the same name.' ],
                 ],
             ],
         ] );
@@ -62,18 +74,10 @@ final class ReportsRestController extends BaseController {
         // (the same cap the PHP-rendered report + leaderboard check);
         // results are additionally narrowed to the caller's team scope
         // below, so coaches never read other teams' rows.
-        // #3780 — every one of these is also taken nested as `filter[...]`,
-        // the form the rest of the list API uses. The descriptions are API
-        // documentation for integrators, not UI copy, so they are not
-        // translated.
+        // #3780 — every one of these is also taken nested as `filter[...]`.
         $window = 'as YYYY-MM-DD. Anything else falls back to the season window, which the response echoes.';
         $attendance_args = [
-            'team_id'           => [
-                'type'              => [ 'integer', 'string' ],
-                'description'       => 'Only this team\'s players. Same as filter[team_id]. A value that is not a usable team id is refused with 400 bad_filter rather than dropped.',
-                'sanitize_callback' => 'sanitize_text_field',
-                'required'          => false,
-            ],
+            'team_id'           => $team_arg,
             'from'              => [ 'type' => 'string', 'description' => 'Window start ' . $window . ' Same as filter[from] or filter[date_from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
             'to'                => [ 'type' => 'string', 'description' => 'Window end ' . $window . ' Same as filter[to] or filter[date_to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
             // #2136 — optional activity-type narrowing, threaded into the
@@ -129,11 +133,18 @@ final class ReportsRestController extends BaseController {
                     return \TT\Modules\Players\Frontend\PlayerStatusVisibility::squadVisibleTo( get_current_user_id() );
                 },
                 'args'                => [
-                    'scope'     => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
-                    'team_id'   => [ 'sanitize_callback' => 'absint',              'required' => false ],
-                    'age_group' => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'sort'      => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
-                    'dir'       => [ 'sanitize_callback' => 'sanitize_key',        'required' => false ],
+                    'scope'     => [ 'type' => 'string', 'description' => 'Which set the report covers: team or age_group.', 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    'team_id'   => $team_arg,
+                    'age_group' => [ 'type' => 'string', 'description' => 'Only players in this age group. Same as filter[age_group].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    // #3790 — `bands` was read by the callback but never
+                    // declared, so WP dropped it and the band filter did
+                    // nothing over REST. Left untyped: it is taken as a
+                    // repeated parameter or a comma-separated list, and the
+                    // query sanitises the values against the band vocabulary.
+                    'bands'     => [ 'description' => 'Only these potential bands, as a repeated parameter or a comma-separated list. Unknown bands are ignored.', 'required' => false ],
+                    'sort'      => [ 'type' => 'string', 'description' => 'Column to order by.', 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    'dir'       => [ 'type' => 'string', 'description' => 'Order direction: asc or desc.', 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    'filter'    => [ 'description' => 'Nested filters: team_id, age_group. A nested value wins over the plain parameter of the same name.' ],
                 ],
             ],
         ] );
@@ -147,10 +158,15 @@ final class ReportsRestController extends BaseController {
                 'callback'            => [ self::class, 'minutesAudit' ],
                 'permission_callback' => self::permCanFeature( 'tt_view_analytics', 'report_minutes_audit' ),
                 'args'                => [
-                    'team_id' => [ 'sanitize_callback' => 'absint',              'required' => true ],
-                    'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
-                    'type'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    // #3790 — not `required`, because WP would refuse the
+                    // request before the callback could read the nested
+                    // spelling. A team is still mandatory: absent in both
+                    // spellings is refused with 400 bad_filter.
+                    'team_id' => array_merge( $team_arg, [ 'description' => 'Required: the team whose matrix to read. Same as filter[team_id]. Absent in both spellings, or not a usable team id, is refused with 400 bad_filter rather than answered with an empty matrix.' ] ),
+                    'from'    => [ 'type' => 'string', 'description' => 'Window start ' . $window . ' Same as filter[from] or filter[date_from].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'to'      => [ 'type' => 'string', 'description' => 'Window end ' . $window . ' Same as filter[to] or filter[date_to].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'type'    => [ 'type' => 'string', 'description' => 'Only matches of this type: League, Cup or Friendly. Anything else reads every match type. Same as filter[type].', 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+                    'filter'  => [ 'description' => 'Nested filters: team_id, from (or date_from), to (or date_to), type. A nested value wins over the plain parameter of the same name.' ],
                 ],
             ],
         ] );
@@ -201,11 +217,21 @@ final class ReportsRestController extends BaseController {
         $user_id = get_current_user_id();
         $query   = new \TT\Modules\Analytics\Reports\PotentialOverviewQuery();
 
-        $scope     = \TT\Modules\Analytics\Reports\PotentialOverviewQuery::sanitizeScope(
+        $scope = \TT\Modules\Analytics\Reports\PotentialOverviewQuery::sanitizeScope(
             (string) $req->get_param( 'scope' )
         );
-        $team_id   = (int) $req->get_param( 'team_id' );
-        $age_group = (string) $req->get_param( 'age_group' );
+
+        // #3790 — the squad filters are taken under either spelling.
+        $read = self::filterValues( $req, [
+            'team_id'   => [ 'team_id' ],
+            'age_group' => [ 'age_group' ],
+        ] );
+        if ( $read['error'] !== null ) return $read['error'];
+        $team = self::filterTeamId( $read );
+        if ( $team['error'] !== null ) return $team['error'];
+
+        $team_id   = $team['team_id'];
+        $age_group = sanitize_text_field( $read['values']['age_group'] );
 
         $raw_bands = $req->get_param( 'bands' );
         if ( is_string( $raw_bands ) ) {
@@ -269,13 +295,26 @@ final class ReportsRestController extends BaseController {
      * coach gets an empty matrix, not another team's data.
      */
     public static function minutesAudit( WP_REST_Request $req ): \WP_REST_Response {
-        $team_id  = (int) $req->get_param( 'team_id' );
-        [ $from, $to ] = self::minutesAuditWindow( $req );
-        $type     = (string) $req->get_param( 'type' );
+        // #3790 — either spelling, nested wins, and a team nobody can
+        // resolve is refused rather than dropped. Dropping it used to mean
+        // an empty matrix that read as "this team played nothing".
+        $read = self::filterValues( $req, [
+            'team_id' => [ 'team_id' ],
+            'from'    => [ 'from', 'date_from' ],
+            'to'      => [ 'to', 'date_to' ],
+            'type'    => [ 'type' ],
+        ] );
+        if ( $read['error'] !== null ) return $read['error'];
+        $team = self::filterTeamId( $read, true );
+        if ( $team['error'] !== null ) return $team['error'];
+
+        $team_id = $team['team_id'];
+        [ $from, $to ] = self::resolveWindow( $read['values']['from'], $read['values']['to'] );
+        $type = $read['values']['type'];
         if ( ! in_array( $type, [ 'League', 'Cup', 'Friendly' ], true ) ) $type = 'all';
 
         $allowed = self::attendanceScope( $team_id );
-        if ( $allowed['blocked'] || $team_id <= 0 ) {
+        if ( $allowed['blocked'] ) {
             return RestResponse::success( [
                 'games'         => [],
                 'players'       => [],
@@ -287,21 +326,6 @@ final class ReportsRestController extends BaseController {
 
         $matrix = ( new \TT\Modules\Analytics\Reports\MinutesAuditQuery() )->matrix( $team_id, $from, $to, $type );
         return RestResponse::success( $matrix );
-    }
-
-    /**
-     * Resolve the audit window: season default unless valid `from`/`to`
-     * are supplied, matching the PHP view's default.
-     *
-     * @return array{0:string,1:string}
-     */
-    private static function minutesAuditWindow( WP_REST_Request $req ): array {
-        $from = (string) $req->get_param( 'from' );
-        $to   = (string) $req->get_param( 'to' );
-        $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
-        return [ $from, $to ];
     }
 
     public static function attendanceRows( WP_REST_Request $req ): \WP_REST_Response {
@@ -372,7 +396,7 @@ final class ReportsRestController extends BaseController {
     }
 
     /**
-     * Resolve + validate the `from`/`to` window.
+     * Resolve + validate a report's `from`/`to` window.
      *
      * #3717 — the default is the season window
      * (`ReportFilters::seasonDefaultWindow()`), the same helper the three
@@ -383,9 +407,13 @@ final class ReportsRestController extends BaseController {
      * helper keeps the 90-day rolling window as its own fallback when no
      * current season is configured.
      *
+     * #3790 — the minutes audit resolved its window with an identical
+     * private copy of this; one helper now, so the two reports cannot drift
+     * into answering for different periods.
+     *
      * @return array{0:string,1:string}
      */
-    private static function attendanceWindow( string $from, string $to ): array {
+    private static function resolveWindow( string $from, string $to ): array {
         $default = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $default['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $default['to'];
@@ -394,63 +422,96 @@ final class ReportsRestController extends BaseController {
 
     /**
      * #3780 — resolve the three attendance readers' parameters from either
-     * the plain names or the nested `filter[...]` form the rest of the list
-     * API uses. The nested value wins when both are sent, the same
-     * precedence #3584, #3607, #3668 and #3765 settled on.
-     *
-     * `filter[team_id]` used to be discarded — WP REST drops a query
-     * parameter no route declared, without a word — so an administrator
-     * asking for one squad's at-risk list got every team in the academy
-     * back, each row carrying a `team_name` that made the answer look
-     * deliberate. A player from another age group could end up named in a
-     * team's absence conversation. A filter that is sent but cannot be
-     * resolved is therefore refused rather than dropped: dropping it is
-     * exactly what widened the read.
-     *
-     * Widening access is still impossible either way — `attendanceScope()`
-     * runs on the resolved team, so a team outside the caller's scope
-     * answers 403 rather than the caller's own teams.
+     * spelling.
      *
      * @return array{team_id:int, from:string, to:string, activity_type_key:string, error:\WP_REST_Response|null}
      */
     private static function attendanceQuery( WP_REST_Request $req ): array {
-        $nested = $req->get_param( 'filter' );
-        $nested = is_array( $nested ) ? $nested : [];
+        $read = self::filterValues( $req, [
+            'team_id'           => [ 'team_id' ],
+            'from'              => [ 'from', 'date_from' ],
+            'to'                => [ 'to', 'date_to' ],
+            'activity_type_key' => [ 'activity_type_key' ],
+        ] );
+        if ( $read['error'] !== null ) return self::attendanceRefusal( $read['error'] );
 
-        $team = self::attendanceParam( $req, $nested, 'team_id', [ 'team_id' ] );
-        $from = self::attendanceParam( $req, $nested, 'from', [ 'from', 'date_from' ] );
-        $to   = self::attendanceParam( $req, $nested, 'to', [ 'to', 'date_to' ] );
-        $type = self::attendanceParam( $req, $nested, 'activity_type_key', [ 'activity_type_key' ] );
-
-        foreach ( [ $team, $from, $to, $type ] as $param ) {
-            if ( ! $param['usable'] ) return self::attendanceBadFilter( $param['name'] );
-        }
-
-        $team_id = 0;
-        if ( $team['value'] !== '' ) {
-            $team_id = absint( $team['value'] );
-            if ( $team_id <= 0 ) return self::attendanceBadFilter( $team['name'] );
-        }
+        $team = self::filterTeamId( $read );
+        if ( $team['error'] !== null ) return self::attendanceRefusal( $team['error'] );
 
         // A malformed date is not refused: #3717 settled that it falls back
         // to the season window and the response echoes the window actually
         // read, so the caller can see which period they got. An unknown
         // activity type narrows to nothing, which is also not a widening.
-        [ $window_from, $window_to ] = self::attendanceWindow( $from['value'], $to['value'] );
+        [ $window_from, $window_to ] = self::resolveWindow( $read['values']['from'], $read['values']['to'] );
 
         return [
-            'team_id'           => $team_id,
+            'team_id'           => $team['team_id'],
             'from'              => $window_from,
             'to'                => $window_to,
-            'activity_type_key' => sanitize_key( $type['value'] ),
+            'activity_type_key' => sanitize_key( $read['values']['activity_type_key'] ),
             'error'             => null,
         ];
     }
 
     /**
-     * One attendance parameter, read from the nested `filter[...]` form
-     * first and the plain name second, carrying the spelling it was read
-     * from so a refusal can name it.
+     * @return array{team_id:int, from:string, to:string, activity_type_key:string, error:\WP_REST_Response}
+     */
+    private static function attendanceRefusal( \WP_REST_Response $error ): array {
+        return [
+            'team_id'           => 0,
+            'from'              => '',
+            'to'                => '',
+            'activity_type_key' => '',
+            'error'             => $error,
+        ];
+    }
+
+    /**
+     * #3780, #3790 — read a report route's filters from either the plain
+     * parameter names or the nested `filter[...]` form the rest of the list
+     * API uses. The nested value wins when both are sent, the same
+     * precedence #3584, #3607, #3668 and #3765 settled on.
+     *
+     * `filter[team_id]` used to be discarded — WP REST drops a query
+     * parameter no route declared, without a word — so an administrator
+     * asking for one squad's at-risk list, minutes audit or potential
+     * overview got every team they may read back, each row carrying a real
+     * team name that made the answer look deliberate. A player from another
+     * age group could end up named in a team's absence or selection
+     * conversation. A filter that is sent but cannot be resolved is
+     * therefore refused rather than dropped: dropping it is exactly what
+     * widened the read.
+     *
+     * Widening access is still impossible either way — the scope checks run
+     * on the resolved team, after this, so a team outside the caller's scope
+     * answers the same way through both spellings.
+     *
+     * @param array<string, list<string>> $spec plain name => nested keys, in precedence order
+     * @return array{values:array<string,string>, names:array<string,string>, error:\WP_REST_Response|null}
+     */
+    private static function filterValues( WP_REST_Request $req, array $spec ): array {
+        $nested = $req->get_param( 'filter' );
+        $nested = is_array( $nested ) ? $nested : [];
+
+        $values = [];
+        $names  = [];
+        foreach ( $spec as $flat => $keys ) {
+            $flat  = (string) $flat;
+            $param = self::filterParam( $req, $nested, $flat, $keys );
+            if ( ! $param['usable'] ) {
+                return [ 'values' => [], 'names' => [], 'error' => self::badFilter( $param['name'] ) ];
+            }
+            $values[ $flat ] = $param['value'];
+            $names[ $flat ]  = $param['name'];
+        }
+
+        return [ 'values' => $values, 'names' => $names, 'error' => null ];
+    }
+
+    /**
+     * One filter, read from the nested `filter[...]` form first and the
+     * plain name second, carrying the spelling it was read from so a
+     * refusal can name it.
      *
      * `usable` is false when a nested key holds an array or an object where
      * a value belongs. That is not a filter anybody can act on, and reading
@@ -460,7 +521,7 @@ final class ReportsRestController extends BaseController {
      * @param list<string> $keys the nested keys, in precedence order
      * @return array{value:string, name:string, usable:bool}
      */
-    private static function attendanceParam( WP_REST_Request $req, array $nested, string $flat, array $keys ): array {
+    private static function filterParam( WP_REST_Request $req, array $nested, string $flat, array $keys ): array {
         foreach ( $keys as $key ) {
             if ( ! array_key_exists( $key, $nested ) ) continue;
             $candidate = $nested[ $key ];
@@ -479,21 +540,36 @@ final class ReportsRestController extends BaseController {
     }
 
     /**
-     * @return array{team_id:int, from:string, to:string, activity_type_key:string, error:\WP_REST_Response}
+     * The team filter every report route shares, resolved from whichever
+     * spelling carried it. `$required` is the minutes audit, whose matrix
+     * is meaningless without a team: absent is refused there rather than
+     * answered with an empty grid that reads as "this team played nothing".
+     *
+     * @param array{values:array<string,string>, names:array<string,string>, error:\WP_REST_Response|null} $read
+     * @return array{team_id:int, error:\WP_REST_Response|null}
      */
-    private static function attendanceBadFilter( string $parameter ): array {
-        return [
-            'team_id'           => 0,
-            'from'              => '',
-            'to'                => '',
-            'activity_type_key' => '',
-            'error'             => RestResponse::error(
-                'bad_filter',
-                __( 'That filter value is not a valid id.', 'talenttrack' ),
-                400,
-                [ 'parameter' => $parameter ]
-            ),
-        ];
+    private static function filterTeamId( array $read, bool $required = false ): array {
+        $raw  = $read['values']['team_id'] ?? '';
+        $name = $read['names']['team_id'] ?? 'team_id';
+
+        if ( $raw === '' ) {
+            return [ 'team_id' => 0, 'error' => $required ? self::badFilter( $name ) : null ];
+        }
+        $team_id = absint( $raw );
+        if ( $team_id <= 0 ) {
+            return [ 'team_id' => 0, 'error' => self::badFilter( $name ) ];
+        }
+        return [ 'team_id' => $team_id, 'error' => null ];
+    }
+
+    /** The one refusal a filter nobody can resolve earns, naming the spelling at fault. */
+    private static function badFilter( string $parameter ): \WP_REST_Response {
+        return RestResponse::error(
+            'bad_filter',
+            __( 'That filter value is not a valid id.', 'talenttrack' ),
+            400,
+            [ 'parameter' => $parameter ]
+        );
     }
 
     /**
@@ -596,10 +672,22 @@ final class ReportsRestController extends BaseController {
     }
 
     public static function coachEvalQuality( WP_REST_Request $req ): \WP_REST_Response {
+        // #3790 — either spelling, nested wins. The dates keep their
+        // pass-through behaviour: a blank one means "no bound", and the
+        // query binds whatever is supplied.
+        $read = self::filterValues( $req, [
+            'team_id'   => [ 'team_id' ],
+            'date_from' => [ 'date_from', 'from' ],
+            'date_to'   => [ 'date_to', 'to' ],
+        ] );
+        if ( $read['error'] !== null ) return $read['error'];
+        $team = self::filterTeamId( $read );
+        if ( $team['error'] !== null ) return $team['error'];
+
         $rows = ( new CoachEvalQualityQuery() )->rows( [
-            'team_id'   => (int) $req->get_param( 'team_id' ),
-            'date_from' => (string) $req->get_param( 'date_from' ),
-            'date_to'   => (string) $req->get_param( 'date_to' ),
+            'team_id'   => $team['team_id'],
+            'date_from' => sanitize_text_field( $read['values']['date_from'] ),
+            'date_to'   => sanitize_text_field( $read['values']['date_to'] ),
         ] );
         return RestResponse::success( [
             'rows'                   => $rows,
