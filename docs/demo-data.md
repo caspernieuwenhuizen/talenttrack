@@ -303,6 +303,16 @@ action ("Wipe demo users"), guarded so it refuses to delete an account whose
 email is outside the configured demo domain, the account you are logged in
 as, or the last remaining administrator.
 
+### When a wipe cannot finish
+
+A batch is removed in bounded steps rather than one statement per entity
+type, so a batch with hundreds of thousands of rows of one kind — evaluation
+ratings, usually — comes out in full. If the database still refuses one of
+those steps, the wipe says so: the confirmation turns into a warning naming
+the entity types it could not clear, and those rows keep their demo tags so
+running the wipe again picks them up. A wipe that reports a row count and no
+warning has removed everything it was asked to.
+
 ## Coverage
 
 `src/Modules/DemoData/DemoCoverage.php` is the single source of truth for

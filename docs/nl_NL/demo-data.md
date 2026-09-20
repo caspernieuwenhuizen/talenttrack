@@ -298,6 +298,17 @@ is een aparte actie ("Demogebruikers wissen"), met waarborgen: hij weigert
 een account waarvan het e-mailadres buiten het ingestelde demodomein valt,
 het account waarmee je bent ingelogd, en de laatst overgebleven beheerder.
 
+### Als een wisbeurt niet afkomt
+
+Een batch wordt in begrensde stappen verwijderd in plaats van met één
+opdracht per soort rij, zodat een batch met honderdduizenden rijen van
+één soort — meestal evaluatiebeoordelingen — er volledig uit komt. Weigert
+de database toch een van die stappen, dan meldt de wisbeurt dat: de
+bevestiging wordt een waarschuwing met de soorten die niet gewist konden
+worden, en die rijen houden hun demolabel zodat een volgende wisbeurt ze
+alsnog oppakt. Een wisbeurt die een aantal rijen meldt en geen
+waarschuwing toont, heeft alles verwijderd waar je om vroeg.
+
 ## Dekking
 
 `src/Modules/DemoData/DemoCoverage.php` is de enige bron van waarheid voor

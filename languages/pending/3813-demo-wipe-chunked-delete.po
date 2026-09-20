@@ -1,0 +1,3 @@
+#: src/Modules/DemoData/Admin/DemoDataPage.php:268
+msgid "The wipe was incomplete: the delete failed for %s. Those rows are still in the database and keep their demo tags — run the wipe again."
+msgstr "De wisbeurt is niet afgemaakt: verwijderen is mislukt voor %s. Die rijen staan nog in de database en houden hun demolabel — voer de wisbeurt opnieuw uit."
