@@ -212,13 +212,16 @@ final class TrialDecisionDueSoonAlert extends AbstractDataQualityAlert {
         );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $sql );
-        if ( ! is_array( $rows ) || $rows === [] ) return [];
+        $result = $wpdb->get_results( $sql );
+        if ( ! is_array( $result ) || $result === [] ) return [];
 
-        $missing = $this->missingByCase( array_map(
+        /** @var list<object> $rows */
+        $rows = array_values( array_filter( $result, 'is_object' ) );
+
+        $missing = $this->missingByCase( array_values( array_map(
             static fn( object $row ): int => (int) ( $row->subject_id ?? 0 ),
             $rows
-        ) );
+        ) ) );
         foreach ( $rows as $row ) {
             $row->missing_names = $missing[ (int) ( $row->subject_id ?? 0 ) ] ?? [];
         }
@@ -258,6 +261,7 @@ final class TrialDecisionDueSoonAlert extends AbstractDataQualityAlert {
             CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) || $rows === [] ) return [];
+        $rows = array_values( array_filter( $rows, 'is_object' ) );
 
         $user_ids = array_values( array_unique( array_map(
             static fn( object $row ): int => (int) ( $row->user_id ?? 0 ),

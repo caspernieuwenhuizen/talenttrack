@@ -679,9 +679,7 @@ class TrialsRestController {
                 'author_name'    => (string) ( $names[ $author ] ?? '' ),
                 'submitted_at'   => $at,
                 'released_at'    => $released !== '' ? $released : null,
-                'overall_rating' => isset( $r['overall_rating'] ) && $r['overall_rating'] !== null
-                    ? (float) $r['overall_rating']
-                    : null,
+                'overall_rating' => isset( $r['overall_rating'] ) ? (float) $r['overall_rating'] : null,
             ];
         }
 

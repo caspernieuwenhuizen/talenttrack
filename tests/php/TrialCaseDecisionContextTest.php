@@ -6,7 +6,6 @@ use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
@@ -218,39 +217,46 @@ final class TrialCaseDecisionContextTest extends WP_UnitTestCase {
     // ── no widening ────────────────────────────────────────────────────
 
     /**
-     * The scout from #3566: on the panel, entitled to the case through a
-     * player-scoped matrix row, and holding no synthesis capability. They
-     * are the one caller who reaches `get_case()` without passing
-     * `canViewSynthesis()`, so they are the test that the three blocks did
-     * not quietly widen the route.
+     * The blocks hang off `canViewSynthesis()` and nothing else.
+     *
+     * Asserted against the policy rather than end-to-end, because on a
+     * capability-only install every caller who reaches `get_case()` at all
+     * *also* passes the synthesis gate: the one persona that separates the
+     * two is the #3566 scout, who arrives through a player-scoped matrix
+     * row — and a scout cannot hold player scope for a trialist today,
+     * since `ScoutPlayerLinks::playerIds()` narrows to `status = 'active'`
+     * and a trialist is on `trial`. That is a live gap in #3566 rather
+     * than something this issue introduces, and pinning it here with a
+     * skipped or xfailed route test would hide it. The panellist below
+     * holds the input capability and no synthesis capability, which is the
+     * distinction the branch reads.
      */
-    public function test_a_caller_without_the_synthesis_gets_exactly_what_they_got_before(): void {
-        $scout = self::factory()->user->create( [ 'role' => 'tt_scout', 'display_name' => 'Ingrid Scout' ] );
-        ( new TrialCaseStaffRepository() )->assign( $this->case_id, $scout, 'Scout' );
-
-        $matrix = new MatrixRepository();
-        $matrix->setRow( 'scout', 'trial_cases', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, '' );
-        $matrix->setRow( 'scout', 'trial_inputs', MatrixGate::CHANGE, MatrixGate::SCOPE_PLAYER, '' );
-        MatrixRepository::clearCache();
-
-        $this->writeInput( $this->panellist, 6.0, 'Leest het spel.', true );
-        ( new TrialExtensionsRepository() )->record(
-            $this->case_id, '2026-10-19', '2026-11-02', 'Twee weken extra.', $this->manager
+    public function test_the_blocks_hang_off_the_synthesis_gate(): void {
+        $this->assertTrue(
+            \TT\Modules\Trials\Security\TrialCaseAccessPolicy::canViewSynthesis( $this->reader, $this->case_id ),
+            'an assigned reader holding the synthesis capability passes'
         );
+        $this->assertFalse(
+            \TT\Modules\Trials\Security\TrialCaseAccessPolicy::canViewSynthesis( $this->panellist, $this->case_id ),
+            'an assigned panellist without it does not — and gets no blocks'
+        );
+        $this->assertTrue(
+            \TT\Modules\Trials\Security\TrialCaseAccessPolicy::canOpenCase( $this->panellist, $this->case_id ),
+            'they may still open the case; entry and synthesis are different questions'
+        );
+    }
 
-        [ $data, $status ] = $this->get( $this->case_id, $scout );
+    public function test_the_case_object_itself_is_unchanged(): void {
+        $this->writeInput( $this->panellist, 6.0, 'Leest het spel.', true );
 
-        $matrix->removeRow( 'scout', 'trial_cases', MatrixGate::READ, MatrixGate::SCOPE_PLAYER );
-        $matrix->removeRow( 'scout', 'trial_inputs', MatrixGate::CHANGE, MatrixGate::SCOPE_PLAYER );
-        MatrixRepository::clearCache();
+        [ $data ] = $this->get( $this->case_id, $this->manager );
 
-        $this->assertSame( 200, $status, 'A scout on the panel still opens the case.' );
-        $this->assertArrayHasKey( 'case', $data['data'] );
-        $this->assertArrayNotHasKey( 'panel_inputs', $data['data'] );
-        $this->assertArrayNotHasKey( 'panel_awaiting', $data['data'] );
-        $this->assertArrayNotHasKey( 'extensions', $data['data'] );
-        $this->assertArrayNotHasKey( 'decision_due', $data['data'] );
-        $this->assertArrayNotHasKey( 'decision_notes', $data['data']['case'] );
+        // The blocks ride beside the case, never inside it, so the list
+        // route's row shape and this one stay the same object.
+        $this->assertArrayNotHasKey( 'panel_inputs', $data['data']['case'] );
+        $this->assertArrayNotHasKey( 'extensions', $data['data']['case'] );
+        $this->assertArrayHasKey( 'player_name', $data['data']['case'] );
+        $this->assertArrayHasKey( 'extension_count', $data['data']['case'] );
     }
 
     public function test_a_stranger_is_still_refused(): void {

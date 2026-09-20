@@ -378,9 +378,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
      * region so a screen reader announces it on load.
      */
     private static function renderEndingSoonBanner( object $case ): void {
-        $end      = (string) ( $case->end_date ?? '' );
-        $decision = $case->decision === null ? null : (string) $case->decision;
-        if ( ! TrialDecisionDeadline::isDueSoon( $end, $decision ) ) return;
+        $end     = (string) ( $case->end_date ?? '' );
+        $decided = $case->decision ?? null;
+        if ( ! TrialDecisionDeadline::isDueSoon( $end, $decided === null ? null : (string) $decided ) ) return;
 
         $days = TrialDecisionDeadline::daysRemaining( $end );
         if ( $days === null ) return;
@@ -488,11 +488,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
             // reader who may already read the case's aggregation: the
             // *fact* of a submission is not the judgement inside it, but it
             // is still more than an input-only assistant coach is here for.
-            $sees_synthesis = TrialCaseAccessPolicy::canViewSynthesis( $user_id, (int) $case->id );
+            $case_id        = (int) ( $case->id ?? 0 );
+            $sees_synthesis = TrialCaseAccessPolicy::canViewSynthesis( $user_id, $case_id );
             $submitted      = [];
             if ( $sees_synthesis ) {
-                foreach ( ( new TrialStaffInputsRepository() )->listForCase( (int) $case->id, true ) as $row ) {
-                    $submitted[ (int) $row->user_id ] = (string) ( $row->submitted_at ?? '' );
+                foreach ( ( new TrialStaffInputsRepository() )->listForCase( $case_id, true ) as $row ) {
+                    $submitted[ (int) ( $row->user_id ?? 0 ) ] = (string) ( $row->submitted_at ?? '' );
                 }
             }
 
@@ -704,12 +705,12 @@ class FrontendTrialCaseView extends FrontendViewBase {
             // #3801 — and the count says nothing about *who*. That gap is
             // what sent a head of development looking for a phone number.
             $handed_in = [];
-            foreach ( $inputs_repo->listForCase( (int) $case->id, true ) as $row ) {
-                $handed_in[ (int) $row->user_id ] = true;
+            foreach ( $inputs_repo->listForCase( (int) ( $case->id ?? 0 ), true ) as $row ) {
+                $handed_in[ (int) ( $row->user_id ?? 0 ) ] = true;
             }
             $awaiting = [];
-            foreach ( $staff_repo->listForCase( (int) $case->id ) as $member ) {
-                $uid = (int) $member->user_id;
+            foreach ( $staff_repo->listForCase( (int) ( $case->id ?? 0 ) ) as $member ) {
+                $uid = (int) ( $member->user_id ?? 0 );
                 if ( $uid <= 0 || isset( $handed_in[ $uid ] ) ) continue;
                 $u          = get_userdata( $uid );
                 $awaiting[] = $u ? (string) $u->display_name : '#' . $uid;
