@@ -1,45 +1,39 @@
 name: i18n sync (.pot → .po)
 
-# Regenerate `talenttrack.pot` from PHP source on every push to main
-# that touches PHP, then `msgmerge` it into every `.po` so missing
-# entries appear (with empty `msgstr`) and translators see the gap.
+# Manual re-sync of the translation catalogue: regenerate
+# `languages/talenttrack.pot` from PHP source, `msgmerge` it into every
+# `.po` so missing entries appear (with empty `msgstr`) and translators
+# see the gap, then commit the result to the branch it ran on.
 #
-# Why this exists: the .pot template at `languages/talenttrack.pot`
-# was last regenerated 2026-04-20. Four weeks of shipping later
-# (entire Tournaments module, expanded REST validation messages,
-# Prospects + PersonaDashboard polish) added ~570 user-visible
-# strings via `__()` / `esc_html__()` / `_e()` that were never
-# captured in the .pot, so the .po never grew the corresponding
-# msgids, so the Dutch site falls back to English for all of them.
+# #3865 — this used to run on EVERY push to main that touched PHP, and
+# commit. That put every open PR one commit behind on `languages/*.po`,
+# a file GitHub cannot auto-merge, so merging PR n forced a local merge
+# and a full CI re-run on PRs n+1…N. Measured on the 2026-09-20 drain:
+# ~20 avoidable integrate-and-push cycles across 22 PRs, and the tail of
+# the drain took longer than the implementation.
 #
-# This workflow keeps the gap from re-opening: every PHP-touching
-# merge to main re-extracts strings, msgmerges into .po, and
-# commits the result. The compile step in translations.yml then
-# regenerates the .mo from the updated .po on the next push.
+# The catalogue is now regenerated at RELEASE time instead, by
+# `auto-release.yml`, which runs the same script (`tools/i18n-sync.sh`)
+# immediately before it recompiles the `.mo` files — so the published
+# `.mo` is built from the synced `.po`, and the catalogue can never move
+# while PRs are open.
 #
-# Manual trigger: workflow_dispatch button on the Actions page,
-# for explicit re-syncs (e.g. after a translation backfill PR
-# merges and we want to re-baseline).
+# What is left here is the escape hatch: a workflow_dispatch button on
+# the Actions page, for an explicit re-sync between releases (e.g. after
+# a translation backfill merges and we want to re-baseline, or if the
+# release-time sync warned that it could not push).
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**/*.php'
-      - 'includes/**/*.php'
-      - 'talenttrack.php'
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# Serialize runs against the same branch. Two PHP-touching merges landing
-# close together (routine during a queue drain) otherwise race: run B checks
-# out main before run A has pushed its sync commit, so B's push is
-# non-fast-forward and gets rejected. Queue rather than cancel — a cancelled
-# run would drop its .pot/.po sync entirely, which is the gap this workflow
-# exists to close.
+# Serialize runs against the same branch. Two dispatches landing close
+# together otherwise race: run B checks out the branch before run A has
+# pushed its sync commit, so B's push is non-fast-forward and gets
+# rejected. Queue rather than cancel — a cancelled run would drop its
+# .pot/.po sync entirely.
 concurrency:
   group: i18n-sync-${{ github.ref }}
   cancel-in-progress: false
@@ -70,9 +64,9 @@ jobs:
       # #3218 — regenerate against the CURRENT tip, never rebase.
       #
       # This used to be three steps: extract, msgmerge, then commit with a
-      # `git pull --rebase` before the push to survive a main that had
-      # moved. That rebase is what failed on back-to-back merges. It has to
-      # replay a sync commit onto a main whose `.pot` the *next* run has
+      # `git pull --rebase` before the push to survive a branch that had
+      # moved. That rebase is what failed on back-to-back runs. It has to
+      # replay a sync commit onto a tip whose `.pot` the *next* run has
       # already rewritten, and `.gitattributes` gives `languages/*.po` a
       # union driver but deliberately not `talenttrack.pot` — union on a
       # `.pot` would produce duplicate msgids, which msgfmt treats as fatal,
@@ -83,17 +77,7 @@ jobs:
       # first and there is never a `.pot` to reconcile: on a rejected push
       # we throw the work away and redo it against the new tip, which is
       # cheap and always correct.
-      #
-      # `wp i18n make-pot` is WordPress's official .pot generator — it knows
-      # the gettext keyword conventions (__/_e/_n/_x/esc_html__/…) and
-      # filters by text-domain natively. `--skip-audit` skips its lint pass;
-      # ours lives in release.yml.
-      #
-      # msgmerge -U updates each .po in place: new msgids appear with an
-      # empty msgstr, obsoleted ones are commented out with `#~`.
-      # `--no-fuzzy-matching` stops it guessing that a new string is a
-      # renamed old one, which is brittle.
-      - name: Regenerate, merge and push (retrying against a moved main)
+      - name: Regenerate, merge and push (retrying against a moved branch)
         env:
           REF: ${{ github.ref_name }}
         run: |
@@ -107,31 +91,14 @@ jobs:
             git fetch origin "$REF"
             git reset --hard "origin/$REF"
 
-            wp i18n make-pot . languages/talenttrack.pot --slug=talenttrack --skip-audit
-
-            for po in languages/*.po; do
-              echo "Merging $po"
-              msgmerge --update --backup=none --no-fuzzy-matching "$po" languages/talenttrack.pot
-            done
+            if ! bash tools/i18n-sync.sh; then
+              echo "::endgroup::"
+              echo "::error::Catalogue regeneration failed — see the log above."
+              exit 1
+            fi
 
             if [ -z "$(git status --porcelain languages/)" ]; then
               echo "No translation file changes; nothing to push."
-              echo "::endgroup::"
-              exit 0
-            fi
-
-            # `wp i18n make-pot` rewrites POT-Creation-Date on every run, so
-            # the date alone is not a real change and must not produce a
-            # commit. The .po files are the meaningful signal.
-            po_changed=$(git status --porcelain languages/*.po 2>/dev/null | wc -l)
-            pot_real_change=$(git diff --unified=0 -- languages/talenttrack.pot 2>/dev/null \
-              | grep -E '^[-+]' \
-              | grep -vE '^[-+]"POT-Creation-Date|^[-+]{3}' \
-              | wc -l)
-
-            if [ "$po_changed" -eq 0 ] && [ "$pot_real_change" -eq 0 ]; then
-              echo "Only POT-Creation-Date changed; skipping commit."
-              git checkout -- languages/
               echo "::endgroup::"
               exit 0
             fi
