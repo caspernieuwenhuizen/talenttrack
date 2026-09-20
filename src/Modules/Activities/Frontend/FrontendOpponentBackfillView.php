@@ -201,10 +201,10 @@ class FrontendOpponentBackfillView extends FrontendViewBase {
         $team_clause = '';
         $params      = [ (int) CurrentClub::id() ];
         if ( ! self::readsEveryTeam( $user_id, $is_admin ) ) {
-            $team_ids = array_values( array_map(
+            $team_ids = array_map(
                 'intval',
                 array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' )
-            ) );
+            );
             if ( $team_ids === [] ) return [];
             $team_clause = ' AND a.team_id IN ( ' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ' )';
             $params      = array_merge( $params, $team_ids );

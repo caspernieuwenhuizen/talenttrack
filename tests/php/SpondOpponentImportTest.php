@@ -80,8 +80,11 @@ final class SpondOpponentImportTest extends WP_UnitTestCase {
 
         $start = strpos( $src, '$update   = [' );
         $this->assertNotFalse( $start, 'the re-sync update array moved; re-point this test' );
-        $end = strpos( $src, '];', $start );
-        $this->assertNotFalse( $end );
+        // The array ends where the time columns are added to it, not at a
+        // `];` — reading to the next one would sweep in the insert below
+        // and its comments with it.
+        $end = strpos( $src, '] + self::timeColumns', $start );
+        $this->assertNotFalse( $end, 'the re-sync update array no longer ends in timeColumns(); re-point this test' );
 
         $update = substr( $src, $start, $end - $start );
         $this->assertStringNotContainsString(
