@@ -12,7 +12,7 @@
  *
  * Two surfaces, two DOM shapes, both handled defensively:
  *   - Flat coach form (CoachForms): a `<form id="tt-eval-form">` whose
- *     categories are `.tt-eval-cat-block[data-tt-eval-cat]` siblings and
+ *     categories are `[data-tt-eval-cat]` cards (siblings) and
  *     whose type select is `#tt_fe_eval_type`.
  *   - Player-first wizard (HybridDeepRateStep, #1732): each main category
  *     is a `<details class="tt-rate-cat">[data-tt-eval-cat-main]` carrying
@@ -50,7 +50,7 @@
 		var select = form.querySelector( '#tt_fe_eval_type' );
 		if ( ! select ) return;
 
-		var block = form.querySelector( '.tt-eval-cat-block[data-tt-eval-cat="' + mentalId + '"]' );
+		var block = form.querySelector( '[data-tt-eval-cat="' + mentalId + '"]' );
 		if ( ! block ) return;
 
 		// Remember the natural slot so a switch away from Training can
@@ -59,7 +59,7 @@
 		if ( block.parentNode ) block.parentNode.insertBefore( anchor, block );
 
 		function toTop() {
-			var blocks = form.querySelectorAll( '.tt-eval-cat-block[data-tt-eval-cat]' );
+			var blocks = form.querySelectorAll( '[data-tt-eval-cat]' );
 			var first = blocks.length ? blocks[ 0 ] : null;
 			if ( first && first !== block && first.parentNode ) {
 				first.parentNode.insertBefore( block, first );
@@ -75,8 +75,8 @@
 		}
 
 		function expand( detailed ) {
-			var toggle = block.querySelector( '.tt-rate-detail-toggle' );
-			var subs   = block.querySelector( '.tt-rate-subs' );
+			var toggle = block.querySelector( '[data-tt-rate-detail-toggle]' );
+			var subs   = block.querySelector( '[data-tt-rate-subs]' );
 			if ( ! toggle || ! subs ) return; // no sub-categories — nothing to expand
 			setToggleState( toggle, detailed );
 			if ( detailed ) subs.removeAttribute( 'hidden' );

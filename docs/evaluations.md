@@ -26,6 +26,25 @@ An **evaluation** is your rating of a player on a specific date, across the cate
 9. If the type is a match, fill in opponent, competition, result and home/away. Minutes played are not asked for here: they are recorded on the match's own attendance screen, which is the one place the minutes reports read.
 10. Save.
 
+## How the form is laid out
+
+The form opens with a strip naming the player: photo (or initials), name,
+team and position. When you start from the Evaluations list and pick the
+player yourself, the strip appears as soon as you have picked one.
+
+Below it the form has three sections:
+
+- **Details** — type and date, plus the match fields when the type is a match.
+- **Ratings** — the heading shows the academy's scale once. Each main
+  category is a card: its name, its rating and a **Basic / Detailed** switch
+  sit in the card's header. **Detailed** opens that category's subcategories
+  inside the same card.
+- **Notes** — the staff-only notes and the feedback for the player.
+
+A rating at or below the academy's low-rating threshold is highlighted, and a
+reminder to explain it appears above the notes until you write an internal
+note.
+
 ## Editing an evaluation saves itself
 
 Recording a new evaluation ends with **Save**, as above. **Editing** an

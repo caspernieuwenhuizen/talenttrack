@@ -123,7 +123,6 @@ class CoachForms {
         $is_edit          = $existing_eval !== null;
         $rest_path        = $is_edit ? 'evaluations/' . (int) $existing_eval->id : 'evaluations';
         $rest_method      = $is_edit ? 'PUT' : 'POST';
-        $title_text       = $is_edit ? __( 'Edit evaluation', 'talenttrack' ) : __( 'Submit Evaluation', 'talenttrack' );
         $submit_label     = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Save', 'talenttrack' );
         $existing_player  = $is_edit ? (int) $existing_eval->player_id : 0;
         $existing_ratings = [];
@@ -155,10 +154,21 @@ class CoachForms {
         if ( $autosaves ) {
             \TT\Shared\Frontend\Components\FormAutosave::enqueue();
         }
+
+        // #3969 — one card per category, in its own mobile-first sheet.
+        // The page header is the form's title; the form prints none.
+        wp_enqueue_style( 'tt-frontend-eval-form', TT_PLUGIN_URL . 'assets/css/frontend-eval-form.css', [ 'tt-public' ], TT_VERSION );
+        wp_enqueue_script( 'tt-eval-form', TT_PLUGIN_URL . 'assets/js/components/eval-form.js', [], TT_VERSION, true );
         ?>
-        <h3><?php echo esc_html( $title_text ); ?></h3>
         <form id="tt-eval-form"
-              class="<?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              class="tt-evf <?php echo $autosaves ? 'tt-autosave-form' : 'tt-ajax-form'; ?>"
+              data-tt-evf
+              data-tt-evf-type-meta="<?php echo esc_attr( (string) wp_json_encode( $type_meta ) ); ?>"
+              data-tt-evf-low-threshold="<?php echo esc_attr( (string) $low_threshold ); ?>"
+              data-tt-evf-low-mode="<?php echo esc_attr( $low_mode ); ?>"
+              data-tt-evf-min="<?php echo esc_attr( (string) $rmin ); ?>"
+              data-tt-evf-max="<?php echo esc_attr( (string) $rmax ); ?>"
+              data-tt-evf-step="<?php echo esc_attr( (string) $rstep ); ?>"
               <?php if ( $autosaves ) {
                   echo \TT\Shared\Frontend\Components\FormAutosave::formAttrs( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes each attribute
                       $rest_path,
@@ -175,27 +185,11 @@ class CoachForms {
             <?php if ( $hide_pickers ) :
                 $hidden_player_id = $is_edit ? $existing_player : $preset_player_id;
                 $hidden_player    = $is_edit ? QueryHelpers::get_player( $existing_player ) : $preset_player;
-                $hidden_player_label = $hidden_player ? QueryHelpers::player_display_name( $hidden_player ) : '#' . (int) $hidden_player_id;
                 ?>
                 <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $hidden_player_id ); ?>" />
-                <p class="tt-muted" style="margin: 0 0 12px;">
-                    <?php
-                    if ( $is_edit ) {
-                        /* translators: %s = player display name */
-                        printf(
-                            esc_html__( 'Editing evaluation of %s.', 'talenttrack' ),
-                            '<strong>' . esc_html( $hidden_player_label ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
-                        );
-                    } else {
-                        /* translators: %s = player display name */
-                        printf(
-                            esc_html__( 'Recording evaluation for %s.', 'talenttrack' ),
-                            '<strong>' . esc_html( $hidden_player_label ) . '</strong>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wrapper escapes the name
-                        );
-                    }
-                    ?>
-                </p>
+                <?php self::renderSubject( $hidden_player, (int) $hidden_player_id ); ?>
             <?php else : ?>
+                <?php self::renderSubject( null, 0 ); ?>
                 <?php
                 // v3.110.4 — single picker with embedded team filter.
                 // Replaces the previous team-first two-picker flow:
@@ -246,26 +240,30 @@ class CoachForms {
             $cur_feedback    = $is_edit ? (string) ( $existing_eval->player_feedback ?? '' ) : '';
             $match_open      = $is_edit && $cur_type_id > 0 && ! empty( $type_meta[ $cur_type_id ] );
             ?>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</label><select name="eval_type_id" id="tt_fe_eval_type" required>
-                <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                <?php foreach ( $types as $t ) : ?>
-                    <option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $cur_type_id, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
-                <?php endforeach; ?>
-            </select></div>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="eval_date" value="<?php echo esc_attr( $cur_eval_date ); ?>" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
-            <div id="tt-fe-match-fields" style="display:<?php echo $match_open ? 'block' : 'none'; ?>;">
-                <div class="tt-form-row"><label><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" name="opponent" value="<?php echo esc_attr( $cur_opponent ); ?>" /></div>
-                <div class="tt-form-row">
-                    <label><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
-                    <select name="competition">
+            <section class="tt-evf__section" aria-labelledby="tt-evf-h-details">
+            <div class="tt-evf__section-head"><h2 class="tt-evf__section-title" id="tt-evf-h-details"><?php echo esc_html_x( 'Details', 'evaluation form section', 'talenttrack' ); ?></h2></div>
+            <div class="tt-evf__fields">
+                <div class="tt-evf__field"><label for="tt_fe_eval_type"><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</label><select name="eval_type_id" id="tt_fe_eval_type" required>
+                    <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
+                    <?php foreach ( $types as $t ) : ?>
+                        <option value="<?php echo (int) $t->id; ?>" data-match="<?php echo (int) $type_meta[ (int) $t->id ]; ?>" <?php selected( $cur_type_id, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
+                    <?php endforeach; ?>
+                </select></div>
+                <div class="tt-evf__field"><label for="tt-evf-date"><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" id="tt-evf-date" name="eval_date" value="<?php echo esc_attr( $cur_eval_date ); ?>" max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
+            </div>
+            <div class="tt-evf__fields" id="tt-fe-match-fields" data-tt-evf-match <?php echo $match_open ? '' : 'hidden'; ?>>
+                <div class="tt-evf__field"><label for="tt-evf-opponent"><?php esc_html_e( 'Opponent', 'talenttrack' ); ?></label><input type="text" id="tt-evf-opponent" name="opponent" autocomplete="off" value="<?php echo esc_attr( $cur_opponent ); ?>" /></div>
+                <div class="tt-evf__field">
+                    <label for="tt-evf-competition"><?php esc_html_e( 'Competition', 'talenttrack' ); ?></label>
+                    <select name="competition" id="tt-evf-competition">
                         <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( \TT\Infrastructure\Query\QueryHelpers::get_lookups( 'game_subtype' ) as $tt_ct ) : ?>
                             <option value="<?php echo esc_attr( (string) $tt_ct->name ); ?>" <?php selected( $cur_competition, (string) $tt_ct->name ); ?>><?php echo esc_html( __( (string) $tt_ct->name, 'talenttrack' ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" value="<?php echo esc_attr( $cur_result ); ?>" /></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home" <?php selected( $cur_home_away, 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $cur_home_away, 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
+                <div class="tt-evf__field"><label for="tt-evf-result"><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" id="tt-evf-result" name="game_result" placeholder="2-1" autocomplete="off" value="<?php echo esc_attr( $cur_result ); ?>" /></div>
+                <div class="tt-evf__field"><label for="tt-evf-home-away"><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away" id="tt-evf-home-away"><option value="">—</option><option value="home" <?php selected( $cur_home_away, 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $cur_home_away, 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
                 <?php
                 // #3817 — "Minutes played" used to be a field here. It has
                 // stored nothing since #2159 moved match minutes to
@@ -276,7 +274,20 @@ class CoachForms {
                 // minutes reports read.
                 ?>
             </div>
-            <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
+            </section>
+            <section class="tt-evf__section" aria-labelledby="tt-evf-h-ratings">
+            <div class="tt-evf__section-head">
+                <h2 class="tt-evf__section-title" id="tt-evf-h-ratings"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h2>
+                <span class="tt-evf__scale"><?php
+                    printf(
+                        /* translators: 1: lowest rating on the scale, 2: highest rating on the scale */
+                        esc_html__( 'Scale %1$s–%2$s', 'talenttrack' ),
+                        esc_html( (string) $rmin ),
+                        esc_html( (string) $rmax )
+                    );
+                ?></span>
+            </div>
+            <div class="tt-evf__cats">
             <?php
             // v3.110.66 — main-category rating inputs are NOT marked
             // `required` in edit mode. The evaluation model is
@@ -297,8 +308,8 @@ class CoachForms {
             // v3.110.105 — render sub-category inputs nested under
             // each main category. Pre-fill from `$existing_ratings`
             // (keyed by category_id), which already includes sub
-            // rows when present. Subs use `tt_form-row--sub` for the
-            // indent + muted label treatment; the input itself is
+            // rows when present. Subs sit in the category card's body;
+            // the input itself is
             // identical to the main row so the REST layer doesn't
             // need to distinguish them on save. Pulled from the
             // EvalCategoriesRepository directly so we don't depend
@@ -334,67 +345,86 @@ class CoachForms {
                     }
                 }
                 $initial_state = $has_sub_values ? 'detailed' : 'basic';
+                $has_subs      = $cat_repo !== null && ! empty( $sub_cats );
+                $main_input_id = 'tt-evf-rating-' . $cid;
+                // Card per category (#3969). `data-tt-eval-cat` is the hook
+                // `training-eval-defaults.js` moves and expands.
                 ?>
-                <div class="tt-eval-cat-block" data-tt-eval-cat="<?php echo (int) $cid; ?>">
-                <div class="tt-form-row tt-form-row--rating"><label><?php echo esc_html( $cat_label ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
-                    <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
-                    <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
-                <?php
-                if ( $cat_repo === null || empty( $sub_cats ) ) {
-                    echo '</div>'; // close .tt-eval-cat-block
-                    continue;
-                }
-                ?>
-                <div class="tt-form-row tt-form-row--toggle">
-                    <div class="tt-rate-detail-toggle"
-                         data-tt-rate-detail-toggle
-                         data-state="<?php echo esc_attr( $initial_state ); ?>"
-                         role="tablist"
-                         aria-label="<?php echo esc_attr( sprintf(
-                             /* translators: %s: main category label */
-                             __( '%s detail mode', 'talenttrack' ),
-                             $cat_label
-                         ) ); ?>">
-                        <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $initial_state === 'basic' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_basic_label ); ?></button>
-                        <button type="button" data-mode="detailed" role="tab" aria-selected="<?php echo $initial_state === 'detailed' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_detail_label ); ?></button>
+                <div class="tt-evf-cat" data-tt-eval-cat="<?php echo (int) $cid; ?>">
+                <div class="tt-evf-cat__head">
+                    <h3 class="tt-evf-cat__name">
+                        <label for="<?php echo esc_attr( $main_input_id ); ?>"><?php echo esc_html( $cat_label ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
+                        <?php if ( $has_subs ) : ?>
+                            <span class="tt-evf-cat__sub-count"><?php
+                                echo esc_html( sprintf(
+                                    /* translators: %d: number of subcategories in a rating category */
+                                    _n( '%d subcategory', '%d subcategories', count( (array) $sub_cats ), 'talenttrack' ),
+                                    count( (array) $sub_cats )
+                                ) );
+                            ?></span>
+                        <?php endif; ?>
+                    </h3>
+                    <?php if ( $has_subs ) : ?>
+                        <div class="tt-evf-mode"
+                             data-tt-rate-detail-toggle
+                             data-state="<?php echo esc_attr( $initial_state ); ?>"
+                             role="tablist"
+                             aria-label="<?php echo esc_attr( sprintf(
+                                 /* translators: %s: main category label */
+                                 __( '%s detail mode', 'talenttrack' ),
+                                 $cat_label
+                             ) ); ?>">
+                            <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $initial_state === 'basic' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_basic_label ); ?></button>
+                            <button type="button" data-mode="detailed" role="tab" aria-selected="<?php echo $initial_state === 'detailed' ? 'true' : 'false'; ?>"><?php echo esc_html( $toggle_detail_label ); ?></button>
+                        </div>
+                    <?php endif; ?>
+                    <div class="tt-evf-cat__rate">
+                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $main_input_id ); ?>" data-tt-evf-main-rating name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     </div>
                 </div>
-                <div class="tt-rate-subs" data-tt-rate-subs <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
+                <?php if ( $has_subs ) : ?>
+                <div class="tt-evf-cat__subs" data-tt-rate-subs <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
                 <?php
                 foreach ( (array) $sub_cats as $sub ) :
                     $scid = (int) $sub->id;
                     if ( $scid <= 0 ) continue;
-                    $sub_rating = isset( $existing_ratings[ $scid ] ) ? (string) $existing_ratings[ $scid ] : '';
-                    $sub_label  = EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
+                    $sub_rating   = isset( $existing_ratings[ $scid ] ) ? (string) $existing_ratings[ $scid ] : '';
+                    $sub_label    = EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
+                    $sub_input_id = 'tt-evf-rating-' . $scid;
                     ?>
-                    <div class="tt-form-row tt-form-row--rating tt-form-row--sub">
-                        <label><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( $sub_label ); ?></label>
-                        <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
-                        <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span>
+                    <div class="tt-evf-sub">
+                        <label for="<?php echo esc_attr( $sub_input_id ); ?>"><?php echo esc_html( $sub_label ); ?></label>
+                        <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $sub_input_id ); ?>" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
                     </div>
                 <?php
                 endforeach;
                 ?>
-                </div><!-- /.tt-rate-subs -->
-                </div><!-- /.tt-eval-cat-block -->
+                </div>
+                <?php endif; ?>
+                </div>
                 <?php
             endforeach; ?>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Internal notes (staff only)', 'talenttrack' ); ?></label><textarea name="notes" rows="3" placeholder="<?php esc_attr_e( 'Not shown to the player — staff-only.', 'talenttrack' ); ?>" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
-            <?php // #1386 — optional feedback shown to the player + parents (Notes above stay staff-only). ?>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Feedback for the player', 'talenttrack' ); ?></label><textarea name="player_feedback" rows="3" placeholder="<?php esc_attr_e( 'Optional — what they did well and what to work on next. Shown to the player and their parents.', 'talenttrack' ); ?>"><?php echo esc_textarea( $cur_feedback ); ?></textarea></div>
-            <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
-                <span style="color:var(--tt-warning, #c9962a); font-size:13px;">
-                    <?php
-                    // #1365 — inline SVG instead of the OS-dependent warning glyph.
-                    echo \TT\Shared\Icons\IconRenderer::render( 'warning', [ 'width' => 13, 'height' => 13, 'style' => 'vertical-align:-2px;margin-right:3px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            </div>
+            </section>
+            <section class="tt-evf__section" aria-labelledby="tt-evf-h-notes">
+            <div class="tt-evf__section-head"><h2 class="tt-evf__section-title" id="tt-evf-h-notes"><?php echo esc_html_x( 'Notes', 'evaluation form section', 'talenttrack' ); ?></h2></div>
+            <div class="tt-evf-warning" data-tt-low-rating-warning role="status" hidden>
+                <?php
+                // #1365 — inline SVG instead of the OS-dependent warning glyph.
+                echo \TT\Shared\Icons\IconRenderer::render( 'warning', [ 'width' => 16, 'height' => 16 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                ?>
+                <span><?php
                     printf(
                         /* translators: %s is the threshold value */
                         esc_html__( 'One or more ratings are at or below %s — please add a comment explaining the low score.', 'talenttrack' ),
                         esc_html( rtrim( rtrim( number_format( $low_threshold, 1 ), '0' ), '.' ) )
                     );
-                    ?>
-                </span>
+                ?></span>
             </div>
+            <div class="tt-evf__field tt-evf__field--wide"><label for="tt-evf-notes"><?php esc_html_e( 'Internal notes (staff only)', 'talenttrack' ); ?></label><textarea id="tt-evf-notes" name="notes" rows="3" placeholder="<?php esc_attr_e( 'Not shown to the player — staff-only.', 'talenttrack' ); ?>" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
+            <?php // #1386 — optional feedback shown to the player + parents (Notes above stay staff-only). ?>
+            <div class="tt-evf__field tt-evf__field--wide"><label for="tt-evf-feedback"><?php esc_html_e( 'Feedback for the player', 'talenttrack' ); ?></label><textarea id="tt-evf-feedback" name="player_feedback" rows="3" placeholder="<?php esc_attr_e( 'Optional — what they did well and what to work on next. Shown to the player and their parents.', 'talenttrack' ); ?>"><?php echo esc_textarea( $cur_feedback ); ?></textarea></div>
+            </section>
             <?php
             // v3.110.58 — CLAUDE.md § 6: Save + Cancel on every
             // record-mutating form. tt_back wins when the entry URL
@@ -422,140 +452,48 @@ class CoachForms {
             ?>
             <div class="tt-form-msg"></div>
         </form>
-        <script>
-        (function(){
-            var typeMeta = <?php echo wp_json_encode( $type_meta ); ?>;
-            var sel = document.getElementById('tt_fe_eval_type');
-            if (sel) sel.addEventListener('change', function(){
-                document.getElementById('tt-fe-match-fields').style.display = (typeMeta[this.value] == 1) ? 'block' : 'none';
-            });
-            // v3.110.4 — the F1 team→player wiring is gone now that
-            // the player picker carries its own embedded team filter
-            // (`show_team_filter=true`). The picker hydrator handles
-            // the cross-filter natively.
-            var form = document.getElementById('tt-eval-form');
-            // F6 — low-rating comment policy.
-            var lowThreshold = <?php echo wp_json_encode( $low_threshold ); ?>;
-            var lowMode      = <?php echo wp_json_encode( $low_mode ); ?>;
-            if (form) {
-                var notesEl   = form.querySelector('[data-tt-low-rating-notes]');
-                var warningEl = form.querySelector('[data-tt-low-rating-warning]');
-                function evaluate() {
-                    var inputs = form.querySelectorAll('input[type="number"][name^="ratings["]');
-                    var triggered = false;
-                    inputs.forEach(function(inp){
-                        var v = parseFloat(inp.value);
-                        if (!isNaN(v) && v <= lowThreshold) triggered = true;
-                    });
-                    var notesEmpty = !notesEl || notesEl.value.trim() === '';
-                    if (warningEl) warningEl.hidden = !( triggered && notesEmpty );
-                    return { triggered: triggered, notesEmpty: notesEmpty };
-                }
-                form.addEventListener('input', evaluate);
-                if (lowMode === 'hard') {
-                    form.addEventListener('submit', function(e){
-                        var s = evaluate();
-                        if (s.triggered && s.notesEmpty) {
-                            e.preventDefault();
-                            if (notesEl) notesEl.focus();
-                        }
-                    }, true);
-                }
+        <?php
+    }
 
-                // v3.110.125 — Basic/Detailed pill toggle per main
-                // category. Click delegated on the form so every
-                // toggle row hooks up without per-element wiring.
-                // Form values inside the subs panel persist across
-                // mode flips (hiding doesn't unmount inputs).
-                form.addEventListener('click', function (e) {
-                    var btn = e.target && e.target.closest ? e.target.closest('.tt-rate-detail-toggle button') : null;
-                    if (!btn) return;
-                    var wrap = btn.closest('.tt-rate-detail-toggle');
-                    if (!wrap) return;
-                    var mode = btn.getAttribute('data-mode');
-                    wrap.setAttribute('data-state', mode);
-                    var btns = wrap.querySelectorAll('button');
-                    btns.forEach(function (b) {
-                        b.setAttribute('aria-selected', b === btn ? 'true' : 'false');
-                    });
-                    // The subs panel is the next sibling of the
-                    // `.tt-form-row--toggle` wrapper.
-                    var row = wrap.closest('.tt-form-row--toggle');
-                    var panel = row && row.nextElementSibling;
-                    if (panel && panel.matches('[data-tt-rate-subs]')) {
-                        if (mode === 'detailed') {
-                            panel.removeAttribute('hidden');
-                        } else {
-                            panel.setAttribute('hidden', '');
-                        }
-                    }
-                });
+    /**
+     * The strip that names the player the evaluation is about: photo or
+     * initials, name, team and position.
+     *
+     * With no player yet (the create form's picker path) it renders
+     * empty and hidden, and `eval-form.js` fills it in from the picker
+     * once a player is chosen.
+     */
+    private static function renderSubject( ?object $player, int $player_id ): void {
+        $name  = $player !== null ? QueryHelpers::player_display_name( $player ) : ( $player_id > 0 ? '#' . $player_id : '' );
+        $photo = $player !== null ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '';
+        $meta  = [];
+        if ( $player !== null ) {
+            $team_id = (int) ( $player->team_id ?? 0 );
+            $team    = $team_id > 0 ? (array) QueryHelpers::get_team( $team_id ) : [];
+            $team_name = (string) ( $team['name'] ?? '' );
+            if ( $team_name !== '' ) {
+                $meta[] = $team_name;
             }
-
-            // v3.110.196 (#813) — live recalc: when a sub-category rating
-            // changes, recompute its main category as the average of all
-            // non-empty sub-category siblings and write it back to the
-            // main input. Rounds to the configured `rating_step` and
-            // clamps to `[rmin, rmax]`. Server-side aggregation on save
-            // stays authoritative; this is the user-visible feedback
-            // while editing in Detailed mode.
-            var ratingMin  = parseFloat(<?php echo wp_json_encode( (string) $rmin ); ?>);
-            var ratingMax  = parseFloat(<?php echo wp_json_encode( (string) $rmax ); ?>);
-            var ratingStep = parseFloat(<?php echo wp_json_encode( (string) $rstep ); ?>);
-            if (!ratingStep || ratingStep <= 0) ratingStep = 1;
-
-            function roundToStep(val, step) {
-                return Math.round(val / step) * step;
+            $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
+            if ( is_array( $positions ) && isset( $positions[0] ) && (string) $positions[0] !== '' ) {
+                $meta[] = LabelTranslator::positionLabel( (string) $positions[0] );
             }
-
-            function recalcMainFromSubs(subInput) {
-                var subsPanel = subInput.closest('.tt-rate-subs');
-                if (!subsPanel) return;
-                // The main rating input is the input inside the previous
-                // .tt-form-row--rating sibling that ISN'T --sub. Walk back.
-                var node = subsPanel.previousElementSibling;
-                while (node && !(node.classList && node.classList.contains('tt-form-row--rating') && !node.classList.contains('tt-form-row--sub'))) {
-                    node = node.previousElementSibling;
+        }
+        $live = $name === '';
+        ?>
+        <div class="tt-evf__subject" data-tt-evf-subject <?php echo $live ? 'data-tt-evf-subject-live hidden' : ''; ?>>
+            <span class="tt-evf__avatar" aria-hidden="true" data-tt-evf-subject-avatar><?php
+                if ( $photo !== '' ) {
+                    printf( '<img src="%s" alt="" width="44" height="44" />', esc_url( $photo ) );
+                } else {
+                    echo esc_html( $name !== '' ? \TT\Shared\Frontend\Components\RecordSpine::initials( $name ) : '' );
                 }
-                if (!node) return;
-                var mainInput = node.querySelector('input[type="number"][name^="ratings["]');
-                if (!mainInput) return;
-
-                // Collect all sub inputs in this panel that have a value.
-                var subs = subsPanel.querySelectorAll('input[type="number"][name^="ratings["]');
-                var sum = 0, count = 0;
-                subs.forEach(function (inp) {
-                    var v = parseFloat(inp.value);
-                    if (!isNaN(v) && v > 0) { sum += v; count += 1; }
-                });
-                if (count === 0) {
-                    // All subs cleared — leave the main input alone (don't
-                    // zero out a manually-entered main rating).
-                    return;
-                }
-                var avg = sum / count;
-                avg = roundToStep(avg, ratingStep);
-                if (avg < ratingMin) avg = ratingMin;
-                if (avg > ratingMax) avg = ratingMax;
-                // Format with same precision as the step (0.5 step → 1 dec
-                // place, 1.0 step → no dec, etc.)
-                var decimals = 0;
-                if (ratingStep < 1) decimals = Math.max(0, -Math.floor(Math.log10(ratingStep)));
-                mainInput.value = decimals > 0 ? avg.toFixed(decimals) : String(avg);
-                // Trigger the form's other listeners (low-rating warning).
-                mainInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            if (form) {
-                form.addEventListener('input', function (e) {
-                    var inp = e.target;
-                    if (!inp || !inp.matches) return;
-                    if (!inp.matches('.tt-rate-subs input[type="number"][name^="ratings["]')) return;
-                    recalcMainFromSubs(inp);
-                });
-            }
-        })();
-        </script>
+            ?></span>
+            <div>
+                <div class="tt-evf__subject-name" data-tt-evf-subject-name><?php echo esc_html( $name ); ?></div>
+                <div class="tt-evf__subject-meta" data-tt-evf-subject-meta><?php echo esc_html( implode( ' · ', $meta ) ); ?></div>
+            </div>
+        </div>
         <?php
     }
 

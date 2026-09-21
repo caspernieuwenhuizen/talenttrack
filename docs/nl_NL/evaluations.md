@@ -26,6 +26,25 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 9. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag en thuis/uit in. Gespeelde minuten vraagt dit scherm niet: die leg je vast op het aanwezigheidsscherm van de wedstrijd zelf, de enige plek die de minutenrapportages lezen.
 10. Opslaan.
 
+## Hoe het formulier is opgebouwd
+
+Het formulier begint met een strook die de speler noemt: foto (of
+initialen), naam, team en positie. Begin je vanuit de evaluatielijst en kies
+je de speler zelf, dan verschijnt de strook zodra je er een hebt gekozen.
+
+Daaronder heeft het formulier drie onderdelen:
+
+- **Gegevens** — type en datum, plus de wedstrijdvelden als het type een wedstrijd is.
+- **Beoordelingen** — de kop toont de schaal van de academie één keer. Elke
+  hoofdcategorie is een kaart: de naam, de beoordeling en een schakelaar
+  **Basis / Gedetailleerd** staan in de kop van de kaart. **Gedetailleerd**
+  opent de subcategorieën van die categorie in dezelfde kaart.
+- **Toelichting** — de interne notities voor de staf en de feedback voor de speler.
+
+Een beoordeling op of onder de drempel voor lage scores van de academie
+wordt gemarkeerd, en boven de notities verschijnt een herinnering om die toe
+te lichten, tot je een interne notitie schrijft.
+
 ## Een evaluatie bewerken slaat zichzelf op
 
 Een nieuwe evaluatie vastleggen eindigt met **Opslaan**, zoals hierboven. Een
