@@ -165,6 +165,13 @@ final class PlayerReportPage {
     private static function enqueue(): void {
         TeamMonthlyReportPage::enqueuePublic();
         EvidencePanel::enqueue();
+        // The level swatches a status test's score is painted with.
+        wp_enqueue_style(
+            'tt-frontend-measurement-levels',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurement-levels.css',
+            [],
+            TT_VERSION
+        );
         wp_enqueue_style(
             'tt-frontend-player-report',
             TT_PLUGIN_URL . 'assets/css/frontend-player-report.css',
@@ -775,8 +782,10 @@ final class PlayerReportPage {
         $c_result = _x( 'Result', 'monthly report tests column', 'talenttrack' );
         $c_date   = __( 'Date', 'talenttrack' );
         $c_change = _x( 'Change', 'monthly report tests column', 'talenttrack' );
+        $c_score  = _x( 'Score', 'player report tests column', 'talenttrack' );
         echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
             . '<th>' . esc_html( $c_test ) . '</th><th>' . esc_html( $c_result ) . '</th>'
+            . '<th>' . esc_html( $c_score ) . '</th>'
             . '<th>' . esc_html( $c_date ) . '</th><th>' . esc_html( $c_change ) . '</th>'
             . '</tr></thead><tbody>';
         foreach ( $items as $row ) {
@@ -790,12 +799,36 @@ final class PlayerReportPage {
             echo '<tr>'
                 . '<td data-label="' . esc_attr( $c_test ) . '">' . esc_html( (string) ( $row['name'] ?? '' ) ) . '</td>'
                 . '<td data-label="' . esc_attr( $c_result ) . '">' . esc_html( $shown ) . '</td>'
+                . '<td data-label="' . esc_attr( $c_score ) . '">' . self::testScore( $row ) . '</td>'
                 . '<td data-label="' . esc_attr( $c_date ) . '">' . esc_html( TTDate::date( (string) ( $row['date'] ?? '' ) ) ) . '</td>'
                 . '<td data-label="' . esc_attr( $c_change ) . '">' . esc_html( self::testChange( $row ) ) . '</td>'
                 . '</tr>';
         }
         echo '</tbody></table></div>';
         self::sectionClose();
+    }
+
+    /**
+     * The reading's score: against the age-group target in words, with the
+     * Test results report's dot; on a status test, the level's own colour next
+     * to the level. A test with neither has no score, and says so with a dash.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testScore( array $row ): string {
+        $flag  = (string) ( $row['score'] ?? '' );
+        $label = \TT\Modules\Measurements\Repositories\MeasurementTargetsRepository::flagLabel( $flag );
+        if ( $label !== '' ) {
+            return '<span class="tt-pr-score"><span class="tt-pr-score__dot is-' . esc_attr( sanitize_html_class( $flag ) ) . '" aria-hidden="true"></span>'
+                . esc_html( $label ) . '</span>';
+        }
+        $token = (string) ( $row['level_token'] ?? '' );
+        $text  = $row['text'] ?? null;
+        if ( $token !== '' && is_string( $text ) && $text !== '' ) {
+            return '<span class="tt-pr-score"><span class="tt-mlvl-swatch ' . esc_attr( \TT\Modules\Measurements\Levels\MeasurementLevelPalette::cssClass( $token ) ) . '" aria-hidden="true"></span>'
+                . esc_html( $text ) . '</span>';
+        }
+        return '—';
     }
 
     /**

@@ -82,6 +82,28 @@ final class PlayerReportLayout {
         'rule'         => 7.78,
     ];
 
+    /**
+     * Written text prints in full and wraps, so a row of it costs a line per
+     * line it wraps to. Characters per line are measured on DomPDF with Dutch
+     * prose in each column, then rounded down, so a close call estimates a
+     * line too many rather than overflowing the page. The 7.5pt evidence line
+     * under a talking point is shorter and wider-set than body text.
+     */
+    private const WRAP_LINE_MM       = 4.6;
+    private const WRAP_LINE_SMALL_MM = 4.1;
+
+    /** @var array<string,int> */
+    public const CHARS_PER_LINE = [
+        'point_text'      => 100,
+        'point_evidence'  => 130,
+        'eval_notes'      => 60,
+        'pdp_actions'     => 115,
+        'journey'         => 90,
+        'injury_notes'    => 69,
+        'behaviour_notes' => 79,
+        'thread_notes'    => 69,
+    ];
+
     /** Ruled lines the notes area keeps on a shortened one-pager. */
     public const NOTES_LINES_SHORT = 3;
 
@@ -224,6 +246,10 @@ final class PlayerReportLayout {
             case PlayerReportBlock::TALKING_POINTS:
                 $n = count( self::listOf( $d, 'items' ) );
                 $points = $n === 0 ? $line : self::MM['point_first'] + ( $n - 1 ) * self::MM['point_next'];
+                foreach ( self::listOf( $d, 'items' ) as $item ) {
+                    $points += self::wrapped( $item, 'text', 'point_text' )
+                        + self::wrapped( $item, 'evidence', 'point_evidence', self::WRAP_LINE_SMALL_MM );
+                }
                 return $base + $points + self::shortenedLine( $d );
 
             case PlayerReportBlock::RATINGS:
@@ -233,6 +259,7 @@ final class PlayerReportLayout {
                 return $base + self::MM['stats'] + self::MM['stats_gap']
                     + ( $cats > 0 ? $head + $cats * $row + self::MM['table_gap'] : 0.0 )
                     + $head + $evals * $row
+                    + self::wrappedRows( $d, 'evaluations', 'notes', 'eval_notes' )
                     + self::shortenedLine( $d );
 
             case PlayerReportBlock::ATTENDANCE:
@@ -246,7 +273,9 @@ final class PlayerReportLayout {
                 $convs = count( self::listOf( $d, 'conversations' ) );
                 $table = ! empty( $d['compact'] ) ? $line : $head + $convs * $row;
                 $mm    = $base + ( $convs > 0 ? $table : 0.0 );
-                if ( trim( (string) ( $d['last_agreed_actions'] ?? '' ) ) !== '' ) $mm += 2 * $line;
+                if ( trim( (string) ( $d['last_agreed_actions'] ?? '' ) ) !== '' ) {
+                    $mm += 2 * $line + self::wrapped( $d, 'last_agreed_actions', 'pdp_actions' );
+                }
                 if ( is_array( $d['verdict'] ?? null ) ) $mm += $line;
                 return $mm;
 
@@ -260,14 +289,47 @@ final class PlayerReportLayout {
             case PlayerReportBlock::BEHAVIOUR:
             case PlayerReportBlock::POTENTIAL:
                 $n = count( self::listOf( $d, 'items' ) );
-                return $base + ( $n === 0 ? $line : $head + $n * $row ) + self::shortenedLine( $d );
+                $wrap = 0.0;
+                if ( $block === PlayerReportBlock::INJURIES )  $wrap = self::wrappedRows( $d, 'items', 'notes', 'injury_notes' );
+                if ( $block === PlayerReportBlock::BEHAVIOUR ) $wrap = self::wrappedRows( $d, 'items', 'notes', 'behaviour_notes' );
+                return $base + ( $n === 0 ? $line : $head + $n * $row ) + $wrap + self::shortenedLine( $d );
 
             case PlayerReportBlock::JOURNEY:
             case PlayerReportBlock::THREAD_NOTES:
-                $n = count( self::listOf( $d, 'items' ) );
-                return $base + ( $n === 0 ? $line : $n * $row ) + self::shortenedLine( $d );
+                $n    = count( self::listOf( $d, 'items' ) );
+                $wrap = $block === PlayerReportBlock::JOURNEY
+                    ? self::wrappedRows( $d, 'items', 'summary', 'journey' )
+                    : self::wrappedRows( $d, 'items', 'body', 'thread_notes' );
+                return $base + ( $n === 0 ? $line : $n * $row ) + $wrap + self::shortenedLine( $d );
         }
         return 0.0;
+    }
+
+    /**
+     * What a list's written field adds beyond one line per row.
+     *
+     * @param array<string,mixed> $d
+     */
+    private static function wrappedRows( array $d, string $list, string $field, string $column ): float {
+        $mm = 0.0;
+        foreach ( self::listOf( $d, $list ) as $row ) {
+            if ( is_array( $row ) ) $mm += self::wrapped( $row, $field, $column );
+        }
+        return $mm;
+    }
+
+    /**
+     * What one written field adds beyond its first line: the PDF prints it
+     * whole, tags stripped, and wraps it in its column.
+     *
+     * @param mixed $row
+     */
+    private static function wrapped( $row, string $field, string $column, float $line_mm = self::WRAP_LINE_MM ): float {
+        if ( ! is_array( $row ) ) return 0.0;
+        $text = trim( wp_strip_all_tags( (string) ( $row[ $field ] ?? '' ) ) );
+        if ( $text === '' ) return 0.0;
+        $lines = (int) ceil( mb_strlen( $text ) / self::CHARS_PER_LINE[ $column ] );
+        return max( 0, $lines - 1 ) * $line_mm;
     }
 
     /**

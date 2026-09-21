@@ -868,7 +868,10 @@ and `trend` in the Test trends report's vocabulary and by its rule
 so a faster sprint is `up`; `rose` / `fell` for a test with no direction (height,
 weight), which is never better or worse; `flat` for a move under that report's
 noise threshold; empty when there is no previous reading. Readings are rounded to
-three decimals.
+three decimals. `score` is that reading's verdict against the target for the
+player's age group, `ok` / `warn` / `bad` (the Test results report's flag), empty
+when the test has no target for the age group; `level_token` is the colour of a
+status test's level, from the measurement level palette, and empty otherwise.
 
 `talking_points.items[]` (#3875) carries `key`, `level` (`red` / `amber` /
 `info`, most urgent first), `text` and `evidence`. Every point is derived from

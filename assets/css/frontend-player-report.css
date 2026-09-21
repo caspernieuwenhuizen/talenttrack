@@ -41,6 +41,36 @@
 	border-left-color: var(--tt-info);
 }
 
+/*
+ * A test's score: the target verdict in words with a dot in its colour, or a
+ * status test's level with its swatch. The word carries the meaning; the
+ * colour only repeats it.
+ */
+.tt-pr-score {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+}
+
+.tt-pr-score .tt-mlvl-swatch {
+	margin-inline-start: 0;
+	width: 0.7rem;
+	height: 0.7rem;
+}
+
+.tt-pr-score__dot {
+	display: inline-block;
+	flex: none;
+	width: 0.7rem;
+	height: 0.7rem;
+	border-radius: 50%;
+	background: var(--tt-muted);
+}
+
+.tt-pr-score__dot.is-ok   { background: var(--tt-success); }
+.tt-pr-score__dot.is-warn { background: var(--tt-warning); }
+.tt-pr-score__dot.is-bad  { background: var(--tt-danger); }
+
 @media (min-width: 768px) {
 	.tt-pr-head__photo {
 		width: 4.5rem;

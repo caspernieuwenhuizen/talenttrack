@@ -108,8 +108,14 @@ je altijd elk aangevinkt onderdeel volledig; de indeling bepaalt alleen het
 papier.
 
 De PDF bevat dezelfde onderdelen, en elk onderdeel toont je alleen wat het je
-op het scherm toont. Er staat geen foto op, en lange notities worden afgekapt
-op één regel — de volledige tekst staat op het scherm.
+op het scherm toont. Er staat geen foto op. Notities, trajectitems,
+gespreksonderwerpen en gemaakte afspraken worden volledig afgedrukt, over zoveel
+regels als nodig; **Afdrukformaat** telt die regels mee.
+
+Testen tonen hun **score** naast de uitslag: of de meting op niveau is voor de
+leeftijdsgroep van de speler, onder niveau of ruim onder niveau, of, bij een
+test die als niveau wordt vastgelegd, dat niveau in zijn kleur. Een test zonder
+doel voor de leeftijdsgroep toont een streepje.
 
 ## Inplannen
 

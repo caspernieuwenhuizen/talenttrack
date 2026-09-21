@@ -102,8 +102,14 @@ is, and says when the one-pager had to shorten something. On screen every
 section you ticked is always shown in full; the layout only shapes the paper.
 
 The PDF carries the same sections, and each section shows you only what it
-shows you on screen. It has no photo, and long notes are cut to one line — the
-full text is on screen.
+shows you on screen. It has no photo. Notes, journey entries, talking points
+and agreed actions are printed in full, over as many lines as they need;
+**Printed size** counts those lines.
+
+Tests show their **score** next to the result: whether the reading is on target
+for the player's age group, below it or well below it, or, for a test recorded
+as a level, that level in its colour. A test without a target for the age
+group shows a dash.
 
 ## Scheduling it
 

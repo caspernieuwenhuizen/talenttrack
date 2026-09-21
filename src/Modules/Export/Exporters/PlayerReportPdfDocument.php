@@ -15,10 +15,12 @@ use TT\Shared\Dates\TTDate;
  *
  * - **Tables only.** DomPDF implements CSS 2.1; flexbox and grid print as one
  *   collapsed column. A test greps the output for both.
- * - **Fixed row heights, one line per row.** `PlayerReportLayout::fit()`
- *   predicts pages from row counts and the panel shows that prediction, so a
- *   row that wrapped would add height the estimate cannot see. Free text is
- *   cut to its row with an ellipsis; the full text is on screen.
+ * - **Fixed row heights, and written text in full.** `PlayerReportLayout::fit()`
+ *   predicts pages and the panel shows that prediction. Names, dates and labels
+ *   keep one line each. Written text (notes, journey entries, talking points,
+ *   agreed actions) prints whole and wraps, because a sentence cut off on paper
+ *   cannot be finished; the estimate counts the lines it wraps to, per column,
+ *   from characters per line measured on DomPDF.
  * - **No photo.** The renderer fetches no remote asset, by design.
  *
  * Pure rendering: every figure arrives in the composer's payload.
@@ -195,9 +197,9 @@ final class PlayerReportPdfDocument {
         foreach ( $items as $item ) {
             if ( ! is_array( $item ) ) continue;
             $level = (string) ( $item['level'] ?? 'amber' );
-            $out  .= '<tr><td class="pt-' . esc_attr( $level ) . '">'
-                . '<div class="pt-t">' . esc_html( self::cut( (string) ( $item['text'] ?? '' ), 105 ) ) . '</div>'
-                . '<div class="pt-e">' . esc_html( self::cut( (string) ( $item['evidence'] ?? '' ), 120 ) ) . '</div>'
+            $out  .= '<tr><td class="wrap pt-' . esc_attr( $level ) . '">'
+                . '<div class="pt-t">' . esc_html( (string) ( $item['text'] ?? '' ) ) . '</div>'
+                . '<div class="pt-e">' . esc_html( (string) ( $item['evidence'] ?? '' ) ) . '</div>'
                 . '</td></tr>';
         }
         return $out . '</table>' . self::shortened( $t, 'items' ) . '</div>';
@@ -238,13 +240,14 @@ final class PlayerReportPdfDocument {
                 TTDate::date( (string) ( $e['eval_date'] ?? '' ) ),
                 self::rating( $e['rating'] ?? null ),
                 self::cut( (string) ( $e['assessor_name'] ?? '' ), 22 ),
-                self::cut( trim( wp_strip_all_tags( (string) ( $e['notes'] ?? '' ) ) ), 70 ),
+                trim( wp_strip_all_tags( (string) ( $e['notes'] ?? '' ) ) ),
             ];
         }
         $out .= self::table(
             [ __( 'Date', 'talenttrack' ), __( 'Rating', 'talenttrack' ), __( 'Assessor', 'talenttrack' ), __( 'Notes', 'talenttrack' ) ],
             $rows,
-            [ 'w-date', 'w-num', 'w-name', 'w-rest' ]
+            [ 'w-date', 'w-num', 'w-name', 'w-rest' ],
+            3
         );
         return $out . self::shortened( $r, 'evaluations' ) . '</div>';
     }
@@ -352,7 +355,7 @@ final class PlayerReportPdfDocument {
         $actions = trim( wp_strip_all_tags( (string) ( $p['last_agreed_actions'] ?? '' ) ) );
         if ( $actions !== '' ) {
             $lines[] = '<span class="muted">' . esc_html__( 'Agreed at the last conversation:', 'talenttrack' ) . '</span>';
-            $lines[] = esc_html( self::cut( $actions, 115 ) );
+            $lines[] = esc_html( $actions );
         }
         $verdict = is_array( $p['verdict'] ?? null ) ? $p['verdict'] : null;
         if ( $verdict !== null ) {
@@ -362,7 +365,7 @@ final class PlayerReportPdfDocument {
                 (string) ( $verdict['label'] ?? '' )
             ) );
         }
-        return $out . ( $lines !== [] ? self::lines( $lines ) : '' ) . '</div>';
+        return $out . ( $lines !== [] ? self::lines( $lines, true ) : '' ) . '</div>';
     }
 
     /** @param array<string,mixed> $d */
@@ -410,17 +413,23 @@ final class PlayerReportPdfDocument {
             $shown = is_int( $value ) || is_float( $value )
                 ? trim( number_format_i18n( (float) $value, floor( (float) $value ) == $value ? 0 : 2 ) . ' ' . $unit )
                 : ( is_string( $text ) && $text !== '' ? $text : '—' );
+            // The score in words: on paper a colour alone is not an answer.
+            $score = \TT\Modules\Measurements\Repositories\MeasurementTargetsRepository::flagLabel( (string) ( $row['score'] ?? '' ) );
+            if ( $score === '' && (string) ( $row['level_token'] ?? '' ) !== '' && is_string( $text ) ) {
+                $score = $text;
+            }
             $rows[] = [
-                self::cut( (string) ( $row['name'] ?? '' ), 34 ),
-                self::cut( $shown, 16 ),
+                self::cut( (string) ( $row['name'] ?? '' ), 22 ),
+                self::cut( $shown, 14 ),
+                self::cut( $score !== '' ? $score : '—', 20 ),
                 TTDate::date( (string) ( $row['date'] ?? '' ) ),
                 self::cut( self::testChange( $row ), 30 ),
             ];
         }
         return $out . self::table(
-            [ _x( 'Test', 'player report tests column', 'talenttrack' ), _x( 'Result', 'monthly report tests column', 'talenttrack' ), __( 'Date', 'talenttrack' ), _x( 'Change', 'monthly report tests column', 'talenttrack' ) ],
+            [ _x( 'Test', 'player report tests column', 'talenttrack' ), _x( 'Result', 'monthly report tests column', 'talenttrack' ), _x( 'Score', 'player report tests column', 'talenttrack' ), __( 'Date', 'talenttrack' ), _x( 'Change', 'monthly report tests column', 'talenttrack' ) ],
             $rows,
-            [ 'w-wide', 'w-name', 'w-date', 'w-rest' ]
+            [ 'w-name', 'w-date', 'w-name', 'w-date', 'w-rest' ]
         ) . self::shortened( $t, 'items' ) . '</div>';
     }
 
@@ -434,9 +443,9 @@ final class PlayerReportPdfDocument {
         $rows = [];
         foreach ( $items as $e ) {
             if ( ! is_array( $e ) ) continue;
-            $rows[] = [ TTDate::date( (string) ( $e['date'] ?? '' ) ), self::cut( (string) ( $e['summary'] ?? '' ), 95 ) ];
+            $rows[] = [ TTDate::date( (string) ( $e['date'] ?? '' ) ), (string) ( $e['summary'] ?? '' ) ];
         }
-        return $out . self::table( [], $rows, [ 'w-date', 'w-rest' ] ) . self::shortened( $j, 'items' ) . '</div>';
+        return $out . self::table( [], $rows, [ 'w-date', 'w-rest' ], 1 ) . self::shortened( $j, 'items' ) . '</div>';
     }
 
     /** @param array<string,mixed> $i */
@@ -455,10 +464,10 @@ final class PlayerReportPdfDocument {
                     ? __( 'Still out', 'talenttrack' )
                     /* translators: %s = return-to-play date */
                     : sprintf( __( 'Back on %s', 'talenttrack' ), TTDate::date( (string) ( $injury['actual_return'] ?? '' ) ) ),
-                self::cut( trim( wp_strip_all_tags( (string) ( $injury['notes'] ?? '' ) ) ), 60 ),
+                trim( wp_strip_all_tags( (string) ( $injury['notes'] ?? '' ) ) ),
             ];
         }
-        return $out . self::table( [ __( 'Date', 'talenttrack' ), __( 'Status', 'talenttrack' ), __( 'Notes', 'talenttrack' ) ], $rows, [ 'w-date', 'w-name', 'w-rest' ] )
+        return $out . self::table( [ __( 'Date', 'talenttrack' ), __( 'Status', 'talenttrack' ), __( 'Notes', 'talenttrack' ) ], $rows, [ 'w-date', 'w-name', 'w-rest' ], 2 )
             . self::shortened( $i, 'items' ) . '</div>';
     }
 
@@ -475,10 +484,10 @@ final class PlayerReportPdfDocument {
             $rows[] = [
                 TTDate::date( substr( (string) ( $row['rated_at'] ?? '' ), 0, 10 ) ),
                 number_format_i18n( (float) ( $row['rating'] ?? 0 ), 1 ),
-                self::cut( trim( wp_strip_all_tags( (string) ( $row['notes'] ?? '' ) ) ), 80 ),
+                trim( wp_strip_all_tags( (string) ( $row['notes'] ?? '' ) ) ),
             ];
         }
-        return $out . self::table( [ __( 'Date', 'talenttrack' ), __( 'Rating', 'talenttrack' ), __( 'Notes', 'talenttrack' ) ], $rows, [ 'w-date', 'w-num', 'w-rest' ] )
+        return $out . self::table( [ __( 'Date', 'talenttrack' ), __( 'Rating', 'talenttrack' ), __( 'Notes', 'talenttrack' ) ], $rows, [ 'w-date', 'w-num', 'w-rest' ], 2 )
             . self::shortened( $b, 'items' ) . '</div>';
     }
 
@@ -514,10 +523,10 @@ final class PlayerReportPdfDocument {
             $rows[] = [
                 TTDate::date( substr( (string) ( $note['created_at'] ?? '' ), 0, 10 ) ),
                 self::cut( (string) ( $note['author_name'] ?? '' ), 20 ),
-                self::cut( trim( wp_strip_all_tags( (string) ( $note['body'] ?? '' ) ) ), 75 ),
+                trim( wp_strip_all_tags( (string) ( $note['body'] ?? '' ) ) ),
             ];
         }
-        return $out . self::table( [], $rows, [ 'w-date', 'w-name', 'w-rest' ] ) . self::shortened( $n, 'items' ) . '</div>';
+        return $out . self::table( [], $rows, [ 'w-date', 'w-name', 'w-rest' ], 2 ) . self::shortened( $n, 'items' ) . '</div>';
     }
 
     /* ---------------------------------------------------------------
@@ -545,9 +554,9 @@ final class PlayerReportPdfDocument {
      *
      * @param list<string> $html_rows
      */
-    private static function lines( array $html_rows ): string {
+    private static function lines( array $html_rows, bool $wrap = false ): string {
         $out = '<table class="ln">';
-        foreach ( $html_rows as $row ) $out .= '<tr><td>' . $row . '</td></tr>';
+        foreach ( $html_rows as $row ) $out .= '<tr><td' . ( $wrap ? ' class="wrap"' : '' ) . '>' . $row . '</td></tr>';
         return $out . '</table>';
     }
 
@@ -569,7 +578,7 @@ final class PlayerReportPdfDocument {
      * @param list<list<string>> $rows  plain text, escaped here
      * @param list<string>       $width a width class per column
      */
-    private static function table( array $head, array $rows, array $width ): string {
+    private static function table( array $head, array $rows, array $width, ?int $wrap = null ): string {
         $out = '<table class="tbl">';
         if ( $head !== [] ) {
             $out .= '<tr>';
@@ -578,7 +587,10 @@ final class PlayerReportPdfDocument {
         }
         foreach ( $rows as $row ) {
             $out .= '<tr>';
-            foreach ( $row as $i => $cell ) $out .= '<td class="' . esc_attr( $width[ $i ] ?? '' ) . '">' . esc_html( $cell ) . '</td>';
+            foreach ( $row as $i => $cell ) {
+                $class = trim( ( $width[ $i ] ?? '' ) . ( $i === $wrap ? ' wrap' : '' ) );
+                $out  .= '<td class="' . esc_attr( $class ) . '">' . esc_html( $cell ) . '</td>';
+            }
             $out .= '</tr>';
         }
         return $out . '</table>';
@@ -697,6 +709,10 @@ final class PlayerReportPdfDocument {
             . '.kn{font-size:12pt;font-weight:bold}.kl{font-size:6.5pt;text-transform:uppercase;color:' . $muted . '}'
             . '.tbl th{height:5mm;font-size:7pt;text-align:left;border-bottom:1px solid ' . $ink . ';padding:0 1mm}'
             . '.tbl td{height:4.7mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';white-space:nowrap;overflow:hidden;vertical-align:middle}'
+            // Written text wraps rather than cuts: an ellipsis on paper is a
+            // sentence nobody can finish. A one-line row keeps the fixed row
+            // height; each further line costs what `PlayerReportLayout` counts.
+            . '.tbl td.wrap,.ln td.wrap,.pts td.wrap{white-space:normal;vertical-align:top}'
             . '.w-date{width:26mm}.w-num{width:16mm}.w-name{width:34mm}.w-wide{width:62mm}'
             . '.tbl + .tbl{margin-top:2.5mm}'
             . '.rules td.rule{height:7mm;border-bottom:1px solid ' . $line . '}'

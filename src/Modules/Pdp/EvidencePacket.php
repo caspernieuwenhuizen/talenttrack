@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Journey\InjuryRepository;
@@ -330,7 +331,7 @@ final class EvidencePacket {
             foreach ( $by_eval[ $eid ] ?? [] as $cat ) {
                 $categories[] = [
                     'category_id' => (int) ( $cat->category_id ?? 0 ),
-                    'label'       => (string) ( $cat->category_name ?? '' ),
+                    'label'       => EvalCategoriesRepository::displayLabel( (string) ( $cat->category_name ?? '' ), (int) ( $cat->category_id ?? 0 ) ),
                     'is_main'     => empty( $cat->category_parent_id ),
                     'rating'      => (float) ( $cat->rating ?? 0 ),
                 ];
@@ -671,6 +672,11 @@ final class EvidencePacket {
                     'previous'      => $before,
                     'delta'         => $delta,
                     'trend'         => self::trend( $delta, $before, (string) ( $test['direction'] ?? '' ) ),
+                    // The shown reading's own verdict: against the age-group
+                    // target (`ok` / `warn` / `bad`, empty without a target),
+                    // or the colour of its level on a status test.
+                    'score'         => (string) ( $latest['flag'] ?? '' ),
+                    'level_token'   => (string) ( $latest['level_token'] ?? '' ),
                     'readings'      => $readings,
                 ];
             }
