@@ -449,6 +449,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     private static function renderPlayerReport(): void {
         $title = __( 'Player · Report', 'talenttrack' );
 
+        // #3890 — a frozen report. It answers to the snapshot's player, not the
+        // URL's: checking a requested player_id would let a reader who may see
+        // player A open a snapshot of player B by naming A in the query string.
+        $snapshot = \TT\Modules\Analytics\Frontend\PlayerReportSnapshotPage::requested();
+        if ( $snapshot !== '' ) {
+            self::renderHeader( $title );
+            if ( ! \TT\Modules\Analytics\Frontend\PlayerReportSnapshotPage::render( $snapshot ) ) {
+                self::renderEmpty();
+            }
+            return;
+        }
+
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
         if ( $player === null ) {

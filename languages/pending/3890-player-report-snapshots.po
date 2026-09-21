@@ -1,0 +1,29 @@
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Unknown report section."
+msgstr "Onbekend rapportonderdeel."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "The note could not be saved."
+msgstr "De notitie kon niet worden opgeslagen."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Only signed-in staff who can see this player can open this snapshot. It has no shareable link — send the PDF instead."
+msgstr "Alleen ingelogde stafleden die deze speler mogen zien, kunnen deze momentopname openen. Er is geen deelbare link — stuur in plaats daarvan de PDF."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Save snapshot of this conversation"
+msgstr "Momentopname van dit gesprek opslaan"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section."
+msgstr "Zet deze cijfers vast als verslag van waar het gesprek op gebaseerd was, en laat je per onderdeel notities toevoegen."
+
+#: src/Modules/Analytics/Reports/PlayerReportSnapshots.php
+#, php-format
+msgctxt "default name for a player report snapshot"
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid "One monthly report frozen for a staff meeting and one player report frozen for a conversation, each with the notes written on it."
+msgstr "Eén maandrapport vastgezet voor een stafoverleg en één spelersrapport vastgezet voor een gesprek, elk met de notities die erop zijn geschreven."

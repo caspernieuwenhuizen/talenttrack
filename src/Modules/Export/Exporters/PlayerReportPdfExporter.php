@@ -62,6 +62,11 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
      * @return array<string,mixed>|null
      */
     public function validateFilters( array $raw ): ?array {
+        // #3890 — a snapshot is self-describing: it carries its own player,
+        // window, layout and sections, so nothing else on the request is read.
+        $snapshot = isset( $raw['snapshot'] ) ? sanitize_text_field( (string) $raw['snapshot'] ) : '';
+        if ( $snapshot !== '' ) return [ 'snapshot' => $snapshot ];
+
         $player_id = isset( $raw['player_id'] ) ? absint( $raw['player_id'] ) : 0;
         if ( $player_id <= 0 ) return null;
 
@@ -87,6 +92,17 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
     }
 
     public function collect( ExportRequest $request ): array {
+        // #3890 — a snapshot prints what it stored, notes included, and answers
+        // to its own player, never to one named in the request.
+        $uuid = (string) ( $request->filters['snapshot'] ?? '' );
+        if ( $uuid !== '' ) {
+            $snapshot = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( $uuid, $request->requesterUserId );
+            if ( $snapshot === null ) {
+                throw new ExportException( 'forbidden', __( 'You do not have access to this snapshot.', 'talenttrack' ) );
+            }
+            return self::payload( $snapshot['report'], (string) ( $snapshot['composition']['layout'] ?? PlayerReportLayout::DEFAULT ), $snapshot['notes'] );
+        }
+
         $player_id = (int) ( $request->filters['player_id'] ?? 0 );
         if ( ! PlayerReportAccess::canRead( $request->requesterUserId, $player_id ) ) {
             throw new ExportException( 'forbidden', __( 'You do not have access to a report on this player.', 'talenttrack' ) );
@@ -111,15 +127,17 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
      * test can lay a known report onto paper without a database.
      *
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     *        a snapshot's section notes, so print and screen agree (#3890).
      * @return array{html:string, options:array{paper:string, orientation:string}}
      */
-    public static function payload( array $report, string $layout ): array {
+    public static function payload( array $report, string $layout, array $notes = [] ): array {
         $layout = PlayerReportLayout::isValid( $layout ) ? $layout : PlayerReportLayout::DEFAULT;
         $fit    = PlayerReportLayout::fit( $report, $layout );
         $report['data'] = PlayerReportLayout::degrade( $report, $fit['degraded'] )['data'];
 
         return [
-            'html'    => PlayerReportPdfDocument::html( $report ),
+            'html'    => PlayerReportPdfDocument::html( $report, $notes ),
             'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],
         ];
     }

@@ -870,6 +870,29 @@ data. The thresholds are `tt_config` keys: `player_report_attendance_drop_pts`
 (15), `player_report_min_activities` (4), `player_report_min_matches` (3) and
 `player_report_eval_window_days` (42).
 
+### Player report snapshots (#3890)
+
+A snapshot freezes the report as the caller sees it: the composed payload, the
+dates it covered and a note per section. Every route answers to the snapshot's
+**own player** under the player report's rule; an unknown uuid and one the
+caller may not read are the same `403`, so a uuid cannot be probed.
+
+- `GET /players/{id}/report-snapshots` — the player's snapshots, most recent
+  first, without payloads: `uuid`, `title`, `period_from`, `period_to`,
+  `created_by`, `created_at`.
+- `POST /players/{id}/report-snapshots` — take one. Body: `period` or `from` +
+  `to`, `layout` (`A` / `B`), `blocks`, `title` — the report's own parameters,
+  forgiving as the screen is. `201` with the snapshot.
+- `GET /player-report-snapshots/{uuid}` — `uuid`, `player_id`, `title`,
+  `created_by`, `created_at`, `composition` (with the dates, never a moving
+  period), `report` (the frozen payload) and `notes` keyed by section:
+  `{ body, author, updated_at }`.
+- `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`; an empty
+  body removes the note. A section that is not a block is `400 unknown_section`.
+
+`GET /exports/player_report_pdf?format=pdf&snapshot={uuid}` prints the frozen
+report with its notes.
+
 ## Team monthly report (#3458, epic #3457)
 
 ### `GET /teams/{id}/monthly-report?from=&to=&period=&blocks=`

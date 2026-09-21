@@ -105,6 +105,21 @@ The PDF carries the same sections, and each section shows you only what it
 shows you on screen. It has no photo, and long notes are cut to one line — the
 full text is on screen.
 
+## Snapshots — a record of the conversation
+
+The report is live: open it tomorrow and a register taken today has moved the
+numbers. Under the report, **Save snapshot of this conversation** freezes it as
+you see it — the sections, the period and every figure — as a record of what the
+conversation was based on.
+
+A snapshot opens from the list under the report. Its numbers never change, but
+each section can carry a **note** — what was said about it, what was agreed —
+with an explicit **Save note** and a **Cancel** that leaves the stored note
+alone. **Download PDF** on a snapshot prints it with its notes.
+
+Only signed-in staff who can open this player's report can open a snapshot of
+it. A snapshot has no shareable link; give someone the PDF instead.
+
 ## Saving your usual report
 
 Most coaches want the same sections for every conversation. Once the report

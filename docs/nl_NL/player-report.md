@@ -111,6 +111,23 @@ De PDF bevat dezelfde onderdelen, en elk onderdeel toont je alleen wat het je
 op het scherm toont. Er staat geen foto op, en lange notities worden afgekapt
 op één regel — de volledige tekst staat op het scherm.
 
+## Momentopnames — een verslag van het gesprek
+
+Het rapport is live: open je het morgen, dan heeft een registratie van vandaag
+de cijfers al veranderd. Onder het rapport zet **Momentopname van dit gesprek
+opslaan** het vast zoals je het ziet — de onderdelen, de periode en elk getal —
+als verslag van waar het gesprek op gebaseerd was.
+
+Een momentopname open je vanuit de lijst onder het rapport. De cijfers
+veranderen nooit, maar bij elk onderdeel kun je een **notitie** zetten — wat
+erover is gezegd, wat er is afgesproken — met een duidelijke **Notitie opslaan**
+en een **Annuleren** die de opgeslagen notitie ongemoeid laat. **PDF
+downloaden** bij een momentopname drukt hem af met de notities.
+
+Alleen ingelogde stafleden die het rapport van deze speler mogen openen, kunnen
+een momentopname ervan openen. Een momentopname heeft geen deelbare link; geef
+iemand in plaats daarvan de PDF.
+
 ## Je vaste rapport bewaren
 
 De meeste trainers willen voor elk gesprek dezelfde onderdelen. Als het rapport

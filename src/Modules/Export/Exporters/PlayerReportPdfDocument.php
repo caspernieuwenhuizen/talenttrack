@@ -28,8 +28,10 @@ final class PlayerReportPdfDocument {
     /**
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      *        already shortened by `PlayerReportLayout::degrade()`.
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     *        a snapshot's section notes, printed under their section (#3890).
      */
-    public static function html( array $report ): string {
+    public static function html( array $report, array $notes = [] ): string {
         $data = $report['data'];
         $body = self::letterhead( $data['letterhead'] ?? [], $report['from'], $report['to'] );
 
@@ -45,10 +47,11 @@ final class PlayerReportPdfDocument {
                 $body .= '<table class="pair"><tr>'
                     . '<td class="half">' . self::attendance( $data[ PlayerReportBlock::ATTENDANCE ] ?? [] ) . '</td>'
                     . '<td class="half">' . self::minutes( $data[ PlayerReportBlock::MINUTES ] ?? [] ) . '</td>'
-                    . '</tr></table>';
+                    . '</tr></table>'
+                    . self::note( $notes, PlayerReportBlock::ATTENDANCE ) . self::note( $notes, PlayerReportBlock::MINUTES );
                 continue;
             }
-            $body .= self::section( $block, $data[ $block ] ?? [] );
+            $body .= self::section( $block, $data[ $block ] ?? [] ) . self::note( $notes, $block );
         }
 
         // DomPDF reads no enqueued stylesheet; the document carries its own.
@@ -481,6 +484,18 @@ final class PlayerReportPdfDocument {
      * Helpers
      * ------------------------------------------------------------- */
 
+    /**
+     * A snapshot's note on one section, marked off from the figures above it
+     * so a reader can tell what the data said from what the conversation said.
+     *
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     */
+    private static function note( array $notes, string $block ): string {
+        $note = $notes[ $block ] ?? null;
+        if ( $note === null || trim( $note['body'] ) === '' ) return '';
+        return '<div class="note">' . nl2br( esc_html( $note['body'] ) ) . '</div>';
+    }
+
     private static function open( string $title ): string {
         return '<div class="sec"><div class="h">' . esc_html( $title ) . '</div>';
     }
@@ -644,6 +659,7 @@ final class PlayerReportPdfDocument {
             . '.w-date{width:26mm}.w-num{width:16mm}.w-name{width:34mm}.w-wide{width:62mm}'
             . '.tbl + .tbl{margin-top:2.5mm}'
             . '.rules td.rule{height:7mm;border-bottom:1px solid ' . $line . '}'
+            . '.note{margin:0 0 3mm;padding:1.5mm 2mm;border-left:2px solid ' . $ink . ';font-size:7.5pt}'
             . '.pair{border-spacing:0}.pair td.half{width:50%;vertical-align:top;padding:0}.pair td.half + td.half{padding-left:4mm}';
     }
 }

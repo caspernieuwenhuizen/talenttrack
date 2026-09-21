@@ -29,6 +29,13 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  * appended at the end of the run order rather than inserted, so every
  * generator before it draws the same values from the seeded stream and the
  * same (seed, preset) keeps reproducing the same academy (#3242).
+ *
+ * #3890 — it also freezes one player report, the record of a conversation with
+ * one player, composed the same way through `PlayerReport::forPlayer()`. Same
+ * generator rather than a new category: a category after this one would break
+ * the "runs last" contract the team snapshot relies on, and both are the same
+ * kind of thing — a report frozen with notes on it. It draws nothing from the
+ * seeded stream, so adding it moves no value any earlier generator writes.
  */
 class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
 
@@ -58,10 +65,30 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
         'nl_NL' => 'Stafoverleg %s',
     ];
 
+    /**
+     * The one note on the frozen player report (#3890): what a coach writes
+     * under the talking points after the conversation.
+     *
+     * @var array<string, array{title:string, note:string}>
+     */
+    private const PLAYER_SNAPSHOT_BY_LANGUAGE = [
+        'en_US' => [
+            'title' => 'Conversation %s',
+            'note'  => 'Talked it through after training. Agreed on two extra finishing sessions a week and to look again in four weeks.',
+        ],
+        'nl_NL' => [
+            'title' => 'Gesprek %s',
+            'note'  => 'Na de training besproken. Afgesproken: twee extra afwerksessies per week, over vier weken opnieuw bekijken.',
+        ],
+    ];
+
     private DemoBatchRegistry $registry;
 
     /** @var object[] */
     private array $teams;
+
+    /** @var object[] */
+    private array $players;
 
     /** @var array<string,int> */
     private array $users;
@@ -73,17 +100,19 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->teams, $ctx->users, $ctx->contentLanguage );
+        return new self( $ctx->registry, $ctx->teams, $ctx->users, $ctx->contentLanguage, $ctx->players );
     }
 
     /**
      * @param object[]          $teams
      * @param array<string,int> $users
+     * @param object[]          $players the current roster, for the player snapshot
      */
-    public function __construct( DemoBatchRegistry $registry, array $teams, array $users, string $language = '' ) {
+    public function __construct( DemoBatchRegistry $registry, array $teams, array $users, string $language = '', array $players = [] ) {
         $this->registry = $registry;
         $this->teams    = $teams;
         $this->users    = $users;
+        $this->players  = $players;
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
     }
 
@@ -136,6 +165,44 @@ class TeamReportSnapshotGenerator implements DependentGeneratorInterface {
         if ( $id <= 0 ) return 0;
 
         $this->registry->tag( 'team_report_snapshot', $id, [ 'team_id' => $team_id ] );
+
+        return 1 + $this->playerSnapshot( $author, $team_id, $language );
+    }
+
+    /**
+     * #3890 — one player report, frozen over the season so far, with a note
+     * under its talking points. The first rostered player of the same team, so
+     * the two snapshots tell one story.
+     */
+    private function playerSnapshot( int $author, int $team_id, string $language ): int {
+        $player_id = 0;
+        foreach ( $this->players as $player ) {
+            if ( (int) ( $player->team_id ?? 0 ) === $team_id ) {
+                $player_id = (int) ( $player->id ?? 0 );
+                break;
+            }
+        }
+        if ( $player_id <= 0 ) return 0;
+
+        $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], [], $author );
+        if ( $report === null ) return 0;
+
+        $copy        = self::PLAYER_SNAPSHOT_BY_LANGUAGE[ $language ] ?? self::PLAYER_SNAPSHOT_BY_LANGUAGE['en_US'];
+        $composition = [ 'from' => $window['from'], 'to' => $window['to'], 'layout' => 'A', 'blocks' => $report['blocks'] ];
+        $to          = strtotime( $window['to'] );
+        $title       = sprintf( $copy['title'], gmdate( 'j F Y', $to !== false ? $to : time() ) );
+
+        $repo = new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository();
+        $uuid = $repo->create( $player_id, $composition, $report, $title, $author );
+        if ( $uuid === '' ) return 0;
+
+        $repo->putNote( $uuid, \TT\Modules\Analytics\Reports\PlayerReportBlock::TALKING_POINTS, $copy['note'], $author );
+
+        // Tagged by numeric id, which is what the demo cleaner deletes by.
+        $id = (int) ( $repo->find( $uuid )->id ?? 0 );
+        if ( $id <= 0 ) return 0;
+        $this->registry->tag( 'player_report_snapshot', $id, [ 'player_id' => $player_id ] );
 
         return 1;
     }
