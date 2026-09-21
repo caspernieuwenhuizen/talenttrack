@@ -348,11 +348,26 @@ A link survives on two roster statuses, and no others:
 
 The list is an allowlist rather than "anything except `released`", so a status added later is opted in deliberately rather than inheriting access by default.
 
-Separately from the status, a player who has been **archived** or moved to the **recycle bin** is out of a scout's scope regardless of the status they carry — the same `active` lifecycle filter every list view applies.
-
 The scout's `trial_synthesis` row was **removed** rather than woken up. It would have opened the Execution tab — other panellists' inputs, before release — to any scout on any panel. A scout sees their own input before release and the panel's only after it.
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
+
+### Archiving and the recycle bin end a link, for scouts and guardians alike
+
+Separately from the status, a player who has been **archived** or moved to the **recycle bin** is out of scope regardless of the status they carry — the same `active` lifecycle filter every list view applies. A player carries a status *and* a lifecycle, and the two are independent: an archived or binned player still carries one of the five roster statuses, so filtering on status alone let a hidden child through.
+
+**This is one rule, written once, and it governs both relationship resolvers**: `ScoutPlayerLinks` for a scout's links, and `ParentChildResolver` for a guardian's children. The two answer the same shape of question — "which players does this relationship reach?" — and they carry the same lifecycle rule deliberately, so nobody has to remember which of the pair uses which.
+
+| | Archived player | Player in the recycle bin |
+| --- | --- | --- |
+| Scout's link | ends | ends |
+| Guardian's link | ends | ends |
+
+Why archiving ends a guardian's link and not only the bin: archiving exists to take a record out of the working set. If a family should still see a child who has left the academy, that is the player's **status** doing the work — `released`, `graduated`, and a subject-access export where one is owed — not the archive flag. A record that is archived *and* still meant to be visible to its family is a contradiction worth surfacing rather than papering over.
+
+The bin half is not a preference either way: `ArchiveRepository::filterClause()` states the contract the recycle bin rests on — a trashed row surfaces only through the explicit `trashed` view, which is gated on `tt_manage_recycle_bin`. A parent dashboard listing a binned child sat outside it. Restoring a record from the bin restores the link, the same way it restores everything else about the row.
+
+For what this means on the guardian side specifically — which surfaces close, and in what order — see [Parent → child link model](#parent--child-link-model) below.
 
 ## What a scout may read about a squad player — the player card
 
@@ -638,11 +653,13 @@ A player can hide individual development sections (evaluations, goals, journey, 
 
 ## Parent → child link model
 
-The `tt_player_parents` pivot (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is the **single authoritative** answer to "which children does this parent have". `ParentChildResolver` reads this pivot — club-scoped, `status = 'active'`, ordered most-recent link first — and every consumer (the dashboard child switcher, the me-view authorization, the goal-thread participant graph, the parent KPI) calls into it, so they all agree on who is a parent of whom.
+The `tt_player_parents` pivot (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is the **single authoritative** answer to "which children does this parent have". `ParentChildResolver` reads this pivot — club-scoped, `status = 'active'`, `active` lifecycle, ordered most-recent link first — and every consumer (the dashboard child switcher, the me-view authorization, the goal-thread participant graph, the parent KPI) calls into it, so they all agree on who is a parent of whom.
 
 `tt_players.guardian_email` is **not** a live linkage source. It is an invite/seed hint: it may *create* a `tt_player_parents` row when a parent is invited, imported, or seeded, but it is never queried at runtime to decide access. A parent linked only by a matching `guardian_email` (and no pivot row) will not surface until they are re-linked through the invite/seed path or by an admin — there is no backfill.
 
 **A release ends the guardian's access.** The resolver filters to `status = 'active'`, so when a player is released, graduated or otherwise leaves the active roster, the people linked to them stop being guardians for access purposes: their dashboard, their child switcher, the child's development pages, the permission matrix, the development-plan print and the conversation endpoints all close together. This used to be inconsistent — six places asked "is this a guardian of this player" with their own query, and the ones that skipped the status filter let a released child's record stay reachable by direct URL while the dashboard showed nothing. `ParentChildResolver::isParentOf()` is now the only implementation, and it is club-scoped.
+
+**Archiving the child, or moving them to the recycle bin, ends it too.** This is the same rule the scout link carries, stated once above under [Archiving and the recycle bin end a link](#archiving-and-the-recycle-bin-end-a-link-for-scouts-and-guardians-alike). The status filter alone was not enough: a player carries a status *and* a lifecycle, and an archived or binned player still carries `status = 'active'`, so a child the academy had taken out of the working set — or put in the bin to destroy — stayed on the family's dashboard and stayed readable by id. The resolver now applies the `active` lifecycle filter as well, so the switcher, the default child subject, `canViewPlayer`, the matrix's `player` scope, the development-plan print and the conversation endpoints all close together, exactly as they do on a release. Restoring the child from the bin restores all of it.
 
 A family who needs the record after a release should be given a **subject-access export** — a deliberate act with an audit trail — rather than a login that keeps working quietly.
 

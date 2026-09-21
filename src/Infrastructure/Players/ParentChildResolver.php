@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Players;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -33,10 +34,30 @@ final class ParentChildResolver {
      * the first entry is the child auto-selected when no explicit
      * `?player_id` is supplied.
      *
-     * Filters to `status = 'active'` and the current club. Reads the
-     * pivot only — a parent linked solely via the legacy guardian_email
-     * column will not surface until re-linked (the accepted #1993
-     * trade-off: no backfill).
+     * Filters to `status = 'active'`, to the current club, and — since
+     * #3937 — to the `active` lifecycle: a child who has been archived or
+     * moved to the recycle bin is not a child any guardian surface offers.
+     * Reads the pivot only — a parent linked solely via the legacy
+     * guardian_email column will not surface until re-linked (the accepted
+     * #1993 trade-off: no backfill).
+     *
+     * ## Why the lifecycle filter is here and not at each caller
+     *
+     * `status` and the lifecycle answer different questions and a player
+     * carries both. `PlayerStatus` says so in its own docblock: an archived
+     * player still carries one of the five statuses, so `status = 'active'`
+     * on its own let a binned child through every guardian surface — the
+     * switcher, the default subject, the matrix's `player` scope — while
+     * `ArchiveRepository::filterClause()`'s contract says a trashed row
+     * surfaces only through the explicit `trashed` view.
+     *
+     * Archived is excluded along with trashed, matching {@see ScoutPlayerLinks}
+     * exactly (#3928). The two classes answer the same shape of question and
+     * sit a few lines apart; one lifecycle rule between them is one thing to
+     * remember. If a family should still see a child who has left, that is
+     * the player's *status* doing the work — `released`, `graduated` and the
+     * surfaces built for them — not the archive flag, which exists to take a
+     * record out of the working set.
      *
      * @return list<object> tt_players rows ordered most-recent link first.
      */
@@ -54,6 +75,9 @@ final class ParentChildResolver {
         // authoritative linkage; the JOIN onto tt_players resolves the
         // child's record (name/photo) for the switcher and scoping.
         $players = $wpdb->prefix . 'tt_players';
+        // Aliased on purpose: both joined tables are archivable, so an
+        // unqualified `trashed_at` is an ambiguous column and the query dies.
+        $lifecycle = ArchiveRepository::filterClause( 'active', 'p' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$table} pp
@@ -61,6 +85,7 @@ final class ParentChildResolver {
               WHERE pp.parent_user_id = %d
                 AND pp.club_id = %d
                 AND p.status = 'active'
+                AND {$lifecycle}
               ORDER BY pp.created_at DESC, pp.player_id DESC",
             $parent_user_id, CurrentClub::id()
         ) );
@@ -137,11 +162,13 @@ final class ParentChildResolver {
      * The linked player IDs, for callers that don't need the full records.
      *
      * #3476 — derived from `children()` rather than straight from the pivot,
-     * so it carries the same club scope *and* the same `status = 'active'`
-     * filter as everything else here. It used to call
+     * so it carries the same club scope, the same `status = 'active'` filter
+     * and the same lifecycle filter as everything else here. It used to call
      * `PlayerParentsRepository::playersForParent()`, which is club-scoped but
      * says nothing about status, and that difference was one of the ways the
-     * product disagreed with itself about a released child.
+     * product disagreed with itself about a released child. #3937 added the
+     * lifecycle filter for the same reason: the scope question and the
+     * display question must not be able to disagree about a binned child.
      *
      * @return list<int>
      */
@@ -184,6 +211,13 @@ final class ParentChildResolver {
      * If a family needs the history after a release, that is a subject-access
      * export — a deliberate act with a record of who asked — not a login that
      * quietly keeps working.
+     *
+     * ## Archiving and the recycle bin end it too
+     *
+     * Settled on #3937, on the same footing as the scout link (#3928): an
+     * archived or trashed child answers false here as well. A record in the
+     * bin is one the academy has decided to destroy; continuing to serve it
+     * to the family is outside the contract the bin rests on.
      */
     public static function isParentOf( int $parent_user_id, int $player_id ): bool {
         if ( $parent_user_id <= 0 || $player_id <= 0 ) return false;

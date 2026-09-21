@@ -17,8 +17,10 @@ use TT\Infrastructure\Query\QueryHelpers;
  *
  * Both halves go through the canonical resolvers — `get_player_for_user()`
  * (club, active status, demo scope) for self and
- * `ParentChildResolver::children()` (club, active status) for guardians —
- * and additionally drop archived records, which neither filters.
+ * `ParentChildResolver::children()` (club, active status, `active`
+ * lifecycle since #3937) for guardians. The archived guard below is now
+ * redundant for the guardian half and still load-bearing for the self
+ * half, which has no lifecycle filter of its own.
  */
 final class AccountPlayerLinks {
 
