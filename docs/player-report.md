@@ -40,7 +40,10 @@ It opens on the sections a one-to-one conversation needs:
 - **Evaluations** — the latest and average rating, per category, and what each
   evaluation said.
 - **Attendance** — activities, present, absent and excused.
-- **Playing time** — matches and minutes played.
+- **Playing time** — matches and minutes played, and the player's share of the
+  minutes the team played. For staff it also shows the average share of
+  teammates who play the same position and of the whole team, and whether the
+  player sits above or below them.
 - **Goals** — the player's goals, and whether each one moved in the period.
 - **Development plan** — the player's development plan conversations, and what
   was agreed at the last one.
@@ -73,6 +76,22 @@ no score of its own. The choice is kept by a saved view, a snapshot, a shared
 link and a monthly schedule. When nothing in the period was rated at
 subcategory level, the choice is not offered and the report shows the main
 categories.
+
+In **Playing time**, the share is the player's minutes divided by the minutes
+the team had available in the period: the length of every match the team
+recorded minutes for. It is the same number the team minutes report shows for
+the same period. Two comparisons follow, for staff only:
+
+- **Same position** — the average share of the teammates who share at least
+  one of the player's profile positions, not counting the player. The line names
+  those positions and how many teammates are in the group. A player with no
+  profile position, or whose positions nobody else on the team plays, gets no
+  position line.
+- **Team average** — the average share of everyone on the team's current squad,
+  the player included. A squad player who did not play counts as 0%.
+
+When the team recorded no match minutes in the period, there are no
+percentages.
 
 A player who has no development plan file yet still gets a full report. The
 development plan section says there is no file yet rather than disappearing.
@@ -184,7 +203,10 @@ A shared report carries only these sections, and only the ones ticked on the
 report. When none of them is ticked, all of them are shared:
 
 - attendance;
-- playing time;
+- playing time, with the player's own share of the minutes — **without** the
+  comparison with the position group and the team. In a small group an average
+  is another child's minutes: with two goalkeepers, "the other keepers'
+  average" is exactly the other keeper's minutes;
 - goals;
 - evaluation scores, per category and overall — **without** your written notes;
 - tests, only the ones the academy shares publicly.
@@ -240,8 +262,9 @@ section that was left out.
 
 A scout sees a shorter version of the report on the players assigned to them:
 the header, evaluation scores, attendance, playing time and tests. The scores
-come without the coach's written notes, and tests show only the ones the
-academy shares publicly. The scout cannot choose other sections; the report
+come without the coach's written notes, playing time comes without the
+comparison with teammates, and tests show only the ones the academy shares
+publicly. The scout cannot choose other sections; the report
 decides this for them.
 
 To email a scout a one-time link, open **Send to a scout…** under the report.

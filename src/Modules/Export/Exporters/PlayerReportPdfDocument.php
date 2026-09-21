@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupTranslator;
+use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Shared\Dates\TTDate;
 
@@ -289,10 +290,23 @@ final class PlayerReportPdfDocument {
         if ( (int) ( $m['apps'] ?? 0 ) === 0 && (int) ( $m['minutes'] ?? 0 ) === 0 ) {
             return $out . self::lines( [ esc_html__( 'No per-match minutes recorded in this window.', 'talenttrack' ) ] ) . '</div>';
         }
-        return $out . self::stats( [
+        $figures = [
             __( 'Matches played', 'talenttrack' ) => (string) (int) ( $m['apps'] ?? 0 ),
             __( 'Minutes played', 'talenttrack' ) => number_format_i18n( (int) ( $m['minutes'] ?? 0 ) ),
-        ] ) . '</div>';
+        ];
+        // #3991 — the share for every audience; the comparison only where
+        // the payload carries it, which an external one never does.
+        $share = $m['share'] ?? null;
+        if ( is_int( $share ) ) {
+            $figures[ __( 'Share of minutes', 'talenttrack' ) ] = PlayerReport::percent( $share );
+        }
+        $out .= self::stats( $figures );
+
+        $lines = PlayerReport::minutesComparisonLines( $m );
+        if ( $lines !== [] ) {
+            $out .= self::lines( array_map( 'esc_html', $lines ) );
+        }
+        return $out . '</div>';
     }
 
     /** @param array<string,mixed> $g */
