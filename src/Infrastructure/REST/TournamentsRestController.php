@@ -1702,7 +1702,11 @@ class TournamentsRestController {
     private static function squadMemberArgs(): array {
         return self::tournamentIdArgs() + [
             'player_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
-            'eligible_positions' => [ 'type' => [ 'array', 'string' ], 'description' => 'Where this player can be used.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas. `normalisePositionsJson()` decides
+            // what a position list is.
+            'eligible_positions' => [ 'description' => 'Where this player can be used.' ],
             'target_minutes'     => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How many minutes they should get across the tournament. Blank falls back to the shared target.' ],
             'notes'              => [ 'type' => 'string', 'description' => 'Anything about their availability.' ],
         ];

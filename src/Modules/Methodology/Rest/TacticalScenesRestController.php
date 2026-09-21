@@ -79,7 +79,10 @@ final class TacticalScenesRestController extends AbstractMethodologyRestControll
      */
     protected static function writeArgs(): array {
         return [
-            'scene'        => [ 'type' => [ 'object', 'array', 'string' ], 'description' => 'The scene itself, as an object or its JSON.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas — and this one arrives as raw JSON.
+            'scene'        => [ 'description' => 'The scene itself, as an object or its JSON.' ],
             'phase_side'   => [ 'type' => 'string', 'description' => 'Whether the scene is about having the ball or not having it.' ],
             'phase_number' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which of the four phases the scene sits in.' ],
             'formation_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation the scene is drawn on. 0 or blank clears it.' ],

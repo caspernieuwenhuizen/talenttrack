@@ -140,12 +140,15 @@ final class BackupRestController {
     private static function settingsArgs(): array {
         return [
             'preset'           => [ 'type' => 'string', 'description' => 'Which set of tables to back up.' ],
-            'selected_tables'  => [ 'type' => [ 'array', 'string' ], 'description' => 'The tables to include, when the preset is a custom one.' ],
+            // No `type` on the two list fields: one that lists `array` goes
+            // through `rest_sanitize_array()`, which rewrites a plain
+            // string by splitting it on whitespace and commas.
+            'selected_tables'  => [ 'description' => 'The tables to include, when the preset is a custom one.' ],
             'schedule'         => [ 'type' => 'string', 'description' => 'How often a backup runs.' ],
             'retention'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'How many backups to keep.' ],
             'dest_local'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Keep a copy on this server.' ],
             'dest_email'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Mail a copy out.' ],
-            'email_recipients' => [ 'type' => [ 'array', 'string' ], 'description' => 'Who the mailed copy goes to.' ],
+            'email_recipients' => [ 'description' => 'Who the mailed copy goes to.' ],
         ];
     }
 

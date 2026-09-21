@@ -161,7 +161,10 @@ class VctExercisesRestController {
             'md_plus_1'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits the day after a game.' ],
             'md_plus_2'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits two days after a game.' ],
             'md_none'                  => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits a week with no game in it.' ],
-            'equipment_json'           => [ 'type' => [ 'array', 'object', 'string' ], 'description' => 'The equipment the exercise needs.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas — and this one arrives as raw JSON.
+            'equipment_json'           => [ 'description' => 'The equipment the exercise needs, as a list or its JSON.' ],
         ];
     }
 

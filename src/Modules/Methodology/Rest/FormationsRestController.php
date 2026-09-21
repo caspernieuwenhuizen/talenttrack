@@ -120,7 +120,11 @@ final class FormationsRestController extends AbstractMethodologyRestController {
             'slug'         => [ 'type' => 'string', 'description' => 'The key that identifies the formation.' ],
             'name'         => [ 'type' => 'object', 'description' => 'The formation name per locale, as {nl, en}.' ],
             'description'  => [ 'type' => 'object', 'description' => 'What the formation is for, per locale, as {nl, en}.' ],
-            'diagram_data' => [ 'type' => [ 'object', 'array', 'string' ], 'description' => 'The pitch diagram, as an object or its JSON.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas — and this one legitimately arrives as
+            // raw JSON.
+            'diagram_data' => [ 'description' => 'The pitch diagram, as an object or its JSON.' ],
         ];
     }
 

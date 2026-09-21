@@ -537,14 +537,20 @@ final class StravaRestController {
      * @return array<string, array<string, mixed>>
      */
     private static function webhookEventArgs(): array {
+        // No `type` either, for the same reason one step further in: core
+        // sanitises and validates a declared type whether or not the
+        // handler calls `checkBody()`, so a type here would refuse the
+        // body through the back door. `updates` arriving as an empty JSON
+        // array rather than an empty object is enough to turn a declared
+        // `object` into the 400 the paragraph above is about.
         return [
-            'object_type'     => [ 'type' => 'string', 'description' => 'What the event is about: an activity or an athlete.' ],
-            'object_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which one.' ],
-            'aspect_type'     => [ 'type' => 'string', 'description' => 'What happened to it: create, update or delete.' ],
-            'owner_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The Strava athlete it belongs to.' ],
-            'subscription_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The subscription the push came through.' ],
-            'event_time'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'When it happened, as a Unix timestamp.' ],
-            'updates'         => [ 'type' => 'object', 'description' => 'What changed, on an update event.' ],
+            'object_type'     => [ 'description' => 'What the event is about: an activity or an athlete.' ],
+            'object_id'       => [ 'description' => 'Which one.' ],
+            'aspect_type'     => [ 'description' => 'What happened to it: create, update or delete.' ],
+            'owner_id'        => [ 'description' => 'The Strava athlete it belongs to.' ],
+            'subscription_id' => [ 'description' => 'The subscription the push came through.' ],
+            'event_time'      => [ 'description' => 'When it happened, as a Unix timestamp.' ],
+            'updates'         => [ 'description' => 'What changed, on an update event.' ],
         ];
     }
 

@@ -211,6 +211,12 @@ class MatchAnalysisRestController {
      * what it does not understand, and refusing the older spelling here
      * would break exactly that.
      *
+     * Neither declares a `type`, and that is load-bearing. A field that
+     * lists `array` among its types goes through `rest_sanitize_array()`,
+     * which splits a plain string on whitespace and commas — so a
+     * two-sentence note came back as two words. The shape of a note is the
+     * writer's business; the declaration's job is to say the field exists.
+     *
      * @return array<string, array<string, mixed>>
      */
     private static function playerArgs(): array {
@@ -219,8 +225,8 @@ class MatchAnalysisRestController {
             'player_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
             'marker'        => [ 'type' => 'string', 'description' => 'How the player is marked on the match: the shorthand the coach taps.' ],
             'team_function' => [ 'type' => 'string', 'description' => 'Which team function they were reviewed against.' ],
-            'notes'         => [ 'type' => [ 'array', 'string' ], 'description' => 'The bullets on this player, each { body, valence }. A plain string is read as one unmarked bullet. Replaces every bullet they have.' ],
-            'note'          => [ 'type' => [ 'array', 'string' ], 'description' => 'The same thing, spelled the way a simpler client sends it. Read only when notes is absent.' ],
+            'notes'         => [ 'description' => 'The bullets on this player, each { body, valence }, or one string with a line per bullet. Replaces every bullet they have.' ],
+            'note'          => [ 'description' => 'The same thing, spelled the way a simpler client sends it. Read only when notes is absent.' ],
         ];
     }
 
@@ -253,9 +259,14 @@ class MatchAnalysisRestController {
                 'type'        => 'string',
                 'description' => 'went_well, mixed or needs_work. An empty string clears the rating.',
             ],
+            // No `type` on `notes`, and that is load-bearing rather than an
+            // omission. `MatchAnalysisWriter::cleanNoteItems()` accepts one
+            // string and splits it into a bullet per line; declaring
+            // `array` would hand it to core's `rest_sanitize_array()`
+            // first, which splits on `[\s,]+` and turns "Eerste punt."
+            // into two bullets of one word each.
             'notes' => [
-                'type'        => 'array',
-                'description' => 'The bullets on this section, each { body, valence }. A flat list of strings is read as unmarked bullets. Replaces every bullet the section has.',
+                'description' => 'The bullets on this section, each { body, valence }, or one string with a line per bullet. Replaces every bullet the section has.',
             ],
         ];
     }

@@ -130,11 +130,15 @@ final class OnboardingRestController {
 
     /** @return array<string, array<string, mixed>> */
     private static function staffArgs(): array {
+        // The four name lists declare no `type`: one that lists `array`
+        // goes through `rest_sanitize_array()`, which splits a plain
+        // string on whitespace and commas — so a single "Jan de Vries"
+        // would arrive as three staff members.
         return self::skipArgs() + [
-            'first_name'   => [ 'type' => [ 'array', 'string' ], 'description' => 'The staff members\' first names, in the same order as the other three lists.' ],
-            'last_name'    => [ 'type' => [ 'array', 'string' ], 'description' => 'Their last names.' ],
-            'email'        => [ 'type' => [ 'array', 'string' ], 'description' => 'Their email addresses.' ],
-            'role_type'    => [ 'type' => [ 'array', 'string' ], 'description' => 'What each of them does.' ],
+            'first_name'   => [ 'description' => 'The staff members\' first names, in the same order as the other three lists.' ],
+            'last_name'    => [ 'description' => 'Their last names.' ],
+            'email'        => [ 'description' => 'Their email addresses.' ],
+            'role_type'    => [ 'description' => 'What each of them does.' ],
             'send_invites' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Mail each of them an invitation now.' ],
         ];
     }

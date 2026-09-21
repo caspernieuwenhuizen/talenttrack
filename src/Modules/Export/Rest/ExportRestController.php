@@ -72,13 +72,19 @@ final class ExportRestController {
      * @return array<string, array<string, mixed>>
      */
     private static function runArgs(): array {
+        // None of these declares a `type`, and that follows from the same
+        // decision. Core sanitises and validates against a declared type
+        // whether or not the handler calls `checkBody()`, so a type here
+        // would start rewriting or refusing bodies this route has said it
+        // does not constrain — `rest_sanitize_array()` alone would split a
+        // comma-separated `columns` string the exporter reads whole.
         return [
-            'key'              => [ 'type' => 'string', 'description' => 'Which export to run, from the URL.' ],
-            'format'           => [ 'type' => 'string', 'description' => 'Which file to produce. Omitted takes the exporter\'s first supported format.' ],
-            'entity_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The record to export, for an export that is about one.' ],
-            'brand'            => [ 'type' => 'string', 'description' => 'How a printed export is headed: auto, blank or letterhead.' ],
-            'columns'          => [ 'type' => 'array', 'description' => 'Which columns to include. The Exports page posts this name; it is read as selected_columns.' ],
-            'selected_columns' => [ 'type' => 'array', 'description' => 'Which columns to include, canonical spelling.' ],
+            'key'              => [ 'description' => 'Which export to run, from the URL.' ],
+            'format'           => [ 'description' => 'Which file to produce. Omitted takes the exporter\'s first supported format.' ],
+            'entity_id'        => [ 'description' => 'The record to export, for an export that is about one.' ],
+            'brand'            => [ 'description' => 'How a printed export is headed: auto, blank or letterhead.' ],
+            'columns'          => [ 'description' => 'Which columns to include. The Exports page posts this name; it is read as selected_columns.' ],
+            'selected_columns' => [ 'description' => 'Which columns to include, canonical spelling.' ],
         ];
     }
 

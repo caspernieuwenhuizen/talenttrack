@@ -149,7 +149,10 @@ class PdpPrepRestController {
             'label'        => [ 'type' => 'string', 'description' => 'The question as the coach reads it.' ],
             'help_text'    => [ 'type' => 'string', 'description' => 'A line of guidance under the question.' ],
             'field_type'   => [ 'type' => 'string', 'description' => 'How the answer is captured, e.g. text or textarea.' ],
-            'options'      => [ 'type' => [ 'array', 'string' ], 'description' => 'The choices, for a question that offers a list.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas.
+            'options'      => [ 'description' => 'The choices, for a question that offers a list.' ],
             'required'     => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the coach has to answer it.' ],
         ];
     }
