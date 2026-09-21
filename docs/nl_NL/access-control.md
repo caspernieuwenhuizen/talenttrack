@@ -307,6 +307,10 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
+Sinds #3807 staat ook de **`players`**-rij van de scout op `player`-niveau. Die was als laatste van het blok nog `global`: de twee eerdere aanscherpingen lieten hem allebei staan — `evaluations` werd versmald in #1378 en `media` in #2591, beide met dezelfde redenering, namelijk dat een scout leest over de kinderen waaraan hij gekoppeld is en niet over de hele academie. Het volledige spelersdossier bevat naam, e-mailadres en telefoonnummer van de ouder plus elk maatwerkveld dat een club heeft ingericht, zonder filter per veld, en hoort dus in dezelfde categorie als de twee die eerder verhuisden. Migratie `0285` versmalt bestaande installaties en raakt alleen rijen met `is_default = 1`, zodat een academie die dit bewust ruimer had gezet zijn eigen instelling houdt.
+
+Wat een scout in plaats daarvan leest is de spelerskaart hieronder — die in dezelfde wijziging meekomt, juist zodat het versmallen van het dossier de vergelijking met de selectie niet wegneemt.
+
 ## Wat een scout mag lezen over een selectiespeler — de spelerskaart
 
 Tot het werk van een scout hoort het vergelijken van een stagespeler met de spelers die de club al heeft, en daarvoor is iets nodig om **mee** te vergelijken. Dat was er niet: `GET /players` gaf een scout een geslaagde, lege pagina en elke route per speler weigerde. Het scherm zag er kapot uit in plaats van gesloten.

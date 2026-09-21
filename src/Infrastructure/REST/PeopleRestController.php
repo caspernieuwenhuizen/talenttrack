@@ -45,6 +45,7 @@ class PeopleRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_person' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+                'args'                => self::writeArgs( true ),
             ],
         ] );
         // #1138 — bulk delete-preview. Returns the per-person impact summary
@@ -68,6 +69,7 @@ class PeopleRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_person' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+                'args'                => self::writeArgs( false ),
             ],
             [
                 'methods'             => 'DELETE',
@@ -181,11 +183,66 @@ class PeopleRestController {
         return RestResponse::success( self::fmtRow( $person, $repo ) );
     }
 
+    /**
+     * #3816 — the body `POST /people` and `PUT /people/{id}` accept.
+     *
+     * A person is a record about a real adult in the academy, so a key the
+     * route does not take is refused by name rather than dropped: a client
+     * that misspells `phone` should learn that the number was not stored,
+     * not find out when nobody can reach them.
+     *
+     * The name is needed on create and optional on update, because an
+     * update that leaves a field out must leave it standing
+     * (CLAUDE.md §6). It is **not** declared `required` even on create:
+     * core checks required params before the permission callback runs, so
+     * that would answer an unauthenticated `POST` with a 400 naming the
+     * fields instead of the 401 it owes. `create_person()` names them
+     * itself, behind the capability gate.
+     *
+     * `id` on the update is the URL segment, declared so a client that
+     * echoes the record's own id back in the body is not refused for it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs( bool $for_create ): array {
+        $args = [
+            'first_name' => [ 'type' => 'string', 'description' => 'Given name.' ],
+            'last_name'  => [ 'type' => 'string', 'description' => 'Family name.' ],
+            'email'      => [ 'type' => 'string', 'description' => 'Email address the academy writes to.' ],
+            'phone'      => [ 'type' => 'string', 'description' => 'Phone number.' ],
+            'role_type'  => [ 'type' => 'string', 'description' => 'What kind of person this is in the academy (staff, guardian, …).' ],
+            'wp_user_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The WordPress account this person signs in with, when they have one. A mapping to one authentication backend, never the identity itself.' ],
+            'status'     => [ 'type' => 'string', 'description' => 'active or inactive.' ],
+        ];
+
+        if ( ! $for_create ) {
+            $args = [ 'id' => [
+                'type'        => [ 'integer', 'string' ],
+                'description' => 'The person, from the URL. A copy in the body is accepted and ignored.',
+            ] ] + $args;
+        }
+
+        return $args;
+    }
+
     public static function create_person( \WP_REST_Request $r ) {
+        // #3816 — the shape first: a key this route does not take is
+        // refused by name instead of being read by nothing.
+        $refused = BaseController::checkBody( $r, self::writeArgs( true ) );
+        if ( $refused !== null ) return $refused;
+
         $repo = new PeopleRepository();
-        $payload = self::extract( $r );
+        $payload = self::extract( $r, true );
         if ( $payload['first_name'] === '' || $payload['last_name'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'First name and last name are required.', 'talenttrack' ), 400 );
+            return RestResponse::error(
+                'missing_fields',
+                __( 'First name and last name are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $payload['first_name'] === '' ? 'first_name' : null,
+                    $payload['last_name']  === '' ? 'last_name'  : null,
+                ] ) ) ]
+            );
         }
         $id = $repo->create( $payload );
         if ( $id === false ) {
@@ -199,8 +256,12 @@ class PeopleRestController {
     public static function update_person( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid person id.', 'talenttrack' ), 400 );
+
+        $refused = BaseController::checkBody( $r, self::writeArgs( false ) );
+        if ( $refused !== null ) return $refused;
+
         $repo = new PeopleRepository();
-        $payload = self::extract( $r );
+        $payload = self::extract( $r, false );
         if ( ! $repo->update( $id, $payload ) ) {
             global $wpdb;
             Logger::error( 'rest.person.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
@@ -259,18 +320,29 @@ class PeopleRestController {
     }
 
     /**
+     * The writable columns this request carries.
+     *
+     * #3816 — the two name columns used to be written on every call,
+     * defaulted to `''`. On create that is right; on update it meant a
+     * `PUT` that sent only a phone number **erased the person's name**,
+     * which is the partial-update hazard CLAUDE.md §6 rules out. On update
+     * they are now only written when they were sent.
+     *
      * @return array<string, mixed>
      */
-    private static function extract( \WP_REST_Request $r ): array {
+    private static function extract( \WP_REST_Request $r, bool $for_create ): array {
         $payload = [];
         foreach ( [ 'first_name', 'last_name', 'email', 'phone', 'role_type', 'wp_user_id', 'status' ] as $key ) {
             if ( $r->get_param( $key ) !== null ) {
                 $payload[ $key ] = $r->get_param( $key );
             }
         }
-        // Defaults for create.
-        $payload['first_name'] = sanitize_text_field( (string) ( $payload['first_name'] ?? '' ) );
-        $payload['last_name']  = sanitize_text_field( (string) ( $payload['last_name'] ?? '' ) );
+
+        foreach ( [ 'first_name', 'last_name' ] as $key ) {
+            if ( ! $for_create && ! array_key_exists( $key, $payload ) ) continue;
+            $payload[ $key ] = sanitize_text_field( (string) ( $payload[ $key ] ?? '' ) );
+        }
+
         return $payload;
     }
 

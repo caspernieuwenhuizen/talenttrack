@@ -1,0 +1,80 @@
+/*
+ * frontend-parent-search.css (#3806) — `?tt_view=search`.
+ *
+ * A parent standing somewhere with one hand free. Mobile-first: the field
+ * is full width and stacks above the button at 360px, and goes side-by-side
+ * from 480px where there is room. Results are a list of links, each its own
+ * tap target, with nothing hover-dependent on them.
+ */
+
+.tt-parent-search__form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.tt-parent-search__input {
+    /* 16px or iOS zooms the page on focus. */
+    font-size: 1rem;
+    min-height: 48px;
+    width: 100%;
+}
+
+.tt-parent-search__form .tt-btn {
+    min-height: 48px;
+    align-self: flex-start;
+    touch-action: manipulation;
+}
+
+@media (min-width: 480px) {
+    .tt-parent-search__form {
+        flex-direction: row;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    .tt-parent-search__form .tt-field-label {
+        flex-basis: 100%;
+    }
+    .tt-parent-search__input {
+        flex: 1 1 12rem;
+        width: auto;
+    }
+}
+
+.tt-parent-search__results {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.tt-parent-search__link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-height: 48px;
+    justify-content: center;
+    padding: 8px 12px;
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 8px;
+    background: var(--tt-paper, #fff);
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-parent-search__link:hover,
+.tt-parent-search__link:focus-visible {
+    border-color: var(--tt-secondary, #c9a227);
+}
+
+.tt-parent-search__title {
+    font-weight: 600;
+    color: var(--tt-ink, #1f2a2e);
+}
+
+.tt-parent-search__meta {
+    font-size: 0.875rem;
+    color: var(--tt-muted, #5b6e75);
+}

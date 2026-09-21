@@ -93,7 +93,7 @@ class ActivitiesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_session' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
-                'args'                => self::writeArgs(),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -1359,6 +1359,12 @@ class ActivitiesRestController {
     }
 
     public static function create_session( \WP_REST_Request $r ) {
+        // #3816 — the body's shape before its values. A key this route does
+        // not take used to be read by nothing and answered 200, so a typo
+        // in a field name looked exactly like a save.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $type_error = self::validateActivityType( $r );
         if ( $type_error !== null ) return $type_error;
 
@@ -1382,7 +1388,17 @@ class ActivitiesRestController {
         $data['activity_source_key'] = 'manual';
 
         if ( $data['title'] === '' || $data['session_date'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
+            // #3816 — name them. The message said "Title and date are
+            // required" and left a caller to guess the field spellings.
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Title and date are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $data['title']        === '' ? 'title'        : null,
+                    $data['session_date'] === '' ? 'session_date' : null,
+                ] ) ) ]
+            );
         }
 
         $future = self::futureAttendanceRefusal( self::attendance_from_request( $r ), (string) $data['session_date'] );
@@ -1481,6 +1497,14 @@ class ActivitiesRestController {
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
+
+        // #3816 — nothing here is required: an omitted field keeps its
+        // stored value through `overlayOnStored()` below, which is the
+        // partial-update contract the edit form and every PATCH-ing
+        // caller rely on. The check only refuses keys the route cannot
+        // write at all.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
 
         $type_error = self::validateActivityType( $r );
         if ( $type_error !== null ) return $type_error;
@@ -1818,25 +1842,81 @@ class ActivitiesRestController {
     }
 
     /**
-     * #3745 — the write args both `POST /activities` and
-     * `PUT /activities/{id}` declare.
+     * #3745 / #3816 — the body both `POST /activities` and
+     * `PUT /activities/{id}` accept.
      *
-     * `coach_id` is the only one here because it is the only field whose
-     * value used to be silently discarded; the rest of the payload is
-     * sanitized in `extract()`. `absint` rather than a typed schema so the
-     * form's empty "— No coach —" option still means "clear it" instead of
-     * failing schema validation.
+     * It started as `coach_id` alone, because that was the one field whose
+     * value was silently discarded. The rest is here now so the route can
+     * say no: a key outside this list is `400 unknown_field` rather than a
+     * 200 over a field that was never read, and route discovery finally
+     * publishes what the body looks like.
+     *
+     * Every field is optional on update — an omitted one keeps its stored
+     * value, via `overlayOnStored()` (CLAUDE.md §6).
+     *
+     * **Nothing is declared `required`, on either verb**, and that is a
+     * decision rather than an oversight. Core checks required params in
+     * `WP_REST_Request::has_valid_params()`, which `dispatch()` runs
+     * **before** the permission callback, so a required field turns an
+     * unauthenticated `POST` into a `400` that names the fields instead of
+     * the `401` it owes the caller. `create_session()` names the two
+     * fields it needs itself, behind the capability gate, in the same
+     * `missing_fields` envelope.
+     *
+     * `coach_id` keeps `absint` rather than a typed schema so the form's
+     * empty "— No coach —" option still means "clear it".
      *
      * @return array<string, array<string, mixed>>
      */
     private static function writeArgs(): array {
         return [
-            'coach_id' => [
+            'title'                => [ 'type' => 'string',  'description' => 'What the activity is called.' ],
+            'session_date'         => [ 'type' => 'string',  'description' => 'The date it is held, as YYYY-MM-DD.' ],
+            'start_time'           => [ 'type' => 'string',  'description' => 'Start time as HH:MM. Empty clears it. Mirrored into kickoff_time for match types.' ],
+            'end_time'             => [ 'type' => 'string',  'description' => 'End time as HH:MM. Dropped when it is not after the start.' ],
+            'time_of_presence'     => [ 'type' => 'string',  'description' => 'Arrival time as HH:MM, for match types.' ],
+            'team_id'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team it belongs to. The caller must be able to write for both the current and the target team.' ],
+            'coach_id'             => [
                 'required'          => false,
                 'sanitize_callback' => 'absint',
                 'description'       => __( 'WordPress user id of the coach who runs the activity. Omit on create to derive the team head coach; send 0 to leave it unassigned.', 'talenttrack' ),
             ],
+            'location'             => [ 'type' => 'string',  'description' => 'Where it is held.' ],
+            'notes'                => [ 'type' => 'string',  'description' => 'Free text about the activity.' ],
+            'activity_type_key'    => [ 'type' => 'string',  'description' => 'A key from the activity_type lookup. An unknown value is refused with bad_activity_type.' ],
+            'game_subtype_key'     => [ 'type' => 'string',  'description' => 'Match subtype. Stored for match types only; nulled otherwise.' ],
+            'other_label'          => [ 'type' => 'string',  'description' => 'The label for an "other" type. Stored for that type only.' ],
+            'activity_status_key'  => [ 'type' => 'string',  'description' => 'A key from the activity_status lookup. Defaults to planned.' ],
+            'plan_state'           => [ 'type' => 'string',  'description' => 'draft, scheduled, in_progress, completed or cancelled. Derived from a terminal status when absent.' ],
+            'tournament_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The tournament this day belongs to. Stored for tournament types only.' ],
+            'match_length_minutes' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Full match length in minutes, match types only. Capped at 300.' ],
+            'opponent'             => [ 'type' => 'string',  'description' => 'Who the fixture is against. Match types only.' ],
+            'home_away'            => [ 'type' => 'string',  'description' => 'home, away or neutral. Match types only.' ],
+            'attendance'           => [ 'type' => 'object',  'description' => 'Recorded (actual) attendance: player id to { status, notes, starter, minutes }. Replaces the roster rows; guest rows survive.' ],
+            'att'                  => [ 'type' => 'object',  'description' => 'The older spelling of attendance, still read.' ],
+            'planned'              => [ 'type' => 'object',  'description' => 'The expected squad: player id to { status, note }. Replaces the planned rows only.' ],
+            'activity_principle_ids'      => [ 'type' => 'array',  'description' => 'Methodology principle ids linked to the activity.' ],
+            'activity_principles_present' => [ 'type' => [ 'string', 'boolean', 'integer' ], 'description' => 'Marker saying the principles were submitted, so an empty list clears them instead of reading as "not touched".' ],
+            'vct_cycle_choice'     => [ 'type' => 'string',  'description' => 'Per-training cycle override: auto, neutral or week. Absent leaves the override alone.' ],
+            'vct_cycle_week'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which cycle week, when vct_cycle_choice is week.' ],
         ];
+    }
+
+    /**
+     * #3816 — `PUT /activities/{id}` on top of `writeArgs()`.
+     *
+     * `id` is the URL segment, and it is declared because a client that
+     * echoes the record's own id back in the body is doing something
+     * harmless and should not be refused for it. It is read from the URL
+     * either way; the body copy is ignored.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
     }
 
     /** #3745 — did the caller send a `coach_id` at all? */

@@ -5,9 +5,11 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Modules\Prospects\ProspectScope;
+use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
@@ -202,6 +204,9 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             <?php
             // #3677 — the scouting record behind the prospect.
             echo self::renderFocusScouting( $focus_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source.
+            // #3812 — and the consent trail, which is the question the
+            // scout was asked five times over six weeks.
+            echo self::renderFocusConsent( $focus_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source.
             ?>
             <?php if ( $has_action || $can_edit || $can_propose || $invite_url !== '' ) : ?>
                 <p class="tt-pipeline-focus-actions">
@@ -227,6 +232,53 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 <?php endif; ?>
             <?php endif; ?>
         </section>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #3812 — the consent trail behind a focused prospect: when the
+     * academy asked, who it asked, and what came back.
+     *
+     * This is the answer to the question that started the issue — "did the
+     * consent emails go out?" — which a scout could previously only answer
+     * from memory. Read-only here: entries are written by the
+     * `request_consent` task and by `POST /prospects/{id}/consent-requests`,
+     * so the panel composes and does not decide (CLAUDE.md §4).
+     *
+     * Renders nothing when the academy has not asked, rather than an empty
+     * heading: a prospect whose family approached the club directly has no
+     * consent request to show and never will.
+     */
+    private static function renderFocusConsent( int $prospect_id ): string {
+        if ( ! ProspectConsentRequestsRepository::tableExists() ) return '';
+
+        $entries = ( new ProspectConsentRequestsRepository() )->forProspect( $prospect_id );
+        if ( $entries === [] ) return '';
+
+        ob_start(); ?>
+        <div class="tt-pipeline-focus-consent">
+            <h3 class="tt-pipeline-focus-subhead"><?php esc_html_e( 'Consent requests', 'talenttrack' ); ?></h3>
+            <ul class="tt-pipeline-focus-consent-list">
+                <?php foreach ( $entries as $entry ) :
+                    $asked_at = (string) ( $entry['asked_at'] ?? '' );
+                    $asked_of = (string) ( $entry['asked_of'] ?? '' );
+                    $outcome  = (string) ( $entry['outcome'] ?? '' );
+                    $notes    = trim( (string) ( $entry['notes'] ?? '' ) );
+                    ?>
+                    <li class="tt-pipeline-focus-consent-row">
+                        <span class="tt-pipeline-focus-consent-when">
+                            <?php echo esc_html( $asked_at !== '' ? TTDate::date( $asked_at ) : '' ); ?>
+                        </span>
+                        <span class="tt-pipeline-focus-consent-who"><?php echo esc_html( $asked_of ); ?></span>
+                        <span class="tt-chip"><?php echo esc_html( ConsentOutcome::label( $outcome ) ); ?></span>
+                        <?php if ( $notes !== '' ) : ?>
+                            <span class="tt-pipeline-focus-consent-note"><?php echo esc_html( $notes ); ?></span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
         <?php
         return (string) ob_get_clean();
     }
@@ -481,6 +533,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 p.created_at               AS created_at,
                 MAX(pl.status)             AS player_status,
                 MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_log,
+                MAX(CASE WHEN wt.template_key = 'request_consent'              AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_consent,
                 MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_invite,
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_confirm,
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_outcome,
@@ -508,6 +561,10 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
 
         $stages_init = [
             'prospects' => [ 'key' => 'prospects', 'label' => __( 'Prospects',     'talenttrack' ), 'cards' => [] ],
+            // #3812 — between Prospects and Invited: the academy has asked
+            // the child's own club to pass a consent request to the family
+            // and is waiting for an answer.
+            'consent'   => [ 'key' => 'consent',   'label' => __( 'Consent requested', 'talenttrack' ), 'cards' => [] ],
             'invited'   => [ 'key' => 'invited',   'label' => __( 'Invited',       'talenttrack' ), 'cards' => [] ],
             'test'      => [ 'key' => 'test',      'label' => __( 'Test training', 'talenttrack' ), 'cards' => [] ],
             'trial'     => [ 'key' => 'trial',     'label' => __( 'Trial group',   'talenttrack' ), 'cards' => [] ],
@@ -521,11 +578,21 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             $stages_init[ $stage ]['cards'][] = self::buildCard( $row, $stage, $stale_cutoff );
         }
 
-        // Reduce to indexed list with counts.
+        // Reduce to indexed list with counts. Spelled out field by field
+        // rather than spreading `$s`: writing into `$stages_init[$stage]`
+        // above, where `$stage` is a union of the stage keys, leaves the
+        // analyser unable to prove `key` and `label` are still there, and
+        // the declared return type stops being provable the moment a
+        // seventh stage joins the six.
         $out = [];
         foreach ( $stages_init as $s ) {
-            $s['count'] = count( $s['cards'] );
-            $out[] = $s;
+            $cards = $s['cards'];
+            $out[] = [
+                'key'   => (string) ( $s['key'] ?? '' ),
+                'label' => (string) ( $s['label'] ?? '' ),
+                'count' => count( $cards ),
+                'cards' => $cards,
+            ];
         }
         return $out;
     }
@@ -600,6 +667,10 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 return $event !== ''
                     ? sprintf( /* translators: %s: discovery event / match label. */ __( 'Discovered: %s', 'talenttrack' ), $event )
                     : __( 'Drafted, not yet handed to HoD', 'talenttrack' );
+            case 'consent':
+                // #3812 — the academy has asked the child's club and is
+                // waiting. Nothing else can move until the family answers.
+                return __( 'Consent request out, awaiting the family', 'talenttrack' );
             case 'invited':
                 // The email has gone out; awaiting parent confirmation.
                 return __( 'Invitation sent, awaiting parent', 'talenttrack' );
@@ -645,6 +716,11 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             case 'prospects':
                 $task_id = (int) ( $row->open_log ?? 0 );
                 if ( $task_id === 0 ) $task_id = (int) ( $row->open_invite ?? 0 );
+                break;
+            // #3812 — the open consent request is the card's next action:
+            // the scout opens it to record what the club came back with.
+            case 'consent':
+                $task_id = (int) ( $row->open_consent ?? 0 );
                 break;
             case 'joined':
                 $player_id = (int) ( $row->promoted_to_player_id ?? 0 );

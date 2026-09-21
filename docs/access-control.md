@@ -320,6 +320,10 @@ A scout now holds `player` scope for a player through either of two links, resol
 - an **active seat on that player's trial-case panel** (`tt_trial_case_staff` with `unassigned_at IS NULL`); or
 - the player appearing in the scout's **assignment list** (user meta `tt_scout_player_ids`, managed on the scout-access screen).
 
+Since #3807 the scout's **`players`** row is written at `player` scope too, joining the four above. It was the last of the block still at `global`, which the two earlier passes over these grants had each left behind — `evaluations` was narrowed in #1378 and `media` in #2591, both on the reasoning that a scout reads about the children they are linked to rather than the whole academy. The full player record carries guardian name, e-mail and phone alongside every custom field a club has defined, with no per-field filter, so it belongs on the same footing as the two that moved before it. Migration `0285` narrows existing installs and touches only `is_default = 1` rows, so an academy that widened this deliberately keeps its own setting.
+
+What a scout reads instead is the player card below — shipped in the same change, precisely so that narrowing the record does not take away the squad comparison the job depends on.
+
 Three things this deliberately does not do:
 
 - **It is not persona-blind.** The links count for the **scout** persona only. Player scope used to be resolved without reference to persona; left that way, a user who is both a coach and a parent and happens to sit on a panel would pick up the *parent* rows' player-scoped reads over that trialist.

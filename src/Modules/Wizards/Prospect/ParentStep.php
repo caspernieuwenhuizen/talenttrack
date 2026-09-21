@@ -9,10 +9,25 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Step 3 — parent_name / parent_email / parent_phone / consent.
  *
  * The parent contact powers the InviteToTestTraining task's invitation
- * email. Email and phone are optional individually, but at least one
- * channel must be supplied so the HoD can reach the parent. Consent is
- * a checkbox — required if parent contact is captured (GDPR/DPIA per
- * `marketing/security/dpa-template.md`).
+ * email. Consent is a checkbox — required if parent contact is captured
+ * (GDPR/DPIA per `marketing/security/dpa-template.md`).
+ *
+ * #3812 — every field here is optional, contact details included. The
+ * step used to refuse a prospect with neither an email nor a phone
+ * number, on the reasoning that the head of development would otherwise
+ * have no way to reach the family. That reasoning holds for an invitation
+ * and not for a prospect: a scout who spots a child at another club has
+ * no family details and must not go and collect them, so the rule blocked
+ * the exact state the recruitment journey starts in. The academy asks the
+ * child's own club first, records it as a consent request, and fills this
+ * step in when the family answers.
+ *
+ * What did NOT relax: entering any contact detail still requires consent.
+ * You may hold nothing about a family, or you may hold their details with
+ * their agreement — never their details without it. And an invitation to
+ * a test training is a hard block without consent on record
+ * ({@see \TT\Modules\Prospects\Domain\ConsentGate}), so relaxing entry
+ * does not relax what the academy may do next.
  */
 final class ParentStep implements WizardStepInterface {
 
@@ -20,6 +35,7 @@ final class ParentStep implements WizardStepInterface {
     public function label(): string { return __( 'Parent contact', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        echo '<p class="tt-field-hint">' . esc_html__( 'Leave this step empty if the family has not been approached yet. Ask the child\'s own club first and record it as a consent request; fill this in when they answer.', 'talenttrack' ) . '</p>';
         $name   = (string) ( $state['parent_name']     ?? '' );
         $email  = (string) ( $state['parent_email']    ?? '' );
         $phone  = (string) ( $state['parent_phone']    ?? '' );
@@ -53,11 +69,11 @@ final class ParentStep implements WizardStepInterface {
         if ( $email !== '' && ! is_email( $email ) ) {
             return new \WP_Error( 'bad_email', __( 'Enter a valid parent email or leave it blank.', 'talenttrack' ) );
         }
-        // At least one contact channel — otherwise the HoD has no way
-        // to reach the parent for the test-training invitation.
-        if ( $email === '' && $phone === '' ) {
-            return new \WP_Error( 'no_contact', __( 'Add at least an email or a phone number so the HoD can reach the parent.', 'talenttrack' ) );
-        }
+        // #3812 — the `no_contact` rule used to sit here and does not any
+        // more. A prospect may exist with no family data at all, which is
+        // the state a scout who spotted a child at another club is
+        // actually in.
+        //
         // Consent is required if any contact data is captured.
         if ( ( $email !== '' || $phone !== '' ) && ! $consent ) {
             return new \WP_Error( 'no_consent', __( 'Tick the consent box — the academy may only hold parent contact data with consent.', 'talenttrack' ) );

@@ -93,6 +93,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_assignment' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+                'args'                => self::assignmentArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/functional-roles/assignments/(?P<assignment_id>\d+)', [
@@ -384,7 +385,37 @@ class FunctionalRolesRestController {
         ] );
     }
 
+    /**
+     * #3816 — the body `POST /functional-roles/assignments` accepts.
+     *
+     * The three ids are all needed, and `create_assignment()` names every
+     * one that is missing in a single answer instead of the hand-written
+     * message that named none of them. They are deliberately **not**
+     * declared `required`: core checks required params before the
+     * permission callback runs, so that would answer an unauthenticated
+     * caller with a 400 naming the fields instead of the 401 it owes.
+     *
+     * Dates are optional either way: an assignment with no start is
+     * current, and one with no end is still running.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function assignmentArgs(): array {
+        return [
+            'team_id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the person takes the role on. Required.' ],
+            'person_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The person taking it. Required.' ],
+            'functional_role_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which role type, from tt_functional_role_types. Required.' ],
+            'start_date'         => [ 'type' => 'string', 'description' => 'When the assignment starts, as YYYY-MM-DD. Empty means it is already current.' ],
+            'end_date'           => [ 'type' => 'string', 'description' => 'When it ends, as YYYY-MM-DD. Empty while the assignment is running.' ],
+        ];
+    }
+
     public static function create_assignment( \WP_REST_Request $r ) {
+        // #3816 — a key this route does not take is refused by name rather
+        // than read by nothing.
+        $refused = BaseController::checkBody( $r, self::assignmentArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id   = absint( $r['team_id'] ?? 0 );
         $person_id = absint( $r['person_id'] ?? 0 );
         $role_id   = absint( $r['functional_role_id'] ?? 0 );
@@ -392,7 +423,16 @@ class FunctionalRolesRestController {
         $end       = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) ) ?: null;
 
         if ( $team_id <= 0 || $person_id <= 0 || $role_id <= 0 ) {
-            return RestResponse::error( 'missing_fields', __( 'Team, person, and functional role are all required.', 'talenttrack' ), 400 );
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Team, person, and functional role are all required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $team_id   <= 0 ? 'team_id'            : null,
+                    $person_id <= 0 ? 'person_id'          : null,
+                    $role_id   <= 0 ? 'functional_role_id' : null,
+                ] ) ) ]
+            );
         }
 
         $repo = new PeopleRepository();

@@ -139,7 +139,11 @@ Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / 
 - Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
 - Bewaart de motivatie zelf, daarna leesbaar voor iedereen die de staf-input van het dossier mag lezen — de Hoofd Opleiding en de toegewezen trainers. De motivatie gaat **niet** naar het gezin: de brief en het oudergesprek bevatten er niets van.
 
-De ondergrens van 30 tekens wordt in tekens geteld, zodat een korte motivatie met accenten of andere niet-Latijnse letters op dezelfde manier wordt gemeten als een motivatie zonder.
+De ondergrens van 30 tekens wordt in tekens geteld, zodat een korte motivatie met accenten of andere niet-Latijnse letters op dezelfde manier wordt gemeten als een motivatie zonder. Het scherm en de API hanteren dezelfde regel — er is één definitie van — dus wat de ene accepteert, accepteert de andere ook.
+
+Is de motivatie te kort, dan meldt het tabblad **Beslissing** dat onder het veld, met de ondergrens en het aantal tekens dat je schreef, **en blijft staan wat je hebt getypt**. Er wordt niets vastgelegd, niets verstuurd, en de uitkomst die je koos staat nog geselecteerd als de pagina terugkomt.
+
+Het vastleggen verzet de status van de speler één keer, via het besluit zelf — zie de tabel hieronder. Geen enkel scherm schrijft die status apart, dus de status waar een speler op uitkomt hangt niet af van de vraag of het besluit op de pagina of via de API is vastgelegd.
 
 | Beslissing | De speler wordt | Gearchiveerd? |
 | --- | --- | --- |

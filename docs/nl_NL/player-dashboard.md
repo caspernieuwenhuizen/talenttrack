@@ -68,6 +68,8 @@ Daaronder je **geschiedenis**: de trainingen, wedstrijden en andere activiteiten
 
 Het detail noemt de tijden die je coach heeft opgeslagen, zodat je zonder te vragen ziet wanneer je er moet zijn. Een **aanwezigheidstijd** verschijnt zodra die is ingevuld. Bij een wedstrijd lees je daarna de **aftrap** en, als die is ingevuld, een **eindtijd**; bij een training, toernooi of andere activiteit staat er één **tijd** die het hele blok beslaat. Staat er geen enkele tijd opgeslagen, dan zie je er ook geen — er komen geen lege plaatshouders. Het zijn dezelfde tijden die de staf bij dezelfde activiteit ziet.
 
+**Toon komende**, net boven de lijst, draait de geschiedenis om: alles wat nog komt, het eerstvolgende bovenaan, met het datumfilter dat net zo werkt. **Toon wat is geweest** draait het terug. In welke stand je staat zit in het adres, dus een link naar "alles wat eraan komt" kun je doorsturen. Zo bereik je een training die weken weg is — **Binnenkort** toont alleen de eerstvolgende paar, en een activiteit daarachter stond wel in het product en op geen enkel scherm dat je kon bereiken.
+
 Verbreed je zelf het datumbereik, dan zie je weer activiteiten voorbij vandaag; daar staat simpelweg geen aanwezigheid bij totdat die is vastgelegd.
 
 Terwijl je geschiedenis laadt, staat er **Bezig met laden…** in de lijst. De melding dat er nog niets is vastgelegd verschijnt pas als het laden gelukt is en er echt niets is. Lukt het laden niet, bijvoorbeeld door een slechte verbinding, dan zie je een foutmelding met een knop **Opnieuw**; tik erop om het nog eens te proberen. Dat geldt voor elke lijst in TalentTrack, niet alleen voor deze. De lijst heeft JavaScript nodig.

@@ -23,6 +23,7 @@ use TT\Modules\Workflow\Templates\PostGameEvaluationTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyGoalSettingTemplate;
 use TT\Modules\Workflow\Templates\QuarterlyHoDReviewTemplate;
 use TT\Modules\Workflow\Templates\RecordTestTrainingOutcomeTemplate;
+use TT\Modules\Workflow\Templates\RequestConsentTemplate;
 use TT\Modules\Workflow\Templates\ReviewTrialGroupMembershipTemplate;
 
 /**
@@ -94,6 +95,9 @@ class WorkflowModule implements ModuleInterface {
         // more workflow templates plus the trial-cases-rework
         // AwaitTeamOfferDecision link.
         $registry->register( new LogProspectTemplate() );
+        // #3812 — the step between spotting a child at another club and
+        // the family saying yes: asking their club to pass it on.
+        $registry->register( new RequestConsentTemplate() );
         $registry->register( new InviteToTestTrainingTemplate() );
         $registry->register( new ConfirmTestTrainingTemplate() );
         $registry->register( new RecordTestTrainingOutcomeTemplate() );

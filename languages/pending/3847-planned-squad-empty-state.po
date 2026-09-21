@@ -1,0 +1,11 @@
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Expected attendance"
+msgstr "Verwachte opkomst"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Pick the squad"
+msgstr "Selectie samenstellen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No squad picked yet."
+msgstr "Nog geen selectie vastgelegd."

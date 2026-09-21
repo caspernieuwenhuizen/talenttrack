@@ -90,6 +90,7 @@ return [
     'players'                       => [ 'native', 'The player record is the spine of the product and is reached from the sideline constantly.' ],
     'profile'                       => [ 'native', 'A player’s own profile details.' ],
     'reset-password'                => [ 'native', 'The link from the recovery email.' ],
+    'search'                        => [ 'native', 'A parent standing in a car park trying to find the session a coach just texted them about. One field, a list of results, nothing to type into but the query.' ],
     'strava'                        => [ 'native', 'A player connecting their own running account. Strava lives on the same phone.' ],
     'team-behaviour-capture'        => [ 'native', 'Behaviour noted during a session, team-level.' ],
     'teammate'                      => [ 'native', 'A player looking at a squad-mate’s card.' ],

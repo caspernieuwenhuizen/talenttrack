@@ -85,6 +85,27 @@ class MeRestController {
                 'permission_callback' => [ __CLASS__, 'is_signed_in' ],
             ],
         ] );
+
+        // #3806 — a parent's search over their own children's records.
+        // Under `/me` rather than `/search` because it takes no id and
+        // cannot be pointed anywhere: the caller is the scope, as with
+        // every other route on this controller. The staff palette at
+        // `GET /search` is a different question with a different answer
+        // and is untouched.
+        register_rest_route( self::NS, '/me/search', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'search_own' ],
+                'permission_callback' => [ __CLASS__, 'is_signed_in' ],
+                'args'                => [
+                    'q' => [
+                        'type'        => 'string',
+                        'required'    => false,
+                        'description' => 'What to look for, in the caller\'s own children\'s records. Matched against titles and read as a date when it contains one. Fewer than two characters returns nothing.',
+                    ],
+                ],
+            ],
+        ] );
     }
 
     public static function is_signed_in(): bool {
@@ -93,6 +114,24 @@ class MeRestController {
 
     public static function get_me( \WP_REST_Request $r ): \WP_REST_Response {
         return RestResponse::success( self::payload( get_current_user_id() ) );
+    }
+
+    /**
+     * Search the caller's own children's records (#3806).
+     *
+     * Every decision about what may be found lives in
+     * `ParentSearchService`, which resolves the caller's children first
+     * and bounds each query by them, so this route and the rendered page
+     * return the same rows. A caller with no linked child gets an empty
+     * result rather than an error: whether anybody is linked to them is
+     * not something a status code should disclose.
+     */
+    public static function search_own( \WP_REST_Request $r ): \WP_REST_Response {
+        $q = sanitize_text_field( (string) ( $r->get_param( 'q' ) ?? '' ) );
+
+        return RestResponse::success(
+            ( new \TT\Infrastructure\Search\ParentSearchService() )->search( get_current_user_id(), $q )
+        );
     }
 
     /**

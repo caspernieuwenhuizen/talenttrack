@@ -16,6 +16,7 @@ use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialCaseStaffRepository;
 use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
 use TT\Modules\Trials\Repositories\TrialStaffInputsRepository;
+use TT\Modules\Trials\Domain\TrialDecisionMotivation;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 use TT\Modules\Trials\Services\TrialDecisionDeadline;
@@ -60,6 +61,23 @@ class FrontendTrialCaseView extends FrontendViewBase {
     private const TAB_MEETING   = 'meeting';
 
     private static bool $detail_css_enqueued = false;
+
+    /**
+     * #3786 — a refused decide, carried from `handlePost()` to the
+     * Decision tab in the same request.
+     *
+     * The decide action is **not** POST-redirect-GET: `handlePost()` runs
+     * inside `render()`, which itself runs inside `the_content`, long after
+     * headers could be sent. So the refusal and the user's draft live in a
+     * property for the rest of this request and nowhere else — no
+     * transient, and therefore no stale error to survive into somebody's
+     * next page load.
+     *
+     * Carries the `refusal()` shape plus the four values the user typed.
+     *
+     * @var array<string,mixed>|null
+     */
+    private static ?array $decide_error = null;
 
     private static function enqueueDetailAssets(): void {
         if ( self::$detail_css_enqueued ) return;
@@ -827,6 +845,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
             return;
         }
 
+        // #3786 — the draft a refused submit is carrying, if any. The
+        // fields are prefilled from it rather than emptied: on a
+        // thirty-character floor, handing back an empty box is exactly the
+        // wrong failure — the user typed a paragraph about a child.
+        $draft = self::$decide_error ?? [];
+        $error = isset( $draft['min_length'] )
+            ? TrialDecisionMotivation::refusalMessage( (int) $draft['min_length'], (int) $draft['length'] )
+            : '';
+
         self::cardOpen( __( 'Record decision', 'talenttrack' ) );
         echo '<p class="tt-trial-card__intro">' . esc_html__( 'Recording a decision sets the player status and generates the parent letter. Decisions are final for the season.', 'talenttrack' ) . '</p>';
         echo '<form method="post" class="tt-trial-decision-form">';
@@ -838,15 +865,32 @@ class FrontendTrialCaseView extends FrontendViewBase {
             TrialCasesRepository::DECISION_DENY_FINAL     => TrialCasesRepository::decisionLabel( TrialCasesRepository::DECISION_DENY_FINAL ),
             TrialCasesRepository::DECISION_DENY_ENCOURAGE => TrialCasesRepository::decisionLabel( TrialCasesRepository::DECISION_DENY_ENCOURAGE ),
         ];
+        $chosen = (string) ( $draft['decision'] ?? '' );
         echo '<fieldset class="tt-decision-radios"><legend>' . esc_html__( 'Outcome', 'talenttrack' ) . '</legend>';
         foreach ( $opts as $val => $label ) {
-            echo '<label><input type="radio" name="decision" value="' . esc_attr( $val ) . '" required> ' . esc_html( $label ) . '</label>';
+            echo '<label><input type="radio" name="decision" value="' . esc_attr( $val ) . '"'
+                . checked( $chosen, (string) $val, false ) . ' required> ' . esc_html( $label ) . '</label>';
         }
         echo '</fieldset>';
 
-        echo '<label>' . esc_html__( 'Justification (internal record, ≥ 30 characters)', 'talenttrack' ) . ' <textarea name="decision_notes" rows="3" minlength="30" required></textarea></label>';
-        echo '<label>' . esc_html__( 'Strengths (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="strengths_summary" rows="2"></textarea></label>';
-        echo '<label>' . esc_html__( 'Growth areas (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="growth_areas" rows="2"></textarea></label>';
+        $notes_label = sprintf(
+            /* translators: %d: minimum number of characters. */
+            __( 'Justification (internal record, at least %d characters)', 'talenttrack' ),
+            TrialDecisionMotivation::MIN_CHARS
+        );
+        echo '<label for="tt-trial-decision-notes">' . esc_html( $notes_label ) . '</label>';
+        if ( $error !== '' ) {
+            // Announced, named by `aria-describedby` below, and prefixed
+            // with a word rather than signalled by colour alone.
+            echo '<p class="tt-trial-decision-error" id="tt-trial-decision-notes-error" role="alert">';
+            echo '<strong>' . esc_html( _x( 'Not saved', 'form field refusal', 'talenttrack' ) ) . '</strong> ';
+            echo esc_html( $error ) . '</p>';
+        }
+        echo '<textarea id="tt-trial-decision-notes" name="decision_notes" rows="3" minlength="' . esc_attr( (string) TrialDecisionMotivation::MIN_CHARS ) . '" required'
+            . ( $error !== '' ? ' aria-invalid="true" aria-describedby="tt-trial-decision-notes-error"' : '' )
+            . '>' . esc_textarea( (string) ( $draft['notes'] ?? '' ) ) . '</textarea>';
+        echo '<label>' . esc_html__( 'Strengths (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="strengths_summary" rows="2">' . esc_textarea( (string) ( $draft['strengths_summary'] ?? '' ) ) . '</textarea></label>';
+        echo '<label>' . esc_html__( 'Growth areas (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="growth_areas" rows="2">' . esc_textarea( (string) ( $draft['growth_areas'] ?? '' ) ) . '</textarea></label>';
 
         echo '<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Record decision and generate letter', 'talenttrack' ) . '</button></div>';
         echo '</form>';
@@ -1046,7 +1090,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
     /* ===== POST handlers ===== */
 
     private static function handlePost( int $user_id, int $case_id ): void {
-        if ( $_SERVER['REQUEST_METHOD'] !== 'POST' ) return;
+        // `?? ''` because the key is not guaranteed: WP-CLI, cron and the
+        // test runner all reach a render without one, and an undefined-key
+        // notice inside `the_content` is a warning printed into the page.
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return;
         $action = isset( $_POST['tt_trial_action'] ) ? sanitize_key( (string) $_POST['tt_trial_action'] ) : '';
         if ( $action === '' ) return;
 
@@ -1109,16 +1156,40 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 $notes    = isset( $_POST['decision_notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['decision_notes'] ) ) : '';
                 $strengths = isset( $_POST['strengths_summary'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['strengths_summary'] ) ) : '';
                 $growth    = isset( $_POST['growth_areas'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['growth_areas'] ) ) : '';
-                if ( strlen( $notes ) < 30 ) return;
+
+                // #3786 — the shared validator, the one the REST route
+                // calls. This branch used to keep its own copy counting
+                // `strlen()`, so a Dutch motivation with accents cleared a
+                // floor the message describes in characters, and the screen
+                // and the API disagreed about the same text.
+                $refusal = TrialDecisionMotivation::refusal( $notes );
+                if ( $refusal !== null ) {
+                    // And it used to `return` in silence: the page reloaded,
+                    // nothing was recorded, and nothing said why. The draft
+                    // is carried back so the user does not lose a paragraph
+                    // they wrote about a child.
+                    self::$decide_error = $refusal + [
+                        'decision'          => $decision,
+                        'notes'             => $notes,
+                        'strengths_summary' => $strengths,
+                        'growth_areas'      => $growth,
+                    ];
+                    return;
+                }
+
                 $ok = $cases->recordDecision( $case_id, $decision, $user_id, $notes, $strengths, $growth );
                 if ( $ok ) {
                     $case = $cases->find( $case_id );
                     if ( $case ) {
-                        // Player status follows decision.
-                        global $wpdb;
-                        $new_player_status = $decision === TrialCasesRepository::DECISION_ADMIT ? 'active' : 'archived';
-                        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => $new_player_status ], [ 'id' => (int) $case->player_id, 'club_id' => CurrentClub::id() ] );
-                        // Letter
+                        // #3786 — the player status is NOT written here.
+                        // `TrialDecisionPlayerStatusSubscriber` owns that
+                        // transition, off the `tt_trial_decision_recorded`
+                        // hook `recordDecision()` fires. This branch used to
+                        // write it too, a second writer to one state, and it
+                        // wrote `archived` — not a value `PlayerStatus`
+                        // recognises — over the subscriber's `inactive` for a
+                        // decline with encouragement. The docs have always
+                        // said that player stays Inactive.
                         $audience = self::audienceForDecision( $decision );
                         $svc      = new TrialLetterService();
                         // #3223 — `generate()` supersedes the prior live

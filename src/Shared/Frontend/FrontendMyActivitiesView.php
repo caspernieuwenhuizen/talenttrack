@@ -104,6 +104,27 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         // surface opened on the future and buried the thing it was for.
         self::renderComingUp( $player );
 
+        // #3806 — and everything else that is coming.
+        //
+        // The list below is a history, bounded to today by #3390, and that
+        // is the right default: most readers are looking for what happened.
+        // But it meant an activity the coach had just planned was in the
+        // product, open to the reader by its own id, and reachable from no
+        // screen they could get to — "Coming up" shows five, and a fixture
+        // six weeks out is not in the first five. A parent told a session
+        // was "in TalentTrack now" had nowhere to look.
+        //
+        // One switch, not a second surface: the same table, the same
+        // columns, the same date filter, bounded forwards instead of back
+        // and sorted soonest-first.
+        $upcoming = ! empty( $_GET['upcoming'] );
+        self::renderModeToggle( $upcoming );
+
+        // Built rather than branched: the two modes differ by one key, and
+        // writing the player scope twice would be two places to forget it.
+        $static_filters = [ 'player_id' => (int) $player->id ];
+        $static_filters[ $upcoming ? 'date_from' : 'date_to' ] = current_time( 'Y-m-d' );
+
         echo '<div class="tt-myact-list">';
         echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
             'rest_path' => 'activities',
@@ -114,10 +135,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             // default is history, and a player who deliberately widens the
             // range sees what they asked for — with no status pill on it,
             // because the column now reads recorded attendance only.
-            'static_filters' => [
-                'player_id' => (int) $player->id,
-                'date_to'   => current_time( 'Y-m-d' ),
-            ],
+            'static_filters' => $static_filters,
             // #1986 — player surface: rows are NOT clickable (the only detail
             // link pointed at the staff `?tt_view=activities` view, which a
             // player isn't authorised for). All player-allowed information is
@@ -148,12 +166,16 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                 ],
             ],
             'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
-            'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
-            'empty_state'  => $voice->pick(
-                __( 'No activities recorded for you yet.', 'talenttrack' ),
-                /* translators: %s = the player's first name. */
-                sprintf( __( 'No activities recorded for %s yet.', 'talenttrack' ), $voice->firstName() )
-            ),
+            // Looking forward, the next one is the one you want; looking
+            // back, the last one is.
+            'default_sort' => [ 'orderby' => 'session_date', 'order' => $upcoming ? 'asc' : 'desc' ],
+            'empty_state'  => $upcoming
+                ? __( 'Nothing planned yet.', 'talenttrack' )
+                : $voice->pick(
+                    __( 'No activities recorded for you yet.', 'talenttrack' ),
+                    /* translators: %s = the player's first name. */
+                    sprintf( __( 'No activities recorded for %s yet.', 'talenttrack' ), $voice->firstName() )
+                ),
             // #1362 — guided fresh empty state. Player-self surface:
             // activities are planned at team level by the coach, so
             // there's no CTA — the explainer sets the expectation.
@@ -191,6 +213,30 @@ class FrontendMyActivitiesView extends FrontendViewBase {
      * Renders nothing at all when there is nothing to show — an empty
      * "Coming up" card on a player's screen in the off-season is noise.
      */
+    /**
+     * #3806 — history or everything still to come.
+     *
+     * Two links rather than a control with state, because the whole of the
+     * state is in the URL: a parent can bookmark "everything coming up for
+     * my child" and send it to the other parent. Rendered as the same
+     * secondary-button pair the coverage list uses, so it reads as a filter
+     * and not as navigation — it does not leave the view or change its
+     * subject.
+     */
+    private static function renderModeToggle( bool $upcoming ): void {
+        $url = $upcoming
+            ? remove_query_arg( [ 'upcoming', 'paged', 'page' ] )
+            : add_query_arg( 'upcoming', '1', remove_query_arg( [ 'paged', 'page' ] ) );
+
+        $label = $upcoming
+            ? __( 'Show what has happened', 'talenttrack' )
+            : __( 'Show upcoming', 'talenttrack' );
+
+        echo '<p class="tt-myact-mode">'
+            . '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>'
+            . '</p>';
+    }
+
     private static function renderComingUp( object $player ): void {
         $team_id = (int) ( $player->team_id ?? 0 );
         if ( $team_id <= 0 ) return;

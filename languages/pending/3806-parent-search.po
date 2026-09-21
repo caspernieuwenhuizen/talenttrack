@@ -1,0 +1,51 @@
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Search your children's activities, evaluations, goals and messages by name or by date."
+msgstr "Zoek in de activiteiten, evaluaties, doelen en berichten van je kinderen, op naam of op datum."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Nothing found."
+msgstr "Niets gevonden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Training, 3 Nov, goal…"
+msgstr "Training, 3 nov, doel…"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "No child is linked to your account yet, so there is nothing to search. Ask the academy to link you."
+msgstr "Er is nog geen kind aan je account gekoppeld, dus er valt niets te zoeken. Vraag de academie om je te koppelen."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Searching the records of %s."
+msgstr "Zoekt in de dossiers van %s."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Activity"
+msgstr "Activiteit"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Goal"
+msgstr "Doel"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Message"
+msgstr "Bericht"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Nothing planned yet."
+msgstr "Er staat nog niets gepland."
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Show what has happened"
+msgstr "Toon wat is geweest"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Show upcoming"
+msgstr "Toon komende"
