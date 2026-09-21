@@ -40,17 +40,40 @@ final class LookupPill {
     public static function render( string $lookup_type, string $stored_name, string $fallback_label = '' ): string {
         if ( $stored_name === '' && $fallback_label === '' ) return '';
 
-        $row   = self::resolveRow( $lookup_type, $stored_name );
-        $label = $row ? LookupTranslator::name( $row )
-                      : ( $fallback_label !== '' ? $fallback_label : $stored_name );
-        $color = $row ? self::colorFromMeta( $row, $lookup_type, $stored_name )
-                      : self::defaultColor( $lookup_type, $stored_name );
+        $described = self::describe( $lookup_type, $stored_name, $fallback_label );
+        $label     = $described['label'];
+        $color     = $described['color'];
 
         return sprintf(
             '<span class="tt-pill" style="display:inline-block;padding:2px 10px;border-radius:999px;background:%s;color:#fff;font-size:11px;font-weight:600;line-height:1.6;letter-spacing:0.02em;">%s</span>',
             esc_attr( $color ),
             esc_html( $label )
         );
+    }
+
+    /**
+     * The same answer as `render()`, as data rather than as markup (#3561).
+     *
+     * A REST payload needs the key, the translated label and the colour so
+     * a non-WordPress front end can draw its own pill; smuggling the plugin's
+     * `<span>` into JSON would make the API's vocabulary a styling decision
+     * (CLAUDE.md §4). `render()` composes this, so the two can never tell a
+     * reader different things about the same value.
+     *
+     * @return array{key:string, label:string, color:string}
+     */
+    public static function describe( string $lookup_type, string $stored_name, string $fallback_label = '' ): array {
+        $row   = self::resolveRow( $lookup_type, $stored_name );
+        $label = $row ? LookupTranslator::name( $row )
+                      : ( $fallback_label !== '' ? $fallback_label : $stored_name );
+        $color = $row ? self::colorFromMeta( $row, $lookup_type, $stored_name )
+                      : self::defaultColor( $lookup_type, $stored_name );
+
+        return [
+            'key'   => $stored_name,
+            'label' => (string) $label,
+            'color' => (string) $color,
+        ];
     }
 
     private static function resolveRow( string $lookup_type, string $stored_name ): ?object {
