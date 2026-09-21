@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.131.0
+Stable tag: 4.131.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.131.1 — Exports follow the teams you work with (#3644) The bulk exports — the players list, the federation registration file, team roster statistics, both evaluation exports, the goals list and the attendance register — now cover the teams the person exporting works with, rather than the whole academy.  An administrator, a club admin and a head of development still export every team. A coach, assistant coach or team manager exports their own squads, and choosing another team's squad is refused. An account that does not work with a squad is told so, rather than receiving an empty file, and these exports are no longer offered to it.  The per-player PDF exports, and a player's own activity detail, follow the same rule as the rest of the player's record: they open for players you can already see, and read as "not found" otherwise. Opening an evaluation you cannot see now also reads as "not found". =
 
 = 4.131.0 — Player report: one player's season so far, as data (#3872) The first slice of the player report (epic #3871): `GET /players/{id}/report` composes one player over a window from sixteen blocks — status, ratings, attendance, minutes, goals, PDP, tests, journey, injuries and more — defaulting to the season so far and the blocks a one-to-one conversation needs. It reads the same evidence the PDP Evidence tab and printed PDP file read, extended to work for a player who has no PDP file yet, so the numbers cannot disagree. Coach-facing: it needs a reports grant on the player's team and access to the player, and each block keeps its own privacy gate for the reader — injuries on the medical rung, journey and tests on the reader's visibility levels, staff notes as on the player file. The screen and the PDF follow in the next slices. =
 

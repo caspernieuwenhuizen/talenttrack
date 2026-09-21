@@ -65626,6 +65626,10 @@ msgstr "Spelersrapport %s"
 msgid "The PDF could not be created this time. The schedule will try again next time."
 msgstr "De PDF kon deze keer niet worden gemaakt. De planning probeert het de volgende keer opnieuw."
 
+#: src/Modules/Export/ExportScope.php
+msgid "Exports cover the teams you work with, and your account is not linked to one."
+msgstr "Exports bevatten de teams waarmee je werkt, en je account is aan geen enkel team gekoppeld."
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

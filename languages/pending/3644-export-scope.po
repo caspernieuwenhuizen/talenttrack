@@ -1,3 +1,0 @@
-#: src/Modules/Export/ExportScope.php
-msgid "Exports cover the teams you work with, and your account is not linked to one."
-msgstr "Exports bevatten de teams waarmee je werkt, en je account is aan geen enkel team gekoppeld."
