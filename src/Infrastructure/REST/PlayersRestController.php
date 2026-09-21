@@ -99,6 +99,54 @@ class PlayersRestController {
                 ],
             ],
         ] );
+        // #3890 — frozen player reports. Every route answers to the snapshot's
+        // own player: an unknown uuid and one the caller may not read are the
+        // same 403, so a uuid cannot be probed for existence.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/report-snapshots', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_report_snapshots' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'create_report_snapshot' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), (int) $r['id'] );
+                },
+                'args'                => [
+                    'period' => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season. Omit for the season so far.' ],
+                    'from'   => [ 'type' => 'string', 'description' => 'Y-m-d. With `to`, overrides `period`.' ],
+                    'to'     => [ 'type' => 'string', 'description' => 'Y-m-d. With `from`, overrides `period`.' ],
+                    'layout' => [ 'type' => 'string', 'description' => 'A (one-pager) or B (two-page pack), for the snapshot\'s PDF.' ],
+                    'blocks' => [ 'type' => 'string', 'description' => 'Comma-separated block keys. Omit for the conversation set.' ],
+                    'title'  => [ 'type' => 'string', 'description' => 'Omit for the player\'s name and today\'s date.' ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/player-report-snapshots/(?P<uuid>[0-9a-f-]{36})', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_report_snapshot' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) !== null;
+                },
+            ],
+        ] );
+        register_rest_route( self::NS, '/player-report-snapshots/(?P<uuid>[0-9a-f-]{36})/notes/(?P<section>[a-z_]+)', [
+            [
+                'methods'             => 'PUT',
+                'callback'            => [ __CLASS__, 'put_report_snapshot_note' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) !== null;
+                },
+                'args'                => [
+                    'body' => [ 'type' => 'string', 'description' => 'The note. Empty removes it.' ],
+                ],
+            ],
+        ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
@@ -668,6 +716,67 @@ class PlayersRestController {
         }
 
         return RestResponse::success( $report + [ 'period' => $window['period'] ] );
+    }
+
+    /** #3890 — `GET /players/{id}/report-snapshots`, most recent first, without payloads. */
+    public static function list_report_snapshots( \WP_REST_Request $r ): \WP_REST_Response {
+        $rows = ( new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository() )->listForPlayer( absint( $r['id'] ) );
+        $out  = [];
+        foreach ( $rows as $row ) {
+            $out[] = [
+                'uuid'        => (string) $row->uuid,
+                'title'       => (string) $row->title,
+                'period_from' => (string) $row->period_from,
+                'period_to'   => (string) $row->period_to,
+                'created_by'  => (int) $row->created_by,
+                'created_at'  => (string) $row->created_at,
+            ];
+        }
+        return RestResponse::success( [ 'snapshots' => $out ] );
+    }
+
+    /** #3890 — `POST /players/{id}/report-snapshots`: freeze the report as the caller sees it now. */
+    public static function create_report_snapshot( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = absint( $r['id'] );
+        $uuid      = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::take(
+            $player_id,
+            [
+                'period' => (string) ( $r['period'] ?? '' ),
+                'from'   => (string) ( $r['from'] ?? '' ),
+                'to'     => (string) ( $r['to'] ?? '' ),
+                'layout' => (string) ( $r['layout'] ?? '' ),
+                'blocks' => (string) ( $r['blocks'] ?? '' ),
+            ],
+            get_current_user_id(),
+            sanitize_text_field( (string) ( $r['title'] ?? '' ) )
+        );
+        if ( $uuid === '' ) {
+            return RestResponse::error( 'snapshot_failed', __( 'The snapshot could not be saved.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( $uuid, get_current_user_id() ), 201 );
+    }
+
+    /** #3890 — `GET /player-report-snapshots/{uuid}`. */
+    public static function get_report_snapshot( \WP_REST_Request $r ): \WP_REST_Response {
+        return RestResponse::success( \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) );
+    }
+
+    /** #3890 — `PUT /player-report-snapshots/{uuid}/notes/{section}`. */
+    public static function put_report_snapshot_note( \WP_REST_Request $r ): \WP_REST_Response {
+        $section = sanitize_key( (string) $r['section'] );
+        if ( ! \TT\Modules\Analytics\Reports\PlayerReportBlock::isValid( $section ) ) {
+            return RestResponse::error( 'unknown_section', __( 'Unknown report section.', 'talenttrack' ), 400, [ 'section' => $section ] );
+        }
+        $ok = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::note(
+            (string) $r['uuid'],
+            $section,
+            sanitize_textarea_field( (string) ( $r['body'] ?? '' ) ),
+            get_current_user_id()
+        );
+        if ( ! $ok ) {
+            return RestResponse::error( 'note_failed', __( 'The note could not be saved.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) );
     }
 
     private static function clamp_per_page( $value ): int {

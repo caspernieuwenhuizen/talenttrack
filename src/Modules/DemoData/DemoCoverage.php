@@ -892,6 +892,15 @@ class DemoCoverage {
             // activities, attendance and evaluations it summarises.
             'depends_on'  => [ 'team', 'activity', 'attendance', 'evaluation' ],
         ],
+        // #3890 — one player report frozen for a conversation, written by the
+        // same generator in the same step as the team snapshot above, so the
+        // "runs last" contract that snapshot relies on still holds.
+        'tt_player_report_snapshots' => [
+            'entity_type' => 'player_report_snapshot',
+            'category'    => 'report_snapshots',
+            'written_by'  => TeamReportSnapshotGenerator::class,
+            'depends_on'  => [ 'player', 'activity', 'attendance', 'evaluation' ],
+        ],
         'tt_workflow_triggers'         => [ 'exempt' => 'Workflow trigger configuration, seeded by migrations.' ],
         'tt_workflow_template_config'  => [ 'exempt' => 'Workflow template configuration, seeded by migrations.' ],
         'tt_workflow_event_log'        => [ 'exempt' => 'Log of real workflow-engine events.' ],
@@ -1140,7 +1149,7 @@ class DemoCoverage {
         'report_snapshots' => [
             'tier'      => 'dependent',
             'run_order' => 260,
-            'cascade'   => [ 'team_report_snapshot' ],
+            'cascade'   => [ 'team_report_snapshot', 'player_report_snapshot' ],
         ],
         'knowledge' => [
             'tier'      => 'dependent',
@@ -1418,7 +1427,7 @@ class DemoCoverage {
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
             'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
-            'report_snapshots' => __( 'One monthly report frozen for a staff meeting, with the notes the meeting wrote on it.', 'talenttrack' ),
+            'report_snapshots' => __( 'One monthly report frozen for a staff meeting and one player report frozen for a conversation, each with the notes written on it.', 'talenttrack' ),
             'measurements' => __( 'The testing battery, its per-age-group target bands, team testing sessions and one result per player.', 'talenttrack' ),
             'pdp'         => __( 'The season, one development dossier per player, its conversation cycle, calendar links and verdicts.', 'talenttrack' ),
             'activity_content' => __( 'Exercises and methodology principles on each training, per-team exercise overrides, and the season\'s holiday windows.', 'talenttrack' ),

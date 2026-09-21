@@ -57,21 +57,35 @@ final class PlayerReportPage {
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         self::renderBlocks( $report, $window );
         echo '</div>';
+
+        PlayerReportSnapshotPage::renderTakeAndList( $player_id, $window, $layout, $report['blocks'] );
+    }
+
+    /** The report's styles, for a surface that is not the live report (a snapshot). */
+    public static function enqueuePublic(): void {
+        self::enqueue();
     }
 
     /**
      * The report body: the letterhead, then every selected section in print
      * order, then the confidentiality line.
      *
+     * Shared with the snapshot view (#3890), which renders the same blocks from
+     * stored data and puts each section's note under it — one loop, so the
+     * frozen document cannot drift from the live one.
+     *
      * @param array{player_id:int, blocks:list<string>, data:array<string,array<string,mixed>>} $report
      * @param array{from:string,to:string,period:string}                                       $window
+     * @param array<string,array{body:string, author:int, updated_at:string}>                  $notes
+     * @param string                                                                           $snapshot uuid, '' on the live report
      */
-    public static function renderBlocks( array $report, array $window ): void {
+    public static function renderBlocks( array $report, array $window, array $notes = [], string $snapshot = '' ): void {
         $data = $report['data'];
 
         self::renderLetterhead( $data['letterhead'] ?? [], $window );
 
         foreach ( $report['blocks'] as $block ) {
+            if ( $block === PlayerReportBlock::LETTERHEAD ) continue;
             $d = $data[ $block ] ?? [];
             switch ( $block ) {
                 case PlayerReportBlock::STATUS:         self::renderStatus( $d ); break;
@@ -89,6 +103,12 @@ final class PlayerReportPage {
                 case PlayerReportBlock::BEHAVIOUR:      self::renderBehaviour( $d ); break;
                 case PlayerReportBlock::POTENTIAL:      self::renderPotential( $d ); break;
                 case PlayerReportBlock::THREAD_NOTES:   self::renderThreadNotes( $d ); break;
+            }
+
+            // Notes exist only on a snapshot: commentary on a moving number
+            // has nothing to attach to.
+            if ( $snapshot !== '' ) {
+                PlayerReportSnapshotPage::renderNote( $block, $notes, $snapshot );
             }
         }
 

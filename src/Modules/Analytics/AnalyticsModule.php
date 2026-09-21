@@ -88,6 +88,8 @@ class AnalyticsModule implements ModuleInterface {
         // redirect after the post; every handler checks the capability for the
         // snapshot's own team and refuses a signed-out reader.
         add_action( 'template_redirect', [ \TT\Modules\Analytics\Frontend\TeamMonthlyReportSnapshotPage::class, 'handlePost' ], 5 );
+        // #3890 — the same for a player report, checked on the snapshot's player.
+        add_action( 'template_redirect', [ \TT\Modules\Analytics\Frontend\PlayerReportSnapshotPage::class, 'handlePost' ], 5 );
     }
 
     /**
