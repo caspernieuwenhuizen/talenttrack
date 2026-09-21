@@ -1,0 +1,3 @@
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "A first name and a last name are required."
+msgstr "Een voornaam en een achternaam zijn verplicht."

@@ -23,7 +23,7 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 6. Wil je preciezer zijn? Duik in de subcategorieën — je hoofdcategorie wordt dan het afgeronde gemiddelde van de gezette substerren.
 7. Voeg een notitie toe over wat je hebt gezien. Dit veld **Interne notities (alleen staf)** is alleen voor stafleden — de speler ziet het nooit.
 8. Voeg optioneel **Feedback voor de speler** toe. Anders dan Notities is dit veld *wel* zichtbaar voor de speler (en de ouders) op hun eigen evaluatiescherm — gebruik het om te vertellen wat goed ging en waaraan nog gewerkt kan worden. Laat het leeg als je niets te delen hebt.
-9. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
+9. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag en thuis/uit in. Gespeelde minuten vraagt dit scherm niet: die leg je vast op het aanwezigheidsscherm van de wedstrijd zelf, de enige plek die de minutenrapportages lezen.
 10. Opslaan.
 
 ## Een evaluatie bewerken slaat zichzelf op
