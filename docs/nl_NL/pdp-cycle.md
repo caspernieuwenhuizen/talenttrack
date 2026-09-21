@@ -148,7 +148,7 @@ Een doel kan ook aan een **ontwikkelgesprek** worden gekoppeld. Op het gespreksf
 
 ## Printen
 
-De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekening­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met hetzelfde bewijs dat de trainer op het tabblad Bewijs leest en het hoofd opleiding op het eindoordeelscherm — één verzameling, dus de cijfers op papier en op het scherm kunnen niet uit elkaar lopen.
+De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: foto, seizoenslabel, huidige doelen + status, afgesproken acties per gesprek, en handtekening­regels voor coach / speler / ouder. Schakel *Opnieuw renderen met bewijspagina* in voor een tweede A4 met hetzelfde bewijs dat de trainer op het tabblad Bewijs leest en het hoofd opleiding op het eindoordeelscherm — één verzameling, dus de cijfers op papier en op het scherm kunnen niet uit elkaar lopen. De bewijspagina is alleen voor de staf: een speler of ouder die het eigen dossier print, krijgt de enkele A4, en de schakelaar wordt hun niet aangeboden.
 
 ## Configuratie
 

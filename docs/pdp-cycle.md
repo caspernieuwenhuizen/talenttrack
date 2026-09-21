@@ -148,7 +148,7 @@ A goal can also link to a **development talk**. On the conversation form, the co
 
 ## Print
 
-The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 carrying the same evidence the coach reads on the Evidence tab and the head of academy reads on the verdict screen — one assembly, so the printed numbers and the on-screen ones cannot disagree.
+The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 carrying the same evidence the coach reads on the Evidence tab and the head of academy reads on the verdict screen — one assembly, so the printed numbers and the on-screen ones cannot disagree. The evidence page is staff-only: a player or parent printing their own file gets the single A4, and the toggle is not offered to them.
 
 ## Configuration
 

@@ -78,9 +78,25 @@ class PdpPrintRouter {
      * exporter checks the same way in its `collect()`.
      */
     public static function renderHtml( object $file, bool $include_evidence ): string {
+        // #3978 — the evidence page is staff-only. Decided here, where both
+        // the print route and the PDF exporter pass, so no caller can ask
+        // its way past it.
+        $include_evidence = $include_evidence && self::mayIncludeEvidence( $file );
         ob_start();
         self::emit( $file, $include_evidence );
         return (string) ob_get_clean();
+    }
+
+    /**
+     * #3978 — may the current user have the evidence page on this file?
+     *
+     * The evidence page carries staff judgements about the player, so it
+     * goes to the staff who may open the file itself (`PdpAccess::canSeeFile`,
+     * the PDP module's own staff check) and to no one else. The player and
+     * their parents still print the file; they get it without that page.
+     */
+    public static function mayIncludeEvidence( object $file ): bool {
+        return \TT\Modules\Pdp\PdpAccess::canSeeFile( get_current_user_id(), (int) ( $file->player_id ?? 0 ) );
     }
 
     public static function canAccess( object $file ): bool {
@@ -102,7 +118,10 @@ class PdpPrintRouter {
 
         // #3476 — one club-scoped, status-filtered implementation of
         // "is this user a guardian of this player", in ParentChildResolver.
-        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $player_id );
+        // #3978 — and the child's own `pdp` section switch, as on every
+        // other parent path to the file.
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $player_id )
+            && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, 'pdp' );
     }
 
     private static function emit( object $file, bool $include_evidence ): void {
@@ -177,9 +196,9 @@ class PdpPrintRouter {
 <body>
     <div class="toolbar">
         <button type="button" onclick="window.print();"><?php esc_html_e( 'Print', 'talenttrack' ); ?></button>
-        <?php if ( ! $include_evidence ) : ?>
+        <?php if ( ! $include_evidence && self::mayIncludeEvidence( $file ) ) : ?>
             <a href="<?php echo esc_url( add_query_arg( 'include_evidence', '1' ) ); ?>"><?php esc_html_e( 'Re-render with evidence page', 'talenttrack' ); ?></a>
-        <?php else : ?>
+        <?php elseif ( $include_evidence ) : ?>
             <a href="<?php echo esc_url( remove_query_arg( 'include_evidence' ) ); ?>"><?php esc_html_e( 'Single A4 only', 'talenttrack' ); ?></a>
         <?php endif; ?>
         <?php
