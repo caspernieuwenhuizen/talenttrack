@@ -58,6 +58,7 @@ class MeasurementDefinitionsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_definition' ],
                 'permission_callback' => [ __CLASS__, 'can_create_delete' ],
+                'args'                => self::definitionArgs(),
             ],
         ] );
 
@@ -71,6 +72,7 @@ class MeasurementDefinitionsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_definition' ],
                 'permission_callback' => [ __CLASS__, 'can_change' ],
+                'args'                => self::definitionUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -84,6 +86,7 @@ class MeasurementDefinitionsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'upsert_target' ],
                 'permission_callback' => [ __CLASS__, 'can_change' ],
+                'args'                => self::targetArgs(),
             ],
         ] );
 
@@ -98,6 +101,7 @@ class MeasurementDefinitionsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'upsert_levels' ],
                 'permission_callback' => [ __CLASS__, 'can_change' ],
+                'args'                => self::levelsArgs(),
             ],
         ] );
 
@@ -167,7 +171,85 @@ class MeasurementDefinitionsRestController {
      * row position is the ordinal (worse → better), so a recorded status
      * snapshots a meaningful numeric rank alongside its label.
      */
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body a test definition takes.
+     *
+     * `dimension` and `entry_unit_id` are absent on purpose: #3273 resolves
+     * both from `unit` rather than letting a caller contradict the symbol
+     * they sent, and a route that accepted them would invite exactly that.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     * `create_definition()` names the one it needs.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function definitionArgs(): array {
+        return [
+            'name'            => [ 'type' => 'string', 'description' => 'What the test is called.' ],
+            'category_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which category the test sits in.' ],
+            'value_type'      => [ 'type' => 'string', 'description' => 'What a result looks like: a number, a status, and so on.' ],
+            'unit'            => [ 'type' => 'string', 'description' => 'The unit symbol a result is entered in. The dimension is resolved from it, never sent alongside it.' ],
+            'numeric_format'  => [ 'type' => 'string', 'description' => 'How a number reads: plain, or duration for a time test.' ],
+            'scale_min'       => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The lowest value the scale allows.' ],
+            'scale_max'       => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The highest value the scale allows.' ],
+            'frequency'       => [ 'type' => 'string', 'description' => 'How often the test is taken. Defaults to ad hoc.' ],
+            'direction'       => [ 'type' => 'string', 'description' => 'Which way is better: higher or lower.' ],
+            'is_active'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the test is still in use.' ],
+            'show_on_profile' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether results show on the player profile.' ],
+            'sort_order'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the test sits in the list.' ],
+        ];
+    }
+
+    /**
+     * `PUT /measurement-definitions/{id}`. Every field is optional and an
+     * omitted one is left alone (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function definitionUpdateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The test, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::definitionArgs();
+    }
+
+    /**
+     * `POST /measurement-definitions/{id}/targets` — one age group's bands.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function targetArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The test, from the URL. A copy in the body is accepted and ignored.' ],
+            'age_group' => [ 'type' => 'string', 'description' => 'Which age group these bands are for.' ],
+            'green_min' => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The bottom of the green band.' ],
+            'green_max' => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The top of the green band.' ],
+            'amber_min' => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The bottom of the amber band.' ],
+            'amber_max' => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The top of the amber band.' ],
+        ];
+    }
+
+    /**
+     * `POST /measurement-definitions/{id}/levels` — the whole level set.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function levelsArgs(): array {
+        return [
+            'id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The test, from the URL. A copy in the body is accepted and ignored.' ],
+            'levels' => [ 'type' => 'array', 'description' => 'The levels as {id, label, color_token} entries. Replaces the set; a level with a blank label is dropped.' ],
+        ];
+    }
+
     public static function upsert_levels( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::levelsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid test id.', 'talenttrack' ), 400 );
@@ -205,6 +287,10 @@ class MeasurementDefinitionsRestController {
     // ── write ───────────────────────────────────────────────────────
 
     public static function create_definition( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::definitionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $name = sanitize_text_field( (string) ( $r['name'] ?? '' ) );
         if ( $name === '' ) {
             return RestResponse::error( 'missing_name', __( 'A test needs a name.', 'talenttrack' ), 400 );
@@ -219,6 +305,10 @@ class MeasurementDefinitionsRestController {
     }
 
     public static function update_definition( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::definitionUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid test id.', 'talenttrack' ), 400 );
@@ -259,6 +349,10 @@ class MeasurementDefinitionsRestController {
     }
 
     public static function upsert_target( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::targetArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid test id.', 'talenttrack' ), 400 );
