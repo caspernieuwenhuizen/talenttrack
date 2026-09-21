@@ -222,21 +222,20 @@
             }
         };
 
-        // Mirror public.js's formToJSON helper inline (avoids cross-file
-        // coupling). att[<pid>][status]/[notes] arrays handled.
-        var data = {};
-        Array.prototype.forEach.call( form.querySelectorAll( 'input,select,textarea' ), function ( el ) {
-            if ( ! el.name || el.disabled ) return;
-            var m = el.name.match( /^([^\[]+)\[(\d+)\]\[([^\]]+)\]$/ );
-            if ( m ) {
-                if ( ! data[ m[1] ] ) data[ m[1] ] = {};
-                if ( ! data[ m[1] ][ m[2] ] ) data[ m[1] ][ m[2] ] = {};
-                data[ m[1] ][ m[2] ][ m[3] ] = el.value;
-                return;
-            }
-            if ( el.type === 'checkbox' ) { data[ el.name ] = el.checked; return; }
-            data[ el.name ] = el.value;
-        } );
+        // #3816 — public.js's own `TT.formToJSON`, not a copy of it.
+        //
+        // The copy that used to live here read `activity_principle_ids[]`
+        // as a literal key with the brackets still on it, because its
+        // regex only understood `name[12][field]`. `POST /activities`
+        // ignored the key, so nobody noticed — until the route learned to
+        // refuse a field it does not take, at which point saving an
+        // activity from the guest modal would have 400'd. The shared
+        // helper handles `name[]`, skips the legacy nonce fields, and is
+        // the same serialisation the form's own Save button uses, so the
+        // two paths cannot drift again.
+        var data = ( window.TT && typeof window.TT.formToJSON === 'function' )
+            ? window.TT.formToJSON( form )
+            : {};
 
         fetch( REST_NS + '/activities', {
             method: 'POST',
