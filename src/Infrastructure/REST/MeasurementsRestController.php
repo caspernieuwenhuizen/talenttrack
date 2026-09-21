@@ -292,8 +292,11 @@ class MeasurementsRestController {
     public static function can_view_player_from_route( \WP_REST_Request $r ): bool {
         $uid = get_current_user_id();
         $pid = absint( $r['player_id'] );
-        // #1867 — a parent only reads a section the child hasn't hidden.
+        // #3958 — the record, then the `measurements` section of this
+        // player. #1867 — and a parent only reads a section the child
+        // hasn't hidden.
         return AuthorizationService::canViewPlayer( $uid, $pid )
+            && AuthorizationService::canReadPlayerSection( $uid, $pid, 'measurements' )
             && AuthorizationService::parentCanViewSection( $uid, $pid, 'measurements' );
     }
 

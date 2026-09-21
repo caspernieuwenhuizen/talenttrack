@@ -154,7 +154,7 @@ Gebruiksgevallen:
 | Wat ze mogen lezen | Wat niet |
 | --- | --- |
 | **Teams** — elk elftal, de selectie en de details | Iets aan een team wijzigen |
-| **Spelers** — het dossier en profiel van elke speler | Een speler toevoegen, bewerken of verwijderen |
+| **Spelers** — het dossier en profiel van elke speler, inclusief de contactgegevens van de ouders daarin | Een speler toevoegen, bewerken of verwijderen |
 | **Personen** — de stafgids | Een stafdossier bewerken |
 | **Evaluaties** — de beoordelingen die trainers vastleggen | Een evaluatie schrijven of delen |
 | **Activiteiten** — de trainings- en wedstrijdkalender | Iets plannen, bewerken of afgelasten |
@@ -162,7 +162,9 @@ Gebruiksgevallen:
 | **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
 | **Instellingen** — de configuratieschermen, alleen-lezen | Een instelling wijzigen |
 
-**En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen gedragsbeoordelingen, geen potentieelinschaling, geen contactgegevens van ouders, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd Ontwikkeling en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
+**En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen metingen en testresultaten, geen gedragsbeoordelingen, geen potentieelinschaling, niet de ontwikkelreis van een speler, niet hoe de academie een speler heeft ontdekt, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd Ontwikkeling en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
+
+De contactgegevens van de ouders van een speler zijn **wel** zichtbaar voor een waarnemer: ze horen bij het spelersdossier, en dat leest de rol.
 
 Die grens is precies waar de rol om draait. "Alleen-lezen" klinkt onschuldig, en een stoel die de zorgnotities van een kind kon lezen zou dat niet zijn, hoe weinig die ook kan wijzigen.
 
@@ -178,6 +180,28 @@ De bulkexports controleren op de ruwe leescapability, die de matrixbrug beantwoo
 - **Bewust alleen lezen.** `change` en `create_delete` worden niet overbrugd. Dit ging over een geweigerde leesactie; een schrijfrecht overbruggen verruimt de toegang aan de kant waar een fout in het dossier van een kind terechtkomt, en is een eigen beslissing.
 
 Een gebruiker zonder matrixrij én zonder scoperij wordt precies zo geweigerd als voorheen, en van geen enkele export is de capability versmald — de export was juist de route die met de seed overeenkwam.
+
+## Het dossier van een speler, en de onderdelen ervan
+
+Het dossier van een speler openen en een onderdeel ervan lezen zijn twee vragen, die apart worden beantwoord.
+
+- **Het dossier** — `AuthorizationService::canViewPlayer()`: de speler zelf, een gekoppelde ouder, staf van het team van de speler, een gekoppelde scout, of iemand met academiebreed leesrecht op `players`.
+- **Een onderdeel** — `AuthorizationService::canReadPlayerSection( $user_id, $player_id, $entity )`: de eigen matrix-entiteit van dat onderdeel, gevraagd over **deze** speler. Het antwoord is ja op globale scope, op teamscope voor het team van de speler, of op spelerscope voor de speler. Op het eigen dossier van de speler telt ook `self`-scope op de entiteit of op de `my_`-tweeling ervan; zo leest een speler zijn eigen evaluaties (`my_evaluations`).
+
+Elke route per speler en per onderdeel vraagt beide, en voor een ouder geldt daarna ook nog de eigen onderdeelschakelaar van het kind. Een onderdeel dat je voor één team hebt, bereikt nooit de speler van een ander team, en het dossier geeft nooit een onderdeel waarvoor de rol geen rij heeft.
+
+| Onderdeel | Gevraagde entiteit |
+| --- | --- |
+| Evaluaties, het evaluatierapport (PDF), de beoordelingstrend | `evaluations` |
+| Metingen en testresultaten | `measurements` |
+| Spelersstatus en het potentieelverloop | `player_status` |
+| Trainingsblootstelling | `training_exposure` |
+| De ontwikkelreis, overgangen en de Strava-sessies daarop | `player_timeline` |
+| Blessures | `player_injuries` |
+| De kaart Gedrag & potentieel op het profiel (alleen staf) | `player_status` |
+| De kaart Ontdekking op het profiel | `prospects` |
+
+De one-pager (PDF) bevat alleen velden van het dossier zelf, dus de dossiercontrole is daar de onderdeelcontrole.
 
 ## Staf
 

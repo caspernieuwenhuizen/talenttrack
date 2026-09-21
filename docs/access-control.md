@@ -158,7 +158,7 @@ Use cases:
 | They can read | They cannot |
 | --- | --- |
 | **Teams** — every squad, its roster and its details | Change anything about a team |
-| **Players** — every player's record and profile | Add, edit or remove a player |
+| **Players** — every player's record and profile, including the guardian contact on it | Add, edit or remove a player |
 | **People** — the staff directory | Edit a staff record |
 | **Evaluations** — the assessments coaches record | Write or share an evaluation |
 | **Activities** — the training and match calendar | Plan, edit or cancel anything |
@@ -166,7 +166,9 @@ Use cases:
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
 | **Settings** — the configuration screens, read-only | Change any setting |
 
-**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, behaviour ratings, potential bands, parents' contact details, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of Development and Academy Admin alone, and several are deliberately withheld even from head coaches.
+**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of Development and Academy Admin alone, and several are deliberately withheld even from head coaches.
+
+Each player's guardian contact **is** visible to an observer: it is part of the player record, which the role reads.
 
 That boundary is the point of the role. "Read-only" sounds harmless, and a seat that could read a child's safeguarding record would not be, however little it could change.
 
@@ -182,6 +184,28 @@ The bulk exports gate on the raw view capability, which the matrix bridge answer
 - **Read only, deliberately.** `change` and `create_delete` are not bridged. This was a read being refused; bridging a write would widen access on the side where a mistake writes to a child's record, and belongs to its own decision.
 
 A user with neither a matrix row nor a scope row is refused exactly as before, and no exporter's capability was narrowed — the export was the route that happened to agree with the seed.
+
+## A player's record, and the sections of it
+
+Opening a player's record and reading a section of it are two questions, answered separately.
+
+- **The record** — `AuthorizationService::canViewPlayer()`: the player themselves, a linked guardian, staff on the player's team, a linked scout, or anyone holding `players` read academy-wide.
+- **A section** — `AuthorizationService::canReadPlayerSection( $user_id, $player_id, $entity )`: the section's own matrix entity, asked about **this** player. It says yes at global scope, at team scope on the player's team, or at player scope on the player. On the player's own record it also accepts `self` scope on the entity or on its `my_` twin, which is how a player reads their own evaluations (`my_evaluations`).
+
+Every per-player section route asks both, and a guardian then also meets the child's own section switch. Holding a section for one team never reaches another team's player, and holding the record never grants a section the role holds no row for.
+
+| Section | Entity asked |
+| --- | --- |
+| Evaluations, the evaluation report PDF, the rating trend | `evaluations` |
+| Measurements and test results | `measurements` |
+| Player status and the potential trajectory | `player_status` |
+| Training exposure | `training_exposure` |
+| The journey, transitions, and Strava sessions on it | `player_timeline` |
+| Injuries | `player_injuries` |
+| The profile's Behaviour & potential card (staff only) | `player_status` |
+| The profile's Discovery card | `prospects` |
+
+The one-pager PDF carries only fields of the record itself, so the record check is its section check.
 
 ## Staff
 

@@ -1709,7 +1709,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * buttons open the same popovers as the hero's action row.
      */
     private static function renderBehaviourPotentialCard( int $player_id, object $player ): void {
+        // #3958 — staff, and holding the `player_status` section of this
+        // player. Staff alone answers "not a family"; it does not answer
+        // "may read how this child is judged". A parent holds player_status
+        // too, which is why the staff check stays.
         if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'player_status' ) ) return;
 
         $summary = ( new \TT\Modules\Players\Services\BehaviourPotentialSummary() )
             ->forPlayer( $player_id, $player, get_current_user_id() );
@@ -1920,8 +1925,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // #2107 — discovery provenance (which scout logged the player, at
         // what event / club / date) is staff-internal. A player landing on
         // their own unified profile, or a parent on their child's, must not
-        // see it — same staff gate as the Parents · Guardians card.
-        if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
+        // see it.
+        //
+        // #3958 — asked of the `prospects` entity, where this data lives,
+        // for this player. Neither a player nor a parent holds it; a head
+        // coach holds it on their own squads, a scout and the head of
+        // development academy-wide. A reader of the record alone is not
+        // a reader of how the academy found the child.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'prospects' ) ) return;
 
         // #1358 — the promoted-prospect row comes from
         // ProspectsRepository (which also owns the table-exists guard

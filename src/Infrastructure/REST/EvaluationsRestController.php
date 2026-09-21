@@ -238,10 +238,17 @@ class EvaluationsRestController {
         $player_filter_id = ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
         // #1867 — a parent only sees a child's evaluations when the child
         // shares that section; parentCanViewSection is a no-op for self/staff.
+        // #3958 — and the evaluations section of THAT player, not the
+        // capability at any scope.
         $player_file_access = $player_filter_id > 0
             && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
                 get_current_user_id(),
                 $player_filter_id
+            )
+            && \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection(
+                get_current_user_id(),
+                $player_filter_id,
+                'evaluations'
             )
             && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection(
                 get_current_user_id(),
@@ -550,6 +557,7 @@ class EvaluationsRestController {
         $player_id = (int) ( $e->player_id ?? 0 );
         if ( $player_id > 0 && ! (
             AuthorizationService::canViewPlayer( $uid, $player_id )
+            && AuthorizationService::canReadPlayerSection( $uid, $player_id, 'evaluations' )
             && AuthorizationService::parentCanViewSection( $uid, $player_id, 'evaluations' )
         ) ) {
             // Answered exactly as a missing evaluation. A distinct 403 told

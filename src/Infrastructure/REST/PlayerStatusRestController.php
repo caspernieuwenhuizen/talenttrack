@@ -85,7 +85,8 @@ final class PlayerStatusRestController {
             'callback'            => [ __CLASS__, 'potentialHistory' ],
             'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
                 current_user_can( 'tt_view_player_status' )
-                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] ),
+                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] )
+                && AuthorizationService::canReadPlayerSection( get_current_user_id(), (int) $r['id'], 'player_status' ),
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/status', [
             'methods'             => 'GET',
@@ -95,9 +96,14 @@ final class PlayerStatusRestController {
             // per player rather than a traffic-light colour. `canViewPlayer`
             // is what every other per-player route asks, and it is what lets a
             // parent read their own child and nobody else's.
+            //
+            // #3958 — the capability is answered at any scope; the section
+            // is asked about THIS player, so a team-scoped grant stays on
+            // its team.
             'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
                 current_user_can( 'tt_view_player_status' )
-                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] ),
+                && AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r['id'] )
+                && AuthorizationService::canReadPlayerSection( get_current_user_id(), (int) $r['id'], 'player_status' ),
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/player-statuses', [
             'methods'             => 'GET',

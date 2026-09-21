@@ -85,6 +85,7 @@ final class PlayerEvaluationPdfExporter implements ExporterInterface {
         $uid    = (int) $request->requesterUserId;
         if ( ! $player
             || ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id )
+            || ! \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $uid, $player_id, 'evaluations' )
             || ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $uid, $player_id, 'evaluations' )
         ) {
             return [

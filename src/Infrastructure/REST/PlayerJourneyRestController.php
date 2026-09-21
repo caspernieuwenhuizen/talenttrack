@@ -171,10 +171,20 @@ class PlayerJourneyRestController extends BaseController {
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
+    /**
+     * #3958 — the record, then the journey section of this player.
+     * `canViewPlayer()` answers the first; `player_timeline` is the entity
+     * the journey is granted under, asked about this player.
+     */
+    private static function canReadJourney( int $user_id, int $player_id ): bool {
+        return AuthorizationService::canViewPlayer( $user_id, $player_id )
+            && AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'player_timeline' );
+    }
+
     public static function get_timeline( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $user_id   = get_current_user_id();
-        if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+        if ( ! self::canReadJourney( $user_id, $player_id ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
         // #1867 — a parent only reads the journey when the child shares it.
@@ -213,7 +223,7 @@ class PlayerJourneyRestController extends BaseController {
     public static function get_transitions( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $user_id   = get_current_user_id();
-        if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+        if ( ! self::canReadJourney( $user_id, $player_id ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
         // #1867 — a parent only reads the journey when the child shares it.
@@ -229,11 +239,14 @@ class PlayerJourneyRestController extends BaseController {
     public static function get_rating_trend( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $user_id   = get_current_user_id();
-        if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+        // #3958 — the trend is evaluation data, so the evaluations section.
+        if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id )
+            || ! AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'evaluations' )
+        ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
 
-        $trend = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
+        $trend =( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
             ->personalTrendForPlayer( $player_id );
         return RestResponse::success( $trend );
     }
@@ -442,7 +455,13 @@ class PlayerJourneyRestController extends BaseController {
         // must also be in scope for THIS player, and the read is logged.
         // Medical records on minors are the most sensitive data class in
         // the system (CLAUDE.md §1: permission-gated AND audit-logged).
-        if ( ! AuthorizationService::canViewPlayer( get_current_user_id(), $player_id ) ) {
+        //
+        // #3958 — "in scope" means the `player_injuries` entity for THIS
+        // player, the same answer the injury writes and the profile tab use.
+        $uid = get_current_user_id();
+        if ( ! AuthorizationService::canViewPlayer( $uid, $player_id )
+            || ! AuthorizationService::canReadPlayerSection( $uid, $player_id, 'player_injuries' )
+        ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
         $rows = ( new InjuryRepository() )->listForPlayer( $player_id, (bool) $r->get_param( 'include_archived' ) );

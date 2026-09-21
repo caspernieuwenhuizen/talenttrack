@@ -63,6 +63,10 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         // id comes from the request — so the player has to be one the caller
         // may see. Refused exactly like a missing player, so the export
         // cannot be used to learn which ids exist.
+        //
+        // #3958 — every field on the one-pager belongs to the player record
+        // itself (the `players` entity), so `canViewPlayer()` is this
+        // export's section check; no second entity to ask.
         if ( ! $player
             || ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
                 (int) $request->requesterUserId,
