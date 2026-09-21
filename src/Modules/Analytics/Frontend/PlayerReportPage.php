@@ -52,7 +52,7 @@ final class PlayerReportPage {
             return;
         }
 
-        self::renderPanel( $player_id, $window, $layout, $report['blocks'], PlayerReportLayout::fit( $report, $layout ) );
+        self::renderPanel( $player_id, $window, $layout, $report['blocks'], PlayerReportLayout::fit( $report, $layout ), $report['audience'] );
 
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         self::renderBlocks( $report, $window );
@@ -181,8 +181,9 @@ final class PlayerReportPage {
      * @param array{from:string,to:string,period:string}                                          $window
      * @param list<string>                                                                        $selected
      * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
+     * @param string                                                                              $audience the reader's; a scout is offered only what a scout may receive
      */
-    private static function renderPanel( int $player_id, array $window, string $layout, array $selected, array $fit ): void {
+    private static function renderPanel( int $player_id, array $window, string $layout, array $selected, array $fit, string $audience ): void {
         $hidden = [
             'tt_view'   => 'standard-report', /* tt-xview-ok */ // the form re-opens this same view
             'slug'      => self::SLUG,
@@ -241,7 +242,10 @@ final class PlayerReportPage {
         echo '<fieldset class="tt-mr-panel__group">';
         echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Sections', 'player report panel', 'talenttrack' ) . '</legend>';
         echo '<div class="tt-mr-blocks">';
-        foreach ( PlayerReportBlock::ALL as $key ) {
+        $offered = $audience === \TT\Modules\Analytics\Reports\PlayerReportAudience::SCOUT
+            ? \TT\Modules\Analytics\Reports\PlayerReportAudience::SCOUT_BLOCKS
+            : PlayerReportBlock::ALL;
+        foreach ( $offered as $key ) {
             $id     = 'tt-pr-blk-' . $key;
             $locked = $key === PlayerReportBlock::LETTERHEAD;
             $on     = in_array( $key, $selected, true );

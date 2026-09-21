@@ -6,31 +6,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
-use TT\Modules\Reports\AudienceDefaults;
-use TT\Modules\Reports\AudienceType;
-use TT\Modules\Reports\PlayerReportRenderer;
-use TT\Modules\Reports\PrivacySettings;
-use TT\Modules\Reports\ReportConfig;
 
 /**
  * ScoutingReportPdfExporter (#0063 use case 14) — formal scouting PDF.
  *
- * The third PDF use case in the family started by use case 1 (player
- * evaluation) and use case 2 (PDP). All three reuse `PlayerReportRenderer`
- * + the standard PDF wrap pipeline; the difference is the
- * `ReportConfig::audience` and the resulting `AudienceDefaults` —
- * scout audience is `[ profile, ratings ]` only with a `formal` tone
- * and the SCOUT privacy floor (no contact details, no full DOB, no
- * coach notes; photo opt-in stays as the renderer config decides).
- *
- * Fits the same shape as the existing `ScoutDelivery::emailLink()`
- * flow, which already builds a SCOUT-audience `ReportConfig` and
- * renders via `PlayerReportRenderer::render()`. This exporter exposes
- * that same artefact through the central Export module so callers
- * outside the email-the-link path can consume it (a "Save as PDF"
- * button in the scout-history view, a future "Generate cohort
- * scouting pack" batch action, an external-system integration that
- * polls for new reports).
+ * #3876 — rendered through the player report engine for the scout audience,
+ * the same composition `ScoutDelivery::emailLink()` stores and a scout reads on
+ * their assigned-players view: letterhead, evaluation scores without the
+ * coach's written notes, attendance, playing time and tests at the public
+ * level. The engine's audience gate is on the payload, so nothing outside that
+ * list reaches the PDF whatever the caller asks for.
  *
  * URL:
  *   `GET /wp-json/talenttrack/v1/exports/scouting_report_pdf?format=pdf&player_id=42`
@@ -96,49 +81,37 @@ final class ScoutingReportPdfExporter implements ExporterInterface {
             ];
         }
 
-        // Build a SCOUT-audience ReportConfig. AudienceDefaults gives
-        // us the scope keyword + sections + privacy floor + tone; we
-        // resolve the scope into concrete date_from/date_to and merge
-        // any caller-supplied overrides so a scout export can still be
-        // bounded to a tighter window (e.g. "this season only") when
-        // the operator passes them.
-        $defaults = AudienceDefaults::defaultsFor( AudienceType::SCOUT );
-        $resolved = AudienceDefaults::resolveScope( (string) $defaults['scope'] );
+        // #3876 — the player report's own access rule, as every other door to
+        // the report uses. The capability alone used to open any player in
+        // the club.
+        if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( (int) $request->requesterUserId, $player_id ) ) {
+            throw new \TT\Modules\Export\ExportException( 'forbidden', __( 'You do not have access to a report on this player.', 'talenttrack' ) );
+        }
 
-        $renderer_filters = [
-            'date_from'    => isset( $filters['date_from'] ) ? (string) $filters['date_from'] : $resolved['date_from'],
-            'date_to'      => isset( $filters['date_to'] )   ? (string) $filters['date_to']   : $resolved['date_to'],
-            'eval_type_id' => isset( $filters['eval_type_id'] ) ? (int) $filters['eval_type_id'] : 0,
-        ];
+        // The player report engine, composed for the scout audience on the
+        // requester's behalf: the scout allowlist on the payload, scores
+        // without the coach's notes, tests at the public level. A window the
+        // caller passes still bounds it; otherwise the season so far.
+        $from = (string) ( $filters['date_from'] ?? '' );
+        $to   = (string) ( $filters['date_to'] ?? '' );
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) || $from > $to ) {
+            $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+            $from   = $window['from'];
+            $to     = $window['to'];
+        }
 
-        $config = new ReportConfig(
-            AudienceType::SCOUT,
-            $renderer_filters,
-            (array) $defaults['sections'],
-            $defaults['privacy'] instanceof PrivacySettings
-                ? $defaults['privacy']
-                : new PrivacySettings(),
+        $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer(
             $player_id,
+            $from,
+            $to,
+            [],
             (int) $request->requesterUserId,
-            null,
-            (string) $defaults['tone_variant']
+            \TT\Modules\Analytics\Reports\PlayerReportAudience::SCOUT
         );
+        if ( $report === null ) {
+            throw new \TT\Modules\Export\ExportException( 'bad_filters', __( 'Player not found.', 'talenttrack' ) );
+        }
 
-        $html = ( new PlayerReportRenderer() )->render( $config );
-
-        // Same chart-script strip as the v3.110.4 player-eval exporter:
-        // DomPDF can't run JS so the Chart.js boot block becomes dead
-        // bytes that should not ship in the PDF.
-        $html = self::stripScriptTags( $html );
-
-        return [
-            'html'    => $html,
-            'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],
-        ];
-    }
-
-    private static function stripScriptTags( string $html ): string {
-        $clean = preg_replace( '#<script\b[^>]*>.*?</script>#is', '', $html );
-        return $clean === null ? $html : $clean;
+        return PlayerReportPdfExporter::payload( $report, \TT\Modules\Analytics\Reports\PlayerReportLayout::ONE_PAGER );
     }
 }

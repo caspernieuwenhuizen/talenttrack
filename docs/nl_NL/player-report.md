@@ -177,6 +177,23 @@ Sommige onderdelen tonen alleen wat je elders ook mag zien:
 Een onderdeel zonder gegevens zegt dat, zodat een leeg onderdeel nooit leest als
 een onderdeel dat is weggelaten.
 
+### Scouts
+
+Een scout ziet een kortere versie van het rapport over de spelers die aan hem of
+haar zijn toegewezen: de kop, evaluatiescores, aanwezigheid, speeltijd en testen.
+De scores komen zonder de geschreven toelichting van de trainer, en van de testen
+staan alleen de testen die de academie openbaar deelt. De scout kan geen andere
+onderdelen kiezen; het rapport bepaalt dat.
+
+Het scoutingrapport dat je vanuit **Rapport genereren** mailt, en de pdf ervan,
+zijn dezelfde scoutversie.
+
+### De oudere rapportwizard
+
+**Rapport genereren** bij een speler schrijft nu alleen nog voor ouders, de speler
+en scouts. Het stafrapport dat de wizard vroeger aanbood, is dit spelersrapport;
+de wizard verwijst ernaar.
+
 Het rapport is vertrouwelijk. Het beschrijft de ontwikkeling van een
 minderjarige: deel het niet met de speler, zijn ouders of iemand buiten de
 technische staf.

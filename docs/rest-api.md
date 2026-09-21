@@ -831,8 +831,18 @@ each block keeps its own gate for the reader.
 | `tests` | `PlayerMeasurementProfile` for the reader: tests shown on the profile, at the reader's measurement levels. |
 | `pdp` | `available: false` when the PDP module is off or the reader may not see the player's PDP file. Never carries the coach's preparation. |
 
+**Audience.** The response's `audience` is who the report is composed for, and
+it is **resolved from the caller**, never taken from the request. A site
+administrator and a reader with a staff persona get `internal`: every block,
+each gated as above. Everyone else who passes the gate, a scout included, gets
+`scout`: the blocks are cut to `letterhead`, `ratings`, `attendance`, `minutes`
+and `tests`, each evaluation in `ratings.evaluations[]` loses its `notes`, and
+tests are read at the public level. A block outside that list is left out of
+`blocks` and `data`; asking for it is not an error. The cut is on the payload,
+so the scouting PDF export and the emailed scout link carry the same document.
+
 ```json
-{ "player_id": 42, "from": "2026-07-01", "to": "2026-09-21", "period": "",
+{ "player_id": 42, "from": "2026-07-01", "to": "2026-09-21", "period": "", "audience": "internal",
   "blocks": [ "letterhead", "status", "ratings", "pdp" ],
   "data": {
     "letterhead": { "name": "Sem de Vries", "photo_url": "…", "team_name": "JO14-1",
