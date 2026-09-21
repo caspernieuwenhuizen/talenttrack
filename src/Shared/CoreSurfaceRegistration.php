@@ -263,6 +263,10 @@ final class CoreSurfaceRegistration {
         $reg::register( 'measurements-entry', [ 'measurements', 'change' ] );
         $reg::register( 'measurements-coverage', [ 'measurement_sessions', 'read' ] );
 
+        // #3805 — the squad's paperwork. Same gate the view and the REST
+        // route enforce: a `players` read, global or on that team.
+        $reg::register( 'dossier-completeness', [ 'players', 'read' ] );
+
         // #2609 — the squad injury overview. Medical data on minors, so the
         // dispatch gate matches the view's own MatrixGate read guard.
         $reg::register( 'injuries', [ 'player_injuries', 'read' ] );
@@ -768,6 +772,28 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Staff, parents, scouts and other non-players.', 'talenttrack' ),
             'icon'         => 'people',
             'color'        => '#5b6e75',
+        ]);
+        // #3805 — Dossier completeness: whose file is missing guardian
+        // contact, a parent account or photo consent, one squad at a time.
+        // The office used to answer this by opening sixteen records by hand.
+        // Gated on the same `players` read the view and the REST route
+        // enforce, and hidden from players and parents: it is a squad-wide
+        // roll-up of other families' paperwork.
+        TileRegistry::register([
+            'module_class'      => self::M_PLAYERS,
+            'view_slug'         => 'dossier-completeness',
+            'entity'            => 'players',
+            'group'             => $people_group,
+            'kind'              => 'work',
+            'order'             => 25,
+            'label'             => __( 'Dossier completeness', 'talenttrack' ),
+            'description'       => __( 'Per team: whose guardian contact, parent account or photo consent is still missing.', 'talenttrack' ),
+            'icon'              => 'players',
+            'color'             => '#1d7874',
+            'hide_for_personas' => [ 'player', 'parent' ],
+            'cap_callback'      => static function ( int $uid ): bool {
+                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'players', 'read' );
+            },
         ]);
         // #1381 — Season rollover: bulk cohort promotion at season end.
         // Pure cap-gated (no matrix entity) on tt_manage_players so the

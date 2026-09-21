@@ -18,6 +18,7 @@ use TT\Modules\Alerts\Definitions\GoalUpdatedForMyChildAlert;
 use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
 use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
+use TT\Modules\Alerts\Definitions\NoConsentWithMediaAlert;
 use TT\Modules\Alerts\Definitions\NoGuardianContactAlert;
 use TT\Modules\Alerts\Definitions\ParentNeverActivatedAlert;
 use TT\Modules\Alerts\Definitions\PastStillPlannedAlert;
@@ -182,6 +183,11 @@ final class AlertsModule implements ModuleInterface {
         // whole parent set and not a note about implementation.
         $alerts[] = new EvaluationSharedWithFamilyAlert();
         $alerts[] = new GoalUpdatedForMyChildAlert();
+
+        // #3805 — the other half of the consent story. #3804 put the record
+        // on every screen that shows a picture; this raises its hand for the
+        // pictures nobody has looked at. A notification, never a gate.
+        $alerts[] = new NoConsentWithMediaAlert();
 
         return $alerts;
     }

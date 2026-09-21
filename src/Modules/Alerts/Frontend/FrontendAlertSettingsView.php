@@ -234,6 +234,9 @@ final class FrontendAlertSettingsView extends FrontendViewBase {
             'comms'       => __( 'Messages', 'talenttrack' ),
             'evaluations' => __( 'Evaluations', 'talenttrack' ),
             'goals'       => __( 'Goals', 'talenttrack' ),
+            // #3805 — "Media" is the internal name; the screens it points at
+            // talk about photos and video.
+            'media'       => __( 'Photos and video', 'talenttrack' ),
             'pdp'         => __( 'Development plans', 'talenttrack' ),
             'people'      => __( 'People', 'talenttrack' ),
             'workflow'    => __( 'Tasks', 'talenttrack' ),

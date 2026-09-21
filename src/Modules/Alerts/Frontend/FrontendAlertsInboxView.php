@@ -508,6 +508,9 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
             case 'goals':        $label = __( 'Goals', 'talenttrack' ); break;
             case 'people':       $label = __( 'People', 'talenttrack' ); break;
             case 'measurements': $label = __( 'Measurements', 'talenttrack' ); break;
+            // #3805 — "Media" is the internal name; the screens it points at
+            // talk about photos and video.
+            case 'media':        $label = __( 'Photos and video', 'talenttrack' ); break;
             case 'workflow':     $label = __( 'Tasks', 'talenttrack' ); break;
             default:             $label = ucfirst( str_replace( '_', ' ', $slug ) );
         }

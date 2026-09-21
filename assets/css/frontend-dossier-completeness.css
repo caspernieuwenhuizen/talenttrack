@@ -1,0 +1,178 @@
+/*
+ * frontend-dossier-completeness.css (#3805) — what is still missing from a
+ * squad's paperwork: guardian contact, a linked parent account, and photo
+ * and video consent.
+ *
+ * Mobile-first (base rules are the 360px layout, `min-width` scales up),
+ * scoped under `.tt-dashboard`, design tokens only — no raw hex.
+ *
+ * The complete / missing state is never carried by colour alone: every
+ * state also carries a word ("Complete", "Missing") and a glyph, because
+ * the reader of this screen is deciding who to telephone.
+ */
+
+.tt-dashboard .tt-dc-picker {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-dc-picker__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-dc-picker__label {
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+}
+
+.tt-dashboard .tt-dc-picker select {
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-dc-hint,
+.tt-dashboard .tt-dc-card__clear {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+
+.tt-dashboard .tt-dc-source {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: 0 0 var(--tt-sp-4);
+    max-width: 60ch;
+}
+
+.tt-dashboard .tt-dc-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-dc-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-dc-card__title {
+    margin: 0;
+    font-size: var(--tt-fs-body);
+    font-weight: 800;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-dc-card__summary {
+    margin: var(--tt-sp-2) 0 var(--tt-sp-1);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    color: var(--tt-ink);
+}
+
+.tt-dashboard .tt-dc-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+}
+
+.tt-dashboard .tt-dc-bar i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+    border-radius: 999px;
+}
+
+.tt-dashboard .tt-dc-list {
+    list-style: none;
+    margin: var(--tt-sp-3) 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+}
+
+.tt-dashboard .tt-dc-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-2);
+    min-height: 48px;
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+}
+
+.tt-dashboard .tt-dc-row__name {
+    min-width: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-dc-row__name a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--tt-link);
+}
+
+.tt-dashboard .tt-dc-row__name a:focus-visible {
+    outline: 2px solid var(--tt-link);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-dc-chip {
+    flex: 0 0 auto;
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    padding: var(--tt-sp-1) var(--tt-sp-2);
+    border-radius: var(--tt-radius);
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-dc-chip--missing {
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
+.tt-dashboard .tt-dc-chip--complete {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success-ink);
+}
+
+/* The glyph before the word. Decorative on its own — the word beside it is
+   what carries the state for a screen reader and for a colour-blind eye. */
+.tt-dashboard .tt-dc-chip::before {
+    margin-right: var(--tt-sp-1);
+}
+
+.tt-dashboard .tt-dc-chip--missing::before  { content: "!"; }
+.tt-dashboard .tt-dc-chip--complete::before { content: "\2713"; }
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-dc-picker {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: var(--tt-sp-3);
+    }
+
+    .tt-dashboard .tt-dc-picker__field { min-width: 220px; }
+
+    .tt-dashboard .tt-dc-card { max-width: 720px; }
+}

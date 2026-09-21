@@ -81,6 +81,7 @@ final class BackLabelResolver {
             case 'measurement-tests':     return __( 'Back to Manage tests', 'talenttrack' );
             case 'measurements-entry':    return __( 'Back to Record measurements', 'talenttrack' );
             case 'measurements-coverage': return __( 'Back to Testing coverage', 'talenttrack' );
+            case 'dossier-completeness':  return __( 'Back to Dossier completeness', 'talenttrack' );
         }
         return __( 'Back', 'talenttrack' );
     }
