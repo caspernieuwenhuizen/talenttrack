@@ -75,11 +75,32 @@ final class PlayerReportTest extends WP_UnitTestCase {
         $this->assertSame( PlayerReportBlock::DEFAULT_BLOCKS, PlayerReportBlock::normalise( [] ) );
     }
 
-    public function test_the_letterhead_is_always_included_and_print_order_wins(): void {
+    /** #3962 — the coach's order wins; the letterhead heads it whatever is asked. */
+    public function test_the_letterhead_leads_and_the_given_order_stands(): void {
         $this->assertSame(
-            [ PlayerReportBlock::LETTERHEAD, PlayerReportBlock::ATTENDANCE, PlayerReportBlock::TESTS ],
+            [ PlayerReportBlock::LETTERHEAD, PlayerReportBlock::TESTS, PlayerReportBlock::ATTENDANCE ],
             PlayerReportBlock::normalise( [ 'tests', 'attendance' ] )
         );
+        $this->assertSame(
+            [ PlayerReportBlock::LETTERHEAD, PlayerReportBlock::JOURNEY, PlayerReportBlock::RATINGS ],
+            PlayerReportBlock::normalise( [ 'journey', 'letterhead', 'ratings', 'journey', 'nonsense' ] ),
+            'a letterhead asked for later still leads; repeats and unknown keys drop'
+        );
+    }
+
+    public function test_the_report_keeps_the_order_it_was_given(): void {
+        $report = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'tests', 'notes', 'ratings' ], $this->admin );
+
+        $this->assertNotNull( $report );
+        $this->assertSame( [ 'letterhead', 'tests', 'notes', 'ratings' ], $report['blocks'] );
+        $this->assertSame( [ 'letterhead', 'tests', 'notes', 'ratings' ], array_keys( $report['data'] ), 'the data is keyed in the same order, which is what the PDF estimate reads' );
+    }
+
+    public function test_attendance_and_minutes_pair_only_side_by_side(): void {
+        $this->assertTrue( PlayerReportBlock::pairsAttendance( [ 'letterhead', 'attendance', 'minutes' ] ) );
+        $this->assertTrue( PlayerReportBlock::pairsAttendance( [ 'letterhead', 'minutes', 'attendance' ] ) );
+        $this->assertFalse( PlayerReportBlock::pairsAttendance( [ 'letterhead', 'attendance', 'tests', 'minutes' ] ), 'a section between them keeps them apart' );
+        $this->assertFalse( PlayerReportBlock::pairsAttendance( [ 'letterhead', 'attendance' ] ) );
     }
 
     public function test_the_default_window_is_the_season_so_far(): void {

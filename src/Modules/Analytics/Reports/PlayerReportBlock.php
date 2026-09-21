@@ -89,10 +89,15 @@ final class PlayerReportBlock {
     }
 
     /**
-     * A selection in print order with the letterhead guaranteed. An empty
-     * selection is the conversation set — unlike the team report, where it is
-     * everything, because a player report with every block is several pages
-     * nobody asked for.
+     * A selection in the order it was given, with the letterhead first. An
+     * empty selection is the conversation set — unlike the team report, where
+     * it is everything, because a player report with every block is several
+     * pages nobody asked for.
+     *
+     * #3962 — the order is the coach's: the report prints its sections in the
+     * order they were put in, so a conversation that starts with the tests has
+     * the tests first. A selection that was never reordered arrives in print
+     * order and stays in it. Unknown keys and repeats are dropped.
      *
      * @param list<string> $keys
      * @return list<string>
@@ -100,9 +105,24 @@ final class PlayerReportBlock {
     public static function normalise( array $keys ): array {
         if ( $keys === [] ) return self::DEFAULT_BLOCKS;
 
-        $wanted = array_flip( $keys );
-        $wanted[ self::LETTERHEAD ] = true;
+        $out = [ self::LETTERHEAD ];
+        foreach ( $keys as $key ) {
+            if ( self::isValid( $key ) && ! in_array( $key, $out, true ) ) $out[] = $key;
+        }
+        return $out;
+    }
 
-        return array_values( array_filter( self::ALL, static fn( string $k ): bool => isset( $wanted[ $k ] ) ) );
+    /**
+     * Do attendance and playing time sit next to each other in this order?
+     * Then the printed copy sets them side by side, and the layout estimate
+     * counts the pair as one row of figures. Apart, each prints where it was
+     * put.
+     *
+     * @param list<string> $blocks
+     */
+    public static function pairsAttendance( array $blocks ): bool {
+        $a = array_search( self::ATTENDANCE, $blocks, true );
+        $m = array_search( self::MINUTES, $blocks, true );
+        return $a !== false && $m !== false && abs( $a - $m ) === 1;
     }
 }

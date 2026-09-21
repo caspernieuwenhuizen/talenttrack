@@ -52,6 +52,12 @@ Tick more sections when the conversation needs them: **Match by match**,
 notes**. The report updates straight away, and the address in your browser
 changes with it, so a colleague who opens the link sees the same report.
 
+Put the sections in the order your conversation goes: drag a ticked section to
+its place, or use its up and down arrows (on a phone, the arrows are the way to
+do it). The report on screen and the printed copy follow that order, and a saved
+view, a monthly schedule and a snapshot keep it. The header always comes first.
+Attendance and playing time print side by side when they are next to each other.
+
 A player who has no development plan file yet still gets a full report. The
 development plan section says there is no file yet rather than disappearing.
 

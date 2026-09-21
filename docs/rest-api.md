@@ -809,9 +809,12 @@ after `to`, is `400 bad_window` — never quietly replaced by the default.
 
 **Blocks.** `blocks` is comma-separated; empty means the conversation set
 (`letterhead`, `status`, `talking_points`, `ratings`, `attendance`, `minutes`,
-`goals`, `pdp`, `notes`). The full vocabulary, in print order, adds `matches`,
-`tests`, `journey`, `injuries`, `behaviour`, `potential` and `thread_notes`.
-`letterhead` is always included. **An unknown key is `400 unknown_blocks`**,
+`goals`, `pdp`, `notes`). The full vocabulary, in the default order, adds
+`matches`, `tests`, `journey`, `injuries`, `behaviour`, `potential` and
+`thread_notes`. **The order given is the order returned** (#3962): `blocks` and
+the keys of `data` come back in it, and the screen and the PDF show the sections
+in it. `letterhead` is always included, and always first; a repeated key counts
+once. **An unknown key is `400 unknown_blocks`**,
 naming the keys in `details.blocks`. `notes` is a blank area to write in
 (`{ "lines": 6 }`); the player's staff notes are `thread_notes`.
 `talking_points` is `{ "items": [] }` until #3875 fills it.

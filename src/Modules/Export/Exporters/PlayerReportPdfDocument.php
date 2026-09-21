@@ -82,14 +82,18 @@ final class PlayerReportPdfDocument {
         $body = self::letterhead( $data['letterhead'] ?? [], $report['from'], $report['to'] );
 
         // Attendance and playing time are two short strips of figures that a
-        // coach reads together; side by side they cost one strip of paper.
-        $paired = in_array( PlayerReportBlock::ATTENDANCE, $report['blocks'], true )
-            && in_array( PlayerReportBlock::MINUTES, $report['blocks'], true );
+        // coach reads together; side by side they cost one strip of paper. Only
+        // when the coach put them next to each other (#3962): the pair prints
+        // where the first of the two stands, and a section placed between them
+        // keeps them apart.
+        $paired = PlayerReportBlock::pairsAttendance( $report['blocks'] );
+        $done   = false;
 
         foreach ( $report['blocks'] as $block ) {
             if ( $block === PlayerReportBlock::LETTERHEAD ) continue;
-            if ( $paired && $block === PlayerReportBlock::MINUTES ) continue;
-            if ( $paired && $block === PlayerReportBlock::ATTENDANCE ) {
+            if ( $paired && ( $block === PlayerReportBlock::ATTENDANCE || $block === PlayerReportBlock::MINUTES ) ) {
+                if ( $done ) continue;
+                $done = true;
                 $body .= '<table class="pair"><tr>'
                     . '<td class="half">' . self::attendance( $data[ PlayerReportBlock::ATTENDANCE ] ?? [] ) . '</td>'
                     . '<td class="half">' . self::minutes( $data[ PlayerReportBlock::MINUTES ] ?? [] ) . '</td>'

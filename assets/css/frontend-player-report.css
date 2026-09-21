@@ -42,6 +42,98 @@
 }
 
 /*
+ * Section order (#3962). One column at every width: an order read across a
+ * grid is not an order. Each chosen section carries a drag handle (pointer
+ * only) and Move up / Move down, which are the way to reorder on a phone and
+ * from the keyboard.
+ */
+.tt-mr-blocks[data-tt-pr-order] {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.tt-pr-order__row {
+	display: flex;
+	align-items: stretch;
+	gap: var(--tt-sp-2);
+}
+
+.tt-pr-order__row > .tt-mr-block {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.tt-pr-order__handle {
+	display: none;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	width: 1.5rem;
+	color: var(--tt-muted);
+	letter-spacing: -0.2em;
+	cursor: grab;
+	user-select: none;
+}
+
+.tt-pr-order__moves {
+	display: flex;
+	flex: none;
+	gap: var(--tt-sp-2);
+}
+
+.tt-pr-order__move {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	min-height: 3rem;
+	border: 1px solid var(--tt-line);
+	border-radius: var(--tt-radius, 0.5rem);
+	background: var(--tt-paper);
+	color: var(--tt-ink);
+	font-size: 1.1rem;
+	text-decoration: none;
+	touch-action: manipulation;
+}
+
+.tt-pr-order__move:active {
+	background: var(--tt-bg-soft);
+}
+
+.tt-pr-order__move:focus-visible {
+	outline: 2px solid var(--tt-primary);
+	outline-offset: 2px;
+}
+
+.tt-pr-order__move.is-end {
+	visibility: hidden;
+}
+
+.tt-pr-order__row.is-dragging {
+	opacity: 0.5;
+}
+
+.tt-pr-order__row.is-drop-before {
+	box-shadow: 0 -3px 0 var(--tt-primary);
+}
+
+.tt-pr-order__row.is-drop-after {
+	box-shadow: 0 3px 0 var(--tt-primary);
+}
+
+/* The handle only where a pointer can drag it. */
+@media (hover: hover) and (pointer: fine) {
+	.tt-pr-order__handle {
+		display: flex;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tt-pr-order__row {
+		transition: none;
+	}
+}
+
+/*
  * The activity a journey entry was written about, under the entry. The link
  * is a full-height touch target of its own, not a word inside a sentence.
  */

@@ -63,6 +63,29 @@ final class PlayerReportViewTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tt-mr-lines', $html );
     }
 
+    /** #3962 — the panel lists the sections in the report's order, and each can move without dragging. */
+    public function test_the_sections_stand_in_the_chosen_order_and_can_move(): void {
+        $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'tests,ratings' ] );
+
+        $tests   = strpos( $html, 'data-tt-pr-row="tests"' );
+        $ratings = strpos( $html, 'data-tt-pr-row="ratings"' );
+        $this->assertNotFalse( $tests );
+        $this->assertNotFalse( $ratings );
+        $this->assertLessThan( $ratings, $tests, 'tests were put first, so the panel lists them first' );
+
+        // Tests is first of the chosen: it can only move down, and the link
+        // carries the order that move makes.
+        $this->assertSame( 1, preg_match( '/href="([^"]*)"[^>]*data-tt-pr-move="down"/', $html, $m ) );
+        $this->assertStringContainsString( 'blocks=letterhead,ratings,tests', html_entity_decode( $m[1] ) );
+        $this->assertStringContainsString( 'Move Tests down', $html );
+
+        // The printed order follows the screen: tests before evaluations.
+        $this->assertLessThan(
+            (int) strpos( $html, '<h2 class="tt-rep-section__title">Evaluations' ),
+            (int) strpos( $html, '<h2 class="tt-rep-section__title">Tests' )
+        );
+    }
+
     public function test_a_player_without_a_development_plan_still_gets_the_report(): void {
         $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'pdp' ] );
 
