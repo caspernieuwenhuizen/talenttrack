@@ -168,8 +168,27 @@ final class ScoutPlayerCardTest extends WP_UnitTestCase {
         $data     = json_decode( (string) wp_json_encode( $response->get_data() ), true );
 
         $this->assertSame( 403, (int) $response->get_status(), 'a silent empty list is what got reported as a broken screen' );
-        $this->assertSame( 'no_players_visible', $data['errors'][0]['code'] ?? null );
-        $this->assertNotSame( '', (string) ( $data['errors'][0]['message'] ?? '' ), 'the refusal says what to ask for' );
+
+        // The code depends on which gate speaks first, and since #3807
+        // narrowed the scout's grant this caller is stopped at the route's
+        // door rather than inside the handler: with no link they hold the
+        // players entity at no scope at all, so `tt_view_players` resolves
+        // to false and core answers `rest_forbidden`. A caller who does
+        // hold the capability and is still entitled to nobody reaches
+        // `PlayerVisibility` and gets `no_players_visible`.
+        //
+        // Either is a refusal, which is the whole point of the issue — the
+        // bug was a successful, empty page. What is asserted is that the
+        // answer is a refusal carrying a machine code and a sentence, not
+        // which of the two gates produced it.
+        $code = (string) ( $data['errors'][0]['code'] ?? $data['code'] ?? '' );
+        $this->assertContains(
+            $code,
+            [ 'no_players_visible', 'rest_forbidden' ],
+            'the refusal names itself'
+        );
+        $message = (string) ( $data['errors'][0]['message'] ?? $data['message'] ?? '' );
+        $this->assertNotSame( '', $message, 'the refusal says something a reader can act on' );
     }
 
     public function test_a_caller_entitled_to_players_still_gets_their_rows(): void {
