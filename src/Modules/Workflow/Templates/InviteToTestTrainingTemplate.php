@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Forms\InviteToTestTrainingForm;
+use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Resolvers\RoleBasedResolver;
 use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\TaskTemplate;
@@ -74,6 +75,25 @@ class InviteToTestTrainingTemplate extends TaskTemplate {
 
     public function entityLinks(): array {
         return [ 'prospect_id' ];
+    }
+
+    /**
+     * #3940 — stamp the chosen session onto the task row as well as into
+     * the response.
+     *
+     * The session id has always been written into `response_json`, and
+     * still is, for everything that reads it there. The column is what the
+     * permanent delete of a test training clears (`CascadeRegistry`'s
+     * `set_null`), so a task never points at a session that is gone. Both
+     * routes arrive here: the workflow form's submit and
+     * `ArrangeTestTrainingService::link()` go through
+     * `TaskEngine::complete()`.
+     */
+    public function onComplete( array $task, array $response ): void {
+        $test_training_id = isset( $response['test_training_id'] ) ? (int) $response['test_training_id'] : 0;
+        if ( $test_training_id <= 0 ) return;
+
+        ( new TasksRepository() )->update( (int) ( $task['id'] ?? 0 ), [ 'test_training_id' => $test_training_id ] );
     }
 
     public function chainSteps(): array {

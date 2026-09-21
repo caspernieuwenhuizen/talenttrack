@@ -212,6 +212,12 @@ inline actions sit on every row:
  is the manual immediate-erasure path (GDPR Article 17); it does not wait out
  the retention window.
 
+A cleared reference is a record that outlives the one you purged and only
+loses its link to it. For example, purging a **test training** keeps the
+workflow task that invited a prospect to it: the task stays completed, the
+prospect stays at the stage they reached, and the task simply no longer points
+at a session that is gone.
+
 When the bin is empty, the screen says so rather than showing an empty table.
 
 ## Moving a record to the bin from a list

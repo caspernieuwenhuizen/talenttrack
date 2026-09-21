@@ -236,6 +236,13 @@ een record. Op elke rij staan twee inline-acties:
  "Nu verwijderen" is het handmatige pad voor directe verwijdering (AVG artikel
  17); het wacht de bewaartermijn niet af.
 
+Een gewiste verwijzing is een record dat het opgeschoonde record overleeft en
+alleen de koppeling ernaar kwijtraakt. Schoon je bijvoorbeeld een
+**testtraining** op, dan blijft de workflowtaak die een prospect ervoor
+uitnodigde bestaan: de taak blijft afgerond, de prospect blijft in de fase die
+hij bereikt had, en de taak verwijst alleen niet meer naar een training die er
+niet meer is.
+
 Als de prullenbak leeg is, meldt het scherm dat in plaats van een lege tabel.
 
 ## Een record vanuit een lijst naar de prullenbak verplaatsen
