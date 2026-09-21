@@ -22,11 +22,12 @@ use TT\Modules\Analytics\Reports\TestsBlockOptions;
  *
  * ## Built to match the estimate
  *
- * `TeamMonthlyReportLayout::fit()` predicts page counts from row counts, and the
- * composition panel shows that prediction. So rows here have fixed heights in
- * millimetres, and text that the estimate assumes fits on one line is cut to
- * one line. A row that wrapped would silently add height the estimate cannot
- * see, and the panel's page count would stop matching the paper.
+ * `TeamMonthlyReportLayout::fit()` predicts page counts, and the composition
+ * panel shows that prediction. So rows here have fixed heights in millimetres,
+ * and names, labels and generated lines are cut to one line. Written text —
+ * what changed, why a player needs a conversation, who has no evaluation —
+ * prints whole and wraps (#3970), because a sentence cut off on paper cannot
+ * be finished; the estimate counts the lines it wraps to.
  *
  * Pure rendering: every figure arrives in the composer's payload.
  */
@@ -365,7 +366,7 @@ final class TeamMonthlyReportPdfDocument {
 
             $out .= '<tr><td class="a-' . esc_attr( $color ) . '">'
                 . '<div class="att-n">' . esc_html( self::cut( (string) ( $item['name'] ?? '' ), 40 ) ) . ' · ' . esc_html( self::statusLabel( $color ) ) . '</div>'
-                . '<div class="att-w">' . esc_html( self::cut( implode( ' · ', $facts ), $wide ? 150 : 105 ) ) . '</div>'
+                . '<div class="att-w">' . esc_html( implode( ' · ', $facts ) ) . '</div>'
                 . '</td></tr>';
         }
         $out .= '</table>';
@@ -383,12 +384,12 @@ final class TeamMonthlyReportPdfDocument {
         if ( $events === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</div></div>';
         }
-        $limit = $compact ? 6 : count( $events );
+        $limit = $compact ? TeamMonthlyReportLayout::STRIP_CHANGES : count( $events );
         $out  .= '<table class="list">';
         foreach ( array_slice( $events, 0, $limit ) as $e ) {
             if ( ! is_array( $e ) ) continue;
             $line = self::shortDate( (string) ( $e['date'] ?? '' ) ) . '  ' . (string) ( $e['name'] ?? '' ) . ' — ' . (string) ( $e['summary'] ?? '' );
-            $out .= '<tr><td>' . esc_html( self::cut( $line, $compact ? 60 : 110 ) ) . '</td></tr>';
+            $out .= '<tr><td class="wrap">' . esc_html( $line ) . '</td></tr>';
         }
         return $out . '</table></div>';
     }
@@ -769,7 +770,7 @@ final class TeamMonthlyReportPdfDocument {
         // Exactly `TeamMonthlyReportLayout::qualityLines()` rows, one line each.
         $out = '<div class="sec"><div class="h">' . esc_html_x( 'Data quality', 'team monthly report section', 'talenttrack' ) . '</div><table class="list">';
         foreach ( array_slice( $lines, 0, TeamMonthlyReportLayout::qualityLines( $q ) ) as $line ) {
-            $out .= '<tr><td>' . esc_html( self::cut( $line, 110 ) ) . '</td></tr>';
+            $out .= '<tr><td class="wrap">' . esc_html( $line ) . '</td></tr>';
         }
         return $out . '</table></div>';
     }
@@ -895,6 +896,9 @@ final class TeamMonthlyReportPdfDocument {
             . '.a-red{border-left-color:#b3261e;background:#fbecea}.a-amber{border-left-color:#c88a12;background:#fdf6e7}'
             . '.att-n{font-weight:bold}.att-w{font-size:7.5pt}'
             . '.list td{height:4.6mm;padding:0;vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            // #3970 — written text wraps rather than cuts; the layout estimate
+            // counts the lines it wraps to.
+            . '.list td.wrap{white-space:normal;vertical-align:top}'
             . '.tbl th{height:5mm;font-size:7pt;text-align:left;border-bottom:1px solid ' . $ink . '}'
             . '.tbl td{height:' . $roster_mm . 'mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';white-space:nowrap;overflow:hidden;vertical-align:middle}'
             . '.tbl .r{text-align:right;padding-right:3mm}.tbl .c{text-align:center}.tbl td.bar{padding-right:4mm}'

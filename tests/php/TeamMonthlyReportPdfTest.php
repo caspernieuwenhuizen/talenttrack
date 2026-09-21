@@ -103,9 +103,16 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'pack, no roster'          => [ 'B', [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'attention', 'notes' ] ],
             'matrix, the squad'        => [ 'C', [ 'kpi', 'roster' ] ],
             'matrix, all sections'     => [ 'C', null ],
+            // #3970 — written text prints in full, and the estimate counts
+            // the lines it wraps to.
+            'one-pager, long text'     => [ 'A', [ 'coverage', 'kpi', 'status', 'attention', 'changes', 'quality' ], true ],
+            'pack, long text'          => [ 'B', null, true ],
+            'matrix, long text'        => [ 'C', [ 'kpi', 'attention', 'changes', 'tests', 'notes', 'quality' ], true ],
         ];
-        foreach ( $cases as $label => [ $layout, $blocks ] ) {
+        foreach ( $cases as $label => $case ) {
+            [ $layout, $blocks ] = $case;
             $report  = $blocks === null ? $this->report( 20 ) : $this->only( $this->report( 20 ), $blocks );
+            if ( ! empty( $case[2] ) ) $report = $this->withLongText( $report );
             $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
 
@@ -161,6 +168,34 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
                 'quality'    => [ 'activities_without_register' => [ 1 ], 'matches_without_minutes' => 0, 'players_not_evaluated' => [], 'players_with_incomplete_status' => [] ],
             ],
         ];
+    }
+
+    /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */
+    public function test_written_text_prints_whole(): void {
+        $report = $this->withLongText( $this->only( $this->report( 20 ), [ 'attention', 'changes', 'quality' ] ) );
+        $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+
+        $this->assertStringContainsString( esc_html( self::PROSE ), $html, 'the whole change and the whole reason are on the page' );
+        $this->assertStringContainsString( 'Firstname Lastname 12', $html, 'every player without an evaluation is named' );
+    }
+
+    private const PROSE = 'Returned from an ankle injury and trained fully this week, but still hesitant in duels and asked to keep the load down until the physio clears him for match minutes again.';
+
+    /**
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @return array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}
+     */
+    private function withLongText( array $report ): array {
+        if ( isset( $report['data']['changes'] ) ) {
+            foreach ( array_keys( $report['data']['changes']['events'] ) as $i ) $report['data']['changes']['events'][ $i ]['summary'] = self::PROSE;
+        }
+        if ( isset( $report['data']['attention'] ) ) {
+            foreach ( array_keys( $report['data']['attention']['items'] ) as $i ) $report['data']['attention']['items'][ $i ]['reasons'] = [ self::PROSE, self::PROSE ];
+        }
+        if ( isset( $report['data']['quality'] ) ) {
+            $report['data']['quality']['players_not_evaluated'] = array_map( static fn( int $i ): array => [ 'player_id' => $i, 'name' => 'Firstname Lastname ' . $i ], range( 1, 12 ) );
+        }
+        return $report;
     }
 
     /**

@@ -101,6 +101,10 @@ ingekort, is in de PDF op dezelfde manier ingekort — een ingekorte lijst zegt
 hoeveel spelers er zijn weggelaten en tussen welke waarden die zaten. Onderaan
 elke pagina staat dat het rapport vertrouwelijk is en alleen voor staf bedoeld.
 
+Wat er is geschreven, wordt volledig afgedrukt, over zoveel regels als nodig: wat
+er veranderde, waarom een speler een gesprek nodig heeft en de namen van de
+spelers zonder evaluatie. Het aantal pagina's op de meter telt die regels mee.
+
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.
 

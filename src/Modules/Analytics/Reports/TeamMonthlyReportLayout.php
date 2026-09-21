@@ -86,6 +86,47 @@ final class TeamMonthlyReportLayout {
         'matrix_footer'   => 42.0,
     ];
 
+    /**
+     * #3970 — written text prints whole and wraps, so it costs a line per line
+     * it wraps to. Characters per line are measured on DomPDF with Dutch prose
+     * in each column and rounded down, so a close call estimates a line too
+     * many rather than overflowing: what changed and the data-quality line at
+     * full portrait width (about 113 measured), and the 7.5pt reasons under a
+     * player who needs a conversation (about 135 portrait, 197 landscape). The
+     * matrix footer's strip has its own table, `STRIP_CHARS_PER_LINE`.
+     */
+    private const WRAP_LINE_MM       = 4.6;
+    private const WRAP_LINE_SMALL_MM = 4.2;
+
+    /** @var array<string,int> */
+    private const CHARS_PER_LINE = [
+        'change'            => 110,
+        'attention'         => 130,
+        'attention_wide'    => 190,
+        'quality'           => 110,
+        'quality_wide'      => 155,
+    ];
+
+    /**
+     * Characters per line of the matrix footer's "what changed" strip, by how
+     * many strips share the footer's width. Measured, not divided: a narrow
+     * column loses more of each line to word breaks, so four strips hold far
+     * less than a quarter of one (about 172, 85, 53 and 38 measured).
+     *
+     * @var array<int,int>
+     */
+    private const STRIP_CHARS_PER_LINE = [ 1 => 165, 2 => 80, 3 => 48, 4 => 35 ];
+
+    /**
+     * The matrix footer's "what changed" strip: its heading and spacing. The
+     * footer is as tall as its tallest strip, and the notes strip sets the
+     * floor (`matrix_footer`).
+     */
+    private const STRIP_BASE_MM = 11.0;
+
+    /** Rows the matrix footer's "what changed" strip prints. */
+    public const STRIP_CHANGES = 6;
+
     public static function isValid( string $layout ): bool {
         return in_array( $layout, self::ALL, true );
     }
@@ -200,7 +241,11 @@ final class TeamMonthlyReportLayout {
             $mm = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'roster' ], $layout, $degraded );
             foreach ( [ 'changes', 'tests', 'notes' ] as $footer_block ) {
                 if ( isset( $data[ $footer_block ] ) ) {
-                    return $mm + self::MM['matrix_footer'] + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
+                    // As tall as its tallest strip: the notes set the floor, and
+                    // a "what changed" strip with long entries can outgrow it.
+                    $strips = count( array_intersect( [ 'matches', 'changes', 'tests', 'notes' ], array_map( 'strval', array_keys( $data ) ) ) );
+                    $footer = max( self::MM['matrix_footer'], isset( $data['changes'] ) ? self::changesStripHeight( $data['changes'], $strips ) : 0.0 );
+                    return $mm + $footer + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
                 }
             }
             return $mm + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
@@ -245,13 +290,28 @@ final class TeamMonthlyReportLayout {
 
             case 'attention':
                 $items = self::count( $block_data, 'items' );
+                $list = self::listOf( $block_data, 'items' );
                 if ( in_array( self::TRIM_ATTENTION, $degraded, true ) ) {
                     $items = min( $items, self::ATTENTION_KEEP );
+                    $list  = array_slice( $list, 0, self::ATTENTION_KEEP );
                 }
-                return $base + $items * self::MM['attention_item'];
+                // The item's fixed height holds two lines of reasons; each
+                // further line adds its own.
+                $cpl  = self::CHARS_PER_LINE[ $layout === self::MATRIX ? 'attention_wide' : 'attention' ];
+                $more = 0.0;
+                foreach ( $list as $item ) {
+                    if ( ! is_array( $item ) ) continue;
+                    $more += max( 0, self::lines( self::attentionFactsLength( $item ), $cpl ) - 2 ) * self::WRAP_LINE_SMALL_MM;
+                }
+                return $base + $items * self::MM['attention_item'] + $more;
 
             case 'changes':
-                return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'events' ) * self::MM['change_row'];
+                if ( $layout === self::MATRIX ) return 0.0;
+                $mm = $base;
+                foreach ( self::listOf( $block_data, 'events' ) as $event ) {
+                    $mm += self::lines( self::changeLength( $event ), self::CHARS_PER_LINE['change'] ) * self::MM['change_row'];
+                }
+                return $mm;
 
             case 'tests':
                 return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'rounds' ) * self::MM['test_round'];
@@ -280,9 +340,64 @@ final class TeamMonthlyReportLayout {
                 return $base + self::MM['roster_head'] + self::count( $block_data, 'rows' ) * $row;
 
             case 'quality':
-                return $base + self::qualityLines( $block_data ) * self::MM['quality_row'];
+                // The players-without-an-evaluation line names every one of
+                // them, so it is the line that wraps.
+                $names = self::listOf( $block_data, 'players_not_evaluated' );
+                $extra = 0;
+                if ( $names !== [] ) {
+                    $len = self::QUALITY_SENTENCE_CHARS;
+                    foreach ( $names as $p ) $len += mb_strlen( is_array( $p ) ? (string) ( $p['name'] ?? '' ) : '' ) + 2;
+                    $extra = self::lines( $len, self::CHARS_PER_LINE[ $layout === self::MATRIX ? 'quality_wide' : 'quality' ] ) - 1;
+                }
+                return $base + ( self::qualityLines( $block_data ) + $extra ) * self::MM['quality_row'];
         }
         return 0.0;
+    }
+
+    /** The words around the names in "N players have no evaluation this period: …". */
+    private const QUALITY_SENTENCE_CHARS = 50;
+
+    /**
+     * The printed "what changed" line: short date, name, a dash, the summary.
+     *
+     * @param mixed $event
+     */
+    private static function changeLength( $event ): int {
+        if ( ! is_array( $event ) ) return 0;
+        return 10 + mb_strlen( (string) ( $event['name'] ?? '' ) ) + mb_strlen( (string) ( $event['summary'] ?? '' ) );
+    }
+
+    /**
+     * The printed reasons under a player who needs a conversation: their
+     * attendance, then each reason, joined with a separator.
+     *
+     * @param array<string,mixed> $item
+     */
+    private static function attentionFactsLength( array $item ): int {
+        $len = isset( $item['attendance_pct'] ) ? 20 : 0;
+        foreach ( self::listOf( $item, 'reasons' ) as $reason ) $len += mb_strlen( (string) $reason ) + 3;
+        return $len;
+    }
+
+    /**
+     * The matrix footer's "what changed" strip, which prints its first
+     * `STRIP_CHANGES` entries. The footer's strips share the page's width, so
+     * the strip is as narrow as there are strips beside it.
+     *
+     * @param array<string,mixed> $block_data
+     */
+    private static function changesStripHeight( array $block_data, int $strips ): float {
+        $per_line = self::STRIP_CHARS_PER_LINE[ max( 1, min( 4, $strips ) ) ];
+        $mm       = self::STRIP_BASE_MM;
+        foreach ( array_slice( self::listOf( $block_data, 'events' ), 0, self::STRIP_CHANGES ) as $event ) {
+            $mm += self::lines( self::changeLength( $event ), $per_line ) * self::WRAP_LINE_MM;
+        }
+        return $mm;
+    }
+
+    /** Lines a text of this length wraps to, one at least. */
+    private static function lines( int $chars, int $per_line ): int {
+        return max( 1, (int) ceil( $chars / max( 1, $per_line ) ) );
     }
 
     /**

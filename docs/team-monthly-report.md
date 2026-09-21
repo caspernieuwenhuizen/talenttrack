@@ -97,6 +97,10 @@ showed, and whatever the one-pager shortened is shortened the same way on paper.
 A shortened list says how many players were left out and the range their values
 fell in. Every page carries the confidential, staff-only line at the bottom.
 
+What was written prints in full, over as many lines as it needs: what changed,
+why a player needs a conversation, and the names of the players without an
+evaluation. The page count on the meter includes those lines.
+
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.
 
