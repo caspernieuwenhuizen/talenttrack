@@ -631,17 +631,32 @@ Een koppeling blijft bestaan bij twee selectiestatussen, en bij geen enkele ande
 
 Het is een toelatingslijst en niet "alles behalve `released`", zodat een status die er later bij komt bewust wordt toegelaten in plaats van de toegang automatisch te erven.
 
-Los van de status valt een speler die **gearchiveerd** is of in de **prullenbak** staat buiten de scope van een scout, ongeacht welke status hij draagt — dezelfde levenscyclusfilter `active` die elk overzicht toepast.
-
 De rij `trial_synthesis` van de scout is **verwijderd** in plaats van geactiveerd. Die zou het tabblad Uitvoering — de input van andere panelleden, vóór vrijgave — openzetten voor elke scout in elk panel. Een scout ziet zijn eigen input vóór vrijgave en die van het panel pas erna.
+
+### Archivering en prullenbak beëindigen een koppeling, bij scout en verzorger
+
+Los van de status valt een speler die **gearchiveerd** is of in de **prullenbak** staat buiten de scope, ongeacht welke status hij draagt — dezelfde levenscyclusfilter `active` die elk overzicht toepast. Een speler draagt een status *én* een levenscyclus, en die twee staan los van elkaar: een gearchiveerde speler of een speler in de prullenbak draagt nog steeds een van de vijf selectiestatussen, dus filteren op status alleen liet een verborgen kind erdoor.
+
+**Dit is één regel, één keer opgeschreven, en hij geldt voor beide relatie-resolvers**: `ScoutPlayerLinks` voor de koppelingen van een scout en `ParentChildResolver` voor de kinderen van een verzorger. De twee beantwoorden dezelfde soort vraag — "welke spelers bereikt deze relatie?" — en dragen bewust dezelfde levenscyclusregel, zodat niemand hoeft te onthouden welke van de twee welke regel gebruikt.
+
+| | Gearchiveerde speler | Speler in de prullenbak |
+| --- | --- | --- |
+| Koppeling van de scout | eindigt | eindigt |
+| Koppeling van de verzorger | eindigt | eindigt |
+
+Waarom archiveren ook de koppeling van een verzorger beëindigt en niet alleen de prullenbak: archiveren bestaat om een dossier uit de werkvoorraad te halen. Als een gezin een kind dat de opleiding heeft verlaten nog moet kunnen zien, doet de **status** van de speler dat werk — `released`, `graduated`, en een inzageverzoek-export waar die verschuldigd is — niet de archiefvlag. Een dossier dat gearchiveerd is *én* nog zichtbaar hoort te zijn voor het gezin, is een tegenstrijdigheid die je beter zichtbaar maakt dan wegpoetst.
+
+De prullenbakhelft is geen voorkeur: `ArchiveRepository::filterClause()` legt het contract vast waar de prullenbak op rust — een weggegooide rij verschijnt alleen via de expliciete weergave `trashed`, die achter `tt_manage_recycle_bin` zit. Een ouderdashboard dat een weggegooid kind toonde, viel daarbuiten. Een dossier uit de prullenbak herstellen herstelt ook de koppeling, net als al het andere aan die rij.
 
 ## Ouder → kind-koppelmodel
 
-De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is het **enige gezaghebbende** antwoord op de vraag "welke kinderen heeft deze ouder". `ParentChildResolver` leest deze pivot — afgebakend per club, `status = 'active'`, gesorteerd op meest recente koppeling eerst — en elke afnemer (de kindwisselaar op het dashboard, de me-view-autorisatie, de deelnemersgraaf van doel-threads, de ouder-KPI) roept hem aan, zodat ze het allemaal eens zijn over wie ouder van wie is.
+De pivot `tt_player_parents` (`parent_user_id`, `player_id`, `is_primary`, `club_id`) is het **enige gezaghebbende** antwoord op de vraag "welke kinderen heeft deze ouder". `ParentChildResolver` leest deze pivot — afgebakend per club, `status = 'active'`, levenscyclus `active`, gesorteerd op meest recente koppeling eerst — en elke afnemer (de kindwisselaar op het dashboard, de me-view-autorisatie, de deelnemersgraaf van doel-threads, de ouder-KPI) roept hem aan, zodat ze het allemaal eens zijn over wie ouder van wie is.
 
 `tt_players.guardian_email` is **geen** live koppelbron. Het is een uitnodigings-/seed-hint: het mag een rij in `tt_player_parents` *aanmaken* wanneer een ouder wordt uitgenodigd, geïmporteerd of geseed, maar wordt nooit tijdens runtime bevraagd om toegang te bepalen. Een ouder die alleen via een overeenkomende `guardian_email` is gekoppeld (en zonder pivotrij) verschijnt pas wanneer hij opnieuw wordt gekoppeld via de uitnodigings-/seed-route of door een beheerder — er is geen migratie.
 
 **Afscheid beëindigt de toegang van de verzorger.** De resolver filtert op `status = 'active'`, dus zodra een speler vertrekt, doorstroomt of anderszins van de actieve selectie af gaat, houden de gekoppelde personen op verzorger te zijn voor toegangsdoeleinden: hun dashboard, de kindwisselaar, de ontwikkelpagina's van het kind, de rechtenmatrix, de print van het ontwikkelplan en de gespreks-endpoints gaan tegelijk dicht. Dat was eerder inconsistent — zes plekken stelden de vraag "is dit een verzorger van deze speler" met hun eigen query, en de plekken zonder statusfilter lieten het dossier van een vertrokken kind via een directe URL bereikbaar terwijl het dashboard niets toonde. `ParentChildResolver::isParentOf()` is nu de enige implementatie, en die is club-scoped.
+
+**Archiveren van het kind, of het in de prullenbak zetten, beëindigt de toegang ook.** Dat is dezelfde regel die de scoutkoppeling draagt, hierboven één keer opgeschreven onder "Archivering en prullenbak beëindigen een koppeling". Het statusfilter alleen was niet genoeg: een speler draagt een status *én* een levenscyclus, en een gearchiveerde speler of een speler in de prullenbak draagt nog steeds `status = 'active'`. Een kind dat de opleiding uit de werkvoorraad had gehaald — of in de prullenbak had gezet om te vernietigen — bleef daardoor op het dashboard van het gezin staan en bleef op id opvraagbaar. De resolver past nu ook de levenscyclusfilter `active` toe, zodat de kindwisselaar, het standaard gekozen kind, `canViewPlayer`, de `player`-scope van de matrix, de print van het ontwikkelplan en de gespreks-endpoints tegelijk dichtgaan, net als bij een afscheid. Het kind uit de prullenbak herstellen herstelt dat allemaal weer.
 
 Een gezin dat het dossier ná het afscheid nodig heeft, hoort een **inzageverzoek-export** te krijgen — een bewuste handeling met een spoor van wie erom vroeg — in plaats van een login die stilletjes blijft werken.
 

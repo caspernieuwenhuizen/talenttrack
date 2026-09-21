@@ -37,7 +37,10 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * reader; those three call it.
  *
  * Mirrors {@see ParentChildResolver}, which plays the same role for the
- * guardian branch: club-scoped, status-filtered, one implementation.
+ * guardian branch: club-scoped, status-filtered, lifecycle-filtered, one
+ * implementation. The two carry the same lifecycle rule on purpose (#3937)
+ * — an archived or trashed player is out of both — so a reader does not
+ * have to check which of the pair they are looking at.
  */
 final class ScoutPlayerLinks {
 
