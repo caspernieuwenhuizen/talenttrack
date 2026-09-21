@@ -3,6 +3,7 @@ namespace TT\Modules\Methodology\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Methodology\MethodologyScope;
@@ -19,15 +20,25 @@ use TT\Modules\Methodology\MethodologyScope;
  *   - the conventional route table: a collection route (GET list, POST
  *     create) and an item route (GET one, PUT update, DELETE remove).
  *
- * A concrete controller sets `NS` (inherited) + a `restBase()` slug and
- * implements the five callbacks. Registration is uniform:
+ * A concrete controller implements `register()` plus the five callbacks,
+ * and declares the body its writes take in `writeArgs()`:
  *
  *     final class FooRestController extends AbstractMethodologyRestController {
- *         protected static function restBase(): string { return 'methodology/foos'; }
- *         public static function list_items( \WP_REST_Request $r ) { ... }
- *         // ...
+ *         public static function register(): void {
+ *             register_rest_route( self::NS, '/methodology/foos', [ … ] );
+ *         }
+ *         protected static function writeArgs(): array { … }
+ *         public static function list_items( \WP_REST_Request $r ) { … }
  *     }
  *     FooRestController::init();
+ *
+ * #3819 — each controller spells its own routes out rather than inheriting
+ * a `register()` that builds a path out of a variable. A path assembled
+ * from `static::restBase()` could not be read statically, so the args gate
+ * saw one unreadable route standing for eleven and could not tell a newly
+ * added undeclared one from the rest. What stays shared is everything that
+ * carries behaviour: the gate, the envelope, the body contract and the two
+ * write wrappers below.
  *
  * The methodology REST surface lives under `/methodology/<entity>` so the
  * nine entities share one namespace prefix and don't collide with the
@@ -38,51 +49,15 @@ abstract class AbstractMethodologyRestController {
     protected const NS  = 'talenttrack/v1';
     public    const CAP = 'tt_edit_methodology';
 
-    /** The route slug under the namespace, e.g. `methodology/principles`. */
-    abstract protected static function restBase(): string;
-
     public static function init(): void {
         add_action( 'rest_api_init', [ static::class, 'register' ] );
     }
 
     /**
-     * Register the collection + item routes. Concrete controllers may
-     * override to add extra sub-routes, calling parent::register() first.
+     * Wire the controller's routes, with literal paths and literal method
+     * lists so the args gate can read every one of them.
      */
-    public static function register(): void {
-        $base = static::restBase();
-
-        register_rest_route( static::NS, '/' . $base, [
-            [
-                'methods'             => 'GET',
-                'callback'            => [ static::class, 'list_items' ],
-                'permission_callback' => [ static::class, 'can_edit' ],
-            ],
-            [
-                'methods'             => 'POST',
-                'callback'            => [ static::class, 'create_item' ],
-                'permission_callback' => [ static::class, 'can_edit' ],
-            ],
-        ] );
-
-        register_rest_route( static::NS, '/' . $base . '/(?P<id>\d+)', [
-            [
-                'methods'             => 'GET',
-                'callback'            => [ static::class, 'get_item' ],
-                'permission_callback' => [ static::class, 'can_edit' ],
-            ],
-            [
-                'methods'             => 'PUT',
-                'callback'            => [ static::class, 'update_item' ],
-                'permission_callback' => [ static::class, 'can_edit' ],
-            ],
-            [
-                'methods'             => 'DELETE',
-                'callback'            => [ static::class, 'delete_item' ],
-                'permission_callback' => [ static::class, 'can_edit' ],
-            ],
-        ] );
-    }
+    abstract public static function register(): void;
 
     /**
      * The single gate for the whole methodology-authoring surface: the
@@ -102,6 +77,73 @@ abstract class AbstractMethodologyRestController {
             }
         }
         return current_user_can( static::CAP );
+    }
+
+    // ── body contract (#3819) ────────────────────────────────────────
+
+    /**
+     * The body fields the collection `POST` and the item `PUT` take. A
+     * concrete controller overrides this with the fields its payload
+     * builder actually reads; a key outside the list is refused with
+     * `400 unknown_field` rather than dropped in silence.
+     *
+     * Nothing is ever declared `required` here. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field answers an unauthenticated write with
+     * a 400 naming the fields instead of the 401 it is owed. Each
+     * `create_item()` names what it needs itself, behind the capability
+     * gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [];
+    }
+
+    /**
+     * `writeArgs()` plus the set-scoping key every route on this surface
+     * accepts. `methodology_id` normally arrives as a query parameter, but
+     * `can_edit()` reads it with `get_param()`, so a copy in the body is
+     * honoured and must not be refused.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    final protected static function createArgs(): array {
+        return static::writeArgs() + [ 'methodology_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'Which methodology set the write applies to. Usually a query parameter; a copy in the body is accepted.',
+        ] ];
+    }
+
+    /**
+     * `createArgs()` plus the `id` the item route carries in its URL. A
+     * client that echoes the id back in the body is not refused for it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    final protected static function itemWriteArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The record, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + static::createArgs();
+    }
+
+    /**
+     * The collection `POST`, with the body's shape checked before its
+     * values. Wrapping it here rather than in each `create_item()` keeps
+     * the ten methodology entities on one contract.
+     */
+    public static function handle_create( \WP_REST_Request $r ): \WP_REST_Response {
+        $refused = BaseController::checkBody( $r, static::createArgs() );
+        if ( $refused !== null ) return $refused;
+        return static::create_item( $r );
+    }
+
+    /** The item `PUT`, with the body's shape checked before its values. */
+    public static function handle_update( \WP_REST_Request $r ): \WP_REST_Response {
+        $refused = BaseController::checkBody( $r, static::itemWriteArgs() );
+        if ( $refused !== null ) return $refused;
+        return static::update_item( $r );
     }
 
     /** The active club id — every methodology row is club-scoped. */

@@ -45,18 +45,12 @@ final class FrameworkPrimerRestController extends AbstractMethodologyRestControl
         ];
     }
 
-    protected static function restBase(): string {
-        return 'methodology/framework-primer';
-    }
-
     /**
      * Singleton route table: a collection GET (the active primer) and an
      * item GET + PUT. No POST/DELETE — the primer is one row per club.
      */
     public static function register(): void {
-        $base = static::restBase();
-
-        register_rest_route( static::NS, '/' . $base, [
+        register_rest_route( self::NS, '/methodology/framework-primer', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'list_items' ],
@@ -64,7 +58,7 @@ final class FrameworkPrimerRestController extends AbstractMethodologyRestControl
             ],
         ] );
 
-        register_rest_route( static::NS, '/' . $base . '/(?P<id>\d+)', [
+        register_rest_route( self::NS, '/methodology/framework-primer/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'get_item' ],
@@ -72,10 +66,43 @@ final class FrameworkPrimerRestController extends AbstractMethodologyRestControl
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ static::class, 'update_item' ],
+                'callback'            => [ static::class, 'handle_update' ],
                 'permission_callback' => [ static::class, 'can_edit' ],
+                'args'                => static::itemWriteArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /methodology/framework-primer/{id}` takes: the
+     * primer's ten multilingual sections, each as {nl, en}. Every key is
+     * optional and an omitted one is left alone, so a partial edit stays
+     * partial (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        $labels = [
+            'title'                    => 'The primer title.',
+            'tagline'                  => 'The one-line summary under the title.',
+            'intro'                    => 'The opening section.',
+            'voetbalmodel_intro'       => 'The introduction to the football model.',
+            'voetbalhandelingen_intro' => 'The introduction to the football actions.',
+            'phases_intro'             => 'The introduction to the four phases.',
+            'learning_goals_intro'     => 'The introduction to the learning goals.',
+            'influence_factors_intro'  => 'The introduction to the influence factors.',
+            'reflection'               => 'The closing reflection.',
+            'future'                   => 'Where the academy is heading.',
+        ];
+
+        $args = [];
+        foreach ( $labels as $field => $what ) {
+            $args[ $field ] = [
+                'type'        => 'object',
+                'description' => $what . ' Per locale, as {nl, en}.',
+            ];
+        }
+        return $args;
     }
 
     // ── read ────────────────────────────────────────────────────────

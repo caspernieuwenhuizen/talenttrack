@@ -80,21 +80,37 @@ final class MethodologyFormationsRestSmokeTest extends WP_UnitTestCase {
         $this->assertSame( 'tt-test-433-smoke', $get_body['data']['slug'] ?? null );
         $this->assertArrayHasKey( 'positions', $get_body['data'], 'formation carries a positions array' );
 
-        // CREATE a nested position.
+        // CREATE a nested position. #3819 — this body said `slot_number`
+        // until the route declared its fields. The position route reads
+        // `jersey_number`; `slot_number` is the match-prep lineup's column
+        // and was dropped on the way in, so the striker was stored on
+        // shirt 1 and the test passed anyway.
         $pos = new WP_REST_Request( 'POST', self::BASE . '/' . $id . '/positions' );
         $pos->set_header( 'Content-Type', 'application/json' );
         $pos->set_body( wp_json_encode( [
-            'slot_number' => 9,
-            'short_name'  => [ 'nl' => 'ST', 'en' => 'ST' ],
-            'long_name'   => [ 'nl' => 'Spits', 'en' => 'Striker' ],
+            'jersey_number' => 9,
+            'short_name'    => [ 'nl' => 'ST', 'en' => 'ST' ],
+            'long_name'     => [ 'nl' => 'Spits', 'en' => 'Striker' ],
         ] ) );
         $pos_res = rest_do_request( $pos );
         $this->assertContains( $pos_res->get_status(), [ 200, 201 ], 'position create succeeds' );
         $this->assertEnvelopeSuccess( $pos_res->get_data() );
 
-        // LIST positions.
+        // LIST positions — the shirt number the create asked for is the
+        // one that was stored.
         $list_pos = rest_do_request( new WP_REST_Request( 'GET', self::BASE . '/' . $id . '/positions' ) );
         $this->assertSame( 200, $list_pos->get_status(), 'position list succeeds' );
+        $positions = $list_pos->get_data()['data']['positions'] ?? [];
+        $this->assertSame( 9, (int) ( $positions[0]['jersey_number'] ?? 0 ), 'the position keeps the shirt number it was created with' );
+
+        // An undeclared key is refused, naming it, rather than dropped.
+        $stray = new WP_REST_Request( 'POST', self::BASE . '/' . $id . '/positions' );
+        $stray->set_header( 'Content-Type', 'application/json' );
+        $stray->set_body( wp_json_encode( [ 'slot_number' => 9, 'short_name' => [ 'nl' => 'ST', 'en' => 'ST' ] ] ) );
+        $stray_res = rest_do_request( $stray );
+        $this->assertSame( 400, $stray_res->get_status(), 'an undeclared position key is refused' );
+        $this->assertSame( 'unknown_field', $stray_res->get_data()['errors'][0]['code'] ?? null );
+        $this->assertSame( [ 'slot_number' ], $stray_res->get_data()['errors'][0]['details']['fields'] ?? null );
 
         // UPDATE formation.
         $update = new WP_REST_Request( 'PUT', self::BASE . '/' . $id );

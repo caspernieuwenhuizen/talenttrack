@@ -30,8 +30,19 @@ use TT\Modules\Methodology\Repositories\PrinciplesRepository;
  */
 final class PrinciplesRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/principles';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/principles', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/principles/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -58,6 +69,23 @@ final class PrinciplesRestController extends AbstractMethodologyRestController {
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the principle writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'code'              => [ 'type' => 'string', 'description' => 'The code that identifies the principle.' ],
+            'team_function_key' => [ 'type' => 'string', 'description' => 'The team function the principle belongs to.' ],
+            'team_task_key'     => [ 'type' => 'string', 'description' => 'The team task the principle belongs to.' ],
+            'title'             => [ 'type' => 'object', 'description' => 'The principle title per locale, as {nl, en}.' ],
+            'explanation'       => [ 'type' => 'object', 'description' => 'What the principle means, per locale, as {nl, en}.' ],
+            'team_guidance'     => [ 'type' => 'object', 'description' => 'How the team applies it, per locale, as {nl, en}.' ],
+            'line_guidance'     => [ 'type' => 'object', 'description' => 'Guidance per line of the pitch, each with its localised text.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $error = self::validateTaxonomy( $r );

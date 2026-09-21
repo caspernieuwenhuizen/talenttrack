@@ -32,8 +32,19 @@ use TT\Modules\Methodology\Repositories\TacticalScenesRepository;
  */
 final class TacticalScenesRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/tactical-scenes';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/tactical-scenes', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/tactical-scenes/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -60,6 +71,23 @@ final class TacticalScenesRestController extends AbstractMethodologyRestControll
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the tactical-scene writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'scene'        => [ 'type' => [ 'object', 'array', 'string' ], 'description' => 'The scene itself, as an object or its JSON.' ],
+            'phase_side'   => [ 'type' => 'string', 'description' => 'Whether the scene is about having the ball or not having it.' ],
+            'phase_number' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which of the four phases the scene sits in.' ],
+            'formation_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation the scene is drawn on. 0 or blank clears it.' ],
+            'sort_order'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the scene sits in the list.' ],
+            'title'        => [ 'type' => 'object', 'description' => 'The scene title per locale, as {nl, en}.' ],
+            'description'  => [ 'type' => 'object', 'description' => 'What the scene shows, per locale, as {nl, en}.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $scene = self::readScene( $r );
