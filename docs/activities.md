@@ -295,7 +295,13 @@ When you create an activity you pick which players are expected — the roster s
 
 Three things this does not do. A roster you supply yourself is kept exactly as you gave it — nobody is added to it. A squad you have **trimmed stays trimmed**: the roster is filled in only when it is empty, so a player you deliberately took off does not come back the next time anything touches the activity. And an activity you create **already marked Completed** gets no planned roster at all — it did not need planning, it needs a register, and the rule further down this page fills that in as present instead.
 
-Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up happens in the guided completion flow (**Complete activity** / **Continue rating**) — the planned roster is what you expected, the marked attendance is what happened. The detail view keeps a read-only attendance summary on completed activities.
+Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player.
+
+**An activity with no squad yet says so, rather than showing nothing.** The panel reads *"No squad picked yet."* and, if you may edit activities, offers **Pick the squad →** straight into the plan editor. It used to disappear entirely, and since it is the only place on the detail page that links into the plan, the prompt and the way in went with it: you opened a training the evening before and found date, time, type and notes, with no squad and nowhere to build one. Most activities never see this now — anything created for a team starts with that team expected — but an activity with **no team**, one created before that rule existed, or one whose squad you deliberately emptied still lands here, and now it lands somewhere you can act.
+
+A **completed** activity is the exception and is unchanged: the attendance panel below has the answer for it, so there is no stale offer to pick a squad for a match already played. A **cancelled** one states the empty squad but does not offer the editor.
+
+Marking who actually turned up happens in the guided completion flow (**Complete activity** / **Continue rating**) — the planned roster is what you expected, the marked attendance is what happened. The detail view keeps a read-only attendance summary on completed activities.
 
 ### Adjusting the plan
 
