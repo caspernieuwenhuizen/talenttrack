@@ -72,8 +72,8 @@ class FrontendReportWizardView extends FrontendViewBase {
 
         // Resolve current state. POST values win; otherwise audience
         // defaults; otherwise spec defaults.
-        $audience = (string) ( $submitted['audience'] ?? AudienceType::STANDARD );
-        if ( ! AudienceType::isValid( $audience ) ) $audience = AudienceType::STANDARD;
+        $audience = (string) ( $submitted['audience'] ?? AudienceType::PARENT_MONTHLY );
+        if ( ! in_array( $audience, self::audiences(), true ) ) $audience = AudienceType::PARENT_MONTHLY;
         $defaults  = $audience_defaults_for( $audience );
 
         $scope        = (string) ( $submitted['scope'] ?? $defaults['scope'] );
@@ -122,6 +122,7 @@ class FrontendReportWizardView extends FrontendViewBase {
         );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $reports_crumb );
         self::renderHeader( $title );
+        self::renderPlayerReportNotice( $player_id );
 
         self::renderForm( $player, $config, $scope, $date_from, $date_to );
 
@@ -135,6 +136,35 @@ class FrontendReportWizardView extends FrontendViewBase {
 
             self::renderPreview( $config );
         }
+    }
+
+    /**
+     * #3876 — the audiences this wizard still writes for. The staff documents
+     * (standard, internal detailed) are the player report's now; the wizard
+     * keeps the ones written for somebody outside the staff room.
+     *
+     * @return list<string>
+     */
+    private static function audiences(): array {
+        return array_values( array_diff( AudienceType::all(), [ AudienceType::STANDARD, AudienceType::INTERNAL_DETAILED ] ) );
+    }
+
+    /**
+     * #3876 — where the staff document went, for a reader who can open it.
+     */
+    private static function renderPlayerReportNotice( int $player_id ): void {
+        if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), $player_id )
+            || ! \TT\Shared\Frontend\Components\CrossViewLink::allows( 'standard-report' )
+        ) {
+            return;
+        }
+        $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'standard-report', 'slug' => 'player-report', 'player_id' => $player_id ], /* tt-xview-ok */ // gated by CrossViewLink::allows() above
+            remove_query_arg( [ 'tt_view', 'player_id', 'preview' ] )
+        ) );
+        echo '<p class="tt-notice tt-rwz-staff-note">'
+            . esc_html__( 'Looking for the staff report on this player? It is the player report now.', 'talenttrack' )
+            . ' <a href="' . esc_url( $url ) . '">' . esc_html__( 'Open the player report', 'talenttrack' ) . '</a></p>';
     }
 
     /**
@@ -165,7 +195,7 @@ class FrontendReportWizardView extends FrontendViewBase {
      * @param ReportConfig $config
      */
     private static function renderForm( object $player, ReportConfig $config, string $scope, string $date_from, string $date_to ): void {
-        $audiences = AudienceType::all();
+        $audiences = self::audiences();
         $current_audience = $config->audience;
         $is_scout = $current_audience === AudienceType::SCOUT;
         $can_scout = current_user_can( 'tt_generate_scout_report' );
@@ -349,8 +379,15 @@ class FrontendReportWizardView extends FrontendViewBase {
             </p>
             <div class="tt-rwz-report-host">
                 <?php
-                $renderer = new PlayerReportRenderer();
-                echo $renderer->render( $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped HTML.
+                // #3876 — the scout preview is the document the link will
+                // carry, from the player report engine; the other audiences
+                // keep the wizard's renderer.
+                if ( $config->audience === AudienceType::SCOUT ) {
+                    echo ScoutDelivery::scoutDocument( (int) $config->player_id, $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped HTML.
+                } else {
+                    $renderer = new PlayerReportRenderer();
+                    echo $renderer->render( $config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped HTML.
+                }
                 ?>
             </div>
         </div>

@@ -21,7 +21,7 @@ use TT\Modules\Players\Services\PlayerPhoto;
  * The packet is built at most once per call, and not at all when the selection
  * needs nothing from it (the letterhead and the blank notes area).
  *
- * @phpstan-type Report array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>}
+ * @phpstan-type Report array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>, audience:string}
  */
 final class PlayerReport {
 
@@ -32,12 +32,16 @@ final class PlayerReport {
      * Compose the report for one reader.
      *
      * @param list<string> $blocks Selected block keys; empty means the
-     *        conversation set. Unknown keys throw — a typo must not quietly
+     *        audience's default. Unknown keys throw — a typo must not quietly
      *        produce a report missing a section nobody asked to remove.
+     * @param string|null  $audience Null resolves it from the viewer, which is
+     *        what every reader-facing path must do (#3876). Only a surface
+     *        composing *on behalf of* someone else — a coach emailing a scout —
+     *        names it.
      * @return Report|null Null for a player outside the current club.
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
-    public function forPlayer( int $player_id, string $from, string $to, array $blocks, int $viewer_user_id ): ?array {
+    public function forPlayer( int $player_id, string $from, string $to, array $blocks, int $viewer_user_id, ?string $audience = null ): ?array {
         $unknown = PlayerReportBlock::unknown( $blocks );
         if ( $unknown !== [] ) {
             throw new \InvalidArgumentException( 'Unknown block keys: ' . implode( ', ', $unknown ) );
@@ -51,11 +55,20 @@ final class PlayerReport {
             return null;
         }
 
-        $selected = PlayerReportBlock::normalise( $blocks );
+        $audience = $audience !== null && PlayerReportAudience::isValid( $audience )
+            ? $audience
+            : PlayerReportAudience::forReader( $viewer_user_id );
+
+        $allowed  = PlayerReportAudience::blocksFor( $audience, $blocks );
+        $selected = PlayerReportBlock::normalise( $allowed !== [] || $blocks === [] ? $allowed : [ PlayerReportBlock::LETTERHEAD ] );
 
         $packet = null;
         if ( array_diff( $selected, self::WITHOUT_PACKET ) !== [] ) {
-            $packet = EvidencePacket::forPlayer( $player_id, $from, $to, $viewer_user_id );
+            // An external audience reads tests at the public level whoever
+            // composed it: a coach sending a scout the report must not hand
+            // over a test the academy keeps to its staff.
+            $tests_viewer = $audience === PlayerReportAudience::SCOUT ? 0 : $viewer_user_id;
+            $packet = EvidencePacket::forPlayer( $player_id, $from, $to, $viewer_user_id, $tests_viewer );
             if ( $packet === null ) return null;
         }
 
@@ -70,13 +83,13 @@ final class PlayerReport {
             }
         }
 
-        return [
+        return PlayerReportAudience::apply( [
             'player_id' => $player_id,
             'from'      => $from,
             'to'        => $to,
             'blocks'    => $selected,
             'data'      => $data,
-        ];
+        ], $audience ) + [ 'audience' => $audience ];
     }
 
     /**

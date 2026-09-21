@@ -7,7 +7,6 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Reports\AudienceDefaults;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Reports\PhotoInliner;
-use TT\Modules\Reports\PlayerReportRenderer;
 use TT\Modules\Reports\ReportConfig;
 use TT\Modules\Reports\ScoutReportsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -128,9 +127,23 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
             (string) $defaults['tone_variant']
         );
 
-        $renderer = new PlayerReportRenderer();
-        $html     = $renderer->render( $config );
-        $html     = PhotoInliner::inline( $html );
+        // #3876 — the player report engine, composed for this reader. The
+        // audience resolves from the scout, so the payload is the scout
+        // allowlist whatever is asked for: scores without the coach's notes,
+        // tests at the public level, nothing a scout may not receive.
+        $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+        $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], [], $scout_user_id );
+        if ( $report === null ) {
+            echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        \TT\Modules\Analytics\Frontend\PlayerReportPage::enqueuePublic();
+        ob_start();
+        echo '<div class="tt-mr tt-pr" data-tt-player-report>';
+        \TT\Modules\Analytics\Frontend\PlayerReportPage::renderBlocks( $report, [ 'from' => $window['from'], 'to' => $window['to'], 'period' => '' ] );
+        echo '</div>';
+        $html = PhotoInliner::inline( (string) ob_get_clean() );
 
         // Persist an audit row per view (assigned-account audience).
         ( new ScoutReportsRepository() )->createAssignedAccountView(

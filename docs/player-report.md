@@ -167,5 +167,22 @@ Some sections show only what you are allowed to see elsewhere:
 A section with nothing to show says so, so an empty section never reads as a
 section that was left out.
 
+### Scouts
+
+A scout sees a shorter version of the report on the players assigned to them:
+the header, evaluation scores, attendance, playing time and tests. The scores
+come without the coach's written notes, and tests show only the ones the
+academy shares publicly. The scout cannot choose other sections; the report
+decides this for them.
+
+The scouting report you email from **Generate report**, and its PDF, are this
+same scout version.
+
+### The older report wizard
+
+**Generate report** on a player now writes only for parents, the player and
+scouts. The staff report it used to offer is this player report; the wizard
+links to it.
+
 The report is confidential. It describes a minor's development: do not share it
 with the player, their parents or anyone outside the coaching staff.

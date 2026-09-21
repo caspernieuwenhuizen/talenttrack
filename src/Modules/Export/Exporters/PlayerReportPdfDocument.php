@@ -52,6 +52,17 @@ final class PlayerReportPdfDocument {
         return self::wrap( implode( '', $bodies ) );
     }
 
+    /**
+     * The report as an HTML fragment carrying its own styles — for a page that
+     * already has a shell, such as the scout's one-time link page (#3876),
+     * which stores the rendered report and echoes it inside its own body.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     */
+    public static function fragment( array $report ): string {
+        return '<div class="tt-pr-doc"><style>' . self::css() . '</style>' . self::body( $report, [] ) . '</div>'; /* tt-inline-ok */
+    }
+
     private static function wrap( string $body ): string {
         // DomPDF reads no enqueued stylesheet; the document carries its own.
         return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css() . '</style></head><body>' /* tt-inline-ok */

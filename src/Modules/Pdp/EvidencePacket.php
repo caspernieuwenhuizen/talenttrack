@@ -109,7 +109,7 @@ final class EvidencePacket {
      *
      * @return array<string,mixed>|null
      */
-    public static function forPlayer( int $player_id, string $from, string $to, int $viewer_user_id ): ?array {
+    public static function forPlayer( int $player_id, string $from, string $to, int $viewer_user_id, ?int $tests_viewer = null ): ?array {
         if ( $player_id <= 0 ) return null;
         if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return null;
 
@@ -139,7 +139,9 @@ final class EvidencePacket {
                 'scope' => 'period',
             ],
         ] + self::groups( $player_id, $club_id, $from, $to, null, $viewer_user_id ) + [
-            'tests' => self::tests( $player_id, $from, $to, $viewer_user_id ),
+            // #3876 — an external audience reads tests at the public level
+            // whoever composed the report; 0 is a reader with no clearance.
+            'tests' => self::tests( $player_id, $from, $to, $tests_viewer ?? $viewer_user_id ),
             'pdp'   => self::pdp( $player_id, $season ? (int) ( $season->id ?? 0 ) : 0, $viewer_user_id ),
         ];
     }
