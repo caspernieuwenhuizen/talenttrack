@@ -226,6 +226,8 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             'layout'    => isset( $_GET['layout'] ) ? sanitize_key( (string) $_GET['layout'] ) : '',
             'blocks'    => isset( $_GET['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) ) : '',
             'period'    => $period,
+            // #3989 — normalised by the composition, which drops what no block knows.
+            'options'   => isset( $_GET['options'] ) ? wp_unslash( (string) $_GET['options'] ) : '', // phpcs:ignore WordPress.Security.ValidationSanitization.InputNotSanitized
         ] );
         $player = $composition['player_id'] > 0 ? QueryHelpers::get_player( $composition['player_id'] ) : null;
 
@@ -249,6 +251,9 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<input type="hidden" name="layout" value="' . esc_attr( $composition['layout'] ) . '">';
         echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $composition['blocks'] ) ) . '">';
         echo '<input type="hidden" name="period" value="' . esc_attr( $composition['period'] ) . '">';
+        if ( $composition['options'] !== [] ) {
+            echo '<input type="hidden" name="options" value="' . esc_attr( (string) wp_json_encode( $composition['options'] ) ) . '">';
+        }
 
         echo '<fieldset class="tt-sched-field">';
         echo '<legend class="tt-sched-field__label">' . esc_html__( 'Who it covers', 'talenttrack' ) . '</legend>';

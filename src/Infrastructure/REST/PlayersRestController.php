@@ -96,6 +96,8 @@ class PlayersRestController {
                     'from'   => [ 'type' => 'string', 'description' => 'Y-m-d. With `to`, overrides `period`.' ],
                     'to'     => [ 'type' => 'string', 'description' => 'Y-m-d. With `from`, overrides `period`.' ],
                     'blocks' => [ 'type' => 'string', 'description' => 'Comma-separated block keys. Omit for the conversation set; an unknown key is refused.' ],
+                    // JSON string or nested query parameters, so no single type.
+                    'options' => [ 'description' => 'Per-section options as JSON, e.g. {"ratings":{"detail":"sub"}}. An unknown option key is refused.' ],
                 ],
             ],
         ] );
@@ -130,6 +132,7 @@ class PlayersRestController {
                     'layout' => [ 'type' => 'string', 'description' => 'A (one-pager) or B (two-page pack), for the snapshot\'s PDF.' ],
                     'blocks' => [ 'type' => 'string', 'description' => 'Comma-separated block keys. Omit for the conversation set.' ],
                     'title'  => [ 'type' => 'string', 'description' => 'Omit for the player\'s name and today\'s date.' ],
+                    'options' => [ 'description' => 'Per-section options as JSON, e.g. {"ratings":{"detail":"sub"}}. An unknown option key is refused.' ],
                     'audience' => [ 'type' => 'string', 'enum' => [ 'internal', 'family' ], 'description' => '`family` shares the report with the player and their parents, cut to the family sections. Omit for a staff snapshot.' ],
                 ],
             ],
@@ -690,6 +693,23 @@ class PlayersRestController {
             );
         }
 
+        // #3989 — per-section options, e.g. `options={"ratings":{"detail":"sub"}}`.
+        // An option no section recognises is refused, not ignored: a report
+        // quietly missing what was asked for is worse than an error.
+        $bad_options = \TT\Modules\Analytics\Reports\PlayerReportComposition::unknownOptions( $r['options'] ?? null );
+        if ( $bad_options !== [] ) {
+            return RestResponse::error(
+                'unknown_options',
+                sprintf(
+                    /* translators: %s = comma-separated list of option keys, e.g. "ratings.detial" */
+                    __( 'Unknown report options: %s', 'talenttrack' ),
+                    implode( ', ', $bad_options )
+                ),
+                400,
+                [ 'options' => $bad_options ]
+            );
+        }
+
         $period = sanitize_key( (string) ( $r['period'] ?? '' ) );
         if ( $period !== '' && ! in_array( $period, \TT\Modules\Analytics\Reports\ReportFilters::PERIODS, true ) ) {
             return RestResponse::error( 'bad_period', __( 'Unknown period.', 'talenttrack' ), 400, [ 'period' => $period ] );
@@ -709,12 +729,13 @@ class PlayersRestController {
             'from'      => $r['from'] ?? '',
             'to'        => $r['to'] ?? '',
             'blocks'    => $blocks,
+            'options'   => $r['options'] ?? null,
         ] );
         $window = \TT\Modules\Analytics\Reports\PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
 
         try {
             $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer(
-                $player_id, $window['from'], $window['to'], $blocks, get_current_user_id()
+                $player_id, $window['from'], $window['to'], $blocks, get_current_user_id(), null, $composition['options']
             );
         } catch ( \InvalidArgumentException $e ) {
             return RestResponse::error( 'bad_request', $e->getMessage(), 400 );
@@ -775,8 +796,23 @@ class PlayersRestController {
             'to'     => (string) ( $r['to'] ?? '' ),
             'layout' => (string) ( $r['layout'] ?? '' ),
             'blocks' => (string) ( $r['blocks'] ?? '' ),
+            'options' => $r['options'] ?? null,
         ];
         $title     = sanitize_text_field( (string) ( $r['title'] ?? '' ) );
+
+        $bad_options = \TT\Modules\Analytics\Reports\PlayerReportComposition::unknownOptions( $raw['options'] );
+        if ( $bad_options !== [] ) {
+            return RestResponse::error(
+                'unknown_options',
+                sprintf(
+                    /* translators: %s = comma-separated list of option keys, e.g. "ratings.detial" */
+                    __( 'Unknown report options: %s', 'talenttrack' ),
+                    implode( ', ', $bad_options )
+                ),
+                400,
+                [ 'options' => $bad_options ]
+            );
+        }
 
         $uuid = sanitize_key( (string) ( $r['audience'] ?? '' ) ) === 'family'
             ? \TT\Modules\Analytics\Reports\PlayerReportSnapshots::share( $player_id, $raw, get_current_user_id(), $title )

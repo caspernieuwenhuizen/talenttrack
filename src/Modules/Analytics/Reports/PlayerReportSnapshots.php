@@ -100,7 +100,8 @@ final class PlayerReportSnapshots {
             $window['to'],
             $blocks,
             $user_id,
-            $audience === PlayerReportAudience::FAMILY ? PlayerReportAudience::FAMILY : null
+            $audience === PlayerReportAudience::FAMILY ? PlayerReportAudience::FAMILY : null,
+            $composition['options']
         );
         if ( $report === null ) return '';
 
@@ -162,7 +163,7 @@ final class PlayerReportSnapshots {
      * reaches.
      *
      * @return array{uuid:string, player_id:int, title:string, audience:string, created_by:int, created_at:string,
-     *     composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>},
+     *     composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>},
      *     report:array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>},
      *     notes:array<string,array{body:string, author:int, updated_at:string}>}|null
      */

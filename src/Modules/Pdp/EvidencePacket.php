@@ -334,6 +334,9 @@ final class EvidencePacket {
                     'category_id' => (int) ( $cat->category_id ?? 0 ),
                     'label'       => EvalCategoriesRepository::displayLabel( (string) ( $cat->category_name ?? '' ), (int) ( $cat->category_id ?? 0 ) ),
                     'is_main'     => empty( $cat->category_parent_id ),
+                    // #3989 — which main category a subcategory rating sits
+                    // under, so a report can group it there. Null on a main.
+                    'parent_id'   => empty( $cat->category_parent_id ) ? null : (int) $cat->category_parent_id,
                     'rating'      => (float) ( $cat->rating ?? 0 ),
                 ];
             }

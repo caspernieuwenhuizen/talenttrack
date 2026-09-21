@@ -152,6 +152,8 @@ final class ScheduledReportsActionHandlers {
             'layout'    => isset( $_POST['layout'] ) ? sanitize_key( (string) $_POST['layout'] ) : '',
             'blocks'    => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
             'period'    => $period,
+            // #3989 — the schedule keeps the evaluations detail too.
+            'options'   => isset( $_POST['options'] ) ? wp_unslash( (string) $_POST['options'] ) : '', // phpcs:ignore WordPress.Security.ValidationSanitization.InputNotSanitized -- normalised by the composition.
         ] );
         $recipients = array_values( array_filter( array_map( 'trim', preg_split( "/[\r\n]+/", $rec_raw ) ?: [] ) ) );
         $user_id    = get_current_user_id();

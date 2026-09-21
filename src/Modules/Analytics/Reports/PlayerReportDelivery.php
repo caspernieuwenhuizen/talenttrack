@@ -40,7 +40,7 @@ final class PlayerReportDelivery {
      * Everything about a run except the PDF bytes.
      *
      * @param array<string,mixed> $schedule a hydrated `ScheduledReportsRepository` row.
-     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
+     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
      */
     public static function plan( array $schedule, string $today ): array {
         $raw         = is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [];
@@ -70,8 +70,8 @@ final class PlayerReportDelivery {
     }
 
     /**
-     * @param array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string} $plan
-     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
+     * @param array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string} $plan
+     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
      */
     private static function planTeam( array $plan, int $team_id ): array {
         $team = QueryHelpers::get_team( $team_id );
@@ -137,8 +137,8 @@ final class PlayerReportDelivery {
     }
 
     /**
-     * @param array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string} $plan
-     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
+     * @param array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string} $plan
+     * @return array{ok:bool, stop:bool, error:string, note:string, composition:array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}, window:array{from:string, to:string, period:string}, players:list<int>, dropped:list<string>, owner:int, filename:string, label:string}
      */
     private static function planPlayer( array $plan, int $player_id ): array {
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
@@ -185,7 +185,7 @@ final class PlayerReportDelivery {
         try {
             $reports = [];
             foreach ( $plan['players'] as $player_id ) {
-                $report = ( new PlayerReport() )->forPlayer( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'] );
+                $report = ( new PlayerReport() )->forPlayer( $player_id, $plan['window']['from'], $plan['window']['to'], $c['blocks'], $plan['owner'], null, $c['options'] );
                 if ( $report === null ) continue;
                 $fit             = PlayerReportLayout::fit( $report, $c['layout'] );
                 $report['data']  = PlayerReportLayout::degrade( $report, $fit['degraded'] )['data'];

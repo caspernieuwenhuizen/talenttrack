@@ -63,6 +63,17 @@ do it). A section you just ticked can be moved straight away, before you press
 view, a monthly schedule and a snapshot keep it. The header always comes first.
 Attendance and playing time print side by side when they are next to each other.
 
+**Evaluations** can be shown two ways. By default the per-category table lists
+the main categories. When an evaluation in the period rated subcategories, the
+panel offers a choice under **Evaluations**: **Main categories** or **With
+subcategories**. With subcategories, each rated subcategory sits indented under
+its main category, with its own latest and average score, on screen and in the
+PDF. A main category rated only through its subcategories gets a row too, with
+no score of its own. The choice is kept by a saved view, a snapshot, a shared
+link and a monthly schedule. When nothing in the period was rated at
+subcategory level, the choice is not offered and the report shows the main
+categories.
+
 A player who has no development plan file yet still gets a full report. The
 development plan section says there is no file yet rather than disappearing.
 

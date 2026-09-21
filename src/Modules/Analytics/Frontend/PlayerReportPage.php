@@ -9,6 +9,7 @@ use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerReportComposition;
 use TT\Modules\Analytics\Reports\PlayerReportLayout;
+use TT\Modules\Analytics\Reports\RatingsBlockOptions;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\EvidencePanel;
@@ -45,20 +46,28 @@ final class PlayerReportPage {
         $player_id = (int) ( $player->id ?? 0 );
         $blocks    = self::requestedBlocks();
         $layout    = self::requestedLayout();
+        $options   = self::requestedOptions( $blocks );
 
-        $report = ( new PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], $blocks, get_current_user_id() );
+        $report = ( new PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], $blocks, get_current_user_id(), null, $options );
         if ( $report === null ) {
             echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';
             return;
         }
 
-        self::renderPanel( $player_id, $window, $layout, $report['blocks'], PlayerReportLayout::fit( $report, $layout ), $report['audience'] );
+        // #3989 — a stored `sub` with nothing to show renders as main, and is
+        // carried on as main: the panel then does not offer the choice.
+        $ratings = $report['data'][ PlayerReportBlock::RATINGS ] ?? [];
+        if ( empty( $ratings['has_subcategories'] ) ) {
+            unset( $options[ PlayerReportBlock::RATINGS ] );
+        }
+
+        self::renderPanel( $player_id, $window, $layout, $report['blocks'], PlayerReportLayout::fit( $report, $layout ), $report['audience'], $options, ! empty( $ratings['has_subcategories'] ) );
 
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         self::renderBlocks( $report, $window );
         echo '</div>';
 
-        PlayerReportSnapshotPage::renderTakeAndList( $player_id, $window, $layout, $report['blocks'] );
+        PlayerReportSnapshotPage::renderTakeAndList( $player_id, $window, $layout, $report['blocks'], $options );
 
         // #3955 — the scout's emailed link, which lived in the retired report
         // wizard. Owned by the Reports module; absent when it is switched off.
@@ -151,6 +160,30 @@ final class PlayerReportPage {
     }
 
     /**
+     * #3989 — `options={"ratings":{"detail":"sub"}}`, the per-block option
+     * bags, plus the panel's own field for them. Forgiving like the rest of
+     * the screen: malformed JSON or an option no block recognises is dropped.
+     * The panel's field wins over the JSON: the JSON is what the page arrived
+     * with, the field is what the reader just asked for.
+     *
+     * @param list<string> $blocks
+     * @return array<string,array<string,mixed>>
+     */
+    private static function requestedOptions( array $blocks ): array {
+        $raw  = isset( $_GET['options'] ) ? wp_unslash( $_GET['options'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized in normaliseOptions().
+        $bags = is_string( $raw ) && $raw !== '' ? PlayerReportComposition::normaliseOptions( $raw, $blocks ) : [];
+
+        if ( isset( $_GET['opt_ratings_detail'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $bags[ PlayerReportBlock::RATINGS ] = [
+                RatingsBlockOptions::DETAIL => sanitize_key( wp_unslash( (string) $_GET['opt_ratings_detail'] ) ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            ];
+            $bags = PlayerReportComposition::normaliseOptions( $bags, $blocks );
+        }
+
+        return $bags;
+    }
+
+    /**
      * The composition parameters the period bar carries, so changing the
      * window keeps the layout and sections, and a saved view captures them.
      * Only what is on the URL: an absent value is the default, and saving it
@@ -165,6 +198,12 @@ final class PlayerReportPage {
         }
         if ( isset( $_GET['blocks'] ) || isset( $_GET['blk'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
             $params['blocks'] = implode( ',', self::requestedBlocks() );
+        }
+        // #3989 — re-encoded from the normalised bags rather than passed
+        // through, so a hand-edited URL cannot be carried into a saved view.
+        if ( isset( $_GET['options'] ) || isset( $_GET['opt_ratings_detail'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $options = self::requestedOptions( self::requestedBlocks() );
+            if ( $options !== [] ) $params['options'] = (string) wp_json_encode( $options );
         }
         return $params;
     }
@@ -204,8 +243,10 @@ final class PlayerReportPage {
      * @param list<string>                                                                        $selected
      * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
      * @param string                                                                              $audience the reader's; a scout is offered only what a scout may receive
+     * @param array<string,array<string,mixed>>                                                   $options  #3989 per-block options
+     * @param bool                                                                                $has_subs something in the window was rated at subcategory level
      */
-    private static function renderPanel( int $player_id, array $window, string $layout, array $selected, array $fit, string $audience ): void {
+    private static function renderPanel( int $player_id, array $window, string $layout, array $selected, array $fit, string $audience, array $options = [], bool $has_subs = false ): void {
         $hidden = [
             'tt_view'   => 'standard-report', /* tt-xview-ok */ // the form re-opens this same view
             'slug'      => self::SLUG,
@@ -314,12 +355,16 @@ final class PlayerReportPage {
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them. Drag a section, or use its arrows, to change the order it is shown and printed in.', 'talenttrack' ) . '</p>';
         echo '</fieldset>';
 
+        if ( $has_subs && in_array( PlayerReportBlock::RATINGS, $selected, true ) ) {
+            self::renderRatingsOptions( PlayerReportComposition::optionsFor( $options, PlayerReportBlock::RATINGS ) );
+        }
+
         self::renderFitMeter( $fit );
 
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $player_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
-        $schedule_url = self::scheduleUrl( $player_id, $window, $layout, $selected );
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $player_id, $window, $layout, $selected, $options ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        $schedule_url = self::scheduleUrl( $player_id, $window, $layout, $selected, $options );
         if ( $schedule_url !== '' ) {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
         }
@@ -358,6 +403,31 @@ final class PlayerReportPage {
         echo '</span>';
     }
 
+    /**
+     * #3989 — the evaluations section's detail: main categories only, or with
+     * the subcategories under them. Offered only when something in the window
+     * was rated at subcategory level; radios styled as cards, like the layout.
+     *
+     * @param array<string,mixed> $bag the ratings block's options
+     */
+    private static function renderRatingsOptions( array $bag ): void {
+        $detail = RatingsBlockOptions::detail( $bag );
+
+        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
+        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Evaluations', 'player report panel', 'talenttrack' ) . '</legend>';
+        echo '<div class="tt-mr-types">';
+        foreach ( RatingsBlockOptions::labels() as $value => $label ) {
+            $id = 'tt-pr-ratings-' . $value;
+            echo '<label class="tt-mr-type" for="' . esc_attr( $id ) . '">';
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="opt_ratings_detail" value="' . esc_attr( $value ) . '"' . checked( $detail, $value, false ) . '>';
+            echo '<span class="tt-mr-type__t">' . esc_html( $label ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'With subcategories, each rated subcategory is listed under its main category, on screen and on paper.', 'talenttrack' ) . '</p>';
+        echo '</fieldset>';
+    }
+
     private static function moveLabel( string $dir, string $title ): string {
         return $dir === 'up'
             /* translators: %s: a report section, e.g. "Tests" */
@@ -375,8 +445,9 @@ final class PlayerReportPage {
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $selected
+     * @param array<string,array<string,mixed>>          $options
      */
-    public static function scheduleUrl( int $player_id, array $window, string $layout, array $selected ): string {
+    public static function scheduleUrl( int $player_id, array $window, string $layout, array $selected, array $options = [] ): string {
         if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
         if ( ! current_user_can( 'tt_edit_settings' )
             && ! \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( get_current_user_id() )
@@ -394,6 +465,7 @@ final class PlayerReportPage {
             'blocks'    => implode( ',', $selected ),
             'period'    => $window['period'],
         ];
+        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
 
         return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
     }
@@ -406,8 +478,9 @@ final class PlayerReportPage {
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $selected
+     * @param array<string,array<string,mixed>>          $options
      */
-    public static function pdfUrl( int $player_id, array $window, string $layout, array $selected ): string {
+    public static function pdfUrl( int $player_id, array $window, string $layout, array $selected, array $options = [] ): string {
         $args = [
             'format'    => 'pdf',
             'player_id' => $player_id,
@@ -417,6 +490,7 @@ final class PlayerReportPage {
             'to'        => $window['to'],
             '_wpnonce'  => wp_create_nonce( 'wp_rest' ),
         ];
+        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
         return add_query_arg( $args, rest_url( 'talenttrack/v1/exports/player_report_pdf' ) );
     }
 
@@ -634,6 +708,16 @@ final class PlayerReportPage {
                     . '<td data-label="' . esc_attr( $c_latest ) . '">' . esc_html( self::rating( $cat['latest'] ?? null ) ) . '</td>'
                     . '<td data-label="' . esc_attr( $c_avg ) . '">' . esc_html( self::rating( $cat['average'] ?? null ) ) . '</td>'
                     . '</tr>';
+                // #3989 — the detailed view: each rated subcategory, indented
+                // under the main category it belongs to.
+                foreach ( is_array( $cat['subcategories'] ?? null ) ? $cat['subcategories'] : [] as $sub ) {
+                    if ( ! is_array( $sub ) ) continue;
+                    echo '<tr class="tt-pr-subcat">'
+                        . '<td data-label="' . esc_attr( $c_cat ) . '" class="tt-pr-subcat__label">' . esc_html( (string) ( $sub['label'] ?? '' ) ) . '</td>'
+                        . '<td data-label="' . esc_attr( $c_latest ) . '">' . esc_html( self::rating( $sub['latest'] ?? null ) ) . '</td>'
+                        . '<td data-label="' . esc_attr( $c_avg ) . '">' . esc_html( self::rating( $sub['average'] ?? null ) ) . '</td>'
+                        . '</tr>';
+                }
             }
             echo '</tbody></table></div>';
         }

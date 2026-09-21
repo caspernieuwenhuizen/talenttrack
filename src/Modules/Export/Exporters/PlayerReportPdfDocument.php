@@ -230,6 +230,12 @@ final class PlayerReportPdfDocument {
             foreach ( $cats as $c ) {
                 if ( ! is_array( $c ) ) continue;
                 $rows[] = [ self::cut( (string) ( $c['label'] ?? '' ), 40 ), self::rating( $c['latest'] ?? null ), self::rating( $c['average'] ?? null ) ];
+                // #3989 — subcategories indented under their main category.
+                // A no-break indent, because DomPDF has no per-cell class here.
+                foreach ( is_array( $c['subcategories'] ?? null ) ? $c['subcategories'] : [] as $s ) {
+                    if ( ! is_array( $s ) ) continue;
+                    $rows[] = [ "\u{00A0}\u{00A0}\u{00A0}\u{00A0}" . self::cut( (string) ( $s['label'] ?? '' ), 36 ), self::rating( $s['latest'] ?? null ), self::rating( $s['average'] ?? null ) ];
+                }
             }
             $out .= self::table(
                 [ __( 'Category', 'talenttrack' ), _x( 'Latest', 'player report rating', 'talenttrack' ), _x( 'Average', 'player report rating', 'talenttrack' ) ],
