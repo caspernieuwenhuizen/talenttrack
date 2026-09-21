@@ -1,7 +1,0 @@
-#: src/Shared/Frontend/FrontendReportWizardView.php
-msgid "Looking for the staff report on this player? It is the player report now."
-msgstr "Zoek je het stafrapport over deze speler? Dat is nu het spelersrapport."
-
-#: src/Shared/Frontend/FrontendReportWizardView.php
-msgid "Open the player report"
-msgstr "Het spelersrapport openen"

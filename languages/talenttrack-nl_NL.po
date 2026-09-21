@@ -65059,6 +65059,573 @@ msgctxt "the invitation text written to a parent"
 msgid "Message"
 msgstr "Bericht"
 
+#: src/Infrastructure/REST/PlayersRestController.php
+#, php-format
+msgid "Unknown report sections: %s"
+msgstr "Onbekende rapportonderdelen: %s"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "from and to must both be dates (YYYY-MM-DD), with from on or before to."
+msgstr "from en to moeten allebei een datum zijn (JJJJ-MM-DD), en from mag niet na to liggen."
+
+#: src/Core/FeatureRegistry.php
+msgid "Player · Report"
+msgstr "Speler · Rapport"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Confidential — staff only. This report describes a minor's development. Do not share it with the player, their parents or anyone outside the coaching staff."
+msgstr "Vertrouwelijk — alleen voor de staf. Dit rapport beschrijft de ontwikkeling van een minderjarige. Deel het niet met de speler, zijn ouders of iemand buiten de technische staf."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report panel"
+msgid "Sections"
+msgstr "Onderdelen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them."
+msgstr "Het rapport opent met de onderdelen die een één-op-één-gesprek nodig heeft. Vink er meer aan als het gesprek erom vraagt."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Letterhead"
+msgstr "Briefhoofd"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Player, team, period — always included"
+msgstr "Speler, team, periode — altijd opgenomen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Status"
+msgstr "Status"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Where the player stands now"
+msgstr "Waar de speler nu staat"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Talking points"
+msgstr "Gespreksonderwerpen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "What to raise in the conversation"
+msgstr "Wat je in het gesprek bespreekt"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Ratings per category and what was written"
+msgstr "Beoordelingen per categorie en wat er is geschreven"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Present, absent and excused"
+msgstr "Aanwezig, afwezig en afgemeld"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Playing time"
+msgstr "Speeltijd"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Matches and minutes played"
+msgstr "Gespeelde wedstrijden en minuten"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Goals"
+msgstr "Doelen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Open goals and what moved"
+msgstr "Open doelen en wat er veranderde"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Development plan"
+msgstr "Ontwikkelplan"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Conversations and what was agreed"
+msgstr "Gesprekken en wat er is afgesproken"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Notes"
+msgstr "Notities"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Space to write on during the talk"
+msgstr "Ruimte om tijdens het gesprek op te schrijven"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Match by match"
+msgstr "Per wedstrijd"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Minutes in every match"
+msgstr "Minuten in elke wedstrijd"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Tests"
+msgstr "Testen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Latest readings and the change"
+msgstr "Laatste metingen en de verandering"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Journey"
+msgstr "Traject"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Moves, transitions and milestones"
+msgstr "Overstappen, overgangen en mijlpalen"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Injuries"
+msgstr "Blessures"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Only for readers with medical access"
+msgstr "Alleen voor lezers met medische toegang"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Behaviour"
+msgstr "Gedrag"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Behaviour ratings in the period"
+msgstr "Gedragsbeoordelingen in de periode"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Potential"
+msgstr "Potentie"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Potential set in the period"
+msgstr "Potentie vastgesteld in de periode"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report section"
+msgid "Staff notes"
+msgstr "Stafnotities"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Notes from the player's file"
+msgstr "Notities uit het spelersdossier"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "No. %d"
+msgstr "Nr. %d"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "Born %d"
+msgstr "Geboren %d"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "Player report — %s"
+msgstr "Spelersrapport — %s"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "Score %s"
+msgstr "Score %s"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "What the data suggests raising, most urgent first."
+msgstr "Wat de gegevens voorstellen om te bespreken, het dringendste eerst."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Nothing in the data asks to be raised this period."
+msgstr "Niets in de gegevens vraagt om bespreking in deze periode."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report rating"
+msgid "Latest"
+msgstr "Laatste"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report rating"
+msgid "Average"
+msgstr "Gemiddeld"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "The development plan is not available to you, or is switched off for your academy."
+msgstr "Het ontwikkelplan is niet voor jou beschikbaar, of staat uit voor je academie."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "This player has no development plan file yet."
+msgstr "Deze speler heeft nog geen ontwikkelplan."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report pdp column"
+msgid "Conversation"
+msgstr "Gesprek"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report pdp column"
+msgid "Planned"
+msgstr "Gepland"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report pdp column"
+msgid "Held"
+msgstr "Gehouden"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report pdp column"
+msgid "Signed off"
+msgstr "Afgetekend"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Agreed at the last conversation:"
+msgstr "Afgesproken bij het laatste gesprek:"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "End-of-season verdict: %s"
+msgstr "Eindoordeel seizoen: %s"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Ruled lines on the printed copy, for what the conversation agrees."
+msgstr "Lijntjes op de afdruk, voor wat er in het gesprek wordt afgesproken."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report tests column"
+msgid "Test"
+msgstr "Test"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "First reading"
+msgstr "Eerste meting"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report test change"
+msgid "better"
+msgstr "beter"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report test change"
+msgid "worse"
+msgstr "slechter"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report test change"
+msgid "unchanged"
+msgstr "ongewijzigd"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Nothing recorded on the journey in this window."
+msgstr "Niets vastgelegd in het traject in deze periode."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "No injuries in this window, or none you have access to."
+msgstr "Geen blessures in deze periode, of geen waar je toegang toe hebt."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "No behaviour ratings in this window."
+msgstr "Geen gedragsbeoordelingen in deze periode."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "No potential set in this window."
+msgstr "Geen potentie vastgesteld in deze periode."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "No staff notes in this window, or none you have access to."
+msgstr "Geen stafnotities in deze periode, of geen waar je toegang toe hebt."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Player report"
+msgstr "Spelersrapport"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "One document for a conversation with a player: status, evaluations, attendance, playing time, goals and the development plan, over the season so far."
+msgstr "Eén document voor een gesprek met een speler: status, evaluaties, aanwezigheid, speeltijd, doelen en het ontwikkelplan, over het seizoen tot nu toe."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "You do not have access to a report on this player."
+msgstr "Je hebt geen toegang tot een rapport over deze speler."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report panel"
+msgid "Printed copy"
+msgstr "Afdruk"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "The layout shapes the printed copy. On screen, every selected section is shown in full."
+msgstr "De indeling bepaalt de afdruk. Op het scherm zie je elk gekozen onderdeel volledig."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Does not fit on one page, even with long lists shortened. Drop a section, or switch to the two-page pack."
+msgstr "Past niet op één pagina, ook niet met ingekorte lijsten. Laat een onderdeel weg, of kies het pakket van twee pagina's."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Runs past two pages. Drop a section or pick a shorter period."
+msgstr "Loopt over twee pagina's heen. Laat een onderdeel weg of kies een kortere periode."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Fits by shortening: long lists keep their most recent entries and say how many more there are, the development plan becomes one line, and the notes area keeps three lines."
+msgstr "Past door in te korten: lange lijsten houden hun meest recente items en zeggen hoeveel er nog meer zijn, het ontwikkelplan wordt één regel en het notitievak houdt drie lijntjes."
+
+#: src/Modules/Analytics/Reports/PlayerReportLayout.php
+msgid "A4, one page. What you bring to a conversation; long lists keep their most recent entries."
+msgstr "A4, één pagina. Wat je meeneemt naar een gesprek; lange lijsten houden hun meest recente items."
+
+#: src/Modules/Analytics/Reports/PlayerReportLayout.php
+msgid "Two-page pack"
+msgstr "Pakket van twee pagina's"
+
+#: src/Modules/Analytics/Reports/PlayerReportLayout.php
+msgid "A4, up to two pages. Room for every evaluation, match and test in the period."
+msgstr "A4, maximaal twee pagina's. Ruimte voor elke evaluatie, wedstrijd en test in de periode."
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+msgctxt "player report goals column"
+msgid "Goal"
+msgstr "Doel"
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+msgctxt "player report goals column"
+msgid "Movement"
+msgstr "Voortgang"
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+msgctxt "player report goals column"
+msgid "Due"
+msgstr "Deadline"
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+#, php-format
+msgid "… and %d more in this period, on screen and in the two-page pack."
+msgid_plural "… and %d more in this period, on screen and in the two-page pack."
+msgstr[0] "… en nog %d in deze periode, op het scherm en in het pakket van twee pagina's."
+msgstr[1] "… en nog %d in deze periode, op het scherm en in het pakket van twee pagina's."
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+#, php-format
+msgid "%1$d of %2$d conversations held"
+msgstr "%1$d van %2$d gesprekken gevoerd"
+
+#: src/Modules/Export/Exporters/PlayerReportPdfDocument.php
+#, php-format
+msgid "next planned %s"
+msgstr "volgende gepland op %s"
+
+#: src/Modules/Export/Exporters/PlayerReportPdfExporter.php
+msgid "Player report (PDF)"
+msgstr "Spelersrapport (PDF)"
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+msgid "The status model flags this player as needing action."
+msgstr "Het statusmodel geeft aan dat bij deze speler actie nodig is."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+msgid "The status model flags this player to watch."
+msgstr "Het statusmodel geeft aan dat deze speler in de gaten gehouden moet worden."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "%1$d of %2$d activities missed since %3$s."
+msgstr "%1$d van %2$d activiteiten gemist sinds %3$s."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "Attendance %1$d%%, against %2$d%% in the period before."
+msgstr "Aanwezigheid %1$d%%, tegen %2$d%% in de periode ervoor."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "Played %1$d%% of the available minutes, below the academy target of %2$d%%."
+msgstr "%1$d%% van de beschikbare minuten gespeeld, onder het doel van de academie van %2$d%%."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "%1$d of %2$d minutes over %3$d recorded matches."
+msgstr "%1$d van %2$d minuten over %3$d wedstrijden met vastgelegde minuten."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "No evaluation recorded since %s."
+msgstr "Geen evaluatie vastgelegd sinds %s."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+msgid "Worth an evaluation before or after this conversation, so the next report has one to read."
+msgstr "Een evaluatie voor of na dit gesprek is de moeite waard, zodat het volgende rapport er een heeft om te lezen."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "A test moved the wrong way since the reading before: %s."
+msgid_plural "Tests moved the wrong way since the reading before: %s."
+msgstr[0] "Een test ging sinds de meting ervoor de verkeerde kant op: %s."
+msgstr[1] "Testen gingen sinds de meting ervoor de verkeerde kant op: %s."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "Goal \"%1$s\" was due on %2$s and is still open."
+msgstr "Doel \"%1$s\" had op %2$s af moeten zijn en staat nog open."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "Back from injury on %s — worth talking about load."
+msgstr "Terug van blessure op %s — de moeite waard om over belasting te praten."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "%1$s (%2$s)."
+msgstr "%1$s (%2$s)."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+#, php-format
+msgid "The academy has no %s on record for this player yet."
+msgstr "De academie heeft voor deze speler nog geen %s vastgelegd."
+
+#: src/Modules/Analytics/Reports/PlayerTalkingPoints.php
+msgid "The status above was worked out without it."
+msgstr "De status hierboven is zonder dit gegeven berekend."
+
+#: src/Shared/Frontend/FrontendReportWizardView.php
+msgid "Looking for the staff report on this player? It is the player report now."
+msgstr "Zoek je het stafrapport over deze speler? Dat is nu het spelersrapport."
+
+#: src/Shared/Frontend/FrontendReportWizardView.php
+msgid "Open the player report"
+msgstr "Het spelersrapport openen"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Unknown report section."
+msgstr "Onbekend rapportonderdeel."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "The note could not be saved."
+msgstr "De notitie kon niet worden opgeslagen."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Only signed-in staff who can see this player can open this snapshot. It has no shareable link — send the PDF instead."
+msgstr "Alleen ingelogde stafleden die deze speler mogen zien, kunnen deze momentopname openen. Er is geen deelbare link — stuur in plaats daarvan de PDF."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Save snapshot of this conversation"
+msgstr "Momentopname van dit gesprek opslaan"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section."
+msgstr "Zet deze cijfers vast als verslag van waar het gesprek op gebaseerd was, en laat je per onderdeel notities toevoegen."
+
+#: src/Modules/Analytics/Reports/PlayerReportSnapshots.php
+#, php-format
+msgctxt "default name for a player report snapshot"
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid "One monthly report frozen for a staff meeting and one player report frozen for a conversation, each with the notes written on it."
+msgstr "Eén maandrapport vastgezet voor een stafoverleg en één spelersrapport vastgezet voor een gesprek, elk met de notities die erop zijn geschreven."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Schedule the player report"
+msgstr "Het spelersrapport inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "You cannot schedule a report for this player."
+msgstr "Je kunt geen rapport voor deze speler inplannen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Sent on the 1st of every month as a PDF, over the same period the report had when you scheduled it. The schedule keeps its own copy of the sections."
+msgstr "Wordt op de 1e van elke maand als PDF verstuurd, over dezelfde periode die het rapport had toen je het inplande. De planning bewaart een eigen kopie van de onderdelen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Who it covers"
+msgstr "Voor wie"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Every player in %s — one report each, in one PDF"
+msgstr "Elke speler in %s — één rapport per speler, in één PDF"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Only %s"
+msgstr "Alleen %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player reports %s"
+msgstr "Spelersrapporten %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "The report describes a minor's development. Send it to staff only."
+msgstr "Het rapport beschrijft de ontwikkeling van een minderjarige. Stuur het alleen naar de staf."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player reports · %s"
+msgstr "Spelersrapporten · %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player report · %s"
+msgstr "Spelersrapport · %s"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Stopped: this squad has %1$d players, and one scheduled round prints at most %2$d. Schedule the players you need individually instead."
+msgstr "Gestopt: deze selectie heeft %1$d spelers, en één ingeplande ronde drukt er maximaal %2$d af. Plan de spelers die je nodig hebt in plaats daarvan afzonderlijk in."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Not sent: there is no player in this squad whose report the schedule’s owner can read."
+msgstr "Niet verstuurd: er is geen speler in deze selectie van wie de eigenaar van de planning het rapport mag inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Player report %1$s, %2$d player"
+msgid_plural "Player reports %1$s, %2$d players"
+msgstr[0] "Spelersrapport %1$s, %2$d speler"
+msgstr[1] "Spelersrapporten %1$s, %2$d spelers"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Sent without %s: the schedule’s owner can no longer read their reports."
+msgstr "Verstuurd zonder %s: de eigenaar van de planning mag hun rapporten niet meer inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the player in this schedule no longer exists."
+msgstr "Gestopt: de speler in deze planning bestaat niet meer."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the player in this schedule has been archived."
+msgstr "Gestopt: de speler in deze planning is gearchiveerd."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the person who set up this schedule can no longer read this player’s report."
+msgstr "Gestopt: degene die deze planning heeft ingesteld, mag het rapport van deze speler niet meer inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Player report %s"
+msgstr "Spelersrapport %s"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "The PDF could not be created this time. The schedule will try again next time."
+msgstr "De PDF kon deze keer niet worden gemaakt. De planning probeert het de volgende keer opnieuw."
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

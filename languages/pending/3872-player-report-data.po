@@ -1,8 +1,0 @@
-#: src/Infrastructure/REST/PlayersRestController.php
-#, php-format
-msgid "Unknown report sections: %s"
-msgstr "Onbekende rapportonderdelen: %s"
-
-#: src/Infrastructure/REST/PlayersRestController.php
-msgid "from and to must both be dates (YYYY-MM-DD), with from on or before to."
-msgstr "from en to moeten allebei een datum zijn (JJJJ-MM-DD), en from mag niet na to liggen."
