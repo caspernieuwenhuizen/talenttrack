@@ -1,7 +1,0 @@
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
-msgid "Tournaments (planner)"
-msgstr "Toernooien (planner)"
-
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
-msgid "Player tournaments"
-msgstr "Toernooien van de speler"

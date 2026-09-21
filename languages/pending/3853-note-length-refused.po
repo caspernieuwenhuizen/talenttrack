@@ -1,4 +1,0 @@
-#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php
-#. translators: 1: maximum number of characters, 2: comma-separated field names
-msgid "A note is one short point, at most %1$d characters. Shorten these and save again: %2$s."
-msgstr "Een notitie is één kort punt, van maximaal %1$d tekens. Kort deze in en sla opnieuw op: %2$s."

@@ -1,3 +1,0 @@
-#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:106
-msgid "Times are shown in the site timezone. Older rows may carry the database server’s local time, which on some installs differs from the site’s."
-msgstr "Tijden staan in de tijdzone van de site. Oudere regels kunnen de lokale tijd van de databaseserver bevatten, die op sommige installaties afwijkt van die van de site."

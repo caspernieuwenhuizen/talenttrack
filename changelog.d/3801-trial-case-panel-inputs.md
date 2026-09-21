@@ -1,7 +1,0 @@
-# The trial case shows what the decision is waiting for (#3801)
-
-A trial case used to be a header. Everything a decision needs existed in the database and was never joined onto it, so a head of development opening a case could not see which panellists had handed their assessment in, what they had scored, or why the case had been extended — and nothing at all warned that the window closed tomorrow. That a panellist had submitted nothing was a fact you discovered by texting them.
-
-`GET /trial-cases/{id}` now composes three blocks onto the case for a caller who may already read its synthesis: the panel's submitted inputs (who, when, overall score), the panellists who have submitted nothing, and the extension history with each justification. The inputs are read through the same method the inputs route uses, so the release rules hold — a panellist who may see only their own before release sees only their own here too, and the full bodies stay on `/trial-cases/{id}/inputs`. A caller who may not read the synthesis gets exactly the payload they got before.
-
-On screen, the Assigned staff card now says who has handed in and who has not, the Staff inputs tab names who the panel is still waiting on, and an undecided case close to its end date carries a Deadline banner. A matching **Trial ending without a decision** alert reaches whoever may decide trials, names the missing panellists, and resolves itself the moment the decision is recorded or the case is extended. How far ahead both warn is `alerts_trial_decision_due_days`, three days by default.

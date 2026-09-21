@@ -1,3 +1,0 @@
-#: src/Infrastructure/REST/MeasurementsRestController.php:582
-msgid "Send a date, a number or a text value to change."
-msgstr "Stuur een datum, een getal of een tekstwaarde om te wijzigen."

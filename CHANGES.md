@@ -1,3 +1,914 @@
+# TalentTrack v4.130.0 — Tournament data hygiene: demo periods and positions, a validated opponent level (#3559)
+
+Four faults in tournament data, each of which a per-player view would have put straight in front of families.
+
+The demo generator wrote its period assignments 1-based while the planner counts from 0, where period 0 is the opening lineup. Every player on every demo install therefore had **zero starts**, one assignment per match sat on a period the fixture does not have, and the full-match count was measured against the wrong periods. Its position codes were its own invention — `OF1`…`OF6`, and `DF` / `MF` / `FW` for what a player can cover — none of which any other surface can read, and squad members left out of a period got no bench row at all. Generated tournaments now use the planner's own codes, run from period 0 to the number of substitution windows, and place every squad member in every period.
+
+The opponent-level pill on a match card now takes its colour from the level itself, as the documentation always said it did, so recolouring a level under Configuration recolours the pill. Its text switches between dark and light to stay readable: the seeded amber is 1.8:1 against white, nowhere near legible, and the colour an operator picks next is not something a fixed ink can be right about.
+
+The level is also checked when it is written. It was a plain text column every write path sanitised and none validated, so an import could store any word and the planner would show it. An unknown level is now refused with a message naming the levels that are allowed; an empty one still clears the field.
+
+Finally, the canonical-values map that drives the lookup-normalisation screen keyed this vocabulary as `opponent_level` while the lookup type is `tournament_opponent_level` — one key to the left of the values it described, so the screen offered none.
+
+# TalentTrack v4.130.0 — A player's tournament record reaches their coaches and their family (#3560)
+
+Tournaments were admin-and-staff-only, so a player's own tournament history —
+the days they played and the minutes they got — had nobody to read it but the
+people running the planner.
+
+It now has an access entity of its own, `player_tournaments`: the coaches and
+heads of development of the player's teams, the player, their parents, and the
+academy admin. Read only, and one player's figures rather than a squad's.
+
+The planner is deliberately untouched. Widening `tournaments` so a family could
+see their own child's afternoon would have shown them every other child's too,
+which is the whole reason this is a second entity rather than a wider grant.
+
+Players gain a **Tournaments** toggle in "What your parent can see", beside
+Playing time — a tournament day is where a young player's share of the pitch is
+most visible and most compared. It defaults to shared, so no family loses
+anything.
+
+A top-up migration adds the rows to installs that already carry a matrix, and
+reports what it wrote.
+
+# TalentTrack v4.130.0 — A player's tournament record, on the API (#3561)
+
+Tournament minutes could be read one squad-day at a time and never one
+player at a time: the planner's minutes ticker showed how a Saturday had
+been divided between sixteen children, and nowhere showed how a season of
+Saturdays had gone for one of them.
+
+`GET /players/{id}/tournaments` is that answer — every tournament a player
+was in the squad for, every fixture of those they were down for, the
+minutes the rotation plan gave them, how they compare with their own
+playing-time target, and what is still ahead. It is what the Tournaments
+tab on the player file will render.
+
+The minutes arithmetic moved out of the tournament planner's controller
+into one domain service that both now call, so the player's file and the
+coach's ticker cannot drift apart. A test compares the two endpoints
+player by player for the same tournament.
+
+Two things the answer is careful about. Minutes come from the rotation
+plan of completed fixtures and never from the attendance register — a
+tournament day's attendance is one total for the day, so the two are never
+added together. And a fixture with no result recorded says so, rather than
+reporting 0-0: a goalless draw and a game nobody typed in are different
+facts about a child's season.
+
+Who can read it follows the player-tournaments permission: a coach for
+their own squads, a parent for their own child unless the child has closed
+the section, the player for themselves, and the Head of Development or
+academy administrator for anyone.
+
+# TalentTrack v4.130.0 — A Tournaments tab on the player file (#3562)
+
+The tournament planner answers "how did I divide this Saturday between
+sixteen children". Nothing answered the other half — how a season of
+Saturdays has gone for one of them — and on a tournament day a coach
+rotates harder than on any other.
+
+Open a player and choose **Tournaments**. You see what is coming up, the
+headline figures (minutes, starts out of fixtures, full matches, minutes
+against stronger sides) and then every tournament they were in the squad
+for, each opening to its fixtures: the opponent and their level, the score,
+whether the player started, came on or sat out, how many of the fixture's
+minutes they got, and where they played.
+
+Each tournament is measured against that player's own minutes target, set
+on the tournament's squad list — never against a squad average, because a
+teammate's minutes are not this player's business. Only a shortfall is
+coloured, and the numbers are written out beside the bar, so nothing on the
+page depends on seeing a colour.
+
+Where the minutes come from is written on the page: the rotation plan of
+completed fixtures. Minutes typed in afterwards on the minutes overview are
+on the Activities tab, and the two are never added together. A fixture with
+no result recorded says so, rather than reading as 0-0.
+
+A coach sees it for the players in their own squads, a Head of Development
+or administrator for anyone, the player for their own record, and a parent
+for their child unless the player has switched the tournaments section off
+in their sharing settings. A player who has never been in a tournament
+squad sees a line saying so and carries no count — the tab still appears,
+because a coach checking fair-share play needs "never selected" to be
+visible.
+
+# TalentTrack v4.130.0 — A scout on a trial panel can read the case and submit their assessment (#3566)
+
+A scout assigned to a trial case's panel can now open that case and submit their assessment. Their permissions were written for this all along, but the authorization layer only recognised two ways of being linked to a player — being the player, or being their parent — so every one of a scout's player-level permissions quietly resolved to "no". A scout is now linked to a player through an active panel seat or through their own assignment list.
+
+The case list a scout sees is limited to the panels they actually sit on, and a scout still sees only their own input until the head of development releases the panel's. Being taken off a panel, or a player being released, ends the access straight away.
+
+# TalentTrack v4.130.0 — Activity write routes check the team, not just the capability (#3616)
+
+A coach could create, edit, archive, restore or permanently delete an activity belonging to any other team in the club. The write routes checked whether the caller may edit activities at all, and never whether the activity was theirs — while the activity *list* had always narrowed to the coach's own teams, which is what made the gap invisible.
+
+All five single-record writes now refuse a team the caller does not hold, and moving an activity between teams requires standing on both the team it leaves and the team it joins. Anyone who works across the whole club — head of development, academy admin — is unaffected.
+
+# TalentTrack v4.130.0 — The message log records the time the decision was actually made (#3696)
+
+Message-log times came from the database server's clock, while every decision about when to send — quiet hours above all — uses the site's. On an install where the two differ, the log showed a time the decision was not made at: a message correctly held until the morning could appear in the log timestamped inside working hours, which reads as the quiet-hours setting being broken when it is working exactly as configured.
+
+New rows are now stamped from the site's clock. Rows written before this keep the time they were given, because there is no record of what the offset was, so the log page now says older rows may carry the other clock.
+
+# TalentTrack v4.130.0 — Match sheet score follows a goal corrected away in the minutes grid (#3705)
+
+The score on a match run from the live sheet is a reading of its goal log,
+and every live route re-derives it after touching a goal. The minutes grid
+did not: counting a player's goals down through the grid reversed the goal
+but left the stored score where it was, so the match sheet could read 1–0
+over an empty goal list. It now re-derives once per execution a correction
+touched — a player counted down by three goals is one recount, and a
+correction that only undoes typed entries still leaves the score alone,
+because those belong to no match sheet.
+
+# TalentTrack v4.130.0 — A stuck prospect can be put forward for a test training (#3710)
+
+The invite task is the only thing that links a prospect to a test training, and
+it was only ever created when a prospect was logged through the wizard. So a
+prospect whose chain was cancelled, who was logged while the pipeline workflow
+was off, who was imported, or who was seeded by the demo generator sat in the
+first column with nothing to click. Their card now offers a way forward:
+**Propose test training** asks the head of development to arrange one, and for
+somebody who may issue the invitation themselves the button goes straight to the
+New test training form instead. Proposing twice, or two scouts proposing the
+same prospect, produces one request — the head of development is asked about a
+child once. `POST /prospects/{id}/test-training-proposal` does the same over
+REST.
+
+# TalentTrack v4.130.0 — The decide form and the API now agree, and say why they refused (#3786)
+
+Recording a trial decision on the case screen kept its own copy of the motivation rule the API had already had fixed, and its copy counted bytes rather than characters — so a Dutch motivation written with accents cleared a floor the message describes in characters, and the two surfaces disagreed about the same text. There is one rule now, in the domain layer, and both call it.
+
+A motivation that is too short no longer fails in silence. The Decision tab re-renders with the reason under the field — the minimum and how many characters you wrote — with everything you typed still in the form, including the outcome you picked. Losing a paragraph somebody wrote about a child was exactly the wrong way to fail.
+
+The screen also stopped writing the player's status itself. That transition belongs to the trial-decision subscriber, which was already doing it; the screen wrote `archived` over it, which is not a status the product recognises. A decline with encouragement now leaves the player **Inactive**, as the documentation has always said, whichever surface recorded the decision.
+
+# TalentTrack v4.130.0 — A recorded trial decision says who wrote it (#3787)
+
+The Decision tab already showed the motivation behind a recorded decision — but only the date beside it, never the name. The one entry a family may ask about a season later had no author on it, which is the part of an audit trail that matters most when somebody asks who decided.
+
+It now reads back as the outcome, when it was recorded, **who** recorded it, and their motivation, labelled *Motivation* rather than *Justification* so the screen and the form agree on what the field is called. A long motivation wraps and keeps the line breaks it was written with instead of pushing the summary sideways on a phone, and a case decided before motivations were captured shows no motivation rather than an empty one.
+
+The motivation stays on the trial case and goes nowhere else — not onto the player record, not into the letter home, not into the parent-meeting view. It is free text about a child written for an internal panel, and the player file is read by considerably more people than that panel.
+
+# TalentTrack v4.130.0 — Minutes audit refuses an out-of-scope team instead of reporting it empty (#3792)
+
+`GET reports/minutes-audit` answered a team the caller may not read with an
+empty matrix and a `200`. An empty matrix is a claim about the data — this
+team recorded no minutes — so a coach checking whether another age group had
+logged theirs got a confident, wrong answer they could not tell apart from a
+real gap. The route now refuses with `403 forbidden_team`, the same refusal
+the three attendance readers on the same controller already answer with, and
+through both the plain `team_id` and the nested `filter[team_id]` spelling.
+
+A team you may read that genuinely has no minutes recorded still comes back as
+an empty matrix with `200`, so "there is nothing here" and "you may not look
+here" stay two different answers. The per-match editor refused already and is
+unchanged, as are the matrix contents for anyone in scope.
+
+# TalentTrack v4.130.0 — A new team activity starts with its team expected (#3800)
+
+Creating an activity for a team now fills its planned roster with the team's active players straight away, so the register can be prepped at the side of the pitch without opening the edit screen first.
+
+Until now only the activity wizard did this. Anything created another way — over the API, or quickly on a phone — began with a planned roster of nobody, and coaches were opening the activity and saving it again to force one. That looked like a repair; it was actually the first time the roster had ever been written.
+
+A roster you supply yourself is honoured as given, and a squad you have trimmed stays trimmed — the roster is only ever filled in when it is empty.
+
+# TalentTrack v4.130.0 — The trial case shows what the decision is waiting for (#3801)
+
+A trial case used to be a header. Everything a decision needs existed in the database and was never joined onto it, so a head of development opening a case could not see which panellists had handed their assessment in, what they had scored, or why the case had been extended — and nothing at all warned that the window closed tomorrow. That a panellist had submitted nothing was a fact you discovered by texting them.
+
+`GET /trial-cases/{id}` now composes three blocks onto the case for a caller who may already read its synthesis: the panel's submitted inputs (who, when, overall score), the panellists who have submitted nothing, and the extension history with each justification. The inputs are read through the same method the inputs route uses, so the release rules hold — a panellist who may see only their own before release sees only their own here too, and the full bodies stay on `/trial-cases/{id}/inputs`. A caller who may not read the synthesis gets exactly the payload they got before.
+
+On screen, the Assigned staff card now says who has handed in and who has not, the Staff inputs tab names who the panel is still waiting on, and an undecided case close to its end date carries a Deadline banner. A matching **Trial ending without a decision** alert reaches whoever may decide trials, names the missing panellists, and resolves itself the moment the decision is recorded or the case is extended. How far ahead both warn is `alerts_trial_decision_due_days`, three days by default.
+
+# TalentTrack v4.130.0 — Evaluation coverage stops reporting a clean sheet it never measured (#3802)
+
+The evaluation-coverage report showed nought gaps for every player in the academy, while the last evaluation anywhere was seven weeks old. It was not miscounting: with no evaluation periods set up it had nothing to measure against, and reported nought because it had been asked nothing.
+
+Three things change. A fresh install now starts with four evaluation rounds across its own season, so the report works out of the box instead of waiting to be discovered. Where no period is set, the report says so rather than showing an unearned green. And filtering by team now actually filters — it was accepted and quietly ignored, so asking about one team returned all of them.
+
+Periods you have set up, including a list you deliberately emptied, are left exactly as they are.
+
+# TalentTrack v4.130.0 — Media consent is now visible where the pictures are (#3804)
+
+Photo and video consent has been recorded on the player since v4.x, and
+until now it was readable on exactly one screen: the form that wrote it.
+Everywhere anyone actually looked at a child's pictures — the player's
+Media tab, the players list, the printed PDP file — showed them with no
+indication of whether the club had ever asked.
+
+It now says so. The player's identity card carries the answer with the
+date and the name of whoever recorded it. The Media tab opens with a line
+stating the position in a sentence, and marks every item when there is no
+consent on record. The printed PDP file carries the same line under the
+header, so the statement travels with the document. The players list gains
+a sortable **Media consent** column and a filter whose first option is the
+question this was raised for: *Has images, no consent* — the children the
+academy is holding pictures of without a recorded answer, rather than the
+much longer list of children nobody has photographed.
+
+Nothing is hidden. Consent remains a record and not a gate: no image is
+withheld from anyone, on any surface, including the hand-out. A coach who
+cannot see a picture cannot judge whether they may use it.
+
+# TalentTrack v4.130.0 — One page per squad saying whose file is still incomplete (#3805)
+
+The office used to chase missing paperwork one player at a time: the
+players list shows name, foot and shirt number, so the state of sixteen
+files meant opening sixteen records. **Dossier completeness** is a new
+tile that answers it for a whole team at once — guardian name, e-mail and
+phone, whether a parent account is linked, whether photo and video consent
+is on record and when, and which players have pictures on file that nobody
+consented to. Every name links to that player, and the back link brings you
+straight back to the list you were working through.
+
+A linked parent account and the guardian contact fields are reported
+separately, because they are two different facts: an account is how a
+parent reads their child's record, and the phone number is how somebody
+telephones a family on a Saturday morning.
+
+The page says a field is empty; it never says what is in it when it is
+filled, and there is no club-wide version. A checklist that printed every
+family's contact details would be an export with a friendlier heading.
+
+A new alert, **Pictures on file with no consent**, raises its hand for an
+active player who has photos or videos on file and no consent on record. It
+goes to the team's head coach and to whoever can edit players, and clears
+itself the moment consent is recorded or the last item is archived. Like
+everywhere else consent appears, it hides nothing: it tells a human to go
+and ask.
+
+The same answer is on the API at `GET /teams/{id}/dossier-completeness`.
+
+# TalentTrack v4.130.0 — A parent can find something (#3806)
+
+A coach texts a parent that a session is "in TalentTrack now", and the parent has nowhere to look. The child's activities page shows the next few and then a table that stops at today, and there is no search anywhere on the parent surface — `?tt_view=search` opened the 404 page. Pasting a record number out of a text message into the address bar was the only thing that worked.
+
+Two halves, because fixing one leaves the parent where they started.
+
+**The list.** Your child's activities page opens on what has already happened, which is right for most readers and is why it was built that way. **Show upcoming**, just above the list, now turns it around: everything still to come, soonest first, with the same date filter and the same columns. Which mode you are in is in the address, so a link to "everything coming up" can be sent to the other parent. This is how you reach a fixture that is weeks out — **Coming up** only ever held the next five, and anything beyond those was in the product, openable by its own link, and on no screen you could get to.
+
+**The search.** A field in the header, and a page at its own address, over your own children's activities, evaluations, goals and messages — by name or by date. "3 Nov", "2026-11-03" and "Training" all work.
+
+The scope is the whole design. The search resolves your linked children first and every query is bounded by them, rather than searching the academy and filtering afterwards: a filter can be forgotten. It reaches nothing you could not already open from your child's own pages. And a search that would match another family's record returns exactly what a search for a made-up name returns — nothing, with no count, no suggestion and no different wording. Telling those two apart is a way of finding out that another child exists.
+
+Staff search is untouched.
+
+# TalentTrack v4.130.0 — A scout gets a player card, and an honest refusal (#3807)
+
+A scout opened the players screen, saw an empty table, and spent a week believing it was broken. It was not: `GET /players` admitted them on a capability they hold and then filtered every row away, answering successfully with nothing in it, while every per-player route refused them outright. "Not allowed" and "nothing found" looked identical.
+
+They are different answers now. A caller entitled to no players at all is refused — on the screen and in the API — with a sentence saying what to ask for. A caller entitled to some players still gets an honest empty result when a filter legitimately matches nothing; the refusal is about the person, never about the search, because refusing on the search would disclose that a player they may not see exists.
+
+And a scout genuinely needed something to read. Their job includes comparing a trialist against the squad the club already has, and they could read a squad player's minutes share without one line about who that player is. A **player card** now answers that, at `?tt_view=scout-player-card` and `GET /players/{id}/scout-card`, carrying exactly: name, birth year, team, position, minutes share, the club's status for the player, and the scout's own observations of them. Nothing else — no guardian contact, no custom fields, no evaluations, measurements, injuries, behaviour ratings or plan content. It is a separate route rather than a wider player record precisely because the full record returns every custom field an academy has defined with no per-field filter.
+
+The card is also the reason a scout's player read now follows their links rather than the whole academy, matching what the same settings already did for evaluations and for photographs and video. The two ship together on purpose: the narrower read would otherwise take away the squad comparison the card exists to give back. An academy that had deliberately widened this for its scouts keeps its own setting; only the shipped default moves.
+
+# TalentTrack v4.130.0 — The team manager can see the planned load for their own team (#3808)
+
+The team manager is who parents ring when a boy is tired or sore, and who decides who gets kit and who sits out — and they could see how many minutes a player had already played, but nothing at all about what was planned for the coming week. The two halves of that conversation sat in different places, and the one in their hands was paper.
+
+They now read the planned load and the training exposure for their own team, beside the minutes they could already see. Read-only: building cycles, macro-blocks and age profiles stays with the coach and the head of development, and those screens keep refusing a team manager on purpose. Deciding how hard children are worked is not a logistics job.
+
+This works whichever way a club sets its team managers up, and the permissions table in the VCT documentation now names every role explicitly, including the ones with no access at all.
+
+# TalentTrack v4.130.0 — Coach evaluation quality reports on the squad, not on the evaluations (#3809)
+
+The report could not answer the question the head of development asks at
+month-end: who evaluated nobody. Its rows were evaluations grouped by coach, so
+a coach with nothing in the period produced no group and no row — and that is
+precisely the coach worth ringing. Finding that every team was 0 of 16 for
+October took a monthly-report call per team, and the new U13 coach was not in
+the report at all.
+
+The rows now start from the coaches who hold a team — resolved through the same
+team-staff path the evaluation-coverage report uses, so the two can never
+disagree about who a team's coach is — and left-join the evaluations in the
+window. A coach who evaluated nobody appears with zeroes against their squad
+size. The ratings join became an outer join for the same reason: a coach with
+evaluations but no rating rows keeps their counts and shows empty statistics
+rather than vanishing.
+
+Each row now carries squad size, players evaluated in the period, players never
+evaluated this season, and days since that coach last evaluated anyone —
+measured from their most recent evaluation whenever it was, because bounded by
+the period it would be empty for every coach worth chasing. The report also
+echoes the window it applied and falls back to the current season when no dates
+are given, so the numbers always name a period. The table, the KPI strip and the
+CSV export carry the same fields.
+
+`GET /reports/coach-evaluation-quality` now declares `from` / `to`, the spelling
+every sibling report on that controller uses; `date_from` / `date_to` keep
+working, plainly or nested.
+
+# TalentTrack v4.130.0 — PDP coverage, broken down by team (#3810)
+
+Seven weeks into a season, one development talk of sixty-four had been held, and there was no way to see which teams the other sixty-three were in. The PDP screen shows one team at a time and the line above it is a single ratio, so finding out meant texting four coaches.
+
+The team-selection screen now opens with **PDP coverage by team**: one row per team with how many players it has, how many have a plan, how many have actually had a conversation, how many talks are booked in the next four weeks, and how many talks a parent has signed. Teams with the fewest players talked to come first, because that is the team you are looking for, and each team name links straight into its roster.
+
+"With a plan" and "Talked to" are separate columns on purpose. A team where every player has a file and nobody has sat down yet reads as fully covered on the old summary line, and is exactly the team that needs chasing.
+
+There is also a new **`conducted=0`** filter on the coverage endpoint — "who has not had their talk" in one call. Players with no file at all are included: they are the worst case, and a filter built to find people nobody has spoken to must not hide them.
+
+Both the headline ratio and the per-team breakdown are computed over the whole filtered scope rather than the page on display. A coach still sees only their own players, in the breakdown as everywhere else.
+
+The parent column counts talks a parent has **signed**. Nothing in the product records who was in the room, so it is named for the fact it actually holds rather than presented as an attendance register.
+
+# TalentTrack v4.130.0 — A team's staff hear about its calendar and its registers (#3811)
+
+A team manager could be opted in to every kind of message the academy sends and receive none of them, because nothing in the product could name a team's staff. Every staff-directed message resolved its recipients one of three ways — club administrators, the subject of the record, or the head coach — and none of them reached an assistant coach or a team manager.
+
+There is now one answer to "who on this team should hear about this", and three things use it:
+
+- **Calendar changes.** An activity added, moved, re-located or cancelled for a team produces a message to the staff who run it. Changes are rolled up into one message per team per day, so a coach correcting six kick-off times does not send six emails; an activity starting within the next two days sends straight away instead, because a summary tomorrow morning would arrive after the session. This gives the "an activity changes time or place" preference toggle something to govern — it has offered a switch for a message nobody could receive since it shipped.
+- **Repeated absence.** The absence flag now reaches the team's own staff and the head of development, as its own code comment always said it should, instead of whoever administers the site.
+- **Unmarked activities and unrecorded registers.** The alerts about a past activity still sitting on "planned", or a completed one with no attendance, now reach the team's assistant coaches and team manager too, not the head coach alone.
+
+Physios and kit managers assigned to a team are deliberately left off these: they are team staff, but a notification that reaches somebody who cannot act on it teaches everyone to stop reading the channel. None of these messages carry a player's name, an injury or anything medical.
+
+Also fixed on the way: an activity's "last changed" timestamp was never written, so the detail page's audit footer reported the date the activity was created however many times it had been edited since.
+
+# TalentTrack v4.130.0 — A prospect can be asked about before anything is known about the family (#3812)
+
+Between "I spotted a child at another club" and "the family has said yes"
+there is a real step — asking the child's own club to pass the request on —
+and TalentTrack had nowhere to put it. A scout who had not yet been given
+family details could not even create the prospect, and the one record that
+protects the child, the proof that the academy went through the coordinator
+and collected nothing before it was allowed to, lived in a scout's mailbox.
+
+**Consent requested** is a new column on the onboarding pipeline, between
+Prospects and Invited, driven by a *Request consent from the family* task
+assigned to the scout who found the prospect. Alongside it, a dated log
+records what actually happened: the date, the club or coordinator that was
+asked, the outcome (waiting, agreed, declined, no reply) and notes. The
+trail shows on the prospect's focus panel, and is reachable over REST at
+`/prospects/{id}/consent-requests`.
+
+**The log holds nothing about the family** — no name, email, phone or
+address, only the route the academy used. That is the point of the step.
+
+Parent contact in the new-prospect wizard is now optional throughout, so a
+prospect may exist with no family data at all. Entering any contact detail
+still requires consent, unchanged.
+
+An invitation to a test training is refused unless consent is on record —
+either a consent date on the prospect or a request that came back agreed.
+There is no override: if consent arrived some other way, record it and then
+invite.
+
+An open request holds the retention clock, so a prospect the academy is
+genuinely waiting on is not purged at 90 days. The clock runs from the
+entry, so a request nobody chased still ages out.
+
+# TalentTrack v4.130.0 — The demo wipe deletes large batches in full, and says so when it cannot (#3813)
+
+Wiping a demo batch built one `DELETE … WHERE id IN (…)` per entity type with a placeholder for every tagged row. Evaluation ratings run at roughly twenty-five per evaluation, so a medium batch produced a statement several megabytes long; MySQL refused it, the wipe recorded "0 rows deleted", and then dropped the demo tags anyway. The rows survived with nothing left to say they were demo data — 298,000 of them on the install where this was measured — and a second wipe could no longer find them.
+
+Every id-set delete in the cleaner is now issued in chunks of a thousand, and the tags for an entity type are only dropped once its delete has actually landed. A refused delete is reported as a failure rather than as a row count of zero, and the demo-data screen now says which entity types were left behind and that the wipe should be run again.
+
+Installs already in this state are not repaired by re-running the wipe — the tags that would have found those rows are gone — so they need an orphan sweep by foreign key instead.
+
+# TalentTrack v4.130.0 — The activity, people and role-assignment writes say what they take (#3816)
+
+`POST` / `PUT /activities`, `POST` / `PUT /people/{id}` and
+`POST /functional-roles/assignments` read a fixed set of fields and ignored
+everything else, so a misspelled field name answered 200 over a value nothing
+had stored. Each now declares the whole body it accepts and refuses a key
+outside it with `400 unknown_field`, naming the key and listing what the route
+does take — before anything is written.
+
+The fields a write cannot do without are named too, so `POST /activities` with
+an empty body answers `missing_fields` carrying `title` and `session_date`, and
+`POST /functional-roles/assignments` names all three ids at once instead of a
+message that named none of them.
+
+One data fix travelled with it: `PUT /people/{id}` wrote both name columns on
+every call, defaulted to empty, so a request carrying only a phone number
+erased the person's name. An omitted field is left alone now, on both update
+routes.
+
+# TalentTrack v4.130.0 — The player record's write routes say what they take (#3817)
+
+Creating and updating a player, a team, an evaluation or a goal now
+declares the whole body it accepts. A key outside that list is refused by
+name, listing what the route does take, before anything is written —
+where a misspelled field used to be read by nothing and answered "saved".
+A create that is missing what it needs names the fields rather than
+describing them in a sentence.
+
+Two things this found and fixed along the way. Saving a team through the
+API with only some of its fields cleared the rest: a request carrying a
+new name blanked the age group and the notes. It is now a partial save
+like every other update, and a field left out keeps its value. And the
+evaluation form's **Minutes played** box has stored nothing since match
+minutes moved to the attendance screen; it is gone, rather than going on
+collecting a number that was dropped on save. Minutes are entered on the
+match's attendance screen, which is what the minutes reports read.
+
+# TalentTrack v4.130.0 — The recruitment write routes say what they accept (#3818)
+
+Nine write routes across prospects, trial cases and test trainings took a body
+they had never described, so a key they did not recognise was dropped on the way
+in and the caller was told the write had worked — an extension without a
+justification, a test training whose age group vanished, a trial case opened
+without the coach it named. Each route now declares its fields, and a key
+outside them is refused by name with the accepted set alongside it, before
+anything is written. A partial update is still partial: a trial case updated
+with one field keeps the rest exactly as they were.
+
+# TalentTrack v4.130.0 — Every write route now says which fields it takes (#3819)
+
+A write route that declared no fields could not refuse one it was never
+built for. A misspelled key was dropped on the way in and the caller was
+told the save had worked, so a coach could edit a field, get a tick, and
+find nothing had changed.
+
+Every write route in the plugin now declares what it accepts and refuses
+what it does not: a body key a route does not take is answered with a
+`400` that names it and lists what the route does take, instead of being
+ignored. That closes the last of them — 202 routes across 62 files, from
+the live match screen and the three entry grids to the PDP file, the
+methodology library, team blueprints, tournaments, the training plans and
+every integration.
+
+Four things this turned up on the way.
+
+**Editing one field of a test result no longer clears the others.** A save
+that set a player's time was writing an empty date and wiping the note
+beside it. Moving a result's date also moves it between seasons, so that
+was a measurement quietly leaving the window it was counted in.
+
+**Three routes answered the wrong question first.** The authorization
+matrix, the saved-view save and a team's Spond group each told an
+unauthorised caller what fields to send, in a `400`, where they owed a
+refusal. They refuse first now.
+
+**The staff-development writes could set a record's archive columns
+straight from the request**, going around the route built to archive it.
+They no longer accept them.
+
+**A test was checking a field the code has never read.** The formation
+editor's test created a position with the match-prep lineup's column name,
+so the striker was filed on shirt 1 and the test passed anyway.
+
+# TalentTrack v4.130.0 — A team-scoped analytics grant stays inside its teams (#3832)
+
+`tt_view_analytics` bridges to `analytics: read` and is answered with "any
+scope", so a grant at **team** scope made the capability true on every analytics
+surface — including the ones that have no team to narrow to. Nobody could reach
+that while the only holders were the head of development and the academy admin,
+both club-wide; the team manager added in v4.126 is the first team-scoped holder,
+and that grant is explicitly for their own squads.
+
+The rule is now narrow-where-you-can, refuse-where-you-can't. Evaluation
+coverage, the dimension explorer and scheduled reports ask for club-wide
+analytics access through one shared helper and refuse a team-scoped reader **with
+a message** rather than an empty page. The attendance reports, the minutes audit,
+the minutes team report, the monthly report, the cohort board and the potential
+overview narrow to the reader's own teams as they already did.
+
+The analytics hub sits between the two and narrows: a team manager gets their own
+squads, players and activities in the left rail, and the academy-wide KPI grid is
+replaced by a line saying what would be needed to see it. Opening an entity the
+rail would not offer, by typing its id, is refused.
+
+Six standard reports answered an out-of-scope team with "No data for this
+selection" — a statement about that team's month, on a team the reader may not
+open. They now say it is outside the reader's access, the same distinction
+#2893 drew for the attendance drill-down.
+
+Nothing changes for the head of development or the academy admin, who are the
+only holders of club-wide analytics access, and `tt_view_analytics` is granted by
+no WordPress role directly.
+
+# TalentTrack v4.130.0 — A match analysis no longer answers "saved" over sections it threw away (#3843)
+
+`PUT /activities/{id}/analysis` stored the summary and silently dropped the
+section ratings and notes whenever `sections` arrived as a list of objects —
+the list index was taken for the section key, the writer refused it, and the
+refusal was discarded before it could reach the caller. A rating that was not
+one of `went_well` / `mixed` / `needs_work` was nulled the same way.
+
+Both shapes work now: an object keyed by section key, and a list whose entries
+name their own `key` (or `section_key`). A section the route cannot store is
+refused with `400 invalid_field`, naming the field and listing the section keys
+and rating values it accepts, and nothing is written — one unusable section
+refuses the whole document rather than storing the half the server understood.
+Both PUT routes also declare their `args`, so a misspelled top-level key is
+refused by name instead of ignored.
+
+# TalentTrack v4.130.0 — Minutes grid: the column labels name their own column again (#3845)
+
+Every sub-column label on the minutes + statistics grid sat one column to
+the left of the column it named: "Min" in the frozen Player column, then
+`G | A | Min` above boxes holding minutes, goals and assists, and the last
+Total column unlabelled. The stored numbers were right the whole time —
+only the header had slipped — which is the bad version of this bug on a
+grid whose premise is that a spreadsheet user needs no explanation: read
+the header and you type a goal into the assists box.
+
+The sub-header row was the only row in the table that did not emit its own
+leading cell. It had relied on the Player header's `rowspan`, removed in
+v4.126 so the two new score rows could carry their own labels in the frozen
+column. It emits the corner cell now, which also puts the separator rule
+back before each match's minutes box, where it groups the three columns of
+a match.
+
+# TalentTrack v4.130.0 — The demo academy now models media consent, both ways (#3846)
+
+A generated demo academy was internally contradictory about media consent. No generator ever wrote the consent columns, so every demo player fell back to the column default of "no consent on record" — and the media generator attached a squad photo and a portrait to the first three players of every team regardless. The demo shipped with photos on file for children whose record said nobody had agreed to them, and with no player anywhere demonstrating the consented case.
+
+Consent is now stated on every generated player rather than left to the default. Every fifth player in a squad has none on record; the rest carry a yes with the date they joined and the coach who took it, and the provenance columns stay empty wherever the answer is no. The assignment follows a player's position in the squad, not chance, so regenerating with the same seed reproduces it.
+
+Portraits follow consent — a photo of one child is only taken of a player whose family agreed. The squad photo deliberately does not: it keeps its unconsented players, because one image depicting children of mixed consent is exactly the case the media surfaces exist to handle, and a demo that left those players out of the team photo could not show it.
+
+# TalentTrack v4.130.0 — An activity with no squad says so, and offers the way in (#3847)
+
+The Expected attendance card on the activity detail page rendered only when a
+planned squad already existed. An activity without one showed no card at all —
+no player names, no prompt, and no link offering to build a squad, because that
+card is the only place on the page that leads into the plan editor. A coach
+opening a training the evening before saw date, time, type and notes, and fell
+back to paper.
+
+The card now renders an empty state — *"No squad picked yet."* — with a
+**Pick the squad →** link into the plan editor for anyone who may edit
+activities, and without it for anyone who may not. A completed activity is
+unchanged: the attendance panel below it is the answer there, so there is no
+stale offer to pick a squad for a match already played. A cancelled one states
+the empty squad without the link.
+
+The card stays read-only; the edit form remains the single write path for the
+plan.
+
+# TalentTrack v4.130.0 — The Review tab carries the Edit button it tells you to press (#3848)
+
+On the sectioned match-execution layout the Review tab said "Turn on Edit
+to correct any datapoint" and had no Edit control on it. The only one was
+in the header, which that layout routes to the Pitch tab — two taps away —
+and until it was pressed every correction control on all four tabs stayed
+hidden. The first thing a coach does after a match read as "you cannot do
+this here".
+
+The review panel now renders the same toggle above that sentence. There is
+still one setting behind it: pressing either button switches editing on
+everywhere and both read *Done editing* afterwards, so a tab change can
+never show a button that disagrees with the controls it unlocked. A
+finalized match offers neither, as before, and the classic single-scroll
+layout is untouched — its header is a few centimetres up the same column.
+
+# TalentTrack v4.130.0 — Match execution reads the second-half line-up too (#3849)
+
+On a match whose prep set a second-half line-up, the execution screen
+contradicted itself: the timeline and the recorded minutes honoured that
+line-up, while the bench panel listed the players who had played the second
+half as available and treated the ones they replaced as still on the pitch.
+The substitution a coach came to add afterwards was then refused in both
+directions — the player coming off "not on the pitch", the player coming on
+"already on" — so the log could never be completed.
+
+Who is on the pitch is now a question about a point in the match, the way
+the minutes maths has always read it: the second-half line-up takes the
+pitch at the kick-off after the interval, and only that half's substitutions
+apply on top of it. The pitch diagram and the bench panel follow. A late
+substitution is validated at the half and minute it is logged for, so a
+forgotten first-half swap is judged on the first half instead of on the
+final whistle. Matches with no second-half line-up are unchanged.
+
+# TalentTrack v4.130.0 — Minutes count every spell on the pitch, not the first one (#3850)
+
+A player who came off and went back on in the same half lost the second
+spell. A starter off at 20' and back at 25' of a 35-minute half was
+credited 20 minutes instead of 30; a substitute on at 10', off at 25' and
+back at 30' was credited nothing at all, because the arithmetic ran
+backwards and clamped at zero. That figure is what attendance stores, so a
+player who had been on the pitch for twenty minutes reached the minutes
+report, their Minutes tab and the monthly team report as not having played.
+
+Minutes and the squad timeline are now derived from one walk of the
+substitution log that keeps every spell per player, so the bars and the
+total cannot disagree — the timeline used to hold its own copy of the same
+mistake, which is why nothing looked wrong. Matches with one substitution
+per player are unaffected. No migration: re-running a match's recompute, by
+editing any of its events, rewrites the stored minutes.
+
+# TalentTrack v4.130.0 — The match screen says why a write was refused (#3851)
+
+Every write failure on the match execution screen was reported as
+"Opslaan mislukt: HTTP 400". The server had already said something far more
+useful — "The player coming off is not currently on the pitch", translated
+and specific — and the screen threw the body away before anyone could read
+it, so a refusal a coach could have fixed by swapping two dropdowns read as
+a broken app.
+
+The refusal is now read off the response and shown: the server's sentence
+where there is one, the status code only when the body held nothing
+usable, and the same queued-offline behaviour as before for a request that
+never arrived. A refused late goal or substitution shows it as a toast
+above the form, which stays filled in behind it, rather than a system
+dialog that has to be dismissed before the fields can be changed.
+
+# TalentTrack v4.130.0 — Marking a lesson read no longer succeeds silently at doing nothing (#3852)
+
+`PATCH /courses/{slug}/progress/{lesson}` accepts two body fields, `read` and `tool_state`, and declared neither — the route's discovery response listed no arguments at all, so the only way to learn the field names was to read the handler. A body that used any other name passed every guard, matched neither branch and fell through to the response builder, which answered `200 {"success": true}` with the unchanged progress record embedded. A staff member who sent the obvious guess, `{"completed": true}`, got a success, and their hour of study was not recorded: the enrolment sat at 0 of 11 past its deadline while the learning report kept chasing a lesson they had already read.
+
+The route now declares both fields with their types and descriptions, so discovery answers the question. A body this route cannot act on is refused with a 400 naming the fields it does take, and a body that mixes a recognised field with an unrecognised one names the one that was wrong.
+
+The refusal also comes before anything is written. Marking the enrolment started used to run ahead of both branches, so a call that recorded nothing still stamped the start date and left the course reading "begun, nothing read".
+
+# TalentTrack v4.130.0 — A match-analysis note that does not fit is refused, not cut (#3853)
+
+A note is one row per bullet and its `body` column holds 255 characters. The
+repository used to write `mb_substr( $body, 0, 255 )` and answer 200, so a note
+sent in longer than that came back ending mid-word with nothing to say it had
+been shortened — and the selection call that later quoted the observation was
+quoting half a sentence.
+
+The limit stays: a note is a bullet, not a paragraph, which is why every input
+on the surface caps itself well under it. What changed is that going over is
+said out loud. `PUT …/analysis`, `PUT …/analysis/sections/{key}` and
+`PUT …/analysis/players/{player_id}` all answer `400` naming the offending item
+and the maximum, and **nothing in that request is written** — not even the short
+notes that travelled with the long one. A multi-line note is still split into
+one bullet per line and each line measured on its own; an over-long line is
+never split for the coach, because where a bullet ends is their judgement.
+Rows already shortened by the old code are left exactly as they are.
+
+# TalentTrack v4.130.0 — Permission top-ups say what they did, and say when they did nothing (#3854)
+
+A migration whose job is to add permission rows to an existing install could previously come to nothing without saying so — a missing table or an unreadable seed file produced no rows, no error and no trace, and the migration was still recorded as having run. A clean run and a failed one looked identical afterwards.
+
+Those migrations now report what they wrote, and warn when they wrote nothing where rows were expected. There is also a test asserting that the coach's workload permission is really present, so it can be checked by running the test suite rather than by inspecting a database.
+
+The coaching permission this was filed against turned out to be in place already; the report behind the issue predated the release that added it.
+
+# TalentTrack v4.130.0 — A generated academy's training tab no longer says "trainings: 7, minutes: 0" (#3855)
+
+On a freshly generated demo academy the training tab of a player file contradicted itself: a non-zero number of completed trainings next to zero minutes, zero sessions and no last-trained date on every single principle. The player attended, and apparently trained nothing.
+
+Minutes per principle are derived rather than authored, and the derivation ran on the app's own "finish this run" path only. The demo generator writes completed runs straight to the repository, so nothing derived from them and the table stayed empty until a nightly job that a demo install typically never reaches.
+
+The training step now finishes by running the same rebuild the nightly job does, over the same source rows, so a player file is right the moment generation ends and a later nightly pass produces identical numbers.
+
+# TalentTrack v4.130.0 — The players list reads a plain team_id (#3856)
+
+`GET /players?team_id=73` now returns that squad. The plain spelling was
+neither applied nor refused — WP REST drops a query parameter no route
+declared, without a word — so asking for one team answered with every
+player the caller may read, each row carrying a real team name that made
+the answer look deliberate. The plain names of every list filter
+(`team_id`, `position`, `preferred_foot`, `age_group`, `archived`,
+`status`, `assignment`, `media_consent`) now fold into the nested
+`filter[...]` form, with the nested spelling winning when both are sent,
+and a filter that is sent but cannot be read is refused with
+`400 bad_filter` rather than dropped.
+
+# TalentTrack v4.130.0 — Minutes audit: a tournament day is a roll-up of its fixtures (#3857)
+
+A tournament day appeared in the minutes audit as a game with an empty squad and
+a red *Not recorded* chip — "go and record this" — over what is often the largest
+block of minutes in a month. Opening its editor answered with no players, no
+minutes field and no way to add anybody, so the row could never leave *Not
+recorded*, and every per-player total covering a tournament weekend read as if
+the weekend had not happened.
+
+A tournament day carries no attendance of its own: the play happens in its
+fixtures, each of which becomes its own match activity when a coach kicks it off.
+The day is now a read-only roll-up. Its minutes are summed from those fixtures,
+the row says *Tournament day — minutes recorded per fixture* in words rather than
+in colour, it wears a *Roll-up* chip, and its action opens the tournament planner
+— where the minutes actually live. Its status follows the fixtures, so a
+tournament whose fixtures were recorded no longer reads as unrecorded.
+
+Because the fixtures are rows in the same matrix, the roll-up is left out of the
+column totals, the grand total and the gap KPIs; counting it as well would show
+every player twice the game time they played.
+
+`GET reports/minutes-audit/{id}/editor` now refuses a tournament day with
+`409 minutes_recorded_per_fixture`, naming the tournament to open, instead of
+answering `200` with an empty squad. The refusal stays team-scoped. The matrix
+row also reports `tournament` as its type rather than the empty match subtype a
+tournament has no value for.
+
+# TalentTrack v4.130.0 — A staff-only note stays within the staff (#3858)
+
+A note marked staff-only by somebody without the right was stored as a
+public note, with no error and no warning — so the team manager, the first
+aider and the assistant coach wrote internal notes about a child that the
+child's guardian could read, believing they had kept them in-house.
+
+Marking a note staff-only now has an entitlement of its own,
+`staff_only_notes`, instead of borrowing the right to change an evaluation.
+It is granted to the assistant coach, head coach and team manager on their
+own teams, to the head of development and academy admin academy-wide, and to
+the Physio and Manager functional roles on the squads they hold them on. A
+top-up migration adds the rows to installs that already carry a matrix.
+
+A request to mark a note staff-only without the right is now refused, naming
+the right, and nothing is stored — the typed text stays in the box. The edit
+path, which had no entitlement check at all, is gated the same way in both
+directions: hiding a note and revealing one need the same right, in the
+repository as well as over REST. The staff-only checkbox is no longer shown
+to an author who cannot use it.
+
+Who may read a staff-only note is unchanged, and a guardian never sees one.
+Notes written before this are deliberately left alone: nothing recorded that
+a widening happened, so re-classifying them could only be guesswork.
+
+# TalentTrack v4.130.0 — A "my" page refuses a child you may not see, and says whose it is (#3859)
+
+Editing the player number in the address bar of a "my" page no longer quietly swaps in a child you *are* allowed to see. The page now says you have no access, which is what the API already did for the same request. Before, a parent who tried it got a normal-looking page of their own child's rows under a heading that named nobody — and would reasonably conclude they had just read another family's record.
+
+The My evaluations page also names the player now, the way My goals, My activities and the rest already did. It was the one page that never said whose evaluations were on screen.
+
+# TalentTrack v4.130.0 — Opponents are read from the match title, on import and in a review screen (#3860)
+
+The monthly team report printed every fixture as "Unknown opponent", the live
+scoreboard showed `OPP` and the minutes grid `OPP.`, on matches whose opponent
+the coach could read on the activity itself. `tt_activities.opponent` was empty:
+nothing wrote it until v4.126, and the Spond importer still did not — Spond has
+no opponent field, so the other club arrives inside the event title, where no
+downstream reader looks.
+
+**Imported fixtures now fill the column in.** A shared parser reads the opponent,
+and where the title gives a real signal the home/away, out of titles like
+"Hedel JO12-1 - Ajax JO12-1" or "uit tegen DVVC". A title that says nothing
+useful leaves both columns empty rather than guessing: a wrong club name printed
+on five screens is worse than a blank one. The columns are written on first
+import only, the way `notes` already is, so a coach's correction survives the
+next sync. A tournament day is never given a single opponent — it is played
+against several clubs.
+
+**Existing fixtures are filled in from a review screen**, at
+`?tt_view=opponent-backfill`. It lists every match with no opponent stored — its
+date, its title as it stands, and a proposed opponent and home/away — each
+editable, each with its own tick, and nothing is written until the screen is
+saved. Suggestions the parser is unsure of are flagged. Coaches review the teams
+they coach; academy-wide roles review the club. No silent migration over history
+the monthly report is built on.
+
+**What is still missing keeps asking.** The monthly report's Data quality section
+now names every match with no opponent by date and title, on screen and in the
+PDF, so the gap surfaces every month until somebody closes it.
+
+# TalentTrack v4.130.0 — Reopening a played match is no longer permanent (#3861)
+
+Reopening the activity behind a match that had been played was a one-way
+door. The final whistle is the only thing that ever wrote `completed` on a
+match activity, and it is unreachable once the match is over: "Complete
+activity" routes such a match to the match-execution screen, which had no
+control that completed anything, and the direct status action was refused
+because completion belongs to the evaluation flow. The activity stayed
+`planned` for good and dropped out of every count of completed activities,
+including the monthly team report's header.
+
+A played match already has the register that refusal exists to protect —
+written at the final whistle and re-derived on every correction since — so
+there are now two ways back and both are honest about it. The activity
+detail offers **Mark completed** beside Cancel, as it does on a wizard-off
+install, and the match screen offers **Mark activity completed** in its
+review panel while the activity is not completed. Finalizing a match also
+asserts the status now instead of assuming it, so re-finalizing repairs an
+activity that drifted rather than reporting nothing to do. Training
+activities and matches never run through the live screen are unchanged:
+completion stays the end of their flow.
+
+# TalentTrack v4.130.0 — A prospect update no longer reports success for a field it ignored (#3868)
+
+`PATCH /prospects/{id}` used to answer `200 changed: false` for any body key
+it did not recognise, so a scout recording where a consent request had gone
+was told it was saved and nothing was written. The route now declares the
+fields it accepts and refuses an undeclared key with `400 unknown_field`,
+naming it, the way the scouting-visit routes already do. A body mixing a
+known and an unknown key is refused whole, so a rejected write leaves the
+record exactly as it was. `scouting_notes` — the running trail of what was
+seen and what the family answered — is one of the fields it now accepts
+(#3844); it could previously only be written once, when the find was logged.
+
+# TalentTrack v4.130.0 — Inviting a prospect now checks the permission that was always documented (#3869)
+
+`tt_invite_prospects` was mapped into the authorization matrix, named in the
+onboarding-pipeline documentation as the gate on inviting a prospect to a test
+training, and checked by nothing. Granting or revoking it changed nothing a
+user could see; the only real gate was who the workflow assigned the task to.
+
+It is enforced now, on both pipeline tasks that claimed it — *Invite to test
+training* and *Confirm test-training attendance*. Head of Development and
+Academy Admin hold the permission and are unaffected. A **head coach** who had
+been handed the invite task can no longer complete it: arranging a child's
+first visit to the academy is the Head of Development's decision.
+
+Nobody loses the task silently. Somebody who holds it without the permission
+still opens it and reads what it says; the form is locked and carries a note
+saying which permission is missing and to ask an academy administrator to grant
+it or hand the task on. The parent's own confirmation link is untouched — it is
+signed, nobody is logged in on it, and it completes the task as before.
+
+Workflow templates declare this for themselves via
+`TaskTemplateInterface::requiredCapability()`; every other template keeps
+assignment as its only gate.
+
+# TalentTrack v4.130.0 — Spond import: a training camp is no longer imported as a match (#3912)
+
+The Spond keyword classifier carries `kamp` — Norwegian for *match*, which is
+the right call for a Norwegian product — but matched it anywhere in the title,
+so every Dutch compound ending in `-kamp` arrived as a fixture: "Trainingskamp",
+"Voetbalkamp", "Zomerkamp". A training camp then expected a match roster, opened
+the minutes grid, and counted towards the team's record and the minutes audit,
+none of which renaming the activity afterwards could undo.
+
+`kamp` and `uit` now only count as whole words, so "Kamp mot Rosenborg" and
+"Uit tegen Willem II" still classify as games while the compounds classify as
+trainings. Every other keyword still matches anywhere in the title, so
+"Thuiswedstrijd" and "Trainingswedstrijd" are unchanged. Applies to events
+imported from now on; already-imported activities keep the type they were given.
+
+# TalentTrack v4.130.0 — Spond import: the title decides the activity type, not the description (#3923)
+
+A Spond training whose description mentioned the weekend's fixture
+imported as a fixture. The classifier concatenated the event's title and
+description into one haystack and searched both with equal weight, so
+"Training JO14-1" with the note *"laatste training voor de wedstrijd van
+zaterdag"* landed as a match — with a match roster expected, the minutes
+grid open against it, and the team record and the minutes audit both
+counting it. The type is written at import, so renaming the activity
+afterwards did not revise it.
+
+The title decides now. The description is consulted only when the title
+contains no recognised keyword at all, so an event called just "JO14-1"
+whose body reads "wedstrijd tegen Ajax" still classifies as a match. The
+whole-word rules for `kamp` and `uit` apply in both fields.
+
+# TalentTrack v4.130.0 — A scout on a trialist's panel can now read that trialist (#3928)
+
+A scout's link to a player — a seat on their trial case's panel, or an
+entry in the scout's assignment list — was narrowed to players on status
+`active`. A player being assessed on trial is on status `trial`, so the
+panel-seat route resolved the right player and then filtered them away
+again: the scout held no access to the one player they had been appointed
+to assess.
+
+A link now survives on `active` and `trial`. `inactive`, `released` and
+`graduated` still end it, as does archiving a player or moving them to the
+recycle bin — which the status filter did not previously cover at all.
+
+# TalentTrack v4.130.0 — The New test training form carries the prospect it was opened for (#3932)
+
+The head of development's route into inviting a prospect — the *Arrange test
+training* button on a prospect's pipeline card — opened a form with no
+prospect on it, so the test training they created was linked to nobody and the child
+stayed in the first column.
+
+The form now has a **Prospect** field. Arriving from a card, that child is
+already picked; arriving cold, it is an ordinary picker set to *Nobody yet*,
+because scheduling one with nobody attached is a normal thing to do. Saving with a
+prospect attached records the invitation the same way completing the *Invite
+to test training* task does, so the two routes leave one shape of record
+rather than two, and the prospect moves to **Invited** either way.
+
+An id in the URL that does not resolve — mistyped, or a child the viewer may
+not see — opens the field empty and says nothing further. The consent rule
+holds on this route as it does on the task: a child whose family has not
+agreed cannot be attached, and the refusal leaves nothing saved.
+
+The invite task's own form was also moved off its hardcoded inline styling
+onto an enqueued stylesheet reading the design tokens, so a club running its
+own theme no longer gets the plugin's colours in the middle of its own.
+
+# TalentTrack v4.130.0 — A child who has been archived or binned leaves the family's dashboard (#3937)
+
+A guardian's children were narrowed to players on status `active` and to
+the club, and to nothing else. A player carries a status *and* a
+lifecycle, and the two are independent — archiving a player, or moving
+them to the recycle bin, leaves their status alone. So a child the
+academy had taken out of the working set, or put in the bin, still
+appeared in the parent's child switcher, was still the default child the
+parent's screens opened on, and was still reachable by id.
+
+A guardian's link now ends when the child is archived or moved to the
+recycle bin, the same way it already ended on a release. The switcher,
+the default child, the permission matrix's player scope, the
+development-plan print and the conversation endpoints all close together.
+Restoring the child from the bin restores all of it.
+
+This is the same rule the scout link took in the previous release, on
+purpose: the two answer the same question about the same records, and one
+lifecycle rule between them is one thing to remember.
+
+# TalentTrack v4.130.0 — A route that names a player now checks which player (#3945)
+
+Four surfaces that take a player in the URL authorised on the capability alone — *may this person look at players* — and never asked *may they look at this one*. The answer was therefore the same whichever player was named.
+
+They now ask. A player's goal contributions, the media consent line, setting a player's potential and the wp-admin print route each resolve the person **and** the player, through the same checks the surfaces beside them already used. Nobody loses access to a player they could legitimately reach: an administrator, a club admin and a head of development are unchanged, a coach keeps their own squads, and a family keeps their own child.
+
+The wp-admin print route is the clearest example of the shape: the same URL on the front end has always narrowed to the player, and in wp-admin it did not, so one link answered two different questions depending on where you opened it.
+
 # TalentTrack v4.129.1 — Translations ship as per-PR fragments instead of edits to the shared catalogue (#3863)
 
 A pull request that adds a translatable string no longer edits

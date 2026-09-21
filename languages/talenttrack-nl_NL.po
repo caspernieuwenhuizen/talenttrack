@@ -64162,6 +64162,903 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/TournamentsRestController.php:1567
+msgid "\"%1$s\" is not an opponent level. Allowed values: %2$s."
+msgstr "\"%1$s\" is geen niveau tegenstander. Toegestane waarden: %2$s."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Tournaments (planner)"
+msgstr "Toernooien (planner)"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Player tournaments"
+msgstr "Toernooien van de speler"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "You do not have permission to see this player's tournament record."
+msgstr "Je hebt geen rechten om het toernooidossier van deze speler te zien."
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "This player has chosen not to share their tournament history."
+msgstr "Deze speler deelt zijn toernooigeschiedenis niet."
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "This player has not been in a tournament squad yet."
+msgstr "Deze speler heeft nog in geen enkele toernooiselectie gezeten."
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%1$d min planned across %2$d fixtures · %3$d starting"
+msgstr "%1$d min gepland over %2$d wedstrijden · %3$d keer in de basis"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%1$d fixtures, %2$d tournaments"
+msgstr "%1$d wedstrijden, %2$d toernooien"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "Against stronger sides"
+msgstr "Tegen sterkere tegenstanders"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%s of their minutes"
+msgstr "%s van zijn minuten"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "Targets met"
+msgstr "Doel gehaald"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "tournaments with a minutes target"
+msgstr "toernooien met een minutendoel"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "Per tournament"
+msgstr "Per toernooi"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%1$d of %2$d min target"
+msgstr "%1$d van %2$d min doel"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%d fixture"
+msgid_plural "%d fixtures"
+msgstr[0] "%d wedstrijd"
+msgstr[1] "%d wedstrijden"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%d start"
+msgid_plural "%d starts"
+msgstr[0] "%d keer in de basis"
+msgstr[1] "%d keer in de basis"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "no minutes target"
+msgstr "geen minutendoel"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "no result"
+msgstr "geen uitslag"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "%1$d of %2$d min"
+msgstr "%1$d van %2$d min"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgctxt "the player was in the opening line-up"
+msgid "Start"
+msgstr "Basis"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgctxt "the player came on during the fixture"
+msgid "Sub"
+msgstr "Wissel"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgctxt "the player was in the squad and did not play"
+msgid "Bench"
+msgstr "Bank"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid ""
+"Minutes follow the rotation plan of completed fixtures. Minutes entered "
+"afterwards in the minutes overview are on the Activities tab, and the two "
+"are never added together."
+msgstr ""
+"Minuten volgen het rotatieplan van afgeronde wedstrijden. Minuten die "
+"achteraf in het minutenoverzicht zijn ingevoerd staan op het tabblad "
+"Activiteiten, en de twee worden nooit bij elkaar opgeteld."
+
+#: src/Modules/Comms/Frontend/FrontendMessageLogView.php:106
+msgid "Times are shown in the site timezone. Older rows may carry the database server’s local time, which on some installs differs from the site’s."
+msgstr "Tijden staan in de tijdzone van de site. Oudere regels kunnen de lokale tijd van de databaseserver bevatten, die op sommige installaties afwijkt van die van de site."
+
+#: src/Modules/Trials/Domain/TrialDecisionMotivation.php
+#, php-format
+msgid "The motivation must be at least %1$d characters. You wrote %2$d."
+msgstr "De motivatie moet minstens %1$d tekens bevatten. Je schreef er %2$d."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Justification (internal record, at least %d characters)"
+msgstr "Motivatie (interne registratie, minstens %d tekens)"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "form field refusal"
+msgid "Not saved"
+msgstr "Niet opgeslagen"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial decision summary"
+msgid "Motivation"
+msgstr "Motivatie"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial case ending-soon banner"
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "This trial ended %d day ago and no decision has been recorded."
+msgid_plural "This trial ended %d days ago and no decision has been recorded."
+msgstr[0] "Deze stage is %d dag geleden afgelopen en er is nog geen besluit vastgelegd."
+msgstr[1] "Deze stage is %d dagen geleden afgelopen en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "This trial ends today and no decision has been recorded."
+msgstr "Deze stage eindigt vandaag en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "This trial ends in %d day and no decision has been recorded."
+msgid_plural "This trial ends in %d days and no decision has been recorded."
+msgstr[0] "Deze stage eindigt over %d dag en er is nog geen besluit vastgelegd."
+msgstr[1] "Deze stage eindigt over %d dagen en er is nog geen besluit vastgelegd."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Submitted %s"
+msgstr "Ingeleverd op %s"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "No input yet"
+msgstr "Nog geen input"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Still waiting on: %s"
+msgstr "Nog in afwachting van: %s"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "Trial ending without a decision"
+msgstr "Stage eindigt zonder besluit"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "A trial period is about to end and no decision has been recorded. The family is waiting on an answer, and the panellists who have not submitted their input are named so you know what the decision is waiting for."
+msgstr "Een stage loopt bijna af en er is nog geen besluit vastgelegd. Het gezin wacht op een antwoord, en de panelleden die hun input nog niet hebben ingeleverd worden genoemd, zodat je weet waar het besluit op wacht."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+msgid "A trialist"
+msgstr "Een stagespeler"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%1$s's trial ended %2$d day ago with no decision recorded."
+msgid_plural "%1$s's trial ended %2$d days ago with no decision recorded."
+msgstr[0] "De stage van %1$s is %2$d dag geleden afgelopen zonder vastgelegd besluit."
+msgstr[1] "De stage van %1$s is %2$d dagen geleden afgelopen zonder vastgelegd besluit."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%s's trial ends today and no decision has been recorded."
+msgstr "De stage van %s eindigt vandaag en er is nog geen besluit vastgelegd."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%1$s's trial ends in %2$d day and no decision has been recorded."
+msgid_plural "%1$s's trial ends in %2$d days and no decision has been recorded."
+msgstr[0] "De stage van %1$s eindigt over %2$d dag en er is nog geen besluit vastgelegd."
+msgstr[1] "De stage van %1$s eindigt over %2$d dagen en er is nog geen besluit vastgelegd."
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "%d other"
+msgid_plural "%d others"
+msgstr[0] "%d ander"
+msgstr[1] "%d anderen"
+
+#: src/Modules/Trials/Alerts/TrialDecisionDueSoonAlert.php
+#, php-format
+msgid "Still waiting on %s."
+msgstr "Nog in afwachting van %s."
+
+#: src/Modules/Analytics/EvalWindowsRepository.php:79
+msgid "Round %d"
+msgstr "Ronde %d"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Consent on file"
+msgstr "Toestemming vastgelegd"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "No consent, %d media item"
+msgid_plural "No consent, %d media items"
+msgstr[0] "Geen toestemming, %d mediabestand"
+msgstr[1] "Geen toestemming, %d mediabestanden"
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "No consent"
+msgstr "Geen toestemming"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "Has media, no consent"
+msgstr "Heeft media, geen toestemming"
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "No consent recorded"
+msgstr "Geen toestemming vastgelegd"
+
+#: src/Shared/Frontend/Components/MediaGallery.php
+msgid "No consent on record"
+msgstr "Geen toestemming vastgelegd"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "On record, %1$s by %2$s"
+msgstr "Vastgelegd op %1$s door %2$s"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "On record, %s"
+msgstr "Vastgelegd op %s"
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record."
+msgstr "Toestemming voor foto en video: vastgelegd."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record, %1$s by %2$s."
+msgstr "Toestemming voor foto en video: vastgelegd op %1$s door %2$s."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid "Photo and video consent: on record, %s."
+msgstr "Toestemming voor foto en video: vastgelegd op %s."
+
+#: src/Modules/Players/Services/MediaConsentStatement.php
+msgid ""
+"Photo and video consent: not recorded. Anything here may still be shown — "
+"ask before using it outside the club."
+msgstr ""
+"Toestemming voor foto en video: niet vastgelegd. Alles hier blijft zichtbaar "
+"— vraag het na voordat je het buiten de club gebruikt."
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Guardian e-mail address"
+msgstr "E-mailadres ouder/voogd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Guardian phone number"
+msgstr "Telefoonnummer ouder/voogd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Parent account linked"
+msgstr "Ouderaccount gekoppeld"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Photo and video consent recorded"
+msgstr "Foto- en videotoestemming vastgelegd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Pictures on file with no consent"
+msgstr "Beeld in dossier zonder toestemming"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Dossier completeness"
+msgstr "Compleetheid dossiers"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "You do not have permission to review player files."
+msgstr "Je hebt geen rechten om spelersdossiers in te zien."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid ""
+"This page says which fields are still empty, never what is in them. Open a "
+"player to read or change their guardian details."
+msgstr ""
+"Deze pagina zegt welke velden nog leeg zijn, nooit wat erin staat. Open een "
+"speler om de gegevens van de verzorger te lezen of te wijzigen."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Choose a team to see whose file is still incomplete."
+msgstr "Kies een team om te zien wiens dossier nog niet compleet is."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d item"
+msgstr[1] "%d items"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%1$d of %2$d complete"
+msgstr "%1$d van %2$d compleet"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Nothing missing on this one."
+msgstr "Hier ontbreekt niets."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Recorded %s"
+msgstr "Vastgelegd op %s"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "No consent, %d item"
+msgid_plural "No consent, %d items"
+msgstr[0] "Geen toestemming, %d item"
+msgstr[1] "Geen toestemming, %d items"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Dossier completeness"
+msgstr "Terug naar Compleetheid dossiers"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid ""
+"Per team: whose guardian contact, parent account or photo consent is still "
+"missing."
+msgstr ""
+"Per team: bij wie het contact van de verzorger, het ouderaccount of de "
+"fototoestemming nog ontbreekt."
+
+#: src/Modules/Alerts/Definitions/NoConsentWithMediaAlert.php
+msgid ""
+"There are photos or videos of this player on file and no record that the "
+"family agreed to the club using them. Nothing is hidden — this is a prompt "
+"to ask."
+msgstr ""
+"Er staan foto's of video's van deze speler in het dossier en er is niet "
+"vastgelegd dat het gezin akkoord is met gebruik door de club. Er wordt niets "
+"verborgen — dit is een seintje om het te vragen."
+
+#: src/Modules/Alerts/Definitions/NoConsentWithMediaAlert.php
+msgid "%1$d picture of %2$s is on file with no consent recorded."
+msgid_plural "%1$d pictures of %2$s are on file with no consent recorded."
+msgstr[0] "%1$d foto van %2$s staat in het dossier zonder vastgelegde toestemming."
+msgstr[1] "%1$d foto's van %2$s staan in het dossier zonder vastgelegde toestemming."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Search your children's activities, evaluations, goals and messages by name or by date."
+msgstr "Zoek in de activiteiten, evaluaties, doelen en berichten van je kinderen, op naam of op datum."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Nothing found."
+msgstr "Niets gevonden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Training, 3 Nov, goal…"
+msgstr "Training, 3 nov, doel…"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "No child is linked to your account yet, so there is nothing to search. Ask the academy to link you."
+msgstr "Er is nog geen kind aan je account gekoppeld, dus er valt niets te zoeken. Vraag de academie om je te koppelen."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "Searching the records of %s."
+msgstr "Zoekt in de dossiers van %s."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Activity"
+msgstr "Activiteit"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Evaluation"
+msgstr "Evaluatie"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Goal"
+msgstr "Doel"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgctxt "parent search result kind"
+msgid "Message"
+msgstr "Bericht"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Nothing planned yet."
+msgstr "Er staat nog niets gepland."
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Show what has happened"
+msgstr "Toon wat is geweest"
+
+#: src/Shared/Frontend/FrontendMyActivitiesView.php
+msgid "Show upcoming"
+msgstr "Toon komende"
+
+#: src/Infrastructure/Players/PlayerVisibility.php
+msgid "You are not permitted to see any players. Ask the head of development to give you access, or to link the players you scout to your account."
+msgstr "Je mag geen spelers inzien. Vraag het hoofd opleiding om je toegang te geven, of om de spelers die je scout aan je account te koppelen."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "No player was named."
+msgstr "Er is geen speler opgegeven."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "You are not linked to this player. Ask the head of development to add them to your list, or to put you on their panel."
+msgstr "Je bent niet aan deze speler gekoppeld. Vraag het hoofd opleiding om hem aan je lijst toe te voegen, of om je in zijn panel te zetten."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "No minutes recorded for this player in the last year."
+msgstr "Voor deze speler zijn het afgelopen jaar geen speelminuten vastgelegd."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+#, php-format
+msgid "%1$s%% of the team's available minutes — %2$s minutes between %3$s and %4$s."
+msgstr "%1$s%% van de beschikbare speelminuten van het team — %2$s minuten tussen %3$s en %4$s."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "Minutes share"
+msgstr "Minutenaandeel"
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "Your observations"
+msgstr "Jouw observaties"
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "You have not recorded an observation of this player."
+msgstr "Je hebt nog geen observatie van deze speler vastgelegd."
+
+#: src/Modules/Players/Frontend/FrontendScoutPlayerCardView.php
+msgid "This card is what a scout may read about a squad player: who they are, where they play, how much they play and where the club has them. Evaluations, measurements, family contact and anything medical stay with the coaching staff."
+msgstr "Deze kaart is wat een scout over een selectiespeler mag lezen: wie hij is, waar hij speelt, hoeveel hij speelt en hoe de club hem inschaalt. Evaluaties, metingen, contactgegevens van het gezin en alles wat medisch is blijven bij de technische staf."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP coverage by team"
+msgstr "POP-dekking per team"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "With a plan"
+msgstr "Met een plan"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Talked to"
+msgstr "Gesproken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Booked in 4 weeks"
+msgstr "Gepland binnen 4 weken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Signed by a parent"
+msgstr "Ondertekend door een ouder"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Teams with the fewest players talked to come first."
+msgstr "Teams met de minste gevoerde gesprekken staan bovenaan."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "No team"
+msgstr "Geen team"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Team schedule digest"
+msgstr "Agendaoverzicht team"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Calendar changes — {team_name}"
+msgstr "Agendawijzigingen — {team_name}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid ""
+"{change_count} change(s) to the {team_name} calendar:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open the calendar: {deep_link}"
+msgstr ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid "Agendawijzigingen — {team_name}"
+msgstr "Agendawijzigingen — {team_name}"
+
+#: src/Modules/Comms/Templates/TeamScheduleDigestTemplate.php
+msgid ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+msgstr ""
+"{change_count} wijziging(en) in de agenda van {team_name}:\n"
+"\n"
+"{change_list}\n"
+"\n"
+"Open de agenda: {deep_link}"
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Passes on a time, date or location change to an activity that is nearly here."
+msgstr "Geeft een wijziging in tijd, datum of locatie door van een activiteit die er bijna is."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "The staff who run that team — head coach, assistants, team manager."
+msgstr "De staf die het team draait — hoofdtrainer, assistenten, teammanager."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Straight away, when an activity starting within two days is changed."
+msgstr "Meteen, als een activiteit die binnen twee dagen begint wordt gewijzigd."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "One message listing everything added, moved, re-located or cancelled in a team's calendar, instead of a message per change."
+msgstr "Eén bericht met alles wat is toegevoegd, verplaatst, verhuisd of afgelast in de agenda van een team, in plaats van een bericht per wijziging."
+
+#: src/Modules/Comms/Template/TemplateGuide.php
+msgid "Once a day, for changes to activities more than two days away."
+msgstr "Eén keer per dag, voor wijzigingen aan activiteiten die verder dan twee dagen weg zijn."
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Cancelled: %s"
+msgstr "Afgelast: %s"
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Added: %s"
+msgstr "Toegevoegd: %s"
+
+#: src/Modules/Comms/Send/TeamScheduleChangeSend.php
+msgid "Changed: %s"
+msgstr "Gewijzigd: %s"
+
+#: src/Modules/Prospects/Domain/ConsentOutcome.php
+msgid "Waiting for an answer"
+msgstr "Wacht op antwoord"
+
+#: src/Modules/Prospects/Domain/ConsentOutcome.php
+msgid "The family agreed"
+msgstr "Het gezin ging akkoord"
+
+#: src/Modules/Prospects/Domain/ConsentOutcome.php
+msgid "The family declined"
+msgstr "Het gezin wees af"
+
+#: src/Modules/Prospects/Domain/ConsentOutcome.php
+msgid "No reply"
+msgstr "Geen reactie"
+
+#: src/Modules/Prospects/Domain/ConsentGate.php
+msgid "This prospect cannot be invited yet: there is no consent on record. Record the family's consent on the prospect, or log a consent request that came back agreed, and then send the invitation."
+msgstr "Deze prospect kan nog niet worden uitgenodigd: er ligt geen toestemming vast. Leg de toestemming van het gezin vast op de prospect, of noteer een toestemmingsverzoek dat akkoord terugkwam, en verstuur daarna de uitnodiging."
+
+#: src/Modules/Workflow/Templates/RequestConsentTemplate.php
+msgid "Request consent from the family"
+msgstr "Toestemming vragen aan het gezin"
+
+#: src/Modules/Workflow/Templates/RequestConsentTemplate.php
+msgid "Ask the child's current club to pass a consent request on to the family, and record what came back. No family contact details are collected here — only the route the academy used."
+msgstr "Vraag de huidige club van het kind het toestemmingsverzoek door te geven aan het gezin, en leg vast wat er terugkwam. Hier worden geen contactgegevens van het gezin vastgelegd — alleen de route die de academie gebruikte."
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Record that the academy asked this child's club to pass a consent request on to the family. Do not enter the family's name or contact details here — only the route you used."
+msgstr "Leg vast dat de academie de club van dit kind heeft gevraagd een toestemmingsverzoek door te geven aan het gezin. Vul hier geen naam of contactgegevens van het gezin in — alleen de route die je gebruikte."
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Date asked"
+msgstr "Datum gevraagd"
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Club or coordinator asked"
+msgstr "Gevraagde club of coördinator"
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "e.g. the youth coordinator at their club"
+msgstr "bijv. de jeugdcoördinator van hun club"
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Enter the date you asked, as YYYY-MM-DD."
+msgstr "Vul de datum in waarop je het vroeg, als JJJJ-MM-DD."
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Name the club or coordinator you asked. This is the record that the academy went through them."
+msgstr "Noem de club of coördinator die je hebt gevraagd. Dit is het bewijs dat de academie via hen is gegaan."
+
+#: src/Modules/Workflow/Forms/RequestConsentForm.php
+msgid "Pick one of the listed outcomes."
+msgstr "Kies een van de getoonde uitkomsten."
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Consent requested"
+msgstr "Toestemming gevraagd"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Consent request out, awaiting the family"
+msgstr "Toestemmingsverzoek verstuurd, wacht op het gezin"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Consent requests"
+msgstr "Toestemmingsverzoeken"
+
+#: src/Modules/Wizards/Prospect/ParentStep.php
+msgid "Leave this step empty if the family has not been approached yet. Ask the child's own club first and record it as a consent request; fill this in when they answer."
+msgstr "Laat deze stap leeg als het gezin nog niet is benaderd. Vraag eerst de eigen club van het kind en leg dat vast als toestemmingsverzoek; vul dit in zodra zij antwoorden."
+
+#: src/Modules/Prospects/Rest/ProspectConsentRequestsRestController.php
+msgid "The date asked must be YYYY-MM-DD."
+msgstr "De datum waarop gevraagd is, moet JJJJ-MM-DD zijn."
+
+#: src/Modules/Prospects/Rest/ProspectConsentRequestsRestController.php
+msgid "Name the club or coordinator that was asked."
+msgstr "Noem de club of coördinator die gevraagd is."
+
+#: src/Modules/Prospects/Rest/ProspectConsentRequestsRestController.php
+msgid "Could not record the consent request."
+msgstr "Het toestemmingsverzoek kon niet worden vastgelegd."
+
+#: src/Modules/Prospects/Rest/ProspectConsentRequestsRestController.php
+msgid "Consent request not found."
+msgstr "Toestemmingsverzoek niet gevonden."
+
+#: src/Modules/Prospects/Rest/ProspectConsentRequestsRestController.php
+msgid "Could not update the consent request."
+msgstr "Het toestemmingsverzoek kon niet worden bijgewerkt."
+
+#: src/Modules/DemoData/Generators/PipelineGenerator.php
+msgid "Youth coordinator at %s"
+msgstr "Jeugdcoördinator bij %s"
+
+#: src/Modules/DemoData/Admin/DemoDataPage.php:268
+msgid "The wipe was incomplete: the delete failed for %s. Those rows are still in the database and keep their demo tags — run the wipe again."
+msgstr "De wisbeurt is niet afgemaakt: verwijderen is mislukt voor %s. Die rijen staan nog in de database en houden hun demolabel — voer de wisbeurt opnieuw uit."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "A first name and a last name are required."
+msgstr "Een voornaam en een achternaam zijn verplicht."
+
+#: src/Infrastructure/REST/MeasurementsRestController.php:582
+msgid "Send a date, a number or a text value to change."
+msgstr "Stuur een datum, een getal of een tekstwaarde om te wijzigen."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:56
+msgid ""
+"This report covers the whole academy, and your analytics access is limited "
+"to your own teams."
+msgstr ""
+"Dit rapport gaat over de hele academie, en jouw analysetoegang is beperkt "
+"tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendExploreView.php:72
+msgid ""
+"The explorer reads across the whole academy, and your analytics access is "
+"limited to your own teams."
+msgstr ""
+"De verkenner leest over de hele academie, en jouw analysetoegang is beperkt "
+"tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:68
+msgid ""
+"Scheduled reports are managed academy-wide, and your analytics access is "
+"limited to your own teams."
+msgstr ""
+"Geplande rapporten worden academiebreed beheerd, en jouw analysetoegang is "
+"beperkt tot je eigen teams."
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:76
+msgid ""
+"Your analytics access is limited to your own teams, and this is not one of "
+"them."
+msgstr ""
+"Jouw analysetoegang is beperkt tot je eigen teams, en dit is er daar geen "
+"van."
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:105
+msgid ""
+"Academy-wide KPIs need analytics access across the whole club. Pick one of "
+"your teams, its players or an activity on the left to see their analytics."
+msgstr ""
+"Academiebrede KPI's vragen analysetoegang over de hele club. Kies links een "
+"van je teams, zijn spelers of een activiteit om hun analyses te zien."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:349
+msgid "This team is outside your access, so this report cannot be shown for it."
+msgstr ""
+"Dit team valt buiten jouw toegang, dus dit rapport kan er niet voor worden "
+"getoond."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Expected attendance"
+msgstr "Verwachte opkomst"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Pick the squad"
+msgstr "Selectie samenstellen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No squad picked yet."
+msgstr "Nog geen selectie vastgelegd."
+
+#: src/Modules/Knowledge/Rest/KnowledgeRestController.php:700
+msgid "Send \"read\" (boolean) and/or \"tool_state\" (object)."
+msgstr "Stuur \"read\" (boolean) en/of \"tool_state\" (object)."
+
+#: src/Modules/MatchAnalysis/Rest/MatchAnalysisRestController.php
+#. translators: 1: maximum number of characters, 2: comma-separated field names
+msgid "A note is one short point, at most %1$d characters. Shorten these and save again: %2$s."
+msgstr "Een notitie is één kort punt, van maximaal %1$d tekens. Kort deze in en sla opnieuw op: %2$s."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "That filter value cannot be read."
+msgstr "Die filterwaarde kan niet gelezen worden."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:120
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:301
+msgid "Open tournament planner"
+msgstr "Open toernooiplanner"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:353
+msgctxt "minutes audit row: a tournament day summing its fixtures"
+msgid "Roll-up"
+msgstr "Samenvatting"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:283
+msgid "Tournament day — minutes recorded per fixture"
+msgstr "Toernooidag — minuten per wedstrijd geregistreerd"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php:341
+msgid ""
+"A tournament day is a roll-up of its fixtures: its minutes are recorded in "
+"the tournament planner and are already counted in the fixture rows, so it is "
+"left out of the column totals."
+msgstr ""
+"Een toernooidag is een samenvatting van de wedstrijden van dat toernooi: de "
+"minuten worden in de toernooiplanner vastgelegd en zijn in die "
+"wedstrijdrijen al geteld, dus blijft de dag buiten de kolomtotalen."
+
+#: src/Infrastructure/REST/ReportsRestController.php:288
+msgid ""
+"Tournament minutes are recorded per fixture. Open the tournament planner to "
+"edit them."
+msgstr ""
+"Toernooiminuten worden per wedstrijd vastgelegd. Open de toernooiplanner om "
+"ze te bewerken."
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditEditView.php:117
+msgid ""
+"Tournament minutes are recorded per fixture, in the tournament planner. This "
+"day is a roll-up of those fixtures, so there is nothing to record here."
+msgstr ""
+"Toernooiminuten worden per wedstrijd vastgelegd, in de toernooiplanner. Deze "
+"dag is een samenvatting van die wedstrijden, dus hier valt niets te "
+"registreren."
+
+#: src/Modules/Threads/Rest/ThreadsRestController.php
+msgid "You do not hold the staff-only notes right, so this note cannot be kept within the staff. Ask an academy admin for it, or post the note where everyone on the conversation can read it."
+msgstr "Je hebt het recht voor staf-only notities niet, dus deze notitie kan niet binnen de staf blijven. Vraag er een academiebeheerder om, of plaats de notitie zo dat iedereen in het gesprek hem kan lezen."
+
+#: src/Modules/Threads/Rest/ThreadsRestController.php
+msgid "Unknown visibility \"%1$s\". Valid values: %2$s."
+msgstr "Onbekende zichtbaarheid \"%1$s\". Geldige waarden: %2$s."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Staff-only notes"
+msgstr "Staf-only notities"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:139
+msgid "%s's evaluations"
+msgstr "Evaluaties van %s"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:75
+msgid "Fill in missing opponents"
+msgstr "Ontbrekende tegenstanders invullen"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:80
+msgid "You do not have permission to edit activities."
+msgstr "Je hebt geen rechten om activiteiten te bewerken."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:95
+msgid ""
+"These matches have no opponent stored, so every report, team sheet and "
+"scoreboard shows a placeholder for them. Where the title says who the match "
+"was against, a suggestion is filled in below — check it, correct it, and "
+"save. Nothing is changed until you save."
+msgstr ""
+"Bij deze wedstrijden is geen tegenstander vastgelegd, dus elk rapport, elk "
+"wedstrijdformulier en elk scorebord toont er een tijdelijke aanduiding voor. "
+"Zegt de titel tegen wie er gespeeld is, dan staat hieronder een voorstel — "
+"controleer het, corrigeer het en sla op. Er verandert niets tot je opslaat."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:99
+msgid "Every match has an opponent stored. Nothing to fill in."
+msgstr ""
+"Bij elke wedstrijd is een tegenstander vastgelegd. Er valt niets in te vullen."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:110
+msgid "Title as it stands"
+msgstr "Titel zoals die er staat"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:112
+msgid "Home or away"
+msgstr "Thuis of uit"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:138
+msgid "Apply this row"
+msgstr "Deze regel toepassen"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:153
+msgid "Not known"
+msgstr "Niet bekend"
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:127
+msgid "Save opponents"
+msgstr "Tegenstanders opslaan"
+
+#. translators: %d: how many matches were given an opponent
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:167
+#, php-format
+msgid "%d match updated."
+msgid_plural "%d matches updated."
+msgstr[0] "%d wedstrijd bijgewerkt."
+msgstr[1] "%d wedstrijden bijgewerkt."
+
+#: src/Modules/Activities/Frontend/FrontendOpponentBackfillView.php:177
+msgid "Nothing was applied — tick a row and give it an opponent first."
+msgstr ""
+"Er is niets toegepast — vink eerst een regel aan en geef die een "
+"tegenstander."
+
+#. translators: 1: number of matches, 2: their dates and titles
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php:1400
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php:748
+#, php-format
+msgid ""
+"%1$d match has no opponent stored, so it reads as \"Unknown opponent\" "
+"above: %2$s."
+msgid_plural ""
+"%1$d matches have no opponent stored, so they read as \"Unknown opponent\" "
+"above: %2$s."
+msgstr[0] ""
+"Bij %1$d wedstrijd is geen tegenstander vastgelegd, dus die leest hierboven "
+"als \"Onbekende tegenstander\": %2$s."
+msgstr[1] ""
+"Bij %1$d wedstrijden is geen tegenstander vastgelegd, dus die lezen "
+"hierboven als \"Onbekende tegenstander\": %2$s."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1281
+msgid ""
+"The match is played, but its activity is not marked completed. Completed "
+"activities are what the reports count."
+msgstr ""
+"De wedstrijd is gespeeld, maar de activiteit staat niet op afgerond. "
+"Afgeronde activiteiten zijn wat de rapporten tellen."
+
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
+msgid "This task is yours, but completing it needs a permission you do not hold. Ask an academy administrator to grant it, or to hand the task to somebody who has it."
+msgstr "Deze klus is van jou, maar om hem af te ronden heb je een recht nodig dat je niet hebt. Vraag een academy-beheerder om het toe te kennen, of om de klus aan iemand te geven die het wel heeft."
+
+#: src/Shared/Frontend/FrontendTestTrainingsView.php
+msgid "Nobody yet"
+msgstr "Nog niemand"
+
+#: src/Shared/Frontend/FrontendTestTrainingsView.php
+msgid "Pick the prospect this test training is being arranged for, and they move to Invited when you save. Leave it empty to schedule one with nobody attached yet."
+msgstr "Kies de prospect voor wie je deze testtraining regelt; bij opslaan gaat die naar Uitgenodigd. Laat het leeg om er een in te plannen zonder dat er al iemand aan hangt."
+
+#: src/Modules/Prospects/Domain/ArrangeTestTrainingService.php
+msgid "You cannot arrange a test training for this prospect."
+msgstr "Je kunt voor deze prospect geen testtraining regelen."
+
+#: src/Modules/Prospects/Domain/ArrangeTestTrainingService.php
+msgid "There is no test training to link."
+msgstr "Er is geen testtraining om aan te koppelen."
+
+#: src/Modules/Prospects/Domain/ArrangeTestTrainingService.php
+msgid "The test training was saved but could not be linked to the prospect."
+msgstr "De testtraining is opgeslagen, maar kon niet aan de prospect worden gekoppeld."
+
+#: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php
+msgctxt "the invitation text written to a parent"
+msgid "Message"
+msgstr "Bericht"
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

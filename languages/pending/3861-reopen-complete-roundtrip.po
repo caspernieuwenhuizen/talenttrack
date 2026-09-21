@@ -1,7 +1,0 @@
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:1281
-msgid ""
-"The match is played, but its activity is not marked completed. Completed "
-"activities are what the reports count."
-msgstr ""
-"De wedstrijd is gespeeld, maar de activiteit staat niet op afgerond. "
-"Afgeronde activiteiten zijn wat de rapporten tellen."

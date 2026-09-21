@@ -1,3 +1,0 @@
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:139
-msgid "%s's evaluations"
-msgstr "Evaluaties van %s"
