@@ -521,7 +521,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 $rendered_ids = array_keys( $mains );
                 foreach ( $by_parent as $subs_for_parent ) {
                     foreach ( $subs_for_parent as $sub_row ) {
-                        $rendered_ids[] = (int) $sub_row->category_id;
+                        $rendered_ids[] = (int) ( $sub_row->category_id ?? 0 );
                     }
                 }
                 $unrated_notes = array_diff_key( $notes, array_flip( $rendered_ids ) );
@@ -549,7 +549,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
                                         <tr class="tt-evd__sub">
-                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) $sub->category_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
+                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
                                             <td class="tt-evd__rating-col tt-evd__sub-rating"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -562,7 +562,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                     $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                     ?>
                                     <tr>
-                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) $sub->category_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
+                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
                                         <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                     </tr>
                                 <?php endforeach;

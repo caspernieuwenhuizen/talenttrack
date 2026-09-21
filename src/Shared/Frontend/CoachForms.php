@@ -135,7 +135,7 @@ class CoachForms {
         // #3949 — one note per category, shown under the same visibility as
         // the evaluation; the form is only reachable by someone who may edit it.
         $existing_notes = $is_edit
-            ? ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluation( (int) $existing_eval->id )
+            ? ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluation( (int) ( $existing_eval->id ?? 0 ) )
             : [];
         \TT\Shared\Frontend\Components\EvalCategoryNote::enqueue();
         if ( $is_edit ) {

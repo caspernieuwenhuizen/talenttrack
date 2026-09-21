@@ -447,24 +447,26 @@ class PlayerStatsService {
     public function getTrendNotes( int $player_id, array $filters = [] ): array {
         $evals    = $this->getEvaluationsForPlayer( $player_id, $filters );
         $mains    = $this->cats_repo->getMainCategories( true );
-        $eval_ids = array_map( fn( $e ) => (int) $e->id, $evals );
+        $eval_ids = array_map( fn( $e ) => (int) ( $e->id ?? 0 ), $evals );
         $by_eval  = ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluations( $eval_ids );
 
         // Sub category id to [parent id, label], for the categories that
         // carry a note at all.
         $parents = [];
         foreach ( $mains as $m ) {
-            foreach ( $this->cats_repo->getChildren( (int) $m->id, false ) as $sub ) {
-                $parents[ (int) $sub->id ] = [
-                    (int) $m->id,
-                    \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? '' ), (int) $sub->id ),
+            $main_id = (int) ( $m->id ?? 0 );
+            foreach ( $this->cats_repo->getChildren( $main_id, false ) as $sub ) {
+                $sub_id = (int) ( $sub->id ?? 0 );
+                $parents[ $sub_id ] = [
+                    $main_id,
+                    \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? '' ), $sub_id ),
                 ];
             }
         }
 
         $out = [];
         foreach ( $mains as $m ) {
-            $mid   = (int) $m->id;
+            $mid   = (int) ( $m->id ?? 0 );
             $notes = [];
             foreach ( $eval_ids as $i => $eid ) {
                 $parts = [];
