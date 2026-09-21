@@ -56,6 +56,7 @@ final class StravaRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'connect' ],
                 'permission_callback' => [ __CLASS__, 'canManagePlayerParam' ],
+                'args'                => self::connectArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -89,6 +90,7 @@ final class StravaRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'saveApp' ],
             'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            'args'                => self::appArgs(),
         ] );
 
         // Operator console (#2127): read-only roster of every Strava
@@ -112,6 +114,7 @@ final class StravaRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'webhookEvent' ],
+                'args'                => self::webhookEventArgs(),
                 'permission_callback' => '__return_true',
             ],
         ] );
@@ -129,6 +132,7 @@ final class StravaRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'subscribe' ],
                 'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+                'args'                => [],
             ],
             [
                 'methods'             => 'DELETE',
@@ -213,6 +217,10 @@ final class StravaRestController {
      * record, so a hand-crafted request can't skip it.
      */
     public static function connect( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::connectArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int) $r['id'];
 
         // #3106 — Strava is Pro. The gate goes on the connect flow rather
@@ -408,6 +416,10 @@ final class StravaRestController {
      * never returned.
      */
     public static function saveApp( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::appArgs() );
+        if ( $refused !== null ) return $refused;
+
         $client_id     = trim( (string) ( $r->get_param( 'client_id' ) ?? '' ) );
         $client_secret = trim( (string) ( $r->get_param( 'client_secret' ) ?? '' ) );
 
@@ -481,7 +493,68 @@ final class StravaRestController {
      * the athlete to a connection, pin its club, and route the event.
      * Always answers 200 fast — Strava retries on a non-200.
      */
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * `POST /players/{id}/strava/connect` — the consent that starts the
+     * OAuth hand-off. The tokens themselves never travel in a body: they
+     * come back through the signed callback, so there is nothing here for
+     * a caller to assert.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, and this route is about a minor's training
+     * data — a caller who may not manage the player is owed the 403
+     * `canManagePlayerParam()` gives them.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function connectArgs(): array {
+        return [
+            'id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'consent' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'That the player, or their guardian, has agreed to their Strava activity being imported.' ],
+        ];
+    }
+
+    /**
+     * `POST /strava/app` — the developer-app credentials. The secret is
+     * only ever read from a body, never returned in one.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function appArgs(): array {
+        return [
+            'client_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The Strava application id.' ],
+            'client_secret' => [ 'type' => 'string', 'description' => 'Its secret. Stored encrypted and never returned.' ],
+        ];
+    }
+
+    /**
+     * `POST /strava/webhook` — Strava's own event push.
+     *
+     * Declared so route discovery shows the shape, but this is the second
+     * route in the plugin that deliberately does **not** call
+     * `checkBody()` (the other is the export runner). The body is Strava's
+     * to define, not ours: the day they add a field, refusing it would
+     * stop every activity import with a 400 nobody is watching for. What
+     * protects this route is that it reads only the keys it knows and
+     * resolves the athlete before writing anything.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function webhookEventArgs(): array {
+        return [
+            'object_type'     => [ 'type' => 'string', 'description' => 'What the event is about: an activity or an athlete.' ],
+            'object_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which one.' ],
+            'aspect_type'     => [ 'type' => 'string', 'description' => 'What happened to it: create, update or delete.' ],
+            'owner_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The Strava athlete it belongs to.' ],
+            'subscription_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The subscription the push came through.' ],
+            'event_time'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'When it happened, as a Unix timestamp.' ],
+            'updates'         => [ 'type' => 'object', 'description' => 'What changed, on an update event.' ],
+        ];
+    }
+
     public static function webhookEvent( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — no `checkBody()` here on purpose; see webhookEventArgs().
         $payload = $r->get_json_params();
         if ( ! is_array( $payload ) ) {
             $payload = $r->get_params();
@@ -514,6 +587,12 @@ final class StravaRestController {
     }
 
     public static function subscribe( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the route takes no body: the callback URL and the verify
+        // token come from this install's own configuration, never from a
+        // caller.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         if ( ! StravaConfig::hasCredentials() ) {
             return RestResponse::error(
                 'strava_not_configured',

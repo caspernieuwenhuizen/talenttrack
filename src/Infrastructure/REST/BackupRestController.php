@@ -67,6 +67,7 @@ final class BackupRestController {
         register_rest_route( self::NS, '/backups/settings', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'saveSettings' ],
+            'args'                => self::settingsArgs(),
             'permission_callback' => [ __CLASS__, 'canManage' ],
         ] );
 
@@ -74,6 +75,7 @@ final class BackupRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'runNow' ],
             'permission_callback' => [ __CLASS__, 'canManage' ],
+            'args'                => [],
         ] );
 
         register_rest_route( self::NS, '/backups/(?P<id>[A-Za-z0-9._-]+)', [
@@ -92,25 +94,101 @@ final class BackupRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'restore' ],
             'permission_callback' => [ __CLASS__, 'canManage' ],
+            'args'                => self::restoreArgs(),
         ] );
 
         register_rest_route( self::NS, '/backups/migration/preview', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'migrationPreview' ],
             'permission_callback' => [ __CLASS__, 'canManage' ],
+            // The archive arrives as a multipart file, not a body key.
+            'args'                => [],
         ] );
 
         register_rest_route( self::NS, '/backups/migration/dry-run', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'migrationDryRun' ],
             'permission_callback' => [ __CLASS__, 'canManage' ],
+            'args'                => self::importArgs(),
         ] );
 
         register_rest_route( self::NS, '/backups/migration/commit', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'migrationCommit' ],
             'permission_callback' => [ __CLASS__, 'canManage' ],
+            'args'                => self::commitArgs(),
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required` — including the two
+     * confirmation phrases. Core checks required params before the
+     * permission callback, so a required `confirm_text` would answer an
+     * unauthorised POST with a 400 telling it what to type, which is the
+     * last thing a route that replaces an academy's data should do. The
+     * handlers check the phrase behind the gate, and answer 422.
+     */
+
+    /**
+     * `POST /backups/settings` — what is backed up, where it goes and how
+     * long it is kept.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function settingsArgs(): array {
+        return [
+            'preset'           => [ 'type' => 'string', 'description' => 'Which set of tables to back up.' ],
+            'selected_tables'  => [ 'type' => [ 'array', 'string' ], 'description' => 'The tables to include, when the preset is a custom one.' ],
+            'schedule'         => [ 'type' => 'string', 'description' => 'How often a backup runs.' ],
+            'retention'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'How many backups to keep.' ],
+            'dest_local'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Keep a copy on this server.' ],
+            'dest_email'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Mail a copy out.' ],
+            'email_recipients' => [ 'type' => [ 'array', 'string' ], 'description' => 'Who the mailed copy goes to.' ],
+        ];
+    }
+
+    /**
+     * `POST /backups/{id}/restore` — replace this install's data with a
+     * backup's. The phrase is the whole body: everything else about the
+     * restore is the backup's own content.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function restoreArgs(): array {
+        return [
+            'id'           => [ 'type' => 'string', 'description' => 'The backup, from the URL. A copy in the body is accepted and ignored.' ],
+            'confirm_text' => [ 'type' => 'string', 'description' => 'The word RESTORE, typed out. Anything else is refused before a row is touched.' ],
+        ];
+    }
+
+    /**
+     * The migration import's dry run and commit. `migration_file` is not
+     * declared: the archive arrives as a multipart file on the preview
+     * step, not as a body key, and the staged snapshot is what the later
+     * two steps read.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function importArgs(): array {
+        return [
+            'entities' => [ 'type' => 'array', 'description' => 'Which kinds of record to import.' ],
+            'conflict' => [ 'type' => 'object', 'description' => 'What to do per entity when a record already exists: insert a second, or update the one that is there.' ],
+            'user_map' => [ 'type' => 'object', 'description' => 'Which local account each account in the archive becomes, keyed by the archive\'s id.' ],
+        ];
+    }
+
+    /**
+     * `POST /backups/migration/commit` — the import for real, which is
+     * where the second confirmation phrase is asked for.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function commitArgs(): array {
+        return self::importArgs() + [
+            'confirm_text' => [ 'type' => 'string', 'description' => 'The confirmation phrase, typed out. Anything else is refused before a row is written.' ],
+        ];
     }
 
     public static function canManage(): bool {
@@ -150,6 +228,10 @@ final class BackupRestController {
      * BackupSettings / Scheduler.
      */
     public static function saveSettings( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::settingsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $preset    = sanitize_key( (string) ( $r->get_param( 'preset' ) ?? '' ) );
         $schedule  = sanitize_key( (string) ( $r->get_param( 'schedule' ) ?? '' ) );
         $retention = (int) ( $r->get_param( 'retention' ) ?? 30 );
@@ -181,6 +263,11 @@ final class BackupRestController {
     }
 
     public static function runNow( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the route takes no body: what a backup contains is the
+        // saved settings' answer, not this request's.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         $result = BackupRunner::run();
         if ( empty( $result['ok'] ) ) {
             return RestResponse::error(
@@ -239,6 +326,12 @@ final class BackupRestController {
      * operator to type "RESTORE", and audit-logs the outcome.
      */
     public static function restore( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values, and before the
+        // impersonation check: a body this route cannot read is refused on
+        // its shape whoever is asking.
+        $refused = BaseController::checkBody( $r, self::restoreArgs() );
+        if ( $refused !== null ) return $refused;
+
         $err = ImpersonationContext::denyIfImpersonating( 'backup.restore' );
         if ( $err instanceof \WP_Error ) {
             return RestResponse::error( 'impersonation_blocks_destructive', (string) $err->get_error_message(), 403 );
@@ -289,6 +382,11 @@ final class BackupRestController {
      * re-upload. Size-guarded; never writes academy data.
      */
     public static function migrationPreview( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the archive arrives as a multipart file, so the body
+        // itself carries nothing this route reads.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         $files = $r->get_file_params();
         $file  = $files['migration_file'] ?? null;
 
@@ -343,6 +441,10 @@ final class BackupRestController {
     }
 
     public static function migrationDryRun( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::importArgs() );
+        if ( $refused !== null ) return $refused;
+
         $snapshot = self::loadStaged();
         if ( $snapshot === null ) {
             return RestResponse::error( 'staging_lost', self::stagingLostMsg(), 410 );
@@ -360,6 +462,10 @@ final class BackupRestController {
      * archive is cleared on success.
      */
     public static function migrationCommit( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::commitArgs() );
+        if ( $refused !== null ) return $refused;
+
         $err = ImpersonationContext::denyIfImpersonating( 'migration.import' );
         if ( $err instanceof \WP_Error ) {
             return RestResponse::error( 'impersonation_blocks_destructive', (string) $err->get_error_message(), 403 );

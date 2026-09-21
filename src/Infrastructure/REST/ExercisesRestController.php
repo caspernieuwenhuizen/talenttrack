@@ -45,11 +45,24 @@ final class ExercisesRestController {
      *
      * The feature key is a literal, not a constant, so
      * `FeatureMapGateCoverageTest` can find it.
+     *
+     * #3819 — the wrapper also runs the body check, the same way the two
+     * training controllers do. `$args` empty means a read route, or one
+     * whose payload is a multipart file rather than a body.
+     *
+     * @param array<string, array<string, mixed>> $args
      */
-    private static function gate( callable $callback ): \Closure {
-        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+    private static function gate( callable $callback, array $args = [] ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback, $args ) {
             $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'exercises', $r );
-            return $blocked ?? $callback( $r );
+            if ( $blocked ) return $blocked;
+
+            if ( $args !== [] ) {
+                $refused = BaseController::checkBody( $r, $args );
+                if ( $refused !== null ) return $refused;
+            }
+
+            return $callback( $r );
         };
     }
 
@@ -85,8 +98,9 @@ final class ExercisesRestController {
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'create_exercise' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'create_exercise' ], self::writeArgs() ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/categories', [
@@ -102,8 +116,9 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises/principles/bulk', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'bulk_tag_principles' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'bulk_tag_principles' ], self::bulkTagArgs() ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+                'args'                => self::bulkTagArgs(),
             ],
         ] );
         // #2613 — CSV bulk import. Literal segment, so it is registered
@@ -112,8 +127,9 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises/import', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'import_exercises' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'import_exercises' ], self::importArgs() ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+                'args'                => self::importArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/awaiting-review', [
@@ -133,8 +149,9 @@ final class ExercisesRestController {
         register_rest_route( self::NS, '/exercises/(?P<id>\d+)/promote', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'promote_exercise' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'promote_exercise' ], self::idArgs() ),
                 'permission_callback' => static fn() => self::canPromote(),
+                'args'                => self::idArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/exercises/(?P<id>\d+)', [
@@ -145,8 +162,9 @@ final class ExercisesRestController {
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => self::gate( [ __CLASS__, 'update_exercise' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'update_exercise' ], self::updateArgs() ),
                 'permission_callback' => static fn() => current_user_can( 'tt_manage_exercises' ),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -449,6 +467,105 @@ final class ExercisesRestController {
     /**
      * @return array<string,mixed>
      */
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer an unauthorised POST with
+     * a 400 rather than the 403 it is owed.
+     *
+     * `author_user_id` is absent on purpose: the author is whoever is
+     * calling. It is set in `create_exercise()` from the request context,
+     * and a body that named one would let a coach file a drill under
+     * somebody else's name.
+     */
+
+    /**
+     * The body an exercise create or update takes: the library columns
+     * plus the VCT attributes merged in by migration 0212.
+     *
+     * Every field is optional on the update too, and an omitted one keeps
+     * its value: `editAsNewVersion()` carries the prior version forward
+     * and writes only what the request names.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'name'                 => [ 'type' => 'string', 'description' => 'What the exercise is called.' ],
+            'description'          => [ 'type' => 'string', 'description' => 'How it is run.' ],
+            'duration_minutes'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long it usually takes.' ],
+            'category_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which part of a training it belongs in.' ],
+            'diagram_url'          => [ 'type' => 'string', 'description' => 'A link to the diagram.' ],
+            'visibility'           => [ 'type' => 'string', 'description' => 'Who the exercise is for. A new one starts with the author\'s team; making it club-wide is its own route.' ],
+            'code'                 => [ 'type' => [ 'string', 'null' ], 'description' => 'The catalogue code, when the club uses one.' ],
+            'tactical_theme'       => [ 'type' => [ 'string', 'null' ], 'description' => 'The theme it develops.' ],
+            'pitch_preset'         => [ 'type' => [ 'string', 'null' ], 'description' => 'Which pitch the diagram is drawn on.' ],
+            'intensity_band'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'How hard it is, 1-10. Without this and an age window the exercise stays out of VCT generation, which is right: it cannot be judged age-safe.' ],
+            'duration_minutes_min' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The shortest it is worth running.' ],
+            'duration_minutes_max' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The longest it should run.' ],
+            'players_min'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The fewest players it works with.' ],
+            'players_max'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The most players it works with.' ],
+            'age_min'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The youngest age it suits.' ],
+            'age_max'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The oldest age it suits.' ],
+        ];
+    }
+
+    /**
+     * `PUT /exercises/{id}` on top of `writeArgs()`. The update writes a
+     * new version rather than editing in place, so the id that comes back
+     * is the new one and the old version stays where activities point at it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return self::idArgs() + self::writeArgs();
+    }
+
+    /**
+     * `POST /exercises/principles/bulk` — tag many exercises at once.
+     *
+     * No `enum` on `mode`: an unrecognised one falls back to add rather
+     * than refusing, which is the route's long-standing behaviour.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function bulkTagArgs(): array {
+        return [
+            'exercise_ids'  => [ 'type' => 'array', 'description' => 'Which exercises to tag.' ],
+            'principle_ids' => [ 'type' => 'array', 'description' => 'Which methodology principles to tag them with.' ],
+            'mode'          => [ 'type' => 'string', 'description' => 'add keeps the tags already there; replace swaps them for this list. Anything else is read as add.' ],
+            'mark_reviewed' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Count the exercises as reviewed. Omitted means yes.' ],
+        ];
+    }
+
+    /**
+     * `POST /exercises/import` — the switches beside the uploaded CSV,
+     * which arrives as a multipart file rather than a body key.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function importArgs(): array {
+        return [ 'dry_run' => [
+            'type'        => [ 'boolean', 'integer', 'string' ],
+            'description' => 'Preview the import without writing. Anything but "0" previews, so a commit has to say so.',
+        ] ];
+    }
+
+    /**
+     * `POST /exercises/{id}/promote` acts on the exercise in the URL and
+     * takes no body: making a team drill club-wide is the whole request.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The exercise, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     private static function extractPayload( \WP_REST_Request $r ): array {
         $body = $r->get_json_params();
         if ( ! is_array( $body ) ) $body = [];

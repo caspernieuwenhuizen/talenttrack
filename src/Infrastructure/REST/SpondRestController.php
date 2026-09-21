@@ -64,6 +64,7 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'syncTeam' ],
             'permission_callback' => [ __CLASS__, 'canSyncTeam' ],
+            'args'                => self::teamIdArgs(),
         ] );
 
         // #2284 — dry-run preview for the Spond integration monitor.
@@ -73,6 +74,7 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_preview' ],
             'permission_callback' => [ __CLASS__, 'canSyncTeam' ],
+            'args'                => self::teamIdArgs(),
         ] );
 
         // #2286 — per-team Spond account override. #2388 tightened the gate
@@ -84,6 +86,7 @@ final class SpondRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'route_save_team_credentials' ],
                 'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
+                'args'                => self::credentialArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -96,6 +99,7 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'route_test_team_credentials' ],
             'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
+            'args'                => self::credentialArgs(),
         ] );
 
         // #2399 — the team's own group selection, so a head coach can finish
@@ -112,9 +116,7 @@ final class SpondRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'route_save_team_group' ],
                 'permission_callback' => [ __CLASS__, 'canManageTeamSpond' ],
-                'args'                => [
-                    'group_id' => [ 'required' => true, 'type' => 'string' ],
-                ],
+                'args'                => self::groupArgs(),
             ],
         ] );
 
@@ -123,6 +125,7 @@ final class SpondRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'saveCredentials' ],
                 'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+                'args'                => self::credentialArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -135,13 +138,87 @@ final class SpondRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'testConnection' ],
             'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            'args'                => self::credentialArgs(),
         ] );
 
         register_rest_route( self::NS, '/spond/base-url', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'saveBaseUrl' ],
             'permission_callback' => [ __CLASS__, 'canEditCredentials' ],
+            'args'                => self::baseUrlArgs(),
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback — and these routes carry an academy's Spond login. A
+     * caller who may not manage the integration is owed the 403 the gate
+     * gives them, not a 400 naming the credential fields.
+     *
+     * A password is only ever read from a body, never returned in one:
+     * the read routes answer with whether a credential is set, not with
+     * what it is.
+     */
+
+    /**
+     * The credential routes, per team and install-wide. `password` blank
+     * keeps the stored one rather than clearing it, so a form that hides
+     * the value can be re-saved without retyping it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function credentialArgs(): array {
+        return [
+            'id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team, from the URL on the per-team routes. A copy in the body is accepted and ignored.' ],
+            'email'    => [ 'type' => 'string', 'description' => 'The Spond account to connect as.' ],
+            'password' => [ 'type' => 'string', 'description' => 'That account\'s password. Blank keeps the stored one rather than clearing it.' ],
+        ];
+    }
+
+    /**
+     * `POST /teams/{id}/spond/sync` and `.../preview` act on the team in
+     * the URL and take no body of their own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function teamIdArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The team, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /**
+     * `POST /spond/base-url` — where the API lives. Its own route because
+     * pointing an install at a different host is an operator act, not a
+     * credential change.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function baseUrlArgs(): array {
+        return [ 'api_base_url' => [
+            'type'        => 'string',
+            'description' => 'The Spond API host this install talks to.',
+        ] ];
+    }
+
+    /**
+     * `POST /teams/{id}/spond/group` — which Spond group a team is linked
+     * to. `group_id` was declared `required` until #3819: core checks that
+     * before the permission callback, so a coach with no claim on the team
+     * was answered with a 400 naming the field rather than the 403
+     * `TeamSpondAccess` owes them. An empty value unlinks, which the
+     * handler answers for.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function groupArgs(): array {
+        return self::teamIdArgs() + [
+            'group_id' => [ 'type' => 'string', 'description' => 'The Spond group this team\'s events come from. Empty unlinks the team.' ],
+        ];
     }
 
     public static function canEdit(): bool {
@@ -173,6 +250,10 @@ final class SpondRestController {
     }
 
     public static function syncTeam( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::teamIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = (int) $r['id'];
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
@@ -195,6 +276,10 @@ final class SpondRestController {
      * conversion, so the preview matches what a real sync would store.
      */
     public static function route_preview( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::teamIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = (int) $r['id'];
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
@@ -420,6 +505,10 @@ final class SpondRestController {
      * connected flag.
      */
     public static function saveCredentials( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::credentialArgs() );
+        if ( $refused !== null ) return $refused;
+
         $email    = sanitize_email( (string) ( $r->get_param( 'email' ) ?? '' ) );
         $password = trim( (string) ( $r->get_param( 'password' ) ?? '' ) );
 
@@ -460,6 +549,10 @@ final class SpondRestController {
      * a non-sensitive error message.
      */
     public static function testConnection( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::credentialArgs() );
+        if ( $refused !== null ) return $refused;
+
         $email = CredentialsManager::getEmail();
         $posted_email = sanitize_email( (string) ( $r->get_param( 'email' ) ?? '' ) );
         if ( $posted_email !== '' ) {
@@ -507,6 +600,10 @@ final class SpondRestController {
      * non-empty value must look like an http(s) URL.
      */
     public static function saveBaseUrl( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::baseUrlArgs() );
+        if ( $refused !== null ) return $refused;
+
         $raw       = trim( (string) ( $r->get_param( 'api_base_url' ) ?? '' ) );
         $sanitised = $raw === '' ? '' : esc_url_raw( $raw );
 
@@ -581,6 +678,10 @@ final class SpondRestController {
 
     /** #2399 — persist the team's group choice ('' clears it). */
     public static function route_save_team_group( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::groupArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = (int) $r['id'];
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
@@ -633,6 +734,10 @@ final class SpondRestController {
      * stored email, the connected flag, and override:true.
      */
     public static function route_save_team_credentials( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::credentialArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = (int) $r['id'];
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
@@ -695,6 +800,10 @@ final class SpondRestController {
      * the token — only ok / a non-sensitive error message.
      */
     public static function route_test_team_credentials( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::credentialArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = (int) $r['id'];
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team_id', __( 'Team id is required.', 'talenttrack' ), 400 );
