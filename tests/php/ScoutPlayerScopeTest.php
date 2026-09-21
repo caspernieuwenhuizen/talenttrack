@@ -39,14 +39,14 @@ final class ScoutPlayerScopeTest extends WP_UnitTestCase {
         parent::tear_down();
     }
 
-    /** An active player in club 1. */
-    private function makePlayer( string $last ): int {
+    /** A player in club 1, active unless another status is asked for. */
+    private function makePlayer( string $last, string $status = 'active' ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
             'club_id'    => 1,
             'first_name' => 'Scope',
             'last_name'  => $last,
-            'status'     => 'active',
+            'status'     => $status,
         ] );
         return (int) $wpdb->insert_id;
     }
@@ -93,6 +93,87 @@ final class ScoutPlayerScopeTest extends WP_UnitTestCase {
             MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, $unrelated ),
             'the link must not leak to a player the scout has no connection to'
         );
+    }
+
+    /**
+     * #3928 — the population the panel-seat route exists for.
+     *
+     * A player sitting on a trial case's panel is, by definition, on
+     * trial. While this class narrowed to `status = 'active'` the route
+     * resolved the id and then filtered it away again, so the scout held
+     * no scope over the one player they were appointed to assess.
+     */
+    public function test_trialist_on_my_panel_is_in_scope(): void {
+        $uid       = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        $trialist  = $this->makePlayer( 'OnTrial', 'trial' );
+        $unrelated = $this->makePlayer( 'OtherTrialist', 'trial' );
+        $this->makePanelSeat( $trialist, $uid );
+        $this->grantScoutEvaluationsAtPlayerScope();
+
+        $this->assertSame( [ $trialist ], ScoutPlayerLinks::playerIds( $uid ), 'the trialist resolves as a link' );
+        $this->assertTrue(
+            MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, $trialist ),
+            'a scout on a trialist\'s panel holds player scope over that trialist'
+        );
+        $this->assertFalse(
+            MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, $unrelated ),
+            'and still none over a trialist whose panel they do not sit on'
+        );
+    }
+
+    /** #3928 — the assignment-list route carries a trialist too. */
+    public function test_trialist_in_the_assignment_list_is_in_scope(): void {
+        $uid      = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        $trialist = $this->makePlayer( 'AssignedTrialist', 'trial' );
+        update_user_meta( $uid, 'tt_scout_player_ids', wp_json_encode( [ $trialist ] ) );
+        $this->grantScoutEvaluationsAtPlayerScope();
+
+        $this->assertTrue( ScoutPlayerLinks::isLinkedTo( $uid, $trialist ) );
+        $this->assertTrue(
+            MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, $trialist )
+        );
+    }
+
+    /**
+     * #3928 — the allowlist is `active` + `trial` and nothing else. The
+     * grant assertion is paired with each refusal so the test can tell
+     * "narrowed correctly" from "refused everything".
+     */
+    public function test_only_active_and_trial_statuses_keep_the_link(): void {
+        global $wpdb;
+        $uid    = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        $player = $this->makePlayer( 'Lifecycle' );
+        $this->makePanelSeat( $player, $uid );
+
+        foreach ( [ 'active', 'trial' ] as $status ) {
+            $wpdb->update( "{$wpdb->prefix}tt_players", [ 'status' => $status ], [ 'id' => $player ] );
+            $this->assertSame( [ $player ], ScoutPlayerLinks::playerIds( $uid ), "status {$status} keeps the link" );
+        }
+
+        foreach ( [ 'inactive', 'released', 'graduated' ] as $status ) {
+            $wpdb->update( "{$wpdb->prefix}tt_players", [ 'status' => $status ], [ 'id' => $player ] );
+            $this->assertSame( [], ScoutPlayerLinks::playerIds( $uid ), "status {$status} ends the link" );
+        }
+    }
+
+    /** #3928 — archiving or trashing a player takes them out of scope. */
+    public function test_archived_or_trashed_player_drops_out_of_scope(): void {
+        global $wpdb;
+        $uid    = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        $player = $this->makePlayer( 'Binned', 'trial' );
+        $this->makePanelSeat( $player, $uid );
+
+        $this->assertSame( [ $player ], ScoutPlayerLinks::playerIds( $uid ), 'in scope before anything is hidden' );
+
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'archived_at' => '2026-03-01 10:00:00' ], [ 'id' => $player ] );
+        $this->assertSame( [], ScoutPlayerLinks::playerIds( $uid ), 'an archived player is out' );
+
+        $wpdb->update(
+            "{$wpdb->prefix}tt_players",
+            [ 'archived_at' => null, 'trashed_at' => '2026-03-02 10:00:00' ],
+            [ 'id' => $player ]
+        );
+        $this->assertSame( [], ScoutPlayerLinks::playerIds( $uid ), 'a player in the recycle bin is out' );
     }
 
     public function test_unassigning_the_seat_ends_the_link(): void {

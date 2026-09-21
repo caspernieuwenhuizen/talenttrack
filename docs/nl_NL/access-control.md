@@ -613,6 +613,22 @@ Drie dingen die dit bewust *niet* doet:
 - **Een prospect vinden is geen koppeling.** Een dossier dat voortkomt uit een prospect die de scout heeft aangedragen, geeft op zichzelf geen toegang — in het panel zitten wel.
 - **Een uitschrijving beëindigt de koppeling**, net zoals bij een ouder (zie #3476). Een uitgeschreven speler valt vanzelf buiten de scope van de scout.
 
+### Bij welke statussen blijft de koppeling van een scout bestaan
+
+Een koppeling blijft bestaan bij twee selectiestatussen, en bij geen enkele andere:
+
+| Status | Koppeling | Waarom |
+| --- | --- | --- |
+| `active` | blijft | De speler staat in de selectie; een scout met een toewijzing of een panelplek heeft lopend werk aan deze speler. |
+| `trial` | blijft | Dit is de status die een panelplek veronderstelt — een speler met een stagedossier mét panel is per definitie op stage. |
+| `inactive` | eindigt | De speler heeft de selectie verlaten; het dossier is geschiedenis. |
+| `released` | eindigt | Een uitschrijving beëindigt de koppeling, net als bij een ouder. |
+| `graduated` | eindigt | De speler is de opleiding ontgroeid. |
+
+Het is een toelatingslijst en niet "alles behalve `released`", zodat een status die er later bij komt bewust wordt toegelaten in plaats van de toegang automatisch te erven.
+
+Los van de status valt een speler die **gearchiveerd** is of in de **prullenbak** staat buiten de scope van een scout, ongeacht welke status hij draagt — dezelfde levenscyclusfilter `active` die elk overzicht toepast.
+
 De rij `trial_synthesis` van de scout is **verwijderd** in plaats van geactiveerd. Die zou het tabblad Uitvoering — de input van andere panelleden, vóór vrijgave — openzetten voor elke scout in elk panel. Een scout ziet zijn eigen input vóór vrijgave en die van het panel pas erna.
 
 ## Ouder → kind-koppelmodel
