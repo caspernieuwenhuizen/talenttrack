@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\MatchClock;
@@ -54,11 +55,25 @@ class MatchExecutionRestController {
      *
      * The feature key is a literal, not a constant, so
      * `FeatureMapGateCoverageTest` can find it.
+     *
+     * #3819 — the wrapper also runs the body check, because every route on
+     * this surface already goes through it and doing it here keeps the
+     * declaration and the check on one line per route. `$args` empty means
+     * a read route, which has no body to check.
+     *
+     * @param array<string, array<string, mixed>> $args
      */
-    private static function gate( callable $callback ): \Closure {
-        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+    private static function gate( callable $callback, array $args = [] ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback, $args ) {
             $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'match_execution', $r );
-            return $blocked ?? $callback( $r );
+            if ( $blocked ) return $blocked;
+
+            if ( $args !== [] ) {
+                $refused = BaseController::checkBody( $r, $args );
+                if ( $refused !== null ) return $refused;
+            }
+
+            return $callback( $r );
         };
     }
 
@@ -67,8 +82,6 @@ class MatchExecutionRestController {
     }
 
     public static function register(): void {
-        $base = '/match-execution/(?P<activity_id>\d+)';
-
         // #1033 — `finalize` is the new explicit transition from
         // PENDING_REVIEW to the terminal FINALIZED state. `finish`
         // stays on the URL surface (it's the live-tap "End match"
@@ -76,23 +89,43 @@ class MatchExecutionRestController {
         // still edit goals / subs / score post-match.
         // #2271 — `reopen` transitions a FINALIZED execution back to
         // PENDING_REVIEW so any datapoint can be corrected post-finalize.
-        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'substitution', 'goal-event', 'finish', 'finalize', 'reopen' ] as $action ) {
-            /** @var callable $handler — resolved from the action name above. */
-            $handler = [ __CLASS__, 'route_' . str_replace( '-', '_', $action ) ];
-            $route   = [
-                'methods'             => 'POST',
-                'callback'            => self::gate( $handler ),
-                'permission_callback' => [ __CLASS__, 'can_edit' ],
-            ];
-            if ( $action === 'end-half' ) {
-                $route['args'] = self::endHalfArgs();
-            }
-            register_rest_route( self::NS, $base . '/' . $action, [ $route ] );
-        }
+        // #3819 — the nine live-tap actions were registered from a loop
+        // over their names. Neither the path nor the endpoint array could
+        // be read statically that way, so the args gate saw one unreadable
+        // route standing for all nine and could not have told a newly added
+        // undeclared one from the rest. They are spelled out now; the
+        // bodies each takes live in the `*Args()` methods below.
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/start-half', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_start_half' ], self::startHalfArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::startHalfArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/end-half', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_end_half' ], self::endHalfArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::endHalfArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/pause', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_pause' ], self::pauseArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::pauseArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/resume', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_resume' ], self::resumeArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::resumeArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/substitution', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_substitution' ], self::substitutionArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::substitutionArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/goal-event', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_goal_event' ], self::goalArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::goalArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/finish', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_finish' ], self::activityIdArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::activityIdArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/finalize', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_finalize' ], self::activityIdArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::activityIdArgs() ],
+        ] );
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/reopen', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_reopen' ], self::activityIdArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::activityIdArgs() ],
+        ] );
 
         // #2275 — PATCH corrects a logged goal's half + minute (ours or the
         // opponent's), mirroring the substitution PATCH.
-        register_rest_route( self::NS, $base . '/goal-event/(?P<event_uuid>[a-f0-9-]+)', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/goal-event/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => self::gate( [ __CLASS__, 'route_goal_event_delete' ] ),
@@ -100,15 +133,16 @@ class MatchExecutionRestController {
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'route_goal_event_update' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'route_goal_event_update' ], self::goalCorrectionArgs() ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::goalCorrectionArgs(),
             ],
         ] );
 
         // #2269 — undo a logged substitution by its client event_uuid.
         // #2273 — PATCH corrects the half + minute of a logged sub (coach
         // forgot to log it on time); minutes recompute follows.
-        register_rest_route( self::NS, $base . '/substitution/(?P<event_uuid>[a-f0-9-]+)', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/substitution/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => self::gate( [ __CLASS__, 'route_substitution_delete' ] ),
@@ -116,14 +150,15 @@ class MatchExecutionRestController {
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'route_substitution_update' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'route_substitution_update' ], self::substitutionCorrectionArgs() ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::substitutionCorrectionArgs(),
             ],
         ] );
 
         // #1713 — read-only feed + pitch lineup for the live surface
         // (vertical positional pitch + chronological "Live verloop").
-        register_rest_route( self::NS, $base . '/event-feed', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/event-feed', [
             [
                 'methods'             => 'GET',
                 'callback'            => self::gate( [ __CLASS__, 'route_event_feed' ] ),
@@ -133,7 +168,7 @@ class MatchExecutionRestController {
 
         // #3667 — the clock as the server has it, with the overrun flag and
         // who started the match: what the live screen boots from.
-        register_rest_route( self::NS, $base . '/clock', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/clock', [
             [
                 'methods'             => 'GET',
                 'callback'            => self::gate( [ __CLASS__, 'route_clock' ] ),
@@ -141,7 +176,7 @@ class MatchExecutionRestController {
             ],
         ] );
 
-        register_rest_route( self::NS, $base . '/pitch-lineup', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/pitch-lineup', [
             [
                 'methods'             => 'GET',
                 'callback'            => self::gate( [ __CLASS__, 'route_pitch_lineup' ] ),
@@ -153,25 +188,27 @@ class MatchExecutionRestController {
         // activity's minutes (see the arbiter), this is the ONLY way to
         // hand-correct a player's minutes; the manual attendance path
         // defers with a 409. {player_id, minutes|null} — null clears.
-        register_rest_route( self::NS, $base . '/minutes', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/minutes', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'route_minutes_override' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'route_minutes_override' ], self::minutesArgs() ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::minutesArgs(),
             ],
         ] );
 
         // Rebuild — tracked development-action events. One per coach tap of
         // the +/- counter on a prep-flagged player. Distinct from goals;
         // these do not affect the score. Append-only, soft-delete on undo.
-        register_rest_route( self::NS, $base . '/tracked-event', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/tracked-event', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'route_tracked_event' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'route_tracked_event' ], self::trackedEventArgs() ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::trackedEventArgs(),
             ],
         ] );
-        register_rest_route( self::NS, $base . '/tracked-event/(?P<event_uuid>[a-f0-9-]+)', [
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/tracked-event/(?P<event_uuid>[a-f0-9-]+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => self::gate( [ __CLASS__, 'route_tracked_event_delete' ] ),
@@ -525,8 +562,171 @@ class MatchExecutionRestController {
      *
      * @return array<string, array<string, mixed>>
      */
+    /*
+     * #3819 — the bodies the live-match routes take.
+     *
+     * Nothing is declared `required`, for the reason the other slices of
+     * #3603 give: core checks required params before the permission
+     * callback, so a required field would answer a caller with no claim on
+     * the match with a 400 naming the fields rather than the 403 it is
+     * owed. Each handler names what it needs.
+     *
+     * The clock is never read from the body. A half's start and end, and
+     * the elapsed time across a pause, come from the server — the minute a
+     * goal is logged at is the coach's to state, but when the match
+     * actually started is not.
+     */
+
+    /**
+     * The routes that act on the match in the URL and take no body: start,
+     * finish, finalize and reopen.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function activityIdArgs(): array {
+        return [ 'activity_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The match, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /**
+     * `POST .../start-half`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function startHalfArgs(): array {
+        return self::activityIdArgs() + [
+            'half' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half is starting: 1 or 2.' ],
+        ];
+    }
+
+    /**
+     * `POST .../pause` — the client says how long the half has run so the
+     * server can stop the clock at the right second.
+     *
+     * `half` is declared because the live screen sends it, not because the
+     * route reads it: which half is running is the execution's own state,
+     * and taking a client's word for it is how a paused first half ends up
+     * stamped against the second.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function pauseArgs(): array {
+        return self::activityIdArgs() + [
+            'half'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half the screen thinks is running. Accepted; the running half is taken from the execution.' ],
+            'elapsed_seconds' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the half had run when the whistle went.' ],
+        ];
+    }
+
+    /**
+     * `POST .../resume` — and how long the break lasted. `half` is
+     * accepted and ignored for the reason `pauseArgs()` gives.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function resumeArgs(): array {
+        return self::activityIdArgs() + [
+            'half'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half the screen thinks is running. Accepted; the running half is taken from the execution.' ],
+            'pause_seconds' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the match was stopped for. Omitted after a reload mid-pause, and the server measures it from its own stamp.' ],
+        ];
+    }
+
+    /**
+     * `POST .../substitution`. `event_uuid` is the client's own id for the
+     * tap, which is what makes a retried request idempotent rather than a
+     * second substitution.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function substitutionArgs(): array {
+        return self::activityIdArgs() + [
+            'event_uuid' => [ 'type' => 'string', 'description' => 'The client\'s id for this tap. A retry with the same one is the same substitution, not a second.' ],
+            'half'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half it happened in.' ],
+            'minute'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The minute it happened at.' ],
+            'player_off' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who came off.' ],
+            'player_on'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who came on.' ],
+        ];
+    }
+
+    /**
+     * `PATCH .../substitution/{event_uuid}` — a correction. Only the time
+     * moves: who came on and off is a different substitution.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function substitutionCorrectionArgs(): array {
+        return self::activityIdArgs() + [
+            'event_uuid' => [ 'type' => 'string', 'description' => 'The substitution, from the URL. A copy in the body is accepted and ignored.' ],
+            'half'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half it actually happened in.' ],
+            'minute'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The minute it actually happened at.' ],
+        ];
+    }
+
+    /**
+     * `POST .../goal-event`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function goalArgs(): array {
+        return self::activityIdArgs() + [
+            'event_uuid'       => [ 'type' => 'string', 'description' => 'The client\'s id for this tap. A retry with the same one is the same goal, not a second.' ],
+            'team'             => [ 'type' => 'string', 'description' => 'Whose goal it was: ours or the opponent\'s.' ],
+            'half'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half it was scored in.' ],
+            'minute'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'The minute it was scored at.' ],
+            'player_id'        => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Who scored, for one of ours.' ],
+            'assist_player_id' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Who assisted.' ],
+            'is_own_goal'      => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether it went in off one of ours.' ],
+        ];
+    }
+
+    /**
+     * `PATCH .../goal-event/{event_uuid}` — a correction to a logged goal.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function goalCorrectionArgs(): array {
+        $args = self::goalArgs();
+        unset( $args['event_uuid'], $args['team'] );
+        return $args + [ 'event_uuid' => [
+            'type'        => 'string',
+            'description' => 'The goal, from the URL. A copy in the body is accepted and ignored. Whose goal it was is not correctable here — that is a different goal.',
+        ] ];
+    }
+
+    /**
+     * `PATCH .../minutes` — the one way to hand-correct a player's minutes
+     * on a match the execution owns. The manual attendance path defers
+     * with a 409 rather than writing a second answer.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function minutesArgs(): array {
+        return self::activityIdArgs() + [
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Whose minutes are being corrected.' ],
+            'minutes'   => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'The corrected figure. Null clears the override and the computed minutes stand again.' ],
+        ];
+    }
+
+    /**
+     * `POST .../tracked-event` — one tap of a prep-flagged player's
+     * counter. These do not touch the score.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function trackedEventArgs(): array {
+        return self::activityIdArgs() + [
+            'event_uuid'   => [ 'type' => 'string', 'description' => 'The client\'s id for this tap, so a retry is not a second count.' ],
+            'player_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who it was counted against.' ],
+            'action_key'   => [ 'type' => 'string', 'description' => 'Which development action was counted.' ],
+            'action_label' => [ 'type' => 'string', 'description' => 'What that action is called, as the prep named it.' ],
+            'half'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which half it happened in.' ],
+            'minute'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The minute it happened at.' ],
+        ];
+    }
+
     private static function endHalfArgs(): array {
-        return [
+        return self::activityIdArgs() + [
             'half' => [
                 'description' => __( 'The half being ended: 1 or 2.', 'talenttrack' ),
                 'type'        => 'integer',

@@ -100,6 +100,7 @@ class MatchAnalysisRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'put_player' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::playerArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -113,6 +114,7 @@ class MatchAnalysisRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'create_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::shareArgs(),
             ],
         ] );
 
@@ -121,6 +123,7 @@ class MatchAnalysisRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'rotate_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::shareArgs(),
             ],
         ] );
 
@@ -202,6 +205,41 @@ class MatchAnalysisRestController {
      *
      * @return array<string,array<string,mixed>>
      */
+    /**
+     * #3819 — the body `PUT /activities/{activity_id}/analysis/players/{player_id}`
+     * takes: one player's entry, the same shape a `players` entry on the
+     * whole-document PUT carries.
+     *
+     * The minutes are not declared. They are read from the match, not from
+     * the body — what a player was on the pitch for is a fact about the
+     * match, not a thing the write-up may assert.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function playerArgs(): array {
+        return [
+            'activity_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
+            'player_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'marker'        => [ 'type' => 'string', 'description' => 'How the player is marked on the match: the shorthand the coach taps.' ],
+            'team_function' => [ 'type' => 'string', 'description' => 'Which team function they were reviewed against.' ],
+            'notes'         => [ 'type' => 'array', 'description' => 'The bullets on this player, each { body, valence }. Replaces every bullet they have.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the two share routes act on the match in the URL and take no
+     * body. The token is never read from one either: a share link whose
+     * token a caller could choose is a link a caller could guess.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function shareArgs(): array {
+        return [ 'activity_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The match, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     private static function sectionArgs(): array {
         return [
             'rating' => [
@@ -435,6 +473,10 @@ class MatchAnalysisRestController {
     }
 
     public static function put_player( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::playerArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         $player_id   = absint( $r['player_id'] );
 
@@ -485,6 +527,10 @@ class MatchAnalysisRestController {
      * what `share/rotate` is for, and it says so in the UI.
      */
     public static function create_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::shareArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
 
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
@@ -524,6 +570,10 @@ class MatchAnalysisRestController {
     }
 
     public static function rotate_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::shareArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
 
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
