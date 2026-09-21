@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Prospects\Cron\ProspectRetentionCron;
 use TT\Modules\Prospects\Rest\ParentConfirmationController;
+use TT\Modules\Prospects\Rest\ProspectConsentRequestsRestController;
 use TT\Modules\Prospects\Rest\ProspectsRestController;
 use TT\Modules\Prospects\Rest\ScoutingVisitsRestController;
 use TT\Modules\Prospects\Rest\TestTrainingsRestController;
@@ -44,5 +45,8 @@ class ProspectsModule implements ModuleInterface {
         TestTrainingsRestController::init();
         // v3.110.119 — scouting plan visits.
         ScoutingVisitsRestController::init();
+        // #3812 — the dated log of asking a child's club to pass a consent
+        // request on to the family.
+        ProspectConsentRequestsRestController::init();
     }
 }
