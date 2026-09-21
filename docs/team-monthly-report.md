@@ -35,16 +35,20 @@ Above the report is a panel with two choices.
 
 On screen, every section you pick is always shown in full, whatever the type.
 
-**Sections** are the parts of the report. Tick the ones you want and the report
-updates straight away. The address in your browser changes with it, so you can
-copy the link and a colleague opens exactly the same report. The letterhead —
+**Sections** are the parts of the report. Tick the ones you want, pick the type,
+then press **Update report** to apply them all at once. Until you press it, the
+page does not reload, and a line beside the button says your changes are not
+applied yet: the report below, the PDF and the snapshot still show the last
+applied selection. Once applied, the address in your browser changes with it, so
+you can copy the link and a colleague opens exactly the same report. The letterhead —
 team, period, head coach — is always included. Its activity count is everything
 on the team's calendar for the period, whether or not it has been marked
 completed, so it matches what you see on the activities list. Cancelled
 sessions are left out.
 
 Some sections can be told more than whether to appear. When you tick a section
-that has settings, its controls appear under the section list.
+that has settings and press **Update report**, its controls appear under the
+section list.
 
 **Tests** has two. **Which tests** lists the tests your squad actually took in
 this period — tick the ones the meeting is about, or leave them all unticked to

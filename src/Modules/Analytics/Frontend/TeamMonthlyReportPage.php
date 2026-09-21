@@ -31,9 +31,10 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * A plain GET form, so a composed report is a shareable URL
  * (`&layout=B&blocks=kpi,status,…`), works without script, and survives a
- * reload. A small enqueued script submits it on change and writes `blocks` as
- * one comma-separated value; without script the "Update report" button does
- * the same through `blk[]`, which is read too.
+ * reload. Changes apply on the "Update report" button, never on a tick
+ * (#3988). A small enqueued script writes `blocks` as one comma-separated
+ * value and says when the panel has changes not applied yet; without script
+ * the button submits `blk[]`, which is read too.
  *
  * Wizard plan: exemption — live-preview surface, not a multi-step flow
  * (decided 2026-09-16, epic #3457).
@@ -345,7 +346,7 @@ final class TeamMonthlyReportPage {
             $action = strtok( $action, '?' );
         }
 
-        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" data-tt-mr-panel>';
+        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
         foreach ( $hidden as $name => $value ) {
             echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
         }
@@ -407,6 +408,7 @@ final class TeamMonthlyReportPage {
         if ( $schedule_url !== '' ) {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
         }
+        self::renderPendingHint();
         echo '</div>';
 
         self::renderPresetStatus( TeamMonthlyReportComposition::normalise( [
@@ -419,6 +421,18 @@ final class TeamMonthlyReportPage {
             'options' => $options,
         ] ) );
         echo '</form>';
+    }
+
+    /**
+     * #3988 — beside "Update report": the panel has changes that are not
+     * applied yet. Hidden until the panel script finds the form differs from
+     * what was rendered, and hidden again once it matches. Shared with the
+     * player report, whose panel runs the same script.
+     */
+    public static function renderPendingHint(): void {
+        echo '<p class="tt-mr-pending" role="status" aria-live="polite" data-tt-mr-pending hidden>'
+            . esc_html__( 'Not applied yet. The report below, the PDF and the snapshot still show the last applied selection.', 'talenttrack' )
+            . '</p>';
     }
 
     /**

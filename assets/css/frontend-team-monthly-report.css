@@ -114,8 +114,16 @@
     min-height: 48px;
 }
 
-/* The script submits on change; the button stays for no-script. */
-.tt-mr-panel.is-live [data-tt-mr-submit] {
+/* Changes wait for "Update report" (#3988); this says they are waiting. */
+.tt-mr-pending {
+    flex: 1 1 16rem;
+    align-self: center;
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-mr-pending[hidden] {
     display: none;
 }
 

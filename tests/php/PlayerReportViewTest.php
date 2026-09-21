@@ -86,6 +86,23 @@ final class PlayerReportViewTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #3988 — changes wait for "Update report". The panel carries a hidden
+     * pending hint for the script to show, and every orderable row carries
+     * its arrows' names, so a section ticked on in the page can get arrows
+     * before it is applied. The letterhead never moves and carries none.
+     */
+    public function test_the_panel_applies_on_the_button_and_rows_carry_their_arrow_names(): void {
+        $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'ratings' ] );
+
+        $this->assertStringContainsString( 'data-tt-mr-submit>Update report</button>', $html );
+        $this->assertSame( 1, preg_match( '/<p class="tt-mr-pending"[^>]*data-tt-mr-pending hidden>/', $html ), 'the pending hint starts hidden' );
+
+        // Tests is not chosen, yet its row already knows its arrows' names.
+        $this->assertSame( 1, preg_match( '/data-tt-pr-row="tests"[^>]*data-tt-pr-label-up="Move Tests up" data-tt-pr-label-down="Move Tests down"/', $html ) );
+        $this->assertSame( 0, preg_match( '/data-tt-pr-row="letterhead"[^>]*data-tt-pr-label-up/', $html ) );
+    }
+
     public function test_a_player_without_a_development_plan_still_gets_the_report(): void {
         $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'pdp' ] );
 

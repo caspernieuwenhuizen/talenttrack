@@ -36,16 +36,20 @@ Boven het rapport staat een paneel met twee keuzes.
 Op het scherm zie je elke gekozen sectie altijd volledig, welke soort je ook
 kiest.
 
-**Secties** zijn de onderdelen van het rapport. Vink aan wat je wilt zien en het
-rapport past zich direct aan. Het adres in je browser verandert mee, dus als je
-de link kopieert opent een collega precies hetzelfde rapport. Het briefhoofd —
+**Secties** zijn de onderdelen van het rapport. Vink aan wat je wilt zien, kies
+de soort en druk dan op **Rapport bijwerken** om alles in één keer toe te passen.
+Tot je daarop drukt laadt de pagina niet opnieuw, en een regel naast de knop zegt
+dat je wijzigingen nog niet zijn toegepast: het rapport eronder, de pdf en de
+momentopname tonen nog de laatst toegepaste keuze. Na het toepassen verandert het
+adres in je browser mee, dus als je de link kopieert opent een collega precies
+hetzelfde rapport. Het briefhoofd —
 team, periode, hoofdtrainer — staat er altijd in. Het aantal activiteiten daarin
 is alles wat in de periode op de teamkalender staat, of het nu op afgerond staat
 of niet, zodat het overeenkomt met wat je in de activiteitenlijst ziet.
 Geannuleerde sessies blijven erbuiten.
 
 Van sommige secties kun je meer instellen dan of ze meedoen. Vink je zo'n sectie
-aan, dan verschijnen de instellingen eronder.
+aan en druk je op **Rapport bijwerken**, dan verschijnen de instellingen eronder.
 
 **Testen** heeft er twee. **Welke testen** toont de testen die je selectie deze
 periode daadwerkelijk heeft gedaan — vink aan waar het overleg over gaat, of laat
