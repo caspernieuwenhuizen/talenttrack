@@ -55,6 +55,12 @@ class TournamentsModule implements ModuleInterface {
         // collection routes ask the entity and narrow the list in SQL.
         TournamentsRestController::init();
 
+        // #3561 (epic #3558) — GET /players/{id}/tournaments: one player's
+        // tournament record, gated on the `player_tournaments` entity so a
+        // family reaches their own child's minutes without the rotation
+        // board going with it.
+        Rest\PlayerTournamentsRestController::init();
+
         // v4.8.0 (#975) — admin-post.php handler for the post-creation
         // Add-match surface (?tt_view=tournament-match&action=new). The
         // dispatch case for the GET view lives in DashboardShortcode.

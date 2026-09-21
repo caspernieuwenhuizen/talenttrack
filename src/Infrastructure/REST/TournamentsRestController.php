@@ -12,6 +12,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
 use TT\Modules\Tournaments\TournamentAccess;
 
 /**
@@ -1864,21 +1865,20 @@ class TournamentsRestController {
         ), ARRAY_A ) ?: [];
 
         // Pre-compute period count + minutes-per-period per match.
+        //
+        // #3561 — the division lives in `TournamentMinutesCalculator` now,
+        // so the player-file history and this ticker cannot drift on the
+        // equal-length-periods assumption. This method keeps its response
+        // shape exactly; `TournamentMinutesParityTest` pins the two.
         $match_meta = [];
-        $total_field_minutes = 0;        // = sum of duration_min × players_on_pitch_per_period × period_count? — see below
         $total_match_minutes = 0;        // sum of duration_min — used for the equal-share target
         foreach ( $matches as $m ) {
-            $duration = (int) $m['duration_min'];
-            $windows  = json_decode( (string) $m['substitution_windows'], true ) ?: [];
-            $periods  = count( $windows ) + 1;
-            $per_period = $periods > 0 ? (int) round( $duration / $periods ) : $duration;
-            $match_meta[ (int) $m['id'] ] = [
-                'duration'   => $duration,
-                'periods'    => $periods,
-                'per_period' => $per_period,
-                'completed'  => ! empty( $m['completed_at'] ),
-            ];
-            $total_match_minutes += $duration;
+            $shape = TournamentMinutesCalculator::fixtureShape(
+                (int) $m['duration_min'],
+                (string) $m['substitution_windows']
+            );
+            $match_meta[ (int) $m['id'] ] = $shape + [ 'completed' => ! empty( $m['completed_at'] ) ];
+            $total_match_minutes += $shape['duration'];
         }
 
         // Per-player aggregates from tt_tournament_assignments.
@@ -1914,45 +1914,39 @@ class TournamentsRestController {
                 'expected_minutes'  => 0,
                 'starts'            => 0,
                 'full_matches'      => 0,
-                // Internal accumulator for full_matches derivation.
-                '_periods_played'   => [],
             ];
         }
 
+        // #3561 — grouped by (player, fixture) so the calculator answers
+        // one fixture at a time, the way the player file asks it. The
+        // assignments table is unique on (match_id, period_index,
+        // player_id), so grouping loses nothing.
+        $by_player_match = [];
         foreach ( $assignment_rows as $a ) {
             $pid = (int) $a['player_id'];
             if ( ! isset( $per_player[ $pid ] ) ) continue;
             $match_id = (int) $a['match_id'];
-            $meta     = $match_meta[ $match_id ] ?? null;
-            if ( ! $meta ) continue;
-            if ( (string) $a['position_code'] === 'BENCH' ) continue;
-            $minutes = $meta['per_period'];
-            if ( $meta['completed'] ) {
-                $per_player[ $pid ]['played_minutes'] += $minutes;
-            } else {
-                $per_player[ $pid ]['expected_minutes'] += $minutes;
-            }
-            if ( (int) $a['period_index'] === 0 ) {
-                $per_player[ $pid ]['starts']++;
-            }
-            $per_player[ $pid ]['_periods_played'][ $match_id ][] = (int) $a['period_index'];
+            if ( ! isset( $match_meta[ $match_id ] ) ) continue;
+            $by_player_match[ $pid ][ $match_id ][] = [
+                'period_index'  => (int) $a['period_index'],
+                'position_code' => (string) $a['position_code'],
+            ];
         }
 
-        // Derive full_matches: player has a non-bench assignment in
-        // every period of a match.
-        foreach ( $per_player as $pid => &$stats ) {
-            $full = 0;
-            foreach ( $stats['_periods_played'] as $match_id => $periods ) {
-                $meta = $match_meta[ $match_id ] ?? null;
-                if ( ! $meta ) continue;
-                if ( count( array_unique( $periods ) ) === $meta['periods'] ) {
-                    $full++;
+        foreach ( $by_player_match as $pid => $fixtures ) {
+            foreach ( $fixtures as $match_id => $assignments ) {
+                $meta = $match_meta[ $match_id ];
+                $out  = TournamentMinutesCalculator::forPlayer( $meta, $assignments );
+
+                if ( $meta['completed'] ) {
+                    $per_player[ $pid ]['played_minutes'] += $out['minutes'];
+                } else {
+                    $per_player[ $pid ]['expected_minutes'] += $out['minutes'];
                 }
+                if ( $out['started'] ) $per_player[ $pid ]['starts']++;
+                if ( $out['full'] )    $per_player[ $pid ]['full_matches']++;
             }
-            $stats['full_matches'] = $full;
-            unset( $stats['_periods_played'] );
         }
-        unset( $stats );
 
         return array_values( $per_player );
     }
