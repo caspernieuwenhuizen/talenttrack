@@ -113,7 +113,12 @@ final class DossierCompletenessService {
      * tale — it asks the results repository once per player, which is fine at
      * sixteen and is not the shape to copy.
      *
-     * @return list<object>
+     * Rows come back as arrays rather than objects: every column here is
+     * read by name, and an array says so to a reader and to static analysis
+     * both — `$wpdb->get_results()` returns bare `stdClass` otherwise, whose
+     * properties nothing can check.
+     *
+     * @return list<array<string,mixed>>
      */
     private function roster( int $team_id ): array {
         global $wpdb;
@@ -152,15 +157,15 @@ final class DossierCompletenessService {
               ORDER BY p.last_name ASC, p.first_name ASC, p.id ASC",
             $team_id,
             $club_id
-        ) );
+        ), ARRAY_A );
 
-        return is_array( $rows ) ? array_values( array_filter( $rows, 'is_object' ) ) : [];
+        return is_array( $rows ) ? array_values( array_filter( $rows, 'is_array' ) ) : [];
     }
 
     /**
      * One check over the whole roster.
      *
-     * @param list<object> $players
+     * @param list<array<string,mixed>> $players
      * @return array<string,mixed>
      */
     private function check( string $key, array $players ): array {
@@ -176,25 +181,25 @@ final class DossierCompletenessService {
                 $complete++;
                 if ( $key === self::MEDIA_CONSENT ) {
                     $recorded[] = [
-                        'player_id'   => (int) $player->player_id,
-                        'name'        => trim( (string) $player->first_name . ' ' . (string) $player->last_name ),
-                        'recorded_at' => (string) ( $player->media_consent_at ?? '' ),
+                        'player_id'   => (int) ( $player['player_id'] ?? 0 ),
+                        'name'        => self::nameOf( $player ),
+                        'recorded_at' => (string) ( $player['media_consent_at'] ?? '' ),
                     ];
                 }
                 continue;
             }
 
             $need = [
-                'player_id' => (int) $player->player_id,
-                'name'      => trim( (string) $player->first_name . ' ' . (string) $player->last_name ),
+                'player_id' => (int) ( $player['player_id'] ?? 0 ),
+                'name'      => self::nameOf( $player ),
                 'status'    => self::STATUS_MISSING,
                 'detail'    => '',
             ];
 
             if ( $key === self::MEDIA_WITHOUT_CONSENT ) {
-                $count            = (int) $player->media_count;
-                $items           += $count;
-                $need['detail']   = (string) $count;
+                $count          = (int) ( $player['media_count'] ?? 0 );
+                $items         += $count;
+                $need['detail'] = (string) $count;
             }
 
             $needs[] = $need;
@@ -231,6 +236,15 @@ final class DossierCompletenessService {
     }
 
     /**
+     * The player's display name, from a roster row.
+     *
+     * @param array<string,mixed> $player
+     */
+    private static function nameOf( array $player ): string {
+        return trim( (string) ( $player['first_name'] ?? '' ) . ' ' . (string) ( $player['last_name'] ?? '' ) );
+    }
+
+    /**
      * Is this check satisfied for this player?
      *
      * A linked parent account and the guardian columns are reported
@@ -240,22 +254,23 @@ final class DossierCompletenessService {
      * not the other, and a report that merged them would tell an
      * administrator a file was complete when there is still nobody to call.
      */
-    private function isComplete( string $key, object $player ): bool {
+    /** @param array<string,mixed> $player */
+    private function isComplete( string $key, array $player ): bool {
         switch ( $key ) {
             case self::GUARDIAN_NAME:
-                return trim( (string) ( $player->guardian_name ?? '' ) ) !== '';
+                return trim( (string) ( $player['guardian_name'] ?? '' ) ) !== '';
             case self::GUARDIAN_EMAIL:
-                return trim( (string) ( $player->guardian_email ?? '' ) ) !== '';
+                return trim( (string) ( $player['guardian_email'] ?? '' ) ) !== '';
             case self::GUARDIAN_PHONE:
-                return trim( (string) ( $player->guardian_phone ?? '' ) ) !== '';
+                return trim( (string) ( $player['guardian_phone'] ?? '' ) ) !== '';
             case self::PARENT_ACCOUNT:
-                return (int) ( $player->parent_count ?? 0 ) > 0;
+                return (int) ( $player['parent_count'] ?? 0 ) > 0;
             case self::MEDIA_CONSENT:
-                return ! empty( $player->media_consent );
+                return ! empty( $player['media_consent'] );
             case self::MEDIA_WITHOUT_CONSENT:
                 // Complete means "nothing to chase": either consent is on
                 // record, or there are no pictures to consent to.
-                return ! empty( $player->media_consent ) || (int) ( $player->media_count ?? 0 ) === 0;
+                return ! empty( $player['media_consent'] ) || (int) ( $player['media_count'] ?? 0 ) === 0;
             default:
                 return true;
         }

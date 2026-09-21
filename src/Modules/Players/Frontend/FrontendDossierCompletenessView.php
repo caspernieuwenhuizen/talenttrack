@@ -65,7 +65,15 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
             return;
         }
 
-        $allowed_ids = array_map( static fn ( $t ) => (int) $t->id, (array) $teams );
+        // Through an array cast: `get_teams()` answers bare `stdClass` rows,
+        // whose properties static analysis cannot check.
+        $allowed_ids = array_map(
+            static function ( $team ): int {
+                $row = (array) $team;
+                return (int) ( $row['id'] ?? 0 );
+            },
+            (array) $teams
+        );
         $team_id     = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
         if ( $team_id > 0 && ! in_array( $team_id, $allowed_ids, true ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p>';
@@ -95,7 +103,7 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
     }
 
     /**
-     * @param array<int, object> $teams
+     * @param array<int, mixed> $teams Bare rows from `QueryHelpers::get_teams()`.
      */
     private static function renderPicker( array $teams, int $team_id ): void {
         ?>
@@ -110,8 +118,11 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
                 <span class="tt-dc-picker__label"><?php esc_html_e( 'Team', 'talenttrack' ); ?></span>
                 <select name="team_id" class="tt-input" onchange="this.form.submit()">
                     <option value="0"><?php esc_html_e( '— Choose team —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $teams as $t ) : ?>
-                        <option value="<?php echo (int) $t->id; ?>"<?php selected( $team_id, (int) $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option>
+                    <?php foreach ( $teams as $team ) :
+                        $row = (array) $team;
+                        $tid = (int) ( $row['id'] ?? 0 );
+                        ?>
+                        <option value="<?php echo (int) $tid; ?>"<?php selected( $team_id, $tid ); ?>><?php echo esc_html( (string) ( $row['name'] ?? '' ) ); ?></option>
                     <?php endforeach; ?>
                 </select>
             </label>
