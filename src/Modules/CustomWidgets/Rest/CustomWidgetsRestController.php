@@ -70,6 +70,7 @@ final class CustomWidgetsRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'create_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
+                'args'                => self::widgetArgs(),
             ],
         ] );
 
@@ -83,6 +84,7 @@ final class CustomWidgetsRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'update_widget' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
+                'args'                => self::widgetUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -125,6 +127,7 @@ final class CustomWidgetsRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'clear_cache' ] ),
                 'permission_callback' => [ __CLASS__, 'permWrite' ],
+                'args'                => self::widgetIdArgs(),
             ],
         ] );
     }
@@ -160,7 +163,53 @@ final class CustomWidgetsRestController {
         return rest_ensure_response( [ 'widgets' => $out ] );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body a custom-widget write takes. `CustomWidgetService` validates
+     * the values and throws a named refusal for each, which is why nothing
+     * here carries an `enum` and nothing is declared `required`: core would
+     * check a required key before the permission callback and answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function widgetArgs(): array {
+        return [
+            'name'           => [ 'type' => 'string', 'description' => 'What the widget is called. At most 120 characters.' ],
+            'data_source_id' => [ 'type' => 'string', 'description' => 'Which registered data source it reads.' ],
+            'chart_type'     => [ 'type' => 'string', 'description' => 'How the data is drawn.' ],
+            'definition'     => [ 'type' => 'object', 'description' => 'The rest of the widget: the fields, filters and grouping the chart is built from.' ],
+        ];
+    }
+
+    /**
+     * `PUT /custom-widgets/{id}`, which rebuilds the widget from the body
+     * the same way the create does.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function widgetUpdateArgs(): array {
+        return self::widgetIdArgs() + self::widgetArgs();
+    }
+
+    /**
+     * The routes that act on the widget in the URL and take no body.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function widgetIdArgs(): array {
+        return [ 'id' => [
+            'type'        => 'string',
+            'description' => 'The widget, from the URL, by id or uuid. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     public static function create_widget( WP_REST_Request $req ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::widgetArgs() );
+        if ( $refused !== null ) return $refused;
+
         $service = new CustomWidgetService();
         try {
             $widget = $service->create( (array) $req->get_json_params(), get_current_user_id() );
@@ -180,6 +229,10 @@ final class CustomWidgetsRestController {
     }
 
     public static function update_widget( WP_REST_Request $req ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::widgetUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $service = new CustomWidgetService();
         $widget  = $service->findByIdOrUuid( (string) $req['id'] );
         if ( $widget === null ) {
@@ -278,6 +331,10 @@ final class CustomWidgetsRestController {
      * the prior version is orphaned.
      */
     public static function clear_cache( WP_REST_Request $req ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::widgetIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $service = new CustomWidgetService();
         $widget  = $service->findByIdOrUuid( (string) $req['id'] );
         if ( $widget === null ) {

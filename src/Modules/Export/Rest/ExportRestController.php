@@ -51,8 +51,35 @@ final class ExportRestController {
                 'methods'             => [ 'GET', 'POST' ],
                 'callback'            => [ __CLASS__, 'run' ],
                 'permission_callback' => [ __CLASS__, 'permissionCallback' ],
+                'args'                => self::runArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the reserved keys this route reads itself.
+     *
+     * This is the one write route that does **not** call
+     * `BaseController::checkBody()`, and the reason is in the route's
+     * contract rather than in an oversight: everything the body carries
+     * beyond these keys is the chosen exporter's own filter set, and which
+     * filters exist is a question only that exporter can answer — it does,
+     * in `ExporterInterface::validateFilters()`, which refuses a filter it
+     * does not recognise. A `checkBody()` here would have to enumerate
+     * every filter of every exporter in one list, and would go stale the
+     * first time an exporter grew one.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function runArgs(): array {
+        return [
+            'key'              => [ 'type' => 'string', 'description' => 'Which export to run, from the URL.' ],
+            'format'           => [ 'type' => 'string', 'description' => 'Which file to produce. Omitted takes the exporter\'s first supported format.' ],
+            'entity_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The record to export, for an export that is about one.' ],
+            'brand'            => [ 'type' => 'string', 'description' => 'How a printed export is headed: auto, blank or letterhead.' ],
+            'columns'          => [ 'type' => 'array', 'description' => 'Which columns to include. The Exports page posts this name; it is read as selected_columns.' ],
+            'selected_columns' => [ 'type' => 'array', 'description' => 'Which columns to include, canonical spelling.' ],
+        ];
     }
 
     /**

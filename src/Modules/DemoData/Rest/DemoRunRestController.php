@@ -47,6 +47,7 @@ class DemoRunRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'step' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::stepArgs(),
             ],
         ] );
 
@@ -55,8 +56,24 @@ class DemoRunRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'discard' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => [],
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `POST /demo-runs/step` takes. Not declared
+     * `required`: core checks required params before the permission
+     * callback, and `step()` answers `no_run` for a missing or unknown one
+     * behind the capability gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function stepArgs(): array {
+        return [ 'run_id' => [
+            'type'        => 'string',
+            'description' => 'Which demo run to advance by one batch.',
+        ] ];
     }
 
     public static function can_manage(): bool {
@@ -76,6 +93,10 @@ class DemoRunRestController {
      * gateway timeout, and the client can render which step is running.
      */
     public static function step( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::stepArgs() );
+        if ( $refused !== null ) return $refused;
+
         $run_id = sanitize_text_field( (string) ( $r['run_id'] ?? '' ) );
         $state  = $run_id !== '' ? DemoRunState::loadById( $run_id ) : null;
 
@@ -107,6 +128,10 @@ class DemoRunRestController {
     }
 
     public static function discard( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the route takes no body.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         DemoRunState::clear();
 
         return RestResponse::success( [ 'run_id' => '' ] );
