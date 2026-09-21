@@ -10,6 +10,7 @@ use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\RecordVisibility;
@@ -591,7 +592,7 @@ final class EvidencePacket {
         $vis = implode( ',', array_fill( 0, count( $allowed ), '%s' ) );
 
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, event_type, event_date, summary
+            "SELECT id, event_type, event_date, summary, payload, source_entity_type, source_entity_id
                FROM {$p}tt_player_events
               WHERE player_id = %d
                 AND club_id = %d
@@ -604,7 +605,94 @@ final class EvidencePacket {
             ...array_merge( [ $player_id, $club_id, $from, $to . ' 23:59:59' ], $allowed )
         ) );
 
-        return is_array( $rows ) ? array_values( $rows ) : [];
+        return is_array( $rows ) ? self::withActivities( array_values( $rows ), $club_id ) : [];
+    }
+
+    /**
+     * The activity an entry was written about, on the entries that have one: a
+     * match-analysis comment names its match in the payload, and an evaluation
+     * made for a training or a match carries it on the evaluation row. Two
+     * lookups for the whole list, not one per entry.
+     *
+     * Each row gains `activity`, `{ id, type, title, opponent, date }` or null.
+     * An activity in the recycle bin is left out; an archived one still
+     * happened, so it stays.
+     *
+     * @param list<object> $rows
+     * @return list<object>
+     */
+    private static function withActivities( array $rows, int $club_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $activity_of = [];
+        $eval_of     = [];
+        foreach ( $rows as $i => $row ) {
+            $payload = json_decode( (string) ( $row->payload ?? '' ), true );
+            $payload = is_array( $payload ) ? $payload : [];
+            $type    = (string) ( $row->event_type ?? '' );
+            if ( $type === 'match_observed' && (int) ( $payload['activity_id'] ?? 0 ) > 0 ) {
+                $activity_of[ $i ] = (int) $payload['activity_id'];
+            } elseif ( $type === 'evaluation_completed' ) {
+                $eval_id = (string) ( $row->source_entity_type ?? '' ) === 'evaluation'
+                    ? (int) ( $row->source_entity_id ?? 0 )
+                    : (int) ( $payload['evaluation_id'] ?? 0 );
+                if ( $eval_id > 0 ) $eval_of[ $i ] = $eval_id;
+            }
+        }
+
+        if ( $eval_of !== [] ) {
+            $ids   = array_values( array_unique( $eval_of ) );
+            $in    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $pairs = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, activity_id FROM {$p}tt_evaluations WHERE club_id = %d AND id IN ($in)",
+                ...array_merge( [ $club_id ], $ids )
+            ) );
+            $by_eval = [];
+            foreach ( is_array( $pairs ) ? $pairs : [] as $pair ) {
+                if ( (int) ( $pair->activity_id ?? 0 ) > 0 ) $by_eval[ (int) $pair->id ] = (int) $pair->activity_id;
+            }
+            foreach ( $eval_of as $i => $eval_id ) {
+                if ( isset( $by_eval[ $eval_id ] ) ) $activity_of[ $i ] = $by_eval[ $eval_id ];
+            }
+        }
+
+        $activities = [];
+        if ( $activity_of !== [] ) {
+            $ids  = array_values( array_unique( $activity_of ) );
+            $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $list = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, title, session_date, activity_type_key, opponent
+                   FROM {$p}tt_activities
+                  WHERE club_id = %d AND trashed_at IS NULL AND id IN ($in)",
+                ...array_merge( [ $club_id ], $ids )
+            ) );
+            foreach ( is_array( $list ) ? $list : [] as $a ) {
+                $key   = (string) ( $a->activity_type_key ?? '' );
+                $label = $key !== '' ? (string) LabelTranslator::activityType( $key ) : '';
+                // A type the operator added without a translation still reads,
+                // as it does in the activity reader.
+                if ( $label === '' && $key !== '' ) $label = ucfirst( str_replace( '_', ' ', $key ) );
+                $activities[ (int) $a->id ] = [
+                    'id'       => (int) $a->id,
+                    'type'     => $label,
+                    'title'    => (string) ( $a->title ?? '' ),
+                    'opponent' => (string) ( $a->opponent ?? '' ),
+                    'date'     => (string) ( $a->session_date ?? '' ),
+                ];
+            }
+        }
+
+        $out = [];
+        foreach ( $rows as $i => $row ) {
+            // The lookup columns were for this method; the row leaves with the
+            // activity instead.
+            $fields = (array) $row;
+            unset( $fields['payload'], $fields['source_entity_type'], $fields['source_entity_id'] );
+            $fields['activity'] = isset( $activity_of[ $i ] ) ? ( $activities[ $activity_of[ $i ] ] ?? null ) : null;
+            $out[] = (object) $fields;
+        }
+        return $out;
     }
 
     /** Does this reader stand on the medical rung of the journey ladder? */

@@ -865,11 +865,26 @@ final class PlayerReportPage {
             self::sectionClose();
             return;
         }
+        $can_open = CrossViewLink::allows( 'activities' );
         echo '<ul class="tt-mr-changes">';
         foreach ( $items as $e ) {
             if ( ! is_array( $e ) ) continue;
             echo '<li><span class="tt-mr-changes__date">' . esc_html( TTDate::date( (string) ( $e['date'] ?? '' ) ) ) . '</span> '
-                . esc_html( (string) ( $e['summary'] ?? '' ) ) . '</li>';
+                . esc_html( (string) ( $e['summary'] ?? '' ) );
+            // What the comment or evaluation was about.
+            $activity = is_array( $e['activity'] ?? null ) ? $e['activity'] : null;
+            if ( $activity !== null ) {
+                $label = PlayerReport::activityLabel( $activity );
+                $id    = (int) ( $activity['id'] ?? 0 );
+                echo '<span class="tt-pr-journey__activity">';
+                if ( $can_open && $id > 0 ) {
+                    echo '<a href="' . esc_url( RecordLink::detailUrlForWithBack( 'activities', $id ) ) . '">' . esc_html( $label ) . '</a>';
+                } else {
+                    echo esc_html( $label );
+                }
+                echo '</span>';
+            }
+            echo '</li>';
         }
         echo '</ul>';
         self::sectionClose();

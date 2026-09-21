@@ -57,6 +57,11 @@ Een speler die nog geen ontwikkelplan heeft, krijgt toch een volledig rapport.
 Het onderdeel ontwikkelplan zegt dan dat er nog geen dossier is, in plaats van
 te verdwijnen.
 
+In **Traject** zeggen een opmerking uit een wedstrijdanalyse en een evaluatie
+die bij een training of wedstrijd hoort over welke activiteit ze gaan, bijvoorbeeld
+"Wedstrijd · tegen Willem II · 12 september 2026". Op het scherm is dat een link
+naar de activiteit, als jij activiteiten kunt openen.
+
 ## Gespreksonderwerpen
 
 De gespreksonderwerpen worden afgeleid uit wat de academie al heeft vastgelegd;

@@ -827,7 +827,7 @@ each block keeps its own gate for the reader.
 | --- | --- |
 | `thread_notes` | `ThreadAccess`, as the Notes tab on the player file; private-to-coach notes stay private. |
 | `injuries` | The medical rung of the journey ladder (`tt_view_player_medical` + the `journey_medical_visibility` feature). Empty otherwise. |
-| `journey` | The reader's journey visibility levels — the rule the player's timeline applies. |
+| `journey` | The reader's journey visibility levels — the rule the player's timeline applies. Each item carries `activity`: `{ id, type, title, opponent, date }` for a match-analysis comment (`match_observed`) and for an evaluation made for an activity, `null` otherwise; `type` is the localised activity type. |
 | `tests` | `PlayerMeasurementProfile` for the reader: tests shown on the profile, at the reader's measurement levels. |
 | `pdp` | `available: false` when the PDP module is off or the reader may not see the player's PDP file. Never carries the coach's preparation. |
 

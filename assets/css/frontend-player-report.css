@@ -42,6 +42,22 @@
 }
 
 /*
+ * The activity a journey entry was written about, under the entry. The link
+ * is a full-height touch target of its own, not a word inside a sentence.
+ */
+.tt-pr-journey__activity {
+	display: block;
+	color: var(--tt-muted);
+}
+
+.tt-pr-journey__activity a {
+	display: inline-flex;
+	align-items: center;
+	min-height: 3rem;
+	touch-action: manipulation;
+}
+
+/*
  * A test's score: the target verdict in words with a dot in its colour, or a
  * status test's level with its swatch. The word carries the meaning; the
  * colour only repeats it.

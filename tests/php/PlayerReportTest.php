@@ -209,6 +209,44 @@ final class PlayerReportTest extends WP_UnitTestCase {
         $this->assertContains( 'Moved to U16.', array_map( static fn( $e ): string => (string) $e->summary, $admin_view['recent_journey'] ) );
     }
 
+    /** #3963 — a match comment and an evaluation say which activity they were about. */
+    public function test_journey_entries_carry_their_activity(): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->insert( "{$p}tt_activities", [
+            'club_id' => CurrentClub::id(), 'title' => 'Cup round', 'session_date' => '2020-03-12',
+            'activity_type_key' => 'game', 'opponent' => 'Willem II',
+        ] );
+        $activity = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_evaluations", [
+            'club_id' => CurrentClub::id(), 'player_id' => $this->player, 'coach_id' => $this->admin,
+            'eval_date' => '2020-03-12', 'activity_id' => $activity,
+        ] );
+        $evaluation = (int) $wpdb->insert_id;
+
+        foreach ( [
+            [ 'match_observed', 'Scans before receiving.', 'match_analysis_player', 1, (string) wp_json_encode( [ 'activity_id' => $activity ] ) ],
+            [ 'evaluation_completed', 'Evaluation on 2020-03-12', 'evaluation', $evaluation, (string) wp_json_encode( [ 'evaluation_id' => $evaluation ] ) ],
+            [ 'note_added', 'A plain note.', 'manual_note', 2, '[]' ],
+        ] as [ $type, $summary, $source, $source_id, $payload ] ) {
+            $wpdb->insert( "{$p}tt_player_events", [
+                'club_id' => CurrentClub::id(), 'uuid' => wp_generate_uuid4(), 'player_id' => $this->player,
+                'event_type' => $type, 'event_date' => '2020-03-12 12:00:00', 'summary' => $summary, 'payload' => $payload,
+                'visibility' => 'public', 'source_module' => 'tests', 'source_entity_type' => $source, 'source_entity_id' => $source_id,
+            ] );
+        }
+
+        $items = ( new PlayerReport() )->forPlayer( $this->player, self::FROM, self::TO, [ 'journey' ], $this->admin )['data']['journey']['items'] ?? [];
+        $by    = [];
+        foreach ( $items as $item ) $by[ $item['event_type'] ] = $item;
+
+        $this->assertSame( $activity, $by['match_observed']['activity']['id'] ?? null, 'the comment names its match' );
+        $this->assertSame( 'Willem II', $by['match_observed']['activity']['opponent'] ?? null );
+        $this->assertSame( $activity, $by['evaluation_completed']['activity']['id'] ?? null, 'the evaluation names the activity it was made for' );
+        $this->assertNull( $by['note_added']['activity'], 'an entry about no activity carries none' );
+        $this->assertStringContainsString( 'Willem II', PlayerReport::journeyPrintText( $by['match_observed'] ), 'the printed line says what it was about' );
+    }
+
     public function test_injuries_need_the_medical_rung(): void {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
