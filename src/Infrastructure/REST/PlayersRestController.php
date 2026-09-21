@@ -80,6 +80,25 @@ class PlayersRestController {
                 },
             ],
         ] );
+        // #3872 (epic #3871) — the player report as data. The same composer
+        // the online view and the PDF read, so an API consumer gets the
+        // report a coach prints. Refusal does not say whether the player
+        // exists: an out-of-scope id and a missing one both answer 403.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/report', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_player_report' ],
+                'permission_callback' => static function ( \WP_REST_Request $r ): bool {
+                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), (int) $r['id'] );
+                },
+                'args'                => [
+                    'period' => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season. Omit for the season so far.' ],
+                    'from'   => [ 'type' => 'string', 'description' => 'Y-m-d. With `to`, overrides `period`.' ],
+                    'to'     => [ 'type' => 'string', 'description' => 'Y-m-d. With `from`, overrides `period`.' ],
+                    'blocks' => [ 'type' => 'string', 'description' => 'Comma-separated block keys. Omit for the conversation set; an unknown key is refused.' ],
+                ],
+            ],
+        ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
@@ -590,6 +609,65 @@ class PlayersRestController {
         }
 
         return RestResponse::success( [ 'card' => $card ] );
+    }
+
+    /**
+     * #3872 — `GET /players/{id}/report`. Defaults to the season so far and
+     * the conversation set; refuses an unknown block key or period rather
+     * than quietly returning a different report than was asked for.
+     */
+    public static function get_player_report( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = absint( $r['id'] );
+
+        $blocks  = \TT\Modules\Analytics\Reports\PlayerReportComposition::rawBlocks( $r['blocks'] ?? '' );
+        $unknown = \TT\Modules\Analytics\Reports\PlayerReportBlock::unknown( $blocks );
+        if ( $unknown !== [] ) {
+            return RestResponse::error(
+                'unknown_blocks',
+                sprintf(
+                    /* translators: %s = comma-separated list of block keys */
+                    __( 'Unknown report sections: %s', 'talenttrack' ),
+                    implode( ', ', $unknown )
+                ),
+                400,
+                [ 'blocks' => $unknown ]
+            );
+        }
+
+        $period = sanitize_key( (string) ( $r['period'] ?? '' ) );
+        if ( $period !== '' && ! in_array( $period, \TT\Modules\Analytics\Reports\ReportFilters::PERIODS, true ) ) {
+            return RestResponse::error( 'bad_period', __( 'Unknown period.', 'talenttrack' ), 400, [ 'period' => $period ] );
+        }
+
+        $from = (string) ( $r['from'] ?? '' );
+        $to   = (string) ( $r['to'] ?? '' );
+        if ( ( $from !== '' || $to !== '' )
+            && ! ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) && $from <= $to )
+        ) {
+            return RestResponse::error( 'bad_window', __( 'from and to must both be dates (YYYY-MM-DD), with from on or before to.', 'talenttrack' ), 400 );
+        }
+
+        $composition = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [
+            'player_id' => $player_id,
+            'period'    => $period,
+            'from'      => $r['from'] ?? '',
+            'to'        => $r['to'] ?? '',
+            'blocks'    => $blocks,
+        ] );
+        $window = \TT\Modules\Analytics\Reports\PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
+
+        try {
+            $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer(
+                $player_id, $window['from'], $window['to'], $blocks, get_current_user_id()
+            );
+        } catch ( \InvalidArgumentException $e ) {
+            return RestResponse::error( 'bad_request', $e->getMessage(), 400 );
+        }
+        if ( $report === null ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( $report + [ 'period' => $window['period'] ] );
     }
 
     private static function clamp_per_page( $value ): int {

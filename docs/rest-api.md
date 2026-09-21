@@ -789,6 +789,73 @@ report's goals rather than approximately.
 so the table does not reshuffle between two renders of the same window. A player
 who has not scored is absent rather than present as a zero.
 
+## Player report (#3872, epic #3871)
+
+### `GET /players/{id}/report?from=&to=&period=&blocks=`
+
+One player, one window, composed from blocks — the document a coach brings to a
+conversation with a player, as data. Every figure comes from `EvidencePacket`,
+the assembly the PDP Evidence tab, the printed PDP file and the verdict screen
+read, so the report cannot disagree with them about the same player on the same
+day. `EvidencePacket::forPlayer()` needs no PDP file.
+
+**Window.** `from` + `to` (`Y-m-d`, `from` on or before `to`) win. Without
+them, `period` resolves one (`last_week`, `last_month`, `this_month`,
+`this_season`). With neither, the window is **the season so far** — the current
+season's start through today, falling back to the last 90 days when no season
+is configured; the response's `period` is then `""`. An unknown period is
+`400 bad_period`; a `from` or `to` that is sent but is not a date, or a `from`
+after `to`, is `400 bad_window` — never quietly replaced by the default.
+
+**Blocks.** `blocks` is comma-separated; empty means the conversation set
+(`letterhead`, `status`, `talking_points`, `ratings`, `attendance`, `minutes`,
+`goals`, `pdp`, `notes`). The full vocabulary, in print order, adds `matches`,
+`tests`, `journey`, `injuries`, `behaviour`, `potential` and `thread_notes`.
+`letterhead` is always included. **An unknown key is `400 unknown_blocks`**,
+naming the keys in `details.blocks`. `notes` is a blank area to write in
+(`{ "lines": 6 }`); the player's staff notes are `thread_notes`.
+`talking_points` is `{ "items": [] }` until #3875 fills it.
+
+**Permission.** A `reports` read at global scope or at team scope on the
+player's team, **and** `canViewPlayer` on the player — so a parent or a player
+(no `reports` grant) is refused, and a scout reads only players they are linked
+to. An unknown player and an out-of-scope one are both `403`; the response does
+not say which. Passing the gate opens the report, not every record behind it:
+each block keeps its own gate for the reader.
+
+| Block | Gate |
+| --- | --- |
+| `thread_notes` | `ThreadAccess`, as the Notes tab on the player file; private-to-coach notes stay private. |
+| `injuries` | The medical rung of the journey ladder (`tt_view_player_medical` + the `journey_medical_visibility` feature). Empty otherwise. |
+| `journey` | The reader's journey visibility levels — the rule the player's timeline applies. |
+| `tests` | `PlayerMeasurementProfile` for the reader: tests shown on the profile, at the reader's measurement levels. |
+| `pdp` | `available: false` when the PDP module is off or the reader may not see the player's PDP file. Never carries the coach's preparation. |
+
+```json
+{ "player_id": 42, "from": "2026-07-01", "to": "2026-09-21", "period": "",
+  "blocks": [ "letterhead", "status", "ratings", "pdp" ],
+  "data": {
+    "letterhead": { "name": "Sem de Vries", "photo_url": "…", "team_name": "JO14-1",
+                    "age_group": "U14", "head_coach": "…", "jersey_number": 9,
+                    "birth_year": 2012, "from": "2026-07-01", "to": "2026-09-21", … },
+    "status":  { "color": "amber", "score": 58.0, "reasons": [ … ], "missing_inputs": [ … ], … },
+    "ratings": { "evaluation_count": 3, "latest": 7.0, "latest_date": "2026-09-10",
+                 "average": 6.8, "series": [ … ],
+                 "categories": [ { "category_id": 1, "label": "Technical", "latest": 7.0, "average": 6.9, "count": 3 } ],
+                 "evaluations": [ … ] },
+    "pdp":     { "available": true, "file": { "id": 88, "season_id": 4, "status": "open" },
+                 "conversations": [ { "sequence": 1, "template_key": "start", "scheduled_at": "…",
+                                      "conducted_at": "…", "signed_off": true, … } ],
+                 "verdict": null, "last_agreed_actions": "Two extra finishing sessions a week." }
+  } }
+```
+
+`tests.items[]` carries each test with a reading in the window: `value` (the
+latest in-window reading, in the test's own unit), `previous` and
+`previous_date` (the reading before it, which may predate the window), `delta`,
+and `trend` — `up` / `down` / `flat` following the test's direction, so a faster
+sprint is `up`; empty for a test with no direction or no previous reading.
+
 ## Team monthly report (#3458, epic #3457)
 
 ### `GET /teams/{id}/monthly-report?from=&to=&period=&blocks=`
