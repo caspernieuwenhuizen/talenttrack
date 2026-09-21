@@ -169,6 +169,10 @@ final class SavedViewsDefaults {
         }
         if ( $apply === [] ) return;
 
+        // #3990 — say which view was applied, as its own apply link does, so
+        // changing a filter afterwards offers to update the default.
+        $apply[ \TT\Shared\Frontend\Components\SavedViews::OPENED_PARAM ] = (string) (int) ( $default->id ?? 0 );
+
         $target = add_query_arg( $apply, self::currentUrl() );
         wp_safe_redirect( $target, 302 );
         exit;

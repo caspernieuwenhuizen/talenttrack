@@ -90,18 +90,24 @@
 				'<div class="tt-modal-actions">' +
 					'<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' +
 						escapeHtml( i18n.cancel || 'Cancel' ) + '</button>' +
-					'<button type="submit" value="confirm" class="tt-btn tt-btn-danger">' +
-						escapeHtml( i18n.delete || 'Delete' ) + '</button>' +
+					'<button type="submit" value="confirm" class="tt-btn tt-btn-danger" data-tt-sv-confirm-btn></button>' +
 				'</div>' +
 			'</form>';
 		document.body.appendChild( dialog );
 		return dialog;
 	}
 
-	function confirmDestructive( message, onResult ) {
+	/*
+	 * One confirm dialog for both questions it asks: deleting (a danger
+	 * button) and replacing an existing view's filters (#3990, a primary one).
+	 */
+	function askConfirm( message, label, danger, onResult ) {
 		var dialog = ensureConfirm();
 		if ( ! dialog ) { onResult( window.confirm( message ) ); return; }
 		dialog.querySelector( '[data-tt-sv-confirm-msg]' ).textContent = message;
+		var btn = dialog.querySelector( '[data-tt-sv-confirm-btn]' );
+		btn.textContent = label;
+		btn.className = 'tt-btn ' + ( danger ? 'tt-btn-danger' : 'tt-btn-primary' );
 
 		var closeHandler = function () {
 			dialog.removeEventListener( 'close', closeHandler );
@@ -109,6 +115,10 @@
 		};
 		dialog.addEventListener( 'close', closeHandler );
 		dialog.showModal();
+	}
+
+	function confirmDestructive( message, onResult ) {
+		askConfirm( message, i18n.delete || 'Delete', true, onResult );
 	}
 
 	function onError() {
@@ -123,7 +133,9 @@
 		} ).catch( onError );
 	}
 
-	// --- Manage modal (rename / overwrite / delete) --------------------
+	// --- Manage modal (rename / default / delete) ----------------------
+	// #3990 — replacing the filters left this dialog: it is the menu's own
+	// "Update" action now, and saving under a taken name offers it too.
 
 	function ensureManage() {
 		var existing = document.getElementById( MANAGE_ID );
@@ -139,10 +151,6 @@
 				'<label class="tt-saved-views__field">' +
 					'<span>' + escapeHtml( i18n.name_label || '' ) + '</span>' +
 					'<input type="text" class="tt-saved-views__name" maxlength="120" autocomplete="off" data-tt-sv-name />' +
-				'</label>' +
-				'<label class="tt-modal-option">' +
-					'<input type="checkbox" data-tt-sv-overwrite />' +
-					'<span>' + escapeHtml( i18n.overwrite_label || '' ) + '</span>' +
 				'</label>' +
 				'<label class="tt-modal-option">' +
 					'<input type="checkbox" data-tt-sv-default />' +
@@ -162,28 +170,26 @@
 		return dialog;
 	}
 
-	/** onResult( action, name, overwrite, isDefault ) — action: 'save' | 'delete' | '' */
+	/** onResult( action, name, isDefault ) — action: 'save' | 'delete' | '' */
 	function openManage( currentName, currentDefault, onResult ) {
 		var dialog = ensureManage();
 		if ( ! dialog ) {
 			var typed = window.prompt( i18n.name_label || '', currentName );
-			if ( typed === null ) { onResult( '', '', false, currentDefault ); return; }
-			onResult( 'save', String( typed ).trim(), false, currentDefault );
+			if ( typed === null ) { onResult( '', '', currentDefault ); return; }
+			onResult( 'save', String( typed ).trim(), currentDefault );
 			return;
 		}
 
 		var nameEl = dialog.querySelector( '[data-tt-sv-name]' );
-		var owEl   = dialog.querySelector( '[data-tt-sv-overwrite]' );
 		var defEl  = dialog.querySelector( '[data-tt-sv-default]' );
 		nameEl.value = currentName;
-		owEl.checked = false;
 		defEl.checked = !! currentDefault;
 
 		var closeHandler = function () {
 			dialog.removeEventListener( 'close', closeHandler );
 			var action = dialog.returnValue;
 			if ( action !== 'save' && action !== 'delete' ) { action = ''; }
-			onResult( action, String( nameEl.value || '' ).trim(), !! owEl.checked, !! defEl.checked );
+			onResult( action, String( nameEl.value || '' ).trim(), !! defEl.checked );
 		};
 		dialog.addEventListener( 'close', closeHandler );
 		dialog.showModal();
@@ -210,6 +216,45 @@
 		var raw = root.getAttribute( 'data-keys' ) || '';
 		return raw.split( ',' ).map( function ( s ) { return s.trim(); } )
 			.filter( function ( s ) { return s !== ''; } );
+	}
+
+	// #3990 — do the filters set now differ from a view's stored ones? Both
+	// sides in the shape SavedViews::currentFilters() uses: strings, no
+	// empties, no "no default" marker. Order does not matter.
+	function differs( stored, current ) {
+		var ignore = 'tt_views';
+		var a = Object.keys( stored ).filter( function ( k ) { return k !== ignore && stored[ k ] !== '' && stored[ k ] !== null; } );
+		var b = Object.keys( current ).filter( function ( k ) { return k !== ignore; } );
+		if ( a.length !== b.length ) { return true; }
+		return a.some( function ( k ) { return ! ( k in current ) || String( stored[ k ] ) !== String( current[ k ] ); } );
+	}
+
+	function patchFilters( id, filters, onDone ) {
+		return fetch( rest + 'filter-presets/' + encodeURIComponent( id ), {
+			method: 'PATCH',
+			headers: headers(),
+			credentials: 'same-origin',
+			body: JSON.stringify( { filters: filters } )
+		} ).then( function ( r ) {
+			if ( ! r.ok ) { onDone( false ); failWith( r ); return; }
+			window.location.reload();
+		} ).catch( function () {
+			onDone( false );
+			onError();
+		} );
+	}
+
+	/* A view of this reader's on this surface with this name, or null. */
+	function viewNamed( root, name ) {
+		var wanted = name.toLowerCase();
+		var found = null;
+		root.querySelectorAll( '.tt-saved-views__item[data-tt-view-id]' ).forEach( function ( li ) {
+			if ( found ) { return; }
+			if ( String( li.getAttribute( 'data-tt-view-name' ) || '' ).trim().toLowerCase() === wanted ) {
+				found = { id: li.getAttribute( 'data-tt-view-id' ), name: li.getAttribute( 'data-tt-view-name' ) || name };
+			}
+		} );
+		return found;
 	}
 
 	function bind( root ) {
@@ -259,6 +304,20 @@
 					if ( nameInput ) { nameInput.focus(); }
 					return;
 				}
+				// #3990 — a name already taken is an offer to replace that
+				// view's filters, not a refusal. Names are the reader's own on
+				// this surface, all of them rendered as chips.
+				var existing = viewNamed( root, name );
+				if ( existing ) {
+					var msg = ( i18n.replace_confirm || '%s' ).replace( '%s', existing.name );
+					askConfirm( msg, i18n.replace || 'Replace', false, function ( ok ) {
+						if ( ! ok ) { return; }
+						confirmBtn.disabled = true;
+						patchFilters( existing.id, currentFilters( keys ), function () { confirmBtn.disabled = false; } );
+					} );
+					return;
+				}
+
 				confirmBtn.disabled = true;
 				fetch( rest + 'filter-presets', {
 					method: 'POST',
@@ -280,15 +339,42 @@
 			} );
 		}
 
+		// #3990 — "Update ‹name›": store the filters set now on the view the
+		// reader opened. Only `filters` is sent, so its name and default flag
+		// stay as they are. Shown only while the filters differ from it; a
+		// list that filters in place changes them without a reload, so it is
+		// re-checked whenever the menu opens.
+		var updateBtn = root.querySelector( '[data-tt-view-update]' );
+		if ( updateBtn ) {
+			var stored = {};
+			try { stored = JSON.parse( updateBtn.getAttribute( 'data-tt-view-filters' ) || '{}' ) || {}; } catch ( e ) { stored = {}; }
+
+			var refreshUpdate = function () {
+				var now = currentFilters( keys );
+				var has = Object.keys( now ).some( function ( k ) { return k !== 'tt_views'; } );
+				updateBtn.hidden = ! ( has && differs( stored, now ) );
+			};
+			var drop = root.querySelector( 'details' );
+			if ( drop ) { drop.addEventListener( 'toggle', function () { if ( drop.open ) { refreshUpdate(); } } ); }
+
+			updateBtn.addEventListener( 'click', function () {
+				updateBtn.disabled = true;
+				patchFilters( updateBtn.getAttribute( 'data-tt-view-update' ), currentFilters( keys ), function () { updateBtn.disabled = false; } );
+			} );
+		}
+
 		root.querySelectorAll( '[data-tt-view-manage]' ).forEach( function ( btn ) {
 			btn.addEventListener( 'click', function () {
 				var id = btn.getAttribute( 'data-tt-view-manage' );
-				var li = btn.closest( '.tt-saved-views__item' );
+				// The manage button sits in the dropdown, not in the chip, so
+				// the view's name and default flag are read off its chip.
+				var li = btn.closest( '.tt-saved-views__item' )
+					|| ( id ? root.querySelector( '.tt-saved-views__item[data-tt-view-id="' + id.replace( /[^0-9]/g, '' ) + '"]' ) : null );
 				var current = li ? ( li.getAttribute( 'data-tt-view-name' ) || '' ) : '';
 				var wasDefault = li ? li.getAttribute( 'data-tt-view-default' ) === '1' : false;
 				if ( ! id ) { return; }
 
-				openManage( current, wasDefault, function ( action, name, overwrite, isDefault ) {
+				openManage( current, wasDefault, function ( action, name, isDefault ) {
 					if ( action === 'delete' ) {
 						// Second confirm: Delete sits beside Save in the same
 						// modal, so a mis-tap must not be destructive.
@@ -313,11 +399,10 @@
 					if ( action !== 'save' ) { return; }
 					if ( ! name ) { notify( i18n.name_required || 'Name required.' ); return; }
 					// Nothing asked for — don't spend a request on it.
-					if ( name === current && ! overwrite && isDefault === wasDefault ) { return; }
+					if ( name === current && isDefault === wasDefault ) { return; }
 
 					var body = {};
 					if ( name !== current ) { body.name = name; }
-					if ( overwrite ) { body.filters = currentFilters( keys ); }
 					if ( isDefault !== wasDefault ) { body.is_default = isDefault; }
 
 					btn.disabled = true;

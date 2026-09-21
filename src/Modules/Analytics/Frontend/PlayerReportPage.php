@@ -263,6 +263,9 @@ final class PlayerReportPage {
         if ( ! empty( $_GET['tt_back'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
             $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
+        // #3990 — the saved view the coach opened, so changing a section keeps
+        // it on offer as "Update ‹name›".
+        $hidden += \TT\Shared\Frontend\Components\SavedViews::openedField();
 
         // A GET form replaces the query string of its action, so a dashboard
         // reached as `?page_id=58` would lose that on a no-script submit.

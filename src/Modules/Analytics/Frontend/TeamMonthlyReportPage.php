@@ -328,6 +328,9 @@ final class TeamMonthlyReportPage {
         if ( ! empty( $_GET['tt_back'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
             $hidden['tt_back'] = sanitize_text_field( wp_unslash( (string) $_GET['tt_back'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         }
+        // #3990 — the saved view the coach opened, so changing a section keeps
+        // it on offer as "Update ‹name›".
+        $hidden += \TT\Shared\Frontend\Components\SavedViews::openedField();
 
         $block_labels = self::blockLabels();
 

@@ -279,6 +279,22 @@ keeps its four hooks — so #2451's `<dialog>` manage flow works with a new
 trigger. Only a Cancel handler was added: an explicit Save takes a real Cancel
 (CLAUDE.md §6), and a dropdown has nothing to click away to.
 
+**Updating the view you opened (#3990).** A view's apply link carries
+`sv=<id>`. `SavedViews` reads it (it is not one of the surface's filter params,
+so matching is unaffected) and, when that view is the reader's own on this
+surface and the filters no longer match it, puts **Update "‹name›"** first
+under Actions (`data-tt-view-update`). It PATCHes `filters` only, so the name
+and default flag stay. The button is rendered whenever a view was opened and
+kept `hidden` while there is nothing to update; `saved-views.js` re-checks it
+against `data-tt-view-filters` each time the menu opens, because a list that
+filters in place changes the URL without a reload. A form that rebuilds the URL
+must carry `sv` as a hidden field: `FilterBar` does so for any surface with
+`saved_views`, and a custom form adds `SavedViews::openedField()` to its
+hidden fields (the player and team report composition panels do). Saving under
+a name already taken on the surface offers to replace that view's filters
+instead of refusing. The Edit dialog keeps rename, default and delete; its
+"replace its filters" checkbox is gone.
+
 The runtime `<dialog>` rules that script builds moved into
 `frontend-filter-bar.css` with everything else. They have no server-side
 markup to grep for, so they are load-bearing despite looking orphaned.

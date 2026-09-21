@@ -1,0 +1,17 @@
+#: src/Shared/Frontend/Components/SavedViews.php
+#, php-format
+msgid "Update “%s”"
+msgstr "“%s” bijwerken"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+msgid "Rename, set as default or delete this view"
+msgstr "Deze weergave hernoemen, als standaard instellen of verwijderen"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+#, php-format
+msgid "A view called “%s” exists. Replace it with these filters?"
+msgstr "Er bestaat al een weergave “%s”. Vervangen door deze filters?"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+msgid "Replace"
+msgstr "Vervangen"
