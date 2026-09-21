@@ -280,17 +280,17 @@ final class PlayerReport {
             if ( empty( $row->parent_id ) ) {
                 $mains[] = $row;
             } else {
-                $subs[ (int) $row->parent_id ][] = $row;
+                $subs[ (int) ( $row->parent_id ?? 0 ) ][] = $row;
             }
         }
 
         $tree  = [];
         $order = 0;
         foreach ( $mains as $main ) {
-            $id          = (int) $main->id;
+            $id          = (int) ( $main->id ?? 0 );
             $tree[ $id ] = [ 'label' => \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $main->label ?? '' ), $id ), 'order' => $order++ ];
             foreach ( $subs[ $id ] ?? [] as $sub ) {
-                $sid          = (int) $sub->id;
+                $sid          = (int) ( $sub->id ?? 0 );
                 $tree[ $sid ] = [ 'label' => \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? '' ), $sid ), 'order' => $order++ ];
             }
         }
