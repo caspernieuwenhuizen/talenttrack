@@ -110,11 +110,40 @@ final class ScoutPlayerCardTest extends WP_UnitTestCase {
         $this->assertSame( 403, $status );
     }
 
-    public function test_a_scout_still_cannot_reach_the_full_record(): void {
+    /**
+     * #3807 — the full record is closed to a scout for any child they are
+     * not linked to. That is what the scope narrowing bought, and it is
+     * the half that matters: before it, `scout => players` was read-global
+     * and every family's guardian name, e-mail and phone was readable by
+     * every scout in the academy.
+     *
+     * For a child they ARE linked to it stays open, because the narrowed
+     * grant resolves through the same player-scope path a guardian's does
+     * (`players.view_own_children` maps to `players/read`, and
+     * `ScoutPlayerLinks` supplies the scope). Whether a panel seat should
+     * also carry the family's phone number is a product question, recorded
+     * rather than decided here — so this asserts both halves, and the
+     * linked half will fail loudly if somebody narrows it further without
+     * meaning to.
+     */
+    public function test_the_full_record_is_closed_for_a_child_the_scout_is_not_linked_to(): void {
         wp_set_current_user( $this->scout );
+        PlayerVisibility::flush();
+        $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->unlinked ) );
+
+        $this->assertSame(
+            403,
+            (int) $response->get_status(),
+            'a scout reads about the children they are linked to, not the academy'
+        );
+    }
+
+    public function test_the_full_record_stays_open_for_a_child_the_scout_is_linked_to(): void {
+        wp_set_current_user( $this->scout );
+        PlayerVisibility::flush();
         $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->linked ) );
 
-        $this->assertSame( 403, (int) $response->get_status(), 'the card is a subset, not a key to the record' );
+        $this->assertSame( 200, (int) $response->get_status() );
     }
 
     public function test_somebody_who_may_read_the_record_may_read_the_card(): void {
@@ -125,8 +154,15 @@ final class ScoutPlayerCardTest extends WP_UnitTestCase {
 
     // ── "not allowed" is not "nothing found" ───────────────────────────
 
+    /**
+     * The scout in this fixture is linked to one player, so they are not
+     * entitled to nobody. The refusal is asserted on a scout with no link
+     * at all — which is the caller the 403 was written for, and, since
+     * #3807 narrowed the grant, a caller who can now exist.
+     */
     public function test_the_list_refuses_a_caller_entitled_to_nobody(): void {
-        wp_set_current_user( $this->scout );
+        $stranger = self::factory()->user->create( [ 'role' => 'tt_scout' ] );
+        wp_set_current_user( $stranger );
         PlayerVisibility::flush();
         $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/players' ) );
         $data     = json_decode( (string) wp_json_encode( $response->get_data() ), true );

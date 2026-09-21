@@ -104,13 +104,33 @@ final class MatrixOnlyReaderPerRecordTest extends WP_UnitTestCase {
     // ── the class, not the seat ────────────────────────────────────────
 
     public function test_a_non_observer_matrix_only_reader_resolves_too(): void {
-        // The scout holds `players [r, global]` in the seed and, like the
-        // observer, typically has no role-scope row.
+        // The scout, like the observer, typically has no role-scope row and
+        // is granted only through the seed — which is the property this
+        // asserts. Since #3807 that seeded grant is `players [r, player]`
+        // rather than `[r, global]`, so the scope has to be held for the
+        // resolution to reach anything: the link is the scope.
         $scout = $this->makeMatrixOnlyUser( 'tt_scout', 'scout' );
+        update_user_meta( $scout, 'tt_scout_player_ids', wp_json_encode( [ $this->playerId ] ) );
+        AuthorizationService::flushCache();
 
         $this->assertTrue(
             AuthorizationService::canViewPlayer( $scout, $this->playerId ),
             'the fix has to reach every persona granted only through the seed'
+        );
+    }
+
+    /**
+     * #3807 — and the same reader, without the link, is refused. Before the
+     * scope narrowing this could not be asserted: the scout held the player
+     * entity globally, so there was no player they could not read.
+     */
+    public function test_a_matrix_only_reader_without_the_scope_is_refused(): void {
+        $scout = $this->makeMatrixOnlyUser( 'tt_scout', 'scout' );
+        AuthorizationService::flushCache();
+
+        $this->assertFalse(
+            AuthorizationService::canViewPlayer( $scout, $this->playerId ),
+            'a seeded grant at player scope is not a global one'
         );
     }
 
