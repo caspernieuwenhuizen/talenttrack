@@ -1,0 +1,21 @@
+#: src/Shared/Frontend/CoachForms.php
+msgctxt "evaluation form section"
+msgid "Details"
+msgstr "Gegevens"
+
+#: src/Shared/Frontend/CoachForms.php
+#, php-format
+msgid "Scale %1$s–%2$s"
+msgstr "Schaal %1$s–%2$s"
+
+#: src/Shared/Frontend/CoachForms.php
+#, php-format
+msgid "%d subcategory"
+msgid_plural "%d subcategories"
+msgstr[0] "%d subcategorie"
+msgstr[1] "%d subcategorieën"
+
+#: src/Shared/Frontend/CoachForms.php
+msgctxt "evaluation form section"
+msgid "Notes"
+msgstr "Toelichting"
