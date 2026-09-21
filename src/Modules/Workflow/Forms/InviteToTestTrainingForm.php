@@ -36,9 +36,9 @@ class InviteToTestTrainingForm implements FormInterface {
         $prospect  = self::prospectSummary( (int) ( $task['prospect_id'] ?? 0 ) );
         $sessions  = self::upcomingSessions();
 
-        // #3932 — the look was `style="…"` attributes with hardcoded hex,
-        // so a club running its own theme got the plugin's colours in the
-        // middle of its own. Same appearance, read from the tokens.
+        // #3932 — the look used to be inline attributes carrying hardcoded
+        // hex, so a club running its own theme got the plugin's colours in
+        // the middle of its own. Same appearance, read from the tokens.
         wp_enqueue_style(
             'tt-workflow-invite-form',
             TT_PLUGIN_URL . 'assets/css/components/workflow-invite-form.css',
