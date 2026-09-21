@@ -43,6 +43,9 @@ final class ScheduledReportsRepository {
     /** The team monthly report rendered as PDF (#3462). */
     public const REPORT_TEAM_MONTHLY = 'team_monthly';
 
+    /** #3891 — the player report, for one player or a whole squad. */
+    public const REPORT_PLAYER = 'player_report';
+
     /**
      * Operator-editable label for a stored frequency value. Resolves
      * through `tt_translations` via `LookupTranslator::byTypeAndName(

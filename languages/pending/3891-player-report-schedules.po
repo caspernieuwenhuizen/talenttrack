@@ -1,0 +1,86 @@
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Schedule the player report"
+msgstr "Het spelersrapport inplannen"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "You cannot schedule a report for this player."
+msgstr "Je kunt geen rapport voor deze speler inplannen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Sent on the 1st of every month as a PDF, over the same period the report had when you scheduled it. The schedule keeps its own copy of the sections."
+msgstr "Wordt op de 1e van elke maand als PDF verstuurd, over dezelfde periode die het rapport had toen je het inplande. De planning bewaart een eigen kopie van de onderdelen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Who it covers"
+msgstr "Voor wie"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Every player in %s — one report each, in one PDF"
+msgstr "Elke speler in %s — één rapport per speler, in één PDF"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Only %s"
+msgstr "Alleen %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player reports %s"
+msgstr "Spelersrapporten %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "The report describes a minor's development. Send it to staff only."
+msgstr "Het rapport beschrijft de ontwikkeling van een minderjarige. Stuur het alleen naar de staf."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player reports · %s"
+msgstr "Spelersrapporten · %s"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+#, php-format
+msgid "Player report · %s"
+msgstr "Spelersrapport · %s"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Stopped: this squad has %1$d players, and one scheduled round prints at most %2$d. Schedule the players you need individually instead."
+msgstr "Gestopt: deze selectie heeft %1$d spelers, en één ingeplande ronde drukt er maximaal %2$d af. Plan de spelers die je nodig hebt in plaats daarvan afzonderlijk in."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Not sent: there is no player in this squad whose report the schedule’s owner can read."
+msgstr "Niet verstuurd: er is geen speler in deze selectie van wie de eigenaar van de planning het rapport mag inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Player report %1$s, %2$d player"
+msgid_plural "Player reports %1$s, %2$d players"
+msgstr[0] "Spelersrapport %1$s, %2$d speler"
+msgstr[1] "Spelersrapporten %1$s, %2$d spelers"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Sent without %s: the schedule’s owner can no longer read their reports."
+msgstr "Verstuurd zonder %s: de eigenaar van de planning mag hun rapporten niet meer inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the player in this schedule no longer exists."
+msgstr "Gestopt: de speler in deze planning bestaat niet meer."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the player in this schedule has been archived."
+msgstr "Gestopt: de speler in deze planning is gearchiveerd."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "Stopped: the person who set up this schedule can no longer read this player’s report."
+msgstr "Gestopt: degene die deze planning heeft ingesteld, mag het rapport van deze speler niet meer inzien."
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+#, php-format
+msgid "Player report %s"
+msgstr "Spelersrapport %s"
+
+#: src/Modules/Analytics/Reports/PlayerReportDelivery.php
+msgid "The PDF could not be created this time. The schedule will try again next time."
+msgstr "De PDF kon deze keer niet worden gemaakt. De planning probeert het de volgende keer opnieuw."

@@ -147,3 +147,12 @@
 .tt-dashboard .tt-sched-action--danger:focus-visible {
     border-color: var(--tt-danger, #d8453b);
 }
+
+/* #3891 — the player report's target choice: a whole row is the tap target. */
+.tt-dashboard .tt-sched-choice {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 48px;
+    touch-action: manipulation;
+}

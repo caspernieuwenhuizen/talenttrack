@@ -32,6 +32,39 @@ final class PlayerReportPdfDocument {
      *        a snapshot's section notes, printed under their section (#3890).
      */
     public static function html( array $report, array $notes = [] ): string {
+        return self::wrap( self::body( $report, $notes ) );
+    }
+
+    /**
+     * Several players in one document, each starting on a new page — the
+     * team-batched schedule's round (#3891). One stylesheet and one footer,
+     * so the file is a single printable pack rather than documents glued
+     * together.
+     *
+     * @param list<array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}> $reports
+     *        each already shortened by `PlayerReportLayout::degrade()`.
+     */
+    public static function batchHtml( array $reports ): string {
+        $bodies = [];
+        foreach ( $reports as $i => $report ) {
+            $bodies[] = '<div class="player' . ( $i > 0 ? ' break' : '' ) . '">' . self::body( $report, [] ) . '</div>';
+        }
+        return self::wrap( implode( '', $bodies ) );
+    }
+
+    private static function wrap( string $body ): string {
+        // DomPDF reads no enqueued stylesheet; the document carries its own.
+        return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css() . '</style></head><body>' /* tt-inline-ok */
+            . '<div class="footer">' . esc_html__( 'Confidential — staff only. This report describes a minor\'s development. Do not share it with the player, their parents or anyone outside the coaching staff.', 'talenttrack' ) . '</div>'
+            . $body
+            . '</body></html>';
+    }
+
+    /**
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @param array<string,array{body:string, author:int, updated_at:string}>                            $notes
+     */
+    private static function body( array $report, array $notes ): string {
         $data = $report['data'];
         $body = self::letterhead( $data['letterhead'] ?? [], $report['from'], $report['to'] );
 
@@ -54,11 +87,7 @@ final class PlayerReportPdfDocument {
             $body .= self::section( $block, $data[ $block ] ?? [] ) . self::note( $notes, $block );
         }
 
-        // DomPDF reads no enqueued stylesheet; the document carries its own.
-        return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css() . '</style></head><body>' /* tt-inline-ok */
-            . '<div class="footer">' . esc_html__( 'Confidential — staff only. This report describes a minor\'s development. Do not share it with the player, their parents or anyone outside the coaching staff.', 'talenttrack' ) . '</div>'
-            . $body
-            . '</body></html>';
+        return $body;
     }
 
     /** @param array<string,mixed> $d */
@@ -637,6 +666,7 @@ final class PlayerReportPdfDocument {
             . '.footer{position:fixed;bottom:-9mm;left:0;right:0;height:6mm;font-size:6.5pt;color:' . $muted . ';text-align:center}'
             . '.muted{color:' . $muted . '}'
             . 'table{border-collapse:collapse;width:100%}'
+            . '.break{page-break-before:always}'
             . '.lh{height:22mm;margin-bottom:2mm;border-bottom:2px solid ' . $ink . '}'
             . '.lh td{vertical-align:bottom;padding:0 0 2mm 0}'
             . '.lh-kicker{font-size:7.5pt;text-transform:uppercase;letter-spacing:1px;color:' . $muted . '}'
