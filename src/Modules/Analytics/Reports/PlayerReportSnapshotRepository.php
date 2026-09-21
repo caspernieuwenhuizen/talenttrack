@@ -84,30 +84,68 @@ final class PlayerReportSnapshotRepository {
     }
 
     /**
-     * A player's snapshots, most recent first, without their payloads.
+     * A player's snapshots, most recent first, without their payloads. With an
+     * audience, only the snapshots taken for it: `family` is what a coach
+     * shared with the player and their parents (#3955).
      *
-     * @return list<object{id:int, uuid:string, player_id:int, title:string,
+     * The audience lives in the stored composition rather than a column of its
+     * own, so the filter runs here on at most a hundred of one player's rows.
+     *
+     * @return list<array{id:int, uuid:string, player_id:int, title:string,
      *     period_from:string, period_to:string, created_by:int,
-     *     created_at:string, updated_at:string}>
+     *     created_at:string, updated_at:string, audience:string}>
      */
-    public function listForPlayer( int $player_id, int $limit = 20 ): array {
+    public function listForPlayer( int $player_id, int $limit = 20, string $audience = '' ): array {
         global $wpdb;
         if ( $player_id <= 0 ) return [];
         $limit = max( 1, min( 100, $limit ) );
 
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, uuid, player_id, title, period_from, period_to, created_by, created_at, updated_at
+            "SELECT id, uuid, player_id, title, period_from, period_to, composition_json, created_by, created_at, updated_at
                FROM {$wpdb->prefix}tt_player_report_snapshots
               WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
            ORDER BY created_at DESC, id DESC
-              LIMIT %d",
-            $player_id, CurrentClub::id(), $limit
-        ) );
+              LIMIT 100",
+            $player_id, CurrentClub::id()
+        ), ARRAY_A );
 
         if ( ! is_array( $rows ) ) return [];
 
-        /** @var list<object{id:int, uuid:string, player_id:int, title:string, period_from:string, period_to:string, created_by:int, created_at:string, updated_at:string}> $rows */
-        return $rows;
+        $out = [];
+        foreach ( $rows as $row ) {
+            $row_audience = self::audienceOfJson( (string) ( $row['composition_json'] ?? '' ) );
+            if ( $audience !== '' && $row_audience !== $audience ) continue;
+
+            $out[] = [
+                'id'          => (int) ( $row['id'] ?? 0 ),
+                'uuid'        => (string) ( $row['uuid'] ?? '' ),
+                'player_id'   => (int) ( $row['player_id'] ?? 0 ),
+                'title'       => (string) ( $row['title'] ?? '' ),
+                'period_from' => (string) ( $row['period_from'] ?? '' ),
+                'period_to'   => (string) ( $row['period_to'] ?? '' ),
+                'created_by'  => (int) ( $row['created_by'] ?? 0 ),
+                'created_at'  => (string) ( $row['created_at'] ?? '' ),
+                'updated_at'  => (string) ( $row['updated_at'] ?? '' ),
+                'audience'    => $row_audience,
+            ];
+            if ( count( $out ) >= $limit ) break;
+        }
+        return $out;
+    }
+
+    /**
+     * Who a snapshot was taken for: `family` when a coach shared it with the
+     * player and their parents, `internal` for every other snapshot — including
+     * each one taken before sharing existed, whose composition names no audience.
+     */
+    public static function audienceOf( object $row ): string {
+        return self::audienceOfJson( (string) ( $row->composition_json ?? '' ) );
+    }
+
+    private static function audienceOfJson( string $json ): string {
+        $decoded = json_decode( $json, true );
+        $value   = is_array( $decoded ) && is_scalar( $decoded['audience'] ?? null ) ? (string) $decoded['audience'] : '';
+        return $value === PlayerReportAudience::FAMILY ? PlayerReportAudience::FAMILY : PlayerReportAudience::INTERNAL;
     }
 
     /**

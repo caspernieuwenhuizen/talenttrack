@@ -894,20 +894,44 @@ dates it covered and a note per section. Every route answers to the snapshot's
 caller may not read are the same `403`, so a uuid cannot be probed.
 
 - `GET /players/{id}/report-snapshots` — the player's snapshots, most recent
-  first, without payloads: `uuid`, `title`, `period_from`, `period_to`,
-  `created_by`, `created_at`.
+  first, without payloads: `uuid`, `title`, `audience`, `period_from`,
+  `period_to`, `created_by`, `created_at`. `audience=internal|family` narrows
+  the list. The player and their parents may call it too, and always get only
+  the `family` snapshots (#3955).
 - `POST /players/{id}/report-snapshots` — take one. Body: `period` or `from` +
   `to`, `layout` (`A` / `B`), `blocks`, `title` — the report's own parameters,
-  forgiving as the screen is. `201` with the snapshot.
+  forgiving as the screen is — and `audience`: `family` shares the report with
+  the player and their parents (below); omitted, it is a staff snapshot. `201`
+  with the snapshot. Staff only: families read shared reports and never make
+  one, so a parent or player is `403` here, as on `GET /players/{id}/report`.
 - `GET /player-report-snapshots/{uuid}` — `uuid`, `player_id`, `title`,
-  `created_by`, `created_at`, `composition` (with the dates, never a moving
-  period), `report` (the frozen payload) and `notes` keyed by section:
+  `audience`, `created_by`, `created_at`, `composition` (with the dates, never a
+  moving period), `report` (the frozen payload) and `notes` keyed by section:
   `{ body, author, updated_at }`.
 - `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`; an empty
   body removes the note. A section that is not a block is `400 unknown_section`.
+  A family snapshot takes no notes (`403`).
 
 `GET /exports/player_report_pdf?format=pdf&snapshot={uuid}` prints the frozen
 report with its notes.
+
+**Family snapshots (#3955).** A family snapshot is composed for the `family`
+audience: the coach's view, cut on the **payload** to `letterhead`, `ratings`,
+`attendance`, `minutes`, `goals` and `tests` before it is stored, with each
+evaluation's `notes` removed and tests read at the public level. Whatever the
+coach ticked, `status`, `talking_points`, `pdp`, `thread_notes`, `injuries`,
+`journey`, `behaviour`, `potential`, `notes` and `matches` are never stored.
+The stored composition carries `"audience": "family"`.
+
+A family reader is the player on their own record, or a parent of the child
+(`ParentChildResolver`). They read family snapshots of that child and no other
+(`403` otherwise, the same as an unknown uuid), with `notes` always empty, and
+each block only when the reader may read its section of the child's file:
+`canReadPlayerSection()` on `evaluations` (ratings), `activities` (attendance,
+minutes), `goals` and `measurements` (tests). For a parent, a section the child
+keeps from their parents (`evaluations`, `minutes`, `goals`, `measurements`) is
+left out too. Staff who may read the player's report read any snapshot as
+stored.
 
 ## Team monthly report (#3458, epic #3457)
 

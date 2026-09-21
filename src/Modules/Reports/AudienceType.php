@@ -16,7 +16,7 @@ use TT\Domain\Vocabularies\Lookups\ReportAudienceType;
  * `TT\Domain\Vocabularies\Lookups\ReportAudienceType` per #988 PR-set 5
  * as the cross-module canonical reference. The constants in this class
  * alias the vocabulary constants to keep existing internal callers
- * (`PlayerReportRenderer`, `AudienceDefaults`, `ScoutDelivery`, etc.)
+ * (`ReportConfig`, `ScoutDelivery`, the trial letters, etc.)
  * green and to keep the Reports-module-local description / label
  * helpers in one place.
  */

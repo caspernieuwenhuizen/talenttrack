@@ -31,21 +31,16 @@ class ScoutDelivery {
     public function emailLink( object $player, ReportConfig $config, string $recipient_email, int $expiry_days, string $cover_message ): array {
         $expiry_days = max( 1, min( 60, $expiry_days ) );
 
-        // Force the scout-default privacy footprint for emailed reports.
-        // The wizard exposes per-report toggles, but if a generator left
-        // them at unsafe values for the scout audience, we still apply
-        // the audience floor.
-        $defaults = AudienceDefaults::defaultsFor( AudienceType::SCOUT );
-        $config->audience     = AudienceType::SCOUT;
-        $config->tone_variant = (string) $defaults['tone_variant'];
+        // Whatever the caller built, an emailed report is a scout report.
+        $config->audience = AudienceType::SCOUT;
 
         // Render once; freeze the HTML in storage so revocation is
         // simple + the link page doesn't re-query the DB on every hit.
         //
         // #3876 — through the player report engine, composed for the scout
         // audience on the sender's behalf: the scout allowlist on the payload,
-        // evaluation scores without the coach's notes. The sections picked in
-        // the wizard narrow that list; they can never widen it.
+        // evaluation scores without the coach's notes. The sections the sender
+        // picked narrow that list; they can never widen it.
         $player_id = (int) $player->id;
         $html      = self::scoutDocument( $player_id, $config );
         if ( $html === '' ) {
@@ -90,8 +85,8 @@ class ScoutDelivery {
 
     /**
      * The scout document, as the player report engine composes it. The window
-     * is the sender's, or the season so far when the wizard asked for all
-     * time — the engine reads a window, not an open end.
+     * is the sender's, or the season so far when none was given — the engine
+     * reads a window, not an open end.
      */
     public static function scoutDocument( int $player_id, ReportConfig $config ): string {
         $from = (string) ( $config->filters['date_from'] ?? '' );
@@ -102,7 +97,7 @@ class ScoutDelivery {
             $to     = $window['to'];
         }
 
-        // The wizard's sections, in the old vocabulary, mapped onto the new
+        // The config's sections, in the old vocabulary, mapped onto the new
         // blocks. A section with no counterpart the scout may receive maps to
         // nothing — "coach notes" included — so the choice narrows the scout
         // allowlist and never widens it.

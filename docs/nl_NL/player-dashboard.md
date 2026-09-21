@@ -106,16 +106,11 @@ Als er een ouder of verzorger aan je account is gekoppeld, toont **Mijn instelli
 
 ## Rapporten
 
-Coaches en beheerders zien op de detailpagina van een speler een knop **Rapport genereren…**. Die opent een vierstapswizard:
+Als een coach een rapport met je deelt, staat het onder **Rapporten** op je profiel. Een ouder vindt het onder **Rapporten** op het profiel van zijn of haar kind. Het nieuwste staat bovenaan, en elk rapport opent zoals het was toen de coach het deelde.
 
-1. **Doelgroep** — Standaard, Ouder (maandelijks), Interne coaches, Speler-versie of Scout.
-2. **Periode** — afgelopen maand, afgelopen seizoen, dit jaar tot nu, alle tijd of aangepast bereik.
-3. **Onderdelen** — kies wat je meeneemt: profiel, beoordelingen, doelen, sessies, aanwezigheid, coachnotities.
-4. **Privacy** — vink aan: contactgegevens, volledige geboortedatum, foto, vrije coachnotities; of stel een minimum­drempel voor beoordelingen in.
+Een gedeeld rapport toont aanwezigheid, speeltijd, doelen, evaluatiescores en testen. De geschreven notities van de coach staan er nooit in, en het volgt dezelfde keuzes als de rest van je profiel: een onderdeel dat je voor je ouder afschermt, ontbreekt in diens exemplaar.
 
-Elke doelgroep krijgt zinvolle standaardwaarden. Klik **Rapport voorbeeld** om het resultaat in te zien; print via je browser om een PDF te bewaren.
-
-Voor scouts kun je daarnaast een ontvanger­e-mailadres en een vervaldatum opgeven; het rapport wordt als eenmalige link verstuurd met een vertrouwelijk watermerk. Actieve links zijn op elk moment in te trekken via **Geschiedenis scoutrapporten**.
+Zelf een rapport maken kan niet. Elk rapport hier is er een dat een coach met je heeft willen delen. Coaches maken en delen ze vanuit het spelersrapport; zie [Spelersrapport](player-report.md).
 
 ## Privacy
 

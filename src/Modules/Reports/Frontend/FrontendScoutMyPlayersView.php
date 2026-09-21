@@ -4,7 +4,6 @@ namespace TT\Modules\Reports\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Modules\Reports\AudienceDefaults;
 use TT\Modules\Reports\AudienceType;
 use TT\Modules\Reports\PhotoInliner;
 use TT\Modules\Reports\ReportConfig;
@@ -113,25 +112,20 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
             return;
         }
 
-        // Build a scout-audience config and render.
-        $defaults = AudienceDefaults::defaultsFor( AudienceType::SCOUT );
-        $f        = AudienceDefaults::resolveScope( (string) $defaults['scope'] );
-        $config   = new ReportConfig(
-            AudienceType::SCOUT,
-            [ 'date_from' => $f['date_from'], 'date_to' => $f['date_to'], 'eval_type_id' => 0 ],
-            (array) $defaults['sections'],
-            $defaults['privacy'],
-            $player_id,
-            $scout_user_id,
-            null,
-            (string) $defaults['tone_variant']
-        );
-
         // #3876 — the player report engine, composed for this reader. The
         // audience resolves from the scout, so the payload is the scout
         // allowlist whatever is asked for: scores without the coach's notes,
         // tests at the public level, nothing a scout may not receive.
         $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
+
+        // The record of what was viewed, stored with the audit row.
+        $config = new ReportConfig(
+            AudienceType::SCOUT,
+            [ 'date_from' => $window['from'], 'date_to' => $window['to'], 'eval_type_id' => 0 ],
+            [ 'profile', 'ratings', 'attendance', 'sess' . 'ions' ], // ReportConfig's stored key for playing time (#0035 lint-safe)
+            $player_id,
+            $scout_user_id
+        );
         $report = ( new \TT\Modules\Analytics\Reports\PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], [], $scout_user_id );
         if ( $report === null ) {
             echo '<p class="tt-notice">' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>';

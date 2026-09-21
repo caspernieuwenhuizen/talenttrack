@@ -213,7 +213,6 @@ return [
     'rate-cards'                    => [ 'desktop_only', 'A pricing grid — the rows and columns are the whole content.' ],
     'ratings-grid'                  => [ 'desktop_only', 'The same, for ratings.' ],
     'recycle-bin'                   => [ 'desktop_only', 'Restore and permanent purge, in bulk.' ],
-    'report-wizard'                 => [ 'desktop_only', 'Building a report. The output is read_only; the builder is not.' ],
     'roles'                         => [ 'desktop_only', 'Role definitions and their capabilities. Getting this wrong locks people out.' ],
     'scheduled-reports'             => [ 'desktop_only', 'Schedule management across many reports.' ],
     'scout-access'                  => [ 'desktop_only', 'Which scouts may see which players. Permissions, so the blast radius is wide.' ],

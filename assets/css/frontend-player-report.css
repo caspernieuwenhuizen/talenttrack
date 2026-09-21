@@ -179,6 +179,80 @@
 .tt-pr-score__dot.is-warn { background: var(--tt-warning); }
 .tt-pr-score__dot.is-bad  { background: var(--tt-danger); }
 
+/*
+ * #3955 — sharing a report with the family. The disclosure's summary is the
+ * first step and the submit inside it the second, so nothing reaches a family
+ * on one stray tap.
+ */
+.tt-pr-share {
+	margin-top: var(--tt-sp-3);
+}
+
+.tt-pr-share > summary {
+	display: inline-flex;
+	align-items: center;
+	min-height: 3rem;
+	list-style: none;
+	cursor: pointer;
+	touch-action: manipulation;
+}
+
+.tt-pr-share > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tt-pr-share__form {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--tt-sp-2);
+	margin-top: var(--tt-sp-2);
+	padding: var(--tt-sp-3);
+	border: 1px solid var(--tt-line);
+	border-radius: var(--tt-radius);
+}
+
+.tt-pr-share__form .tt-btn {
+	min-height: 3rem;
+}
+
+.tt-pr-shared-badge {
+	display: inline-block;
+	padding: 0 var(--tt-sp-2);
+	border-radius: var(--tt-radius);
+	background: var(--tt-info-subtle);
+	color: var(--tt-info-ink);
+	font-size: var(--tt-fs-sm);
+}
+
+/*
+ * The Reports tab on the player's file, as the family reads it: one row per
+ * shared report, each a full-width touch target.
+ */
+.tt-pr-family-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.tt-pr-family-list li + li {
+	border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-pr-family-list a {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	min-height: 3rem;
+	padding: var(--tt-sp-2) 0;
+	touch-action: manipulation;
+}
+
+.tt-pr-family-list__meta {
+	color: var(--tt-muted);
+	font-size: var(--tt-fs-sm);
+}
+
 @media (min-width: 768px) {
 	.tt-pr-head__photo {
 		width: 4.5rem;

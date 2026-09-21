@@ -1791,14 +1791,13 @@ class DashboardShortcode {
     }
 
     /**
-     * #0014 Sprints 4+5 — Reports wizard + scout flow surfaces. Each
-     * view re-checks its own capability so dispatching here is safe.
+     * #0014 Sprint 5 — scout flow surfaces. Each view re-checks its own
+     * capability so dispatching here is safe. The report wizard that lived
+     * here is retired (#3955); `ReportWizardRedirect` sends its old links on
+     * before any output.
      */
     private static function dispatchReportView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
-            case 'report-wizard':
-                FrontendReportWizardView::render( $user_id, $is_admin );
-                return true;
             case 'scout-access':
                 if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );

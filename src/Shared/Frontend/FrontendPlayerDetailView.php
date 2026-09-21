@@ -304,6 +304,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
         }
+        // #3955 — the reports a coach shared with the family, for the player
+        // on their own file and a parent on their child's. Staff compose and
+        // share from the player report itself, so the tab is not theirs.
+        if ( \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::isOffered( $user_id, $player_id ) ) {
+            $tabs[ \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::TAB ] = __( 'Reports', 'talenttrack' );
+        }
         // #1988 — the "My card" showcase (FIFA card + skills radar +
         // rating KPIs) folded into the one unified profile as a tab.
         // Same audience as the page (tt_view_players); no separate cap.
@@ -627,6 +633,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'injuries':    self::renderInjuriesTab( $player_id, $user_id ); break;
                         case 'media':       self::renderMediaTab( $player_id, $user_id ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
+                        case \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::TAB:
+                            \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::render( $player_id, $user_id, add_query_arg( [ 'tab' => \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::TAB ], $base_url ) );
+                            break;
                         case 'card':        self::renderCardTab( $player ); break;
                         case 'profile':
                         default:            self::renderProfileTab( $player, $phv_row, $phv_panel_notice, $vct_on ); break;

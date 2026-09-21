@@ -293,7 +293,7 @@ Migratie `0282_authorization_seed_topup_staff_only_notes` vult de vijf persona-r
 
 ## Rapportgeneratie — `tt_generate_report` is nu matrix-gekoppeld
 
-Rapportgeneratie (`FrontendReportWizardView`, bereikbaar via `?tt_view=report-wizard`; plus de knop "Rapport genereren…" op het spelerdossier in `FrontendPlayersManageView`) wordt afgeschermd door de handelings-capability `tt_generate_report` — los van `tt_generate_scout_report`, die naar `scout_access:create_delete` koppelt. Een rapport genereren is een **create**-handeling, dus `tt_generate_report` koppelt naar `reports:create_delete`:
+Rapportgeneratie (oorspronkelijk de rapportwizard, inmiddels opgeheven; het spelersrapport stelt nu samen, deelt met het gezin en stuurt naar een scout, telkens per speler afgeschermd door `PlayerReportAccess`) wordt afgeschermd door de handelings-capability `tt_generate_report` — los van `tt_generate_scout_report`, die naar `scout_access:create_delete` koppelt. Een rapport genereren is een **create**-handeling, dus `tt_generate_report` koppelt naar `reports:create_delete`:
 
 | Ruwe capability | Matrix-tupel |
 | - | - |
@@ -308,7 +308,7 @@ De ruwe capability is vandaag in handen van `administrator` (matrix-uitzondering
 | head_of_development | `reports` / `create_delete` | global |
 | academy_admin | (had al `reports:rcd[global]`) | global |
 
-Beide coach-persona's worden geseed — `tt_coach` is de dubbel-persona-val: alleen head_coach seeden zou generatie voor assistent-coaches verliezen. Coaches krijgen `team`-scope omdat de per-speler team-scope-afscherming al in `FrontendReportWizardView` zit; HoD krijgt `global` (overziet de hele academie). `change` is bewust weggelaten — er is geen oppervlak om een bestaand rapport te bewerken, alleen lezen + genereren. `team_manager`, `scout`, `player` en `parent` houden enkel `reports:read` en winnen niets, dus de koppeling is **toegangsbehoudend** — precies de huidige houders behouden generatie.
+Beide coach-persona's worden geseed — `tt_coach` is de dubbel-persona-val: alleen head_coach seeden zou generatie voor assistent-coaches verliezen. Coaches krijgen `team`-scope omdat de per-speler team-scope-afscherming in het rapport zelf zit (`PlayerReportAccess`); HoD krijgt `global` (overziet de hele academie). `change` is bewust weggelaten — er is geen oppervlak om een bestaand rapport te bewerken, alleen lezen + genereren. `team_manager`, `scout`, `player` en `parent` houden enkel `reports:read` en winnen niets, dus de koppeling is **toegangsbehoudend** — precies de huidige houders behouden generatie.
 
 Migratie `0182_authorization_seed_topup_report_generation` vult de drie nieuwe rechten op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `reports:create_delete`-rijen voor head_coach / assistant_coach / head_of_development loopt).
 

@@ -297,7 +297,7 @@ Migration `0282_authorization_seed_topup_staff_only_notes` backfills the five pe
 
 ## Report generation — `tt_generate_report` is now matrix-bridged
 
-Report generation (`FrontendReportWizardView`, reachable via `?tt_view=report-wizard`; plus the "Generate report…" button on the player file in `FrontendPlayersManageView`) is gated by the act-cap `tt_generate_report` — distinct from `tt_generate_scout_report`, which bridges to `scout_access:create_delete`. Generating a report is a **create** act, so `tt_generate_report` bridges to `reports:create_delete`:
+Report generation (originally the report wizard, since retired; the player report now composes, shares with the family and sends to a scout, each gated per player by `PlayerReportAccess`) is gated by the act-cap `tt_generate_report` — distinct from `tt_generate_scout_report`, which bridges to `scout_access:create_delete`. Generating a report is a **create** act, so `tt_generate_report` bridges to `reports:create_delete`:
 
 | Raw cap | Matrix tuple |
 | - | - |
@@ -312,7 +312,7 @@ The raw cap is held today by `administrator` (matrix bypass) + `tt_club_admin` +
 | head_of_development | `reports` / `create_delete` | global |
 | academy_admin | (already held `reports:rcd[global]`) | global |
 
-Both coach personas are seeded — `tt_coach` is the dual-persona trap: seeding only head_coach would lose generation for assistant coaches. Coaches get `team` scope because per-player team-scope gating already lives in `FrontendReportWizardView`; HoD gets `global` (oversees the whole academy). `change` is deliberately omitted — there is no edit-existing-report surface, only read + generate. `team_manager`, `scout`, `player` and `parent` hold only `reports:read` and gain nothing, so the bridge is **access-preserving** — exactly today's holders keep generation.
+Both coach personas are seeded — `tt_coach` is the dual-persona trap: seeding only head_coach would lose generation for assistant coaches. Coaches get `team` scope because per-player team-scope gating lives in the report itself (`PlayerReportAccess`); HoD gets `global` (oversees the whole academy). `change` is deliberately omitted — there is no edit-existing-report surface, only read + generate. `team_manager`, `scout`, `player` and `parent` hold only `reports:read` and gain nothing, so the bridge is **access-preserving** — exactly today's holders keep generation.
 
 Migration `0182_authorization_seed_topup_report_generation` backfills the three new grants into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `reports:create_delete` rows for head_coach / assistant_coach / head_of_development).
 

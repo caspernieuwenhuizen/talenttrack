@@ -32,9 +32,10 @@ final class PlayerReportPdfDocument {
      *        already shortened by `PlayerReportLayout::degrade()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      *        a snapshot's section notes, printed under their section (#3890).
+     * @param bool $family a report shared with the player and their parents (#3955)
      */
-    public static function html( array $report, array $notes = [] ): string {
-        return self::wrap( self::body( $report, $notes ) );
+    public static function html( array $report, array $notes = [], bool $family = false ): string {
+        return self::wrap( self::body( $report, $notes ), $family );
     }
 
     /**
@@ -65,10 +66,10 @@ final class PlayerReportPdfDocument {
         return '<div class="tt-pr-doc"><style>' . self::css() . '</style>' . self::body( $report, [] ) . '</div>'; /* tt-inline-ok */
     }
 
-    private static function wrap( string $body ): string {
+    private static function wrap( string $body, bool $family = false ): string {
         // DomPDF reads no enqueued stylesheet; the document carries its own.
         return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css() . '</style></head><body>' /* tt-inline-ok */
-            . '<div class="footer">' . esc_html__( 'Confidential — staff only. This report describes a minor\'s development. Do not share it with the player, their parents or anyone outside the coaching staff.', 'talenttrack' ) . '</div>'
+            . '<div class="footer">' . esc_html( \TT\Modules\Analytics\Reports\PlayerReportAudience::footerText( $family ) ) . '</div>'
             . $body
             . '</body></html>';
     }
