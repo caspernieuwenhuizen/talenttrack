@@ -72,15 +72,6 @@ final class PushSubscriptionsRestController extends BaseController {
     }
 
     /**
-     * Register or refresh a subscription. Body shape (matches the
-     * `PushSubscription.toJSON()` output):
-     *
-     *   { endpoint, keys: { p256dh, auth }, user_agent? }
-     *
-     * The same endpoint twice idempotently refreshes the keys + bumps
-     * `last_seen_at` rather than creating a duplicate row.
-     */
-    /**
      * #3819 — the body `POST /push-subscriptions` takes. It is the shape
      * the browser's `PushSubscription.toJSON()` produces, plus the client's
      * own user-agent string.
@@ -100,6 +91,15 @@ final class PushSubscriptionsRestController extends BaseController {
         ];
     }
 
+    /**
+     * Register or refresh a subscription. Body shape (matches the
+     * `PushSubscription.toJSON()` output):
+     *
+     *   { endpoint, keys: { p256dh, auth }, user_agent? }
+     *
+     * The same endpoint twice idempotently refreshes the keys + bumps
+     * `last_seen_at` rather than creating a duplicate row.
+     */
     public static function create( WP_REST_Request $request ) {
         // #3819 — the body's shape before its values.
         $refused = self::checkBody( $request, self::createArgs() );

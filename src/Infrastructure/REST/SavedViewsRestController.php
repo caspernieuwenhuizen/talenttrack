@@ -90,9 +90,13 @@ final class SavedViewsRestController extends BaseController {
      */
     private static function saveArgs(): array {
         return [
-            'view_key' => [ 'sanitize_callback' => 'sanitize_key', 'type' => 'string', 'description' => 'Which surface the preset belongs to. Usually a query parameter; a copy in the body is accepted.' ],
-            'name'     => [ 'sanitize_callback' => 'sanitize_text_field', 'type' => 'string', 'description' => 'What to call the preset. Trimmed to 120 characters; a name the user already has is refused.' ],
-            'filters'  => [ 'type' => 'object', 'description' => 'The filter values to remember, keyed by filter. At most 20 keys, each at most 200 characters.' ],
+            'view_key'   => [ 'sanitize_callback' => 'sanitize_key', 'type' => 'string', 'description' => 'Which surface the preset belongs to. Usually a query parameter; a copy in the body is accepted.' ],
+            // The retired spelling `viewKey()` still falls back to. Declared
+            // rather than dropped: a client that predates the rename gets its
+            // preset saved, not a 400 naming a key it has never heard of.
+            'report_key' => [ 'sanitize_callback' => 'sanitize_key', 'type' => 'string', 'description' => 'The retired name for view_key. Read only when view_key is absent.' ],
+            'name'       => [ 'sanitize_callback' => 'sanitize_text_field', 'type' => 'string', 'description' => 'What to call the preset. Trimmed to 120 characters; a name the user already has is refused.' ],
+            'filters'    => [ 'type' => 'object', 'description' => 'The filter values to remember, keyed by filter. At most 20 keys, each at most 200 characters.' ],
         ];
     }
 

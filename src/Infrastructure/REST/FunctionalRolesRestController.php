@@ -402,21 +402,6 @@ class FunctionalRolesRestController {
     }
 
     /**
-     * #3816 — the body `POST /functional-roles/assignments` accepts.
-     *
-     * The three ids are all needed, and `create_assignment()` names every
-     * one that is missing in a single answer instead of the hand-written
-     * message that named none of them. They are deliberately **not**
-     * declared `required`: core checks required params before the
-     * permission callback runs, so that would answer an unauthenticated
-     * caller with a 400 naming the fields instead of the 401 it owes.
-     *
-     * Dates are optional either way: an assignment with no start is
-     * current, and one with no end is still running.
-     *
-     * @return array<string, array<string, mixed>>
-     */
-    /**
      * #3819 — the body `POST /functional-roles` takes.
      *
      * `is_system` and `sort_order` are absent on purpose: the first
@@ -482,6 +467,21 @@ class FunctionalRolesRestController {
         ] ] + $args;
     }
 
+    /**
+     * #3816 — the body `POST /functional-roles/assignments` accepts.
+     *
+     * The three ids are all needed, and `create_assignment()` names every
+     * one that is missing in a single answer instead of the hand-written
+     * message that named none of them. They are deliberately **not**
+     * declared `required`: core checks required params before the
+     * permission callback runs, so that would answer an unauthenticated
+     * caller with a 400 naming the fields instead of the 401 it owes.
+     *
+     * Dates are optional either way: an assignment with no start is
+     * current, and one with no end is still running.
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private static function assignmentArgs(): array {
         return [
             'team_id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the person takes the role on. Required.' ],

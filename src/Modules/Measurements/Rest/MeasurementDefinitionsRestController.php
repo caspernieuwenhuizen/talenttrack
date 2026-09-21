@@ -166,11 +166,6 @@ class MeasurementDefinitionsRestController {
         ] );
     }
 
-    /**
-     * Replace a status test's full level set from an ordered list. The
-     * row position is the ordinal (worse → better), so a recorded status
-     * snapshots a meaningful numeric rank alongside its label.
-     */
     // Body contracts (#3819) -------------------------------------------
 
     /**
@@ -245,6 +240,11 @@ class MeasurementDefinitionsRestController {
         ];
     }
 
+    /**
+     * Replace a status test's full level set from an ordered list. The
+     * row position is the ordinal (worse → better), so a recorded status
+     * snapshots a meaningful numeric rank alongside its label.
+     */
     public static function upsert_levels( \WP_REST_Request $r ): \WP_REST_Response {
         // #3819 — the body's shape before its values.
         $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::levelsArgs() );

@@ -592,9 +592,6 @@ final class TrainingPlansRestController {
         ] );
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     // Body contracts (#3819) -------------------------------------------
 
     /*
@@ -695,6 +692,9 @@ final class TrainingPlansRestController {
         ] ];
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     private static function planPayload( \WP_REST_Request $r, bool $partial = false ): array {
         $keys = [
             'title', 'notes', 'team_id', 'age_group_key', 'season_id', 'theme_key',

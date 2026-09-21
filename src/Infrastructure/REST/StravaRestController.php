@@ -488,11 +488,6 @@ final class StravaRestController {
         return new \WP_REST_Response( $echo, 200 );
     }
 
-    /**
-     * Strava event push. The subscription feed is the auth; we resolve
-     * the athlete to a connection, pin its club, and route the event.
-     * Always answers 200 fast — Strava retries on a non-200.
-     */
     // Body contracts (#3819) -------------------------------------------
 
     /**
@@ -553,6 +548,11 @@ final class StravaRestController {
         ];
     }
 
+    /**
+     * Strava event push. The subscription feed is the auth; we resolve
+     * the athlete to a connection, pin its club, and route the event.
+     * Always answers 200 fast — Strava retries on a non-200.
+     */
     public static function webhookEvent( \WP_REST_Request $r ): \WP_REST_Response {
         // #3819 — no `checkBody()` here on purpose; see webhookEventArgs().
         $payload = $r->get_json_params();

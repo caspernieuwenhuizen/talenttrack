@@ -100,7 +100,8 @@ final class MethodologyFormationsRestSmokeTest extends WP_UnitTestCase {
         // one that was stored.
         $list_pos = rest_do_request( new WP_REST_Request( 'GET', self::BASE . '/' . $id . '/positions' ) );
         $this->assertSame( 200, $list_pos->get_status(), 'position list succeeds' );
-        $positions = $list_pos->get_data()['data']['positions'] ?? [];
+        $list_body = json_decode( (string) wp_json_encode( $list_pos->get_data() ), true );
+        $positions = $list_body['data']['positions'] ?? [];
         $this->assertSame( 9, (int) ( $positions[0]['jersey_number'] ?? 0 ), 'the position keeps the shirt number it was created with' );
 
         // An undeclared key is refused, naming it, rather than dropped.
@@ -109,8 +110,12 @@ final class MethodologyFormationsRestSmokeTest extends WP_UnitTestCase {
         $stray->set_body( wp_json_encode( [ 'slot_number' => 9, 'short_name' => [ 'nl' => 'ST', 'en' => 'ST' ] ] ) );
         $stray_res = rest_do_request( $stray );
         $this->assertSame( 400, $stray_res->get_status(), 'an undeclared position key is refused' );
-        $this->assertSame( 'unknown_field', $stray_res->get_data()['errors'][0]['code'] ?? null );
-        $this->assertSame( [ 'slot_number' ], $stray_res->get_data()['errors'][0]['details']['fields'] ?? null );
+        // Round-tripped through JSON: the envelope carries objects as well
+        // as arrays, and reading it as the wire does keeps the assertion
+        // about the answer rather than about PHP's types.
+        $stray_body = json_decode( (string) wp_json_encode( $stray_res->get_data() ), true );
+        $this->assertSame( 'unknown_field', $stray_body['errors'][0]['code'] ?? null );
+        $this->assertSame( [ 'slot_number' ], $stray_body['errors'][0]['details']['fields'] ?? null );
 
         // UPDATE formation.
         $update = new WP_REST_Request( 'PUT', self::BASE . '/' . $id );

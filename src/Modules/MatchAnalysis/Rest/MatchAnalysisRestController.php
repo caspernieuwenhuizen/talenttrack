@@ -197,15 +197,6 @@ class MatchAnalysisRestController {
     }
 
     /**
-     * #3843 — the body `PUT /activities/{id}/analysis/sections/{key}` takes.
-     *
-     * No `enum` on `rating` on purpose. Core checks an enum before the
-     * callback runs and answers without `details.allowed`, and being told
-     * what a rating may be is the whole point of the refusal here.
-     *
-     * @return array<string,array<string,mixed>>
-     */
-    /**
      * #3819 — the body `PUT /activities/{activity_id}/analysis/players/{player_id}`
      * takes: one player's entry, the same shape a `players` entry on the
      * whole-document PUT carries.
@@ -213,6 +204,12 @@ class MatchAnalysisRestController {
      * The minutes are not declared. They are read from the match, not from
      * the body — what a player was on the pitch for is a fact about the
      * match, not a thing the write-up may assert.
+     *
+     * Both note spellings are declared because `MatchAnalysisWriter::notesOf()`
+     * reads both: `notes` wins, `note` is what a simpler client sends. The
+     * endpoint's promise is that a client which knows less cannot destroy
+     * what it does not understand, and refusing the older spelling here
+     * would break exactly that.
      *
      * @return array<string, array<string, mixed>>
      */
@@ -222,7 +219,8 @@ class MatchAnalysisRestController {
             'player_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
             'marker'        => [ 'type' => 'string', 'description' => 'How the player is marked on the match: the shorthand the coach taps.' ],
             'team_function' => [ 'type' => 'string', 'description' => 'Which team function they were reviewed against.' ],
-            'notes'         => [ 'type' => 'array', 'description' => 'The bullets on this player, each { body, valence }. Replaces every bullet they have.' ],
+            'notes'         => [ 'type' => [ 'array', 'string' ], 'description' => 'The bullets on this player, each { body, valence }. A plain string is read as one unmarked bullet. Replaces every bullet they have.' ],
+            'note'          => [ 'type' => [ 'array', 'string' ], 'description' => 'The same thing, spelled the way a simpler client sends it. Read only when notes is absent.' ],
         ];
     }
 
@@ -240,6 +238,15 @@ class MatchAnalysisRestController {
         ] ];
     }
 
+    /**
+     * #3843 — the body `PUT /activities/{id}/analysis/sections/{key}` takes.
+     *
+     * No `enum` on `rating` on purpose. Core checks an enum before the
+     * callback runs and answers without `details.allowed`, and being told
+     * what a rating may be is the whole point of the refusal here.
+     *
+     * @return array<string,array<string,mixed>>
+     */
     private static function sectionArgs(): array {
         return [
             'rating' => [

@@ -555,13 +555,6 @@ class MatchExecutionRestController {
         return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $next_state, 'clock' => self::clockFor( $r ) ] );
     }
 
-    /**
-     * #3667 — the body of `end-half`. `at: scheduled` ends the half at
-     * exactly its length: the recovery for a half somebody started and
-     * left running.
-     *
-     * @return array<string, array<string, mixed>>
-     */
     /*
      * #3819 — the bodies the live-match routes take.
      *
@@ -725,6 +718,13 @@ class MatchExecutionRestController {
         ];
     }
 
+    /**
+     * #3667 — the body of `end-half`. `at: scheduled` ends the half at
+     * exactly its length: the recovery for a half somebody started and
+     * left running.
+     *
+     * @return array<string, array<string, mixed>>
+     */
     private static function endHalfArgs(): array {
         return self::activityIdArgs() + [
             'half' => [

@@ -142,14 +142,6 @@ class MatchPrepRestController {
     }
 
     /**
-     * #3587 — the fields `PUT match-prep/{activity_id}` accepts. Anything
-     * else in the body is refused with `400 unknown_field` rather than
-     * dropped behind a success. Each block present in the body replaces
-     * that block; an absent one is left alone.
-     *
-     * @return array<string,array<string,mixed>>
-     */
-    /**
      * #3819 — the body `PUT /match-prep/{prep_id}/role` takes.
      *
      * No `enum` on `role_key`: `put_role()` checks it against
@@ -181,6 +173,14 @@ class MatchPrepRestController {
         ] ];
     }
 
+    /**
+     * #3587 — the fields `PUT match-prep/{activity_id}` accepts. Anything
+     * else in the body is refused with `400 unknown_field` rather than
+     * dropped behind a success. Each block present in the body replaces
+     * that block; an absent one is left alone.
+     *
+     * @return array<string,array<string,mixed>>
+     */
     private static function putArgs(): array {
         $args = [
             'formation_template_id' => [

@@ -630,24 +630,6 @@ final class KnowledgeRestController {
     }
 
     /**
-     * Mark a lesson read, and/or persist its interactive-block state.
-     *
-     * PATCH rather than PUT: the body carries whichever of the two the
-     * reader is reporting, not a whole progress record.
-     */
-    /**
-     * #3852 — the two fields `PATCH /courses/{slug}/progress/{lesson}`
-     * writes.
-     *
-     * Declared so the route can say so. Without `args` the route's OPTIONS
-     * response and `describe_route` both answered `"args": {}`, so the only
-     * way to discover the field names was to read the handler. A caller who
-     * guessed `{"completed": true}` — the obvious guess — got `200` with the
-     * unchanged record echoed back, and an hour of study went unrecorded.
-     *
-     * @return array<string,array<string,mixed>>
-     */
-    /**
      * #3819 — the body `POST /courses/{slug}/quiz/{lesson}` takes.
      *
      * The person is never read from the body: an attempt is recorded
@@ -708,6 +690,18 @@ final class KnowledgeRestController {
         ];
     }
 
+    /**
+     * #3852 — the two fields `PATCH /courses/{slug}/progress/{lesson}`
+     * writes.
+     *
+     * Declared so the route can say so. Without `args` the route's OPTIONS
+     * response and `describe_route` both answered `"args": {}`, so the only
+     * way to discover the field names was to read the handler. A caller who
+     * guessed `{"completed": true}` — the obvious guess — got `200` with the
+     * unchanged record echoed back, and an hour of study went unrecorded.
+     *
+     * @return array<string,array<string,mixed>>
+     */
     private static function progressArgs(): array {
         return [
             'read' => [
@@ -721,6 +715,12 @@ final class KnowledgeRestController {
         ];
     }
 
+    /**
+     * Mark a lesson read, and/or persist its interactive-block state.
+     *
+     * PATCH rather than PUT: the body carries whichever of the two the
+     * reader is reporting, not a whole progress record.
+     */
     public static function update_progress( WP_REST_Request $r ) {
         $slug   = (string) $r['slug'];
         $lesson = (string) $r['lesson'];

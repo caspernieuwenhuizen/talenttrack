@@ -464,9 +464,6 @@ final class ExercisesRestController {
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
-    /**
-     * @return array<string,mixed>
-     */
     // Body contracts (#3819) -------------------------------------------
 
     /*
@@ -566,6 +563,9 @@ final class ExercisesRestController {
         ] ];
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     private static function extractPayload( \WP_REST_Request $r ): array {
         $body = $r->get_json_params();
         if ( ! is_array( $body ) ) $body = [];
