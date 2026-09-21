@@ -78,6 +78,7 @@ class GoalsRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_goal' ],
+                'args'                => self::writeArgs(),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
@@ -104,6 +105,7 @@ class GoalsRestController {
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_goal' ],
+                'args'                => self::updateArgs(),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
             [
@@ -569,8 +571,66 @@ class GoalsRestController {
         ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
+    /**
+     * #3817 (slice 3 of #3603) — the body `POST /goals` and
+     * `PUT /goals/{id}` accept.
+     *
+     * The `tt_goals` columns a caller may write, plus the three relations
+     * that live in their own tables: `principle_ids` and `links` in
+     * `tt_goal_links`, `evidence` in the goal-evidence table. A key outside
+     * this list is `400 unknown_field`.
+     *
+     * `created_by`, `club_id` and `progress_pct`-on-create are absent on
+     * purpose: the first two are stamped from the request context, and a
+     * goal that has just been set is at no progress by definition.
+     *
+     * Nothing is declared `required`, because core checks required params
+     * before the permission callback and an unauthenticated POST is owed a
+     * 401 rather than a 400 naming the fields. `create_goal()` names what it
+     * needs itself, behind the capability gate.
+     *
+     * Every field is optional on update: `update_goal()` writes only the
+     * keys the request carries and an omitted one is left alone (CLAUDE.md
+     * §6) — load-bearing, because the edit surface autosaves.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'player_id'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the goal belongs to. Must be in the caller\'s club, and in a team they coach unless they hold tt_edit_settings.' ],
+            'title'               => [ 'type' => 'string', 'description' => 'What the goal is.' ],
+            'description'         => [ 'type' => 'string', 'description' => 'What reaching it looks like.' ],
+            'status'              => [ 'type' => 'string', 'description' => 'A key from the goal_status lookup. A goal a player sets for themselves is forced to pending_approval whatever this says.' ],
+            'priority'            => [ 'type' => 'string', 'description' => 'A key from the goal_priority lookup. Defaults to medium.' ],
+            'due_date'            => [ 'type' => 'string', 'description' => 'Target date as YYYY-MM-DD. Blank means no deadline.' ],
+            'progress_pct'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'How far along, 0-100. Blank clears it and the bar hides. Update only.' ],
+            'linked_principle_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The legacy single-principle pointer. Prefer principle_ids.' ],
+            'linked_action_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'A football action to anchor the goal to. 0 or blank clears it.' ],
+            'principle_ids'       => [ 'type' => 'array', 'description' => 'Methodology principles this goal develops. Replaces the principle links only; an empty list clears them, an absent key leaves them alone.' ],
+            'links'               => [ 'type' => 'array', 'description' => 'The whole polymorphic link set, as {type, id} entries or grouped by type. Replaces every link.' ],
+            'evidence'            => [ 'type' => 'array', 'description' => 'Evaluation ids that evidence this goal.' ],
+        ];
+    }
+
+    /**
+     * #3817 — `PUT /goals/{id}` on top of `writeArgs()`. `id` comes from the
+     * URL; a copy in the body is accepted and ignored.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The goal, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
     public static function create_goal( \WP_REST_Request $r ) {
         global $wpdb;
+
+        // #3817 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
 
         // #0077 M10 — when the goal is created by a tt_player user,
         // force status to 'pending_approval' so it sits in a holding
@@ -604,7 +664,17 @@ class GoalsRestController {
         }
 
         if ( $data['player_id'] <= 0 || $data['title'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Player and title are required.', 'talenttrack' ), 400 );
+            // #3817 — name them. "Player and title are required" left a
+            // caller to guess whether the key was `player` or `player_id`.
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Player and title are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $data['player_id'] <= 0 ? 'player_id' : null,
+                    $data['title'] === ''   ? 'title'     : null,
+                ] ) ) ]
+            );
         }
 
         // v4.20.38 (#1198) — Audit 2 (#1176) flagged the cross-club
@@ -740,6 +810,12 @@ class GoalsRestController {
 
     public static function update_goal( \WP_REST_Request $r ) {
         global $wpdb;
+
+        // #3817 — refuse a key this route does not take before anything is
+        // written. Nothing is required: the update is a patch.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );

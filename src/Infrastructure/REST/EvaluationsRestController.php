@@ -38,11 +38,11 @@ class EvaluationsRestController {
         // have visibility on.
         register_rest_route( self::NS, '/evaluations', [
             [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'list_evals' ],  'permission_callback' => function () { return current_user_can( 'tt_view_evaluations' ); } ],
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'create_eval' ], 'args' => self::writeArgs(), 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)', [
             [ 'methods' => 'GET',    'callback' => [ __CLASS__, 'get_eval' ],    'permission_callback' => function () { return current_user_can( 'tt_view_evaluations' ); } ],
-            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
+            [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'args' => self::updateArgs(), 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
             [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         // #1470 — archive lifecycle: restore + gated permanent delete.
@@ -558,13 +558,85 @@ class EvaluationsRestController {
         return RestResponse::success( (array) $e );
     }
 
+    /**
+     * #3817 (slice 3 of #3603) — the body `POST /evaluations` and
+     * `PUT /evaluations/{id}` accept.
+     *
+     * The header columns a caller may write, plus `ratings`, which is
+     * written to `tt_eval_ratings` rather than to the evaluation row.
+     * `coach_id` is deliberately absent on both verbs: a create stamps the
+     * current user and an edit never re-points an evaluation at whoever
+     * happened to open it.
+     *
+     * `minutes_played` is **not** here and is not an oversight. #2159
+     * retired the column: match minutes live on `tt_attendance`, and the
+     * evaluation write path has not stored them since. It was still a field
+     * on the coach's form, typed in and silently dropped; that field is
+     * gone in this PR rather than the route pretending to take it.
+     *
+     * Nothing is declared `required`, because core checks required params
+     * before the permission callback and an unauthenticated POST is owed a
+     * 401 rather than a 400 naming the fields. `create_eval()` names what it
+     * needs itself, behind the capability gate.
+     *
+     * Every field is optional on update: `patch()` writes only the keys the
+     * request carries, and an omitted one is left alone (#3008, CLAUDE.md
+     * §6) — load-bearing here, because the edit surface autosaves.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'player_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the evaluation is about. A caller without tt_edit_settings may only name a player they coach.' ],
+            'eval_type_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'A key from the evaluation-type lookup. Derived from the activity when one is linked and none is given.' ],
+            'activity_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The training or match it was made at. 0 or null removes the link.' ],
+            'eval_date'       => [ 'type' => 'string', 'description' => 'The date of the evaluation, as YYYY-MM-DD. Defaults to the linked activity\'s date, then to today.' ],
+            'notes'           => [ 'type' => 'string', 'description' => 'Staff-only notes. Never shown to the player or their family.' ],
+            'player_feedback' => [ 'type' => 'string', 'description' => 'Feedback written for the player, shown to them and their parents.' ],
+            'opponent'        => [ 'type' => 'string', 'description' => 'Who the fixture was against, for match evaluations.' ],
+            'competition'     => [ 'type' => 'string', 'description' => 'Which competition the fixture was in.' ],
+            'game_result'     => [ 'type' => 'string', 'description' => 'The score, as free text.' ],
+            'home_away'       => [ 'type' => 'string', 'description' => 'home or away.' ],
+            'ratings'         => [ 'type' => 'object', 'description' => 'Category id to rating. A submitted category is upserted, a submitted blank clears that category, and a category left out is untouched.' ],
+        ];
+    }
+
+    /**
+     * #3817 — `PUT /evaluations/{id}` on top of `writeArgs()`. `id` comes
+     * from the URL; a copy in the body is accepted and ignored.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The evaluation, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
     public static function create_eval( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
+
+        // #3817 — the body's shape before its values, so a misspelled field
+        // is a refusal rather than a 200 over a note nobody stored.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $header = self::extract( $r );
         $header['coach_id'] = get_current_user_id();
 
         if ( $header['player_id'] <= 0 || $header['eval_date'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Player and date are required.', 'talenttrack' ), 400 );
+            // #3817 — name them, rather than leaving a caller to guess the
+            // spellings out of an English sentence.
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Player and date are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => array_values( array_filter( [
+                    $header['player_id'] <= 0  ? 'player_id' : null,
+                    $header['eval_date'] === '' ? 'eval_date' : null,
+                ] ) ) ]
+            );
         }
         if ( ! current_user_can( 'tt_edit_settings' ) ) {
             if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
@@ -632,6 +704,12 @@ class EvaluationsRestController {
 
     public static function update_eval( \WP_REST_Request $r ) {
         global $wpdb; $p = $wpdb->prefix;
+
+        // #3817 — refuse a key this route does not take before anything is
+        // written. Nothing is required: the update is a patch.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r['id'];
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );

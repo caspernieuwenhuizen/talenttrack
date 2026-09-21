@@ -74,6 +74,7 @@ class TeamsRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_team' ],
+                'args'                => self::writeArgs(),
                 'permission_callback' => $can_edit,
             ],
         ] );
@@ -86,6 +87,7 @@ class TeamsRestController {
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_team' ],
+                'args'                => self::updateArgs(),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
                 },
@@ -573,7 +575,47 @@ class TeamsRestController {
         return [ gmdate( 'Y-m-d', $ts !== false ? $ts : time() ), $to ];
     }
 
+    /**
+     * #3817 (slice 3 of #3603) — the body `POST /teams` and
+     * `PUT /teams/{id}` accept.
+     *
+     * Nothing is declared `required`: core checks required params before the
+     * permission callback, so a required field answers an unauthenticated
+     * `POST` with a `400` naming the fields instead of the `401` it owes.
+     * `create_team()` names `name` itself, behind the capability gate, in
+     * the same `missing_fields` envelope. The same reasoning, and the same
+     * choice, as `ActivitiesRestController::writeArgs()`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'name'           => [ 'type' => 'string', 'description' => 'What the team is called. Required on create; on update, sending it blank is refused rather than stored.' ],
+            'age_group'      => [ 'type' => 'string', 'description' => 'The age group, e.g. JO17.' ],
+            'notes'          => [ 'type' => 'string', 'description' => 'Free text about the team.' ],
+            'methodology_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Per-team methodology set override. 0 or blank clears it and the team follows the install default.' ],
+            'football_form'  => [ 'type' => 'string', 'description' => 'How many a side this team plays. An unknown value clears the override rather than being stored.' ],
+        ];
+    }
+
+    /**
+     * #3817 — `PUT /teams/{id}` on top of `writeArgs()`. `id` comes from the
+     * URL; a copy in the body is accepted and ignored.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The team, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
     public static function create_team( \WP_REST_Request $r ) {
+        // #3817 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         // v3.85.5 — REST cap enforcement, mirrors PlayersRestController.
         // wp-admin TeamsPage already enforced; frontend REST path was
         // bypassing the free-tier 1-team cap.
@@ -585,7 +627,14 @@ class TeamsRestController {
         global $wpdb;
         $data = self::extract( $r );
         if ( $data['name'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
+            // #3817 — name the field. The message said which one in prose
+            // and left `details` empty, so a client had to parse English.
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Team name is required.', 'talenttrack' ),
+                400,
+                [ 'fields' => [ 'name' ] ]
+            );
         }
         $data['club_id'] = CurrentClub::id();
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', $data );
@@ -602,12 +651,38 @@ class TeamsRestController {
 
     public static function update_team( \WP_REST_Request $r ) {
         global $wpdb;
+
+        // #3817 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
-        $data = self::extract( $r );
-        if ( $data['name'] === '' ) {
-            return RestResponse::error( 'missing_fields', __( 'Team name is required.', 'talenttrack' ), 400 );
+
+        // #3817 — absent from the payload means leave it alone (CLAUDE.md
+        // §6). This used to write `extract()` whole, which defaults every
+        // missing key to empty: a PUT carrying only a name erased the age
+        // group and the notes. The edit form posts the record whole so it
+        // never showed, but an integration, the planner or a future
+        // per-panel save all send a slice, and none of them may clear what
+        // they leave out. Every `extract()` key is named after its request
+        // param, so keeping the sent keys is the whole rule.
+        $data = array_intersect_key( self::extract( $r ), (array) $r->get_params() );
+
+        // A name is what a team is found by, so a *sent* blank is refused
+        // rather than stored. An absent one is untouched, not missing.
+        if ( array_key_exists( 'name', $data ) && $data['name'] === '' ) {
+            return RestResponse::error(
+                'missing_fields',
+                __( 'Team name is required.', 'talenttrack' ),
+                400,
+                [ 'fields' => [ 'name' ] ]
+            );
         }
+
+        // An empty `$wpdb->update()` is an error rather than a no-op.
+        if ( $data === [] ) return RestResponse::success( [ 'id' => $id ] );
+
         $ok = $wpdb->update( $wpdb->prefix . 'tt_teams', $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;

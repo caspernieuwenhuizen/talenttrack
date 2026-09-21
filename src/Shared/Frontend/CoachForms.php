@@ -241,7 +241,6 @@ class CoachForms {
             $cur_competition = $is_edit ? (string) ( $existing_eval->competition ?? '' ) : '';
             $cur_result      = $is_edit ? (string) ( $existing_eval->game_result ?? '' ) : '';
             $cur_home_away   = $is_edit ? (string) ( $existing_eval->home_away ?? '' ) : '';
-            $cur_minutes     = $is_edit ? (string) ( $existing_eval->minutes_played ?? '' ) : '';
             $cur_notes       = $is_edit ? (string) ( $existing_eval->notes ?? '' ) : '';
             // #1386 — player-facing feedback, distinct from staff-only notes.
             $cur_feedback    = $is_edit ? (string) ( $existing_eval->player_feedback ?? '' ) : '';
@@ -267,7 +266,15 @@ class CoachForms {
                 </div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" value="<?php echo esc_attr( $cur_result ); ?>" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home" <?php selected( $cur_home_away, 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $cur_home_away, 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" inputmode="numeric" name="minutes_played" min="0" max="120" value="<?php echo esc_attr( $cur_minutes ); ?>" /></div>
+                <?php
+                // #3817 — "Minutes played" used to be a field here. It has
+                // stored nothing since #2159 moved match minutes to
+                // `tt_attendance`: the evaluation write path stopped reading
+                // the key and the input went on collecting a number that was
+                // dropped on save. Recorded minutes are entered on the
+                // activity's attendance screen, which is the one place the
+                // minutes reports read.
+                ?>
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
             <?php
