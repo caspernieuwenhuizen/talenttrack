@@ -43,12 +43,108 @@ final class TrainingRunsRestController {
      *
      * The feature key is a literal, not a constant, so
      * `FeatureMapGateCoverageTest` can find it.
+     *
+     * #3819 — the wrapper also runs the body check, the same way
+     * `TrainingPlansRestController` does. `$args` empty means a read
+     * route, which has no body to check.
+     *
+     * @param array<string, array<string, mixed>> $args
      */
-    private static function gate( callable $callback ): \Closure {
-        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+    private static function gate( callable $callback, array $args = [] ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback, $args ) {
             $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'training', $r );
-            return $blocked ?? $callback( $r );
+            if ( $blocked ) return $blocked;
+
+            if ( $args !== [] ) {
+                $refused = BaseController::checkBody( $r, $args );
+                if ( $refused !== null ) return $refused;
+            }
+
+            return $callback( $r );
         };
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer an unauthorised write
+     * with a 400 rather than the 403 it is owed. Each handler names what
+     * it needs — and names it well: `attach` says both a plan and an
+     * activity, `create_observation` says an observation is about a player.
+     */
+
+    /**
+     * `POST /training/runs` — attach a plan to an activity. Re-attaching
+     * is idempotent and answers 200 rather than 201.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function attachArgs(): array {
+        return [
+            'plan_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The plan being run.' ],
+            'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity it is run at.' ],
+            'team_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team running it. Omitted takes the activity\'s.' ],
+            'run_date'    => [ 'type' => 'string', 'description' => 'The day the run belongs to. Omitted takes the activity\'s own date, which is where a run belongs — not the day the planning was done (#3766).' ],
+        ];
+    }
+
+    /**
+     * `PATCH /training/runs/{id}` — the run's status, and only that.
+     *
+     * No `enum`: `update_run()` answers `invalid_status` with the allowed
+     * set in `details.allowed`, which is a better answer than core's.
+     * Setting it to completed rebuilds the players' exposure, which is why
+     * it is the one field here.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function runUpdateArgs(): array {
+        return [
+            'id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The run, from the URL. A copy in the body is accepted and ignored.' ],
+            'status' => [ 'type' => 'string', 'description' => 'Where the run stands. Setting it to completed recomputes the minutes of everybody who was there.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /training/runs/{id}/blocks/{block}` — how one block actually
+     * went. Every field is optional and an omitted one is left alone
+     * (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blockArgs(): array {
+        return [
+            'id'                      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The run, from the URL. A copy in the body is accepted and ignored.' ],
+            'block'                   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The block, from the URL. A copy in the body is accepted and ignored.' ],
+            'actual_duration_minutes' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the block actually ran.' ],
+            'was_skipped'             => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether it was dropped on the day.' ],
+            'notes'                   => [ 'type' => 'string', 'description' => 'How it went.' ],
+        ];
+    }
+
+    /**
+     * `POST /training/runs/{id}/observations` — what a coach saw one
+     * player do.
+     *
+     * `client_uuid` is what makes a replay from the offline queue land as
+     * the same observation rather than a second one (#2552), so it is part
+     * of the contract rather than an implementation detail.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function observationArgs(): array {
+        return [
+            'id'                 => [ 'type' => [ 'integer', 'string' ], 'description' => 'The run, from the URL. A copy in the body is accepted and ignored.' ],
+            'player_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who was observed. They must be marked present at this training.' ],
+            'run_block_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which block it happened in.' ],
+            'principle_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The methodology principle it speaks to.' ],
+            'football_action_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The football action it was about.' ],
+            'rating'             => [ 'type' => [ 'integer', 'number', 'string' ], 'description' => 'A mark within the club\'s configured scale. One outside it is refused rather than rounded.' ],
+            'note'               => [ 'type' => 'string', 'description' => 'What the coach saw. An observation needs this, a rating, or both.' ],
+            'client_uuid'        => [ 'type' => 'string', 'description' => 'The client\'s own id for this save, stamped once when the coach taps save. A replay carrying the same one returns the row that already exists rather than writing a second.' ],
+        ];
     }
 
     public static function init(): void {
@@ -67,8 +163,9 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'attach' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'attach' ], self::attachArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::attachArgs(),
             ],
         ] );
 
@@ -80,8 +177,9 @@ final class TrainingRunsRestController {
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'update_run' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'update_run' ], self::runUpdateArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::runUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -93,8 +191,9 @@ final class TrainingRunsRestController {
         register_rest_route( self::NS, '/training/runs/(?P<id>\d+)/blocks/(?P<block>\d+)', [
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'update_block' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'update_block' ], self::blockArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::blockArgs(),
             ],
         ] );
 
@@ -109,8 +208,9 @@ final class TrainingRunsRestController {
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'create_observation' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'create_observation' ], self::observationArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::observationArgs(),
             ],
         ] );
 
