@@ -1,0 +1,3 @@
+# The status verdict and the potential band are staff-only (#3978)
+
+Players and parents no longer see the player-status traffic light or the potential band, not even for their own record. Both are the academy's own judgement of a child, and they belong in the conversation with the family, not on the family's screen. The default authorization matrix no longer grants player status to the parent or player persona, and the update removes those default grants from existing installs. An academy that deliberately granted families access in the Authorization matrix keeps its own setting. Staff see both exactly as before.
