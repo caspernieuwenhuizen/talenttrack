@@ -636,6 +636,13 @@ final class FilterBar {
 		// list opened with a saved-views band, then a filter bar, then rows.
 		$saved_views_html = self::savedViewsHtml( $args, $groups, $hidden );
 
+		// #3990 — keep knowing which saved view the reader opened when they
+		// change a filter, so the menu can offer to update it. Added after the
+		// saved views are built: their apply links carry their own id.
+		if ( isset( $args['saved_views']['key'] ) ) {
+			$hidden = $hidden + SavedViews::openedField();
+		}
+
 		$out = '<div class="tt-filterbar" data-tt-filterbar>';
 		if ( $with_form ) {
 			$out .= '<form method="get" class="tt-filterbar__form" ' . self::FORM_MARKER

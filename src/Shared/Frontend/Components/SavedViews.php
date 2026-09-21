@@ -42,6 +42,12 @@ use TT\Shared\Icons\IconRenderer;
  */
 final class SavedViews {
 
+    /**
+     * #3990 — the query parameter naming the saved view the reader opened.
+     * Forms that rebuild the URL carry it as a hidden field (`openedField()`).
+     */
+    public const OPENED_PARAM = 'sv';
+
     /** @var bool Assets are shared across every bar on a request. */
     private static bool $assets_enqueued = false;
 
@@ -95,6 +101,28 @@ final class SavedViews {
         $active  = self::matchingViewId( $views, $current );
         $has_filters = $current !== [];
 
+        // #3990 — the view the reader opened, from the `sv` its apply link
+        // carries. Only one of this reader's views on this surface counts:
+        // `$views` is already scoped to both, so an id belonging to someone
+        // else, or to a deleted view, finds nothing and is ignored. When the
+        // filters no longer match it, the menu offers to update it.
+        //
+        // The action is rendered whenever a view was opened, and hidden while
+        // there is nothing to update: the filters still match it, or none is
+        // set (Clear leaves the view). A list that filters in place changes
+        // the URL without a reload, so `saved-views.js` re-checks against the
+        // stored filters each time the menu opens.
+        $opened = self::openedView( $views );
+        $update = null;
+        if ( $opened !== null ) {
+            $update = [
+                'id'      => (int) ( $opened->id ?? 0 ),
+                'name'    => (string) ( $opened->name ?? '' ),
+                'filters' => self::normalisedFilters( (string) ( $opened->filters_json ?? '' ) ) ?? [],
+                'pending' => $has_filters && (int) ( $opened->id ?? 0 ) !== $active,
+            ];
+        }
+
         // The icon earns its place only when there is something for it to do:
         // filters worth saving, or views worth managing. On an untouched list
         // for a user who has never saved one it is not rendered at all.
@@ -120,7 +148,13 @@ final class SavedViews {
         $out .= self::chipsHtml( $prepared );
 
         if ( $show_icon ) {
-            $out .= self::dropdownHtml( $prepared, $active, $view_key, count( $prepared ) );
+            $out .= self::dropdownHtml(
+                $prepared,
+                $active,
+                $view_key,
+                count( $prepared ),
+                $update
+            );
         }
 
         $out .= '</div>';
@@ -147,12 +181,16 @@ final class SavedViews {
             $filters = is_array( $filters ) ? $filters : [];
             $id      = (int) $view->id;
 
+            // #3990 — `sv` says which view was opened, so a reader who changes
+            // a filter afterwards can update this view rather than only save a
+            // new one. It is not one of the surface's filters, so it never
+            // takes part in matching.
             $out[] = [
                 'id'         => $id,
                 'name'       => (string) $view->name,
                 'is_default' => ! empty( $view->is_default ),
                 'is_active'  => $id === $active_id,
-                'apply'      => add_query_arg( array_map( 'strval', $filters + $base_params ), $base_url ),
+                'apply'      => add_query_arg( array_map( 'strval', [ self::OPENED_PARAM => (string) $id ] + $filters + $base_params ), $base_url ),
             ];
         }
         return $out;
@@ -203,12 +241,14 @@ final class SavedViews {
      * keyboard-operable and the apply links work with JS off.
      *
      * @param list<array{id:int, name:string, is_default:bool, is_active:bool, apply:string}> $views
+     * @param array{id:int, name:string, filters:array<string,string>, pending:bool}|null   $update #3990 the opened view; `pending` when the filters no longer match it
      */
     private static function dropdownHtml(
         array $views,
         int $active_id,
         string $view_key,
-        int $total
+        int $total,
+        ?array $update = null
     ): string {
         $over_desktop = max( 0, $total - self::CHIP_CAP_DESKTOP );
         $over_mobile  = max( 0, $total - self::CHIP_CAP_MOBILE );
@@ -268,16 +308,32 @@ final class SavedViews {
         }
 
         // 2 — actions. The manage button reuses saved-views.js's existing
-        // `data-tt-view-manage` hook and its <dialog>; rename / overwrite /
-        // set-default / delete all live behind it.
+        // `data-tt-view-manage` hook and its <dialog>; rename, set-default and
+        // delete live behind it. Replacing the filters is the Update action
+        // above (#3990), so the dialog no longer carries it.
         $out .= '<p class="tt-savedviews__heading">'
             . esc_html_x( 'Actions', 'saved views menu section', 'talenttrack' ) . '</p>';
+
+        // #3990 — first, because it is what a reader who opened a view and
+        // changed a filter came here for. Writes the filters only.
+        if ( $update !== null ) {
+            $out .= '<button type="button" class="tt-perdrop__opt tt-savedviews__update"'
+                . ' data-tt-view-update="' . (int) $update['id'] . '"'
+                . ' data-tt-view-filters="' . esc_attr( (string) wp_json_encode( (object) $update['filters'] ) ) . '"'
+                . ( $update['pending'] ? '' : ' hidden' ) . '>'
+                . esc_html( sprintf(
+                    /* translators: %s: the name of the reader's saved view */
+                    __( 'Update “%s”', 'talenttrack' ),
+                    $update['name']
+                ) )
+                . '</button>';
+        }
 
         if ( $active_id > 0 ) {
             $out .= '<button type="button" class="tt-perdrop__opt tt-savedviews__manage"'
                 . ' data-tt-view-manage="' . $active_id . '"'
                 . ' aria-haspopup="dialog">'
-                . esc_html__( 'Rename, replace or delete this view', 'talenttrack' )
+                . esc_html__( 'Rename, set as default or delete this view', 'talenttrack' )
                 . '</button>';
         }
 
@@ -386,23 +442,71 @@ final class SavedViews {
         if ( $current === [] ) return 0;
 
         foreach ( $views as $view ) {
-            $stored = json_decode( (string) ( $view->filters_json ?? '' ), true );
-            if ( ! is_array( $stored ) ) continue;
-
-            $normalised = [];
-            foreach ( $stored as $k => $v ) {
-                $k = (string) $k;
-                $v = is_scalar( $v ) ? (string) $v : '';
-                if ( $v === '' ) continue;
-                if ( $k === \TT\Infrastructure\Filters\SavedViewsDefaults::OFF_PARAM ) continue;
-                $normalised[ $k ] = $v;
-            }
-            ksort( $normalised );
+            $normalised = self::normalisedFilters( (string) ( $view->filters_json ?? '' ) );
+            if ( $normalised === null ) continue;
 
             if ( $normalised === $current ) return (int) $view->id;
         }
 
         return 0;
+    }
+
+    /**
+     * A view's stored filters in the shape `currentFilters()` produces, so
+     * the two compare: scalar values as strings, empties and the no-default
+     * marker dropped, keys sorted. Null when the JSON is not a filter set.
+     *
+     * @return array<string,string>|null
+     */
+    private static function normalisedFilters( string $json ): ?array {
+        $stored = json_decode( $json, true );
+        if ( ! is_array( $stored ) ) return null;
+
+        $normalised = [];
+        foreach ( $stored as $k => $v ) {
+            $k = (string) $k;
+            $v = is_scalar( $v ) ? (string) $v : '';
+            if ( $v === '' ) continue;
+            if ( $k === \TT\Infrastructure\Filters\SavedViewsDefaults::OFF_PARAM ) continue;
+            $normalised[ $k ] = $v;
+        }
+        ksort( $normalised );
+        return $normalised;
+    }
+
+    /**
+     * #3990 — the view named by `sv`, among this reader's views on this
+     * surface, or null. Anything else — another reader's id, a deleted view,
+     * junk — is ignored.
+     *
+     * @param array<int,object> $views
+     */
+    private static function openedView( array $views ): ?object {
+        $id = isset( $_GET[ self::OPENED_PARAM ] ) && is_scalar( $_GET[ self::OPENED_PARAM ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            ? absint( $_GET[ self::OPENED_PARAM ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            : 0;
+        if ( $id <= 0 ) return null;
+
+        foreach ( $views as $view ) {
+            if ( (int) ( $view->id ?? 0 ) === $id ) return $view;
+        }
+        return null;
+    }
+
+    /**
+     * #3990 — the opened view's id as a hidden field, for a form that rebuilds
+     * the URL (the filter bar, the report composition panels), so changing a
+     * filter keeps knowing which view it started from. Empty when there is
+     * none. Unvalidated beyond being a positive integer: `openedView()` checks
+     * ownership when it is read.
+     *
+     * @return array<string,string>
+     */
+    public static function openedField(): array {
+        $id = isset( $_GET[ self::OPENED_PARAM ] ) && is_scalar( $_GET[ self::OPENED_PARAM ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            ? absint( $_GET[ self::OPENED_PARAM ] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            : 0;
+        return $id > 0 ? [ self::OPENED_PARAM => (string) $id ] : [];
     }
 
     /**
@@ -469,7 +573,10 @@ final class SavedViews {
                 // a screen reader).
                 'manage_title'      => __( 'Edit saved view', 'talenttrack' ),
                 'name_label'        => __( 'Name', 'talenttrack' ),
-                'overwrite_label'   => __( 'Also replace its filters with the ones set now', 'talenttrack' ),
+                // #3990 — saving under a name already taken offers to update
+                // that view instead of refusing.
+                'replace_confirm'   => __( 'A view called “%s” exists. Replace it with these filters?', 'talenttrack' ),
+                'replace'           => __( 'Replace', 'talenttrack' ),
                 // #2450 — default view.
                 'default_label'     => __( 'Open this view by default on this screen', 'talenttrack' ),
                 'default_hint'      => __( 'Applied when you open the screen without filters of your own. Use Clear to see everything.', 'talenttrack' ),
