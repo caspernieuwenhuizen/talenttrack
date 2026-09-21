@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerReportComposition;
+use TT\Modules\Analytics\Reports\PlayerReportLayout;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\EvidencePanel;
@@ -43,6 +44,7 @@ final class PlayerReportPage {
 
         $player_id = (int) ( $player->id ?? 0 );
         $blocks    = self::requestedBlocks();
+        $layout    = self::requestedLayout();
 
         $report = ( new PlayerReport() )->forPlayer( $player_id, $window['from'], $window['to'], $blocks, get_current_user_id() );
         if ( $report === null ) {
@@ -50,7 +52,7 @@ final class PlayerReportPage {
             return;
         }
 
-        self::renderPanel( $player_id, $window, $report['blocks'] );
+        self::renderPanel( $player_id, $window, $layout, $report['blocks'], PlayerReportLayout::fit( $report, $layout ) );
 
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         self::renderBlocks( $report, $window );
@@ -116,16 +118,24 @@ final class PlayerReportPage {
         return PlayerReportComposition::normalise( [ 'blocks' => $keys ] )['blocks'];
     }
 
+    private static function requestedLayout(): string {
+        $raw = isset( $_GET['layout'] ) ? sanitize_key( wp_unslash( (string) $_GET['layout'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        return PlayerReportComposition::normalise( [ 'layout' => $raw ] )['layout'];
+    }
+
     /**
      * The composition parameters the period bar carries, so changing the
-     * window keeps the sections and a saved view captures them. Only what is
-     * on the URL: an absent section list is the default, and saving it as
-     * absent keeps it following the default.
+     * window keeps the layout and sections, and a saved view captures them.
+     * Only what is on the URL: an absent value is the default, and saving it
+     * as absent keeps it following the default.
      *
      * @return array<string,string>
      */
     public static function barParams(): array {
         $params = [];
+        if ( isset( $_GET['layout'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            $params['layout'] = self::requestedLayout();
+        }
         if ( isset( $_GET['blocks'] ) || isset( $_GET['blk'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
             $params['blocks'] = implode( ',', self::requestedBlocks() );
         }
@@ -148,10 +158,11 @@ final class PlayerReportPage {
      * ------------------------------------------------------------- */
 
     /**
-     * @param array{from:string,to:string,period:string} $window
-     * @param list<string>                               $selected
+     * @param array{from:string,to:string,period:string}                                          $window
+     * @param list<string>                                                                        $selected
+     * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
      */
-    private static function renderPanel( int $player_id, array $window, array $selected ): void {
+    private static function renderPanel( int $player_id, array $window, string $layout, array $selected, array $fit ): void {
         $hidden = [
             'tt_view'   => 'standard-report', /* tt-xview-ok */ // the form re-opens this same view
             'slug'      => self::SLUG,
@@ -190,6 +201,23 @@ final class PlayerReportPage {
             echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
         }
 
+        // Report type — radios styled as cards, as on the team report: native
+        // keyboard behaviour, no ARIA re-implementation.
+        echo '<fieldset class="tt-mr-panel__group">';
+        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Printed copy', 'player report panel', 'talenttrack' ) . '</legend>';
+        echo '<div class="tt-mr-types">';
+        foreach ( PlayerReportLayout::labels() as $key => $label ) {
+            $id = 'tt-pr-layout-' . strtolower( $key );
+            echo '<label class="tt-mr-type" for="' . esc_attr( $id ) . '">';
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="layout" value="' . esc_attr( $key ) . '"' . checked( $layout, $key, false ) . '>';
+            echo '<span class="tt-mr-type__t">' . esc_html( $label['title'] ) . '</span>';
+            echo '<span class="tt-mr-type__d">' . esc_html( $label['desc'] ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The layout shapes the printed copy. On screen, every selected section is shown in full.', 'talenttrack' ) . '</p>';
+        echo '</fieldset>';
+
         echo '<fieldset class="tt-mr-panel__group">';
         echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Sections', 'player report panel', 'talenttrack' ) . '</legend>';
         echo '<div class="tt-mr-blocks">';
@@ -215,10 +243,78 @@ final class PlayerReportPage {
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them.', 'talenttrack' ) . '</p>';
         echo '</fieldset>';
 
+        self::renderFitMeter( $fit );
+
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $player_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
         echo '</div>';
         echo '</form>';
+    }
+
+    /**
+     * The composition as it stands, printed: the same player, window, layout
+     * and sections, handed to the `player_report_pdf` exporter. The page
+     * reloads on every panel change, so the link is never stale.
+     *
+     * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $selected
+     */
+    public static function pdfUrl( int $player_id, array $window, string $layout, array $selected ): string {
+        $args = [
+            'format'    => 'pdf',
+            'player_id' => $player_id,
+            'layout'    => $layout,
+            'blocks'    => implode( ',', $selected ),
+            'from'      => $window['from'],
+            'to'        => $window['to'],
+            '_wpnonce'  => wp_create_nonce( 'wp_rest' ),
+        ];
+        return add_query_arg( $args, rest_url( 'talenttrack/v1/exports/player_report_pdf' ) );
+    }
+
+    /**
+     * How the printed copy will come out: pages, how full each is, and what
+     * the one-pager shortened to fit — the same estimate the PDF applies.
+     *
+     * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
+     */
+    private static function renderFitMeter( array $fit ): void {
+        echo '<div class="tt-mr-fit" role="status" aria-live="polite">';
+        echo '<p class="tt-mr-panel__legend">' . esc_html_x( 'Printed size', 'team monthly report panel', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-mr-fit__pages">' . esc_html( sprintf(
+            /* translators: %d: number of printed pages */
+            _n( '%d page', '%d pages', $fit['pages'], 'talenttrack' ),
+            $fit['pages']
+        ) ) . '</p>';
+
+        echo '<ul class="tt-mr-fit__bars">';
+        foreach ( $fit['fill'] as $i => $fill ) {
+            $width = max( 0, min( 100, $fill ) );
+            $state = $fill > 100 ? 'over' : ( $fill > 90 ? 'tight' : 'ok' );
+            echo '<li class="tt-mr-fit__bar is-' . esc_attr( $state ) . '">';
+            echo '<span class="tt-mr-fit__label">' . esc_html( sprintf(
+                /* translators: 1: page number, 2: how full the page is, as a percentage */
+                __( 'Page %1$d · %2$d%%', 'talenttrack' ),
+                $i + 1,
+                $fill
+            ) ) . '</span>';
+            echo '<span class="tt-mr-fit__track"><i style="width:' . (int) $width . '%;"></i></span>'; /* tt-inline-ok */
+            echo '</li>';
+        }
+        echo '</ul>';
+
+        if ( ! $fit['fits'] ) {
+            $msg = $fit['max_pages'] === 1
+                ? __( 'Does not fit on one page, even with long lists shortened. Drop a section, or switch to the two-page pack.', 'talenttrack' )
+                : __( 'Runs past two pages. Drop a section or pick a shorter period.', 'talenttrack' );
+            echo '<p class="tt-mr-fit__msg is-over">' . esc_html( $msg ) . '</p>';
+        } elseif ( $fit['degraded'] !== [] ) {
+            echo '<p class="tt-mr-fit__msg is-tight">' . esc_html__( 'Fits by shortening: long lists keep their most recent entries and say how many more there are, the development plan becomes one line, and the notes area keeps three lines.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<p class="tt-mr-fit__msg is-ok">' . esc_html__( 'Everything fits.', 'talenttrack' ) . '</p>';
+        }
+        echo '</div>';
     }
 
     /**
