@@ -819,6 +819,18 @@ naming the keys in `details.blocks`. `notes` is a blank area to write in
 (`{ "lines": 6 }`); the player's staff notes are `thread_notes`.
 `talking_points` is `{ "items": [] }` until #3875 fills it.
 
+**Playing time share (#3991).** `data.minutes` carries `share`: the player's
+minutes over the minutes the team had available (`MinutesQuery::forTeam()` on
+the player's current team), as a whole percentage, or `null` when the team
+recorded no match minutes in the window. For staff it also carries `comparison`:
+`{ "team": 48, "position": { "positions": ["CB","RB"], "count": 4, "share": 55 } | null, "player_positions": ["CB","RB"] }`.
+`team` is the mean share of the current squad, the player included;
+`position` the mean share of squad players sharing a profile position with the
+player, the player excluded, `null` when the player has no profile position or
+nobody shares one. **An external audience (family, scout) never receives
+`comparison`**: the audience layer removes it from the payload, so neither this
+route nor a shared snapshot carries it.
+
 **Options.** `options` is JSON, keyed by block, for blocks that can be told more
 than whether to appear. Today that is `ratings`:
 `options={"ratings":{"detail":"sub"}}` adds each rated subcategory to its main

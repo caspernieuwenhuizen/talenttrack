@@ -41,7 +41,10 @@ Het opent op de onderdelen die een één-op-één-gesprek nodig heeft:
 - **Evaluaties** — de laatste en gemiddelde beoordeling, per categorie, en wat
   er bij elke evaluatie is geschreven.
 - **Aanwezigheid** — activiteiten, aanwezig, afwezig en afgemeld.
-- **Speeltijd** — gespeelde wedstrijden en minuten.
+- **Speeltijd** — gespeelde wedstrijden en minuten, en het aandeel van de
+  speler in de minuten die het team speelde. Voor staf staat erbij wat
+  gemiddeld het aandeel is van teamgenoten op dezelfde positie en van het hele
+  team, en of de speler daarboven of daaronder zit.
 - **Doelen** — de doelen van de speler, en of elk doel in de periode is
   veranderd.
 - **Ontwikkelplan** — de gesprekken uit het ontwikkelplan van de speler, en wat
@@ -77,6 +80,23 @@ score. Een opgeslagen weergave, een momentopname, een gedeelde link en een
 maandelijkse planning bewaren de keuze. Is er in de periode niets op
 subcategorie beoordeeld, dan wordt de keuze niet aangeboden en toont het rapport
 de hoofdcategorieën.
+
+Bij **Speeltijd** is het aandeel de minuten van de speler gedeeld door de
+minuten die het team in de periode beschikbaar had: de lengte van elke wedstrijd
+waarvoor het team minuten heeft vastgelegd. Het is hetzelfde getal als in het
+minutenrapport van het team over dezelfde periode. Daarna volgen twee
+vergelijkingen, alleen voor staf:
+
+- **Zelfde positie** — het gemiddelde aandeel van de teamgenoten met minstens
+  één van de profielposities van de speler, de speler zelf niet meegeteld. De
+  regel noemt die posities en hoeveel teamgenoten in de groep zitten. Een speler
+  zonder profielpositie, of met posities die niemand anders in het team speelt,
+  krijgt geen positieregel.
+- **Teamgemiddelde** — het gemiddelde aandeel van iedereen in de huidige
+  selectie, de speler meegeteld. Een selectiespeler die niet speelde telt als 0%.
+
+Heeft het team in de periode geen wedstrijdminuten vastgelegd, dan staan er geen
+percentages.
 
 Een speler die nog geen ontwikkelplan heeft, krijgt toch een volledig rapport.
 Het onderdeel ontwikkelplan zegt dan dat er nog geen dossier is, in plaats van
@@ -198,7 +218,10 @@ het rapport zijn aangevinkt. Is er geen van aangevinkt, dan worden ze allemaal
 gedeeld:
 
 - aanwezigheid;
-- speeltijd;
+- speeltijd, met het eigen aandeel van de speler in de minuten, **zonder** de
+  vergelijking met de positiegroep en het team. In een kleine groep is een
+  gemiddelde de speeltijd van een ander kind: met twee keepers is "het gemiddelde
+  van de andere keepers" precies de speeltijd van de andere keeper;
 - doelen;
 - evaluatiescores, per categorie en in totaal, **zonder** je geschreven
   toelichting;
@@ -258,7 +281,8 @@ een onderdeel dat is weggelaten.
 
 Een scout ziet een kortere versie van het rapport over de spelers die aan hem of
 haar zijn toegewezen: de kop, evaluatiescores, aanwezigheid, speeltijd en testen.
-De scores komen zonder de geschreven toelichting van de trainer, en van de testen
+De scores komen zonder de geschreven toelichting van de trainer, de speeltijd
+zonder de vergelijking met teamgenoten, en van de testen
 staan alleen de testen die de academie openbaar deelt. De scout kan geen andere
 onderdelen kiezen; het rapport bepaalt dat.
 

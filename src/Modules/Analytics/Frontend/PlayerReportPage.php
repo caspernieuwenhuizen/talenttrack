@@ -795,8 +795,40 @@ final class PlayerReportPage {
         echo '<dl class="tt-evidence__stats">';
         self::stat( __( 'Matches played', 'talenttrack' ), (string) (int) ( $m['apps'] ?? 0 ) );
         self::stat( __( 'Minutes played', 'talenttrack' ), number_format_i18n( (int) ( $m['minutes'] ?? 0 ) ) );
+        // #3991 — the share of the minutes available, for every audience.
+        $share = $m['share'] ?? null;
+        if ( is_int( $share ) ) {
+            self::stat( __( 'Share of minutes', 'talenttrack' ), PlayerReport::percent( $share ) );
+        }
         echo '</dl>';
+
+        // The comparison with teammates is staff-only; an external payload
+        // arrives without it (PlayerReportAudience).
+        $cmp = is_array( $m['comparison'] ?? null ) ? $m['comparison'] : null;
+        if ( is_int( $share ) && $cmp !== null ) {
+            echo '<dl class="tt-evidence__stats tt-pr-minutes-cmp">';
+            $position = is_array( $cmp['position'] ?? null ) ? $cmp['position'] : null;
+            if ( $position !== null ) {
+                self::comparisonStat( PlayerReport::positionGroupLabel( $position ), (int) ( $position['share'] ?? 0 ), $share );
+            }
+            self::comparisonStat( __( 'Team average', 'talenttrack' ), (int) ( $cmp['team'] ?? 0 ), $share );
+            echo '</dl>';
+            if ( $position === null && ( $cmp['player_positions'] ?? [] ) === [] ) {
+                echo '<p class="tt-mr-muted">' . esc_html__( 'No profile position to compare with.', 'talenttrack' ) . '</p>';
+            }
+        }
         self::sectionClose();
+    }
+
+    /**
+     * #3991 — a comparison figure, with where the player sits against it in
+     * words: a colour or an arrow alone is not an answer.
+     */
+    private static function comparisonStat( string $label, int $value, int $player_share ): void {
+        echo '<div class="tt-evidence__stat"><dt>' . esc_html( $label ) . '</dt><dd>'
+            . esc_html( PlayerReport::percent( $value ) )
+            . ' <span class="tt-pr-minutes-cmp__rel">' . esc_html( PlayerReport::relativeShare( $player_share, $value ) ) . '</span>'
+            . '</dd></div>';
     }
 
     /** @param array<string,mixed> $g */

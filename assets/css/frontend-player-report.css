@@ -137,6 +137,17 @@ button.tt-pr-order__move {
 	color: var(--tt-muted);
 }
 
+/*
+ * Playing time against the position group and the team (#3991): where the
+ * player sits, in words, under each comparison figure.
+ */
+.tt-pr-minutes-cmp__rel {
+	display: block;
+	font-size: var(--tt-fs-sm);
+	font-weight: 400;
+	color: var(--tt-muted);
+}
+
 /* The handle only where a pointer can drag it. */
 @media (hover: hover) and (pointer: fine) {
 	.tt-pr-order__handle {

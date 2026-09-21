@@ -274,7 +274,11 @@ final class PlayerReportLayout {
                 return $base + ( (int) ( $d['activities'] ?? 0 ) === 0 ? $line : self::MM['stats'] );
 
             case PlayerReportBlock::MINUTES:
-                return $base + ( (int) ( $d['apps'] ?? 0 ) === 0 && (int) ( $d['minutes'] ?? 0 ) === 0 ? $line : self::MM['stats'] );
+                if ( (int) ( $d['apps'] ?? 0 ) === 0 && (int) ( $d['minutes'] ?? 0 ) === 0 ) return $base + $line;
+                // #3991 — the comparison prints a line each under the figures,
+                // which keep their bottom margin then.
+                $cmp = count( PlayerReport::minutesComparisonLines( $d ) );
+                return $base + self::MM['stats'] + ( $cmp > 0 ? self::MM['stats_gap'] + $cmp * $line : 0.0 );
 
             case PlayerReportBlock::PDP:
                 if ( empty( $d['available'] ) || ! is_array( $d['file'] ?? null ) ) return $base + $line;

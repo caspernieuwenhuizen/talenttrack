@@ -135,8 +135,11 @@ final class PlayerReportAudience {
 
     /**
      * Strip from a composed payload what this audience may not receive. For an
-     * external audience: any block outside its allowlist, and the coach's
-     * written notes on each evaluation.
+     * external audience: any block outside its allowlist, the coach's written
+     * notes on each evaluation, and the playing-time comparison with teammates
+     * (#3991). The player's own share of the minutes stays; the position
+     * group's and the team's averages go, because in a small group an average
+     * is another child's minutes — with two goalkeepers, exactly them.
      *
      * @param array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>} $report
      * @return array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>}
@@ -155,6 +158,9 @@ final class PlayerReportAudience {
                     $report['data'][ PlayerReportBlock::RATINGS ]['evaluations'][ $i ] = $evaluation;
                 }
             }
+        }
+        if ( isset( $report['data'][ PlayerReportBlock::MINUTES ] ) ) {
+            unset( $report['data'][ PlayerReportBlock::MINUTES ]['comparison'] );
         }
         return $report;
     }
