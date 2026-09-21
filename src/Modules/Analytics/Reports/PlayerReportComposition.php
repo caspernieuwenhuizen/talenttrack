@@ -19,12 +19,16 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * carried as an empty period so a saved view keeps meaning "this season so
  * far" next month.
  *
- * @phpstan-type Composition array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}
+ * #3989 adds `options`: a map of block key => option bag, for blocks that can
+ * be told more than whether to appear, as on the team report (#3514). Which
+ * block owns which options is `PlayerReportBlockOptions`.
+ *
+ * @phpstan-type Composition array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}
  */
 final class PlayerReportComposition {
 
     /** The URL / saved-view parameters a composition is carried in. */
-    public const PARAMS = [ 'player_id', 'period', 'from', 'to', 'layout', 'blocks' ];
+    public const PARAMS = [ 'player_id', 'period', 'from', 'to', 'layout', 'blocks', 'options' ];
 
     /** Season start through today. */
     public const DEFAULT_PERIOD = '';
@@ -55,14 +59,97 @@ final class PlayerReportComposition {
             $layout = PlayerReportLayout::DEFAULT;
         }
 
+        $blocks = self::blocks( $raw['blocks'] ?? [] );
+
         return [
             'player_id' => is_numeric( $raw['player_id'] ?? null ) ? max( 0, (int) $raw['player_id'] ) : 0,
             'period'    => $period,
             'from'      => $from,
             'to'        => $to,
             'layout'    => $layout,
-            'blocks'    => self::blocks( $raw['blocks'] ?? [] ),
+            'blocks'    => $blocks,
+            'options'   => self::normaliseOptions( $raw['options'] ?? null, $blocks ),
         ];
+    }
+
+    /**
+     * #3989 — the option bags, keyed by block. Accepts the JSON a URL carries
+     * as well as a decoded array. Options for a block that is not selected
+     * are dropped; an empty block list means the default sections, which is
+     * where they are looked for then.
+     *
+     * @param mixed        $raw
+     * @param list<string> $blocks
+     * @return array<string,array<string,mixed>>
+     */
+    public static function normaliseOptions( $raw, array $blocks ): array {
+        if ( is_string( $raw ) ) {
+            $decoded = json_decode( $raw, true );
+            $raw     = is_array( $decoded ) ? $decoded : [];
+        }
+        if ( ! is_array( $raw ) ) return [];
+
+        $selected = $blocks === [] ? PlayerReportBlock::DEFAULT_BLOCKS : $blocks;
+
+        $out = [];
+        foreach ( $raw as $block => $bag ) {
+            $key = sanitize_key( (string) $block );
+            if ( ! PlayerReportBlock::isValid( $key ) ) continue;
+            if ( ! in_array( $key, $selected, true ) ) continue;
+            if ( ! is_array( $bag ) ) continue;
+
+            $bag = PlayerReportBlockOptions::normalise( $key, $bag );
+            if ( $bag !== [] ) $out[ $key ] = $bag;
+        }
+
+        ksort( $out );
+        return $out;
+    }
+
+    /**
+     * #3989 — what a strict caller refuses: option keys no block recognises,
+     * as `block.key`, and blocks that do not exist. The screen drops these.
+     *
+     * @param mixed $options the `options` value, JSON or decoded
+     * @return list<string>
+     */
+    public static function unknownOptions( $options ): array {
+        if ( is_string( $options ) ) {
+            if ( trim( $options ) === '' ) return [];
+            $decoded = json_decode( $options, true );
+            if ( ! is_array( $decoded ) ) return [ 'options' ];
+            $options = $decoded;
+        }
+        if ( $options === null ) return [];
+        if ( ! is_array( $options ) ) return [ 'options' ];
+
+        $unknown = [];
+        foreach ( $options as $block => $bag ) {
+            $key = sanitize_key( (string) $block );
+            if ( ! PlayerReportBlock::isValid( $key ) ) {
+                $unknown[] = (string) $block;
+                continue;
+            }
+            if ( ! is_array( $bag ) ) {
+                $unknown[] = $key;
+                continue;
+            }
+            foreach ( PlayerReportBlockOptions::unknownKeys( $key, $bag ) as $bad ) {
+                $unknown[] = $bad;
+            }
+        }
+        return $unknown;
+    }
+
+    /**
+     * The options for one block. Always an array, so a block never has to
+     * ask whether it was given anything.
+     *
+     * @param array<string,array<string,mixed>> $options a composition's `options`
+     * @return array<string,mixed>
+     */
+    public static function optionsFor( array $options, string $block ): array {
+        return is_array( $options[ $block ] ?? null ) ? $options[ $block ] : [];
     }
 
     /**

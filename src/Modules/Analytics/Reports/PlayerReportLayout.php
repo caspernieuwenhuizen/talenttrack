@@ -258,7 +258,12 @@ final class PlayerReportLayout {
             case PlayerReportBlock::RATINGS:
                 $evals = count( self::listOf( $d, 'evaluations' ) );
                 if ( $evals === 0 ) return $base + $line;
-                $cats = count( self::listOf( $d, 'categories' ) );
+                // #3989 — a subcategory prints as a row of its own under its
+                // main category, so it costs a row like one.
+                $cats = 0;
+                foreach ( self::listOf( $d, 'categories' ) as $cat ) {
+                    $cats += 1 + ( is_array( $cat ) ? count( self::listOf( $cat, 'subcategories' ) ) : 0 );
+                }
                 return $base + self::MM['stats'] + self::MM['stats_gap']
                     + ( $cats > 0 ? $head + $cats * $row + self::MM['table_gap'] : 0.0 )
                     + $head + $evals * $row

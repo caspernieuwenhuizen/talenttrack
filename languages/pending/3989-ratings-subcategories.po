@@ -1,0 +1,22 @@
+#: src/Modules/Analytics/Reports/RatingsBlockOptions.php
+msgctxt "player report evaluations option"
+msgid "Main categories"
+msgstr "Hoofdcategorieën"
+
+#: src/Modules/Analytics/Reports/RatingsBlockOptions.php
+msgctxt "player report evaluations option"
+msgid "With subcategories"
+msgstr "Met subcategorieën"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report panel"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "With subcategories, each rated subcategory is listed under its main category, on screen and on paper."
+msgstr "Met subcategorieën staat elke beoordeelde subcategorie onder haar hoofdcategorie, op het scherm en op papier."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Unknown report options: %s"
+msgstr "Onbekende rapportopties: %s"

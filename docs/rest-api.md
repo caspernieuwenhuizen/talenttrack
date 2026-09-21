@@ -791,7 +791,7 @@ who has not scored is absent rather than present as a zero.
 
 ## Player report (#3872, epic #3871)
 
-### `GET /players/{id}/report?from=&to=&period=&blocks=`
+### `GET /players/{id}/report?from=&to=&period=&blocks=&options=`
 
 One player, one window, composed from blocks — the document a coach brings to a
 conversation with a player, as data. Every figure comes from `EvidencePacket`,
@@ -818,6 +818,19 @@ once. **An unknown key is `400 unknown_blocks`**,
 naming the keys in `details.blocks`. `notes` is a blank area to write in
 (`{ "lines": 6 }`); the player's staff notes are `thread_notes`.
 `talking_points` is `{ "items": [] }` until #3875 fills it.
+
+**Options.** `options` is JSON, keyed by block, for blocks that can be told more
+than whether to appear. Today that is `ratings`:
+`options={"ratings":{"detail":"sub"}}` adds each rated subcategory to its main
+category in `data.ratings.categories[].subcategories` (label, latest, average,
+count, in category-tree order). `detail` is `main` (the default) or `sub`.
+`data.ratings.has_subcategories` says whether anything in the window was rated
+at subcategory level, and `data.ratings.detail` what was applied: `sub` with
+nothing to show is `main`. Options for a block not in `blocks` are dropped. **An
+unknown block or option key is `400 unknown_options`**, naming them as
+`block.key` in `details.options`. Each evaluation's categories in
+`data.ratings.evaluations[].categories[]` carry `parent_id` (null on a main
+category).
 
 **Permission.** A `reports` read at global scope or at team scope on the
 player's team, **and** `canViewPlayer` on the player — so a parent or a player
@@ -899,8 +912,9 @@ caller may not read are the same `403`, so a uuid cannot be probed.
   the list. The player and their parents may call it too, and always get only
   the `family` snapshots (#3955).
 - `POST /players/{id}/report-snapshots` — take one. Body: `period` or `from` +
-  `to`, `layout` (`A` / `B`), `blocks`, `title` — the report's own parameters,
-  forgiving as the screen is — and `audience`: `family` shares the report with
+  `to`, `layout` (`A` / `B`), `blocks`, `options`, `title` — the report's own
+  parameters, forgiving as the screen is, except that an unknown `options` key is
+  `400 unknown_options` — and `audience`: `family` shares the report with
   the player and their parents (below); omitted, it is a staff snapshot. `201`
   with the snapshot. Staff only: families read shared reports and never make
   one, so a parent or player is `403` here, as on `GET /players/{id}/report`.

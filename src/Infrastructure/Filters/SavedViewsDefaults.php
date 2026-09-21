@@ -83,7 +83,7 @@ final class SavedViewsDefaults {
         'report-player-report' => [
             'tt_view' => 'standard-report',
             'slug'    => 'player-report',
-            'params'  => [ 'period', 'from', 'to', 'layout', 'blocks' ],
+            'params'  => [ 'period', 'from', 'to', 'layout', 'blocks', 'options' ],
         ],
     ];
 

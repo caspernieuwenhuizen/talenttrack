@@ -66,6 +66,18 @@ een opgeslagen weergave, een maandelijkse planning en een momentopname bewaren
 hem. De kop staat altijd bovenaan. Aanwezigheid en speeltijd staan op papier
 naast elkaar als ze naast elkaar in de volgorde staan.
 
+**Evaluaties** kun je op twee manieren tonen. Standaard toont de tabel per
+categorie de hoofdcategorieën. Heeft een evaluatie in de periode subcategorieën
+beoordeeld, dan biedt het paneel onder **Evaluaties** een keuze:
+**Hoofdcategorieën** of **Met subcategorieën**. Met subcategorieën staat elke
+beoordeelde subcategorie ingesprongen onder haar hoofdcategorie, met een eigen
+laatste en gemiddelde score, op het scherm en in de pdf. Een hoofdcategorie die
+alleen via haar subcategorieën is beoordeeld, krijgt ook een regel, zonder eigen
+score. Een opgeslagen weergave, een momentopname, een gedeelde link en een
+maandelijkse planning bewaren de keuze. Is er in de periode niets op
+subcategorie beoordeeld, dan wordt de keuze niet aangeboden en toont het rapport
+de hoofdcategorieën.
+
 Een speler die nog geen ontwikkelplan heeft, krijgt toch een volledig rapport.
 Het onderdeel ontwikkelplan zegt dan dat er nog geen dossier is, in plaats van
 te verdwijnen.

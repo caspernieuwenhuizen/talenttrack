@@ -128,6 +128,15 @@ button.tt-pr-order__move {
 	box-shadow: 0 3px 0 var(--tt-primary);
 }
 
+/*
+ * Evaluations with subcategories (#3989): a subcategory row sits indented
+ * under its main category, a step quieter.
+ */
+.tt-pr-subcat .tt-pr-subcat__label {
+	padding-inline-start: var(--tt-sp-5, 1.5rem);
+	color: var(--tt-muted);
+}
+
 /* The handle only where a pointer can drag it. */
 @media (hover: hover) and (pointer: fine) {
 	.tt-pr-order__handle {

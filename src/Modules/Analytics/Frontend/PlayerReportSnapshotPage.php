@@ -62,6 +62,8 @@ final class PlayerReportSnapshotPage {
             'to'     => isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['to'] ) ) : '',
             'layout' => isset( $_POST['layout'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['layout'] ) ) : '',
             'blocks' => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
+            // #3989 — JSON, normalised by the composition, which drops what no block knows.
+            'options' => isset( $_POST['options'] ) ? wp_unslash( (string) $_POST['options'] ) : '', // phpcs:ignore WordPress.Security.ValidationSanitization.InputNotSanitized -- normalised in PlayerReportComposition::normaliseOptions().
         ];
         $title     = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '';
 
@@ -270,8 +272,9 @@ final class PlayerReportSnapshotPage {
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $blocks
+     * @param array<string,array<string,mixed>>          $options #3989 per-section options
      */
-    public static function renderTakeAndList( int $player_id, array $window, string $layout, array $blocks ): void {
+    public static function renderTakeAndList( int $player_id, array $window, string $layout, array $blocks, array $options = [] ): void {
         if ( ! PlayerReportAccess::canRead( get_current_user_id(), $player_id ) ) return;
 
         echo '<div class="tt-mr-snapshots">';
@@ -284,11 +287,12 @@ final class PlayerReportSnapshotPage {
         echo '<input type="hidden" name="to" value="' . esc_attr( $window['to'] ) . '">';
         echo '<input type="hidden" name="layout" value="' . esc_attr( $layout ) . '">';
         echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $blocks ) ) . '">';
+        self::optionsField( $options );
         echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save snapshot of this conversation', 'talenttrack' ) . '</button>';
         echo '<span class="tt-mr-panel__hint">' . esc_html__( 'Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section.', 'talenttrack' ) . '</span>';
         echo '</form>';
 
-        self::renderShare( $player_id, $window, $layout, $blocks );
+        self::renderShare( $player_id, $window, $layout, $blocks, $options );
 
         $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, 10 );
         if ( $rows !== [] ) {
@@ -309,14 +313,26 @@ final class PlayerReportSnapshotPage {
     }
 
     /**
+     * #3989 — the per-section options ride along as JSON, so a snapshot keeps
+     * the evaluations detail the report was showing.
+     *
+     * @param array<string,array<string,mixed>> $options
+     */
+    private static function optionsField( array $options ): void {
+        if ( $options === [] ) return;
+        echo '<input type="hidden" name="options" value="' . esc_attr( (string) wp_json_encode( $options ) ) . '">';
+    }
+
+    /**
      * #3955 — "Share with the family". Behind a disclosure that says what the
      * family will get, so the button that puts a document in front of a
      * family is the second deliberate step, never the first click.
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $blocks
+     * @param array<string,array<string,mixed>>          $options
      */
-    private static function renderShare( int $player_id, array $window, string $layout, array $blocks ): void {
+    private static function renderShare( int $player_id, array $window, string $layout, array $blocks, array $options = [] ): void {
         echo '<details class="tt-pr-share">';
         echo '<summary class="tt-btn tt-btn-secondary">' . esc_html__( 'Share with the family…', 'talenttrack' ) . '</summary>';
         echo '<form method="post" class="tt-pr-share__form">';
@@ -327,6 +343,7 @@ final class PlayerReportSnapshotPage {
         echo '<input type="hidden" name="to" value="' . esc_attr( $window['to'] ) . '">';
         echo '<input type="hidden" name="layout" value="' . esc_attr( $layout ) . '">';
         echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $blocks ) ) . '">';
+        self::optionsField( $options );
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The player and their parents will find a frozen copy under Reports on the player\'s file. Only attendance, playing time, goals, evaluation scores and tests can be shared: the ones ticked above, or all five when none of them is. Your written notes on evaluations, and every other section, stay with staff.', 'talenttrack' ) . '</p>';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Share with the family', 'talenttrack' ) . '</button>';
         echo '</form>';

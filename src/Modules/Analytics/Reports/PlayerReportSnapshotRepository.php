@@ -244,7 +244,7 @@ final class PlayerReportSnapshotRepository {
     /**
      * The composition a snapshot was taken from, normalised.
      *
-     * @return array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}
+     * @return array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>, options:array<string,array<string,mixed>>}
      */
     public static function compositionOf( object $row ): array {
         $decoded = json_decode( (string) ( $row->composition_json ?? '' ), true );

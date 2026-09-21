@@ -76,6 +76,7 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             'from'      => $raw['from'] ?? '',
             'to'        => $raw['to'] ?? '',
             'blocks'    => $raw['blocks'] ?? [],
+            'options'   => $raw['options'] ?? null,
         ] );
         $window = PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
 
@@ -88,6 +89,7 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             'to'        => $window['to'],
             'layout'    => $layout,
             'blocks'    => $composition['blocks'],
+            'options'   => $composition['options'],
         ];
     }
 
@@ -118,7 +120,12 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             (string) ( $request->filters['from'] ?? '' ),
             (string) ( $request->filters['to'] ?? '' ),
             array_values( array_map( 'strval', (array) ( $request->filters['blocks'] ?? [] ) ) ),
-            $request->requesterUserId
+            $request->requesterUserId,
+            null,
+            PlayerReportComposition::normaliseOptions(
+                $request->filters['options'] ?? null,
+                array_values( array_map( 'strval', (array) ( $request->filters['blocks'] ?? [] ) ) )
+            )
         );
         if ( $report === null ) {
             throw new ExportException( 'bad_filters', __( 'Player not found.', 'talenttrack' ) );
