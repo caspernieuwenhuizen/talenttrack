@@ -3,13 +3,17 @@ namespace TT\Modules\Pdp;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\ModuleRegistry;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 use TT\Modules\Threads\Domain\ThreadAccess;
@@ -26,10 +30,17 @@ use TT\Modules\Threads\ThreadMessagesRepository;
  * three sets of numbers in front of three readers who assumed they were
  * looking at the same thing.
  *
- * Two entry points, one builder, two windows:
+ * Three entry points, one builder:
  *
  *   EvidencePacket::forFile( $file_id )                 // the whole season
  *   EvidencePacket::forConversation( $conversation_id ) // since the last talk
+ *   EvidencePacket::forPlayer( $player_id, $from, $to, $viewer ) // any window
+ *
+ * `forPlayer()` is the player report's entry (#3872). It needs no PDP file,
+ * and it filters for a named reader: journey events and tests by the
+ * reader's visibility levels, injuries on the medical rung, the PDP group on
+ * PDP access. The two PDP entry points keep the shape their three screens
+ * were built against.
  *
  * Read-only aggregation; nothing is mutated by building a packet, and the
  * shape is JSON-serialisable so a non-WordPress front end can consume it
@@ -88,6 +99,51 @@ final class EvidencePacket {
     }
 
     /**
+     * The packet for one player over any window, assembled for one reader.
+     *
+     * Works for a player with no PDP file: the informal conversation the
+     * player report exists for happens with players who have never had a
+     * formal talk. Null for a player outside the current club or a
+     * malformed window.
+     *
+     * @return array<string,mixed>|null
+     */
+    public static function forPlayer( int $player_id, string $from, string $to, int $viewer_user_id ): ?array {
+        if ( $player_id <= 0 ) return null;
+        if ( ! self::isDate( $from ) || ! self::isDate( $to ) || $from > $to ) return null;
+
+        global $wpdb;
+        $exists = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
+        ) );
+        if ( $exists !== $player_id ) return null;
+
+        $club_id = (int) CurrentClub::id();
+        $season  = ( new Repositories\SeasonsRepository() )->current();
+
+        return [
+            'file_id'         => 0,
+            'player_id'       => $player_id,
+            'conversation_id' => 0,
+            'season'          => [
+                'id'         => $season ? (int) ( $season->id ?? 0 ) : 0,
+                'name'       => $season ? (string) ( $season->name ?? '' ) : '',
+                'start_date' => $season ? (string) ( $season->start_date ?? $from ) : $from,
+                'end_date'   => $season ? (string) ( $season->end_date ?? $to ) : $to,
+            ],
+            'window'          => [
+                'from'  => $from,
+                'to'    => $to,
+                'scope' => 'period',
+            ],
+        ] + self::groups( $player_id, $club_id, $from, $to, null, $viewer_user_id ) + [
+            'tests' => self::tests( $player_id, $from, $to, $viewer_user_id ),
+            'pdp'   => self::pdp( $player_id, $season ? (int) ( $season->id ?? 0 ) : 0, $viewer_user_id ),
+        ];
+    }
+
+    /**
      * Map a StatusVerdict colour → suggested verdict decision.
      */
     public static function suggestDecisionFromStatus( string $status_color ): string {
@@ -109,8 +165,6 @@ final class EvidencePacket {
         $player_id = (int) $file->player_id;
         $club_id   = (int) CurrentClub::id();
 
-        $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id );
-
         return [
             'file_id'         => (int) $file->id,
             'player_id'       => $player_id,
@@ -126,17 +180,42 @@ final class EvidencePacket {
                 'to'    => $win_to,
                 'scope' => $conv !== null ? 'conversation' : 'season',
             ],
+        ] + self::groups( $player_id, $club_id, $win_from, $win_to, $conv, null );
+    }
+
+    /**
+     * The evidence groups, in the order every consumer has always read them.
+     *
+     * `$viewer_user_id` null is the PDP path, unchanged: its readers are the
+     * file's coach and the head of academy. An int is the player report's
+     * path, which filters journey events by that reader's visibility levels
+     * and drops injuries for a reader without the medical rung.
+     *
+     * @return array<string,mixed>
+     */
+    private static function groups( int $player_id, int $club_id, string $from, string $to, ?\stdClass $conv, ?int $viewer_user_id ): array {
+        $verdict = ( new PlayerStatusCalculator() )->calculate( $player_id );
+
+        $injuries = $viewer_user_id === null || self::seesMedical( $viewer_user_id )
+            ? self::injuries( $player_id, $from, $to )
+            : [];
+
+        $journey = $viewer_user_id === null
+            ? self::journey( $player_id, $club_id, $from, $to )
+            : self::visibleJourney( $player_id, $club_id, $from, $to, $viewer_user_id );
+
+        return [
             'status'          => $verdict->toArray(),
-            'behaviour'       => self::behaviour( $player_id, $win_from, $win_to ),
-            'potential'       => self::potential( $player_id, $win_from, $win_to ),
-            'evaluations'     => self::evaluations( $player_id, $club_id, $win_from, $win_to ),
-            'attendance'      => self::attendance( $player_id, $club_id, $win_from, $win_to ),
-            'minutes'         => self::minutes( $player_id, $win_from, $win_to ),
-            'goals'           => self::goals( $player_id, $win_from, $win_to ),
-            'injuries'        => self::injuries( $player_id, $win_from, $win_to ),
-            'notes'           => self::notes( $player_id, $win_from, $win_to ),
+            'behaviour'       => self::behaviour( $player_id, $from, $to ),
+            'potential'       => self::potential( $player_id, $from, $to ),
+            'evaluations'     => self::evaluations( $player_id, $club_id, $from, $to ),
+            'attendance'      => self::attendance( $player_id, $club_id, $from, $to ),
+            'minutes'         => self::minutes( $player_id, $from, $to ),
+            'goals'           => self::goals( $player_id, $from, $to ),
+            'injuries'        => $injuries,
+            'notes'           => self::notes( $player_id, $from, $to ),
             'self_reflection' => $conv !== null ? (string) ( $conv->player_reflection ?? '' ) : '',
-            'recent_journey'  => self::journey( $player_id, $club_id, $win_from, $win_to ),
+            'recent_journey'  => $journey,
         ];
     }
 
@@ -478,6 +557,202 @@ final class EvidencePacket {
         ) );
 
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * The journey filtered to what this reader may see — the rule the
+     * player's own timeline and the team report's "what changed" apply. A
+     * safeguarding or medical entry must not reach a reader because the
+     * report asked for it rather than the timeline.
+     *
+     * @return list<object>
+     */
+    private static function visibleJourney( int $player_id, int $club_id, string $from, string $to, int $viewer_user_id ): array {
+        $allowed = PlayerEventsRepository::visibilitiesForUser( $viewer_user_id );
+        if ( $allowed === [] ) return [];
+
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $vis = implode( ',', array_fill( 0, count( $allowed ), '%s' ) );
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, event_type, event_date, summary
+               FROM {$p}tt_player_events
+              WHERE player_id = %d
+                AND club_id = %d
+                AND superseded_by_event_id IS NULL
+                AND event_date >= %s
+                AND event_date <= %s
+                AND visibility IN ($vis)
+              ORDER BY event_date DESC, id DESC
+              LIMIT 30",
+            ...array_merge( [ $player_id, $club_id, $from, $to . ' 23:59:59' ], $allowed )
+        ) );
+
+        return is_array( $rows ) ? array_values( $rows ) : [];
+    }
+
+    /** Does this reader stand on the medical rung of the journey ladder? */
+    private static function seesMedical( int $viewer_user_id ): bool {
+        return in_array(
+            RecordVisibility::LEVEL_MEDICAL,
+            RecordVisibility::forJourney( $viewer_user_id ),
+            true
+        );
+    }
+
+    /**
+     * Tests the player has a reading for inside the window, each with the
+     * latest in-window reading and its change against the reading before it.
+     *
+     * Read through `PlayerMeasurementProfile`, which is what the player
+     * file's measurements tab reads, so the report and the tab agree about
+     * which tests exist and which of them this reader may see (#3392).
+     *
+     * @return list<array<string,mixed>>
+     */
+    private static function tests( int $player_id, string $from, string $to, int $viewer_user_id ): array {
+        $out = [];
+        foreach ( ( new PlayerMeasurementProfile() )->forPlayer( $player_id, $viewer_user_id ) as $category ) {
+            foreach ( (array) ( $category['tests'] ?? [] ) as $test ) {
+                $series = array_values( array_filter(
+                    (array) ( $test['series'] ?? [] ),
+                    static fn( $point ): bool => is_array( $point ) && ( $point['date'] ?? '' ) !== ''
+                ) );
+
+                $latest   = null;
+                $previous = null;
+                foreach ( $series as $point ) {
+                    $date = (string) $point['date'];
+                    if ( $date > $to ) break;
+                    if ( $date < $from ) {
+                        $previous = $point;
+                        continue;
+                    }
+                    if ( $latest !== null ) $previous = $latest;
+                    $latest = $point;
+                }
+                if ( $latest === null ) continue;
+
+                $value    = $latest['value'] ?? null;
+                $before   = $previous !== null ? ( $previous['value'] ?? null ) : null;
+                $delta    = ( $value !== null && $before !== null ) ? round( (float) $value - (float) $before, 2 ) : null;
+                $readings = count( array_filter(
+                    $series,
+                    static fn( array $point ): bool => $point['date'] >= $from && $point['date'] <= $to
+                ) );
+
+                $out[] = [
+                    'definition_id' => (int) ( $test['definition_id'] ?? 0 ),
+                    'name'          => (string) ( $test['name'] ?? '' ),
+                    'category'      => (string) ( $category['category'] ?? '' ),
+                    'unit'          => (string) ( $test['unit'] ?? '' ),
+                    'direction'     => (string) ( $test['direction'] ?? '' ),
+                    'date'          => (string) $latest['date'],
+                    'value'         => $value,
+                    'text'          => $latest['text'] ?? null,
+                    'previous_date' => $previous !== null ? (string) $previous['date'] : '',
+                    'previous'      => $before,
+                    'delta'         => $delta,
+                    'trend'         => self::trend( $delta, (string) ( $test['direction'] ?? '' ) ),
+                    'readings'      => $readings,
+                ];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Whether a change is an improvement, following the test rather than the
+     * sign: a faster sprint is a smaller number. Neutral tests (height,
+     * weight) get no verdict.
+     */
+    private static function trend( ?float $delta, string $direction ): string {
+        if ( $delta === null || ! in_array( $direction, [ 'higher', 'lower' ], true ) ) return '';
+        if ( abs( $delta ) < 0.00001 ) return 'flat';
+
+        $better = $direction === 'higher' ? $delta > 0 : $delta < 0;
+        return $better ? 'up' : 'down';
+    }
+
+    /**
+     * The player's PDP file for the current season, or their most recent one,
+     * with its conversations and verdict.
+     *
+     * Empty — `available` false — when the academy has the PDP module off, or
+     * when this reader may not see the file. A missing file is not an error:
+     * it is `available` true with no `file`, which a surface says out loud.
+     *
+     * The coach's preparation is never in here. It is read by the coach and
+     * the head of academy and by nobody else (docs/pdp-cycle.md), and a
+     * report is a document that travels.
+     *
+     * @return array<string,mixed>
+     */
+    private static function pdp( int $player_id, int $season_id, int $viewer_user_id ): array {
+        $none = [ 'available' => false, 'file' => null, 'conversations' => [], 'verdict' => null, 'last_agreed_actions' => '' ];
+
+        if ( ! ModuleRegistry::isEnabled( PdpModule::class ) ) return $none;
+        if ( ! PdpAccess::canSeeFile( $viewer_user_id, $player_id ) ) return $none;
+
+        $files = new Repositories\PdpFilesRepository();
+        $file  = $season_id > 0 ? $files->findByPlayerSeason( $player_id, $season_id ) : null;
+        if ( ! $file ) {
+            // The recent list includes archived files; find() does not, and a
+            // file somebody archived is not the one to put on the table.
+            foreach ( $files->listRecentForPlayer( $player_id, 5 ) as $candidate ) {
+                $file = $files->find( (int) ( $candidate->id ?? 0 ) );
+                if ( $file ) break;
+            }
+        }
+        if ( ! $file ) {
+            return [ 'available' => true ] + array_slice( $none, 1, null, true );
+        }
+
+        $file_id       = (int) ( $file->id ?? 0 );
+        $conversations = [];
+        $last_actions  = '';
+        foreach ( ( new Repositories\PdpConversationsRepository() )->listForFile( $file_id ) as $c ) {
+            $conducted = (string) ( $c->conducted_at ?? '' );
+            $conversations[] = [
+                'id'           => (int) ( $c->id ?? 0 ),
+                'sequence'     => (int) ( $c->sequence ?? 0 ),
+                'template_key' => (string) ( $c->template_key ?? '' ),
+                'scheduled_at' => (string) ( $c->scheduled_at ?? '' ),
+                'conducted_at' => $conducted,
+                'signed_off'   => ! empty( $c->coach_signoff_at ),
+            ];
+            if ( $conducted !== '' && trim( (string) ( $c->agreed_actions ?? '' ) ) !== '' ) {
+                $last_actions = (string) ( $c->agreed_actions ?? '' );
+            }
+        }
+
+        $verdict_row = ( new Repositories\PdpVerdictsRepository() )->findForFile( $file_id );
+        $verdict     = null;
+        if ( $verdict_row ) {
+            $decision = (string) ( $verdict_row->decision ?? '' );
+            $verdict  = [
+                'decision'      => $decision,
+                'label'         => Repositories\PdpVerdictsRepository::label( $decision ),
+                'signed_off_at' => (string) ( $verdict_row->signed_off_at ?? '' ),
+            ];
+        }
+
+        return [
+            'available'           => true,
+            'file'                => [
+                'id'        => $file_id,
+                'season_id' => (int) ( $file->season_id ?? 0 ),
+                'status'    => (string) ( $file->status ?? '' ),
+            ],
+            'conversations'       => $conversations,
+            'verdict'             => $verdict,
+            'last_agreed_actions' => $last_actions,
+        ];
+    }
+
+    private static function isDate( string $value ): bool {
+        return (bool) preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value );
     }
 
     /**
