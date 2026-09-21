@@ -552,7 +552,11 @@ class EvaluationsRestController {
             AuthorizationService::canViewPlayer( $uid, $player_id )
             && AuthorizationService::parentCanViewSection( $uid, $player_id, 'evaluations' )
         ) ) {
-            return RestResponse::error( 'rest_forbidden', __( 'You cannot view this evaluation.', 'talenttrack' ), 403 );
+            // Answered exactly as a missing evaluation. A distinct 403 told
+            // the caller the id existed, so the route could still be walked
+            // to map which evaluations there are — the enumeration this
+            // check exists to stop.
+            return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
         }
 
         return RestResponse::success( (array) $e );

@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * PlayerEvaluationsCsvExporter (#865) — flat, one-row-per-evaluation CSV.
@@ -25,7 +27,7 @@ use TT\Modules\Export\ExporterInterface;
  *
  * Cap: `tt_view_evaluations`.
  */
-final class PlayerEvaluationsCsvExporter implements ExporterInterface {
+final class PlayerEvaluationsCsvExporter implements ExporterInterface, ScopeGatedExporter {
 
     public function key(): string { return 'player_evaluations'; }
 
@@ -34,6 +36,12 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_evaluations'; }
+
+    /** Every evaluation with its notes — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'evaluations' );
+    }
 
     /**
      * Static head columns only — the dynamic main-category column tail
@@ -92,6 +100,10 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'evaluations', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'pl.team_id', $scope );
         }
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'e.eval_date >= %s';

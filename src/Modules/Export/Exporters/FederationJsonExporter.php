@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * FederationJsonExporter (#0063 use case 11) — federation registration
@@ -46,7 +48,7 @@ use TT\Modules\Export\ExporterInterface;
  *
  * Cap: `tt_view_players` — same gate as the squad-list export.
  */
-final class FederationJsonExporter implements ExporterInterface {
+final class FederationJsonExporter implements ExporterInterface, ScopeGatedExporter {
 
     private const ALLOWED_STATUSES = [ 'active', 'archived', 'trial', 'all' ];
 
@@ -57,6 +59,12 @@ final class FederationJsonExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'json' ]; }
 
     public function requiredCap(): string { return 'tt_view_players'; }
+
+    /** Carries every family's guardian contact — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'players' );
+    }
 
     /** Non-tabular exporter — opts out of the column picker (#986). */
     public function availableColumns(): array { return []; }
@@ -89,6 +97,10 @@ final class FederationJsonExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'p.team_id = %d';
             $params[] = $team_id;
+        }
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'players', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'p.team_id', $scope );
         }
 
         $sql = "SELECT

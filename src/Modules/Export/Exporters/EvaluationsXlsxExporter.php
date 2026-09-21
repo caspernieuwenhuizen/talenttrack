@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * EvaluationsXlsxExporter (#0063 use case 6) — multi-sheet evaluations XLSX.
@@ -38,7 +40,7 @@ use TT\Modules\Export\ExporterInterface;
  *
  * Cap: `tt_view_evaluations`.
  */
-final class EvaluationsXlsxExporter implements ExporterInterface {
+final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExporter {
 
     public function key(): string { return 'evaluations_xlsx'; }
 
@@ -47,6 +49,12 @@ final class EvaluationsXlsxExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_evaluations'; }
+
+    /** Every evaluation with its ratings — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'evaluations' );
+    }
 
     /**
      * Multi-sheet workbook (one sheet per season × evaluation type) —
@@ -126,6 +134,10 @@ final class EvaluationsXlsxExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'evaluations', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'pl.team_id', $scope );
         }
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'e.eval_date >= %s';

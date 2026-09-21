@@ -27,6 +27,20 @@ Each block's collapsed header shows the export title plus a format badge per sup
 
 Every block is cap-gated: you only see the exporters your role permits, and a section with no permitted exporter renders no heading. Running an export is unchanged — it posts to the export handler with a nonce and streams the file.
 
+## Whose data an export covers
+
+The squad, evaluation, goal and attendance exports cover **the teams you work with**, not the whole academy:
+
+| Who | What the export contains |
+| --- | --- |
+| Administrator, club admin, head of development | Every team. Choosing one team narrows to it. |
+| Head coach, assistant coach, team manager | Your own squads. Choosing another team's squad is refused. |
+| Anyone who does not work with a squad | These exports are not offered, and running one directly is refused with a message saying why. |
+
+A refusal is always a message, never an empty file. An empty download looks like a broken export and sends people looking for a bug; "not yours" is the honest answer.
+
+The per-player exports on a player's page — the one-pager and the evaluation report — open for exactly the players you can already see, and read as *not found* otherwise.
+
 ## What the KPI snapshot contains
 
 Two sheets. The first is the headline figures for the period you chose: active and total players, active teams, activities, evaluations, attendance and goals, plus how many active players have a potential band recorded and how many do not.

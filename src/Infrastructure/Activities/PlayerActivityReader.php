@@ -53,11 +53,24 @@ class PlayerActivityReader {
      * the player can drill into a specific activity from the "My
      * activities" list.
      *
-     * Returns null when the activity row doesn't exist. The caller
-     * is responsible for any further authorization beyond the
-     * implicit "the player has an attendance row" join — historic
-     * scope-strictness on this surface has been intentionally
-     * permissive (#1149 family of bugs).
+     * Returns null when the activity does not exist **or is not this
+     * player's** — the two are deliberately indistinguishable, so the id
+     * cannot be used to learn which activities exist.
+     *
+     * This used to return any activity in the academy by id, with the
+     * player only joined for the attendance columns, and the docblock
+     * called the permissiveness intentional, citing the #1149 family where
+     * over-strict scoping produced false "not found"s. Those cases are all
+     * the player's OWN history, and none needs "any id": an activity is
+     * this player's when either
+     *
+     *   1. it is on the player's current team, or
+     *   2. the player has any register row on it — `actual` or `expected`,
+     *      as themselves or as a guest.
+     *
+     * Rule 2 is what keeps #1149's cases: a player who moved squad, a guest
+     * appearance for another team, and a planned squad (#3800) all leave a
+     * row. Plus the club, which the query did not check at all.
      *
      * #3451 — the join is scoped to the RECORDED register, which is what
      * #3390 did to the LIST this detail belongs to. The list lives on
@@ -85,10 +98,24 @@ class PlayerActivityReader {
                      AND att.record_type = 'actual'
                      AND ( att.player_id = %d OR att.guest_player_id = %d )
               WHERE a.id = %d
+                AND a.club_id = %d
+                AND (
+                      a.team_id = ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d )
+                   OR EXISTS (
+                        SELECT 1 FROM {$p}tt_attendance x
+                         WHERE x.activity_id = a.id
+                           AND x.record_type IN ( 'actual', 'expected' ) /* both-kinds-ok: either register makes it this player's activity */
+                           AND ( x.player_id = %d OR x.guest_player_id = %d )
+                      )
+                )
               LIMIT 1",
             $player_id,
             $player_id,
-            $activity_id
+            $activity_id,
+            (int) \TT\Infrastructure\Tenancy\CurrentClub::id(),
+            $player_id,
+            $player_id,
+            $player_id
         ) );
 
         if ( ! $row ) return null;

@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
 use TT\Modules\Export\ExportValueFormatter;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * GoalsCsvExporter (#0063 use case 7) — every active goal across a
@@ -20,7 +22,7 @@ use TT\Modules\Export\ExportValueFormatter;
  *
  * Cap: `tt_view_goals`.
  */
-final class GoalsCsvExporter implements ExporterInterface {
+final class GoalsCsvExporter implements ExporterInterface, ScopeGatedExporter {
 
     private const ALLOWED_STATUSES = [
         'pending', 'in_progress', 'completed', 'archived', 'all',
@@ -33,6 +35,12 @@ final class GoalsCsvExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_goals'; }
+
+    /** Every player's goals — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'goals' );
+    }
 
     public function availableColumns(): array {
         return [
@@ -80,6 +88,10 @@ final class GoalsCsvExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'goals', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'pl.team_id', $scope );
         }
 
         $sql = "SELECT g.id, g.title, g.description, g.status, g.priority, g.due_date,

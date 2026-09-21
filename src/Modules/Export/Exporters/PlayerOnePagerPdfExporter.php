@@ -59,7 +59,16 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         $player_id = (int) ( $request->filters['player_id'] ?? 0 );
 
         $player = QueryHelpers::get_player( $player_id );
-        if ( ! $player ) {
+        // The capability in front of this is answered at any scope, and the
+        // id comes from the request — so the player has to be one the caller
+        // may see. Refused exactly like a missing player, so the export
+        // cannot be used to learn which ids exist.
+        if ( ! $player
+            || ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
+                (int) $request->requesterUserId,
+                $player_id
+            )
+        ) {
             return [
                 'html'    => '<p>' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>',
                 'options' => [ 'paper' => 'A5', 'orientation' => 'portrait' ],

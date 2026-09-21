@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
 use TT\Modules\Export\ExportValueFormatter;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * AttendanceRegisterCsvExporter (#0063 use case 5) — attendance
@@ -26,7 +28,7 @@ use TT\Modules\Export\ExportValueFormatter;
  *
  * Cap: `tt_view_activities`.
  */
-final class AttendanceRegisterCsvExporter implements ExporterInterface {
+final class AttendanceRegisterCsvExporter implements ExporterInterface, ScopeGatedExporter {
 
     public function key(): string { return 'attendance_register'; }
 
@@ -35,6 +37,12 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_activities'; }
+
+    /** Every team's register — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'activities' );
+    }
 
     public function availableColumns(): array {
         return [
@@ -99,6 +107,10 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'a.team_id = %d';
             $params[] = $team_id;
+        }
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'activities', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'a.team_id', $scope );
         }
 
         $sql = "SELECT a.session_date, a.title AS activity_title,

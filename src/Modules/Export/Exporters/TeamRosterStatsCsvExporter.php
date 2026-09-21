@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
 use TT\Modules\Export\ExportValueFormatter;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * TeamRosterStatsCsvExporter (#865) — one row per player for a team,
@@ -24,7 +26,7 @@ use TT\Modules\Export\ExportValueFormatter;
  *
  * Cap: `tt_view_players`.
  */
-final class TeamRosterStatsCsvExporter implements ExporterInterface {
+final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedExporter {
 
     public function key(): string { return 'team_roster_stats'; }
 
@@ -33,6 +35,12 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_players'; }
+
+    /** A squad export — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'players' );
+    }
 
     public function availableColumns(): array {
         return [
@@ -82,6 +90,10 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface {
         $team_id   = (int) ( $request->filters['team_id'] ?? 0 );
         $date_from = (string) ( $request->filters['date_from'] ?? '' );
         $date_to   = (string) ( $request->filters['date_to']   ?? '' );
+
+        // The team is required here, so the only question is whether it is
+        // the caller's: this accepted any team's id.
+        ExportScope::teamIdsFor( $request->requesterUserId, 'players', $team_id );
 
         $roster = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,

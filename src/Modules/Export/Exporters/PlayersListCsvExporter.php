@@ -5,7 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
 use TT\Modules\Export\ExportValueFormatter;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * PlayersListCsvExporter (#0063 use case 3) — squad-list CSV.
@@ -22,7 +24,7 @@ use TT\Modules\Export\ExportValueFormatter;
  *
  * Cap: `tt_view_players` — same gate as the players admin.
  */
-final class PlayersListCsvExporter implements ExporterInterface {
+final class PlayersListCsvExporter implements ExporterInterface, ScopeGatedExporter {
 
     private const ALLOWED_STATUSES = [ 'active', 'archived', 'trial', 'all' ];
 
@@ -33,6 +35,16 @@ final class PlayersListCsvExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_players'; }
+
+    /**
+     * The capability alone is answered at any scope, which admitted a parent
+     * on their own child's grant. This file carries every family's guardian
+     * contact, so it is for callers who hold a squad — see `ExportScope`.
+     */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'players' );
+    }
 
     public function availableColumns(): array {
         return [
@@ -80,6 +92,12 @@ final class PlayersListCsvExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = $team_id;
+        }
+        // The caller's squads, not the club. Throws `forbidden` for a caller
+        // with no squad, or for a `team_id` outside theirs.
+        $scope = ExportScope::teamIdsFor( $request->requesterUserId, 'players', $team_id );
+        if ( $scope !== null ) {
+            $where[] = ExportScope::inClause( 'pl.team_id', $scope );
         }
 
         $sql = "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,

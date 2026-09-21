@@ -74,14 +74,19 @@ final class PlayerEvaluationPdfExporter implements ExporterInterface {
         $filters     = $request->filters;
         $player_id   = (int) ( $filters['player_id'] ?? 0 );
 
-        // Tenant-scope check — the player must belong to the current
-        // request's club. Without this an authenticated user could
-        // request a report for a player in another club by guessing
-        // the id. `QueryHelpers::get_player()` already scopes to the
-        // current club via its repository; an unscoped fetch here
-        // would be a regression.
+        // The player has to be one the caller may see, and — for a parent —
+        // one whose evaluations section the child has not hidden. The
+        // capability in front of this is answered at any scope, so on its
+        // own it admitted any family to any child's evaluation report by
+        // id. (`get_player()` is not a tenant check either: #1188 removed
+        // its club clause.) Refused exactly like a missing player, so the
+        // export cannot be used to learn which ids exist.
         $player = QueryHelpers::get_player( $player_id );
-        if ( ! $player ) {
+        $uid    = (int) $request->requesterUserId;
+        if ( ! $player
+            || ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id )
+            || ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $uid, $player_id, 'evaluations' )
+        ) {
             return [
                 'html'    => '<p>' . esc_html__( 'Player not found.', 'talenttrack' ) . '</p>',
                 'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],

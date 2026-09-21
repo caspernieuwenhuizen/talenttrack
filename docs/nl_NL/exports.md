@@ -27,6 +27,20 @@ De ingeklapte kop van elk blok toont de exporttitel plus een format-badge per on
 
 Elk blok is afgeschermd op rechten: je ziet alleen de exporteurs die je rol toestaat, en een sectie zonder toegestane exporteur toont geen kop. Een export uitvoeren is ongewijzigd — hij post naar de export-handler met een nonce en streamt het bestand.
 
+## Wiens gegevens een export bevat
+
+De exports van selectie, beoordelingen, doelen en aanwezigheid bevatten **de teams waarmee je werkt**, niet de hele academie:
+
+| Wie | Wat de export bevat |
+| --- | --- |
+| Beheerder, clubbeheerder, hoofd opleidingen | Alle teams. Kies je één team, dan alleen dat team. |
+| Hoofdtrainer, assistent-trainer, teammanager | Je eigen selecties. Een selectie van een ander team kiezen wordt geweigerd. |
+| Iedereen die niet met een selectie werkt | Deze exports worden niet aangeboden, en er een rechtstreeks uitvoeren wordt geweigerd met een melding waarom. |
+
+Een weigering is altijd een melding, nooit een leeg bestand. Een lege download ziet eruit als een kapotte export en laat mensen naar een fout zoeken; "niet van jou" is het eerlijke antwoord.
+
+De exports per speler op de spelerspagina — de one-pager en het beoordelingsrapport — openen voor precies de spelers die je al kunt zien, en lezen anders als *niet gevonden*.
+
 ## Wat er in de KPI-momentopname staat
 
 Twee tabbladen. Het eerste bevat de kerncijfers over de gekozen periode: actieve en totale spelers, actieve teams, activiteiten, evaluaties, aanwezigheid en doelen, plus van hoeveel actieve spelers een potentieelband is vastgelegd en van hoeveel niet.
