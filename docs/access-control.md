@@ -198,7 +198,7 @@ Every per-player section route asks both, and a guardian then also meets the chi
 | --- | --- |
 | Evaluations, the evaluation report PDF, the rating trend | `evaluations` |
 | Measurements and test results | `measurements` |
-| Player status and the potential trajectory | `player_status` |
+| Player status and the potential trajectory (staff only) | `player_status` |
 | Training exposure | `training_exposure` |
 | The journey, transitions, and Strava sessions on it | `player_timeline` |
 | Injuries | `player_injuries` |
@@ -206,6 +206,8 @@ Every per-player section route asks both, and a guardian then also meets the chi
 | The profile's Discovery card | `prospects` |
 
 The one-pager PDF carries only fields of the record itself, so the record check is its section check.
+
+**Status and potential are staff-only.** The default matrix grants `player_status` to no family persona: a parent does not read it for their child and a player does not read it for themselves. The status verdict and the potential band are the academy's judgement of how a child is doing and how far they will go. That belongs in a conversation, not on a family's screen, which is the rule `isStaffForPlayer()` already states for the surfaces a family must not see. An academy can still grant it deliberately in the Authorization matrix; an upgrade removes only the default rows, never one an academy set itself.
 
 ## Staff
 

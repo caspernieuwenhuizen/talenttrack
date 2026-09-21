@@ -175,7 +175,8 @@ return array_merge(
         // at team/global scope. Without this disambiguation a coach
         // sees "Mijn POP" on their dashboard via the data-entity grant.
         'my_pdp_panel'            => [ 'r',   'self',   $mod_pdp ],
-        'player_status'           => [ 'r',   'self',   $mod_players ],
+        // #3978 — no `player_status`: the status verdict and the potential
+        // band are the academy's judgement of the child, and staff-only.
         'pdp_file'                => [ 'r',   'self',   $mod_pdp ],
         'pdp_verdict'             => [ 'r',   'self',   $mod_pdp ],
         'pdp_conversations'       => [ 'r',   'self',   $mod_pdp ],
@@ -228,7 +229,8 @@ return array_merge(
         'goals'                   => [ 'r',   'player', $mod_goals ],
         'activities'              => [ 'r',   'player', $mod_activities ],
         'attendance'              => [ 'r',   'player', $mod_activities ],
-        'player_status'           => [ 'r',   'player', $mod_players ],
+        // #3978 — no `player_status`: families see neither the status
+        // verdict nor the potential band (see the player block).
         'documentation'           => [ 'r',   'global', $mod_documentation ],
         'invitations'             => [ 'c',   'player', $mod_invitations ],
         'pdp_file'                => [ 'r',   'player', $mod_pdp ],

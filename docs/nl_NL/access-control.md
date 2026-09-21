@@ -194,7 +194,7 @@ Elke route per speler en per onderdeel vraagt beide, en voor een ouder geldt daa
 | --- | --- |
 | Evaluaties, het evaluatierapport (PDF), de beoordelingstrend | `evaluations` |
 | Metingen en testresultaten | `measurements` |
-| Spelersstatus en het potentieelverloop | `player_status` |
+| Spelersstatus en het potentieelverloop (alleen staf) | `player_status` |
 | Trainingsblootstelling | `training_exposure` |
 | De ontwikkelreis, overgangen en de Strava-sessies daarop | `player_timeline` |
 | Blessures | `player_injuries` |
@@ -202,6 +202,8 @@ Elke route per speler en per onderdeel vraagt beide, en voor een ouder geldt daa
 | De kaart Ontdekking op het profiel | `prospects` |
 
 De one-pager (PDF) bevat alleen velden van het dossier zelf, dus de dossiercontrole is daar de onderdeelcontrole.
+
+**Status en potentieel zijn alleen voor de staf.** De standaardmatrix kent `player_status` aan geen enkele gezinspersona toe: een ouder leest het niet voor het eigen kind en een speler niet voor zichzelf. Het statusoordeel en de potentieelband zijn het oordeel van de academie over hoe een kind ervoor staat en hoe ver het komt. Dat hoort in een gesprek, niet op het scherm van een gezin. Dat is ook de regel die `isStaffForPlayer()` al noemt voor de onderdelen die een gezin niet mag zien. Een academie kan het nog steeds bewust toekennen in de autorisatiematrix; een update verwijdert alleen de standaardrijen, nooit een rij die een academie zelf heeft ingesteld.
 
 ## Staf
 

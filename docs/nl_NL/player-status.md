@@ -43,7 +43,9 @@ Een gedragsscore onder het midden van je beoordelingsschaal plafonneert de kleur
 - **Spelerdetail (beheer)** — dezelfde stip in het spelerspaneel.
 - **REST API** — `GET /players/{id}/status` en `GET /teams/{id}/player-statuses` voor eigen dashboards of integraties.
 
-Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels). Ouders en spelers zien alleen het zachte label ("Op koers" / "Extra aandacht" / "Kan nu extra ondersteuning gebruiken") — nooit cijfers, nooit interne stafterminologie.
+Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels).
+
+**Alleen voor de staf.** Spelers en ouders zien de status en de potentieelband geen van beide, ook niet voor hun eigen dossier. Beide zijn het eigen oordeel van de academie over een kind: hoe het gaat, en hoe ver het naar verwachting komt. Een ouder die "potentieel: academieniveau, dit seizoen twee keer naar beneden bijgesteld" leest zonder het gesprek dat daarbij hoort, is precies wat deze regel voorkomt. Dat oordeel hoort in het gesprek thuis. De gezinsversie van het spelersrapport laat beide om dezelfde reden weg. Een academie die gezinnen de status bewust wil laten zien, kan `player_status` in de autorisatiematrix aan de persona ouder of speler toekennen. De standaard doet dat niet.
 
 ## Een holle stip betekent: berekend met minder
 
@@ -147,7 +149,7 @@ Drie dingen om te weten voordat je iets omzet:
 
 ## Rechten
 
-- `tt_view_player_status` — zie de kleur. Geldt voor elke rol die spelers mag bekijken.
+- `tt_view_player_status` — zie de kleur en het potentieelverloop. Geldt voor de stafrollen die spelers mogen bekijken; **niet** voor spelers of ouders.
 - `tt_view_player_status_breakdown` — zie de deelscores + redenen. Coaches + HO; **niet** voor ouders.
 - `tt_rate_player_behaviour` — leg een gedragsobservatie vast. Coaches + HO.
 - `tt_set_player_potential` — bepaal het potentieelniveau. Hoofdtrainers (voor hun eigen selecties) + HO.
@@ -158,8 +160,8 @@ Elk van die rechten zegt wát je mag doen. **Bij welke** spelers je dat mag doen
 is je teambereik, en de statusroutes stellen nu allebei die vragen.
 
 - De status van één speler lezen stelt dezelfde vraag als het spelersdossier,
-  dus een ouder leest het eigen kind en niemand anders, en een trainer de eigen
-  selecties.
+  dus een trainer leest de eigen selecties en niemand anders. Een ouder of een
+  speler wordt geweigerd: gezinnen hebben helemaal geen leesrecht op de status.
 - De statussen van een heel team lezen vraagt of je de spelerstatussen van dát
   team mag lezen — afgebakend op spelerstatus, niet op teams, zodat een Hoofd
   Ontwikkeling met academiebrede statusleesrechten nog steeds elk bord krijgt.

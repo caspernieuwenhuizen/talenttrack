@@ -43,7 +43,9 @@ A behaviour rating below the midpoint of your rating scale floors the colour at 
 - **Player detail (admin)** — same dot in the team-players panel.
 - **REST API** — `GET /players/{id}/status` and `GET /teams/{id}/player-statuses` for any custom dashboard or integration.
 
-Coaches and HoD see the full breakdown (the four input scores + the threshold reasons). Parents and players see only the soft label ("On track" / "Extra attention" / "Could use extra support right now") — never the numerics, never internal staff framing.
+Coaches and HoD see the full breakdown (the four input scores + the threshold reasons).
+
+**Staff only.** Players and parents see neither the status nor the potential band, not even for their own record. Both are the academy's own judgement of a child: how they are doing, and how far they are expected to go. A parent reading "potential: academy level, revised down twice this season" without the conversation that should come with it is exactly what this rule prevents. The conversation is where that judgement belongs. The family's version of the player report leaves both out for the same reason. An academy that deliberately wants families to see the status can grant `player_status` to the parent or player persona in the Authorization matrix. The default does not.
 
 ## A hollow dot means the colour was computed on less
 
@@ -147,7 +149,7 @@ Three things worth knowing before you flip anything:
 
 ## Capabilities
 
-- `tt_view_player_status` — see the colour. Granted to every role that can view players.
+- `tt_view_player_status` — see the colour and the potential trajectory. Granted to the staff roles that can view players; **not** to players or parents.
 - `tt_view_player_status_breakdown` — see the input scores + reasons. Coaches + HoD; **not** parents.
 - `tt_rate_player_behaviour` — log a behaviour observation. Coaches + HoD.
 - `tt_set_player_potential` — set a potential band. Head coaches (for their own squads) + HoD.
@@ -158,8 +160,8 @@ Each of those says what kind of thing you may do. **Which** players you may do
 it to is your team scope, and the status routes now ask both.
 
 - Reading one player's status asks the same question the player's profile
-  asks, so a parent reads their own child and nobody else's, and a coach reads
-  their own squads.
+  asks, so a coach reads their own squads and nobody else's. A parent or a
+  player is refused, because families hold no status read at all.
 - Reading a whole team's statuses asks whether you may read that team's player
   statuses — scoped on player status, not on teams, so a Head of Development
   granted academy-wide status read still gets every board.
