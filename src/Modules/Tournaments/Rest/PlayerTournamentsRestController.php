@@ -59,7 +59,7 @@ final class PlayerTournamentsRestController extends BaseController {
         return PlayerTournamentAccess::canRead( get_current_user_id(), (int) $r['id'] );
     }
 
-    public static function get_for_player( \WP_REST_Request $r ) {
+    public static function get_for_player( \WP_REST_Request $r ): \WP_REST_Response {
         // The `tournaments` plan gate, through the **write-verb** helper
         // and deliberately not `enforceFeatureRest()`.
         //

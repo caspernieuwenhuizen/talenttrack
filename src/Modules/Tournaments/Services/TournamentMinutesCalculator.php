@@ -62,8 +62,10 @@ final class TournamentMinutesCalculator {
         }
         $count = is_array( $windows ) ? count( $windows ) : 0;
 
+        // N windows make N+1 periods, so there is always at least one and
+        // the division never needs guarding.
         $periods    = $count + 1;
-        $per_period = $periods > 0 ? (int) round( $duration / $periods ) : $duration;
+        $per_period = (int) round( $duration / $periods );
 
         return [
             'duration'   => $duration,
@@ -90,8 +92,8 @@ final class TournamentMinutesCalculator {
         $started        = false;
 
         foreach ( $assignments as $row ) {
-            $position = (string) ( $row['position_code'] ?? '' );
-            $index    = (int) ( $row['period_index'] ?? 0 );
+            $position = (string) $row['position_code'];
+            $index    = (int) $row['period_index'];
 
             if ( $position === self::BENCH ) continue;
 
@@ -103,7 +105,7 @@ final class TournamentMinutesCalculator {
         }
 
         $count   = count( $periods_played );
-        $periods = (int) ( $shape['periods'] ?? 0 );
+        $periods = (int) $shape['periods'];
 
         if ( $count === 0 ) {
             $role = self::ROLE_BENCH;
@@ -114,7 +116,7 @@ final class TournamentMinutesCalculator {
         }
 
         return [
-            'minutes'        => $count * (int) ( $shape['per_period'] ?? 0 ),
+            'minutes'        => $count * (int) $shape['per_period'],
             'periods_played' => $count,
             'started'        => $started,
             // Every period of the fixture, so a shortened plan cannot read
