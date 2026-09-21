@@ -37,6 +37,10 @@ final class HolidaysRestController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'create_holiday' ],
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
+                // #3819 — the same five fields the PUT below takes.
+                // `validate()` names the ones a create needs, behind the
+                // capability gate, so none is declared `required` here.
+                'args'                => self::writeArgs(),
             ],
         ] );
 
@@ -59,13 +63,7 @@ final class HolidaysRestController {
                 // callback only writes the ones the body carries. The
                 // value checks live in `validate()` so the create and
                 // the update path answer identically.
-                'args'                => [
-                    'name'       => [ 'type' => 'string', 'required' => false, 'description' => 'Holiday name.' ],
-                    'start_date' => [ 'type' => 'string', 'required' => false, 'description' => 'First day, Y-m-d.' ],
-                    'end_date'   => [ 'type' => 'string', 'required' => false, 'description' => 'Last day, Y-m-d.' ],
-                    'note'       => [ 'type' => 'string', 'required' => false, 'description' => 'Free-text note.' ],
-                    'color'      => [ 'type' => 'string', 'required' => false, 'description' => 'Hex colour for the planner banner.' ],
-                ],
+                'args'                => self::writeArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -93,6 +91,7 @@ final class HolidaysRestController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'restore_holiday' ],
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
 
@@ -102,12 +101,49 @@ final class HolidaysRestController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'trash_holiday' ],
                 'permission_callback' => self::can( 'tt_edit_settings' ),
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
     }
 
+    /**
+     * #3819 — the body the holiday create and update take. Every field is
+     * optional on both: `update_holiday()` writes only the keys the body
+     * carries, so an omitted one is left alone (CLAUDE.md §6), and
+     * `validate()` names what a create needs behind the capability gate
+     * rather than letting core answer a 400 before it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'name'       => [ 'type' => 'string', 'description' => 'Holiday name.' ],
+            'start_date' => [ 'type' => 'string', 'description' => 'First day, Y-m-d.' ],
+            'end_date'   => [ 'type' => 'string', 'description' => 'Last day, Y-m-d.' ],
+            'note'       => [ 'type' => 'string', 'description' => 'Free-text note.' ],
+            'color'      => [ 'type' => 'string', 'description' => 'Hex colour for the planner banner.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the lifecycle actions act on the holiday in the URL and take
+     * no body of their own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idOnlyArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The holiday, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     /** #1784 — restore an archived holiday. */
     public static function restore_holiday( WP_REST_Request $req ): WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $req['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid holiday id.', 'talenttrack' ), 400 );
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'holiday', [ $id ] );
@@ -117,6 +153,10 @@ final class HolidaysRestController {
 
     /** #2023 — move an archived holiday into the recycle bin (reversible). */
     public static function trash_holiday( WP_REST_Request $req ): WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'holiday', (int) $req['id'], __( 'Holiday not found.', 'talenttrack' )
         );
@@ -175,6 +215,10 @@ final class HolidaysRestController {
     }
 
     public static function create_holiday( WP_REST_Request $req ): WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body = is_array( $req->get_json_params() ) ? $req->get_json_params() : [];
         $err  = self::validate( $body );
         if ( $err !== [] ) return RestResponse::errors( $err, 400 );

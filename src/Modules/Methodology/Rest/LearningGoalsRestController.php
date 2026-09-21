@@ -31,8 +31,19 @@ use TT\Modules\Methodology\Repositories\LearningGoalsRepository;
  */
 final class LearningGoalsRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/learning-goals';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/learning-goals', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/learning-goals/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -57,6 +68,22 @@ final class LearningGoalsRestController extends AbstractMethodologyRestControlle
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the learning-goal writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'slug'          => [ 'type' => 'string', 'description' => 'The key that identifies the learning goal.' ],
+            'side'          => [ 'type' => 'string', 'description' => 'Whether the goal is about having the ball or not having it.' ],
+            'team_task_key' => [ 'type' => 'string', 'description' => 'The team task the goal belongs to.' ],
+            'sort_order'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the goal sits in the list.' ],
+            'title'         => [ 'type' => 'object', 'description' => 'The goal title per locale, as {nl, en}.' ],
+            'bullets'       => [ 'type' => 'object', 'description' => 'The goal bullets per locale, each a list of lines.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $error = self::validate( $r );

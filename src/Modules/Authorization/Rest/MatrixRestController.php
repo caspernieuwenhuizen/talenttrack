@@ -55,10 +55,7 @@ class MatrixRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put' ],
                 'permission_callback' => [ __CLASS__, 'canManage' ],
-                'args'                => [
-                    'cells'  => [ 'required' => false, 'type' => 'object' ],
-                    'scopes' => [ 'required' => true,  'type' => 'object' ],
-                ],
+                'args'                => self::putArgs(),
             ],
         ] );
 
@@ -67,8 +64,29 @@ class MatrixRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'reset' ],
                 'permission_callback' => [ __CLASS__, 'canReset' ],
+                'args'                => [],
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /authorization/matrix` takes.
+     *
+     * `scopes` was declared `required` until this change. Core checks
+     * required params in `has_valid_params()`, which runs *before* the
+     * permission callback, so a PUT from somebody with no right to the
+     * matrix at all was answered with a 400 naming `scopes` — telling an
+     * anonymous caller the shape of the route that governs who may see
+     * what. `put()` already answers `tt_no_scopes` for an empty set,
+     * behind the capability gate, which is where that answer belongs.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function putArgs(): array {
+        return [
+            'cells'  => [ 'type' => 'object', 'description' => 'The granted cells, keyed by persona and entity. A cell that is present is granted; one that is absent within a declared scope is revoked.' ],
+            'scopes' => [ 'type' => 'object', 'description' => 'Which persona and entity pairs this request speaks for. A pair that is not listed is left exactly as it was.' ],
+        ];
     }
 
     public static function canManage(): bool {
@@ -114,6 +132,10 @@ class MatrixRestController {
 
     /** @return \WP_REST_Response */
     public static function put( \WP_REST_Request $req ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::putArgs() );
+        if ( $refused !== null ) return $refused;
+
         $scopes = self::stringMap( $req->get_param( 'scopes' ) );
         if ( $scopes === [] ) {
             return RestResponse::error(
@@ -133,7 +155,11 @@ class MatrixRestController {
     }
 
     /** @return \WP_REST_Response */
-    public static function reset() {
+    public static function reset( \WP_REST_Request $req ) {
+        // #3819 — the route takes no body.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, [] );
+        if ( $refused !== null ) return $refused;
+
         ( new MatrixEditService() )->resetToDefaults( get_current_user_id() );
 
         return RestResponse::success( [ 'reset' => true ] );

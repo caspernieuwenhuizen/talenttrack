@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\TeamDevelopment\BlueprintChemistryEngine;
 use TT\Modules\TeamDevelopment\ChemistryAggregator;
@@ -47,6 +48,7 @@ class TeamDevelopmentRestController {
             ],
             [
                 'methods'             => 'PUT',
+                'args'                => self::formationArgs(),
                 'callback'            => [ __CLASS__, 'put_formation' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
@@ -59,6 +61,7 @@ class TeamDevelopmentRestController {
             ],
             [
                 'methods'             => 'PUT',
+                'args'                => self::styleArgs(),
                 'callback'            => [ __CLASS__, 'put_style' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
@@ -97,6 +100,7 @@ class TeamDevelopmentRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'preview_chemistry' ],
                 'permission_callback' => [ __CLASS__, 'can_view_chemistry_team' ],
+                'args'                => self::chemistryPreviewArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/pairings', [
@@ -107,6 +111,7 @@ class TeamDevelopmentRestController {
             ],
             [
                 'methods'             => 'POST',
+                'args'                => self::pairingArgs(),
                 'callback'            => [ __CLASS__, 'add_pairing' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_chemistry_team' ],
             ],
@@ -142,6 +147,7 @@ class TeamDevelopmentRestController {
             ],
             [
                 'methods'             => 'POST',
+                'args'                => self::blueprintCreateArgs(),
                 'callback'            => [ __CLASS__, 'create_blueprint' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_team' ],
             ],
@@ -154,6 +160,7 @@ class TeamDevelopmentRestController {
             ],
             [
                 'methods'             => 'PUT',
+                'args'                => self::blueprintUpdateArgs(),
                 'callback'            => [ __CLASS__, 'update_blueprint' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
             ],
@@ -168,6 +175,7 @@ class TeamDevelopmentRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'set_blueprint_assignment' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
+                'args'                => self::assignmentArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/assignments', [
@@ -175,6 +183,7 @@ class TeamDevelopmentRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'replace_blueprint_assignments' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
+                'args'                => self::assignmentsArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/status', [
@@ -182,6 +191,7 @@ class TeamDevelopmentRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'set_blueprint_status' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
+                'args'                => self::blueprintStatusArgs(),
             ],
         ] );
         // v3.110.184 — Save-As. Duplicates the blueprint + every
@@ -192,8 +202,170 @@ class TeamDevelopmentRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'clone_blueprint' ],
                 'permission_callback' => [ __CLASS__, 'can_manage_blueprint' ],
+                'args'                => self::blueprintCloneArgs(),
             ],
         ] );
+    }
+
+    /* ===== body contracts (#3819) ===== */
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer a caller with no claim on
+     * the team with a 400 naming the fields rather than the 403 it is owed.
+     * Each handler names what it needs behind its own gate.
+     *
+     * No `enum` on `status`, `tier` or `flavour` either: `set_blueprint_status()`
+     * answers `bad_status` naming the three it takes, and the other two fall
+     * back to their default rather than refusing, which is deliberate.
+     */
+
+    /**
+     * `PUT /teams/{id}/formation`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function formationArgs(): array {
+        return self::teamIdArg() + [
+            'formation_template_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation template the team plays.' ],
+        ];
+    }
+
+    /**
+     * `PUT /teams/{id}/style`. The three weights must add up to 100.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function styleArgs(): array {
+        return self::teamIdArg() + [
+            'possession_weight' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How much of the style is keeping the ball, 0-100.' ],
+            'counter_weight'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'How much of the style is countering, 0-100.' ],
+            'press_weight'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'How much of the style is pressing, 0-100.' ],
+        ];
+    }
+
+    /**
+     * `POST /teams/{id}/chemistry/preview`. Pure compute: nothing here is
+     * written, which is why a sandbox lineup may carry overrides the stored
+     * blueprint does not.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function chemistryPreviewArgs(): array {
+        return self::teamIdArg() + [
+            'template_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation to try. Omitted falls back to the team\'s stored pick.' ],
+            'possession'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'Possession weight to try, 0-100. Omitted uses the team\'s stored style.' ],
+            'counter'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Counter weight to try, 0-100.' ],
+            'press'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Press weight to try, 0-100.' ],
+            'overrides'   => [ 'type' => 'object', 'description' => 'The lineup to try, keyed by slot label. A null or 0 empties the slot.' ],
+        ];
+    }
+
+    /**
+     * `POST /teams/{id}/pairings`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function pairingArgs(): array {
+        return self::teamIdArg() + [
+            'player_a_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'One of the two players.' ],
+            'player_b_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The other one. Must be a different player.' ],
+            'note'        => [ 'type' => 'string', 'description' => 'Why the pairing is worth recording.' ],
+        ];
+    }
+
+    /**
+     * `POST /teams/{id}/blueprints`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blueprintCreateArgs(): array {
+        return self::teamIdArg() + [
+            'name'                  => [ 'type' => 'string', 'description' => 'What the blueprint is called.' ],
+            'formation_template_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation it is built on.' ],
+            'flavour'               => [ 'type' => 'string', 'description' => 'What the blueprint is for. Defaults to match day.' ],
+        ];
+    }
+
+    /**
+     * `PUT /blueprints/{id}`. Every field is optional and an omitted one is
+     * left alone (CLAUDE.md §6); a body with none of them answers
+     * `no_changes`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blueprintUpdateArgs(): array {
+        return self::blueprintIdArg() + [
+            'name'                  => [ 'type' => 'string', 'description' => 'What the blueprint is called.' ],
+            'formation_template_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation it is built on.' ],
+            'notes'                 => [ 'type' => 'string', 'description' => 'Notes on the blueprint.' ],
+        ];
+    }
+
+    /**
+     * `PUT /blueprints/{id}/assignment` — one slot. `ref` is the shape to
+     * send; the flat `player_id` is the legacy form kept for callers that
+     * predate it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function assignmentArgs(): array {
+        return self::blueprintIdArg() + [
+            'slot_label' => [ 'type' => 'string', 'description' => 'Which slot in the formation is being filled.' ],
+            'tier'       => [ 'type' => 'string', 'description' => 'Which depth tier the pick sits in. An unknown tier falls back to the primary one.' ],
+            'ref'        => [ 'type' => [ 'object', 'null' ], 'description' => 'Who fills the slot: {kind: player, player_id}, {kind: guest, name, position} or {kind: custom, label}. Null empties it.' ],
+            'player_id'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'The legacy flat form of a player ref. Prefer ref; null empties the slot.' ],
+        ];
+    }
+
+    /**
+     * `PUT /blueprints/{id}/assignments` — the whole lineup at once.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function assignmentsArgs(): array {
+        return self::blueprintIdArg() + [
+            'assignments' => [ 'type' => 'object', 'description' => 'The lineup keyed by slot label. Each value is a ref, a tier-to-ref map, or null to empty the slot. Replaces every assignment.' ],
+        ];
+    }
+
+    /**
+     * `PUT /blueprints/{id}/status`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blueprintStatusArgs(): array {
+        return self::blueprintIdArg() + [
+            'status' => [ 'type' => 'string', 'description' => 'Where the blueprint stands: draft, shared or locked.' ],
+        ];
+    }
+
+    /**
+     * `POST /blueprints/{id}/clone`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blueprintCloneArgs(): array {
+        return self::blueprintIdArg() + [
+            'name' => [ 'type' => 'string', 'description' => 'What to call the copy.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function teamIdArg(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The team, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function blueprintIdArg(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The blueprint, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     /**
@@ -340,6 +512,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function put_formation( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::formationArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = absint( $r['id'] );
         if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
             return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -401,6 +577,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function put_style( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::styleArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = absint( $r['id'] );
         if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
             return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -559,6 +739,10 @@ class TeamDevelopmentRestController {
      * chemistry payload + link chemistry without writing anything.
      */
     public static function preview_chemistry( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::chemistryPreviewArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = absint( $r['id'] );
         if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
             return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -644,6 +828,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function add_pairing( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::pairingArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = absint( $r['id'] );
         if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
             return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -734,6 +922,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function create_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::blueprintCreateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id = absint( $r['id'] );
         if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
             return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
@@ -930,6 +1122,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function update_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::blueprintUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $repo = new TeamBlueprintsRepository();
         $existing = $repo->find( $id );
@@ -970,6 +1166,10 @@ class TeamDevelopmentRestController {
      * the blueprint row + every assignment row to a new draft.
      */
     public static function clone_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::blueprintCloneArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $repo = new TeamBlueprintsRepository();
         $existing = $repo->find( $id );
@@ -991,6 +1191,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function set_blueprint_assignment( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::assignmentArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $repo = new TeamBlueprintsRepository();
         $existing = $repo->find( $id );
@@ -1165,6 +1369,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function replace_blueprint_assignments( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::assignmentsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $repo = new TeamBlueprintsRepository();
         $existing = $repo->find( $id );
@@ -1220,6 +1428,10 @@ class TeamDevelopmentRestController {
     }
 
     public static function set_blueprint_status( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::blueprintStatusArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $repo = new TeamBlueprintsRepository();
         $existing = $repo->find( $id );

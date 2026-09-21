@@ -75,6 +75,7 @@ class PlayerJourneyRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_event' ],
                 'permission_callback' => self::permCan( 'tt_edit_evaluations' ),
+                'args'                => self::eventArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/player-events/(?P<id>\d+)', [
@@ -82,6 +83,7 @@ class PlayerJourneyRestController extends BaseController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'supersede_event' ],
                 'permission_callback' => self::permCan( 'tt_edit_evaluations' ),
+                'args'                => self::supersedeArgs(),
             ],
         ] );
 
@@ -124,6 +126,7 @@ class PlayerJourneyRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_injury' ],
                 'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
+                'args'                => self::injuryArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/player-injuries/(?P<id>\d+)', [
@@ -131,6 +134,7 @@ class PlayerJourneyRestController extends BaseController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_injury' ],
                 'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
+                'args'                => self::injuryUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -234,7 +238,90 @@ class PlayerJourneyRestController extends BaseController {
         return RestResponse::success( $trend );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback — and the per-player gates in these handlers are what keep
+     * one club's staff out of another child's medical record. A required
+     * field would answer that caller with a 400 naming the fields rather
+     * than the 403 the gate owes them.
+     *
+     * The author of an entry and the time it was entered are never read
+     * from the body: both are taken from the request context, so a journey
+     * entry cannot be backdated onto somebody else's name.
+     */
+
+    /**
+     * `POST /players/{id}/events` — a manual journey entry.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function eventArgs(): array {
+        return [
+            'id'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'event_type' => [ 'type' => 'string', 'description' => 'What kind of entry this is. Defaults to a note.' ],
+            'summary'    => [ 'type' => 'string', 'description' => 'The line the timeline shows.' ],
+            'event_date' => [ 'type' => 'string', 'description' => 'When it happened. Defaults to now.' ],
+            'visibility' => [ 'type' => 'string', 'description' => 'Who may see the entry on the timeline.' ],
+            'payload'    => [ 'type' => 'object', 'description' => 'Anything else worth keeping with the entry.' ],
+        ];
+    }
+
+    /**
+     * `PUT /player-events/{id}` — a correction. The entry is never edited
+     * in place: a replacement is written and the original superseded, so
+     * the record of what was said stays intact. `event_type` is therefore
+     * absent — a correction that changed the kind of entry would be a
+     * different entry.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function supersedeArgs(): array {
+        $args = self::eventArgs();
+        unset( $args['event_type'] );
+        $args['id']['description'] = 'The entry being corrected, from the URL. A copy in the body is accepted and ignored.';
+        return $args;
+    }
+
+    /**
+     * `POST /players/{id}/injuries`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function injuryArgs(): array {
+        return [
+            'id'                    => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'started_on'            => [ 'type' => 'string', 'description' => 'The day the injury happened, as YYYY-MM-DD.' ],
+            'expected_return'       => [ 'type' => [ 'string', 'null' ], 'description' => 'When the player is expected back, as YYYY-MM-DD.' ],
+            'actual_return'         => [ 'type' => [ 'string', 'null' ], 'description' => 'When they actually returned, as YYYY-MM-DD.' ],
+            'injury_type_lookup_id' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'What kind of injury it is, from the injury_type lookup.' ],
+            'body_part_lookup_id'   => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Where it is, from the body_part lookup.' ],
+            'severity_lookup_id'    => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How bad it is, from the severity lookup.' ],
+            'notes'                 => [ 'type' => 'string', 'description' => 'What the physio wrote.' ],
+        ];
+    }
+
+    /**
+     * `PUT /player-injuries/{id}`. Every field is optional and an omitted
+     * one is left alone (CLAUDE.md §6). `started_on` is absent: the day an
+     * injury happened is not something an edit moves.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function injuryUpdateArgs(): array {
+        $args = self::injuryArgs();
+        unset( $args['started_on'] );
+        $args['id']['description'] = 'The injury, from the URL. A copy in the body is accepted and ignored.';
+        return $args;
+    }
+
     public static function create_event( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::eventArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int) $r['id'];
         $user_id   = get_current_user_id();
         if ( ! AuthorizationService::canEditPlayer( $user_id, $player_id ) ) {
@@ -275,6 +362,10 @@ class PlayerJourneyRestController extends BaseController {
     }
 
     public static function supersede_event( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::supersedeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $original_id = (int) $r['id'];
         $payload     = (array) $r->get_json_params();
         $repo = new PlayerEventsRepository();
@@ -362,6 +453,10 @@ class PlayerJourneyRestController extends BaseController {
     }
 
     public static function create_injury( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::injuryArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int) $r['id'];
         if ( ! AuthorizationService::canRecordInjury( get_current_user_id(), $player_id, 'change' ) ) {
             return RestResponse::error( 'forbidden', __( 'You cannot record injuries for this player.', 'talenttrack' ), 403 );
@@ -389,6 +484,10 @@ class PlayerJourneyRestController extends BaseController {
     }
 
     public static function update_injury( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::injuryUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id   = (int) $r['id'];
         $repo = new InjuryRepository();
         $row  = $repo->find( $id );

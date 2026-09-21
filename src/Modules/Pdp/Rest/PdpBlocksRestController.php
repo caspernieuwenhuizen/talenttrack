@@ -40,8 +40,28 @@ class PdpBlocksRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'replace' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::replaceArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /pdp-blocks` takes. `season_id` reaches the
+     * route through the query string; it is declared as well so a client
+     * that repeats it in the body is not refused.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised PUT with a 400 rather than the 403 it is owed.
+     * `replace()` names what it needs itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function replaceArgs(): array {
+        return [
+            'season_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the blocks belong to.' ],
+            'blocks'    => [ 'type' => 'array', 'description' => 'The whole block set as {sequence, start_date, end_date} entries. Replaces what is stored; the old set survives a validation failure.' ],
+        ];
     }
 
     public static function can_view(): bool {
@@ -73,6 +93,10 @@ class PdpBlocksRestController {
     }
 
     public static function replace( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::replaceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $season_id = absint( $r->get_param( 'season_id' ) );
         if ( $season_id <= 0 ) {
             return RestResponse::error( 'missing_season',

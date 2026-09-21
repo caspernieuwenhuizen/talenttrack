@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
@@ -46,6 +47,7 @@ class VctAgeProfilesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -54,6 +56,7 @@ class VctAgeProfilesRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::patchArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -76,6 +79,45 @@ class VctAgeProfilesRestController {
     }
 
     /**
+     * #3819 — the body `POST /vct/age-profiles` takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required field would answer an
+     * unauthenticated POST with a 400 naming the ceilings rather than the
+     * 401 it is owed. `create()` names the three it needs itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'age_group'                        => [ 'type' => 'string', 'description' => 'The age group the ceilings apply to, e.g. U15.' ],
+            'session_minutes_max'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The longest a single training may run, in minutes.' ],
+            'intensity_band_max'               => [ 'type' => [ 'integer', 'string' ], 'description' => 'The highest intensity band this age may be worked at, 1-10.' ],
+            'weekly_load_envelope'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The load budget for one week.' ],
+            'md_logic_enabled'                 => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether match-day logic shapes the week for this age.' ],
+            'min_recovery_hours_between_high'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'Hours of recovery required between two high-intensity days. Defaults to 48.' ],
+            'growth_spurt_load_reduction_pct'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'How much load a player flagged as growing loses, as a percentage. Defaults to 20.' ],
+            'match_load_multiplier_per_minute' => [ 'type' => [ 'number', 'string' ], 'description' => 'Load charged per minute played in a game. Defaults to 7.0.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the body `PATCH /vct/age-profiles/{id}` takes. Every key is
+     * optional and an omitted one is left alone; `age_group` is absent on
+     * purpose, because a profile's age is what identifies it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function patchArgs(): array {
+        $args = self::createArgs();
+        unset( $args['age_group'] );
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The age profile, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + $args;
+    }
+
+    /**
      * Add a profile for an age group that has none (#2601).
      *
      * Nothing is defaulted: an academy adding U15 states its own
@@ -84,6 +126,10 @@ class VctAgeProfilesRestController {
      * `session_minutes_max` and `intensity_band_max` — are required.
      */
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $age_group = sanitize_text_field( (string) $r->get_param( 'age_group' ) );
         $minutes   = (int) $r->get_param( 'session_minutes_max' );
         $band      = (int) $r->get_param( 'intensity_band_max' );
@@ -127,6 +173,10 @@ class VctAgeProfilesRestController {
     }
 
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::patchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r->get_param( 'id' );
         $patch = [];
         foreach ( [

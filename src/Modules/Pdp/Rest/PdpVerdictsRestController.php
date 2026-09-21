@@ -36,6 +36,7 @@ class PdpVerdictsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'upsert' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::upsertArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)/evidence-packet', [
@@ -91,7 +92,39 @@ class PdpVerdictsRestController {
         return RestResponse::success( [ 'verdict' => $row ? self::format( $row ) : null ] );
     }
 
+    /**
+     * #3819 — the body `PUT /pdp-files/{id}/verdict` takes.
+     *
+     * No `enum` on `decision`: `upsert()` answers `bad_decision` with the
+     * allowed set in `details.allowed`, which is a better answer than
+     * core's, and moving the check into core would drop it.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and a verdict decides whether a child stays
+     * at the academy — an unauthorised caller is owed a 403, not a 400
+     * describing the decision vocabulary.
+     *
+     * The signatory is never read from the body. It is whoever is calling,
+     * resolved through the capability model, so a verdict cannot be
+     * attributed to somebody who did not make it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function upsertArgs(): array {
+        return [
+            'id'               => [ 'type' => [ 'integer', 'string' ], 'description' => 'The PDP file, from the URL. A copy in the body is accepted and ignored.' ],
+            'decision'         => [ 'type' => 'string', 'description' => 'What was decided: promote, retain, release or transfer.' ],
+            'summary'          => [ 'type' => 'string', 'description' => 'The reasoning behind the decision.' ],
+            'signed_off'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Stamps the sign-off time with the caller as signatory.' ],
+            'divergence_notes' => [ 'type' => 'string', 'description' => 'Why the decision differs from what the player\'s status suggested. Required when the two disagree.' ],
+        ];
+    }
+
     public static function upsert( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::upsertArgs() );
+        if ( $refused !== null ) return $refused;
+
         $file_id = absint( $r['id'] );
         if ( $file_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );

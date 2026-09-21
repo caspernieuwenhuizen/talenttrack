@@ -42,6 +42,7 @@ final class PushSubscriptionsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'create' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -71,6 +72,26 @@ final class PushSubscriptionsRestController extends BaseController {
     }
 
     /**
+     * #3819 — the body `POST /push-subscriptions` takes. It is the shape
+     * the browser's `PushSubscription.toJSON()` produces, plus the client's
+     * own user-agent string.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer a logged-out
+     * POST with a 400 rather than the 401 it is owed. `create()` names
+     * `endpoint`, `keys.p256dh` and `keys.auth` itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'endpoint'   => [ 'type' => 'string', 'description' => 'The push service URL for this device. Must be HTTPS.' ],
+            'keys'       => [ 'type' => 'object', 'description' => 'The encryption keys, as {p256dh, auth}. Both are needed.' ],
+            'user_agent' => [ 'type' => 'string', 'description' => 'What the client calls itself. Accepted for compatibility; the request\'s own User-Agent header is what gets stored, so the device name can not be spoofed in the body.' ],
+        ];
+    }
+
+    /**
      * Register or refresh a subscription. Body shape (matches the
      * `PushSubscription.toJSON()` output):
      *
@@ -80,6 +101,10 @@ final class PushSubscriptionsRestController extends BaseController {
      * `last_seen_at` rather than creating a duplicate row.
      */
     public static function create( WP_REST_Request $request ) {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $request, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $user_id = get_current_user_id();
         $body    = $request->get_json_params();
         if ( ! is_array( $body ) ) $body = [];

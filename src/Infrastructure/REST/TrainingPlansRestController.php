@@ -51,11 +51,25 @@ final class TrainingPlansRestController {
      *
      * The feature key is a literal, not a constant, so
      * `FeatureMapGateCoverageTest` can find it.
+     *
+     * #3819 — the wrapper also runs the body check. Every route on this
+     * surface already goes through it, so doing it here keeps the
+     * declaration and the check on one line per route. `$args` empty means
+     * a read route, which has no body to check.
+     *
+     * @param array<string, array<string, mixed>> $args
      */
-    private static function gate( callable $callback ): \Closure {
-        return static function ( \WP_REST_Request $r ) use ( $callback ) {
+    private static function gate( callable $callback, array $args = [] ): \Closure {
+        return static function ( \WP_REST_Request $r ) use ( $callback, $args ) {
             $blocked = \TT\Modules\License\LicenseGate::enforceWriteRest( 'training', $r );
-            return $blocked ?? $callback( $r );
+            if ( $blocked ) return $blocked;
+
+            if ( $args !== [] ) {
+                $refused = BaseController::checkBody( $r, $args );
+                if ( $refused !== null ) return $refused;
+            }
+
+            return $callback( $r );
         };
     }
 
@@ -80,8 +94,9 @@ final class TrainingPlansRestController {
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'create_plan' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'create_plan' ], self::createArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -93,8 +108,9 @@ final class TrainingPlansRestController {
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => self::gate( [ __CLASS__, 'update_plan' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'update_plan' ], self::updateArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -106,8 +122,9 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/generate', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'generate_plan' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'generate_plan' ], self::generateArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::generateArgs(),
             ],
         ] );
 
@@ -122,8 +139,9 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/duplicate', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'duplicate_plan' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'duplicate_plan' ], self::duplicateArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::duplicateArgs(),
             ],
         ] );
 
@@ -134,8 +152,9 @@ final class TrainingPlansRestController {
         register_rest_route( self::NS, '/training/plans/(?P<id>\d+)/publish', [
             [
                 'methods'             => 'POST',
-                'callback'            => self::gate( [ __CLASS__, 'publish_plan' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'publish_plan' ], self::planIdArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::planIdArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -168,8 +187,9 @@ final class TrainingPlansRestController {
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => self::gate( [ __CLASS__, 'replace_blocks' ] ),
+                'callback'            => self::gate( [ __CLASS__, 'replace_blocks' ], self::blocksArgs() ),
                 'permission_callback' => static fn() => self::can(),
+                'args'                => self::blocksArgs(),
             ],
         ] );
     }
@@ -570,6 +590,106 @@ final class TrainingPlansRestController {
             'blocks' => array_map( [ __CLASS__, 'shapeBlock' ], $repo->listForPlan( $id ) ),
             'plan'   => self::shapePlan( $plans->findById( $id ) ),
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer an unauthorised write
+     * with a 400 naming the fields rather than the 403 it is owed.
+     *
+     * `author_user_id` is absent from every declaration: the author is
+     * whoever is calling, not whoever the body says.
+     */
+
+    /**
+     * `POST /training/plans` — the ten columns `planPayload()` reads.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'title'            => [ 'type' => 'string', 'description' => 'What the plan is called.' ],
+            'notes'            => [ 'type' => 'string', 'description' => 'Anything the coach running it needs to know.' ],
+            'team_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the plan is for. Blank on a template.' ],
+            'age_group_key'    => [ 'type' => 'string', 'description' => 'Which age group it is pitched at.' ],
+            'season_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season it belongs to.' ],
+            'theme_key'        => [ 'type' => 'string', 'description' => 'The theme the plan works on.' ],
+            'intensity_target' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How hard the plan is meant to be.' ],
+            'is_template'      => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether this is library material rather than a plan for a date.' ],
+            'visibility'       => [ 'type' => 'string', 'description' => 'Who may see it.' ],
+            'source'           => [ 'type' => 'string', 'description' => 'Where the plan came from: written by hand, generated, or copied.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /training/plans/{id}`. Every field is optional and an omitted
+     * one is left alone (CLAUDE.md §6) — `planPayload()` in partial mode
+     * returns only the keys the request carries.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return self::planIdArgs() + self::createArgs();
+    }
+
+    /**
+     * `PUT /training/plans/{id}/blocks` — the whole running order.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function blocksArgs(): array {
+        return self::planIdArgs() + [
+            'blocks' => [ 'type' => 'array', 'description' => 'The blocks in the order they run. Replaces the whole set; an empty list empties the plan.' ],
+        ];
+    }
+
+    /**
+     * `POST /training/plans/{id}/duplicate`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function duplicateArgs(): array {
+        return self::planIdArgs() + [
+            'title'       => [ 'type' => 'string', 'description' => 'What to call the copy. Omitted takes the original\'s title.' ],
+            'team_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the copy is for. Omitted keeps the original\'s.' ],
+            'as_template' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Make the copy library material rather than a plan for a date.' ],
+        ];
+    }
+
+    /**
+     * `POST /training/plans/generate` — draft a plan from the team, the
+     * date and what the composer knows.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function generateArgs(): array {
+        return [
+            'team_id'                    => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team to plan for.' ],
+            'season_id'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the training falls in.' ],
+            'age_group'                  => [ 'type' => 'string', 'description' => 'Which age group\'s ceilings apply. Defaults to U13.' ],
+            'session_date'               => [ 'type' => 'string', 'description' => 'The day the training runs, as YYYY-MM-DD.' ],
+            'start_time'                 => [ 'type' => 'string', 'description' => 'The start time as HH:MM.' ],
+            'tactical_theme'             => [ 'type' => 'string', 'description' => 'The theme to build the training around.' ],
+            'requested_duration_minutes' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the training should run.' ],
+            'roster_player_ids'          => [ 'type' => 'array', 'description' => 'The squad the coach confirmed. Omitted falls back to the team\'s active roster.' ],
+            'preview'                    => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Draft it and hand it back without saving anything.' ],
+        ];
+    }
+
+    /**
+     * `POST /training/plans/{id}/publish` acts on the plan in the URL and
+     * takes no body of its own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function planIdArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The plan, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     /**

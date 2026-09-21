@@ -71,11 +71,39 @@ final class VisionExtractRestController {
                 'permission_callback' => static fn() =>
                     \TT\Core\FeatureRegistry::isEnabled( 'exercises_vision_extraction' )
                     && current_user_can( 'tt_edit_activities' ),
+                'args'                => self::extractArgs(),
             ],
         ] );
     }
 
+    /**
+     * #3819 — the body `POST /vision/extract` takes. The photo may also
+     * arrive as a multipart `photo` file, which is not a body key and so
+     * is not declared here.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and every call to this route is billed to
+     * the operator — the refusals that matter (the plan, the declared data
+     * region, then the missing image) all belong behind the gate, in that
+     * order, and `extract()` answers each by name.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function extractArgs(): array {
+        return [
+            'photo_base64' => [ 'type' => 'string', 'description' => 'The photograph, base64-encoded. Use the multipart photo field instead where the client can.' ],
+            'team_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'Whose exercise library to match the extracted names against.' ],
+            'language'     => [ 'type' => 'string', 'description' => 'The language the photograph is written in.' ],
+        ];
+    }
+
     public static function extract( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values. This runs before the
+        // plan check on purpose: a body this route cannot read is not
+        // worth a billed call, whatever the plan says.
+        $refused = BaseController::checkBody( $r, self::extractArgs() );
+        if ( $refused !== null ) return $refused;
+
         // #3106 — every extraction is a billed call to a vision model on
         // the operator's account, so the refusal comes before anything
         // reads the image, and before the region check below: an install

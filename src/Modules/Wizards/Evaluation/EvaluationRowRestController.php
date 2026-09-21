@@ -44,11 +44,38 @@ final class EvaluationRowRestController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'insert' ],
                 'permission_callback' => static fn(): bool => is_user_logged_in() && current_user_can( 'tt_edit_evaluations' ),
+                'args'                => self::insertArgs(),
             ]
         );
     }
 
+    /**
+     * #3819 — the body the wizard's row insert takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer a
+     * logged-out POST with a 400 naming the fields rather than the 401 it
+     * is owed. `EvaluationInserter::insert()` refuses an incomplete row
+     * itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function insertArgs(): array {
+        return [
+            'activity_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity the evaluation is about.' ],
+            'player_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player being evaluated.' ],
+            'eval_date'       => [ 'type' => 'string', 'description' => 'When the evaluation was made, as YYYY-MM-DD. Blank means today.' ],
+            'notes'           => [ 'type' => 'string', 'description' => 'The coach\'s write-up.' ],
+            'player_feedback' => [ 'type' => 'string', 'description' => 'What the player was told.' ],
+            'ratings'         => [ 'type' => [ 'object', 'array' ], 'description' => 'The scores keyed by evaluation category.' ],
+        ];
+    }
+
     public static function insert( WP_REST_Request $req ): WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $req, self::insertArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body = $req->get_json_params();
         if ( ! is_array( $body ) ) $body = [];
 

@@ -120,6 +120,7 @@ class GoalsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)/permanent', [
@@ -139,6 +140,7 @@ class GoalsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'trash_goal' ],
                 'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)/status', [
@@ -146,6 +148,7 @@ class GoalsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'update_status' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::statusArgs(),
             ],
         ] );
     }
@@ -619,10 +622,36 @@ class GoalsRestController {
      * @return array<string, array<string, mixed>>
      */
     private static function updateArgs(): array {
+        return self::idOnlyArgs() + self::writeArgs();
+    }
+
+    /**
+     * #3819 — the lifecycle routes act on the goal in the URL and take no
+     * body of their own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idOnlyArgs(): array {
         return [ 'id' => [
             'type'        => [ 'integer', 'string' ],
             'description' => 'The goal, from the URL. A copy in the body is accepted and ignored.',
-        ] ] + self::writeArgs();
+        ] ];
+    }
+
+    /**
+     * #3819 — the body `PATCH /goals/{id}/status` takes.
+     *
+     * No `enum`: the statuses come from the `goal_status` lookup, which an
+     * academy edits, so a list hard-coded here would go stale the first
+     * time somebody added one. Leaving pending approval is additionally
+     * gated on being the player's head coach, inside the handler.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function statusArgs(): array {
+        return self::idOnlyArgs() + [
+            'status' => [ 'type' => 'string', 'description' => 'The new status, as a key from the goal_status lookup.' ],
+        ];
     }
 
     public static function create_goal( \WP_REST_Request $r ) {
@@ -935,6 +964,10 @@ class GoalsRestController {
     }
 
     public static function update_status( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::statusArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
@@ -1002,6 +1035,10 @@ class GoalsRestController {
 
     /** #1470 — restore an archived goal. */
     public static function restore_goal( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
@@ -1032,6 +1069,10 @@ class GoalsRestController {
 
     /** #2023 — move an archived goal into the recycle bin (reversible). */
     public static function trash_goal( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'goal', absint( $r['id'] ), __( 'Goal not found.', 'talenttrack' )
         );

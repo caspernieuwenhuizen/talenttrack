@@ -30,8 +30,19 @@ use TT\Modules\Methodology\Repositories\SetPiecesRepository;
  */
 final class SetPiecesRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/set-pieces';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/set-pieces', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/set-pieces/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -61,6 +72,22 @@ final class SetPiecesRestController extends AbstractMethodologyRestController {
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the set-piece writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'slug'            => [ 'type' => 'string', 'description' => 'The key that identifies the set piece.' ],
+            'kind_key'        => [ 'type' => 'string', 'description' => 'Which kind of set piece it is.' ],
+            'side'            => [ 'type' => 'string', 'description' => 'Whether it is taken or defended.' ],
+            'title'           => [ 'type' => 'object', 'description' => 'The set-piece title per locale, as {nl, en}.' ],
+            'bullets'         => [ 'type' => 'object', 'description' => 'The coaching points per locale, each a list of lines.' ],
+            'diagram_overlay' => [ 'type' => [ 'object', 'array' ], 'description' => 'The pitch overlay that draws the set piece.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $error = self::validateTaxonomy( $r );

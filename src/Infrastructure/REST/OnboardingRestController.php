@@ -41,26 +41,133 @@ final class OnboardingRestController {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
 
+    /**
+     * #3819 — the ten steps were registered from a loop over their names,
+     * so neither the path nor the endpoint array could be read statically
+     * and the args gate saw one unreadable route standing for all ten.
+     * Each step spells its own out now, with the fields that step takes.
+     */
     public static function register(): void {
-        $routes = [
-            'advance'        => 'advance',
-            'academy'        => 'academy',
-            'first-team'     => 'firstTeam',
-            'first-admin'    => 'firstAdmin',
-            'staff'          => 'staff',
-            'messaging'      => 'messaging',
-            'profile'        => 'profile',
-            'import'         => 'import',
-            'dashboard-page' => 'dashboardPage',
-            'reset'          => 'reset',
+        register_rest_route( self::NS, '/onboarding/advance', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'advance' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => [] ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/academy', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'academy' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::academyArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/first-team', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'firstTeam' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::firstTeamArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/first-admin', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'firstAdmin' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::firstAdminArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/staff', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'staff' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::staffArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/messaging', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'messaging' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::messagingArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/profile', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'profile' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::profileArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/import', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'import' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::importArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/dashboard-page', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'dashboardPage' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => self::skipArgs() ],
+        ] );
+        register_rest_route( self::NS, '/onboarding/reset', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'reset' ], 'permission_callback' => [ __CLASS__, 'canEdit' ], 'args' => [] ],
+        ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing here is declared `required`. Core checks required params
+     * before the permission callback, so a required field would answer an
+     * unauthorised POST with a 400 describing the install wizard rather
+     * than the 403 it is owed. Each step's handler names what it needs.
+     *
+     * Every step that can be passed over takes a `skip`, which is why it
+     * is declared on each of them rather than hidden in a shared base:
+     * what a step does with being skipped is the step's own business.
+     */
+
+    /** @return array<string, array<string, mixed>> */
+    private static function skipArgs(): array {
+        return [ 'skip' => [
+            'type'        => [ 'boolean', 'integer', 'string' ],
+            'description' => 'Pass over this step and move on.',
+        ] ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function academyArgs(): array {
+        return [
+            'academy_name'  => [ 'type' => 'string', 'description' => 'What the academy is called.' ],
+            'season_label'  => [ 'type' => 'string', 'description' => 'What the current season is called, e.g. 2026/2027.' ],
+            'date_format'   => [ 'type' => 'string', 'description' => 'How dates read across the plugin.' ],
+            'primary_color' => [ 'type' => 'string', 'description' => 'The club colour the dashboard is themed with.' ],
         ];
-        foreach ( $routes as $path => $method ) {
-            register_rest_route( self::NS, '/onboarding/' . $path, [
-                'methods'             => 'POST',
-                'callback'            => [ __CLASS__, $method ],
-                'permission_callback' => [ __CLASS__, 'canEdit' ],
-            ] );
-        }
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function firstTeamArgs(): array {
+        return self::skipArgs() + [
+            'team_name' => [ 'type' => 'string', 'description' => 'What the first team is called.' ],
+            'age_group' => [ 'type' => 'string', 'description' => 'Which age group it plays in.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function firstAdminArgs(): array {
+        return [
+            'first_name' => [ 'type' => 'string', 'description' => 'The administrator\'s first name.' ],
+            'last_name'  => [ 'type' => 'string', 'description' => 'Their last name.' ],
+            'grant_role' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Give this account the academy-admin role as well as its WordPress one.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function staffArgs(): array {
+        // The four name lists declare no `type`: one that lists `array`
+        // goes through `rest_sanitize_array()`, which splits a plain
+        // string on whitespace and commas — so a single "Jan de Vries"
+        // would arrive as three staff members.
+        return self::skipArgs() + [
+            'first_name'   => [ 'description' => 'The staff members\' first names, in the same order as the other three lists.' ],
+            'last_name'    => [ 'description' => 'Their last names.' ],
+            'email'        => [ 'description' => 'Their email addresses.' ],
+            'role_type'    => [ 'description' => 'What each of them does.' ],
+            'send_invites' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Mail each of them an invitation now.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function messagingArgs(): array {
+        return self::skipArgs() + [
+            'enabled' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Switch the messaging module on.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function profileArgs(): array {
+        return self::skipArgs() + [
+            'profile' => [ 'type' => 'string', 'description' => 'Which install profile to apply: the set of modules and defaults this academy starts from.' ],
+        ];
+    }
+
+    /**
+     * The roster arrives as a multipart file, so only the two switches are
+     * body keys. `commit` absent means preview, which is what keeps an
+     * accidental request from writing a roster.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function importArgs(): array {
+        return self::skipArgs() + [
+            'commit' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Write the roster. Absent previews it and reports what would happen.' ],
+        ];
     }
 
     public static function canEdit(): bool {
@@ -80,6 +187,10 @@ final class OnboardingRestController {
      * of pushing the flow forward a second time.
      */
     public static function advance( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the step takes no body.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         $state = OnboardingState::get();
 
         if ( $state['step'] === 'welcome' ) {
@@ -93,6 +204,10 @@ final class OnboardingRestController {
     }
 
     public static function academy( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::academyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $name = sanitize_text_field( (string) ( $r->get_param( 'academy_name' ) ?? '' ) );
         if ( $name === '' ) {
             return RestResponse::error(
@@ -112,6 +227,10 @@ final class OnboardingRestController {
     }
 
     public static function firstTeam( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::firstTeamArgs() );
+        if ( $refused !== null ) return $refused;
+
         $skip = ! empty( $r->get_param( 'skip' ) );
         if ( $skip ) {
             OnboardingHandlers::skipFirstTeam();
@@ -134,6 +253,10 @@ final class OnboardingRestController {
     }
 
     public static function firstAdmin( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::firstAdminArgs() );
+        if ( $refused !== null ) return $refused;
+
         $first = sanitize_text_field( (string) ( $r->get_param( 'first_name' ) ?? '' ) );
         $last  = sanitize_text_field( (string) ( $r->get_param( 'last_name' ) ?? '' ) );
         if ( $first === '' || $last === '' ) {
@@ -168,6 +291,10 @@ final class OnboardingRestController {
      * for why that is a decision rather than an omission.
      */
     public static function staff( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::staffArgs() );
+        if ( $refused !== null ) return $refused;
+
         if ( ! empty( $r->get_param( 'skip' ) ) ) {
             OnboardingHandlers::skipStaff();
             Logger::info( 'rest.onboarding.staff_skipped', [ 'user' => get_current_user_id() ] );
@@ -217,6 +344,10 @@ final class OnboardingRestController {
      * would put #3113's guarantee in two places.
      */
     public static function messaging( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::messagingArgs() );
+        if ( $refused !== null ) return $refused;
+
         if ( ! empty( $r->get_param( 'skip' ) ) ) {
             OnboardingHandlers::skipMessaging();
             Logger::info( 'rest.onboarding.messaging_skipped', [ 'user' => get_current_user_id() ] );
@@ -248,6 +379,10 @@ final class OnboardingRestController {
      * rejects it.
      */
     public static function profile( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::profileArgs() );
+        if ( $refused !== null ) return $refused;
+
         if ( ! empty( $r->get_param( 'skip' ) ) ) {
             OnboardingHandlers::skipProfile();
             Logger::info( 'rest.onboarding.profile_skipped', [ 'user' => get_current_user_id() ] );
@@ -298,6 +433,11 @@ final class OnboardingRestController {
      * report the operator acts on, not as a failed request.
      */
     public static function import( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values. The roster itself
+        // arrives as a multipart file, so only the two switches are here.
+        $refused = BaseController::checkBody( $r, self::importArgs() );
+        if ( $refused !== null ) return $refused;
+
         if ( ! empty( $r->get_param( 'skip' ) ) ) {
             OnboardingHandlers::skipImport();
             Logger::info( 'rest.onboarding.import_skipped', [ 'user' => get_current_user_id() ] );
@@ -319,6 +459,10 @@ final class OnboardingRestController {
     }
 
     public static function dashboardPage( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::skipArgs() );
+        if ( $refused !== null ) return $refused;
+
         $skip = ! empty( $r->get_param( 'skip' ) );
         if ( $skip ) {
             OnboardingHandlers::skipDashboardPage();
@@ -333,6 +477,10 @@ final class OnboardingRestController {
     }
 
     public static function reset( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the step takes no body.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         OnboardingState::reset();
         Logger::info( 'rest.onboarding.reset', [ 'user' => get_current_user_id() ] );
         return self::stateResponse();

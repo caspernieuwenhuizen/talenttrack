@@ -112,6 +112,7 @@ class ActivitiesRestController {
                 // #2199 — restore reverses an archive, so it is gated
                 // consistently with archive (delete-class), not edit.
                 'permission_callback' => [ __CLASS__, 'can_delete' ],
+                'args'                => self::activityIdArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/permanent', [
@@ -133,6 +134,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'add_guest' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::guestArgs(),
             ],
         ] );
         // v3.110.138 — toggle the per-activity "evaluation skipped"
@@ -152,6 +154,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'set_status' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::statusArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<id>\d+)/evaluation-skipped', [
@@ -159,6 +162,7 @@ class ActivitiesRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch_evaluation_skipped' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::evaluationSkippedArgs(),
             ],
         ] );
         // #1453 — read the planned (expected) attendance roster for an
@@ -190,6 +194,7 @@ class ActivitiesRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch_attendance' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::attendanceArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -221,6 +226,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gateAttendanceGrid( [ __CLASS__, 'bulk_attendance' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_grid' ],
+                'args'                => self::gridChangesArgs( 'Each change as {activity_id, player_id, status}.' ),
             ],
         ] );
         // #2414 (epic #2381) — the ratings grid's bulk write: one activity,
@@ -231,6 +237,8 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gateRatingsGrid( [ __CLASS__, 'bulk_ratings' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_ratings_grid' ],
+                'args'                => self::activityIdArgs()
+                    + self::gridChangesArgs( 'Each change as {player_id, category_id, rating}.' ),
             ],
         ] );
         // #2386 (epic #2381) — the minutes grid (players × match activities).
@@ -256,6 +264,7 @@ class ActivitiesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gateMinutesGrid( [ __CLASS__, 'bulk_minutes' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
+                'args'                => self::gridChangesArgs( 'Each change as {activity_id, player_id, minutes}.' ),
             ],
         ] );
         // #3748 — the minutes for ONE match, for a coach who has just been
@@ -288,6 +297,7 @@ class ActivitiesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_contributions' ],
                 'permission_callback' => [ __CLASS__, 'can_edit_minutes_grid' ],
+                'args'                => self::contributionsArgs(),
             ],
         ] );
         // #3530 (epic #3529) — the match's own scoreline. Resource-oriented
@@ -300,6 +310,7 @@ class ActivitiesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_result' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::resultArgs(),
             ],
             [
                 'methods'             => 'GET',
@@ -409,6 +420,10 @@ class ActivitiesRestController {
      * coach a whole squad's worth of typing.
      */
     public static function bulk_ratings( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::activityIdArgs() + self::gridChangesArgs( '' ) );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = (int) $r['id'];
         $changes     = $r['changes'] ?? null;
         if ( $activity_id <= 0 || ! is_array( $changes ) ) {
@@ -607,6 +622,10 @@ class ActivitiesRestController {
      * reports how many saved / were skipped / failed.
      */
     public static function bulk_attendance( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::gridChangesArgs( '' ) );
+        if ( $refused !== null ) return $refused;
+
         $changes = $r['changes'] ?? null;
         if ( ! is_array( $changes ) ) {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
@@ -779,6 +798,10 @@ class ActivitiesRestController {
      * a change with no row is skipped rather than inventing one.
      */
     public static function bulk_minutes( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::gridChangesArgs( '' ) );
+        if ( $refused !== null ) return $refused;
+
         $changes = $r['changes'] ?? null;
         if ( ! is_array( $changes ) ) {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
@@ -879,6 +902,10 @@ class ActivitiesRestController {
      * saving one side never blanks the other.
      */
     public static function put_result( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::resultArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         $query       = new \TT\Modules\Activities\Reports\MatchResultQuery();
         $result      = $query->forActivity( $activity_id );
@@ -920,6 +947,10 @@ class ActivitiesRestController {
     }
 
     public static function put_contributions( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::contributionsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         $players     = $r['players'] ?? null;
 
@@ -1749,6 +1780,10 @@ class ActivitiesRestController {
      * POST /activities/{id}/restore — clear the archive stamp (#1555).
      */
     public static function restore_session( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::activityIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
@@ -1913,10 +1948,140 @@ class ActivitiesRestController {
      * @return array<string, array<string, mixed>>
      */
     private static function updateArgs(): array {
+        return self::activityIdArgs() + self::writeArgs();
+    }
+
+    /*
+     * #3819 — the rest of this controller's write routes. The same rule
+     * as above holds throughout: nothing is declared `required`, because
+     * core checks required params before the permission callback and
+     * these routes are what keep a coach off another team's register.
+     */
+
+    /**
+     * The routes that act on the activity in the URL and take no body.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function activityIdArgs(): array {
         return [ 'id' => [
             'type'        => [ 'integer', 'string' ],
             'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.',
-        ] ] + self::writeArgs();
+        ] ];
+    }
+
+    /**
+     * `POST /activities/{id}/guests` — somebody who is not on the roster
+     * turning up. `guest_player_id` links the visit to a real player
+     * record when there is one; the loose name and age carry the visit
+     * when there is not.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function guestArgs(): array {
+        return self::activityIdArgs() + [
+            'guest_player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player record this visit belongs to, when the guest has one.' ],
+            'guest_name'      => [ 'type' => 'string', 'description' => 'Who turned up, when there is no player record yet.' ],
+            'guest_age'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'How old they are.' ],
+            'guest_position'  => [ 'type' => 'string', 'description' => 'Where they played.' ],
+            'guest_notes'     => [ 'type' => 'string', 'description' => 'Anything worth remembering about the visit.' ],
+            'status'          => [ 'type' => 'string', 'description' => 'How the visit is registered on the attendance list.' ],
+        ];
+    }
+
+    /**
+     * `POST /activities/{id}/status` — the confirmed transitions the
+     * detail view's buttons make.
+     *
+     * No `enum`: `set_status()` decides which transitions are open, and
+     * #2407 makes that depend on whether the evaluation flow is switched
+     * on. A list here would be wrong on half the installs.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function statusArgs(): array {
+        return self::activityIdArgs() + [
+            'status' => [ 'type' => 'string', 'description' => 'Where the activity stands: cancelled, or planned to reopen it.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /activities/{id}/evaluation-skipped`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function evaluationSkippedArgs(): array {
+        return self::activityIdArgs() + [
+            'skipped' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether this activity needs no ratings. 0 reopens it for rating.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /attendance/{id}` — one register row. Every field is optional
+     * and an omitted one is left alone (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function attendanceArgs(): array {
+        return [
+            'id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The attendance row, from the URL. A copy in the body is accepted and ignored.' ],
+            'status'         => [ 'type' => 'string', 'description' => 'Whether the player was there, from the attendance_status lookup.' ],
+            'minutes_played' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Minutes on the pitch. Null clears the figure.' ],
+            'notes'          => [ 'type' => 'string', 'description' => 'Why they were absent, or anything else about the row.' ],
+            'guest_name'     => [ 'type' => 'string', 'description' => 'The guest\'s name, on a row that stands for a visitor.' ],
+            'guest_age'      => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'The guest\'s age.' ],
+            'guest_position' => [ 'type' => 'string', 'description' => 'Where the guest played.' ],
+            'guest_notes'    => [ 'type' => 'string', 'description' => 'Anything worth remembering about the visit.' ],
+        ];
+    }
+
+    /**
+     * The three grids' bulk writes. Each takes one list and commits it in
+     * one go — the grids are explicit-Save surfaces (CLAUDE.md §6 B), so a
+     * coach on a flaky connection gets one commit point rather than a
+     * half-written register.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function gridChangesArgs( string $shape ): array {
+        return [ 'changes' => [
+            'type'        => 'array',
+            'description' => 'The edits to commit. ' . $shape . ' A row naming an activity outside the caller\'s scope is refused.',
+        ] ];
+    }
+
+    /**
+     * `PUT /activities/{activity_id}/contributions` — the minutes for one
+     * match, player by player.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function contributionsArgs(): array {
+        return [
+            'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
+            'players'     => [ 'type' => 'array', 'description' => 'The minutes per player. A player the list leaves out keeps what is stored.' ],
+        ];
+    }
+
+    /**
+     * `PUT /activities/{activity_id}/result` — the scoreline, and nothing
+     * else. Its own route rather than two more fields on
+     * `PUT /activities/{id}`, because that one rebuilds the whole row from
+     * the request and posting two boxes into it would blank the title, the
+     * date and the team.
+     *
+     * An absent key is left alone; null or an emptied box clears the
+     * column, because a coach deleting the digits is saying "no result
+     * recorded", not "it finished nil-nil" (#3529).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function resultArgs(): array {
+        return [
+            'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
+            'home_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the home side. Null or blank means no result recorded.' ],
+            'away_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the away side. Null or blank means no result recorded.' ],
+        ];
     }
 
     /** #3745 — did the caller send a `coach_id` at all? */
@@ -2466,6 +2631,10 @@ class ActivitiesRestController {
      * neither, → 400.
      */
     public static function add_guest( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::guestArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
@@ -2583,6 +2752,10 @@ class ActivitiesRestController {
      * has already been played, whose register the match execution wrote.
      */
     public static function set_status( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::statusArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
 
@@ -2642,6 +2815,10 @@ class ActivitiesRestController {
      * skip flow. Body: `{ skipped: 0|1 }`. Idempotent.
      */
     public static function patch_evaluation_skipped( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::evaluationSkippedArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         $skipped = (int) (bool) $r['skipped'];
@@ -2727,6 +2904,10 @@ class ActivitiesRestController {
      * frontend doesn't need a parallel "edit roster row" pathway.
      */
     public static function patch_attendance( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::attendanceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
         $repo = self::repo();

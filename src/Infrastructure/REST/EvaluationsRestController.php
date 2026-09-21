@@ -47,7 +47,7 @@ class EvaluationsRestController {
         ]);
         // #1470 — archive lifecycle: restore + gated permanent delete.
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/restore', [
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'restore_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'restore_eval' ], 'args' => self::lifecycleArgs(), 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/permanent', [
             // #2024 security #6 — re-gate onto tt_manage_recycle_bin: no purge path weaker than the bin's own purge.
@@ -55,7 +55,7 @@ class EvaluationsRestController {
         ]);
         // #2023 — reversible "Move to recycle bin" (archived → trashed).
         register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/trash', [
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'trash_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'trash_eval' ], 'args' => self::lifecycleArgs(), 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
         ]);
 
         // #920 — "My evaluations" feed. Mirrors what
@@ -897,7 +897,24 @@ class EvaluationsRestController {
     }
 
     /** #1470 — restore an archived evaluation. */
+    /**
+     * #3819 — restore and trash act on the evaluation in the URL and take
+     * no body of their own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function lifecycleArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The evaluation, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     public static function restore_eval( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::lifecycleArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'evaluation', [ $id ] );
@@ -920,6 +937,10 @@ class EvaluationsRestController {
 
     /** #2023 — move an archived evaluation into the recycle bin (reversible). */
     public static function trash_eval( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::lifecycleArgs() );
+        if ( $refused !== null ) return $refused;
+
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'evaluation', (int) $r['id'], __( 'Evaluation not found.', 'talenttrack' )
         );

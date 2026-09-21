@@ -92,6 +92,7 @@ final class ExerciseScenesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'create_scene' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -105,6 +106,7 @@ final class ExerciseScenesRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'update_scene' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -118,8 +120,57 @@ final class ExerciseScenesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'set_primary' ] ),
                 'permission_callback' => static fn() => self::canWrite(),
+                'args'                => self::idArgs(),
             ],
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * `POST /exercises/{id}/scenes`. Nothing is declared `required`: core
+     * checks required params before the permission callback, so a required
+     * key would answer an unauthorised POST with a 400 rather than the 403
+     * it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'id'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'The exercise, from the URL. A copy in the body is accepted and ignored.' ],
+            'name'         => [ 'type' => 'string', 'description' => 'What the scene is called.' ],
+            'pitch_preset' => [ 'type' => 'string', 'description' => 'Which pitch the scene is drawn on.' ],
+            'duration_ms'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the animation runs, in milliseconds.' ],
+            'scene'        => [ 'type' => [ 'object', 'array' ], 'description' => 'The scene itself: the players, the ball and their movement.' ],
+        ];
+    }
+
+    /**
+     * `PUT /exercise-scenes/{id}`. Every field is optional and an omitted
+     * one is left alone (CLAUDE.md §6), which is what lets the editor save
+     * a rename without re-sending the whole drawing.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        $args = self::createArgs();
+        $args['id']['description'] = 'The scene, from the URL. A copy in the body is accepted and ignored.';
+        return $args + [
+            'sort_order' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the scene sits among the exercise\'s scenes.' ],
+        ];
+    }
+
+    /**
+     * `POST /exercise-scenes/{id}/primary` acts on the scene in the URL
+     * and takes no body of its own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The scene, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     public static function list_scenes( \WP_REST_Request $r ): \WP_REST_Response {
@@ -139,6 +190,10 @@ final class ExerciseScenesRestController {
     }
 
     public static function create_scene( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $exercise_id = (int) $r['id'];
         if ( ! ( new ExercisesRepository() )->findById( $exercise_id ) ) {
             return RestResponse::error( 'not_found', __( 'That exercise no longer exists.', 'talenttrack' ), 404 );
@@ -177,6 +232,10 @@ final class ExerciseScenesRestController {
      * fiction until the next reload.
      */
     public static function update_scene( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $repo     = new ExerciseScenesRepository();
         $scene_id = (int) $r['id'];
         if ( ! $repo->findById( $scene_id ) ) return self::notFound();
@@ -205,6 +264,10 @@ final class ExerciseScenesRestController {
     }
 
     public static function set_primary( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::idArgs() );
+        if ( $refused !== null ) return $refused;
+
         $repo = new ExerciseScenesRepository();
 
         if ( ! $repo->setPrimary( (int) $r['id'] ) ) return self::notFound();

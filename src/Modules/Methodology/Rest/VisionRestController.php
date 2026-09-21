@@ -25,18 +25,12 @@ use TT\Modules\Methodology\Repositories\MethodologyVisionRepository;
  */
 final class VisionRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/vision';
-    }
-
     /**
      * Singleton route table: a collection GET (the active vision) and an
      * item GET + PUT. No POST/DELETE — the vision is one row per club.
      */
     public static function register(): void {
-        $base = static::restBase();
-
-        register_rest_route( static::NS, '/' . $base, [
+        register_rest_route( self::NS, '/methodology/vision', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'list_items' ],
@@ -44,7 +38,7 @@ final class VisionRestController extends AbstractMethodologyRestController {
             ],
         ] );
 
-        register_rest_route( static::NS, '/' . $base . '/(?P<id>\d+)', [
+        register_rest_route( self::NS, '/methodology/vision/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'get_item' ],
@@ -52,10 +46,32 @@ final class VisionRestController extends AbstractMethodologyRestController {
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [ static::class, 'update_item' ],
+                'callback'            => [ static::class, 'handle_update' ],
                 'permission_callback' => [ static::class, 'can_edit' ],
+                'args'                => static::itemWriteArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /methodology/vision/{id}` takes. Every key is
+     * optional and an omitted one is left alone, so a partial edit stays
+     * partial (CLAUDE.md §6).
+     *
+     * No `enum` on `style_of_play_key`: `update_item()` answers
+     * `400 invalid_style` for an unknown one, and moving the check into
+     * core would replace that with `rest_invalid_param`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'formation_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation the vision is built on. 0 or blank clears it.' ],
+            'style_of_play_key' => [ 'type' => 'string', 'description' => 'The style of play the club plays. Blank clears it.' ],
+            'way_of_playing'    => [ 'type' => 'object', 'description' => 'How the club wants to play, per locale, as {nl, en}.' ],
+            'notes'             => [ 'type' => 'object', 'description' => 'Further notes on the vision, per locale, as {nl, en}.' ],
+            'important_traits'  => [ 'type' => 'object', 'description' => 'The traits the club looks for, per locale, each a list of lines.' ],
+        ];
     }
 
     // ── read ────────────────────────────────────────────────────────

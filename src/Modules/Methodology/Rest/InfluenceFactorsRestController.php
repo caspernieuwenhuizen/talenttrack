@@ -30,8 +30,19 @@ use TT\Modules\Methodology\Repositories\InfluenceFactorsRepository;
  */
 final class InfluenceFactorsRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/influence-factors';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/influence-factors', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/influence-factors/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -55,6 +66,21 @@ final class InfluenceFactorsRestController extends AbstractMethodologyRestContro
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the influence-factor writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'slug'        => [ 'type' => 'string', 'description' => 'The key that identifies the influence factor.' ],
+            'sort_order'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the factor sits in the list.' ],
+            'title'       => [ 'type' => 'object', 'description' => 'The factor title per locale, as {nl, en}.' ],
+            'description' => [ 'type' => 'object', 'description' => 'What the factor covers, per locale, as {nl, en}.' ],
+            'sub_factors' => [ 'type' => 'array', 'description' => 'The sub-factors, each carrying a slug and its localised labels.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $slug = sanitize_key( (string) ( $r['slug'] ?? '' ) );

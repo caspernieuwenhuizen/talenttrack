@@ -51,6 +51,7 @@ class PdpPrepRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_question' ],
                 'permission_callback' => [ __CLASS__, 'can_configure' ],
+                'args'                => self::questionArgs(),
             ],
         ] );
 
@@ -58,6 +59,7 @@ class PdpPrepRestController {
             'methods'             => 'PUT',
             'callback'            => [ __CLASS__, 'reorder_questions' ],
             'permission_callback' => [ __CLASS__, 'can_configure' ],
+            'args'                => self::reorderArgs(),
         ] );
 
         register_rest_route( self::NS, '/pdp-prep-questions/(?P<id>\d+)', [
@@ -65,6 +67,7 @@ class PdpPrepRestController {
                 'methods'             => 'PUT, PATCH',
                 'callback'            => [ __CLASS__, 'update_question' ],
                 'permission_callback' => [ __CLASS__, 'can_configure' ],
+                'args'                => self::updateQuestionArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -83,6 +86,7 @@ class PdpPrepRestController {
                 'methods'             => 'PUT, PATCH',
                 'callback'            => [ __CLASS__, 'save_prep' ],
                 'permission_callback' => [ __CLASS__, 'can_read_prep' ],
+                'args'                => self::savePrepArgs(),
             ],
         ] );
     }
@@ -122,7 +126,82 @@ class PdpPrepRestController {
         ] );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body a prep-question create takes: the template it belongs to
+     * plus the five fields `payload()` reads.
+     *
+     * No `enum` on `template_key` or `field_type`: the handlers answer
+     * `bad_template` and the repository refuses an unknown type, and
+     * moving the check into core would replace those with
+     * `rest_invalid_param`.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function questionArgs(): array {
+        return [
+            'template_key' => [ 'type' => 'string', 'description' => 'Which conversation template the question belongs to.' ],
+            'label'        => [ 'type' => 'string', 'description' => 'The question as the coach reads it.' ],
+            'help_text'    => [ 'type' => 'string', 'description' => 'A line of guidance under the question.' ],
+            'field_type'   => [ 'type' => 'string', 'description' => 'How the answer is captured, e.g. text or textarea.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas.
+            'options'      => [ 'description' => 'The choices, for a question that offers a list.' ],
+            'required'     => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the coach has to answer it.' ],
+        ];
+    }
+
+    /**
+     * The body a prep-question update takes. Every field is optional and
+     * an omitted one is left alone (CLAUDE.md §6) — `payload()` returns
+     * only the keys the request carries, so a body with a label does not
+     * silently reset the field type.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateQuestionArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The question, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::questionArgs();
+    }
+
+    /**
+     * The body `PUT /pdp-prep-questions/order` takes.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function reorderArgs(): array {
+        return [
+            'template_key' => [ 'type' => 'string', 'description' => 'Which conversation template is being reordered.' ],
+            'ids'          => [ 'type' => 'array', 'description' => 'The question ids in the order they should appear.' ],
+        ];
+    }
+
+    /**
+     * The body `PUT /pdp-conversations/{id}/prep` takes. The surface
+     * autosaves, so a body carrying one answer leaves the others alone.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function savePrepArgs(): array {
+        return [
+            'id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The conversation, from the URL. A copy in the body is accepted and ignored.' ],
+            'answers' => [ 'type' => [ 'object', 'array' ], 'description' => 'The answers keyed by question id, or a list of {question_id, answer_text} entries.' ],
+        ];
+    }
+
     public static function create_question( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::questionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $template = sanitize_key( (string) ( $r['template_key'] ?? '' ) );
         if ( ! PdpConversationTemplate::isValid( $template ) ) {
             return RestResponse::error( 'bad_template',
@@ -140,6 +219,10 @@ class PdpPrepRestController {
     }
 
     public static function update_question( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::updateQuestionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $repo = new PdpPrepQuestionsRepository();
         $id   = absint( $r['id'] );
         if ( ! $repo->find( $id ) ) {
@@ -171,6 +254,10 @@ class PdpPrepRestController {
     }
 
     public static function reorder_questions( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::reorderArgs() );
+        if ( $refused !== null ) return $refused;
+
         $template = sanitize_key( (string) ( $r['template_key'] ?? '' ) );
         if ( ! PdpConversationTemplate::isValid( $template ) ) {
             return RestResponse::error( 'bad_template',
@@ -218,6 +305,10 @@ class PdpPrepRestController {
      * and a fetch() send different shapes and neither should have to care.
      */
     public static function save_prep( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::savePrepArgs() );
+        if ( $refused !== null ) return $refused;
+
         $conversation_id = absint( $r['id'] );
 
         $raw = $r['answers'] ?? null;

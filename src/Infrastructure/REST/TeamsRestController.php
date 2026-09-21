@@ -170,6 +170,7 @@ class TeamsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_team' ],
                 'permission_callback' => $can_edit,
+                'args'                => self::teamIdArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/permanent', [
@@ -188,6 +189,7 @@ class TeamsRestController {
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
                 },
+                'args'                => self::rosterArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -728,7 +730,38 @@ class TeamsRestController {
     }
 
     /** #1470 — restore an archived team. */
+    /**
+     * #3819 — the restore acts on the team in the URL and takes no body of
+     * its own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function teamIdArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The team, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /**
+     * #3819 — moving a player onto a team says everything in its path: the
+     * team and the player are both URL segments, and the write is the
+     * request. Nothing in the body is read.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function rosterArgs(): array {
+        return self::teamIdArgs() + [ 'player_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The player, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     public static function restore_team( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::teamIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'team', [ $id ] );
@@ -750,6 +783,10 @@ class TeamsRestController {
     }
 
     public static function add_player_to_team( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::rosterArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $team_id   = absint( $r['id'] );
         $player_id = absint( $r['player_id'] );

@@ -30,21 +30,29 @@ use TT\Modules\Methodology\Repositories\MethodologiesRepository;
  */
 final class MethodologySetsRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/sets';
-    }
-
     /**
      * Register the standard CRUD routes plus the `make default` action.
      */
     public static function register(): void {
-        parent::register();
+        $gate = [ self::class, 'can_edit' ];
 
-        register_rest_route( static::NS, '/' . static::restBase() . '/(?P<id>\d+)/default', [
+        register_rest_route( self::NS, '/methodology/sets', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/sets/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/sets/(?P<id>\d+)/default', [
             [
                 'methods'             => 'PUT',
                 'callback'            => [ static::class, 'set_default' ],
                 'permission_callback' => [ static::class, 'can_edit' ],
+                'args'                => self::setDefaultArgs(),
             ],
         ] );
     }
@@ -73,6 +81,19 @@ final class MethodologySetsRestController extends AbstractMethodologyRestControl
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the methodology-set writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'slug'        => [ 'type' => 'string', 'description' => 'The key that identifies the set.' ],
+            'name'        => [ 'type' => 'object', 'description' => 'The set name per locale, as {nl, en}.' ],
+            'description' => [ 'type' => 'object', 'description' => 'What the set covers, per locale, as {nl, en}.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $payload = self::writePayload( $r );
@@ -128,8 +149,25 @@ final class MethodologySetsRestController extends AbstractMethodologyRestControl
         return self::ok( [ 'archived' => true, 'id' => $id ] );
     }
 
+    /**
+     * #3819 — `PUT /methodology/sets/{id}/default` takes no body of its
+     * own: the set is the one in the URL.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function setDefaultArgs(): array {
+        return [
+            'id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The set to make the active default, from the URL. A copy in the body is accepted and ignored.' ],
+            'methodology_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which methodology set the request is scoped to. Usually a query parameter; a copy in the body is accepted.' ],
+        ];
+    }
+
     /** Make the set the install-wide active default (#2320). */
     public static function set_default( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::setDefaultArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id   = absint( $r['id'] );
         $repo = new MethodologiesRepository();
         if ( ! $repo->exists( $id ) ) {

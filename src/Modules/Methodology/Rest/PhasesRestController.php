@@ -31,8 +31,19 @@ use TT\Modules\Methodology\Repositories\PhasesRepository;
  */
 final class PhasesRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/phases';
+    public static function register(): void {
+        $gate = [ self::class, 'can_edit' ];
+
+        register_rest_route( self::NS, '/methodology/phases', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/phases/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
     }
 
     // ── read ────────────────────────────────────────────────────────
@@ -56,6 +67,20 @@ final class PhasesRestController extends AbstractMethodologyRestController {
     }
 
     // ── write ───────────────────────────────────────────────────────
+
+    /**
+     * #3819 — the body the phase writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'side'         => [ 'type' => 'string', 'description' => 'Whether the phase is about having the ball or not having it.' ],
+            'phase_number' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which of the four phases this is, 1-4.' ],
+            'title'        => [ 'type' => 'object', 'description' => 'The phase title per locale, as {nl, en}.' ],
+            'goal'         => [ 'type' => 'object', 'description' => 'What the phase aims at, per locale, as {nl, en}.' ],
+        ];
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         if ( ! MethodologyEnums::isValidSide( sanitize_key( (string) ( $r['side'] ?? '' ) ) ) ) {

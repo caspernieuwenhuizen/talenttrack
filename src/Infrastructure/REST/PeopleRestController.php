@@ -57,6 +57,7 @@ class PeopleRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'delete_preview' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'args'                => self::deletePreviewArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/people/(?P<id>\d+)', [
@@ -300,7 +301,24 @@ class PeopleRestController {
      * SET-NULL breakdown the wp-admin two-step confirm dialog renders
      * before the operator commits to the destructive bulk action.
      */
+    /**
+     * #3819 — the body `POST /people/delete-preview` takes. The route
+     * never writes; it answers what a delete would take with it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function deletePreviewArgs(): array {
+        return [ 'ids' => [
+            'type'        => 'array',
+            'description' => 'The people to summarise, as person ids. At most 100 per call.',
+        ] ];
+    }
+
     public static function delete_preview( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::deletePreviewArgs() );
+        if ( $refused !== null ) return $refused;
+
         $raw = $r->get_param( 'ids' );
         $ids = [];
         if ( is_array( $raw ) ) {

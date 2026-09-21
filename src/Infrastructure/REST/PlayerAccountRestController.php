@@ -33,6 +33,7 @@ class PlayerAccountRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'link' ],
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'args'                => self::linkArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -46,7 +47,37 @@ class PlayerAccountRestController {
         return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_players' );
     }
 
+    /**
+     * #3819 — the body `POST /players/{id}/account` takes. The route has
+     * two branches and both are declared: `create` provisions a new login
+     * from the name and email, and its absence links the `wp_user_id`
+     * instead.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and this route hands somebody an account on
+     * a minor's record — an unauthorised caller is owed a 403, not a 400
+     * describing how the linking works. `PlayerAccountService` refuses an
+     * incomplete request with a 422 that says what is missing.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function linkArgs(): array {
+        return [
+            'id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'create'        => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Provision a new login rather than linking an existing one.' ],
+            'wp_user_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'The existing account to link. Read only when create is absent.' ],
+            'first_name'    => [ 'type' => 'string', 'description' => 'The new account\'s first name. Create only.' ],
+            'last_name'     => [ 'type' => 'string', 'description' => 'The new account\'s last name. Create only.' ],
+            'email'         => [ 'type' => 'string', 'description' => 'Where the set-password mail goes. Create only.' ],
+            'temp_password' => [ 'type' => 'string', 'description' => 'A starting password instead of the set-password mail. Create only; blank sends the mail.' ],
+        ];
+    }
+
     public static function link( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::linkArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = absint( $r['id'] );
         $svc       = new PlayerAccountService();
 

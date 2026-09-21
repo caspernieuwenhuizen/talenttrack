@@ -122,6 +122,7 @@ final class MediaRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gateUpload( [ __CLASS__, 'create_media' ] ),
                 'permission_callback' => static fn() => self::canUpload(),
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -135,6 +136,7 @@ final class MediaRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'update_media' ],
                 'permission_callback' => static fn() => self::canEdit(),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -148,6 +150,7 @@ final class MediaRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gateUpload( [ __CLASS__, 'add_link' ] ),
                 'permission_callback' => static fn() => self::canUpload(),
+                'args'                => self::linkArgs(),
             ],
         ] );
 
@@ -196,6 +199,7 @@ final class MediaRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'retention_decide' ],
                 'permission_callback' => static fn() => self::canAdminRetention(),
+                'args'                => self::retentionArgs(),
             ],
         ] );
 
@@ -367,7 +371,94 @@ final class MediaRestController {
         return RestResponse::success( self::shape( $media, true ) );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, and these routes carry photographs of children: a caller
+     * who may not upload is owed the 403 `canUpload()` gives them, not a
+     * 400 describing where media can be attached.
+     *
+     * The uploader and the store are never named in the body. `file` and
+     * `poster` arrive as multipart parts, and the stored object's key,
+     * kind, size and MIME type are decided by `MediaIngestService` from
+     * the bytes — not read from the request, which is what stops a caller
+     * describing a file as something it is not.
+     */
+
+    /**
+     * `POST /media` — the upload, or a link to a video hosted elsewhere.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'entity_type'      => [ 'type' => 'string', 'description' => 'What kind of record to attach this to. The record\'s own policy decides which kinds of media it takes.' ],
+            'entity_id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which record. The caller must be allowed to write to it, not merely to upload.' ],
+            'title'            => [ 'type' => 'string', 'description' => 'What to call it. Blank on a video link takes the title from the provider.' ],
+            'description'      => [ 'type' => 'string', 'description' => 'What it shows.' ],
+            'external_url'     => [ 'type' => 'string', 'description' => 'The address of a video hosted elsewhere. Sending this makes it a link rather than an upload.' ],
+            'captured_at'      => [ 'type' => 'string', 'description' => 'When the photograph or video was taken.' ],
+            'duration_seconds' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the video runs. The browser reads this off the video element so the server needs no transcoder.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /media/{uuid}` — only what a person wrote about the item is
+     * editable. The bytes, the kind and the store key are not: changing
+     * them would make the record describe a different file.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [
+            'uuid'        => [ 'type' => 'string', 'description' => 'The media item, from the URL. A copy in the body is accepted and ignored.' ],
+            'title'       => [ 'type' => 'string', 'description' => 'What to call it.' ],
+            'description' => [ 'type' => 'string', 'description' => 'What it shows.' ],
+            'captured_at' => [ 'type' => 'string', 'description' => 'When it was taken. Blank clears the date.' ],
+        ];
+    }
+
+    /**
+     * `POST /media/{uuid}/links` — attach an existing item to a second
+     * record.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function linkArgs(): array {
+        return [
+            'uuid'        => [ 'type' => 'string', 'description' => 'The media item, from the URL. A copy in the body is accepted and ignored.' ],
+            'entity_type' => [ 'type' => 'string', 'description' => 'What kind of record to attach it to.' ],
+            'entity_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which record. The caller must be allowed to write to that one, not only to the media item.' ],
+            'is_primary'  => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Make this the record\'s headline image.' ],
+        ];
+    }
+
+    /**
+     * `POST /media/retention/{link_id}` — keep an item past its retention
+     * date, or put it back in the queue.
+     *
+     * No `enum` on `decision`: `retention_decide()` answers `bad_decision`
+     * naming the two it takes, behind the gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function retentionArgs(): array {
+        return [
+            'link_id'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The attachment under review, from the URL. A copy in the body is accepted and ignored.' ],
+            'decision' => [ 'type' => 'string', 'description' => 'keep to hold it back from deletion, release to return it to the queue.' ],
+            'reason'   => [ 'type' => 'string', 'description' => 'Why it is being kept. Required on keep, because an exception nobody can explain is not auditable.' ],
+        ];
+    }
+
     public static function create_media( \WP_REST_Request $request ): \WP_REST_Response {
+        // #3819 — the body's shape before its values, and before ingest:
+        // a body this route cannot read must not leave an object in the
+        // store behind it.
+        $refused = BaseController::checkBody( $request, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $entity_type = (string) $request->get_param( 'entity_type' );
         $entity_id   = (int) $request->get_param( 'entity_id' );
 
@@ -526,6 +617,10 @@ final class MediaRestController {
     }
 
     public static function update_media( \WP_REST_Request $request ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $request, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $media = self::findVisible( $request, 'canEdit' );
         if ( $media instanceof \WP_REST_Response ) return $media;
 
@@ -588,6 +683,10 @@ final class MediaRestController {
     // Links
 
     public static function add_link( \WP_REST_Request $request ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $request, self::linkArgs() );
+        if ( $refused !== null ) return $refused;
+
         $media = self::findVisible( $request, 'canDelete' );
         if ( $media instanceof \WP_REST_Response ) return $media;
 
@@ -697,6 +796,10 @@ final class MediaRestController {
      * because it is the destructive verb and should read as one.
      */
     public static function retention_decide( \WP_REST_Request $request ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $request, self::retentionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $link_id  = (int) $request->get_param( 'link_id' );
         $decision = (string) $request->get_param( 'decision' );
         $service  = new MediaRetentionService();

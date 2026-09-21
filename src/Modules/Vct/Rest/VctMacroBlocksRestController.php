@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctMacroBlocksRepository;
@@ -38,8 +39,28 @@ class VctMacroBlocksRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'replace' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::replaceArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /vct/macro-blocks` takes. The configuration
+     * tile sends all three in the body and repeats the first two in the
+     * query string; both forms are accepted.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthenticated write with a 400 rather than the 401 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function replaceArgs(): array {
+        return [
+            'season_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the blocks belong to.' ],
+            'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the blocks are for. 0 means the club default.' ],
+            'blocks'    => [ 'type' => 'array', 'description' => 'The whole block set as {sequence, label, start_date, end_date, phase_profile} entries. Replaces what is stored.' ],
+        ];
     }
 
     public static function can_admin(): bool {
@@ -75,6 +96,10 @@ class VctMacroBlocksRestController {
      * and trust the caller.
      */
     public static function replace( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::replaceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $season_id = (int) ( $r->get_param( 'season_id' ) ?? 0 );
         $team_id   = (int) ( $r->get_param( 'team_id' )   ?? 0 );
         if ( $season_id <= 0 ) {

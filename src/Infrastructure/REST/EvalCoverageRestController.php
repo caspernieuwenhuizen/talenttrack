@@ -65,8 +65,27 @@ final class EvalCoverageRestController extends BaseController {
                 // read-only grant of analytics could move the windows every
                 // coach's coverage is measured against.
                 'permission_callback' => self::permCan( 'tt_edit_analytics' ),
+                'args'                => self::windowsArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /eval-coverage/windows` takes: the whole
+     * window set, which replaces what is stored.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, so it would answer a read-only analytics grant
+     * with a 400 rather than the 403 #3610 gave it. `saveWindows()`
+     * answers `bad_payload` itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function windowsArgs(): array {
+        return [ 'windows' => [
+            'type'        => 'array',
+            'description' => 'The evaluation windows every coach\'s coverage is measured against. Replaces the stored set.',
+        ] ];
     }
 
     public static function matrix( WP_REST_Request $request ): \WP_REST_Response {
@@ -111,6 +130,10 @@ final class EvalCoverageRestController extends BaseController {
     }
 
     public static function saveWindows( WP_REST_Request $request ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $request, self::windowsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $raw = $request->get_param( 'windows' );
         if ( ! is_array( $raw ) ) {
             return RestResponse::error(

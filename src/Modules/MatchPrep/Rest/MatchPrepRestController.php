@@ -83,6 +83,7 @@ class MatchPrepRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'create_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::shareArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<activity_id>\d+)/share/rotate', [
@@ -90,6 +91,7 @@ class MatchPrepRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'rotate_share' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::shareArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role', [
@@ -97,6 +99,7 @@ class MatchPrepRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'put_role' ] ),
                 'permission_callback' => [ __CLASS__, 'can_edit_role' ],
+                'args'                => self::roleArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/match-prep/(?P<prep_id>\d+)/role/(?P<role_key>[a-z_]+)', [
@@ -136,6 +139,38 @@ class MatchPrepRestController {
             get_current_user_id(),
             (int) ( $prep->activity_id ?? 0 )
         );
+    }
+
+    /**
+     * #3819 — the body `PUT /match-prep/{prep_id}/role` takes.
+     *
+     * No `enum` on `role_key`: `put_role()` checks it against
+     * `MatchPrepRepository::ROLE_KEYS` and answers `bad_role_key`, behind
+     * the per-team gate #3151 added — a caller who may not touch this
+     * team's prep is owed a 403, not a list of the roles it has.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function roleArgs(): array {
+        return [
+            'prep_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match prep, from the URL. A copy in the body is accepted and ignored.' ],
+            'role_key'  => [ 'type' => 'string', 'description' => 'Which role is being filled, e.g. the captain.' ],
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who takes it.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the two share routes act on the match in the URL and take no
+     * body. The token is never read from one: a share link whose token a
+     * caller could choose is a link a caller could guess.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function shareArgs(): array {
+        return [ 'activity_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The match, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     /**
@@ -397,6 +432,10 @@ class MatchPrepRestController {
      * keys outside the canonical set are rejected with `bad_role_key`.
      */
     public static function put_role( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::roleArgs() );
+        if ( $refused !== null ) return $refused;
+
         $prep_id = absint( $r['prep_id'] );
         if ( $prep_id <= 0 ) {
             return RestResponse::error( 'bad_prep', __( 'Invalid match prep id.', 'talenttrack' ), 400 );
@@ -474,6 +513,10 @@ class MatchPrepRestController {
      * `share/rotate` is for.
      */
     public static function create_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::shareArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
@@ -497,6 +540,10 @@ class MatchPrepRestController {
      * this prep. The revocation the seed exists for.
      */
     public static function rotate_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::shareArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );

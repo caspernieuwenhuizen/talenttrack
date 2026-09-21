@@ -63,6 +63,7 @@ class PlayersRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'import_players' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
+                'args'                => self::importArgs(),
             ],
         ]);
         // #3807 — the thin scout card. Its own route on purpose, NOT a
@@ -118,6 +119,7 @@ class PlayersRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_player' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
+                'args'                => self::lifecycleArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/permanent', [
@@ -138,12 +140,43 @@ class PlayersRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'trash_player' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+                'args'                => self::lifecycleArgs(),
             ],
         ] );
     }
 
+    /**
+     * #3819 — the body `POST /players/import` takes alongside the uploaded
+     * file, which arrives as multipart rather than in the body.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function importArgs(): array {
+        return [
+            'dry_run'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Preview the import without writing. Anything but "0" previews, so a commit has to say so.' ],
+            'dupe_strategy' => [ 'type' => 'string', 'description' => 'What to do with a row that matches an existing player: skip, update or create. An unknown value skips.' ],
+        ];
+    }
+
+    /**
+     * #3819 — restore and trash act on the player in the URL and take no
+     * body of their own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function lifecycleArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The player, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     /** #2023 — move an archived player into the recycle bin (reversible). */
     public static function trash_player( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::lifecycleArgs() );
+        if ( $refused !== null ) return $refused;
+
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'player', absint( $r['id'] ), __( 'Player not found.', 'talenttrack' )
         );
@@ -151,6 +184,10 @@ class PlayersRestController {
 
     /** #1470 — restore an archived player. */
     public static function restore_player( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::lifecycleArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid player id.', 'talenttrack' ), 400 );
@@ -579,6 +616,12 @@ class PlayersRestController {
      * Commit response: { created, updated, skipped, errored, error_rows, error_csv }
      */
     public static function import_players( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values. The CSV itself
+        // arrives as a multipart file, not as a body key, so only the two
+        // switches are checked here.
+        $refused = BaseController::checkBody( $r, self::importArgs() );
+        if ( $refused !== null ) return $refused;
+
         $files = $r->get_file_params();
         if ( empty( $files['file'] ) || ! is_array( $files['file'] ) ) {
             return RestResponse::error( 'no_file', __( 'No CSV file uploaded.', 'talenttrack' ), 400 );

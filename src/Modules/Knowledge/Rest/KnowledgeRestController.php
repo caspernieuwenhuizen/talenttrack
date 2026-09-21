@@ -76,7 +76,7 @@ final class KnowledgeRestController {
         ] );
 
         register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/quiz/(?P<lesson>[a-z0-9-]+)', [
-            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'submit_quiz' ],  'permission_callback' => [ __CLASS__, 'can_view' ] ],
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'submit_quiz' ],  'permission_callback' => [ __CLASS__, 'can_view' ], 'args' => self::quizArgs() ],
             [ 'methods' => 'GET',  'callback' => [ __CLASS__, 'quiz_attempts' ], 'permission_callback' => [ __CLASS__, 'can_view' ] ],
         ] );
 
@@ -84,6 +84,7 @@ final class KnowledgeRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'enrol' ],
             'permission_callback' => [ __CLASS__, 'can_enrol_target' ],
+            'args'                => self::enrolArgs(),
         ] );
 
         register_rest_route( self::NS, '/courses/(?P<slug>[a-z0-9-]+)/progress/(?P<lesson>[a-z0-9-]+)', [
@@ -129,6 +130,7 @@ final class KnowledgeRestController {
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'submit_assignment' ],
             'permission_callback' => [ __CLASS__, 'can_view' ],
+            'args'                => self::submissionArgs(),
         ] );
 
         register_rest_route( self::NS, '/submissions', [
@@ -141,6 +143,7 @@ final class KnowledgeRestController {
             'methods'             => 'PATCH',
             'callback'            => [ __CLASS__, 'review_submission' ],
             'permission_callback' => [ __CLASS__, 'can_review' ],
+            'args'                => self::reviewArgs(),
         ] );
 
         // #2650 — the roll-up. Gated on the statistics capability, never on
@@ -383,6 +386,10 @@ final class KnowledgeRestController {
      * wants to see.
      */
     public static function submit_quiz( WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::quizArgs() );
+        if ( $refused !== null ) return $refused;
+
         $slug   = (string) $r['slug'];
         $lesson = (string) $r['lesson'];
 
@@ -547,6 +554,10 @@ final class KnowledgeRestController {
      * deadline is a different decision, tracked in #3708.
      */
     public static function enrol( WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::enrolArgs() );
+        if ( $refused !== null ) return $refused;
+
         $slug = (string) $r['slug'];
 
         if ( CourseRegistry::get( $slug ) === null ) {
@@ -619,11 +630,66 @@ final class KnowledgeRestController {
     }
 
     /**
-     * Mark a lesson read, and/or persist its interactive-block state.
+     * #3819 — the body `POST /courses/{slug}/quiz/{lesson}` takes.
      *
-     * PATCH rather than PUT: the body carries whichever of the two the
-     * reader is reporting, not a whole progress record.
+     * The person is never read from the body: an attempt is recorded
+     * against whoever is calling, so a coach cannot pass a check on a
+     * colleague's behalf.
+     *
+     * @return array<string, array<string, mixed>>
      */
+    private static function quizArgs(): array {
+        return [ 'q' => [
+            'type'        => [ 'object', 'array' ],
+            'description' => 'The answers keyed by question. A question that is not answered is scored as wrong.',
+        ] ];
+    }
+
+    /**
+     * #3819 — the body `POST /courses/{slug}/enrolments` takes.
+     *
+     * Neither field is declared `required`: core checks required params
+     * before the permission callback, and `can_enrol_target()` is what
+     * decides whether the caller may enrol somebody other than themselves.
+     * An omitted `person_id` means the caller.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function enrolArgs(): array {
+        return [
+            'person_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who to enrol. Omitted means the caller.' ],
+            'due_at'    => [ 'type' => [ 'string', 'null' ], 'description' => 'Deadline as YYYY-MM-DD. Ignored when the person is already enrolled, and the answer says so.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the body `POST /courses/{slug}/submissions/{lesson}` takes.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function submissionArgs(): array {
+        return [ 'body' => [
+            'type'        => 'string',
+            'description' => 'The answer being handed in. An empty one is refused with empty_body.',
+        ] ];
+    }
+
+    /**
+     * #3819 — the body `PATCH /submissions/{id}` takes.
+     *
+     * No `enum` on `outcome`: `SubmissionService::review()` decides what it
+     * accepts, and the reviewer is resolved from the caller rather than
+     * read from the body.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function reviewArgs(): array {
+        return [
+            'outcome'  => [ 'type' => 'string', 'description' => 'What the reviewer decided.' ],
+            'feedback' => [ 'type' => 'string', 'description' => 'What the reviewer wants the learner to read.' ],
+        ];
+    }
+
     /**
      * #3852 — the two fields `PATCH /courses/{slug}/progress/{lesson}`
      * writes.
@@ -649,6 +715,12 @@ final class KnowledgeRestController {
         ];
     }
 
+    /**
+     * Mark a lesson read, and/or persist its interactive-block state.
+     *
+     * PATCH rather than PUT: the body carries whichever of the two the
+     * reader is reporting, not a whole progress record.
+     */
     public static function update_progress( WP_REST_Request $r ) {
         $slug   = (string) $r['slug'];
         $lesson = (string) $r['lesson'];
@@ -917,6 +989,10 @@ final class KnowledgeRestController {
      * @return \WP_REST_Response
      */
     public static function submit_assignment( WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::submissionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $slug   = (string) $r['slug'];
         $lesson = (string) $r['lesson'];
 
@@ -1011,6 +1087,10 @@ final class KnowledgeRestController {
      * @return \WP_REST_Response
      */
     public static function review_submission( WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::reviewArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id         = (int) $r['id'];
         $repository = new SubmissionRepository();
         $submission = $repository->find( $id );

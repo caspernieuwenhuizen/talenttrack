@@ -39,6 +39,7 @@ final class InvitationsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'create' ],
                 'permission_callback' => self::permCan( 'tt_manage_invitations' ),
+                'args'                => self::createArgs(),
             ],
         ] );
 
@@ -101,7 +102,34 @@ final class InvitationsRestController extends BaseController {
         return RestResponse::success( array_map( [ self::class, 'serialize' ], is_array( $rows ) ? $rows : [] ) );
     }
 
+    /**
+     * #3819 — the body `POST /invitations` takes.
+     *
+     * The token, the expiry and the creator are stamped by the route, not
+     * read from the body: an invitation whose token a caller could choose
+     * would be an invitation a caller could guess.
+     *
+     * `kind` is not declared `required` although the handler insists on
+     * it. Core checks required params before the permission callback, so
+     * the flag would answer an unauthorised POST with a 400 rather than
+     * the 403 it is owed; `requireFields()` names it behind the gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'kind'      => [ 'type' => 'string', 'description' => 'What the invitation is for, e.g. a player or a staff account.' ],
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the invitation is about, for a player or guardian invitation.' ],
+            'person_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The staff record the invitation is about.' ],
+            'email'     => [ 'type' => 'string', 'description' => 'Where to send it.' ],
+        ];
+    }
+
     public static function create( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $errors = self::requireFields( $req, [ 'kind' ] );
         if ( ! empty( $errors ) ) return RestResponse::errors( $errors, 400 );
 

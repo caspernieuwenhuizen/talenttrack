@@ -44,6 +44,7 @@ class PlayerAttributesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_attributes' ],
                 'permission_callback' => [ __CLASS__, 'can_edit_player' ],
+                'args'                => self::attributesArgs(),
             ],
         ]);
 
@@ -57,6 +58,7 @@ class PlayerAttributesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_matrix' ],
                 'permission_callback' => [ __CLASS__, 'can_change_config' ],
+                'args'                => self::matrixArgs(),
             ],
         ]);
 
@@ -70,6 +72,7 @@ class PlayerAttributesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_config' ],
                 'permission_callback' => [ __CLASS__, 'can_change_config' ],
+                'args'                => self::configArgs(),
             ],
         ]);
 
@@ -116,7 +119,44 @@ class PlayerAttributesRestController {
         return new \WP_REST_Response( [ 'player_id' => $player_id, 'groups' => $grouped ], 200 );
     }
 
+    /**
+     * #3819 — the body these three writes take.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer a caller
+     * with no claim on the player with a 400 rather than the 403 it is
+     * owed. Each handler answers `tt_bad_payload` itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function attributesArgs(): array {
+        return [
+            'player_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'values'    => [ 'type' => 'object', 'description' => 'The scores keyed by attribute definition id. A blank or null value clears that score; a definition the map leaves out is left alone.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function matrixArgs(): array {
+        return [ 'matrix' => [
+            'type'        => 'array',
+            'description' => 'The position pairs as {position_a, position_b, weight} entries. A pair the list leaves out keeps its stored weight.',
+        ] ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function configArgs(): array {
+        return [ 'weights' => [
+            'type'        => 'object',
+            'description' => 'How much each chemistry ingredient counts, keyed by ingredient.',
+        ] ];
+    }
+
     public static function put_attributes( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::attributesArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = absint( $r['player_id'] );
         $values    = $r->get_param( 'values' );
         if ( ! is_array( $values ) ) {
@@ -150,6 +190,10 @@ class PlayerAttributesRestController {
     }
 
     public static function put_matrix( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::matrixArgs() );
+        if ( $refused !== null ) return $refused;
+
         $rows = $r->get_param( 'matrix' );
         if ( ! is_array( $rows ) ) {
             return new \WP_Error( 'tt_bad_payload', __( 'Expected a matrix array.', 'talenttrack' ), [ 'status' => 400 ] );
@@ -175,6 +219,10 @@ class PlayerAttributesRestController {
     }
 
     public static function put_config( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::configArgs() );
+        if ( $refused !== null ) return $refused;
+
         $weights = $r->get_param( 'weights' );
         if ( ! is_array( $weights ) ) {
             return new \WP_Error( 'tt_bad_payload', __( 'Expected a weights map.', 'talenttrack' ), [ 'status' => 400 ] );

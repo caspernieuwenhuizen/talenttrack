@@ -51,8 +51,41 @@ final class ExportRestController {
                 'methods'             => [ 'GET', 'POST' ],
                 'callback'            => [ __CLASS__, 'run' ],
                 'permission_callback' => [ __CLASS__, 'permissionCallback' ],
+                'args'                => self::runArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the reserved keys this route reads itself.
+     *
+     * This is the one write route that does **not** call
+     * `BaseController::checkBody()`, and the reason is in the route's
+     * contract rather than in an oversight: everything the body carries
+     * beyond these keys is the chosen exporter's own filter set, and which
+     * filters exist is a question only that exporter can answer — it does,
+     * in `ExporterInterface::validateFilters()`, which refuses a filter it
+     * does not recognise. A `checkBody()` here would have to enumerate
+     * every filter of every exporter in one list, and would go stale the
+     * first time an exporter grew one.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function runArgs(): array {
+        // None of these declares a `type`, and that follows from the same
+        // decision. Core sanitises and validates against a declared type
+        // whether or not the handler calls `checkBody()`, so a type here
+        // would start rewriting or refusing bodies this route has said it
+        // does not constrain — `rest_sanitize_array()` alone would split a
+        // comma-separated `columns` string the exporter reads whole.
+        return [
+            'key'              => [ 'description' => 'Which export to run, from the URL.' ],
+            'format'           => [ 'description' => 'Which file to produce. Omitted takes the exporter\'s first supported format.' ],
+            'entity_id'        => [ 'description' => 'The record to export, for an export that is about one.' ],
+            'brand'            => [ 'description' => 'How a printed export is headed: auto, blank or letterhead.' ],
+            'columns'          => [ 'description' => 'Which columns to include. The Exports page posts this name; it is read as selected_columns.' ],
+            'selected_columns' => [ 'description' => 'Which columns to include, canonical spelling.' ],
+        ];
     }
 
     /**

@@ -46,6 +46,7 @@ class MeasurementsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'record_result' ],
                 'permission_callback' => [ __CLASS__, 'can_edit_player_from_route' ],
+                'args'                => self::resultArgs(),
             ],
         ]);
 
@@ -64,6 +65,7 @@ class MeasurementsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_result' ],
                 'permission_callback' => [ __CLASS__, 'can_edit_result' ],
+                'args'                => self::resultUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -88,6 +90,7 @@ class MeasurementsRestController {
                 'permission_callback' => function () {
                     return MatrixGate::can( get_current_user_id(), 'measurement_definitions', 'create_delete', 'global' );
                 },
+                'args'                => self::definitionArgs(),
             ],
         ]);
         register_rest_route( self::NS, '/measurements/definitions/(?P<id>\d+)', [
@@ -97,6 +100,7 @@ class MeasurementsRestController {
                 'permission_callback' => function () {
                     return MatrixGate::can( get_current_user_id(), 'measurement_definitions', 'change', 'global' );
                 },
+                'args'                => self::definitionUpdateArgs(),
             ],
         ]);
 
@@ -121,6 +125,7 @@ class MeasurementsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_session' ],
                 'permission_callback' => [ __CLASS__, 'can_create_session' ],
+                'args'                => self::sessionArgs(),
             ],
         ]);
 
@@ -434,7 +439,101 @@ class MeasurementsRestController {
 
     // ── write ───────────────────────────────────────────────────────
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer a caller with no claim on
+     * the player with a 400 naming the fields rather than the 403 it is
+     * owed. Each handler names what it needs behind its own gate.
+     */
+
+    /**
+     * `POST /players/{player_id}/measurements` — one result.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function resultArgs(): array {
+        return [
+            'player_id'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'definition_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which test was taken.' ],
+            'measurement_session_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The testing round this result belongs to, when there is one.' ],
+            'recorded_date'          => [ 'type' => 'string', 'description' => 'When the test was taken, as YYYY-MM-DD.' ],
+            'value_numeric'          => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The result, for a test measured in numbers.' ],
+            'value_text'             => [ 'type' => 'string', 'description' => 'The result, for a test recorded in words.' ],
+        ];
+    }
+
+    /**
+     * `PUT /measurements/results/{id}`. Every field is optional and an
+     * omitted one is left alone (CLAUDE.md §6) — see `update_result()` for
+     * why that had to be said in code as well as here.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function resultUpdateArgs(): array {
+        return [
+            'id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The result, from the URL. A copy in the body is accepted and ignored.' ],
+            'recorded_date' => [ 'type' => 'string', 'description' => 'When the test was taken, as YYYY-MM-DD.' ],
+            'value_numeric' => [ 'type' => [ 'number', 'integer', 'string', 'null' ], 'description' => 'The result, for a test measured in numbers. Blank clears it.' ],
+            'value_text'    => [ 'type' => 'string', 'description' => 'The result, for a test recorded in words. Blank clears it.' ],
+        ];
+    }
+
+    /**
+     * `POST` / `PUT /measurements/definitions[/{id}]` — the older definition
+     * surface. `/measurement-definitions` in the Measurements module is the
+     * richer one; this pair predates it and writes a narrower column set.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function definitionArgs(): array {
+        return [
+            'category_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which category the test sits in.' ],
+            'name'        => [ 'type' => 'string', 'description' => 'What the test is called.' ],
+            'value_type'  => [ 'type' => 'string', 'description' => 'What a result looks like. Defaults to numeric.' ],
+            'unit'        => [ 'type' => 'string', 'description' => 'The unit symbol a result is entered in.' ],
+            'frequency'   => [ 'type' => 'string', 'description' => 'How often the test is taken. Defaults to ad hoc.' ],
+            'direction'   => [ 'type' => 'string', 'description' => 'Which way is better: higher or lower.' ],
+            'visibility'  => [ 'type' => 'string', 'description' => 'Who may see results of this test.' ],
+        ];
+    }
+
+    /**
+     * `PUT /measurements/definitions/{id}`, which additionally accepts the
+     * active flag. Every field is optional and an omitted one is left
+     * alone.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function definitionUpdateArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The test, from the URL. A copy in the body is accepted and ignored.' ],
+            'is_active' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the test is still in use.' ],
+        ] + self::definitionArgs();
+    }
+
+    /**
+     * `POST /measurements/sessions` — a testing round for a team.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function sessionArgs(): array {
+        return [
+            'definition_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which test is being scheduled.' ],
+            'team_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which team is taking it.' ],
+            'planned_date'  => [ 'type' => 'string', 'description' => 'When it is planned for, as YYYY-MM-DD.' ],
+            'status'        => [ 'type' => 'string', 'description' => 'Where the round stands. Defaults to planned.' ],
+            'notes'         => [ 'type' => 'string', 'description' => 'Anything the testers need to know.' ],
+        ];
+    }
+
     public static function record_result( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::resultArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id     = absint( $r['player_id'] );
         $definition_id = absint( $r['definition_id'] ?? 0 );
         if ( $definition_id <= 0 ) {
@@ -456,12 +555,36 @@ class MeasurementsRestController {
     }
 
     public static function update_result( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::resultUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
-        $ok = ( new MeasurementResultsRepository() )->update( $id, [
-            'recorded_date' => sanitize_text_field( (string) ( $r['recorded_date'] ?? '' ) ),
-            'value_numeric' => $r['value_numeric'] ?? '',
-            'value_text'    => sanitize_text_field( (string) ( $r['value_text'] ?? '' ) ),
-        ] );
+
+        // #3819 — build the patch from the keys the body actually carries.
+        // This used to pass all three unconditionally, with `?? ''` filling
+        // in the ones that were absent: the repository is partial, but the
+        // controller made every update total, so a body carrying only
+        // `value_numeric` wrote `recorded_date = ''` and cleared
+        // `value_text`. Moving a result's date also moves it between
+        // seasons, so that was a measurement quietly leaving the window it
+        // was counted in.
+        $patch = [];
+        foreach ( [ 'recorded_date', 'value_numeric', 'value_text' ] as $key ) {
+            if ( ! $r->has_param( $key ) ) continue;
+            $patch[ $key ] = $key === 'value_numeric'
+                ? ( $r[ $key ] ?? '' )
+                : sanitize_text_field( (string) ( $r[ $key ] ?? '' ) );
+        }
+        if ( $patch === [] ) {
+            return new \WP_Error(
+                'tt_no_writable_field',
+                __( 'Send a date, a number or a text value to change.', 'talenttrack' ),
+                [ 'status' => 400, 'allowed' => [ 'recorded_date', 'value_numeric', 'value_text' ] ]
+            );
+        }
+
+        $ok = ( new MeasurementResultsRepository() )->update( $id, $patch );
         return new \WP_REST_Response( [ 'updated' => $ok ], $ok ? 200 : 400 );
     }
 
@@ -472,6 +595,10 @@ class MeasurementsRestController {
     }
 
     public static function create_definition( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::definitionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $name = sanitize_text_field( (string) ( $r['name'] ?? '' ) );
         if ( $name === '' ) {
             return new \WP_Error( 'tt_missing_name', __( 'A test needs a name.', 'talenttrack' ), [ 'status' => 400 ] );
@@ -492,6 +619,10 @@ class MeasurementsRestController {
     }
 
     public static function update_definition( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::definitionUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         $data = [];
         foreach ( [ 'category_id', 'name', 'value_type', 'unit', 'frequency', 'direction', 'is_active', 'visibility' ] as $k ) {
@@ -504,6 +635,10 @@ class MeasurementsRestController {
     }
 
     public static function create_session( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::sessionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = ( new MeasurementSessionsRepository() )->create( [
             'definition_id' => absint( $r['definition_id'] ?? 0 ),
             'team_id'       => absint( $r['team_id'] ?? 0 ),

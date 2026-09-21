@@ -59,6 +59,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_role_type' ],
                 'permission_callback' => function () { return current_user_can( 'tt_manage_functional_roles' ); },
+                'args'                => self::roleTypeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/functional-roles/(?P<id>\d+)', [
@@ -66,6 +67,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_role_type' ],
                 'permission_callback' => function () { return current_user_can( 'tt_manage_functional_roles' ); },
+                'args'                => self::roleTypeUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -78,6 +80,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'move_role_type' ],
                 'permission_callback' => function () { return current_user_can( 'tt_manage_functional_roles' ); },
+                'args'                => self::roleMoveArgs(),
             ],
         ] );
 
@@ -101,6 +104,7 @@ class FunctionalRolesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_assignment' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+                'args'                => self::assignmentUpdateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -120,6 +124,10 @@ class FunctionalRolesRestController {
     }
 
     public static function create_role_type( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::roleTypeArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $key   = sanitize_key( (string) ( $r['role_key'] ?? '' ) );
         $label = sanitize_text_field( (string) ( $r['label'] ?? '' ) );
@@ -149,6 +157,10 @@ class FunctionalRolesRestController {
     }
 
     public static function update_role_type( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::roleTypeUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid role id.', 'talenttrack' ), 400 );
@@ -219,6 +231,10 @@ class FunctionalRolesRestController {
      * with the adjacent row (Q2: arrow buttons rather than DragReorder).
      */
     public static function move_role_type( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::roleMoveArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $id = absint( $r['id'] );
         $direction = sanitize_key( (string) ( $r['direction'] ?? '' ) );
@@ -386,6 +402,72 @@ class FunctionalRolesRestController {
     }
 
     /**
+     * #3819 — the body `POST /functional-roles` takes.
+     *
+     * `is_system` and `sort_order` are absent on purpose: the first
+     * protects the built-in roles and is not the caller's to set, and the
+     * second is derived from the existing rows so a new role lands at the
+     * end. Neither field is declared `required`, because core would check
+     * it before the permission callback and answer an unauthorised POST
+     * with a 400 rather than the 403 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function roleTypeArgs(): array {
+        return [
+            'role_key'    => [ 'type' => 'string', 'description' => 'The key team memberships reference. Fixed once the role exists.' ],
+            'label'       => [ 'type' => 'string', 'description' => 'What the role is called.' ],
+            'description' => [ 'type' => 'string', 'description' => 'What the role covers.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `PUT /functional-roles/{id}`. Only the label and the
+     * description are writable, and an omitted one is left alone
+     * (CLAUDE.md §6). `role_key` is accepted and dropped: team memberships
+     * and the auth-role mapping reference it, so it is fixed once the role
+     * exists.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function roleTypeUpdateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The role type, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::roleTypeArgs();
+    }
+
+    /**
+     * #3819 — `POST /functional-roles/{id}/move`. No `enum` on
+     * `direction`: `move_role_type()` answers `bad_request` for anything
+     * but up or down, behind the capability gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function roleMoveArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The role type, from the URL. A copy in the body is accepted and ignored.' ],
+            'direction' => [ 'type' => 'string', 'description' => 'Which way to move it in the list: up or down.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `PUT /functional-roles/assignments/{assignment_id}`. The
+     * team and the person are fixed for the life of an assignment: moving
+     * either is a different assignment, so neither is accepted here.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function assignmentUpdateArgs(): array {
+        $args = self::assignmentArgs();
+        unset( $args['team_id'], $args['person_id'] );
+        return [ 'assignment_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The assignment, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + $args;
+    }
+
+    /**
      * #3816 — the body `POST /functional-roles/assignments` accepts.
      *
      * The three ids are all needed, and `create_assignment()` names every
@@ -460,6 +542,10 @@ class FunctionalRolesRestController {
      * and unassign + create makes that explicit.
      */
     public static function update_assignment( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::assignmentUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $assignment_id = absint( $r['assignment_id'] );
         if ( $assignment_id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid assignment id.', 'talenttrack' ), 400 );
 

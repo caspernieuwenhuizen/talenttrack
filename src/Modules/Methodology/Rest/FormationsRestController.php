@@ -34,19 +34,25 @@ use TT\Modules\Methodology\Repositories\FormationsRepository;
  */
 final class FormationsRestController extends AbstractMethodologyRestController {
 
-    protected static function restBase(): string {
-        return 'methodology/formations';
-    }
-
     /**
-     * Extend the inherited collection + item routes with the nested
-     * position sub-collection and item routes.
+     * The shared collection + item routes, plus the nested position
+     * sub-collection and item routes.
      */
     public static function register(): void {
-        parent::register();
-        $base = static::restBase();
+        $gate = [ self::class, 'can_edit' ];
 
-        register_rest_route( static::NS, '/' . $base . '/(?P<id>\d+)/positions', [
+        register_rest_route( self::NS, '/methodology/formations', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/formations/(?P<id>\d+)', [
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
+        ] );
+
+        register_rest_route( self::NS, '/methodology/formations/(?P<id>\d+)/positions', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'list_positions' ],
@@ -56,10 +62,11 @@ final class FormationsRestController extends AbstractMethodologyRestController {
                 'methods'             => 'POST',
                 'callback'            => [ static::class, 'create_position' ],
                 'permission_callback' => [ static::class, 'can_edit' ],
+                'args'                => self::positionArgs(),
             ],
         ] );
 
-        register_rest_route( static::NS, '/' . $base . '/(?P<id>\d+)/positions/(?P<pid>\d+)', [
+        register_rest_route( self::NS, '/methodology/formations/(?P<id>\d+)/positions/(?P<pid>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ static::class, 'get_position' ],
@@ -69,6 +76,7 @@ final class FormationsRestController extends AbstractMethodologyRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ static::class, 'update_position' ],
                 'permission_callback' => [ static::class, 'can_edit' ],
+                'args'                => self::positionItemArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -101,6 +109,52 @@ final class FormationsRestController extends AbstractMethodologyRestController {
     }
 
     // ── formations · write ───────────────────────────────────────────
+
+    /**
+     * #3819 — the body the formation writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    protected static function writeArgs(): array {
+        return [
+            'slug'         => [ 'type' => 'string', 'description' => 'The key that identifies the formation.' ],
+            'name'         => [ 'type' => 'object', 'description' => 'The formation name per locale, as {nl, en}.' ],
+            'description'  => [ 'type' => 'object', 'description' => 'What the formation is for, per locale, as {nl, en}.' ],
+            // No `type`: a field that lists `array` goes through
+            // `rest_sanitize_array()`, which splits a plain string on
+            // whitespace and commas — and this one legitimately arrives as
+            // raw JSON.
+            'diagram_data' => [ 'description' => 'The pitch diagram, as an object or its JSON.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the body the nested position writes take.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function positionArgs(): array {
+        return [
+            'id'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The formation, from the URL. A copy in the body is accepted and ignored.' ],
+            'jersey_number'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The shirt number the position card sits on, 1-11.' ],
+            'short_name'      => [ 'type' => 'object', 'description' => 'The short position name per locale, as {nl, en}.' ],
+            'long_name'       => [ 'type' => 'object', 'description' => 'The full position name per locale, as {nl, en}.' ],
+            'attacking_tasks' => [ 'type' => 'object', 'description' => 'The attacking tasks per locale, each a list of lines.' ],
+            'defending_tasks' => [ 'type' => 'object', 'description' => 'The defending tasks per locale, each a list of lines.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `PUT` on one position, on top of `positionArgs()`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function positionItemArgs(): array {
+        return [ 'pid' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The position, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::positionArgs();
+    }
 
     public static function create_item( \WP_REST_Request $r ): \WP_REST_Response {
         $slug = sanitize_text_field( (string) ( $r['slug'] ?? '' ) );
@@ -186,6 +240,10 @@ final class FormationsRestController extends AbstractMethodologyRestController {
     // ── positions · write ────────────────────────────────────────────
 
     public static function create_position( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::positionArgs() );
+        if ( $refused !== null ) return $refused;
+
         $fid  = absint( $r['id'] );
         $repo = new FormationsRepository();
         $parent = $repo->find( $fid );
@@ -210,6 +268,10 @@ final class FormationsRestController extends AbstractMethodologyRestController {
     }
 
     public static function update_position( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::positionItemArgs() );
+        if ( $refused !== null ) return $refused;
+
         $fid  = absint( $r['id'] );
         $pid  = absint( $r['pid'] );
         $repo = new FormationsRepository();
