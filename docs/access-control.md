@@ -311,6 +311,10 @@ The recruitment funnel introduces two new matrix entities, scoped consent-sensit
 - **`prospects`** — Head Coach reads at team scope (their own age group's funnel). Scout has RCD at *self* scope only — a scout literally cannot see another scout's prospects via any code path, enforced at the SQL layer in `ProspectsRepository`. Head of Development and Academy Admin have RCD globally.
 - **`test_trainings`** — same scoping, except Scout reads globally (so a scout can see the upcoming session their prospect was invited to).
 
+**`test_trainings: change` is what `tt_invite_prospects` bridges to**, and it is the gate on inviting a child to the academy: the *Invite to test training* and *Confirm test-training attendance* tasks, and the pipeline's "Arrange test training" button. Head of Development and Academy Admin hold it; Head Coach and Scout read the entity and do not hold it.
+
+Until #3869 the capability was mapped and documented but checked nowhere, so the only real gate on those tasks was who the assignee resolver had addressed them to — granting or revoking the matrix cell changed nothing. It is now checked on the task surface, which means a persona who holds the task without the capability can no longer finish it. They are not left with a dead button: the form renders locked with a note naming who to ask. The parent's signed confirmation link (`GET /prospects/confirm`) bypasses all of this by design — nobody is signed in on it.
+
 ## How a scout holds `player` scope
 
 Most personas hold `player` scope one of two ways: they *are* the player, or they are the player's guardian. A scout is neither, and their matrix rows (`trial_cases`, `trial_inputs`, `evaluations`, `media`) are all written at `player` scope — so until #3566 every one of them resolved to false. Seeded, documented, and dead.
@@ -325,6 +329,22 @@ Three things this deliberately does not do:
 - **It is not persona-blind.** The links count for the **scout** persona only. Player scope used to be resolved without reference to persona; left that way, a user who is both a coach and a parent and happens to sit on a panel would pick up the *parent* rows' player-scoped reads over that trialist.
 - **Discovering a prospect is not a link.** A case promoted from a prospect the scout found does not grant access on its own — standing on the panel does.
 - **A release ends it**, exactly as it ends a guardian's link (see #3476). A released player drops out of a scout's scope with no further action.
+
+### Which statuses keep a scout's link alive
+
+A link survives on two roster statuses, and no others:
+
+| Status | Link | Why |
+| --- | --- | --- |
+| `active` | kept | The player is on the roster; a scout with an assignment or a seat has live work on them. |
+| `trial` | kept | This is the status a panel seat implies — a player whose trial case has a panel is, by definition, on trial. |
+| `inactive` | ends | The player has left the roster; the record is history. |
+| `released` | ends | A release ends the link, as it ends a guardian's. |
+| `graduated` | ends | The player has moved beyond the academy. |
+
+The list is an allowlist rather than "anything except `released`", so a status added later is opted in deliberately rather than inheriting access by default.
+
+Separately from the status, a player who has been **archived** or moved to the **recycle bin** is out of a scout's scope regardless of the status they carry — the same `active` lifecycle filter every list view applies.
 
 The scout's `trial_synthesis` row was **removed** rather than woken up. It would have opened the Execution tab — other panellists' inputs, before release — to any scout on any panel. A scout sees their own input before release and the panel's only after it.
 

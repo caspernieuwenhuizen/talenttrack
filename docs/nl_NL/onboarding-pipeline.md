@@ -51,7 +51,24 @@ De wizard is het canonieke startpunt voor "+ Nieuwe prospect". Klikken op de kno
 
 - **`tt_view_prospects`** — vereist om de pijplijn te openen. Standaard toegekend aan Academy Admin, Hoofd Ontwikkeling, Scout en Hoofdtrainer.
 - **`tt_edit_prospects`** — vereist om de Nieuwe prospect-wizard te starten. Toegekend aan Academy Admin, Hoofd Ontwikkeling en Scout — een hoofdtrainer leest de pijplijn, maar vult die niet aan.
-- **`tt_invite_prospects`** — vereist om de klus *Uitnodigen voor testtraining* af te ronden (HoD-pad).
+- **`tt_invite_prospects`** — vereist om de klussen *Uitnodigen voor
+  testtraining* en *Aanwezigheid testtraining bevestigen* af te ronden, en om
+  vanuit de pijplijn een testtraining te regelen. Alleen toegekend aan Academy
+  Admin en Hoofd Ontwikkeling.
+
+De uitnodigingsklus toegewezen krijgen is op zichzelf niet genoeg om hem af te
+ronden: het recht wordt óók gecontroleerd. Wie de klus heeft maar het recht
+niet, kan hem nog wel openen en lezen, maar het formulier is vergrendeld en
+draagt een melding met het verzoek een academy-beheerder het recht te laten
+toekennen of de klus over te laten nemen. Dat is een wijziging — voorheen kon
+de klus worden afgerond door wie hem toevallig had gekregen. De **hoofdtrainer**
+is de persona die dit raakt: die leest de pijplijn en de testtrainingen van de
+eigen selectie, maar het eerste bezoek van een kind aan de academie regelen is
+een beslissing van de Hoofd Ontwikkeling.
+
+De bevestigingslink voor de ouder verandert niet. Dat is een ondertekende
+eenmalige URL die de bevestigingsklus afrondt zonder dat iemand inlogt, dus
+daar komt geen personeelsrecht aan te pas.
 
 ### Wie welke prospects ziet
 

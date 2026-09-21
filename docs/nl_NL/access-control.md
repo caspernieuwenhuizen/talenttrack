@@ -305,6 +305,10 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 - **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd Opleiding en Academy Admin hebben RCD globaal.
 - **`test_trainings`** — zelfde toegangsbereik, behalve dat de Scout deze globaal mag lezen (zodat een scout de geplande sessie kan zien waarvoor zijn prospect is uitgenodigd).
 
+**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd Ontwikkeling en Academy Admin hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
+
+Tot #3869 was het recht wel gekoppeld en gedocumenteerd maar nergens gecontroleerd, zodat het enige echte slot op die klussen was aan wie de toewijzer ze had gericht — de matrixcel aan- of uitzetten veranderde niets. Het wordt nu op de kluspagina gecontroleerd, wat betekent dat een persona die de klus wél heeft maar het recht niet, hem niet langer kan afronden. Die blijft niet met een dode knop achter: het formulier wordt vergrendeld getoond met een melding wie je erom moet vragen. De ondertekende bevestigingslink voor de ouder (`GET /prospects/confirm`) omzeilt dit alles met opzet — daar is niemand ingelogd.
+
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
 ## Staf-only notities — `staff_only_notes`
@@ -582,6 +586,22 @@ Drie dingen die dit bewust *niet* doet:
 - **Het geldt niet voor elke persona.** De koppelingen tellen alleen voor de persona **scout**. Player-scope werd voorheen zonder persona bepaald; zo gelaten zou iemand die zowel coach als ouder is en toevallig in een panel zit, de player-scope-leesrechten van de *ouder*-rijen over die stagespeler krijgen.
 - **Een prospect vinden is geen koppeling.** Een dossier dat voortkomt uit een prospect die de scout heeft aangedragen, geeft op zichzelf geen toegang — in het panel zitten wel.
 - **Een uitschrijving beëindigt de koppeling**, net zoals bij een ouder (zie #3476). Een uitgeschreven speler valt vanzelf buiten de scope van de scout.
+
+### Bij welke statussen blijft de koppeling van een scout bestaan
+
+Een koppeling blijft bestaan bij twee selectiestatussen, en bij geen enkele andere:
+
+| Status | Koppeling | Waarom |
+| --- | --- | --- |
+| `active` | blijft | De speler staat in de selectie; een scout met een toewijzing of een panelplek heeft lopend werk aan deze speler. |
+| `trial` | blijft | Dit is de status die een panelplek veronderstelt — een speler met een stagedossier mét panel is per definitie op stage. |
+| `inactive` | eindigt | De speler heeft de selectie verlaten; het dossier is geschiedenis. |
+| `released` | eindigt | Een uitschrijving beëindigt de koppeling, net als bij een ouder. |
+| `graduated` | eindigt | De speler is de opleiding ontgroeid. |
+
+Het is een toelatingslijst en niet "alles behalve `released`", zodat een status die er later bij komt bewust wordt toegelaten in plaats van de toegang automatisch te erven.
+
+Los van de status valt een speler die **gearchiveerd** is of in de **prullenbak** staat buiten de scope van een scout, ongeacht welke status hij draagt — dezelfde levenscyclusfilter `active` die elk overzicht toepast.
 
 De rij `trial_synthesis` van de scout is **verwijderd** in plaats van geactiveerd. Die zou het tabblad Uitvoering — de input van andere panelleden, vóór vrijgave — openzetten voor elke scout in elk panel. Een scout ziet zijn eigen input vóór vrijgave en die van het panel pas erna.
 

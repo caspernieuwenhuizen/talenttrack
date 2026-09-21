@@ -47,6 +47,14 @@ class ConfirmTestTrainingTemplate extends TaskTemplate {
 
     public function featureKey(): ?string { return 'onboarding_pipeline_workflow'; }
 
+    /**
+     * Same authority as the invitation it follows: recording what the
+     * family answered is part of arranging the visit. The parent's own
+     * route is the token-signed `GET /prospects/confirm`, which never
+     * passes through a staff surface and is unaffected.
+     */
+    public function requiredCapability(): ?string { return 'tt_invite_prospects'; }
+
     public function name(): string {
         return __( 'Confirm test-training attendance', 'talenttrack' );
     }

@@ -394,6 +394,16 @@ Eén verwante handelings-capability werd onder #1939 **bewust niet gebrugd** omd
 
 - **`tt_rate_player_behaviour`** bleef onder #1939 op de native WP-capability-evaluatie. De ruwe toekenning omvat `tt_assistant_coach`, maar de seed van `player_behaviour_ratings` heeft geen `assistant_coach`-rij (verwijderd door #1060). Brugging zou de assistent-coach-toegang intrekken — een effectieve-toegangswijziging, geen handhaving-alleen herverwijzing — dus werd dit gemarkeerd voor een productbeslissing (de les van #1922: verplaats nooit stilletjes toegang terwijl je "slechts" een capability brugt). De beslissing landde in #1941.
 
+## Een gekoppeld recht dat nergens werd gecontroleerd — `test_trainings: change` (#3869)
+
+`tt_invite_prospects` komt uit op **`test_trainings: change`**, en was gekoppeld, gedocumenteerd en zichtbaar op dit raster zonder dat één oppervlak erom vroeg. De cel voor een persona omzetten veranderde niets zichtbaars. Een rechtenscherm dat niets doet is erger dan geen rechtenscherm, want een beheerder die een cel intrekt gaat er redelijkerwijs van uit dat de toegang meeging.
+
+Nu bindt het wel. De klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn, lopen er allemaal langs.
+
+**Wie dit raakt.** `change` op `test_trainings` is toegekend aan **Hoofd Ontwikkeling** en **Academy Admin**. **Hoofdtrainer** (lezen, team) en **Scout** (lezen, globaal) hebben het niet, en een hoofdtrainer die de uitnodigingsklus had gekregen kan hem niet langer afronden — de aanvaarde prijs van de beslissing daar leggen waar #3710 hem legde. Niemand blijft naar een knop staren die niets doet: de klus opent alleen-lezen met een melding welk recht ontbreekt en wie je erom moet vragen.
+
+Workflow-sjablonen geven dit zelf aan, via `TaskTemplateInterface::requiredCapability()`. Een sjabloon dat null teruggeeft houdt toewijzing als enige slot, wat voor elk ander sjabloon nog steeds geldt.
+
 ## Mappingrij-bruggen + twee goedgekeurde toegangswijzigingen
 
 #1941 (kind van #1757) brugt zes verouderde handelings-capabilities naar matrixtupels waarvan de entiteit + activiteit **al geseed** is, zodat de frontend- en REST-oppervlakken die op elke capability gaten nu vanuit hetzelfde `MatrixGate`-antwoord oplossen (`current_user_can()` loopt via `LegacyCapMapper` wanneer de matrix actief is). Vier zijn toegangsbehoudend; twee dragen een goedgekeurde effectieve-toegangswijziging.

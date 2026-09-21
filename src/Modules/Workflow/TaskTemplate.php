@@ -21,6 +21,14 @@ abstract class TaskTemplate implements TaskTemplateInterface {
         return null;
     }
 
+    /**
+     * Default: assignment alone decides who may finish the task.
+     * Override to name a capability the assignee must also hold.
+     */
+    public function requiredCapability(): ?string {
+        return null;
+    }
+
     /** Default: a single task, no fan-out. Override in fan-out templates. */
     public function expandTrigger( TaskContext $context ): array {
         return [ $context ];

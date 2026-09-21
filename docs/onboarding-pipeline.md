@@ -51,7 +51,23 @@ The wizard is the canonical "+ New prospect" entry point. Clicking the button op
 
 - **`tt_view_prospects`** — required to open the pipeline. Granted by default to Academy Admin, Head of Development, Scout and Head Coach.
 - **`tt_edit_prospects`** — required to launch the New prospect wizard. Granted to Academy Admin, Head of Development and Scout — a head coach reads the funnel, they do not add to it.
-- **`tt_invite_prospects`** — required to complete the *Invite to test training* task (HoD path).
+- **`tt_invite_prospects`** — required to complete the *Invite to test training*
+  and *Confirm test-training attendance* tasks, and to arrange a test training
+  from the pipeline. Granted to Academy Admin and Head of Development only.
+
+Being given the invite task is not, on its own, enough to finish it: the
+capability is checked as well. Somebody who holds the task without the
+capability can still open it and read what it says, but the form is locked and
+carries a note asking them to get an academy administrator to grant the
+permission or hand the task on. That is a change — before, the task could be
+finished by whoever it happened to be addressed to. A **head coach** is the
+persona this affects: they read the funnel and their squad's test trainings,
+but arranging a child's first visit to the academy is the Head of Development's
+call.
+
+The parent's own confirmation link is not affected. It is a signed one-time URL
+that completes the confirmation task without anyone signing in, so no staff
+permission is involved.
 
 ### Who sees which prospects
 

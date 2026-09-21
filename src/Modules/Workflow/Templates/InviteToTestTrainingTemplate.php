@@ -40,6 +40,14 @@ class InviteToTestTrainingTemplate extends TaskTemplate {
 
     public function featureKey(): ?string { return 'onboarding_pipeline_workflow'; }
 
+    /**
+     * The resolver addresses this to the head-of-development role; the
+     * authority to invite a child to the academy is `tt_invite_prospects`.
+     * Those are two different things, and where they came apart the task
+     * used to be finishable by whoever held it.
+     */
+    public function requiredCapability(): ?string { return 'tt_invite_prospects'; }
+
     public function name(): string {
         return __( 'Invite prospect to test training', 'talenttrack' );
     }

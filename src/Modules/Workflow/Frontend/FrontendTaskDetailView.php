@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\TaskStatus;
@@ -74,6 +75,25 @@ class FrontendTaskDetailView extends FrontendViewBase {
             self::renderHeader( __( 'Task template missing', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'The template for this task is no longer registered. Contact an administrator.', 'talenttrack' ) . '</p>';
             return;
+        }
+
+        // #3869 — a template may name a capability its assignee must also
+        // hold. Until this, assignment was the only gate, so a capability
+        // an administrator could grant or revoke in the matrix made no
+        // difference to who could finish the task it claimed to govern.
+        //
+        // Read-only viewing is deliberately left alone: somebody who
+        // opens the task from a kanban card still sees what it is and
+        // who holds it. What the missing capability takes away is the
+        // ability to submit — and it says so, rather than presenting a
+        // form whose button quietly went missing.
+        $required_cap  = $template->requiredCapability();
+        $lacks_cap     = $required_cap !== null
+            && ! AuthorizationService::userCanOrMatrix( $user_id, $required_cap );
+        $cap_refusal   = $lacks_cap && $can_submit;
+        if ( $lacks_cap ) {
+            $can_submit  = false;
+            $is_takeover = false;
         }
 
         $form_class = $template->formClass();
@@ -184,6 +204,16 @@ class FrontendTaskDetailView extends FrontendViewBase {
         // "completing on behalf of [Name]" amber note so the operator
         // sees they're acting as a stand-in.
         echo self::renderTaskFacts( $task, $is_assignee, $is_takeover );
+
+        // #3869 — the refusal, for somebody who would otherwise have been
+        // able to submit. It names what is missing and who to ask, because
+        // the failure this replaces was a form that saved nothing and said
+        // nothing about why.
+        if ( $cap_refusal && ! $is_completed ) {
+            echo '<div class="tt-notice tt-notice-warning tt-workflow-task-refusal">'
+                . esc_html__( 'This task is yours, but completing it needs a permission you do not hold. Ask an academy administrator to grant it, or to hand the task to somebody who has it.', 'talenttrack' )
+                . '</div>';
+        }
 
         if ( ! empty( $errors['__form'] ) ) {
             echo '<div class="tt-notice notice-error" style="background:#fdecea; border-left:4px solid #b32d2e; padding:8px 12px; margin: 8px 0 16px;">'
