@@ -128,6 +128,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'POST',
+                'args'                => self::createArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'create_tournament' ] ),
                 'permission_callback' => $can_create,
             ],
@@ -147,6 +148,7 @@ class TournamentsRestController {
             ],
             [
                 'methods'             => 'PUT',
+                'args'                => self::updateArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'update_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -169,6 +171,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/restore', [
             [
                 'methods'             => 'POST',
+                'args'                => self::tournamentIdArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'restore_tournament' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament( get_current_user_id(), (int) $r['id'] );
@@ -190,6 +193,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/trash', [
             [
                 'methods'             => 'POST',
+                'args'                => self::tournamentIdArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'trash_tournament' ] ),
                 'permission_callback' => function () {
                     return current_user_can( 'tt_edit_settings' );
@@ -215,6 +219,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches', [
             [
                 'methods'             => 'POST',
+                'args'                => self::matchArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'create_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -229,6 +234,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)', [
             [
                 'methods'             => 'PATCH',
+                'args'                => self::matchUpdateArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'update_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -270,6 +276,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/kickoff', [
             [
                 'methods'             => 'POST',
+                'args'                => self::matchIdArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'kickoff_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -285,6 +292,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/complete', [
             [
                 'methods'             => 'POST',
+                'args'                => self::matchIdArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'complete_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -306,6 +314,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/auto-plan', [
             [
                 'methods'             => 'POST',
+                'args'                => self::matchIdArgs(),
                 'callback'            => self::gateAutoBalance( [ __CLASS__, 'auto_plan' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' )
@@ -323,6 +332,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/assignments', [
             [
                 'methods'             => 'PATCH',
+                'args'                => self::assignmentsArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'update_assignments' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -337,6 +347,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/squad', [
             [
                 'methods'             => 'PATCH',
+                'args'                => self::squadArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'replace_squad' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -351,6 +362,7 @@ class TournamentsRestController {
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/squad/(?P<player_id>\d+)', [
             [
                 'methods'             => 'PATCH',
+                'args'                => self::squadMemberArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'update_squad_member' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -466,6 +478,10 @@ class TournamentsRestController {
      * single request hydrates the new tournament end-to-end.
      */
     public static function create_tournament( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb; $p = $wpdb->prefix;
 
         $payload = self::extractTournament( $r );
@@ -531,6 +547,10 @@ class TournamentsRestController {
     }
 
     public static function update_tournament( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb; $p = $wpdb->prefix;
         $id = (int) $r['id'];
         $existing = self::fetchTournamentRow( $id );
@@ -584,6 +604,10 @@ class TournamentsRestController {
 
     /** #1784 — restore an archived tournament. */
     public static function restore_tournament( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::tournamentIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid tournament id.', 'talenttrack' ), 400 );
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'tournament', [ $id ] );
@@ -612,6 +636,10 @@ class TournamentsRestController {
 
     /** #2023 — move an archived tournament into the recycle bin (reversible). */
     public static function trash_tournament( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::tournamentIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'tournament', (int) $r['id'], __( 'Tournament not found.', 'talenttrack' )
         );
@@ -636,6 +664,10 @@ class TournamentsRestController {
     }
 
     public static function create_match( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::matchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $tournament_id = (int) $r['id'];
         $existing = self::fetchTournamentRow( $tournament_id );
         if ( ! $existing ) return RestResponse::notFound( 'tournament_not_found' );
@@ -722,6 +754,10 @@ class TournamentsRestController {
      * 14 rows, ~600 bytes JSON).
      */
     public static function update_assignments( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::assignmentsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
 
@@ -814,6 +850,12 @@ class TournamentsRestController {
      * existing activity_id without creating a duplicate.
      */
     public static function kickoff_match( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values. `complete_match()`
+        // calls this one with the same request, and the two declare the
+        // same fields, so the check answers the same either way.
+        $refused = BaseController::checkBody( $r, self::matchIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
 
@@ -917,6 +959,10 @@ class TournamentsRestController {
      * Idempotent: re-running re-syncs attendance.
      */
     public static function complete_match( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::matchIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
 
@@ -1043,6 +1089,10 @@ class TournamentsRestController {
      * planner grid.
      */
     public static function auto_plan( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::matchIdArgs() );
+        if ( $refused !== null ) return $refused;
+
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
 
@@ -1308,6 +1358,10 @@ class TournamentsRestController {
      * is on the row.
      */
     public static function update_match( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::matchUpdateArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
@@ -1371,6 +1425,12 @@ class TournamentsRestController {
      * Wipes existing squad rows (and dependent assignments) then re-inserts.
      */
     public static function replace_squad( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values, and before the
+        // assignments are cleared: a body this route cannot read must not
+        // wipe a tournament's plans on its way to being refused.
+        $refused = BaseController::checkBody( $r, self::squadArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
 
@@ -1400,6 +1460,10 @@ class TournamentsRestController {
     }
 
     public static function update_squad_member( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::squadMemberArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $player_id     = (int) $r['player_id'];
@@ -1518,6 +1582,153 @@ class TournamentsRestController {
      * both create (full payload + uuid/created_by stamps) and update
      * (subset of mutable fields).
      */
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Nothing on this surface is declared `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback, so a required field would answer a caller with no claim on
+     * the tournament with a 400 naming the fields rather than the 403
+     * `canEditTournament()` owes them. Each handler names what it needs.
+     *
+     * `club_id`, `uuid`, `created_by`, `sequence` and `activity_id` are
+     * absent from every declaration here. The first three are stamped from
+     * the request context; the last two are the route's own bookkeeping,
+     * and the update extractor already refuses to write them.
+     */
+
+    /**
+     * `POST /tournaments`, including the wizard's nested squad and
+     * fixtures on its final step.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return self::tournamentFieldArgs() + [
+            'squad'   => [ 'type' => 'array', 'description' => 'The players taking part, each as a squad entry. Optional; the wizard sends it with the tournament.' ],
+            'matches' => [ 'type' => 'array', 'description' => 'The fixtures, in order. Checked before the tournament row is written, so a bad one refuses the request rather than leaving a tournament with some of its fixtures missing.' ],
+        ];
+    }
+
+    /**
+     * `PUT /tournaments/{id}`. The whole row is rebuilt from these fields,
+     * so a key left out is cleared rather than kept — which is why the
+     * edit form posts all of them.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return self::tournamentIdArgs() + self::tournamentFieldArgs();
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function tournamentFieldArgs(): array {
+        return [
+            'name'              => [ 'type' => 'string', 'description' => 'What the tournament is called.' ],
+            'team_id'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team playing it.' ],
+            'start_date'        => [ 'type' => 'string', 'description' => 'The first day, as YYYY-MM-DD.' ],
+            'end_date'          => [ 'type' => 'string', 'description' => 'The last day, as YYYY-MM-DD. Blank for a one-day tournament.' ],
+            'default_formation' => [ 'type' => 'string', 'description' => 'The formation a fixture uses when it names none of its own.' ],
+            'notes'             => [ 'type' => 'string', 'description' => 'Anything the staff need to know.' ],
+        ];
+    }
+
+    /**
+     * `POST /tournaments/{id}/matches` — one fixture.
+     *
+     * No `enum` on `opponent_level`: `rejectUnknownOpponentLevel()`
+     * answers with the levels this academy has configured, which a list
+     * hard-coded here could not.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function matchArgs(): array {
+        return self::tournamentIdArgs() + [
+            'label'                => [ 'type' => 'string', 'description' => 'What to call the fixture.' ],
+            'opponent_name'        => [ 'type' => 'string', 'description' => 'Who it is against.' ],
+            'opponent_level'       => [ 'type' => 'string', 'description' => 'How strong they are, from the configured levels.' ],
+            'formation'            => [ 'type' => 'string', 'description' => 'The formation for this fixture. Blank falls back to the tournament\'s.' ],
+            'duration_min'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the fixture lasts, in minutes. Defaults to 20.' ],
+            'substitution_windows' => [ 'type' => 'array', 'description' => 'The minutes the planner may change the lineup at. One more period than windows.' ],
+            'scheduled_at'         => [ 'type' => 'string', 'description' => 'When it kicks off.' ],
+            'our_score'            => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for. Null or blank means no result recorded, which is not the same as nil.' ],
+            'their_score'          => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals against. Null or blank means no result recorded.' ],
+            'notes'                => [ 'type' => 'string', 'description' => 'Anything worth remembering about the fixture.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /tournaments/{id}/matches/{match_id}`. Every field is
+     * optional and an omitted one is left alone (CLAUDE.md §6) — the
+     * extractor writes only what the request names.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function matchUpdateArgs(): array {
+        return self::matchIdArgs() + self::matchArgs();
+    }
+
+    /**
+     * `PATCH /tournaments/{id}/matches/{match_id}/assignments` — the
+     * lineup, period by period.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function assignmentsArgs(): array {
+        return self::matchIdArgs() + [
+            'assignments' => [ 'type' => 'array', 'description' => 'Who plays where, per period. A row naming a player who is not in this tournament\'s squad is dropped.' ],
+            'force'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Edit the lineup of a fixture that is already completed.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /tournaments/{id}/squad` — the whole squad at once. Changing
+     * it clears every fixture's lineup, because a plan built around a
+     * squad no longer holds once the squad moves.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function squadArgs(): array {
+        return self::tournamentIdArgs() + [
+            'squad' => [ 'type' => 'array', 'description' => 'The players taking part, each as {player_id, eligible_positions, target_minutes, notes}. Replaces the squad.' ],
+        ];
+    }
+
+    /**
+     * `PATCH /tournaments/{id}/squad/{player_id}` — one player's entry.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function squadMemberArgs(): array {
+        return self::tournamentIdArgs() + [
+            'player_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'eligible_positions' => [ 'type' => [ 'array', 'string' ], 'description' => 'Where this player can be used.' ],
+            'target_minutes'     => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How many minutes they should get across the tournament. Blank falls back to the shared target.' ],
+            'notes'              => [ 'type' => 'string', 'description' => 'Anything about their availability.' ],
+        ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function tournamentIdArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The tournament, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /**
+     * The routes that act on one fixture: kickoff, complete and auto-plan
+     * take nothing but these two, which are both URL segments.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function matchIdArgs(): array {
+        return self::tournamentIdArgs() + [ 'match_id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The fixture, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     private static function extractTournament( \WP_REST_Request $r ): array {
         $start = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) );
         $end   = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) );
