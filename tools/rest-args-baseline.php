@@ -10,16 +10,6 @@
  */
 
 return [
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<activity_id>\\d+)/contributions | PUT',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<activity_id>\\d+)/result | PUT',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/evaluation-skipped | PATCH',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/guests | POST',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/ratings/bulk | POST',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/restore | POST',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /activities/(?P<id>\\d+)/status | POST',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /attendance/(?P<id>\\d+) | PATCH',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /attendance/bulk | POST',
-    'src/Infrastructure/REST/ActivitiesRestController.php | /minutes/bulk | POST',
     'src/Infrastructure/REST/BackupRestController.php | /backups/(?P<id>[A-Za-z0-9._-]+)/restore | POST',
     'src/Infrastructure/REST/BackupRestController.php | /backups/migration/commit | POST',
     'src/Infrastructure/REST/BackupRestController.php | /backups/migration/dry-run | POST',
