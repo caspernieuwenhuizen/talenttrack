@@ -1,0 +1,94 @@
+/*
+ * InviteToTestTrainingForm (#3932).
+ *
+ * The form a head of development fills in for every prospect. It was
+ * built from `style="…"` attributes with hardcoded hex, so it ignored the
+ * club theme entirely — a club running its own palette got white cards
+ * and grey rules in the middle of its own colours. Nothing here is new
+ * styling; it is the same look, read from the design tokens so a themed
+ * install gets its own.
+ *
+ * Mobile-first; breakpoints 480 / 768 only. Scoped under `.tt-itt-form`
+ * so it cannot leak into the other workflow task forms.
+ */
+
+.tt-dashboard .tt-itt-form {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-itt-form > * + * {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-itt-subject {
+    margin: 0;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-itt-form h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-itt-or {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-itt-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+}
+
+.tt-dashboard .tt-itt-field > label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-itt-field > input,
+.tt-dashboard .tt-itt-field > select,
+.tt-dashboard .tt-itt-field > textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    font: inherit;
+    font-size: 1rem; /* >=16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-itt-field > textarea {
+    min-height: 8rem;
+    padding: var(--tt-sp-3, 12px);
+    line-height: var(--tt-lh-body, 1.5);
+    resize: vertical;
+}
+
+.tt-dashboard .tt-itt-field > input:focus-visible,
+.tt-dashboard .tt-itt-field > select:focus-visible,
+.tt-dashboard .tt-itt-field > textarea:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* A locked form — the task is completed, or the viewer may not submit. */
+.tt-dashboard .tt-itt-field > :disabled {
+    opacity: 0.7;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-itt-form {
+        padding: var(--tt-sp-6, 24px);
+    }
+}

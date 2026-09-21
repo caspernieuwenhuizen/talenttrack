@@ -118,7 +118,19 @@ Een prospect bereikt **Uitgenodigd** pas als iemand de klus **Uitnodigen voor te
 Klik je op zijn kaart, dan biedt het paneel boven het bord nu een weg vooruit:
 
 - **Testtraining voorstellen** — voor een scout, of iedereen die wel aan de trechter mag toevoegen maar de uitnodiging niet mag versturen. Het vraagt de Hoofd Opleidingen er een te regelen. De volgende actie van de prospect wordt meteen *Uitnodigen voor testtraining*, en de kaart schuift naar **Uitgenodigd** zodra de Hoofd Opleidingen hem verstuurt.
-- **Testtraining regelen** — voor de Hoofd Opleidingen en iedereen met `tt_invite_prospects`. Die hoeft zichzelf niets te vragen, dus de knop brengt hem naar het formulier Nieuwe testtraining in plaats van een klus aan te maken.
+- **Testtraining regelen** — voor de Hoofd Opleidingen en iedereen met `tt_invite_prospects`. Die hoeft zichzelf niets te vragen, dus de knop brengt hem naar het formulier Nieuwe testtraining in plaats van een klus aan te maken. **De prospect gaat mee**: het formulier opent met dat kind al gekozen, en bij opslaan wordt de uitnodiging op naam vastgelegd.
+
+### De prospect op het formulier Nieuwe testtraining
+
+**Configuratie → Testtrainingen → Nieuw**, of de knop *Testtraining regelen* in de pijplijn, wat hetzelfde formulier is op `?tt_view=test-trainings&action=new&prospect_id=…`.
+
+- **Kom je van het kaartje van een prospect**, dan opent het veld **Prospect** met dat kind geselecteerd. Sla je op, dan gaat het naar **Uitgenodigd** — precies alsof de klus *Uitnodigen voor testtraining* was afgerond, want dat is wat eronder wordt vastgelegd.
+- **Kom je er koud binnen**, dan is het veld een gewone keuzelijst op *Nog niemand*. Een open sessie inplannen en er later kinderen aan koppelen is heel normaal, dus hier is niets verplicht.
+- **Een id dat niets oplevert** — een vertikte URL, een prospect die iemand anders heeft vastgelegd en die jij niet mag zien, of een prospect die al is doorgestroomd of gearchiveerd — opent het veld leeg en zegt verder niets. Het vertelt bewust niet of die prospect bestaat.
+- De keuzelijst toont alleen prospects die jij mag uitnodigen. Zonder `tt_invite_prospects` verschijnt het veld helemaal niet, en plant het formulier nog steeds een losse sessie in.
+- **De toestemmingsregel geldt hier ook.** Een kind koppelen van wie het gezin niet akkoord is, wordt geweigerd met dezelfde melding als bij de uitnodigingsklus, en er wordt niets opgeslagen — ook de sessie niet.
+
+De twee routes komen samen: of de uitnodiging nu vanuit de klus of vanuit dit formulier is geregeld, wat er blijft staan is dezelfde afgeronde klus *Uitnodigen voor testtraining*, zodat het bord, de faseclassifier en de rapportages één vorm van hetzelfde feit lezen.
 
 Twee keer voorstellen doet de tweede keer niets, en twee scouts die dezelfde prospect voorstellen leveren samen één verzoek op — de Hoofd Opleidingen wordt één keer over een kind gevraagd.
 
