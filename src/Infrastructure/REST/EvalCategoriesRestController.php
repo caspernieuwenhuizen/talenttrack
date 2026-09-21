@@ -40,6 +40,7 @@ class EvalCategoriesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_category' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/eval-categories/(?P<id>\d+)', [
@@ -47,6 +48,7 @@ class EvalCategoriesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_category' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -59,8 +61,64 @@ class EvalCategoriesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'move_category' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluation_categories' ); },
+                'args'                => self::moveArgs(),
             ],
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body an evaluation-category write takes.
+     *
+     * Every key is written on every save: `extract()` fills a missing one
+     * with its default rather than leaving the stored value alone, so this
+     * is a total update in both directions. That is the route's
+     * long-standing behaviour and the inline editor posts the whole form.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     * `create_category()` names the label itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'category_key'  => [ 'type' => 'string', 'description' => 'The key ratings reference. Blank on create is derived from the label; it cannot be changed afterwards.' ],
+            'label'         => [ 'type' => 'string', 'description' => 'What the category is called.' ],
+            'description'   => [ 'type' => 'string', 'description' => 'What the category covers.' ],
+            'parent_id'     => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'The category this one sits under. Blank or 0 makes it top level.' ],
+            'display_order' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where it sits among its siblings.' ],
+            'is_active'     => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the category is still in use. Omitted means yes.' ],
+        ];
+    }
+
+    /**
+     * `PUT /eval-categories/{id}`. `category_key` is accepted and dropped:
+     * ratings reference it, so it is fixed once the category exists.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The category, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
+    /**
+     * `POST /eval-categories/{id}/move`. No `enum` on `direction`:
+     * `move_category()` answers `bad_request` for anything but up or down,
+     * behind the capability gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function moveArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The category, from the URL. A copy in the body is accepted and ignored.' ],
+            'direction' => [ 'type' => 'string', 'description' => 'Which way to move it among its siblings: up or down.' ],
+        ];
     }
 
     public static function list_categories( \WP_REST_Request $r ) {
@@ -71,6 +129,10 @@ class EvalCategoriesRestController {
     }
 
     public static function create_category( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $data = self::extract( $r );
         if ( $data['label'] === '' ) {
             return RestResponse::error( 'missing_fields', __( 'A label is required.', 'talenttrack' ), 400 );
@@ -89,6 +151,10 @@ class EvalCategoriesRestController {
     }
 
     public static function update_category( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid category id.', 'talenttrack' ), 400 );
         $data = self::extract( $r );
@@ -151,6 +217,10 @@ class EvalCategoriesRestController {
     }
 
     public static function move_category( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::moveArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $id = absint( $r['id'] );
         $direction = sanitize_key( (string) ( $r['direction'] ?? '' ) );

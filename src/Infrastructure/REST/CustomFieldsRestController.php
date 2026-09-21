@@ -35,6 +35,7 @@ class CustomFieldsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_field' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/custom-fields/(?P<id>\d+)', [
@@ -42,6 +43,7 @@ class CustomFieldsRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_field' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -54,8 +56,65 @@ class CustomFieldsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'move_field' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_custom_fields' ); },
+                'args'                => self::moveArgs(),
             ],
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body a custom-field write takes.
+     *
+     * Every key is written on every save: `extract()` fills a missing one
+     * with its default rather than leaving the stored value alone, so this
+     * is a total update in both directions, and the settings form posts
+     * the whole thing.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     * `validate()` names what is wrong, with a field-by-field `errors` map.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'entity_type' => [ 'type' => 'string', 'description' => 'Which kind of record the field is added to.' ],
+            'field_key'   => [ 'type' => 'string', 'description' => 'The key the stored value is filed under. Blank on create is derived from the label.' ],
+            'label'       => [ 'type' => 'string', 'description' => 'What the field is called on the form.' ],
+            'field_type'  => [ 'type' => 'string', 'description' => 'How the value is captured, e.g. text, number or select.' ],
+            'options'     => [ 'type' => 'array', 'description' => 'The choices, for a field that offers a list.' ],
+            'is_required' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the form insists on a value.' ],
+            'is_active'   => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the field still appears. Omitted means yes.' ],
+            'sort_order'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the field sits on the form.' ],
+        ];
+    }
+
+    /**
+     * `PUT /custom-fields/{id}`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The field, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
+    /**
+     * `POST /custom-fields/{id}/move`. No `enum` on `direction`:
+     * `move_field()` answers `bad_request` for anything but up or down,
+     * behind the capability gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function moveArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The field, from the URL. A copy in the body is accepted and ignored.' ],
+            'direction' => [ 'type' => 'string', 'description' => 'Which way to move it on the form: up or down.' ],
+        ];
     }
 
     public static function list_fields( \WP_REST_Request $r ) {
@@ -100,6 +159,10 @@ class CustomFieldsRestController {
     }
 
     public static function create_field( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $data = self::extract( $r );
         $errors = self::validate( $data, true );
         if ( $errors ) {
@@ -119,6 +182,10 @@ class CustomFieldsRestController {
     }
 
     public static function update_field( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid field id.', 'talenttrack' ), 400 );
         $data = self::extract( $r );
@@ -161,6 +228,10 @@ class CustomFieldsRestController {
     }
 
     public static function move_field( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::moveArgs() );
+        if ( $refused !== null ) return $refused;
+
         global $wpdb;
         $id = absint( $r['id'] );
         $direction = sanitize_key( (string) ( $r['direction'] ?? '' ) );
