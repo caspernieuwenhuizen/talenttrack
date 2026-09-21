@@ -58,6 +58,15 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
     }
 
     public function test_a_head_coach_may_set_potential_on_their_own_squad_only(): void {
+        // Each half on its own first, so a failure names which one refused.
+        $this->assertTrue(
+            PlayerStatusModule::potentialCaptureAvailable( $this->head ),
+            'the head_coach persona must hold player_potential: change'
+        );
+        $this->assertTrue(
+            AuthorizationService::canEditPlayer( $this->head, $this->own_player ),
+            'the fixture must give the coach their own squad, or the grant below is vacuous'
+        );
         $this->assertTrue(
             PlayerStatusModule::potentialCaptureAvailableFor( $this->own_player, $this->head ),
             'a head coach sets potential for the players they coach'
@@ -126,37 +135,39 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    /** Head-coach assignment through `tt_team_people` (#1315). */
+    /**
+     * A team-scoped `head_coach` auth-role row in `tt_user_role_scopes`.
+     *
+     * The direct source `AuthorizationService::resolveScopesForUser()` reads
+     * first. A `tt_team_people` assignment only grants scope when its
+     * functional role maps to an auth role, and a test database carries no
+     * such mapping for a functional role the fixture had to create.
+     */
     private function assignHeadCoach( int $team_id, int $user_id ): void {
         global $wpdb;
         $p = $wpdb->prefix;
 
         $role_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_functional_roles WHERE role_key = %s LIMIT 1",
-            'head_coach'
+            "SELECT id FROM {$p}tt_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
+            'head_coach',
+            $this->club
         ) );
-        if ( $role_id <= 0 ) {
-            $wpdb->insert( "{$p}tt_functional_roles", [
-                'club_id'  => $this->club,
-                'role_key' => 'head_coach',
-                'label'    => 'Head Coach',
-            ] );
-            $role_id = (int) $wpdb->insert_id;
-        }
+        $this->assertGreaterThan( 0, $role_id, 'the head_coach auth role must be seeded' );
 
         $wpdb->insert( "{$p}tt_people", [
             'club_id'    => $this->club,
             'first_name' => 'Head',
             'last_name'  => 'Coach',
+            'role_type'  => 'head_coach',
             'wp_user_id' => $user_id,
+            'status'     => 'active',
         ] );
-        $person_id = (int) $wpdb->insert_id;
 
-        $wpdb->insert( "{$p}tt_team_people", [
-            'club_id'            => $this->club,
-            'team_id'            => $team_id,
-            'person_id'          => $person_id,
-            'functional_role_id' => $role_id,
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'person_id'  => (int) $wpdb->insert_id,
+            'role_id'    => $role_id,
+            'scope_type' => 'team',
+            'scope_id'   => $team_id,
         ] );
     }
 }
