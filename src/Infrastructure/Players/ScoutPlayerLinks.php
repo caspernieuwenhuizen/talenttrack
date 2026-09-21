@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Players;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -42,11 +44,34 @@ final class ScoutPlayerLinks {
     private const META_KEY = 'tt_scout_player_ids';
 
     /**
-     * Every active player this scout is linked to, by either route.
+     * The roster statuses that keep a scout's link alive (#3928).
      *
-     * Filters to `status = 'active'` and the current club, so a released
-     * player drops out of a scout's scope exactly as they drop out of a
-     * guardian's (#3476 settled that a release ends the link).
+     * `trial` is on this list because it is the status a panel seat
+     * implies: a scout sitting on a trial case's panel is there to
+     * assess a player who is, by definition, on trial. Narrowing to
+     * `active` alone — the shorthand this class shipped with — made the
+     * panel-seat route resolve an id and then filter it straight back
+     * out again, so the branch #3566 exists for was dead for the one
+     * population it was written for.
+     *
+     * The list is an allowlist rather than "anything but `released`" so
+     * a future status is opted in deliberately. `inactive`, `released`
+     * and `graduated` are all out: none of them is somebody a scout has
+     * live work on, and a release ending the link is what #3476 settled
+     * for the guardian branch and this one mirrors.
+     *
+     * @var list<string>
+     */
+    private const LINKED_STATUSES = [ PlayerStatus::ACTIVE, PlayerStatus::TRIAL ];
+
+    /**
+     * Every player this scout is linked to, by either route.
+     *
+     * Filters to the current club, to {@see LINKED_STATUSES}, and to the
+     * `active` lifecycle — so a released player drops out of a scout's
+     * scope exactly as they drop out of a guardian's (#3476 settled that
+     * a release ends the link), and an archived or trashed player is out
+     * along with them.
      *
      * @return list<int>
      */
@@ -56,7 +81,7 @@ final class ScoutPlayerLinks {
         $ids = array_merge( self::panelPlayerIds( $scout_user_id ), self::assignedPlayerIds( $scout_user_id ) );
         if ( $ids === [] ) return [];
 
-        return self::activeOnly( array_values( array_unique( $ids ) ) );
+        return self::linkedOnly( array_values( array_unique( $ids ) ) );
     }
 
     /**
@@ -137,23 +162,30 @@ final class ScoutPlayerLinks {
     }
 
     /**
-     * Narrow a list of player ids to those active in the current club.
+     * Narrow a list of player ids to those a link may survive on: in the
+     * current club, on a status from {@see LINKED_STATUSES}, and not
+     * archived or in the recycle bin.
      *
      * @param list<int> $ids
      * @return list<int>
      */
-    private static function activeOnly( array $ids ): array {
+    private static function linkedOnly( array $ids ): array {
         if ( $ids === [] ) return [];
 
         global $wpdb;
-        $players = $wpdb->prefix . 'tt_players';
-        $in = implode( ',', array_map( 'intval', $ids ) );
+        $players   = $wpdb->prefix . 'tt_players';
+        $in        = implode( ',', array_map( 'intval', $ids ) );
+        $statuses  = self::LINKED_STATUSES;
+        $status_ph = implode( ',', array_fill( 0, count( $statuses ), '%s' ) );
+        $lifecycle = ArchiveRepository::filterClause( 'active' );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_col( $wpdb->prepare(
             "SELECT id FROM {$players}
-              WHERE id IN ({$in}) AND club_id = %d AND status = 'active'",
-            CurrentClub::id()
+              WHERE id IN ({$in}) AND club_id = %d
+                AND status IN ({$status_ph})
+                AND {$lifecycle}",
+            array_merge( [ CurrentClub::id() ], $statuses )
         ) );
 
         return is_array( $rows ) ? array_values( array_map( 'intval', $rows ) ) : [];
