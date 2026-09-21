@@ -88,6 +88,8 @@ class PlayerMeasurementProfile {
             $flag        = '';
             $level_token = '';
             $band        = null;
+            $target      = null;
+            $direction   = (string) $def->direction;
 
             if ( $is_status ) {
                 // Status colour comes from the matched level's token, not the
@@ -95,10 +97,7 @@ class PlayerMeasurementProfile {
                 // its current level (so a recoloured level repaints history).
                 $label = $latest_row && $latest_row->value_text !== null ? (string) $latest_row->value_text : '';
                 if ( $label !== '' ) {
-                    $level = $this->levels->findByLabel( $def_id, $label );
-                    $level_token = $level
-                        ? MeasurementLevelPalette::safe( (string) $level->color_token )
-                        : MeasurementLevelPalette::DEFAULT_TOKEN;
+                    $level_token = $this->levelToken( $def_id, $label );
                 }
             } elseif ( $age_group !== '' ) {
                 // #2536 — the target is resolved whenever the player has an
@@ -109,7 +108,6 @@ class PlayerMeasurementProfile {
                 $target = $this->targets->forDefinitionAndAge( $def_id, $age_group );
                 // Read once: the flag and the shaded band have to agree about
                 // which side of the target is the better one (#3028).
-                $direction = (string) $def->direction;
                 if ( $latest_row && $latest_row->value_numeric !== null ) {
                     $flag = $this->targets->flagFor(
                         (float) $latest_row->value_numeric,
@@ -124,13 +122,21 @@ class PlayerMeasurementProfile {
             // a height series is 182 / 184 / 187, never 1.82 / 1.84 / 1.87. The
             // band converts with it so the shading stays on the same scale as
             // the points.
-            $units  = UnitContext::forDefinition( $def );
-            $series = array_map(
-                static function ( $row ) use ( $units ) {
+            //
+            // Each point carries its own verdict too — the target flag on the
+            // canonical value, or the status level's colour — so a reader of an
+            // older reading (a report over a past window) gets that reading's
+            // score, not the latest one's.
+            $units    = UnitContext::forDefinition( $def );
+            $series   = array_map(
+                function ( $row ) use ( $units, $target, $direction, $is_status, $def_id ) {
+                    $text = $row->value_text !== null ? (string) $row->value_text : null;
                     return [
-                        'date'  => (string) $row->recorded_date,
-                        'value' => $row->value_numeric !== null ? $units->fromBase( (float) $row->value_numeric ) : null,
-                        'text'  => $row->value_text !== null ? (string) $row->value_text : null,
+                        'date'        => (string) $row->recorded_date,
+                        'value'       => $row->value_numeric !== null ? $units->fromBase( (float) $row->value_numeric ) : null,
+                        'text'        => $text,
+                        'flag'        => ! $is_status && $row->value_numeric !== null ? $this->targets->flagFor( (float) $row->value_numeric, $target, $direction ) : '',
+                        'level_token' => $is_status && $text !== null && $text !== '' ? $this->levelToken( $def_id, $text ) : '',
                     ];
                 },
                 $this->results->listSeriesForPlayer( $player_id, $def_id )
@@ -175,6 +181,17 @@ class PlayerMeasurementProfile {
         }
 
         return array_values( $grouped );
+    }
+
+    /**
+     * A status reading's colour: its level's token today, so a recoloured
+     * level repaints history; the default swatch for a label no level has.
+     */
+    private function levelToken( int $definition_id, string $label ): string {
+        $level = $this->levels->findByLabel( $definition_id, $label );
+        return $level
+            ? MeasurementLevelPalette::safe( (string) $level->color_token )
+            : MeasurementLevelPalette::DEFAULT_TOKEN;
     }
 
     /**

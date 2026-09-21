@@ -1,0 +1,4 @@
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report tests column"
+msgid "Score"
+msgstr "Score"

@@ -7,6 +7,7 @@ use TT\Modules\Analytics\Reports\PlayerReportLayout;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterRegistry;
 use TT\Modules\Export\ExportException;
+use TT\Modules\Export\Exporters\PlayerReportPdfDocument;
 use TT\Modules\Export\Exporters\PlayerReportPdfExporter;
 
 /**
@@ -96,6 +97,8 @@ final class PlayerReportPdfTest extends WP_UnitTestCase {
             'typical, conversation set' => [ $this->report( 3 ), PlayerReportBlock::DEFAULT_BLOCKS ],
             'busy, conversation set'    => [ $this->report( 12 ), PlayerReportBlock::DEFAULT_BLOCKS ],
             'busy, everything'          => [ $this->report( 12 ), PlayerReportBlock::ALL ],
+            'long notes, conversation'  => [ $this->withLongText( $this->report( 3 ) ), PlayerReportBlock::DEFAULT_BLOCKS ],
+            'long notes, everything'    => [ $this->withLongText( $this->report( 5 ) ), PlayerReportBlock::ALL ],
         ];
         foreach ( $cases as $label => [ $report, $blocks ] ) {
             $report = $this->only( $report, $blocks );
@@ -114,6 +117,40 @@ final class PlayerReportPdfTest extends WP_UnitTestCase {
                 $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$label}, layout {$layout}: the panel and the paper disagree." );
             }
         }
+    }
+
+    /** On paper a sentence cut off with an ellipsis cannot be finished. */
+    public function test_written_text_prints_whole_and_costs_its_lines(): void {
+        $short  = $this->only( $this->report( 3 ), [ 'ratings', 'journey', 'thread_notes' ] );
+        $long   = $this->only( $this->withLongText( $this->report( 3 ) ), [ 'ratings', 'journey', 'thread_notes' ] );
+        $html   = PlayerReportPdfDocument::html( $long );
+        $prose  = self::PROSE;
+
+        $this->assertStringContainsString( esc_html( $prose ), $html, 'the whole note is on the page' );
+        $this->assertStringNotContainsString( '…', $html, 'no field of these blocks is cut' );
+        $this->assertGreaterThan(
+            PlayerReportLayout::fit( $short, PlayerReportLayout::PACK )['fill'][0],
+            PlayerReportLayout::fit( $long, PlayerReportLayout::PACK )['fill'][0],
+            'the estimate counts the lines the text wraps to'
+        );
+    }
+
+    private const PROSE = 'Onderdeel van individueel gesprek met Luuk om eens te kijken naar beelden, zijn ontwikkelingspunten en hoe hij daar zelf naar kijkt. Hij speelt scherp in de omschakeling maar laat na balverlies soms zijn man lopen.';
+
+    /**
+     * @param array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>} $report
+     * @return array{player_id:int, from:string, to:string, blocks:list<string>, data:array<string,array<string,mixed>>}
+     */
+    private function withLongText( array $report ): array {
+        foreach ( [ [ 'ratings', 'evaluations', 'notes' ], [ 'journey', 'items', 'summary' ], [ 'thread_notes', 'items', 'body' ], [ 'injuries', 'items', 'notes' ], [ 'behaviour', 'items', 'notes' ], [ 'talking_points', 'items', 'evidence' ] ] as [ $block, $list, $field ] ) {
+            foreach ( array_keys( $report['data'][ $block ][ $list ] ?? [] ) as $i ) {
+                $report['data'][ $block ][ $list ][ $i ][ $field ] = self::PROSE;
+            }
+        }
+        if ( is_array( $report['data']['pdp']['file'] ?? null ) ) {
+            $report['data']['pdp']['last_agreed_actions'] = self::PROSE;
+        }
+        return $report;
     }
 
     public function test_the_conversation_set_of_a_typical_player_fits_one_page(): void {

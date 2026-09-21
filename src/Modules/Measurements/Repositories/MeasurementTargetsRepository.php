@@ -53,6 +53,19 @@ class MeasurementTargetsRepository {
     }
 
     /**
+     * A flag in words, for every surface that shows one, so the Test results
+     * report and the player report say the same thing about the same reading.
+     */
+    public static function flagLabel( string $flag ): string {
+        switch ( $flag ) {
+            case 'ok':   return __( 'On target', 'talenttrack' );
+            case 'warn': return __( 'Below target', 'talenttrack' );
+            case 'bad':  return __( 'Well below target', 'talenttrack' );
+            default:     return '';
+        }
+    }
+
+    /**
      * Resolve a value to a flag against a target band.
      *
      * Bands (numeric line): red | amber | GREEN | amber | red. A value

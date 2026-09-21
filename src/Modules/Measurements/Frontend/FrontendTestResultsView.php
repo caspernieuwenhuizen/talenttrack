@@ -314,12 +314,7 @@ final class FrontendTestResultsView extends FrontendViewBase {
     }
 
     private static function flagLabel( string $flag ): string {
-        switch ( $flag ) {
-            case 'ok':   return __( 'On target', 'talenttrack' );
-            case 'warn': return __( 'Below target', 'talenttrack' );
-            case 'bad':  return __( 'Well below target', 'talenttrack' );
-            default:     return '';
-        }
+        return \TT\Modules\Measurements\Repositories\MeasurementTargetsRepository::flagLabel( $flag );
     }
 
     /**
