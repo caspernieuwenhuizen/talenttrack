@@ -3,6 +3,7 @@ namespace TT\Modules\Threads\Adapters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Threads\Domain\ThreadTypeAdapter;
@@ -15,9 +16,10 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  *   - The goal's player (if linked to a WP user via tt_players.wp_user_id).
  *   - The coach who owns the goal (goals.created_by, falling back to
  *     the head coach of the player's team via QueryHelpers::coach_owns_player).
- *   - Linked parent users — resolved from the canonical tt_player_parents
- *     pivot (#1993), so thread membership and the dashboard child switcher
- *     agree on who is a parent (guardian_email is no longer a live link).
+ *   - Linked parent users — resolved through `ParentChildResolver` (#3947),
+ *     so thread membership, notifications and every other guardian surface
+ *     agree on who is a parent. A guardian of a released, archived or
+ *     binned child is not one.
  *   - Plus anyone the authorization matrix grants `goals` read at
  *     global scope — admins, Head of Development (not auto-pinged on
  *     new messages).
@@ -54,9 +56,8 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         $author = (int) ( $goal->created_by ?? 0 );
         if ( $author > 0 ) $ids[] = $author;
 
-        // #1993 — parent users from the canonical tt_player_parents pivot.
-        foreach ( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $goal->player_id ) as $parent_uid ) {
-            if ( $parent_uid > 0 ) $ids[] = (int) $parent_uid;
+        foreach ( $this->guardiansOf( (int) $goal->player_id ) as $parent_uid ) {
+            $ids[] = $parent_uid;
         }
 
         return array_values( array_unique( array_filter( $ids, static fn( $i ): bool => $i > 0 ) ) );
@@ -107,9 +108,30 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         $player = QueryHelpers::get_player( (int) $goal->player_id );
         if ( $player && (int) $player->wp_user_id === $user_id ) return true;
 
-        // #1993 — parent linked via the canonical tt_player_parents pivot.
-        $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( (int) $goal->player_id );
-        return in_array( $user_id, $parents, true );
+        // #3947 — a guardian, asked of the resolver every other surface
+        // asks. A guardian of a released, archived or binned child is no
+        // longer a participant: they neither read nor post.
+        return ParentChildResolver::isParentOf( $user_id, (int) $goal->player_id );
+    }
+
+    /**
+     * The player's guardians who still hold the guardian relationship.
+     *
+     * The pivot lists every link ever made; `ParentChildResolver` decides
+     * which of them still count (club, status, lifecycle). The notify set
+     * follows the same rule as access, so a closed-out family stops being
+     * notified at the moment it stops being able to read the thread.
+     *
+     * @return list<int>
+     */
+    private function guardiansOf( int $player_id ): array {
+        $out = [];
+        foreach ( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id ) as $parent_uid ) {
+            if ( $parent_uid > 0 && ParentChildResolver::isParentOf( $parent_uid, $player_id ) ) {
+                $out[] = $parent_uid;
+            }
+        }
+        return $out;
     }
 
     public function entityLabel( int $thread_id ): string {
