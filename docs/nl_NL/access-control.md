@@ -305,6 +305,10 @@ De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzett
 - **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd Opleiding en Academy Admin hebben RCD globaal.
 - **`test_trainings`** — zelfde toegangsbereik, behalve dat de Scout deze globaal mag lezen (zodat een scout de geplande sessie kan zien waarvoor zijn prospect is uitgenodigd).
 
+**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd Ontwikkeling en Academy Admin hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
+
+Tot #3869 was het recht wel gekoppeld en gedocumenteerd maar nergens gecontroleerd, zodat het enige echte slot op die klussen was aan wie de toewijzer ze had gericht — de matrixcel aan- of uitzetten veranderde niets. Het wordt nu op de kluspagina gecontroleerd, wat betekent dat een persona die de klus wél heeft maar het recht niet, hem niet langer kan afronden. Die blijft niet met een dode knop achter: het formulier wordt vergrendeld getoond met een melding wie je erom moet vragen. De ondertekende bevestigingslink voor de ouder (`GET /prospects/confirm`) omzeilt dit alles met opzet — daar is niemand ingelogd.
+
 Een dagelijkse retentie-cron ruimt vastgelopen of definitief afgewezen prospects automatisch op, conform `wp_options.tt_prospect_retention_days_no_progress` (standaard 90) / `tt_prospect_retention_days_terminal` (standaard 30). Doorgestroomde prospects (`promoted_to_player_id IS NOT NULL`) blijven beschermd — bij doorstroming worden de prospect-gegevens onderdeel van de PII van een academy-speler en blijft de rij staan in het `PlayerDataMap`-erasure-manifest, gekoppeld aan de identiteit van de speler.
 
 ## Staf-only notities — `staff_only_notes`

@@ -1,0 +1,3 @@
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
+msgid "This task is yours, but completing it needs a permission you do not hold. Ask an academy administrator to grant it, or to hand the task to somebody who has it."
+msgstr "Deze klus is van jou, maar om hem af te ronden heb je een recht nodig dat je niet hebt. Vraag een academy-beheerder om het toe te kennen, of om de klus aan iemand te geven die het wel heeft."

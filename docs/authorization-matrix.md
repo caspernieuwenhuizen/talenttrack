@@ -398,6 +398,16 @@ One sibling act-cap was **deliberately not bridged** under #1939 because doing s
 
 - **`tt_rate_player_behaviour`** was left on native WP capability evaluation under #1939. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it was flagged for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap). The decision landed in #1941.
 
+## A bridged cap that nothing checked — `test_trainings: change` (#3869)
+
+`tt_invite_prospects` bridges to **`test_trainings: change`**, and was mapped, documented and displayed on this grid without a single surface asking for it. Toggling the cell for a persona changed nothing anybody could see. A permission screen that does nothing is worse than an absent one, because an administrator who revokes a cell reasonably believes the access went with it.
+
+It now binds. The *Invite to test training* and *Confirm test-training attendance* tasks, and the pipeline's "Arrange test training" button, all resolve through it.
+
+**Who this moves.** `change` on `test_trainings` is seeded to **Head of Development** and **Academy Admin**. **Head Coach** (read, team) and **Scout** (read, global) do not hold it, and a head coach who was handed the invite task can no longer complete it — the accepted cost of putting the decision where #3710 placed it. Nobody is left staring at a button that does nothing: the task opens read-only with a note saying which permission is missing and who to ask.
+
+Workflow templates declare this for themselves, via `TaskTemplateInterface::requiredCapability()`. A template that returns null keeps assignment as its only gate, which is still true of every other template.
+
 ## Mapping-row bridges + two approved access changes
 
 #1941 (child of #1757) bridges six legacy act-caps to matrix tuples whose entity + activity are **already seeded**, so the frontend and REST surfaces that gate on each cap now resolve from the same `MatrixGate` answer (`current_user_can()` routes through `LegacyCapMapper` when the matrix is active). Four are access-preserving; two carry an approved effective-access change.

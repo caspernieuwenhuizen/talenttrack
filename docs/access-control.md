@@ -311,6 +311,10 @@ The recruitment funnel introduces two new matrix entities, scoped consent-sensit
 - **`prospects`** — Head Coach reads at team scope (their own age group's funnel). Scout has RCD at *self* scope only — a scout literally cannot see another scout's prospects via any code path, enforced at the SQL layer in `ProspectsRepository`. Head of Development and Academy Admin have RCD globally.
 - **`test_trainings`** — same scoping, except Scout reads globally (so a scout can see the upcoming session their prospect was invited to).
 
+**`test_trainings: change` is what `tt_invite_prospects` bridges to**, and it is the gate on inviting a child to the academy: the *Invite to test training* and *Confirm test-training attendance* tasks, and the pipeline's "Arrange test training" button. Head of Development and Academy Admin hold it; Head Coach and Scout read the entity and do not hold it.
+
+Until #3869 the capability was mapped and documented but checked nowhere, so the only real gate on those tasks was who the assignee resolver had addressed them to — granting or revoking the matrix cell changed nothing. It is now checked on the task surface, which means a persona who holds the task without the capability can no longer finish it. They are not left with a dead button: the form renders locked with a note naming who to ask. The parent's signed confirmation link (`GET /prospects/confirm`) bypasses all of this by design — nobody is signed in on it.
+
 ## How a scout holds `player` scope
 
 Most personas hold `player` scope one of two ways: they *are* the player, or they are the player's guardian. A scout is neither, and their matrix rows (`trial_cases`, `trial_inputs`, `evaluations`, `media`) are all written at `player` scope — so until #3566 every one of them resolved to false. Seeded, documented, and dead.
