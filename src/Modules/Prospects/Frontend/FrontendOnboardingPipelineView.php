@@ -179,9 +179,12 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         // Somebody who may issue the invitation themselves does not need to
         // ask for it: they go straight to the surface where a test training
         // is arranged, rather than addressing a task to themselves.
+        // #3932 — carrying the prospect through. Without it the deep link
+        // opened a form with nothing on it about the child whose card the
+        // button was on, and the session it created was linked to nobody.
         $invite_url  = $stuck && $can_invite
             ? BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'test-trainings', 'action' => 'new' ],
+                [ 'tt_view' => 'test-trainings', 'action' => 'new', 'prospect_id' => $focus_pid ],
                 RecordLink::dashboardUrl()
             ) )
             : '';

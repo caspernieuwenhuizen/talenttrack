@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Prospects\Domain\ArrangeTestTrainingService;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
@@ -22,6 +23,12 @@ use TT\Shared\Frontend\Components\FormSaveButton;
  * Scope deliberately minimal: create-form only. Listing + edit live
  * on the onboarding-pipeline surface for now; this view only renders
  * the create form (`action=new`) — the bare list path redirects there.
+ *
+ * #3932 — the form carries a prospect, prefilled from `prospect_id` in
+ * the URL. That is the head of development's route in from the pipeline:
+ * somebody who may issue the invitation themselves comes straight here
+ * rather than addressing a task to themselves, and until this the child
+ * they were looking at did not come with them.
  */
 class FrontendTestTrainingsView extends FrontendViewBase {
 
@@ -63,9 +70,39 @@ class FrontendTestTrainingsView extends FrontendViewBase {
             if ( $label === '' ) $label = (string) ( $ag->name ?? '' );
             $age_groups[ (int) $ag->id ] = $label;
         }
+        // #3932 — who the session is being arranged for. The head of
+        // development arrives here from a prospect's card with the id in
+        // the URL; #3710 shipped that deep link against a form that had
+        // no prospect on it, so the training they created was not linked
+        // to the child they were looking at.
+        //
+        // An id that is missing, invalid, or outside what this viewer may
+        // see all land in the same place — the field opens empty. It never
+        // says "that prospect does not exist", because for a viewer who
+        // may not see the child those are the same answer and only one of
+        // them is safe to give.
+        $pickable       = ArrangeTestTrainingService::pickableFor( $user_id );
+        $wanted         = isset( $_GET['prospect_id'] ) ? absint( $_GET['prospect_id'] ) : 0;
+        $selected_pid   = ( $wanted > 0 && ArrangeTestTrainingService::canArrange( $user_id, $wanted ) )
+            ? $wanted
+            : 0;
         ?>
         <div class="tt-test-trainings">
         <form class="tt-ajax-form" data-rest-path="test-trainings" data-rest-method="POST" data-redirect-after-save="list">
+            <?php if ( $pickable !== [] ) : ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-tt-prospect"><?php esc_html_e( 'Prospect', 'talenttrack' ); ?></label>
+                    <select id="tt-tt-prospect" class="tt-input" name="prospect_id">
+                        <option value=""><?php esc_html_e( 'Nobody yet', 'talenttrack' ); ?></option>
+                        <?php foreach ( $pickable as $p ) : ?>
+                            <option value="<?php echo (int) $p['id']; ?>" <?php selected( $selected_pid, (int) $p['id'] ); ?>>
+                                <?php echo esc_html( $p['label'] ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint"><?php esc_html_e( 'Pick the prospect this test training is being arranged for, and they move to Invited when you save. Leave it empty to schedule one with nobody attached yet.', 'talenttrack' ); ?></p>
+                </div>
+            <?php endif; ?>
             <div class="tt-grid tt-grid-2">
                 <?php echo DateInputComponent::render( [
                     'name'     => 'date',

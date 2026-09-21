@@ -36,22 +36,30 @@ class InviteToTestTrainingForm implements FormInterface {
         $prospect  = self::prospectSummary( (int) ( $task['prospect_id'] ?? 0 ) );
         $sessions  = self::upcomingSessions();
 
+        // #3932 — the look used to be inline attributes carrying hardcoded
+        // hex, so a club running its own theme got the plugin's colours in
+        // the middle of its own. Same appearance, read from the tokens.
+        wp_enqueue_style(
+            'tt-workflow-invite-form',
+            TT_PLUGIN_URL . 'assets/css/components/workflow-invite-form.css',
+            [],
+            TT_VERSION
+        );
+
         ob_start();
         ?>
-        <div style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px;">
+        <div class="tt-itt-form">
             <?php if ( $prospect !== '' ) : ?>
-                <p style="margin: 0 0 14px; font-weight: 600;">
+                <p class="tt-itt-subject">
                     <?php echo esc_html( sprintf( __( 'Prospect: %s', 'talenttrack' ), $prospect ) ); ?>
                 </p>
             <?php endif; ?>
 
-            <h3 style="margin:0 0 12px; font-size:1rem;"><?php esc_html_e( 'Choose or schedule a test training', 'talenttrack' ); ?></h3>
+            <h3><?php esc_html_e( 'Choose or schedule a test training', 'talenttrack' ); ?></h3>
 
-            <p style="margin: 0 0 6px;">
+            <p class="tt-itt-field">
                 <label for="tt-itt-existing"><?php esc_html_e( 'Existing upcoming test training', 'talenttrack' ); ?></label>
-            </p>
-            <p>
-                <select id="tt-itt-existing" name="test_training_id" <?php echo $disabled; ?> style="width:100%;">
+                <select id="tt-itt-existing" name="test_training_id" <?php echo $disabled; ?>>
                     <option value=""><?php esc_html_e( '— pick an upcoming test training —', 'talenttrack' ); ?></option>
                     <?php foreach ( $sessions as $s ) : ?>
                         <option value="<?php echo esc_attr( (string) $s->id ); ?>"
@@ -62,32 +70,30 @@ class InviteToTestTrainingForm implements FormInterface {
                 </select>
             </p>
 
-            <p style="margin: 12px 0 6px; color:#6b7280;">
+            <p class="tt-itt-or">
                 <?php esc_html_e( '— or schedule a new test training below —', 'talenttrack' ); ?>
             </p>
 
-            <p style="margin: 0 0 6px;">
+            <p class="tt-itt-field">
                 <label for="tt-itt-date"><?php esc_html_e( 'New test training date + time', 'talenttrack' ); ?></label>
-            </p>
-            <p>
                 <input type="datetime-local" id="tt-itt-date" name="new_date"
                        value="<?php echo esc_attr( (string) ( $existing['new_date'] ?? '' ) ); ?>"
                        <?php echo $disabled; ?> />
             </p>
 
-            <p style="margin: 12px 0 6px;">
+            <p class="tt-itt-field">
                 <label for="tt-itt-loc"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
-            </p>
-            <p>
-                <input type="text" id="tt-itt-loc" name="new_location"
+                <input type="text" id="tt-itt-loc" name="new_location" autocomplete="off"
                        value="<?php echo esc_attr( (string) ( $existing['new_location'] ?? '' ) ); ?>"
-                       <?php echo $disabled; ?> style="width:100%;" />
+                       <?php echo $disabled; ?> />
             </p>
 
-            <h3 style="margin:18px 0 12px; font-size:1rem;"><?php esc_html_e( 'Invitation message to the parent', 'talenttrack' ); ?></h3>
+            <h3><?php esc_html_e( 'Invitation message to the parent', 'talenttrack' ); ?></h3>
 
-            <p>
-                <textarea name="invitation_message" rows="6" style="width:100%;"
+            <p class="tt-itt-field">
+                <?php // one word: _x() so the Dutch is the written-message sense, not "notification". ?>
+                <label for="tt-itt-msg"><?php echo esc_html( _x( 'Message', 'the invitation text written to a parent', 'talenttrack' ) ); ?></label>
+                <textarea id="tt-itt-msg" name="invitation_message" rows="6"
                           <?php echo $disabled; ?>><?php
                     echo esc_textarea( (string) ( $existing['invitation_message'] ?? self::defaultMessage( $prospect ) ) );
                 ?></textarea>

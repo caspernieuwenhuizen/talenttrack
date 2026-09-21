@@ -7,6 +7,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Prospects\Domain\ArrangeTestTrainingService;
 use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
 
 /**
@@ -20,6 +21,13 @@ use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
  *   - age_group_lookup_id (int,    optional)
  *   - coach_user_id       (int,    defaults to current user)
  *   - notes               (string, optional)
+ *   - prospect_id         (int,    optional — #3932)
+ *
+ * `prospect_id` is the one field that is not a column: there is no
+ * prospect column on `tt_test_trainings`. Passing it records that the
+ * prospect was invited to this session, through the same completed
+ * `invite_to_test_training` task the workflow route writes, so the direct
+ * route and the task route leave one shape of record rather than two.
  *
  * Read endpoint deliberately omitted — list rendering still goes
  * through the `onboarding-pipeline` view's existing surfaces. Pure
@@ -87,6 +95,13 @@ class TestTrainingsRestController {
                 'type'        => [ 'string', 'null' ],
                 'description' => 'Logistics, what to bring, contact instructions.',
             ],
+            // #3932 — the prospect this session is being arranged for.
+            // Optional: a test training with nobody attached to it yet is
+            // an ordinary thing to create.
+            'prospect_id' => [
+                'type'        => [ 'integer', 'null' ],
+                'description' => 'The prospect being invited. Requires tt_invite_prospects and sight of that prospect; omit to create a test training with nobody attached.',
+            ],
         ];
     }
 
@@ -127,6 +142,22 @@ class TestTrainingsRestController {
             $date .= ' 18:00:00'; // sensible default time if the form omitted it
         }
 
+        // #3932 — asked before the session is written, not after. A
+        // refusal that arrives once the row exists leaves an orphan
+        // behind every attempt, and the consent block in particular is
+        // about a child who should not have been invited at all.
+        $prospect_id = isset( $r['prospect_id'] ) ? (int) $r['prospect_id'] : 0;
+        if ( $prospect_id > 0 ) {
+            $refusal = ArrangeTestTrainingService::refusalFor( get_current_user_id(), $prospect_id );
+            if ( $refusal !== null ) {
+                return RestResponse::error(
+                    (string) $refusal->get_error_code(),
+                    (string) $refusal->get_error_message(),
+                    $refusal->get_error_code() === 'no_consent' ? 409 : 403
+                );
+            }
+        }
+
         $payload = [
             'date'                => $date,
             'location'            => isset( $r['location'] )
@@ -150,6 +181,31 @@ class TestTrainingsRestController {
                 __( 'The test training could not be saved.', 'talenttrack' ), 500 );
         }
 
-        return RestResponse::success( [ 'id' => $id ] );
+        $task_id = 0;
+        if ( $prospect_id > 0 ) {
+            $linked = ArrangeTestTrainingService::link( get_current_user_id(), $prospect_id, $id );
+            if ( $linked instanceof \WP_Error ) {
+                // The session is real and the caller should know it was
+                // saved; what failed is the link, and saying so is more
+                // use than a 500 over a row that exists.
+                Logger::error( 'test_training.link_prospect.failed', [
+                    'test_training_id' => $id,
+                    'prospect_id'      => $prospect_id,
+                    'code'             => $linked->get_error_code(),
+                ] );
+                return RestResponse::error(
+                    'link_failed',
+                    (string) $linked->get_error_message(),
+                    409
+                );
+            }
+            $task_id = (int) $linked;
+        }
+
+        return RestResponse::success( [
+            'id'          => $id,
+            'prospect_id' => $prospect_id > 0 ? $prospect_id : null,
+            'task_id'     => $task_id > 0 ? $task_id : null,
+        ] );
     }
 }

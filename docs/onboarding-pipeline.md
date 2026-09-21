@@ -132,7 +132,19 @@ A prospect only reaches *Invited* when somebody holds the **Invite to test train
 Click their card, and the panel that opens above the board now offers a way forward:
 
 - **Propose test training** — for a scout, or anyone else who may add to the funnel but not issue the invitation. It asks the Head of Development to arrange one. The prospect's next action becomes *Invite to test training* straight away, and the card moves to **Invited** once the HoD sends it.
-- **Arrange test training** — for the Head of Development and anyone else holding `tt_invite_prospects`. They do not need to ask themselves for permission, so the button takes them to the New test training form instead of creating a task.
+- **Arrange test training** — for the Head of Development and anyone else holding `tt_invite_prospects`. They do not need to ask themselves for permission, so the button takes them to the New test training form instead of creating a task. **The prospect comes with them**: the form opens with that child already picked, and saving records the invitation against them.
+
+### The prospect on the New test training form
+
+**Configuration → Test trainings → New**, or the pipeline's *Arrange test training* button, which is the same form reached at `?tt_view=test-trainings&action=new&prospect_id=…`.
+
+- **Arriving from a prospect's card**, the **Prospect** field opens with that child selected. Save, and they move to **Invited** — exactly as if the *Invite to test training* task had been completed for them, because that is what is recorded underneath.
+- **Arriving cold**, the field is an ordinary picker set to *Nobody yet*. Scheduling a test training and attaching children later is a normal thing to do, so nothing is required here.
+- **An id that does not resolve** — a mistyped URL, a prospect somebody else logged and you cannot see, one already promoted or archived — opens the field empty and says nothing further. It deliberately does not tell you whether the prospect exists.
+- The picker offers only prospects you may invite. Without `tt_invite_prospects` the field is not shown at all, and the form still schedules a test training with nobody attached.
+- **The consent rule applies here too.** Attaching a child whose family has not agreed is refused with the same message the invite task gives, and nothing is saved — not even the test training.
+
+The two routes converge: whether the invitation was arranged from the task or from this form, the record left behind is the same completed *Invite to test training* task, so the board, the stage classifier and the reports all read one shape of the fact.
 
 Proposing twice does nothing the second time, and two scouts proposing the same prospect produce one request between them — the Head of Development is asked about a child once.
 
