@@ -73,6 +73,36 @@ final class PlayerStatusModule implements ModuleInterface {
     }
 
     /**
+     * #3967 — may behaviour be recorded against THIS player, by this user?
+     *
+     * {@see self::behaviourCaptureAvailable()} says what kind of thing the
+     * user may do; this adds which child they may do it to. A head coach
+     * holds the capability at team scope, so the answer for a player on
+     * another squad is no. Every surface that offers a record button for a
+     * specific player asks this, so the button and the write agree.
+     */
+    public static function behaviourCaptureAvailableFor( int $player_id, ?int $user_id = null ): bool {
+        $user_id = $user_id ?? get_current_user_id();
+        return self::behaviourCaptureAvailable( $user_id )
+            && \TT\Infrastructure\Security\AuthorizationService::canEditPlayer( $user_id, $player_id );
+    }
+
+    /**
+     * #3967 — may potential be set on THIS player, by this user?
+     *
+     * Head coaches set potential for their own squads now, so the capability
+     * alone no longer implies "any player". Does not apply the age floor:
+     * that is a question about the player, answered by
+     * {@see self::potentialAppliesAtBirthdate()}, and a surface that is
+     * refused for age says so rather than hiding.
+     */
+    public static function potentialCaptureAvailableFor( int $player_id, ?int $user_id = null ): bool {
+        $user_id = $user_id ?? get_current_user_id();
+        return self::potentialCaptureAvailable( $user_id )
+            && \TT\Infrastructure\Security\AuthorizationService::canEditPlayer( $user_id, $player_id );
+    }
+
+    /**
      * The age below which the academy is not asked for a potential band.
      *
      * The bands describe a **professional ceiling**. That is a reasonable
@@ -173,9 +203,10 @@ final class PlayerStatusModule implements ModuleInterface {
      *   tt_rate_player_behaviour  — head_coach + head_dev + administrator.
      *                               #1941: assistant_coach NO LONGER holds
      *                               it (matrix tighten — see below).
-     *   tt_set_player_potential   — head_dev + administrator. Coaches
-     *                               of a team don't set potential
-     *                               (HoD-level call).
+     *   tt_set_player_potential   — head_coach + head_dev + administrator.
+     *                               #3967: a head coach sets potential for
+     *                               their own squads; the per-player half
+     *                               is potentialCaptureAvailableFor().
      *   tt_view_player_status     — anyone who can view the player.
      *                               Granted to the standard view-
      *                               players roles.
@@ -216,9 +247,15 @@ final class PlayerStatusModule implements ModuleInterface {
         if ( $ac_role && $ac_role->has_cap( $rate ) ) {
             $ac_role->remove_cap( $rate );
         }
+        // #3967 — the head coach sets potential too, team-scoped by the
+        // matrix row `player_potential: rc / team`. Assistant coaches do not
+        // (#1060: "AC is operational, HC is development").
+        foreach ( array_merge( $hod_roles, [ 'tt_head_coach' ] ) as $r ) {
+            $role = get_role( $r );
+            if ( $role && ! $role->has_cap( $set ) ) $role->add_cap( $set );
+        }
         foreach ( $hod_roles as $r ) {
             $role = get_role( $r );
-            if ( $role && ! $role->has_cap( $set ) )         $role->add_cap( $set );
             if ( $role && ! $role->has_cap( $view_detail ) ) $role->add_cap( $view_detail );
         }
         foreach ( $coach_roles as $r ) {
