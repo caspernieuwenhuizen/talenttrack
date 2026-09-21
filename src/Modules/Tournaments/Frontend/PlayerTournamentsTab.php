@@ -283,7 +283,8 @@ final class PlayerTournamentsTab {
     private static function renderFixture( array $fixture ): void {
         $completed = ! empty( $fixture['completed'] );
         $role      = (string) ( $fixture['role'] ?? '' );
-        $level     = is_array( $fixture['opponent_level'] ?? null ) ? $fixture['opponent_level'] : [];
+        $level_raw = $fixture['opponent_level'] ?? null;
+        $level     = is_array( $level_raw ) ? $level_raw : [];
 
         $classes = [ 'tt-ptour__fixture' ];
         if ( $role === TournamentMinutesCalculator::ROLE_BENCH ) $classes[] = 'is-bench';
@@ -305,8 +306,8 @@ final class PlayerTournamentsTab {
 
         // Null, not 0-0. A goalless draw and a fixture nobody typed in are
         // different facts, and this is a child's record.
-        $ours   = $fixture['our_score'];
-        $theirs = $fixture['their_score'];
+        $ours   = $fixture['our_score'] ?? null;
+        $theirs = $fixture['their_score'] ?? null;
         if ( $ours === null || $theirs === null ) {
             echo '<span class="tt-ptour__score is-none">' . esc_html__( 'no result', 'talenttrack' ) . '</span>';
         } else {
