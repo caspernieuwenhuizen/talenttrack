@@ -66,8 +66,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * trigger anything anyway.
      */
     private static function enqueueHeroPopovers( int $player_id, ?object $player ): void {
-        $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
-        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
+        // #3967 — per player: a head coach may record against their own
+        // squads, so the capability alone no longer means "this child".
+        $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id );
+        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id );
         if ( ! $can_log_behaviour && ! $can_set_potential ) return;
 
         wp_enqueue_style(
@@ -805,8 +807,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      */
     private static function renderActionRow( object $player, string $players_url ): void {
         $player_id         = (int) $player->id;
-        $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
-        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable();
+        // #3967 — per player: a head coach may record against their own
+        // squads, so the capability alone no longer means "this child".
+        $can_log_behaviour = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id );
+        $can_set_potential = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id );
         $can_edit          = current_user_can( 'tt_edit_players' );
 
         // Render the row even when empty so the surface keeps its
@@ -1481,10 +1485,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $status_label = ! empty( $player->status )
             ? \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status )
             : '';
-        $behaviour_potential_url = add_query_arg(
-            [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
-            RecordLink::dashboardUrl()
-        );
 
         $identity_rows = [];
         // v4.20.67 (#1281) — route through shortDate so the zero-date
@@ -1533,28 +1533,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             // history of anything this row shows.
             $identity_rows[] = [ __( 'Status', 'talenttrack' ), esc_html( $status_label ) ];
         }
-        // #3226 — the band was reachable only by opening the hero popover,
-        // so a coach reading the profile could not see the academy's own
-        // view of where this player is going. Staff-only, and the history
-        // link goes where the trajectory now renders.
-        if ( self::viewerIsStaffForPlayer( $player_id ) ) {
-            $trajectory = ( new \TT\Modules\Players\Services\PotentialTrajectory() )->forPlayer( $player_id );
-            if ( $trajectory ) {
-                $current        = $trajectory[ count( $trajectory ) - 1 ];
-                $potential_value = esc_html( (string) $current['label'] );
-                if ( count( $trajectory ) > 1 ) {
-                    $potential_value .= ' · <a href="' . esc_url( $behaviour_potential_url ) . '">'
-                        . esc_html__( 'history', 'talenttrack' ) . '</a>';
-                }
-                // `_x()` because a bare "Potential" is an adjective as
-                // often as a noun, and the Dutch differs — this is the
-                // noun: the band the academy has recorded.
-                $identity_rows[] = [
-                    _x( 'Potential', 'player profile row label — the recorded potential band', 'talenttrack' ),
-                    $potential_value,
-                ];
-            }
-        }
+        // #3967 — the current band moved off this card into the Behaviour &
+        // potential card below, which also offers the record buttons.
 
         $team_html = '';
         if ( $team ) {
@@ -1599,6 +1579,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         <div class="tt-player-profile-grid">
             <?php
             self::renderProfileCard( __( 'Identity', 'talenttrack' ), $identity_rows );
+            self::renderBehaviourPotentialCard( $player_id, $player );
             if ( $show_academy ) {
                 self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
             }
@@ -1674,8 +1655,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 number_format_i18n( $raw, $decimals ) . ' ' . (string) $figure['unit']
             );
             if ( ! empty( $figure['measured_on'] ) ) {
-                // Same ` · ` separator the Status and Potential rows use, so
-                // the card reads as one card rather than three conventions.
+                // Same ` · ` separator the other profile cards use, so the
+                // card reads as one card rather than three conventions.
                 $html .= ' · <span class="tt-player-kv__note">' . esc_html( sprintf(
                     /* translators: %s: the date a measurement was taken, e.g. "18 Aug". */
                     __( 'measured %s', 'talenttrack' ),
@@ -1716,6 +1697,139 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             </div>
         </div>
         <?php
+    }
+
+    /**
+     * #3967 — the Behaviour & potential card: where each input stands and,
+     * for a viewer who may record against this player, the button to do it.
+     *
+     * Staff-only, like the band row it replaces. A half is left out when the
+     * academy has switched that feature off; a half with nothing recorded
+     * says so and offers the button, so the card is never a blank box. The
+     * buttons open the same popovers as the hero's action row.
+     */
+    private static function renderBehaviourPotentialCard( int $player_id, object $player ): void {
+        if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
+
+        $summary = ( new \TT\Modules\Players\Services\BehaviourPotentialSummary() )
+            ->forPlayer( $player_id, $player, get_current_user_id() );
+        $behaviour = $summary['behaviour'];
+        $potential = $summary['potential'];
+        if ( $behaviour === null && $potential === null ) return;
+
+        $history_url = add_query_arg(
+            [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
+            RecordLink::dashboardUrl()
+        );
+        ?>
+        <section class="tt-player-card tt-bp-card">
+            <div class="tt-player-card__head">
+                <h3 class="tt-player-card__title"><?php esc_html_e( 'Behaviour & potential', 'talenttrack' ); ?></h3>
+            </div>
+            <div class="tt-player-card__body tt-bp-card__body">
+                <?php if ( $behaviour !== null ) : ?>
+                    <div class="tt-bp-card__half">
+                        <h4 class="tt-bp-card__label"><?php esc_html_e( 'Behaviour', 'talenttrack' ); ?></h4>
+                        <?php if ( $behaviour['latest'] !== null ) :
+                            $latest = $behaviour['latest'];
+                            $parts  = [ self::shortDate( $latest['rated_at'] ) ];
+                            if ( $latest['rated_by'] !== '' ) {
+                                /* translators: %s: name of the person who recorded it */
+                                $parts[] = sprintf( __( 'by %s', 'talenttrack' ), $latest['rated_by'] );
+                            }
+                            ?>
+                            <p class="tt-bp-card__value">
+                                <?php echo esc_html( self::ratingText( $latest['rating'] ) ); ?>
+                                <span class="tt-player-kv__note"> · <?php echo esc_html( implode( ' · ', $parts ) ); ?></span>
+                            </p>
+                            <?php if ( $behaviour['average'] !== null ) : ?>
+                                <p class="tt-bp-card__meta">
+                                    <?php
+                                    printf(
+                                        /* translators: 1: number of days, 2: average behaviour rating */
+                                        esc_html__( 'Average over the last %1$d days: %2$s', 'talenttrack' ),
+                                        (int) $behaviour['window_days'],
+                                        esc_html( self::ratingText( $behaviour['average'] ) )
+                                    );
+                                    ?>
+                                </p>
+                            <?php endif; ?>
+                        <?php else : ?>
+                            <p class="tt-bp-card__empty"><?php esc_html_e( 'No behaviour recorded yet.', 'talenttrack' ); ?></p>
+                        <?php endif; ?>
+                        <div class="tt-bp-card__actions">
+                            <?php if ( $behaviour['can_record'] ) : ?>
+                                <button type="button" class="tt-btn tt-btn-secondary" data-tt-popover-trigger="behaviour">
+                                    <?php esc_html_e( 'Log behaviour', 'talenttrack' ); ?>
+                                </button>
+                            <?php endif; ?>
+                            <?php if ( $behaviour['latest'] !== null ) : ?>
+                                <a class="tt-bp-card__link" href="<?php echo esc_url( $history_url ); ?>"><?php esc_html_e( 'History', 'talenttrack' ); ?></a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
+                <?php if ( $potential !== null ) : ?>
+                    <div class="tt-bp-card__half">
+                        <h4 class="tt-bp-card__label"><?php echo esc_html( _x( 'Potential', 'player profile row label — the recorded potential band', 'talenttrack' ) ); ?></h4>
+                        <?php if ( $potential['current'] !== null ) :
+                            $current = $potential['current'];
+                            ?>
+                            <p class="tt-bp-card__value"><?php echo esc_html( $current['label'] ); ?></p>
+                            <?php if ( $potential['days_since'] !== null ) : ?>
+                                <p class="tt-bp-card__meta<?php echo $potential['overdue'] ? ' tt-bp-card__meta--overdue' : ''; ?>">
+                                    <?php
+                                    if ( $current['set_by'] !== '' ) {
+                                        printf(
+                                            /* translators: 1: number of days ago, 2: person who set it */
+                                            esc_html__( 'Last set %1$d days ago, by %2$s.', 'talenttrack' ),
+                                            (int) $potential['days_since'],
+                                            esc_html( $current['set_by'] )
+                                        );
+                                    } else {
+                                        printf(
+                                            /* translators: %d: number of days ago */
+                                            esc_html__( 'Last set %d days ago.', 'talenttrack' ),
+                                            (int) $potential['days_since']
+                                        );
+                                    }
+                                    if ( $potential['overdue'] ) {
+                                        echo ' <strong>' . esc_html__( 'Due a look.', 'talenttrack' ) . '</strong>';
+                                    }
+                                    ?>
+                                </p>
+                            <?php endif; ?>
+                        <?php elseif ( $potential['applies'] ) : ?>
+                            <p class="tt-bp-card__empty"><?php esc_html_e( 'No potential band set yet.', 'talenttrack' ); ?></p>
+                        <?php endif; ?>
+                        <?php if ( ! $potential['applies'] ) : ?>
+                            <p class="tt-bp-card__empty"><?php echo esc_html( FrontendPlayerStatusCaptureView::tooYoungForPotential() ); ?></p>
+                        <?php endif; ?>
+                        <div class="tt-bp-card__actions">
+                            <?php if ( $potential['can_record'] && $potential['applies'] ) : ?>
+                                <button type="button" class="tt-btn tt-btn-secondary" data-tt-popover-trigger="potential">
+                                    <?php esc_html_e( 'Set potential', 'talenttrack' ); ?>
+                                </button>
+                            <?php endif; ?>
+                            <?php if ( $potential['entries'] > 1 ) : ?>
+                                <a class="tt-bp-card__link" href="<?php echo esc_url( $history_url ); ?>"><?php esc_html_e( 'History', 'talenttrack' ); ?></a>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * A rating as the forms show it: whole numbers without a decimal, a
+     * half-point or an average to one place.
+     */
+    private static function ratingText( float $rating ): string {
+        $decimals = ( abs( $rating - round( $rating ) ) < 0.05 ) ? 0 : 1;
+        return number_format_i18n( $rating, $decimals );
     }
 
     /**

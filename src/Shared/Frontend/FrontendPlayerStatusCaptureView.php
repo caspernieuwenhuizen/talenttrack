@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Modules\Alerts\Definitions\PotentialStaleAlert;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 use TT\Modules\Players\Services\PotentialTrajectory;
@@ -47,7 +46,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // reachable while EITHER is available and refuses only when neither
         // is. Without this it would render a heading and nothing else for an
         // academy that switched both off.
-        $behaviour_ok = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable();
+        $behaviour_ok = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id );
         // #3265 — three questions now, not two. The third is about the
         // player rather than the academy or the user: below U13 the
         // professional-ceiling question is not one to ask, so the potential
@@ -57,7 +56,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         $old_enough   = \TT\Modules\Players\PlayerStatusModule::potentialAppliesAtBirthdate(
             $player !== null && isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
         );
-        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() && $old_enough;
+        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) && $old_enough;
 
         // #3715 — nothing may be captured here, by this user, for this
         // player. That withdraws the forms; it must not withdraw the
@@ -112,7 +111,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             // The age floor is the exception and gets said out loud: it is
             // not configuration, it leaks nothing, and a coach who is not
             // told will go looking for a setting that does not exist.
-            if ( ! $old_enough && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() ) {
+            if ( ! $old_enough && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) ) {
                 echo '<p class="tt-notice">' . esc_html( self::tooYoungForPotential() ) . '</p>';
             } else {
                 echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
@@ -130,7 +129,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST[ self::NONCE_FIELD ] )
              && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST[ self::NONCE_FIELD ] ) ), self::NONCE_ACTION ) ) {
             $kind = isset( $_POST['kind'] ) ? sanitize_key( (string) $_POST['kind'] ) : '';
-            if ( $kind === 'behaviour' && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) {
+            if ( $kind === 'behaviour' && \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id ) ) {
                 $related_activity = isset( $_POST['related_activity_id'] )
                     ? absint( $_POST['related_activity_id'] )
                     : 0;
@@ -192,7 +191,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         echo '<div class="tt-psc-grid">';
 
         // Behaviour column
-        if ( \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable() ) :
+        if ( \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id ) ) :
             // v3.74.2 — pull rating-scale settings + the player's recent
             // completed activities so the form matches club config and
             // can tie a rating to "during game X".
@@ -285,7 +284,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // asked yet is the whole point of having a floor. The potential
         // *history* still renders below either way — a band recorded before
         // the floor existed stays visible.
-        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable() && ! $old_enough ) :
+        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) && ! $old_enough ) :
             ?>
             <section class="tt-psc-card">
                 <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
@@ -485,7 +484,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
      * two copies of a sentence carrying a number is how the number ends up
      * different in each after somebody changes the constant.
      */
-    private static function tooYoungForPotential(): string {
+    public static function tooYoungForPotential(): string {
         return sprintf(
             /* translators: %d is the minimum age in years, e.g. 13. */
             __( 'Potential is not recorded below age %d. Behaviour ratings still are.', 'talenttrack' ),
@@ -524,11 +523,9 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
      * @param object|null $latest The player's most recent potential row.
      */
     private static function renderPotentialCadence( ?object $latest ): void {
-        $days = (int) QueryHelpers::get_config(
-            PotentialStaleAlert::CONFIG_KEY_STALE_DAYS,
-            '180'
-        );
-        $days = $days > 0 ? $days : 180;
+        // #3967 — the rule lives in the summary service now, so the profile
+        // card and this screen read one number.
+        $days   = \TT\Modules\Players\Services\BehaviourPotentialSummary::staleDays();
         $months = max( 1, (int) round( $days / 30 ) );
 
         echo '<p class="tt-psc-card__lede">';

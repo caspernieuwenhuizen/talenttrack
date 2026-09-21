@@ -72,17 +72,16 @@ use TT\Modules\Alerts\Domain\Severity;
  *
  * ## Who is told, and why it is not simply the head coach
  *
- * `AbstractPlayerAlert` resolves each player's head coach, and on the
- * default seed a head coach holds `player_potential: read` at team scope —
- * **not `change`**. Sending them this would be telling somebody about work
- * they cannot do, which is the definition of noise and the fastest way to
- * train an academy to ignore the bell.
+ * `AbstractPlayerAlert` resolves each player's head coach. Since #3967 the
+ * default seed gives a head coach `player_potential: change` at team scope,
+ * so they are told about their own teams — they can clear it. An academy
+ * that takes the change activity away again stops them being told, because
+ * telling somebody about work they cannot do is the definition of noise and
+ * the fastest way to train an academy to ignore the bell.
  *
- * So the audience is whoever can actually set potential: the head of
- * development and the club admin hold `player_potential: rcd` globally, and
- * they are added as extra recipients. Any head coach an academy HAS granted
- * the change activity to keeps getting it for their own teams. Everyone
- * else is filtered out in `evaluate()`.
+ * The head of development and the club admin hold `player_potential: rcd`
+ * globally and are added as extra recipients. Anyone who cannot set
+ * potential is filtered out in `evaluate()`.
  *
  * Custodians are resolved by enumerate-then-ask rather than
  * `get_users( [ 'capability' => … ] )`, for the reason

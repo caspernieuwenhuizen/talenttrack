@@ -713,6 +713,59 @@
    reader came for; the date is what makes it trustworthy. */
 .tt-player-kv__note { font-weight: 400; color: var(--tt-muted); }
 
+/* ---------- Behaviour & potential card (#3967) ---------- *
+ * Two halves stacked; each ends in its record button + history link.
+ * Buttons keep the 48px target and wrap below 360px rather than squeeze. */
+
+.tt-bp-card__body {
+    display: grid;
+    gap: var(--tt-gap-lg);
+}
+.tt-bp-card__half + .tt-bp-card__half {
+    border-top: 1px solid var(--tt-line);
+    padding-top: var(--tt-gap-lg);
+}
+.tt-bp-card__label {
+    margin: 0 0 0.25rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--tt-muted);
+}
+.tt-bp-card__value {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+.tt-bp-card__meta,
+.tt-bp-card__empty {
+    margin: 0.25rem 0 0;
+    color: var(--tt-muted);
+}
+.tt-bp-card__meta--overdue strong { color: var(--tt-warning-ink); }
+.tt-bp-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+.tt-bp-card__actions:empty { display: none; }
+.tt-bp-card__actions .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-bp-card__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 0.5rem;
+    touch-action: manipulation;
+}
+.tt-bp-card__link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
 /* ---------- Goals tab: finished goals, collapsed (#3033) ---------- *
  * Native <details> so it opens without JS and answers to Enter/Space;
  * the summary is a 48px tap target. */

@@ -63,10 +63,19 @@ Behaviour and potential are recorded in these places:
 
 | Where | Behaviour | Potential |
 | --- | --- | --- |
-| **Player profile** — the **+ Log behaviour** and **Set potential** buttons at the top of the page | yes | yes |
-| **Behaviour & potential** screen — both forms with the history beneath them. Open it from the **history** link on the profile's **Potential** row, or from *View all behaviour ratings* in the Log behaviour form | yes | yes |
+| **Player profile → Behaviour & potential card** — where each stands, with **Log behaviour** and **Set potential** buttons. The same two buttons sit at the top of the page | yes | yes |
+| **Behaviour & potential** screen — both forms with the history beneath them. Open it from the card's **History** link, or from *View all behaviour ratings* in the Log behaviour form | yes | yes |
 | **Team page → Roster → Bulk-record behaviour** — the whole squad on one screen | yes | — |
 | **New evaluation → Evaluate 1 player → Behaviour today** — an optional step after the performance rating | yes | — |
+
+### The Behaviour & potential card
+
+Staff opening a player's profile see one card for both inputs, next to Identity:
+
+- **Behaviour** — the latest rating, when it was given and by whom, and the average over the last 90 days — the figure the traffic light reads.
+- **Potential** — the current band, how many days ago it was set and by whom, and **Due a look.** once it is older than your academy's revisit window.
+
+A half with nothing recorded says so — *No behaviour recorded yet.*, *No potential band set yet.* — and shows the button beside it if you may record it. A player under 13 gets the age sentence instead of a Set potential button. A half your academy has switched off is left out, and a player or parent looking at their own profile never sees the card.
 
 A behaviour rating is a score on your academy's own rating scale (**Configuration → Rating scale**), with optional notes and a related activity. A potential band is one of First team, Professional elsewhere, Semi-pro, Top amateur or Foundation.
 
@@ -114,7 +123,7 @@ The direction is written in words as well as shown with an arrow and a colour, s
 
 A player with one entry gets no history section — there is no trajectory yet, and the current band above already says everything there is to say.
 
-The player profile shows the current band as a **Potential** row, with a **history** link to this screen when there is more than one entry. It is shown to staff only — a player or parent on their own profile does not get a link to a screen they cannot open.
+The profile's Behaviour & potential card shows the current band, with a **History** link to this screen when there is more than one entry. The card is shown to staff only — a player or parent on their own profile does not get a link to a screen they cannot open.
 
 Two downward revisions in a season is the case this exists for. It is a strong development signal, it was always in the data, and until now nobody could see it without opening the PDP.
 
@@ -132,7 +141,7 @@ Not every academy works this way, and neither has to be used. There are **three*
 
 Three things worth knowing before you flip anything:
 
-- **The screen becomes a history.** When nothing may be captured — the academy switched both halves off, or you personally hold neither capability — the **Behaviour & potential** screen drops the forms and shows what is on record instead: the recent behaviour ratings, the current band, and the trajectory behind it. It says in one line that nothing is being recorded here, and then shows what was. This is where the profile's **history** link lands, so a coach who may read a player's file but not record against it follows them to the record rather than to an empty page. A viewer who may not read the player's file at all still gets the line and nothing else.
+- **The screen becomes a history.** When nothing may be captured — the academy switched both halves off, or you personally hold neither capability — the **Behaviour & potential** screen drops the forms and shows what is on record instead: the recent behaviour ratings, the current band, and the trajectory behind it. It says in one line that nothing is being recorded here, and then shows what was. This is where the profile card's **History** links land, so a coach who may read a player's file but not record against it follows them to the record rather than to an empty page. A viewer who may not read the player's file at all still gets the line and nothing else.
 - **Existing records are always kept.** Switching capture off does not delete or hide anything: the band on a profile, the potential trajectory and every behaviour rating stay readable exactly as they were, and reappear in the forms if you switch it back on. Off means *stop asking us for this*, not *hide what we already decided*.
 - **Switching off capture also silences the potential reminder**, so you do not have to find the alert screen as well. It does **not** remove the input from the traffic light — that is a separate decision, because an academy might stop recording new bands while still wanting the last one to count.
 
@@ -141,7 +150,7 @@ Three things worth knowing before you flip anything:
 - `tt_view_player_status` — see the colour. Granted to every role that can view players.
 - `tt_view_player_status_breakdown` — see the input scores + reasons. Coaches + HoD; **not** parents.
 - `tt_rate_player_behaviour` — log a behaviour observation. Coaches + HoD.
-- `tt_set_player_potential` — set a potential band. HoD-only by default.
+- `tt_set_player_potential` — set a potential band. Head coaches (for their own squads) + HoD.
 
 ### …and the capability is only half the answer
 
@@ -158,7 +167,7 @@ it to is your team scope, and the status routes now ask both.
   roles that hold `tt_rate_player_behaviour` already could, for their own
   players; what changes is that the write can no longer land on a child
   outside the coach's squads.
-
-Setting a potential band is unchanged: its capability goes only to Head of
-Development, Club Admin and administrator — academy-wide roles by design, for
-whom "any player" is the correct scope.
+- Setting a potential band asks the same question. Head coaches set bands for
+  the squads they coach and are refused on anyone else's player; Head of
+  Development, Club Admin and administrator hold it academy-wide. Assistant
+  coaches do not set potential.

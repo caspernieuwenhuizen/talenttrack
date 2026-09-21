@@ -483,7 +483,9 @@ return array_merge(
         'push_subscriptions'         => [ 'rcd', 'self',   $mod_push ],
         'player_status'              => [ 'r',   'team',   $mod_players ],
         'player_status_breakdown'    => [ 'r',   'team',   $mod_players ],
-        'player_potential'           => [ 'r',   'team',   $mod_players ],
+        // #3967 — `rc`, was `r`. The head coach sets potential for their
+        // own squads; team scope keeps it off every other squad's players.
+        'player_potential'           => [ 'rc',  'team',   $mod_players ],
         'player_behaviour_ratings'   => [ 'rc',  'team',   $mod_players ],
         // #2609 — `rc`, was `r`. The head coach is the person standing on
         // the pitch when the hamstring goes, so they record the injury and

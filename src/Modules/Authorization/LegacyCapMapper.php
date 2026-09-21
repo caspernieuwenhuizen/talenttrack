@@ -242,7 +242,10 @@ final class LegacyCapMapper {
         // other persona has change), so routing it through the matrix is
         // access-preserving — it closes the frontend/REST divergence where
         // `tt_edit_player_potential` was matrix-aware but the act-cap was not.
-        'tt_set_player_potential'              => [ 'player_potential',        'change' ],
+        // #3967 widened it: head_coach now holds `change` at team scope. The
+        // matrix carries that alone — coaches are the `tt_coach` WP role, and
+        // only the persona split can tell a head coach from an assistant.
+        'tt_set_player_potential'            => [ 'player_potential',        'change' ],
         // #3232 — the test-catalogue cap. `measurement_definitions` was
         // matrix-only, so nothing flat could ask about it and
         // `NewMeasurementWizard` reached for `tt_manage_players` instead —

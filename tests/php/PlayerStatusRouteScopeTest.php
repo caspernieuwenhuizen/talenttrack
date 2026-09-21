@@ -37,18 +37,17 @@ final class PlayerStatusRouteScopeTest extends WP_UnitTestCase {
         );
         $this->assertNotEmpty( $matches[1], 'No permission callbacks found — the controller changed shape.' );
 
-        // `/players/{id}/potential` is the one route that legitimately takes
-        // no id: `tt_set_player_potential` goes only to Head of Development,
-        // Club Admin and administrator — academy-wide roles by design, for
-        // whom "any player" is the correct scope. Everything else must
-        // receive the request.
+        // #3967 — no exceptions any more. `POST /players/{id}/potential` was
+        // once allowed to skip the id because only academy-wide roles could
+        // set potential; head coaches set it for their own squads now, so
+        // every route must receive the request.
         $argument_less = array_values( array_filter(
             $matches[1],
             static fn( string $args ): bool => trim( $args ) === ''
         ) );
-        $this->assertLessThanOrEqual(
-            1,
-            count( $argument_less ),
+        $this->assertCount(
+            0,
+            $argument_less,
             'A player-status route gates on a capability alone and never sees the id it was handed.'
         );
     }
