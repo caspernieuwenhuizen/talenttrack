@@ -104,6 +104,7 @@ return [
     'alerts'                        => [ 'viewable', 'A queue, scannable one item at a time.' ],
     'attendance-leaderboard'        => [ 'viewable', 'A ranked table with nothing on it to edit — read_only would be a label with no behaviour behind it.' ],
     'docs'                          => [ 'viewable', 'Help topics. Long-form reading works on a phone.' ],
+    'dossier-completeness'          => [ 'viewable', 'A stack of one-line "who is missing what" rows per check, not a matrix. The administrator chasing a guardian contact often is on a phone, and each row is a name and a word.' ],
     'exercises'                     => [ 'viewable', 'The exercise library index.' ],
     'goals'                         => [ 'viewable', 'Goal records. Usable on a phone without design investment.' ],
     'holidays'                      => [ 'viewable', 'The academy holiday calendar. Read, not built.' ],

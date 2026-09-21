@@ -69,6 +69,12 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | **Player with no guardian contact** | An active player, or one on an open trial, has no parent account linked and no guardian email or phone. It goes to the team's head coach and to whoever manages parent accounts, and clears once a parent is linked or a guardian email or phone is added. A player whose parent was sent an invitation that is still outstanding is left to the alert above. An invitation that was created but never sent does not count: the family was never asked. | *Who at home hears about this player?* A trial welcome, a published plan or a cancelled training for this player reaches nobody until somebody at home can be reached. |
 | **Certificate expiring** | One of your own certificates is about to expire, or has just expired. | *What does this player need next?* — answered from the other side. Every player in the squad needs the person running their session to be qualified to run it. |
 
+### Photos and video
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Pictures on file with no consent** | An active player has at least one photo or video on file and no record that the family agreed to the club using it. It goes to the team's head coach and to whoever can edit players, and clears itself the moment consent is recorded or the last item is archived. **It hides nothing.** Consent is a record, not a gate — a coach who cannot see a picture cannot judge whether they may use it, so the alert tells a human to go and ask instead of blurring an image. It sits next to *Player with no guardian contact*, which is a different question: that one says nobody at home can be reached at all, and a player can have a perfectly reachable parent and still have no consent on record. The whole squad's position is on the **Dossier completeness** page. | *What does this player need next?* — from the part of their file that is not football. A photograph of a child in an academy's system with no answer to "may we use this" is the club's to fix. |
+
 ### Trials
 
 | Alert | What it means | Which player question it answers |

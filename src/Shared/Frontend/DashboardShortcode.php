@@ -1286,6 +1286,12 @@ class DashboardShortcode {
             case 'measurements-coverage':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
                 return true;
+            // #3805 — the paperwork half of the same question: whose file is
+            // missing guardian contact, a parent account or photo consent.
+            // Matrix-gated on `players` read inside the view.
+            case 'dossier-completeness':
+                \TT\Modules\Players\Frontend\FrontendDossierCompletenessView::render( $user_id, $is_admin );
+                return true;
             // #2609 — squad-wide "who is out right now". Matrix-gated on
             // `player_injuries` read inside the view.
             case 'injuries':

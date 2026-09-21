@@ -21,5 +21,7 @@ class PlayersModule implements ModuleInterface {
         ParentAccountRestController::init();
         // #3568 — GET /me: the logged-in account's own player / children.
         \TT\Infrastructure\REST\MeRestController::init();
+        // #3805 — GET /teams/{id}/dossier-completeness: the squad's paperwork.
+        Rest\DossierCompletenessRestController::init();
     }
 }

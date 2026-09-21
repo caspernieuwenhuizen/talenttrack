@@ -1,0 +1,91 @@
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Guardian e-mail address"
+msgstr "E-mailadres ouder/voogd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Guardian phone number"
+msgstr "Telefoonnummer ouder/voogd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Parent account linked"
+msgstr "Ouderaccount gekoppeld"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Photo and video consent recorded"
+msgstr "Foto- en videotoestemming vastgelegd"
+
+#: src/Modules/Players/Services/DossierCompletenessService.php
+msgid "Pictures on file with no consent"
+msgstr "Beeld in dossier zonder toestemming"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Dossier completeness"
+msgstr "Compleetheid dossiers"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "You do not have permission to review player files."
+msgstr "Je hebt geen rechten om spelersdossiers in te zien."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid ""
+"This page says which fields are still empty, never what is in them. Open a "
+"player to read or change their guardian details."
+msgstr ""
+"Deze pagina zegt welke velden nog leeg zijn, nooit wat erin staat. Open een "
+"speler om de gegevens van de verzorger te lezen of te wijzigen."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Choose a team to see whose file is still incomplete."
+msgstr "Kies een team om te zien wiens dossier nog niet compleet is."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%d item"
+msgid_plural "%d items"
+msgstr[0] "%d item"
+msgstr[1] "%d items"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%1$d of %2$d complete"
+msgstr "%1$d van %2$d compleet"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Nothing missing on this one."
+msgstr "Hier ontbreekt niets."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Recorded %s"
+msgstr "Vastgelegd op %s"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "No consent, %d item"
+msgid_plural "No consent, %d items"
+msgstr[0] "Geen toestemming, %d item"
+msgstr[1] "Geen toestemming, %d items"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Dossier completeness"
+msgstr "Terug naar Compleetheid dossiers"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid ""
+"Per team: whose guardian contact, parent account or photo consent is still "
+"missing."
+msgstr ""
+"Per team: bij wie het contact van de verzorger, het ouderaccount of de "
+"fototoestemming nog ontbreekt."
+
+#: src/Modules/Alerts/Definitions/NoConsentWithMediaAlert.php
+msgid ""
+"There are photos or videos of this player on file and no record that the "
+"family agreed to the club using them. Nothing is hidden — this is a prompt "
+"to ask."
+msgstr ""
+"Er staan foto's of video's van deze speler in het dossier en er is niet "
+"vastgelegd dat het gezin akkoord is met gebruik door de club. Er wordt niets "
+"verborgen — dit is een seintje om het te vragen."
+
+#: src/Modules/Alerts/Definitions/NoConsentWithMediaAlert.php
+msgid "%1$d picture of %2$s is on file with no consent recorded."
+msgid_plural "%1$d pictures of %2$s are on file with no consent recorded."
+msgstr[0] "%1$d foto van %2$s staat in het dossier zonder vastgelegde toestemming."
+msgstr[1] "%1$d foto's van %2$s staan in het dossier zonder vastgelegde toestemming."

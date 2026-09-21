@@ -69,6 +69,12 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | **Speler zonder contact thuis** | Een actieve speler, of een speler in een lopende proefperiode, heeft geen gekoppeld ouderaccount en geen e-mailadres of telefoonnummer van een verzorger. De melding gaat naar de hoofdtrainer van het team en naar wie ouderaccounts beheert, en verdwijnt zodra er een ouder gekoppeld is of een e-mailadres of telefoonnummer van een verzorger is ingevuld. Een speler van wie de ouder een uitnodiging heeft ontvangen die nog openstaat, valt onder de melding hierboven. Een uitnodiging die wel is aangemaakt maar nooit verstuurd, telt niet mee: het gezin is nooit iets gevraagd. | *Wie thuis hoort iets over deze speler?* Een welkomstbericht voor een proefperiode, een gepubliceerd plan of een afgelaste training voor deze speler bereikt niemand zolang niemand thuis te bereiken is. |
 | **Certificaat verloopt** | Een van je eigen certificaten verloopt binnenkort, of is net verlopen. | *Wat heeft deze speler nu nodig?* — van de andere kant bekeken. Elke speler in de selectie heeft er belang bij dat wie zijn training geeft daarvoor gekwalificeerd is. |
 
+### Foto's en video
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Beeld in dossier zonder toestemming** | Een actieve speler heeft minstens één foto of video in het dossier en er is niet vastgelegd dat het gezin akkoord is met gebruik door de club. De melding gaat naar de hoofdtrainer van het team en naar wie spelers mag bewerken, en verdwijnt zodra de toestemming is vastgelegd of het laatste item is gearchiveerd. **Er wordt niets verborgen.** Toestemming is een registratie, geen slot — een trainer die een foto niet kan zien, kan niet beoordelen of hij hem mag gebruiken, dus de melding vraagt een mens om actie in plaats van een foto te vervagen. Ze staat naast *Speler zonder contact thuis*, een andere vraag: die zegt dat thuis niemand bereikbaar is, en een speler kan een prima bereikbare ouder hebben en toch geen vastgelegde toestemming. De stand van de hele selectie staat op de pagina **Compleetheid dossiers**. | *Wat heeft deze speler nu nodig?* — uit het deel van het dossier dat niet over voetbal gaat. Een foto van een kind in het systeem van een academie zonder antwoord op "mogen we dit gebruiken" is iets voor de club om op te lossen. |
+
 ### Stages
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
