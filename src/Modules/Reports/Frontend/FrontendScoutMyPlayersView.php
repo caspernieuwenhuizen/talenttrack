@@ -80,6 +80,13 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
                         <span><?php echo esc_html( $name ); ?></span>
                         <span class="tt-smp-chevron" aria-hidden="true">&rarr;</span>
                     </a>
+                    <?php
+                    // #3807 — the thin card, for the comparison rather than
+                    // the write-up. The report above is the scout-audience
+                    // document; this is the four facts and the minutes
+                    // share you want while standing next to a pitch.
+                    ?>
+                    <a class="tt-smp-card-link" href="<?php echo esc_url( \TT\Modules\Players\Frontend\FrontendScoutPlayerCardView::urlFor( $pid ) ); ?>"><?php esc_html_e( 'Player card', 'talenttrack' ); ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>

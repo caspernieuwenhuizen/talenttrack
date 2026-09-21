@@ -651,7 +651,23 @@ return array_merge(
 
     // ─── SCOUT ──────────────────────────────────────────────────────
     $expand( 'scout', [
-        'players'                    => [ 'r',   'global', $mod_players ],
+        // #3807 — was global, and it was the last of the three. The full
+        // player record carries guardian name, e-mail and phone plus every
+        // custom field a club has defined, with no per-field filter, so a
+        // global read here handed a scout the contact details of every
+        // family in the academy — including children they have no link to.
+        //
+        // This block already narrowed its two neighbours for exactly that
+        // reason and said why: evaluations in #1378 ("the widest
+        // sensitive-data grant in the matrix") and media in #2591
+        // ("photographs of children are at least as sensitive as a
+        // judgment about them"). Both passes left `players` alone.
+        //
+        // The scout does not lose the job this grant was standing in for.
+        // `GET /players/{id}/scout-card` is the replacement, shipped in
+        // this same change: the squad comparison a scout actually needs,
+        // as a closed field list with no family contact on it.
+        'players'                    => [ 'r',   'player', $mod_players ],
         'team'                       => [ 'r',   'global', $mod_teams ],
         // #1378 — was global. Scouts read evaluations only for players
         // they're linked to (trial/prospect assignment via scout_access);

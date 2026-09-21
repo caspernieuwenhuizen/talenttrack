@@ -324,6 +324,10 @@ A scout now holds `player` scope for a player through either of two links, resol
 - an **active seat on that player's trial-case panel** (`tt_trial_case_staff` with `unassigned_at IS NULL`); or
 - the player appearing in the scout's **assignment list** (user meta `tt_scout_player_ids`, managed on the scout-access screen).
 
+Since #3807 the scout's **`players`** row is written at `player` scope too, joining the four above. It was the last of the block still at `global`, which the two earlier passes over these grants had each left behind — `evaluations` was narrowed in #1378 and `media` in #2591, both on the reasoning that a scout reads about the children they are linked to rather than the whole academy. The full player record carries guardian name, e-mail and phone alongside every custom field a club has defined, with no per-field filter, so it belongs on the same footing as the two that moved before it. Migration `0285` narrows existing installs and touches only `is_default = 1` rows, so an academy that widened this deliberately keeps its own setting.
+
+What a scout reads instead is the player card below — shipped in the same change, precisely so that narrowing the record does not take away the squad comparison the job depends on.
+
 Three things this deliberately does not do:
 
 - **It is not persona-blind.** The links count for the **scout** persona only. Player scope used to be resolved without reference to persona; left that way, a user who is both a coach and a parent and happens to sit on a panel would pick up the *parent* rows' player-scoped reads over that trialist.
@@ -349,6 +353,32 @@ Separately from the status, a player who has been **archived** or moved to the *
 The scout's `trial_synthesis` row was **removed** rather than woken up. It would have opened the Execution tab — other panellists' inputs, before release — to any scout on any panel. A scout sees their own input before release and the panel's only after it.
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
+
+## What a scout may read about a squad player — the player card
+
+A scout's job includes comparing a trialist against the players the club already has, which needs something to compare *against*. Until now there was nothing: `GET /players` answered a scout with a successful, empty page and every per-player route refused them, so the screen looked broken rather than closed.
+
+Two things changed.
+
+**"Not allowed" and "nothing found" are now different answers.** A caller entitled to no players at all is refused, in the API and on the screen, with a sentence saying so and what to do about it. A caller entitled to *some* players still gets an honest empty result when a filter legitimately matches nothing — the refusal is about the person, never about the query, because refusing on the query would tell somebody that a player they may not see exists.
+
+**A scout reads a player card, not the player record.** `?tt_view=scout-player-card&id=N` and `GET /players/{id}/scout-card` carry exactly:
+
+| On the card | Why |
+| --- | --- |
+| Name | Who this is. |
+| Birth year | The age band. Not the date of birth — that is an identity field. |
+| Team | What the club has in that slot. |
+| Position | Same. |
+| Minutes share | How much they actually play, over the last year. |
+| Player status | The club's own standing judgement, and the **only** judgement on the card. It stays a status label, never the evaluation behind it. |
+| The scout's own observations | What *this* scout wrote when they watched the player. Another scout's notes are not on it. |
+
+**And nothing else.** Not on the card, deliberately, and a reviewer should refuse a change that adds any of them: guardian name, e-mail or phone; custom fields in any form; evaluations; measurements; injuries or anything medical; behaviour ratings; PDP content; safeguarding notes.
+
+The card is a separate route rather than a widening of `GET /players/{id}` for exactly that reason. The full player record returns guardian contact details and every custom field an academy has defined, with no per-field visibility filter — whatever a club has put in a custom field, including medical or safeguarding notes, rides out with it. A scout still cannot reach that route, and it is unchanged for everyone else.
+
+Who may read a card: anyone who may already read the full player record (the card is a subset of it), or a scout **linked** to that player by the two links above.
 
 ## Staff-only notes — `staff_only_notes`
 

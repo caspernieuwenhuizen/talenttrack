@@ -441,8 +441,86 @@
     }
 }
 
+/* ---- Scout player card (#3807) -------------------------------------- *
+ * Mobile-first: a scout reads this standing next to a pitch, so the base
+ * layout is one column at 360px and the facts pair up only when there is
+ * room. Tokens throughout. */
+.tt-dashboard .tt-smp-card-link {
+    display: block;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-4, 16px) var(--tt-sp-3, 12px);
+    color: var(--tt-primary, #0b3d2e);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-smp-card-link:hover,
+.tt-dashboard .tt-smp-card-link:focus-visible { text-decoration: underline; }
+
+.tt-dashboard .tt-scout-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-5, 20px);
+}
+.tt-dashboard .tt-scout-card__facts {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1, 4px);
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+}
+.tt-dashboard .tt-scout-card__facts dt {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted, #5b6b61);
+}
+.tt-dashboard .tt-scout-card__facts dd {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+.tt-dashboard .tt-scout-card h2 {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-lg, 1.125rem);
+}
+.tt-dashboard .tt-scout-card__observation-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-scout-card__observation-list p {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: var(--tt-lh-body, 1.5);
+}
+/* Says what the card deliberately leaves out, so a scout does not read
+ * the gaps as missing data. */
+.tt-dashboard .tt-scout-card__scope {
+    margin: 0;
+    color: var(--tt-muted, #5b6b61);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-dashboard .tt-sa-add { flex-wrap: nowrap; }
     .tt-dashboard .tt-rwz-radio { flex-wrap: nowrap; }
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-scout-card__facts {
+        grid-template-columns: max-content 1fr;
+        column-gap: var(--tt-sp-5, 20px);
+        align-items: baseline;
+    }
 }

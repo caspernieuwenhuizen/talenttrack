@@ -3,7 +3,7 @@ title: Scout — the season in actions
 group: basics
 summary: What a scout does in TalentTrack across a running season.
 audience: [user]
-views: [scout-access, scout-history, scout-my-players, scouting-visit, scouting-visits, prospect-edit]
+views: [scout-access, scout-history, scout-my-players, scout-player-card, scouting-visit, scouting-visits, prospect-edit]
 order: 34
 ---
 
@@ -82,6 +82,14 @@ development, or as a weekly catch-up.
 Look for two things: prospects that have gone quiet at one stage, and which
 kinds of discovery context actually convert. The second one changes where you
 spend your Saturdays.
+
+### Compare a trialist against the squad
+
+Deciding whether a player you have found is worth a trial usually means asking what the club already has in that position. **My players** (`?tt_view=scout-my-players`) now carries a **Player card** link beside each of your players: name, birth year, team, position, how much of the team's available minutes they have played over the last year, the club's own status for them, and whatever you yourself wrote when you watched them.
+
+That is the whole card, on purpose. Evaluations, measurements, family contact details and anything medical stay with the coaching staff — the card exists so you can compare, not so you can read the file.
+
+If you open the players list and are told you are not permitted to see any players, that is now said out loud rather than shown as an empty table. It means nobody has linked any players to your account yet; ask the head of development to add them to your list or to put you on a trial panel.
 
 ### Correct contact details or consent
 
