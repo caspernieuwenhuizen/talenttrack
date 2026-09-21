@@ -50,12 +50,18 @@ Het opent op de onderdelen die een één-op-één-gesprek nodig heeft:
 
 Vink meer onderdelen aan als het gesprek erom vraagt: **Per wedstrijd**,
 **Testen**, **Traject**, **Blessures**, **Gedrag**, **Potentie** en
-**Stafnotities**. Het rapport past zich meteen aan, en het adres in je browser
-verandert mee, zodat een collega die de link opent hetzelfde rapport ziet.
+**Stafnotities**. Druk daarna op **Rapport bijwerken**: aanvinken, uitvinken,
+de volgorde veranderen en de afdruk kiezen wachten allemaal op die knop, dus drie
+onderdelen kiezen is één keer herladen, niet drie. Tot je erop drukt, zegt een
+regel naast de knop dat je wijzigingen nog niet zijn toegepast: het rapport
+eronder, de pdf en de momentopname tonen nog de laatst toegepaste keuze. Na het
+toepassen verandert het adres in je browser mee, zodat een collega die de link
+opent hetzelfde rapport ziet.
 
 Zet de onderdelen in de volgorde van je gesprek: sleep een aangevinkt onderdeel
 naar zijn plek, of gebruik de pijltjes omhoog en omlaag (op een telefoon gaat het
-met de pijltjes). Het rapport op het scherm en de afdruk volgen die volgorde, en
+met de pijltjes). Een onderdeel dat je net hebt aangevinkt kun je meteen
+verplaatsen, nog voor je op **Rapport bijwerken** drukt. Het rapport op het scherm en de afdruk volgen die volgorde, en
 een opgeslagen weergave, een maandelijkse planning en een momentopname bewaren
 hem. De kop staat altijd bovenaan. Aanwezigheid en speeltijd staan op papier
 naast elkaar als ze naast elkaar in de volgorde staan.

@@ -95,6 +95,14 @@
 	touch-action: manipulation;
 }
 
+/* With the script the arrows are buttons that move the row in the page. */
+button.tt-pr-order__move {
+	padding: 0;
+	font-family: inherit;
+	line-height: 1;
+	cursor: pointer;
+}
+
 .tt-pr-order__move:active {
 	background: var(--tt-bg-soft);
 }

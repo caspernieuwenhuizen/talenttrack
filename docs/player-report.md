@@ -49,12 +49,17 @@ It opens on the sections a one-to-one conversation needs:
 
 Tick more sections when the conversation needs them: **Match by match**,
 **Tests**, **Journey**, **Injuries**, **Behaviour**, **Potential** and **Staff
-notes**. The report updates straight away, and the address in your browser
+notes**. Then press **Update report**: ticking, unticking, reordering and
+changing the printed copy all wait for that button, so choosing three sections
+is one reload, not three. Until you press it, a line beside the button says
+your changes are not applied yet: the report below, the PDF and the snapshot
+still show the last applied selection. Once applied, the address in your browser
 changes with it, so a colleague who opens the link sees the same report.
 
 Put the sections in the order your conversation goes: drag a ticked section to
 its place, or use its up and down arrows (on a phone, the arrows are the way to
-do it). The report on screen and the printed copy follow that order, and a saved
+do it). A section you just ticked can be moved straight away, before you press
+**Update report**. The report on screen and the printed copy follow that order, and a saved
 view, a monthly schedule and a snapshot keep it. The header always comes first.
 Attendance and playing time print side by side when they are next to each other.
 

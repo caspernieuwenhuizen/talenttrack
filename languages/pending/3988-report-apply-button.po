@@ -1,0 +1,3 @@
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Not applied yet. The report below, the PDF and the snapshot still show the last applied selection."
+msgstr "Nog niet toegepast. Het rapport hieronder, de pdf en de momentopname tonen nog de laatst toegepaste keuze."

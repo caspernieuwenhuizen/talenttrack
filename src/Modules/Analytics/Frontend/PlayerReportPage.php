@@ -24,8 +24,8 @@ use TT\Shared\Frontend\Components\RecordLink;
  * evidence packet the PDP screens read.
  *
  * It borrows two shipped pieces rather than growing its own: the team monthly
- * report's document shell and panel script (the same `tt-mr-*` contract, so a
- * tick re-renders and the URL stays the report), and the evidence panel's
+ * report's document shell and panel script (the same `tt-mr-*` contract, so
+ * "Update report" applies the panel and the URL stays the report), and the evidence panel's
  * tables, stats and cards, so a player's evidence looks the same here as on
  * the PDP Evidence tab.
  *
@@ -239,7 +239,7 @@ final class PlayerReportPage {
 
         $labels = self::blockLabels();
 
-        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" data-tt-mr-panel>';
+        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
         foreach ( $hidden as $name => $value ) {
             echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
         }
@@ -285,7 +285,11 @@ final class PlayerReportPage {
             $pos    = array_search( $key, $chosen, true );
             $on     = $pos !== false;
 
-            echo '<div class="tt-pr-order__row' . ( $on ? ' is-on' : '' ) . '" data-tt-pr-row="' . esc_attr( $key ) . '"' . ( $on ? ' draggable="true"' : '' ) . '>';
+            // #3988 — the arrows' names ride on every orderable row, so the
+            // script can give a section ticked on in the page its own arrows.
+            $names = $locked ? '' : ' data-tt-pr-label-up="' . esc_attr( self::moveLabel( 'up', $labels[ $key ]['title'] ) ) . '"'
+                . ' data-tt-pr-label-down="' . esc_attr( self::moveLabel( 'down', $labels[ $key ]['title'] ) ) . '"';
+            echo '<div class="tt-pr-order__row' . ( $on ? ' is-on' : '' ) . '" data-tt-pr-row="' . esc_attr( $key ) . '"' . ( $on ? ' draggable="true"' : '' ) . $names . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $names is escaped above.
             if ( $on ) {
                 echo '<span class="tt-pr-order__handle" aria-hidden="true">&#8942;&#8942;</span>';
             }
@@ -319,6 +323,7 @@ final class PlayerReportPage {
         if ( $schedule_url !== '' ) {
             echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
         }
+        TeamMonthlyReportPage::renderPendingHint();
         echo '</div>';
         echo '</form>';
     }
@@ -328,7 +333,9 @@ final class PlayerReportPage {
      * report with the order already changed, so they work without the script,
      * reloading them does not move anything twice, and a phone, where dragging
      * does not work, has a way to reorder too. The end of the list gets an
-     * inert placeholder rather than a link that would do nothing.
+     * inert placeholder rather than a link that would do nothing. With the
+     * ordering script loaded, the arrows move the row in the page instead, so
+     * a tick not applied yet is not lost (#3988).
      *
      * @param list<string> $chosen the chosen sections after the letterhead, in order
      */
@@ -337,11 +344,7 @@ final class PlayerReportPage {
         foreach ( [ 'up' => -1, 'down' => 1 ] as $dir => $step ) {
             $to    = $pos + $step;
             $glyph = $dir === 'up' ? '&#8593;' : '&#8595;';
-            $label = $dir === 'up'
-                /* translators: %s: a report section, e.g. "Tests" */
-                ? sprintf( __( 'Move %s up', 'talenttrack' ), $title )
-                /* translators: %s: a report section, e.g. "Tests" */
-                : sprintf( __( 'Move %s down', 'talenttrack' ), $title );
+            $label = self::moveLabel( $dir, $title );
             if ( $to < 0 || $to >= count( $chosen ) ) {
                 echo '<span class="tt-pr-order__move is-end" aria-hidden="true">' . $glyph . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a fixed entity.
                 continue;
@@ -353,6 +356,14 @@ final class PlayerReportPage {
             echo '<a class="tt-pr-order__move" href="' . esc_url( $url ) . '" aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '" data-tt-pr-move="' . esc_attr( $dir ) . '">' . $glyph . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the glyph is a fixed entity.
         }
         echo '</span>';
+    }
+
+    private static function moveLabel( string $dir, string $title ): string {
+        return $dir === 'up'
+            /* translators: %s: a report section, e.g. "Tests" */
+            ? sprintf( __( 'Move %s up', 'talenttrack' ), $title )
+            /* translators: %s: a report section, e.g. "Tests" */
+            : sprintf( __( 'Move %s down', 'talenttrack' ), $title );
     }
 
     /**
@@ -389,8 +400,9 @@ final class PlayerReportPage {
 
     /**
      * The composition as it stands, printed: the same player, window, layout
-     * and sections, handed to the `player_report_pdf` exporter. The page
-     * reloads on every panel change, so the link is never stale.
+     * and sections, handed to the `player_report_pdf` exporter. It follows the
+     * last applied selection; while the panel has changes not applied, the
+     * pending hint beside "Update report" says so (#3988).
      *
      * @param array{from:string,to:string,period:string} $window
      * @param list<string>                               $selected
