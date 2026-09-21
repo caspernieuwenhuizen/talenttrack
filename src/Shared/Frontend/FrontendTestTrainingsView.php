@@ -100,7 +100,7 @@ class FrontendTestTrainingsView extends FrontendViewBase {
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <p class="tt-field-hint"><?php esc_html_e( 'Pick the prospect this session is being arranged for, and they move to Invited when you save. Leave it empty to schedule an open session.', 'talenttrack' ); ?></p>
+                    <p class="tt-field-hint"><?php esc_html_e( 'Pick the prospect this test training is being arranged for, and they move to Invited when you save. Leave it empty to schedule one with nobody attached yet.', 'talenttrack' ); ?></p>
                 </div>
             <?php endif; ?>
             <div class="tt-grid tt-grid-2">

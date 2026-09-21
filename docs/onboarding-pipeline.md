@@ -139,10 +139,10 @@ Click their card, and the panel that opens above the board now offers a way forw
 **Configuration → Test trainings → New**, or the pipeline's *Arrange test training* button, which is the same form reached at `?tt_view=test-trainings&action=new&prospect_id=…`.
 
 - **Arriving from a prospect's card**, the **Prospect** field opens with that child selected. Save, and they move to **Invited** — exactly as if the *Invite to test training* task had been completed for them, because that is what is recorded underneath.
-- **Arriving cold**, the field is an ordinary picker set to *Nobody yet*. Scheduling an open session and attaching children later is a normal thing to do, so nothing is required here.
+- **Arriving cold**, the field is an ordinary picker set to *Nobody yet*. Scheduling a test training and attaching children later is a normal thing to do, so nothing is required here.
 - **An id that does not resolve** — a mistyped URL, a prospect somebody else logged and you cannot see, one already promoted or archived — opens the field empty and says nothing further. It deliberately does not tell you whether the prospect exists.
-- The picker offers only prospects you may invite. Without `tt_invite_prospects` the field is not shown at all, and the form still schedules an unattached session.
-- **The consent rule applies here too.** Attaching a child whose family has not agreed is refused with the same message the invite task gives, and nothing is saved — not even the session.
+- The picker offers only prospects you may invite. Without `tt_invite_prospects` the field is not shown at all, and the form still schedules a test training with nobody attached.
+- **The consent rule applies here too.** Attaching a child whose family has not agreed is refused with the same message the invite task gives, and nothing is saved — not even the test training.
 
 The two routes converge: whether the invitation was arranged from the task or from this form, the record left behind is the same completed *Invite to test training* task, so the board, the stage classifier and the reports all read one shape of the fact.
 

@@ -4,12 +4,12 @@ Bump: patch
 
 The head of development's route into inviting a prospect — the *Arrange test
 training* button on a prospect's pipeline card — opened a form with no
-prospect on it, so the session they created was linked to nobody and the child
+prospect on it, so the test training they created was linked to nobody and the child
 stayed in the first column.
 
 The form now has a **Prospect** field. Arriving from a card, that child is
 already picked; arriving cold, it is an ordinary picker set to *Nobody yet*,
-because scheduling an open session is a normal thing to do. Saving with a
+because scheduling one with nobody attached is a normal thing to do. Saving with a
 prospect attached records the invitation the same way completing the *Invite
 to test training* task does, so the two routes leave one shape of record
 rather than two, and the prospect moves to **Invited** either way.

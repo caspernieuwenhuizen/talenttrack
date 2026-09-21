@@ -142,10 +142,10 @@ Klik je op zijn kaart, dan biedt het paneel boven het bord nu een weg vooruit:
 **Configuratie → Testtrainingen → Nieuw**, of de knop *Testtraining regelen* in de pijplijn, wat hetzelfde formulier is op `?tt_view=test-trainings&action=new&prospect_id=…`.
 
 - **Kom je van het kaartje van een prospect**, dan opent het veld **Prospect** met dat kind geselecteerd. Sla je op, dan gaat het naar **Uitgenodigd** — precies alsof de klus *Uitnodigen voor testtraining* was afgerond, want dat is wat eronder wordt vastgelegd.
-- **Kom je er koud binnen**, dan is het veld een gewone keuzelijst op *Nog niemand*. Een open sessie inplannen en er later kinderen aan koppelen is heel normaal, dus hier is niets verplicht.
+- **Kom je er koud binnen**, dan is het veld een gewone keuzelijst op *Nog niemand*. Een testtraining inplannen en er later kinderen aan koppelen is heel normaal, dus hier is niets verplicht.
 - **Een id dat niets oplevert** — een vertikte URL, een prospect die iemand anders heeft vastgelegd en die jij niet mag zien, of een prospect die al is doorgestroomd of gearchiveerd — opent het veld leeg en zegt verder niets. Het vertelt bewust niet of die prospect bestaat.
-- De keuzelijst toont alleen prospects die jij mag uitnodigen. Zonder `tt_invite_prospects` verschijnt het veld helemaal niet, en plant het formulier nog steeds een losse sessie in.
-- **De toestemmingsregel geldt hier ook.** Een kind koppelen van wie het gezin niet akkoord is, wordt geweigerd met dezelfde melding als bij de uitnodigingsklus, en er wordt niets opgeslagen — ook de sessie niet.
+- De keuzelijst toont alleen prospects die jij mag uitnodigen. Zonder `tt_invite_prospects` verschijnt het veld helemaal niet, en plant het formulier nog steeds een testtraining in zonder dat er iemand aan hangt.
+- **De toestemmingsregel geldt hier ook.** Een kind koppelen van wie het gezin niet akkoord is, wordt geweigerd met dezelfde melding als bij de uitnodigingsklus, en er wordt niets opgeslagen — ook de testtraining niet.
 
 De twee routes komen samen: of de uitnodiging nu vanuit de klus of vanuit dit formulier is geregeld, wat er blijft staan is dezelfde afgeronde klus *Uitnodigen voor testtraining*, zodat het bord, de faseclassifier en de rapportages één vorm van hetzelfde feit lezen.
 

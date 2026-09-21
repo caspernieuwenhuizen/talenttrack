@@ -100,7 +100,7 @@ class TestTrainingsRestController {
             // an ordinary thing to create.
             'prospect_id' => [
                 'type'        => [ 'integer', 'null' ],
-                'description' => 'The prospect being invited. Requires tt_invite_prospects and sight of that prospect; omit to create an unattached session.',
+                'description' => 'The prospect being invited. Requires tt_invite_prospects and sight of that prospect; omit to create a test training with nobody attached.',
             ],
         ];
     }

@@ -3,8 +3,8 @@ msgid "Nobody yet"
 msgstr "Nog niemand"
 
 #: src/Shared/Frontend/FrontendTestTrainingsView.php
-msgid "Pick the prospect this session is being arranged for, and they move to Invited when you save. Leave it empty to schedule an open session."
-msgstr "Kies de prospect voor wie je deze sessie regelt; bij opslaan gaat die naar Uitgenodigd. Laat het leeg om een open sessie in te plannen."
+msgid "Pick the prospect this test training is being arranged for, and they move to Invited when you save. Leave it empty to schedule one with nobody attached yet."
+msgstr "Kies de prospect voor wie je deze testtraining regelt; bij opslaan gaat die naar Uitgenodigd. Laat het leeg om er een in te plannen zonder dat er al iemand aan hangt."
 
 #: src/Modules/Prospects/Domain/ArrangeTestTrainingService.php
 msgid "You cannot arrange a test training for this prospect."
