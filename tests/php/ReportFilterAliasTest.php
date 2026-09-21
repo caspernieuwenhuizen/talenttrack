@@ -5,9 +5,11 @@ use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\REST\ReportsRestController;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\PotentialOverviewQuery;
+use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -27,6 +29,14 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
  * two spellings are the same question, so whatever the plain parameter
  * answers the nested one answers identically — including when the answer is
  * a refusal, and including when it is a refusal on grounds of scope.
+ *
+ * #3922 — the team-scope fixture below used to build a `subscriber` with
+ * `tt_view_analytics` bolted on by `add_cap()`. The `user_has_cap` bridge
+ * discards that, so the caller was refused at the capability gate and the
+ * scope assertions passed without the scope check ever running. It now
+ * builds the `team_manager` persona the matrix grants, its refusal reads
+ * the controller's envelope rather than WordPress's, and it is paired with
+ * a grant: the same caller gets 200 for their own team.
  *
  * The minutes audit is exercised through `rest_do_request()`, because its
  * fix also had to remove the route-level `required` flag that would
@@ -185,6 +195,14 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
      * The point of the fix: the alias is not a way past the caller's own
      * teams. Both spellings answer a team outside scope the same way, and
      * neither hands back the caller's own team instead.
+     *
+     * The refusal read here is the **controller's** (`forbidden_team`, the
+     * `RestResponse::error` envelope), not WordPress's `rest_forbidden`.
+     * Before #3922 the fixture built a caller the matrix discarded, so the
+     * request never reached `attendanceScope()` and the 403 came from the
+     * permission gate — which is why this assertion used to read
+     * `payloadOf()` and find an empty player list in WordPress's own
+     * payload. It would have passed with the scope check deleted.
      */
     public function test_a_team_outside_scope_answers_the_same_through_either_spelling(): void {
         $this->makeTeamScopedReader( $this->team_a );
@@ -193,12 +211,54 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
         $nested = $this->minutesRequest( [ 'filter' => [ 'team_id' => $this->team_b ] ] );
 
         $this->assertSame( $plain->get_status(), $nested->get_status(), 'the two spellings are answered differently' );
-        $this->assertSame( $plain->get_data(), $nested->get_data() );
+        // Over the wire, not by object identity. The controller's envelope
+        // casts empty `details` to a `stdClass` so it serialises as `{}`
+        // rather than `[]`, and two of those are never the same instance —
+        // `assertSame()` on the raw arrays would be comparing that, not the
+        // answer. WordPress's `rest_forbidden` payload this used to read was
+        // a plain array, which is why the identity comparison held before.
         $this->assertSame(
-            [],
-            $this->playerIds( $this->payloadOf( $nested ) ),
-            'a team the caller may not read returned players'
+            wp_json_encode( $plain->get_data() ),
+            wp_json_encode( $nested->get_data() ),
+            'the two spellings are answered with different payloads'
         );
+        $this->assertSame( 403, $nested->get_status(), 'a team the caller may not read was answered with data' );
+        $this->assertSame(
+            'forbidden_team',
+            $this->refusalCode( $nested ),
+            'the refusal came from the capability gate, not from the team-scope check'
+        );
+        // `?? ` would read the null payload as an absent key, so the key is
+        // asserted present and then asserted null.
+        $payload = (array) $nested->get_data();
+        $this->assertArrayHasKey( 'data', $payload, 'the refusal does not use the standard envelope' );
+        $this->assertNull( $payload['data'], 'a refusal carried a payload' );
+    }
+
+    /**
+     * The other half, and the one that makes the refusal above mean what
+     * its name says. A scope test that only ever asserts a refusal cannot
+     * tell "narrowed correctly" from "refused everything" (#3922).
+     */
+    public function test_the_same_caller_reads_their_own_team_through_either_spelling(): void {
+        $this->makeTeamScopedReader( $this->team_a );
+
+        foreach ( [
+            'plain'  => [ 'team_id' => $this->team_a ],
+            'nested' => [ 'filter' => [ 'team_id' => $this->team_a ] ],
+        ] as $spelling => $query ) {
+            $response = $this->minutesRequest( $query );
+            $this->assertSame(
+                200,
+                $response->get_status(),
+                "the minutes audit refused the {$spelling} spelling for the caller's own team"
+            );
+            $this->assertSame(
+                [ $this->player_a ],
+                $this->playerIds( $this->payloadOf( $response ) ),
+                "the {$spelling} spelling answered with somebody outside the caller's team"
+            );
+        }
     }
 
     /* ---- potential overview --------------------------------------------- */
@@ -352,6 +412,13 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
         return (array) $data['data'];
     }
 
+    /** The `code` on the controller's own refusal envelope. */
+    private function refusalCode( \WP_REST_Response $response ): string {
+        $data  = (array) $response->get_data();
+        $error = (array) ( ( (array) ( $data['errors'] ?? [] ) )[0] ?? [] );
+        return (string) ( $error['code'] ?? '' );
+    }
+
     private function refusalParameter( \WP_REST_Response $response ): string {
         $data  = (array) $response->get_data();
         $error = (array) ( ( (array) ( $data['errors'] ?? [] ) )[0] ?? [] );
@@ -373,32 +440,51 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
     }
 
     /**
-     * A reader who holds the analytics capability but no academy-wide
-     * scope: a `tt_people` row plus an active team grant is what
-     * `QueryHelpers::get_teams_for_coach()` reads. The role id is
-     * deliberately one no persona owns, so the matrix grants no global read
-     * and the caller stays narrowed to the one team.
+     * A reader the matrix genuinely grants team-scoped analytics to: the
+     * `team_manager` persona, which the seed gives `analytics [r, team]`,
+     * narrowed to one squad by the `tt_people` row plus the active team
+     * grant `QueryHelpers::get_teams_for_coach()` reads.
+     *
+     * It has to be a real persona. A `subscriber` with `tt_view_analytics`
+     * bolted on via `add_cap()` is refused by the `user_has_cap` bridge —
+     * live in this suite, since `.wp-env.json` activates the plugin and
+     * `Activator::activate()` seeds `tt_authorization_active = 1` — which
+     * overwrites the directly-added cap with the matrix's answer for a
+     * persona that does not resolve. The request never reaches the scope
+     * check, so a 403 proves nothing about scoping (#3922, after #3913
+     * fixed the identical helper on the attendance twin of this file).
+     *
+     * The WordPress role comes from migration 0030 rather than
+     * `RolesService`, so it is created when absent: a user created against
+     * a role that does not exist holds no role at all.
      */
     private function makeTeamScopedReader( int $team_id ): void {
         global $wpdb;
-        $user_id = (int) self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $user    = new \WP_User( $user_id );
-        $user->add_cap( 'tt_view_analytics' );
+
+        if ( get_role( 'tt_team_manager' ) === null ) {
+            add_role( 'tt_team_manager', 'Team Manager', [ 'read' => true ] );
+        }
+        $user_id = (int) self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
 
         $wpdb->insert( "{$this->p}tt_people", [
             'club_id'    => $this->club,
             'first_name' => 'Scope',
             'last_name'  => 'Reader',
+            'role_type'  => 'team_manager',
             'wp_user_id' => $user_id,
             'status'     => 'active',
         ] );
         $wpdb->insert( "{$this->p}tt_user_role_scopes", [
             'club_id'    => $this->club,
             'person_id'  => (int) $wpdb->insert_id,
-            'role_id'    => 999999,
+            'role_id'    => 1,
             'scope_type' => 'team',
             'scope_id'   => $team_id,
         ] );
+
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
 
         wp_set_current_user( $user_id );
     }

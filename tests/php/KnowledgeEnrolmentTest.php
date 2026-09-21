@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_REST_Request;
 use WP_UnitTestCase;
+use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Knowledge\CourseCompletionService;
 use TT\Modules\Knowledge\CourseRegistry;
 use TT\Modules\Knowledge\KnowledgeModule;
@@ -22,6 +23,15 @@ use TT\Modules\Knowledge\Repositories\SubmissionRepository;
  * Plus the REST smoke tests the endpoint mandate requires — including the
  * denied paths, because an authorization hole is the failure class that
  * gate exists for.
+ *
+ * #3922 — those denied paths used to build a `subscriber` and bolt
+ * `tt_view_knowledge` on with `add_cap()`. Every assertion on such a
+ * fixture is a refusal, so nothing distinguishes "holds read, lacks
+ * manage" — the thing the test names — from "holds nothing at all", and
+ * all of them would pass with the gate under test deleted. They now use a
+ * real `tt_coach`, the persona the module grants read and withholds the
+ * statistics and manage grants from, and each refusal is paired with a
+ * grant the same caller does get.
  */
 final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
 
@@ -33,6 +43,13 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         CourseRegistry::flushCache();
+
+        // #3922 — the roles the knowledge grants are hung on have to exist
+        // before they are granted. `ensureCapabilities()` skips a role it
+        // cannot find, and a user created against a role that does not
+        // exist holds no role at all, so without this the reader fixture
+        // below would silently be a nobody.
+        ( new RolesService() )->installRoles();
 
         // The bootstrap runs migrations only, not the capability grants —
         // and a grant made on `init` lands inside the test transaction and
@@ -539,15 +556,25 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
      * Someone else's learning record needs the statistics capability, not
      * the view capability. Getting this wrong exposes every coach's
      * completion rate to every coach.
+     *
+     * #3922 — the caller is a real `tt_coach`, which the module grants
+     * `tt_view_knowledge` and deliberately not `tt_view_knowledge_statistics`.
+     * It used to be a `subscriber` with the cap bolted on by `add_cap()`,
+     * and nothing in the test could tell that apart from a caller holding
+     * nothing at all: every assertion was a refusal. The reader now has to
+     * read their **own** record first, so the 403 below is the one the
+     * test's name claims.
      */
     public function test_rest_another_persons_record_needs_the_statistics_capability(): void {
-        global $wpdb;
+        [ $reader, $reader_person ] = $this->makeKnowledgeReader();
 
-        $other_user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        $other_user_obj = get_user_by( 'id', $other_user );
-        $other_user_obj->add_cap( 'tt_view_knowledge' );
-
-        wp_set_current_user( $other_user );
+        $this->assertSame(
+            200,
+            rest_get_server()->dispatch(
+                new WP_REST_Request( 'GET', '/talenttrack/v1/people/' . $reader_person . '/learning' )
+            )->get_status(),
+            'the reader cannot read their own record, so a refusal below proves nothing'
+        );
 
         $response = rest_get_server()->dispatch(
             new WP_REST_Request( 'GET', '/talenttrack/v1/people/' . $this->person_id . '/learning' )
@@ -555,7 +582,7 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
 
         $this->assertSame( 403, $response->get_status() );
 
-        wp_delete_user( $other_user );
+        wp_delete_user( $reader );
     }
 
     /**
@@ -647,19 +674,26 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
         $this->assertSame( 404, $response->get_status() );
     }
 
-    /** #3708 — same gate as the DELETE sibling: moving a deadline is management. */
+    /**
+     * #3708 — same gate as the DELETE sibling: moving a deadline is
+     * management. #3922 — and the caller is a reader who genuinely holds
+     * knowledge read, proven by reading the library first.
+     */
     public function test_rest_patch_requires_the_manage_capability(): void {
         $id = ( new EnrolmentRepository() )->enrol( $this->person_id, self::COURSE );
 
-        $other_user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        get_user_by( 'id', $other_user )->add_cap( 'tt_view_knowledge' );
-        wp_set_current_user( $other_user );
+        [ $reader ] = $this->makeKnowledgeReader();
+        $this->assertReaderHoldsKnowledgeRead();
 
         $response = rest_get_server()->dispatch( $this->dueDateRequest( $id, '2026-12-18' ) );
 
         $this->assertSame( 403, $response->get_status() );
+        $this->assertNull(
+            ( new EnrolmentRepository() )->find( $id )->due_at,
+            'a refused deadline move still wrote'
+        );
 
-        wp_delete_user( $other_user );
+        wp_delete_user( $reader );
     }
 
     /**
@@ -681,23 +715,78 @@ final class KnowledgeEnrolmentTest extends WP_UnitTestCase {
         $this->assertNotContains( $id, $overdue );
     }
 
+    /**
+     * #3922 — as above: a reader who genuinely holds knowledge read still
+     * may not withdraw somebody, and the enrolment survives the attempt.
+     */
     public function test_rest_withdraw_requires_the_manage_capability(): void {
-        $id = ( new EnrolmentRepository() )->enrol( $this->person_id, self::COURSE );
+        $repo = new EnrolmentRepository();
+        $id   = $repo->enrol( $this->person_id, self::COURSE );
 
-        $other_user = self::factory()->user->create( [ 'role' => 'subscriber' ] );
-        get_user_by( 'id', $other_user )->add_cap( 'tt_view_knowledge' );
-        wp_set_current_user( $other_user );
+        [ $reader ] = $this->makeKnowledgeReader();
+        $this->assertReaderHoldsKnowledgeRead();
 
         $response = rest_get_server()->dispatch(
             new WP_REST_Request( 'DELETE', '/talenttrack/v1/enrolments/' . $id )
         );
 
         $this->assertSame( 403, $response->get_status() );
+        $this->assertNotNull( $repo->find( $id ), 'a refused withdrawal still removed the enrolment' );
 
-        wp_delete_user( $other_user );
+        wp_delete_user( $reader );
     }
 
     // ── helpers ────────────────────────────────────────────────────────
+
+    /**
+     * A caller the knowledge module genuinely grants read to, and nothing
+     * more: a `tt_coach`, which `KnowledgeModule::ensureCapabilities()`
+     * gives `tt_view_knowledge` and deliberately not
+     * `tt_view_knowledge_statistics` or `tt_manage_knowledge`.
+     *
+     * Why a role rather than `add_cap()` on a `subscriber` (#3922): a
+     * fixture whose caller holds nothing is indistinguishable from one
+     * whose caller holds read-but-not-manage as long as every assertion is
+     * a refusal, and both pass with the gate under test deleted. Pairing
+     * the refusal with a grant is what makes the test name true, and that
+     * needs a caller who really is a reader.
+     *
+     * The `tt_people` row carries the coach's own `wp_user_id`, so
+     * `KnowledgeRestController::isSelf()` resolves and the reader can read
+     * their own learning record.
+     *
+     * @return array{0:int,1:int} the WP user id and their person id.
+     */
+    private function makeKnowledgeReader(): array {
+        global $wpdb;
+
+        $user_id = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $wpdb->insert( $wpdb->prefix . 'tt_people', [
+            'club_id'    => 1,
+            'first_name' => 'Reader',
+            'last_name'  => 'Coach',
+            'wp_user_id' => $user_id,
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+
+        wp_set_current_user( $user_id );
+
+        return [ $user_id, $person_id ];
+    }
+
+    /**
+     * The grant half of every refusal below: the current caller can read
+     * the course library, so a 403 on a management route is about the
+     * management gate rather than about holding no knowledge access.
+     */
+    private function assertReaderHoldsKnowledgeRead(): void {
+        $this->assertSame(
+            200,
+            rest_get_server()->dispatch( new WP_REST_Request( 'GET', '/talenttrack/v1/courses' ) )->get_status(),
+            'the caller holds no knowledge read at all, so a refusal proves nothing'
+        );
+    }
 
     /** A second staff record, so assignment can be tested rather than self-enrol. */
     private function createPerson(): int {
