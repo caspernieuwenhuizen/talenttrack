@@ -159,7 +159,7 @@ final class PlayerReportAudience {
                 }
             }
         }
-        if ( isset( $report['data'][ PlayerReportBlock::MINUTES ] ) && is_array( $report['data'][ PlayerReportBlock::MINUTES ] ) ) {
+        if ( isset( $report['data'][ PlayerReportBlock::MINUTES ] ) ) {
             unset( $report['data'][ PlayerReportBlock::MINUTES ]['comparison'] );
         }
         return $report;
