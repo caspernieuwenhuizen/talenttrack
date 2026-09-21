@@ -168,6 +168,46 @@ Alleen ingelogde stafleden die het rapport van deze speler mogen openen, kunnen
 een momentopname ervan openen. Een momentopname heeft geen deelbare link; geef
 iemand in plaats daarvan de PDF.
 
+## Het rapport delen met de speler en de ouders
+
+Onder het rapport opent **Delen met het gezin…** een korte uitleg en een knop
+**Delen met het gezin**. Delen zet een kopie van het rapport vast, net als een
+momentopname, en legt die voor aan de speler en de ouders. Gezinnen maken zelf
+nooit rapporten: elk rapport dat ze zien, heeft een trainer met ze willen delen.
+
+Een gedeeld rapport bevat alleen deze onderdelen, en alleen de onderdelen die op
+het rapport zijn aangevinkt. Is er geen van aangevinkt, dan worden ze allemaal
+gedeeld:
+
+- aanwezigheid;
+- speeltijd;
+- doelen;
+- evaluatiescores, per categorie en in totaal, **zonder** je geschreven
+  toelichting;
+- testen, alleen de testen die de academie openbaar deelt.
+
+Al het andere blijft bij de staf, wat er ook is aangevinkt: de status,
+gesprekspunten, het ontwikkelplan, stafnotities, blessures, het traject, gedrag,
+potentieel en het lege notitievlak. Ze zitten niet in de gedeelde kopie zelf, en
+zijn dus niet alleen op het scherm verborgen.
+
+### Waar het gezin het vindt
+
+De speler vindt gedeelde rapporten onder **Rapporten** op zijn of haar eigen
+profiel. Een ouder vindt ze onder **Rapporten** op het profiel van het kind. Het
+nieuwste staat bovenaan, en elk rapport opent de vastgezette kopie.
+
+Iedere lezer ziet de onderdelen die hij of zij op het spelersprofiel al mag
+zien. Heeft de speler ervoor gekozen evaluaties, doelen, speeltijd of testen af
+te schermen voor de ouders, dan ontbreekt dat onderdeel in het exemplaar van de
+ouder. De speler ziet altijd zijn of haar eigen onderdelen. Een ouder ziet alleen
+de rapporten van de eigen kinderen.
+
+Op een gedeeld rapport kun je geen notities zetten, want niets wat erop staat
+zou het gezin bereiken. In de lijst onder het rapport staat het gemarkeerd als
+**Gedeeld met het gezin**. De staf kan het daar openen om te zien wat er is
+verstuurd.
+
 ## Je vaste rapport bewaren
 
 De meeste trainers willen voor elk gesprek dezelfde onderdelen. Als het rapport
@@ -180,7 +220,8 @@ hem. Maak er je standaard van en elk spelersrapport opent met jouw onderdelen.
 
 Het spelersrapport is voor de staf. Je kunt het openen voor de spelers van de
 teams waarvan je de rapporten mag zien; een hoofd opleidingen ziet elke speler.
-Spelers en ouders kunnen het niet openen.
+Spelers en ouders kunnen het niet openen; zij lezen de rapporten die je met ze
+deelt.
 
 Sommige onderdelen tonen alleen wat je elders ook mag zien:
 
@@ -203,15 +244,19 @@ De scores komen zonder de geschreven toelichting van de trainer, en van de teste
 staan alleen de testen die de academie openbaar deelt. De scout kan geen andere
 onderdelen kiezen; het rapport bepaalt dat.
 
-Het scoutingrapport dat je vanuit **Rapport genereren** mailt, en de pdf ervan,
-zijn dezelfde scoutversie.
+Om een scout een eenmalige link te mailen, open je **Naar een scout sturen…**
+onder het rapport. Vul het e-mailadres van de scout in, kies wanneer de link
+verloopt en voeg eventueel een bericht toe. De scout krijgt dezelfde scoutversie,
+met de evaluatiescores, aanwezigheid en speeltijd die je hebt aangevinkt, of alle
+drie als er geen van aangevinkt is. De scouting-pdf is hetzelfde document.
 
 ### De oudere rapportwizard
 
-**Rapport genereren** bij een speler schrijft nu alleen nog voor ouders, de speler
-en scouts. Het stafrapport dat de wizard vroeger aanbood, is dit spelersrapport;
-de wizard verwijst ernaar.
+De rapportwizard bestaat niet meer. Het stafrapport, het gezinsrapport en de
+scoutlink zijn nu allemaal dit spelersrapport. Oude links naar de wizard openen
+het spelersrapport, of voor een speler of ouder het tabblad **Rapporten** op het
+spelersprofiel.
 
 Het rapport is vertrouwelijk. Het beschrijft de ontwikkeling van een
-minderjarige: deel het niet met de speler, zijn ouders of iemand buiten de
-technische staf.
+minderjarige: deel het met de speler en de ouders alleen via **Delen met het
+gezin**, en nooit met iemand buiten de technische staf.

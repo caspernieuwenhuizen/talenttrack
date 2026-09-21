@@ -147,8 +147,8 @@ abstract class FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
-        // Reports + Scout body surfaces 2026 restyle (#1695): report
-        // wizard, scout access, scout history, scout my-players. Depends
+        // Reports + Scout body surfaces 2026 restyle (#1695): scout
+        // access, scout history, scout my-players. Depends
         // on the app-chrome sheet for the brand tokens + .tt-kpi styling.
         // Cheap no-op on views that don't render the .tt-rwz-/.tt-sa-/
         // .tt-sh-/.tt-smp- surfaces.

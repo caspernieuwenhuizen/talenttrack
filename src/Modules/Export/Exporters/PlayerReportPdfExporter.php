@@ -100,7 +100,12 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
             if ( $snapshot === null ) {
                 throw new ExportException( 'forbidden', __( 'You do not have access to this snapshot.', 'talenttrack' ) );
             }
-            return self::payload( $snapshot['report'], (string) ( $snapshot['composition']['layout'] ?? PlayerReportLayout::DEFAULT ), $snapshot['notes'] );
+            return self::payload(
+                $snapshot['report'],
+                $snapshot['composition']['layout'],
+                $snapshot['notes'],
+                $snapshot['audience'] === \TT\Modules\Analytics\Reports\PlayerReportAudience::FAMILY
+            );
         }
 
         $player_id = (int) ( $request->filters['player_id'] ?? 0 );
@@ -129,15 +134,16 @@ final class PlayerReportPdfExporter implements ExporterInterface, ScopeGatedExpo
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      *        a snapshot's section notes, so print and screen agree (#3890).
+     * @param bool $family a report shared with the family prints the family's footer (#3955)
      * @return array{html:string, options:array{paper:string, orientation:string}}
      */
-    public static function payload( array $report, string $layout, array $notes = [] ): array {
+    public static function payload( array $report, string $layout, array $notes = [], bool $family = false ): array {
         $layout = PlayerReportLayout::isValid( $layout ) ? $layout : PlayerReportLayout::DEFAULT;
         $fit    = PlayerReportLayout::fit( $report, $layout );
         $report['data'] = PlayerReportLayout::degrade( $report, $fit['degraded'] )['data'];
 
         return [
-            'html'    => PlayerReportPdfDocument::html( $report, $notes ),
+            'html'    => PlayerReportPdfDocument::html( $report, $notes, $family ),
             'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],
         ];
     }

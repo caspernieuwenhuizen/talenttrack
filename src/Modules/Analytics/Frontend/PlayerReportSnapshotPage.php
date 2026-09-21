@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\PlayerReportAccess;
+use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository;
 use TT\Modules\Analytics\Reports\PlayerReportSnapshots;
@@ -31,6 +32,7 @@ use TT\Shared\Frontend\Components\RecordLink;
 final class PlayerReportSnapshotPage {
 
     public const ACTION_CREATE = 'tt_pr_snapshot_create';
+    public const ACTION_SHARE  = 'tt_pr_snapshot_share';
     public const ACTION_NOTE   = 'tt_pr_snapshot_note';
 
     /**
@@ -41,25 +43,31 @@ final class PlayerReportSnapshotPage {
         if ( ! is_user_logged_in() ) return;
 
         $action = isset( $_POST['tt_action'] ) ? sanitize_key( wp_unslash( (string) $_POST['tt_action'] ) ) : '';
-        if ( $action === self::ACTION_CREATE ) { self::handleCreate(); return; }
+        if ( $action === self::ACTION_CREATE ) { self::handleCreate( false ); return; }
+        if ( $action === self::ACTION_SHARE )  { self::handleCreate( true ); return; }
         if ( $action === self::ACTION_NOTE )   { self::handleNote(); }
     }
 
-    private static function handleCreate(): void {
-        check_admin_referer( self::ACTION_CREATE );
+    /**
+     * Take a snapshot, or share the report with the family (#3955). Sharing is
+     * its own button and its own nonce, never a field on another form: it puts
+     * a document in front of a family, which a stray submit must not do.
+     */
+    private static function handleCreate( bool $share ): void {
+        check_admin_referer( $share ? self::ACTION_SHARE : self::ACTION_CREATE );
 
         $player_id = isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0;
-        $uuid      = PlayerReportSnapshots::take(
-            $player_id,
-            [
-                'from'   => isset( $_POST['from'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['from'] ) ) : '',
-                'to'     => isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['to'] ) ) : '',
-                'layout' => isset( $_POST['layout'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['layout'] ) ) : '',
-                'blocks' => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
-            ],
-            get_current_user_id(),
-            isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : ''
-        );
+        $raw       = [
+            'from'   => isset( $_POST['from'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['from'] ) ) : '',
+            'to'     => isset( $_POST['to'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['to'] ) ) : '',
+            'layout' => isset( $_POST['layout'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['layout'] ) ) : '',
+            'blocks' => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
+        ];
+        $title     = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '';
+
+        $uuid = $share
+            ? PlayerReportSnapshots::share( $player_id, $raw, get_current_user_id(), $title )
+            : PlayerReportSnapshots::take( $player_id, $raw, get_current_user_id(), $title );
 
         if ( $uuid === '' ) {
             wp_die( esc_html__( 'The snapshot could not be saved.', 'talenttrack' ), '', [ 'response' => 403 ] );
@@ -113,35 +121,91 @@ final class PlayerReportSnapshotPage {
         PlayerReportPage::enqueuePublic();
 
         $report = $snapshot['report'];
+        $family = $snapshot['audience'] === PlayerReportAudience::FAMILY;
         self::renderHeader( $snapshot );
 
         echo '<div class="tt-mr tt-pr" data-tt-player-report>';
         PlayerReportPage::renderBlocks(
             $report,
-            [ 'from' => (string) $report['from'], 'to' => (string) $report['to'], 'period' => '' ],
+            [ 'from' => $report['from'], 'to' => $report['to'], 'period' => '' ],
             $snapshot['notes'],
-            $uuid
+            // A report shared with the family carries no notes: nothing written
+            // on it would reach the people it was written for.
+            $family ? '' : $uuid,
+            $family
         );
         echo '</div>';
 
         return true;
     }
 
-    /** @param array<string,mixed> $snapshot */
+    /**
+     * #3955 — a report shared with the family, as the family reads it, on the
+     * child's file. The frozen blocks and who shared them; no notes, no PDF
+     * and nothing to edit. False when this reader may not see it, or it is not
+     * a snapshot of this player.
+     */
+    public static function renderForFamily( string $uuid, int $player_id ): bool {
+        $snapshot = PlayerReportSnapshots::read( $uuid, get_current_user_id() );
+        if ( $snapshot === null
+            || $snapshot['player_id'] !== $player_id
+            || $snapshot['audience'] !== PlayerReportAudience::FAMILY
+        ) {
+            return false;
+        }
+
+        PlayerReportPage::enqueuePublic();
+
+        $report = $snapshot['report'];
+        echo '<div class="tt-mr-snapshot-bar">';
+        echo '<h3 class="tt-mr-snapshot-bar__t">' . esc_html( $snapshot['title'] ) . '</h3>';
+        echo '<p class="tt-mr-muted">' . esc_html( self::sharedLine( $snapshot['created_by'], $snapshot['created_at'] ) ) . '</p>';
+        echo '</div>';
+
+        echo '<div class="tt-mr tt-pr" data-tt-player-report>';
+        PlayerReportPage::renderBlocks(
+            $report,
+            [ 'from' => $report['from'], 'to' => $report['to'], 'period' => '' ],
+            [],
+            '',
+            true
+        );
+        echo '</div>';
+
+        return true;
+    }
+
+    /** "Shared by <coach> on <date>." */
+    public static function sharedLine( int $author, string $created_at ): string {
+        $name = $author > 0 ? (string) get_the_author_meta( 'display_name', $author ) : '';
+        return sprintf(
+            /* translators: 1: the coach who shared the report, 2: the date */
+            __( 'Shared by %1$s on %2$s.', 'talenttrack' ),
+            $name !== '' ? $name : __( 'a staff member', 'talenttrack' ),
+            TTDate::date( substr( $created_at, 0, 10 ) )
+        );
+    }
+
+    /** @param array{uuid:string, title:string, audience:string, created_by:int, created_at:string} $snapshot */
     private static function renderHeader( array $snapshot ): void {
-        $author = (int) ( $snapshot['created_by'] ?? 0 );
+        $author = $snapshot['created_by'];
         $name   = $author > 0 ? (string) get_the_author_meta( 'display_name', $author ) : '';
 
         echo '<div class="tt-mr-snapshot-bar">';
-        echo '<p class="tt-mr-snapshot-bar__t"><strong>' . esc_html( (string) ( $snapshot['title'] ?? '' ) ) . '</strong></p>';
-        echo '<p class="tt-mr-muted">' . esc_html( sprintf(
-            /* translators: 1: who took the snapshot, 2: when */
-            __( 'Frozen by %1$s on %2$s. The numbers do not change; notes can still be edited.', 'talenttrack' ),
-            $name !== '' ? $name : __( 'a staff member', 'talenttrack' ),
-            TTDate::date( substr( (string) ( $snapshot['created_at'] ?? '' ), 0, 10 ) )
-        ) ) . '</p>';
-        echo '<p class="tt-mr-muted">' . esc_html__( 'Only signed-in staff who can see this player can open this snapshot. It has no shareable link — send the PDF instead.', 'talenttrack' ) . '</p>';
-        echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( (string) ( $snapshot['uuid'] ?? '' ) ) ) . '">'
+        echo '<p class="tt-mr-snapshot-bar__t"><strong>' . esc_html( $snapshot['title'] ) . '</strong></p>';
+        if ( $snapshot['audience'] === PlayerReportAudience::FAMILY ) {
+            echo '<p class="tt-mr-muted">' . esc_html( self::sharedLine( $author, $snapshot['created_at'] ) ) . ' '
+                . esc_html__( 'This is the report the player and their parents see on the player\'s file, frozen when it was shared. Each of them sees the sections their own access to the player allows.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<p class="tt-mr-muted">' . esc_html( sprintf(
+                /* translators: 1: who took the snapshot, 2: when */
+                __( 'Frozen by %1$s on %2$s. The numbers do not change; notes can still be edited.', 'talenttrack' ),
+                $name !== '' ? $name : __( 'a staff member', 'talenttrack' ),
+                TTDate::date( substr( $snapshot['created_at'], 0, 10 ) )
+            ) ) . '</p>';
+            echo '<p class="tt-mr-muted">' . esc_html__( 'Only signed-in staff who can see this player can open this snapshot. It has no shareable link — send the PDF instead.', 'talenttrack' ) . '</p>';
+        }
+        echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $snapshot['uuid'] ) ) . '">'
             . esc_html__( 'Download PDF', 'talenttrack' ) . '</a></p>';
         echo '</div>';
     }
@@ -224,17 +288,48 @@ final class PlayerReportSnapshotPage {
         echo '<span class="tt-mr-panel__hint">' . esc_html__( 'Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section.', 'talenttrack' ) . '</span>';
         echo '</form>';
 
+        self::renderShare( $player_id, $window, $layout, $blocks );
+
         $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, 10 );
         if ( $rows !== [] ) {
             echo '<ul class="tt-mr-snapshots__list">';
             foreach ( $rows as $row ) {
-                echo '<li><a href="' . esc_url( self::url( (string) $row->uuid ) ) . '">'
-                    . esc_html( (string) ( $row->title ?? '' ) ) . '</a> '
-                    . '<span class="tt-mr-muted">' . esc_html( TTDate::date( substr( (string) ( $row->created_at ?? '' ), 0, 10 ) ) ) . '</span></li>';
+                echo '<li><a href="' . esc_url( self::url( $row['uuid'] ) ) . '">'
+                    . esc_html( $row['title'] ) . '</a> '
+                    . '<span class="tt-mr-muted">' . esc_html( TTDate::date( substr( $row['created_at'], 0, 10 ) ) ) . '</span>';
+                if ( $row['audience'] === PlayerReportAudience::FAMILY ) {
+                    echo ' <span class="tt-pr-shared-badge">' . esc_html__( 'Shared with the family', 'talenttrack' ) . '</span>';
+                }
+                echo '</li>';
             }
             echo '</ul>';
         }
 
         echo '</div>';
+    }
+
+    /**
+     * #3955 — "Share with the family". Behind a disclosure that says what the
+     * family will get, so the button that puts a document in front of a
+     * family is the second deliberate step, never the first click.
+     *
+     * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $blocks
+     */
+    private static function renderShare( int $player_id, array $window, string $layout, array $blocks ): void {
+        echo '<details class="tt-pr-share">';
+        echo '<summary class="tt-btn tt-btn-secondary">' . esc_html__( 'Share with the family…', 'talenttrack' ) . '</summary>';
+        echo '<form method="post" class="tt-pr-share__form">';
+        wp_nonce_field( self::ACTION_SHARE );
+        echo '<input type="hidden" name="tt_action" value="' . esc_attr( self::ACTION_SHARE ) . '">';
+        echo '<input type="hidden" name="player_id" value="' . esc_attr( (string) $player_id ) . '">';
+        echo '<input type="hidden" name="from" value="' . esc_attr( $window['from'] ) . '">';
+        echo '<input type="hidden" name="to" value="' . esc_attr( $window['to'] ) . '">';
+        echo '<input type="hidden" name="layout" value="' . esc_attr( $layout ) . '">';
+        echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $blocks ) ) . '">';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The player and their parents will find a frozen copy under Reports on the player\'s file. Only attendance, playing time, goals, evaluation scores and tests can be shared: the ones ticked above, or all five when none of them is. Your written notes on evaluations, and every other section, stay with staff.', 'talenttrack' ) . '</p>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Share with the family', 'talenttrack' ) . '</button>';
+        echo '</form>';
+        echo '</details>';
     }
 }

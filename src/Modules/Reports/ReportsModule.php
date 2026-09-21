@@ -16,5 +16,11 @@ class ReportsModule implements ModuleInterface {
         // stored rendered HTML (with photos already base64-inlined),
         // and exits. No theme HTML, no nav.
         ScoutLinkRouter::init();
+        // #3955 — the retired report wizard's links go on to the player
+        // report, or to the family's Reports tab.
+        Frontend\ReportWizardRedirect::init();
+        // #3955 — the scout's emailed link, sent from the player report now
+        // the wizard it lived in is gone.
+        Frontend\PlayerReportScoutSend::init();
     }
 }

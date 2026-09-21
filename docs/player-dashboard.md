@@ -106,16 +106,11 @@ If you have a parent or guardian linked to your account, **My settings** also sh
 
 ## Reports
 
-If you're a coach or administrator, the player detail page has a **Generate report…** button. It opens a four-step wizard:
+When a coach shares a report with you, it appears under **Reports** on your profile. A parent finds it under **Reports** on their child's profile. The newest is at the top, and each one opens the report as it was when the coach shared it.
 
-1. **Audience** — Standard, Parent monthly, Internal coaches, Player keepsake, or Scout.
-2. **Scope** — last month, last season, year to date, all time, or a custom range.
-3. **Sections** — pick what to include: profile, ratings, goals, sessions, attendance, coach notes.
-4. **Privacy** — opt in to contact details, full date of birth, photo, coach free-text notes, or set a minimum rating threshold.
+A shared report shows attendance, playing time, goals, evaluation scores and tests. It never includes the coach's written notes, and it follows the same choices as the rest of your profile: a section you keep from your parent is left out of their copy.
 
-Each audience pre-fills sensible defaults. Click **Preview report** to see the result inline; print it from your browser to save as PDF.
-
-For scouts, you can additionally enter the recipient's email address and a link expiry, and the report is sent as a one-time link with a confidential watermark. Active links can be revoked at any time from the **Scout reports history** page.
+You can't make a report yourself. Every report here is one a coach chose to share with you. Coaches make and share them from the player report; see [Player report](player-report.md).
 
 ## Privacy
 

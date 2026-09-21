@@ -464,8 +464,8 @@ class RolesService {
                         'tt_evaluate_players' => true,
                     ],
                     // #0014 Sprint 4 — coaches can generate reports for
-                    // players on their own teams. Per-player gating
-                    // happens in FrontendReportWizardView.
+                    // players on their own teams. The player report
+                    // gates each player itself (PlayerReportAccess).
                     [ 'tt_generate_report' => true ],
                     // #0063 — in-product mail composer.
                     [ 'tt_send_email' => true ],

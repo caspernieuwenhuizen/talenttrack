@@ -11,19 +11,17 @@ use TT\Modules\Stats\Admin\PlayerCardView;
 use TT\Shared\Dates\TTDate;
 
 /**
- * PlayerReportRenderer — the configurable replacement for the original
- * `PlayerReportView` (#0014 Sprint 3).
+ * PlayerReportRenderer — the evaluation report (#0014 Sprint 3): rate
+ * card, headline numbers, category breakdown and charts.
  *
- * Takes a {@see ReportConfig} (audience + scope + sections + privacy +
- * tone variant) and emits the report HTML as a string. The legacy
- * `PlayerReportView::render()` shim builds a `ReportConfig::standard()`
- * and feeds the renderer; output is byte-equivalent for the standard
- * case so existing `?tt_report=1` URLs keep working.
+ * Takes a {@see ReportConfig} (scope + sections) and emits the report
+ * HTML as a string. The legacy `PlayerReportView::render()` shim and the
+ * evaluation PDF export build a `ReportConfig::standard()` and feed it
+ * here, so existing `?tt_report=1` URLs keep working.
  *
- * Tone variants ('default' | 'warm' | 'formal' | 'fun') change prose
- * inside the prose-heavy sections (ratings, goals). The structural
- * layout — headline tiles, charts, footer — is shared across variants
- * because the visual identity should still feel like one product.
+ * Every audience-specific document — staff, scout, parent, player — is
+ * the player report engine's (`Analytics\Reports\PlayerReport`, #3876 /
+ * #3955). This renderer has no audience path, tone or privacy toggles.
  */
 class PlayerReportRenderer {
 
@@ -65,13 +63,13 @@ class PlayerReportRenderer {
         ob_start();
         $this->renderStyles();
         ?>
-        <div class="tt-report-wrap tt-report-tone-<?php echo esc_attr( $config->tone_variant ); ?>">
+        <div class="tt-report-wrap">
 
-            <?php $this->renderHeader( $club_name, $club_logo, $player_name, $report_date, $period, $config ); ?>
+            <?php $this->renderHeader( $club_name, $club_logo, $player_name, $report_date, $period ); ?>
 
             <?php if ( $config->includesSection( 'profile' ) ) : ?>
                 <section class="tt-report-card-section">
-                    <?php $this->renderPlayerCard( $player, $config ); ?>
+                    <?php $this->renderPlayerCard( $player ); ?>
                 </section>
             <?php endif; ?>
 
@@ -80,8 +78,8 @@ class PlayerReportRenderer {
             <?php else :
 
                 if ( $config->includesSection( 'ratings' ) ) :
-                    $this->renderHeadlineSection( $headline, $config );
-                    $this->renderRatingsBreakdown( $mains, $subs, $config );
+                    $this->renderHeadlineSection( $headline );
+                    $this->renderRatingsBreakdown( $mains, $subs );
                     $this->renderCharts();
                 endif;
 
@@ -96,13 +94,9 @@ class PlayerReportRenderer {
                 if ( $config->includesSection( 'sessions' ) ) :
                     $this->renderSessions( $player, $config );
                 endif;
-
-                if ( $config->includesSection( 'coach_notes' ) && $config->privacy->include_coach_notes ) :
-                    $this->renderCoachNotes( $config );
-                endif;
             endif; ?>
 
-            <?php $this->renderFooter( $config ); ?>
+            <?php $this->renderFooter(); ?>
 
         </div>
 
@@ -126,7 +120,7 @@ class PlayerReportRenderer {
 
     // Sections
 
-    private function renderHeader( string $club_name, string $club_logo, string $player_name, string $report_date, string $period, ReportConfig $config ): void {
+    private function renderHeader( string $club_name, string $club_logo, string $player_name, string $report_date, string $period ): void {
         ?>
         <header class="tt-report-header">
             <?php if ( $club_logo ) : ?>
@@ -139,7 +133,10 @@ class PlayerReportRenderer {
                     <div class="tt-report-club"><?php echo esc_html( $club_name ); ?></div>
                 <?php endif; ?>
                 <h1 class="tt-report-title">
-                    <?php echo esc_html( $this->headlineFor( $config->tone_variant, $player_name ) ); ?>
+                    <?php
+                    /* translators: %s is player name */
+                    echo esc_html( sprintf( __( 'Player Report — %s', 'talenttrack' ), $player_name ) );
+                    ?>
                 </h1>
                 <div class="tt-report-meta">
                     <span><?php esc_html_e( 'Generated:', 'talenttrack' ); ?> <?php echo esc_html( $report_date ); ?></span>
@@ -151,45 +148,14 @@ class PlayerReportRenderer {
         <?php
     }
 
-    private function headlineFor( string $tone, string $player_name ): string {
-        switch ( $tone ) {
-            case 'warm':
-                /* translators: %s: player name */
-                return sprintf( __( "%s's progress", 'talenttrack' ), $player_name );
-            case 'fun':
-                /* translators: %s: player name */
-                return sprintf( __( "%s — your season highlights", 'talenttrack' ), $player_name );
-            case 'formal':
-            case 'default':
-            default:
-                /* translators: %s is player name */
-                return sprintf( __( 'Player Report — %s', 'talenttrack' ), $player_name );
-        }
-    }
-
-    private function renderPlayerCard( object $player, ReportConfig $config ): void {
-        if ( ! $config->privacy->include_photo ) {
-            // Render the card without the photo — PlayerCardView handles
-            // missing photos gracefully via the placeholder pattern.
-            $stripped = clone $player;
-            $stripped->photo_url = '';
-            // PlayerCardView pulls the row internally by ID, so we can't
-            // pass a doctored object. Fall through and accept the photo;
-            // the privacy intent here is "don't include the player's
-            // identifying photo on a parent / scout report" — when set,
-            // we render only the FIFA frame's identity panel, not the
-            // photo. Implementation detail handled inside the card via
-            // the new `?show_photo=` arg if extended later. For v1 we
-            // accept the photo; the omit-photo case is rare and the
-            // wizard surfaces a clear toggle so users see the choice.
-        }
+    private function renderPlayerCard( object $player ): void {
         PlayerCardView::renderCard( (int) $player->id, 'md', false, null );
     }
 
     /**
      * @param array<string, mixed> $headline
      */
-    private function renderHeadlineSection( array $headline, ReportConfig $config ): void {
+    private function renderHeadlineSection( array $headline ): void {
         $rolling_n = (int) $headline['rolling_count'];
         $alltime_n = (int) $headline['alltime_count'];
         ?>
@@ -229,12 +195,10 @@ class PlayerReportRenderer {
      * @param array<int, array<string, mixed>> $mains
      * @param array<int, array<string, mixed>> $subs
      */
-    private function renderRatingsBreakdown( array $mains, array $subs, ReportConfig $config ): void {
-        $threshold = (float) $config->privacy->min_rating_threshold;
-        $heading = $this->ratingsHeadingFor( $config->tone_variant );
+    private function renderRatingsBreakdown( array $mains, array $subs ): void {
         ?>
         <section class="tt-report-breakdown">
-            <h2><?php echo esc_html( $heading ); ?></h2>
+            <h2><?php esc_html_e( 'Main category breakdown', 'talenttrack' ); ?></h2>
             <table>
                 <thead>
                     <tr>
@@ -246,15 +210,7 @@ class PlayerReportRenderer {
                 </thead>
                 <tbody>
                 <?php foreach ( $mains as $row ) :
-                    $alltime = $row['alltime'];
-                    if ( $threshold > 0 && $alltime !== null && (float) $alltime < $threshold ) {
-                        continue;
-                    }
-                    if ( $config->tone_variant === 'fun' && $alltime !== null && (float) $alltime < 3.0 ) {
-                        // Fun (player keepsake) variant skips weak-spot
-                        // callouts by default.
-                        continue;
-                    }
+                    $alltime   = $row['alltime'];
                     $label     = EvalCategoriesRepository::displayLabel( (string) $row['label'] );
                     $trend_txt = $this->trendText( (string) $row['trend'] );
                     ?>
@@ -265,64 +221,30 @@ class PlayerReportRenderer {
                         <td><?php echo esc_html( $trend_txt ); ?></td>
                     </tr>
                     <?php
-                    if ( $config->tone_variant === 'formal' ) {
-                        $mid = (int) $row['main_id'];
-                        if ( isset( $subs[ $mid ] ) && ! empty( $subs[ $mid ]['subs'] ) ) :
-                            foreach ( $subs[ $mid ]['subs'] as $sub ) :
-                                if ( $threshold > 0 && (float) $sub['mean'] < $threshold ) continue;
-                                ?>
-                                <tr class="tt-report-sub-row">
-                                    <td>&nbsp;&nbsp;&nbsp;↳ <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub['label'] ) ); ?></td>
-                                    <td><?php echo esc_html( (string) $sub['mean'] ); ?></td>
-                                    <td>—</td>
-                                    <td><?php
-                                        echo esc_html( sprintf(
-                                            /* translators: %d: number of evaluations */
-                                            _n( '(%d eval)', '(%d evals)', (int) $sub['count'], 'talenttrack' ),
-                                            (int) $sub['count']
-                                        ) );
-                                    ?></td>
-                                </tr>
-                                <?php
-                            endforeach;
-                        endif;
-                    } elseif ( $config->tone_variant === 'default' ) {
-                        // Legacy parity: default tone shows subs too.
-                        $mid = (int) $row['main_id'];
-                        if ( isset( $subs[ $mid ] ) && ! empty( $subs[ $mid ]['subs'] ) ) :
-                            foreach ( $subs[ $mid ]['subs'] as $sub ) :
-                                ?>
-                                <tr class="tt-report-sub-row">
-                                    <td>&nbsp;&nbsp;&nbsp;↳ <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub['label'] ) ); ?></td>
-                                    <td><?php echo esc_html( (string) $sub['mean'] ); ?></td>
-                                    <td>—</td>
-                                    <td><?php
-                                        echo esc_html( sprintf(
-                                            /* translators: %d: number of evaluations */
-                                            _n( '(%d eval)', '(%d evals)', (int) $sub['count'], 'talenttrack' ),
-                                            (int) $sub['count']
-                                        ) );
-                                    ?></td>
-                                </tr>
-                                <?php
-                            endforeach;
-                        endif;
-                    }
+                    $mid = (int) $row['main_id'];
+                    if ( isset( $subs[ $mid ] ) && ! empty( $subs[ $mid ]['subs'] ) ) :
+                        foreach ( $subs[ $mid ]['subs'] as $sub ) :
+                            ?>
+                            <tr class="tt-report-sub-row">
+                                <td>&nbsp;&nbsp;&nbsp;↳ <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub['label'] ) ); ?></td>
+                                <td><?php echo esc_html( (string) $sub['mean'] ); ?></td>
+                                <td>—</td>
+                                <td><?php
+                                    echo esc_html( sprintf(
+                                        /* translators: %d: number of evaluations */
+                                        _n( '(%d eval)', '(%d evals)', (int) $sub['count'], 'talenttrack' ),
+                                        (int) $sub['count']
+                                    ) );
+                                ?></td>
+                            </tr>
+                            <?php
+                        endforeach;
+                    endif;
                 endforeach; ?>
                 </tbody>
             </table>
         </section>
         <?php
-    }
-
-    private function ratingsHeadingFor( string $tone ): string {
-        switch ( $tone ) {
-            case 'warm': return __( 'How things are going', 'talenttrack' );
-            case 'fun':  return __( 'Top attributes', 'talenttrack' );
-            case 'formal':
-            case 'default':
-            default:     return __( 'Main category breakdown', 'talenttrack' );
-        }
     }
 
     private function renderCharts(): void {
@@ -344,10 +266,9 @@ class PlayerReportRenderer {
         $goals = $this->fetchGoalsForReport( $config->player_id );
         if ( empty( $goals ) ) return;
 
-        $heading = $this->goalsHeadingFor( $config->tone_variant );
         ?>
         <section class="tt-report-goals">
-            <h2><?php echo esc_html( $heading ); ?></h2>
+            <h2><?php esc_html_e( 'Goals', 'talenttrack' ); ?></h2>
             <ul class="tt-report-goal-list">
                 <?php foreach ( $goals as $goal ) :
                     $title    = (string) ( $goal->title ?? '' );
@@ -377,16 +298,6 @@ class PlayerReportRenderer {
             </ul>
         </section>
         <?php
-    }
-
-    private function goalsHeadingFor( string $tone ): string {
-        switch ( $tone ) {
-            case 'warm': return __( 'What they are working on', 'talenttrack' );
-            case 'fun':  return __( 'What you are working on', 'talenttrack' );
-            case 'formal':
-            case 'default':
-            default:     return __( 'Goals', 'talenttrack' );
-        }
     }
 
     private function renderAttendance( object $player, ReportConfig $config ): void {
@@ -451,41 +362,7 @@ class PlayerReportRenderer {
         <?php
     }
 
-    private function renderCoachNotes( ReportConfig $config ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $where  = [ 'player_id = %d', "notes IS NOT NULL", "notes != ''" ];
-        $params = [ $config->player_id ];
-        if ( $config->filters['date_from'] !== '' ) {
-            $where[]  = 'eval_date >= %s';
-            $params[] = $config->filters['date_from'];
-        }
-        if ( $config->filters['date_to'] !== '' ) {
-            $where[]  = 'eval_date <= %s';
-            $params[] = $config->filters['date_to'];
-        }
-        $where_sql = implode( ' AND ', $where );
-        $rows = (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT eval_date, notes FROM {$p}tt_evaluations WHERE $where_sql ORDER BY eval_date DESC LIMIT 10",
-            ...$params
-        ) );
-        if ( empty( $rows ) ) return;
-        ?>
-        <section class="tt-report-notes">
-            <h2><?php esc_html_e( 'Coach notes', 'talenttrack' ); ?></h2>
-            <ul class="tt-report-note-list">
-                <?php foreach ( $rows as $r ) : ?>
-                    <li>
-                        <span class="tt-report-note-date"><?php echo esc_html( (string) $r->eval_date ); ?></span>
-                        <span class="tt-report-note-body"><?php echo esc_html( (string) $r->notes ); ?></span>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
-        </section>
-        <?php
-    }
-
-    private function renderFooter( ReportConfig $config ): void {
+    private function renderFooter(): void {
         ?>
         <footer class="tt-report-footer">
             <div class="tt-report-sig">
@@ -808,9 +685,6 @@ class PlayerReportRenderer {
         .tt-report-sig-line { flex: 1; border-bottom: 1px solid #333; height: 20px; }
 
         /* Tone variants — tweak the title block colour to differentiate. */
-        .tt-report-tone-warm   .tt-report-header { border-bottom-color: #2c8c4a; }
-        .tt-report-tone-fun    .tt-report-header { border-bottom-color: #c9962a; }
-        .tt-report-tone-formal .tt-report-header { border-bottom-color: #1a2332; }
 
         @media print {
             @page { size: A4 portrait; margin: 15mm 15mm 15mm 15mm; }

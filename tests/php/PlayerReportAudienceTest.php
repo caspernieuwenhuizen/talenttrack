@@ -9,7 +9,6 @@ use TT\Modules\Analytics\Reports\PlayerReport;
 use TT\Modules\Analytics\Reports\PlayerReportAudience;
 use TT\Modules\Analytics\Reports\PlayerReportBlock;
 use TT\Modules\Reports\AudienceType;
-use TT\Modules\Reports\PrivacySettings;
 use TT\Modules\Reports\ReportConfig;
 use TT\Modules\Reports\ScoutDelivery;
 
@@ -133,7 +132,6 @@ final class PlayerReportAudienceTest extends WP_UnitTestCase {
             AudienceType::SCOUT,
             [ 'date_from' => self::FROM, 'date_to' => self::TO, 'eval_type_id' => 0 ],
             [ 'profile', 'ratings', 'coach_notes' ],
-            new PrivacySettings(),
             $this->player,
             $this->admin
         );

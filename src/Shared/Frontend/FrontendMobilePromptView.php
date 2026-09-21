@@ -209,7 +209,6 @@ class FrontendMobilePromptView extends FrontendViewBase {
                 return __( 'This screen is the printed page — it is laid out at A4 because that is what it becomes. It needs the width of the document it is.', 'talenttrack' );
 
             // Builders and editors.
-            case 'report-wizard':
             case 'persona-templates':
             case 'exports':
             case 'explore':

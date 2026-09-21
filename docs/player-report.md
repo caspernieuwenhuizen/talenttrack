@@ -157,6 +157,42 @@ alone. **Download PDF** on a snapshot prints it with its notes.
 Only signed-in staff who can open this player's report can open a snapshot of
 it. A snapshot has no shareable link; give someone the PDF instead.
 
+## Sharing the report with the player and their parents
+
+Under the report, **Share with the family…** opens a short explanation and a
+**Share with the family** button. Sharing freezes a copy of the report, like a
+snapshot, and puts it in front of the player and their parents. Families never
+make reports themselves: every report they see is one a coach chose to share.
+
+A shared report carries only these sections, and only the ones ticked on the
+report. When none of them is ticked, all of them are shared:
+
+- attendance;
+- playing time;
+- goals;
+- evaluation scores, per category and overall — **without** your written notes;
+- tests, only the ones the academy shares publicly.
+
+Everything else stays with staff, whatever is ticked: the status, talking
+points, the development plan, staff notes, injuries, the journey, behaviour,
+potential and the blank notes area. They are left out of the shared copy itself,
+not just hidden on the screen.
+
+### Where the family finds it
+
+The player finds shared reports under **Reports** on their own profile. A parent
+finds them under **Reports** on their child's profile. The newest is at the top,
+and each one opens the frozen copy.
+
+Each reader sees the sections they can already see on the player's profile. If
+the player has chosen to keep their evaluations, goals, playing time or tests
+from their parents, a parent's copy leaves that section out. The player always
+sees their own. A parent sees the reports of their own children only.
+
+A shared report takes no notes, because nothing written on it would reach the
+family. In the list under the report it is marked **Shared with the family**.
+Staff can open it there to see what was sent.
+
 ## Saving your usual report
 
 Most coaches want the same sections for every conversation. Once the report
@@ -169,7 +205,7 @@ your default and every player report opens with your sections.
 
 The player report is for staff. You can open it for the players on the teams
 whose reports you can see; a head of development sees every player. Players and
-parents cannot open it.
+parents cannot open it; they read the reports you share with them.
 
 Some sections show only what you are allowed to see elsewhere:
 
@@ -192,14 +228,18 @@ come without the coach's written notes, and tests show only the ones the
 academy shares publicly. The scout cannot choose other sections; the report
 decides this for them.
 
-The scouting report you email from **Generate report**, and its PDF, are this
-same scout version.
+To email a scout a one-time link, open **Send to a scout…** under the report.
+Enter the scout's email address, choose when the link expires and add a message
+if you want. The scout gets this same scout version, with the evaluation scores,
+attendance and playing time you have ticked, or all three when none of them is.
+The scouting PDF is the same document.
 
 ### The older report wizard
 
-**Generate report** on a player now writes only for parents, the player and
-scouts. The staff report it used to offer is this player report; the wizard
-links to it.
+The report wizard is gone. The staff report, the family report and the scout
+link are all this player report now. Old links to the wizard open the player
+report, or for a player or parent, the **Reports** tab on the player's profile.
 
-The report is confidential. It describes a minor's development: do not share it
-with the player, their parents or anyone outside the coaching staff.
+The report is confidential. It describes a minor's development: share it with
+the player and their parents only through **Share with the family**, and never
+with anyone outside the coaching staff.

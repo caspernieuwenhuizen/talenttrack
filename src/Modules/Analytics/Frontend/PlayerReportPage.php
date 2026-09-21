@@ -59,6 +59,12 @@ final class PlayerReportPage {
         echo '</div>';
 
         PlayerReportSnapshotPage::renderTakeAndList( $player_id, $window, $layout, $report['blocks'] );
+
+        // #3955 — the scout's emailed link, which lived in the retired report
+        // wizard. Owned by the Reports module; absent when it is switched off.
+        if ( \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Reports\ReportsModule::class ) ) {
+            \TT\Modules\Reports\Frontend\PlayerReportScoutSend::render( $player_id, $window, $report['blocks'] );
+        }
     }
 
     /** The report's styles, for a surface that is not the live report (a snapshot). */
@@ -78,8 +84,9 @@ final class PlayerReportPage {
      * @param array{from:string,to:string,period:string}                                       $window
      * @param array<string,array{body:string, author:int, updated_at:string}>                  $notes
      * @param string                                                                           $snapshot uuid, '' on the live report
+     * @param bool                                                                             $family   a report shared with the player and their parents (#3955)
      */
-    public static function renderBlocks( array $report, array $window, array $notes = [], string $snapshot = '' ): void {
+    public static function renderBlocks( array $report, array $window, array $notes = [], string $snapshot = '', bool $family = false ): void {
         $data = $report['data'];
 
         self::renderLetterhead( $data['letterhead'] ?? [], $window );
@@ -112,7 +119,7 @@ final class PlayerReportPage {
             }
         }
 
-        echo '<p class="tt-mr-confidential">' . esc_html__( 'Confidential — staff only. This report describes a minor\'s development. Do not share it with the player, their parents or anyone outside the coaching staff.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-mr-confidential">' . esc_html( \TT\Modules\Analytics\Reports\PlayerReportAudience::footerText( $family ) ) . '</p>';
     }
 
     /* ---------------------------------------------------------------
@@ -623,9 +630,19 @@ final class PlayerReportPage {
         $c_rating   = __( 'Rating', 'talenttrack' );
         $c_assessor = __( 'Assessor', 'talenttrack' );
         $c_notes    = __( 'Notes', 'talenttrack' );
+
+        // An external audience's payload carries no notes at all (#3876,
+        // #3955); the column goes with them rather than printing a row of
+        // dashes that reads as "the coach wrote nothing".
+        $has_notes = false;
+        foreach ( $evals as $e ) {
+            if ( is_array( $e ) && array_key_exists( 'notes', $e ) ) { $has_notes = true; break; }
+        }
+
         echo '<div class="tt-evidence__scroll"><table class="tt-list-table-table tt-evidence__table"><thead><tr>'
             . '<th>' . esc_html( $c_date ) . '</th><th>' . esc_html( $c_rating ) . '</th>'
-            . '<th>' . esc_html( $c_assessor ) . '</th><th>' . esc_html( $c_notes ) . '</th>'
+            . '<th>' . esc_html( $c_assessor ) . '</th>'
+            . ( $has_notes ? '<th>' . esc_html( $c_notes ) . '</th>' : '' )
             . '</tr></thead><tbody>';
         foreach ( $evals as $e ) {
             if ( ! is_array( $e ) ) continue;
@@ -637,7 +654,7 @@ final class PlayerReportPage {
                 . '<td data-label="' . esc_attr( $c_date ) . '">' . self::link( 'evaluations', $url, $date ) . '</td>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
                 . '<td data-label="' . esc_attr( $c_rating ) . '">' . esc_html( self::rating( $e['rating'] ?? null ) ) . '</td>'
                 . '<td data-label="' . esc_attr( $c_assessor ) . '">' . esc_html( $who !== '' ? $who : '—' ) . '</td>'
-                . '<td data-label="' . esc_attr( $c_notes ) . '">' . esc_html( $notes !== '' ? $notes : '—' ) . '</td>'
+                . ( $has_notes ? '<td data-label="' . esc_attr( $c_notes ) . '">' . esc_html( $notes !== '' ? $notes : '—' ) . '</td>' : '' )
                 . '</tr>';
         }
         echo '</tbody></table></div>';

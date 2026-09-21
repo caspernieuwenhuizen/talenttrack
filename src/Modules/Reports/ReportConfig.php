@@ -4,15 +4,15 @@ namespace TT\Modules\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 /**
- * ReportConfig — every decision the report wizard captures.
+ * ReportConfig — what an evaluation report or a scout report covers:
+ * audience, window and sections.
  *
- * Sprint 3 (#0014). The renderer is deliberately small: it consumes
- * one of these and emits HTML. Construction lives in the wizard
- * (Sprint 4) or in `::standard()` (preserves the legacy ?print=1
- * behaviour byte-for-byte).
- *
- * `tone_variant` is added in Sprint 4. Left here so the renderer can
- * branch without growing the API later.
+ * Sprint 3 (#0014). `::standard()` feeds `PlayerReportRenderer` for the
+ * legacy ?print=1 report and the evaluation PDF; the scout flow stores
+ * one with each `tt_player_reports` row as the record of what was sent.
+ * The wizard that once built these, with its tone variants and privacy
+ * toggles, is retired (#3955); stored rows that still carry those keys
+ * read back without them.
  *
  * Section keys: 'profile', 'ratings', 'goals', 'sessions',
  *               'attendance', 'coach_notes'.
@@ -32,16 +32,11 @@ final class ReportConfig {
     /** @var string[] Whitelist of sections to include. */
     public array            $sections;
 
-    public PrivacySettings  $privacy;
-
     public int              $player_id;
 
     public int              $generated_by;
 
     public \DateTimeImmutable $generated_at;
-
-    /** Tone variant — 'default' | 'warm' | 'formal' | 'fun'. Used in Sprint 4. */
-    public string           $tone_variant;
 
     /**
      * @param array{date_from:string, date_to:string, eval_type_id:int} $filters
@@ -51,28 +46,21 @@ final class ReportConfig {
         string           $audience,
         array            $filters,
         array            $sections,
-        PrivacySettings  $privacy,
         int              $player_id,
         int              $generated_by,
-        ?\DateTimeImmutable $generated_at = null,
-        string           $tone_variant = 'default'
+        ?\DateTimeImmutable $generated_at = null
     ) {
         $this->audience     = AudienceType::isValid( $audience ) ? $audience : AudienceType::STANDARD;
         $this->filters      = self::normaliseFilters( $filters );
         $this->sections     = self::normaliseSections( $sections );
-        $this->privacy      = $privacy;
         $this->player_id    = $player_id;
         $this->generated_by = $generated_by;
         $this->generated_at = $generated_at ?? new \DateTimeImmutable( 'now' );
-        $this->tone_variant = in_array( $tone_variant, [ 'default', 'warm', 'formal', 'fun' ], true ) ? $tone_variant : 'default';
     }
 
     /**
-     * The legacy default — preserves `PlayerReportView::render`'s output.
-     * Every section on, no privacy redaction beyond the conservative
-     * defaults that match what the legacy view rendered (everything
-     * shown, no contact details surfaced because the legacy view never
-     * surfaced them anyway).
+     * The legacy default — preserves `PlayerReportView::render`'s output:
+     * every section, the photo on the rate card, no coach notes.
      *
      * @param array<string, mixed> $filters Raw $_GET-shaped filters.
      */
@@ -81,17 +69,8 @@ final class ReportConfig {
             AudienceType::STANDARD,
             self::sanitizeRawFilters( $filters ),
             self::allSections(),
-            new PrivacySettings(
-                false, // contact details — legacy never showed them
-                false, // full DOB       — legacy never showed it
-                true,  // photo          — legacy showed it
-                false, // coach notes    — legacy never showed them
-                0.0
-            ),
             $player_id,
-            $generated_by,
-            null,
-            'default'
+            $generated_by
         );
     }
 
@@ -111,13 +90,9 @@ final class ReportConfig {
             (string) ( $data['audience'] ?? AudienceType::STANDARD ),
             self::sanitizeRawFilters( (array) ( $data['filters'] ?? [] ) ),
             (array) ( $data['sections'] ?? self::allSections() ),
-            isset( $data['privacy'] ) && is_array( $data['privacy'] )
-                ? PrivacySettings::fromArray( $data['privacy'] )
-                : new PrivacySettings(),
             (int) ( $data['player_id'] ?? 0 ),
             (int) ( $data['generated_by'] ?? 0 ),
-            $generated_at,
-            (string) ( $data['tone_variant'] ?? 'default' )
+            $generated_at
         );
     }
 
@@ -129,11 +104,9 @@ final class ReportConfig {
             'audience'     => $this->audience,
             'filters'      => $this->filters,
             'sections'     => $this->sections,
-            'privacy'      => $this->privacy->toArray(),
             'player_id'    => $this->player_id,
             'generated_by' => $this->generated_by,
             'generated_at' => $this->generated_at->format( DATE_ATOM ),
-            'tone_variant' => $this->tone_variant,
         ];
     }
 

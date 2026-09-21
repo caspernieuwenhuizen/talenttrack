@@ -1,0 +1,59 @@
+#: src/Modules/Analytics/Reports/PlayerReportAudience.php
+msgid "Shared by the academy with the player and their parents. It covers this player only."
+msgstr "Door de academie gedeeld met de speler en de ouders. Het gaat alleen over deze speler."
+
+#. translators: 1: the coach who shared the report, 2: the date
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+#, php-format
+msgid "Shared by %1$s on %2$s."
+msgstr "Gedeeld door %1$s op %2$s."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "This is the report the player and their parents see on the player's file, frozen when it was shared. Each of them sees the sections their own access to the player allows."
+msgstr "Dit is het rapport dat de speler en de ouders op het spelersdossier zien, vastgezet op het moment van delen. Ieder van hen ziet de onderdelen die de eigen toegang tot de speler toestaat."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Shared with the family"
+msgstr "Gedeeld met het gezin"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Share with the family…"
+msgstr "Delen met het gezin…"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "The player and their parents will find a frozen copy under Reports on the player's file. Only attendance, playing time, goals, evaluation scores and tests can be shared: the ones ticked above, or all five when none of them is. Your written notes on evaluations, and every other section, stay with staff."
+msgstr "De speler en de ouders vinden een vastgezette kopie onder Rapporten op het spelersdossier. Alleen aanwezigheid, speeltijd, doelen, evaluatiescores en testen kunnen worden gedeeld: de aangevinkte hierboven, of alle vijf als er geen van aangevinkt is. Je geschreven toelichting bij evaluaties, en elk ander onderdeel, blijven bij de staf."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Share with the family"
+msgstr "Delen met het gezin"
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "Reports on this player are shared with the player and their parents."
+msgstr "Rapporten over deze speler worden gedeeld met de speler en de ouders."
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "No reports have been shared yet. When a coach shares a report about this player, it appears here."
+msgstr "Er zijn nog geen rapporten gedeeld. Als een trainer een rapport over deze speler deelt, verschijnt het hier."
+
+#. translators: 1: period start, 2: period end
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+#, php-format
+msgid "Covers %1$s – %2$s"
+msgstr "Periode %1$s – %2$s"
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "This report is not available."
+msgstr "Dit rapport is niet beschikbaar."
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Send to a scout…"
+msgstr "Naar een scout sturen…"
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Send link"
+msgstr "Link versturen"
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Emails a one-time link to the scout. The scout sees evaluation scores without your notes, attendance and playing time: the ones ticked above, or all three when none of them is. Nothing else leaves the academy."
+msgstr "Mailt de scout een eenmalige link. De scout ziet evaluatiescores zonder je toelichting, aanwezigheid en speeltijd: de aangevinkte hierboven, of alle drie als er geen van aangevinkt is. Verder verlaat niets de academie."

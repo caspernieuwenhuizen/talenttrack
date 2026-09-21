@@ -36,8 +36,8 @@ final class PlayerReport {
      *        produce a report missing a section nobody asked to remove.
      * @param string|null  $audience Null resolves it from the viewer, which is
      *        what every reader-facing path must do (#3876). Only a surface
-     *        composing *on behalf of* someone else — a coach emailing a scout —
-     *        names it.
+     *        composing *on behalf of* someone else — a coach emailing a scout,
+     *        or sharing a report with the family (#3955) — names it.
      * @return Report|null Null for a player outside the current club.
      * @throws \InvalidArgumentException on unknown block keys or a malformed window.
      */
@@ -65,9 +65,9 @@ final class PlayerReport {
         $packet = null;
         if ( array_diff( $selected, self::WITHOUT_PACKET ) !== [] ) {
             // An external audience reads tests at the public level whoever
-            // composed it: a coach sending a scout the report must not hand
-            // over a test the academy keeps to its staff.
-            $tests_viewer = $audience === PlayerReportAudience::SCOUT ? 0 : $viewer_user_id;
+            // composed it: a coach sending a scout or a family the report must
+            // not hand over a test the academy keeps to its staff.
+            $tests_viewer = PlayerReportAudience::isExternal( $audience ) ? 0 : $viewer_user_id;
             $packet = EvidencePacket::forPlayer( $player_id, $from, $to, $viewer_user_id, $tests_viewer );
             if ( $packet === null ) return null;
         }

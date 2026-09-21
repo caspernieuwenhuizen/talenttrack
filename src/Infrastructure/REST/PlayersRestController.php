@@ -106,9 +106,16 @@ class PlayersRestController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_report_snapshots' ],
+                // #3955 — the player and their parents list what was shared
+                // with the family; everything else stays with staff.
                 'permission_callback' => static function ( \WP_REST_Request $r ): bool {
-                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), (int) $r['id'] );
+                    $uid = get_current_user_id();
+                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $uid, (int) $r['id'] )
+                        || \TT\Modules\Analytics\Reports\PlayerReportSnapshots::isFamilyReader( $uid, (int) $r['id'] );
                 },
+                'args'                => [
+                    'audience' => [ 'type' => 'string', 'enum' => [ 'internal', 'family' ], 'description' => 'Only the snapshots taken for this audience. A family reader always gets `family`.' ],
+                ],
             ],
             [
                 'methods'             => 'POST',
@@ -123,6 +130,7 @@ class PlayersRestController {
                     'layout' => [ 'type' => 'string', 'description' => 'A (one-pager) or B (two-page pack), for the snapshot\'s PDF.' ],
                     'blocks' => [ 'type' => 'string', 'description' => 'Comma-separated block keys. Omit for the conversation set.' ],
                     'title'  => [ 'type' => 'string', 'description' => 'Omit for the player\'s name and today\'s date.' ],
+                    'audience' => [ 'type' => 'string', 'enum' => [ 'internal', 'family' ], 'description' => '`family` shares the report with the player and their parents, cut to the family sections. Omit for a staff snapshot.' ],
                 ],
             ],
         ] );
@@ -140,7 +148,7 @@ class PlayersRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_report_snapshot_note' ],
                 'permission_callback' => static function ( \WP_REST_Request $r ): bool {
-                    return \TT\Modules\Analytics\Reports\PlayerReportSnapshots::read( (string) $r['uuid'], get_current_user_id() ) !== null;
+                    return \TT\Modules\Analytics\Reports\PlayerReportSnapshots::canNote( (string) $r['uuid'], get_current_user_id() );
                 },
                 'args'                => [
                     'body' => [ 'type' => 'string', 'description' => 'The note. Empty removes it.' ],
@@ -718,38 +726,61 @@ class PlayersRestController {
         return RestResponse::success( $report + [ 'period' => $window['period'] ] );
     }
 
-    /** #3890 — `GET /players/{id}/report-snapshots`, most recent first, without payloads. */
+    /**
+     * #3890 — `GET /players/{id}/report-snapshots`, most recent first, without
+     * payloads. #3955 — a family reader gets only what was shared with the
+     * family, whatever `audience` says.
+     */
     public static function list_report_snapshots( \WP_REST_Request $r ): \WP_REST_Response {
-        $rows = ( new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository() )->listForPlayer( absint( $r['id'] ) );
-        $out  = [];
+        $player_id = absint( $r['id'] );
+        $uid       = get_current_user_id();
+        $audience  = sanitize_key( (string) ( $r['audience'] ?? '' ) );
+
+        if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $uid, $player_id ) ) {
+            $rows = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::sharedWithFamily( $player_id, $uid );
+        } else {
+            $rows = ( new \TT\Modules\Analytics\Reports\PlayerReportSnapshotRepository() )->listForPlayer(
+                $player_id,
+                20,
+                in_array( $audience, [ 'internal', 'family' ], true ) ? $audience : ''
+            );
+        }
+
+        $out = [];
         foreach ( $rows as $row ) {
             $out[] = [
-                'uuid'        => (string) $row->uuid,
-                'title'       => (string) $row->title,
-                'period_from' => (string) $row->period_from,
-                'period_to'   => (string) $row->period_to,
-                'created_by'  => (int) $row->created_by,
-                'created_at'  => (string) $row->created_at,
+                'uuid'        => $row['uuid'],
+                'title'       => $row['title'],
+                'audience'    => $row['audience'],
+                'period_from' => $row['period_from'],
+                'period_to'   => $row['period_to'],
+                'created_by'  => $row['created_by'],
+                'created_at'  => $row['created_at'],
             ];
         }
         return RestResponse::success( [ 'snapshots' => $out ] );
     }
 
-    /** #3890 — `POST /players/{id}/report-snapshots`: freeze the report as the caller sees it now. */
+    /**
+     * #3890 — `POST /players/{id}/report-snapshots`: freeze the report as the
+     * caller sees it now. #3955 — `audience=family` shares it with the player
+     * and their parents instead. Staff only either way: families read shared
+     * reports, they do not make them.
+     */
     public static function create_report_snapshot( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = absint( $r['id'] );
-        $uuid      = \TT\Modules\Analytics\Reports\PlayerReportSnapshots::take(
-            $player_id,
-            [
-                'period' => (string) ( $r['period'] ?? '' ),
-                'from'   => (string) ( $r['from'] ?? '' ),
-                'to'     => (string) ( $r['to'] ?? '' ),
-                'layout' => (string) ( $r['layout'] ?? '' ),
-                'blocks' => (string) ( $r['blocks'] ?? '' ),
-            ],
-            get_current_user_id(),
-            sanitize_text_field( (string) ( $r['title'] ?? '' ) )
-        );
+        $raw       = [
+            'period' => (string) ( $r['period'] ?? '' ),
+            'from'   => (string) ( $r['from'] ?? '' ),
+            'to'     => (string) ( $r['to'] ?? '' ),
+            'layout' => (string) ( $r['layout'] ?? '' ),
+            'blocks' => (string) ( $r['blocks'] ?? '' ),
+        ];
+        $title     = sanitize_text_field( (string) ( $r['title'] ?? '' ) );
+
+        $uuid = sanitize_key( (string) ( $r['audience'] ?? '' ) ) === 'family'
+            ? \TT\Modules\Analytics\Reports\PlayerReportSnapshots::share( $player_id, $raw, get_current_user_id(), $title )
+            : \TT\Modules\Analytics\Reports\PlayerReportSnapshots::take( $player_id, $raw, get_current_user_id(), $title );
         if ( $uuid === '' ) {
             return RestResponse::error( 'snapshot_failed', __( 'The snapshot could not be saved.', 'talenttrack' ), 500 );
         }
