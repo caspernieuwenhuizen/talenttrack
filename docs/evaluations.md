@@ -42,8 +42,33 @@ Below it the form has three sections:
 - **Notes** — the staff-only notes and the feedback for the player.
 
 A rating at or below the academy's low-rating threshold is highlighted, and a
-reminder to explain it appears above the notes until you write an internal
-note.
+reminder to explain it appears above the notes until you explain it: either
+with a note on that category itself (see below) or with an internal note.
+
+## A note on each category
+
+A rating says how well, not why. Every main category and every subcategory
+has a **Note** button next to its rating. It opens a short text box (at most
+500 characters) for the context: what you saw, the situation, one moment that
+shows it. The box stays closed until you open it, so rating a whole squad is
+no slower. A category that has a note shows a filled button with a dot, even
+while it is closed.
+
+- A note can sit on a category you did not rate — a skill you only want to
+  comment on, or a main category whose rating comes from its subcategories.
+- **Who sees it:** everyone who can see the evaluation, including the player
+  and their parents where the evaluation is visible to them. The box says so,
+  so write with that audience in mind. The longer, staff-only write-up still
+  belongs in **Internal notes**.
+- The same note box appears in the evaluation wizard's rating steps.
+- A note on a low-rated category counts as the explanation the low-rating
+  reminder asks for.
+
+The notes show next to their ratings on the evaluation's page, in the player's
+own **My evaluations** breakdown, as the larger points on the rate card's
+**Trend over time** chart (tap or hover a point to read them), and in the
+evaluations Excel and CSV exports, one column per main category next to its
+rating.
 
 ## Editing an evaluation saves itself
 
@@ -71,7 +96,7 @@ across when you are happy with it.
 
 ## What the player sees
 
-Players (and their parents) only ever see the scores and the **Feedback for the player** message — never your internal Notes. If you leave the feedback field blank, the player just sees the ratings.
+Players (and their parents) only ever see the scores, the category notes and the **Feedback for the player** message — never your internal Notes. If you leave the feedback field blank, the player just sees the ratings and any category notes.
 
 ## Reading an evaluation
 

@@ -56,6 +56,9 @@ final class CorePiiRegistrations {
         // erasure code walks it via the parent, exactly as it does for
         // `tt_pdp_conversations`. It was registered against a `player_id`
         // column the table does not have until #2758.
+        // `tt_eval_category_notes` (#3949) is absent for the same reason:
+        // it reaches the player through its evaluation, and
+        // `PlayerDeletionCascade` erases it by that join.
         PlayerDataMap::register(
             'tt_goals',
             'player_id',

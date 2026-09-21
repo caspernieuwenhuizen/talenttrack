@@ -80,7 +80,7 @@ class PlayerRateCardView {
 
         self::renderHeadline( $headline );
         self::renderMainBreakdown( $mains, $subs );
-        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+        self::renderCharts( $trend, $radar, (float) QueryHelpers::get_config( 'rating_max', '10' ), $svc->getTrendNotes( $player_id, $filters ) );
     }
 
     private static function renderViewToggle( string $current, string $base_url, int $player_id ): void {
@@ -451,17 +451,26 @@ class PlayerRateCardView {
 
     // Charts
 
-    private static function renderCharts( array $trend, array $radar, float $rating_max ): void {
+    /**
+     * @param array<int, array{main_id:int, notes: array<int, string>}> $trend_notes #3949 — per main category, per point.
+     */
+    private static function renderCharts( array $trend, array $radar, float $rating_max, array $trend_notes = [] ): void {
         $has_trend = ! empty( $trend['labels'] );
         $has_radar = ! empty( $radar['datasets'] );
         if ( ! $has_trend && ! $has_radar ) return;
 
         // Translate main labels for chart legends.
+        // #3949 — the category notes behind each point, matched on main id.
+        $notes_by_main = [];
+        foreach ( $trend_notes as $tn ) {
+            $notes_by_main[ (int) $tn['main_id'] ] = $tn['notes'];
+        }
         $trend_series = [];
         foreach ( $trend['series'] as $s ) {
             $trend_series[] = [
                 'label'  => EvalCategoriesRepository::displayLabel( (string) $s['label'] ),
                 'points' => $s['points'],
+                'notes'  => $notes_by_main[ (int) ( $s['main_id'] ?? 0 ) ] ?? [],
             ];
         }
         $radar_labels = [];
@@ -539,16 +548,33 @@ class PlayerRateCardView {
 
             // Trend line chart.
             document.querySelectorAll('.tt-ratecard-trend').forEach(function(c){
+                // #3949 — a point with a category note is drawn larger, and
+                // its note shows in the tooltip (hover, or tap on a phone).
                 var datasets = payload.trend.series.map(function(s, i){
+                    var notes = s.notes || [];
                     return {
                         label: s.label,
                         data: s.points,
                         borderColor: colors[i % colors.length],
                         backgroundColor: colors[i % colors.length],
+                        pointRadius: s.points.map(function(_, k){ return notes[k] ? 6 : 3; }),
+                        pointHoverRadius: s.points.map(function(_, k){ return notes[k] ? 8 : 5; }),
                         spanGaps: true,
                         tension: 0.25
                     };
                 });
+                function wrapNote(text) {
+                    var out = [];
+                    String(text).split('\n').forEach(function(line){
+                        var words = line.split(' '), cur = '';
+                        words.forEach(function(w){
+                            if ((cur + ' ' + w).trim().length > 48) { out.push(cur); cur = w; }
+                            else { cur = (cur + ' ' + w).trim(); }
+                        });
+                        if (cur !== '') out.push(cur);
+                    });
+                    return out;
+                }
                 new Chart(c.getContext('2d'), {
                     type: 'line',
                     data: { labels: payload.trend.labels, datasets: datasets },
@@ -559,7 +585,16 @@ class PlayerRateCardView {
                             y: { min: 0, max: payload.trend.rating_max, ticks: { stepSize: 1 } }
                         },
                         plugins: {
-                            legend: { position: 'bottom' }
+                            legend: { position: 'bottom' },
+                            tooltip: {
+                                callbacks: {
+                                    afterLabel: function(ctx){
+                                        var s = payload.trend.series[ctx.datasetIndex] || {};
+                                        var n = (s.notes || [])[ctx.dataIndex];
+                                        return n ? wrapNote(n) : '';
+                                    }
+                                }
+                            }
                         }
                     }
                 });

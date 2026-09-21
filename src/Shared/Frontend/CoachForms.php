@@ -132,6 +132,12 @@ class CoachForms {
                 $existing_ratings[ (int) $rr->category_id ] = (float) $rr->rating;
             }
         }
+        // #3949 — one note per category, shown under the same visibility as
+        // the evaluation; the form is only reachable by someone who may edit it.
+        $existing_notes = $is_edit
+            ? ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluation( (int) ( $existing_eval->id ?? 0 ) )
+            : [];
+        \TT\Shared\Frontend\Components\EvalCategoryNote::enqueue();
         if ( $is_edit ) {
             $hide_pickers = true;
         }
@@ -364,6 +370,10 @@ class CoachForms {
                             ?></span>
                         <?php endif; ?>
                     </h3>
+                    <?php
+                    $cat_note = (string) ( $existing_notes[ $cid ] ?? '' );
+                    echo \TT\Shared\Frontend\Components\EvalCategoryNote::button( 'tt-evf-note-' . $cid, $cat_label, $cat_note, true, 'tt-evf-cat__note-btn' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
+                    ?>
                     <?php if ( $has_subs ) : ?>
                         <div class="tt-evf-mode"
                              data-tt-rate-detail-toggle
@@ -382,6 +392,7 @@ class CoachForms {
                         <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $main_input_id ); ?>" data-tt-evf-main-rating name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     </div>
                 </div>
+                <?php echo \TT\Shared\Frontend\Components\EvalCategoryNote::panel( 'tt-evf-note-' . $cid, 'category_notes[' . $cid . ']', $cat_label, $cat_note, 'tt-evf-cat__note' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes ?>
                 <?php if ( $has_subs ) : ?>
                 <div class="tt-evf-cat__subs" data-tt-rate-subs <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
                 <?php
@@ -394,7 +405,12 @@ class CoachForms {
                     ?>
                     <div class="tt-evf-sub">
                         <label for="<?php echo esc_attr( $sub_input_id ); ?>"><?php echo esc_html( $sub_label ); ?></label>
+                        <?php
+                        $sub_note = (string) ( $existing_notes[ $scid ] ?? '' );
+                        echo \TT\Shared\Frontend\Components\EvalCategoryNote::button( 'tt-evf-note-' . $scid, $sub_label, $sub_note ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
+                        ?>
                         <input type="number" inputmode="decimal" class="tt-evf-rating" id="<?php echo esc_attr( $sub_input_id ); ?>" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
+                        <?php echo \TT\Shared\Frontend\Components\EvalCategoryNote::panel( 'tt-evf-note-' . $scid, 'category_notes[' . $scid . ']', $sub_label, $sub_note ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes ?>
                     </div>
                 <?php
                 endforeach;

@@ -83,7 +83,8 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             $player_id
         ), ARRAY_A );
 
-        $eval_ratings = [];
+        $eval_ratings        = [];
+        $eval_category_notes = [];
         if ( is_array( $evaluations ) && $evaluations !== [] ) {
             $eval_ids   = array_map( static fn( $r ) => (int) $r['id'], $evaluations );
             $placeholders = implode( ',', array_fill( 0, count( $eval_ids ), '%d' ) );
@@ -91,6 +92,14 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
                 "SELECT * FROM {$p}tt_eval_ratings WHERE evaluation_id IN ({$placeholders}) ORDER BY evaluation_id ASC, category_id ASC",
                 $eval_ids
             ), ARRAY_A );
+            // #3949 — the coach's note per category is data held about the
+            // player just as much as the rating beside it.
+            if ( self::tableExists( "{$p}tt_eval_category_notes" ) ) {
+                $eval_category_notes = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT evaluation_id, category_id, note, created_at, updated_at FROM {$p}tt_eval_category_notes WHERE evaluation_id IN ({$placeholders}) ORDER BY evaluation_id ASC, category_id ASC",
+                    $eval_ids
+                ), ARRAY_A );
+            }
         }
 
         $goals = $wpdb->get_results( $wpdb->prepare(
@@ -177,6 +186,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             'evaluations.json' => self::jsonPretty( [
                 'evaluations' => $evaluations ?: [],
                 'ratings'     => $eval_ratings ?: [],
+                'category_notes' => $eval_category_notes ?: [],
             ] ),
             'goals.json'       => self::jsonPretty( $goals ?: [] ),
             'attendance.json'  => self::jsonPretty( $attendance ?: [] ),

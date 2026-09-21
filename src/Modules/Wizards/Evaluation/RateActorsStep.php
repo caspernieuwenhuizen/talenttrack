@@ -48,6 +48,7 @@ final class RateActorsStep implements WizardStepInterface {
             TT_VERSION,
             true
         );
+        \TT\Shared\Frontend\Components\EvalCategoryNote::enqueue();
 
         global $wpdb;
         $p = $wpdb->prefix;
@@ -218,6 +219,7 @@ final class RateActorsStep implements WizardStepInterface {
                             'max'         => (float) $max,
                             'input_class' => 'tt-rate-input',
                             'data_attrs'  => [ 'tt-rate-main' => (int) $cid ],
+                            'after_html'  => self::noteHtml( $state, $pid, $cid, $label ),
                         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
                         ?>
                         <?php if ( ! empty( $subs ) ) :
@@ -265,6 +267,7 @@ final class RateActorsStep implements WizardStepInterface {
                                         'max'         => (float) $max,
                                         'input_class' => 'tt-rate-input',
                                         'data_attrs'  => [ 'tt-rate-sub-parent' => (int) $cid ],
+                                        'after_html'  => self::noteHtml( $state, $pid, $scid, $slabel ),
                                     ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
                                     ?>
                                 <?php endforeach; ?>
@@ -491,6 +494,9 @@ final class RateActorsStep implements WizardStepInterface {
                 roster.querySelectorAll( 'textarea[name^="player_feedback["]' ).forEach( function ( el ) {
                     if ( el.value !== '' ) data[ el.name ] = el.value;
                 } );
+                roster.querySelectorAll( 'textarea[name^="category_notes["]' ).forEach( function ( el ) {
+                    if ( el.value !== '' ) data[ el.name ] = el.value;
+                } );
                 roster.querySelectorAll( 'input[name^="skip["]' ).forEach( function ( el ) {
                     if ( el.checked ) data[ el.name ] = '1';
                 } );
@@ -541,6 +547,10 @@ final class RateActorsStep implements WizardStepInterface {
                         el.value = data[ name ];
                         el.removeAttribute( 'data-tt-rating-empty' );
                         restored++;
+                        // #3949 — a restored category note repaints its toggle.
+                        if ( el.matches && el.matches( '[data-tt-evf-note-text]' ) ) {
+                            el.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+                        }
                     }
                 } );
                 if ( restored > 0 ) {
@@ -636,7 +646,33 @@ final class RateActorsStep implements WizardStepInterface {
             ? array_map( 'absint', $post['skip'] )
             : [];
 
-        return [ 'ratings' => $clean, 'notes' => $notes, 'player_feedback' => $player_feedback, 'skip' => $skip ];
+        // #3949 — one short note per category per player.
+        $category_notes = [];
+        $raw_notes      = isset( $post['category_notes'] ) && is_array( $post['category_notes'] ) ? wp_unslash( $post['category_notes'] ) : [];
+        foreach ( (array) $raw_notes as $pid => $cats ) {
+            if ( ! is_array( $cats ) ) continue;
+            foreach ( $cats as $cid => $note ) {
+                $clean_note = \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository::clean( $note );
+                if ( $clean_note === '' ) continue;
+                $category_notes[ (int) $pid ][ (int) $cid ] = mb_substr( $clean_note, 0, \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository::MAX_LENGTH );
+            }
+        }
+
+        return [ 'ratings' => $clean, 'notes' => $notes, 'player_feedback' => $player_feedback, 'skip' => $skip, 'category_notes' => $category_notes ];
+    }
+
+    /**
+     * #3949 — the note toggle and panel hung on one rating row.
+     *
+     * @param array<string, mixed> $state
+     */
+    private static function noteHtml( array $state, int $pid, int $cid, string $label ): string {
+        $notes    = isset( $state['category_notes'] ) && is_array( $state['category_notes'] ) ? $state['category_notes'] : [];
+        $for_pid  = isset( $notes[ $pid ] ) && is_array( $notes[ $pid ] ) ? $notes[ $pid ] : [];
+        $note     = (string) ( $for_pid[ $cid ] ?? '' );
+        $panel_id = 'tt-rate-note-' . $pid . '-' . $cid;
+        return \TT\Shared\Frontend\Components\EvalCategoryNote::button( $panel_id, $label, $note )
+            . \TT\Shared\Frontend\Components\EvalCategoryNote::panel( $panel_id, 'category_notes[' . $pid . '][' . $cid . ']', $label, $note );
     }
 
     // #2249 — BehaviourStep moved to the player deep path; the quick

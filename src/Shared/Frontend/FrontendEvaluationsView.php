@@ -300,6 +300,27 @@ class FrontendEvaluationsView extends FrontendViewBase {
         ] );
     }
 
+    /** The not-found answer: the same for a missing evaluation and one the viewer may not read. */
+    private static function renderNotFound(): void {
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+            __( 'Evaluation not found', 'talenttrack' ),
+            [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'evaluations', __( 'Evaluations', 'talenttrack' ) ) ]
+        );
+        self::renderHeader( __( 'Evaluation not found', 'talenttrack' ) );
+        echo '<p><em>' . esc_html__( 'That evaluation no longer exists, or you do not have access.', 'talenttrack' ) . '</em></p>';
+    }
+
+    /**
+     * #3949 — a category note under its rating, when there is one.
+     *
+     * @param array<int, string> $notes Category id to note.
+     */
+    private static function categoryNoteHtml( array $notes, int $category_id ): string {
+        $note = (string) ( $notes[ $category_id ] ?? '' );
+        if ( $note === '' ) return '';
+        return '<p class="tt-evd__cat-note">' . esc_html( $note ) . '</p>';
+    }
+
     private static function renderDetail( int $eval_id, int $user_id, bool $is_admin ): void {
         global $wpdb;
         $p = $wpdb->prefix;
@@ -329,6 +350,19 @@ class FrontendEvaluationsView extends FrontendViewBase {
             $eval_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
         ) );
 
+        // #3949 — the detail follows the same per-player check as the API's
+        // single-evaluation read (`EvaluationsRestController::get_eval()`).
+        // A refusal is answered exactly as a missing evaluation.
+        $player_for_gate = $eval ? (int) ( $eval->player_id ?? 0 ) : 0;
+        if ( $eval && $player_for_gate > 0 && ! (
+            \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_for_gate )
+            && \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_for_gate, 'evaluations' )
+            && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_for_gate, 'evaluations' )
+        ) ) {
+            self::renderNotFound();
+            return;
+        }
+
         if ( ! $eval ) {
             // #2022 — the detail query ends in `archived_at IS NULL`, so an
             // archived / trashed evaluation never reaches it. Retry through the
@@ -339,12 +373,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 self::renderArchivedReadOnly( $resolved );
                 return;
             }
-            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-                __( 'Evaluation not found', 'talenttrack' ),
-                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'evaluations', __( 'Evaluations', 'talenttrack' ) ) ]
-            );
-            self::renderHeader( __( 'Evaluation not found', 'talenttrack' ) );
-            echo '<p><em>' . esc_html__( 'That evaluation no longer exists, or you do not have access.', 'talenttrack' ) . '</em></p>';
+            self::renderNotFound();
             return;
         }
 
@@ -393,6 +422,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
         self::renderHeader( $page_title, $actions ? self::pageActionsHtml( $actions ) : '' );
 
         $ratings = ( new \TT\Infrastructure\Evaluations\EvalRatingsRepository() )->getForEvaluation( $eval_id );
+        $notes   = ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluation( $eval_id );
 
         // Group ratings: mains first, then subs nested under their parent.
         $by_parent = [];
@@ -484,7 +514,20 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
             <div class="tt-record-detail-body tt-evd__body">
                 <h3 class="tt-evd__h3"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>
-                <?php if ( empty( $mains ) && empty( $by_parent ) ) : ?>
+                <?php
+                // #3949 — a note can sit on a category with no rating row of
+                // its own (a rolled-up main, a skill left unscored). Those are
+                // listed after the rated rows, with no number beside them.
+                $rendered_ids = array_keys( $mains );
+                foreach ( $by_parent as $subs_for_parent ) {
+                    foreach ( $subs_for_parent as $sub_row ) {
+                        $rendered_ids[] = (int) ( $sub_row->category_id ?? 0 );
+                    }
+                }
+                $unrated_notes = array_diff_key( $notes, array_flip( $rendered_ids ) );
+                $cat_repo      = new \TT\Infrastructure\Evaluations\EvalCategoriesRepository();
+                ?>
+                <?php if ( empty( $mains ) && empty( $by_parent ) && empty( $unrated_notes ) ) : ?>
                     <p class="tt-muted"><?php esc_html_e( 'No ratings recorded for this evaluation.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <div class="tt-table-wrap">
@@ -498,7 +541,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                 $label = (string) ( $main->category_label ?? $main->category_key ?? '—' );
                                 ?>
                                 <tr>
-                                    <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong></td>
+                                    <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong><?php echo self::categoryNoteHtml( $notes, (int) $cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
                                     <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
                                 </tr>
                                 <?php if ( ! empty( $by_parent[ $cat_id ] ) ) : ?>
@@ -506,7 +549,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
                                         <tr class="tt-evd__sub">
-                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
+                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
                                             <td class="tt-evd__rating-col tt-evd__sub-rating"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -519,11 +562,22 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                     $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                     ?>
                                     <tr>
-                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
+                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?><?php echo self::categoryNoteHtml( $notes, (int) ( $sub->category_id ?? 0 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
                                         <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                     </tr>
                                 <?php endforeach;
                             endforeach; ?>
+                            <?php foreach ( $unrated_notes as $note_cat_id => $unused_note ) :
+                                $note_cat   = $cat_repo->get( (int) $note_cat_id );
+                                $note_label = $note_cat !== null
+                                    ? \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $note_cat->label ?? '' ), (int) $note_cat_id )
+                                    : '#' . (int) $note_cat_id;
+                                ?>
+                                <tr class="tt-evd__unrated">
+                                    <td><?php echo esc_html( $note_label ); ?><?php echo self::categoryNoteHtml( $notes, (int) $note_cat_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper ?></td>
+                                    <td class="tt-evd__rating-col"><span aria-hidden="true">—</span><span class="screen-reader-text"><?php esc_html_e( 'Not rated', 'talenttrack' ); ?></span></td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                     </div>

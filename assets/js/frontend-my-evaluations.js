@@ -45,11 +45,18 @@
 			if ( group.label ) {
 				wrap.appendChild( el( 'div', 'tt-mye-detail-heading', group.label ) );
 			}
+			// #3949 — the coach's note on the category, under its heading.
+			if ( group.note ) {
+				wrap.appendChild( el( 'p', 'tt-mye-detail-note', group.note ) );
+			}
 			var list = el( 'ul', 'tt-mye-detail-list' );
 			( group.subs || [] ).forEach( function ( sub ) {
 				var li = el( 'li' );
 				li.appendChild( el( 'span', 'tt-mye-detail-label', sub.label ) );
-				li.appendChild( el( 'span', 'tt-mye-detail-rating', formatRating( sub.rating ) ) );
+				li.appendChild( el( 'span', 'tt-mye-detail-rating', sub.rating === null ? '—' : formatRating( sub.rating ) ) );
+				if ( sub.note ) {
+					li.appendChild( el( 'p', 'tt-mye-detail-note', sub.note ) );
+				}
 				list.appendChild( li );
 			} );
 			wrap.appendChild( list );

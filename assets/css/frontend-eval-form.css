@@ -259,7 +259,26 @@
     grid-column: 1 / -1;
 }
 .tt-dashboard .tt-evf-note[hidden] { display: none; }
-.tt-dashboard .tt-evf-note textarea { min-height: 4.5rem; font-size: 1rem; }
+.tt-dashboard .tt-evf-note textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 4.5rem;
+    padding: 0.625rem 0.75rem;
+    font: inherit;
+    font-size: 1rem; /* 16px or more: no iOS zoom on focus */
+    line-height: 1.45;
+    color: var(--tt-ink);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    resize: vertical;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-evf-note textarea:focus-visible,
+.tt-dashboard .tt-evf-note-btn:focus-visible {
+    outline: 3px solid var(--tt-focus-ring, var(--tt-primary));
+    outline-offset: 1px;
+}
 .tt-dashboard .tt-evf-note__meta {
     display: flex;
     justify-content: space-between;
@@ -269,6 +288,8 @@
 }
 .tt-dashboard .tt-evf-note__count { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tt-dashboard .tt-evf-cat__note { padding: 0 0.75rem 0.75rem; }
+/* The wizard's star rows (#3949): the panel wraps under the row. */
+.tt-dashboard .tt-rating-row--stars > .tt-evf-note { flex: 1 1 100%; }
 .tt-dashboard .tt-evf-sr {
     position: absolute;
     width: 1px;

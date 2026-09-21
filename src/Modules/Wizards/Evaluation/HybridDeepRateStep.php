@@ -56,6 +56,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
             TT_VERSION,
             true
         );
+        \TT\Shared\Frontend\Components\EvalCategoryNote::enqueue();
 
         global $wpdb;
         $p = $wpdb->prefix;
@@ -207,6 +208,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                                 'max'          => (float) $max,
                                 'input_class'  => 'tt-rate-input',
                                 'data_attrs'   => [ 'tt-rate-main' => (int) $cid ],
+                                'after_html'   => self::noteHtml( $state, $cid, $cat_label ),
                             ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
                             ?>
                         </div>
@@ -229,6 +231,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                                         'max'          => (float) $max,
                                         'input_class'  => 'tt-rate-input',
                                         'data_attrs'   => [ 'tt-rate-sub-parent' => (int) $cid ],
+                                        'after_html'   => self::noteHtml( $state, $scid, $sub_label ),
                                     ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
                                     ?>
                                 </div>
@@ -263,12 +266,34 @@ final class HybridDeepRateStep implements WizardStepInterface {
             $f = round( $f * 2 ) / 2;
             $clean[ (int) $cid ] = $f;
         }
+        // #3949 — one short note per category.
+        $notes_self = [];
+        $raw_notes  = isset( $post['category_notes_self'] ) && is_array( $post['category_notes_self'] ) ? wp_unslash( $post['category_notes_self'] ) : [];
+        foreach ( (array) $raw_notes as $cid => $note ) {
+            $clean_note = \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository::clean( $note );
+            if ( $clean_note === '' ) continue;
+            $notes_self[ (int) $cid ] = mb_substr( $clean_note, 0, \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository::MAX_LENGTH );
+        }
         return [
-            'eval_date'    => $date,
-            'eval_type_id' => $type_id,
-            'eval_reason'  => $reason,
-            'ratings_self' => $clean,
+            'eval_date'           => $date,
+            'eval_type_id'        => $type_id,
+            'eval_reason'         => $reason,
+            'ratings_self'        => $clean,
+            'category_notes_self' => $notes_self,
         ];
+    }
+
+    /**
+     * #3949 — the note toggle and panel hung on one rating row.
+     *
+     * @param array<string, mixed> $state
+     */
+    private static function noteHtml( array $state, int $cid, string $label ): string {
+        $notes    = isset( $state['category_notes_self'] ) && is_array( $state['category_notes_self'] ) ? $state['category_notes_self'] : [];
+        $note     = (string) ( $notes[ $cid ] ?? '' );
+        $panel_id = 'tt-hdr-note-' . $cid;
+        return \TT\Shared\Frontend\Components\EvalCategoryNote::button( $panel_id, $label, $note )
+            . \TT\Shared\Frontend\Components\EvalCategoryNote::panel( $panel_id, 'category_notes_self[' . $cid . ']', $label, $note );
     }
 
     // #2249 — behaviour capture lives on the deep path now; route to

@@ -143,6 +143,12 @@ class DemoCoverage {
             'written_by'  => EvaluationGenerator::class,
             'depends_on'  => [ 'evaluation' ],
         ],
+        'tt_eval_category_notes' => [
+            'entity_type' => 'eval_category_note',
+            'category'    => 'evaluations',
+            'written_by'  => EvaluationGenerator::class,
+            'depends_on'  => [ 'evaluation' ],
+        ],
 
         // ===== Goals =====
 
@@ -925,7 +931,7 @@ class DemoCoverage {
         'teams' => [
             'tier'    => 'master',
             'cascade' => [
-                'eval_rating', 'evaluation', 'attendance',
+                'eval_category_note', 'eval_rating', 'evaluation', 'attendance',
                 'match_tracked_event', 'match_substitution', 'match_goal_event', 'match_execution',
                 'match_prep_role', 'match_prep_player_goal', 'match_prep_lineup',
                 'match_prep_availability', 'match_prep',
@@ -946,7 +952,7 @@ class DemoCoverage {
             // goal_link references both a goal and an evaluation, so it has
             // to go before either of them.
             'cascade' => [
-                'goal_link', 'eval_rating', 'evaluation', 'attendance', 'goal',
+                'goal_link', 'eval_category_note', 'eval_rating', 'evaluation', 'attendance', 'goal',
                 'player_event', 'trial_case', 'player_report', 'player_attribute_value',
                 'player_team_history', 'player_injury', 'player_parent_visibility',
                 'custom_value', 'player_parent',
@@ -964,7 +970,7 @@ class DemoCoverage {
         'evaluations' => [
             'tier'        => 'dependent',
             'run_order'   => 10,
-            'cascade'     => [ 'eval_rating', 'evaluation' ],
+            'cascade'     => [ 'eval_category_note', 'eval_rating', 'evaluation' ],
             'excel_sheet' => 'evaluations',
         ],
         'activities' => [

@@ -34,7 +34,7 @@ class MigrationExporter {
             'players'     => [ 'label' => __( 'Players', 'talenttrack' ),                'tables' => [ 'tt_players' ] ],
             'teams'       => [ 'label' => __( 'Teams', 'talenttrack' ),                  'tables' => [ 'tt_teams', 'tt_team_people' ] ],
             'people'      => [ 'label' => __( 'Staff & roles', 'talenttrack' ),          'tables' => [ 'tt_people', 'tt_functional_role_types', 'tt_functional_role_assignments' ] ],
-            'evaluations' => [ 'label' => __( 'Evaluations', 'talenttrack' ),            'tables' => [ 'tt_evaluations', 'tt_eval_ratings' ] ],
+            'evaluations' => [ 'label' => __( 'Evaluations', 'talenttrack' ),            'tables' => [ 'tt_evaluations', 'tt_eval_ratings', 'tt_eval_category_notes' ] ],
             // A migration export carries the whole table. /* both-kinds-ok */
             'activities'  => [ 'label' => __( 'Activities & attendance', 'talenttrack' ),'tables' => [ 'tt_activities', 'tt_attendance' ] ],
             'goals'       => [ 'label' => __( 'Goals', 'talenttrack' ),                  'tables' => [ 'tt_goals' ] ],
@@ -63,7 +63,7 @@ class MigrationExporter {
             'players'     => [ 'table' => 'tt_players',     'children' => [] ],
             'teams'       => [ 'table' => 'tt_teams',       'children' => [ 'tt_team_people' => 'team_id' ] ],
             'people'      => [ 'table' => 'tt_people',      'children' => [ 'tt_functional_role_assignments' => 'person_id' ] ],
-            'evaluations' => [ 'table' => 'tt_evaluations', 'children' => [ 'tt_eval_ratings' => 'evaluation_id' ] ],
+            'evaluations' => [ 'table' => 'tt_evaluations', 'children' => [ 'tt_eval_ratings' => 'evaluation_id', 'tt_eval_category_notes' => 'evaluation_id' ] ],
             // Both halves travel with the activity. /* both-kinds-ok */
             'activities'  => [ 'table' => 'tt_activities',  'children' => [ 'tt_attendance' => 'activity_id' ] ],
             'goals'       => [ 'table' => 'tt_goals',       'children' => [] ],

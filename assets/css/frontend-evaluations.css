@@ -110,6 +110,18 @@
     font-weight: 600;
 }
 
+/* A category's own note (#3949), under its label. */
+.tt-dashboard .tt-evd__cat-note {
+    margin: 0.25rem 0 0;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--tt-line);
+    font-size: 0.875rem;
+    font-weight: 400;
+    white-space: pre-wrap;
+    color: var(--tt-ink);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
 /* ---- Notes -------------------------------------------------------- */
 .tt-dashboard .tt-evd__notes {
     white-space: pre-wrap;

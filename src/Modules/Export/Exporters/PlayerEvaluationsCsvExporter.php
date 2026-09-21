@@ -171,8 +171,18 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface, ScopeGate
         ];
         foreach ( $main_cats as $c ) {
             $headers[] = (string) $c->label;
+            $headers[] = sprintf(
+                /* translators: %s: rating category name, heading of the export column holding its notes */
+                __( '%s — note', 'talenttrack' ),
+                (string) $c->label
+            );
         }
         $headers[] = __( 'Notes', 'talenttrack' );
+
+        // #3949 — each main category's note next to its rating.
+        $cat_notes = $evaluations !== []
+            ? ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->perMainForEvaluations( array_map( static fn( $r ) => (int) $r->id, $evaluations ) )
+            : [];
 
         $rows = [];
         foreach ( $evaluations as $e ) {
@@ -195,6 +205,7 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface, ScopeGate
                 $sum = $agg[ $eid ][ $cid ][0] ?? null;
                 $n   = $agg[ $eid ][ $cid ][1] ?? 0;
                 $row[] = $n > 0 ? round( (float) $sum / $n, 2 ) : '';
+                $row[] = $cat_notes[ $eid ][ $cid ] ?? '';
             }
             $row[] = (string) ( $e->notes ?? '' );
             $rows[] = $row;

@@ -62,13 +62,13 @@ final class CascadeRegistry {
 
     private const PLANS = [
 
-        // Evaluation — owns its category ratings + any evidence links
-        // pointing at it. A normal evaluation deletes cleanly; anything
+        // Evaluation — owns its category ratings, its category notes
+        // (#3949) + any evidence links pointing at it. A normal evaluation deletes cleanly; anything
         // else referencing it blocks.
         'evaluation' => [
             'table'        => 'tt_evaluations',
             'ref_columns'  => [ 'evaluation_id' ],
-            'cascade'      => [ [ 'tt_eval_ratings', 'evaluation_id' ] ],
+            'cascade'      => [ [ 'tt_eval_ratings', 'evaluation_id' ], [ 'tt_eval_category_notes', 'evaluation_id' ] ],
             'cascade_poly' => [ [ 'tt_goal_links', 'link_type', 'link_id', 'evaluation' ] ],
             'threads'      => null,
             'set_null'     => [],
