@@ -228,10 +228,11 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
             $this->refusalCode( $nested ),
             'the refusal came from the capability gate, not from the team-scope check'
         );
-        $this->assertNull(
-            ( (array) $nested->get_data() )['data'] ?? 'missing',
-            'a refusal carried a payload'
-        );
+        // `?? ` would read the null payload as an absent key, so the key is
+        // asserted present and then asserted null.
+        $payload = (array) $nested->get_data();
+        $this->assertArrayHasKey( 'data', $payload, 'the refusal does not use the standard envelope' );
+        $this->assertNull( $payload['data'], 'a refusal carried a payload' );
     }
 
     /**
