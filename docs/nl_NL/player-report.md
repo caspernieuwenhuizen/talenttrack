@@ -111,6 +111,28 @@ De PDF bevat dezelfde onderdelen, en elk onderdeel toont je alleen wat het je
 op het scherm toont. Er staat geen foto op, en lange notities worden afgekapt
 op één regel — de volledige tekst staat op het scherm.
 
+## Inplannen
+
+Een hoofd opleidingen die elke maand een ronde gesprekken voert, kan de
+rapporten vanzelf laten binnenkomen. Kies bij het rapport **Maandelijks
+inplannen** en daarna voor wie het is:
+
+- **Elke speler in het team** — één rapport per speler, elk op een eigen
+  pagina, in één PDF. Dit is de standaard.
+- **Alleen deze speler** — voor een speler die je extra in de gaten houdt.
+
+Het wordt op de 1e van elke maand verstuurd, over dezelfde periode die het
+rapport had toen je het inplande, met een eigen kopie van de onderdelen — je
+opgeslagen weergaven later wijzigen verandert niet wat er wordt verstuurd. Het
+rapport wordt opgesteld zoals jij het zou zien, dus stuur het alleen naar de
+staf.
+
+Een planning stopt in plaats van te versturen als het team of de speler is
+gearchiveerd of verwijderd, of als jij hun rapporten niet meer mag inzien; het
+scherm met planningen zegt waarom. Bij een teamronde wordt één speler die je
+niet meer mag inzien weggelaten, en het scherm met planningen noemt die speler.
+Een ronde omvat maximaal 30 spelers.
+
 ## Momentopnames — een verslag van het gesprek
 
 Het rapport is live: open je het morgen, dan heeft een registratie van vandaag

@@ -268,8 +268,44 @@ final class PlayerReportPage {
         echo '<div class="tt-mr-panel__actions">';
         echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-mr-submit>' . esc_html__( 'Update report', 'talenttrack' ) . '</button>';
         echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::pdfUrl( $player_id, $window, $layout, $selected ) ) . '" data-tt-mr-pdf>' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>';
+        $schedule_url = self::scheduleUrl( $player_id, $window, $layout, $selected );
+        if ( $schedule_url !== '' ) {
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $schedule_url ) . '" data-tt-mr-schedule>' . esc_html__( 'Schedule monthly', 'talenttrack' ) . '</a>';
+        }
         echo '</div>';
         echo '</form>';
+    }
+
+    /**
+     * #3891 — "Schedule monthly": the schedules screen, carrying a copy of this
+     * composition. Empty when the reader cannot schedule reports — the
+     * schedules screen is academy-wide, needs the plan's scheduled reports and
+     * may be switched off — so the button is never a door that will not open.
+     * The team report's rule, `TeamMonthlyReportPage::scheduleUrl()`.
+     *
+     * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $selected
+     */
+    public static function scheduleUrl( int $player_id, array $window, string $layout, array $selected ): string {
+        if ( ! current_user_can( 'tt_view_analytics' ) ) return '';
+        if ( ! current_user_can( 'tt_edit_settings' )
+            && ! \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( get_current_user_id() )
+        ) {
+            return '';
+        }
+        if ( class_exists( '\\TT\\Modules\\License\\LicenseGate' ) && ! \TT\Modules\License\LicenseGate::allows( 'scheduled_reports' ) ) return '';
+        if ( ! CrossViewLink::allows( 'scheduled-reports' ) ) return '';
+
+        $args = [
+            'tt_view'   => 'scheduled-reports', /* tt-xview-ok */ // gated by CrossViewLink::allows() above
+            'report'    => 'player_report',
+            'player_id' => $player_id,
+            'layout'    => $layout,
+            'blocks'    => implode( ',', $selected ),
+            'period'    => $window['period'],
+        ];
+
+        return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
     }
 
     /**

@@ -63,6 +63,9 @@ final class ScheduledReportsActionHandlers {
         if ( $report_key === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
             self::createTeamMonthly( $name, $rec_raw );
         }
+        if ( $report_key === ScheduledReportsRepository::REPORT_PLAYER ) {
+            self::createPlayerReport( $name, $rec_raw );
+        }
 
         $valid_frequencies = [
             ScheduledReportsRepository::FREQUENCY_WEEKLY_MONDAY,
@@ -128,6 +131,55 @@ final class ScheduledReportsActionHandlers {
                 'format'      => 'pdf',
             ],
             get_current_user_id()
+        );
+
+        self::redirectBack( 'schedule_created' );
+    }
+
+    /**
+     * #3891 — a player report schedule, for a squad or one player. The
+     * composition is copied onto the schedule; a squad target also carries
+     * `team_id`. The creator must be able to read what it covers, because
+     * every run is rendered as them.
+     */
+    private static function createPlayerReport( string $name, string $rec_raw ): void {
+        $period = isset( $_POST['period'] ) ? sanitize_key( (string) $_POST['period'] ) : '';
+        if ( ! in_array( $period, \TT\Modules\Analytics\Reports\ReportFilters::PERIODS, true ) ) {
+            $period = \TT\Modules\Analytics\Reports\PlayerReportComposition::DEFAULT_PERIOD;
+        }
+        $composition = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [
+            'player_id' => isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0,
+            'layout'    => isset( $_POST['layout'] ) ? sanitize_key( (string) $_POST['layout'] ) : '',
+            'blocks'    => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
+            'period'    => $period,
+        ] );
+        $recipients = array_values( array_filter( array_map( 'trim', preg_split( "/[\r\n]+/", $rec_raw ) ?: [] ) ) );
+        $user_id    = get_current_user_id();
+        $target     = isset( $_POST['target'] ) ? sanitize_key( (string) $_POST['target'] ) : 'player';
+        $team_id    = $target === 'team' && isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0;
+
+        $allowed = $team_id > 0
+            ? \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $user_id, $team_id )
+            : \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $user_id, $composition['player_id'] );
+
+        if ( $name === '' || $recipients === [] || ! $allowed ) {
+            self::redirectBack( 'schedule_invalid' );
+        }
+
+        if ( $team_id > 0 ) {
+            $composition['team_id'] = $team_id;
+        }
+
+        ( new ScheduledReportsRepository() )->create(
+            [
+                'name'        => $name,
+                'report_key'  => ScheduledReportsRepository::REPORT_PLAYER,
+                'composition' => $composition,
+                'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
+                'recipients'  => $recipients,
+                'format'      => 'pdf',
+            ],
+            $user_id
         );
 
         self::redirectBack( 'schedule_created' );

@@ -7,6 +7,7 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Modules\Analytics\Export\CsvExporter;
 use TT\Modules\Analytics\KpiRegistry;
+use TT\Modules\Analytics\Reports\PlayerReportDelivery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
@@ -63,6 +64,11 @@ final class ScheduledReportsRunner {
             // below exactly as it was.
             if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_TEAM_MONTHLY ) {
                 self::runTeamMonthly( $repo, $schedule, $now );
+                continue;
+            }
+            // #3891 — the player report, one player or a squad's round.
+            if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_PLAYER ) {
+                self::runPlayerReport( $repo, $schedule, $now );
                 continue;
             }
 
@@ -151,6 +157,28 @@ final class ScheduledReportsRunner {
      * @param array<string,mixed> $schedule
      */
     public static function runTeamMonthly( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
+        self::runPdf( $repo, $schedule, $now_utc, [ TeamMonthlyReportDelivery::class, 'render' ] );
+    }
+
+    /**
+     * #3891 — one player report schedule: the same render, stage, send and
+     * stamp as the team monthly report, with the player report's delivery.
+     *
+     * @param array<string,mixed> $schedule
+     */
+    public static function runPlayerReport( ScheduledReportsRepository $repo, array $schedule, string $now_utc ): void {
+        self::runPdf( $repo, $schedule, $now_utc, [ PlayerReportDelivery::class, 'render' ] );
+    }
+
+    /**
+     * Render a schedule's PDF with `$render` and mail it. A run that sent with
+     * a `note` — a squad round that left a player out — keeps that note on the
+     * schedules screen rather than clearing it, so the omission is visible.
+     *
+     * @param array<string,mixed> $schedule
+     * @param callable(array<string,mixed>, string): array{ok:bool, stop:bool, error:string, bytes:string, filename:string, label:string, note?:string} $render
+     */
+    private static function runPdf( ScheduledReportsRepository $repo, array $schedule, string $now_utc, callable $render ): void {
         $id         = (int) ( $schedule['id'] ?? 0 );
         $recipients = self::resolveRecipients( (array) ( $schedule['recipients'] ?? [] ) );
         if ( $recipients === [] ) {
@@ -161,7 +189,7 @@ final class ScheduledReportsRunner {
         }
 
         $now_ts = strtotime( $now_utc . ' UTC' );
-        $result = TeamMonthlyReportDelivery::render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ) );
+        $result = $render( $schedule, gmdate( 'Y-m-d', $now_ts !== false ? $now_ts : time() ) );
         if ( ! $result['ok'] ) {
             $repo->recordError( $id, $result['error'] );
             self::auditLog( $schedule, count( $recipients ), false );
@@ -205,7 +233,10 @@ final class ScheduledReportsRunner {
             );
 
             $sent = CommsOutcomeSummary::sentCount( $results ) > 0;
-            if ( $sent ) {
+            $note = (string) ( $result['note'] ?? '' );
+            if ( $sent && $note !== '' ) {
+                $repo->recordError( $id, $note );
+            } elseif ( $sent ) {
                 $repo->clearError( $id );
             } else {
                 $repo->recordError( $id, __( 'Not sent: no recipient could be emailed. Check their addresses and email preferences.', 'talenttrack' ) );

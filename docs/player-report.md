@@ -105,6 +105,26 @@ The PDF carries the same sections, and each section shows you only what it
 shows you on screen. It has no photo, and long notes are cut to one line — the
 full text is on screen.
 
+## Scheduling it
+
+A head of development running a monthly round of conversations can have the
+reports arrive on their own. On the report, choose **Schedule monthly**, then
+who it covers:
+
+- **Every player in the team** — one report per player, each starting on its
+  own page, in one PDF. The default.
+- **Only this player** — for a player you are keeping a particular eye on.
+
+It is sent on the 1st of every month, over the same period the report had when
+you scheduled it, with its own copy of the sections — changing your saved views
+later does not change what it sends. The report is written as you would see it,
+so send it to staff only.
+
+A schedule stops rather than sends when its team or player is archived or
+removed, or when you can no longer read their reports; the schedules screen says
+why. In a team round, a single player you can no longer read is left out, and
+the schedules screen names them. A round covers at most 30 players.
+
 ## Snapshots — a record of the conversation
 
 The report is live: open it tomorrow and a register taken today has moved the

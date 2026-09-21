@@ -118,6 +118,12 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             self::renderScheduleList();
             return;
         }
+        // #3891 — arriving from the player report's "Schedule".
+        if ( $report === ScheduledReportsRepository::REPORT_PLAYER ) {
+            self::renderPlayerReportForm();
+            self::renderScheduleList();
+            return;
+        }
 
         echo '<p class="tt-sched-intro">'
             . esc_html__( 'Recurring email reports. Pick a KPI, a frequency, and recipients; the daily cron runs the export and emails it on schedule.', 'talenttrack' )
@@ -191,6 +197,90 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
         echo '</label>';
         echo '<p class="tt-sched-intro">' . esc_html__( 'The report names players and describes their development. Send it to staff only.', 'talenttrack' ) . '</p>';
+
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'scheduled-reports', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Schedule report', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
+        echo '</form>';
+    }
+
+    /**
+     * #3891 — schedule the player report as composed on its page.
+     *
+     * The squad is the default target: the head of development's monthly
+     * round, one report per player in one PDF. One player is the other
+     * choice, for a player under particular watch. The window is the one the
+     * report had, resolved at each run; a hand-typed date range is not kept,
+     * because a monthly schedule of fixed dates would mail the same weeks
+     * forever.
+     */
+    private static function renderPlayerReportForm(): void {
+        $period      = isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '';
+        $composition = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( [
+            'player_id' => isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0,
+            'layout'    => isset( $_GET['layout'] ) ? sanitize_key( (string) $_GET['layout'] ) : '',
+            'blocks'    => isset( $_GET['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) ) : '',
+            'period'    => $period,
+        ] );
+        $player = $composition['player_id'] > 0 ? QueryHelpers::get_player( $composition['player_id'] ) : null;
+
+        echo '<h3 class="tt-sched-heading">' . esc_html__( 'Schedule the player report', 'talenttrack' ) . '</h3>';
+        if ( $player === null || ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), $composition['player_id'] ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You cannot schedule a report for this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $name    = QueryHelpers::player_display_name( $player );
+        $team_id = (int) ( $player->team_id ?? 0 );
+        $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
+
+        echo '<p class="tt-sched-intro">' . esc_html__( 'Sent on the 1st of every month as a PDF, over the same period the report had when you scheduled it. The schedule keeps its own copy of the sections.', 'talenttrack' ) . '</p>';
+
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-sched-form">';
+        wp_nonce_field( 'tt_scheduled_reports_create', 'tt_sched_nonce' );
+        echo '<input type="hidden" name="action" value="tt_scheduled_reports_create">';
+        echo '<input type="hidden" name="report_key" value="' . esc_attr( ScheduledReportsRepository::REPORT_PLAYER ) . '">';
+        echo '<input type="hidden" name="player_id" value="' . (int) $composition['player_id'] . '">';
+        echo '<input type="hidden" name="layout" value="' . esc_attr( $composition['layout'] ) . '">';
+        echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $composition['blocks'] ) ) . '">';
+        echo '<input type="hidden" name="period" value="' . esc_attr( $composition['period'] ) . '">';
+
+        echo '<fieldset class="tt-sched-field">';
+        echo '<legend class="tt-sched-field__label">' . esc_html__( 'Who it covers', 'talenttrack' ) . '</legend>';
+        if ( $team !== null ) {
+            echo '<label class="tt-sched-choice"><input type="radio" name="target" value="team" checked> ' . esc_html( sprintf(
+                /* translators: %s: team name */
+                __( 'Every player in %s — one report each, in one PDF', 'talenttrack' ),
+                (string) ( $team->name ?? '' )
+            ) ) . '</label>';
+            echo '<input type="hidden" name="team_id" value="' . (int) $team_id . '">';
+        }
+        echo '<label class="tt-sched-choice"><input type="radio" name="target" value="player"' . checked( $team === null, true, false ) . '> ' . esc_html( sprintf(
+            /* translators: %s: player name */
+            __( 'Only %s', 'talenttrack' ),
+            $name
+        ) ) . '</label>';
+        echo '</fieldset>';
+
+        echo '<label class="tt-sched-field">';
+        echo '<span class="tt-sched-field__label">' . esc_html__( 'Name', 'talenttrack' ) . '</span>';
+        echo '<input type="text" name="name" required maxlength="255" value="' . esc_attr( sprintf(
+            /* translators: %s: team or player name */
+            __( 'Player reports %s', 'talenttrack' ),
+            $team !== null ? (string) ( $team->name ?? '' ) : $name
+        ) ) . '">';
+        echo '</label>';
+
+        echo '<label class="tt-sched-field">';
+        echo '<span class="tt-sched-field__label">' . esc_html__( 'Recipients', 'talenttrack' ) . '</span>';
+        echo '<textarea name="recipients" rows="4" required placeholder="' . esc_attr__( "One per line — email addresses or WordPress role keys (e.g. tt_head_dev).", 'talenttrack' ) . '"></textarea>';
+        echo '</label>';
+        echo '<p class="tt-sched-intro">' . esc_html__( 'The report describes a minor\'s development. Send it to staff only.', 'talenttrack' ) . '</p>';
 
         $back       = BackLink::resolve();
         $cancel_url = $back !== null
@@ -354,6 +444,25 @@ class FrontendScheduledReportsView extends FrontendViewBase {
                 /* translators: %s: team name */
                 __( 'Monthly report · %s', 'talenttrack' ),
                 $team !== null ? (string) ( $team->name ?? '' ) : '—'
+            );
+        }
+        if ( ( $schedule['report_key'] ?? '' ) === ScheduledReportsRepository::REPORT_PLAYER ) {
+            $raw     = is_array( $schedule['composition'] ?? null ) ? $schedule['composition'] : [];
+            $team_id = isset( $raw['team_id'] ) && is_numeric( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
+            if ( $team_id > 0 ) {
+                $team = QueryHelpers::get_team( $team_id );
+                return sprintf(
+                    /* translators: %s: team name */
+                    __( 'Player reports · %s', 'talenttrack' ),
+                    $team !== null ? (string) ( $team->name ?? '' ) : '—'
+                );
+            }
+            $player_id = \TT\Modules\Analytics\Reports\PlayerReportComposition::normalise( $raw )['player_id'];
+            $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
+            return sprintf(
+                /* translators: %s: player name */
+                __( 'Player report · %s', 'talenttrack' ),
+                $player !== null ? QueryHelpers::player_display_name( $player ) : '—'
             );
         }
         $kpi = KpiRegistry::find( (string) ( $schedule['kpi_key'] ?? '' ) );
