@@ -48,9 +48,11 @@ final class EvalCategoryNotesTest extends WP_UnitTestCase {
         do_action( 'rest_api_init' );
 
         $club = (int) CurrentClub::id();
-        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Notes A', 'age_group' => 'U14' ] );
+        // Age-group labels no other test scopes on: the purge test runs the
+        // cascade's own transaction, whose COMMIT outlives the test's.
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Notes A', 'age_group' => 'NotesA' ] );
         $this->teamA = (int) $wpdb->insert_id;
-        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Notes B', 'age_group' => 'U15' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Notes B', 'age_group' => 'NotesB' ] );
         $this->teamB = (int) $wpdb->insert_id;
         $this->playerA = $this->makePlayer( 'Alpha', $this->teamA );
         $this->playerB = $this->makePlayer( 'Bravo', $this->teamB );
@@ -64,8 +66,29 @@ final class EvalCategoryNotesTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
-        global $wp_rest_server;
+        global $wp_rest_server, $wpdb;
         $wp_rest_server = null;
+
+        // The cascade in the purge test commits its own transaction, which
+        // takes this test's fixture rows past the rollback. Remove them by
+        // id so nothing reaches the next test.
+        $p = $wpdb->prefix;
+        foreach ( [ $this->playerA, $this->playerB ] as $pid ) {
+            if ( $pid <= 0 ) continue;
+            $ids = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$p}tt_evaluations WHERE player_id = %d", $pid ) ) );
+            foreach ( $ids as $eid ) {
+                $wpdb->delete( "{$p}tt_eval_category_notes", [ 'evaluation_id' => $eid ] );
+                $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $eid ] );
+                $wpdb->delete( "{$p}tt_evaluations", [ 'id' => $eid ] );
+            }
+            $wpdb->delete( "{$p}tt_players", [ 'id' => $pid ] );
+        }
+        foreach ( [ $this->catLone, $this->catSub, $this->catMain ] as $cid ) {
+            if ( $cid > 0 ) $wpdb->delete( "{$p}tt_eval_categories", [ 'id' => $cid ] );
+        }
+        foreach ( [ $this->teamA, $this->teamB ] as $tid ) {
+            if ( $tid > 0 ) $wpdb->delete( "{$p}tt_teams", [ 'id' => $tid ] );
+        }
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
         wp_set_current_user( 0 );
