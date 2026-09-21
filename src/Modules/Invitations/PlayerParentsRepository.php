@@ -143,7 +143,20 @@ class PlayerParentsRepository {
         return is_array( $rows ) ? $rows : [];
     }
 
-    /** @return list<int> parent WP user IDs linked to this player. */
+    /**
+     * Every parent WP user id linked to this player: the **raw pivot**,
+     * club-scoped and nothing else — no status filter, no lifecycle filter.
+     *
+     * Right for managing links (linking, unlinking, listing them for an
+     * admin). Wrong for an entitlement question: "may this user act as this
+     * player's guardian?" is answered by
+     * `\TT\Infrastructure\Players\ParentChildResolver::isParentOf()`, which
+     * drops a released, archived or binned child. Asking this method instead
+     * is how goal threads kept a closed-out family in the conversation
+     * (#3947).
+     *
+     * @return list<int>
+     */
     public function parentsForPlayer( int $playerId ): array {
         if ( $playerId <= 0 ) return [];
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
