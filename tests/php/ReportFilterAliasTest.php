@@ -211,7 +211,17 @@ final class ReportFilterAliasTest extends WP_UnitTestCase {
         $nested = $this->minutesRequest( [ 'filter' => [ 'team_id' => $this->team_b ] ] );
 
         $this->assertSame( $plain->get_status(), $nested->get_status(), 'the two spellings are answered differently' );
-        $this->assertSame( $plain->get_data(), $nested->get_data() );
+        // Over the wire, not by object identity. The controller's envelope
+        // casts empty `details` to a `stdClass` so it serialises as `{}`
+        // rather than `[]`, and two of those are never the same instance —
+        // `assertSame()` on the raw arrays would be comparing that, not the
+        // answer. WordPress's `rest_forbidden` payload this used to read was
+        // a plain array, which is why the identity comparison held before.
+        $this->assertSame(
+            wp_json_encode( $plain->get_data() ),
+            wp_json_encode( $nested->get_data() ),
+            'the two spellings are answered with different payloads'
+        );
         $this->assertSame( 403, $nested->get_status(), 'a team the caller may not read was answered with data' );
         $this->assertSame(
             'forbidden_team',
