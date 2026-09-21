@@ -443,7 +443,7 @@ final class PlayerReportPdfDocument {
         $rows = [];
         foreach ( $items as $e ) {
             if ( ! is_array( $e ) ) continue;
-            $rows[] = [ TTDate::date( (string) ( $e['date'] ?? '' ) ), (string) ( $e['summary'] ?? '' ) ];
+            $rows[] = [ TTDate::date( (string) ( $e['date'] ?? '' ) ), \TT\Modules\Analytics\Reports\PlayerReport::journeyPrintText( $e ) ];
         }
         return $out . self::table( [], $rows, [ 'w-date', 'w-rest' ], 1 ) . self::shortened( $j, 'items' ) . '</div>';
     }

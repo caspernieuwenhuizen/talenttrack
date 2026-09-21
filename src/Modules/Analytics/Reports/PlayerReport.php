@@ -218,9 +218,46 @@ final class PlayerReport {
                 'event_type' => (string) ( $e->event_type ?? '' ),
                 'date'       => substr( (string) ( $e->event_date ?? '' ), 0, 10 ),
                 'summary'    => (string) ( $e->summary ?? '' ),
+                'activity'   => isset( $e->activity ) && is_array( $e->activity ) ? $e->activity : null,
             ];
         }
         return $out;
+    }
+
+    /**
+     * A journey entry as the PDF prints it: the entry, then what it was about.
+     * One method so the printed line and the layout estimate that measures it
+     * cannot differ.
+     *
+     * @param array<string,mixed> $item a journey item.
+     */
+    public static function journeyPrintText( array $item ): string {
+        $text     = (string) ( $item['summary'] ?? '' );
+        $activity = is_array( $item['activity'] ?? null ) ? $item['activity'] : null;
+        if ( $activity === null ) return $text;
+        $label = self::activityLabel( $activity );
+        return $label === '' ? $text : $text . ' — ' . $label;
+    }
+
+    /**
+     * An activity in one line, the way a coach names it: its type, who it was
+     * against (or its title when there was no opponent), and the day. Shared by
+     * the screen and the PDF so they name the same match the same way.
+     *
+     * @param array<string,mixed> $activity a journey item's `activity`.
+     */
+    public static function activityLabel( array $activity ): string {
+        $opponent = trim( (string) ( $activity['opponent'] ?? '' ) );
+        $what     = $opponent !== ''
+            /* translators: %s: the opponent of a match */
+            ? sprintf( __( 'against %s', 'talenttrack' ), $opponent )
+            : trim( (string) ( $activity['title'] ?? '' ) );
+        $parts = array_filter( [
+            trim( (string) ( $activity['type'] ?? '' ) ),
+            $what,
+            (string) ( $activity['date'] ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::date( (string) $activity['date'] ) : '',
+        ], static fn( string $s ): bool => $s !== '' );
+        return implode( ' · ', $parts );
     }
 
     /**

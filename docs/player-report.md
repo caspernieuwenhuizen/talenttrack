@@ -55,6 +55,11 @@ changes with it, so a colleague who opens the link sees the same report.
 A player who has no development plan file yet still gets a full report. The
 development plan section says there is no file yet rather than disappearing.
 
+In **Journey**, a comment from a match analysis and an evaluation made for a
+training or match say which one they were about, for example "Match · against
+Willem II · 12 September 2026". On screen it links to the activity when you can
+open activities.
+
 ## Talking points
 
 The talking points are worked out from what the academy has already recorded;

@@ -297,8 +297,16 @@ final class PlayerReportLayout {
             case PlayerReportBlock::JOURNEY:
             case PlayerReportBlock::THREAD_NOTES:
                 $n    = count( self::listOf( $d, 'items' ) );
+                // A journey entry prints with the activity it was about, so the
+                // line measured is the line printed.
                 $wrap = $block === PlayerReportBlock::JOURNEY
-                    ? self::wrappedRows( $d, 'items', 'summary', 'journey' )
+                    ? self::wrappedRows(
+                        [ 'items' => array_map(
+                            static fn( $item ): array => [ 'text' => is_array( $item ) ? PlayerReport::journeyPrintText( $item ) : '' ],
+                            self::listOf( $d, 'items' )
+                        ) ],
+                        'items', 'text', 'journey'
+                    )
                     : self::wrappedRows( $d, 'items', 'body', 'thread_notes' );
                 return $base + ( $n === 0 ? $line : $n * $row ) + $wrap + self::shortenedLine( $d );
         }
