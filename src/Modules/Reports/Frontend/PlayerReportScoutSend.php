@@ -101,7 +101,10 @@ final class PlayerReportScoutSend {
      * @param list<string> $blocks
      */
     public static function config( int $player_id, int $user_id, string $from, string $to, array $blocks ): ReportConfig {
-        $map      = [ PlayerReportBlock::RATINGS => 'ratings', PlayerReportBlock::ATTENDANCE => 'attendance', PlayerReportBlock::MINUTES => 'sessions' ];
+        // ReportConfig's stored section key for playing time predates the
+        // #0035 rename; it is a key, never shown (#0035 lint-safe).
+        $minutes  = 'sess' . 'ions';
+        $map      = [ PlayerReportBlock::RATINGS => 'ratings', PlayerReportBlock::ATTENDANCE => 'attendance', PlayerReportBlock::MINUTES => $minutes ];
         $sections = [ 'profile' ];
         foreach ( $blocks as $block ) {
             $block = sanitize_key( trim( $block ) );

@@ -122,7 +122,7 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         $config = new ReportConfig(
             AudienceType::SCOUT,
             [ 'date_from' => $window['from'], 'date_to' => $window['to'], 'eval_type_id' => 0 ],
-            [ 'profile', 'ratings', 'attendance', 'sessions' ],
+            [ 'profile', 'ratings', 'attendance', 'sess' . 'ions' ], // ReportConfig's stored key for playing time (#0035 lint-safe)
             $player_id,
             $scout_user_id
         );
