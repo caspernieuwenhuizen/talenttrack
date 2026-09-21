@@ -41,8 +41,24 @@ final class GoalContributionsRestController {
         ] );
     }
 
-    public static function can_view(): bool {
-        return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_players' );
+    /**
+     * The route carries a player id, so the gate has to read it.
+     *
+     * `userCanOrMatrix( 'tt_view_players' )` alone answers "may this person
+     * look at players", never "may they look at THIS one" — and at `player`
+     * scope `MatrixGate::canAnyScope()` says yes to anyone who is a player
+     * or holds any linked child. That admitted every family on the install
+     * to every child's record here, because nothing downstream re-asked:
+     * the handler takes `player_id` straight from the path.
+     *
+     * `canViewPlayer()` is the per-record question every neighbouring
+     * per-player read already asks.
+     */
+    public static function can_view( \WP_REST_Request $r ): bool {
+        $player_id = absint( $r['player_id'] );
+        if ( $player_id <= 0 ) return false;
+
+        return AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );
     }
 
     public static function forPlayer( \WP_REST_Request $r ): \WP_REST_Response {

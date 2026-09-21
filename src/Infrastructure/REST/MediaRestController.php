@@ -302,7 +302,20 @@ final class MediaRestController {
         //
         // A team or activity collection has no single subject, so it carries
         // no consent block at all rather than an arbitrary one.
-        if ( $entity_type === MediaEntityType::PLAYER ) {
+        //
+        // And only for a caller who may view that player. The items above
+        // are narrowed per row, so an unrelated caller correctly gets an
+        // empty list — appending an unfiltered fact beside it handed back
+        // what the filtering had just withheld: whether another family had
+        // consented, when, and the name of the staff member who recorded
+        // it. Absent rather than nulled, so a consumer cannot tell "not
+        // yours to know" from "no consent on record".
+        if ( $entity_type === MediaEntityType::PLAYER
+            && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
+                get_current_user_id(),
+                $entity_id
+            )
+        ) {
             $envelope['player_consent'] = self::playerConsent( $entity_id );
         }
 
