@@ -38,53 +38,78 @@ final class SavedViewsRestController extends BaseController {
         add_action( 'rest_api_init', [ self::class, 'registerRoutes' ] );
     }
 
+    /**
+     * The same two routes under two bases. #3819 — spelled out per base
+     * rather than looped, because a path built from a loop variable cannot
+     * be read statically, and the args gate then sees one unreadable route
+     * standing for four.
+     */
     public static function registerRoutes(): void {
-        foreach ( [ '/filter-presets', '/reports/filter-presets' ] as $base ) {
-            register_rest_route( self::NS, $base, [
-                [
-                    'methods'             => 'GET',
-                    'callback'            => [ self::class, 'listViews' ],
-                    'permission_callback' => [ self::class, 'permitRequest' ],
-                    'args'                => [
-                        'view_key' => [ 'sanitize_callback' => 'sanitize_key' ],
-                    ],
-                ],
-                [
-                    'methods'             => 'POST',
-                    'callback'            => [ self::class, 'saveView' ],
-                    'permission_callback' => [ self::class, 'permitRequest' ],
-                    'args'                => [
-                        'view_key' => [ 'sanitize_callback' => 'sanitize_key' ],
-                        'name'     => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => true ],
-                    ],
-                ],
-            ] );
+        register_rest_route( self::NS, '/filter-presets', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'listViews' ], 'permission_callback' => [ self::class, 'permitRequest' ], 'args' => self::listArgs() ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'saveView' ],  'permission_callback' => [ self::class, 'permitRequest' ], 'args' => self::saveArgs() ],
+        ] );
+        // #2451 — rename and/or overwrite. Previously the only way to
+        // change a view was delete + re-save, which lost its place in the
+        // list and (from #2450) its default flag.
+        register_rest_route( self::NS, '/filter-presets/(?P<id>\d+)', [
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'deleteView' ], 'permission_callback' => [ self::class, 'permitById' ], 'args' => self::idArgs() ],
+            [ 'methods' => 'PATCH',  'callback' => [ self::class, 'updateView' ], 'permission_callback' => [ self::class, 'permitById' ], 'args' => self::updateArgs() ],
+        ] );
+        register_rest_route( self::NS, '/reports/filter-presets', [
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'listViews' ], 'permission_callback' => [ self::class, 'permitRequest' ], 'args' => self::listArgs() ],
+            [ 'methods' => 'POST', 'callback' => [ self::class, 'saveView' ],  'permission_callback' => [ self::class, 'permitRequest' ], 'args' => self::saveArgs() ],
+        ] );
+        register_rest_route( self::NS, '/reports/filter-presets/(?P<id>\d+)', [
+            [ 'methods' => 'DELETE', 'callback' => [ self::class, 'deleteView' ], 'permission_callback' => [ self::class, 'permitById' ], 'args' => self::idArgs() ],
+            [ 'methods' => 'PATCH',  'callback' => [ self::class, 'updateView' ], 'permission_callback' => [ self::class, 'permitById' ], 'args' => self::updateArgs() ],
+        ] );
+    }
 
-            register_rest_route( self::NS, $base . '/(?P<id>\d+)', [
-                [
-                    'methods'             => 'DELETE',
-                    'callback'            => [ self::class, 'deleteView' ],
-                    'permission_callback' => [ self::class, 'permitById' ],
-                    'args'                => [
-                        'id' => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
-                    ],
-                ],
-                [
-                    // #2451 — rename and/or overwrite. Previously the only way
-                    // to change a view was delete + re-save, which lost its
-                    // place in the list and (from #2450) its default flag.
-                    'methods'             => 'PATCH',
-                    'callback'            => [ self::class, 'updateView' ],
-                    'permission_callback' => [ self::class, 'permitById' ],
-                    'args'                => [
-                        'id'         => [ 'validate_callback' => [ self::class, 'isPositiveInt' ] ],
-                        'name'       => [ 'sanitize_callback' => 'sanitize_text_field' ],
-                        // #2450 — mark/unmark as the surface's default.
-                        'is_default' => [ 'type' => 'boolean' ],
-                    ],
-                ],
-            ] );
-        }
+    /** @return array<string, array<string, mixed>> */
+    private static function listArgs(): array {
+        return [ 'view_key' => [ 'sanitize_callback' => 'sanitize_key', 'description' => 'Which surface\'s presets to list.' ] ];
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function idArgs(): array {
+        return [ 'id' => [ 'validate_callback' => [ self::class, 'isPositiveInt' ], 'description' => 'The preset, from the URL.' ] ];
+    }
+
+    /**
+     * #3819 — the body `POST /filter-presets` takes.
+     *
+     * `name` was declared `required` until this change. Core checks
+     * required params in `has_valid_params()`, which runs before the
+     * permission callback, so a POST from somebody with no claim on the
+     * surface was answered with a 400 naming `name` instead of the 403
+     * `permitRequest()` owes them. `saveView()` already answers
+     * `missing_name` behind the gate.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function saveArgs(): array {
+        return [
+            'view_key' => [ 'sanitize_callback' => 'sanitize_key', 'type' => 'string', 'description' => 'Which surface the preset belongs to. Usually a query parameter; a copy in the body is accepted.' ],
+            'name'     => [ 'sanitize_callback' => 'sanitize_text_field', 'type' => 'string', 'description' => 'What to call the preset. Trimmed to 120 characters; a name the user already has is refused.' ],
+            'filters'  => [ 'type' => 'object', 'description' => 'The filter values to remember, keyed by filter. At most 20 keys, each at most 200 characters.' ],
+        ];
+    }
+
+    /**
+     * #3819 — the body `PATCH /filter-presets/{id}` takes. Every field is
+     * optional and an omitted one is left alone (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [
+            'id'         => [ 'validate_callback' => [ self::class, 'isPositiveInt' ], 'description' => 'The preset, from the URL. A copy in the body is accepted and ignored.' ],
+            'name'       => [ 'sanitize_callback' => 'sanitize_text_field', 'type' => 'string', 'description' => 'A new name for the preset.' ],
+            // #2450 — mark/unmark as the surface's default.
+            'is_default' => [ 'type' => 'boolean', 'description' => 'Make this the preset the surface opens with, or stop it being so.' ],
+            'filters'    => [ 'type' => 'object', 'description' => 'Replace the remembered filter values. Omitted leaves them as they were.' ],
+        ];
     }
 
     /**
@@ -120,6 +145,10 @@ final class SavedViewsRestController extends BaseController {
 
     /** #2448 — persist the current filter set under a name. */
     public static function saveView( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::saveArgs() );
+        if ( $refused !== null ) return $refused;
+
         $view_key = self::viewKey( $req );
         if ( $view_key === '' ) {
             return RestResponse::error( 'missing_view_key', __( 'No view key supplied.', 'talenttrack' ), 400 );
@@ -164,6 +193,10 @@ final class SavedViewsRestController extends BaseController {
      * my current filters" a single call that keeps the name.
      */
     public static function updateView( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id   = (int) $req->get_param( 'id' );
         $uid  = get_current_user_id();
         $repo = new SavedViewsRepository();

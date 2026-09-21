@@ -34,6 +34,7 @@ class SeasonRolloverRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'plan' ],
                 'permission_callback' => self::permCan( self::CAP ),
+                'args'                => self::planArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/season-rollover/execute', [
@@ -41,11 +42,47 @@ class SeasonRolloverRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'execute' ],
                 'permission_callback' => self::permCan( self::CAP ),
+                'args'                => self::executeArgs(),
             ],
         ] );
     }
 
+    /**
+     * #3819 — the body `POST /season-rollover/plan` takes. The plan writes
+     * nothing; it answers what the execute would do.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 describing how a rollover is shaped
+     * rather than the 403 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function planArgs(): array {
+        return [
+            'mapping'        => [ 'type' => 'object', 'description' => 'Which team each team\'s players move to, keyed by the team they are in now.' ],
+            'selections'     => [ 'type' => 'object', 'description' => 'Which players move, per team. A team left out moves in full.' ],
+            'effective_date' => [ 'type' => 'string', 'description' => 'The day the moves take effect, as YYYY-MM-DD.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `POST /season-rollover/execute` takes the plan's body plus
+     * the reason the moves are recorded under.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function executeArgs(): array {
+        return self::planArgs() + [
+            'reason' => [ 'type' => 'string', 'description' => 'Why the rollover happened. Recorded against every player who moves.' ],
+        ];
+    }
+
     public static function plan( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::planArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body = (array) $r->get_json_params();
         $plan = ( new SeasonRolloverService() )->plan(
             self::extractMapping( $body['mapping'] ?? null ),
@@ -56,6 +93,10 @@ class SeasonRolloverRestController extends BaseController {
     }
 
     public static function execute( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $r, self::executeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body   = (array) $r->get_json_params();
         $result = ( new SeasonRolloverService() )->execute(
             self::extractMapping( $body['mapping'] ?? null ),

@@ -233,6 +233,7 @@ class ConfigRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'save_config' ],
                 'permission_callback' => function () { return self::userHasAnyAreaCap( 'edit' ); },
+                'args'                => self::saveArgs(),
             ],
         ] );
     }
@@ -246,7 +247,36 @@ class ConfigRestController {
         return RestResponse::success( $out );
     }
 
+    /**
+     * #3819 — the body `POST /config` takes: one object holding the
+     * settings to write, keyed by setting.
+     *
+     * The keys **inside** `config` stay checked where they already are.
+     * `ALLOWED_KEYS` is the security boundary and each key carries its own
+     * capability, so a caller who may edit one area and not another gets a
+     * per-key answer in `keys_skipped` rather than a wholesale refusal.
+     * Flattening that list into `args` would move a per-key permission
+     * decision into a shape check, which is the wrong place for it.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, so it would answer an unauthorised POST with a
+     * 400 rather than the 403 it is owed. `save_config()` answers
+     * `bad_payload` itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function saveArgs(): array {
+        return [ 'config' => [
+            'type'        => 'object',
+            'description' => 'The settings to write, keyed by setting. A key outside the allow-list is ignored; a key the caller may not edit comes back in keys_skipped.',
+        ] ];
+    }
+
     public static function save_config( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::saveArgs() );
+        if ( $refused !== null ) return $refused;
+
         $payload = $r->get_param( 'config' );
         if ( ! is_array( $payload ) ) {
             return RestResponse::error( 'bad_payload', __( 'Expected an object under `config`.', 'talenttrack' ), 400 );

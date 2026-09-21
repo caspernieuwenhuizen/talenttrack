@@ -50,10 +50,12 @@ final class PlayerStatusRestController {
             'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
                 \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailable()
                 && AuthorizationService::canEditPlayer( get_current_user_id(), (int) $r['id'] ),
+            'args'                => self::behaviourArgs(),
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/potential', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'setPotential' ],
+            'args'                => self::potentialArgs(),
             // #3243 — feature flag AND capability, the pair
             // `behaviour-ratings` above already asks. A write path left on
             // the capability alone is how a switched-off feature keeps
@@ -134,7 +136,57 @@ final class PlayerStatusRestController {
         ] );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /*
+     * Neither route declares anything `required`. Core checks required
+     * params in `has_valid_params()`, which runs before the permission
+     * callback — and both gates here are what stop a capability holder
+     * writing a judgement onto a child who is not theirs (#3154). A
+     * required field would answer that caller with a 400 naming the
+     * fields rather than the 403 the gate owes them.
+     *
+     * The time of the rating is stamped by the route, never read from the
+     * body: a judgement about a child is dated when it was made.
+     */
+
+    /**
+     * `POST /players/{id}/behaviour-ratings`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function behaviourArgs(): array {
+        return [
+            'id'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'rating'              => [ 'type' => [ 'number', 'integer', 'string' ], 'description' => 'The mark, within the club\'s configured rating range.' ],
+            'context'             => [ 'type' => 'string', 'description' => 'What the mark was given for.' ],
+            'notes'               => [ 'type' => 'string', 'description' => 'What was seen.' ],
+            'related_activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity it was observed at, when there is one.' ],
+        ];
+    }
+
+    /**
+     * `POST /players/{id}/potential`.
+     *
+     * No `enum` on `potential_band`: `setPotential()` answers `bad_input`
+     * with the allowed set in `details.allowed`, which is a better answer
+     * than core's, and moving the check into core would drop it.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function potentialArgs(): array {
+        return [
+            'id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'potential_band' => [ 'type' => 'string', 'description' => 'How far the academy thinks this player can go.' ],
+            'notes'          => [ 'type' => 'string', 'description' => 'What the judgement rests on.' ],
+        ];
+    }
+
     public static function createBehaviourRating( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::behaviourArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int) $r['id'];
         $rating    = isset( $r['rating'] ) ? (float) $r['rating'] : 0.0;
         // v3.110.116 — was hardcoded 1.0–5.0. Reads the configured
@@ -173,6 +225,10 @@ final class PlayerStatusRestController {
     }
 
     public static function setPotential( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::potentialArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int) $r['id'];
         $band      = isset( $r['potential_band'] ) ? sanitize_key( (string) $r['potential_band'] ) : '';
         $notes     = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;

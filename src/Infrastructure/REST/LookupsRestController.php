@@ -77,8 +77,26 @@ final class LookupsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'previewTranslations' ],
                 'permission_callback' => self::permCan( 'tt_edit_settings' ),
+                'args'                => self::previewArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `POST /translations/preview` takes.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, and every preview is a billed call to a
+     * translation engine — the refusal belongs behind the capability gate,
+     * where `previewTranslations()` already answers `empty`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function previewArgs(): array {
+        return [
+            'text'        => [ 'type' => 'string', 'description' => 'The label to translate.' ],
+            'source_lang' => [ 'type' => 'string', 'description' => 'What language it is written in, as a two-letter code. Omitted takes the site\'s locale.' ],
+        ];
     }
 
     /**
@@ -94,6 +112,10 @@ final class LookupsRestController extends BaseController {
      * — that's the caller's job after the admin approves.
      */
     public static function previewTranslations( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::previewArgs() );
+        if ( $refused !== null ) return $refused;
+
         $body = $req->get_json_params();
         if ( ! is_array( $body ) ) $body = [];
         $text        = trim( (string) ( $body['text'] ?? '' ) );
