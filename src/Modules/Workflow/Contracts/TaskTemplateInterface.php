@@ -36,6 +36,23 @@ interface TaskTemplateInterface {
     public function featureKey(): ?string;
 
     /**
+     * The capability a user must hold to act on a task of this template,
+     * on top of being its assignee. Null (the default) means assignment
+     * alone decides, which is true of most templates.
+     *
+     * A template that names one is saying the authority to finish this
+     * task is a property of the person, not of who the resolver happened
+     * to address it to. The pipeline's invite pair is the case: the task
+     * is addressed to whoever holds the head-of-development role, but
+     * the decision to invite a child to the academy belongs to somebody
+     * carrying `tt_invite_prospects`, and those two can come apart.
+     *
+     * Resolved through the capability layer (`userCanOrMatrix`), never
+     * against a role name — see CLAUDE.md §4.
+     */
+    public function requiredCapability(): ?string;
+
+    /**
      * Human-readable name for the template library / config UI.
      * Translatable via __() at the call site.
      */
