@@ -66,6 +66,7 @@ final class ActivityExercisesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'append' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_edit_activities' ),
+                'args'                => self::appendArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/exercises/replace', [
@@ -73,6 +74,7 @@ final class ActivityExercisesRestController {
                 'methods'             => 'POST',
                 'callback'            => self::gate( [ __CLASS__, 'replace' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_edit_activities' ),
+                'args'                => self::replaceArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/activities/(?P<activity_id>\d+)/exercises/(?P<id>\d+)', [
@@ -80,6 +82,7 @@ final class ActivityExercisesRestController {
                 'methods'             => 'PUT',
                 'callback'            => self::gate( [ __CLASS__, 'update' ] ),
                 'permission_callback' => static fn() => current_user_can( 'tt_edit_activities' ),
+                'args'                => self::updateArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -108,7 +111,64 @@ final class ActivityExercisesRestController {
         return RestResponse::success( [ 'items' => array_map( [ __CLASS__, 'serialize' ], $rows ) ] );
     }
 
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * `POST /activities/{activity_id}/exercises` — link one exercise.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthorised POST with a 400 rather than the 403 it is owed.
+     * `append()` names the exercise itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function appendArgs(): array {
+        return [
+            'activity_id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.' ],
+            'exercise_id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which exercise from the library to link.' ],
+            'actual_duration_minutes' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How long it actually ran for.' ],
+            'notes'                   => [ 'type' => [ 'string', 'null' ], 'description' => 'What to remember about running it here.' ],
+            'is_draft'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the link is still being worked on.' ],
+        ];
+    }
+
+    /**
+     * `POST /activities/{activity_id}/exercises/replace` — the whole list
+     * at once, in order.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function replaceArgs(): array {
+        return [
+            'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.' ],
+            'exercises'   => [ 'type' => 'array', 'description' => 'The exercises in the order they run, each as {exercise_id, actual_duration_minutes, notes, is_draft}. Replaces the whole list; a row with no exercise_id is dropped.' ],
+        ];
+    }
+
+    /**
+     * `PUT /activities/{activity_id}/exercises/{id}` — one link. Every
+     * field is optional and an omitted one is left alone (CLAUDE.md §6);
+     * a body with none of them answers `no_changes`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [
+            'activity_id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.' ],
+            'id'                      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The link, from the URL. A copy in the body is accepted and ignored.' ],
+            'order_index'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'Where the exercise sits in the running order.' ],
+            'actual_duration_minutes' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How long it actually ran for.' ],
+            'notes'                   => [ 'type' => [ 'string', 'null' ], 'description' => 'What to remember about running it here.' ],
+            'is_draft'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the link is still being worked on.' ],
+        ];
+    }
+
     public static function append( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::appendArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         $body        = $r->get_json_params();
         if ( ! is_array( $body ) ) $body = [];
@@ -132,6 +192,10 @@ final class ActivityExercisesRestController {
     }
 
     public static function update( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id   = absint( $r['id'] );
         $body = $r->get_json_params();
         if ( ! is_array( $body ) ) $body = [];
@@ -160,6 +224,10 @@ final class ActivityExercisesRestController {
     }
 
     public static function replace( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::replaceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $activity_id = absint( $r['activity_id'] );
         $body        = $r->get_json_params();
         $rows        = is_array( $body['exercises'] ?? null ) ? $body['exercises'] : [];
