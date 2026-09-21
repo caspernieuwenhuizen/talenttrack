@@ -469,9 +469,10 @@ class CoachForms {
         $meta  = [];
         if ( $player !== null ) {
             $team_id = (int) ( $player->team_id ?? 0 );
-            $team    = $team_id > 0 ? QueryHelpers::get_team( $team_id ) : null;
-            if ( $team !== null && (string) ( $team->name ?? '' ) !== '' ) {
-                $meta[] = (string) $team->name;
+            $team    = $team_id > 0 ? (array) QueryHelpers::get_team( $team_id ) : [];
+            $team_name = (string) ( $team['name'] ?? '' );
+            if ( $team_name !== '' ) {
+                $meta[] = $team_name;
             }
             $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
             if ( is_array( $positions ) && isset( $positions[0] ) && (string) $positions[0] !== '' ) {
