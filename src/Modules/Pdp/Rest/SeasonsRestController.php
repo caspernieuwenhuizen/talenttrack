@@ -33,6 +33,7 @@ class SeasonsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::writeArgs(),
             ],
         ] );
         register_rest_route( self::NS, '/seasons/(?P<id>\d+)/current', [
@@ -40,6 +41,7 @@ class SeasonsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'set_current' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
         // #1275 — PATCH /seasons/{id} updates name + dates. Mirrors
@@ -51,6 +53,7 @@ class SeasonsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'update' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::updateArgs(),
             ],
             // #1481 — DELETE is guarded: the current season and any
             // season with linked PDP / staff-dev / VCT records can't be
@@ -87,7 +90,57 @@ class SeasonsRestController {
         ] );
     }
 
+    /**
+     * #3819 — the body a season create or update takes.
+     *
+     * Nothing is declared `required`, although all three fields are:
+     * core checks required params before the permission callback, so a
+     * required key would answer an unauthorised write with a 400 rather
+     * than the 403 it is owed. `create()` and `update()` name all three
+     * themselves, behind the capability gate.
+     *
+     * The update rebuilds the row from these three rather than patching
+     * it: a body that leaves one out is refused with `missing_fields`
+     * rather than leaving the stored value alone. That is the route's
+     * long-standing behaviour and the edit form always posts all three.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'name'       => [ 'type' => 'string', 'description' => 'What the season is called, e.g. 2026/2027.' ],
+            'start_date' => [ 'type' => 'string', 'description' => 'The first day of the season, as YYYY-MM-DD.' ],
+            'end_date'   => [ 'type' => 'string', 'description' => 'The last day of the season, as YYYY-MM-DD. Must be after the start.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `PATCH /seasons/{id}` on top of `writeArgs()`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return self::idOnlyArgs() + self::writeArgs();
+    }
+
+    /**
+     * #3819 — `PATCH /seasons/{id}/current` acts on the season in the URL
+     * and takes no body of its own.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idOnlyArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The season, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $name  = sanitize_text_field( (string) ( $r['name'] ?? '' ) );
         $start = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) );
         $end   = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) );
@@ -115,6 +168,10 @@ class SeasonsRestController {
     }
 
     public static function update( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid season id.', 'talenttrack' ), 400 );
@@ -177,6 +234,10 @@ class SeasonsRestController {
     }
 
     public static function set_current( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid season id.', 'talenttrack' ), 400 );

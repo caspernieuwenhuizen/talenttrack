@@ -40,6 +40,7 @@ class PdpFilesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::createArgs(),
             ],
         ] );
         // #1617 — player-centric coverage list for the PDP setup
@@ -64,6 +65,7 @@ class PdpFilesRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::patchArgs(),
             ],
             // #1274 PR1 — DELETE = soft-archive (mirrors the
             // EvaluationsRestController::delete_eval pattern, also a
@@ -80,6 +82,7 @@ class PdpFilesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore' ],
                 'permission_callback' => [ __CLASS__, 'can_unarchive' ],
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
         // #1274 PR3 — permanent delete with five-table cascade.
@@ -91,8 +94,61 @@ class PdpFilesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'permanent_delete' ],
                 'permission_callback' => [ __CLASS__, 'can_delete' ],
+                'args'                => self::idOnlyArgs(),
             ],
         ] );
+    }
+
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body `POST /pdp-files` takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and this route's gate is what keeps a coach
+     * off a player who is not theirs. `create()` names the player itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'player_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the file is for. A coach without a global PDP grant must own them.' ],
+            'season_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the file covers. Omitted means the current one.' ],
+            'owner_coach_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'Who owns the file. Omitted means the caller.' ],
+            'cycle_size'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'How many conversations the cycle has: 2, 3 or 4. Omitted falls back to the team\'s size, then the club default.' ],
+            'notes'          => [ 'type' => 'string', 'description' => 'Opening notes on the file.' ],
+        ];
+    }
+
+    /**
+     * The body `PATCH /pdp-files/{id}` takes. Both fields are optional and
+     * an omitted one is left alone (CLAUDE.md §6).
+     *
+     * No `enum` on `status`: `setStatus()` answers `bad_status` naming the
+     * three it takes, and moving the check into core would replace that
+     * with `rest_invalid_param`.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function patchArgs(): array {
+        return self::idOnlyArgs() + [
+            'owner_coach_id' => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Who owns the file. Blank or null clears the owner.' ],
+            'status'         => [ 'type' => 'string', 'description' => 'Where the file stands: open, completed or archived.' ],
+        ];
+    }
+
+    /**
+     * The lifecycle actions act on the file in the URL and take no body of
+     * their own. The permanent delete's typed-slug confirmation lives on
+     * the calling surface, not in the payload.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function idOnlyArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The PDP file, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     public static function can_unarchive(): bool {
@@ -701,6 +757,10 @@ class PdpFilesRestController {
      * cycle_size?, notes? }. Creates the file and the conversation cycle.
      */
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::createArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = absint( $r['player_id'] ?? 0 );
         if ( $player_id <= 0 ) {
             return RestResponse::error( 'missing_fields',
@@ -792,6 +852,10 @@ class PdpFilesRestController {
 
     /** PATCH /pdp-files/{id} — owner_coach_id and/or status. */
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::patchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
@@ -869,6 +933,10 @@ class PdpFilesRestController {
      * Cap-gated on `tt_unarchive_pdp` (admin-only by default seed).
      */
     public static function restore( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
@@ -900,6 +968,10 @@ class PdpFilesRestController {
      * calling surface; this endpoint is the primitive.
      */
     public static function permanent_delete( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::idOnlyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );

@@ -33,8 +33,40 @@ class PdpConversationsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_view' ],
+                'args'                => self::patchArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PATCH /pdp-conversations/{id}` takes: the union of
+     * every field any caller may write. Which of them a given caller
+     * actually may write is `allowedFieldsFor()`'s answer, per row and per
+     * relationship to the player — a declaration here is about the shape of
+     * the request, never about who may make it.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and this route's gate is what keeps one
+     * family's conversation away from another. Every field is optional on
+     * the way in too, because the surface autosaves one field at a time and
+     * an omitted one must be left alone (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function patchArgs(): array {
+        return [
+            'id'                      => [ 'type' => [ 'integer', 'string' ], 'description' => 'The conversation, from the URL. A copy in the body is accepted and ignored.' ],
+            'scheduled_at'            => [ 'type' => 'string', 'description' => 'When the talk is planned. The only field a conversation that is not yet the active one accepts.' ],
+            'conducted_at'            => [ 'type' => 'string', 'description' => 'When the talk actually happened.' ],
+            'notes'                   => [ 'type' => 'string', 'description' => 'What was discussed.' ],
+            'agreed_actions'          => [ 'type' => 'string', 'description' => 'What was agreed to happen next.' ],
+            'player_reflection'       => [ 'type' => 'string', 'description' => 'The player\'s own words. A linked player may write this from two weeks before the planned date; a coach at any time.' ],
+            'coach_signoff_at'        => [ 'type' => 'string', 'description' => 'When the coach signed the talk off. Once any signature lands the row is read-only.' ],
+            'parent_ack_at'           => [ 'type' => 'string', 'description' => 'When the parent acknowledged the talk.' ],
+            'player_ack_at'           => [ 'type' => 'string', 'description' => 'When the player acknowledged the talk.' ],
+            'linked_goal_ids'         => [ 'type' => 'array', 'description' => 'The goals this talk was about, as goal ids. Only read when linked_goal_ids_present says so.' ],
+            'linked_goal_ids_present' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Says the body speaks for the goal links, so an empty list clears them instead of reading as "not sent".' ],
+        ];
     }
 
     public static function can_view(): bool {
@@ -51,6 +83,10 @@ class PdpConversationsRestController {
     }
 
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::patchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid conversation id.', 'talenttrack' ), 400 );
