@@ -1481,7 +1481,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $status_label = ! empty( $player->status )
             ? \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status )
             : '';
-        $status_history_url = add_query_arg(
+        $behaviour_potential_url = add_query_arg(
             [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
             RecordLink::dashboardUrl()
         );
@@ -1527,15 +1527,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ];
         }
         if ( $status_label !== '' ) {
-            // #2107 — the status-history link goes to the staff-only
-            // player-status-capture view; only show it to a staff viewer so
-            // a player / parent on their own profile doesn't get a dead link
-            // to a page they can't open.
-            $status_value = esc_html( $status_label );
-            if ( self::viewerIsStaffForPlayer( $player_id ) ) {
-                $status_value .= ' · <a href="' . esc_url( $status_history_url ) . '">' . esc_html__( 'history', 'talenttrack' ) . '</a>';
-            }
-            $identity_rows[] = [ __( 'Status', 'talenttrack' ), $status_value ];
+            // #3966 — no history link here. This row is the administrative
+            // state (active / trial / archived); the link it used to carry
+            // opened the behaviour & potential screen, which is not the
+            // history of anything this row shows.
+            $identity_rows[] = [ __( 'Status', 'talenttrack' ), esc_html( $status_label ) ];
         }
         // #3226 — the band was reachable only by opening the hero popover,
         // so a coach reading the profile could not see the academy's own
@@ -1547,7 +1543,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 $current        = $trajectory[ count( $trajectory ) - 1 ];
                 $potential_value = esc_html( (string) $current['label'] );
                 if ( count( $trajectory ) > 1 ) {
-                    $potential_value .= ' · <a href="' . esc_url( $status_history_url ) . '">'
+                    $potential_value .= ' · <a href="' . esc_url( $behaviour_potential_url ) . '">'
                         . esc_html__( 'history', 'talenttrack' ) . '</a>';
                 }
                 // `_x()` because a bare "Potential" is an adjective as

@@ -59,9 +59,20 @@ Integraties krijgen hetzelfde, maar dan als data: de statusrespons draagt `cover
 
 ## Inputs vastleggen
 
-- **Gedragsobservaties** — de **Gedrag vastleggen**-popover op de hero van het spelersprofiel, of `POST /players/{id}/behaviour-ratings` voor integraties. Een 1-5 score met optionele notitie en gerelateerde activiteit.
-- **Potentieel** — `POST /players/{id}/potential` met een van `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. Standaard alleen voor hoofd opleidingen.
-- **Aanwezigheid + evaluaties** — al vastgelegd via de bestaande flows; de calculator leest ze direct.
+Gedrag en potentieel leg je op deze plekken vast:
+
+| Waar | Gedrag | Potentieel |
+| --- | --- | --- |
+| **Spelersprofiel** — de knoppen **+ Gedrag vastleggen** en **Potentieel instellen** bovenaan de pagina | ja | ja |
+| Scherm **Gedrag & potentieel** — beide formulieren met de geschiedenis eronder. Je opent het via de link **geschiedenis** bij de regel **Potentieel** op het profiel, of via *Bekijk alle gedragsbeoordelingen* in het formulier Gedrag vastleggen | ja | ja |
+| **Teampagina → Selectie → Gedrag in bulk vastleggen** — de hele selectie op één scherm | ja | — |
+| **Nieuwe evaluatie → 1 speler evalueren → Gedrag vandaag** — een optionele stap na de prestatiebeoordeling | ja | — |
+
+Een gedragsbeoordeling is een score op de eigen beoordelingsschaal van je academie (**Configuratie → Beoordelingsschaal**), met een optionele notitie en een gerelateerde activiteit. Een potentieelband is een van Eerste team, Profvoetbal elders, Semi-prof, Top amateur of Basis.
+
+Aanwezigheid en evaluaties worden via hun eigen flows vastgelegd; de calculator leest ze direct.
+
+Koppelingen schrijven dezelfde gegevens via `POST /players/{id}/behaviour-ratings` en `POST /players/{id}/potential` (bandsleutels `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`).
 
 Beide formulieren vertellen nu zelf waar ze om vragen, op het scherm in plaats van in dit document.
 
@@ -73,7 +84,7 @@ Het potentieelformulier vraagt hoe hoog je denkt dat de speler **op zijn top** k
 
 De klassen beschrijven hoe ver een speler **als prof** zou kunnen komen. Dat is een eerlijke vraag aan een trainer over een tiener en een gok over een kind, dus TalentTrack stelt hem niet onder de 13 jaar.
 
-Bij een jongere speler zegt de kaart **Potentieel bepalen** dat, in plaats van de klassen aan te bieden, en de API weigert een schrijfactie met dezelfde reden. Gedragsbeoordelingen blijven op elke leeftijd gewoon werken — hoe een kind traint, luistert en met ploeggenoten omgaat, is op zijn zevende prima vast te leggen.
+Bij een jongere speler zegt de kaart **Potentieel instellen** dat, in plaats van de klassen aan te bieden, en de API weigert een schrijfactie met dezelfde reden. Gedragsbeoordelingen blijven op elke leeftijd gewoon werken — hoe een kind traint, luistert en met ploeggenoten omgaat, is op zijn zevende prima vast te leggen.
 
 Drie dingen volgen hieruit die het waard zijn om te weten:
 
@@ -103,7 +114,7 @@ De richting staat er in woorden bij, niet alleen als pijl en kleur, zodat het ne
 
 Bij één regel krijg je geen verloop te zien — er ís nog geen verloop, en de huidige band erboven vertelt dan alles.
 
-Op het spelersprofiel staat de huidige band als regel **Potentieel**, met een link **geschiedenis** naar dit scherm zodra er meer dan één regel is. Net als bij de statusgeschiedenis zien alleen stafleden die link: een speler of ouder op het eigen profiel krijgt geen link naar een scherm dat diegene niet kan openen.
+Op het spelersprofiel staat de huidige band als regel **Potentieel**, met een link **geschiedenis** naar dit scherm zodra er meer dan één regel is. Alleen stafleden zien die link: een speler of ouder op het eigen profiel krijgt geen link naar een scherm dat diegene niet kan openen.
 
 Twee keer naar beneden bijstellen in één seizoen is waar dit voor bedoeld is. Dat is een sterk signaal over de ontwikkeling, het stond altijd al in de gegevens, en tot nu toe zag niemand het zonder het OP erbij te pakken.
 
@@ -121,7 +132,7 @@ Niet elke academie werkt zo, en je hoeft geen van beide te gebruiken. Er zijn **
 
 Drie dingen om te weten voordat je iets omzet:
 
-- **Het scherm wordt een geschiedenis.** Zodra er niets meer kan worden vastgelegd — de academie heeft beide helften uitgezet, of jij hebt zelf geen van beide rechten — laat het scherm **Gedrag & potentieel** de formulieren weg en toont het wat er is vastgelegd: de recente gedragsbeoordelingen, de huidige band en het verloop daarachter. Het zegt in één regel dat hier niets wordt vastgelegd, en laat daarna zien wat er wél is vastgelegd. Hier komen de twee links **geschiedenis** op het spelersprofiel uit, zodat een trainer die het dossier van een speler mag lezen maar er niets in mag vastleggen bij het dossier uitkomt in plaats van op een lege pagina. Wie het dossier helemaal niet mag lezen, krijgt alleen die ene regel.
+- **Het scherm wordt een geschiedenis.** Zodra er niets meer kan worden vastgelegd — de academie heeft beide helften uitgezet, of jij hebt zelf geen van beide rechten — laat het scherm **Gedrag & potentieel** de formulieren weg en toont het wat er is vastgelegd: de recente gedragsbeoordelingen, de huidige band en het verloop daarachter. Het zegt in één regel dat hier niets wordt vastgelegd, en laat daarna zien wat er wél is vastgelegd. Hier komt de link **geschiedenis** op het spelersprofiel uit, zodat een trainer die het dossier van een speler mag lezen maar er niets in mag vastleggen bij het dossier uitkomt in plaats van op een lege pagina. Wie het dossier helemaal niet mag lezen, krijgt alleen die ene regel.
 - **Wat al is vastgelegd blijft altijd bewaard.** Invoer uitzetten verwijdert of verbergt niets: de band op een profiel, het verloop van het potentieel en elke gedragsbeoordeling blijven gewoon leesbaar zoals ze waren, en verschijnen weer in de formulieren zodra je het terugzet. Uit betekent *vraag ons hier niet meer om*, niet *verberg wat we al hebben bepaald*.
 - **Invoer uitzetten zet ook de herinnering over potentieel stil**, dus je hoeft het meldingenscherm er niet bij te zoeken. Het haalt de input **niet** uit het stoplicht — dat is een aparte keuze, want een academie kan willen stoppen met nieuwe bands vastleggen terwijl de laatste nog wel meetelt.
 

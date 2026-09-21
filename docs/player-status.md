@@ -59,9 +59,20 @@ Integrations get the same thing as data rather than as a shape: the status paylo
 
 ## Capturing the inputs
 
-- **Behaviour ratings** — the **Log behaviour** popover on the player profile hero, or `POST /players/{id}/behaviour-ratings` for integrations. A 1-5 score with optional notes and a related activity.
-- **Potential** — `POST /players/{id}/potential` with one of `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. HoD-only by default.
-- **Attendance + ratings** — already captured by the existing flows; the calculator reads them directly.
+Behaviour and potential are recorded in these places:
+
+| Where | Behaviour | Potential |
+| --- | --- | --- |
+| **Player profile** — the **+ Log behaviour** and **Set potential** buttons at the top of the page | yes | yes |
+| **Behaviour & potential** screen — both forms with the history beneath them. Open it from the **history** link on the profile's **Potential** row, or from *View all behaviour ratings* in the Log behaviour form | yes | yes |
+| **Team page → Roster → Bulk-record behaviour** — the whole squad on one screen | yes | — |
+| **New evaluation → Evaluate 1 player → Behaviour today** — an optional step after the performance rating | yes | — |
+
+A behaviour rating is a score on your academy's own rating scale (**Configuration → Rating scale**), with optional notes and a related activity. A potential band is one of First team, Professional elsewhere, Semi-pro, Top amateur or Foundation.
+
+Attendance and evaluation ratings are captured by their own flows; the calculator reads them directly.
+
+Integrations write the same records through `POST /players/{id}/behaviour-ratings` and `POST /players/{id}/potential` (band keys `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`).
 
 Both forms now say what they are asking for, on the screen rather than in this document.
 
@@ -103,7 +114,7 @@ The direction is written in words as well as shown with an arrow and a colour, s
 
 A player with one entry gets no history section — there is no trajectory yet, and the current band above already says everything there is to say.
 
-The player profile shows the current band as a **Potential** row, with a **history** link to this screen when there is more than one entry. Like the status history link, it is shown to staff only — a player or parent on their own profile does not get a link to a screen they cannot open.
+The player profile shows the current band as a **Potential** row, with a **history** link to this screen when there is more than one entry. It is shown to staff only — a player or parent on their own profile does not get a link to a screen they cannot open.
 
 Two downward revisions in a season is the case this exists for. It is a strong development signal, it was always in the data, and until now nobody could see it without opening the PDP.
 
@@ -121,7 +132,7 @@ Not every academy works this way, and neither has to be used. There are **three*
 
 Three things worth knowing before you flip anything:
 
-- **The screen becomes a history.** When nothing may be captured — the academy switched both halves off, or you personally hold neither capability — the **Behaviour & potential** screen drops the forms and shows what is on record instead: the recent behaviour ratings, the current band, and the trajectory behind it. It says in one line that nothing is being recorded here, and then shows what was. This is where the profile's two **history** links land, so a coach who may read a player's file but not record against it follows them to the record rather than to an empty page. A viewer who may not read the player's file at all still gets the line and nothing else.
+- **The screen becomes a history.** When nothing may be captured — the academy switched both halves off, or you personally hold neither capability — the **Behaviour & potential** screen drops the forms and shows what is on record instead: the recent behaviour ratings, the current band, and the trajectory behind it. It says in one line that nothing is being recorded here, and then shows what was. This is where the profile's **history** link lands, so a coach who may read a player's file but not record against it follows them to the record rather than to an empty page. A viewer who may not read the player's file at all still gets the line and nothing else.
 - **Existing records are always kept.** Switching capture off does not delete or hide anything: the band on a profile, the potential trajectory and every behaviour rating stay readable exactly as they were, and reappear in the forms if you switch it back on. Off means *stop asking us for this*, not *hide what we already decided*.
 - **Switching off capture also silences the potential reminder**, so you do not have to find the alert screen as well. It does **not** remove the input from the traffic light — that is a separate decision, because an academy might stop recording new bands while still wanting the last one to count.
 
