@@ -282,6 +282,11 @@ final class PlayerReportTest extends WP_UnitTestCase {
     }
 
     private function journeyEvent( string $summary, string $visibility ): void {
+        // The table's natural key includes the source entity id, so each
+        // event needs its own or the second insert is refused as a duplicate.
+        static $source_id = 0;
+        $source_id++;
+
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_player_events", [
             'club_id'            => CurrentClub::id(),
@@ -293,7 +298,7 @@ final class PlayerReportTest extends WP_UnitTestCase {
             'visibility'         => $visibility,
             'source_module'      => 'tests',
             'source_entity_type' => 'test_event',
-            'source_entity_id'   => 1,
+            'source_entity_id'   => $source_id,
         ] );
         $this->assertGreaterThan( 0, (int) $wpdb->insert_id, 'the fixture wrote' );
     }
