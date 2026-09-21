@@ -65630,6 +65630,30 @@ msgstr "De PDF kon deze keer niet worden gemaakt. De planning probeert het de vo
 msgid "Exports cover the teams you work with, and your account is not linked to one."
 msgstr "Exports bevatten de teams waarmee je werkt, en je account is aan geen enkel team gekoppeld."
 
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report tests column"
+msgid "Score"
+msgstr "Score"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them. Drag a section, or use its arrows, to change the order it is shown and printed in."
+msgstr "Het rapport opent met de onderdelen die een individueel gesprek nodig heeft. Vink meer aan als het gesprek erom vraagt. Sleep een onderdeel, of gebruik de pijltjes, om de volgorde te veranderen waarin het wordt getoond en afgedrukt."
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "Move %s up"
+msgstr "%s omhoog"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+#, php-format
+msgid "Move %s down"
+msgstr "%s omlaag"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+#, php-format
+msgid "against %s"
+msgstr "tegen %s"
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

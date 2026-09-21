@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.131.1
+Stable tag: 4.131.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.131.2 — Player report: category names translated, test scores, notes printed in full (#3957) On a Dutch install the evaluation categories in the player report showed in English (Technical, Tactical …). They now use the category's translated name, as the evaluation form does. The fix is in the shared evidence data, so the development plan's Evidence tab and printed file show the translated name too.  The report's tests table has a **Score** column. For each reading it shows whether the result is on target for the player's age group, below it or well below it, in the same words the Test results report uses. A test recorded as a level shows that level in its colour.  The PDF no longer cuts notes off with "…". Evaluation notes, journey entries, staff notes, injury and behaviour notes, talking points and agreed actions print in full, over as many lines as they need, and the page count shown before printing includes those lines. =
+
+= 4.131.2 — Player report: put the sections in your own order (#3962) The sections of the player report can now be put in the order a conversation goes. Drag a ticked section to its place, or use its up and down arrows, which also work on a phone and from the keyboard. The report on screen and the printed PDF follow that order, and a saved view, a monthly schedule and a snapshot keep it. The header always stays first. Attendance and playing time still print side by side, as long as they are next to each other. =
+
+= 4.131.2 — Player report: journey entries say which activity they were about (#3963) In the player report's **Journey** section, a comment from a match analysis and an evaluation made for a training or match now name that activity: its type, the opponent (or its title) and the date, for example "Wedstrijd · tegen Willem II · 12 september 2026". On screen it links to the activity for staff who can open activities; the PDF prints it after the entry, and the page count includes it. =
 
 = 4.131.1 — Exports follow the teams you work with (#3644) The bulk exports — the players list, the federation registration file, team roster statistics, both evaluation exports, the goals list and the attendance register — now cover the teams the person exporting works with, rather than the whole academy.  An administrator, a club admin and a head of development still export every team. A coach, assistant coach or team manager exports their own squads, and choosing another team's squad is refused. An account that does not work with a squad is told so, rather than receiving an empty file, and these exports are no longer offered to it.  The per-player PDF exports, and a player's own activity detail, follow the same rule as the rest of the player's record: they open for players you can already see, and read as "not found" otherwise. Opening an evaluation you cannot see now also reads as "not found". =
 

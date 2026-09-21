@@ -1,4 +1,0 @@
-#: src/Modules/Analytics/Reports/PlayerReport.php
-#, php-format
-msgid "against %s"
-msgstr "tegen %s"
