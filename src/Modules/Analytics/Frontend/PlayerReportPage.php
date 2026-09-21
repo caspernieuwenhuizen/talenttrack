@@ -178,6 +178,14 @@ final class PlayerReportPage {
             [ 'tt-frontend-team-monthly-report', 'tt-frontend-pdp-evidence' ],
             TT_VERSION
         );
+        // Dragging sections into order; the Move links work without it.
+        wp_enqueue_script(
+            'tt-frontend-player-report-order',
+            TT_PLUGIN_URL . 'assets/js/frontend-player-report-order.js',
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     /* ---------------------------------------------------------------
@@ -248,15 +256,32 @@ final class PlayerReportPage {
 
         echo '<fieldset class="tt-mr-panel__group">';
         echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Sections', 'player report panel', 'talenttrack' ) . '</legend>';
-        echo '<div class="tt-mr-blocks">';
         $offered = $audience === \TT\Modules\Analytics\Reports\PlayerReportAudience::SCOUT
             ? \TT\Modules\Analytics\Reports\PlayerReportAudience::SCOUT_BLOCKS
             : PlayerReportBlock::ALL;
-        foreach ( $offered as $key ) {
+
+        // #3962 — the rows stand in the report's order: the letterhead, the
+        // chosen sections as the coach arranged them, then the rest in print
+        // order. The form submits `blk[]` in page order, so the order a coach
+        // drags into is the order that comes back.
+        $chosen = array_values( array_filter( $selected, static fn( string $k ): bool => $k !== PlayerReportBlock::LETTERHEAD && in_array( $k, $offered, true ) ) );
+        $rows   = array_merge(
+            [ PlayerReportBlock::LETTERHEAD ],
+            $chosen,
+            array_values( array_filter( $offered, static fn( string $k ): bool => $k !== PlayerReportBlock::LETTERHEAD && ! in_array( $k, $chosen, true ) ) )
+        );
+
+        echo '<div class="tt-mr-blocks" data-tt-pr-order>';
+        foreach ( $rows as $key ) {
             $id     = 'tt-pr-blk-' . $key;
             $locked = $key === PlayerReportBlock::LETTERHEAD;
-            $on     = in_array( $key, $selected, true );
+            $pos    = array_search( $key, $chosen, true );
+            $on     = $pos !== false;
 
+            echo '<div class="tt-pr-order__row' . ( $on ? ' is-on' : '' ) . '" data-tt-pr-row="' . esc_attr( $key ) . '"' . ( $on ? ' draggable="true"' : '' ) . '>';
+            if ( $on ) {
+                echo '<span class="tt-pr-order__handle" aria-hidden="true">&#8942;&#8942;</span>';
+            }
             echo '<label class="tt-mr-block' . ( $locked ? ' is-locked' : '' ) . '" for="' . esc_attr( $id ) . '">';
             echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="blk[]" value="' . esc_attr( $key ) . '"'
                 . checked( $on || $locked, true, false )
@@ -269,9 +294,13 @@ final class PlayerReportPage {
             echo '<span class="tt-mr-block__t">' . esc_html( $labels[ $key ]['title'] ) . '</span>';
             echo '<span class="tt-mr-block__n">' . esc_html( $labels[ $key ]['note'] ) . '</span>';
             echo '</label>';
+            if ( $on ) {
+                self::renderMoves( $key, (int) $pos, $chosen, $labels[ $key ]['title'] );
+            }
+            echo '</div>';
         }
         echo '</div>';
-        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The report opens on the sections a one-to-one conversation needs. Tick more when the conversation needs them. Drag a section, or use its arrows, to change the order it is shown and printed in.', 'talenttrack' ) . '</p>';
         echo '</fieldset>';
 
         self::renderFitMeter( $fit );
@@ -285,6 +314,38 @@ final class PlayerReportPage {
         }
         echo '</div>';
         echo '</form>';
+    }
+
+    /**
+     * #3962 — Move up / Move down for one chosen section. Plain links to the
+     * report with the order already changed, so they work without the script,
+     * reloading them does not move anything twice, and a phone, where dragging
+     * does not work, has a way to reorder too. The end of the list gets an
+     * inert placeholder rather than a link that would do nothing.
+     *
+     * @param list<string> $chosen the chosen sections after the letterhead, in order
+     */
+    private static function renderMoves( string $key, int $pos, array $chosen, string $title ): void {
+        echo '<span class="tt-pr-order__moves">';
+        foreach ( [ 'up' => -1, 'down' => 1 ] as $dir => $step ) {
+            $to    = $pos + $step;
+            $glyph = $dir === 'up' ? '&#8593;' : '&#8595;';
+            $label = $dir === 'up'
+                /* translators: %s: a report section, e.g. "Tests" */
+                ? sprintf( __( 'Move %s up', 'talenttrack' ), $title )
+                /* translators: %s: a report section, e.g. "Tests" */
+                : sprintf( __( 'Move %s down', 'talenttrack' ), $title );
+            if ( $to < 0 || $to >= count( $chosen ) ) {
+                echo '<span class="tt-pr-order__move is-end" aria-hidden="true">' . $glyph . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- a fixed entity.
+                continue;
+            }
+            $order         = $chosen;
+            $order[ $pos ] = $chosen[ $to ];
+            $order[ $to ]  = $key;
+            $url           = add_query_arg( 'blocks', implode( ',', array_merge( [ PlayerReportBlock::LETTERHEAD ], $order ) ), remove_query_arg( [ 'blk', 'blocks' ] ) );
+            echo '<a class="tt-pr-order__move" href="' . esc_url( $url ) . '" aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '" data-tt-pr-move="' . esc_attr( $dir ) . '">' . $glyph . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the glyph is a fixed entity.
+        }
+        echo '</span>';
     }
 
     /**

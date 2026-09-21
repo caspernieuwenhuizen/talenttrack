@@ -206,21 +206,24 @@ final class PlayerReportLayout {
 
     /**
      * The printed height. Attendance and playing time print side by side when
-     * both are in, so the pair costs the taller of the two.
+     * they stand next to each other, so the pair costs the taller of the two.
+     * The data is keyed in the report's order, which is the printed order.
      *
      * @param array<string,array<string,mixed>> $data
      */
     private static function height( array $data ): float {
-        $paired = isset( $data[ PlayerReportBlock::ATTENDANCE ], $data[ PlayerReportBlock::MINUTES ] );
+        $paired = PlayerReportBlock::pairsAttendance( array_map( 'strval', array_keys( $data ) ) );
+        $done   = false;
 
         $mm = 0.0;
         foreach ( $data as $block => $d ) {
             $block = (string) $block;
-            if ( $paired && $block === PlayerReportBlock::MINUTES ) continue;
-            if ( $paired && $block === PlayerReportBlock::ATTENDANCE ) {
-                $mm += max(
-                    self::blockHeight( $block, $d ),
-                    self::blockHeight( PlayerReportBlock::MINUTES, $data[ PlayerReportBlock::MINUTES ] )
+            if ( $paired && ( $block === PlayerReportBlock::ATTENDANCE || $block === PlayerReportBlock::MINUTES ) ) {
+                if ( $done ) continue;
+                $done = true;
+                $mm  += max(
+                    self::blockHeight( PlayerReportBlock::ATTENDANCE, $data[ PlayerReportBlock::ATTENDANCE ] ?? [] ),
+                    self::blockHeight( PlayerReportBlock::MINUTES, $data[ PlayerReportBlock::MINUTES ] ?? [] )
                 );
                 continue;
             }

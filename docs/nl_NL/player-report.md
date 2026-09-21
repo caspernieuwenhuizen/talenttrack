@@ -53,6 +53,13 @@ Vink meer onderdelen aan als het gesprek erom vraagt: **Per wedstrijd**,
 **Stafnotities**. Het rapport past zich meteen aan, en het adres in je browser
 verandert mee, zodat een collega die de link opent hetzelfde rapport ziet.
 
+Zet de onderdelen in de volgorde van je gesprek: sleep een aangevinkt onderdeel
+naar zijn plek, of gebruik de pijltjes omhoog en omlaag (op een telefoon gaat het
+met de pijltjes). Het rapport op het scherm en de afdruk volgen die volgorde, en
+een opgeslagen weergave, een maandelijkse planning en een momentopname bewaren
+hem. De kop staat altijd bovenaan. Aanwezigheid en speeltijd staan op papier
+naast elkaar als ze naast elkaar in de volgorde staan.
+
 Een speler die nog geen ontwikkelplan heeft, krijgt toch een volledig rapport.
 Het onderdeel ontwikkelplan zegt dan dat er nog geen dossier is, in plaats van
 te verdwijnen.
