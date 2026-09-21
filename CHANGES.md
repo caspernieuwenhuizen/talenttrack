@@ -1,3 +1,17 @@
+# TalentTrack v4.132.0 — The Status row no longer links to behaviour & potential (#3966)
+
+The **Status** row on a player's profile shows the administrative state (active, trial, archived). Its **history** link used to open the behaviour & potential screen instead, which was not the history of anything that row shows. The link is gone. The new Behaviour & potential card links to that screen instead.
+
+The Player status help topic now lists every place behaviour and potential are recorded: the profile buttons, the Behaviour & potential screen, the team's bulk behaviour grid and the evaluation wizard's Behaviour today step, with the REST routes last. It also stops calling behaviour a 1-5 score; it is scored on the academy's own rating scale.
+
+# TalentTrack v4.132.0 — Behaviour & potential card on the player profile; head coaches set potential for their squads (#3967)
+
+A player's profile now has a **Behaviour & potential** card beside Identity. It shows the latest behaviour rating with who gave it and when, the 90-day average the traffic light reads, the current potential band with how long ago it was set and whether it is due a look, and the **Log behaviour** / **Set potential** buttons for whoever may record them. Where nothing is recorded yet the card says so instead of showing an empty box. It replaces the Potential row on the Identity card and is shown to staff only.
+
+Head coaches can now set potential for the players on their own squads; before, only the Head of Development and admins could, so a coach never saw the option. They are refused on any other squad's player, and assistant coaches still cannot set it. Existing installs get the new grant on update. Head coaches also start receiving the *Potential not revisited* reminder for their own teams, because they can now clear it.
+
+The Behaviour & potential screen now checks each player before it saves, the same way the API already did, so it can no longer record against a player the viewer may not edit.
+
 # TalentTrack v4.131.2 — Player report: category names translated, test scores, notes printed in full (#3957)
 
 On a Dutch install the evaluation categories in the player report showed

@@ -65654,6 +65654,23 @@ msgstr "%s omlaag"
 msgid "against %s"
 msgstr "tegen %s"
 
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Behaviour & potential"
+msgstr "Gedrag & potentieel"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Average over the last %1$d days: %2$s"
+msgstr "Gemiddelde over de laatste %1$d dagen: %2$s"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No behaviour recorded yet."
+msgstr "Nog geen gedrag vastgelegd."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No potential band set yet."
+msgstr "Nog geen potentieelband ingesteld."
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
