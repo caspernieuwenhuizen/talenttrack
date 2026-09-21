@@ -326,6 +326,22 @@ Three things this deliberately does not do:
 - **Discovering a prospect is not a link.** A case promoted from a prospect the scout found does not grant access on its own — standing on the panel does.
 - **A release ends it**, exactly as it ends a guardian's link (see #3476). A released player drops out of a scout's scope with no further action.
 
+### Which statuses keep a scout's link alive
+
+A link survives on two roster statuses, and no others:
+
+| Status | Link | Why |
+| --- | --- | --- |
+| `active` | kept | The player is on the roster; a scout with an assignment or a seat has live work on them. |
+| `trial` | kept | This is the status a panel seat implies — a player whose trial case has a panel is, by definition, on trial. |
+| `inactive` | ends | The player has left the roster; the record is history. |
+| `released` | ends | A release ends the link, as it ends a guardian's. |
+| `graduated` | ends | The player has moved beyond the academy. |
+
+The list is an allowlist rather than "anything except `released`", so a status added later is opted in deliberately rather than inheriting access by default.
+
+Separately from the status, a player who has been **archived** or moved to the **recycle bin** is out of a scout's scope regardless of the status they carry — the same `active` lifecycle filter every list view applies.
+
 The scout's `trial_synthesis` row was **removed** rather than woken up. It would have opened the Execution tab — other panellists' inputs, before release — to any scout on any panel. A scout sees their own input before release and the panel's only after it.
 
 A daily retention cron auto-purges stale or terminal-decline prospects per `wp_options.tt_prospect_retention_days_no_progress` (default 90) / `tt_prospect_retention_days_terminal` (default 30). Promoted prospects (`promoted_to_player_id IS NOT NULL`) are protected — promotion turns them into PII for an academy player and the row stays in `PlayerDataMap`'s erasure manifest under the player's identity.
