@@ -49,6 +49,7 @@ class PlayersRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_player' ],
+                'args'                => self::writeArgs(),
                 'permission_callback' => function () {
                     // Creating a new player is reserved for users with the
                     // manage_players capability. AuthorizationService has no
@@ -92,6 +93,7 @@ class PlayersRestController {
             [
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'update_player' ],
+                'args'                => self::updateArgs(),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditPlayer(
                         get_current_user_id(),
@@ -746,7 +748,81 @@ class PlayersRestController {
         return RestResponse::success( self::fmt( $pl ) );
     }
 
+    /**
+     * #3817 (slice 3 of #3603) — the body `POST /players` and
+     * `PUT /players/{id}` accept.
+     *
+     * Every key here is a key `extract()` reads, plus the two that are
+     * written outside the row: `custom_fields` (validated and upserted into
+     * `tt_custom_values`) and `link_parent_user_id` (the parent-account
+     * link). A key outside this list is `400 unknown_field` rather than a
+     * 200 over a field nothing stored — which is how a misspelled
+     * `guardian_mail` used to look exactly like a save.
+     *
+     * Every field is optional on update: an omitted one keeps its stored
+     * value (#3569, CLAUDE.md §6). **Nothing is declared `required` on
+     * either verb**, for the reason `ActivitiesRestController::writeArgs()`
+     * sets out at length: core checks required params before the permission
+     * callback, so a required field answers an unauthenticated `POST` with a
+     * `400` naming the fields instead of the `401` it owes. `create_player()`
+     * names the two fields it needs itself, behind the capability gate, in
+     * the same `missing_fields` envelope.
+     *
+     * The declared `type` is published schema, not enforcement: WordPress
+     * only runs a `validate_callback` a route sets explicitly, and
+     * `register_rest_route()` does not default one (#3929).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'first_name'          => [ 'type' => 'string', 'description' => 'The player\'s first name.' ],
+            'last_name'           => [ 'type' => 'string', 'description' => 'The player\'s last name.' ],
+            'date_of_birth'       => [ 'type' => 'string', 'description' => 'Date of birth as YYYY-MM-DD. Blank means not recorded; anything else that is not a date is refused with bad_date.' ],
+            'sex'                 => [ 'type' => 'string', 'description' => 'Used only to pick the right growth reference. An unrecognised value degrades to blank rather than failing the save.' ],
+            'nationality'         => [ 'type' => 'string', 'description' => 'Nationality, free text.' ],
+            'height_cm'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'Height in centimetres. Empty clears it.' ],
+            'weight_kg'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'Weight in kilograms. Empty clears it.' ],
+            'preferred_foot'      => [ 'type' => 'string', 'description' => 'A key from the foot_option lookup.' ],
+            'preferred_positions' => [ 'type' => [ 'array', 'string' ], 'description' => 'Position keys. An empty value clears the list.' ],
+            'jersey_number'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'Shirt number. Empty clears it.' ],
+            'team_id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The squad the player is on. 0 takes them off a team (#2866).' ],
+            'date_joined'         => [ 'type' => 'string', 'description' => 'The date they joined the academy, as YYYY-MM-DD.' ],
+            'photo_url'           => [ 'type' => 'string', 'description' => 'URL of the player photo.' ],
+            'media_consent'       => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the family agreed to the club using pictures of this player. A record, never a gate (#2744). Sending it stamps who recorded it and when; 0 withdraws it.' ],
+            'guardian_name'       => [ 'type' => 'string', 'description' => 'Parent or guardian name.' ],
+            'guardian_email'      => [ 'type' => 'string', 'description' => 'Parent or guardian e-mail address.' ],
+            'guardian_phone'      => [ 'type' => 'string', 'description' => 'Parent or guardian phone number.' ],
+            'wp_user_id'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player\'s own account, where they have one. 0 means no account.' ],
+            'status'              => [ 'type' => 'string', 'description' => 'Player status key. Defaults to active on create.' ],
+            'custom_fields'       => [ 'type' => 'object', 'description' => 'Field key to value, for the club\'s own player fields. A required one absent from a create is refused by name.' ],
+            'link_parent_user_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'A WordPress user to link as this player\'s parent. Idempotent; 0 or absent links nobody.' ],
+        ];
+    }
+
+    /**
+     * #3817 — `PUT /players/{id}` on top of `writeArgs()`.
+     *
+     * `id` is the URL segment, declared so a client that echoes the
+     * record's own id back in the body is not refused for it. The URL
+     * copy is what the handler reads either way.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function updateArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The player, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
     public static function create_player( \WP_REST_Request $r ) {
+        // #3817 — the body's shape before its values, so a key this route
+        // does not take is a refusal rather than a 200 over a field that
+        // was never read.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         // v3.85.5 — REST cap enforcement. wp-admin PlayersPage already
         // gated; the REST endpoint (used by the frontend manage view +
         // the new-player wizard's REST submit path) silently bypassed
@@ -767,6 +843,23 @@ class PlayersRestController {
 
         global $wpdb;
         $data = self::extract( $r );
+        // #3817 — a player with no name is not a record anybody can find
+        // again. The form has marked both fields required since it shipped;
+        // the endpoint accepted a nameless row and answered 200. Named here
+        // rather than declared `required` in `args`, so an unauthenticated
+        // POST still gets the 401 it is owed (see `writeArgs()`).
+        $missing = array_values( array_filter( [
+            $data['first_name'] === '' ? 'first_name' : null,
+            $data['last_name']  === '' ? 'last_name'  : null,
+        ] ) );
+        if ( $missing !== [] ) {
+            return RestResponse::error(
+                'missing_fields',
+                __( 'A first name and a last name are required.', 'talenttrack' ),
+                400,
+                [ 'fields' => $missing ]
+            );
+        }
         $bad_date = self::dateRefusal( $data );
         if ( $bad_date !== null ) return $bad_date;
         $data = self::stampConsent( $data, null );
@@ -795,6 +888,12 @@ class PlayersRestController {
     }
 
     public static function update_player( \WP_REST_Request $r ) {
+        // #3817 — refuse a key this route does not take before anything is
+        // written. Nothing here is required: the update is a patch, and an
+        // omitted field keeps its stored value (#3569).
+        $refused = BaseController::checkBody( $r, self::updateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r['id'];
         $existing = QueryHelpers::get_player( $id );
         if ( ! $existing ) return RestResponse::notFound();
