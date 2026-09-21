@@ -135,7 +135,9 @@ final class CascadeRegistry {
         ],
 
         // Test training (#1784) — a workflow task that invited a player to
-        // the session is a fact: keep it, clear the link.
+        // the session is a fact: keep it, clear the link. #3940 — the link
+        // column was declared here long before it existed; migration 0288
+        // adds it and the invite template writes it on completion.
         'test_training' => [
             'table'        => 'tt_test_trainings',
             'ref_columns'  => [ 'test_training_id' ],

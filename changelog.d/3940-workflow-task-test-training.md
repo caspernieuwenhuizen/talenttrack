@@ -1,0 +1,3 @@
+# Permanently deleting a test training works again, and clears the invite task's link to it (#3940)
+
+Purging a test training, from the recycle bin or its permanent-delete route, failed: the cascade tried to clear a `test_training_id` column on workflow tasks that had never been created, the database refused the update and the whole delete rolled back. Migration 0288 adds the column (with an index) and fills it in for completed "invite to test training" tasks whose session still exists. From now on the invite task records the session in that column as well as in its response, and purging the test training clears the link while the task, and the prospect's pipeline stage, stay as they were.
