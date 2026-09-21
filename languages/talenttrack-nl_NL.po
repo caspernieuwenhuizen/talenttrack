@@ -65828,6 +65828,93 @@ msgctxt "evaluation form section"
 msgid "Notes"
 msgstr "Toelichting"
 
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Not applied yet. The report below, the PDF and the snapshot still show the last applied selection."
+msgstr "Nog niet toegepast. Het rapport hieronder, de pdf en de momentopname tonen nog de laatst toegepaste keuze."
+
+#: src/Modules/Analytics/Reports/RatingsBlockOptions.php
+msgctxt "player report evaluations option"
+msgid "Main categories"
+msgstr "Hoofdcategorieën"
+
+#: src/Modules/Analytics/Reports/RatingsBlockOptions.php
+msgctxt "player report evaluations option"
+msgid "With subcategories"
+msgstr "Met subcategorieën"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgctxt "player report panel"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "With subcategories, each rated subcategory is listed under its main category, on screen and on paper."
+msgstr "Met subcategorieën staat elke beoordeelde subcategorie onder haar hoofdcategorie, op het scherm en op papier."
+
+#: src/Infrastructure/REST/PlayersRestController.php
+msgid "Unknown report options: %s"
+msgstr "Onbekende rapportopties: %s"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+#, php-format
+msgid "Update “%s”"
+msgstr "“%s” bijwerken"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+msgid "Rename, set as default or delete this view"
+msgstr "Deze weergave hernoemen, als standaard instellen of verwijderen"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+#, php-format
+msgid "A view called “%s” exists. Replace it with these filters?"
+msgstr "Er bestaat al een weergave “%s”. Vervangen door deze filters?"
+
+#: src/Shared/Frontend/Components/SavedViews.php
+msgid "Replace"
+msgstr "Vervangen"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+#, php-format
+msgid "%d%%"
+msgstr "%d%%"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+#, php-format
+msgid "Same position · %1$s · %2$d player"
+msgid_plural "Same position · %1$s · %2$d players"
+msgstr[0] "Zelfde positie · %1$s · %2$d speler"
+msgstr[1] "Zelfde positie · %1$s · %2$d spelers"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+#, php-format
+msgid "this player %d point above"
+msgid_plural "this player %d points above"
+msgstr[0] "deze speler %d punt hoger"
+msgstr[1] "deze speler %d punten hoger"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+#, php-format
+msgid "this player %d point below"
+msgid_plural "this player %d points below"
+msgstr[0] "deze speler %d punt lager"
+msgstr[1] "deze speler %d punten lager"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+msgid "this player level with it"
+msgstr "deze speler precies gelijk"
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+msgid "No profile position to compare with."
+msgstr "Geen profielpositie om mee te vergelijken."
+
+#: src/Modules/Analytics/Reports/PlayerReport.php
+msgid "Team average"
+msgstr "Teamgemiddelde"
+
+#: src/Modules/Analytics/Frontend/PlayerReportPage.php
+msgid "Share of minutes"
+msgstr "Aandeel in de minuten"
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."
