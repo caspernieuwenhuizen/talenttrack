@@ -58,8 +58,17 @@ final class PlayerStatusRestController {
             // `behaviour-ratings` above already asks. A write path left on
             // the capability alone is how a switched-off feature keeps
             // accepting data from anything that is not the rendered form.
-            'permission_callback' => static fn() =>
-                \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable(),
+            //
+            // And the player, for the reason #3154 gives two routes above:
+            // the flag-plus-capability check takes no player id, so a
+            // holder could write the academy's judgement of how far a child
+            // will go onto any child in the club. `behaviour-ratings` was
+            // narrowed then and this one was not, which reads as an
+            // oversight rather than a distinction — the two write the same
+            // kind of judgement about the same child.
+            'permission_callback' => static fn( \WP_REST_Request $r ): bool =>
+                \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailable()
+                && AuthorizationService::canEditPlayer( get_current_user_id(), (int) $r['id'] ),
         ] );
         // #3226 — the trajectory, not just the current band. `tt_player_potential`
         // has been append-only since migration 0042 and the whole history was

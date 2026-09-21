@@ -45,8 +45,17 @@ class PrintRouter {
         $player_id = absint( $_GET['player_id'] ?? 0 );
         if ( $player_id <= 0 ) return;
 
-        // Admin-side permission: tt_view_reports at minimum.
-        if ( ! current_user_can( 'tt_view_reports' ) ) {
+        // Admin-side permission: tt_view_reports at minimum — and then the
+        // player, which this branch never asked. `tt_view_reports` says a
+        // person may read reports, never whose; the frontend branch below
+        // has always gone on to `canPrint()`, so the same URL answered a
+        // coach differently depending on which side of wp-admin they were
+        // standing on. `canPrint()` keeps a settings-holder unconditional,
+        // so this narrows a coach to their own players rather than locking
+        // an administrator out.
+        if ( ! current_user_can( 'tt_view_reports' )
+            || ! self::canPrint( get_current_user_id(), $player_id )
+        ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ), '', [ 'response' => 403 ] );
         }
 
