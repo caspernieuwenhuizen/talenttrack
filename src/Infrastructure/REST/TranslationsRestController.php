@@ -39,6 +39,7 @@ class TranslationsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'save_settings' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_translations' ); },
+                'args'                => self::settingsArgs(),
             ],
         ] );
 
@@ -47,11 +48,43 @@ class TranslationsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'clear_cache' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_translations' ); },
+                'args'                => [],
             ],
         ] );
     }
 
+    /**
+     * #3819 — the body `POST /translations/settings` takes.
+     *
+     * The settings view posts the whole form, so every key is written on
+     * every save. Nothing is declared `required`: core checks required
+     * params before the permission callback, so a required key would
+     * answer an unauthorised POST with a 400 naming the engine credentials
+     * rather than the 403 it is owed. `TranslationLayer::saveSettings()`
+     * refuses an incomplete configuration itself, with a 422 that says
+     * what is missing.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function settingsArgs(): array {
+        return [
+            'enabled'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether machine translation is switched on.' ],
+            'subprocessor_confirmed' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the Article 28 sub-processor confirmation has been ticked. Required before the engine may be enabled.' ],
+            'primary_engine'         => [ 'type' => 'string', 'description' => 'Which engine translates first. Defaults to deepl.' ],
+            'fallback_engine'        => [ 'type' => 'string', 'description' => 'Which engine to try when the primary one fails. Blank means none.' ],
+            'deepl_key'              => [ 'type' => 'string', 'description' => 'The DeepL API key. Blank keeps the stored one rather than clearing it.' ],
+            'google_service_account' => [ 'type' => 'string', 'description' => 'The Google service-account JSON. Blank keeps the stored one rather than clearing it.' ],
+            'site_default_lang'      => [ 'type' => 'string', 'description' => 'The language the content is authored in.' ],
+            'monthly_cap'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'How many characters may be translated in a month.' ],
+            'threshold_pct'          => [ 'type' => [ 'integer', 'string' ], 'description' => 'At what percentage of the cap the warning appears.' ],
+        ];
+    }
+
     public static function save_settings( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::settingsArgs() );
+        if ( $refused !== null ) return $refused;
+
         $result = TranslationLayer::saveSettings( [
             'enabled'                => (bool) $r->get_param( 'enabled' ),
             'subprocessor_confirmed' => (bool) $r->get_param( 'subprocessor_confirmed' ),
@@ -77,6 +110,10 @@ class TranslationsRestController {
     }
 
     public static function clear_cache( \WP_REST_Request $r ) {
+        // #3819 — the route takes no body.
+        $refused = BaseController::checkBody( $r, [] );
+        if ( $refused !== null ) return $refused;
+
         TranslationLayer::purgeAllCaches();
         Logger::info( 'rest.translations.cache_cleared', [ 'user' => get_current_user_id() ] );
         return RestResponse::success( [ 'cleared' => true ] );

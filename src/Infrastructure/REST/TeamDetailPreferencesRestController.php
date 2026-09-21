@@ -48,8 +48,28 @@ class TeamDetailPreferencesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_preference' ],
                 'permission_callback' => $can,
+                'args'                => self::putArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /me/preferences/team-detail` takes.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, so a required key would answer a logged-out PUT
+     * with a 400 rather than the 401 it is owed. `put_preference()`
+     * answers `bad_payload` itself when `sections` is absent.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function putArgs(): array {
+        return [
+            'sections' => [
+                'type'        => 'object',
+                'description' => 'Which sections to show, keyed by section. A section the object leaves out is hidden, so send the whole map.',
+            ],
+        ];
     }
 
     public static function get_preference( \WP_REST_Request $r ) {
@@ -61,6 +81,10 @@ class TeamDetailPreferencesRestController {
     }
 
     public static function put_preference( \WP_REST_Request $r ) {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::putArgs() );
+        if ( $refused !== null ) return $refused;
+
         $user_id = get_current_user_id();
         $payload = $r->get_param( 'sections' );
         if ( ! is_array( $payload ) ) {

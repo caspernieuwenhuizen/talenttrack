@@ -37,7 +37,21 @@ final class BroadcastsRestController {
             'methods'             => 'POST',
             'callback'            => [ self::class, 'dismiss' ],
             'permission_callback' => $can,
+            'args'                => self::dismissArgs(),
         ] );
+    }
+
+    /**
+     * #3819 — the dismiss route takes no body of its own: the broadcast is
+     * the one in the URL and the user is the caller.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function dismissArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The broadcast to hide, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
     }
 
     public static function list( \WP_REST_Request $r ): \WP_REST_Response {
@@ -45,6 +59,10 @@ final class BroadcastsRestController {
     }
 
     public static function dismiss( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = \TT\Infrastructure\REST\BaseController::checkBody( $r, self::dismissArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = absint( $r['id'] );
         if ( ! Broadcasts::dismiss( get_current_user_id(), $id ) ) {
             return RestResponse::error( 'not_dismissable', __( 'There is no broadcast to dismiss with this id.', 'talenttrack' ), 404 );

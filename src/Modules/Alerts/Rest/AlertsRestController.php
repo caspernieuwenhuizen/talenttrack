@@ -115,6 +115,7 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'evaluate' ],
                 'permission_callback' => self::permCan( 'tt_edit_settings' ),
+                'args'                => [],
             ],
         ] );
 
@@ -133,6 +134,7 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'markRead' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+                'args'                => self::occurrenceArgs(),
             ],
         ] );
 
@@ -152,6 +154,7 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'POST',
                 'callback'            => [ self::class, 'dismiss' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+                'args'                => self::occurrenceArgs(),
             ],
         ] );
 
@@ -165,6 +168,7 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'PUT',
                 'callback'            => [ self::class, 'putPreferences' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+                'args'                => self::preferencesArgs(),
             ],
         ] );
 
@@ -178,11 +182,59 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'PUT',
                 'callback'            => [ self::class, 'putPolicy' ],
                 'permission_callback' => self::permCan( 'tt_edit_settings' ),
+                'args'                => self::policyArgs(),
             ],
         ] );
     }
 
     /** Snooze durations the API accepts, as strtotime modifiers. */
+    // Body contracts (#3819) -------------------------------------------
+
+    /**
+     * The body the per-occurrence actions take. Both read and dismiss act
+     * on the alert in the URL, on behalf of the caller, so there is
+     * nothing else a body could usefully carry.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function occurrenceArgs(): array {
+        return [ 'uuid' => [
+            'type'        => 'string',
+            'description' => 'The alert occurrence, from the URL. A copy in the body is accepted and ignored.',
+        ] ];
+    }
+
+    /**
+     * The body `PUT /alerts/preferences` takes. An alert the object leaves
+     * out keeps its current setting, so a partial payload is a partial
+     * update (CLAUDE.md §6).
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, so a required key would answer a logged-out PUT
+     * with a 400 rather than the 401 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function preferencesArgs(): array {
+        return [ 'preferences' => [
+            'type'        => 'object',
+            'description' => 'Which surfaces each alert may use, keyed by alert. An alert that is not listed keeps what it had; one the club has locked is skipped.',
+        ] ];
+    }
+
+    /**
+     * The body `PUT /alerts/policy` takes. An alert the object leaves out
+     * keeps its current policy.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function policyArgs(): array {
+        return [ 'policy' => [
+            'type'        => 'object',
+            'description' => 'The club policy per alert: whether it is enabled, whether it may interrupt, and after how many days it escalates.',
+        ] ];
+    }
+
     private const SNOOZE_DURATIONS = [
         'day'   => '+1 day',
         'week'  => '+1 week',
@@ -215,6 +267,10 @@ final class AlertsRestController extends BaseController {
     }
 
     public static function dismiss( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::occurrenceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $repo = new AlertOccurrencesRepository();
         if ( ! $repo->tableExists() ) return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
 
@@ -252,6 +308,10 @@ final class AlertsRestController extends BaseController {
      * update rather than an accidental reset of everything omitted.
      */
     public static function putPreferences( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::preferencesArgs() );
+        if ( $refused !== null ) return $refused;
+
         $user_id = get_current_user_id();
         $raw     = $req->get_param( 'preferences' );
         if ( ! is_array( $raw ) ) {
@@ -330,6 +390,10 @@ final class AlertsRestController extends BaseController {
     }
 
     public static function putPolicy( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::policyArgs() );
+        if ( $refused !== null ) return $refused;
+
         $raw = $req->get_param( 'policy' );
         if ( ! is_array( $raw ) ) {
             return RestResponse::error( 'invalid_payload', __( 'Expected a policy object.', 'talenttrack' ), 400 );
@@ -476,6 +540,10 @@ final class AlertsRestController extends BaseController {
     }
 
     public static function markRead( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = self::checkBody( $req, self::occurrenceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $repo = new AlertOccurrencesRepository();
         if ( ! $repo->tableExists() ) return RestResponse::error( 'not_found', __( 'Alert not found.', 'talenttrack' ), 404 );
 
@@ -522,7 +590,11 @@ final class AlertsRestController extends BaseController {
      * cron-driven by design (epic decision 2) and this exists so an operator
      * can answer "is the sweep working" without waiting an hour.
      */
-    public static function evaluate(): \WP_REST_Response {
+    public static function evaluate( WP_REST_Request $req ): \WP_REST_Response {
+        // #3819 — the route takes no body.
+        $refused = self::checkBody( $req, [] );
+        if ( $refused !== null ) return $refused;
+
         $stats = ( new AlertSweepCron() )->runAllClubs();
         return RestResponse::success( [ 'clubs' => $stats ] );
     }

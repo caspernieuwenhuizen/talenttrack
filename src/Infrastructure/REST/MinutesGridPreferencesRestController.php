@@ -53,8 +53,28 @@ final class MinutesGridPreferencesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'put_preference' ],
                 'permission_callback' => $can,
+                'args'                => self::putArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /me/preferences/minutes-grid` takes.
+     *
+     * Not declared `required`: core checks required params before the
+     * permission callback, so a required key would answer a logged-out PUT
+     * with a 400 rather than the 401 it is owed. `put_preference()`
+     * answers `bad_payload` itself when `stats` is missing or not a list.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function putArgs(): array {
+        return [
+            'stats' => [
+                'type'        => 'array',
+                'description' => 'The statistic columns to show, as a list of keys. An unknown key is ignored; an empty list hides them all.',
+            ],
+        ];
     }
 
     /**
@@ -75,6 +95,10 @@ final class MinutesGridPreferencesRestController {
     }
 
     public static function put_preference( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::putArgs() );
+        if ( $refused !== null ) return $refused;
+
         $payload = $r->get_param( 'stats' );
         if ( ! is_array( $payload ) ) {
             return RestResponse::error(
