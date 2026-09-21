@@ -24,6 +24,7 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
     private int $own_player   = 0;
     private int $other_player = 0;
     private int $head         = 0;
+    private int $own_team     = 0;
 
     public function set_up(): void {
         parent::set_up();
@@ -39,15 +40,13 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
         $wp_rest_server = new WP_REST_Server();
         do_action( 'rest_api_init' );
 
-        $own_team   = $this->insertTeam( 'U15 own' );
-        $other_team = $this->insertTeam( 'U15 other' );
+        $this->own_team = $this->insertTeam( 'U15 own' );
+        $other_team     = $this->insertTeam( 'U15 other' );
 
-        $this->own_player   = $this->insertPlayer( $own_team );
+        $this->own_player   = $this->insertPlayer( $this->own_team );
         $this->other_player = $this->insertPlayer( $other_team );
 
-        $this->head = self::factory()->user->create( [ 'role' => 'tt_head_coach' ] );
-        $this->assignHeadCoach( $own_team, $this->head );
-        AuthorizationService::flushCache();
+        $this->head = $this->makeCoach( $this->own_team, true );
     }
 
     public function tear_down(): void {
@@ -93,10 +92,18 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
     }
 
     public function test_an_assistant_coach_still_does_not_set_potential(): void {
-        $assistant = self::factory()->user->create( [ 'role' => 'tt_assistant_coach' ] );
-        AuthorizationService::flushCache();
+        $assistant = $this->makeCoach( $this->own_team, false );
 
-        $this->assertFalse( PlayerStatusModule::potentialCaptureAvailable( $assistant ) );
+        // The fixture has to be real: the user resolves to the assistant
+        // persona alone, so the refusal below is about that persona.
+        $this->assertSame(
+            [ 'assistant_coach' ],
+            \TT\Modules\Authorization\PersonaResolver::personasFor( $assistant )
+        );
+        $this->assertFalse(
+            PlayerStatusModule::potentialCaptureAvailable( $assistant ),
+            'assistant coaches are operational; potential is a development judgement (#1060)'
+        );
     }
 
     public function test_switching_the_feature_off_still_wins(): void {
@@ -136,38 +143,53 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
     }
 
     /**
-     * A team-scoped `head_coach` auth-role row in `tt_user_role_scopes`.
+     * A coach on one team, the way production builds one.
      *
-     * The direct source `AuthorizationService::resolveScopesForUser()` reads
-     * first. A `tt_team_people` assignment only grants scope when its
-     * functional role maps to an auth role, and a test database carries no
-     * such mapping for a functional role the fixture had to create.
+     * Coaches are the `tt_coach` WordPress role; `PersonaResolver` splits
+     * that into head_coach / assistant_coach from `tt_team_people.is_head_coach`.
+     * The team-scoped `tt_user_role_scopes` row is what both
+     * `MatrixGate`'s team check and `canEditPlayer()` read for reach.
      */
-    private function assignHeadCoach( int $team_id, int $user_id ): void {
+    private function makeCoach( int $team_id, bool $head ): int {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        $uid = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
         $role_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT id FROM {$p}tt_roles WHERE role_key = %s AND club_id = %d LIMIT 1",
-            'head_coach',
+            $head ? 'head_coach' : 'assistant_coach',
             $this->club
         ) );
-        $this->assertGreaterThan( 0, $role_id, 'the head_coach auth role must be seeded' );
+        $this->assertGreaterThan( 0, $role_id, 'the coach auth role must be seeded' );
 
         $wpdb->insert( "{$p}tt_people", [
             'club_id'    => $this->club,
-            'first_name' => 'Head',
+            'first_name' => $head ? 'Head' : 'Assistant',
             'last_name'  => 'Coach',
-            'role_type'  => 'head_coach',
-            'wp_user_id' => $user_id,
+            'role_type'  => $head ? 'head_coach' : 'assistant_coach',
+            'wp_user_id' => $uid,
             'status'     => 'active',
         ] );
+        $person_id = (int) $wpdb->insert_id;
+
+        $this->assertNotFalse( $wpdb->insert( "{$p}tt_team_people", [
+            'club_id'       => $this->club,
+            'team_id'       => $team_id,
+            'person_id'     => $person_id,
+            'role_in_team'  => $head ? 'head_coach' : 'assistant_coach',
+            'is_head_coach' => $head ? 1 : 0,
+        ] ), 'the team assignment is what the persona split reads' );
 
         $wpdb->insert( "{$p}tt_user_role_scopes", [
-            'person_id'  => (int) $wpdb->insert_id,
+            'club_id'    => $this->club,
+            'person_id'  => $person_id,
             'role_id'    => $role_id,
             'scope_type' => 'team',
             'scope_id'   => $team_id,
         ] );
+
+        AuthorizationService::flushCache();
+        return $uid;
     }
 }

@@ -203,10 +203,12 @@ final class PlayerStatusModule implements ModuleInterface {
      *   tt_rate_player_behaviour  — head_coach + head_dev + administrator.
      *                               #1941: assistant_coach NO LONGER holds
      *                               it (matrix tighten — see below).
-     *   tt_set_player_potential   — head_coach + head_dev + administrator.
-     *                               #3967: a head coach sets potential for
-     *                               their own squads; the per-player half
-     *                               is potentialCaptureAvailableFor().
+     *   tt_set_player_potential   — head_dev + administrator. Head coaches
+     *                               get it from the matrix instead
+     *                               (#3967: `player_potential` rc / team);
+     *                               coaches are the `tt_coach` role, which
+     *                               PersonaResolver splits, so a raw grant
+     *                               here could not tell head from assistant.
      *   tt_view_player_status     — anyone who can view the player.
      *                               Granted to the standard view-
      *                               players roles.
@@ -247,15 +249,9 @@ final class PlayerStatusModule implements ModuleInterface {
         if ( $ac_role && $ac_role->has_cap( $rate ) ) {
             $ac_role->remove_cap( $rate );
         }
-        // #3967 — the head coach sets potential too, team-scoped by the
-        // matrix row `player_potential: rc / team`. Assistant coaches do not
-        // (#1060: "AC is operational, HC is development").
-        foreach ( array_merge( $hod_roles, [ 'tt_head_coach' ] ) as $r ) {
-            $role = get_role( $r );
-            if ( $role && ! $role->has_cap( $set ) ) $role->add_cap( $set );
-        }
         foreach ( $hod_roles as $r ) {
             $role = get_role( $r );
+            if ( $role && ! $role->has_cap( $set ) )         $role->add_cap( $set );
             if ( $role && ! $role->has_cap( $view_detail ) ) $role->add_cap( $view_detail );
         }
         foreach ( $coach_roles as $r ) {
