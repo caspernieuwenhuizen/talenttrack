@@ -210,6 +210,10 @@ final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExpo
             $agg[ $eid ][ $main ][1] = ( $agg[ $eid ][ $main ][1] ?? 0 ) + 1;
         }
 
+        // #3949 — each main category's note column sits next to its
+        // rating: the category's own note, then its subcategories' notes.
+        $cat_notes = ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->perMainForEvaluations( $eval_ids );
+
         // Build sheets keyed by (season_id, eval_type_id).
         $type_label_by_id = [];
         foreach ( $eval_types as $t ) $type_label_by_id[ (int) $t->id ] = (string) $t->name;
@@ -241,6 +245,7 @@ final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExpo
                 $sum  = $agg[ $eid ][ $cid ][0] ?? null;
                 $n    = $agg[ $eid ][ $cid ][1] ?? 0;
                 $row[] = $n > 0 ? round( (float) $sum / $n, 2 ) : '';
+                $row[] = $cat_notes[ $eid ][ $cid ] ?? '';
             }
             $sheet_buckets[ $sheet_name ][] = $row;
         }
@@ -257,6 +262,11 @@ final class EvaluationsXlsxExporter implements ExporterInterface, ScopeGatedExpo
         ];
         foreach ( $main_cats as $cat ) {
             $headers[] = (string) $cat->label;
+            $headers[] = sprintf(
+                /* translators: %s: rating category name, heading of the export column holding its notes */
+                __( '%s — note', 'talenttrack' ),
+                (string) $cat->label
+            );
         }
 
         $sheets = [];

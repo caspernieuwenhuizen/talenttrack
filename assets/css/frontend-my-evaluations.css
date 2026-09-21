@@ -178,6 +178,18 @@
     padding: 0.25rem 0;
 }
 .tt-dashboard .tt-mye-detail-label { color: var(--tt-ink, #0e1a14); }
+.tt-dashboard .tt-mye-detail-list li { flex-wrap: wrap; }
+
+/* #3949 — the coach's note on a category, under its heading or row. */
+.tt-dashboard .tt-mye-detail-note {
+    flex: 1 1 100%;
+    margin: 0.125rem 0 0.25rem;
+    padding-left: 0.5rem;
+    border-left: 2px solid var(--tt-line);
+    font-size: 0.875rem;
+    white-space: pre-wrap;
+    color: var(--tt-ink);
+}
 
 /* #3478 — the breakdown is fetched when a row opens; these are its three
    interim states. Same muted body size as the lead line. */

@@ -173,7 +173,10 @@ final class PlayerEvaluationsReader {
      * not belong to `$player_id`: a caller authorised for one player must not
      * be able to read another player's breakdown by guessing an id.
      *
-     * @return list<array{label: string, subs: list<array{label: string, rating: float}>}>|null
+     * Each group and sub carries its category note (#3949), '' for none; a
+     * sub that was not rated but has a note carries a null rating.
+     *
+     * @return list<array{label: string, note: string, subs: list<array{label: string, rating: float|null, note: string}>}>|null
      */
     public function detail( int $player_id, int $eval_id ): ?array {
         if ( $player_id <= 0 || $eval_id <= 0 ) return null;
@@ -190,17 +193,58 @@ final class PlayerEvaluationsReader {
             $main_labels[ (int) $main_id ] = EvalCategoriesRepository::displayLabel( (string) $row['label'], (int) $main_id );
         }
 
+        // #3949 — the category notes ride along. This detail is only served
+        // to a reader the route already let see the evaluation.
+        $notes = ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id );
+
         $groups = [];
+        $seen   = [];
         foreach ( (array) ( $full->ratings ?? [] ) as $r ) {
             if ( ! is_object( $r ) ) continue;
             $parent = (int) ( $r->category_parent_id ?? 0 );
             if ( $parent <= 0 ) continue;
             if ( ! isset( $groups[ $parent ] ) ) {
-                $groups[ $parent ] = [ 'label' => $main_labels[ $parent ] ?? '', 'subs' => [] ];
+                $groups[ $parent ] = [ 'label' => $main_labels[ $parent ] ?? '', 'note' => (string) ( $notes[ $parent ] ?? '' ), 'subs' => [] ];
+            }
+            $cid = (int) ( $r->category_id ?? 0 );
+            $seen[ $cid ] = true;
+            $groups[ $parent ]['subs'][] = [
+                'label'  => EvalCategoriesRepository::displayLabel( (string) ( $r->category_name ?? '' ), $cid ),
+                'rating' => (float) ( $r->rating ?? 0 ),
+                'note'   => (string) ( $notes[ $cid ] ?? '' ),
+            ];
+        }
+
+        // A note on a category with no sub rating of its own: a main
+        // category's note, or a skill left unscored.
+        $cat_repo = new EvalCategoriesRepository();
+        foreach ( $notes as $cid => $note ) {
+            if ( isset( $seen[ $cid ] ) ) continue;
+            $cat = $cat_repo->get( (int) $cid );
+            if ( $cat === null ) continue;
+            $parent = (int) ( $cat->parent_id ?? 0 );
+            if ( $parent <= 0 ) {
+                if ( ! isset( $groups[ $cid ] ) ) {
+                    $groups[ $cid ] = [
+                        'label' => $main_labels[ $cid ] ?? EvalCategoriesRepository::displayLabel( (string) ( $cat->label ?? '' ), (int) $cid ),
+                        'note'  => $note,
+                        'subs'  => [],
+                    ];
+                }
+                continue;
+            }
+            if ( ! isset( $groups[ $parent ] ) ) {
+                $parent_row = $cat_repo->get( $parent );
+                $groups[ $parent ] = [
+                    'label' => $main_labels[ $parent ] ?? ( $parent_row !== null ? EvalCategoriesRepository::displayLabel( (string) ( $parent_row->label ?? '' ), $parent ) : '' ),
+                    'note'  => (string) ( $notes[ $parent ] ?? '' ),
+                    'subs'  => [],
+                ];
             }
             $groups[ $parent ]['subs'][] = [
-                'label'  => EvalCategoriesRepository::displayLabel( (string) ( $r->category_name ?? '' ), (int) ( $r->category_id ?? 0 ) ),
-                'rating' => (float) ( $r->rating ?? 0 ),
+                'label'  => EvalCategoriesRepository::displayLabel( (string) ( $cat->label ?? '' ), (int) $cid ),
+                'rating' => null,
+                'note'   => $note,
             ];
         }
         return array_values( $groups );
@@ -209,6 +253,8 @@ final class PlayerEvaluationsReader {
     /** Whether an evaluation has any breakdown to open — decides if the toggle renders. */
     public function hasDetail( int $eval_id ): bool {
         global $wpdb;
+        // #3949 — a category note is something to open as well.
+        if ( ( new EvalCategoryNotesRepository() )->forEvaluation( $eval_id ) ) return true;
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT 1 FROM {$wpdb->prefix}tt_eval_ratings r
                JOIN {$wpdb->prefix}tt_eval_categories c ON c.id = r.category_id AND c.club_id = r.club_id

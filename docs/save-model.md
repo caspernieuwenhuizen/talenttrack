@@ -28,7 +28,7 @@ not. Beside it, **Undo** and **Revert changes**.
 | --- | --- |
 | [Match preparation](match-prep.md) | The whole screen |
 | [Match analysis](match-analysis.md) | Draft only; **Mark as final** publishes it |
-| [Evaluations](evaluations.md) | Editing an existing one |
+| [Evaluations](evaluations.md) | Editing an existing one, including its category notes |
 | [Player goals](goals.md) | Editing an existing one |
 | [PDP conversation](pdp-cycle.md) | Until it is signed off |
 | [PDP preparation](pdp-cycle.md) | The coach's answers, until the conversation is signed off |

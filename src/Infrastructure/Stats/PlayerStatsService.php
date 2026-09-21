@@ -430,6 +430,57 @@ class PlayerStatsService {
         return [ 'labels' => $labels, 'series' => $series ];
     }
 
+    /**
+     * #3949 — the category notes behind the trend's points, aligned with
+     * `getTrendSeries()`: one entry per main category, in the same order
+     * (without the leading "Overall" series), each a list the length of
+     * `labels` holding the note text at that evaluation, or '' for none.
+     *
+     * A main category's point gathers its own note and its subcategories'
+     * notes, each sub note prefixed with the sub's name, so the story
+     * behind a moving line is one tap away. Callers show this only where
+     * they already show the evaluations it comes from.
+     *
+     * @param array<string,mixed> $filters
+     * @return array<int, array{main_id:int, notes: array<int, string>}>
+     */
+    public function getTrendNotes( int $player_id, array $filters = [] ): array {
+        $evals    = $this->getEvaluationsForPlayer( $player_id, $filters );
+        $mains    = $this->cats_repo->getMainCategories( true );
+        $eval_ids = array_map( fn( $e ) => (int) $e->id, $evals );
+        $by_eval  = ( new \TT\Infrastructure\Evaluations\EvalCategoryNotesRepository() )->forEvaluations( $eval_ids );
+
+        // Sub category id to [parent id, label], for the categories that
+        // carry a note at all.
+        $parents = [];
+        foreach ( $mains as $m ) {
+            foreach ( $this->cats_repo->getChildren( (int) $m->id, false ) as $sub ) {
+                $parents[ (int) $sub->id ] = [
+                    (int) $m->id,
+                    \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? '' ), (int) $sub->id ),
+                ];
+            }
+        }
+
+        $out = [];
+        foreach ( $mains as $m ) {
+            $mid   = (int) $m->id;
+            $notes = [];
+            foreach ( $eval_ids as $i => $eid ) {
+                $parts = [];
+                $for_eval = $by_eval[ $eid ] ?? [];
+                if ( isset( $for_eval[ $mid ] ) ) $parts[] = $for_eval[ $mid ];
+                foreach ( $for_eval as $cid => $note ) {
+                    if ( ( $parents[ $cid ][0] ?? 0 ) !== $mid ) continue;
+                    $parts[] = $parents[ $cid ][1] . ': ' . $note;
+                }
+                $notes[ $i ] = implode( "\n", $parts );
+            }
+            $out[] = [ 'main_id' => $mid, 'notes' => $notes ];
+        }
+        return $out;
+    }
+
     // Radar snapshots
 
     /**

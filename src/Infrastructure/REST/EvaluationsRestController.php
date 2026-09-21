@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalCategoryNotesRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -567,7 +568,32 @@ class EvaluationsRestController {
             return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
         }
 
-        return RestResponse::success( (array) $e );
+        // #3949 — the category notes travel with the evaluation, behind the
+        // same check as its ratings. There is no second visibility rule.
+        $out                   = (array) $e;
+        $out['category_notes'] = (object) ( new EvalCategoryNotesRepository() )->forEvaluation( (int) $r['id'] );
+
+        return RestResponse::success( $out );
+    }
+
+    /**
+     * #3949 — refuse a body whose category notes are over the limit, before
+     * anything is written. `null` when the notes are fine or absent.
+     */
+    private static function category_notes_refusal( \WP_REST_Request $r ): ?\WP_REST_Response {
+        if ( ! isset( $r['category_notes'] ) ) return null;
+        $too_long = EvalCategoryNotesRepository::tooLong( (array) $r['category_notes'] );
+        if ( ! $too_long ) return null;
+        return RestResponse::error(
+            'note_too_long',
+            sprintf(
+                /* translators: %d: maximum number of characters in a category note */
+                __( 'A category note can be at most %d characters.', 'talenttrack' ),
+                EvalCategoryNotesRepository::MAX_LENGTH
+            ),
+            400,
+            [ 'category_ids' => $too_long ]
+        );
     }
 
     /**
@@ -610,6 +636,7 @@ class EvaluationsRestController {
             'game_result'     => [ 'type' => 'string', 'description' => 'The score, as free text.' ],
             'home_away'       => [ 'type' => 'string', 'description' => 'home or away.' ],
             'ratings'         => [ 'type' => 'object', 'description' => 'Category id to rating. A submitted category is upserted, a submitted blank clears that category, and a category left out is untouched.' ],
+            'category_notes'  => [ 'type' => 'object', 'description' => 'Category id (main or sub) to a note of at most 500 characters, visible to whoever can see the evaluation. A submitted category is upserted, a submitted blank clears its note, and a category left out is untouched.' ],
         ];
     }
 
@@ -633,6 +660,8 @@ class EvaluationsRestController {
         // is a refusal rather than a 200 over a note nobody stored.
         $refused = BaseController::checkBody( $r, self::writeArgs() );
         if ( $refused !== null ) return $refused;
+        $notes_refused = self::category_notes_refusal( $r );
+        if ( $notes_refused !== null ) return $notes_refused;
 
         $header = self::extract( $r );
         $header['coach_id'] = get_current_user_id();
@@ -705,6 +734,9 @@ class EvaluationsRestController {
                 [ 'evaluation_id' => $id, 'failures' => $rating_failures ]
             );
         }
+        if ( isset( $r['category_notes'] ) ) {
+            ( new EvalCategoryNotesRepository() )->write( $id, (array) $r['category_notes'] );
+        }
 
         // #0018 — let downstream listeners (e.g. CompatibilityEngine
         // cache invalidation) know the player's evaluation surface
@@ -721,6 +753,8 @@ class EvaluationsRestController {
         // written. Nothing is required: the update is a patch.
         $refused = BaseController::checkBody( $r, self::updateArgs() );
         if ( $refused !== null ) return $refused;
+        $notes_refused = self::category_notes_refusal( $r );
+        if ( $notes_refused !== null ) return $notes_refused;
 
         $id = (int) $r['id'];
         if ( $id <= 0 ) {
@@ -788,7 +822,7 @@ class EvaluationsRestController {
         // #3582 — stamped here rather than left to the column's
         // ON UPDATE clause, which the local install showed does not
         // reliably fire. A ratings-only save is still an edit.
-        if ( $header || isset( $r['ratings'] ) ) {
+        if ( $header || isset( $r['ratings'] ) || isset( $r['category_notes'] ) ) {
             $header['updated_at'] = current_time( 'mysql' );
         }
         // A body that carries nothing at all has nothing to write here, and
@@ -847,6 +881,13 @@ class EvaluationsRestController {
                     [ 'evaluation_id' => $id, 'failures' => $rating_failures ]
                 );
             }
+        }
+
+        // #3949 — the same partial contract as the ratings: a submitted
+        // category note is upserted, a blank clears it, one left out stays.
+        // Only on an evaluation this club actually has.
+        if ( isset( $r['category_notes'] ) && self::evaluation_player_id( $id ) > 0 ) {
+            ( new EvalCategoryNotesRepository() )->write( $id, (array) $r['category_notes'] );
         }
 
         // #0018 — same hook as create_eval; let cache invalidators

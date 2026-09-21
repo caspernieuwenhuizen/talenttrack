@@ -80,7 +80,7 @@ class RatingInputComponent {
      *   name:string, value?:float|string|null, label:string,
      *   sub_label?:string, sub?:bool, label_hidden?:bool, min?:float,
      *   max?:float, step?:float, disabled?:bool, input_class?:string,
-     *   data_attrs?:array<string,string|int>
+     *   data_attrs?:array<string,string|int>, after_html?:string
      * } $args
      */
     public static function renderListRow( array $args ): string {
@@ -112,6 +112,9 @@ class RatingInputComponent {
             $out .= '</label>';
         }
         $out .= self::renderStars( $name, $value, $label, $min, $max, $step, $disabled, $input_class, $data_attrs, false );
+        // #3949 — trusted, already-escaped markup a caller hangs on the row,
+        // such as the category-note toggle and its panel.
+        $out .= (string) ( $args['after_html'] ?? '' );
         $out .= '</div>';
         return $out;
     }

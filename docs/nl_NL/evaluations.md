@@ -43,7 +43,35 @@ Daaronder heeft het formulier drie onderdelen:
 
 Een beoordeling op of onder de drempel voor lage scores van de academie
 wordt gemarkeerd, en boven de notities verschijnt een herinnering om die toe
-te lichten, tot je een interne notitie schrijft.
+te lichten, tot je dat doet: met een notitie bij die categorie zelf (zie
+hieronder) of met een interne notitie.
+
+## Een notitie bij elke categorie
+
+Een beoordeling zegt hoe goed, niet waarom. Elke hoofdcategorie en elke
+subcategorie heeft naast de beoordeling een knop **Notitie**. Die opent een
+kort tekstvak (hooguit 500 tekens) voor de context: wat je zag, de situatie,
+één moment dat het laat zien. Het vak blijft dicht tot je het opent, dus een
+hele selectie beoordelen gaat niet trager. Een categorie met een notitie
+toont een gevulde knop met een stip, ook als het vak dicht is.
+
+- Een notitie kan bij een categorie staan die je niet hebt beoordeeld — een
+  vaardigheid waar je alleen iets over kwijt wilt, of een hoofdcategorie
+  waarvan de beoordeling uit de subcategorieën komt.
+- **Wie het ziet:** iedereen die de evaluatie kan zien, ook de speler en de
+  ouders als de evaluatie voor hen zichtbaar is. Het tekstvak zegt dat erbij,
+  schrijf dus met dat publiek in gedachten. Het langere verhaal voor alleen de
+  staf hoort nog steeds in **Interne notities**.
+- Hetzelfde notitievak staat ook in de beoordelingsstappen van de
+  evaluatiewizard.
+- Een notitie bij een laag beoordeelde categorie telt als de toelichting waar
+  de herinnering om vraagt.
+
+De notities staan naast hun beoordeling op de pagina van de evaluatie, in de
+uitsplitsing van **Mijn evaluaties** van de speler, als de grotere punten in
+de grafiek **Trend in de tijd** van de beoordelingskaart (tik of wijs een
+punt aan om ze te lezen), en in de Excel- en CSV-export van evaluaties, één
+kolom per hoofdcategorie naast de beoordeling.
 
 ## Een evaluatie bewerken slaat zichzelf op
 
@@ -74,7 +102,7 @@ zodra je tevreden bent.
 
 ## Wat de speler ziet
 
-Spelers (en hun ouders) zien alleen de scores en het bericht **Feedback voor de speler** — nooit je interne Notities. Laat je het feedbackveld leeg, dan ziet de speler enkel de scores.
+Spelers (en hun ouders) zien alleen de scores, de notities per categorie en het bericht **Feedback voor de speler** — nooit je interne Notities. Laat je het feedbackveld leeg, dan ziet de speler enkel de scores en eventuele notities per categorie.
 
 ## Een evaluatie bekijken
 

@@ -29,7 +29,7 @@ maken** en **Wijzigingen terugdraaien**.
 | --- | --- |
 | [Wedstrijdvoorbereiding](match-prep.md) | Het hele scherm |
 | [Wedstrijdanalyse](match-analysis.md) | Alleen het concept; **Markeren als definitief** publiceert het |
-| [Evaluaties](evaluations.md) | Bij het bewerken van een bestaande |
+| [Evaluaties](evaluations.md) | Bij het bewerken van een bestaande, ook de notities per categorie |
 | [Spelersdoelen](goals.md) | Bij het bewerken van een bestaand doel |
 | [POP-gesprek](pdp-cycle.md) | Tot het is ondertekend |
 | [POP-voorbereiding](pdp-cycle.md) | De antwoorden van de trainer, tot het gesprek is ondertekend |

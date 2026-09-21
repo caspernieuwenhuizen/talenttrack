@@ -125,6 +125,7 @@ class PlayerDeletionCascade {
 
             $children = [
                 [ 'tt_eval_ratings',          'evaluation_id', 'tt_evaluations',  'id' ],
+                [ 'tt_eval_category_notes',   'evaluation_id', 'tt_evaluations',  'id' ],
                 [ 'tt_goal_links',            'goal_id',       'tt_goals',        'id' ],
                 [ 'tt_pdp_conversations',     'pdp_file_id',   'tt_pdp_files',    'id' ],
                 [ 'tt_pdp_verdicts',          'pdp_file_id',   'tt_pdp_files',    'id' ],

@@ -184,6 +184,7 @@ class DemoEvaluationWriter {
 
             $main = $this->scale->quantise( $centre + ( mt_rand( -40, 40 ) / 100 ) * $step );
             $this->writeRating( $eval_id, $cat['id'], $main );
+            $this->maybeWriteNote( $eval_id, $cat['id'] );
 
             foreach ( $this->subcategoriesFor( $cat['id'] ) as $sub_id ) {
                 $this->writeRating(
@@ -192,6 +193,35 @@ class DemoEvaluationWriter {
                     $this->scale->quantise( $centre + ( mt_rand( -60, 60 ) / 100 ) * $step )
                 );
             }
+        }
+    }
+
+    /**
+     * #3949 — a category note on roughly one main category in six.
+     *
+     * Chosen from the ids, not from `mt_rand()`: every dependent generator
+     * draws from one seeded stream, and taking values from it here would
+     * shift everything generated after this and break the reproducibility
+     * of a (seed, preset) pair.
+     */
+    private function maybeWriteNote( int $eval_id, int $category_id ): void {
+        if ( ( $eval_id + $category_id ) % 6 !== 0 ) return;
+        $notes = [
+            __( 'Strong in the first half; faded once the tempo went up.', 'talenttrack' ),
+            __( 'Good choices under no pressure, rushed when pressed.', 'talenttrack' ),
+            __( 'Clear step forward since the last evaluation.', 'talenttrack' ),
+            __( 'Keep working on this in small-sided games.', 'talenttrack' ),
+        ];
+        global $wpdb;
+        $ok = $wpdb->insert( "{$wpdb->prefix}tt_eval_category_notes", [
+            'club_id'       => CurrentClub::id(),
+            'evaluation_id' => $eval_id,
+            'category_id'   => $category_id,
+            'note'          => $notes[ ( $eval_id + $category_id ) % count( $notes ) ],
+        ] );
+        $note_id = (int) $wpdb->insert_id;
+        if ( $ok !== false && $note_id ) {
+            $this->registry->tag( 'eval_category_note', $note_id );
         }
     }
 

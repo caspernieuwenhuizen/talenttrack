@@ -31,6 +31,7 @@ class PresetRegistry {
             'tt_teams',
             'tt_evaluations',
             'tt_eval_ratings',
+            'tt_eval_category_notes',
         ];
         $standard = array_merge( $minimal, [
             'tt_activities',

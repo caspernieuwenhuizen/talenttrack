@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalCategoryNotesRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardEntryPoint;
@@ -213,6 +214,7 @@ final class ReviewStep implements WizardStepInterface {
         $notes   = (array) ( $state['notes'] ?? [] );
         $player_feedback = (array) ( $state['player_feedback'] ?? [] );
         $skip    = (array) ( $state['skip'] ?? [] );
+        $category_notes = (array) ( $state['category_notes'] ?? [] );
 
         $activity_row = $wpdb->get_row( $wpdb->prepare(
             "SELECT session_date FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
@@ -251,7 +253,14 @@ final class ReviewStep implements WizardStepInterface {
                 'notes'       => (string) ( $notes[ $player_id ] ?? '' ),
                 'player_feedback' => (string) ( $player_feedback[ $player_id ] ?? '' ),
             ] );
-            if ( ! is_wp_error( $result ) ) $created++;
+            if ( ! is_wp_error( $result ) ) {
+                $created++;
+                // #3949 — the player's category notes, if the coach wrote any.
+                $for_player = isset( $category_notes[ $player_id ] ) && is_array( $category_notes[ $player_id ] ) ? $category_notes[ $player_id ] : [];
+                if ( $for_player ) {
+                    ( new EvalCategoryNotesRepository() )->write( (int) $result, $for_player );
+                }
+            }
         }
 
         // v3.110.194 (#812) — refuse to flip the activity to
@@ -429,6 +438,12 @@ final class ReviewStep implements WizardStepInterface {
                     'category_id'   => (int) $cat_id,
                     'rating'        => $val,
                 ] );
+            }
+
+            // #3949 — category notes, on rated and unrated categories alike.
+            $notes_self = (array) ( $state['category_notes_self'] ?? [] );
+            if ( $notes_self ) {
+                ( new EvalCategoryNotesRepository() )->write( $eval_id, $notes_self );
             }
         }
 

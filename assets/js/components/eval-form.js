@@ -3,8 +3,9 @@
  *
  * - Shows the match fields when the selected type asks for them.
  * - Low-rating comment policy: highlights every rating at or below the
- *   threshold and shows the warning while the staff notes are empty;
- *   in `hard` mode it blocks the submit.
+ *   threshold and shows the warning while some low rating has neither a
+ *   note on its own row nor staff notes; in `hard` mode it blocks the
+ *   submit.
  * - Basic / Detailed control per category card.
  * - Recomputes a category's main rating from its sub ratings.
  * - Fills the player strip once a player is picked on the create form.
@@ -56,13 +57,24 @@
 		var notesEl   = form.querySelector( '[data-tt-low-rating-notes]' );
 		var warningEl = form.querySelector( '[data-tt-low-rating-warning]' );
 
+		// #3949 — a low rating is explained by its own row's note: the sub
+		// row's note for a sub rating, the card's note for a main rating.
+		function ownNote( inp ) {
+			var row = inp.closest( '.tt-evf-sub' );
+			if ( row ) return row.querySelector( '[data-tt-evf-note-text]' );
+			var card = inp.closest( '[data-tt-eval-cat]' );
+			return card ? card.querySelector( '.tt-evf-cat__note [data-tt-evf-note-text]' ) : null;
+		}
+
 		function evaluate() {
 			var triggered = false;
 			form.querySelectorAll( 'input[type="number"][name^="ratings["]' ).forEach( function ( inp ) {
 				var v = parseFloat( inp.value );
 				var low = ! isNaN( v ) && v <= lowThreshold;
 				inp.classList.toggle( 'is-low', low );
-				if ( low ) triggered = true;
+				if ( ! low ) return;
+				var own = ownNote( inp );
+				if ( ! ( own && own.value.trim() !== '' ) ) triggered = true;
 			} );
 			var notesEmpty = ! notesEl || notesEl.value.trim() === '';
 			if ( warningEl ) warningEl.hidden = ! ( triggered && notesEmpty );

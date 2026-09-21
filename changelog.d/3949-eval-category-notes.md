@@ -1,0 +1,5 @@
+# A short note on each evaluation category and subcategory (#3949)
+
+Bump: minor
+
+A rating says how well; a note now says why. Every main category and subcategory in an evaluation has a Note button beside its rating, on the evaluation form and in the wizard's rating steps, opening a short text box of at most 500 characters. The box stays closed until opened, so rating a squad is no slower, and a category with a note shows a filled button even while closed. A note can sit on a category that was not rated. The notes are visible to everyone who can see the evaluation, including the player and their parents where the evaluation is visible to them. They show next to their ratings on the evaluation page and in My evaluations, as the larger points on the rate card's trend chart, and in the evaluations Excel and CSV exports. A note on a low-rated category now counts as the explanation the low-rating reminder asks for. Notes are removed with their evaluation when it is purged. The evaluation detail page now follows the same per-player check as the API.

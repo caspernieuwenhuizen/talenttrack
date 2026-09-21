@@ -1069,6 +1069,7 @@ class EvaluationsPage {
         }
 
         $wpdb->delete( "{$p}tt_eval_ratings", [ 'evaluation_id' => $id ] );
+        $wpdb->delete( "{$p}tt_eval_category_notes", [ 'evaluation_id' => $id ] );
         $wpdb->delete( "{$p}tt_evaluations", [ 'id' => $id ] );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-evaluations&tt_msg=deleted' ) );
         exit;

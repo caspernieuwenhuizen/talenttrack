@@ -1,0 +1,74 @@
+#: src/Infrastructure/REST/EvaluationsRestController.php
+#, php-format
+msgid "A category note can be at most %d characters."
+msgstr "Een notitie bij een categorie mag hooguit %d tekens lang zijn."
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Add note to %s"
+msgstr "Notitie toevoegen bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Edit note on %s"
+msgstr "Notitie bewerken bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgctxt "evaluation category note toggle"
+msgid "Note"
+msgstr "Notitie"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Note on %s"
+msgstr "Notitie bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgid "What did you see? For example the situation, or one moment."
+msgstr "Wat zag je? Bijvoorbeeld de situatie, of één moment."
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgid "Visible to everyone who can see this evaluation."
+msgstr "Zichtbaar voor iedereen die deze evaluatie kan zien."
+
+#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php
+#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php
+#, php-format
+msgid "%s — note"
+msgstr "%s — notitie"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Evaluation category notes"
+msgstr "Notities per evaluatiecategorie"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "A short note on one category or subcategory of an evaluation: the why behind the rating."
+msgstr "Een korte notitie bij één categorie of subcategorie van een evaluatie: het waarom achter de beoordeling."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Parent evaluation this note belongs to."
+msgstr "De evaluatie waar deze notitie bij hoort."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The category or subcategory the note is about."
+msgstr "De categorie of subcategorie waar de notitie over gaat."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The note, at most 500 characters."
+msgstr "De notitie, hooguit 500 tekens."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Strong in the first half; faded once the tempo went up."
+msgstr "Sterk in de eerste helft; zakte weg toen het tempo omhoog ging."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Good choices under no pressure, rushed when pressed."
+msgstr "Goede keuzes zonder druk, gehaast onder druk."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Clear step forward since the last evaluation."
+msgstr "Duidelijke stap vooruit sinds de vorige evaluatie."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Keep working on this in small-sided games."
+msgstr "Hier verder aan werken in kleine partijvormen."

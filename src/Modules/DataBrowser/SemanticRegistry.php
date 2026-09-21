@@ -91,6 +91,15 @@ class SemanticRegistry {
                     'rating'        => [ 'label' => __( 'Rating', 'talenttrack' ),     'description' => __( 'The score on the academy\'s rating scale.', 'talenttrack' ) ],
                 ],
             ],
+            'tt_eval_category_notes' => [
+                'label'       => __( 'Evaluation category notes', 'talenttrack' ),
+                'description' => __( 'A short note on one category or subcategory of an evaluation: the why behind the rating.', 'talenttrack' ),
+                'columns'     => [
+                    'evaluation_id' => [ 'label' => __( 'Evaluation', 'talenttrack' ), 'description' => __( 'Parent evaluation this note belongs to.', 'talenttrack' ) ],
+                    'category_id'   => [ 'label' => __( 'Category', 'talenttrack' ),   'description' => __( 'The category or subcategory the note is about.', 'talenttrack' ) ],
+                    'note'          => [ 'label' => __( 'Note', 'talenttrack' ),       'description' => __( 'The note, at most 500 characters.', 'talenttrack' ) ],
+                ],
+            ],
             'tt_goals' => [
                 'label'       => __( 'Goals', 'talenttrack' ),
                 'description' => __( 'Development goals (PDP) per player, with progress.', 'talenttrack' ),
