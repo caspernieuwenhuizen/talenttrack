@@ -157,7 +157,49 @@ does — that half never depended on these boxes.
 - **Constraint solver** — no "Casper must play GK every match" or similar. Use manual overrides; the manual layer is the constraint layer in v1.
 - **Auto-weight by opponent level** — the tool shows the level, the coach picks the lineup.
 - **Uneven substitution-window splits** — periods are derived from `duration_min ÷ (windows + 1)` assuming even splits.
-- **Per-player tournament tab on the player profile** — minutes/starts/full-matches are queryable from the tournament view in v1; there is no separate per-player rollup tab.
+
+## One player's tournament record
+
+The planner answers "how did I divide this Saturday between sixteen
+children". The **Tournaments** tab on a player's file answers the other
+half: how a season of Saturdays has gone for one of them.
+
+Open a player and choose **Tournaments**. You see what is coming up, the
+headline figures — minutes, starts out of fixtures, full matches, minutes
+against stronger sides — and then every tournament they were in the squad
+for, each opening to its fixtures: the opponent and their level, the score,
+whether the player started, came on or sat out, how many of the fixture's
+minutes they got, and where they played.
+
+**Each tournament is measured against that player's own minutes target**,
+the one set on the tournament's squad list — never against a squad average.
+A teammate's minutes are not this player's business, and a child's file is
+the wrong place to learn how much more somebody else played. Only a
+shortfall is coloured, and the numbers are written out beside the bar, so
+nothing on the page depends on seeing a colour.
+
+**Where the minutes come from is written on the page.** They follow the
+rotation plan of the fixtures that have been completed. There is no
+per-fixture record of what was actually played — a tournament day's
+attendance is one total for the day — and once a fixture is completed the
+planner locks its assignments, so the plan of a completed fixture *is* the
+rotation that was used. Minutes typed in afterwards on the minutes overview
+live on the **Activities** tab, and the two are never added together.
+
+A fixture with no result recorded says **no result**, not 0-0. A goalless
+draw and a game nobody typed in are different facts about a child's season.
+
+A player who has never been in a tournament squad sees a line saying so, and
+their tab carries no count. The tab still appears: a coach checking
+fair-share play needs "never selected" to be visible rather than silently
+absent.
+
+**Who sees it.** A coach for the players in their own squads, a Head of
+Development or academy administrator for anyone, the player for their own
+record, and a parent for their child — unless the player has switched the
+**tournaments** section off in their sharing settings, in which case the
+parent sees a note saying so. The same answer is on the API at
+`GET /players/{id}/tournaments`.
 
 ## Who can see this
 
