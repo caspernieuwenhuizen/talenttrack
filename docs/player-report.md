@@ -85,6 +85,26 @@ A talking point needs enough to go on. Attendance is not compared on a handful
 of sessions, and playing time is not compared until a few matches have minutes
 recorded, so a player who has just arrived is not flagged on too little data.
 
+## Printing it
+
+Choose how the printed copy comes out, then **Download PDF**:
+
+- **One-pager** — one A4 page, the copy you bring to a conversation. When
+  everything you ticked does not fit, long lists keep their most recent entries
+  and say how many more there are, the development plan becomes one line saying
+  how many conversations have been held and when the next one is, and the notes
+  area keeps three lines.
+- **Two-page pack** — up to two A4 pages, with room for every evaluation, match
+  and test in the period.
+
+**Printed size** shows how many pages the PDF will have and how full each page
+is, and says when the one-pager had to shorten something. On screen every
+section you ticked is always shown in full; the layout only shapes the paper.
+
+The PDF carries the same sections, and each section shows you only what it
+shows you on screen. It has no photo, and long notes are cut to one line — the
+full text is on screen.
+
 ## Saving your usual report
 
 Most coaches want the same sections for every conversation. Once the report

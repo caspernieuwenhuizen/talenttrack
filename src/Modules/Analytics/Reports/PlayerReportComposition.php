@@ -19,12 +19,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * carried as an empty period so a saved view keeps meaning "this season so
  * far" next month.
  *
- * @phpstan-type Composition array{player_id:int, period:string, from:string, to:string, blocks:list<string>}
+ * @phpstan-type Composition array{player_id:int, period:string, from:string, to:string, layout:string, blocks:list<string>}
  */
 final class PlayerReportComposition {
 
     /** The URL / saved-view parameters a composition is carried in. */
-    public const PARAMS = [ 'player_id', 'period', 'from', 'to', 'blocks' ];
+    public const PARAMS = [ 'player_id', 'period', 'from', 'to', 'layout', 'blocks' ];
 
     /** Season start through today. */
     public const DEFAULT_PERIOD = '';
@@ -50,11 +50,17 @@ final class PlayerReportComposition {
             }
         }
 
+        $layout = is_scalar( $raw['layout'] ?? null ) ? strtoupper( trim( (string) $raw['layout'] ) ) : '';
+        if ( ! PlayerReportLayout::isValid( $layout ) ) {
+            $layout = PlayerReportLayout::DEFAULT;
+        }
+
         return [
             'player_id' => is_numeric( $raw['player_id'] ?? null ) ? max( 0, (int) $raw['player_id'] ) : 0,
             'period'    => $period,
             'from'      => $from,
             'to'        => $to,
+            'layout'    => $layout,
             'blocks'    => self::blocks( $raw['blocks'] ?? [] ),
         ];
     }

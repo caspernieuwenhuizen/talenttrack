@@ -90,6 +90,27 @@ vergeleken op een handvol trainingen, en speeltijd pas als er bij een paar
 wedstrijden minuten zijn vastgelegd, zodat een speler die net binnen is niet op
 te weinig gegevens wordt aangemerkt.
 
+## Afdrukken
+
+Kies hoe de afdruk eruitziet en klik op **PDF downloaden**:
+
+- **Eén pagina** — één A4, het exemplaar dat je meeneemt naar een gesprek. Past
+  niet alles wat je hebt aangevinkt, dan houden lange lijsten hun meest recente
+  items en zeggen ze hoeveel er nog meer zijn, wordt het ontwikkelplan één regel
+  met hoeveel gesprekken er zijn gevoerd en wanneer het volgende is, en houdt het
+  notitievak drie lijntjes.
+- **Pakket van twee pagina's** — maximaal twee A4's, met ruimte voor elke
+  evaluatie, wedstrijd en test in de periode.
+
+**Afdrukformaat** laat zien hoeveel pagina's de PDF krijgt en hoe vol elke
+pagina is, en zegt het als de ene pagina iets moest inkorten. Op het scherm zie
+je altijd elk aangevinkt onderdeel volledig; de indeling bepaalt alleen het
+papier.
+
+De PDF bevat dezelfde onderdelen, en elk onderdeel toont je alleen wat het je
+op het scherm toont. Er staat geen foto op, en lange notities worden afgekapt
+op één regel — de volledige tekst staat op het scherm.
+
 ## Je vaste rapport bewaren
 
 De meeste trainers willen voor elk gesprek dezelfde onderdelen. Als het rapport
