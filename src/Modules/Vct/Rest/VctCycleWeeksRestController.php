@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctCycleWeekOverridesRepository;
@@ -44,8 +45,29 @@ class VctCycleWeeksRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'replace' ],
                 'permission_callback' => [ __CLASS__, 'can_write' ],
+                'args'                => self::replaceArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /vct/cycle-weeks` takes. `team_id` and
+     * `season_id` may arrive in the query string instead; both forms are
+     * declared so neither is refused.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthenticated write with a 400 rather than the 401 it is owed.
+     * `replace()` names what it needs itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function replaceArgs(): array {
+        return [
+            'team_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team whose cycle weeks these are.' ],
+            'season_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the weeks belong to.' ],
+            'weeks'     => [ 'type' => 'object', 'description' => 'A map of week-start Monday (YYYY-MM-DD) to state: auto, neutral or active. The whole override set is replaced; auto removes the override.' ],
+        ];
     }
 
     public static function can_read(): bool {
@@ -75,6 +97,10 @@ class VctCycleWeeksRestController {
      * where `auto` removes the override rather than storing a third state.
      */
     public static function replace( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::replaceArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id   = (int) ( $r->get_param( 'team_id' ) ?? 0 );
         $season_id = (int) ( $r->get_param( 'season_id' ) ?? 0 );
         if ( $team_id <= 0 || $season_id <= 0 ) {

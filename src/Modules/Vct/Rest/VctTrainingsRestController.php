@@ -4,6 +4,7 @@ namespace TT\Modules\Vct\Rest;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -79,6 +80,7 @@ class VctTrainingsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'generate' ],
                 'permission_callback' => [ __CLASS__, 'can_write_team' ],
+                'args'                => self::generateArgs(),
             ],
         ] );
 
@@ -92,6 +94,7 @@ class VctTrainingsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_write_row' ],
+                'args'                => self::patchArgs(),
             ],
         ] );
 
@@ -100,8 +103,61 @@ class VctTrainingsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'publish' ],
                 'permission_callback' => [ __CLASS__, 'can_write_row' ],
+                'args'                => self::publishArgs(),
             ],
         ] );
+    }
+
+    // Body contracts (#3819) ---------------------------------------------
+
+    /**
+     * The body `POST /vct/sessions/generate` takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and this route's gate reads `team_id` to
+     * decide whether the caller may plan for that team at all — a required
+     * key would answer a caller without that scope with a 400 rather than
+     * the 403 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function generateArgs(): array {
+        return [
+            'team_id'                    => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the training is planned for.' ],
+            'season_id'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the training falls in.' ],
+            'age_group'                  => [ 'type' => 'string', 'description' => 'The age group whose ceilings apply, e.g. U13.' ],
+            'session_date'               => [ 'type' => 'string', 'description' => 'The day the training runs, as YYYY-MM-DD.' ],
+            'start_time'                 => [ 'type' => 'string', 'description' => 'The start time as HH:MM. Blank leaves it open.' ],
+            'tactical_theme'             => [ 'type' => 'string', 'description' => 'The tactical theme to build the training around.' ],
+            'roster_player_ids'          => [ 'type' => 'array', 'description' => 'The players expected at the training, as player ids.' ],
+            'requested_duration_minutes' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long the training should run, in minutes. Capped by the age profile.' ],
+        ];
+    }
+
+    /**
+     * The body `PATCH /vct/sessions/{id}` takes. Only `blocks` is written;
+     * a block the list leaves out is left alone, so a partial edit stays
+     * partial (CLAUDE.md §6).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function patchArgs(): array {
+        return [
+            'id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The VCT training, from the URL. A copy in the body is accepted and ignored.' ],
+            'blocks' => [ 'type' => 'array', 'description' => 'Block patches, each carrying the block id and the fields to change. A block that is not listed is left alone.' ],
+        ];
+    }
+
+    /**
+     * The body `POST /vct/sessions/{id}/publish` takes.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function publishArgs(): array {
+        return [
+            'id'            => [ 'type' => [ 'integer', 'string' ], 'description' => 'The VCT training, from the URL. A copy in the body is accepted and ignored.' ],
+            'bind_existing' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Bind to the activity already in that slot instead of refusing with a conflict.' ],
+        ];
     }
 
     // Permission callbacks ---------------------------------------------
@@ -158,6 +214,10 @@ class VctTrainingsRestController {
     }
 
     public static function generate( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::generateArgs() );
+        if ( $refused !== null ) return $refused;
+
         $payload = [
             'team_id'                    => (int) ( $r->get_param( 'team_id' ) ?? 0 ),
             'season_id'                  => (int) ( $r->get_param( 'season_id' ) ?? 0 ),
@@ -193,6 +253,10 @@ class VctTrainingsRestController {
     }
 
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::patchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r->get_param( 'id' );
         $sessions = new VctSessionsRepository();
         $session = $sessions->find( $id );
@@ -229,6 +293,10 @@ class VctTrainingsRestController {
     }
 
     public static function publish( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::publishArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r->get_param( 'id' );
         $sessions = new VctSessionsRepository();
         $session = $sessions->find( $id );

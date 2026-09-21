@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctTeamSchedulesRepository;
@@ -36,8 +37,29 @@ class VctTeamSchedulesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'upsert' ],
                 'permission_callback' => [ __CLASS__, 'can_write' ],
+                'args'                => self::upsertArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PUT /vct/teams/{team_id}/schedule` takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer a caller
+     * without team scope with a 400 rather than the 403 it is owed.
+     * `upsert()` names what it needs itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function upsertArgs(): array {
+        return [
+            'team_id'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team, from the URL. A copy in the body is accepted and ignored.' ],
+            'season_id'                => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the weekday preferences apply to.' ],
+            'weekdays_bitmask'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'Which weekdays the team trains, as a bitmask of 0-127.' ],
+            'default_start_time'       => [ 'type' => 'string', 'description' => 'The usual kick-off time as HH:MM. Blank means none is set.' ],
+            'default_duration_minutes' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How long a training usually runs, in minutes.' ],
+        ];
     }
 
     public static function can_read( \WP_REST_Request $r ): bool {
@@ -66,6 +88,10 @@ class VctTeamSchedulesRestController {
     }
 
     public static function upsert( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::upsertArgs() );
+        if ( $refused !== null ) return $refused;
+
         $team_id          = (int)    $r->get_param( 'team_id' );
         $season_id        = (int)    ( $r->get_param( 'season_id' ) ?? 0 );
         $weekdays_bitmask = (int)    ( $r->get_param( 'weekdays_bitmask' ) ?? 0 );

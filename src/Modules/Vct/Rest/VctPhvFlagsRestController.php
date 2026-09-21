@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctPhvFlagsRepository;
@@ -31,8 +32,26 @@ class VctPhvFlagsRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'setFlag' ],
                 'permission_callback' => [ __CLASS__, 'can_write' ],
+                'args'                => self::setFlagArgs(),
             ],
         ] );
+    }
+
+    /**
+     * #3819 — the body `PATCH /vct/players/{id}/phv-flag` takes.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, and this route's gate is what keeps one
+     * club's coach off another club's player.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function setFlagArgs(): array {
+        return [
+            'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
+            'is_active' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the player is in a growth spurt and should carry less load.' ],
+            'notes'     => [ 'type' => 'string', 'description' => 'What the flag is based on.' ],
+        ];
     }
 
     public static function can_write( \WP_REST_Request $r ): bool {
@@ -44,6 +63,10 @@ class VctPhvFlagsRestController {
     }
 
     public static function setFlag( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::setFlagArgs() );
+        if ( $refused !== null ) return $refused;
+
         $player_id = (int)    $r->get_param( 'id' );
         $is_active = (bool)   ( $r->get_param( 'is_active' ) ?? false );
         $notes     = (string) ( $r->get_param( 'notes' )     ?? '' );

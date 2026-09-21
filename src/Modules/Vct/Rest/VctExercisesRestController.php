@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
@@ -40,6 +41,7 @@ class VctExercisesRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::writeArgs(),
             ],
         ] );
 
@@ -53,6 +55,7 @@ class VctExercisesRestController {
                 'methods'             => 'PATCH',
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::patchArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -123,7 +126,64 @@ class VctExercisesRestController {
         return RestResponse::success( [ 'exercise' => $row ] );
     }
 
+    /**
+     * #3819 — the body the exercise writes take: the catalogue columns
+     * `extractWritePayload()` reads, and nothing else.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthenticated POST with a 400 naming the columns rather than the
+     * 401 it is owed. `validateCreatePayload()` names the three it needs.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function writeArgs(): array {
+        return [
+            'code'                     => [ 'type' => 'string', 'description' => 'The catalogue code that identifies the exercise.' ],
+            'name_canonical'           => [ 'type' => 'string', 'description' => 'The exercise name as the library lists it.' ],
+            'category'                 => [ 'type' => 'string', 'description' => 'Which part of a training the exercise belongs in.' ],
+            'tactical_theme'           => [ 'type' => 'string', 'description' => 'The tactical theme the exercise develops.' ],
+            'sided_size'               => [ 'type' => 'string', 'description' => 'The game form, e.g. 4v4 or 7v7.' ],
+            'verheijen_classification' => [ 'type' => 'string', 'description' => 'The conditioning classification the exercise falls under.' ],
+            'diagram_url'              => [ 'type' => 'string', 'description' => 'A link to the exercise diagram.' ],
+            'intensity_band'           => [ 'type' => [ 'integer', 'string' ], 'description' => 'How hard the exercise is, 1-10.' ],
+            'duration_minutes_min'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The shortest the exercise is worth running, in minutes.' ],
+            'duration_minutes_max'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The longest the exercise should run, in minutes.' ],
+            'players_min'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The fewest players it works with.' ],
+            'players_max'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The most players it works with.' ],
+            'age_min'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The youngest age the exercise suits.' ],
+            'age_max'                  => [ 'type' => [ 'integer', 'string' ], 'description' => 'The oldest age the exercise suits.' ],
+            'md_minus_4'               => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits four days before a game.' ],
+            'md_minus_3'               => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits three days before a game.' ],
+            'md_minus_2'               => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits two days before a game.' ],
+            'md_minus_1'               => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits the day before a game.' ],
+            'md_zero'                  => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits on match day.' ],
+            'md_plus_1'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits the day after a game.' ],
+            'md_plus_2'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits two days after a game.' ],
+            'md_none'                  => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the exercise fits a week with no game in it.' ],
+            'equipment_json'           => [ 'type' => [ 'array', 'object', 'string' ], 'description' => 'The equipment the exercise needs.' ],
+        ];
+    }
+
+    /**
+     * #3819 — `PATCH /vct/exercises/{id}` on top of `writeArgs()`. Every
+     * key is optional and an omitted one is left alone, because the repo
+     * writes only the keys the payload carries.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function patchArgs(): array {
+        return [ 'id' => [
+            'type'        => [ 'integer', 'string' ],
+            'description' => 'The exercise, from the URL. A copy in the body is accepted and ignored.',
+        ] ] + self::writeArgs();
+    }
+
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::writeArgs() );
+        if ( $refused !== null ) return $refused;
+
         $payload = self::extractWritePayload( $r );
         $err = self::validateCreatePayload( $payload );
         if ( $err !== null ) return $err;
@@ -137,6 +197,10 @@ class VctExercisesRestController {
     }
 
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::patchArgs() );
+        if ( $refused !== null ) return $refused;
+
         $id = (int) $r->get_param( 'id' );
         $existing = ( new VctExercisesRepository() )->find( $id );
         if ( $existing === null ) return RestResponse::error( 'not_found', __( 'Exercise not found.', 'talenttrack' ), 404 );

@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctCycleWeekOverridesRepository;
@@ -44,6 +45,7 @@ class VctTeamCyclesRestController {
                 'methods'             => 'PUT',
                 'callback'            => [ __CLASS__, 'save' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
+                'args'                => self::saveArgs(),
             ],
             [
                 'methods'             => 'DELETE',
@@ -68,7 +70,32 @@ class VctTeamCyclesRestController {
         ] );
     }
 
+    /**
+     * #3819 — the body `PUT /vct/team-cycles` takes. `season_id` and
+     * `team_id` may arrive in the query string instead; both forms are
+     * declared so neither is refused.
+     *
+     * Nothing is declared `required`: core checks required params before
+     * the permission callback, so a required key would answer an
+     * unauthenticated write with a 400 rather than the 401 it is owed.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function saveArgs(): array {
+        return [
+            'season_id'   => [ 'type' => [ 'integer', 'string' ], 'description' => 'The season the cycle runs in.' ],
+            'team_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team the cycle is for.' ],
+            'cycle_weeks' => [ 'type' => [ 'integer', 'string' ], 'description' => 'How many weeks the cycle repeats over.' ],
+            'anchor_date' => [ 'type' => 'string', 'description' => 'The Monday the first week of the cycle starts on, as YYYY-MM-DD.' ],
+            'template_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The cycle template to follow. 0 or blank means none.' ],
+        ];
+    }
+
     public static function save( \WP_REST_Request $r ): \WP_REST_Response {
+        // #3819 — the body's shape before its values.
+        $refused = BaseController::checkBody( $r, self::saveArgs() );
+        if ( $refused !== null ) return $refused;
+
         $season_id = (int) ( $r->get_param( 'season_id' ) ?? 0 );
         $team_id   = (int) ( $r->get_param( 'team_id' ) ?? 0 );
         if ( $season_id <= 0 || $team_id <= 0 ) {
