@@ -1373,6 +1373,21 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php esc_html_e( 'Print', 'talenttrack' ); ?>
                 </a>
                 <?php endif; ?>
+                <?php
+                // #3873 — the conversation document for this player. Offered
+                // only to a reader the report would open for.
+                if ( \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), $player_id )
+                    && \TT\Shared\Frontend\Components\CrossViewLink::allows( 'standard-report' )
+                ) :
+                    $report_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                        [ 'tt_view' => 'standard-report', 'slug' => 'player-report', 'player_id' => $player_id ], /* tt-xview-ok */
+                        RecordLink::dashboardUrl()
+                    ) );
+                    ?>
+                <a class="tt-player-card__cta" href="<?php echo esc_url( $report_url ); ?>">
+                    <?php esc_html_e( 'Player report', 'talenttrack' ); ?>
+                </a>
+                <?php endif; ?>
             </div>
             <div class="tt-player-card__body">
                 <div class="tt-player-cardtab__showcase">

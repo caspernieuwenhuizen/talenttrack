@@ -79,6 +79,10 @@ final class SavedViewsRegistry {
         // #3461 — the team monthly report. A view here stores a whole
         // composition (team, window, layout, sections), not only filters.
         'report-team-monthly'                  => 'tt_view_analytics',
+
+        // #3873 — the player report. A view stores the sections and the
+        // window, never the player: the bar pins the player outside it.
+        'report-player-report'                 => 'tt_view_analytics',
     ];
 
     /**

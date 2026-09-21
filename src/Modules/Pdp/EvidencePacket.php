@@ -13,6 +13,7 @@ use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\RecordVisibility;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
@@ -141,6 +142,17 @@ final class EvidencePacket {
             'tests' => self::tests( $player_id, $from, $to, $viewer_user_id ),
             'pdp'   => self::pdp( $player_id, $season ? (int) ( $season->id ?? 0 ) : 0, $viewer_user_id ),
         ];
+    }
+
+    /**
+     * The packet's attendance group for any window, on its own — for a
+     * reader that compares two windows and must count both the way the
+     * packet does (#3875's attendance trend).
+     *
+     * @return array<string,mixed>
+     */
+    public static function attendanceFor( int $player_id, string $from, string $to ): array {
+        return self::attendance( $player_id, (int) CurrentClub::id(), $from, $to );
     }
 
     /**
@@ -634,8 +646,10 @@ final class EvidencePacket {
                 }
                 if ( $latest === null ) continue;
 
-                $value    = $latest['value'] ?? null;
-                $before   = $previous !== null ? ( $previous['value'] ?? null ) : null;
+                // Rounded: unit conversion leaves binary noise (7.010000000000001)
+                // that a REST consumer would otherwise print.
+                $value    = self::reading( $latest['value'] ?? null );
+                $before   = $previous !== null ? self::reading( $previous['value'] ?? null ) : null;
                 $delta    = ( $value !== null && $before !== null ) ? round( (float) $value - (float) $before, 2 ) : null;
                 $readings = count( array_filter(
                     $series,
@@ -654,7 +668,7 @@ final class EvidencePacket {
                     'previous_date' => $previous !== null ? (string) $previous['date'] : '',
                     'previous'      => $before,
                     'delta'         => $delta,
-                    'trend'         => self::trend( $delta, (string) ( $test['direction'] ?? '' ) ),
+                    'trend'         => self::trend( $delta, $before, (string) ( $test['direction'] ?? '' ) ),
                     'readings'      => $readings,
                 ];
             }
@@ -663,16 +677,26 @@ final class EvidencePacket {
     }
 
     /**
-     * Whether a change is an improvement, following the test rather than the
-     * sign: a faster sprint is a smaller number. Neutral tests (height,
-     * weight) get no verdict.
+     * @param mixed $value
      */
-    private static function trend( ?float $delta, string $direction ): string {
-        if ( $delta === null || ! in_array( $direction, [ 'higher', 'lower' ], true ) ) return '';
-        if ( abs( $delta ) < 0.00001 ) return 'flat';
+    private static function reading( $value ): ?float {
+        return is_numeric( $value ) ? round( (float) $value, 3 ) : null;
+    }
 
-        $better = $direction === 'higher' ? $delta > 0 : $delta < 0;
-        return $better ? 'up' : 'down';
+    /**
+     * The change's display state, by the Test trends report's own rule
+     * (`TestTrendsQuery::stateFor()`): the direction follows the test, so a
+     * faster sprint is `up`, and a move under its noise threshold is `flat`.
+     * A neutral test (height, weight) reads `rose` / `fell` and is never
+     * better or worse. Empty with nothing to compare against.
+     *
+     * @param mixed $previous
+     */
+    private static function trend( ?float $delta, $previous, string $direction ): string {
+        if ( $delta === null || ! is_numeric( $previous ) ) return '';
+
+        $has_direction = in_array( $direction, [ 'higher', 'lower' ], true );
+        return TestTrendsQuery::stateFor( $delta, (float) $previous, $direction, $has_direction )['trend'];
     }
 
     /**

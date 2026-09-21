@@ -227,9 +227,13 @@ final class TestTrendsQuery {
      * which way the value went and stop there. A move under the flat
      * threshold is `flat` either way — "unchanged" is a fact, not a judgement.
      *
+     * Public so the player report (#3875) reads a single reading's change the
+     * way this report does; a second rule there would call a 1% sprint
+     * "worse" where this one calls it unchanged.
+     *
      * @return array{trend: string, verdict: ?string}
      */
-    private static function stateFor( float $delta, ?float $base, string $direction, bool $has_direction ): array {
+    public static function stateFor( float $delta, ?float $base, string $direction, bool $has_direction ): array {
         $pct       = ( $base !== null && $base != 0.0 ) ? ( $delta / abs( $base ) ) * 100 : null;
         $magnitude = $pct !== null ? abs( $pct ) : 0.0;
 

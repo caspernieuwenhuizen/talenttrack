@@ -760,7 +760,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $edit_url    = add_query_arg( [ 'tt_view' => 'players', 'id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
         $print_pid   = (int) $player->id;
         $print_url   = add_query_arg( [ 'tt_print' => $print_pid ], remove_query_arg( [ 'tt_view', 'player_id' ] ) );
-        $wizard_url  = add_query_arg( [ 'tt_view' => 'report-wizard', 'player_id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) );
+        // #3873 — the player report replaces the audience wizard as this
+        // button's target. The wizard stays reachable by URL for the scout
+        // and trial flows until their audiences move across (#3876).
+        $report_url  = add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'player-report', 'player_id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) ); /* tt-xview-ok */
         $journey_url = add_query_arg( [ 'tt_view' => 'player-journey', 'player_id' => (int) $player->id ], remove_query_arg( [ 'tt_view', 'player_id', 'id', 'action' ] ) );
         $name        = QueryHelpers::player_display_name( $player );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -777,8 +780,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
             <?php if ( \TT\Modules\Stats\PrintRouter::canPrint( get_current_user_id(), $print_pid ) ) : // #3594 ?>
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $print_url ); ?>" target="_blank" rel="noopener"><?php echo \TT\Shared\Icons\IconRenderer::render( 'print', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;margin-right:4px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php esc_html_e( 'Print', 'talenttrack' ); ?></a>
             <?php endif; ?>
-            <?php if ( current_user_can( 'tt_generate_report' ) ) : ?>
-                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $wizard_url ); ?>"><?php esc_html_e( 'Generate report…', 'talenttrack' ); ?></a>
+            <?php if ( \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), $print_pid ) ) : ?>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( $report_url ) ); ?>"><?php esc_html_e( 'Player report', 'talenttrack' ); ?></a>
             <?php endif; ?>
         </div>
 

@@ -77,6 +77,14 @@ final class SavedViewsDefaults {
             'slug'    => 'team-monthly',
             'params'  => \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::PARAMS,
         ],
+        // #3873 — `player_id` is deliberately not a composition param here:
+        // arriving from a player's file carries only the player, and the
+        // coach's default sections should still apply to them.
+        'report-player-report' => [
+            'tt_view' => 'standard-report',
+            'slug'    => 'player-report',
+            'params'  => [ 'period', 'from', 'to', 'blocks' ],
+        ],
     ];
 
     public static function init(): void {

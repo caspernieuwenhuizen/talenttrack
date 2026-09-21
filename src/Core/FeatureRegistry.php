@@ -617,6 +617,8 @@ class FeatureRegistry {
             'minutes_share'                 => __( 'Team · Minutes share', 'talenttrack' ),
             // #3459 — one document per team per month for the staff meeting.
             'team_monthly'                  => __( 'Team · Monthly report', 'talenttrack' ),
+            // #3873 — one player over the season so far, for a conversation.
+            'player_report'                 => __( 'Player · Report', 'talenttrack' ),
             'team_squad_evaluation_summary' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
             // #2725 — a season of match analyses read per phase of play.
             'match_analysis_trends'         => __( 'Team · Match analysis trends', 'talenttrack' ),

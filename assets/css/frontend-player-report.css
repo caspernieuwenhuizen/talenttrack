@@ -1,0 +1,56 @@
+/*
+ * Player report (#3873, epic #3871).
+ *
+ * The report borrows the team monthly report's document shell (tt-mr-*) and
+ * the evidence panel's tables and cards (tt-evidence__*). This sheet only adds
+ * what a single-player document has and a squad document does not: the
+ * player's photo beside the letterhead. Mobile-first; tokens only.
+ */
+
+.tt-pr-head {
+	display: flex;
+	align-items: center;
+	gap: var(--tt-sp-3);
+}
+
+.tt-pr-head__photo {
+	flex: 0 0 auto;
+	width: 3.5rem;
+	height: 3.5rem;
+	aspect-ratio: 1 / 1;
+	object-fit: cover;
+	border-radius: 50%;
+	border: 1px solid var(--tt-line);
+	background: var(--tt-bg-soft);
+}
+
+.tt-pr-head__text {
+	min-width: 0;
+}
+
+.tt-pr-head__text h1 {
+	overflow-wrap: anywhere;
+}
+
+/*
+ * Talking points (#3875). Red and amber come from the team report's agenda;
+ * a player report adds a third level for what is worth saying but is not a
+ * concern — a gap in the record, a transition, a return from injury.
+ */
+.tt-mr-attention__item.is-info {
+	border-left-color: var(--tt-info);
+}
+
+@media (min-width: 768px) {
+	.tt-pr-head__photo {
+		width: 4.5rem;
+		height: 4.5rem;
+	}
+}
+
+@media print {
+	.tt-pr-head__photo {
+		width: 4rem;
+		height: 4rem;
+	}
+}

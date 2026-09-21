@@ -853,8 +853,22 @@ each block keeps its own gate for the reader.
 `tests.items[]` carries each test with a reading in the window: `value` (the
 latest in-window reading, in the test's own unit), `previous` and
 `previous_date` (the reading before it, which may predate the window), `delta`,
-and `trend` — `up` / `down` / `flat` following the test's direction, so a faster
-sprint is `up`; empty for a test with no direction or no previous reading.
+and `trend` in the Test trends report's vocabulary and by its rule
+(`TestTrendsQuery::stateFor()`): `up` / `down` following the test's direction,
+so a faster sprint is `up`; `rose` / `fell` for a test with no direction (height,
+weight), which is never better or worse; `flat` for a move under that report's
+noise threshold; empty when there is no previous reading. Readings are rounded to
+three decimals.
+
+`talking_points.items[]` (#3875) carries `key`, `level` (`red` / `amber` /
+`info`, most urgent first), `text` and `evidence`. Every point is derived from
+the packet — the status verdict, attendance against the previous window, the
+share of minutes against the academy target, a long window without an
+evaluation, tests trending `down`, overdue goals, returns from injury,
+transitions and the verdict's missing inputs — and none fires on too little
+data. The thresholds are `tt_config` keys: `player_report_attendance_drop_pts`
+(15), `player_report_min_activities` (4), `player_report_min_matches` (3) and
+`player_report_eval_window_days` (42).
 
 ## Team monthly report (#3458, epic #3457)
 

@@ -43,6 +43,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         'minutes-share'                => 'Team · Minutes share',
         // #3459 (epic #3457) — the document a monthly staff meeting runs on.
         'team-monthly'                 => 'Team · Monthly report',
+        // #3873 (epic #3871) — the document a coach brings to a conversation.
+        'player-report'                => 'Player · Report',
         'team-squad-evaluation-summary' => 'Team · Squad evaluation summary',
         // #2725 — a season of match analyses read as a per-phase trend.
         'match-analysis-trends'        => 'Team · Match analysis trends',
@@ -154,6 +156,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'team-minutes-distribution':    self::renderTeamMinutesDistribution(); break;
             case 'minutes-share':                self::renderMinutesShare(); break;
             case 'team-monthly':                 self::renderTeamMonthly(); break;
+            case 'player-report':                self::renderPlayerReport(); break;
             case 'team-squad-evaluation-summary': self::renderSquadEvaluationSummary(); break;
             case 'match-analysis-trends':        self::renderMatchAnalysisTrends(); break;
             case 'season-summary':               self::renderSeasonSummary(); break;
@@ -428,6 +431,53 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         );
     }
 
+    // ── #3873 Player · Report ───────────────────────────────────────
+
+    /**
+     * Chrome for the player report: the player picker, the access guard, the
+     * window and the shared period bar. The panel and the body are
+     * `PlayerReportPage`'s, the split the team monthly report uses.
+     *
+     * The window is the one every season-scoped report opens on — the season
+     * so far — because a conversation with a player is about the campaign,
+     * not last month.
+     *
+     * The player is pinned to the bar rather than saved with a view: the
+     * sections a coach composes for one player are the ones they want for the
+     * next, so a saved view keeps the composition and leaves the player be.
+     */
+    private static function renderPlayerReport(): void {
+        $title = __( 'Player · Report', 'talenttrack' );
+
+        $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+        $player    = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
+        if ( $player === null ) {
+            self::renderHeader( $title );
+            self::renderPlayerPicker( \TT\Modules\Analytics\Frontend\PlayerReportPage::SLUG );
+            return;
+        }
+
+        if ( ! \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), $player_id ) ) {
+            self::renderHeader( $title );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to a report on this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $win = self::resolveReportWindow();
+
+        self::renderPeriodFilterBar(
+            \TT\Modules\Analytics\Frontend\PlayerReportPage::SLUG,
+            $win['from'],
+            $win['to'],
+            $win['period'],
+            \TT\Modules\Analytics\Frontend\PlayerReportPage::barParams(),
+            '',
+            [ 'player_id' => (string) $player_id ]
+        );
+
+        \TT\Modules\Analytics\Frontend\PlayerReportPage::render( $player, $win );
+    }
+
     /**
      * #2345 — render the shared FilterBar for a standard report: retrospective
      * period pills (Last week / This month / This season) + a manual From/To
@@ -440,12 +490,21 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * minutes reports: "Last 12 months"). The shared period vocabulary is
      * untouched, so no new pill appears on the other reports.
      *
+     * #3873 — `$pinned` is carried like `$extra_hidden` but kept out of a
+     * saved view: it rides in the view's base URL instead of its stored
+     * filters. The player report pins the player, so a saved composition
+     * applies to whichever player the coach has open.
+     *
      * @param array<string,int|string> $extra_hidden
+     * @param array<string,string>     $pinned
      */
-    private static function renderPeriodFilterBar( string $slug, string $from, string $to, string $period, array $extra_hidden = [], string $default_label = '' ): void {
+    private static function renderPeriodFilterBar( string $slug, string $from, string $to, string $period, array $extra_hidden = [], string $default_label = '', array $pinned = [] ): void {
         $dash_url      = RecordLink::dashboardUrl();
         $period_labels = \TT\Modules\Analytics\Reports\ReportFilters::periodLabels();
         if ( $default_label !== '' ) $period_labels[''] = $default_label;
+
+        $saved_keys   = array_keys( $extra_hidden );
+        $extra_hidden = array_merge( $extra_hidden, $pinned );
 
         // Base args every period pill preserves (view + slug + entity + back).
         $pill_base = array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $extra_hidden );
@@ -495,8 +554,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             'saved_views'  => [
                 'key'         => 'report-' . $slug,
                 'base_url'    => $dash_url,
-                'base_params' => [ 'tt_view' => 'standard-report', 'slug' => $slug ],
-                'extra_keys'  => array_keys( $extra_hidden ),
+                'base_params' => array_merge( [ 'tt_view' => 'standard-report', 'slug' => $slug ], $pinned ),
+                'extra_keys'  => $saved_keys,
             ],
             'groups'       => [
                 // #3331 — one time control: the presets and the custom

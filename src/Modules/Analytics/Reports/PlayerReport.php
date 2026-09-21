@@ -61,9 +61,13 @@ final class PlayerReport {
 
         $data = [];
         foreach ( $selected as $block ) {
-            $data[ $block ] = $block === PlayerReportBlock::LETTERHEAD
-                ? $this->letterhead( $player, $from, $to )
-                : self::block( $block, $packet ?? [] );
+            if ( $block === PlayerReportBlock::LETTERHEAD ) {
+                $data[ $block ] = $this->letterhead( $player, $from, $to );
+            } elseif ( $block === PlayerReportBlock::TALKING_POINTS ) {
+                $data[ $block ] = [ 'items' => PlayerTalkingPoints::derive( $packet ?? [], (int) ( $player->team_id ?? 0 ), $from, $to ) ];
+            } else {
+                $data[ $block ] = self::block( $block, $packet ?? [] );
+            }
         }
 
         return [
@@ -82,7 +86,6 @@ final class PlayerReport {
     private static function block( string $block, array $packet ): array {
         switch ( $block ) {
             case PlayerReportBlock::STATUS:         return (array) ( $packet['status'] ?? [] );
-            case PlayerReportBlock::TALKING_POINTS: return [ 'items' => [] ];
             case PlayerReportBlock::RATINGS:        return self::ratings( (array) ( $packet['evaluations'] ?? [] ) );
             case PlayerReportBlock::ATTENDANCE:     return (array) ( $packet['attendance'] ?? [] );
             case PlayerReportBlock::MINUTES:        return self::minutes( (array) ( $packet['minutes'] ?? [] ) );
