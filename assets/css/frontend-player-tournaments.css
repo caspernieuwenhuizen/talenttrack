@@ -1,0 +1,214 @@
+/*
+ * frontend-player-tournaments.css (#3562, epic #3558) — the Tournaments tab
+ * on the player file: minutes per the rotation plan, per tournament and per
+ * fixture, against the player's own target.
+ *
+ * Mobile-first (the base rules are the 360px layout; one `min-width` step
+ * widens the fixture rows on a desk), scoped under `.tt-player-tab-panel`,
+ * design tokens only.
+ *
+ * The one computed style on this surface is the target bar's width, set
+ * inline because it is a share of a number only the server knows.
+ */
+
+.tt-player-tab-panel .tt-ptour__upcoming {
+    display: grid;
+    gap: 2px;
+    background: var(--tt-info-subtle);
+    color: var(--tt-info-ink);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-3);
+    margin-bottom: var(--tt-sp-4);
+}
+
+.tt-player-tab-panel .tt-ptour__upcoming strong { font-size: 0.95rem; }
+.tt-player-tab-panel .tt-ptour__upcoming span { font-size: var(--tt-fs-sm); }
+
+.tt-player-tab-panel .tt-ptour__title {
+    margin: var(--tt-sp-5) 0 var(--tt-sp-2);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.tt-player-tab-panel .tt-ptour__list {
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-player-tab-panel .tt-ptour__tournament {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-player-tab-panel .tt-ptour__summary {
+    list-style: none;
+    cursor: pointer;
+    display: grid;
+    gap: 6px;
+    padding: var(--tt-sp-3);
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-player-tab-panel .tt-ptour__summary::-webkit-details-marker { display: none; }
+
+.tt-player-tab-panel .tt-ptour__summary:focus-visible {
+    outline: 3px solid var(--tt-link);
+    outline-offset: 2px;
+}
+
+.tt-player-tab-panel .tt-ptour__summary-head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--tt-sp-2);
+    align-items: baseline;
+}
+
+.tt-player-tab-panel .tt-ptour__name { font-weight: 700; }
+
+/* The open/closed caret. Decorative: `<details>` carries the state for
+   assistive technology, and every row also spells its figures out. */
+.tt-player-tab-panel .tt-ptour__name::before {
+    content: "\25B8\00a0";
+    color: var(--tt-ink-soft);
+}
+
+.tt-player-tab-panel .tt-ptour__tournament[open] .tt-ptour__name::before {
+    content: "\25BE\00a0";
+}
+
+.tt-player-tab-panel .tt-ptour__date {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    white-space: nowrap;
+}
+
+.tt-player-tab-panel .tt-ptour__meta {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+}
+
+/* The target bar. Only a shortfall is coloured — reaching a target is the
+   expected outcome and does not need announcing in amber. */
+.tt-player-tab-panel .tt-ptour__target {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--tt-sp-2);
+    align-items: center;
+}
+
+.tt-player-tab-panel .tt-ptour__bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+}
+
+.tt-player-tab-panel .tt-ptour__bar i {
+    display: block;
+    height: 100%;
+    background: var(--tt-primary, #0b3d2e);
+}
+
+.tt-player-tab-panel .tt-ptour__target.is-short .tt-ptour__bar i {
+    background: var(--tt-warning);
+}
+
+.tt-player-tab-panel .tt-ptour__target-label {
+    font-size: var(--tt-fs-sm);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.tt-player-tab-panel .tt-ptour__target.is-short .tt-ptour__target-label {
+    color: var(--tt-warning-ink);
+    font-weight: 700;
+}
+
+.tt-player-tab-panel .tt-ptour__fixtures {
+    list-style: none;
+    margin: 0;
+    padding: 0 var(--tt-sp-3) var(--tt-sp-3);
+    display: grid;
+    gap: 6px;
+}
+
+.tt-player-tab-panel .tt-ptour__fixture {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px var(--tt-sp-2);
+    border-top: 1px solid var(--tt-line-soft);
+    padding-top: var(--tt-sp-2);
+}
+
+.tt-player-tab-panel .tt-ptour__opp {
+    font-weight: 600;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.tt-player-tab-panel .tt-ptour__score {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    text-align: right;
+}
+
+/* A fixture with no result says so in words rather than reading as 0-0. */
+.tt-player-tab-panel .tt-ptour__score.is-none {
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+}
+
+.tt-player-tab-panel .tt-ptour__line {
+    grid-column: 1 / -1;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+}
+
+.tt-player-tab-panel .tt-ptour__role {
+    font-weight: 700;
+    color: var(--tt-ink);
+}
+
+.tt-player-tab-panel .tt-ptour__fixture.is-bench .tt-ptour__role { color: var(--tt-ink-soft); }
+.tt-player-tab-panel .tt-ptour__fixture.is-upcoming .tt-ptour__opp { color: var(--tt-ink-soft); }
+
+.tt-player-tab-panel .tt-ptour__level {
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    color: var(--tt-paper);
+}
+
+.tt-player-tab-panel .tt-ptour__source {
+    margin-top: var(--tt-sp-4);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+    .tt-player-tab-panel .tt-ptour__fixture {
+        grid-template-columns: minmax(12rem, 2fr) 4rem 1fr 1fr 1fr;
+        align-items: center;
+    }
+
+    .tt-player-tab-panel .tt-ptour__line {
+        grid-column: auto;
+        display: contents;
+    }
+
+    .tt-player-tab-panel .tt-ptour__line span {
+        font-size: var(--tt-fs-sm);
+        color: var(--tt-ink-soft);
+    }
+
+    .tt-player-tab-panel .tt-ptour__score { text-align: center; }
+}

@@ -149,6 +149,53 @@ nergens gelezen worden. Verandert dat, dan is het zo toegevoegd.
 kwam altijd al via de kolom `G` van het minutenraster in het dossier van de
 maker terecht, en dat blijft zo — die helft hing nooit van deze vakjes af.
 
+## Het toernooidossier van één speler
+
+De planner beantwoordt de vraag "hoe heb ik deze zaterdag verdeeld over
+zestien kinderen". Het tabblad **Toernooien** op het spelersdossier
+beantwoordt de andere helft: hoe een seizoen aan zaterdagen is verlopen voor
+één van hen.
+
+Open een speler en kies **Toernooien**. Je ziet wat eraan komt, de
+kerncijfers — minuten, basisplaatsen op het aantal wedstrijden, hele
+wedstrijden, minuten tegen sterkere tegenstanders — en daaronder elk
+toernooi waarvoor de speler in de selectie zat, elk uitklapbaar naar de
+wedstrijden: de tegenstander en zijn niveau, de uitslag, of de speler
+begon, inviel of erbuiten bleef, hoeveel van de minuten hij kreeg en waar
+hij speelde.
+
+**Elk toernooi wordt afgezet tegen het eigen minutendoel van die speler**,
+het doel dat op de toernooiselectie is ingesteld — nooit tegen een
+selectiegemiddelde. De minuten van een ploeggenoot gaan deze speler niet
+aan, en het dossier van een kind is de verkeerde plek om te leren hoeveel
+meer een ander speelde. Alleen een tekort krijgt kleur, en de getallen staan
+naast de balk, zodat niets op de pagina van kleur afhangt.
+
+**Waar de minuten vandaan komen staat op de pagina.** Ze volgen het
+rotatieplan van de afgeronde wedstrijden. Er is geen registratie per
+wedstrijd van wat er werkelijk gespeeld is — de aanwezigheid van een
+toernooidag is één totaal voor die dag — en zodra een wedstrijd is afgerond
+zet de planner de opstelling vast, dus het plan van een afgeronde wedstrijd
+*is* de gebruikte rotatie. Minuten die achteraf in het minutenoverzicht zijn
+ingevoerd staan op het tabblad **Activiteiten**, en de twee worden nooit bij
+elkaar opgeteld.
+
+Een wedstrijd zonder vastgelegde uitslag zegt **geen uitslag**, niet 0-0.
+Een doelpuntloos gelijkspel en een wedstrijd die niemand heeft ingevoerd
+zijn verschillende feiten over het seizoen van een kind.
+
+Een speler die nooit in een toernooiselectie heeft gezeten ziet een regel
+die dat zegt, en zijn tabblad draagt geen teller. Het tabblad verschijnt
+wel: een trainer die kijkt of iedereen aan spelen toekomt, moet "nooit
+geselecteerd" kunnen zien in plaats van het stilletjes te missen.
+
+**Wie het ziet.** Een trainer voor de spelers van zijn eigen teams, een Head
+of Development of beheerder voor iedereen, de speler voor zijn eigen
+dossier, en een ouder voor zijn kind — tenzij de speler het onderdeel
+**toernooien** in zijn deelinstellingen heeft uitgezet, dan krijgt de ouder
+een melding die dat zegt. Hetzelfde antwoord staat op de API, op
+`GET /players/{id}/tournaments`.
+
 ## Wie kan dit zien
 
 In v1 zijn de Toernooien-tegel, de planner en elk REST-endpoint alleen toegankelijk voor de **Academy Admin**. Coach, Head of Development, Scout, Speler en Ouder zien de functie niet.

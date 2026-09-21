@@ -15,7 +15,7 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 final class PlayerFileCounts {
 
     /**
-     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int, measurements:int, media:int}
+     * @return array{goals:int, evaluations:int, activities:int, pdp:int, trials:int, notes:int, measurements:int, media:int, tournaments:int}
      */
     public static function for( int $player_id ): array {
         global $wpdb;
@@ -143,6 +143,24 @@ final class PlayerFileCounts {
             $player_id
         ) );
 
+        // #3562 (epic #3558) — tournaments badge. The number of tournament
+        // squads this player has been named in, which is what the tab lists.
+        // Archived and trashed tournaments are excluded, matching
+        // `PlayerTournamentHistoryQuery`, so the badge and the tab cannot
+        // disagree; a player never selected shows no badge at all, and the
+        // tab still renders, because "never selected" is a finding a coach
+        // checking fair-share play needs to see.
+        $tournaments = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$p}tt_tournament_squad s
+               JOIN {$p}tt_tournaments t ON t.id = s.tournament_id AND t.club_id = s.club_id
+              WHERE s.player_id = %d
+                AND s.club_id = %d
+                AND t.archived_at IS NULL
+                AND t.trashed_at IS NULL",
+            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+
         return [
             'goals'        => $goals,
             'evaluations'  => $evaluations,
@@ -152,6 +170,7 @@ final class PlayerFileCounts {
             'notes'        => $notes,
             'measurements' => $measurements,
             'media'        => $media,
+            'tournaments'  => $tournaments,
         ];
     }
 }

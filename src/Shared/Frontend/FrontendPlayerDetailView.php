@@ -249,6 +249,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ ) ) {
             $tabs['training'] = __( 'Training', 'talenttrack' );
         }
+        // #3562 (epic #3558) — the tournament days, where a coach rotates
+        // hardest and where one child's minutes were readable nowhere.
+        //
+        // Asks `PlayerTournamentAccess::canRead()` — the same call the panel
+        // and the REST route make — rather than `canAnyScope()`, because the
+        // `player_tournaments` grants are scoped to *this* player: a coach
+        // holds it on their own squads, a parent on their own child. A looser
+        // question on the strip would offer a tab whose panel then refuses,
+        // which is what #3468 fixed on the Injuries tab.
+        if ( \TT\Modules\Tournaments\PlayerTournamentAccess::canRead( $user_id, $player_id ) ) {
+            $tabs['tournaments'] = __( 'Tournaments', 'talenttrack' );
+        }
         // #2061 (epic #2002) — per-player Strava connection + imported
         // training, alongside the team-session activities.
         //
@@ -600,6 +612,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'activities':  self::renderActivitiesTab( $player_id, $player, $viewer ); break;
                         case 'training':
                             \TT\Modules\Training\Frontend\PlayerTrainingTab::render( $player_id, $user_id );
+                            break;
+                        case 'tournaments':
+                            \TT\Modules\Tournaments\Frontend\PlayerTournamentsTab::render( $player_id, $user_id );
                             break;
                         case 'match-analysis':
                             \TT\Modules\MatchAnalysis\Frontend\PlayerMatchAnalysisTab::render( $player_id, $user_id );
