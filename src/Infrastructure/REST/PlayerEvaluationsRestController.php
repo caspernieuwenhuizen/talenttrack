@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Evaluations\PlayerEvaluationsReader;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Modules\Authorization\MatrixGate;
 use WP_REST_Request;
 use WP_REST_Response;
 
@@ -67,13 +66,12 @@ final class PlayerEvaluationsRestController extends BaseController {
         $player_id = (int) $r['id'];
         if ( $uid <= 0 || $player_id <= 0 ) return false;
 
-        // #3566 — `canViewPlayer()` is the legacy gate and does not consult
-        // the matrix, so the scout's `evaluations [read, player]` row (the
-        // #1378 tightening) could never grant anything here. The matrix
-        // clause asks the question that row was written to answer: may this
-        // caller read evaluations at player scope, for THIS player.
+        // #3958 — the record, then the section. Opening the player is not
+        // reading their evaluations: the `evaluations` entity is asked about
+        // THIS player, so a scout's `[read, player]` row (#1378) reaches the
+        // players it is linked to and a reader without the entity is refused.
         $entitled = AuthorizationService::canViewPlayer( $uid, $player_id )
-            || MatrixGate::can( $uid, 'evaluations', MatrixGate::READ, MatrixGate::SCOPE_PLAYER, $player_id );
+            && AuthorizationService::canReadPlayerSection( $uid, $player_id, 'evaluations' );
 
         // The family's section switch still applies on top, unchanged.
         return $entitled

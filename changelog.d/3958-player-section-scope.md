@@ -1,0 +1,3 @@
+# Each section of a player's record follows its own permission (#3958)
+
+Opening a player's record and reading a section of it are now two separate checks. Evaluations, measurements, player status, training exposure, the journey (and the Strava sessions on it), injuries, and the profile's Behaviour & potential and Discovery cards each ask for their own permission on that specific player: academy-wide, on the player's team, or on the player. Holding one section on your own team never reaches another team's player, and being able to open the record no longer grants a section your role holds no permission for. The read-only observer reads every player's record, guardian contact included, and every player's evaluations.

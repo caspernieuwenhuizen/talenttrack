@@ -183,13 +183,20 @@ final class StravaRestController {
      * Reading a player's imported activities follows the player's own
      * view gate (self / parent-child / team / global), so a coach who can
      * see the player sees their training; a stranger does not.
+     *
+     * #3958 — and the section those activities are shown in. They are a
+     * source of the player's timeline, so the `player_timeline` entity is
+     * asked about this player: whoever reads the journey reads the Strava
+     * sessions on it, and a reader of the record alone does not.
      */
     public static function canViewPlayerParam( \WP_REST_Request $r ): bool {
         $uid       = get_current_user_id();
         $player_id = (int) $r['id'];
         if ( $uid <= 0 || $player_id <= 0 ) return false;
         if ( self::currentUserPlayerId() === $player_id ) return true;
-        return AuthorizationService::canViewPlayer( $uid, $player_id );
+        return AuthorizationService::canViewPlayer( $uid, $player_id )
+            && AuthorizationService::canReadPlayerSection( $uid, $player_id, 'player_timeline' )
+            && AuthorizationService::parentCanViewSection( $uid, $player_id, 'journey' );
     }
 
     private static function currentUserPlayerId(): int {

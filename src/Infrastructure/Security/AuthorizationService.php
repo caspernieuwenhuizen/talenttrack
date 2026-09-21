@@ -241,6 +241,62 @@ class AuthorizationService {
         return false;
     }
 
+    /**
+     * #3958 — may this user read one section of this player's record?
+     *
+     * `canViewPlayer()` answers "may they open this player's record". A
+     * section of that record — evaluations, measurements, the journey, the
+     * status verdict — is its own matrix entity, and holding the record is
+     * not holding every section of it. The per-player routes used to pair
+     * `canViewPlayer()` with the capability at *any* scope, which turns a
+     * narrow grant into a wide one: a reader holding the record globally
+     * and a section on one team read that section for every player.
+     *
+     * This asks the section's own entity about this player:
+     *
+     *   - global scope;
+     *   - team scope on the player's team;
+     *   - player scope on the player (a linked guardian, a linked scout,
+     *     and the player themselves — see `MatrixGate::userHasScope()`);
+     *   - on the player's own record, `self` scope on the entity or on its
+     *     `my_` twin. #1482 gave the player `my_evaluations` rather than
+     *     `evaluations`, so asking for the data entity alone would refuse
+     *     the one reader the record is about.
+     *
+     * Callers still ask `canViewPlayer()` first and, for a guardian, the
+     * child's own section switch (`parentCanViewSection()`) after.
+     *
+     * @param string $entity Matrix entity naming the section, e.g. `evaluations`.
+     */
+    public static function canReadPlayerSection( int $user_id, int $player_id, string $entity ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 || $entity === '' ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        $key = $user_id . '|section|' . $entity . '|' . $player_id;
+        if ( isset( self::$cache_matrix[ $key ] ) ) return self::$cache_matrix[ $key ];
+
+        $gate    = '\\TT\\Modules\\Authorization\\MatrixGate';
+        $allowed = $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_GLOBAL );
+
+        if ( ! $allowed ) {
+            $team_id = self::getPlayerTeamId( $player_id );
+            $allowed = $team_id !== null
+                && $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_TEAM, $team_id );
+        }
+
+        if ( ! $allowed ) {
+            $allowed = $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_PLAYER, $player_id );
+        }
+
+        if ( ! $allowed && self::isPlayerOwnRecord( $user_id, $player_id ) ) {
+            $allowed = $gate::can( $user_id, $entity, $gate::READ, $gate::SCOPE_SELF, $user_id )
+                || $gate::can( $user_id, 'my_' . $entity, $gate::READ, $gate::SCOPE_SELF, $user_id );
+        }
+
+        self::$cache_matrix[ $key ] = $allowed;
+        return $allowed;
+    }
+
     public static function registerCacheInvalidators(): void {
         static $registered = false;
         if ( $registered ) return;

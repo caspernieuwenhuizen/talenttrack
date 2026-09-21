@@ -77,14 +77,18 @@ final class TrainingExposureRestController {
         $user_id = get_current_user_id();
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
 
-        if ( ! MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ ) ) {
-            return false;
-        }
-
         // The single authority on player visibility — own record, own
         // team, global, or parent-of-this-player. Reimplementing it here
         // is how a parent ends up reading another family's child.
         if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+            return false;
+        }
+
+        // #3958 — the exposure right for THIS player, not at any scope: a
+        // coach's team-scoped grant stays on their own squad. The player
+        // persona holds no `training_exposure` row (D16), so their own
+        // record is refused here too.
+        if ( ! AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'training_exposure' ) ) {
             return false;
         }
 
