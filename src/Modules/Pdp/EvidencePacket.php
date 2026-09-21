@@ -144,6 +144,17 @@ final class EvidencePacket {
     }
 
     /**
+     * The packet's attendance group for any window, on its own — for a
+     * reader that compares two windows and must count both the way the
+     * packet does (#3875's attendance trend).
+     *
+     * @return array<string,mixed>
+     */
+    public static function attendanceFor( int $player_id, string $from, string $to ): array {
+        return self::attendance( $player_id, (int) CurrentClub::id(), $from, $to );
+    }
+
+    /**
      * Map a StatusVerdict colour → suggested verdict decision.
      */
     public static function suggestDecisionFromStatus( string $status_color ): string {

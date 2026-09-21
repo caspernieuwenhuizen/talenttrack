@@ -57,6 +57,39 @@ Een speler die nog geen ontwikkelplan heeft, krijgt toch een volledig rapport.
 Het onderdeel ontwikkelplan zegt dan dat er nog geen dossier is, in plaats van
 te verdwijnen.
 
+## Gespreksonderwerpen
+
+De gespreksonderwerpen worden afgeleid uit wat de academie al heeft vastgelegd;
+niemand schrijft ze. Ze veranderen mee met de gegevens, en de dringendste staan
+bovenaan. Ze zeggen wat je bespreekt, nooit wat je concludeert:
+
+- **Status** — als het statusmodel de speler op *In de gaten houden* of *Actie
+  nodig* zet, met de redenen. Dit zijn dezelfde redenen die het maandrapport van het
+  team voor de speler toont.
+- **Aanwezigheid** — als de aanwezigheid duidelijk is gedaald ten opzichte van
+  de even lange periode ervoor, bijvoorbeeld *"3 van 11 activiteiten gemist
+  sinds 1 augustus"*.
+- **Speeltijd** — als het aandeel van de speler in de minuten die het team
+  speelde onder het minutendoel van de academie ligt.
+- **Geen evaluatie** — als er in een langere periode geen evaluatie is
+  vastgelegd.
+- **Testen** — een test die sinds de meting ervoor de verkeerde kant op ging.
+  De richting volgt de test: een langzamere sprint telt, een verandering in
+  lengte niet.
+- **Doelen** — een open doel waarvan de deadline is verstreken.
+- **Terug van blessure** — een terugkeer binnen de periode, een reden om over
+  belasting te praten.
+- **Overgangen** — een overstap naar een andere leeftijdscategorie, een ander
+  team of een andere positie.
+- **Gaten in het dossier** — gegevens waar het statusmodel naar kijkt en die de
+  academie voor deze speler nog niet heeft vastgelegd. Dat is een gat in het
+  dossier van de academie, niet in de speler.
+
+Een gespreksonderwerp heeft genoeg gegevens nodig. Aanwezigheid wordt niet
+vergeleken op een handvol trainingen, en speeltijd pas als er bij een paar
+wedstrijden minuten zijn vastgelegd, zodat een speler die net binnen is niet op
+te weinig gegevens wordt aangemerkt.
+
 ## Je vaste rapport bewaren
 
 De meeste trainers willen voor elk gesprek dezelfde onderdelen. Als het rapport

@@ -32,6 +32,15 @@
 	overflow-wrap: anywhere;
 }
 
+/*
+ * Talking points (#3875). Red and amber come from the team report's agenda;
+ * a player report adds a third level for what is worth saying but is not a
+ * concern — a gap in the record, a transition, a return from injury.
+ */
+.tt-mr-attention__item.is-info {
+	border-left-color: var(--tt-info);
+}
+
 @media (min-width: 768px) {
 	.tt-pr-head__photo {
 		width: 4.5rem;

@@ -55,6 +55,36 @@ changes with it, so a colleague who opens the link sees the same report.
 A player who has no development plan file yet still gets a full report. The
 development plan section says there is no file yet rather than disappearing.
 
+## Talking points
+
+The talking points are worked out from what the academy has already recorded;
+nobody writes them. They change as the records change, and the most urgent come
+first. They say what to raise, never what to conclude:
+
+- **Status** — when the status model marks the player *Watch* or *Needs
+  action*, with its reasons. These are the same reasons the team monthly report
+  shows for the player.
+- **Attendance** — when attendance has dropped clearly against the period of
+  the same length before it, for example *"3 of 11 activities missed since
+  1 August"*.
+- **Playing time** — when the player's share of the minutes the team played is
+  below the academy's minutes target.
+- **No evaluation** — when a longer period has passed without an evaluation.
+- **Tests** — a test that moved the wrong way since the reading before. The
+  direction follows the test: a slower sprint counts, a change in height does
+  not.
+- **Goals** — an open goal whose due date has passed.
+- **Back from injury** — a return to play inside the period, a reason to talk
+  about load.
+- **Transitions** — a move to another age group, team or position.
+- **Gaps in the record** — evidence the status model looks for that the academy
+  has not recorded for this player yet. That is a gap in the academy's record,
+  not in the player.
+
+A talking point needs enough to go on. Attendance is not compared on a handful
+of sessions, and playing time is not compared until a few matches have minutes
+recorded, so a player who has just arrived is not flagged on too little data.
+
 ## Saving your usual report
 
 Most coaches want the same sections for every conversation. Once the report
