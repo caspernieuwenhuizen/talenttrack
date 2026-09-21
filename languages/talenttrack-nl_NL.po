@@ -65671,6 +65671,163 @@ msgstr "Nog geen gedrag vastgelegd."
 msgid "No potential band set yet."
 msgstr "Nog geen potentieelband ingesteld."
 
+#: src/Infrastructure/REST/EvaluationsRestController.php
+#, php-format
+msgid "A category note can be at most %d characters."
+msgstr "Een notitie bij een categorie mag hooguit %d tekens lang zijn."
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Add note to %s"
+msgstr "Notitie toevoegen bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Edit note on %s"
+msgstr "Notitie bewerken bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgctxt "evaluation category note toggle"
+msgid "Note"
+msgstr "Notitie"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+#, php-format
+msgid "Note on %s"
+msgstr "Notitie bij %s"
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgid "What did you see? For example the situation, or one moment."
+msgstr "Wat zag je? Bijvoorbeeld de situatie, of één moment."
+
+#: src/Shared/Frontend/Components/EvalCategoryNote.php
+msgid "Visible to everyone who can see this evaluation."
+msgstr "Zichtbaar voor iedereen die deze evaluatie kan zien."
+
+#: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php
+#: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php
+#, php-format
+msgid "%s — note"
+msgstr "%s — notitie"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Evaluation category notes"
+msgstr "Notities per evaluatiecategorie"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "A short note on one category or subcategory of an evaluation: the why behind the rating."
+msgstr "Een korte notitie bij één categorie of subcategorie van een evaluatie: het waarom achter de beoordeling."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Parent evaluation this note belongs to."
+msgstr "De evaluatie waar deze notitie bij hoort."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The category or subcategory the note is about."
+msgstr "De categorie of subcategorie waar de notitie over gaat."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The note, at most 500 characters."
+msgstr "De notitie, hooguit 500 tekens."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Strong in the first half; faded once the tempo went up."
+msgstr "Sterk in de eerste helft; zakte weg toen het tempo omhoog ging."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Good choices under no pressure, rushed when pressed."
+msgstr "Goede keuzes zonder druk, gehaast onder druk."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Clear step forward since the last evaluation."
+msgstr "Duidelijke stap vooruit sinds de vorige evaluatie."
+
+#: src/Modules/DemoData/DemoEvaluationWriter.php
+msgid "Keep working on this in small-sided games."
+msgstr "Hier verder aan werken in kleine partijvormen."
+
+#: src/Modules/Analytics/Reports/PlayerReportAudience.php
+msgid "Shared by the academy with the player and their parents. It covers this player only."
+msgstr "Door de academie gedeeld met de speler en de ouders. Het gaat alleen over deze speler."
+
+#. translators: 1: the coach who shared the report, 2: the date
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+#, php-format
+msgid "Shared by %1$s on %2$s."
+msgstr "Gedeeld door %1$s op %2$s."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "This is the report the player and their parents see on the player's file, frozen when it was shared. Each of them sees the sections their own access to the player allows."
+msgstr "Dit is het rapport dat de speler en de ouders op het spelersdossier zien, vastgezet op het moment van delen. Ieder van hen ziet de onderdelen die de eigen toegang tot de speler toestaat."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Shared with the family"
+msgstr "Gedeeld met het gezin"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Share with the family…"
+msgstr "Delen met het gezin…"
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "The player and their parents will find a frozen copy under Reports on the player's file. Only attendance, playing time, goals, evaluation scores and tests can be shared: the ones ticked above, or all five when none of them is. Your written notes on evaluations, and every other section, stay with staff."
+msgstr "De speler en de ouders vinden een vastgezette kopie onder Rapporten op het spelersdossier. Alleen aanwezigheid, speeltijd, doelen, evaluatiescores en testen kunnen worden gedeeld: de aangevinkte hierboven, of alle vijf als er geen van aangevinkt is. Je geschreven toelichting bij evaluaties, en elk ander onderdeel, blijven bij de staf."
+
+#: src/Modules/Analytics/Frontend/PlayerReportSnapshotPage.php
+msgid "Share with the family"
+msgstr "Delen met het gezin"
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "Reports on this player are shared with the player and their parents."
+msgstr "Rapporten over deze speler worden gedeeld met de speler en de ouders."
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "No reports have been shared yet. When a coach shares a report about this player, it appears here."
+msgstr "Er zijn nog geen rapporten gedeeld. Als een trainer een rapport over deze speler deelt, verschijnt het hier."
+
+#. translators: 1: period start, 2: period end
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+#, php-format
+msgid "Covers %1$s – %2$s"
+msgstr "Periode %1$s – %2$s"
+
+#: src/Modules/Analytics/Frontend/PlayerFamilyReportsTab.php
+msgid "This report is not available."
+msgstr "Dit rapport is niet beschikbaar."
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Send to a scout…"
+msgstr "Naar een scout sturen…"
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Send link"
+msgstr "Link versturen"
+
+#: src/Modules/Reports/Frontend/PlayerReportScoutSend.php
+msgid "Emails a one-time link to the scout. The scout sees evaluation scores without your notes, attendance and playing time: the ones ticked above, or all three when none of them is. Nothing else leaves the academy."
+msgstr "Mailt de scout een eenmalige link. De scout ziet evaluatiescores zonder je toelichting, aanwezigheid en speeltijd: de aangevinkte hierboven, of alle drie als er geen van aangevinkt is. Verder verlaat niets de academie."
+
+#: src/Shared/Frontend/CoachForms.php
+msgctxt "evaluation form section"
+msgid "Details"
+msgstr "Gegevens"
+
+#: src/Shared/Frontend/CoachForms.php
+#, php-format
+msgid "Scale %1$s–%2$s"
+msgstr "Schaal %1$s–%2$s"
+
+#: src/Shared/Frontend/CoachForms.php
+#, php-format
+msgid "%d subcategory"
+msgid_plural "%d subcategories"
+msgstr[0] "%d subcategorie"
+msgstr[1] "%d subcategorieën"
+
+#: src/Shared/Frontend/CoachForms.php
+msgctxt "evaluation form section"
+msgid "Notes"
+msgstr "Toelichting"
+
 #~ msgid "Scouting visits across the window and the prospects found on them."
 #~ msgstr ""
 #~ "Scoutingbezoeken over de periode en de prospects die daar zijn gevonden."

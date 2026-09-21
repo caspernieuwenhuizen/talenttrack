@@ -1,3 +1,42 @@
+# TalentTrack v4.133.0 — Permanently deleting a test training works again, and clears the invite task's link to it (#3940)
+
+Purging a test training, from the recycle bin or its permanent-delete route, failed: the cascade tried to clear a `test_training_id` column on workflow tasks that had never been created, the database refused the update and the whole delete rolled back. Migration 0288 adds the column (with an index) and fills it in for completed "invite to test training" tasks whose session still exists. From now on the invite task records the session in that column as well as in its response, and purging the test training clears the link while the task, and the prospect's pipeline stage, stay as they were.
+
+# TalentTrack v4.133.0 — Goal threads close to a guardian whose child has left (#3947)
+
+Goal conversations now ask the same question as every other surface about who counts as a player's guardian. When a child is released, archived or moved to the recycle bin, the guardian can no longer read or post in that child's goal threads and stops being notified of new messages there. Guardians of active children are not affected, and restoring the child restores the conversation.
+
+# TalentTrack v4.133.0 — A short note on each evaluation category and subcategory (#3949)
+
+A rating says how well; a note now says why. Every main category and subcategory in an evaluation has a Note button beside its rating, on the evaluation form and in the wizard's rating steps, opening a short text box of at most 500 characters. The box stays closed until opened, so rating a squad is no slower, and a category with a note shows a filled button even while closed. A note can sit on a category that was not rated. The notes are visible to everyone who can see the evaluation, including the player and their parents where the evaluation is visible to them. They show next to their ratings on the evaluation page and in My evaluations, as the larger points on the rate card's trend chart, and in the evaluations Excel and CSV exports. A note on a low-rated category now counts as the explanation the low-rating reminder asks for. Notes are removed with their evaluation when it is purged. The evaluation detail page now follows the same per-player check as the API.
+
+# TalentTrack v4.133.0 — Coaches share the player report with the player and their parents; the report wizard is retired (#3955)
+
+Under the player report, **Share with the family** freezes a copy of the report and puts it in front of the player and their parents. They find it under a new **Reports** tab on the player's profile, newest first. A shared report carries only attendance, playing time, goals, evaluation scores without the coach's written notes, and tests the academy shares publicly. Status, talking points, the development plan, staff notes, injuries, the journey, behaviour, potential and the notes area are left out of the stored copy itself, whatever the coach ticked. Each reader sees the sections they can already see on the player's profile, and a section the player keeps from their parents is left out of a parent's copy. Families never make reports themselves, on screen or through the API.
+
+The old report wizard is gone, and so are its tone variants and per-report privacy toggles. Old links to it open the player report, or the family's Reports tab. Emailing a scout a one-time link is now **Send to a scout** under the player report. Scout reports sent before today are kept as they were.
+
+# TalentTrack v4.133.0 — Each section of a player's record follows its own permission (#3958)
+
+Opening a player's record and reading a section of it are now two separate checks. Evaluations, measurements, player status, training exposure, the journey (and the Strava sessions on it), injuries, and the profile's Behaviour & potential and Discovery cards each ask for their own permission on that specific player: academy-wide, on the player's team, or on the player. Holding one section on your own team never reaches another team's player, and being able to open the record no longer grants a section your role holds no permission for. The read-only observer reads every player's record, guardian contact included, and every player's evaluations.
+
+# TalentTrack v4.133.0 — Evaluation form: one card per rating category, and the low-rating warning only when it applies (#3969)
+
+The evaluation edit and create forms are rebuilt as one card per main rating category. The card header holds the category name, its rating and the Basic / Detailed switch; the subcategory ratings sit inside the card, in two columns on a desktop. The form opens with a strip naming the player (photo or initials, team, position), is grouped into Details, Ratings and Notes, shows the rating scale once instead of on every row, and stays a readable width on a desktop. The low-rating warning no longer shows on every evaluation: it appears only while a rating is at or below the threshold and the internal notes are empty, and the low rating itself is highlighted. The page title no longer shows twice. Edit still saves as you write, and create still ends with Cancel and Save.
+
+# TalentTrack v4.133.0 — Team monthly report: written text prints in full (#3970)
+
+The team monthly report's PDF no longer cuts text off with "…". What changed,
+why a player needs a conversation and the names of the players without an
+evaluation now print in full, over as many lines as they need. This applies to
+the one-pager, the three-page pack and the landscape matrix, whose footer now
+grows with its longest entry. The page count shown before printing includes
+those lines.
+
+# TalentTrack v4.133.0 — The status verdict, the potential band and the PDP print's evidence page are staff-only (#3978)
+
+Players and parents no longer see the player-status traffic light or the potential band, not even for their own record. Both are the academy's own judgement of a child, and they belong in the conversation with the family, not on the family's screen. The default authorization matrix no longer grants player status to the parent or player persona, and the update removes those default grants from existing installs. An academy that deliberately granted families access in the Authorization matrix keeps its own setting. The PDP print's evidence page follows the same rule: a player or parent printing their own PDP file, or downloading it as a PDF, gets the file without the evidence page, and the option is not offered to them. A parent's access to the printed PDP now also follows the child's own PDP sharing setting. Staff see all of it exactly as before.
+
 # TalentTrack v4.132.0 — The Status row no longer links to behaviour & potential (#3966)
 
 The **Status** row on a player's profile shows the administrative state (active, trial, archived). Its **history** link used to open the behaviour & potential screen instead, which was not the history of anything that row shows. The link is gone. The new Behaviour & potential card links to that screen instead.
