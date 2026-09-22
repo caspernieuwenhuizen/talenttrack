@@ -1,3 +1,11 @@
+# TalentTrack v4.134.1 — Log behaviour and Set potential popovers use TalentTrack's styles (#3980)
+
+The Log behaviour and Set potential popovers on the player profile now render in TalentTrack's own styles instead of the theme's. Cancel is the light secondary button again and sits next to Save, with Save on the right; the history link has its own row above them. Labels, the title and the notes box use the plugin font (the notes box is no longer monospace and is taller), inputs are 16px so phones don't zoom in on focus, and every button meets the 48px touch target.
+
+# TalentTrack v4.134.1 — An archived evaluation follows the same per-player check as a live one (#3987)
+
+The detail page of an archived evaluation now applies the same per-player check the live evaluation detail already uses, and answers with the usual "not found" state when that check does not pass. The live branch is unchanged.
+
 # TalentTrack v4.134.0 — Player and team report: sections apply on the button, not on every tick (#3988)
 
 Ticking or unticking a section on the player report or the team monthly report no longer reloads the page. Ticking, unticking, dragging, the Move up / Move down arrows and the layout choice are collected in the panel and applied together by **Update report**, so choosing three sections is one reload instead of three. A section ticked on can be dragged or arrowed into place before applying, and the arrows no longer lose an unapplied tick. While the panel differs from the report, a short line beside the button says the report, the PDF and the snapshot still show the last applied selection. Without script the panel works as before. The submit also keeps every value of a multi-value option (the team report's match parts and chosen tests), which it used to cut to the last one.
