@@ -50,6 +50,27 @@
     overflow-y: auto;
 }
 
+/* #3980 — the panel carries .tt-dashboard so the shared button and input
+   rules reach it outside the page wrapper. That class also brings the page
+   layout (a 1100px+ column, auto margins, side padding), which is undone
+   here; the compound selector outranks every .tt-dashboard layout rule. The
+   panel itself is not matched by `.tt-dashboard *`, so it sets its own
+   border-box — without it the padding pushed it past 360px. */
+.tt-pp-panel.tt-dashboard {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 480px;
+    margin: 0;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+
+.tt-pp-title,
+.tt-pp-field-label,
+.tt-pp-panel .tt-btn,
+.tt-pp-close {
+    font-family: inherit;
+}
+
 @keyframes tt-pp-slide-up {
     from { transform: translateY(100%); }
     to   { transform: translateY(0); }
@@ -63,7 +84,8 @@
     .tt-pp-overlay {
         align-items: center;
     }
-    .tt-pp-panel {
+    .tt-pp-panel,
+    .tt-pp-panel.tt-dashboard {
         border-radius: 12px;
         max-height: 80vh;
         padding-bottom: 16px;
@@ -89,8 +111,8 @@
     background: transparent;
     border: 0;
     padding: 8px;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 48px;
+    min-height: 48px;
     font-size: 22px;
     line-height: 1;
     color: #5b6e75;
@@ -141,33 +163,57 @@
 .tt-pp-field input,
 .tt-pp-field textarea {
     width: 100%;
-    min-height: 44px;
+    min-height: 48px;
     box-sizing: border-box;
-    font-size: 14px;
+    /* #3980 — form controls don't inherit the font by default, so outside
+       the theme's reach they fell back to the UA stack (monospace for the
+       textarea). 16px floor so iOS doesn't zoom on focus. */
+    font: inherit;
+    font-size: max(1rem, 16px);
 }
 
-.tt-pp-field textarea {
-    min-height: 60px;
-    padding: 8px;
+/* `.tt-input` is on the textarea too, so this needs the class to outrank
+   the 48px floor above. */
+.tt-pp-field textarea,
+.tt-pp-field textarea.tt-input {
+    min-height: max(6rem, 96px);
     resize: vertical;
 }
 
+/* #3980 — history link on its own row, then Cancel + Save side by side and
+   right-aligned, Save rightmost (CLAUDE.md §6). Previously the three shared
+   one wrapping row and Save dropped alone onto a second line. */
 .tt-pp-footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-end;
+    gap: 8px;
     margin-top: 12px;
     padding-top: 8px;
     border-top: 1px solid #e5e7ea;
 }
 
+/* On a phone the pair splits the row evenly; frontend-mobile.css would
+   otherwise make every .tt-btn full width and stack them. */
 .tt-pp-footer .tt-btn {
-    min-height: 44px;
+    flex: 1 1 0;
+    width: auto;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-pp-footer .tt-btn {
+        flex: 0 0 auto;
+    }
 }
 
 .tt-pp-history-link {
-    margin-right: auto;
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    min-height: 48px;
     font-size: 13px;
     color: #0b3d2e;
 }

@@ -87,14 +87,19 @@
         lastFocus = document.activeElement;
         closeOverlay();
 
+        // The overlay is appended to <body>, outside the page's .tt-root /
+        // .tt-dashboard wrappers. The design tokens are declared on .tt-root
+        // and the shared button + input rules are scoped to .tt-dashboard, so
+        // without these two classes the popover rendered in the theme's
+        // styles (#3980). The sheet neutralises .tt-dashboard's page layout.
         overlay = el('div', {
-            class: 'tt-pp-overlay',
+            class: 'tt-pp-overlay tt-root',
             role: 'dialog',
             'aria-modal': 'true',
             'aria-labelledby': 'tt-pp-title'
         });
 
-        var panel = el('div', { class: 'tt-pp-panel' });
+        var panel = el('div', { class: 'tt-pp-panel tt-dashboard' });
         var header = el('div', { class: 'tt-pp-header' }, [
             el('h2', { class: 'tt-pp-title', id: 'tt-pp-title', text: opts.title }),
             el('button', { type: 'button', class: 'tt-pp-close', 'aria-label': i18n.close || 'Close', html: '&times;' })
