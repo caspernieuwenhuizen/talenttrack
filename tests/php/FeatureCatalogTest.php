@@ -29,6 +29,16 @@ final class FeatureCatalogTest extends WP_UnitTestCase {
     }
 
     /**
+     * Clear on the way out as well: the last test here leaves Goals
+     * switched off in the static cache, and the tests that run next would
+     * otherwise read that instead of the rolled-back table.
+     */
+    public function tear_down(): void {
+        parent::tear_down();
+        $this->clearCaches();
+    }
+
+    /**
      * Both registries cache state in private statics. The DB rolls back
      * between tests; the statics do not.
      */

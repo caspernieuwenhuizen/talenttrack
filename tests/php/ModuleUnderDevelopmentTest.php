@@ -21,8 +21,23 @@ final class ModuleUnderDevelopmentTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         global $wpdb; $wpdb->hide_errors();
-        // ModuleRegistry caches state per-request in private statics; the DB
-        // rolls back between tests but the statics don't, so clear them.
+        $this->clearCaches();
+    }
+
+    /**
+     * Clear on the way out too, so a Goals module switched off here does
+     * not stay off in the cache for the tests that run next.
+     */
+    public function tear_down(): void {
+        parent::tear_down();
+        $this->clearCaches();
+    }
+
+    /**
+     * ModuleRegistry caches state per-request in private statics; the DB
+     * rolls back between tests but the statics don't, so clear them.
+     */
+    private function clearCaches(): void {
         $ref = new \ReflectionClass( ModuleRegistry::class );
         foreach ( [ 'stateCache', 'devStateCache' ] as $prop ) {
             $p = $ref->getProperty( $prop );
