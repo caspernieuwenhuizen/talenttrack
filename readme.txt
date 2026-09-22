@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.134.1
+Stable tag: 4.134.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.134.2 — Goals: per-player check (#3998) Goals follow the same per-player check as evaluations. =
 
 = 4.134.1 — Log behaviour and Set potential popovers use TalentTrack's styles (#3980) The Log behaviour and Set potential popovers on the player profile now render in TalentTrack's own styles instead of the theme's. Cancel is the light secondary button again and sits next to Save, with Save on the right; the history link has its own row above them. Labels, the title and the notes box use the plugin font (the notes box is no longer monospace and is taller), inputs are 16px so phones don't zoom in on focus, and every button meets the 48px touch target. =
 
