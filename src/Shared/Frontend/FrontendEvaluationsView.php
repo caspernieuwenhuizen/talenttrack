@@ -321,6 +321,18 @@ class FrontendEvaluationsView extends FrontendViewBase {
         return '<p class="tt-evd__cat-note">' . esc_html( $note ) . '</p>';
     }
 
+    /**
+     * The per-player check an evaluation detail follows, live or archived:
+     * the same one the API's single-evaluation read applies. An evaluation
+     * with no player carries no per-player check.
+     */
+    private static function mayReadEvaluationOf( int $user_id, int $player_id ): bool {
+        if ( $player_id <= 0 ) return true;
+        return \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_id )
+            && \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'evaluations' )
+            && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_id, 'evaluations' );
+    }
+
     private static function renderDetail( int $eval_id, int $user_id, bool $is_admin ): void {
         global $wpdb;
         $p = $wpdb->prefix;
@@ -353,12 +365,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
         // #3949 — the detail follows the same per-player check as the API's
         // single-evaluation read (`EvaluationsRestController::get_eval()`).
         // A refusal is answered exactly as a missing evaluation.
-        $player_for_gate = $eval ? (int) ( $eval->player_id ?? 0 ) : 0;
-        if ( $eval && $player_for_gate > 0 && ! (
-            \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_for_gate )
-            && \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $user_id, $player_for_gate, 'evaluations' )
-            && \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $player_for_gate, 'evaluations' )
-        ) ) {
+        if ( $eval && ! self::mayReadEvaluationOf( $user_id, (int) ( $eval->player_id ?? 0 ) ) ) {
             self::renderNotFound();
             return;
         }
@@ -369,7 +376,11 @@ class FrontendEvaluationsView extends FrontendViewBase {
             // archive-aware gate before falling to not-found; a null return
             // stays a clean 404 (honours the trashed-visibility gate).
             $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'evaluation', $eval_id );
-            if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+            // #3987 — the archived branch follows the same per-player check
+            // as the live branch; a refusal is answered as not found.
+            if ( $resolved !== null && $resolved['state'] !== 'active'
+                && self::mayReadEvaluationOf( $user_id, (int) ( $resolved['row']->player_id ?? 0 ) )
+            ) {
                 self::renderArchivedReadOnly( $resolved );
                 return;
             }
