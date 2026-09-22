@@ -91,12 +91,29 @@ final class GoalsListFilterAliasTest extends WP_UnitTestCase {
         $plain  = $this->request( [ 'player_id' => $this->player ] );
         $nested = $this->request( [ 'filter' => [ 'player_id' => $this->player ] ] );
 
-        $this->assertSame( 403, $plain->get_status() );
+        // `GET goals` is a staff collection scoped to the caller's teams
+        // (#3653): a parent holds no team, so either form answers with no
+        // rows before the filter is read. What must hold is that both forms
+        // answer alike and neither hands over a goal of the hidden section.
         $this->assertSame( $nested->get_status(), $plain->get_status() );
+        $this->assertSame( [], $this->rowsOf( $plain ), 'no goal of a hidden section through the plain form' );
+        $this->assertSame( [], $this->rowsOf( $nested ), 'no goal of a hidden section through the nested form' );
         $this->assertSame(
             ( (array) $nested->get_data() )['errors'][0]['code'] ?? ( (array) $nested->get_data() )['code'] ?? null,
             ( (array) $plain->get_data() )['errors'][0]['code'] ?? ( (array) $plain->get_data() )['code'] ?? null
         );
+
+        // The parent-facing read of the same goals is where the section
+        // preference answers, and it answers as kept private.
+        $own = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/goals' ) );
+        $this->assertSame( 403, $own->get_status() );
+        $this->assertSame( 'section_private', ( (array) $own->get_data() )['errors'][0]['code'] ?? ( (array) $own->get_data() )['code'] ?? null );
+    }
+
+    /** @return list<mixed> */
+    private function rowsOf( \WP_REST_Response $response ): array {
+        $data = (array) $response->get_data();
+        return array_values( (array) ( $data['data']['rows'] ?? [] ) );
     }
 
     public function test_the_route_declares_its_args(): void {

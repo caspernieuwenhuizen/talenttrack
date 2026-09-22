@@ -82,7 +82,10 @@ final class GoalPlayerCheckTest extends WP_UnitTestCase {
         $missing = $this->send( $coach, 'PUT', 'goals/' . ( $goalB + 100000 ), [ 'title' => 'x' ] );
         $refused = $this->send( $coach, 'PUT', 'goals/' . $goalB, [ 'title' => 'Changed' ] );
         $this->assertSame( 404, $refused[0] );
-        $this->assertSame( $missing, $refused, 'a refusal reads exactly as a missing goal' );
+        // Compared as the JSON a client receives: the error body carries a
+        // `details` object, and assertSame() on two arrays compares objects
+        // by instance, which two separate responses never share.
+        $this->assertSame( (string) wp_json_encode( $missing ), (string) wp_json_encode( $refused ), 'a refusal reads exactly as a missing goal' );
         $this->assertSame( 'Other squad goal title', $this->column( $goalB, 'title' ) );
 
         $this->assertSame( 200, $this->send( $coach, 'PUT', 'goals/' . $goalA, [ 'title' => 'Own squad goal title' ] )[0] );
