@@ -170,6 +170,24 @@ final class GoalPlayerCheckTest extends WP_UnitTestCase {
 
         $this->assertContains( 'head_coach', PersonaResolver::personasFor( $uid ) );
         AuthorizationService::flushCache();
+        $diag_repo = new MatrixRepository();
+        $diag_db   = $wpdb->get_var( $wpdb->prepare( "SELECT enabled FROM {$p}tt_module_state WHERE module_class = %s", 'TT\\Modules\\Goals\\GoalsModule' ) );
+        $diag_rows = $wpdb->get_results( "SELECT persona, activity, scope_kind, module_class FROM {$p}tt_authorization_matrix WHERE entity = 'goals' AND persona = 'head_coach'", ARRAY_A );
+        fwrite( STDERR, "\nDIAG personas=" . implode( ',', PersonaResolver::personasFor( $uid ) )
+            . ' goalsModuleEnabled(cached)=' . var_export( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Goals\\GoalsModule' ), true )
+            . ' goalsModuleDbRow=' . var_export( $diag_db, true )
+            . ' featureDenies=' . var_export( \TT\Core\FeatureRegistry::entityDisabled( 'goals' ), true )
+            . ' lookupTeam=' . var_export( $diag_repo->lookup( 'head_coach', 'goals', 'read', 'team' ), true )
+            . ' moduleFor=' . var_export( $diag_repo->moduleFor( 'head_coach', 'goals', 'read', 'team' ), true )
+            . ' evalGate=' . var_export( AuthorizationService::canReadPlayerSection( $uid, $this->playerA, 'evaluations' ), true )
+            . ' rows=' . wp_json_encode( $diag_rows ) . "\n" );
+        $diag_ref  = new \ReflectionClass( \TT\Core\ModuleRegistry::class );
+        $diag_prop = $diag_ref->getProperty( 'stateCache' );
+        $diag_prop->setAccessible( true );
+        $diag_prop->setValue( null, null );
+        AuthorizationService::flushCache();
+        fwrite( STDERR, 'DIAG afterModuleCacheReset goalsModuleEnabled=' . var_export( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Goals\\GoalsModule' ), true )
+            . ' sectionGoals=' . var_export( AuthorizationService::canReadPlayerSection( $uid, $this->playerA, 'goals' ), true ) . "\n" );
         $this->assertTrue( AuthorizationService::canReadPlayerSection( $uid, $this->playerA, 'goals' ), 'the head coach must read their squad, or the refusal is vacuous' );
         $this->assertFalse( AuthorizationService::canViewPlayer( $uid, $this->playerB ), 'the other squad is outside the coach\'s scope' );
         return $uid;

@@ -30,6 +30,8 @@ final class GoalFieldChangeMessageTest extends WP_UnitTestCase {
 
         do_action( 'rest_api_init' );
         GoalSystemMessageSubscriber::init();
+        fwrite( STDERR, "\nDIAG GFCM personas=" . implode( ',', \TT\Modules\Authorization\PersonaResolver::personasFor( $this->coach ) )
+            . ' goalsModuleEnabled(cached)=' . var_export( \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Goals\\GoalsModule' ), true ) . "\n" );
     }
 
     public function tear_down(): void {
