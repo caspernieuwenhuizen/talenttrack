@@ -13,7 +13,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
-use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Goals\GoalAccess;
 use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
 
@@ -119,15 +119,27 @@ class GoalsPage {
         <?php
     }
 
-    /** #3158 — a goal follows its player's visibility. */
+    /**
+     * #3158 — a goal follows its player's visibility. The only caller is the
+     * edit form, so this is the change check the API applies to the save.
+     */
     private static function canSeeGoal( int $goal_id ): bool {
-        global $wpdb; $p = $wpdb->prefix;
-        $player_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT player_id FROM {$p}tt_goals WHERE id = %d AND club_id = %d",
-            $goal_id, CurrentClub::id()
-        ) );
-        if ( $player_id <= 0 ) return true; // "not found" is the render's own answer.
-        return AuthorizationService::canViewPlayer( get_current_user_id(), $player_id );
+        $player_id = GoalAccess::playerIdOf( $goal_id );
+        if ( $player_id === null ) return true; // "not found" is the render's own answer.
+        return GoalAccess::mayChange( get_current_user_id(), $player_id );
+    }
+
+    /**
+     * The same per-player check on the two admin-post handlers: the goal
+     * being saved or deleted, and on a save the player it is written for.
+     */
+    private static function mayWrite( int $goal_id, int $player_id ): bool {
+        $uid = get_current_user_id();
+        if ( $goal_id > 0 ) {
+            $existing = GoalAccess::playerIdOf( $goal_id );
+            if ( $existing !== null && ! GoalAccess::mayChange( $uid, $existing ) ) return false;
+        }
+        return $player_id <= 0 || GoalAccess::mayChange( $uid, $player_id );
     }
 
     private static function render_form( int $id ): void {
@@ -272,6 +284,10 @@ class GoalsPage {
             'created_by' => get_current_user_id(),
         ];
 
+        if ( ! self::mayWrite( $id, (int) $data['player_id'] ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
         if ( $id ) {
             $ok = $wpdb->update( "{$p}tt_goals", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         } else {
@@ -323,6 +339,7 @@ class GoalsPage {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_goal_' . $id );
         if ( ! current_user_can( 'tt_edit_goals' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        if ( ! self::mayWrite( $id, 0 ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'goal.delete' );
         global $wpdb;
         $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );

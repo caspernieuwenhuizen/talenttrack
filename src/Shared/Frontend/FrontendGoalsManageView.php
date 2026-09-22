@@ -3,8 +3,10 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Goals\GoalAccess;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -67,7 +69,13 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // Mirrors the activities pattern so title clicks land on a
         // viewable detail page instead of an edit form.
         if ( $id > 0 && $action === 'edit' ) {
-            $goal = self::loadGoal( $id );
+            $goal = self::loadGoal( $id, $user_id );
+            // The edit form is for a goal the viewer may change; one they
+            // may only read is answered as not found, as the API answers
+            // the save.
+            if ( $goal && ! GoalAccess::mayChange( $user_id, (int) ( $goal->player_id ?? 0 ) ) ) {
+                $goal = null;
+            }
             self::renderHeader( $goal ? sprintf( __( 'Edit goal — %s', 'talenttrack' ), (string) $goal->title ) : __( 'Goal not found', 'talenttrack' ) );
             if ( ! $goal ) {
                 echo '<p class="tt-notice">' . esc_html__( 'That goal no longer exists.', 'talenttrack' ) . '</p>';
@@ -78,13 +86,17 @@ class FrontendGoalsManageView extends FrontendViewBase {
         }
 
         if ( $id > 0 ) {
-            $goal = self::loadGoal( $id );
+            $goal = self::loadGoal( $id, $user_id );
             // #2022 — loadGoal() ends in `archived_at IS NULL`, so an archived
             // / trashed goal never reaches it. Retry through the archive-aware
             // gate before falling to not-found; a null return stays a clean 404.
+            // The archived branch follows the same per-player check as the
+            // live one; a refusal is answered as not found.
             if ( ! $goal ) {
                 $resolved = \TT\Shared\Frontend\Components\ArchivedDetailCard::resolve( 'goal', $id );
-                if ( $resolved !== null && $resolved['state'] !== 'active' ) {
+                if ( $resolved !== null && $resolved['state'] !== 'active'
+                    && GoalAccess::mayRead( $user_id, (int) ( $resolved['row']->player_id ?? 0 ) )
+                ) {
                     self::renderArchivedReadOnly( $resolved );
                     return;
                 }
@@ -94,7 +106,9 @@ class FrontendGoalsManageView extends FrontendViewBase {
             // used to sit below the dl + the row Delete action that
             // used to sit on the list).
             $detail_actions = [];
-            if ( $goal && current_user_can( 'tt_edit_goals' ) ) {
+            if ( $goal && current_user_can( 'tt_edit_goals' )
+                && GoalAccess::mayChange( $user_id, (int) ( $goal->player_id ?? 0 ) )
+            ) {
                 $goals_list_url = add_query_arg( [ 'tt_view' => 'goals' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'goals', 'id' => (int) $goal->id, 'action' => 'edit' ],
@@ -743,23 +757,22 @@ class FrontendGoalsManageView extends FrontendViewBase {
         return [ 'tt-goal-chip--status', 'tt-goal-card--active' ];
     }
 
-    private static function loadGoal( int $id ): ?object {
-        // v4.20.69 (#1221, audit-7 / #1181) — no `g.club_id = %d` clause
-        // here. The audit flagged this helper alongside loadPlayer /
-        // loadTeam / loadSession as missing the tenancy filter, but
-        // v4.20.30 (#1188) settled the direction: tenancy boundary is
-        // enforced at the request layer (CurrentClub resolution), not by
-        // sprinkling per-helper club_id WHEREs. Sibling helpers in the
-        // QueryHelpers canonical layer (`get_player`) and the repository
-        // layer (`PlayersRepository::find`, `ActivitiesRepository::findById`)
-        // are already aligned; this view stays consistent with them.
+    /**
+     * A live goal the viewer may read, or null. The club and the per-player
+     * check both apply at this read, so a goal of another club or of a player
+     * the viewer may not read is answered exactly as a missing one.
+     */
+    private static function loadGoal( int $id, int $user_id ): ?object {
         global $wpdb; $p = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT g.* FROM {$p}tt_goals g WHERE g.id = %d AND g.archived_at IS NULL {$scope}",
-            $id
+            "SELECT g.* FROM {$p}tt_goals g WHERE g.id = %d AND g.club_id = %d AND g.archived_at IS NULL {$scope}",
+            $id,
+            CurrentClub::id()
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+        if ( ! GoalAccess::mayRead( $user_id, (int) ( $row->player_id ?? 0 ) ) ) return null;
+        return $row;
     }
 }

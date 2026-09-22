@@ -163,11 +163,16 @@ final class BackLabelResolver {
                 ) );
                 return is_string( $title ) && $title !== '' ? $title : '';
             case 'goals':
-                $title = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT title FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
+                $row = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT title, player_id FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
                     $id, $club_id
                 ) );
-                return is_string( $title ) && $title !== '' ? $title : '';
+                // A goal label follows the goal's own per-player check.
+                if ( ! $row || ! \TT\Infrastructure\Goals\GoalAccess::mayRead( get_current_user_id(), (int) ( $row->player_id ?? 0 ) ) ) {
+                    return '';
+                }
+                $title = (string) ( $row->title ?? '' );
+                return $title;
             case 'pdp':
                 $row = $wpdb->get_row( $wpdb->prepare(
                     "SELECT pf.player_id, pl.first_name, pl.last_name

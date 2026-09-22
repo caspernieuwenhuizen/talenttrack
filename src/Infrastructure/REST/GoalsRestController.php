@@ -176,6 +176,22 @@ class GoalsRestController {
         return \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id );
     }
 
+    /**
+     * The per-record half of every `goals/{id}` route. The route's
+     * capability says "may change goals"; this asks whether the caller may
+     * change this player's goals. A refusal is answered exactly as a missing
+     * goal, the way `EvaluationsRestController::get_eval()` answers one.
+     */
+    private static function goalRefusal( int $goal_id ): ?\WP_REST_Response {
+        $player_id = \TT\Infrastructure\Goals\GoalAccess::playerIdOf( $goal_id );
+        if ( $player_id === null
+            || ! \TT\Infrastructure\Goals\GoalAccess::mayChange( get_current_user_id(), $player_id )
+        ) {
+            return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
+        }
+        return null;
+    }
+
     /** Whitelist of columns the `orderby` query param accepts. */
     private const ORDERBY_WHITELIST = [
         'due_date'    => 'g.due_date',
@@ -849,6 +865,8 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        $refusal = self::goalRefusal( $goal_id );
+        if ( $refusal !== null ) return $refusal;
 
         $data = [];
         foreach ( [ 'title', 'description', 'status', 'priority' ] as $k ) {
@@ -977,6 +995,8 @@ class GoalsRestController {
         if ( $status === '' ) {
             return RestResponse::error( 'missing_fields', __( 'Status is required.', 'talenttrack' ), 400 );
         }
+        $refusal = self::goalRefusal( $goal_id );
+        if ( $refusal !== null ) return $refusal;
 
         // #0077 M10 — when a goal is leaving pending_approval, the
         // approver must be the player's head coach (or admin). Matches
@@ -1025,6 +1045,8 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        $refusal = self::goalRefusal( $goal_id );
+        if ( $refusal !== null ) return $refusal;
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
             ->archive( 'goal', [ $goal_id ], (int) get_current_user_id() );
         if ( $n === 0 ) {
@@ -1043,6 +1065,8 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        $refusal = self::goalRefusal( $goal_id );
+        if ( $refusal !== null ) return $refusal;
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'goal', [ $goal_id ] );
         if ( $n === 0 ) {
             return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
@@ -1056,6 +1080,8 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
+        $refusal = self::goalRefusal( $goal_id );
+        if ( $refusal !== null ) return $refusal;
         try {
             $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'goal', [ $goal_id ] );
         } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
@@ -1072,6 +1098,11 @@ class GoalsRestController {
         // #3819 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::idOnlyArgs() );
         if ( $refused !== null ) return $refused;
+
+        if ( absint( $r['id'] ) > 0 ) {
+            $refusal = self::goalRefusal( absint( $r['id'] ) );
+            if ( $refusal !== null ) return $refusal;
+        }
 
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'goal', absint( $r['id'] ), __( 'Goal not found.', 'talenttrack' )
