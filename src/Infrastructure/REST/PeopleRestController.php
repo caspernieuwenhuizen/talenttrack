@@ -270,6 +270,15 @@ class PeopleRestController {
         if ( $refused !== null ) return $refused;
 
         $repo = new PeopleRepository();
+        // #4002 — resolve the record the id names. `update()` scopes its own
+        // WHERE by club, so a write to a person in another club (or to no
+        // person at all) matched no row — and `$wpdb->update` answers 0, not
+        // false, so the route reported `200 { id }` for a record it had not
+        // touched and does not have. The sibling DELETE already answers 404
+        // in that case; this makes PUT agree with it.
+        if ( $repo->find( $id ) === null ) {
+            return RestResponse::error( 'not_found', __( 'Person not found in your club.', 'talenttrack' ), 404 );
+        }
         $payload = self::extract( $r, false );
         if ( ! $repo->update( $id, $payload ) ) {
             $refused = self::refusalResponse( $repo, $payload );

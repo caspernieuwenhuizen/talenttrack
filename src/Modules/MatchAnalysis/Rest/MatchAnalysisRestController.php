@@ -279,12 +279,50 @@ class MatchAnalysisRestController {
         return current_user_can( 'tt_edit_activities' );
     }
 
+    /**
+     * #4002 — the record this route names, not activities in general.
+     *
+     * `can_view` / `can_edit` above ask whether the caller reads or writes
+     * activities at all, and `tt_coach` holds both club-wide. Every route
+     * here is keyed by an activity, so without this a head coach of one
+     * team could read, rewrite, share or rotate the share link of another
+     * team's match write-up — a document about named children, with the
+     * coach's judgements of them in it.
+     *
+     * The check lives in the handler, beside the rest of the request, with
+     * `permission_callback` unchanged: that is the shape `goalRefusal()`
+     * established and the #4002 family follows.
+     *
+     * 403 rather than the family's 404: the two sibling controllers on the
+     * same activity (`MatchPrepRestController::can_edit`,
+     * `MatchExecutionRestController::can_edit`) both answer 403 through
+     * this very helper, and one activity's routes must not contradict the
+     * next.
+     */
+    private static function refuseUnlessCoversActivity( \WP_REST_Request $r ): ?\WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id > 0 && \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+            get_current_user_id(),
+            $activity_id
+        ) ) {
+            return null;
+        }
+        return RestResponse::error(
+            'forbidden_team',
+            \TT\Modules\Authorization\ActivityTeamScope::refusalMessage(),
+            403
+        );
+    }
+
     // -----------------------------------------------------------------
     // Read
     // -----------------------------------------------------------------
 
     public static function get( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
+        // #4002 — whose match.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
 
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, false );
         if ( $payload === null ) {
@@ -306,6 +344,19 @@ class MatchAnalysisRestController {
         $team_id = absint( $r['team_id'] );
         if ( $team_id <= 0 ) {
             return RestResponse::error( 'bad_team', __( 'Unknown team.', 'talenttrack' ), 400 );
+        }
+        // #4002 — the record the route names is a team, so the team scope
+        // decides. `can_view` only asks whether the caller reads activities
+        // at all, which every coach does club-wide — and this route returns
+        // a team's match-by-match shape across a season.
+        if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ) {
+            return RestResponse::error(
+                'forbidden_team',
+                // The sentence the activity routes already use for a team
+                // outside the caller's scope.
+                __( 'That team is not in your scope.', 'talenttrack' ),
+                403
+            );
         }
         [ $from, $to ] = self::window( $r );
 
@@ -384,6 +435,10 @@ class MatchAnalysisRestController {
      */
     public static function put( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
+        // #4002 — before the body and before the find-or-create: a caller
+        // this match is not theirs must leave no empty analysis behind.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
 
         // #3843 — the shape first, and before the find-or-create below: a
         // body this route cannot write must not leave an empty analysis
@@ -446,6 +501,9 @@ class MatchAnalysisRestController {
 
     public static function put_section( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
+        // #4002 — whose match.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
         $section_key = sanitize_key( (string) $r['section_key'] );
 
         if ( ! MatchAnalysisEnums::isSectionKey( $section_key ) ) {
@@ -491,6 +549,10 @@ class MatchAnalysisRestController {
     }
 
     public static function put_player( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — whose match, before anything is read or created.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
+
         // #3819 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::playerArgs() );
         if ( $refused !== null ) return $refused;
@@ -521,6 +583,11 @@ class MatchAnalysisRestController {
     }
 
     public static function delete_player( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — whose match. A delete leaves no trace, so it is checked
+        // before the row is found, not after.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
+
         $activity_id = absint( $r['activity_id'] );
         $player_id   = absint( $r['player_id'] );
 
@@ -545,6 +612,11 @@ class MatchAnalysisRestController {
      * what `share/rotate` is for, and it says so in the UI.
      */
     public static function create_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — minting a link to another team's write-up would hand out
+        // a URL to named children's data, so the record is checked first.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
+
         // #3819 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::shareArgs() );
         if ( $refused !== null ) return $refused;
@@ -570,6 +642,10 @@ class MatchAnalysisRestController {
      * answer, not a missing resource.
      */
     public static function share_views( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — whose match.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
+
         $activity_id = absint( $r['activity_id'] );
 
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, false );
@@ -588,6 +664,11 @@ class MatchAnalysisRestController {
     }
 
     public static function rotate_share( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — rotating another team's link would revoke a share they
+        // handed out, so the record is checked first.
+        $refusal = self::refuseUnlessCoversActivity( $r );
+        if ( $refusal !== null ) return $refusal;
+
         // #3819 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::shareArgs() );
         if ( $refused !== null ) return $refused;

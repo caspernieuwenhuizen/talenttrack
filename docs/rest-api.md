@@ -329,6 +329,34 @@ if ( $blocked ) return $blocked;
 
 **A read of an existing record survives its feature leaving the plan.** A club that drops from Pro keeps `GET`-ing and exporting the records it wrote while it was on Pro; only `POST` / `PUT` / `PATCH` / `DELETE` are refused. That asymmetry lives in `enforceWriteRest()`, so a controller never re-derives it. Features with no stored records — the dimension explorer, the bulk-entry grids — have nothing to keep readable and use `enforceFeatureRest()` on every verb.
 
+### A route that takes a record id checks that record (#4002)
+
+A `permission_callback` answers whether the caller does this **kind** of
+thing. Every capability in the model is held club-wide or wider, so on its
+own it never answers *to whose record*. A route carrying an id resolves the
+record and asks the second question too — in the handler, or in one helper
+the handlers share, with the permission callback left as it is. The pattern
+is `GoalsRestController::goalRefusal()`.
+
+Which status the refusal uses follows the route's **siblings**, so one
+resource's routes cannot contradict the next:
+
+| Route family | Resolves | Refusal |
+| - | - | - |
+| `POST /activities/{id}/guests`, `POST /activities/{id}/status`, `PATCH /activities/{id}/evaluation-skipped`, `PATCH` / `DELETE /attendance/{id}` | the activity's team (the attendance routes via the row's activity) | `403 forbidden_team`, matching `PUT /sessions/{id}` |
+| every `/activities/{id}/analysis…` route, `GET /match-analysis-trends/teams/{id}` | the activity's team via `ActivityTeamScope::coversActivity`; the trends route via `AllTeamsScope::canReadTeam` | `403 forbidden_team`, matching match prep and match execution on the same activity |
+| every by-id `/training/plans/{id}…` route | the plan's team; a plan with no team is club-wide library material and stays open | `404 not_found`, the answer a missing plan gets |
+| every by-id `/training/runs/{id}…` route, `DELETE /training/observations/{id}`, `GET /activities/{id}/training-plan` | the run's team, or the team behind its activity; the observation via its run. `POST /training/runs/{id}/observations` additionally checks the player with `canEvaluatePlayer` | `404 not_found` |
+| `POST /evaluations/{id}/restore` \| `/trash`, `DELETE /evaluations/{id}/permanent` | the evaluation's player, through the `write_refusal()` `DELETE /evaluations/{id}` already applied | `403 forbidden_player` |
+| `PUT /people/{id}` | the person in the caller's club | `404 not_found`, as the sibling `DELETE` already answered |
+| `GET /players/{id}/messages` | the player, via `canViewPlayer` | `404 not_found` |
+| `GET /recycle-bin/preview/{entity}/{id}` | that the row is archived or trashed, not live | `404 not_found` |
+
+`404` is the default because a distinct `403` confirms the id exists, and a
+route that can be walked to map which records there are is the enumeration
+these checks exist to stop. `403` is used only where a sibling route on the
+same record already answers `403`.
+
 ### Pagination + filters
 
 List endpoints follow the Sprint 2 contract used by `FrontendListTable`:

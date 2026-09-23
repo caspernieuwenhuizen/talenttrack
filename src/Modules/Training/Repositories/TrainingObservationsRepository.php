@@ -208,6 +208,28 @@ final class TrainingObservationsRepository {
      * has already landed. Used by the REST layer to tell a replay from a
      * first save before writing.
      */
+    /**
+     * One observation by id, club-scoped.
+     *
+     * #4002 — `DELETE /training/observations/{id}` has to know which run
+     * (and so which team) the row belongs to before it removes it, and
+     * that resolution belongs here rather than as a query in the REST
+     * controller.
+     */
+    public function findById( int $id ): ?object {
+        if ( $id <= 0 ) return null;
+
+        global $wpdb;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$this->table()} WHERE id = %d AND club_id = %d",
+            $id,
+            CurrentClub::id()
+        ) );
+
+        return $row ?: null;
+    }
+
     public function findByUuid( string $uuid ): ?object {
         $clean = $this->cleanUuid( $uuid );
         if ( $clean === null ) return null;

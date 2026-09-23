@@ -251,8 +251,23 @@ final class CommsRestController extends BaseController {
     public static function listPlayerMessages( WP_REST_Request $req ): \WP_REST_Response {
         // The URL segment wins over any `player_id` query parameter: the
         // route says whose record this is.
+        $player_id = (int) $req['id'];
+
+        // #4002 — and the record it names is checked. The capability asks
+        // whether the caller reads the message log at all, which is held
+        // club-wide; this route returns what the academy wrote to one
+        // child's family, so the player decides. Answered as a missing
+        // record, so the route cannot be walked to find which players
+        // there are.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
+            get_current_user_id(),
+            $player_id
+        ) ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
         $filters = self::filtersFrom( $req );
-        $filters['player_id'] = (int) $req['id'];
+        $filters['player_id'] = $player_id;
         return self::respondWithLog( $req, $filters );
     }
 

@@ -970,6 +970,11 @@ class EvaluationsRestController {
 
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
+        // #4002 — the same per-record check `delete_eval` already applies.
+        // `tt_edit_evaluations` is held club-wide, so on its own it let any
+        // coach restore an evaluation of a player on another team.
+        $refusal = self::write_refusal( $id );
+        if ( $refusal !== null ) return $refusal;
         $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'evaluation', [ $id ] );
         if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
         return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
@@ -979,6 +984,12 @@ class EvaluationsRestController {
     public static function delete_eval_permanently( \WP_REST_Request $r ) {
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
+        // #4002 — irreversible, so the per-record check matters most here.
+        // `write_refusal()` lets a `tt_edit_settings` holder through, which
+        // is every holder of the recycle-bin cap this route gates on, and
+        // narrows anyone else to their own players.
+        $refusal = self::write_refusal( $id );
+        if ( $refusal !== null ) return $refusal;
         try {
             $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'evaluation', [ $id ] );
         } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
@@ -993,6 +1004,10 @@ class EvaluationsRestController {
         // #3819 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::lifecycleArgs() );
         if ( $refused !== null ) return $refused;
+
+        // #4002 — the record, not just the capability.
+        $refusal = self::write_refusal( (int) $r['id'] );
+        if ( $refusal !== null ) return $refusal;
 
         return \TT\Infrastructure\Archive\RecycleBinRestActions::trash(
             'evaluation', (int) $r['id'], __( 'Evaluation not found.', 'talenttrack' )
