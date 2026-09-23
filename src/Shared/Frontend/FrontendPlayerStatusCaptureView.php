@@ -42,23 +42,6 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
 
-        // #4001 — `tt_rate_player_behaviour` / `tt_set_player_potential` are
-        // held club-wide, so the route's capability answers whether the caller
-        // records these judgements, never about which children. This screen
-        // both shows and writes the academy's view of how far a named child
-        // will go — the surface `isStaffForPlayer()` exists for, and the one
-        // the history branch below has asked since #3715. The capture branch
-        // asked nothing, so a coach could record a potential band against any
-        // player in the academy by editing `?player_id=`.
-        //
-        // A refusal answers as a player who is not there, which is what this
-        // view already prints for an id that does not resolve.
-        if ( $player !== null
-            && ! \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer( $user_id, $player_id )
-        ) {
-            $player = null;
-        }
-
         // #2574 / #3243 — both halves are feature-gated now, so the view is
         // reachable while EITHER is available and refuses only when neither
         // is. Without this it would render a heading and nothing else for an
@@ -85,15 +68,33 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // file — and can read the same data over REST — to a page with one
         // sentence on it.
         $history_only = $player !== null && ! $behaviour_ok && ! $potential_ok;
-        // Only asked on the branch that needs it — the capture screen
-        // proper has already been gated by the route.
-        $may_read     = $history_only && \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer(
-            get_current_user_id(),
-            $player_id
-        );
+        // #4001 — resolved once and used twice below: the history branch reads
+        // it, and the capture branch is now refused without it.
+        $is_staff     = $player !== null
+            && \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer( $user_id, $player_id );
+        $may_read     = $history_only && $is_staff;
         $page_title   = ( $history_only && $may_read )
             ? __( 'Behaviour & potential history', 'talenttrack' )
             : __( 'Capture behaviour & potential', 'talenttrack' );
+
+        // #4001 — `tt_rate_player_behaviour` / `tt_set_player_potential` are
+        // held club-wide, so the route's capability answers whether the caller
+        // records these judgements, never about which children. The capture
+        // branch below shows and writes the academy's view of how far a named
+        // child will go, and it asked nothing: a coach could record a potential
+        // band against any player in the academy by editing `?player_id=`.
+        //
+        // Scoped to that branch on purpose. #3715 settled that the history
+        // branch's notice is shown to anyone who reaches the route — telling a
+        // reader which of "we don't do this" and "you may not" applies would
+        // leak the club's configuration — and that only the history itself is
+        // gated. A load-level check would have taken that notice away too.
+        //
+        // Before the breadcrumb chain, so a refusal does not carry the child's
+        // name in the crumb, and answers exactly as a player who is not there.
+        if ( $player !== null && ! $history_only && ! $is_staff ) {
+            $player = null;
+        }
 
         // v3.92.1 — breadcrumb chain. When player is loaded, chain
         // through Players → [player name]; otherwise just Dashboard.
