@@ -251,12 +251,16 @@ class PeopleRestController {
             if ( $refused !== null ) return $refused;
 
             global $wpdb;
-            Logger::error( 'rest.person.create.failed', [ 'db_error' => (string) $wpdb->last_error, 'payload' => $payload ] );
+            // Read it BEFORE logging: the logger writes a row, which resets
+            // `$wpdb->last_error`, so a response composed after it carried an
+            // empty string every time.
+            $db_error = (string) $wpdb->last_error;
+            Logger::error( 'rest.person.create.failed', [ 'db_error' => $db_error, 'payload' => $payload ] );
             return RestResponse::error(
                 'db_error',
                 __( 'The person could not be created.', 'talenttrack' ),
                 500,
-                [ 'db_error' => (string) $wpdb->last_error ]
+                [ 'db_error' => $db_error ]
             );
         }
         return RestResponse::success( [ 'id' => (int) $id ] );
@@ -285,12 +289,14 @@ class PeopleRestController {
             if ( $refused !== null ) return $refused;
 
             global $wpdb;
-            Logger::error( 'rest.person.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
+            // Before logging, for the reason `create_person()` spells out.
+            $db_error = (string) $wpdb->last_error;
+            Logger::error( 'rest.person.update.failed', [ 'db_error' => $db_error, 'id' => $id ] );
             return RestResponse::error(
                 'db_error',
                 __( 'The person could not be updated.', 'talenttrack' ),
                 500,
-                [ 'db_error' => (string) $wpdb->last_error ]
+                [ 'db_error' => $db_error ]
             );
         }
         return RestResponse::success( [ 'id' => $id ] );

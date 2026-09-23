@@ -12,4 +12,5 @@ The refusal now answers `409 wp_user_already_linked` and names the person
 holding the account in `details.person_id`, so you can go and free it. The
 wp-admin People form says the same thing in place of "Something went
 wrong". A genuine write failure is still a 500, and now carries the
-database error in `details` instead of hiding it.
+database error in `details` instead of hiding it — read before the failure is
+logged, because writing the log entry clears the database's own last error.
