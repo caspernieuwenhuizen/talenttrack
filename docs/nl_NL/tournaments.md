@@ -103,12 +103,98 @@ Het niveau verschijnt overal met zijn vertaalde label — de pill op de wedstrij
 
 De auto-balancer weegt **niet** automatisch op niveau tegenstander. Dat is de beoordeling van de coach; de tool laat de data zien, jij beslist via handmatige wissels.
 
+## Waarden die de planner weigert
+
+Twee dingen die een toernooi kan meekrijgen worden bij binnenkomst
+gecontroleerd in plaats van stilletjes weggelaten, omdat de planner er niet mee
+kan werken en een coach het alleen zou merken aan een grid dat er verkeerd
+uitzag.
+
+**Posities.** Een selectieregel mag `GK · CB · LB · RB · DM · CM · AM · LW · RW
+· ST` bevatten. Al het andere — `DF`, `MF`, `FW`, een typefout — wordt geweigerd
+met een melding die de code noemt én de codes die wél mogen; er wordt niets
+opgeslagen. Voorheen verdween zo'n code zonder bericht: een selectie die als
+`GK / DF / MF` werd verstuurd, werd opgeslagen als alleen `GK`, en
+auto-balanceren vulde daarna alleen de keeperplek en zette de rest zonder
+minuten op de bank. De oudere `DEF` / `MID` / `FWD` werken nog en lezen als
+`CB` / `CM` / `ST`.
+
+**Formaties.** De standaardformatie van een toernooi en de eigen formatie van
+een wedstrijd moeten er een zijn die de academie daadwerkelijk heeft bij
+Configuratie → Toernooiformaties. Een onbekende formatie wordt geweigerd, met de
+lijst van formaties die er wél zijn. Bij een wedstrijd leeg laten mag nog
+steeds — dat betekent "gebruik die van het toernooi".
+
+Speelt jouw leeftijdsgroep een vorm die niet in de standaardlijst staat, voeg
+die dan bij Configuratie → Toernooiformaties toe met zijn slotlabels; daarna
+wordt hij overal geaccepteerd, planner inbegrepen.
+
+## De toernooidag op de teamagenda
+
+Zodra je een toernooi aanmaakt, staat **de dag zelf** op de activiteitenlijst van
+het team, als geplande toernooiactiviteit met de naam en de startdatum van het
+toernooi. Hernoem je het toernooi of verplaats je het naar een andere datum, dan
+verhuist die agenda-regel mee.
+
+Dat is wat de teammanager in staat stelt vervoer en kleding te regelen, en wat de
+assistent-coach en de ouders de dag ziet aankomen terwijl de planner nog gevuld
+wordt. Voorheen verscheen er pas iets zodra iemand die ochtend op **Aftrap**
+tikte — een toernooi dat drie weken vooruit gepland was, was dus onzichtbaar voor
+iedereen die met de activiteitenlijst werkt, en er was niets om aanwezigheid op
+vast te leggen.
+
+**Aanwezigheid leg je één keer vast, voor de dag.** Een toernooidag is meerdere
+wedstrijden en de presentielijst hoort bij de dag, niet bij elke wedstrijd.
+
+Een toernooi dat voor deze wijziging is aangemaakt, krijgt zijn agenda-regel de
+eerstvolgende keer dat je het bewerkt of er een wedstrijd aan toevoegt — je hoeft
+niets opnieuw te laten lopen.
+
 ## Aftrap en afsluiten van een wedstrijd
 
-- **Aftrap** — promoveert de geplande wedstrijd tot een echte activiteit. De wedstrijd verschijnt op de player journey en op de wedstrijdlijst van het team.
-- **Wedstrijd afsluiten** — zet de afsluit-timestamp, synct de basisopstelling van periode 0 naar **aanwezigheid**: iedereen die startte wordt gemarkeerd als `start` met zijn positie uit periode 0; gewisselde spelers als `bench`. Gespeelde minuten gaan van "verwacht" naar "gespeeld" in de ticker.
+- **Aftrap** — promoveert de geplande wedstrijd tot een eigen echte activiteit,
+  náást de dag. De wedstrijd verschijnt op de player journey en op de
+  wedstrijdlijst van het team. De dag-regel wordt hergebruikt en nooit
+  gedupliceerd: één dag, hoeveel wedstrijden er ook zijn. De wedstrijd heeft een
+  eigen activiteit nodig omdat daar de uitslag en de minuten worden vastgelegd,
+  terwijl de dag een alleen-lezen optelling is van wat zijn wedstrijden bevatten.
+- **Wedstrijd afsluiten** — opent de afsluitstap (hieronder), zet daarna de
+  afsluit-timestamp en synct de opstelling naar **aanwezigheid**: iedereen die
+  startte wordt gemarkeerd als `start` met zijn positie uit periode 0, gewisselde
+  spelers als `bench`, en elke regel krijgt de minuten die je hebt bevestigd.
+  Gespeelde minuten gaan van "verwacht" naar "gespeeld" in de ticker.
 
 Je kunt **Afsluiten** zonder eerst expliciet aftrap te geven — het systeem doet de aftrap automatisch.
+
+### De afsluitstap
+
+Op **Wedstrijd afsluiten** tikken legt niet meer meteen alles vast. Er komt een
+venster met elke speler uit de selectie en de minuten die het rotatieplan hem
+geeft, al ingevuld. Bevestig ze, of corrigeer wat niet klopt — een plan is een
+plan, en een keeper die de hele tweede periode bleef staan heeft het niet
+gelezen. Tik daarna in het venster op **Wedstrijd afsluiten**.
+
+Voorgevuld en niet leeg, met opzet: een coach langs de lijn controleert vijftien
+getallen en typt ze niet.
+
+**Een opstelling die geen volledig team is, wordt daar benoemd.** Staan er in een
+periode minder spelers op het veld dan de formatie posities heeft, dan zegt het
+venster dat bovenaan — "Periode 1: 1 van 7 posities gevuld" — met de waarschuwing
+dat afsluiten die minuten vastlegt als wat er gespeeld is. Je mag alsnog
+doorgaan; je kunt het alleen niet meer zonder dat je het te horen krijgt.
+
+Dit is het geval dat het nodig maakte. Een JO7-wedstrijd werd afgesloten met één
+keeper per periode en de rest op de bank — een grid dat auto-balanceren had
+gemaakt uit een formatie die de selectie niet kon vullen — en dat kwam in het
+dossier terecht als twee keepers met tien minuten en dertien kinderen met nul,
+terwijl ze allemaal ongeveer twaalf minuten hadden gespeeld. Er werden ook
+helemaal geen minuten weggeschreven, dus elk minutenoverzicht las de hele
+selectie als nul.
+
+Via de API weigert `POST .../complete` zo'n wedstrijd met `409
+lineup_incomplete`, met vermelding van de te dunne periodes, tenzij je `force=1`
+meestuurt. Op dat pad wordt niets weggeschreven: geen presentielijst, geen
+afsluit-timestamp, geen activiteit.
 
 ## De uitslag van elke wedstrijd vastleggen
 
@@ -141,6 +227,23 @@ nieuwe speelduur passen in plaats van ze te wissen.
 > daarbij is aangemaakt; dat is de snelste plek om ze terug te lezen. In de
 > release-notitie in `CHANGES.md` staat om welke releases het gaat.
 
+**De wedstrijd is de enige plek waar je de uitslag typt.** Een afgesloten
+wedstrijd geeft zijn uitslag door aan de wedstrijdactiviteit die erbij is
+aangemaakt, dus de uitslag verschijnt overal waar die activiteit wordt gelezen —
+het minutenoverzicht inbegrepen. Daar staat hij **alleen-lezen**, met een verwijzing
+naar hier. Het waren twee losse invulvakjes voor één en dezelfde wedstrijd, dus
+wat als laatste werd ingevuld won stilzwijgend.
+
+**Een toernooiwedstrijd is thuis noch uit.** Een wedstrijd op een toernooi heeft
+geen thuiswedstrijd, dus niets doet alsof. Het minutenoverzicht labelt de twee
+getallen met de afkorting van je club en *Tgst.* in plaats van thuis en uit.
+Voorheen werd een wedstrijd overal als thuiswedstrijd behandeld, omdat er geen
+thuis/uit-markering op stond en "niet uit" gelezen werd als "thuis".
+
+Een uitslag die je invult voordat je aftrap geeft, blijft op de wedstrijd staan en
+verhuist naar de activiteit op het moment dat die bestaat; uitslagen vooruit
+vastleggen kost dus niets.
+
 Er is bewust **geen dagtotaal**. De balans van het team laat toernooien
 helemaal buiten beschouwing, dus een doelpunten voor/tegen over de dag zou
 nergens gelezen worden. Verandert dat, dan is het zo toegevoegd.
@@ -172,13 +275,18 @@ meer een ander speelde. Alleen een tekort krijgt kleur, en de getallen staan
 naast de balk, zodat niets op de pagina van kleur afhangt.
 
 **Waar de minuten vandaan komen staat op de pagina.** Ze volgen het
-rotatieplan van de afgeronde wedstrijden. Er is geen registratie per
-wedstrijd van wat er werkelijk gespeeld is — de aanwezigheid van een
-toernooidag is één totaal voor die dag — en zodra een wedstrijd is afgerond
+rotatieplan van de afgeronde wedstrijden: zodra een wedstrijd is afgerond
 zet de planner de opstelling vast, dus het plan van een afgeronde wedstrijd
 *is* de gebruikte rotatie. Minuten die achteraf in het minutenoverzicht zijn
 ingevoerd staan op het tabblad **Activiteiten**, en de twee worden nooit bij
 elkaar opgeteld.
+
+Sinds de afsluitstap (hierboven) legt een wedstrijd ook vast wat de coach heeft
+bevestigd, op zijn eigen presentielijst; dat is wat het minutenoverzicht en de
+minutenrapporten laten zien. Heeft een coach het plan gecorrigeerd, dan kunnen
+dit tabblad en die rapporten precies die correctie verschillen — het tabblad
+leest het plan. Welke van de twee het toernooidossier van een speler moet volgen,
+wordt apart besloten.
 
 Een wedstrijd zonder vastgelegde uitslag zegt **geen uitslag**, niet 0-0.
 Een doelpuntloos gelijkspel en een wedstrijd die niemand heeft ingevoerd

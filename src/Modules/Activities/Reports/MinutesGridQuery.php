@@ -35,7 +35,7 @@ final class MinutesGridQuery {
 
     /**
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:bool, opponent:string, is_tournament:bool, attributed_goals:int }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:?bool, is_neutral:bool, opponent:string, is_tournament:bool, attributed_goals:int }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int}>>,
      *   summary: array{ total_activities:int, total_players:int },
@@ -70,7 +70,8 @@ final class MinutesGridQuery {
         //    set the Minutes-audit matrix uses, so the two reconcile.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activity_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, activity_type_key, home_score, away_score, home_away,
+            "SELECT id, game_subtype_key, activity_type_key, activity_source_key,
+                    home_score, away_score, home_away,
                     opponent, {$date_col} AS session_date, title
                FROM {$p}tt_activities
               WHERE club_id = %d
@@ -88,6 +89,15 @@ final class MinutesGridQuery {
         $exec = new MatchExecutionRepository();
         $activities = [];
         foreach ( (array) $activity_rows as $a ) {
+            // #4021 — a fixture played at a tournament has no home leg to speak
+            // of (#3529 decision 3), so it is framed as neither. The flag is
+            // read from `activity_source_key`, which the tournament planner
+            // stamps when it promotes a fixture, and from the tournament day
+            // itself.
+            $is_tournament = strtolower( (string) ( $a->activity_type_key ?? '' ) ) === 'tournament';
+            $is_neutral    = $is_tournament
+                || strtolower( (string) ( $a->activity_source_key ?? '' ) ) === 'tournament';
+
             $activities[] = [
                 'activity_id'        => (int) $a->id,
                 'session_date'       => (string) $a->session_date,
@@ -104,12 +114,20 @@ final class MinutesGridQuery {
                 // way `recentResultsForTeam()` frames it: the academy team is
                 // home unless the row says away.
                 'away_score'         => $a->away_score !== null ? (int) $a->away_score : null,
-                'is_home'            => ( (string) ( $a->home_away ?? '' ) ) !== 'away',
+                // #4021 — `null`, not `true`, on a neutral fixture. This used
+                // to read "anything that is not literally away is home", which
+                // meant a tournament fixture — created with no `home_away` at
+                // all — was reported as a home game on every minutes surface.
+                // There is no home/away to report; saying so is the answer.
+                'is_home'            => $is_neutral
+                    ? null
+                    : ( (string) ( $a->home_away ?? '' ) ) !== 'away',
+                'is_neutral'         => $is_neutral,
                 'opponent'           => (string) ( $a->opponent ?? '' ),
                 // A tournament is a multi-game day (#2686), so it gets no
                 // score boxes. Carried as a flag rather than re-read from the
                 // type key in the view, which would be the rule stated twice.
-                'is_tournament'      => strtolower( (string) ( $a->activity_type_key ?? '' ) ) === 'tournament',
+                'is_tournament'      => $is_tournament,
                 'attributed_goals'   => 0,
             ];
         }

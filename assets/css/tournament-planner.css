@@ -258,6 +258,108 @@
     font-weight: 600;
 }
 
+/* #4032 — the completion step.
+ *
+ * Mobile-first: full-width sheet at the bottom of a phone screen, where the
+ * thumb is, growing into a centred dialog from 640px up. One row per player,
+ * each row a 48px tap target with a 48px minutes box beside it.
+ */
+.tt-dashboard .tt-tour-complete {
+    width: 100%;
+    max-width: 100%;
+    max-height: 88vh;
+    margin: auto auto 0;
+    padding: 0;
+    border: 0;
+    border-radius: var(--tt-radius-lg, 14px) var(--tt-radius-lg, 14px) 0 0;
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    box-shadow: var(--tt-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.12));
+    overflow: hidden;
+}
+.tt-dashboard .tt-tour-complete::backdrop {
+    background: rgba(14, 26, 20, 0.5);
+}
+.tt-dashboard .tt-tour-complete__form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+    max-height: 88vh;
+    /* Clear the iOS home indicator when the sheet sits on the bottom edge. */
+    padding: var(--tt-sp-4, 16px);
+    padding-bottom: calc(var(--tt-sp-4, 16px) + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    /* Keep a flick at the end of the list off the page behind the sheet. */
+    overscroll-behavior: contain;
+}
+.tt-dashboard .tt-tour-complete__title {
+    margin: 0;
+    font-size: var(--tt-fs-h3, 1.25rem);
+}
+.tt-dashboard .tt-tour-complete__intro,
+.tt-dashboard .tt-tour-complete__total {
+    margin: 0;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-tour-complete__warn {
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-tour-complete__warn ul {
+    margin: var(--tt-sp-2, 8px) 0;
+    padding-left: var(--tt-sp-5, 20px);
+}
+.tt-dashboard .tt-tour-complete__warn p { margin: 0; }
+.tt-dashboard .tt-tour-complete__players {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-tour-complete__player {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    padding: var(--tt-sp-1, 4px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-tour-complete__name {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.3;
+}
+.tt-dashboard .tt-tour-complete__role {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-tour-complete__min {
+    width: 4.5rem;
+    min-height: 48px;
+    /* 16px keeps iOS from zooming the page when the box takes focus. */
+    font-size: 16px;
+    text-align: center;
+}
+.tt-dashboard .tt-tour-complete__actions {
+    justify-content: flex-end;
+    padding-top: var(--tt-sp-2, 8px);
+}
+
+@media (min-width: 640px) {
+    .tt-dashboard .tt-tour-complete {
+        max-width: 30rem;
+        margin: auto;
+        border-radius: var(--tt-radius-lg, 14px);
+    }
+}
+
 @media (max-width: 639px) {
     .tt-dashboard .tt-planner-table { font-size: 12px; }
     .tt-dashboard .tt-planner-cell { min-width: 96px; padding: 3px; }

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
+use TT\Domain\Vocabularies\Lookups\TournamentFormation;
 use TT\Domain\Vocabularies\Lookups\TournamentOpponentLevel;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -12,6 +13,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Tournaments\Services\TournamentDayActivity;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
 use TT\Modules\Tournaments\TournamentAccess;
 
@@ -287,12 +289,28 @@ class TournamentsRestController {
             ],
         ] );
 
+        // #4032 — what completing this fixture would record, before it does:
+        // the per-player minutes the plan implies, pre-filled for the confirm
+        // step, and the periods whose lineup does not fill the formation.
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/completion', [
+            [
+                'methods'             => 'GET',
+                'callback'            => self::gate( [ __CLASS__, 'completion_preview' ] ),
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament(
+                        get_current_user_id(),
+                        (int) $r['id']
+                    );
+                },
+            ],
+        ] );
+
         // Complete — sets completed_at, locks lineup (override via
         // PATCH assignments?force=1), syncs starts to tt_attendance.
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/complete', [
             [
                 'methods'             => 'POST',
-                'args'                => self::matchIdArgs(),
+                'args'                => self::completeArgs(),
                 'callback'            => self::gate( [ __CLASS__, 'complete_match' ] ),
                 'permission_callback' => function ( \WP_REST_Request $r ) {
                     return AuthorizationService::canEditTournament(
@@ -491,9 +509,21 @@ class TournamentsRestController {
         if ( $payload['team_id'] <= 0 ) {
             return RestResponse::error( 'team_required', __( 'An anchor team is required.', 'talenttrack' ), 422 );
         }
-        if ( $payload['start_date'] === '' ) {
+        // #4031 — `extractTournament()` turns a blank date into null, so the
+        // `=== ''` this used to compare never matched and a tournament could
+        // be created with no date at all. It then has no day to put on the
+        // calendar, which is how the gap was found.
+        if ( $payload['start_date'] === null || $payload['start_date'] === '' ) {
             return RestResponse::error( 'start_date_required', __( 'Start date is required.', 'talenttrack' ), 422 );
         }
+
+        // #4020 — the formation and the squad's position codes, checked
+        // before the row is written for the same reason the levels are.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'default_formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
+        $bad_positions = self::rejectUnknownPositionsInSquad( $r['squad'] ?? null );
+        if ( $bad_positions !== null ) return $bad_positions;
 
         // #3559 — the nested fixtures are checked before the tournament
         // row is written, so a bad level refuses the request rather than
@@ -501,6 +531,8 @@ class TournamentsRestController {
         foreach ( ( is_array( $r['matches'] ?? null ) ? $r['matches'] : [] ) as $nested ) {
             $bad_level = self::rejectUnknownOpponentLevel( (array) $nested );
             if ( $bad_level !== null ) return $bad_level;
+            $bad_formation = self::rejectUnknownFormation( (array) $nested, 'formation' );
+            if ( $bad_formation !== null ) return $bad_formation;
         }
 
         $payload['club_id']    = CurrentClub::id();
@@ -528,6 +560,8 @@ class TournamentsRestController {
             self::insertMatch( $id, (array) $m, $seq );
         }
 
+        // #4031 — `TournamentDayActivity` listens here and puts the day on the
+        // team's calendar, so the wizard's own insert path gets it too.
         do_action( 'tt_tournament_created', $id, $payload );
 
         $row = self::fetchTournamentRow( $id );
@@ -556,6 +590,11 @@ class TournamentsRestController {
         $existing = self::fetchTournamentRow( $id );
         if ( ! $existing ) return RestResponse::notFound( 'tournament_not_found' );
 
+        // #4020 — a formation the planner cannot use is refused here too, or
+        // the edit form becomes the back door round the create check.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'default_formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
         $payload = self::extractTournament( $r );
         // Don't allow club_id / uuid / created_by mutation through the update path.
         unset( $payload['club_id'], $payload['uuid'], $payload['created_by'] );
@@ -573,6 +612,8 @@ class TournamentsRestController {
             Logger::error( 'rest.tournament.update.failed', [ 'id' => $id, 'db_error' => (string) $wpdb->last_error ] );
             return RestResponse::error( 'db_error', __( 'The tournament could not be updated.', 'talenttrack' ), 500 );
         }
+        // #4031 — `TournamentDayActivity` listens here and moves the day's
+        // calendar entry when the tournament moves.
         do_action( 'tt_tournament_updated', $id, $payload );
 
         $row = self::fetchTournamentRow( $id );
@@ -681,10 +722,17 @@ class TournamentsRestController {
         $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
         if ( $bad_level !== null ) return $bad_level;
 
+        // #4020 — a fixture formation the planner cannot resolve.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
         $match_id = self::insertMatch( $tournament_id, (array) $r->get_params(), $next_seq );
         if ( $match_id === 0 ) {
             return RestResponse::error( 'db_error', __( 'The match could not be created.', 'talenttrack' ), 500 );
         }
+
+        // #4031 — `TournamentDayActivity` listens here too, so a fixture added
+        // to a tournament that predates the day activity creates it.
         do_action( 'tt_tournament_match_created', $tournament_id, $match_id );
         return RestResponse::success( self::fetchMatch( $match_id ) );
     }
@@ -848,6 +896,13 @@ class TournamentsRestController {
      *
      * Idempotent: a match already linked to an activity returns the
      * existing activity_id without creating a duplicate.
+     *
+     * #4031 — the tournament **day** has its own activity from the moment the
+     * tournament is created, and this makes sure of it for a tournament that
+     * predates that. The fixture still gets one of its own: the day is a
+     * roll-up of its fixtures (#3857) and the fixture activity is the only
+     * place a single fixture's score (#4021) and confirmed minutes (#4032) can
+     * live. Two activities, two jobs.
      */
     public static function kickoff_match( \WP_REST_Request $r ) {
         // #3819 — the body's shape before its values. `complete_match()`
@@ -869,11 +924,16 @@ class TournamentsRestController {
 
         global $wpdb; $p = $wpdb->prefix;
 
+        // #4031 — the day's calendar entry, for a tournament created before it
+        // was made automatic.
+        $day_activity_id = TournamentDayActivity::ensureFor( $tournament_id );
+
         // Idempotent: if already linked, just return.
         if ( ! empty( $match['activity_id'] ) ) {
             return RestResponse::success( [
                 'match_id'    => $match_id,
                 'activity_id' => (int) $match['activity_id'],
+                'day_activity_id'    => $day_activity_id,
                 'already_kicked_off' => true,
             ] );
         }
@@ -937,11 +997,75 @@ class TournamentsRestController {
             [ 'id' => $match_id, 'club_id' => CurrentClub::id() ]
         );
 
+        // #4021 — a fixture scored before anybody kicked it off carries its
+        // result onto the activity the moment one exists.
+        $match['activity_id'] = $activity_id;
+        self::syncActivityScore( $match );
+
         do_action( 'tt_tournament_match_kicked_off', $tournament_id, $match_id, $activity_id );
 
         return RestResponse::success( [
-            'match_id'    => $match_id,
-            'activity_id' => $activity_id,
+            'match_id'        => $match_id,
+            'activity_id'     => $activity_id,
+            'day_activity_id' => $day_activity_id,
+        ] );
+    }
+
+    /**
+     * GET /tournaments/{id}/matches/{m_id}/completion — what completing this
+     * fixture is about to record, before anything is written.
+     *
+     * #4032 (and #4006, folded into it) — completing a fixture used to be a
+     * one-tap, untranslated `window.confirm` that locked in whatever was in the
+     * grid. On the reported U7 fixture the grid held one goalkeeper per period
+     * and everybody else on the bench, so the day went into the record as two
+     * keepers on ten minutes and thirteen children on nil, when in fact they
+     * all played about twelve. Nothing warned anybody.
+     *
+     * This is the read behind the confirm step: the per-player minutes the plan
+     * implies, pre-filled so a coach confirms or adjusts rather than typing into
+     * a blank form on a phone, plus the periods whose lineup does not fill the
+     * formation, named. Writes nothing.
+     */
+    public static function completion_preview( \WP_REST_Request $r ): \WP_REST_Response {
+        $tournament_id = (int) $r['id'];
+        $match_id      = (int) $r['match_id'];
+
+        $tournament = self::fetchTournamentRow( $tournament_id );
+        if ( ! $tournament ) return RestResponse::notFound( 'tournament_not_found' );
+
+        $match = self::fetchMatch( $match_id );
+        if ( ! $match || (int) $match['tournament_id'] !== $tournament_id ) {
+            return RestResponse::notFound( 'match_not_found' );
+        }
+
+        $assignments = self::fetchAssignments( $match_id );
+        $lineup      = self::lineupShortfall( $match, $tournament, $assignments );
+        $players     = self::plannedMinutes( $tournament_id, $match, $assignments );
+
+        $total = 0;
+        foreach ( $players as $player ) {
+            $total += (int) $player['minutes'];
+        }
+
+        return RestResponse::success( [
+            'match_id'           => $match_id,
+            'activity_id'        => $match['activity_id'],
+            'label'              => $match['label'] !== ''
+                ? $match['label']
+                : (string) $match['opponent_name'],
+            'completed'          => ! empty( $match['completed_at'] ),
+            'duration_min'       => (int) $match['duration_min'],
+            'periods'            => $lineup['periods'],
+            'minutes_per_period' => $lineup['per_period'],
+            'formation'          => [
+                'name'  => $lineup['formation'],
+                'slots' => $lineup['slots'],
+            ],
+            'lineup_complete'    => $lineup['complete'],
+            'short_periods'      => $lineup['short_periods'],
+            'players'            => $players,
+            'total_minutes'      => $total,
         ] );
     }
 
@@ -955,12 +1079,24 @@ class TournamentsRestController {
      *   - Other squad members → lineup_role='bench', position_played
      *     pulled from their first non-bench assignment (if any) or
      *     left NULL.
+     *   - Each row carries `minutes_played`: the figure confirmed in the
+     *     `minutes` payload where the caller sent one, otherwise what the
+     *     rotation plan implies (#4032). Attendance used to be written with no
+     *     minutes at all, so a tournament fixture read as nil for the whole
+     *     squad on every minutes surface.
+     *
+     * #4032 — a fixture whose grid does not fill the formation in every period
+     * is refused with `409 lineup_incomplete`, naming the short periods, unless
+     * `force` is passed. Nothing is written on that path: not the register, not
+     * `completed_at`, not the activity's status. `GET .../completion` is the
+     * read the confirm step uses to show the shortfall and the pre-filled
+     * minutes before a coach ever meets the refusal.
      *
      * Idempotent: re-running re-syncs attendance.
      */
     public static function complete_match( \WP_REST_Request $r ) {
         // #3819 — the body's shape before its values.
-        $refused = BaseController::checkBody( $r, self::matchIdArgs() );
+        $refused = BaseController::checkBody( $r, self::completeArgs() );
         if ( $refused !== null ) return $refused;
 
         $tournament_id = (int) $r['id'];
@@ -976,11 +1112,59 @@ class TournamentsRestController {
 
         global $wpdb; $p = $wpdb->prefix;
 
+        // #4032 — the lineup, before anything at all is written. The register
+        // rebuild below is destructive, and `completed_at` is what flips the
+        // planner's minutes from "expected" to "played", so a fixture refused
+        // here has to come out of it exactly as it went in.
+        $assignments = self::fetchAssignments( $match_id );
+        $lineup      = self::lineupShortfall( $match, $tournament, $assignments );
+        if ( ! $lineup['complete'] && ! $r->get_param( 'force' ) ) {
+            $shortfall = [];
+            foreach ( $lineup['short_periods'] as $short ) {
+                $shortfall[] = sprintf(
+                    /* translators: 1: period number, counted from 1. 2: positions filled. 3: positions the formation has. */
+                    __( 'Period %1$d: %2$d of %3$d positions filled', 'talenttrack' ),
+                    (int) $short['period'] + 1,
+                    (int) $short['filled'],
+                    (int) $short['slots']
+                );
+            }
+            return RestResponse::error(
+                'lineup_incomplete',
+                sprintf(
+                    /* translators: %s: a semicolon-separated list like "Period 1: 1 of 7 positions filled". */
+                    __( 'This lineup does not fill the formation, so the minutes it would record are not what was played. %s.', 'talenttrack' ),
+                    implode( '; ', $shortfall )
+                ),
+                409,
+                [
+                    'short_periods' => $lineup['short_periods'],
+                    'slots'         => $lineup['slots'],
+                    'periods'       => $lineup['periods'],
+                ]
+            );
+        }
+
+        // The minutes to record, plan-derived and then overridden by whatever
+        // the coach confirmed in the payload.
+        $minutes = self::confirmedMinutes(
+            $r->get_param( 'minutes' ),
+            self::plannedMinutes( $tournament_id, $match, $assignments ),
+            (int) $match['duration_min']
+        );
+
         // Auto-kickoff if not already linked, so the player journey
         // surfaces the match without the coach having to tap kickoff
         // separately.
+        //
+        // #4032 — with a request of its own rather than this one: `complete`
+        // takes fields `kickoff` does not declare, and `checkBody()` refuses a
+        // body it cannot read.
         if ( empty( $match['activity_id'] ) ) {
-            $kickoff = self::kickoff_match( $r );
+            $kickoff_request = new \WP_REST_Request( 'POST', '/' . self::NS . '/tournaments/' . $tournament_id . '/matches/' . $match_id . '/kickoff' );
+            $kickoff_request->set_param( 'id', $tournament_id );
+            $kickoff_request->set_param( 'match_id', $match_id );
+            self::kickoff_match( $kickoff_request );
             // Refresh match data.
             $match = self::fetchMatch( $match_id );
             if ( ! $match || empty( $match['activity_id'] ) ) {
@@ -988,14 +1172,6 @@ class TournamentsRestController {
             }
         }
         $activity_id = (int) $match['activity_id'];
-
-        // Fetch assignments.
-        $assignments = $wpdb->get_results( $wpdb->prepare(
-            "SELECT period_index, player_id, position_code
-               FROM {$p}tt_tournament_assignments
-              WHERE match_id = %d AND club_id = %d",
-            $match_id, CurrentClub::id()
-        ), ARRAY_A ) ?: [];
 
         // Per-player aggregates: did they ever start (period 0
         // non-bench)? what's their position_played (first non-bench
@@ -1041,6 +1217,10 @@ class TournamentsRestController {
                 'status'          => AttendanceStatus::PRESENT,
                 'lineup_role'     => $row['started'] ? 'start' : 'bench',
                 'position_played' => $row['position_played'],
+                // #4032 — the confirmed minutes. A squad member who sat out
+                // records 0 rather than nothing: they were there, which is not
+                // the same fact as not being in the squad.
+                'minutes_played'  => (int) ( $minutes[ $pid ] ?? 0 ),
             ] );
         }
 
@@ -1052,9 +1232,18 @@ class TournamentsRestController {
 
         // Mark the activity completed so the existing list-view query
         // picks it up.
+        //
+        // #4021 — and carry the fixture's result across. This used to write
+        // the status alone, so a completed 3-2 read as no result recorded
+        // everywhere the activity was the thing being read.
+        $match = self::fetchMatch( $match_id ) ?? $match;
         $wpdb->update(
             "{$p}tt_activities",
-            [ 'activity_status_key' => 'completed' ],
+            [
+                'activity_status_key' => 'completed',
+                'home_score'          => $match['our_score'] ?? null,
+                'away_score'          => $match['their_score'] ?? null,
+            ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
 
@@ -1063,6 +1252,8 @@ class TournamentsRestController {
         return RestResponse::success( [
             'match_id'    => $match_id,
             'activity_id' => $activity_id,
+            'minutes_recorded' => $minutes,
+            'lineup_complete'  => $lineup['complete'],
             'attendance_rows' => count( $squad ),
             'totals'      => self::computeTotals( $tournament_id ),
         ] );
@@ -1374,6 +1565,11 @@ class TournamentsRestController {
         $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
         if ( $bad_level !== null ) return $bad_level;
 
+        // #4020 — PATCHing a fixture to a formation the lookup does not carry
+        // used to answer 200 and then 422 at auto-plan time.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
         // The extractor whitelists mutable columns, so tournament_id,
         // club_id, activity_id and sequence cannot be reached from here.
         $payload = self::extractMatchPartial( (array) $r->get_params(), $existing );
@@ -1394,8 +1590,17 @@ class TournamentsRestController {
             Logger::error( 'rest.tournament_match.update.failed', [ 'id' => $match_id, 'db_error' => (string) $wpdb->last_error ] );
             return RestResponse::error( 'db_error', __( 'The match could not be updated.', 'talenttrack' ), 500 );
         }
+        $updated = self::fetchMatch( $match_id );
+
+        // #4021 — a score corrected after the fixture completed has to reach
+        // the activity too, or the two diverge in silence. Only when this
+        // request was about the score: an opponent rename has nothing to sync.
+        if ( array_key_exists( 'our_score', $payload ) || array_key_exists( 'their_score', $payload ) ) {
+            self::syncActivityScore( (array) $updated );
+        }
+
         do_action( 'tt_tournament_match_updated', $tournament_id, $match_id );
-        return RestResponse::success( self::fetchMatch( $match_id ) );
+        return RestResponse::success( $updated );
     }
 
     public static function delete_match( \WP_REST_Request $r ) {
@@ -1442,6 +1647,11 @@ class TournamentsRestController {
             return RestResponse::error( 'invalid_payload', __( 'Squad payload must be an array.', 'talenttrack' ), 422 );
         }
 
+        // #4020 — before the wipe below: a payload this route cannot store
+        // must not take the tournament's plans with it on the way out.
+        $bad_positions = self::rejectUnknownPositionsInSquad( $squad );
+        if ( $bad_positions !== null ) return $bad_positions;
+
         // Wipe assignments for every match in the tournament — squad
         // changes invalidate the existing plan.
         $wpdb->query( $wpdb->prepare(
@@ -1467,6 +1677,12 @@ class TournamentsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $player_id     = (int) $r['player_id'];
+
+        // #4020 — a code the planner has no slot for is refused, not dropped.
+        $bad_positions = self::rejectUnknownPositions(
+            [ 'player_id' => $player_id ] + (array) $r->get_params()
+        );
+        if ( $bad_positions !== null ) return $bad_positions;
 
         $existing = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$p}tt_tournament_squad WHERE tournament_id = %d AND player_id = %d AND club_id = %d",
@@ -1516,6 +1732,221 @@ class TournamentsRestController {
     }
 
     // ---- helpers ------------------------------------------------------------
+
+    /**
+     * One fixture's rotation rows, cast on the way out so every caller reads
+     * the same three typed fields.
+     *
+     * @return list<array{period_index:int, player_id:int, position_code:string}>
+     */
+    private static function fetchAssignments( int $match_id ): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT period_index, player_id, position_code
+               FROM {$p}tt_tournament_assignments
+              WHERE match_id = %d AND club_id = %d",
+            $match_id, CurrentClub::id()
+        ), ARRAY_A ) ?: [];
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $out[] = [
+                'period_index'  => (int) $row['period_index'],
+                'player_id'     => (int) $row['player_id'],
+                'position_code' => (string) $row['position_code'],
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * #4032 — does the grid actually field a team in every period?
+     *
+     * The reported fixture's grid held one goalkeeper in each period and
+     * everybody else on the bench, and completing it recorded that as what was
+     * played. Nothing checked that a period filled the formation, and
+     * `computeTotals()` counts every non-bench period of a completed fixture as
+     * minutes played, so an almost empty grid became invented numbers on
+     * thirteen children's records.
+     *
+     * A fixture with no resolvable formation has nothing to be short of, so it
+     * reads as complete: the refusal is about a lineup that contradicts a
+     * formation, not about a fixture nobody has given one.
+     *
+     * @param array<string,mixed> $match a formatted row from `fetchMatch()`
+     * @param list<array{period_index:int, player_id:int, position_code:string}> $assignments
+     * @return array{complete:bool, slots:int, periods:int, per_period:int,
+     *   formation:string, short_periods:list<array{period:int, filled:int, slots:int}>}
+     */
+    private static function lineupShortfall( array $match, object $tournament, array $assignments ): array {
+        $formation = (string) $match['formation'] !== ''
+            ? (string) $match['formation']
+            : (string) ( $tournament->default_formation ?? '' );
+
+        $slots = 0;
+        foreach ( self::lookupSlotLabels( $formation ) as $line ) {
+            $slots += count( (array) $line );
+        }
+
+        $shape = TournamentMinutesCalculator::fixtureShape(
+            (int) $match['duration_min'],
+            $match['substitution_windows']
+        );
+
+        $base = [
+            'slots'      => $slots,
+            'periods'    => (int) $shape['periods'],
+            'per_period' => (int) $shape['per_period'],
+            'formation'  => $formation,
+        ];
+
+        if ( $slots === 0 ) {
+            return $base + [ 'complete' => true, 'short_periods' => [] ];
+        }
+
+        $filled = [];
+        foreach ( $assignments as $a ) {
+            if ( (string) $a['position_code'] === TournamentMinutesCalculator::BENCH ) continue;
+            $period = (int) $a['period_index'];
+            $filled[ $period ] = ( $filled[ $period ] ?? 0 ) + 1;
+        }
+
+        $short = [];
+        for ( $period = 0; $period < (int) $shape['periods']; $period++ ) {
+            $count = (int) ( $filled[ $period ] ?? 0 );
+            if ( $count < $slots ) {
+                $short[] = [ 'period' => $period, 'filled' => $count, 'slots' => $slots ];
+            }
+        }
+
+        return $base + [ 'complete' => $short === [], 'short_periods' => $short ];
+    }
+
+    /**
+     * #4032 — the minutes the rotation plan gives each squad member in one
+     * fixture, which is what the confirm step pre-fills.
+     *
+     * Pre-filled rather than blank because a coach on a phone at the side of a
+     * pitch will confirm a number and will not type fifteen of them, and
+     * because the plan is right far more often than it is wrong. The shared
+     * `TournamentMinutesCalculator` does the arithmetic, so this cannot drift
+     * from the ticker or from the player's own tournament record.
+     *
+     * @param array<string,mixed> $match
+     * @param list<array{period_index:int, player_id:int, position_code:string}> $assignments
+     * @return list<array{player_id:int, full_name:string, photo_url:string,
+     *   minutes:int, role:string, started:bool, positions:list<string>}>
+     */
+    private static function plannedMinutes( int $tournament_id, array $match, array $assignments ): array {
+        $shape = TournamentMinutesCalculator::fixtureShape(
+            (int) $match['duration_min'],
+            $match['substitution_windows']
+        );
+
+        $by_player = [];
+        foreach ( $assignments as $a ) {
+            $by_player[ (int) $a['player_id'] ][] = [
+                'period_index'  => (int) $a['period_index'],
+                'position_code' => (string) $a['position_code'],
+            ];
+        }
+
+        $out = [];
+        foreach ( self::fetchSquad( $tournament_id ) as $sq ) {
+            $pid  = (int) $sq['player_id'];
+            $calc = TournamentMinutesCalculator::forPlayer( $shape, $by_player[ $pid ] ?? [] );
+            $out[] = [
+                'player_id' => $pid,
+                'full_name' => (string) $sq['full_name'],
+                'photo_url' => (string) $sq['photo_url'],
+                'minutes'   => (int) $calc['minutes'],
+                'role'      => (string) $calc['role'],
+                'started'   => (bool) $calc['started'],
+                'positions' => $calc['positions'],
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * #4032 — reconcile the confirmed minutes payload with the plan.
+     *
+     * The payload is what the coach left in the confirm step's boxes, as either
+     * `[ { player_id, minutes }, … ]` or `{ player_id: minutes }`. A player the
+     * payload does not mention keeps the planned figure — the step pre-fills
+     * every box, so an absent one means "not touched", never "nil". A figure is
+     * clamped to the fixture's own length: nobody plays more minutes than the
+     * fixture lasted, and a stray keystroke should not say they did.
+     *
+     * @param mixed $payload
+     * @param list<array{player_id:int, minutes:int}> $planned
+     * @return array<int,int> player id => minutes
+     */
+    private static function confirmedMinutes( $payload, array $planned, int $duration_min ): array {
+        $out = [];
+        foreach ( $planned as $row ) {
+            $out[ (int) $row['player_id'] ] = (int) $row['minutes'];
+        }
+
+        if ( ! is_array( $payload ) ) return $out;
+
+        $ceiling = max( 0, $duration_min );
+        foreach ( $payload as $key => $value ) {
+            if ( is_array( $value ) ) {
+                $pid = absint( $value['player_id'] ?? 0 );
+                if ( ! array_key_exists( 'minutes', $value ) ) continue;
+                $raw = $value['minutes'];
+            } else {
+                $pid = absint( $key );
+                $raw = $value;
+            }
+            // Only squad members the plan already knows: a row naming somebody
+            // else has no attendance row to land on.
+            if ( $pid <= 0 || ! array_key_exists( $pid, $out ) ) continue;
+            if ( $raw === null || $raw === '' ) continue;
+            $out[ $pid ] = min( $ceiling, absint( $raw ) );
+        }
+        return $out;
+    }
+
+    /**
+     * #4021 — copy a fixture's result onto the activity it is linked to.
+     *
+     * `tt_tournament_matches` is the single score store: the planner writes
+     * `our_score` / `their_score` there, and the activity's pair is derived
+     * from it. Before this the activity's `home_score` / `away_score` were
+     * simply never written, so a completed 3-2 read as no result at all on
+     * every minutes surface — while the minutes grid offered its own editable
+     * boxes for the same fixture, giving one match two independent scorelines.
+     *
+     * **Orientation is neutral, not home/away.** A fixture at a tournament has
+     * no home leg (#3529 decision 3) and `tt_tournament_matches` has no column
+     * to take one from, so `home_away` is deliberately left NULL and the read
+     * side frames the fixture as neither (`MinutesGridQuery`). The academy's
+     * goals go in `home_score` and the opponent's in `away_score` purely as the
+     * storage convention; nothing labels them home and away.
+     *
+     * A fixture with a score but **no activity yet** — the demo install has
+     * three — is left alone: there is nothing to write to, the score is already
+     * safe on the fixture, and `kickoff_match()` runs the sync as soon as one
+     * exists. So a score typed in weeks before kick-off still lands.
+     *
+     * @param array<string,mixed> $match a formatted row from `fetchMatch()`
+     */
+    private static function syncActivityScore( array $match ): void {
+        $activity_id = (int) ( $match['activity_id'] ?? 0 );
+        if ( $activity_id <= 0 ) return;
+
+        global $wpdb; $p = $wpdb->prefix;
+        $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'home_score' => $match['our_score'],
+                'away_score' => $match['their_score'],
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+    }
 
     /**
      * Fetch a formation's `slot_labels` from the tt_lookups row.
@@ -1709,6 +2140,22 @@ class TournamentsRestController {
             'eligible_positions' => [ 'description' => 'Where this player can be used.' ],
             'target_minutes'     => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'How many minutes they should get across the tournament. Blank falls back to the shared target.' ],
             'notes'              => [ 'type' => 'string', 'description' => 'Anything about their availability.' ],
+        ];
+    }
+
+    /**
+     * `POST /tournaments/{id}/matches/{match_id}/complete` — the fixture's own
+     * two segments, plus what the confirm step sends back (#4032).
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function completeArgs(): array {
+        return self::matchIdArgs() + [
+            // No `type`: a field declared `array` goes through
+            // `rest_sanitize_array()`, which mangles an object payload.
+            // `confirmedMinutes()` decides what a minutes payload is.
+            'minutes' => [ 'description' => 'The minutes each player actually got, as confirmed on the completion step: either [{player_id, minutes}] or {player_id: minutes}. A player left out keeps the figure the rotation plan gives them.' ],
+            'force'   => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Complete the fixture even though its lineup does not fill the formation in every period.' ],
         ];
     }
 
@@ -1924,34 +2371,171 @@ class TournamentsRestController {
     }
 
     /**
-     * Normalise the eligible_positions payload to a JSON array of
-     * position-code strings. v4.8.0 (#975) expands the allowed set from
-     * the four position TYPES (GK/DEF/MID/FWD) to the ten specific
-     * codes used by the blueprint editor (GK/CB/LB/RB/DM/CM/AM/LW/RW/ST),
-     * with back-compat coercion of the legacy types: DEF → CB, MID → CM,
-     * FWD → ST. Unknown tokens drop.
+     * The position codes a squad entry may carry — the ten specific codes
+     * the blueprint editor uses, since v4.8.0 (#975).
+     *
+     * @var list<string>
      */
-    private static function normalisePositionsJson( $raw ): string {
+    private const POSITION_CODES = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST' ];
+
+    /**
+     * Legacy GK/DEF/MID/FWD payloads from v4.7.x and earlier coerce to a
+     * representative specific code so existing `tt_tournament_squad` rows and
+     * in-flight wizard state survive the bump.
+     *
+     * @var array<string, string>
+     */
+    private const POSITION_COERCE = [ 'DEF' => 'CB', 'MID' => 'CM', 'FWD' => 'ST' ];
+
+    /**
+     * Split an `eligible_positions` payload into what this squad row can hold
+     * and what it cannot.
+     *
+     * #4020 — the kept half used to be the whole answer: an unknown token was
+     * dropped in silence, so a U7 squad sent as `["GK","DF","MF"]` stored
+     * `["GK"]` and the auto-planner benched thirteen children with nobody
+     * told anything. The rejected half is what lets the write routes refuse.
+     *
+     * @param mixed $raw
+     * @return array{kept: list<string>, rejected: list<string>}
+     */
+    private static function classifyPositions( $raw ): array {
         if ( is_string( $raw ) ) {
             $decoded = json_decode( $raw, true );
             if ( is_array( $decoded ) ) $raw = $decoded;
         }
-        if ( ! is_array( $raw ) ) return wp_json_encode( [] );
-        $allowed = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST' ];
-        // Back-compat: legacy GK/DEF/MID/FWD payloads from v4.7.x and
-        // earlier coerce to a representative specific code so existing
-        // tt_tournament_squad rows + in-flight wizard state survive the
-        // bump.
-        $coerce  = [ 'DEF' => 'CB', 'MID' => 'CM', 'FWD' => 'ST' ];
-        $out = [];
+        if ( ! is_array( $raw ) ) return [ 'kept' => [], 'rejected' => [] ];
+
+        $kept     = [];
+        $rejected = [];
         foreach ( $raw as $v ) {
-            $code = strtoupper( sanitize_key( (string) $v ) );
-            if ( isset( $coerce[ $code ] ) ) $code = $coerce[ $code ];
-            if ( in_array( $code, $allowed, true ) && ! in_array( $code, $out, true ) ) {
-                $out[] = $code;
+            $raw_code = trim( (string) $v );
+            if ( $raw_code === '' ) continue;
+            $code = strtoupper( sanitize_key( $raw_code ) );
+            if ( isset( self::POSITION_COERCE[ $code ] ) ) $code = self::POSITION_COERCE[ $code ];
+            if ( in_array( $code, self::POSITION_CODES, true ) ) {
+                if ( ! in_array( $code, $kept, true ) ) $kept[] = $code;
+                continue;
             }
+            if ( ! in_array( $raw_code, $rejected, true ) ) $rejected[] = $raw_code;
         }
-        return wp_json_encode( $out );
+        return [ 'kept' => $kept, 'rejected' => $rejected ];
+    }
+
+    /**
+     * Normalise the eligible_positions payload to a JSON array of
+     * position-code strings, for a payload already known to be clean.
+     */
+    private static function normalisePositionsJson( $raw ): string {
+        return (string) wp_json_encode( self::classifyPositions( $raw )['kept'] );
+    }
+
+    /**
+     * #4020 — refuse a squad entry carrying a position code this plugin has
+     * no slot for, naming both the rejected codes and the accepted set.
+     *
+     * @param array<string,mixed> $entry one squad entry
+     * @return \WP_REST_Response|null the 400, or null when there is nothing
+     *   to object to
+     */
+    private static function rejectUnknownPositions( array $entry ): ?\WP_REST_Response {
+        if ( ! array_key_exists( 'eligible_positions', $entry ) ) return null;
+
+        $split = self::classifyPositions( $entry['eligible_positions'] );
+        if ( $split['rejected'] === [] ) return null;
+
+        $player_id = absint( $entry['player_id'] ?? 0 );
+        return RestResponse::error(
+            'invalid_positions',
+            sprintf(
+                /* translators: 1: comma-separated rejected position codes, 2: the player's id, 3: comma-separated accepted codes. */
+                __( '"%1$s" is not a position code TalentTrack can plan with (player %2$d). Accepted codes: %3$s.', 'talenttrack' ),
+                implode( ', ', $split['rejected'] ),
+                $player_id,
+                implode( ', ', self::POSITION_CODES )
+            ),
+            400,
+            [
+                'player_id' => $player_id,
+                'rejected'  => $split['rejected'],
+                'allowed'   => self::POSITION_CODES,
+            ]
+        );
+    }
+
+    /**
+     * #4020 — every squad entry in one payload, checked before anything is
+     * written. A squad is saved as a set, so one bad entry refuses the
+     * request rather than leaving half a squad behind.
+     *
+     * @param mixed $squad
+     */
+    private static function rejectUnknownPositionsInSquad( $squad ): ?\WP_REST_Response {
+        if ( ! is_array( $squad ) ) return null;
+        foreach ( $squad as $entry ) {
+            $refused = self::rejectUnknownPositions( (array) $entry );
+            if ( $refused !== null ) return $refused;
+        }
+        return null;
+    }
+
+    /**
+     * The formation names a tournament or fixture may carry.
+     *
+     * Read with the same query `lookupSlotLabels()` uses, so "accepted on the
+     * way in" and "the planner can use it" are the same set by construction.
+     * The typed constants are the floor for an install whose lookup rows were
+     * deleted: an emptied vocabulary refuses everything rather than accepting
+     * anything.
+     *
+     * @return list<string>
+     */
+    private static function knownFormationNames(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $names = $wpdb->get_col( $wpdb->prepare(
+            "SELECT name FROM {$p}tt_lookups WHERE lookup_type = %s ORDER BY sort_order ASC, name ASC",
+            'tournament_formation'
+        ) );
+        $out = [];
+        foreach ( is_array( $names ) ? $names : [] as $name ) {
+            $name = (string) $name;
+            if ( $name !== '' && ! in_array( $name, $out, true ) ) $out[] = $name;
+        }
+        return $out ?: TournamentFormation::ALL;
+    }
+
+    /**
+     * #4020 — refuse a formation the vocabulary does not carry.
+     *
+     * The column is a plain string and every write path sanitised it without
+     * ever checking it, so `default_formation: "1-2-2-1"` saved with a 200 and
+     * then answered `422 no_formation` at auto-plan time — the one place that
+     * reads the lookup. Blank stays allowed: it means "fall back".
+     *
+     * @param array<string,mixed> $params
+     * @param string $field `default_formation` on a tournament, `formation` on
+     *   a fixture.
+     */
+    private static function rejectUnknownFormation( array $params, string $field ): ?\WP_REST_Response {
+        if ( ! array_key_exists( $field, $params ) ) return null;
+
+        $value = sanitize_text_field( (string) ( $params[ $field ] ?? '' ) );
+        if ( $value === '' ) return null;
+
+        $allowed = self::knownFormationNames();
+        if ( in_array( $value, $allowed, true ) ) return null;
+
+        return RestResponse::error(
+            'unknown_formation',
+            sprintf(
+                /* translators: 1: the rejected formation, 2: comma-separated list of known formations. */
+                __( '"%1$s" is not a formation this academy has. Known formations: %2$s.', 'talenttrack' ),
+                $value,
+                implode( ', ', $allowed )
+            ),
+            400,
+            [ 'allowed' => $allowed ]
+        );
     }
 
     private static function insertMatch( int $tournament_id, array $payload, int $sequence ): int {
