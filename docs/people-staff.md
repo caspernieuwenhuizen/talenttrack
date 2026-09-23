@@ -23,6 +23,14 @@ A **person** is a real-world role at the club. A **WordPress user** is a login a
 
 Link them when both exist. The link powers things like "coach X can see team Y" and "who coaches this team".
 
+### One account, one active person
+
+A WordPress account can be linked to **one active person** at a time. That is deliberate: two active people sharing a login makes "which person is signing in" unanswerable, and with it every team and capability that follows from the person record.
+
+So if you try to link an account that somebody else already holds, the save is refused and says so — *"This WordPress account is already linked to another active person."* Free the account first: unlink it from that person, or set them to **inactive**. An inactive person may keep the link, because an inactive record never signs anybody in.
+
+Over the API the same refusal answers `409 wp_user_already_linked` and names the person holding the account in `details.person_id`, which is how you find them when a filtered list (during a demo, for example) would not show them.
+
 ### Contact details stay in step
 
 Once a person and an account are linked, their **email and phone are kept the same on both**. Change the email on the person here and the sign-in account follows; change it on the WordPress profile and the person record follows. Whichever you edit, that is the address the academy's messages will actually go to.

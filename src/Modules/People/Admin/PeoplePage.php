@@ -450,7 +450,13 @@ class PeoplePage {
         }
 
         if ( ! $ok ) {
-            wp_safe_redirect( admin_url( 'admin.php?page=tt-people&tt_msg=error' ) );
+            // #4019 — the one-account-one-person rule refuses the same way a
+            // failed write does. "Something went wrong" sent the admin
+            // looking for a database fault that isn't there, so name it.
+            $msg = $repo->lastRefusal() === PeopleRepository::REFUSAL_USER_LINKED
+                ? 'user_linked'
+                : 'error';
+            wp_safe_redirect( admin_url( 'admin.php?page=tt-people&tt_msg=' . $msg ) );
             exit;
         }
 
@@ -532,6 +538,10 @@ class PeoplePage {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Saved.', 'talenttrack' ) . '</p></div>';
         } elseif ( $msg === 'deleted' ) {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__( 'Deleted.', 'talenttrack' ) . '</p></div>';
+        } elseif ( $msg === 'user_linked' ) {
+            // #4019 — a refusal, not a fault. One WordPress account links to
+            // one active person, so the way forward is to free the account.
+            echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'This WordPress account is already linked to another active person. Unlink that person or set them to inactive first.', 'talenttrack' ) . '</p></div>';
         } elseif ( $msg === 'error' ) {
             echo '<div class="notice notice-error is-dismissible"><p>' . esc_html__( 'Something went wrong.', 'talenttrack' ) . '</p></div>';
         }
