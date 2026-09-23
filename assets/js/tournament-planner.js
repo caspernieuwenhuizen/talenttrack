@@ -17,6 +17,27 @@
     'use strict';
 
     function tt() { return window.TT || {}; }
+
+    /**
+     * #4032 — the completion step's copy, from the catalogue. Never a literal:
+     * the only confirm before this was a hard-coded English `window.confirm`
+     * on a Dutch install (CLAUDE.md §4).
+     */
+    function i18n( key, fallback ) {
+        var bag = ( window.TT_TournamentPlanner || {} ).i18n || {};
+        return bag[ key ] || fallback || '';
+    }
+
+    /** printf-style `%1$d` / `%s` substitution, in argument order. */
+    function fmt( template, args ) {
+        var out = String( template );
+        args.forEach( function ( value, index ) {
+            out = out
+                .replace( '%' + ( index + 1 ) + '$d', String( value ) )
+                .replace( '%' + ( index + 1 ) + '$s', String( value ) );
+        } );
+        return out.replace( '%s', String( args[0] == null ? '' : args[0] ) );
+    }
     function restUrl() {
         return ( tt().rest_url || '/wp-json/talenttrack/v1/' ).replace( /\/+$/, '/' );
     }
@@ -131,30 +152,18 @@
                 btn.addEventListener( 'click', function () {
                     var action = btn.getAttribute( 'data-tt-match-action' );
                     if ( ! action ) return;
-                    var confirmMsg = action === 'complete'
-                        ? 'Mark this match as completed? Attendance will be written for every squad member.'
-                        : null;
-                    if ( confirmMsg && ! window.confirm( confirmMsg ) ) return;
-                    btn.disabled = true;
-                    var prev = btn.textContent;
-                    btn.textContent = '…';
-                    api( 'POST', 'tournaments/' + tournamentId + '/matches/' + matchId + '/' + action, {} )
-                        .then( function ( res ) {
-                            if ( res.ok ) {
-                                // Reload the page so server-side state (badges, button
-                                // visibility, etc.) refreshes correctly.
-                                window.location.reload();
-                            } else {
-                                btn.disabled = false;
-                                btn.textContent = prev;
-                                var msg = ( res.json && res.json.errors && res.json.errors[0] ) ? res.json.errors[0].message : 'Action failed.';
-                                window.alert( msg );
-                            }
-                        } )
-                        .catch( function () {
-                            btn.disabled = false;
-                            btn.textContent = prev;
-                        } );
+
+                    // #4032 — completing a fixture goes through the confirm
+                    // step: the per-player minutes it is about to record,
+                    // pre-filled, and any period whose lineup does not fill the
+                    // formation, named. It used to be a one-tap English
+                    // `window.confirm` that locked in whatever was in the grid.
+                    if ( action === 'complete' ) {
+                        openCompletionStep( tournamentId, matchId, btn );
+                        return;
+                    }
+                    if ( ! window.confirm( i18n( 'kickoffConfirm', 'Kick off this match?' ) ) ) return;
+                    runMatchAction( tournamentId, matchId, action, btn, null );
                 } );
             } );
 
@@ -180,6 +189,187 @@
                 } );
             }
         } );
+    }
+
+    /**
+     * POST a lifecycle action and reload, so server-rendered state (badges,
+     * which buttons exist, the ticker) comes back consistent.
+     */
+    function runMatchAction( tournamentId, matchId, action, btn, payload ) {
+        btn.disabled = true;
+        var prev = btn.textContent;
+        btn.textContent = '…';
+        return api( 'POST', 'tournaments/' + tournamentId + '/matches/' + matchId + '/' + action, payload || {} )
+            .then( function ( res ) {
+                if ( res.ok ) {
+                    window.location.reload();
+                    return res;
+                }
+                btn.disabled = false;
+                btn.textContent = prev;
+                var msg = ( res.json && res.json.errors && res.json.errors[0] )
+                    ? res.json.errors[0].message
+                    : i18n( 'completeFailed', 'The match could not be completed.' );
+                window.alert( msg );
+                return res;
+            } )
+            ['catch']( function () {
+                btn.disabled = false;
+                btn.textContent = prev;
+            } );
+    }
+
+    /**
+     * #4032 — the completion step.
+     *
+     * Two things a coach needs before a fixture's minutes go onto fifteen
+     * children's records, and neither was on screen: what those minutes are,
+     * and whether the grid they come from actually fielded a team. The step
+     * reads `GET .../completion`, shows the per-player minutes pre-filled from
+     * the rotation plan so the answer is confirm-or-adjust rather than a blank
+     * form on a phone, and puts any under-filled period at the top in words.
+     *
+     * If the read fails it says so and stops. It deliberately does NOT fall
+     * back to posting the completion: committing minutes the coach was never
+     * shown is the bug this step exists to fix.
+     */
+    function openCompletionStep( tournamentId, matchId, btn ) {
+        btn.disabled = true;
+        var prev = btn.textContent;
+        btn.textContent = i18n( 'loading', 'Loading…' );
+
+        api( 'GET', 'tournaments/' + tournamentId + '/matches/' + matchId + '/completion' )
+            .then( function ( res ) {
+                btn.disabled = false;
+                btn.textContent = prev;
+                if ( ! res.ok || ! res.json || ! res.json.data ) {
+                    window.alert( i18n( 'loadFailed', 'Could not load the completion step.' ) );
+                    return;
+                }
+                renderCompletionStep( res.json.data, tournamentId, matchId, btn );
+            } )
+            ['catch']( function () {
+                btn.disabled = false;
+                btn.textContent = prev;
+            } );
+    }
+
+    function renderCompletionStep( data, tournamentId, matchId, btn ) {
+        var players = data.players || [];
+        var short   = data.short_periods || [];
+
+        var dialog = document.createElement( 'dialog' );
+        dialog.className = 'tt-tour-complete';
+        dialog.setAttribute( 'aria-label', i18n( 'completeTitle', 'Complete match' ) );
+
+        var html = '<form method="dialog" class="tt-tour-complete__form">';
+        html += '<h2 class="tt-tour-complete__title">' + escapeHtml( i18n( 'completeTitle', 'Complete match' ) ) + '</h2>';
+        html += '<p class="tt-tour-complete__intro">' + escapeHtml( i18n( 'completeIntro', '' ) ) + '</p>';
+
+        if ( short.length ) {
+            html += '<div class="tt-tour-complete__warn" role="alert">';
+            html += '<strong>' + escapeHtml( i18n( 'lineupShort', '' ) ) + '</strong>';
+            html += '<ul>';
+            short.forEach( function ( row ) {
+                html += '<li>' + escapeHtml( fmt(
+                    i18n( 'lineupPeriod', 'Period %1$d: %2$d of %3$d positions filled' ),
+                    [ ( row.period || 0 ) + 1, row.filled || 0, row.slots || 0 ]
+                ) ) + '</li>';
+            } );
+            html += '</ul>';
+            html += '<p>' + escapeHtml( i18n( 'lineupAnyway', '' ) ) + '</p>';
+            html += '</div>';
+        }
+
+        html += '<ul class="tt-tour-complete__players">';
+        players.forEach( function ( player ) {
+            var roleKey = player.role === 'start' ? 'roleStart' : ( player.role === 'sub' ? 'roleSub' : 'roleBench' );
+            html += '<li class="tt-tour-complete__player">';
+            html += '<span class="tt-tour-complete__name">' + escapeHtml( player.full_name ) + '';
+            html += '<span class="tt-tour-complete__role">' + escapeHtml( i18n( roleKey, '' ) ) + '</span>';
+            html += '</span>';
+            html += '<input class="tt-input tt-tour-complete__min" type="number" inputmode="numeric"'
+                + ' min="0" max="' + ( data.duration_min || 0 ) + '" step="1"'
+                + ' value="' + escapeHtml( String( player.minutes == null ? 0 : player.minutes ) ) + '"'
+                + ' data-player-id="' + escapeHtml( String( player.player_id ) ) + '"'
+                + ' aria-label="' + escapeHtml( fmt( i18n( 'minutesFor', 'Minutes for %s' ), [ player.full_name ] ) ) + '">';
+            html += '</li>';
+        } );
+        html += '</ul>';
+
+        html += '<p class="tt-tour-complete__total" data-tt-complete-total="1"></p>';
+
+        // Cancel first in the DOM, Save right on screen via flex order
+        // (CLAUDE.md §6): least-committal first for the keyboard, the commit
+        // under the thumb on a phone.
+        html += '<div class="tt-form-actions tt-tour-complete__actions">';
+        html += '<button type="button" class="tt-btn tt-btn-secondary" data-tt-complete-cancel="1">'
+            + escapeHtml( i18n( 'cancel', 'Cancel' ) ) + '</button>';
+        html += '<button type="button" class="tt-btn tt-btn-primary" data-tt-complete-confirm="1">'
+            + escapeHtml( i18n( 'completeTitle', 'Complete match' ) ) + '</button>';
+        html += '</div>';
+        html += '</form>';
+
+        dialog.innerHTML = html;
+        // Inside the scoped wrapper, so the plugin's own button and input
+        // styles apply — every rule is `.tt-dashboard`-scoped, on the
+        // assumption that the theme is hostile. `showModal()` lifts it into the
+        // top layer regardless of where it sits in the DOM.
+        ( btn.closest( '.tt-dashboard' ) || document.body ).appendChild( dialog );
+
+        function total() {
+            var sum = 0;
+            dialog.querySelectorAll( '.tt-tour-complete__min' ).forEach( function ( input ) {
+                sum += parseInt( input.value, 10 ) || 0;
+            } );
+            var out = dialog.querySelector( '[data-tt-complete-total="1"]' );
+            if ( out ) out.textContent = fmt( i18n( 'minutesTotal', '%s minutes in total' ), [ sum ] );
+        }
+        total();
+        dialog.addEventListener( 'input', total );
+
+        function close() {
+            if ( dialog.open ) dialog.close();
+            dialog.remove();
+        }
+
+        dialog.querySelector( '[data-tt-complete-cancel="1"]' ).addEventListener( 'click', close );
+        dialog.addEventListener( 'cancel', function () { dialog.remove(); } );
+
+        dialog.querySelector( '[data-tt-complete-confirm="1"]' ).addEventListener( 'click', function ( e ) {
+            var confirmBtn = e.currentTarget;
+            var minutes = [];
+            dialog.querySelectorAll( '.tt-tour-complete__min' ).forEach( function ( input ) {
+                minutes.push( {
+                    player_id: parseInt( input.getAttribute( 'data-player-id' ), 10 ),
+                    minutes: parseInt( input.value, 10 ) || 0,
+                } );
+            } );
+            // The shortfall has been shown and read, so the commit carries the
+            // override rather than meeting a 409 the coach cannot act on.
+            var payload = { minutes: minutes };
+            if ( short.length ) payload.force = 1;
+            confirmBtn.disabled = true;
+            runMatchAction( tournamentId, matchId, 'complete', btn, payload )
+                .then( function ( res ) {
+                    if ( res && res.ok ) {
+                        close();
+                        return;
+                    }
+                    // The sheet stays up on a failure, with the numbers the
+                    // coach typed still in it. Dismissing it would throw the
+                    // work away along with the error.
+                    confirmBtn.disabled = false;
+                } );
+        } );
+
+        if ( typeof dialog.showModal === 'function' ) {
+            dialog.showModal();
+        } else {
+            dialog.setAttribute( 'open', 'open' );
+        }
+        var first = dialog.querySelector( '.tt-tour-complete__min' );
+        if ( first ) first.focus();
     }
 
     function loadPlanner( tournamentId, matchId, body ) {

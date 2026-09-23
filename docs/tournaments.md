@@ -155,9 +155,42 @@ next time you edit it or add a match to it — there is nothing to re-run.
   fixture needs an activity of its own because that is where its score and its
   minutes are recorded, while the day is a read-only roll-up of what its
   fixtures hold.
-- **Complete match** — sets the match's completion timestamp, syncs the period-0 starting lineup to **attendance**: every player who started is marked `start` with their period-0 position; benched players are marked `bench`. Played minutes flip from "expected" to "played" in the ticker.
+- **Complete match** — opens the completion step (below), then sets the match's
+  completion timestamp and syncs the lineup to **attendance**: every player who
+  started is marked `start` with their period-0 position, benched players are
+  marked `bench`, and each one carries the minutes you confirmed. Played minutes
+  flip from "expected" to "played" in the ticker.
 
 You can **Complete** a match without explicit Kick off — the system will auto-kick-off first, so the common "the match just finished" flow is a single button tap.
+
+### The completion step
+
+Tapping **Complete match** no longer commits straight away. A sheet comes up
+showing every squad member with the minutes the rotation plan gives them,
+already filled in. Confirm them, or correct the ones that are wrong — the plan
+is a plan, and a keeper who stayed on for the whole second period did not read
+it. Then tap **Complete match** in the sheet.
+
+It is pre-filled rather than blank on purpose: a coach standing next to a pitch
+will check fifteen numbers and will not type them.
+
+**A lineup that does not field a full team is called out there.** If any period
+has fewer players on the pitch than the formation has positions, the sheet says
+so at the top — "Period 1: 1 of 7 positions filled" — and warns that completing
+anyway records those minutes as what was played. You can still go ahead; you
+just cannot do it without being told.
+
+This is the case that made it necessary. A U7 fixture was completed with one
+goalkeeper per period and everybody else benched — a grid Auto-balance had
+produced from a formation the squad could not fill — and it went into the record
+as two keepers on ten minutes and thirteen children on nil, when they had all
+played about twelve. Minutes were also never written at all, so every minutes
+surface read the whole squad as nil.
+
+Over the API, `POST .../complete` refuses such a fixture with `409
+lineup_incomplete`, naming the short periods, unless `force=1` is passed.
+Nothing is written on that path: no register, no completion timestamp, no
+activity.
 
 ## Editing a completed match
 
@@ -244,12 +277,16 @@ shortfall is coloured, and the numbers are written out beside the bar, so
 nothing on the page depends on seeing a colour.
 
 **Where the minutes come from is written on the page.** They follow the
-rotation plan of the fixtures that have been completed. There is no
-per-fixture record of what was actually played — a tournament day's
-attendance is one total for the day — and once a fixture is completed the
-planner locks its assignments, so the plan of a completed fixture *is* the
-rotation that was used. Minutes typed in afterwards on the minutes overview
-live on the **Activities** tab, and the two are never added together.
+rotation plan of the fixtures that have been completed: once a fixture is
+completed the planner locks its assignments, so the plan of a completed fixture
+*is* the rotation that was used. Minutes typed in afterwards on the minutes
+overview live on the **Activities** tab, and the two are never added together.
+
+Since the completion step (above), a fixture also records what the coach
+confirmed on its own register, which is what the minutes overview and the
+minutes reports show. Where a coach corrected the plan, this tab and those
+reports can differ by that correction — the tab reads the plan. Which of the two
+a player's tournament record should follow is being decided separately.
 
 A fixture with no result recorded says **no result**, not 0-0. A goalless
 draw and a game nobody typed in are different facts about a child's season.
