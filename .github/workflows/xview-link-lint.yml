@@ -6,13 +6,21 @@ name: Cross-view link containment
 # The `CrossViewLink` helper centralizes that decision; hand-rolled inline
 # capability checks drift from the target view's real guard.
 #
-# This gate is DIFF-ONLY: it fails a PR that ADDS a cross-view link — the
-# clear `add_query_arg( [ 'tt_view' => '...' ]` pattern rendered as an
-# `<a>`/tile — inside a `src/**/Frontend/**` file WITHOUT routing it through
-# `CrossViewLink::`. Existing lines are grandfathered (only added lines are
-# scanned). The heuristic is deliberately conservative to avoid false
-# positives; for a genuine exception add a trailing `/* tt-xview-ok */` on
-# the same line.
+# This gate is DIFF-ONLY: it fails a PR that ADDS a cross-view link inside a
+# `src/**/Frontend/**` file WITHOUT routing it through `CrossViewLink::`.
+# Existing lines are grandfathered (only added lines are scanned). The
+# heuristic is deliberately conservative to avoid false positives; for a
+# genuine exception add a trailing `/* tt-xview-ok */` on the same line.
+#
+# Two spellings are matched:
+#
+#   1. `add_query_arg( [ 'tt_view' => '...' ]` — the literal form.
+#   2. `RecordLink::detailUrlFor…(` — the record-link helpers, which build the
+#      same `tt_view=` URL indirectly (#4039). Every one of those call sites
+#      was invisible to this gate, which is why the season summary shipped a
+#      link to a team page the dispatcher refuses: the lint that exists to
+#      stop exactly that could not see the line. Roughly nineteen existing
+#      sites stay grandfathered — this closes the hole for new code.
 
 on:
   pull_request:
@@ -52,19 +60,20 @@ jobs:
           FAIL=0
           for f in $FILES; do
             # Added lines only (leading '+', excluding the '+++' file header).
-            # Flag the clear cross-view link pattern:
-            #   add_query_arg( [ 'tt_view' => '...' ]
-            # (whitespace-insensitive between the tokens). Exclude the escape
-            # hatch, lines that route through CrossViewLink::, and lines using
-            # the pageActionsHtml 'cap' mechanism (header +New buttons, which
-            # gate correctly by their own means).
+            # Flag both cross-view link spellings:
+            #   add_query_arg( [ 'tt_view' => '...' ]      (whitespace-insensitive)
+            #   RecordLink::detailUrlFor…(                  (#4039)
+            # Exclude the escape hatch, lines that route through
+            # CrossViewLink::, and lines using the pageActionsHtml 'cap'
+            # mechanism (header +New buttons, which gate correctly by their
+            # own means).
             HIT=$(git diff "$BASE"...HEAD -- "$f" \
               | grep -E '^\+' | grep -vE '^\+\+\+' \
-              | grep -E "add_query_arg\(\s*\[\s*'tt_view'\s*=>" \
+              | grep -E "add_query_arg\(\s*\[\s*'tt_view'\s*=>|RecordLink::detailUrlFor[A-Za-z]*\(" \
               | grep -vE 'tt-xview-ok|CrossViewLink::|pageActionsHtml' \
               || true)
             if [ -n "$HIT" ]; then
-              echo "::error file=$f::Adds a cross-view tt_view link outside CrossViewLink:: (CLAUDE.md §7 — gate the affordance)."
+              echo "::error file=$f::Adds a cross-view link (tt_view URL or RecordLink::detailUrlFor…) outside CrossViewLink:: (CLAUDE.md §7 — gate the affordance)."
               echo "--- $f ---"
               echo "$HIT"
               FAIL=1
@@ -73,10 +82,11 @@ jobs:
 
           if [ "$FAIL" = "1" ]; then
             echo ""
-            echo "This PR adds an in-body cross-view link (a tt_view target"
-            echo "rendered as an <a>/tile) that does not route through the"
-            echo "CrossViewLink helper. A navigation affordance must be hidden"
-            echo "when the current user can't reach its target view (CLAUDE.md §7)."
+            echo "This PR adds an in-body cross-view link — a tt_view target, or"
+            echo "a RecordLink::detailUrlFor… URL, rendered as an <a>/tile — that"
+            echo "does not route through the CrossViewLink helper. A navigation"
+            echo "affordance must be hidden when the current user can't reach its"
+            echo "target view (CLAUDE.md §7)."
             echo ""
             echo "Wrap the link in CrossViewLink::render( '<slug>', function () { … } )"
             echo "and register the slug's gate in"

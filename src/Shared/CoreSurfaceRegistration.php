@@ -267,6 +267,26 @@ final class CoreSurfaceRegistration {
         // route enforce: a `players` read, global or on that team.
         $reg::register( 'dossier-completeness', [ 'players', 'read' ] );
 
+        // #4039 — the team page. Unregistered, it fell through to the
+        // permissive fallback and was offered to a reader the dispatcher then
+        // refused: the read-only observer holds `tt_view_teams` (which maps to
+        // `team:read`) but not `team_roster_panel`, the entity the `teams`
+        // tile declares — and when the matrix is active the dispatcher gates
+        // on the entity, not the capability. #3580 decided not to widen that
+        // seat, so the affordance is what gives way.
+        //
+        // Asked through the dispatcher's own predicate rather than restated
+        // as an entity pair here: the tile can declare a different entity
+        // tomorrow, and a copy of today's answer would quietly stop matching.
+        $reg::register( 'teams', static function ( int $uid ): bool {
+            if ( $uid <= 0 ) return false;
+            if ( ! class_exists( '\\TT\\Shared\\Frontend\\DashboardShortcode' )
+                || ! method_exists( '\\TT\\Shared\\Frontend\\DashboardShortcode', 'dispatchAllows' ) ) {
+                return true;
+            }
+            return \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'teams', $uid );
+        } );
+
         // #2609 — the squad injury overview. Medical data on minors, so the
         // dispatch gate matches the view's own MatrixGate read guard.
         $reg::register( 'injuries', [ 'player_injuries', 'read' ] );

@@ -298,10 +298,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      *
      * #2343 — an optional `href` turns a tile into a clickable drill-down;
      * `kpiTile()` already wraps its output in an `<a>` when `href` is set.
-     * An optional `cap` capability gates the drill-down (§7 hide-don't-tease):
-     * when the current user lacks it the tile still renders, but as a static
-     * tile with no link. When `href` is absent the tile is byte-identical to
-     * before, so no existing caller changes.
+     * A gated drill-down (§7 hide-don't-tease) still renders the tile, but as
+     * a static tile with no link. When `href` is absent the tile is
+     * byte-identical to before, so no existing caller changes.
+     *
+     * #4039 — a tile naming its destination `slug` is gated by
+     * `CrossViewLink`, which asks the same question the dispatcher answers on
+     * arrival. The older `cap` form stays for tiles whose destination is not a
+     * `tt_view` surface, but goes through `userCanOrMatrix` now: a raw
+     * `current_user_can` is blind to a grant held on the matrix, and on this
+     * surface it was also blind to a *refusal* that only the matrix knows —
+     * which is how the observer persona was offered a team page that then
+     * refused them.
      *
      * @param array<int,array<string,mixed>> $kpis
      */
@@ -313,11 +321,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             // so the strip matches every other surface. The optional `sub`
             // line maps to the tile's delta; a `warn` sub flags the tile gold.
             $href = (string) ( $k['href'] ?? '' );
+            $slug = (string) ( $k['slug'] ?? '' );
             $cap  = (string) ( $k['cap'] ?? '' );
-            // §7 — an href-carrying tile whose destination is cap-gated only
-            // links when the viewer holds the cap; otherwise it stays static.
-            if ( $href !== '' && $cap !== '' && ! current_user_can( $cap ) ) {
-                $href = '';
+            if ( $href !== '' && $slug !== '' ) {
+                if ( ! \TT\Shared\Frontend\Components\CrossViewLink::allows( $slug ) ) $href = '';
+            } elseif ( $href !== '' && $cap !== '' ) {
+                if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), $cap ) ) $href = '';
             }
             $args = [
                 'label' => (string) ( $k['label'] ?? '' ),
@@ -1502,13 +1511,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // (§2185 pattern), each carrying a `tt_back` hint and gated on the
         // destination cap (§7). Point-in-time roster counts open the full
         // lists; the windowed activity/eval counts open their lists.
-        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
-        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         self::renderKpiStrip( [
-            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'cap' => 'tt_view_players' ],
-            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'cap' => 'tt_view_teams' ],
-            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'cap' => 'tt_view_activities' ],
+            // #4039 — `slug`, not `cap`: the gate has to be the one the
+            // dispatcher applies on arrival, and for `teams` that is not the
+            // capability.
+            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'slug' => 'players' ],
+            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'slug' => 'teams' ],
+            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
             [ 'num' => (string) $evals_win,     'label' => __( 'Evaluations', 'talenttrack' ) ],
             [ 'num' => (string) $prospects_win, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],
@@ -1549,10 +1561,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4039 — one question for the whole table: may this reader open a team
+        // page at all? A read-only observer may read this report and is refused
+        // the team page, and a link into a refusal is worse than no link (§7).
+        // Asked once per render, not once per row — the answer is about the
+        // reader, not the team.
+        $can_open_team = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'teams' );
         foreach ( $by_team as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'teams', (int) $r->id );
             echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a></td>';
+            echo '<td>' . ( $can_open_team
+                ? '<a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a>'
+                : esc_html( (string) $r->name ) ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->player_count ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->match_count ) . '</td>';
             echo '</tr>';

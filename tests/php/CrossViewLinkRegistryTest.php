@@ -175,6 +175,10 @@ final class CrossViewLinkRegistryTest extends WP_UnitTestCase {
             'measurements-entry',
             'measurements-coverage',
             'player-attributes',
+            // #4039 — the team page. Unregistered, it fell through to the
+            // permissive fallback and was offered to readers the dispatcher
+            // refuses.
+            'teams',
         ];
         foreach ( $expected as $slug ) {
             $this->assertTrue(
@@ -182,5 +186,41 @@ final class CrossViewLinkRegistryTest extends WP_UnitTestCase {
                 "expected cross-view gate for '{$slug}' to be registered"
             );
         }
+    }
+
+    /**
+     * #4039 — the teams gate answers what the dispatcher answers.
+     *
+     * The season summary linked every team, and a read-only observer clicking
+     * one met "You do not have access to this surface": the link had no gate,
+     * so the permissive fallback let it through, and the capability the
+     * fallback would have consulted is not what dispatch consults when the
+     * matrix is active. Asking the dispatcher's own predicate is what makes
+     * the two impossible to drift apart, so that is what is asserted here.
+     */
+    public function test_the_teams_gate_agrees_with_the_dispatcher(): void {
+        CrossViewLinkRegistry::clear();
+        CoreSurfaceRegistration::register();
+
+        $admin      = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $subscriber = (int) self::factory()->user->create( [ 'role' => 'subscriber' ] );
+
+        foreach ( [ $admin, $subscriber ] as $uid ) {
+            wp_set_current_user( $uid );
+            $this->assertSame(
+                \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'teams', $uid ),
+                CrossViewLink::allows( 'teams' ),
+                'the link gate and dispatch must give the same answer'
+            );
+        }
+
+        wp_set_current_user( $subscriber );
+        $this->assertFalse(
+            CrossViewLink::allows( 'teams' ),
+            'a reader the dispatcher refuses is offered no team link'
+        );
+
+        wp_set_current_user( $admin );
+        $this->assertTrue( CrossViewLink::allows( 'teams' ) );
     }
 }
