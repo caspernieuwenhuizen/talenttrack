@@ -280,10 +280,8 @@ final class CoreSurfaceRegistration {
         // tomorrow, and a copy of today's answer would quietly stop matching.
         $reg::register( 'teams', static function ( int $uid ): bool {
             if ( $uid <= 0 ) return false;
-            if ( ! class_exists( '\\TT\\Shared\\Frontend\\DashboardShortcode' )
-                || ! method_exists( '\\TT\\Shared\\Frontend\\DashboardShortcode', 'dispatchAllows' ) ) {
-                return true;
-            }
+            // No class_exists guard: the dispatcher ships with the shell this
+            // registration belongs to, unlike the module classes guarded above.
             return \TT\Shared\Frontend\DashboardShortcode::dispatchAllows( 'teams', $uid );
         } );
 

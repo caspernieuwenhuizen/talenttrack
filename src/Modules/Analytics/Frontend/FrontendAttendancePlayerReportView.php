@@ -180,10 +180,17 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         if ( $at_risk !== [] ) {
             // #4013 — absences first, lateness as the tiebreak, matching the
             // shared query's at-risk order.
-            usort( $at_risk, static function ( array $a, array $b ): int {
-                $cmp = (int) $b['missed'] <=> (int) $a['missed'];
-                return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
-            } );
+            usort(
+                $at_risk,
+                /**
+                 * @param array<string,mixed> $a
+                 * @param array<string,mixed> $b
+                 */
+                static function ( array $a, array $b ): int {
+                    $cmp = (int) $b['missed'] <=> (int) $a['missed'];
+                    return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
+                }
+            );
             echo '<div class="tt-atrisk-card">';
             echo '<h3 class="tt-atrisk-card__title">' . esc_html( sprintf(
                 /* translators: 1: missed-activities threshold, 2: lateness threshold */

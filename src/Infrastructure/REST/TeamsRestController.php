@@ -731,7 +731,7 @@ class TeamsRestController {
                 // The `My team` screen's own choice of teammate name (#4038):
                 // the roster a player reads in the dressing room.
                 'name'          => QueryHelpers::player_display_name( $mate ),
-                'jersey_number' => isset( $mate->jersey_number ) && $mate->jersey_number !== null && $mate->jersey_number !== ''
+                'jersey_number' => isset( $mate->jersey_number ) && $mate->jersey_number !== ''
                     ? (int) $mate->jersey_number
                     : null,
                 // `preferred_positions` is a JSON array of codes. The codes
@@ -746,8 +746,8 @@ class TeamsRestController {
             'player_id' => $player_id,
             'team'      => [
                 'id'              => $team_id,
-                'name'            => $team ? (string) $team->name : '',
-                'age_group'       => $team ? (string) ( $team->age_group ?? '' ) : '',
+                'name'            => isset( $team->name ) ? (string) $team->name : '',
+                'age_group'       => isset( $team->age_group ) ? (string) $team->age_group : '',
                 'head_coach_name' => ( new \TT\Modules\Analytics\EvalCoverageService() )->headCoachNameForTeam( $team_id ),
             ],
             'teammates' => $teammates,

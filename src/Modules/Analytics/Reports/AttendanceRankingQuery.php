@@ -176,10 +176,17 @@ final class AttendanceRankingQuery {
             $row['declining'] = $this->isDeclining( (int) $row['player_id'], $to );
             $at_risk[] = $row;
         }
-        usort( $at_risk, static function ( array $a, array $b ): int {
-            $cmp = (int) $b['missed'] <=> (int) $a['missed'];
-            return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
-        } );
+        usort(
+            $at_risk,
+            /**
+             * @param array<string,mixed> $a
+             * @param array<string,mixed> $b
+             */
+            static function ( array $a, array $b ): int {
+                $cmp = (int) $b['missed'] <=> (int) $a['missed'];
+                return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
+            }
+        );
         return $at_risk;
     }
 
