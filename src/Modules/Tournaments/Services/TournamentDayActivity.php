@@ -55,10 +55,12 @@ final class TournamentDayActivity {
         add_action( 'tt_tournament_match_created', [ self::class, 'onTournamentCreated' ], 10, 1 );
     }
 
+    /** @param int|string $tournament_id as the action passes it. */
     public static function onTournamentCreated( $tournament_id ): void {
         self::ensureFor( (int) $tournament_id );
     }
 
+    /** @param int|string $tournament_id as the action passes it. */
     public static function onTournamentUpdated( $tournament_id ): void {
         self::syncFor( (int) $tournament_id );
     }

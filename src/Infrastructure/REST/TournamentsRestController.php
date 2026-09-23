@@ -1027,7 +1027,7 @@ class TournamentsRestController {
      * a blank form on a phone, plus the periods whose lineup does not fill the
      * formation, named. Writes nothing.
      */
-    public static function completion_preview( \WP_REST_Request $r ) {
+    public static function completion_preview( \WP_REST_Request $r ): \WP_REST_Response {
         $tournament_id = (int) $r['id'];
         $match_id      = (int) $r['match_id'];
 
