@@ -99,6 +99,29 @@ Each match has an opponent level — by default **weaker / equal / stronger / mu
 
 A match can only carry a level the vocabulary actually holds. An import or an integration sending something else is refused with a message naming the levels that are allowed, rather than storing a word the planner would then show as-is. Leaving the level empty is still fine — that reads as "not recorded".
 
+## Values the planner refuses
+
+Two things a tournament can be sent are checked on the way in rather than
+dropped, because the planner cannot work with them and a coach would only find
+out from a grid that looked wrong.
+
+**Positions.** A squad entry can hold `GK · CB · LB · RB · DM · CM · AM · LW ·
+RW · ST`. Anything else — `DF`, `MF`, `FW`, a typo — is refused with a message
+naming the code and the codes that are accepted, and nothing is stored. It used
+to be removed in silence: a squad sent as `GK / DF / MF` was stored as `GK`
+alone, and Auto-balance then filled the keeper slot and left everybody else on
+the bench with no minutes. The older `DEF` / `MID` / `FWD` still work and read
+as `CB` / `CM` / `ST`.
+
+**Formations.** A tournament's default formation and a fixture's own formation
+have to be one the academy actually has under Configuration → Tournament
+formations. An unknown one is refused with the list of the ones that exist.
+Leaving it blank is still fine on a fixture — that means "use the tournament's".
+
+If your age group plays a shape the seeded list does not carry, add it under
+Configuration → Tournament formations with its slot labels; then it is accepted
+everywhere, planner included.
+
 The level shows as its translated label everywhere you meet it — the pill on the match card, the level dropdown on the add-match form, the wizard's match step and the wizard's review summary. Rename a level under Configuration → Opponent levels and the new label follows to all four; what's stored on the match doesn't change, so existing matches keep their level.
 
 The auto-balancer **does not** auto-weight by opponent level. That's coach judgment; the tool shows the data and you apply the judgment via manual swaps.

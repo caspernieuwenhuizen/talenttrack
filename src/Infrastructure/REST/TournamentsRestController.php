@@ -495,12 +495,22 @@ class TournamentsRestController {
             return RestResponse::error( 'start_date_required', __( 'Start date is required.', 'talenttrack' ), 422 );
         }
 
+        // #4020 — the formation and the squad's position codes, checked
+        // before the row is written for the same reason the levels are.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'default_formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
+        $bad_positions = self::rejectUnknownPositionsInSquad( $r['squad'] ?? null );
+        if ( $bad_positions !== null ) return $bad_positions;
+
         // #3559 — the nested fixtures are checked before the tournament
         // row is written, so a bad level refuses the request rather than
         // leaving a tournament behind with some of its matches missing.
         foreach ( ( is_array( $r['matches'] ?? null ) ? $r['matches'] : [] ) as $nested ) {
             $bad_level = self::rejectUnknownOpponentLevel( (array) $nested );
             if ( $bad_level !== null ) return $bad_level;
+            $bad_formation = self::rejectUnknownFormation( (array) $nested, 'formation' );
+            if ( $bad_formation !== null ) return $bad_formation;
         }
 
         $payload['club_id']    = CurrentClub::id();
@@ -555,6 +565,11 @@ class TournamentsRestController {
         $id = (int) $r['id'];
         $existing = self::fetchTournamentRow( $id );
         if ( ! $existing ) return RestResponse::notFound( 'tournament_not_found' );
+
+        // #4020 — a formation the planner cannot use is refused here too, or
+        // the edit form becomes the back door round the create check.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'default_formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
 
         $payload = self::extractTournament( $r );
         // Don't allow club_id / uuid / created_by mutation through the update path.
@@ -680,6 +695,10 @@ class TournamentsRestController {
 
         $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
         if ( $bad_level !== null ) return $bad_level;
+
+        // #4020 — a fixture formation the planner cannot resolve.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
 
         $match_id = self::insertMatch( $tournament_id, (array) $r->get_params(), $next_seq );
         if ( $match_id === 0 ) {
@@ -1374,6 +1393,11 @@ class TournamentsRestController {
         $bad_level = self::rejectUnknownOpponentLevel( (array) $r->get_params() );
         if ( $bad_level !== null ) return $bad_level;
 
+        // #4020 — PATCHing a fixture to a formation the lookup does not carry
+        // used to answer 200 and then 422 at auto-plan time.
+        $bad_formation = self::rejectUnknownFormation( (array) $r->get_params(), 'formation' );
+        if ( $bad_formation !== null ) return $bad_formation;
+
         // The extractor whitelists mutable columns, so tournament_id,
         // club_id, activity_id and sequence cannot be reached from here.
         $payload = self::extractMatchPartial( (array) $r->get_params(), $existing );
@@ -1442,6 +1466,11 @@ class TournamentsRestController {
             return RestResponse::error( 'invalid_payload', __( 'Squad payload must be an array.', 'talenttrack' ), 422 );
         }
 
+        // #4020 — before the wipe below: a payload this route cannot store
+        // must not take the tournament's plans with it on the way out.
+        $bad_positions = self::rejectUnknownPositionsInSquad( $squad );
+        if ( $bad_positions !== null ) return $bad_positions;
+
         // Wipe assignments for every match in the tournament — squad
         // changes invalidate the existing plan.
         $wpdb->query( $wpdb->prepare(
@@ -1467,6 +1496,12 @@ class TournamentsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $player_id     = (int) $r['player_id'];
+
+        // #4020 — a code the planner has no slot for is refused, not dropped.
+        $bad_positions = self::rejectUnknownPositions(
+            [ 'player_id' => $player_id ] + (array) $r->get_params()
+        );
+        if ( $bad_positions !== null ) return $bad_positions;
 
         $existing = $wpdb->get_row( $wpdb->prepare(
             "SELECT * FROM {$p}tt_tournament_squad WHERE tournament_id = %d AND player_id = %d AND club_id = %d",
@@ -1924,34 +1959,171 @@ class TournamentsRestController {
     }
 
     /**
-     * Normalise the eligible_positions payload to a JSON array of
-     * position-code strings. v4.8.0 (#975) expands the allowed set from
-     * the four position TYPES (GK/DEF/MID/FWD) to the ten specific
-     * codes used by the blueprint editor (GK/CB/LB/RB/DM/CM/AM/LW/RW/ST),
-     * with back-compat coercion of the legacy types: DEF → CB, MID → CM,
-     * FWD → ST. Unknown tokens drop.
+     * The position codes a squad entry may carry — the ten specific codes
+     * the blueprint editor uses, since v4.8.0 (#975).
+     *
+     * @var list<string>
      */
-    private static function normalisePositionsJson( $raw ): string {
+    private const POSITION_CODES = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST' ];
+
+    /**
+     * Legacy GK/DEF/MID/FWD payloads from v4.7.x and earlier coerce to a
+     * representative specific code so existing `tt_tournament_squad` rows and
+     * in-flight wizard state survive the bump.
+     *
+     * @var array<string, string>
+     */
+    private const POSITION_COERCE = [ 'DEF' => 'CB', 'MID' => 'CM', 'FWD' => 'ST' ];
+
+    /**
+     * Split an `eligible_positions` payload into what this squad row can hold
+     * and what it cannot.
+     *
+     * #4020 — the kept half used to be the whole answer: an unknown token was
+     * dropped in silence, so a U7 squad sent as `["GK","DF","MF"]` stored
+     * `["GK"]` and the auto-planner benched thirteen children with nobody
+     * told anything. The rejected half is what lets the write routes refuse.
+     *
+     * @param mixed $raw
+     * @return array{kept: list<string>, rejected: list<string>}
+     */
+    private static function classifyPositions( $raw ): array {
         if ( is_string( $raw ) ) {
             $decoded = json_decode( $raw, true );
             if ( is_array( $decoded ) ) $raw = $decoded;
         }
-        if ( ! is_array( $raw ) ) return wp_json_encode( [] );
-        $allowed = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST' ];
-        // Back-compat: legacy GK/DEF/MID/FWD payloads from v4.7.x and
-        // earlier coerce to a representative specific code so existing
-        // tt_tournament_squad rows + in-flight wizard state survive the
-        // bump.
-        $coerce  = [ 'DEF' => 'CB', 'MID' => 'CM', 'FWD' => 'ST' ];
-        $out = [];
+        if ( ! is_array( $raw ) ) return [ 'kept' => [], 'rejected' => [] ];
+
+        $kept     = [];
+        $rejected = [];
         foreach ( $raw as $v ) {
-            $code = strtoupper( sanitize_key( (string) $v ) );
-            if ( isset( $coerce[ $code ] ) ) $code = $coerce[ $code ];
-            if ( in_array( $code, $allowed, true ) && ! in_array( $code, $out, true ) ) {
-                $out[] = $code;
+            $raw_code = trim( (string) $v );
+            if ( $raw_code === '' ) continue;
+            $code = strtoupper( sanitize_key( $raw_code ) );
+            if ( isset( self::POSITION_COERCE[ $code ] ) ) $code = self::POSITION_COERCE[ $code ];
+            if ( in_array( $code, self::POSITION_CODES, true ) ) {
+                if ( ! in_array( $code, $kept, true ) ) $kept[] = $code;
+                continue;
             }
+            if ( ! in_array( $raw_code, $rejected, true ) ) $rejected[] = $raw_code;
         }
-        return wp_json_encode( $out );
+        return [ 'kept' => $kept, 'rejected' => $rejected ];
+    }
+
+    /**
+     * Normalise the eligible_positions payload to a JSON array of
+     * position-code strings, for a payload already known to be clean.
+     */
+    private static function normalisePositionsJson( $raw ): string {
+        return (string) wp_json_encode( self::classifyPositions( $raw )['kept'] );
+    }
+
+    /**
+     * #4020 — refuse a squad entry carrying a position code this plugin has
+     * no slot for, naming both the rejected codes and the accepted set.
+     *
+     * @param array<string,mixed> $entry one squad entry
+     * @return \WP_REST_Response|null the 400, or null when there is nothing
+     *   to object to
+     */
+    private static function rejectUnknownPositions( array $entry ): ?\WP_REST_Response {
+        if ( ! array_key_exists( 'eligible_positions', $entry ) ) return null;
+
+        $split = self::classifyPositions( $entry['eligible_positions'] );
+        if ( $split['rejected'] === [] ) return null;
+
+        $player_id = absint( $entry['player_id'] ?? 0 );
+        return RestResponse::error(
+            'invalid_positions',
+            sprintf(
+                /* translators: 1: comma-separated rejected position codes, 2: the player's id, 3: comma-separated accepted codes. */
+                __( '"%1$s" is not a position code TalentTrack can plan with (player %2$d). Accepted codes: %3$s.', 'talenttrack' ),
+                implode( ', ', $split['rejected'] ),
+                $player_id,
+                implode( ', ', self::POSITION_CODES )
+            ),
+            400,
+            [
+                'player_id' => $player_id,
+                'rejected'  => $split['rejected'],
+                'allowed'   => self::POSITION_CODES,
+            ]
+        );
+    }
+
+    /**
+     * #4020 — every squad entry in one payload, checked before anything is
+     * written. A squad is saved as a set, so one bad entry refuses the
+     * request rather than leaving half a squad behind.
+     *
+     * @param mixed $squad
+     */
+    private static function rejectUnknownPositionsInSquad( $squad ): ?\WP_REST_Response {
+        if ( ! is_array( $squad ) ) return null;
+        foreach ( $squad as $entry ) {
+            $refused = self::rejectUnknownPositions( (array) $entry );
+            if ( $refused !== null ) return $refused;
+        }
+        return null;
+    }
+
+    /**
+     * The formation names a tournament or fixture may carry.
+     *
+     * Read with the same query `lookupSlotLabels()` uses, so "accepted on the
+     * way in" and "the planner can use it" are the same set by construction.
+     * The typed constants are the floor for an install whose lookup rows were
+     * deleted: an emptied vocabulary refuses everything rather than accepting
+     * anything.
+     *
+     * @return list<string>
+     */
+    private static function knownFormationNames(): array {
+        global $wpdb; $p = $wpdb->prefix;
+        $names = $wpdb->get_col( $wpdb->prepare(
+            "SELECT name FROM {$p}tt_lookups WHERE lookup_type = %s ORDER BY sort_order ASC, name ASC",
+            'tournament_formation'
+        ) );
+        $out = [];
+        foreach ( is_array( $names ) ? $names : [] as $name ) {
+            $name = (string) $name;
+            if ( $name !== '' && ! in_array( $name, $out, true ) ) $out[] = $name;
+        }
+        return $out ?: \TT\Domain\Vocabularies\Lookups\TournamentFormation::ALL;
+    }
+
+    /**
+     * #4020 — refuse a formation the vocabulary does not carry.
+     *
+     * The column is a plain string and every write path sanitised it without
+     * ever checking it, so `default_formation: "1-2-2-1"` saved with a 200 and
+     * then answered `422 no_formation` at auto-plan time — the one place that
+     * reads the lookup. Blank stays allowed: it means "fall back".
+     *
+     * @param array<string,mixed> $params
+     * @param string $field `default_formation` on a tournament, `formation` on
+     *   a fixture.
+     */
+    private static function rejectUnknownFormation( array $params, string $field ): ?\WP_REST_Response {
+        if ( ! array_key_exists( $field, $params ) ) return null;
+
+        $value = sanitize_text_field( (string) ( $params[ $field ] ?? '' ) );
+        if ( $value === '' ) return null;
+
+        $allowed = self::knownFormationNames();
+        if ( in_array( $value, $allowed, true ) ) return null;
+
+        return RestResponse::error(
+            'unknown_formation',
+            sprintf(
+                /* translators: 1: the rejected formation, 2: comma-separated list of known formations. */
+                __( '"%1$s" is not a formation this academy has. Known formations: %2$s.', 'talenttrack' ),
+                $value,
+                implode( ', ', $allowed )
+            ),
+            400,
+            [ 'allowed' => $allowed ]
+        );
     }
 
     private static function insertMatch( int $tournament_id, array $payload, int $sequence ): int {

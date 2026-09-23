@@ -103,6 +103,32 @@ Het niveau verschijnt overal met zijn vertaalde label — de pill op de wedstrij
 
 De auto-balancer weegt **niet** automatisch op niveau tegenstander. Dat is de beoordeling van de coach; de tool laat de data zien, jij beslist via handmatige wissels.
 
+## Waarden die de planner weigert
+
+Twee dingen die een toernooi kan meekrijgen worden bij binnenkomst
+gecontroleerd in plaats van stilletjes weggelaten, omdat de planner er niet mee
+kan werken en een coach het alleen zou merken aan een grid dat er verkeerd
+uitzag.
+
+**Posities.** Een selectieregel mag `GK · CB · LB · RB · DM · CM · AM · LW · RW
+· ST` bevatten. Al het andere — `DF`, `MF`, `FW`, een typefout — wordt geweigerd
+met een melding die de code noemt én de codes die wél mogen; er wordt niets
+opgeslagen. Voorheen verdween zo'n code zonder bericht: een selectie die als
+`GK / DF / MF` werd verstuurd, werd opgeslagen als alleen `GK`, en
+auto-balanceren vulde daarna alleen de keeperplek en zette de rest zonder
+minuten op de bank. De oudere `DEF` / `MID` / `FWD` werken nog en lezen als
+`CB` / `CM` / `ST`.
+
+**Formaties.** De standaardformatie van een toernooi en de eigen formatie van
+een wedstrijd moeten er een zijn die de academie daadwerkelijk heeft bij
+Configuratie → Toernooiformaties. Een onbekende formatie wordt geweigerd, met de
+lijst van formaties die er wél zijn. Bij een wedstrijd leeg laten mag nog
+steeds — dat betekent "gebruik die van het toernooi".
+
+Speelt jouw leeftijdsgroep een vorm die niet in de standaardlijst staat, voeg
+die dan bij Configuratie → Toernooiformaties toe met zijn slotlabels; daarna
+wordt hij overal geaccepteerd, planner inbegrepen.
+
 ## Aftrap en afsluiten van een wedstrijd
 
 - **Aftrap** — promoveert de geplande wedstrijd tot een echte activiteit. De wedstrijd verschijnt op de player journey en op de wedstrijdlijst van het team.
