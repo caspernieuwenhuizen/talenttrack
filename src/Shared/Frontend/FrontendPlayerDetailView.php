@@ -748,7 +748,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // with a sprained ankle was labelled as being in a growth spurt.
         // The pill names the restriction; its tooltip names the reason.
         $phv_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
-        $phv_reason = $phv_active && $phv_row !== null
+        // `$phv_active` already carries the non-null narrowing, so a second
+        // null check here is dead code PHPStan rejects.
+        $phv_reason = $phv_active
             ? \TT\Modules\Vct\Services\LoadRestriction::reasonLabel( (string) ( $phv_row['reason_key'] ?? '' ) )
             : '';
         $phv_title  = $phv_reason === ''
