@@ -981,6 +981,11 @@ class TournamentsRestController {
             [ 'id' => $match_id, 'club_id' => CurrentClub::id() ]
         );
 
+        // #4021 — a fixture scored before anybody kicked it off carries its
+        // result onto the activity the moment one exists.
+        $match['activity_id'] = $activity_id;
+        self::syncActivityScore( $match );
+
         do_action( 'tt_tournament_match_kicked_off', $tournament_id, $match_id, $activity_id );
 
         return RestResponse::success( [
@@ -1097,9 +1102,18 @@ class TournamentsRestController {
 
         // Mark the activity completed so the existing list-view query
         // picks it up.
+        //
+        // #4021 — and carry the fixture's result across. This used to write
+        // the status alone, so a completed 3-2 read as no result recorded
+        // everywhere the activity was the thing being read.
+        $match = self::fetchMatch( $match_id ) ?? $match;
         $wpdb->update(
             "{$p}tt_activities",
-            [ 'activity_status_key' => 'completed' ],
+            [
+                'activity_status_key' => 'completed',
+                'home_score'          => $match['our_score'] ?? null,
+                'away_score'          => $match['their_score'] ?? null,
+            ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
 
@@ -1444,8 +1458,17 @@ class TournamentsRestController {
             Logger::error( 'rest.tournament_match.update.failed', [ 'id' => $match_id, 'db_error' => (string) $wpdb->last_error ] );
             return RestResponse::error( 'db_error', __( 'The match could not be updated.', 'talenttrack' ), 500 );
         }
+        $updated = self::fetchMatch( $match_id );
+
+        // #4021 — a score corrected after the fixture completed has to reach
+        // the activity too, or the two diverge in silence. Only when this
+        // request was about the score: an opponent rename has nothing to sync.
+        if ( array_key_exists( 'our_score', $payload ) || array_key_exists( 'their_score', $payload ) ) {
+            self::syncActivityScore( (array) $updated );
+        }
+
         do_action( 'tt_tournament_match_updated', $tournament_id, $match_id );
-        return RestResponse::success( self::fetchMatch( $match_id ) );
+        return RestResponse::success( $updated );
     }
 
     public static function delete_match( \WP_REST_Request $r ) {
@@ -1577,6 +1600,45 @@ class TournamentsRestController {
     }
 
     // ---- helpers ------------------------------------------------------------
+
+    /**
+     * #4021 — copy a fixture's result onto the activity it is linked to.
+     *
+     * `tt_tournament_matches` is the single score store: the planner writes
+     * `our_score` / `their_score` there, and the activity's pair is derived
+     * from it. Before this the activity's `home_score` / `away_score` were
+     * simply never written, so a completed 3-2 read as no result at all on
+     * every minutes surface — while the minutes grid offered its own editable
+     * boxes for the same fixture, giving one match two independent scorelines.
+     *
+     * **Orientation is neutral, not home/away.** A fixture at a tournament has
+     * no home leg (#3529 decision 3) and `tt_tournament_matches` has no column
+     * to take one from, so `home_away` is deliberately left NULL and the read
+     * side frames the fixture as neither (`MinutesGridQuery`). The academy's
+     * goals go in `home_score` and the opponent's in `away_score` purely as the
+     * storage convention; nothing labels them home and away.
+     *
+     * A fixture with a score but **no activity yet** — the demo install has
+     * three — is left alone: there is nothing to write to, the score is already
+     * safe on the fixture, and `kickoff_match()` runs the sync as soon as one
+     * exists. So a score typed in weeks before kick-off still lands.
+     *
+     * @param array<string,mixed> $match a formatted row from `fetchMatch()`
+     */
+    private static function syncActivityScore( array $match ): void {
+        $activity_id = (int) ( $match['activity_id'] ?? 0 );
+        if ( $activity_id <= 0 ) return;
+
+        global $wpdb; $p = $wpdb->prefix;
+        $wpdb->update(
+            "{$p}tt_activities",
+            [
+                'home_score' => $match['our_score'],
+                'away_score' => $match['their_score'],
+            ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+    }
 
     /**
      * Fetch a formation's `slot_labels` from the tt_lookups row.

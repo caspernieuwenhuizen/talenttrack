@@ -192,6 +192,22 @@ clearing them.
 > created, so that is the quickest place to read them back. The release note
 > in `CHANGES.md` says which releases were affected.
 
+**The fixture is the only place the result is typed.** A completed fixture
+carries its score across to the match activity it created, so the result shows
+up wherever that activity is read — the minutes overview included. It shows
+there **read-only**, pointing back here. The two used to be separate boxes for
+one and the same fixture, so whichever was filled in last silently won.
+
+**A tournament fixture is neither home nor away.** A game at a tournament has no
+home leg, so nothing frames it as one. The minutes overview labels the two
+numbers with your club's short code and *Opp.* rather than home and away. Before
+this, a fixture was treated as a home game everywhere, because it had no
+home/away marker and "not away" was read as "home".
+
+A score typed in before the fixture is kicked off stays on the fixture and
+travels to the activity the moment there is one, so recording results ahead of
+the day loses nothing.
+
 There is deliberately **no day total**. The team's record leaves tournaments
 out entirely, so a goals-for/against figure across the day would have nothing
 reading it. If that changes, it is cheap to add.

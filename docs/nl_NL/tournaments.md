@@ -193,6 +193,23 @@ nieuwe speelduur passen in plaats van ze te wissen.
 > daarbij is aangemaakt; dat is de snelste plek om ze terug te lezen. In de
 > release-notitie in `CHANGES.md` staat om welke releases het gaat.
 
+**De wedstrijd is de enige plek waar je de uitslag typt.** Een afgesloten
+wedstrijd geeft zijn uitslag door aan de wedstrijdactiviteit die erbij is
+aangemaakt, dus de uitslag verschijnt overal waar die activiteit wordt gelezen —
+het minutenoverzicht inbegrepen. Daar staat hij **alleen-lezen**, met een verwijzing
+naar hier. Het waren twee losse invulvakjes voor één en dezelfde wedstrijd, dus
+wat als laatste werd ingevuld won stilzwijgend.
+
+**Een toernooiwedstrijd is thuis noch uit.** Een wedstrijd op een toernooi heeft
+geen thuiswedstrijd, dus niets doet alsof. Het minutenoverzicht labelt de twee
+getallen met de afkorting van je club en *Tgst.* in plaats van thuis en uit.
+Voorheen werd een wedstrijd overal als thuiswedstrijd behandeld, omdat er geen
+thuis/uit-markering op stond en "niet uit" gelezen werd als "thuis".
+
+Een uitslag die je invult voordat je aftrap geeft, blijft op de wedstrijd staan en
+verhuist naar de activiteit op het moment dat die bestaat; uitslagen vooruit
+vastleggen kost dus niets.
+
 Er is bewust **geen dagtotaal**. De balans van het team laat toernooien
 helemaal buiten beschouwing, dus een doelpunten voor/tegen over de dag zou
 nergens gelezen worden. Verandert dat, dan is het zo toegevoegd.
