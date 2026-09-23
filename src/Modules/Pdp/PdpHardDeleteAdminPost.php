@@ -74,7 +74,7 @@ final class PdpHardDeleteAdminPost {
         // see this player's file at all — on top of the delete capability the
         // top of this method already required. A refused id answers as a file
         // that is not there, so the id cannot be probed for existence.
-        if ( ! PdpAccess::canSeeFile( get_current_user_id(), (int) $file->player_id ) ) {
+        if ( ! PdpAccess::canSeeFile( get_current_user_id(), (int) ( $file->player_id ?? 0 ) ) ) {
             self::redirectWithNotice( 'not_found' );
             return;
         }

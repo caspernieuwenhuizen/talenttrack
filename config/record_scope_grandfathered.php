@@ -10,8 +10,8 @@
  * immediately and the backlog is written down rather than ignored.
  *
  * **A line here is a finding, not a decision.** Some of these have no player
- * or team dimension at all â€” a holiday, a season, a measurement definition, a
- * methodology principle â€” and want a `record-scope-ok: no player dimension`
+ * or team dimension at all — a holiday, a season, a measurement definition, a
+ * methodology principle — and want a `record-scope-ok: no player dimension`
  * marker at the site rather than a line here. Others are real gaps of exactly
  * the shape #3987, #3998, #4000, #4001, #4002 and #4003 closed: `GET
  * /players/{id}` resolves the player and returns it without asking whose
@@ -22,7 +22,7 @@
  * The gate fails on an entry that no longer names a surface, so the file
  * cannot quietly outlive its contents. When it is empty, delete the file.
  *
- * Keys are `path::method` â€” a REST route's callback and permission callback
+ * Keys are `path::method` — a REST route's callback and permission callback
  * joined with ` + `, because the gate judges the pair as one unit. Values say
  * what the surface is, and carry no line numbers: an entry outlives the lines
  * around it.

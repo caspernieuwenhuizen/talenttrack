@@ -513,7 +513,7 @@ class PeoplePage {
         // they do not.
         $assignment = $assignment_id > 0 ? $repo->findAssignment( $assignment_id ) : null;
         if ( $assignment !== null
-            && ! AuthorizationService::canAssignStaff( get_current_user_id(), (int) $assignment->team_id )
+            && ! AuthorizationService::canAssignStaff( get_current_user_id(), (int) ( $assignment->team_id ?? 0 ) )
         ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
