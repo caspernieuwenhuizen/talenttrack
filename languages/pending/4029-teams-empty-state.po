@@ -1,0 +1,19 @@
+msgid ""
+msgstr ""
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "You are not linked to a team yet"
+msgstr "Je bent nog niet aan een team gekoppeld"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "This list shows the teams you are assigned to, and you have none yet. Ask your academy administrator to assign you to a team."
+msgstr "Deze lijst toont de teams waaraan je bent toegewezen, en dat zijn er nog geen. Vraag je academiebeheerder om je aan een team toe te wijzen."
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "This list shows the teams you are assigned to. Your account is not linked to a staff record yet, so there is nothing to show. Ask your academy administrator to add you as staff and assign you to a team."
+msgstr "Deze lijst toont de teams waaraan je bent toegewezen. Je account is nog niet aan een stafrecord gekoppeld, dus er is niets te tonen. Vraag je academiebeheerder om je als staflid toe te voegen en aan een team toe te wijzen."

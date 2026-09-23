@@ -658,6 +658,28 @@ class QueryHelpers {
     }
 
     /**
+     * #4029 — the staff person record behind a WordPress account, or 0.
+     *
+     * `get_teams_for_coach()` resolved this and then threw the answer
+     * away: a user with no `tt_people` row got `[]`, identical to a user
+     * with a row and no assignments. Two very different situations for
+     * whoever has to fix them — one needs a staff record created, the
+     * other needs a team assignment — and the surfaces above could not
+     * tell them apart, so they said neither.
+     *
+     * Exposed rather than duplicated so there is one query that answers
+     * "is this account staff at all".
+     */
+    public static function person_id_for_user( int $user_id ): int {
+        if ( $user_id <= 0 ) return 0;
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+            $user_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
      * Teams a user coaches via an active team-scoped role
      * (`tt_user_role_scopes.scope_type = 'team'`). PeopleRepository::
      * assignToTeam syncs this row at every Staff-section assignment,
@@ -680,10 +702,9 @@ class QueryHelpers {
         $lifecycle = $include_archived
             ? ''
             : ' AND ' . \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 't' );
-        $person_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
-            $user_id, CurrentClub::id()
-        ) );
+        // #4029 — one resolver, so a caller can ask the same question
+        // separately and tell "no staff record" from "no assignment".
+        $person_id = self::person_id_for_user( $user_id );
 
         // No tt_people row → no team-scope grants. Modern assignments
         // require a tt_people row (assignToTeam creates one) so this
