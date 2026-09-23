@@ -1,0 +1,27 @@
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "Consent request still waiting"
+msgstr "Toestemmingsverzoek wacht nog"
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "A consent request logged for a prospect is still waiting for an answer. Nothing can be arranged for the child until the family agrees, and a request nobody chases eventually ages out of the system altogether — so this says how long the wait has been running."
+msgstr "Een toestemmingsverzoek dat voor een talent is vastgelegd, wacht nog op antwoord. Zolang het gezin niet akkoord is, kan er niets voor het kind worden geregeld, en een verzoek dat niemand najaagt verdwijnt uiteindelijk helemaal uit het systeem — daarom staat hier hoe lang het al wacht."
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "A prospect"
+msgstr "Een talent"
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "%1$s has not answered the consent request for %2$s — %3$d day waiting."
+msgid_plural "%1$s has not answered the consent request for %2$s — %3$d days waiting."
+msgstr[0] "%1$s heeft het toestemmingsverzoek voor %2$s niet beantwoord — %3$d dag wachten."
+msgstr[1] "%1$s heeft het toestemmingsverzoek voor %2$s niet beantwoord — %3$d dagen wachten."
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "The consent request for %1$s has been waiting %2$d day."
+msgid_plural "The consent request for %1$s has been waiting %2$d days."
+msgstr[0] "Het toestemmingsverzoek voor %1$s wacht al %2$d dag."
+msgstr[1] "Het toestemmingsverzoek voor %1$s wacht al %2$d dagen."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php
+msgid "Consent waiting"
+msgstr "Toestemming wacht"

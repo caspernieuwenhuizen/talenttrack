@@ -81,6 +81,16 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | --- | --- | --- |
 | **Stage eindigt zonder besluit** | Een stage valt binnen de waarschuwingstermijn — of is al verstreken — en er is nog geen besluit vastgelegd. De zin noemt de panelleden die nog geen input hebben ingeleverd, want daar wacht het besluit meestal op. De melding gaat naar wie stages mag besluiten, niet naar de hoofdtrainer van het team: besluiten is het enige werk op een stagedossier dat niemand anders kan doen. Ze lost zichzelf op zodra het besluit is vastgelegd of het dossier is verlengd, en het besluit ruimt haar meteen op in plaats van bij de volgende ronde. | *Waar gaat deze speler heen?* — gevraagd terwijl er nog tijd is om te antwoorden. Een stage die in stilte afloopt, is een kind en een gezin dat wacht op een academie die hen uit het oog verloren is. |
 
+### Talenten
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Toestemmingsverzoek wacht nog** | Een toestemmingsverzoek dat voor een talent is vastgelegd, wacht langer op antwoord dan de drempel van je academie. De zin noemt de club die is gevraagd en hoeveel dagen het al duurt. De melding gaat naar wie talenten mag bewerken — de scout die het verzoek vastlegde en wie voor hem invalt — en elke vastgelegde uitkomst ruimt haar meteen op: akkoord, afgewezen of geen reactie. Is er al toestemming vastgelegd, langs welke route ook, dan blijft de melding weg: er valt niets meer na te jagen. | *Waar gaat deze speler heen?* — voor een kind dat nergens heen kan tot iemand antwoordt. Zonder toestemming van het gezin kan er geen proeftraining worden geregeld, dus een verzoek dat niemand najaagt is een reis die bij de eerste stap stilstaat. |
+
+De wachttijd staat ook op de talentenlijst, in de kolom **Toestemming wacht**, zodat een verlopend verzoek zichtbaar is waar je toch al kijkt en niet pas als de melding komt.
+
+Bij deze melding is het de moeite waard te weten waarom ze bestaat. Een open toestemmingsverzoek zet de bewaartermijn van een talent op pauze, maar alleen zolang het verzoek zelf nog vers is — een verzoek dat niemand ooit heeft opgevolgd verloopt op de normale regel, en dan wordt het dossier van het kind verwijderd. Vóór deze melding was de wachttijd nergens te zien, dus was een stille verwijdering de waarschijnlijkste uitkomst van een verzoek dat niemand najoeg. De standaarddrempel van vijf dagen ligt met opzet ruim binnen de bewaartermijn; verhoog je hem, houd die verhouding dan aan, want een drempel voorbij de termijn waarschuwt over een dossier dat al weg is.
+
 ### Metingen
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
@@ -161,6 +171,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_goal_overdue_lookback_days` | 365 dagen | Hoe lang na de streefdatum een doel nog de moeite waard is om achteraan te gaan. Daarna is het niet te laat maar opgegeven, en is opruimen de oplossing, geen melding. |
 | `alerts_pdp_no_conversation_days` | 45 dagen | Hoe ver in een PDP-cyclus voordat "nog geen gesprek gevoerd" een melding wordt. |
 | `alerts_trial_decision_due_days` | 3 dagen | Hoeveel dagen van tevoren je hoort dat een stage afloopt zonder vastgelegd besluit. Een academie met stages van twee weken wil eerder gewaarschuwd worden dan een met stages van zes weken. |
+| `alerts_prospect_consent_awaiting_days` | 5 dagen | Hoe lang een toestemmingsverzoek op antwoord mag wachten voordat de melding verschijnt. Houd deze waarde ruim binnen `tt_prospect_retention_days_no_progress` (standaard 90 dagen): een verzoek dat niemand najaagt wordt uiteindelijk verwijderd, en een drempel voorbij die termijn waarschuwt over een dossier dat al weg is. |
 | `alerts_player_turns_18_days` | 30 dagen | Hoeveel dagen van tevoren je hoort dat een speler achttien wordt. De leeftijd zelf is geen instelling: dat is een gegeven van het rechtsgebied waarin de academie werkt, geen voorkeur. |
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |

@@ -214,8 +214,19 @@ class ProspectsRestController {
         unset( $count_args['limit'], $count_args['offset'], $count_args['orderby'], $count_args['order'] );
         $total = $repo->count( $count_args );
 
+        // #4017 — how long each prospect has been waiting on a consent
+        // answer, for the whole page in one query. A scout could not see a
+        // request ageing anywhere, and the only code reading an ageing
+        // `awaiting` row uses it to hold the retention clock — so an
+        // unchased request ended in a silent purge.
+        $waiting = ( new \TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository() )
+            ->waitingDaysFor( array_map(
+                static fn( $row ): int => (int) ( $row->id ?? 0 ),
+                is_array( $rows ) ? $rows : []
+            ) );
+
         $base = home_url( '/' );
-        $formatted = array_map( static function ( $row ) use ( $base ): array {
+        $formatted = array_map( static function ( $row ) use ( $base, $waiting ): array {
             $first = (string) ( $row->first_name ?? '' );
             $last  = (string) ( $row->last_name  ?? '' );
             $dob   = (string) ( $row->date_of_birth ?? '' );
@@ -242,6 +253,7 @@ class ProspectsRestController {
                 $status = 'joined';
             }
             $status_label = self::statusLabelFor( $status );
+            $waiting_days = $waiting[ (int) $row->id ] ?? null;
             return [
                 'id'              => (int) $row->id,
                 'first_name'      => $first,
@@ -252,6 +264,17 @@ class ProspectsRestController {
                 'discovered_by'   => $disc_by_name,
                 'status'          => $status,
                 'status_label'    => $status_label,
+                // #4017 — null when nothing is waiting. "Not waiting" and
+                // "asked today" are different answers, and a 0 would read
+                // as the second.
+                'consent_waiting_days'  => $waiting_days,
+                'consent_waiting_label' => $waiting_days === null
+                    ? ''
+                    : sprintf(
+                        /* translators: %d: number of days a consent request has been waiting for an answer */
+                        _n( '%d day', '%d days', $waiting_days, 'talenttrack' ),
+                        $waiting_days
+                    ),
             ];
         }, $rows );
 

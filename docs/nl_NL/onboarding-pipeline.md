@@ -122,6 +122,8 @@ Vier uitkomsten: *wacht op antwoord*, *het gezin ging akkoord*, *het gezin wees 
 
 **Een openstaand verzoek zet de bewaarklok stil.** Een prospect zonder voortgang wordt na 90 dagen verwijderd. Een regel met de uitkomst *wacht op antwoord* telt als voortgang, zodat een academie die echt zit te wachten het kind niet onder zich vandaan verliest. De klok loopt vanaf die regel, niet vanaf de prospect, dus een verzoek dat nooit is nagebeld verjaart alsnog volgens de normale regel. Wordt een prospect verwijderd, dan gaan de toestemmingsregels mee.
 
+**Een wachttijd die oploopt wordt hardop gezegd.** De talentenlijst heeft een kolom **Toestemming wacht** met het aantal dagen dat elk openstaand verzoek al wacht, en na vijf dagen — de instelling `alerts_prospect_consent_awaiting_days` van je academie — gaat er een melding naar wie talenten mag bewerken, met de naam van de club die is gevraagd. Elke vastgelegde uitkomst ruimt de melding direct op. Ze bestaat vanwege de alinea hierboven: zonder haar was de waarschijnlijkste uitkomst van een verzoek dat niemand najoeg dat het dossier van het kind stil werd verwijderd, terwijl de wachttijd nergens te zien was. Zie *Toestemmingsverzoek wacht nog* in het onderwerp Meldingen.
+
 ## Geen uitnodiging zonder toestemming
 
 *Uitnodigen voor testtraining* weigert te verzenden zolang er geen toestemming vastligt — óf een toestemmingsdatum op de prospect, óf een toestemmingsverzoek dat *akkoord* terugkwam.

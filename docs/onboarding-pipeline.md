@@ -119,6 +119,8 @@ Four outcomes: *waiting for an answer*, *the family agreed*, *the family decline
 
 **An open request holds the retention clock.** A prospect with no progress is purged after 90 days. An entry with the outcome *waiting for an answer* counts as progress, so an academy that is genuinely waiting does not lose the child out from under it. The clock runs from the entry, not the prospect, so a request nobody ever chased still ages out on the normal rule. When a prospect is purged its consent entries go with it.
 
+**A wait that runs on is said out loud.** The prospects list carries a **Consent waiting** column showing how many days each open request has been waiting, and after five days — your academy's `alerts_prospect_consent_awaiting_days` setting — an alert goes to whoever may edit prospects, naming the club that was asked. Recording any outcome clears it straight away. It exists because of the paragraph above: without it, the likeliest end for a request nobody chased was the child's record being quietly purged, with nothing anywhere having shown the wait. See *Consent request still waiting* in the Alerts topic.
+
 ## No invitation without consent
 
 *Invite to test training* refuses to submit unless there is consent on record — either a consent date on the prospect, or a consent request that came back *agreed*.

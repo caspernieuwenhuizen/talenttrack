@@ -81,6 +81,16 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | --- | --- | --- |
 | **Trial ending without a decision** | A trial period is within the warning window — or has already run out — and no decision has been recorded. The sentence names the panellists who have submitted no input, because that is usually what the decision is waiting for. It goes to whoever may decide trials, not to the team's head coach: deciding is the one job on a trial case nobody else can do. It resolves itself the moment the decision is recorded or the case is extended, and the decision resolves it immediately rather than on the next sweep. | *Where is this player going?* — asked while there is still time to answer it. A trial window closing in silence is a child and a family waiting on an academy that has lost track of them. |
 
+### Prospects
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Consent request still waiting** | A consent request logged for a prospect has been waiting for an answer longer than your academy's threshold, and the sentence names the club that was asked and how many days it has been. It goes to whoever may edit prospects — the scout who logged it and whoever covers for them — and any recorded outcome clears it immediately, agreed, declined or no reply. Consent already on record, by either route, silences it: there is nothing left to chase. | *Where is this player going?* — for a child who cannot go anywhere until somebody answers. No test training can be arranged without the family's consent, so a request nobody chases is a journey stopped at the first step. |
+
+Waiting also shows on the prospects list, in a **Consent waiting** column, so an ageing request is visible where you are already looking rather than only when the alert arrives.
+
+This one is worth knowing why it exists. An open consent request pauses the prospect-retention clock, but only for as long as the request itself is fresh — a request nobody ever followed up on ages out on the normal rule, and the child's record is deleted. Before this alert, nothing anywhere showed the wait, so the likeliest end for an unchased request was a silent purge. The default threshold of five days is set well inside the retention window on purpose; if you lengthen it, keep that relationship, because a threshold past the window would warn about a record that has already gone.
+
 ### Measurements
 
 | Alert | What it means | Which player question it answers |
@@ -160,6 +170,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_goal_overdue_lookback_days` | 365 days | How far past its date a goal is still worth chasing. Beyond that it is abandoned rather than overdue, and the fix is a tidy-up, not an alert. |
 | `alerts_pdp_no_conversation_days` | 45 days | How far into a PDP cycle before "no conversation held" becomes an alert. |
 | `alerts_trial_decision_due_days` | 3 days | How much warning you get before a trial ends with no decision recorded. An academy running two-week trials wants a shorter warning than one running six-week ones. |
+| `alerts_prospect_consent_awaiting_days` | 5 days | How long a consent request may sit waiting for an answer before the alert appears. Keep it well inside `tt_prospect_retention_days_no_progress` (90 days by default): a request nobody chases is eventually purged, and a threshold past that window would warn about a record that has already gone. |
 | `alerts_player_turns_18_days` | 30 days | How much notice you get before a player's eighteenth birthday. The age itself is not a setting: it is a fact about the jurisdiction the academy operates in, not a preference. |
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
