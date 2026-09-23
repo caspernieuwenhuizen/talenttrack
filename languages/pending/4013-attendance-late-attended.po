@@ -1,0 +1,11 @@
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "At-risk players (%1$d or more missed, %2$d or more late)"
+msgstr "Risicospelers (%1$d keer of meer gemist, %2$d keer of meer te laat)"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "%d late"
+msgstr "%d keer te laat"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "Open the activities behind the at-risk flag for %1$s (%2$s)"
+msgstr "Open de activiteiten achter de risicomarkering van %1$s (%2$s)"

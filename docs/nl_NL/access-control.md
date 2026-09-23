@@ -322,7 +322,11 @@ Geef context per link door via `['ctx' => [...]]`; geef een eenmalige expliciete
 2. Verpak de link-render in `CrossViewLink::render( '<slug>', … )` (of vertak op `CrossViewLink::allows`).
 3. Als de link recordcontext nodig heeft (een speler-id, team-id), geef die door via `['ctx' => …]` en lees hem in de gate-closure.
 
-Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de gedeclareerde entiteit van de tegel op `read` wanneer de matrix actief is, anders toestaan), zodat bestaande interne links blijven werken; de CI-gate `xview-link-lint.yml` laat een PR falen die een **nieuwe** ongegate `tt_view`-kruislink toevoegt in een `src/**/Frontend/**`-bestand. Voor een terechte uitzondering plaats je een afsluitend `/* tt-xview-ok */` op de regel.
+Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de gedeclareerde entiteit van de tegel op `read` wanneer de matrix actief is, anders toestaan), zodat bestaande interne links blijven werken; de CI-gate `xview-link-lint.yml` laat een PR falen die een **nieuwe** ongegate kruislink toevoegt in een `src/**/Frontend/**`-bestand. Voor een terechte uitzondering plaats je een afsluitend `/* tt-xview-ok */` op de regel.
+
+**De lint matcht twee schrijfwijzen** (#4039): het letterlijke `add_query_arg( [ 'tt_view' => … ] )`, en `RecordLink::detailUrlFor…()`, dat dezelfde URL indirect opbouwt. Elke record-link-aanroep was voorheen onzichtbaar voor de gate, en zo kwam het seizoensoverzicht met een link naar een teampagina die de dispatcher weigert — juist de lint die dat moest voorkomen kon de regel niet zien. Bestaande aanroepen blijven gedoogd; de gate kijkt alleen naar de diff.
+
+**Is de dispatcher de gate, vraag het dan de dispatcher.** Een slug waarvan de tegel een *andere* entiteit declareert dan waar de capability op uitkomt, kun je niet gaten door die capability te herhalen: `teams` declareert `team_roster_panel`, terwijl `tt_view_teams` naar `team:read` verwijst, dus een read-only observer haalt de capability wél en wordt de view geweigerd. De gate van die slug roept daarom `DashboardShortcode::dispatchAllows()` aan, het predicaat van de dispatcher zelf, in plaats van een derde kopie van de regel. Doe dat bij elke surface waar de twee sporten aantoonbaar verschillen — en let op: een KPI-tegel of link die op een blote capability gegate is, is op die surfaces op het verkeerde gegate.
 
 ## Entiteiten van de instroompijplijn
 

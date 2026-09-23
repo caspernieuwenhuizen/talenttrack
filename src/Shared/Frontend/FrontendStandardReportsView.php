@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\ExplorerUrl;
@@ -296,10 +298,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      *
      * #2343 — an optional `href` turns a tile into a clickable drill-down;
      * `kpiTile()` already wraps its output in an `<a>` when `href` is set.
-     * An optional `cap` capability gates the drill-down (§7 hide-don't-tease):
-     * when the current user lacks it the tile still renders, but as a static
-     * tile with no link. When `href` is absent the tile is byte-identical to
-     * before, so no existing caller changes.
+     * A gated drill-down (§7 hide-don't-tease) still renders the tile, but as
+     * a static tile with no link. When `href` is absent the tile is
+     * byte-identical to before, so no existing caller changes.
+     *
+     * #4039 — a tile naming its destination `slug` is gated by
+     * `CrossViewLink`, which asks the same question the dispatcher answers on
+     * arrival. The older `cap` form stays for tiles whose destination is not a
+     * `tt_view` surface, but goes through `userCanOrMatrix` now: a raw
+     * `current_user_can` is blind to a grant held on the matrix, and on this
+     * surface it was also blind to a *refusal* that only the matrix knows —
+     * which is how the observer persona was offered a team page that then
+     * refused them.
      *
      * @param array<int,array<string,mixed>> $kpis
      */
@@ -311,11 +321,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             // so the strip matches every other surface. The optional `sub`
             // line maps to the tile's delta; a `warn` sub flags the tile gold.
             $href = (string) ( $k['href'] ?? '' );
+            $slug = (string) ( $k['slug'] ?? '' );
             $cap  = (string) ( $k['cap'] ?? '' );
-            // §7 — an href-carrying tile whose destination is cap-gated only
-            // links when the viewer holds the cap; otherwise it stays static.
-            if ( $href !== '' && $cap !== '' && ! current_user_can( $cap ) ) {
-                $href = '';
+            if ( $href !== '' && $slug !== '' ) {
+                if ( ! \TT\Shared\Frontend\Components\CrossViewLink::allows( $slug ) ) $href = '';
+            } elseif ( $href !== '' && $cap !== '' ) {
+                if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), $cap ) ) $href = '';
             }
             $args = [
                 'label' => (string) ( $k['label'] ?? '' ),
@@ -1465,7 +1476,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         global $wpdb;
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities (#0035 lint-safe)
         $club_id = CurrentClub::id();
-        $players_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
+        // #4025 — "Active players" now counts active players. It counted every
+        // non-archived row, so trialists, inactive, released and graduated
+        // players sat behind a tile that named them active, and the number
+        // disagreed with every roster on the install.
+        $players_total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players
+              WHERE club_id = %d AND status = %s AND " . ArchiveRepository::filterClause( 'active' ),
+            $club_id, PlayerStatus::ACTIVE
+        ) );
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         // v4.20.44 (#1222) — added `archived_at IS NULL`. Soft-archived
         // matches were inflating the HoD season-summary KPI. Audit 7. #2345 —
@@ -1492,13 +1511,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // (§2185 pattern), each carrying a `tt_back` hint and gated on the
         // destination cap (§7). Point-in-time roster counts open the full
         // lists; the windowed activity/eval counts open their lists.
-        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
-        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — KPI tile self-gates on the destination cap (tt_view_players/teams/activities) via kpiTile 'cap' (§7) */
+        $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         self::renderKpiStrip( [
-            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'cap' => 'tt_view_players' ],
-            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'cap' => 'tt_view_teams' ],
-            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'cap' => 'tt_view_activities' ],
+            // #4039 — `slug`, not `cap`: the gate has to be the one the
+            // dispatcher applies on arrival, and for `teams` that is not the
+            // capability.
+            [ 'num' => (string) $players_total, 'label' => __( 'Active players', 'talenttrack' ), 'href' => $players_url, 'slug' => 'players' ],
+            [ 'num' => (string) $teams_total,   'label' => __( 'Active teams', 'talenttrack' ), 'href' => $teams_url, 'slug' => 'teams' ],
+            [ 'num' => (string) $matches_win,   'label' => __( 'Matches', 'talenttrack' ), 'href' => $matches_url, 'slug' => 'activities' ],
             [ 'num' => (string) $evals_win,     'label' => __( 'Evaluations', 'talenttrack' ) ],
             [ 'num' => (string) $prospects_win, 'label' => __( 'Prospects logged', 'talenttrack' ) ],
             [ 'num' => (string) $trial_decisions_win, 'label' => __( 'Trial decisions', 'talenttrack' ) ],
@@ -1512,7 +1534,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                                           AND a.archived_at IS NULL
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
-          LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id AND p.archived_at IS NULL
+          LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id
+                                              AND p.status = %s
+                                              AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
           LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
               WHERE t.club_id = %d AND t.archived_at IS NULL
                 /* #2346 — `a.archived_at IS NULL` moved onto the JOIN so
@@ -1520,10 +1544,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                    (they previously inflated the join even though the CASE
                    filtered the count). The CASE keeps its own guard for
                    defence in depth. Builds on v4.20.44 (#1222). Audit 7.
-                   #2345 — the CASE window now follows the selected range. */
+                   #2345 — the CASE window now follows the selected range.
+                   #4025 — `p.status = 'active'` on the JOIN: the Players
+                   column counted trialists, released and graduated players,
+                   so it disagreed with the training roster and with the team
+                   list's own squad size. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
-            $from, $to, $club_id
+            $from, $to, PlayerStatus::ACTIVE, $club_id
         ) );
         // #2344 — a silent `return` here left the page blank below the KPI
         // strip when no teams exist. Render an honest empty state instead.
@@ -1533,10 +1561,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
         echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        // #4039 — one question for the whole table: may this reader open a team
+        // page at all? A read-only observer may read this report and is refused
+        // the team page, and a link into a refusal is worse than no link (§7).
+        // Asked once per render, not once per row — the answer is about the
+        // reader, not the team.
+        $can_open_team = \TT\Shared\Frontend\Components\CrossViewLink::allows( 'teams' );
         foreach ( $by_team as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'teams', (int) $r->id );
             echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a></td>';
+            echo '<td>' . ( $can_open_team
+                ? '<a href="' . esc_url( $url ) . '">' . esc_html( (string) $r->name ) . '</a>'
+                : esc_html( (string) $r->name ) ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->player_count ) . '</td>';
             echo '<td class="num">' . esc_html( (string) (int) $r->match_count ) . '</td>';
             echo '</tr>';

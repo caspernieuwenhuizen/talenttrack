@@ -54,6 +54,8 @@ Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/b
 
 **Ouders zien dezelfde pagina zonder het podium.** Een ouder die het team van zijn kind opent, krijgt de volgende wedstrijd, de vormlijn, de eigen kaart en groeitrend van het kind, en de lijst met teamgenoten — maar niet de top-drie. Het podium hoort bij de kleedkamer, bij de spelers zelf; in handen van een andere ouder wordt het een ranglijst van andermans kinderen, dus het blijft bij de spelers.
 
+**Via de API.** Het eigen team van een speler is ook te lezen op `GET /players/{id}/team` — de naam en leeftijdscategorie van het team, wie het team leidt, en de lijst met teamgenoten (naam, rugnummer, positie). Verder niets: geen beoordelingen, geen statussen, geen medische gegevens, geen contactgegevens, en de teamplek alleen als jullie academy die aan heeft gezet. De route antwoordt voor de speler zelf en voor een gekoppelde ouder over het eigen kind, en voor niemand anders; het team-endpoint voor staf blijft alleen voor staf. Apps en integraties lezen dezelfde selectie als het scherm, uit dezelfde queries, zodat de twee niet uit elkaar kunnen lopen.
+
 Op al deze pagina's wordt een ouder als ouder aangesproken: koppen luiden "Doelen van Bas" en "Hoe Bas ervoor staat" in plaats van "Mijn doelen" en "Hoe je ervoor staat", en in de navigatie van de ouder valt het "Mijn" weg bij de onderdelen die over het kind gaan.
 
 ### Mijn evaluaties

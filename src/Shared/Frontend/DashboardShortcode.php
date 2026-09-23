@@ -733,6 +733,28 @@ class DashboardShortcode {
      *
      * WordPress administrators bypass, mirroring every other matrix consumer.
      */
+    /**
+     * #4039 — "would dispatch open `$view` for this user?", asked from
+     * outside the dispatcher.
+     *
+     * A link to a view the dispatcher refuses is worse than no link: the
+     * observer persona was offered a team on the season summary and met "You
+     * do not have access to this surface" on arrival. A cross-view-link gate
+     * that re-derived the answer from a capability got it wrong, because
+     * dispatch does not gate on the capability at all when the matrix is
+     * active — it gates on the tile's declared entity, which for `teams` is
+     * `team_roster_panel`, an entity the observer's seat does not hold while
+     * `tt_view_teams` maps to one it does.
+     *
+     * So the affordance asks the dispatcher's own two rungs, through this one
+     * method, rather than a third opinion. Module / feature state is asked
+     * separately, by `CrossViewLinkRegistry::surfaceSwitchedOff()`.
+     */
+    public static function dispatchAllows( string $view, int $user_id ): bool {
+        return self::tileCapAllows( $view, $user_id )
+            && self::matrixDispatchAllows( $view, $user_id );
+    }
+
     private static function tileCapAllows( string $view, int $user_id ): bool {
         if ( $view === '' ) return true;
         if ( ! class_exists( '\\TT\\Shared\\Tiles\\TileRegistry' ) ) return true;

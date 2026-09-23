@@ -75,6 +75,45 @@ final class TeamDetailCountsTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4025 — `player_count` is the active squad. A trialist, an inactive
+     * player, a released one and a graduate used to count toward it, so the
+     * team read 21 players while the training roster, the monthly report and
+     * eval coverage all said 17. Trialists are not lost: they carry their own
+     * `trial_count`.
+     */
+    public function test_only_active_players_count_and_trialists_are_counted_apart(): void {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = (int) CurrentClub::id();
+
+        foreach ( [ 'trial', 'trial', 'inactive', 'released', 'graduated' ] as $i => $status ) {
+            $wpdb->insert( "{$p}tt_players", [
+                'club_id' => $club, 'team_id' => $this->team,
+                'first_name' => 'Status', 'last_name' => $status . $i, 'status' => $status,
+            ] );
+        }
+        // An archived trialist is off the books like any archived row.
+        $wpdb->insert( "{$p}tt_players", [
+            'club_id' => $club, 'team_id' => $this->team,
+            'first_name' => 'Weg', 'last_name' => 'Stage', 'status' => 'trial',
+            'archived_at' => current_time( 'mysql' ),
+        ] );
+
+        $detail = $this->get( 'teams/' . $this->team, [] )['data'];
+
+        $this->assertSame( 3, $detail['player_count'], 'the three active players, nobody else' );
+        $this->assertSame( 2, $detail['trial_count'], 'the two live trialists, not the archived one' );
+
+        $list_row = null;
+        foreach ( $this->get( 'teams', [ 'per_page' => 100, 'search' => 'Telling' ] )['data']['rows'] as $row ) {
+            if ( (int) $row['id'] === $this->team ) $list_row = $row;
+        }
+        $this->assertNotNull( $list_row );
+        $this->assertSame( $detail['player_count'], $list_row['player_count'], 'list and detail count alike' );
+        $this->assertSame( $detail['trial_count'], $list_row['trial_count'] );
+    }
+
+    /**
      * @param array<string,mixed> $query
      * @return array<string,mixed>
      */

@@ -173,6 +173,13 @@ alphabetically. Two tables are deliberately left alone: **Minutes share** is
 ordered by share played and **Needs a conversation** by urgency — there the
 order is itself the finding.
 
+**Each section names the order its rows are in**, above the table. Attendance
+reads *"Team average 93%. In shirt-number order."* — it used to say "lowest
+first", which it had not been since squad-number order came in, and a coach who
+read the top rows as the players who miss sessions was reading shirt numbers.
+The players below the amber and red lines are marked in words and colour
+wherever they sit, so they stay findable without the sort.
+
 ## Snapshots for the meeting
 
 The report is a view of **current** data. Open it on the 3rd, discuss it on the

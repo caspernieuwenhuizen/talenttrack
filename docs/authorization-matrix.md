@@ -303,6 +303,8 @@ Report generation (originally the report wizard, since retired; the player repor
 | - | - |
 | `tt_generate_report` | `reports` / `create_delete` |
 
+**Nothing checks the raw cap today** (#3985). The wizard it gated is gone, and the player report asks `PlayerReportAccess` per player instead. It is kept rather than deleted: the cap is granted on every existing install and seeded into their matrix, so removing it would rewrite an operator's role grants and matrix cells without changing a single gate. Read it as a reserved name, not a live gate — the thing that decides who may generate a report is the report surface's own per-player check, plus the `reports` entity below.
+
 The raw cap is held today by `administrator` (matrix bypass) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** (the role backing **both** head_coach and assistant_coach). The `reports` matrix entity previously seeded those personas only `read`, so a naive bridge to `create_delete` would silently **revoke** generation from coaches and HoD. #1946 preserves access by **adding** `create_delete` grants rather than tightening:
 
 | Persona | New grant | Scope |

@@ -102,6 +102,13 @@ final class LegacyCapMapper {
         // `reports:rcd [global]`. Access-preserving — every raw holder keeps
         // generation; team_manager/scout/player/parent (reports:read only)
         // gain nothing.
+        //
+        // #3985 — nothing in `src` checks the raw cap any more: #3955 retired
+        // the report wizard, and the player report gates per player through
+        // `PlayerReportAccess`. The mapping is kept on purpose — the cap is
+        // granted on every existing install and seeded into their matrix, so
+        // removing it would rewrite that configuration without changing a
+        // single gate. See `RolesService::REPORT_CAPS`.
         'tt_generate_report'             => [ 'reports',        'create_delete' ],
 
         // #1480 — academy-wide holidays.
