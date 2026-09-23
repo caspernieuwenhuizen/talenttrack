@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
+use TT\Modules\DemoData\DemoCalendar;
 
 /**
  * ActivityContentGenerator — gives a training session content.
@@ -23,18 +24,48 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
     private const MIN_PER_SESSION = 4;
     private const MAX_PER_SESSION = 6;
 
+    /**
+     * The school year's breaks, by the calendar date they fall on (#4040):
+     * `[ key, start month, start day, length in days, colour ]`, in calendar
+     * order. Christmas runs into January, which is why the end is a length
+     * rather than a second date.
+     *
+     * Approximate middle-region Dutch school dates. They only need to be the
+     * right break in the right month — an academy editing the generated
+     * calendar is expected, a July "Winterstop" is not.
+     *
+     * @var array<int, array{key:string, month:int, day:int, days:int, color:string}>
+     */
+    private const BREAKS = [
+        [ 'key' => 'spring',    'month' => 2,  'day' => 14, 'days' => 8,  'color' => '#e4f0e2' ],
+        [ 'key' => 'may',       'month' => 4,  'day' => 25, 'days' => 8,  'color' => '#f6f0d8' ],
+        [ 'key' => 'summer',    'month' => 7,  'day' => 11, 'days' => 43, 'color' => '#fbe6d4' ],
+        [ 'key' => 'autumn',    'month' => 10, 'day' => 17, 'days' => 8,  'color' => '#f0e0e8' ],
+        [ 'key' => 'christmas', 'month' => 12, 'day' => 19, 'days' => 15, 'color' => '#d9e8f5' ],
+    ];
+
     /** @var array<string, array<string, string>> */
     private const HOLIDAYS_BY_LANGUAGE = [
         'en_US' => [
-            'winter' => 'Winter break',
-            'spring' => 'Spring break',
-            'summer' => 'Summer break',
+            'spring'    => 'Spring break',
+            'may'       => 'May break',
+            'summer'    => 'Summer break',
+            'autumn'    => 'Autumn break',
+            'christmas' => 'Christmas break',
         ],
         'nl_NL' => [
-            'winter' => 'Winterstop',
-            'spring' => 'Voorjaarsvakantie',
-            'summer' => 'Zomerstop',
+            'spring'    => 'Voorjaarsvakantie',
+            'may'       => 'Meivakantie',
+            'summer'    => 'Zomerstop',
+            'autumn'    => 'Herfstvakantie',
+            'christmas' => 'Kerstvakantie',
         ],
+    ];
+
+    /** @var array<string, string> */
+    private const HOLIDAY_NOTE_BY_LANGUAGE = [
+        'en_US' => 'No training sessions.',
+        'nl_NL' => 'Geen trainingen.',
     ];
 
     /** @var array<string, string[]> */
@@ -62,20 +93,31 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
 
     private string $language;
 
+    private DemoCalendar $calendar;
+
     public static function category(): string {
         return 'activity_content';
     }
 
     public static function fromContext( GeneratorContext $ctx ): self {
-        return new self( $ctx->registry, $ctx->teams, $ctx->weeks(), $ctx->contentLanguage );
+        return new self( $ctx->registry, $ctx->teams, $ctx->weeks(), $ctx->contentLanguage, $ctx->calendar() );
     }
 
     /** @param object[] $teams */
-    public function __construct( DemoBatchRegistry $registry, array $teams, int $weeks, string $language = '' ) {
+    public function __construct(
+        DemoBatchRegistry $registry,
+        array $teams,
+        int $weeks,
+        string $language = '',
+        ?DemoCalendar $calendar = null
+    ) {
         $this->registry = $registry;
         $this->teams    = $teams;
         $this->weeks    = max( 1, $weeks );
         $this->language = $language !== '' ? $language : ( function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US' );
+        // #4040 — the run's pinned clock, not the wall clock of whichever
+        // request happens to be running this chunk.
+        $this->calendar = $calendar ?? new DemoCalendar( $this->weeks );
     }
 
     public function generate(): int {
@@ -219,50 +261,79 @@ class ActivityContentGenerator implements DependentGeneratorInterface {
     }
 
     /**
-     * Holiday windows inside the generated span. Only breaks that actually
-     * fall in the window are written — a winter break on a four-week demo
-     * would sit outside every calendar the operator opens.
+     * The school year's breaks that fall inside the generated span.
+     *
+     * #4040 — a break is named by the date it falls on, not by where it sits
+     * in the window. The old version placed three breaks at fixed fractions
+     * of the span and labelled them winter, spring and summer in that order,
+     * which on a September run produced a "Winterstop" in July and a
+     * "Voorjaarsvakantie" in August. A holiday calendar decides when a team
+     * trains, so getting it wrong hides where a player's next weeks go.
+     *
+     * Only breaks the window actually touches are written — a Christmas break
+     * on a four-week summer demo would sit outside every calendar the
+     * operator opens. So a short window may get none, which is correct.
      */
     private function generateHolidays(): int {
         global $wpdb;
 
-        $labels = self::HOLIDAYS_BY_LANGUAGE[ self::resolveLanguage( $this->language ) ];
-        $window_start = strtotime( '-' . $this->weeks . ' weeks' );
-        if ( $window_start === false ) $window_start = time();
+        $language = self::resolveLanguage( $this->language );
+        $labels   = self::HOLIDAYS_BY_LANGUAGE[ $language ];
+        $note     = self::HOLIDAY_NOTE_BY_LANGUAGE[ $language ];
 
-        // Place breaks at fixed fractions of the window so they land inside
-        // it whatever the preset, and stay clear of each other.
-        $plan = [];
-        if ( $this->weeks >= 8 ) {
-            $plan[] = [ 'winter', 0.35, 14 ];
-        }
-        if ( $this->weeks >= 16 ) {
-            $plan[] = [ 'spring', 0.70, 7 ];
-        }
-        if ( $this->weeks >= 30 ) {
-            $plan[] = [ 'summer', 0.95, 28 ];
-        }
-        if ( ! $plan ) return 0;
+        $window_start = $this->calendar->windowStart();
+        // The activity calendar reaches past today; a break in that horizon
+        // belongs on the calendar too.
+        $window_end = $this->calendar->now() + ( DemoCalendar::HORIZON_WEEKS * WEEK_IN_SECONDS );
+
+        // A Christmas break that opened in the December before the window
+        // still runs into it, so start a year early.
+        $first_year = (int) gmdate( 'Y', $window_start ) - 1;
+        $last_year  = (int) gmdate( 'Y', $window_end );
 
         $total = 0;
-        foreach ( $plan as [ $key, $fraction, $days ] ) {
-            $start_ts = $window_start + (int) ( $this->weeks * $fraction * WEEK_IN_SECONDS );
-            $wpdb->insert( "{$wpdb->prefix}tt_holidays", [
-                'club_id'    => CurrentClub::id(),
-                'uuid'       => self::uuid(),
-                'name'       => $labels[ $key ],
-                'start_date' => gmdate( 'Y-m-d', $start_ts ),
-                'end_date'   => gmdate( 'Y-m-d', $start_ts + ( $days * DAY_IN_SECONDS ) ),
-                'note'       => null,
-                'color'      => '#d9e8f5',
-            ] );
-            $id = (int) $wpdb->insert_id;
-            if ( $id ) {
-                $this->registry->tag( 'holiday', $id, [ 'key' => $key ] );
-                $total++;
+        for ( $year = $first_year; $year <= $last_year; $year++ ) {
+            foreach ( self::BREAKS as $break ) {
+                $start_ts = (int) gmmktime( 0, 0, 0, $break['month'], $break['day'], $year );
+                $end_ts   = $start_ts + ( $break['days'] * DAY_IN_SECONDS );
+
+                if ( $end_ts < $window_start || $start_ts > $window_end ) continue;
+
+                $start_date = gmdate( 'Y-m-d', $start_ts );
+                if ( $this->holidayExists( $start_date ) ) continue;
+
+                $wpdb->insert( "{$wpdb->prefix}tt_holidays", [
+                    'club_id'    => CurrentClub::id(),
+                    'uuid'       => self::uuid(),
+                    'name'       => $labels[ $break['key'] ],
+                    'start_date' => $start_date,
+                    'end_date'   => gmdate( 'Y-m-d', $end_ts ),
+                    'note'       => $note,
+                    'color'      => $break['color'],
+                ] );
+                $id = (int) $wpdb->insert_id;
+                if ( $id ) {
+                    $this->registry->tag( 'holiday', $id, [ 'key' => $break['key'], 'year' => $year ] );
+                    $total++;
+                }
             }
         }
         return $total;
+    }
+
+    /**
+     * Is a holiday already on the calendar for this date? A second run into
+     * the same install writes the same breaks, and the table has no unique
+     * key to lean on.
+     */
+    private function holidayExists( string $start_date ): bool {
+        global $wpdb;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_holidays
+              WHERE club_id = %d AND start_date = %s",
+            CurrentClub::id(), $start_date
+        ) ) > 0;
     }
 
     /**

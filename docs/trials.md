@@ -60,6 +60,8 @@ If the period needs to be extended, the **Extend trial** button on Overview asks
 
 The **Assigned staff** card on Overview shows each panellist with whether they have handed their input in — *Submitted <date>* or *No input yet*. That state is only shown to people who may already read the case's aggregation; an assigned coach whose only job is to write their own input sees the roster without it.
 
+Reading the panel through the API gives the same people: each row carries the staff member's name, and the id of their People record where they have one, so an integration lists a panel by name rather than by account number.
+
 When the trial is close to its end date and no decision has been recorded, a **Deadline** banner appears under the hero saying how long is left — or how long ago the window closed. It disappears by itself as soon as the decision is recorded or the case is extended; there is nothing to dismiss. How far ahead it starts warning is the `alerts_trial_decision_due_days` setting, three days by default.
 
 The same condition raises a **Trial ending without a decision** alert for the head of development, naming the panellists who have not submitted so you can see what the decision is waiting for. It resolves itself the moment the decision lands or the case is extended.
@@ -94,7 +96,9 @@ The decision form requires a justification note (≥ 30 characters) for the inte
 
 ### 5. Generate the letter
 
-Recording a decision generates the letter automatically. The **Letter** tab shows it inline and offers a print-ready view. **Print view** opens the letter on its own — no navigation, no tabs, no letter history, just the letter and a Print button — so what comes out of the printer is what you hand to the family. Only the head of development and club admin can open it; anyone else following the link gets a refusal. Three templates ship with the plugin:
+Recording a decision generates the letter that goes with it — the admittance letter for an admit, one of the two decline letters for a decline. That happens wherever the decision is recorded — on the Decision tab, whose button says so, and through the API — so a case reads the same either way, and there is one place that decides which letter a decision warrants.
+
+Generated is not sent, and not final. The **Letter** tab shows it inline and offers a print-ready view, and **Regenerate letter** rewrites it — after a change to the templates, or to the academy name — so you read what the family will read before anyone prints it. **Print view** opens the letter on its own — no navigation, no tabs, no letter history, just the letter and a Print button — so what comes out of the printer is what you hand to the family. Only the head of development and club admin can open it; anyone else following the link gets a refusal. Three templates ship with the plugin:
 
 - **Admittance** — warm welcome, next steps, optional acceptance slip on page 2 if the club has that turned on.
 - **Decline (final)** — respectful and definitive.
@@ -135,6 +139,7 @@ A case stays "open" — visible to the assigned staff, counting against the head
 Use the **Decision** tab to record an outcome (`Admit` / `Decline (final)` / `Decline (with encouragement)`) plus the mandatory ≥ 30-character justification note. Recording the decision:
 
 - Moves the player's status, per the table below.
+- Generates the letter that decision warrants — the admittance letter, or one of the two decline letters. See *Generate the letter* above. The three decisions the trial-group workflow writes produce none; two of them do not end the trial at all.
 - Writes the matching entry on the player's journey — *Trial ended*, plus *Signed* on an admit or *Released* on a final decline.
 - Stamps `decision_made_at` + `decision_made_by` for the audit trail.
 - Keeps the justification note itself, readable afterwards by anyone who may read the case's staff inputs — the head of development and the coaches assigned to it. It does **not** go to the family: the letter and the parent-meeting view carry none of it.
@@ -155,7 +160,7 @@ The third row is the one worth reading twice. *Decline with encouragement* means
 
 Only a player who is still on **Trial** status moves. If they were already promoted some other way, or the decision is recorded a second time, nothing changes — the decision cannot walk an active player backwards.
 
-The letter is **not** generated automatically. Go to the **Letter** tab and generate it when you are ready; someone should read a letter to a family before it exists. The Parent meeting tab carries the rest of the conversation.
+The letter is written, not sent. Read it on the **Letter** tab before anyone prints it, regenerate it if the wording needs to change, and record how the family got it once it has gone. The Parent meeting tab carries the rest of the conversation.
 
 ### The six decisions, and which of them close the trial
 
