@@ -234,6 +234,15 @@ what makes the child picker and the dashboard child switcher reachable. Every
 generated academy therefore demonstrates both, instead of the multi-child
 guardian appearing in roughly two runs out of three.
 
+**School breaks land on the calendar they belong to.** The holiday windows a
+run writes are the school year's own — Voorjaarsvakantie, Meivakantie,
+Zomerstop, Herfstvakantie, Kerstvakantie — each dated from its place in the
+year, and only the ones the generated window actually touches. A short autumn
+window therefore gets an autumn break and no summer one, and a run in July
+never produces a winter break dated in July. Each carries a note, so a
+generated break reads like one the club entered. A window that happens to
+cover no break at all gets none, which is the honest answer.
+
 **Measurements agree with the player record.** The Height and Weight tests
 read back what the player's profile says, walked back to the age they were at
 each earlier round, so their progression is growth rather than a second opinion
