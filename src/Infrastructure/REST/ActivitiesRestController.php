@@ -2850,7 +2850,17 @@ class ActivitiesRestController {
      * `roster` when no plan was captured.
      *
      * Each row carries `player_id`, `is_guest`, `name`, `plan_status`
-     * (`expected` / `not_coming` / `maybe`) and `notes`.
+     * (`expected` / `not_coming` / `maybe`), `notes` and `availability`.
+     *
+     * #4005 — `availability` is derived per request from the player's open
+     * injuries (`PlayerAvailability`) and sits BESIDE `plan_status`, which
+     * keeps its three values and its write path. It is not a fourth plan
+     * state: a coach may deliberately expect an injured player (light
+     * session, rehab minutes, travelling with the squad), and folding
+     * availability into the plan would silently overwrite that. It carries
+     * the state and nothing else — no injury type, body part, note, date or
+     * id — so a role without injury access can plan around it without
+     * seeing a child's medical record.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2861,7 +2871,13 @@ class ActivitiesRestController {
         if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
         $roster = $repo->plannedRosterForActivity( $id );
-        $out = array_map( static function ( $row ) {
+        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableSet(
+            array_values( array_map(
+                static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
+                $roster
+            ) )
+        );
+        $out = array_map( static function ( $row ) use ( $unavailable ) {
             $status = (string) ( $row->status ?? '' );
             return [
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
@@ -2874,6 +2890,11 @@ class ActivitiesRestController {
                 // registered come back as fully present.
                 'plan_status' => self::plannedStatusToKey( $status ),
                 'notes'       => (string) ( $row->notes ?? '' ),
+                // #4005 — read-only, derived, and never a plan state.
+                'availability' => \TT\Modules\Activities\Services\PlayerAvailability::flagFor(
+                    (int) ( $row->player_id ?? 0 ),
+                    $unavailable
+                ),
             ];
         }, $roster );
 

@@ -9,6 +9,7 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FormSaveButton;
@@ -2021,6 +2022,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
             echo '<p class="tt-act-card-d__sub">' . esc_html( implode( ' · ', $bits ) ) . '</p>';
         }
+        // #4005 — who cannot be planned for, derived from open injuries by
+        // the domain service the REST route uses (CLAUDE.md §4). The state
+        // only: no injury detail reaches this card, so a coach without
+        // injury access can plan around it.
+        $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
+            static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
+            $roster
+        ) ) );
+
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
             $name     = (string) ( $row->name ?? '' );
@@ -2035,6 +2045,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
             if ( $label !== '' ) {
                 echo ' <span class="tt-act-rp__plan">' . esc_html( $label ) . '</span>';
+            }
+            if ( isset( $unavailable[ (int) ( $row->player_id ?? 0 ) ] ) ) {
+                echo ' <span class="tt-act-rp__unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
             }
             echo '</span>';
         }
@@ -4081,6 +4094,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( $s === 'excused' ) return 'maybe';
                 return 'expected';
             };
+            // #4005 — who is carrying an open injury, so the coach picking
+            // the squad is not left to remember it. Derived by the same
+            // domain service the REST route uses; it never changes the
+            // stored plan, and it carries no medical detail.
+            $plan_unavailable = PlayerAvailability::unavailableSet( array_map( 'intval', array_keys( $planned_rows ) ) );
             ?>
             <?php
             // #2245 + #2248 — planned attendance renders only while the
@@ -4120,6 +4138,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                     <?php echo esc_html( (string) ( $prow->name ?? ( '#' . $pid ) ) ); ?>
                                     <?php if ( $prow_guest ) : ?>
                                         <span class="tt-planned-guest"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ( isset( $plan_unavailable[ $pid ] ) ) : ?>
+                                        <span class="tt-planned-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
