@@ -15,6 +15,7 @@ use TT\Modules\Alerts\Policy\ClubAlertPolicy;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
 use TT\Modules\Alerts\Repositories\AlertPreferencesRepository;
 use TT\Modules\Alerts\Services\AlertOversight;
+use TT\Modules\Alerts\Services\FamilyReachability;
 use WP_REST_Request;
 
 /**
@@ -26,6 +27,8 @@ use WP_REST_Request;
  *   GET  /alerts/definitions      the catalogue
  *   POST /alerts/evaluate         force a sweep (diagnostic)
  *   GET  /alerts/rollup           open conditions per team I oversee (#2633)
+ *   GET  /alerts/family-reachability
+ *                                 how many families we can reach (#4014)
  *
  * Per CLAUDE.md §4 this exists from day one, not once a consumer needs it:
  * the banner and this controller read the same repository, so deleting
@@ -90,6 +93,19 @@ final class AlertsRestController extends BaseController {
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'rollup' ],
                 'permission_callback' => [ self::class, 'permLoggedIn' ],
+            ],
+        ] );
+
+        // #4014 — the family-reachability census. Counts and team names
+        // only: a club-wide answer that named families would be a bulk
+        // export of children's contact details, which is why the named
+        // drill-down stays on `GET /teams/{id}/dossier-completeness`.
+        // Registered before the uuid pattern like the other literal routes.
+        register_rest_route( self::NS, '/alerts/family-reachability', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'familyReachability' ],
+                'permission_callback' => [ self::class, 'permReadPeople' ],
             ],
         ] );
 
@@ -525,6 +541,39 @@ final class AlertsRestController extends BaseController {
 
         return RestResponse::success(
             AlertOversight::forUser( get_current_user_id() )
+        );
+    }
+
+    /**
+     * #4014 — "how many of our families can we reach?", in one call.
+     *
+     * The board asked it and got four per-team reports, a hand count and a
+     * confirmation from an administrator. This answers it with counts and
+     * team names: the whole academy for a caller with global `people` read,
+     * their own teams for a team-scoped one. The scope is decided in the
+     * service, from the capability model, so no request parameter reaches
+     * it.
+     */
+    public static function familyReachability(): \WP_REST_Response {
+        return RestResponse::success(
+            FamilyReachability::forUser( get_current_user_id() )
+        );
+    }
+
+    /**
+     * Read on `people` at any scope the caller actually holds.
+     *
+     * `permLoggedIn` would be wrong here even though the payload names
+     * nobody: a squad size and how many of its families are contactable is
+     * still a fact about the academy's children. `canAnyScope` rather than a
+     * global check, because the census narrows to the caller's own teams
+     * instead of refusing them.
+     */
+    public static function permReadPeople(): bool {
+        return \TT\Modules\Authorization\MatrixGate::canAnyScope(
+            get_current_user_id(),
+            'people',
+            \TT\Modules\Authorization\MatrixGate::READ
         );
     }
 

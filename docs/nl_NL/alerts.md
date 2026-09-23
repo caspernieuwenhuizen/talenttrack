@@ -298,11 +298,26 @@ De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk bet
 
 "Teams waar je verantwoordelijk voor bent" volgt uit je rechten, niet uit je functietitel. Mag je de activiteiten van elk team lezen — Hoofd Opleiding, beheerder, scout, meelezer — dan beslaat de samenvatting de hele academie. Een trainer die aan bepaalde teams is gekoppeld ziet precies die teams. Er is geen link waarmee je dat kunt verbreden.
 
+### Hoeveel gezinnen kunnen we bereiken?
+
+Daaronder staat een tweede regel met het antwoord op de bestuursversie van dezelfde vraag: **"3 van 82 gezinnen bereikbaar"**, met een telling per team ernaast.
+
+Een gezin geldt als bereikbaar zodra de club een e-mailadres van de verzorger, een telefoonnummer van de verzorger **of** een gekoppeld ouderaccount heeft — elk van de drie is een route naar iemand. Voorheen betekende die vraag beantwoorden: het rapport dossiercompleetheid voor elke selectie apart openen, langs de naam van elke onvolledige speler lezen en de kolommen met de hand optellen.
+
+Twee dingen doet deze regel bewust niet:
+
+- **Er wordt niemand genoemd.** Academiebreed krijg je tellingen en teamnamen. Wie wát mist blijft op de pagina dossiercompleetheid van dat team, achter de rechten die daar al gelden, want een clubbrede lijst met de gezinnen die niemand kan bereiken is een export van contactgegevens van kinderen met een vriendelijker kopje.
+- **De dossiercontroles worden niet vervangen.** Bereikbaar betekent "er is een manier om dit gezin te bereiken", niet "dit dossier is compleet". Een speler van wie de ouder een account heeft maar van wie het telefoonnummer leeg is, is per e-mail bereikbaar en nog steeds niemand die je op zaterdagochtend kunt bellen.
+
+De telling gaat over elke speler die in de boeken staat, ook spelers zonder team, zodat ze klopt met de rapporten per team. Dat is een ruimere groep dan de melding **Speler zonder contact thuis** oplevert: die wacht tot er daadwerkelijk een bericht over de speler verstuurd zou worden.
+
+Een trainer ziet de telling voor zijn eigen selecties; wie de dossiers van de hele academie mag lezen ziet de academie.
+
 ## Voor beheerders (meldingen op records)
 
 - Labels tonen op een lijst kost **één** databasequery voor de hele pagina, hoeveel regels er ook een label dragen. Elke plek die meldingen op een lijst toont moet ze in één keer ophalen; per regel ophalen is een fout, geen langzamere variant van hetzelfde.
 - De samenvatting per team is een gegroepeerde leesactie over de meldingen die er al zijn. Er wordt niets aangemaakt, en juist dat maakt de regel "geen eigen melding per team voor het Hoofd Opleiding" houdbaar.
-- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, en `GET /alerts/rollup` voor de samenvatting per team. De lijst pagineert met `per_page` en `page`, en elk antwoord draagt `X-WP-Total` en `X-WP-TotalPages`.
+- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, `GET /alerts/rollup` voor de samenvatting per team, en `GET /alerts/family-reachability` voor de telling van bereikbare gezinnen. De lijst pagineert met `per_page` en `page`, en elk antwoord draagt `X-WP-Total` en `X-WP-TotalPages`.
 - Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
 

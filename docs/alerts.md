@@ -297,11 +297,26 @@ The summary only ever counts teams you already oversee. It counts each affected 
 
 "Teams you oversee" comes from your access, not from a job title. If you can read every team's activities — a Head of Development, an academy admin, a scout, a read-only observer — the summary covers the whole academy. A coach assigned to particular teams sees exactly those. Nothing you can put in a link widens it.
 
+### How many of our families can we reach?
+
+Underneath is a second line answering the board's version of the same question: **"3 of 82 families reachable"**, with a count per team beside it.
+
+A family counts as reachable when the club has a guardian e-mail address, a guardian phone number **or** a linked parent account — any one of the three is a route to somebody. Before this, answering it meant opening the dossier completeness report for every squad in turn, reading past every missing player's name, and adding the columns up by hand.
+
+Two things it deliberately does not do:
+
+- **It names nobody.** Academy-wide you get counts and team names. Whose file is missing what stays on that team's dossier completeness page, behind the permissions it already has, because a club-wide list of the families nobody can reach would be an export of children's contact details with a friendlier heading.
+- **It does not replace the dossier checks.** Reachable means "there is some way to contact this family", not "this file is complete". A player whose parent has an account but whose guardian phone number is empty is reachable by e-mail and still nobody you can telephone on a Saturday morning.
+
+The count covers every player on the books, including players not yet placed in a team, so it reconciles with the per-team reports. That is a wider group than the **Player with no guardian contact** alert raises, which waits until a message would actually be sent about the player.
+
+A coach sees the count for their own squads; anyone who can read the whole academy's records sees the academy.
+
 ## For administrators (alerts on records)
 
 - Rendering chips on a list costs **one** database query for the whole page, regardless of how many rows carry a chip. Anything that surfaces alerts on a list must read them in one batch; a per-row read is a bug, not a slow version of the same thing.
 - The per-team summary is a grouped read over the alerts that already exist. It creates nothing, which is what lets the "no alert per team for Heads of Development" rule hold.
-- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, and `GET /alerts/rollup` for the per-team summary. The list pages with `per_page` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`.
+- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, `GET /alerts/rollup` for the per-team summary, and `GET /alerts/family-reachability` for the reachable-families count. The list pages with `per_page` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`.
 - Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.
 

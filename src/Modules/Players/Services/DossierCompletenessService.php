@@ -88,10 +88,24 @@ final class DossierCompletenessService {
     /**
      * What is still missing from this squad's files.
      *
-     * @return array{player_count:int, checks:list<array<string,mixed>>}
+     * `family_reachable` (#4014) is a **derived** reading of the same
+     * roster, not a seventh check: how many of these families the club has
+     * any route to at all — a guardian e-mail address, a guardian phone
+     * number or a linked parent account. It is reported beside the checks
+     * because an administrator looking at "0 of 21 guardian e-mail
+     * addresses" next to "3 of 21 parent accounts" read two sources that
+     * seemed to disagree and could not tell which one the office uses. It
+     * changes nothing about the six checks, which stay separate for the
+     * reason `isComplete()` sets out.
+     *
+     * @return array{player_count:int, checks:list<array<string,mixed>>, family_reachable:array{total:int,reachable:int,unreachable:int}}
      */
     public function forTeam( int $team_id ): array {
-        $empty = [ 'player_count' => 0, 'checks' => [] ];
+        $empty = [
+            'player_count'     => 0,
+            'checks'           => [],
+            'family_reachable' => [ 'total' => 0, 'reachable' => 0, 'unreachable' => 0 ],
+        ];
         if ( $team_id <= 0 ) return $empty;
 
         $players = $this->roster( $team_id );
@@ -102,7 +116,39 @@ final class DossierCompletenessService {
             $checks[] = $this->check( $key, $players );
         }
 
-        return [ 'player_count' => count( $players ), 'checks' => $checks ];
+        return [
+            'player_count'     => count( $players ),
+            'checks'           => $checks,
+            'family_reachable' => self::reachability( $players ),
+        ];
+    }
+
+    /**
+     * The derived reachability count over a roster already read.
+     *
+     * Computed from the same rows rather than by asking
+     * `FamilyReachability::forTeam()`, so the two numbers on one screen come
+     * from one query and cannot describe two different moments. The rule
+     * lives in one place: `FamilyReachabilityTest` asserts both agree.
+     *
+     * @param list<array<string,mixed>> $players
+     * @return array{total:int,reachable:int,unreachable:int}
+     */
+    private static function reachability( array $players ): array {
+        $reachable = 0;
+        foreach ( $players as $player ) {
+            $has = trim( (string) ( $player['guardian_email'] ?? '' ) ) !== ''
+                || trim( (string) ( $player['guardian_phone'] ?? '' ) ) !== ''
+                || (int) ( $player['parent_count'] ?? 0 ) > 0;
+            if ( $has ) $reachable++;
+        }
+
+        $total = count( $players );
+        return [
+            'total'       => $total,
+            'reachable'   => $reachable,
+            'unreachable' => $total - $reachable,
+        ];
     }
 
     /**

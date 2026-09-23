@@ -51,6 +51,29 @@ gezin belt. Een speler kan prima het een hebben en het ander niet, en een
 rapport dat die twee op één hoop gooit, meldt een compleet dossier terwijl
 er nog steeds niemand te bellen is.
 
+## Gezinnen die we kunnen bereiken
+
+Boven de zes controles staat één regel met hoeveel gezinnen van deze selectie
+de club überhaupt kan bereiken: **"3 van 21 gezinnen bereikbaar"**. Een gezin
+geldt als bereikbaar zodra de speler een e-mailadres van de verzorger, een
+telefoonnummer van de verzorger **of** een gekoppeld ouderaccount heeft — elk
+van de drie is een route naar iemand.
+
+Die regel staat er omdat de twee feiten erboven leken tegen te spreken. Een
+selectie zonder e-mailadressen van verzorgers en met drie gekoppelde
+ouderaccounts laat op de ene kaart "0 van 21" zien en op de andere "3 van
+21", en beide zijn waar. Deze regel zegt wat ze samen betekenen, zodat
+niemand het op een telefoon hoeft uit te rekenen.
+
+De regel vervangt de controles niet en gaat dat ook nooit doen. Bereikbaar
+betekent "er is een manier om dit gezin te bereiken", niet "dit dossier is
+compleet" — een speler van wie de ouder een account heeft maar van wie het
+telefoonnummer leeg is, is per e-mail bereikbaar en nog steeds niemand die je
+op zaterdagochtend kunt bellen. Daarom blijven de kaarten eronder apart.
+
+Dezelfde telling voor de hele academie staat onder *Het overzicht voor Hoofd
+Opleiding en beheerders* in het onderwerp Meldingen.
+
 **"Beeld in dossier zonder toestemming" telt items én spelers.** Eén speler
 met negen foto's is een ander gesprek dan negen spelers met er één, en dat
 is precies waar je tussen kiest als je de telefoon pakt. Een foto die aan
@@ -94,8 +117,13 @@ een prima bereikbare ouder hebben en toch geen vastgelegde toestemming.
 
 Hetzelfde antwoord staat op
 `GET /wp-json/talenttrack/v1/teams/{team_id}/dossier-completeness`. Dat
-geeft `player_count` en één blok per controle met `total`, `complete`,
+geeft `player_count`, `family_reachable` en één blok per controle met `total`, `complete`,
 `counts` en een `needs`-lijst met de namen — dezelfde vorm als
 `GET /teams/{team_id}/measurement-coverage`. Het endpoint vereist een
 spelersleesrecht, globaal of op dat team, en bevat evenmin
 contactgegevens.
+
+De academiebrede telling staat op
+`GET /wp-json/talenttrack/v1/alerts/family-reachability` en antwoordt alleen
+met totalen en teamnamen — daar wordt geen speler genoemd, en juist daarom is
+er nog steeds geen clubbrede dossierroute.
