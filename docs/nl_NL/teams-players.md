@@ -157,6 +157,21 @@ Het spelersdossier is opnieuw opgebouwd als een port van `.local-mockups/player-
 - **Drie responsive vormen.** Mobiel (≤719px) — één kolom, sticky horizontaal-scrollende tabs. Tablet (720-1023px) — één kolom op max 720px, tabs vouwen, Profiel-kaarten 2-koloms, 96px avatar. Desktop (≥1024px) — twee-koloms grid: 320px linkerkolom (Kerngegevens + In één oogopslag verticaal) + flexibele rechterkolom (tabs + actieve sectie). Hero + actierij overspannen beide kolommen. De `.tt-player-detail__rail` en `.tt-player-detail__main` wrappers gebruiken `display: contents` onder 1024px, zodat de kolomhoogtes onafhankelijk blijven op desktop.
 - **Wat eruit blijft.** Er is geen Analytics-tab, en geen inline archiveren of verwijderen op een Evaluaties-rij — destructieve acties leven op de evaluatie-detailpagina.
 
+## Een nieuw team zonder hoofdcoach meldt dat zelf
+
+Maak een team aan en laat de hoofdcoach leeg — de stafstap in de wizard is
+overslaanbaar, en het platte formulier heeft helemaal geen stafvelden — en de
+volgende pagina meldt het: *"JO14-1 heeft nog geen hoofdcoach. Wijs er een aan
+onder Staf bij het team."* De melding verschijnt één keer, op de pagina waar je
+na het aanmaken belandt, en is te sluiten.
+
+Dat is op dat moment het zeggen waard, omdat bijna elke melding in de plugin aan
+de hoofdcoach van een team is geadresseerd. Een team zonder hoofdcoach mist niet
+alleen een naam in een veld: het ontvangt stilletjes niets meer over zijn
+spelers. De doorlopende melding **Team heeft geen hoofdcoach** geldt bewust
+alleen voor teams die al spelers hebben, niet voor kersverse lege teams — deze
+prompt dekt precies dat gat, zolang het nog met één klik op te lossen is.
+
 ## Teamdetail — stagespelers
 
 De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.

@@ -9,6 +9,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Teams\Services\TeamStaffPrompt;
 
 /**
  * TeamsRestController — /wp-json/talenttrack/v1/teams
@@ -685,7 +686,19 @@ class TeamsRestController {
         $team_id = (int) $wpdb->insert_id;
         // v3.76.2 — auto-tag demo-on rows.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $team_id );
-        return RestResponse::success( [ 'id' => $team_id ] );
+        // #4007 — the one post-insert extension point on team creation, and
+        // the staffless-team prompt that hangs off it. A team with nobody
+        // running it receives none of the notifications addressed to a head
+        // coach, and nothing said so at the moment it could still be fixed
+        // in one click.
+        TeamStaffPrompt::afterCreate( $team_id, (string) ( $data['name'] ?? '' ) );
+        return RestResponse::success( [
+            'id' => $team_id,
+            // The prompt is a flash on the next page load; the flag lets a
+            // client that renders its own confirmation ask the same question
+            // without a second request.
+            'needs_head_coach' => ! TeamStaffPrompt::hasHeadCoach( $team_id ),
+        ] );
     }
 
     public static function update_team( \WP_REST_Request $r ) {

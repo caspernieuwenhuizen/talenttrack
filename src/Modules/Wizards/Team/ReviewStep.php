@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Teams\Services\TeamStaffPrompt;
 use TT\Shared\Wizards\WizardStepInterface;
 
 final class ReviewStep implements WizardStepInterface {
@@ -121,6 +122,13 @@ final class ReviewStep implements WizardStepInterface {
                 $params
             ) );
         }
+
+        // #4007 — every staff slot here is skippable on purpose, so a team can
+        // still finish the wizard with nobody running it. The prompt fires
+        // after the assignments above, so it only speaks when the head-coach
+        // slot really was left empty, and it lands on the team page this
+        // redirect goes to.
+        TeamStaffPrompt::afterCreate( $team_id, $name );
 
         return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'teams', 'id' => $team_id ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }

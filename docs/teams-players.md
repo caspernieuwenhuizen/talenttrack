@@ -156,6 +156,21 @@ The player file is rebuilt as a port of `.local-mockups/player-profile/index.htm
 - **Three responsive shapes.** Mobile (≤719px) — single column, sticky horizontal tab scroll. Tablet (720-1023px) — single column at 720px max, tabs flow, Profile cards 2-up, 96px avatar. Desktop (≥1024px) — two-column grid: 320px left rail (Key facts + At a glance vertically) + flex right column (tabs + active pane). Hero + actions span both columns. The `.tt-player-detail__rail` and `.tt-player-detail__main` wrappers use `display: contents` below 1024px so column row heights stay independent on desktop.
 - **What stays out.** There is no Analytics tab, and no inline archive or delete on an Evaluations row — destructive actions live on the evaluation detail page.
 
+## A new team with no head coach says so
+
+Create a team and leave the head-coach slot empty — the wizard's staff step is
+skippable, and the flat form has no staff fields at all — and the next page
+tells you: *"JO14-1 has no head coach yet. Assign one under Staff on the team."*
+It appears once, on whichever page the creating surface lands on, and can be
+dismissed.
+
+It is worth saying at that moment because almost every notification in the
+plugin is addressed to a team's head coach. A team without one does not merely
+lack a name in a field: it stops receiving anything about its players, quietly.
+The standing **Team has no head coach** alert covers teams that already have
+players, deliberately not brand-new empty ones — this prompt covers exactly
+that window, while it is still a single click to fix.
+
 ## Team detail — trial roster
 
 The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
