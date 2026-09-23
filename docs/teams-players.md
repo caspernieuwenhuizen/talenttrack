@@ -160,6 +160,10 @@ The player file is rebuilt as a port of `.local-mockups/player-profile/index.htm
 
 The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
 
+**A team's player count is its active squad.** The number on the team card, in the hero pills and in the Key facts strip counts **active** players only — not trialists, and not players who are inactive, released or graduated. It used to count all of them, which is why one team could read 21 players while its training roster, its monthly report and its evaluation coverage all said 17. Trialists are still counted, separately: the API carries a `trial_count` beside `player_count`, and the team page lists them in the **Trial players** card. The season summary's *Active players* figure and its per-team *Players* column follow the same rule.
+
+A training plan's suggested **squad size** is a different number on purpose: it is the turnout to plan for, read from recent attendance, so on a squad of 17 it may well read 15. That is what the last few sessions actually had, not a disagreement about who is in the team.
+
 ## Team detail — player-profile-style redesign (v4.40.0 — #1613)
 
 The team page is rebuilt to mirror the [player profile](teams-players.md#player-file-ux-redesign-v480--977): same shapes, same card system, same responsive rail/main grid. Backend unchanged — same `tt_teams` row, same `tt_view_teams` gate, same `?tt_view=teams&id=N` URL.

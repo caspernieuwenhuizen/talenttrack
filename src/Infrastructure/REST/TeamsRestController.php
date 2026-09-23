@@ -3,6 +3,8 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -300,7 +302,8 @@ class TeamsRestController {
                                AND p.archived_at IS NULL
                                AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
                             ) AS hc_person_ids,
-                            " . self::playerCountSql( $p ) . " AS player_count
+                            " . self::playerCountSql( $p ) . " AS player_count,
+                            " . self::trialCountSql( $p ) . " AS trial_count
                      FROM {$p}tt_teams t
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
@@ -365,7 +368,8 @@ class TeamsRestController {
                        AND p.club_id = t.club_id
                        AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
                     ) AS hc_person_ids,
-                    " . self::playerCountSql( $p ) . " AS player_count
+                    " . self::playerCountSql( $p ) . " AS player_count,
+                    " . self::trialCountSql( $p ) . " AS trial_count
              FROM {$p}tt_teams t
              WHERE t.id = %d AND t.club_id = %d",
             $id, CurrentClub::id()
@@ -385,9 +389,42 @@ class TeamsRestController {
      * #3601 — the squad-size subselect, shared by the list and the detail
      * so the two cannot count differently again. Expects the team aliased
      * `t`.
+     *
+     * #4025 — **active players only**, and trashed rows excluded. It counted
+     * every non-archived row on the team, so trialists, inactive, released and
+     * graduated players all counted toward a team's "21 players" while the
+     * training roster, the monthly team report, eval coverage and the persona
+     * dashboard all said 17. Active-only is the plugin's dominant definition
+     * of a squad; this route was the outlier. Trialists are not lost —
+     * {@see trialCountSql()} counts them separately, beside the roster the
+     * team detail already lists them in.
      */
     private static function playerCountSql( string $p ): string {
-        return "(SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id)";
+        return self::squadCountSql( $p, PlayerStatus::ACTIVE );
+    }
+
+    /**
+     * #4025 — the trial squad, counted apart from the roster. A coach's
+     * trialists are part of what they are managing, so dropping them from
+     * `player_count` without offering the number would hide them; this is the
+     * number the team detail's trial list already shows.
+     */
+    private static function trialCountSql( string $p ): string {
+        return self::squadCountSql( $p, PlayerStatus::TRIAL );
+    }
+
+    /**
+     * One subselect shape for both counts. `$status` is a PlayerStatus
+     * constant — a closed PHP set, never user input — so it is safe to
+     * interpolate; the lifecycle guard comes from the shared helper.
+     */
+    private static function squadCountSql( string $p, string $status ): string {
+        $lifecycle = ArchiveRepository::filterClause( 'active', 'pl' );
+        return "(SELECT COUNT(*) FROM {$p}tt_players pl
+                  WHERE pl.team_id = t.id
+                    AND pl.club_id = t.club_id
+                    AND pl.status = '{$status}'
+                    AND {$lifecycle})";
     }
 
     /**
@@ -915,7 +952,10 @@ class TeamsRestController {
         }
 
         $age_group    = (string) ( $t->age_group ?? '' );
+        // #4025 — `player_count` is the active squad; trialists carry their
+        // own count so a coach does not lose sight of them.
         $player_count = isset( $t->player_count ) ? (int) $t->player_count : null;
+        $trial_count  = isset( $t->trial_count ) ? (int) $t->trial_count : null;
 
         // #1614 — pre-built Variant B card fragment for the teams-list
         // card grid. Mirrors the `name_link_html` pattern above: the
@@ -949,6 +989,7 @@ class TeamsRestController {
             'coach_link_html' => $coach_link_html,
             'notes'           => (string) ( $t->notes ?? '' ),
             'player_count'    => $player_count,
+            'trial_count'     => $trial_count,
             // #1614 — next-14-day activity count + pre-rendered card.
             'upcoming_count'  => $upcoming_count,
             'card_html'       => $card_html,

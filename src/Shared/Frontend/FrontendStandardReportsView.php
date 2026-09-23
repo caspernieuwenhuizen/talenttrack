@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\ExplorerUrl;
@@ -1465,7 +1467,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         global $wpdb;
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities (#0035 lint-safe)
         $club_id = CurrentClub::id();
-        $players_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
+        // #4025 — "Active players" now counts active players. It counted every
+        // non-archived row, so trialists, inactive, released and graduated
+        // players sat behind a tile that named them active, and the number
+        // disagreed with every roster on the install.
+        $players_total = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players
+              WHERE club_id = %d AND status = %s AND " . ArchiveRepository::filterClause( 'active' ),
+            $club_id, PlayerStatus::ACTIVE
+        ) );
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         // v4.20.44 (#1222) — added `archived_at IS NULL`. Soft-archived
         // matches were inflating the HoD season-summary KPI. Audit 7. #2345 —
@@ -1512,7 +1522,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                                           AND a.archived_at IS NULL
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
-          LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id AND p.archived_at IS NULL
+          LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id
+                                              AND p.status = %s
+                                              AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
           LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
               WHERE t.club_id = %d AND t.archived_at IS NULL
                 /* #2346 — `a.archived_at IS NULL` moved onto the JOIN so
@@ -1520,10 +1532,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                    (they previously inflated the join even though the CASE
                    filtered the count). The CASE keeps its own guard for
                    defence in depth. Builds on v4.20.44 (#1222). Audit 7.
-                   #2345 — the CASE window now follows the selected range. */
+                   #2345 — the CASE window now follows the selected range.
+                   #4025 — `p.status = 'active'` on the JOIN: the Players
+                   column counted trialists, released and graduated players,
+                   so it disagreed with the training roster and with the team
+                   list's own squad size. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
-            $from, $to, $club_id
+            $from, $to, PlayerStatus::ACTIVE, $club_id
         ) );
         // #2344 — a silent `return` here left the page blank below the KPI
         // strip when no teams exist. Render an honest empty state instead.
