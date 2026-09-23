@@ -286,7 +286,8 @@ return array_merge(
         // act-cap (report generation) is held by tt_coach today and bridges
         // to `reports:create_delete`; without the `d` grant assistant coaches
         // would lose generation under the matrix. `team` scope — per-player
-        // team-scope gating lives in FrontendReportWizardView. `change` is
+        // gating lives with the report surface itself: `PlayerReportAccess`
+        // since #3955 retired the report wizard (#3985). `change` is
         // deliberately omitted (no edit-existing-report surface).
         'reports'                    => [ 'rd',  'team',   $mod_reports ],
         // #1106 — `rate_cards` + `compare` removed. Both aggregate
@@ -443,7 +444,9 @@ return array_merge(
         // #1946 — `rd` (read + create_delete). `tt_generate_report` bridges
         // to `reports:create_delete`; the `d` grant preserves report
         // generation for head coaches under the matrix. `team` scope —
-        // per-player gating lives in FrontendReportWizardView. No `change`.
+        // per-player gating lives with the report surface, in
+        // `PlayerReportAccess` since #3955 retired the wizard (#3985).
+        // No `change`.
         'reports'                    => [ 'rd',  'team',   $mod_reports ],
         'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
         'compare'                    => [ 'r',   'team',   $mod_stats ],

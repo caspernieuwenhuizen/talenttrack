@@ -299,6 +299,8 @@ Rapportgeneratie (oorspronkelijk de rapportwizard, inmiddels opgeheven; het spel
 | - | - |
 | `tt_generate_report` | `reports` / `create_delete` |
 
+**Niets controleert de ruwe capability vandaag** (#3985). De wizard die hij afschermde is opgeheven, en het spelersrapport vraagt het per speler aan `PlayerReportAccess`. Hij blijft toch staan: de capability is op elke bestaande installatie vergeven en in hun matrix gezaaid, dus verwijderen zou de rolrechten en matrixcellen van een beheerder herschrijven zonder dat er één gate verandert. Lees hem als een gereserveerde naam, niet als een levende gate — wie een rapport mag genereren, bepaalt de controle per speler op het rapport zelf, plus de `reports`-entiteit hieronder.
+
 De ruwe capability is vandaag in handen van `administrator` (matrix-uitzondering) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** (de rol achter **zowel** head_coach als assistant_coach). De `reports`-matrix-entiteit gaf die persona's voorheen alleen `read`, dus een naïeve koppeling naar `create_delete` zou generatie stilzwijgend **intrekken** voor coaches en HoD. #1946 behoudt de toegang door `create_delete`-rechten toe te **voegen** in plaats van te verkrappen:
 
 | Persona | Nieuw recht | Scope |
