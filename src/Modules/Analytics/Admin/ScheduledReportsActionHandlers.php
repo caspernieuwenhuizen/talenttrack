@@ -250,7 +250,10 @@ final class ScheduledReportsActionHandlers {
      */
     private static function requireReachable( int $schedule_id ): void {
         $schedule = ( new ScheduledReportsRepository() )->findById( $schedule_id );
-        if ( $schedule === null ) self::redirectBack( 'schedule_invalid' );
+        if ( $schedule === null ) {
+            self::redirectBack( 'schedule_invalid' );
+            return;
+        }
 
         $user_id     = get_current_user_id();
         $composition = (array) ( $schedule['composition'] ?? [] );

@@ -453,3 +453,45 @@ TT_TIMING wp_env_start_seconds=…  # the whole of wp-env's startup
 When you add a `register_rest_route(...)`, add a smoke test for it in `tests/php/` in the same PR. The bar is low — assert the **status code** and the **envelope shape** for at least the **denial path** (an unauthorised caller gets the expected 401/403) and the happy path. This is the cheapest insurance against the authorization-coverage bug class; full-content assertions are not required. (Trivial copy-only changes to an existing endpoint don't.)
 
 **Enforced in CI (#1388).** `.github/workflows/rest-test-coverage.yml` (script: `scripts/rest-test-coverage.php`) is a diff-based, forward-only gate: a PR whose diff ADDS a `register_rest_route(` line under `src/` must, in the same diff, add or modify a file under `tests/php/` — otherwise the gate fails and names the offending controller(s). It grandfathers the existing routes (only diff-added registrations are in scope) and is coarse by design: it checks that the PR *touches* the PHP test dir, not that a specific test name matches the route — the reviewer confirms the test actually covers the new route. For the rare PR that genuinely needs no new test (a route moved verbatim between files, a trivial copy-only change), apply the `rest-test-exempt` label and the gate skips. The Tier 2 smoke pattern to copy lives in `tests/php/RestSmokeTest.php`.
+
+### Mandatory: a surface that takes a record id checks that record (#4004)
+
+Every capability in this plugin is club-wide. `tt_view_activities` says the caller reads activities; it never says *whose*. So a surface that loads a record by id and asks only a capability has answered a different question than the one it needed — and six fixes inside a fortnight were that single shape: an evaluation's archived branch (#3987), a goal opened by id (#3998), the print routers and file exporters (#4000), the detail and edit views (#4001), the REST routes taking a record id (#4002) and the wp-admin pages and bulk actions (#4003).
+
+`tools/check-record-scope.php` (workflow: `record-scope-lint.yml`, parser: `tools/lib/record-scope.php`) finds by-id surfaces three ways and asks each one whether it performs a per-record check:
+
+- **REST** — a `register_rest_route()` whose pattern carries a record-id parameter (`(?P<id>…)`, `(?P<player_id>…)`, …). The `callback` and the `permission_callback` are resolved together and judged as **one unit**: they are two halves of one decision and the check may sit in either. Asking them separately called about fifteen already-checked routes unchecked in the audit this came out of.
+- **Views** — a method under `src/**/Frontend/` that reads an id out of the request and loads a record with it.
+- **Handlers** — an `admin_post_*`, `wp_ajax_*` or `template_redirect` target doing the same, plus every `Exporters/*::collect()` reading the id it was asked for. `ExportService::run()` treats `collect()` as the authoritative check, so that is where an exporter's belongs.
+
+**What passes.** A call — in the resolved method, or up to three same-class calls deep — to a name in [`config/record_scope_checks.php`](../config/record_scope_checks.php): `canViewPlayer`, `canEditPlayer`, `AllTeamsScope::canReadTeam`, `ActivityTeamScope::covers*`, `GoalAccess::may*`, `PdpAccess::canSeeFile` and the rest. The depth is not a round number — `set_status()` asks `refuseUnlessActivityWritable()`, which asks `refuseUnlessTeamWritable()`, which asks `gridAllowedTeamIds()`, and that is where `get_teams_for_coach()` finally appears.
+
+**Adding a name to that file is a reviewable act, and that is the point.** The gate cannot tell a real check from a plausible-looking call; the list is where somebody decides that a given function actually answers "may you do this to *this* record". A capability roll-up or a feature toggle does not belong there however convenient it would be.
+
+A `get_current_user_id()`-derived value reaching the loader also passes without a marker: the WHERE then names the caller, so it cannot return anybody else's row. That is a per-record check written as a query rather than as an `if` — `FrontendMyGoalsView` is the model.
+
+**How an exception declares itself.** A block comment inside the method, following the `both-kinds-ok` precedent in the attendance gate:
+
+```php
+/* record-scope-ok: no player dimension */
+```
+
+Three reasons are recognised and the gate accepts no others:
+
+| Reason | When |
+| --- | --- |
+| `no player dimension` | A lookup, config, vocabulary. There is no player or team the record belongs to, so there is nothing to narrow to. |
+| `caller-scoped query` | The WHERE already names the caller's own player or team. |
+| `token is the grant` | A share link or an invitation. The token IS the credential; there is often no session to ask about. |
+
+A fourth reason is a decision about the access model, not a typo: it is a change to `tools/lib/record-scope.php` and a row in this table.
+
+A marker on a surface that is actually wrong is worse than no gate at all. Do not add one to make a build pass — the comment is a sentence somebody will be held to.
+
+**Grandfathering.** [`config/record_scope_grandfathered.php`](../config/record_scope_grandfathered.php) lists the surfaces that were already unchecked when the gate landed, so it could ship in one PR instead of waiting on a sweep across forty files — the inline-style gate's arrangement (#1389). A line there is a **finding, not a decision**: some want a marker, others are real gaps of the shape above. Either way, fix it or mark it and delete the line. The gate also fails on an entry that no longer names a surface, because an exemption that outlives its subject is how a gate goes quietly blind. When the file is empty, delete the file.
+
+**What it cannot decide.** It catches an absent check, not a check asking the wrong question — a surface calling `canManage()` where `canManageForTeam()` was meant passes it. That is what review is still for.
+
+`record-scope-exempt` on the PR is the escape hatch, following `docs-lint-exempt` and `rest-test-exempt`.
+
+Whichever route the fix takes, a refusal should render what the surface already renders for a record that does not exist. Saying "you may not see this one" confirms the record is there, and a URL with a number in it is not meant to be a way to find out what the academy holds. `docs/access-control.md` carries the user-facing half of that rule.

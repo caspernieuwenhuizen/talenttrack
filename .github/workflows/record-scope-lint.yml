@@ -1,0 +1,71 @@
+name: Record scope lint
+
+# #4004 — every capability in this plugin is club-wide. `tt_view_activities`
+# says the caller reads activities; it never says whose. A surface that takes
+# a record id and asks only a capability has therefore answered a different
+# question than the one it needed, and the route reads or writes somebody
+# else's record.
+#
+# Six fixes inside a fortnight were that one shape: an evaluation's archived
+# branch (#3987), a goal opened by id (#3998), the print routers and file
+# exporters (#4000), the detail and edit views (#4001), the REST routes taking
+# a record id (#4002) and the wp-admin pages and bulk actions (#4003). Finding
+# the seventh by reading diffs is not a plan.
+#
+# The gate finds by-id surfaces three ways — a REST route whose pattern carries
+# a record id, a frontend method that reads an id and loads a record, an
+# admin-post / ajax / template_redirect handler or an exporter's collect() —
+# and asks each one whether a per-record check appears in it or in a helper it
+# calls. A surface with nothing to narrow to says so at the site with a
+# `record-scope-ok: <reason>` marker, following the `both-kinds-ok` precedent
+# in the attendance gate.
+#
+# The surfaces already in that state when this landed are listed in
+# config/record_scope_grandfathered.php, so the rule binds new work from day
+# one instead of waiting on a sweep across forty files — the inline-style
+# gate's arrangement (#1389). A stale entry fails the gate too: an exemption
+# that outlives its subject is how a gate goes quietly blind.
+#
+# The `record-scope-exempt` label is the escape hatch, following
+# `docs-lint-exempt` and `rest-test-exempt`. Exemptions are author-approved and
+# visible on the PR rather than silent in-file suppressions.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'config/record_scope_checks.php'
+      - 'config/record_scope_grandfathered.php'
+      - 'tools/check-record-scope.php'
+      - 'tools/lib/record-scope.php'
+      - '.github/workflows/record-scope-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'config/record_scope_checks.php'
+      - 'config/record_scope_grandfathered.php'
+      - 'tools/check-record-scope.php'
+      - 'tools/lib/record-scope.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every by-id surface checks the record
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: "!contains( github.event.pull_request.labels.*.name, 'record-scope-exempt' )"
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check record scope
+        run: php tools/check-record-scope.php

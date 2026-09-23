@@ -242,6 +242,7 @@ class BulkActionsHelper {
         $ids = self::reachableIds( $entity, $ids );
         if ( $ids === [] ) {
             self::redirectWithMessage( $entity, $view, 'unauthorized', 0 );
+            return;
         }
 
         // #0013 Sprint 2 — fire a pre-bulk action so the Backup module

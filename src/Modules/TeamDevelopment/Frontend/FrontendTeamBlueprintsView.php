@@ -732,6 +732,11 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
+        /* record-scope-ok: token is the grant */
+        // This renders without a session at all — an assistant coach or an
+        // analyst outside the academy follows a signed link. There is no user
+        // to ask a per-record question about; the token verified below IS the
+        // grant, and rotating it is how the grant is withdrawn.
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
         if ( $uuid === '' || $token === '' ) {
