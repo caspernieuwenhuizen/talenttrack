@@ -18,9 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * So a test whose line runs off the bottom of the ladder gets a curve there
  * instead: what the youngest age group typically manages, growing towards the
  * twelve-year-old's value a fixed share each year. Above twelve the line is
- * untouched — it was never the part that was wrong. The cohort's spread and
- * its within-window gain scale with the typical value, because a squad that
- * juggles four times does not vary by eighteen.
+ * untouched — it was never the part that was wrong, and neither is a test
+ * whose line reaches the bottom rung intact. Where the curve does apply, the
+ * cohort's spread and its within-window gain scale with the typical value,
+ * because a squad that juggles four times does not vary by eighteen.
  */
 final class DemoMeasurementModel {
 
@@ -49,13 +50,15 @@ final class DemoMeasurementModel {
         $base    = $curve['base'];
         $typical = self::typicalFor( $curve, $age );
 
-        $share = $base !== 0.0
-            ? max( self::MIN_SPREAD_SHARE, min( 1.0, abs( $typical / $base ) ) )
-            : 1.0;
-
-        // A time keeps its stated spread: a slower age group is not a more
-        // uniform one, and the line never ran out of room downwards for it.
-        if ( $curve['direction'] === 'lower' ) $share = 1.0;
+        // The spread is only rescaled where the curve replaced the line — a
+        // squad that juggles four times does not vary by eighteen. Everywhere
+        // the line still applies, so does the spread the battery states: this
+        // is a correction to one broken shape, not a new opinion about how
+        // varied a cohort is.
+        $share = 1.0;
+        if ( $base !== 0.0 && $age < self::ANCHOR_AGE && self::lineRunsOut( $curve ) ) {
+            $share = max( self::MIN_SPREAD_SHARE, min( 1.0, abs( $typical / $base ) ) );
+        }
 
         return [
             'typical' => $typical,
