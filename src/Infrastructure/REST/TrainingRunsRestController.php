@@ -371,10 +371,10 @@ final class TrainingRunsRestController {
      * own list, so a coach can see what they have already written.
      */
     public static function list_observations( \WP_REST_Request $r ): \WP_REST_Response {
-        $repo = new TrainingPlanRunsRepository();
-        $id   = (int) $r['id'];
+        $id = (int) $r['id'];
         // #4002 — observations are notes about named children; the run's
-        // team decides who may read them.
+        // team decides who may read them. Resolving the run is what the
+        // refusal does, so the run repository is no longer needed here.
         $refusal = self::runRefusal( $id );
         if ( $refusal !== null ) return $refusal;
 
