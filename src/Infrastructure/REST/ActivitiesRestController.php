@@ -2622,13 +2622,19 @@ class ActivitiesRestController {
      * POST /sessions/{id}/guests — add a linked or anonymous guest to
      * a session's attendance. Body shape:
      *
-     *   Linked   : { guest_player_id: <int>, status?: <str>, notes?: <str> }
+     *   Linked   : { guest_player_id: <int>, status?: <str>,
+     *                guest_position?: <str>, guest_notes?: <str> }
      *   Anonymous: { guest_name: <str>, guest_age?: <int>,
      *                guest_position?: <str>, guest_notes?: <str>,
      *                status?: <str> }
      *
      * Application invariant: linked XOR anonymous. Both populated, or
      * neither, → 400.
+     *
+     * `guest_position` / `guest_notes` describe the visit and apply to
+     * both shapes (#4037). `guest_name` / `guest_age` are
+     * anonymous-only — a linked guest's name and age come from the
+     * player record.
      */
     public static function add_guest( \WP_REST_Request $r ) {
         // #3819 — the body's shape before its values.
@@ -2683,8 +2689,15 @@ class ActivitiesRestController {
             'guest_player_id' => $linked_id > 0 ? $linked_id : null,
             'guest_name'      => $linked_id > 0 ? null : $name,
             'guest_age'       => $linked_id > 0 ? null : $age,
-            'guest_position'  => $linked_id > 0 ? null : ( $position !== '' ? $position : null ),
-            'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
+            // #4037 — the visit's position and note belong to the visit,
+            // not to the player record, so they are stored whatever the
+            // link state. Only `guest_name` / `guest_age` stay
+            // anonymous-only: for a linked guest the player record owns
+            // those. `update_attendance()` has always written both fields
+            // on any row, so dropping them here made create the odd one
+            // out and lost the coach's trial note without saying so.
+            'guest_position'  => $position !== '' ? $position : null,
+            'guest_notes'     => $g_notes !== '' ? $g_notes : null,
         ];
         // A guest visit is something that happened — a register, not a plan
         // (#3451). The row used to inherit that from the column default.

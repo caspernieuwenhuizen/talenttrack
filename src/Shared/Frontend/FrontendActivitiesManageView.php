@@ -4379,6 +4379,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         $label = (string) ( $g->guest_name ?? __( 'Guest', 'talenttrack' ) );
                         $sub   = __( '(unaffiliated)', 'talenttrack' );
                     }
+                    // #4037 — the visit's position belongs to the visit, so it
+                    // shows for a linked guest as well as an anonymous one.
+                    $pos = trim( (string) ( $g->guest_position ?? '' ) );
+                    if ( $pos !== '' ) {
+                        $sub = $sub === '' ? $pos : $sub . ' · ' . $pos;
+                    }
                     ?>
                     <tr class="tt-attendance-row tt-attendance-row--guest" data-tt-attendance-id="<?php echo (int) $g->id; ?>" data-is-guest="1">
                         <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">

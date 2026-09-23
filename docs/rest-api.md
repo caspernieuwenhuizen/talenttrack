@@ -567,11 +567,13 @@ team routes are unchanged and stay staff-only.
 ### `POST /sessions/{id}/guests` (#0026)
 
 ```json
-{ "guest_player_id": 42 }                               // linked
-{ "guest_name": "Sam", "guest_age": 13, "guest_position": "RW" }   // anonymous
+{ "guest_player_id": 42, "guest_position": "RW", "guest_notes": "trial visit" }   // linked
+{ "guest_name": "Sam", "guest_age": 13, "guest_position": "RW" }                  // anonymous
 ```
 
 Application invariant: linked XOR anonymous. Returns the inserted attendance row decorated with `player_name` + `home_team` for linked guests.
+
+`guest_position` and `guest_notes` describe the visit and are stored for both shapes (#4037) — they used to be discarded for a linked guest, silently, although `PATCH /attendance/{id}` accepted both on the same row afterwards. `guest_name` and `guest_age` stay anonymous-only: for a linked guest the player record owns them, and they are nulled.
 
 ### `PATCH /attendance/{id}` (#0026)
 

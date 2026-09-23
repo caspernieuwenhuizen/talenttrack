@@ -395,6 +395,8 @@ There are two kinds of guest:
 
 To add a guest, open the activity, scroll to the **Guests** section, click **+ Add guest**, fill in the fields and click **Add**.
 
+The **position** and the **note** you record describe the visit, so they are kept for both kinds of guest — a trial note you write while adding a linked player from another team is saved with the row, not discarded. Name and age are only asked for an anonymous guest; a linked guest takes those from their player record. You can change the note afterwards in the Guests list at any time.
+
 Guests don't count toward team statistics — attendance percentages and the team podium use the squad only.
 
 A guest appearance **does** count toward the guesting player's own load. On a player's profile — their attendance KPI and the status engine's load input — a session they played as a guest for another team is counted alongside their own-team sessions, so a heavily played-up player's load reads accurately. The split is deliberate: *player load = everything the player did anywhere; team statistics = own-roster only.*
@@ -416,4 +418,4 @@ Each activity can be tagged with one or more methodology principles so reports c
 
 ## Admin guest panel
 
-The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync.
+The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync. The panel shows the visit's position and note for every guest, linked players included.

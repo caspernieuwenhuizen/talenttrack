@@ -401,6 +401,8 @@ Er zijn twee soorten gasten:
 
 Open de activiteit, scroll naar het kopje **Gasten**, klik **+ Gast toevoegen**, vul de velden in en klik **Toevoegen**.
 
+De **positie** en de **notitie** die je vastlegt horen bij het bezoek en blijven daarom bij beide soorten gasten bewaard — een proeftrainingsnotitie die je schrijft terwijl je een gekoppelde speler van een ander team toevoegt, wordt opgeslagen bij de regel en niet weggegooid. Naam en leeftijd worden alleen bij een anonieme gast gevraagd; bij een gekoppelde gast komen die uit het spelersrecord. De notitie kun je daarna altijd nog aanpassen in de lijst met gasten.
+
 Gasten tellen niet mee in de teamstatistieken — aanwezigheidspercentages en het podium gebruiken alleen de selectie.
 
 Een gastoptreden telt **wel** mee voor de belasting van de gastspeler zelf. Op het profiel van een speler — de aanwezigheids-KPI en de belastingsinvoer van de statusmotor — wordt een sessie die hij als gast bij een ander team speelde, meegeteld naast zijn eigen teamsessies, zodat de belasting van een veel meespelende speler klopt. De scheiding is bewust: *spelersbelasting = alles wat de speler waar dan ook deed; teamstatistieken = alleen de eigen selectie.*
@@ -422,4 +424,4 @@ Elke activiteit kan worden gekoppeld aan één of meer methodologie-principes, z
 
 ## Gastenpaneel in admin
 
-De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon.
+De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon. Het paneel toont de positie en de notitie van het bezoek bij elke gast, dus ook bij gekoppelde spelers.

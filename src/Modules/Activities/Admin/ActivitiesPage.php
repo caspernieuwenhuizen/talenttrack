@@ -426,17 +426,19 @@ class ActivitiesPage {
                         <tbody>
                         <?php foreach ( $guests as $g ) :
                             $is_linked = ! empty( $g->guest_player_id );
+                            $bits = [];
                             if ( $is_linked ) {
                                 $name = trim( (string) $g->first_name . ' ' . (string) $g->last_name );
-                                $sub  = (string) ( $g->guest_team_name ?? '' );
+                                if ( $g->guest_team_name ) $bits[] = (string) $g->guest_team_name;
                             } else {
                                 $name = (string) ( $g->guest_name ?? __( 'Guest', 'talenttrack' ) );
-                                $bits = [];
-                                if ( $g->guest_age )      $bits[] = (int) $g->guest_age;
-                                if ( $g->guest_position ) $bits[] = (string) $g->guest_position;
-                                $sub = implode( ' · ', $bits );
+                                if ( $g->guest_age ) $bits[] = (int) $g->guest_age;
                             }
-                            $note = $is_linked ? '' : (string) ( $g->guest_notes ?? '' );
+                            // #4037 — position and note describe the visit, so
+                            // they show for a linked guest too.
+                            if ( $g->guest_position ) $bits[] = (string) $g->guest_position;
+                            $sub  = implode( ' · ', $bits );
+                            $note = (string) ( $g->guest_notes ?? '' );
                             ?>
                             <tr>
                                 <td>
