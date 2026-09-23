@@ -57,6 +57,14 @@ De VCT-rechten zijn **bewust matrix-only** (`RolesService::VCT_CAPS`): ze staan 
 
 Een teammanager kan op een installatie de persona `team_manager` zijn **of** de functionele rol `manager` boven op `staff` — dat staat ook zo in `config/functional_role_grants.php` — dus beide vormen krijgen dezelfde twee leesrechten. Het antwoord mag niet afhangen van welke vorm een club toevallig gebruikt.
 
+**De tabel hierboven is wat de keuzelijsten aanbieden.** De eerste stap van
+de trainingsontwerper toont precies de teams waarvoor je een training mag
+aanmaken: je eigen selecties als trainer, elk academieteam als hoofd
+opleidingen of academie-admin. Ze kan nooit een team aanbieden dat de wizard
+bij het opslaan weigert, en als de lijst leeg is vertelt ze welke toegang
+ontbreekt in plaats van je achter te laten bij een keuzelijst die je niet
+kunt gebruiken.
+
 Beide trainerspersona's lezen de belasting alleen van hun eigen teams. De
 `vct_workload`-rij achter `tt_vct_view_load` ontbrak tot #3706 bij allebei,
 waardoor `GET vct/teams/{id}/workload` juist de twee persona's weigerde die

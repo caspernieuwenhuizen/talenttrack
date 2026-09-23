@@ -57,6 +57,13 @@ The VCT capabilities are **matrix-only by design** (`RolesService::VCT_CAPS`): t
 
 A team manager on an install may be the `team_manager` persona **or** the `manager` functional role layered on `staff` — `config/functional_role_grants.php` says so itself — so both shapes carry the same two reads. The answer must not depend on which shape a club happens to use.
 
+**The table above is what the pickers offer.** The training designer's first
+step lists exactly the teams you may create a session for: your own squads as
+a coach, every academy team as Head of Development or academy admin. It can
+never offer a team the wizard would then refuse on submit, and when the list
+is empty it says which access is missing instead of leaving you on a select
+you cannot use.
+
 Both coach personas read the load for their own teams only. The `vct_workload`
 row behind `tt_vct_view_load` was missing from both of them until #3706, so
 `GET vct/teams/{id}/workload` refused the two personas who plan against it
