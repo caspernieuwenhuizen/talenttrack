@@ -183,6 +183,13 @@ alfabet. Twee tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
 gespeeld aandeel en **Gesprek nodig** op urgentie — daar is de volgorde zelf de
 uitkomst.
 
+**Elke sectie benoemt boven de tabel in welke volgorde de rijen staan.**
+Aanwezigheid leest *"Teamgemiddelde 93%. In volgorde van rugnummer."* — er stond
+"laagste eerst", wat sinds de invoering van de rugnummervolgorde niet meer klopte,
+en een coach die de bovenste rijen las als de spelers die sessies missen, las
+rugnummers. Spelers onder de oranje en rode grens worden overal in woorden en
+kleur gemarkeerd, dus ze blijven vindbaar zonder die sortering.
+
 ## Momentopnamen voor het overleg
 
 Het rapport toont de **actuele** gegevens. Open je het op de 3e en bespreek je

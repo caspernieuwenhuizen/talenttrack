@@ -1,0 +1,7 @@
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Per player, in shirt-number order"
+msgstr "Per speler, in volgorde van rugnummer"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Team average %s. In shirt-number order."
+msgstr "Teamgemiddelde %s. In volgorde van rugnummer."
