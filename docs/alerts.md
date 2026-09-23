@@ -295,6 +295,8 @@ You still do not receive an alert per team, and that is on purpose. Twenty teams
 
 The summary only ever counts teams you already oversee. It counts each affected record once, even when two coaches were both told about it, so the number is "three unmarked activities", never "six".
 
+"Teams you oversee" comes from your access, not from a job title. If you can read every team's activities — a Head of Development, an academy admin, a scout, a read-only observer — the summary covers the whole academy. A coach assigned to particular teams sees exactly those. Nothing you can put in a link widens it.
+
 ## For administrators (alerts on records)
 
 - Rendering chips on a list costs **one** database query for the whole page, regardless of how many rows carry a chip. Anything that surfaces alerts on a list must read them in one batch; a per-row read is a bug, not a slow version of the same thing.

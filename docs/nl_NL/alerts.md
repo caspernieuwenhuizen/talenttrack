@@ -296,6 +296,8 @@ Je krijgt nog steeds niet per team een eigen melding, en dat is met opzet. Meldi
 
 De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk betrokken record telt één keer mee, ook als twee trainers er allebei bericht over kregen: er staat dus "drie niet-afgeronde activiteiten", nooit "zes".
 
+"Teams waar je verantwoordelijk voor bent" volgt uit je rechten, niet uit je functietitel. Mag je de activiteiten van elk team lezen — Hoofd Opleiding, beheerder, scout, meelezer — dan beslaat de samenvatting de hele academie. Een trainer die aan bepaalde teams is gekoppeld ziet precies die teams. Er is geen link waarmee je dat kunt verbreden.
+
 ## Voor beheerders (meldingen op records)
 
 - Labels tonen op een lijst kost **één** databasequery voor de hele pagina, hoeveel regels er ook een label dragen. Elke plek die meldingen op een lijst toont moet ze in één keer ophalen; per regel ophalen is een fout, geen langzamere variant van hetzelfde.
