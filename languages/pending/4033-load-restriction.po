@@ -1,0 +1,70 @@
+msgid ""
+msgstr ""
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Modules/Vct/Services/LoadRestriction.php
+msgctxt "player load flag"
+msgid "Load restriction"
+msgstr "Belastingbeperking"
+
+#: src/Modules/Vct/Services/LoadRestriction.php
+msgid "Growth spurt (PHV)"
+msgstr "Groeispurt (PHV)"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "This player has a load restriction"
+msgstr "Deze speler heeft een belastingbeperking"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Where the load restriction appears:"
+msgstr "Waar de belastingbeperking verschijnt:"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Load restriction — workload adjusted"
+msgstr "Belastingbeperking — belasting aangepast"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Load restriction: %s — workload adjusted"
+msgstr "Belastingbeperking: %s — belasting aangepast"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "You do not have permission to set load restrictions."
+msgstr "Je hebt geen rechten om belastingbeperkingen in te stellen."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Load restriction saved."
+msgstr "Belastingbeperking opgeslagen."
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+msgctxt "load-restriction sideline tag"
+msgid "Load"
+msgstr "Belasting"
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+#, php-format
+msgid "Load restriction — %d player"
+msgid_plural "Load restrictions — %d players"
+msgstr[0] "Belastingbeperking — %d speler"
+msgstr[1] "Belastingbeperkingen — %d spelers"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Restricted-player load reduction %"
+msgstr "Belastingreductie beperkte speler %"
+
+#: src/Modules/Vct/Rules/RuleMessages.php
+#, php-format
+msgid "The load was eased by %d%% because some players carry a load restriction."
+msgstr "De belasting is met %d%% verlaagd omdat sommige spelers een belastingbeperking hebben."
+
+#: src/Modules/Vct/Rules/RuleMessages.php
+msgid "The load was eased because some players carry a load restriction."
+msgstr "De belasting is verlaagd omdat sommige spelers een belastingbeperking hebben."
+
+#: src/Modules/Vct/Rest/VctPhvFlagsRestController.php
+msgid "The load restriction could not be saved."
+msgstr "De belastingbeperking kon niet worden opgeslagen."

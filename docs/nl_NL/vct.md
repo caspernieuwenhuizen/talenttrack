@@ -25,7 +25,7 @@ Surface-overzicht:
 | HoO VCT-configuratie | `?tt_view=vct-config` (sub-tabs: blokken / leeftijdsprofielen / schema's) | HoO |
 | Configuratie-tegels | `?tt_view=configuration` → "VCT macro-blokken" / "VCT leeftijdsprofielen" | HoO |
 | Team-detail VCT-standaardenpaneel | `?tt_view=teams&id=N` (inline onderaan) | HoO / Trainer |
-| Speler-detail PHV-paneel | `?tt_view=players&id=N&tab=profile` | Trainer |
+| Speler-detail belastingbeperking-paneel | `?tt_view=players&id=N&tab=profile` | Trainer |
 
 ## Rechten
 
@@ -72,8 +72,8 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 **Fase 1 — schema + engine + REST** (gesloten via #905 child-issues):
 
 - Schema-migratie 0122 — 10 nieuwe tabellen. **`tt_vct_exercises` bevat de catalogus niet meer** — zie [Eén oefeningenbibliotheek](#een-oefeningenbibliotheek) hieronder.
-- Schema-migratie 0123 — `tt_player_phv_flags` voor de Peak Height Velocity vlag.
-- Schema-migratie 0140 — breidt PHV-vlaggen uit met `reason_key` + `intensity_ceiling`.
+- Schema-migratie 0123 — `tt_player_phv_flags` voor de belastingbeperking per speler — vernoemd naar de groeispurt (peak height velocity) waarvoor de tabel oorspronkelijk is aangelegd.
+- Schema-migratie 0140 — breidt belastingbeperkingen uit met `reason_key` + `intensity_ceiling`.
 - Seed-migraties 0124 (lookups + vertalingen voor nl_NL/fr/de/es) + 0125 (leeftijdsprofielen + sessie-templates + fase-profielen).
 - Rules engine + 8 passes + repositories onder [src/Modules/Vct/](../../src/Modules/Vct/).
 - REST endpoints onder `/wp-json/talenttrack/v1/vct/...`.
@@ -84,11 +84,11 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 | Surface | Child-issue | Slice |
 | --- | --- | --- |
 | VCT-9: nieuwe-vct-sessie wizard | #1084 | Eerste slice — begintijd-veld met team-standaarden-prefill |
-| VCT-10: coach-view + A4-print | #1085 | Eerste slice — sideline PHV-uitsluitingsbanner |
+| VCT-10: coach-view + A4-print | #1085 | Eerste slice — sideline belastingbeperking-banner |
 | VCT-11: HoO bibliotheek-editor | #1086 | Inline edit + zoeken + intensiteitsband-rand |
 | VCT-12: Configuratie-tegels | #1087 | macro-blokken + leeftijdsprofielen tegels op Configuratie |
 | VCT-13: Team-paneel | #1088 | Inline weekdag-chips + begintijd + duur op team-detail |
-| VCT-14: PHV-vlag-UI | #1089 | Per-speler Profiel-tabblad-paneel + oranje hero-pill |
+| VCT-14: belastingbeperking-UI | #1089 | Per-speler Profiel-tabblad-paneel + oranje hero-pill |
 
 **VCT-8 — Oefeningencatalogus seed (volledige 80)**. De volledige catalogus van 80 oefeningen is nu gelanceerd. Migratie 0177 zette de starter-scaffold neer (12 oefeningen, twee per categorie) en migratie 0181 voegt de resterende 68 toe tot de beoogde verdeling: warmup 10, technical 20, sided_game 20, conditioning 10, finishing 10, cool_down 10. Elke oefening draagt drie tot vier coaching points, geschreven in canoniek Engels **plus natief Nederlands (nl_NL)**. Beide migraties zijn idempotent en forward-only: ze controleren `(club_id, code)` vóór elke insert, dus opnieuw draaien op een al-geseede club is een no-op, en een latere catalogus-correctie kan `seed_revision` ophogen zonder operator-bewerkingen te overschrijven. De intensiteitsbanden respecteren de leeftijdsplafonds per leeftijd (U10=3, U11=4, U12=5, U13/U14=7), zodat geen oefening de werklast-envelop overschrijdt van de jongste leeftijd waaraan hij wordt aangeboden.
 
@@ -182,9 +182,9 @@ Een trainer plant een sessie via de wizard. De wizard leest:
 - De oefeningenbibliotheek voor slot-kandidaten (op leeftijd + MD + intensiteit gefilterd).
 - De macro-blokken van het HoO voor de per-week intensiteitsvermenigvuldiger.
 - De leeftijdsprofielen van het HoO voor het sessie-minuten-plafond + intensiteitsband-plafond.
-- Per-speler PHV-vlaggen zodat gevlagde spelers `growth_spurt_load_reduction_pct` toegepast krijgen via `WorkloadCapRule`.
+- Belastingbeperkingen per speler zodat beperkte spelers `growth_spurt_load_reduction_pct` toegepast krijgen via `WorkloadCapRule`.
 
-De wizard publiceert een `tt_vct_sessions`-rij. De coach-view leest die rij + zijn blokken. De PHV-banner op de coach-view leest dezelfde `VctPhvFlagsRepository::activeForRoster()` die de WorkloadCapRule gebruikt, zodat sideline-display + engine synchroon blijven.
+De wizard publiceert een `tt_vct_sessions`-rij. De coach-view leest die rij + zijn blokken. De belastingbeperking-banner op de coach-view leest dezelfde `VctPhvFlagsRepository`-tabel die de WorkloadCapRule gebruikt, zodat sideline-display + engine synchroon blijven.
 
 De Configuratie-tegels linken naar de HoO VCT-configuratie sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`), zodat de HoO één-tap-entry heeft vanuit het Configuratie-overzicht.
 
@@ -198,11 +198,34 @@ De gecombineerde cyclus — thema + conditiefase + intensiteit, week voor week �
 
 Een JO13-1 5-weekse speelwijze-referentietemplate wordt als startpunt meegeleverd (opbouw → verdedigen → balbezit → verdedigen → een neutrale week). Het per-week-thema is beschrijvend: het stuurt de VCT-oefeningkeuze niet aan.
 
+## Belastingbeperking
+
+Een **belastingbeperking** legt vast dat één speler minder belasting moet krijgen dan het plan vraagt. Ze staat op het spelerprofiel (tabblad **Profiel**, *Belastingbeperking*), verschijnt als pill naast de naam van de speler, en komt terug op de sideline-banner van de coach-view en in de belastingcontrole van de wizard.
+
+Een beperking heeft een **reden** en eventueel een **intensiteitsplafond** — de hoogste intensiteitsband waarin de speler mag trainen. De redenen vormen een vaste lijst, zodat er geen medische vrije tekst op een scherm belandt waar die niet hoort:
+
+| Reden | Wat het betekent |
+| --- | --- |
+| Groeispurt (PHV) | De speler zit in de piekgroei (peak height velocity) en de ingestelde belastingreductie geldt. |
+| Blessure — knie / Blessure — enkel | Herstellend van die blessure. |
+| Asthma | Een luchtwegaandoening die langdurige hoge intensiteit beperkt. |
+| Hartaandoening | Een hartaandoening. Leg de reden vast, niet het detail. |
+| Andere medische reden | Al het overige medische. Zet in de notities wat de trainer moet weten. |
+| Tijdelijke vermoeidheid | Kortdurend: examenweek, een zware wedstrijdreeks, ziekte op de terugweg. |
+
+**De groeispurt is één reden, niet de naam van de vlag.** Het paneel heette eerder *PHV*, waardoor een speler die herstelde van een verzwikte enkel het label "in de groei" kreeg. Een beperking vertelt nu wát ze is, en de reden waarom.
+
+Een beperking ontstaat niet automatisch. Een blessure vastleggen op het tabblad **Blessures** maakt er geen: een staflid beslist of het plan moet wijzigen en stelt de beperking in. Bij het opheffen blijven de laatste reden en het plafond bewaard, zodat opnieuw instellen na een terugval één vinkje kost.
+
+**Wie ze mag instellen.** Op elke route hetzelfde antwoord: `tt_vct_plan` plus VCT-*change*-scope op het team van de speler (`LoadRestrictionAccess`). Een trainer stelt beperkingen in voor de eigen selectie; het hoofd opleidingen en de academie-admin voor elk team. Andere staf die de speler mag bekijken ziet de beperking alleen-lezen. Een speler zonder team kan er geen dragen, want er is geen plan om te beperken.
+
+Waar het effect heeft: `WorkloadCapRule` in de engine past de **belastingreductie beperkte speler %** van het leeftijdsprofiel (`growth_spurt_load_reduction_pct`) toe op het aandeel van die speler in de sessiebelasting, en het intensiteitsplafond houdt de speler uit blokken boven de eigen band.
+
 ## Privacy
 
-PHV (Fysiek / Health / Vitality) paneel + pill volgt CLAUDE.md §1 — staf (HoO / trainer / admin) ziet volledige reden + plafond + notities; andere ouders zien niets; AC-die-ook-ouder-is ziet eigen kind via parent-persona alleen. De redenpicker is een enum om lange medische vrije tekst te ontmoedigen.
+Het belastingbeperking-paneel en de pill volgen CLAUDE.md §1 — staf (HoO / trainer / admin) ziet volledige reden + plafond + notities; gezinnen zien niets, niet op het profiel en niet in de payload. De redenpicker is een enum om lange medische vrije tekst te ontmoedigen.
 
-Het PHV-paneel, de hero-pill en de formulier-POST-handler op het spelerprofiel zijn VCT-functionaliteit en verschijnen daarom alleen wanneer de VCT-module ingeschakeld is. Met VCT uit toont het spelerprofiel geen enkel PHV-onderdeel.
+Het paneel, de hero-pill en de formulier-POST-handler op het spelerprofiel zijn VCT-functionaliteit en verschijnen daarom alleen wanneer de VCT-module ingeschakeld is. Met VCT uit toont het spelerprofiel geen enkel belastingbeperking-onderdeel.
 
 ## Referenties
 

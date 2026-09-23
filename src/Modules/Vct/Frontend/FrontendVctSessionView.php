@@ -12,6 +12,7 @@ use TT\Modules\Vct\Repositories\VctCoachingPointsRepository;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
 use TT\Modules\Vct\Repositories\VctSessionBlocksRepository;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
+use TT\Modules\Vct\Services\LoadRestriction;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -101,10 +102,10 @@ class FrontendVctSessionView extends FrontendViewBase {
 
         self::renderFactsHeader( $session );
 
-        // #1085 VCT-10 — PHV exclusion banner. Pulls the team's active
-        // PHV-flagged players (via VctPhvFlagsRepository), so the coach
-        // on the sideline can see at a glance who is workload-adjusted.
-        self::renderPhvExclusionBanner( (int) $session['team_id'] );
+        // #1085 VCT-10 — load-restriction banner. Pulls the team's
+        // restricted players (via VctPhvFlagsRepository), so the coach on
+        // the sideline can see at a glance who is workload-adjusted.
+        self::renderLoadRestrictionBanner( (int) $session['team_id'] );
 
         $blocks = ( new VctSessionBlocksRepository() )->listForSession( (int) $session['id'] );
         self::renderBlocks( $blocks );
@@ -118,18 +119,22 @@ class FrontendVctSessionView extends FrontendViewBase {
     }
 
     /**
-     * #1085 VCT-10 — sideline PHV exclusion banner.
+     * #1085 VCT-10 — sideline load-restriction banner.
      *
-     * Lists every active-PHV-flagged player on the session's team
-     * roster (resolved via QueryHelpers::get_players() + the existing
-     * VctPhvFlagsRepository::activeForRoster()). Renders nothing when
-     * the roster has no flagged players — the banner is information
-     * the coach needs at the pitch only when there is something to act
-     * on, not a permanent header.
+     * Lists every restricted player on the session's team roster
+     * (resolved via QueryHelpers::get_players() + the existing
+     * VctPhvFlagsRepository), each with the reason in words. Renders
+     * nothing when the roster has no restricted players — the banner is
+     * information the coach needs at the pitch only when there is
+     * something to act on, not a permanent header.
+     *
+     * #4033 — the banner used to say "PHV" and list bare names, so an
+     * ankle sprain read as a growth spurt. The reason is the part the
+     * coach acts on, so it goes next to the name.
      *
      * Mockup design-of-record at `.local-mockups/vct-session-coach-view/`.
      */
-    private static function renderPhvExclusionBanner( int $team_id ): void {
+    private static function renderLoadRestrictionBanner( int $team_id ): void {
         if ( $team_id <= 0 ) return;
         $roster = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
         if ( ! $roster ) return;
@@ -139,32 +144,38 @@ class FrontendVctSessionView extends FrontendViewBase {
             if ( $pid > 0 ) $roster_ids[] = $pid;
         }
         if ( ! $roster_ids ) return;
-        $flagged = ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->activeForRoster( $roster_ids );
-        if ( ! $flagged ) return;
+        $repo       = new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository();
+        $restricted = $repo->activeForRoster( $roster_ids );
+        if ( ! $restricted ) return;
         $by_id = [];
         foreach ( $roster as $p ) {
             $by_id[ (int) ( $p->id ?? 0 ) ] = $p;
         }
-        $names = [];
-        foreach ( $flagged as $pid ) {
-            if ( isset( $by_id[ $pid ] ) ) {
-                $names[] = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $by_id[ $pid ] );
-            }
+        $entries = [];
+        foreach ( $restricted as $pid ) {
+            if ( ! isset( $by_id[ $pid ] ) ) continue;
+            $name = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $by_id[ $pid ] );
+            // One row read per restricted player, for the reason. A squad
+            // carries none or a handful, and the banner has already
+            // returned when it carries none.
+            $row       = $repo->findForPlayer( $pid );
+            $reason    = $row === null ? '' : LoadRestriction::reasonLabel( $row['reason_key'] );
+            $entries[] = $reason === '' ? $name : sprintf( '%s (%s)', $name, $reason );
         }
-        if ( ! $names ) return;
+        if ( ! $entries ) return;
         echo '<aside class="tt-vct-phv-banner" role="status" aria-live="polite">';
-        echo '<span class="tt-vct-phv-tag" aria-hidden="true">' . esc_html__( 'PHV', 'talenttrack' ) . '</span>';
+        echo '<span class="tt-vct-phv-tag" aria-hidden="true">' . esc_html( _x( 'Load', 'load-restriction sideline tag', 'talenttrack' ) ) . '</span>';
         echo '<div class="tt-vct-phv-body">';
         echo '<strong class="tt-vct-phv-title">'
             . esc_html(
                 sprintf(
-                    /* translators: %d = number of active PHV-flagged players */
-                    _n( 'PHV exclusion — %d player', 'PHV exclusions — %d players', count( $names ), 'talenttrack' ),
-                    count( $names )
+                    /* translators: %d = number of players carrying a load restriction */
+                    _n( 'Load restriction — %d player', 'Load restrictions — %d players', count( $entries ), 'talenttrack' ),
+                    count( $entries )
                 )
             )
             . '</strong>';
-        echo esc_html( implode( ' · ', $names ) );
+        echo esc_html( implode( ' · ', $entries ) );
         echo '</div></aside>';
     }
 

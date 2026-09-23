@@ -98,11 +98,11 @@ final class RuleMessages {
                 if ( $pct > 0 ) {
                     return sprintf(
                         /* translators: %d is the percentage the load was reduced by */
-                        __( 'The load was eased by %d%% because some players are flagged for a growth spurt (PHV).', 'talenttrack' ),
+                        __( 'The load was eased by %d%% because some players carry a load restriction.', 'talenttrack' ),
                         $pct
                     );
                 }
-                return __( 'The load was eased because some players are flagged for a growth spurt (PHV).', 'talenttrack' );
+                return __( 'The load was eased because some players carry a load restriction.', 'talenttrack' );
         }
 
         // Unknown code — a safe, non-technical fallback.

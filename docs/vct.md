@@ -25,7 +25,7 @@ Module entry points:
 | HoD VCT configuration | `?tt_view=vct-config` (sub-tabs: blocks / age-profiles / schedules) | HoD |
 | Configuration tiles | `?tt_view=configuration` → "VCT macro-blocks" / "VCT age-profiles" | HoD |
 | Team detail VCT-defaults panel | `?tt_view=teams&id=N` (inline at bottom) | HoD / Coach |
-| Player detail PHV panel | `?tt_view=players&id=N&tab=profile` | Coach |
+| Player detail load-restriction panel | `?tt_view=players&id=N&tab=profile` | Coach |
 
 ## Capabilities
 
@@ -72,8 +72,8 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 **Phase 1 — schema + engine + REST** (closed under #905 child issues):
 
 - Schema migration 0122 — 10 new tables (`tt_vct_exercises`, `tt_vct_coaching_points`, `tt_vct_age_profiles`, `tt_vct_session_templates`, `tt_vct_sessions`, `tt_vct_session_blocks`, `tt_vct_microcycles`, `tt_vct_workload_snapshots`, `tt_vct_team_schedules`, `tt_vct_macro_blocks`). **`tt_vct_exercises` no longer holds the catalogue** — see [One exercise library](#one-exercise-library) below.
-- Schema migration 0123 — `tt_player_phv_flags` for the Peak Height Velocity flag.
-- Schema migration 0140 — extends PHV flags with `reason_key` + `intensity_ceiling`.
+- Schema migration 0123 — `tt_player_phv_flags` for the per-player load restriction — named after the growth spurt (peak height velocity) it was first created for.
+- Schema migration 0140 — extends load restrictions with `reason_key` + `intensity_ceiling`.
 - Seed migrations 0124 (lookups + translations across nl_NL/fr/de/es) + 0125 (age profiles + session templates + phase profiles).
 - Rules engine + 8 passes + repositories under [src/Modules/Vct/](../src/Modules/Vct/).
 - REST endpoints under `/wp-json/talenttrack/v1/vct/...`.
@@ -84,11 +84,11 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 | Surface | Child issue | Slice |
 | --- | --- | --- |
 | VCT-9: new-vct-session wizard | #1084 | First slice — start-time field with team-defaults prefill |
-| VCT-10: coach view + A4 print | #1085 | First slice — sideline PHV exclusion banner |
+| VCT-10: coach view + A4 print | #1085 | First slice — sideline load-restriction banner |
 | VCT-11: HoD library editor | #1086 | Inline edit + search + intensity-band edge |
 | VCT-12: Configuration tiles | #1087 | macro-blocks + age-profiles tiles on Configuration |
 | VCT-13: Team panel | #1088 | Inline weekday-chips + start-time + duration on team detail |
-| VCT-14: PHV flag UI | #1089 | Per-player Profile-tab panel + orange hero pill |
+| VCT-14: load-restriction UI | #1089 | Per-player Profile-tab panel + orange hero pill |
 
 **VCT-8 — Exercise catalogue seed (full 80)**. The full 80-exercise catalogue now ships. Migration 0177 seeded the starter scaffold (12 exercises, two per category) and migration 0181 adds the remaining 68 to reach the target spread: warmup 10, technical 20, sided_game 20, conditioning 10, finishing 10, cool_down 10. Every exercise carries three to four coaching points authored in canonical English **plus native Dutch (nl_NL)**. Both migrations are idempotent and forward-only: they existence-check `(club_id, code)` before each insert, so re-running on an already-seeded club is a no-op, and a later catalogue correction can bump `seed_revision` without trampling operator edits. Intensity bands respect the per-age workload ceilings (U10=3, U11=4, U12=5, U13/U14=7) so no exercise exceeds the envelope for the youngest age it's offered to.
 
@@ -173,9 +173,9 @@ A coach plans a session via the wizard. The wizard reads:
 - The exercise library for slot candidates (`VctExercisesRepository::findCandidates` filtered by age + MD + intensity).
 - The HoD's macro-blocks for the per-week intensity multiplier (`VctMacroBlocksRepository`).
 - The HoD's age-profiles for the session-minutes ceiling + intensity-band ceiling (`VctAgeProfilesRepository`).
-- Per-player PHV flags so flagged players get `growth_spurt_load_reduction_pct` applied via `WorkloadCapRule`.
+- Per-player load restrictions so restricted players get `growth_spurt_load_reduction_pct` applied via `WorkloadCapRule`.
 
-The wizard publishes a `tt_vct_sessions` row. The coach view reads that row + its blocks. The PHV banner on the coach view reads the same `VctPhvFlagsRepository::activeForRoster()` the WorkloadCapRule uses, so the sideline display + the engine stay in sync.
+The wizard publishes a `tt_vct_sessions` row. The coach view reads that row + its blocks. The load-restriction banner on the coach view reads the same `VctPhvFlagsRepository` table the WorkloadCapRule uses, so the sideline display + the engine stay in sync.
 
 The Configuration tiles link into the HoD's VCT configuration sub-tabs (`?tt_view=vct-config&tab=blocks` / `&tab=age-profiles`) so the HoD has a one-tap entry from the Configuration grid.
 
@@ -189,11 +189,34 @@ The combined cycle — theme + conditioning phase + intensity, week by week — 
 
 A JO13-1 5-week speelwijze reference template ships as a starting point (build-up → defending → possession → defending → a neutral week). The per-week theme is descriptive: it does not feed VCT exercise selection.
 
+## Load restriction
+
+A **load restriction** records that one player must be given less load than the plan asks for. It lives on the player's profile (**Profile** tab, *Load restriction*), shows as a pill next to the player's name, and reappears on the coach view's sideline banner and in the wizard's workload check.
+
+A restriction carries a **reason** and, optionally, an **intensity ceiling** — the highest intensity band the player may train in. The reasons are a fixed list, so no medical prose reaches a screen that was not meant for it:
+
+| Reason | What it means |
+| --- | --- |
+| Growth spurt (PHV) | The player is going through peak height velocity — a growth spurt — and the configured load reduction applies. |
+| Injury — knee / Injury — ankle | Recovering from that injury. |
+| Asthma | A respiratory condition limiting sustained high intensity. |
+| Cardiac condition | A heart condition. Record it with the reason, not the detail. |
+| Other medical reason | Anything else clinical. Use the notes for what the coach needs to know. |
+| Temporary fatigue | Short-term: exam week, a heavy fixture run, illness on the mend. |
+
+**The growth spurt is one reason, not the name of the flag.** The screen used to be headed *PHV*, so a player recovering from a sprained ankle was labelled as growing. A restriction now says what it is, and the reason says why.
+
+A restriction is not automatic. Recording an injury on the **Injuries** tab does not create one — a member of staff decides whether the plan needs to change, and sets the restriction. Clearing a restriction keeps the last reason and ceiling, so re-applying one after a relapse takes a single tick.
+
+**Who may set one.** The same answer on every route: `tt_vct_plan` plus VCT *change* scope on the player's team (`LoadRestrictionAccess`). A coach sets restrictions for their own squad; the Head of Development and the academy admin for any team. Other staff who can view the player see the restriction read-only. A player with no team cannot carry one, because there is no plan to restrict.
+
+Where it takes effect: the engine's `WorkloadCapRule` applies the age profile's **restricted-player load reduction %** (`growth_spurt_load_reduction_pct`) to a restricted player's share of the session load, and the intensity ceiling keeps them out of blocks above their band.
+
 ## Privacy
 
-PHV (Physical / Health / Vitality) panel + pill follows CLAUDE.md §1 — staff (HoD / coach / admin) see full reason + ceiling + notes; other parents see nothing; AC-also-parent sees own child via the parent persona only. The reason picker is an enum to discourage long medical text leaking via free-text.
+The load-restriction panel + pill follow CLAUDE.md §1 — staff (HoD / coach / admin) see full reason + ceiling + notes; families see nothing at all, on the profile or in the payload. The reason picker is an enum to discourage long medical text leaking via free-text.
 
-The PHV panel, hero pill, and form POST handler on the player profile are VCT functionality, so they only appear when the VCT module is switched on. With VCT off the player profile shows no PHV surface at all.
+The panel, hero pill, and form POST handler on the player profile are VCT functionality, so they only appear when the VCT module is switched on. With VCT off the player profile shows no load-restriction surface at all.
 
 ## References
 

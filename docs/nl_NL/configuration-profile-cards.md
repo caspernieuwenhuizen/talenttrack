@@ -23,7 +23,7 @@ De instellingen staan per club in `tt_config`, zodat een toekomstige multi-tenan
 | **Ouders · Verzorgers** | Gekoppelde contactgegevens van ouders / verzorgers. Alleen voor staf. | Ja |
 | **Ontdekking** | Hoe de speler is ontdekt — de scout, het ontdekkingsevenement, de club en de datum — voor spelers die via de scouting-trechter (Prospects) binnenkwamen. Alleen voor staf. | Ja |
 
-Het paneel **PHV / VCT** staat hier niet bij: dat wordt bepaald door de VCT-moduleschakelaar, dus het uitzetten van de VCT-module verwijdert het al.
+Het paneel **Belastingbeperking** staat hier niet bij: dat wordt bepaald door de VCT-moduleschakelaar, dus het uitzetten van de VCT-module verwijdert het al.
 
 ## Hoe het werkt
 

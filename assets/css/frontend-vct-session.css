@@ -14,7 +14,7 @@
     margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
 }
 
-/* ---- PHV sideline banner -------------------------------------------- */
+/* ---- Load-restriction sideline banner (#4033) ------------------------ */
 .tt-dashboard .tt-vct-phv-banner {
     display: flex;
     gap: var(--tt-sp-3, 12px);
@@ -34,8 +34,10 @@
     font-weight: 800;
     padding: 0.15rem 0.55rem;
     border-radius: 999px;
-    text-transform: uppercase;
     letter-spacing: 0.05em;
+    /* #4033 — no `text-transform`: per docs/ui-copy.md the casing belongs
+       in the label, so a translated word is read as its translator wrote
+       it. */
 }
 
 .tt-dashboard .tt-vct-phv-body {

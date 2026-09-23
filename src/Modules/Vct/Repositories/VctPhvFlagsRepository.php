@@ -7,12 +7,17 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Vct\Rules\Providers\VctPhvFlagsProvider;
 
 /**
- * VctPhvFlagsRepository — per-player Peak Height Velocity flag.
+ * VctPhvFlagsRepository — per-player load restriction.
+ *
+ * The table and its columns keep the `phv` name they were created with;
+ * what a row states is that the player must carry less load than the
+ * plan asks for, for one of the reasons in `Services\LoadRestriction`.
+ * A growth spurt (peak height velocity) is one of those reasons.
  *
  * `WorkloadCapRule` reads `activeForRoster()` and applies the configured
- * `growth_spurt_load_reduction_pct` to flagged players' load contribution.
- * Coaches flag (cap-gated `tt_vct_plan` with per-player scope); HoD/admin
- * clear.
+ * `growth_spurt_load_reduction_pct` to restricted players' load
+ * contribution. Coaches set (cap-gated `tt_vct_plan` with per-team VCT
+ * scope, via `Services\LoadRestrictionAccess`); HoD/admin clear.
  *
  * Implements the VctPhvFlagsProvider interface so rule passes can
  * inject the interface (testable with in-memory fakes) while
@@ -57,7 +62,7 @@ class VctPhvFlagsRepository implements VctPhvFlagsProvider {
     }
 
     /**
-     * Look up the full current PHV row for a single player. Returns
+     * Look up the full current restriction row for a single player. Returns
      * null when no row exists. Reads the reason_key + intensity_ceiling
      * columns added by migration 0140 (#1089 / VCT-14) so the player-
      * detail PHV panel can prefill its inputs.
