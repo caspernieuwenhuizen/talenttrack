@@ -254,6 +254,28 @@ Meldt een trainer dat een teampagina niet meer opengaat, controleer dan de
 teamkoppelingen onder **Personen → Functionele rollen**. Daar komt het bereik
 vandaan.
 
+### Een lege teamlijst vertelt waarom ze leeg is
+
+Doordat de lijst op bereik werkt kan "geen teams" twee volledig verschillende
+dingen betekenen, en het scherm houdt die nu uit elkaar.
+
+- **De kijker ziet alle teams en er zijn er geen.** Een verse academie. De
+  lijst toont de begeleidende kaart *"Nog geen teams"* met de knop **Maak je
+  eerste team aan**.
+- **De kijker heeft bereik en geen enkele toewijzing.** *"Je bent nog niet aan
+  een team gekoppeld"* — vraag je academiebeheerder om je aan een team toe te
+  wijzen. Er staat met opzet **geen** aanmaakknop: de academie is niet leeg, de
+  toewijzing ontbreekt, en aanbieden om een team aan te maken leidt de trainer
+  juist weg van de oplossing.
+- **Het account van de kijker heeft helemaal geen personenrecord.** Dezelfde
+  boodschap, plus het deel dat een beheerder moet horen: het account is niet
+  aan een stafrecord gekoppeld, dus voeg de persoon eerst toe onder
+  **Personen** en wijs daarna het team toe.
+
+De paginakop blijft in alle gevallen **Teams** — dezelfde weergave dient ook de
+volledige lijst van de academiebeheerder, en de dashboardtegel zegt al *Mijn
+teams*.
+
 ## Bewerk-rechtenpad
 
 De bewerken-knop op de teamdetailpagina en de Teams REST-endpoints (list / get / create / delete) gebruiken nu `AuthorizationService::userCanOrMatrix` in plaats van `current_user_can`. Daardoor passeren ook gebruikers de poort die `tt_edit_teams` via de matrix scope-rij krijgen (functionele rol-bridge), in lijn met het patroon dat al voor tegels en de Activities REST geldt.

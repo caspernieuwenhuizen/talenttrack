@@ -23,7 +23,7 @@ Settings are stored per club in `tt_config`, so a future multi-tenant install ke
 | **Parents · Guardians** | Linked parent / guardian contacts. Staff-only. | Yes |
 | **Discovery** | How the player was discovered — the scout, discovery event, club, and date — for players who came in through the Prospects scouting funnel. Staff-only. | Yes |
 
-The **PHV / VCT** panel is not listed here: it is governed by the VCT module toggle, so turning the VCT module off already removes it.
+The **Load restriction** panel is not listed here: it is governed by the VCT module toggle, so turning the VCT module off already removes it.
 
 ## How it works
 

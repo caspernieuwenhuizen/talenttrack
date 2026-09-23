@@ -5,18 +5,25 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
-use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctPhvFlagsRepository;
+use TT\Modules\Vct\Services\LoadRestrictionAccess;
 
 /**
- * VctPhvFlagsRestController — per-player Peak Height Velocity flag.
+ * VctPhvFlagsRestController — per-player load restriction.
  *
  *   PATCH /vct/players/{id}/phv-flag  body: { is_active, notes }
  *
- * Coach (with team scope on `vct`) flags; HoD/admin clears. The
- * WorkloadCapRule reads `tt_player_phv_flags` to apply the configured
- * `growth_spurt_load_reduction_pct` to flagged players' load
- * contribution.
+ * The route keeps its path, because the column and the table keep
+ * theirs; what it records is that the player must carry less load than
+ * the plan asks for, for one of the reasons in
+ * `Services\LoadRestriction`. A growth spurt (peak height velocity) is
+ * one of them, not the name of the flag.
+ *
+ * Coach (with team scope on `vct`) sets; HoD/admin clears — one gate,
+ * `Services\LoadRestrictionAccess`, shared with the panel on the player
+ * profile. The WorkloadCapRule reads `tt_player_phv_flags` to apply the
+ * configured `growth_spurt_load_reduction_pct` to restricted players'
+ * load contribution.
  */
 class VctPhvFlagsRestController {
 
@@ -49,17 +56,16 @@ class VctPhvFlagsRestController {
     private static function setFlagArgs(): array {
         return [
             'id'        => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
-            'is_active' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the player is in a growth spurt and should carry less load.' ],
-            'notes'     => [ 'type' => 'string', 'description' => 'What the flag is based on.' ],
+            'is_active' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Whether the player carries a load restriction and should be given less load than the plan asks for.' ],
+            'notes'     => [ 'type' => 'string', 'description' => 'What the restriction is based on.' ],
         ];
     }
 
     public static function can_write( \WP_REST_Request $r ): bool {
-        $uid = get_current_user_id();
-        if ( ! AuthorizationService::userCanOrMatrix( $uid, 'tt_vct_plan' ) ) return false;
-        $team_id = self::playerTeamId( (int) $r->get_param( 'id' ) );
-        if ( $team_id <= 0 ) return false;
-        return AuthorizationService::canPlanForTeam( $uid, $team_id, 'change' );
+        return LoadRestrictionAccess::canEdit(
+            get_current_user_id(),
+            (int) $r->get_param( 'id' )
+        );
     }
 
     public static function setFlag( \WP_REST_Request $r ): \WP_REST_Response {
@@ -79,18 +85,8 @@ class VctPhvFlagsRestController {
         );
         if ( ! $ok ) {
             return RestResponse::error( 'db_error',
-                __( 'The PHV flag could not be saved.', 'talenttrack' ), 500 );
+                __( 'The load restriction could not be saved.', 'talenttrack' ), 500 );
         }
         return RestResponse::success( [ 'player_id' => $player_id, 'is_active' => $is_active ] );
-    }
-
-    private static function playerTeamId( int $player_id ): int {
-        if ( $player_id <= 0 ) return 0;
-        global $wpdb;
-        $players_table = $wpdb->prefix . 'tt_players';
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$players_table} WHERE id = %d LIMIT 1",
-            $player_id
-        ) );
     }
 }

@@ -202,24 +202,70 @@ class FrontendTeamsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search team name or age group…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
             'empty_state'  => __( 'No teams match your filters.', 'talenttrack' ),
-            // #1362 — guided fresh-install empty state. CTA suppressed
-            // at the free-tier team cap (same check as the header action).
-            'empty_state_card' => array_merge(
-                [
-                    'icon'      => 'teams',
-                    'headline'  => __( 'No teams yet', 'talenttrack' ),
-                    'explainer' => __( 'Teams group players by age group and connect them to coaches and activities. Create your first team to build the academy structure.', 'talenttrack' ),
-                ],
-                $at_team_cap ? [] : [
-                    'cta_label' => __( 'Create your first team', 'talenttrack' ),
-                    'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                        'new-team',
-                        add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url )
-                    ),
-                    'cta_cap'   => 'tt_edit_teams',
-                ]
-            ),
+            'empty_state_card' => self::emptyStateCardArgs( $user_id, $base_url, $at_team_cap ),
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+    }
+
+    /**
+     * The empty-state card, chosen by why the list is empty.
+     *
+     * #4029 — there was one card, #1362's fresh-install guide: "No teams
+     * yet … Create your first team to build the academy structure." It
+     * showed whenever the list came back empty, whatever the reason. A
+     * coach with no staff assignment sees an empty list because the REST
+     * list narrows to their own teams, so a coach on their first day was
+     * told the academy had no teams and invited to create one, while four
+     * teams sat there. In the pilot it took five days to work out that the
+     * answer was a missing assignment.
+     *
+     * Three states, told apart by the same scope question
+     * `TeamsRestController::list_teams()` asks before it narrows:
+     *
+     *   (a) the viewer sees every team and there are none — a genuinely
+     *       fresh install. #1362's card, unchanged.
+     *   (b) the viewer is scoped and holds no assignment — nothing is
+     *       missing from the academy, something is missing from their
+     *       account. No create CTA: creating a team is not the fix, and
+     *       offering it sends them further from the one that is.
+     *   (c) the viewer has no staff record at all — the same message plus
+     *       the part an administrator needs to hear.
+     *
+     * The heading stays "Teams" in every state: this view also serves the
+     * academy admin's full list, and the tile already says "My teams".
+     *
+     * @return array<string, mixed>
+     */
+    private static function emptyStateCardArgs( int $user_id, string $base_url, bool $at_team_cap ): array {
+        $sees_all = QueryHelpers::user_has_global_entity_read( $user_id, 'team' );
+
+        if ( ! $sees_all ) {
+            $has_person = QueryHelpers::person_id_for_user( $user_id ) > 0;
+            return [
+                'icon'      => 'teams',
+                'headline'  => __( 'You are not linked to a team yet', 'talenttrack' ),
+                'explainer' => $has_person
+                    ? __( 'This list shows the teams you are assigned to, and you have none yet. Ask your academy administrator to assign you to a team.', 'talenttrack' )
+                    : __( 'This list shows the teams you are assigned to. Your account is not linked to a staff record yet, so there is nothing to show. Ask your academy administrator to add you as staff and assign you to a team.', 'talenttrack' ),
+            ];
+        }
+
+        // #1362 — guided fresh-install empty state. CTA suppressed
+        // at the free-tier team cap (same check as the header action).
+        return array_merge(
+            [
+                'icon'      => 'teams',
+                'headline'  => __( 'No teams yet', 'talenttrack' ),
+                'explainer' => __( 'Teams group players by age group and connect them to coaches and activities. Create your first team to build the academy structure.', 'talenttrack' ),
+            ],
+            $at_team_cap ? [] : [
+                'cta_label' => __( 'Create your first team', 'talenttrack' ),
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-team',
+                    add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url ) /* tt-xview-ok — same view, its own create action; the CTA is gated by cta_cap below */
+                ),
+                'cta_cap'   => 'tt_edit_teams',
+            ]
+        );
     }
 
     private static function renderForm( int $user_id, bool $is_admin, ?object $team ): void {

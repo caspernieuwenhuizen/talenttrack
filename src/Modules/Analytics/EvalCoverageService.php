@@ -15,11 +15,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * view per CLAUDE.md §4 — no coverage logic lives in the renderer.
  *
  * @phpstan-type EvalWindow array{name:string,start:string,end:string}
- * @phpstan-type CoverageCell array{covered:bool,evaluator_name:string}
+ * @phpstan-type CoverageCell array{covered:bool,state:'covered'|'gap'|'upcoming',evaluator_name:string}
  * @phpstan-type CoveragePlayer array{player_id:int,player_name:string,coach_id:int,coach_name:string,cells:list<CoverageCell>,gap_count:int}
  * @phpstan-type CoverageTeam array{team_id:int,team_name:string,players:list<CoveragePlayer>}
  * @phpstan-type CoachGap array{coach_id:int,coach_name:string,gap_count:int}
- * @phpstan-type CoverageData array{windows:list<EvalWindow>,teams:list<CoverageTeam>,coach_gaps:list<CoachGap>,total_players:int,total_gaps:int,configured:bool}
+ * @phpstan-type CoverageData array{windows:list<EvalWindow>,teams:list<CoverageTeam>,coach_gaps:list<CoachGap>,total_players:int,total_gaps:int,due_cells:int,configured:bool}
  * @phpstan-type AttendanceRow array{team_id:int,team_name:string,completed:int,with_attendance:int,percent:float|null}
  * @phpstan-type Evaluator array{coach_id:int,coach_name:string}
  */
@@ -47,7 +47,22 @@ final class EvalCoverageService {
 
     /**
      * Build the coverage matrix: players (grouped by team) × windows,
-     * each cell flagged covered / gap, plus per-coach gap counts.
+     * each cell in one of three states — covered / gap / upcoming — plus
+     * per-coach gap counts.
+     *
+     * #4026 — a window that has not started yet is not a gap. Every
+     * window without an evaluation used to count as one, so on 23 Sep a
+     * player already evaluated in the round that was open still reported
+     * `gap_count: 3` for the three rounds starting in October, January
+     * and April. `total_gaps`, the per-coach strip and the Coverage %
+     * KPI were inflated the same way, which made it impossible to tell
+     * who was actually behind: a player on track looked like a player
+     * nobody had seen.
+     *
+     * An open or closed window with no evaluation is still a gap — that
+     * is the report's whole point. And an evaluation dated inside a
+     * window that has not started yet still marks it covered; the cell
+     * follows the data, not the calendar.
      *
      * `$season_id` is accepted for forward compatibility with a future
      * seasons entity; today the windows config IS the current season, so
@@ -61,23 +76,41 @@ final class EvalCoverageService {
         $players = $this->fetchPlayers( $team_id );
         $covered = $windows === [] ? [] : $this->fetchCoveredEvaluations( $windows );
 
+        // Site time, not UTC: a window boundary is a date an academy
+        // reads off its own calendar.
+        $today = (string) current_time( 'Y-m-d' );
+
         /** @var array<int,CoverageTeam> $teams */
         $teams = [];
         /** @var array<int,CoachGap> $coach_gaps */
         $coach_gaps = [];
         $total_gaps = 0;
+        $due_cells  = 0;
 
         foreach ( $players as $p ) {
             /** @var list<CoverageCell> $cells */
             $cells     = [];
             $gap_count = 0;
-            foreach ( $windows as $i => $_window ) {
-                $hit       = $covered[ $p['player_id'] ][ $i ] ?? null;
-                $is_hit    = $hit !== null;
-                $cells[]   = [
+            foreach ( $windows as $i => $window ) {
+                $hit    = $covered[ $p['player_id'] ][ $i ] ?? null;
+                $is_hit = $hit !== null;
+                $start  = (string) $window['start'];
+                // Both dates are `Y-m-d`, so a string compare is a date
+                // compare. A window with no start is treated as open
+                // rather than hidden — a missing boundary is a config
+                // problem, and silently excusing the round would hide it.
+                // `EvalWindowsRepository::all()` drops such a window before
+                // it gets here; the guard is for any other caller.
+                $upcoming = ! $is_hit && $start !== '' && $start > $today;
+
+                $cells[] = [
                     'covered'        => $is_hit,
+                    'state'          => $is_hit ? 'covered' : ( $upcoming ? 'upcoming' : 'gap' ),
                     'evaluator_name' => $is_hit ? (string) $hit : '',
                 ];
+                if ( $upcoming ) continue;
+
+                $due_cells++;
                 if ( ! $is_hit ) {
                     $gap_count++;
                     $total_gaps++;
@@ -128,6 +161,13 @@ final class EvalCoverageService {
             'coach_gaps'    => $coach_gap_list,
             'total_players' => count( $players ),
             'total_gaps'    => $total_gaps,
+
+            // #4026 — the denominator for Coverage %: cells whose window
+            // has started (plus any already covered), i.e. covered + gaps.
+            // `total_players × windows` counted rounds nobody could have
+            // filled in yet, so a fully up-to-date academy in September
+            // could not read better than 25%.
+            'due_cells'     => $due_cells,
 
             // #3802 — green must be earned.
             //

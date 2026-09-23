@@ -13,7 +13,16 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Step 1 — When. Pick team + date + start time (#1084 VCT-9 mockup-
  * fidelity slice).
  *
- * Coaches see only the teams they're assigned to; HoD/admin see all.
+ * The team picker offers exactly the teams the viewer may plan VCT for,
+ * so it can never offer one `validate()` would refuse. Coaches see the
+ * teams they hold VCT scope on; the HoD and the academy admin see all.
+ *
+ * #4024 — it used to branch on `tt_edit_settings`, falling back to
+ * `get_teams_for_coach()`. The Head of Development holds neither that
+ * WordPress capability nor a coach assignment, so the select contained
+ * nothing but its placeholder and the wizard could not leave step 1 —
+ * the phantom-`tt_edit_settings` pattern #1942 replaced elsewhere.
+ *
  * Date defaults to tomorrow. Start time prefills from the team-
  * defaults panel (#1088) if one is configured for the current
  * season; otherwise it stays empty. The age group + MD context
@@ -27,10 +36,11 @@ final class WhenStep implements WizardStepInterface {
     public function label(): string { return __( 'When', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        $is_admin = current_user_can( 'tt_edit_settings' );
-        $teams    = $is_admin
-            ? QueryHelpers::get_teams()
-            : QueryHelpers::get_teams_for_coach( get_current_user_id() );
+        // #4024 — the same question `validate()` asks, per team: may this
+        // user create a VCT session for it. `get_permitted_teams()` answers
+        // it globally first (HoD, academy admin) and then per team scope
+        // (coaches), which is the chokepoint #3433 added for exactly this.
+        $teams = QueryHelpers::get_permitted_teams( get_current_user_id(), 'vct', 'create_delete' );
 
         $current_team = (int)    ( $state['team_id']      ?? 0 );
         $current_date = (string) ( $state['session_date'] ?? gmdate( 'Y-m-d', strtotime( '+1 day' ) ) );
@@ -49,6 +59,13 @@ final class WhenStep implements WizardStepInterface {
         }
 
         echo '<p>' . esc_html__( 'Which team, date, and time is this VCT training for?', 'talenttrack' ) . '</p>';
+
+        // #4024 — an empty select with a required field is a dead end that
+        // explains nothing. Say which access is missing instead.
+        if ( $teams === [] ) {
+            echo '<p class="tt-notice">' . esc_html__( 'There is no team you can plan VCT training for yet. Ask your academy administrator for VCT access to a team.', 'talenttrack' ) . '</p>';
+        }
+
         echo '<label><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span><select name="team_id" required>';
         echo '<option value="">' . esc_html__( '— pick a team —', 'talenttrack' ) . '</option>';
         foreach ( $teams as $t ) {

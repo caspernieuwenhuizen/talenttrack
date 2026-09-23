@@ -1062,3 +1062,98 @@
     min-height: 44px;
 }
 .tt-player-cardtab__print svg { flex: 0 0 auto; }
+
+/* ---------- Load restriction (#1089 VCT-14, relabelled in #4033) ----------
+ *
+ * These rules lived in an inline `<style>` block inside
+ * renderPhvPanel(), with raw hex and `text-transform: uppercase` on both
+ * the pill and the panel heading. #4033 moved them here: the pill's label
+ * grew from "PHV" to the restriction's name, and per docs/ui-copy.md the
+ * casing belongs in the label, not the stylesheet — uppercasing a
+ * translated label is how a Dutch pill ends up shouting a word its
+ * translator never capitalised.
+ */
+.tt-player-phv-pill {
+    display: inline-block;
+    background: var(--tt-warning, #e8902b);
+    color: var(--tt-paper, #fff);
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    margin-left: var(--tt-sp-2, 8px);
+    vertical-align: middle;
+    white-space: nowrap;
+}
+.tt-player-phv-panel {
+    margin-top: var(--tt-sp-4, 16px);
+    border-color: var(--tt-line, #e3e6e1);
+}
+.tt-player-phv-panel.is-active {
+    border-color: var(--tt-warning, #e8902b);
+}
+.tt-player-phv-panel .tt-player-card__head h3 {
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+.tt-player-phv-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    /* 48px minimum tappable row (CLAUDE.md §2). */
+    min-height: 48px;
+    padding: var(--tt-sp-3, 12px) 0;
+    cursor: pointer;
+}
+.tt-player-phv-toggle input {
+    width: 24px;
+    height: 24px;
+    accent-color: var(--tt-warning, #e8902b);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-player-phv-toggle__label { font-weight: 600; }
+.tt-player-phv-toggle__sub {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 400;
+    margin-top: 2px;
+}
+.tt-player-phv-panel .tt-field {
+    margin-top: var(--tt-sp-3, 12px);
+    padding-top: var(--tt-sp-3, 12px);
+    border-top: 1px dashed var(--tt-line, #e3e6e1);
+}
+.tt-player-phv-panel__surfaces {
+    background: var(--tt-line-soft, #eef0ec);
+    padding: var(--tt-sp-3, 12px);
+    border-radius: var(--tt-radius, 8px);
+    font-size: 0.78rem;
+    color: var(--tt-muted, #6a6d66);
+    margin-top: var(--tt-sp-4, 16px);
+}
+.tt-player-phv-panel__surfaces strong {
+    display: block;
+    color: var(--tt-ink, #0e1a14);
+    margin-bottom: 2px;
+}
+.tt-player-phv-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px var(--tt-sp-3, 12px);
+    margin: var(--tt-sp-2, 8px) 0;
+}
+.tt-player-phv-summary dt {
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-player-phv-summary dd { margin: 0 0 var(--tt-sp-2, 8px); }
+@media (min-width: 480px) {
+    .tt-player-phv-summary {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+        gap: 6px var(--tt-sp-3, 12px);
+    }
+    .tt-player-phv-summary dd { margin: 0; }
+}

@@ -251,6 +251,26 @@ If a coach reports a team page has stopped opening, check their team
 assignments under **People → Functional roles**. That is where the scope comes
 from.
 
+### An empty teams list says why it is empty
+
+Because the list is scoped, "no teams" can mean two completely different
+things, and the screen now tells them apart.
+
+- **The viewer sees every team and there are none.** A fresh academy. The list
+  offers the guided *"No teams yet"* card and a **Create your first team**
+  button.
+- **The viewer is scoped and holds no assignment.** *"You are not linked to a
+  team yet"* — ask your academy administrator to assign you to a team. There
+  is deliberately **no** create button: the academy is not empty, the
+  assignment is missing, and offering to create a team sends the coach further
+  from the fix.
+- **The viewer's account has no staff record at all.** The same message, plus
+  the part an administrator needs to hear: the account is not linked to a
+  staff record, so add them under **People** first and then assign the team.
+
+The page heading stays **Teams** in every case — the same view serves the
+academy admin's full list, and the dashboard tile already reads *My teams*.
+
 ## Edit cap path
 
 The team-detail edit button and the Teams REST endpoints (list / get / create / delete) now consult `AuthorizationService::userCanOrMatrix` rather than `current_user_can`. This means a Head of Development granted `tt_edit_teams` via the matrix scope-row layer (functional role bridge) passes the gate too, matching the pattern already used by Tile gating and the Activities REST endpoints.

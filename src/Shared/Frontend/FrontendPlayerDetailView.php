@@ -397,13 +397,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
-        // #2064 — PHV is VCT functionality (#1089 VCT-14). This Shared view
-        // always loads, so it has to gate the PHV touchpoints on the VCT
-        // module being enabled itself — ModuleRegistry only stops
-        // VctModule::register()/boot(), not UI an always-loaded view renders.
+        // #2064 — the load restriction is VCT functionality (#1089
+        // VCT-14). This Shared view always loads, so it has to gate those
+        // touchpoints on the VCT module being enabled itself —
+        // ModuleRegistry only stops VctModule::register()/boot(), not UI
+        // an always-loaded view renders.
         $vct_on = \TT\Core\ModuleRegistry::isEnabled( \TT\Modules\Vct\VctModule::class );
 
-        // #1089 VCT-14 — handle PHV-panel POST before rendering so the
+        // #1089 VCT-14 — handle the panel POST before rendering so the
         // panel reflects the just-saved state. Cap-gated inside. Ignored
         // entirely when VCT is off (#2064).
         $phv_panel_notice = '';
@@ -517,9 +518,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         ?>
         <article class="tt-player-detail" data-tab="<?php echo esc_attr( $active_tab ); ?>">
             <?php
-            // #2064 — only look up the PHV flag when VCT is on; null keeps
-            // the hero pill hidden (it keys off $phv_row).
-            // #2107 — PHV is a maturation / health-adjacent flag (minors).
+            // #2064 — only look up the load restriction when VCT is on;
+            // null keeps the hero pill hidden (it keys off $phv_row).
+            // #2107 — the restriction is health-adjacent data on a minor.
             // Now that a player / parent lands on this same profile, keep it
             // staff-only: leave $phv_row null for non-staff so neither the
             // hero pill nor the panel surface it.
@@ -742,8 +743,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
         }
         $journey   = self::journeyText( $player );
-        // #1089 VCT-14 — orange PHV pill on the hero when active.
+        // #1089 VCT-14 — orange load-restriction pill on the hero when active.
+        // #4033 — it used to read "PHV", whatever the reason, so a player
+        // with a sprained ankle was labelled as being in a growth spurt.
+        // The pill names the restriction; its tooltip names the reason.
         $phv_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
+        // `$phv_active` already carries the non-null narrowing, so a second
+        // null check here is dead code PHPStan rejects.
+        $phv_reason = $phv_active
+            ? \TT\Modules\Vct\Services\LoadRestriction::reasonLabel( (string) ( $phv_row['reason_key'] ?? '' ) )
+            : '';
+        $phv_title  = $phv_reason === ''
+            ? __( 'Load restriction — workload adjusted', 'talenttrack' )
+            : sprintf(
+                /* translators: %s = the reason for the load restriction, e.g. "Injury — ankle" */
+                __( 'Load restriction: %s — workload adjusted', 'talenttrack' ),
+                $phv_reason
+            );
         ?>
         <header class="tt-player-detail__hero" aria-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
             <div class="tt-player-hero__row">
@@ -761,7 +777,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <h1 class="tt-player-hero__name">
                         <?php echo esc_html( $name ); ?>
                         <?php if ( $phv_active ) : ?>
-                            <span class="tt-player-phv-pill" title="<?php esc_attr_e( 'Physical / Health / Vitality flag — workload adjusted', 'talenttrack' ); ?>"><?php esc_html_e( 'PHV', 'talenttrack' ); ?></span>
+                            <span class="tt-player-phv-pill" title="<?php echo esc_attr( $phv_title ); ?>"><?php echo esc_html( \TT\Modules\Vct\Services\LoadRestriction::label() ); ?></span>
                         <?php endif; ?>
                     </h1>
                     <?php if ( $team ) : ?>
@@ -1606,9 +1622,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             self::renderAssignTeamForm( $player_id );
         }
 
-        // #1089 VCT-14 — PHV panel under the Identity/Academy cards. PHV is
-        // VCT functionality, so it only renders when the VCT module is on
-        // (#2064).
+        // #1089 VCT-14 — load-restriction panel under the Identity /
+        // Academy cards. It is VCT functionality, so it only renders when
+        // the VCT module is on (#2064).
         if ( $vct_on ) {
             self::renderPhvPanel( $player_id, $phv_row, $phv_notice_html );
         }
@@ -2976,17 +2992,27 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /**
-     * #1089 VCT-14 — PHV (Physical / Health / Vitality) panel.
+     * #1089 VCT-14 — load-restriction panel.
      *
-     * Lives on the Profile tab. Coaches + HoD with `tt_edit_players`
-     * see the form; everyone with `tt_view_players` sees a read-only
-     * summary. The pill on the hero is emitted by `renderHero()` when
-     * the row is active.
+     * Lives on the Profile tab. Staff who may plan for the player's team
+     * see the form; other staff see a read-only summary. The pill on the
+     * hero is emitted by `renderHero()` when the row is active.
+     *
+     * #4033 — the panel used to be headed "PHV — Physical / Health /
+     * Vitality" while the REST route read the same column as peak height
+     * velocity, so one flag carried two expansions and an ankle sprain
+     * came out labelled a growth spurt. The flag records a load
+     * restriction; a growth spurt is one reason for one, and the reason
+     * list lives in `LoadRestriction`.
      *
      * Mockup design-of-record at `.local-mockups/vct-phv-flag/`.
      */
     private static function renderPhvPanel( int $player_id, ?array $phv_row, string $notice_html ): void {
-        $can_edit  = current_user_can( 'tt_edit_players' );
+        // #4033 — one gate, shared with `PATCH /vct/players/{id}/phv-flag`.
+        // The panel used to ask for `tt_edit_players` and the route for
+        // `tt_vct_plan` plus team VCT scope, so who could set the flag
+        // depended on which surface you reached it through.
+        $can_edit  = \TT\Modules\Vct\Services\LoadRestrictionAccess::canEdit( get_current_user_id(), $player_id );
         $is_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
         $reason    = $phv_row !== null ? (string) $phv_row['reason_key']        : '';
         $ceiling   = $phv_row !== null ?         $phv_row['intensity_ceiling']  : null;
@@ -2999,24 +3025,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
-        // The mockup's reason picker uses a fixed Dutch enum; expose the
-        // same labels with stable internal keys so they survive locale
-        // changes + future i18n via `tt_lookups`.
-        $reasons = [
-            ''               => __( '— Pick a reason —', 'talenttrack' ),
-            'injury_knee'    => __( 'Injury — knee', 'talenttrack' ),
-            'injury_ankle'   => __( 'Injury — ankle', 'talenttrack' ),
-            'asthma'         => __( 'Asthma', 'talenttrack' ),
-            'cardiac'        => __( 'Cardiac condition', 'talenttrack' ),
-            'other_medical'  => __( 'Other medical reason', 'talenttrack' ),
-            'temp_fatigue'   => __( 'Temporary fatigue', 'talenttrack' ),
-        ];
-        $ceilings = [
-            1 => __( '1 — recovery only', 'talenttrack' ),
-            2 => __( '2 — low', 'talenttrack' ),
-            3 => __( '3 — medium', 'talenttrack' ),
-            4 => __( '4 — high', 'talenttrack' ),
-        ];
+        // #4033 — the reason list and the ceilings come from
+        // `LoadRestriction`, which the write-path whitelist also reads.
+        // They were two hardcoded copies, 140 lines apart.
+        $reasons  = [ '' => __( '— Pick a reason —', 'talenttrack' ) ]
+            + \TT\Modules\Vct\Services\LoadRestriction::reasons();
+        $ceilings = \TT\Modules\Vct\Services\LoadRestriction::ceilings();
 
         // v4.20.36 (#1196) — honour `tt_back` (CLAUDE.md §6 point 5).
         $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
@@ -3029,7 +3043,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         ?>
         <section class="tt-player-card tt-player-phv-panel<?php echo $is_active ? ' is-active' : ''; ?>">
             <div class="tt-player-card__head">
-                <h3><?php esc_html_e( 'PHV — Physical / Health / Vitality', 'talenttrack' ); ?></h3>
+                <h3><?php echo esc_html( \TT\Modules\Vct\Services\LoadRestriction::label() ); ?></h3>
             </div>
             <?php echo $notice_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — controlled markup from handleVctPhvPost(). ?>
             <?php if ( $can_edit ) : ?>
@@ -3040,7 +3054,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <label class="tt-player-phv-toggle">
                         <input type="checkbox" name="is_active" value="1"<?php checked( $is_active ); ?>>
                         <span class="tt-player-phv-toggle__label">
-                            <?php esc_html_e( 'Player has a PHV flag', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'This player has a load restriction', 'talenttrack' ); ?>
                             <span class="tt-player-phv-toggle__sub">
                                 <?php esc_html_e( 'Automatically excluded from VCT blocks above the configured intensity ceiling.', 'talenttrack' ); ?>
                             </span>
@@ -3106,36 +3120,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 </dl>
             <?php endif; ?>
             <p class="tt-player-phv-panel__surfaces">
-                <strong><?php esc_html_e( 'Where the PHV flag appears:', 'talenttrack' ); ?></strong>
+                <strong><?php esc_html_e( 'Where the load restriction appears:', 'talenttrack' ); ?></strong>
                 <?php esc_html_e( 'Hero pill next to the name · VCT session wizard workload check · coach-view sideline banner · match prep per-player attention.', 'talenttrack' ); ?>
             </p>
         </section>
-        <style>
-        .tt-player-phv-pill { background: #c75c1f; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.4px; margin-left: 8px; vertical-align: middle; }
-        .tt-player-phv-panel { margin-top: 16px; border-color: #c75c1f33; }
-        .tt-player-phv-panel.is-active { border-color: #c75c1f; }
-        .tt-player-phv-panel .tt-player-card__head h3 { color: #c75c1f; text-transform: uppercase; letter-spacing: 0.4px; font-size: 14px; font-weight: 800; }
-        .tt-player-phv-toggle { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; }
-        .tt-player-phv-toggle input { width: 22px; height: 22px; accent-color: #c75c1f; cursor: pointer; }
-        .tt-player-phv-toggle__label { font-weight: 600; }
-        .tt-player-phv-toggle__sub { display: block; font-size: 12px; color: var(--tt-muted, #5b6e75); font-weight: 400; margin-top: 2px; }
-        .tt-player-phv-panel .tt-field { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--tt-line, #d6dadd); }
-        .tt-player-phv-panel__surfaces { background: var(--tt-mute, #f0f3f2); padding: 10px 12px; border-radius: 6px; font-size: 12px; color: var(--tt-muted, #5b6e75); margin-top: 16px; }
-        .tt-player-phv-panel__surfaces strong { display: block; color: var(--tt-ink, #1a1d21); margin-bottom: 2px; }
-        .tt-player-phv-summary { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; margin: 8px 0; }
-        .tt-player-phv-summary dt { font-weight: 600; color: var(--tt-muted, #5b6e75); }
-        .tt-player-phv-summary dd { margin: 0; }
-        </style>
         <?php
     }
 
     /**
-     * #1089 VCT-14 — POST handler for the PHV panel form. Returns
-     * a notice HTML fragment (empty when the request isn't ours).
+     * #1089 VCT-14 — POST handler for the load-restriction panel form.
+     * Returns a notice HTML fragment (empty when the request isn't ours).
      */
     private static function handleVctPhvPost( int $player_id, int $user_id ): string {
-        if ( ! current_user_can( 'tt_edit_players' ) ) {
-            return '<div class="tt-notice tt-notice--error">' . esc_html__( 'You do not have permission to edit PHV flags.', 'talenttrack' ) . '</div>';
+        // #4033 — the same gate the REST route uses. This path asked only
+        // for `tt_edit_players`, so the panel wrote what the API refused.
+        if ( ! \TT\Modules\Vct\Services\LoadRestrictionAccess::canEdit( $user_id, $player_id ) ) {
+            return '<div class="tt-notice tt-notice--error">' . esc_html__( 'You do not have permission to set load restrictions.', 'talenttrack' ) . '</div>';
         }
         $nonce = isset( $_POST['_tt_vct_phv_panel_nonce'] ) ? (string) $_POST['_tt_vct_phv_panel_nonce'] : '';
         if ( ! wp_verify_nonce( $nonce, 'tt_vct_phv_panel_' . $player_id ) ) {
@@ -3144,9 +3144,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $is_active = ! empty( $_POST['is_active'] );
         $reason    = isset( $_POST['reason_key'] ) ? sanitize_key( (string) $_POST['reason_key'] ) : '';
         // Restrict reason to the known enum to avoid arbitrary strings
-        // landing in the column.
-        $valid_reasons = [ 'injury_knee', 'injury_ankle', 'asthma', 'cardiac', 'other_medical', 'temp_fatigue' ];
-        if ( $reason !== '' && ! in_array( $reason, $valid_reasons, true ) ) {
+        // landing in the column. #4033 — one list, in `LoadRestriction`.
+        if ( $reason !== '' && ! \TT\Modules\Vct\Services\LoadRestriction::isReason( $reason ) ) {
             $reason = '';
         }
         $ceiling_raw = isset( $_POST['intensity_ceiling'] ) ? trim( (string) $_POST['intensity_ceiling'] ) : '';
@@ -3162,7 +3161,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $ceiling
         );
         return $ok
-            ? '<div class="tt-notice tt-notice--success">' . esc_html__( 'PHV flag saved.', 'talenttrack' ) . '</div>'
+            ? '<div class="tt-notice tt-notice--success">' . esc_html__( 'Load restriction saved.', 'talenttrack' ) . '</div>'
             : '<div class="tt-notice tt-notice--error">' . esc_html__( 'Save failed: database error.', 'talenttrack' ) . '</div>';
     }
 }

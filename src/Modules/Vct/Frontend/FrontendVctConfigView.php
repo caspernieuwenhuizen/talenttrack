@@ -350,7 +350,7 @@ class FrontendVctConfigView extends FrontendViewBase {
             // fires for it.
             self::renderNumberInput( 'intensity_band_max',              $band_max_label,                                        (int) $p['intensity_band_max'],              ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
             self::renderNumberInput( 'min_recovery_hours_between_high', __( 'Min recovery hours between high', 'talenttrack' ), (int) $p['min_recovery_hours_between_high'], 12, 168 );
-            self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'PHV load reduction %',            'talenttrack' ), (int) $p['growth_spurt_load_reduction_pct'], 0, 50 );
+            self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'Restricted-player load reduction %', 'talenttrack' ), (int) $p['growth_spurt_load_reduction_pct'], 0, 50 );
             self::renderNumberInput( 'weekly_load_envelope',            __( 'Weekly load envelope',            'talenttrack' ), (int) $p['weekly_load_envelope'],            50, 10000 );
             echo '<div class="tt-field">';
             echo '<label class="tt-field-label" for="match_load_multiplier_per_minute_' . esc_attr( (string) $p['id'] ) . '">' . esc_html__( 'Match load multiplier per minute', 'talenttrack' ) . '</label>';
@@ -438,7 +438,7 @@ class FrontendVctConfigView extends FrontendViewBase {
         $band_max_label = sprintf( __( 'Intensity band max (%1$d-%2$d)', 'talenttrack' ), ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX );
         self::renderNumberInput( 'intensity_band_max',              $band_max_label,                                        null, ExercisesRepository::INTENSITY_BAND_MIN, ExercisesRepository::INTENSITY_BAND_MAX, 'new' );
         self::renderNumberInput( 'min_recovery_hours_between_high', __( 'Min recovery hours between high', 'talenttrack' ), 48,   12, 168,   'new' );
-        self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'PHV load reduction %',            'talenttrack' ), 20,   0,  50,    'new' );
+        self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'Restricted-player load reduction %', 'talenttrack' ), 20,   0,  50,    'new' );
         self::renderNumberInput( 'weekly_load_envelope',            __( 'Weekly load envelope',            'talenttrack' ), null, 50, 10000, 'new' );
 
         echo '<div class="tt-field">';

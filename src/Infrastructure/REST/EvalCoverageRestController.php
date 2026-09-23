@@ -117,6 +117,12 @@ final class EvalCoverageRestController extends BaseController {
             'coach_gaps'             => $coverage['coach_gaps'],
             'total_players'          => $coverage['total_players'],
             'total_gaps'             => $coverage['total_gaps'],
+
+            // #4026 — the denominator for coverage: cells whose window has
+            // started, plus any already covered. `total_players × windows`
+            // counted rounds that begin in January, so `total_gaps` read as
+            // three for a player who was up to date.
+            'due_cells'              => $coverage['due_cells'],
             'attendance_compliance'  => $compliance,
             'evaluators'             => $service->evaluators(),
             'team_id'                => $team_id ?: null,

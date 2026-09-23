@@ -245,6 +245,17 @@
     color: var(--tt-danger, #d8453b);
 }
 
+/* #4026 — a window that has not started yet. Neutral, not red: nobody is
+   behind on a round that has not opened. Deliberately the page background
+   rather than a tint, so the eye reads the row as "nothing to do here". */
+.tt-ec-cell--upcoming {
+    background: var(--tt-line-soft, #eef0ec);
+}
+
+.tt-ec-cell--upcoming .tt-ec-cell__icon {
+    color: var(--tt-muted, #6a6d66);
+}
+
 /* ===== Attendance compliance ===== */
 
 .tt-ec-att__empty {
