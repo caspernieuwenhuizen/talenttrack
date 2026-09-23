@@ -101,6 +101,29 @@ class TeamsRestController {
                 'permission_callback' => $can_edit,
             ],
         ] );
+        // #4038 — a player's own team, player-facing.
+        //
+        // `GET /teams/{id}` stays a staff read and keeps its 403 for a player
+        // and a parent: it carries the whole team row and the squad counts,
+        // and #3568 decided collections and staff records are not widened.
+        // That left a player with no route to the squad the `My team` screen
+        // shows them, and a parent none to their child's.
+        //
+        // This is the per-player read, gated the way `players/{id}/goals`
+        // (#3653) and `players/{id}/evaluations` (#3478) are: canViewPlayer(),
+        // which the linked parent already passes for their own child. The
+        // payload is exactly what `FrontendMyTeamView` renders, from the same
+        // query layer, so the screen and the route cannot drift.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/team', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_player_team' ],
+                'permission_callback' => [ __CLASS__, 'can_view_player' ],
+                'args'                => [
+                    'id' => [ 'type' => 'integer', 'required' => true, 'description' => 'The player whose own team to read.' ],
+                ],
+            ],
+        ] );
         // #2835 — what share of the minutes the team played each player got,
         // and one player's row out of the same answer. Reads the domain
         // service the Minutes share report composes from, so the rendered
@@ -649,6 +672,127 @@ class TeamsRestController {
             'type'        => [ 'integer', 'string' ],
             'description' => 'The team, from the URL. A copy in the body is accepted and ignored.',
         ] ] + self::writeArgs();
+    }
+
+    /**
+     * #4038 — "may you read this player's record", the gate every per-player
+     * sub-route in the plugin shares. A linked parent passes it for their own
+     * child, which is what makes one route answer both personas.
+     */
+    public static function can_view_player( \WP_REST_Request $r ): bool {
+        $uid       = get_current_user_id();
+        $player_id = (int) $r['id'];
+        if ( $uid <= 0 || $player_id <= 0 ) return false;
+
+        return AuthorizationService::canViewPlayer( $uid, $player_id );
+    }
+
+    /**
+     * #4038 — one player's own team, as the `My team` screen shows it: the
+     * team's name and age group, who runs it, and who the player trains with.
+     *
+     * Deliberately narrow. No ratings, no statuses, no medical data, no
+     * contact details — a teammate row is the name, shirt number and position
+     * a player already reads on the roster. The team rank is opt-in per
+     * academy (`tt_player_visible_rank`, default off, #1384): when it is off
+     * the key is `null` rather than absent, so a consumer can tell "your
+     * academy does not show rank" from "not rated yet".
+     */
+    public static function get_player_team( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+        $player    = QueryHelpers::get_player( $player_id );
+        if ( ! $player ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
+        $team_id = isset( $player->team_id ) ? (int) $player->team_id : 0;
+        if ( $team_id <= 0 ) {
+            // Not an error: "no team yet" is the answer the screen gives too.
+            return RestResponse::success( [ 'player_id' => $player_id, 'team' => null, 'teammates' => [], 'rank' => null ] );
+        }
+
+        $team = QueryHelpers::get_team( $team_id );
+        $svc  = new \TT\Infrastructure\Stats\TeamStatsService();
+
+        $rank = null;
+        if ( QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1' ) {
+            $rank_info = $svc->getRankInTeam( $player_id, 5 );
+            $rank      = $rank_info === null ? null : [
+                'rank'  => (int) $rank_info['rank'],
+                'total' => (int) $rank_info['total'],
+            ];
+        }
+
+        $teammates = [];
+        foreach ( $svc->getTeammatesOfPlayer( $player_id ) as $mate ) {
+            $codes = self::positionCodes( $mate );
+            $teammates[] = [
+                'player_id'     => (int) ( $mate->id ?? 0 ),
+                // The `My team` screen's own choice of teammate name (#4038):
+                // the roster a player reads in the dressing room.
+                'name'          => QueryHelpers::player_display_name( $mate ),
+                'jersey_number' => isset( $mate->jersey_number ) && $mate->jersey_number !== null && $mate->jersey_number !== ''
+                    ? (int) $mate->jersey_number
+                    : null,
+                // `preferred_positions` is a JSON array of codes. The codes
+                // are what a consumer can act on; the label is the same
+                // translated string the player file's Key facts row shows.
+                'positions'      => $codes,
+                'position_label' => self::positionLabel( $codes ),
+            ];
+        }
+
+        return RestResponse::success( [
+            'player_id' => $player_id,
+            'team'      => [
+                'id'              => $team_id,
+                'name'            => $team ? (string) $team->name : '',
+                'age_group'       => $team ? (string) ( $team->age_group ?? '' ) : '',
+                'head_coach_name' => ( new \TT\Modules\Analytics\EvalCoverageService() )->headCoachNameForTeam( $team_id ),
+            ],
+            'teammates' => $teammates,
+            'rank'      => $rank,
+        ] );
+    }
+
+    /**
+     * #4038 — the stored position codes of one player row. `null`, a JSON
+     * array and an older comma-separated value all read the same way, so a
+     * pre-JSON row is not silently dropped.
+     *
+     * @return list<string>
+     */
+    private static function positionCodes( object $player ): array {
+        $raw = trim( (string) ( $player->preferred_positions ?? '' ) );
+        if ( $raw === '' ) return [];
+
+        $codes = json_decode( $raw, true );
+        if ( ! is_array( $codes ) ) {
+            $codes = explode( ',', $raw );
+        }
+
+        $out = [];
+        foreach ( $codes as $code ) {
+            if ( ! is_scalar( $code ) ) continue;
+            $code = trim( (string) $code );
+            if ( $code !== '' ) $out[] = $code;
+        }
+        return $out;
+    }
+
+    /**
+     * #4038 — the same translated position line the player file's Key facts
+     * row shows, from the shared label translator. An unknown or custom code
+     * passes through as itself rather than being dropped.
+     *
+     * @param list<string> $codes
+     */
+    private static function positionLabel( array $codes ): string {
+        $labels = [];
+        foreach ( $codes as $code ) {
+            $labels[] = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
+        }
+        return implode( ' / ', $labels );
     }
 
     public static function create_team( \WP_REST_Request $r ) {
