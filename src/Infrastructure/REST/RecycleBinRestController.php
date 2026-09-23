@@ -237,7 +237,29 @@ final class RecycleBinRestController {
         }
 
         // Ownership backstop: a row outside the current club is a 404.
-        if ( ! ( new ArchiveRepository() )->ownedByCurrentClub( $entity, $id ) ) {
+        $repo = new ArchiveRepository();
+        if ( ! $repo->ownedByCurrentClub( $entity, $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Record not found.', 'talenttrack' ), 404 );
+        }
+
+        // #4002 — and the record has to be one this route is about: a row on
+        // its way out. `ownedByCurrentClub()` is deliberately state-agnostic,
+        // so on its own it let this route answer for a LIVE record — handing
+        // out a cascade impact statement for an active player, counting their
+        // evaluations, goals, injuries and measurements, from a route whose
+        // subject is a record being archived or purged. The two mutating
+        // routes beside it resolve the record through `canMutate()`; this
+        // read resolved only its owner.
+        //
+        // Archived counts, not only trashed: the list-table's "Move to
+        // recycle bin" action reads this preview for an archived row, before
+        // it is in the bin, which is the whole point of showing the impact
+        // first (`ArchiveRowActions::build()`).
+        $found = $repo->findIncludingArchived( $entity, $id );
+        if ( $found === null || ! RecycleBinEntities::isValid( $entity ) ) {
+            return RestResponse::error( 'not_found', __( 'Record not found.', 'talenttrack' ), 404 );
+        }
+        if ( ! in_array( (string) $found['state'], [ 'archived', 'trashed' ], true ) ) {
             return RestResponse::error( 'not_found', __( 'Record not found.', 'talenttrack' ), 404 );
         }
 

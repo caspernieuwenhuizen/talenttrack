@@ -55,9 +55,16 @@
 		if ( ! cell ) {
 			return;
 		}
+		var sels = tr.querySelectorAll( 'select.tt-agrid-sel' );
+		// #4009 — a former-squad row is read-only and carries no dropdowns.
+		// Recomputing from none of them would blank the percentage the
+		// server rendered from its recorded marks.
+		if ( ! sels.length ) {
+			return;
+		}
 		var recorded = 0;
 		var attended = 0;
-		tr.querySelectorAll( 'select.tt-agrid-sel' ).forEach( function ( s ) {
+		sels.forEach( function ( s ) {
 			if ( s.value !== '' ) {
 				recorded++;
 				if ( s.value === 'present' || s.value === 'late' ) {

@@ -579,6 +579,26 @@ class ActivitiesRestController {
     }
 
     /**
+     * #4002 — the per-record check for a route that takes an activity id.
+     *
+     * `can_edit` answers "may this user edit activities", which is club-wide
+     * for `tt_coach`; it cannot answer "may they edit THIS one". The single
+     * writes that resolved the record already asked
+     * (`update_session` → `refuseUnlessTeamWritable`), and these four did
+     * not: a head coach of one team could change another team's status,
+     * add a guest to their training, toggle their evaluation flag, or edit
+     * and delete their attendance rows.
+     *
+     * Refuses with the same `403 forbidden_team` its sibling
+     * `update_session` answers, deliberately, rather than the `404` the
+     * #4002 family uses elsewhere: matching the sibling keeps one activity
+     * route from contradicting the next.
+     */
+    private static function refuseUnlessActivityWritable( int $activity_id ): ?\WP_REST_Response {
+        return self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+    }
+
+    /**
      * #3616 — the stored team of an activity, or null when it has none or
      * the row is gone. Reads archived rows too, because restore and
      * permanent delete act on them.
@@ -2622,13 +2642,19 @@ class ActivitiesRestController {
      * POST /sessions/{id}/guests — add a linked or anonymous guest to
      * a session's attendance. Body shape:
      *
-     *   Linked   : { guest_player_id: <int>, status?: <str>, notes?: <str> }
+     *   Linked   : { guest_player_id: <int>, status?: <str>,
+     *                guest_position?: <str>, guest_notes?: <str> }
      *   Anonymous: { guest_name: <str>, guest_age?: <int>,
      *                guest_position?: <str>, guest_notes?: <str>,
      *                status?: <str> }
      *
      * Application invariant: linked XOR anonymous. Both populated, or
      * neither, → 400.
+     *
+     * `guest_position` / `guest_notes` describe the visit and apply to
+     * both shapes (#4037). `guest_name` / `guest_age` are
+     * anonymous-only — a linked guest's name and age come from the
+     * player record.
      */
     public static function add_guest( \WP_REST_Request $r ) {
         // #3819 — the body's shape before its values.
@@ -2643,6 +2669,9 @@ class ActivitiesRestController {
         if ( ! $repo->activityExists( $activity_id ) ) {
             return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
         }
+        // #4002 — the capability is club-wide; this activity may not be.
+        $refusal = self::refuseUnlessActivityWritable( $activity_id );
+        if ( $refusal !== null ) return $refusal;
 
         $linked_id = absint( $r['guest_player_id'] ?? 0 );
         $name      = sanitize_text_field( (string) ( $r['guest_name'] ?? '' ) );
@@ -2683,8 +2712,15 @@ class ActivitiesRestController {
             'guest_player_id' => $linked_id > 0 ? $linked_id : null,
             'guest_name'      => $linked_id > 0 ? null : $name,
             'guest_age'       => $linked_id > 0 ? null : $age,
-            'guest_position'  => $linked_id > 0 ? null : ( $position !== '' ? $position : null ),
-            'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
+            // #4037 — the visit's position and note belong to the visit,
+            // not to the player record, so they are stored whatever the
+            // link state. Only `guest_name` / `guest_age` stay
+            // anonymous-only: for a linked guest the player record owns
+            // those. `update_attendance()` has always written both fields
+            // on any row, so dropping them here made create the odd one
+            // out and lost the coach's trial note without saying so.
+            'guest_position'  => $position !== '' ? $position : null,
+            'guest_notes'     => $g_notes !== '' ? $g_notes : null,
         ];
         // A guest visit is something that happened — a register, not a plan
         // (#3451). The row used to inherit that from the column default.
@@ -2758,6 +2794,10 @@ class ActivitiesRestController {
 
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        // #4002 — cancelling or reopening somebody else's fixture is a write
+        // to their team's schedule, so the record is checked, not just the cap.
+        $refusal = self::refuseUnlessActivityWritable( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $status = sanitize_key( (string) ( $r['status'] ?? '' ) );
         $allowed = [ ActivityStatusKey::CANCELLED, ActivityStatusKey::PLANNED ];
@@ -2821,6 +2861,9 @@ class ActivitiesRestController {
 
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        // #4002 — this activity, not activities in general.
+        $refusal = self::refuseUnlessActivityWritable( $id );
+        if ( $refusal !== null ) return $refusal;
         $skipped = (int) (bool) $r['skipped'];
         if ( ! self::repo()->setEvaluationSkipped( $id, $skipped ) ) {
             return RestResponse::error( 'db_error', __( 'Could not update the activity.', 'talenttrack' ), 500 );
@@ -2837,7 +2880,17 @@ class ActivitiesRestController {
      * `roster` when no plan was captured.
      *
      * Each row carries `player_id`, `is_guest`, `name`, `plan_status`
-     * (`expected` / `not_coming` / `maybe`) and `notes`.
+     * (`expected` / `not_coming` / `maybe`), `notes` and `availability`.
+     *
+     * #4005 — `availability` is derived per request from the player's open
+     * injuries (`PlayerAvailability`) and sits BESIDE `plan_status`, which
+     * keeps its three values and its write path. It is not a fourth plan
+     * state: a coach may deliberately expect an injured player (light
+     * session, rehab minutes, travelling with the squad), and folding
+     * availability into the plan would silently overwrite that. It carries
+     * the state and nothing else — no injury type, body part, note, date or
+     * id — so a role without injury access can plan around it without
+     * seeing a child's medical record.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2848,7 +2901,13 @@ class ActivitiesRestController {
         if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
         $roster = $repo->plannedRosterForActivity( $id );
-        $out = array_map( static function ( $row ) {
+        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableSet(
+            array_map(
+                static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
+                $roster
+            )
+        );
+        $out = array_map( static function ( $row ) use ( $unavailable ) {
             $status = (string) ( $row->status ?? '' );
             return [
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
@@ -2861,6 +2920,11 @@ class ActivitiesRestController {
                 // registered come back as fully present.
                 'plan_status' => self::plannedStatusToKey( $status ),
                 'notes'       => (string) ( $row->notes ?? '' ),
+                // #4005 — read-only, derived, and never a plan state.
+                'availability' => \TT\Modules\Activities\Services\PlayerAvailability::flagFor(
+                    (int) ( $row->player_id ?? 0 ),
+                    $unavailable
+                ),
             ];
         }, $roster );
 
@@ -2913,6 +2977,9 @@ class ActivitiesRestController {
         $repo = self::repo();
         $row = $repo->findAttendanceRow( $id );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Attendance row not found.', 'talenttrack' ), 404 );
+        // #4002 — the row's activity decides, so resolve it before writing.
+        $refusal = self::refuseUnlessActivityWritable( (int) ( $row->activity_id ?? 0 ) );
+        if ( $refusal !== null ) return $refusal;
 
         $update = [];
         if ( isset( $r['status'] ) )         $update['status']         = sanitize_text_field( (string) $r['status'] );
@@ -2982,6 +3049,13 @@ class ActivitiesRestController {
     public static function delete_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
+        // #4002 — resolve the row and check its activity before deleting it.
+        // A delete that leaves no trace is exactly the write a scope check
+        // has to precede.
+        $row = self::repo()->findAttendanceRow( $id );
+        if ( ! $row ) return RestResponse::error( 'not_found', __( 'Attendance row not found.', 'talenttrack' ), 404 );
+        $refusal = self::refuseUnlessActivityWritable( (int) ( $row->activity_id ?? 0 ) );
+        if ( $refusal !== null ) return $refusal;
         if ( ! self::repo()->deleteAttendanceRow( $id ) ) {
             return RestResponse::error( 'db_error',
                 __( 'The attendance row could not be deleted.', 'talenttrack' ), 500 );

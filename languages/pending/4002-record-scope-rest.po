@@ -1,0 +1,3 @@
+#: src/Infrastructure/REST/TrainingRunsRestController.php
+msgid "That player is not in your scope."
+msgstr "Die speler valt buiten je bereik."

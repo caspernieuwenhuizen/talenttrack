@@ -22,6 +22,24 @@ class PeopleRepository {
     private string $last_sync_error = '';
 
     /**
+     * #4019 — the refusal code of the last create() / update(), when the
+     * write was refused by a rule of ours rather than by the database.
+     *
+     * Both methods answer `false` either way, which is how a deliberate
+     * refusal reached the REST layer as `500 db_error` with an empty
+     * `details` and `$wpdb->last_error` blank — a fault report for a
+     * working guard. The code says which it was; the caller decides the
+     * status.
+     */
+    private string $last_refusal = '';
+
+    /** The person already holding the account, when `$last_refusal` says so. */
+    private int $last_refusal_person_id = 0;
+
+    /** #4019 — a refusal a rule made, not the database: '' when there was none. */
+    public const REFUSAL_USER_LINKED = 'wp_user_already_linked';
+
+    /**
      * Allowed role_type values for tt_people.role_type.
      * Expanded in v2.7.0 to include 'parent' and 'other' so People can
      * represent anyone the system tracks, not just staff.
@@ -141,6 +159,7 @@ class PeopleRepository {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        $this->forgetRefusal();
         $row = self::sanitizeForStorage( $data );
         $row['club_id'] = CurrentClub::id();
 
@@ -158,7 +177,13 @@ class PeopleRepository {
                   LIMIT 1",
                 (int) $row['wp_user_id'], (int) $row['club_id']
             ) );
-            if ( $existing ) return false;
+            if ( $existing ) {
+                // #4019 — say which refusal this is. Without it the caller
+                // reports a database fault for a rule working as designed.
+                $this->last_refusal           = self::REFUSAL_USER_LINKED;
+                $this->last_refusal_person_id = (int) $existing;
+                return false;
+            }
         }
 
         $result = $wpdb->insert( "{$p}tt_people", $row );
@@ -187,6 +212,7 @@ class PeopleRepository {
     public function update( int $id, array $data ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        $this->forgetRefusal();
         $row = self::sanitizeForStorage( $data, true );
         if ( empty( $row ) ) return true;
 
@@ -205,7 +231,12 @@ class PeopleRepository {
                   LIMIT 1",
                 $would_link_user_id, CurrentClub::id(), $id
             ) );
-            if ( $clash ) return false;
+            if ( $clash ) {
+                // #4019 — as in create(): a rule refused this, not the DB.
+                $this->last_refusal           = self::REFUSAL_USER_LINKED;
+                $this->last_refusal_person_id = (int) $clash;
+                return false;
+            }
         }
 
         $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
@@ -235,6 +266,31 @@ class PeopleRepository {
      */
     public function lastSyncError(): string {
         return $this->last_sync_error;
+    }
+
+    /**
+     * #4019 — the rule that refused the last create() / update(), or ''.
+     *
+     * `''` means the `false` was a real write failure, so the caller
+     * should keep reporting it as one, with `$wpdb->last_error`.
+     */
+    public function lastRefusal(): string {
+        return $this->last_refusal;
+    }
+
+    /**
+     * The person the refusal points at — the one already holding the
+     * account — or 0. The id is what makes the refusal actionable: in
+     * demo mode `list()` hides non-demo rows, so the admin cannot find
+     * that person by searching for them.
+     */
+    public function lastRefusalPersonId(): int {
+        return $this->last_refusal_person_id;
+    }
+
+    private function forgetRefusal(): void {
+        $this->last_refusal           = '';
+        $this->last_refusal_person_id = 0;
     }
 
     public function setStatus( int $id, string $status ): bool {

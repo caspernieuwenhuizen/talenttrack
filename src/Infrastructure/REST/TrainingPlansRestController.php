@@ -85,6 +85,36 @@ final class TrainingPlansRestController {
         return RestResponse::error( 'not_found', __( 'Training plan not found.', 'talenttrack' ), 404 );
     }
 
+    /**
+     * #4002 — the plan the route names, or the refusal to answer with.
+     *
+     * `tt_training_plan` is held club-wide, so on its own it answers "does
+     * this user build plans?" and never "whose plans?". Every by-id route
+     * here resolved the row and then wrote to it, which let a coach of one
+     * team read, edit, publish, archive, duplicate or re-block another
+     * team's plan — and `plan_coverage` names the other team's players'
+     * open goals, so the read leaked child data too.
+     *
+     * A plan with **no** team is club-wide library material, which anyone
+     * holding the capability may work on; that is what `list_plans` means
+     * when it returns a team's plans *plus* the club-wide ones.
+     *
+     * Refuses as `404 not_found`, the same answer a plan that does not
+     * exist gets (the shape `GoalsRestController::goalRefusal()` set): a
+     * caller outside the scope learns nothing about what is there.
+     */
+    private static function planRefusal( int $id ): ?\WP_REST_Response {
+        $plan = ( new TrainingPlansRepository() )->findById( $id );
+        if ( $plan === null ) return self::notFound();
+
+        $team_id = (int) ( $plan->team_id ?? 0 );
+        if ( $team_id <= 0 ) return null;
+        if ( \TT\Modules\Authorization\AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ) {
+            return null;
+        }
+        return self::notFound();
+    }
+
     public static function register(): void {
         register_rest_route( self::NS, '/training/plans', [
             [
@@ -383,6 +413,10 @@ final class TrainingPlansRestController {
     }
 
     public static function get_plan( \WP_REST_Request $r ): \WP_REST_Response {
+        // #4002 — this plan, not plans in general.
+        $refusal = self::planRefusal( (int) $r['id'] );
+        if ( $refusal !== null ) return $refusal;
+
         $repo = new TrainingPlansRepository();
         $plan = $repo->findById( (int) $r['id'] );
         if ( ! $plan ) return self::notFound();
@@ -401,7 +435,9 @@ final class TrainingPlansRestController {
     public static function update_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — resolve and scope before writing.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $repo->update( $id, self::planPayload( $r, true ) );
 
@@ -411,7 +447,10 @@ final class TrainingPlansRestController {
     public static function archive_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — archiving somebody else's plan leaves no trace on the
+        // caller's own surfaces, which is exactly why it is scoped here.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         // Soft-delete only. The plan's runs are deliberately untouched —
         // a plan going away must not take a session that happened with it.
@@ -422,6 +461,9 @@ final class TrainingPlansRestController {
 
     public static function duplicate_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
+        // #4002 — copying another team's plan is a read of it.
+        $refusal = self::planRefusal( (int) $r['id'] );
+        if ( $refusal !== null ) return $refusal;
 
         $new_id = $repo->duplicate(
             (int) $r['id'],
@@ -445,6 +487,10 @@ final class TrainingPlansRestController {
     public static function publish_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
+        // #4002 — publishing mails every head coach the plan is for, so the
+        // record is checked before the announcement, not after it.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $plan = $repo->findById( $id );
         if ( ! $plan ) return self::notFound();
@@ -475,8 +521,9 @@ final class TrainingPlansRestController {
     public static function unpublish_plan( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlansRepository();
         $id   = (int) $r['id'];
-
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — retracting another team's publication is their business.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $repo->unpublish( $id );
 
@@ -490,7 +537,10 @@ final class TrainingPlansRestController {
      */
     public static function plan_coverage( \WP_REST_Request $r ): \WP_REST_Response {
         $id = (int) $r['id'];
-        if ( ! ( new TrainingPlansRepository() )->findById( $id ) ) return self::notFound();
+        // #4002 — this answer names the team's players, so it is the
+        // clearest case on the surface for scoping the record.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         return RestResponse::success( [ 'coverage' => ( new PlanCoverageService() )->forPlan( $id ) ] );
     }
@@ -507,7 +557,10 @@ final class TrainingPlansRestController {
     public static function exercise_options( \WP_REST_Request $r ): \WP_REST_Response {
         $plans = new TrainingPlansRepository();
         $id    = (int) $r['id'];
-        $plan  = $plans->findById( $id );
+        // #4002 — the ranking counts this team's open player goals.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
+        $plan = $plans->findById( $id );
         if ( ! $plan ) return self::notFound();
 
         $exercises = new ExercisesRepository();
@@ -556,7 +609,9 @@ final class TrainingPlansRestController {
 
     public static function list_blocks( \WP_REST_Request $r ): \WP_REST_Response {
         $id = (int) $r['id'];
-        if ( ! ( new TrainingPlansRepository() )->findById( $id ) ) return self::notFound();
+        // #4002 — this plan.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         return RestResponse::success( [
             'blocks' => array_map(
@@ -574,7 +629,10 @@ final class TrainingPlansRestController {
     public static function replace_blocks( \WP_REST_Request $r ): \WP_REST_Response {
         $plans = new TrainingPlansRepository();
         $id    = (int) $r['id'];
-        if ( ! $plans->findById( $id ) ) return self::notFound();
+        // #4002 — a bulk replace of another team's session is the widest
+        // write on this surface; it is scoped before anything is deleted.
+        $refusal = self::planRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $blocks = $r->get_param( 'blocks' );
         if ( ! is_array( $blocks ) ) {

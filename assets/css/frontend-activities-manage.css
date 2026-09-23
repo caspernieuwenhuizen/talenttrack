@@ -1067,6 +1067,20 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
+/* #4005 — a player carrying an open injury cannot be planned for. The pill
+   states only that, never anything about the injury: a coach without injury
+   access plans around it without seeing a child's medical record. Never
+   colour alone — the word is the signal, the tint only reinforces it. */
+.tt-dashboard .tt-act-rp__unavailable {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
 .tt-dashboard .tt-act-card-d__sub {
     margin: 0 0 8px;
     font-size: 0.8125rem;
@@ -1508,4 +1522,15 @@
     font-size: 0.75rem;
     background: var(--tt-surface-muted, #eef2f4);
     color: var(--tt-ink-soft, #5b6e75);
+}
+/* #4005 — the same availability flag while the squad is being picked. */
+.tt-dashboard .tt-planned-attendance .tt-planned-unavailable {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
 }

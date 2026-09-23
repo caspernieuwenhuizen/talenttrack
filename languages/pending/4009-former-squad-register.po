@@ -1,0 +1,12 @@
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Left the squad"
+msgstr "Uit de selectie"
+
+#. translators: %s is the team the player is on now.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Left the squad — now %s"
+msgstr "Uit de selectie — nu %s"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Players who have left the squad since this period are listed at the bottom. Their attendance is shown as it was recorded and cannot be changed here."
+msgstr "Spelers die sinds deze periode uit de selectie zijn, staan onderaan. Hun aanwezigheid wordt getoond zoals die is vastgelegd en kan hier niet worden gewijzigd."

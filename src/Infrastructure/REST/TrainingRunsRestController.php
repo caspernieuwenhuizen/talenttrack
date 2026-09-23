@@ -159,6 +159,49 @@ final class TrainingRunsRestController {
         return RestResponse::error( 'not_found', __( 'Training run not found.', 'talenttrack' ), 404 );
     }
 
+    /**
+     * #4002 — the run the route names, scoped to the caller's teams.
+     *
+     * `tt_training_plan` is club-wide, so it answers "does this user run
+     * trainings?" and never "whose?". Every by-id route here resolved the
+     * run and then read or wrote it, which let a coach of one team read
+     * another team's session, rewrite how its blocks went, delete the run
+     * outright, or read and write observations — notes about named children
+     * they have no business with.
+     *
+     * The run's own `team_id` decides when it has one; otherwise the team
+     * behind its activity does. A run with neither has no team to be out of
+     * scope for, and the capability is the whole answer for it.
+     *
+     * Refuses as `404 not_found` — the same answer a run that does not
+     * exist gets, so a caller outside the scope learns nothing about what
+     * is there.
+     */
+    private static function runRefusal( int $run_id ): ?\WP_REST_Response {
+        $run = ( new TrainingPlanRunsRepository() )->findById( $run_id );
+        if ( $run === null ) return self::notFound();
+
+        return self::refuseUnlessTeamReadable(
+            (int) ( $run->team_id ?? 0 ),
+            (int) ( $run->activity_id ?? 0 )
+        );
+    }
+
+    /**
+     * The scope question itself, so the run routes and the activity route
+     * ask it the same way.
+     */
+    private static function refuseUnlessTeamReadable( int $team_id, int $activity_id ): ?\WP_REST_Response {
+        if ( $team_id <= 0 && $activity_id > 0 ) {
+            $team_id = (int) ( \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity( $activity_id ) ?? 0 );
+        }
+        if ( $team_id <= 0 ) return null;
+        if ( \TT\Modules\Authorization\AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ) {
+            return null;
+        }
+        return self::notFound();
+    }
+
     public static function register(): void {
         register_rest_route( self::NS, '/training/runs', [
             [
@@ -281,7 +324,9 @@ final class TrainingRunsRestController {
     public static function get_run( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — this run, not runs in general.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         return RestResponse::success( [ 'run' => self::shapeRun( $repo, $id ) ] );
     }
@@ -289,7 +334,10 @@ final class TrainingRunsRestController {
     public static function update_run( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — completing another team's run would rebuild their
+        // players' exposure minutes, so the record is checked first.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $status = $r->get_param( 'status' );
         if ( $status === null ) {
@@ -323,9 +371,12 @@ final class TrainingRunsRestController {
      * own list, so a coach can see what they have already written.
      */
     public static function list_observations( \WP_REST_Request $r ): \WP_REST_Response {
-        $repo = new TrainingPlanRunsRepository();
-        $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        $id = (int) $r['id'];
+        // #4002 — observations are notes about named children; the run's
+        // team decides who may read them. Resolving the run is what the
+        // refusal does, so the run repository is no longer needed here.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         return RestResponse::success( [
             'observations' => array_map(
@@ -346,7 +397,10 @@ final class TrainingRunsRestController {
     public static function create_observation( \WP_REST_Request $r ): \WP_REST_Response {
         $runs = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $runs->findById( $id ) ) return self::notFound();
+        // #4002 — the run first: writing a note onto a child's timeline
+        // through somebody else's session is the worst case on this surface.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $player_id = (int) $r->get_param( 'player_id' );
         if ( $player_id <= 0 ) {
@@ -358,6 +412,20 @@ final class TrainingRunsRestController {
         }
 
         $repo = new TrainingObservationsRepository();
+
+        // #4002 — and the player. The run's team is not the whole answer:
+        // a guest from another squad can be in the register, and an
+        // observation is an evaluation of a named child.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canEvaluatePlayer(
+            get_current_user_id(),
+            $player_id
+        ) ) {
+            return RestResponse::error(
+                'not_found',
+                __( 'That player is not in your scope.', 'talenttrack' ),
+                404
+            );
+        }
 
         // #2552 — a replay from the offline queue must not become a
         // second observation. The client stamps `client_uuid` once, when
@@ -411,7 +479,21 @@ final class TrainingRunsRestController {
     public static function delete_observation( \WP_REST_Request $r ): \WP_REST_Response {
         $observation_id = (int) $r['observation'];
 
-        $ok = ( new TrainingObservationsRepository() )->delete( $observation_id );
+        // #4002 — the observation names the run it belongs to, and the run
+        // names the team. Without this any plan-holder could delete any
+        // coach's note about any child, and a delete leaves nothing behind
+        // to notice.
+        $repo        = new TrainingObservationsRepository();
+        $observation = $repo->findById( $observation_id );
+        if ( $observation === null ) {
+            return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
+        }
+        $refusal = self::runRefusal( (int) ( $observation->run_id ?? 0 ) );
+        if ( $refusal !== null ) {
+            return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
+        }
+
+        $ok = $repo->delete( $observation_id );
         if ( ! $ok ) {
             return RestResponse::error( 'not_found', __( 'That observation no longer exists.', 'talenttrack' ), 404 );
         }
@@ -437,7 +519,9 @@ final class TrainingRunsRestController {
     public static function update_block( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — this run.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $block_id = (int) $r['block'];
         $belongs  = false;
@@ -465,7 +549,10 @@ final class TrainingRunsRestController {
     public static function detach( \WP_REST_Request $r ): \WP_REST_Response {
         $repo = new TrainingPlanRunsRepository();
         $id   = (int) $r['id'];
-        if ( ! $repo->findById( $id ) ) return self::notFound();
+        // #4002 — detaching deletes the run and, by cascade, every
+        // observation on it. Scope before, not after.
+        $refusal = self::runRefusal( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $repo->delete( $id );
 
@@ -473,8 +560,16 @@ final class TrainingRunsRestController {
     }
 
     public static function for_activity( \WP_REST_Request $r ): \WP_REST_Response {
-        $repo = new TrainingPlanRunsRepository();
-        $run  = $repo->findForActivity( (int) $r['id'] );
+        $repo        = new TrainingPlanRunsRepository();
+        $activity_id = (int) $r['id'];
+
+        // #4002 — the activity in the URL decides. This route is readable
+        // with `tt_view_activities`, which is club-wide, so without this it
+        // answered with another team's session plan.
+        $refusal = self::refuseUnlessTeamReadable( 0, $activity_id );
+        if ( $refusal !== null ) return $refusal;
+
+        $run = $repo->findForActivity( $activity_id );
 
         if ( ! $run ) {
             // Not an error — most activities have no plan attached.
