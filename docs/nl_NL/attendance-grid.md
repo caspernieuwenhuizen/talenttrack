@@ -38,6 +38,26 @@ desktop of laptop; op een telefoon is de begeleide wizard handiger.
 - De kolom **Aanwezig %** rechts laat snel zien hoe vaak een speler in de
  getoonde periode aanwezig was.
 
+## Terugkijken naar een vorig seizoen
+
+Elke zomer schuiven selecties door, en een presentielijst schuift niet mee.
+Kies je dus een periode van vóór de laatste teamwissel, dan toont het raster
+ook de spelers die toen in de selectie zaten en er nu niet meer bij horen. Ze
+staan **onder** de huidige selectie, gedempt, met het team waarin ze nu zitten
+naast hun naam — *"Uit de selectie — nu JO12-1"*.
+
+Die rijen zijn **alleen-lezen**: je ziet elke vastgelegde status, maar er is
+geen keuzelijst om er één te wijzigen. Aanwezigheid kun je alleen vastleggen
+voor een speler die in de selectie zit, en een bewerking aanbieden die toch
+geweigerd wordt is slechter dan hem niet aanbieden. Een notitie onder het
+raster zegt dat ook. Wil je een vastlegging van een vertrokken speler
+corrigeren, doe dat dan op het aanwezigheidsformulier van de activiteit zelf.
+
+Daarom klopt de activiteitenlijst van het team nu ook met zichzelf bij zo'n
+activiteit: de aantallen op de kaart ("20 / 20 vastgelegd", het
+aanwezigheidspercentage) tellen de presentielijst zoals die is vastgelegd, en
+niet de spelers die vandaag in het team zitten.
+
 ## Aanwezigheid vastleggen
 
 1. Kies het **team**, de **periode** (een snelknop of een eigen datumbereik)

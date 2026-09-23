@@ -23,6 +23,14 @@ Een **persoon** is een echte rol bij de club. Een **WordPress-gebruiker** is een
 
 Koppel ze als beide bestaan. De koppeling maakt dingen mogelijk als "coach X mag team Y zien" en "wie coacht dit team".
 
+### Eén account, één actieve persoon
+
+Een WordPress-account kan aan **één actieve persoon** tegelijk gekoppeld zijn. Dat is bewust: bij twee actieve personen op één inlog is niet te beantwoorden wie er inlogt, en daarmee ook niet welke teams en rechten daaruit volgen.
+
+Probeer je een account te koppelen dat iemand anders al heeft, dan wordt het opslaan geweigerd met de melding *"Dit WordPress-account is al aan een andere actieve persoon gekoppeld."* Maak het account eerst vrij: ontkoppel het bij die persoon, of zet die persoon op **inactief**. Een inactieve persoon mág de koppeling houden, want een inactief record laat niemand inloggen.
+
+Via de API geeft dezelfde weigering `409 wp_user_already_linked`, met de persoon die het account bezet in `details.person_id` — zo vind je die persoon ook als een gefilterde lijst (bijvoorbeeld tijdens een demo) hem niet toont.
+
 ### Contactgegevens blijven gelijk
 
 Zodra een persoon en een account gekoppeld zijn, worden hun **e-mailadres en telefoonnummer op beide plekken gelijk gehouden**. Wijzig je het e-mailadres bij de persoon, dan volgt het inlogaccount; wijzig je het op het WordPress-profiel, dan volgt het persoonsrecord. Wat je ook aanpast, dát is het adres waar de berichten van de academie daadwerkelijk naartoe gaan.

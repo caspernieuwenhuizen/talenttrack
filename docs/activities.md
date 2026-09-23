@@ -297,6 +297,10 @@ Three things this does not do. A roster you supply yourself is kept exactly as y
 
 Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. When some players are marked away the panel shows a summary such as *"2 not coming · 1 maybe"* and tags each affected player.
 
+**A player who is injured is flagged Unavailable.** Both the Expected attendance panel and the Planned attendance section you pick the squad in mark every player who is carrying an open injury, so you don't have to remember it yourself. The flag is worked out from the injury record each time the screen is drawn — it is never stored, and it never changes a status you set: a player you deliberately expect (a light session, rehab minutes, travelling with the squad) stays **Expected**, with the flag beside it.
+
+The flag says only that the player is unavailable. It carries **no medical detail at all** — no injury type, no body part, no note, no dates — so a coach or assistant who has no access to injuries can still plan around it without seeing a child's medical record. An injury stops flagging as soon as a return date is recorded, and an old record whose expected return has already passed does not flag at all.
+
 **An activity with no squad yet says so, rather than showing nothing.** The panel reads *"No squad picked yet."* and, if you may edit activities, offers **Pick the squad →** straight into the plan editor. It used to disappear entirely, and since it is the only place on the detail page that links into the plan, the prompt and the way in went with it: you opened a training the evening before and found date, time, type and notes, with no squad and nowhere to build one. Most activities never see this now — anything created for a team starts with that team expected — but an activity with **no team**, one created before that rule existed, or one whose squad you deliberately emptied still lands here, and now it lands somewhere you can act.
 
 A **completed** activity is the exception and is unchanged: the attendance panel below has the answer for it, so there is no stale offer to pick a squad for a match already played. A **cancelled** one states the empty squad but does not offer the editor.
@@ -395,6 +399,8 @@ There are two kinds of guest:
 
 To add a guest, open the activity, scroll to the **Guests** section, click **+ Add guest**, fill in the fields and click **Add**.
 
+The **position** and the **note** you record describe the visit, so they are kept for both kinds of guest — a trial note you write while adding a linked player from another team is saved with the row, not discarded. Name and age are only asked for an anonymous guest; a linked guest takes those from their player record. You can change the note afterwards in the Guests list at any time.
+
 Guests don't count toward team statistics — attendance percentages and the team podium use the squad only.
 
 A guest appearance **does** count toward the guesting player's own load. On a player's profile — their attendance KPI and the status engine's load input — a session they played as a guest for another team is counted alongside their own-team sessions, so a heavily played-up player's load reads accurately. The split is deliberate: *player load = everything the player did anywhere; team statistics = own-roster only.*
@@ -416,4 +422,4 @@ Each activity can be tagged with one or more methodology principles so reports c
 
 ## Admin guest panel
 
-The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync.
+The wp-admin Activity edit page now shows a read-only list of guest attendees recorded against the activity. Add or remove guests from the public Activity page; the admin panel stays in sync. The panel shows the visit's position and note for every guest, linked players included.

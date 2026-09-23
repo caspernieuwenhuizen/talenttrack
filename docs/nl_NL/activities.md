@@ -301,6 +301,10 @@ Drie dingen gebeuren bewust niet. Een selectie die je zelf meegeeft blijft preci
 
 Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Zijn er spelers afgemeld, dan toont het paneel een samenvatting zoals *"2 komen niet · 1 misschien"* en wordt elke betrokken speler gemarkeerd.
 
+**Een geblesseerde speler krijgt de markering Niet beschikbaar.** Zowel het paneel Verwachte opkomst als de sectie Geplande opkomst waarin je de selectie samenstelt, markeert elke speler met een openstaande blessure, zodat je het niet zelf hoeft te onthouden. De markering wordt elke keer dat het scherm wordt opgebouwd uit het blessuredossier afgeleid — hij wordt nooit opgeslagen en verandert nooit een status die jij hebt gezet: een speler die je bewust verwacht (een lichte training, revalidatieminuten, mee met de selectie) blijft **Verwacht**, met de markering ernaast.
+
+De markering zegt alleen dát de speler niet in te plannen is. Er gaat **geen enkel medisch detail** mee — geen soort blessure, geen lichaamsdeel, geen notitie, geen datums — zodat een coach of assistent zonder toegang tot blessures er toch om heen kan plannen, zonder het medisch dossier van een kind te zien. Zodra er een terugkeerdatum is vastgelegd verdwijnt de markering, en een oud dossier waarvan de verwachte terugkeer al is verstreken markeert niets meer.
+
 **Een activiteit zonder selectie zegt dat ook, in plaats van niets te tonen.** Het paneel leest dan *"Nog geen selectie vastgelegd."* en biedt, als je activiteiten mag bewerken, **Selectie samenstellen →** rechtstreeks naar de planning. Voorheen verdween het paneel volledig — en omdat het de enige plek op de detailpagina is die naar de planning linkt, verdween daarmee zowel de melding als de weg ernaartoe: je opende de avond ervoor een training en zag datum, tijd, type en notities, zonder selectie en zonder mogelijkheid er een samen te stellen. De meeste activiteiten komen hier niet meer terecht — alles wat voor een team wordt aangemaakt begint met dat team als verwacht — maar een activiteit **zonder ploeg**, een activiteit van vóór die regel, of een activiteit waarvan je de selectie bewust hebt leeggemaakt komt er nog steeds uit, en nu op een plek waar je iets kunt doen.
 
 Een **voltooide** activiteit is de uitzondering en verandert niet: het aanwezigheidspaneel eronder geeft daar het antwoord, dus er staat geen verouderd aanbod om een selectie samen te stellen voor een wedstrijd die al gespeeld is. Bij een **geannuleerde** activiteit staat de lege selectie er wel, maar zonder link naar de planning.
@@ -401,6 +405,8 @@ Er zijn twee soorten gasten:
 
 Open de activiteit, scroll naar het kopje **Gasten**, klik **+ Gast toevoegen**, vul de velden in en klik **Toevoegen**.
 
+De **positie** en de **notitie** die je vastlegt horen bij het bezoek en blijven daarom bij beide soorten gasten bewaard — een proeftrainingsnotitie die je schrijft terwijl je een gekoppelde speler van een ander team toevoegt, wordt opgeslagen bij de regel en niet weggegooid. Naam en leeftijd worden alleen bij een anonieme gast gevraagd; bij een gekoppelde gast komen die uit het spelersrecord. De notitie kun je daarna altijd nog aanpassen in de lijst met gasten.
+
 Gasten tellen niet mee in de teamstatistieken — aanwezigheidspercentages en het podium gebruiken alleen de selectie.
 
 Een gastoptreden telt **wel** mee voor de belasting van de gastspeler zelf. Op het profiel van een speler — de aanwezigheids-KPI en de belastingsinvoer van de statusmotor — wordt een sessie die hij als gast bij een ander team speelde, meegeteld naast zijn eigen teamsessies, zodat de belasting van een veel meespelende speler klopt. De scheiding is bewust: *spelersbelasting = alles wat de speler waar dan ook deed; teamstatistieken = alleen de eigen selectie.*
@@ -422,4 +428,4 @@ Elke activiteit kan worden gekoppeld aan één of meer methodologie-principes, z
 
 ## Gastenpaneel in admin
 
-De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon.
+De wp-admin Activiteit-pagina toont nu een alleen-lezen lijst met gast-aanwezigen die zijn vastgelegd. Voeg gasten toe of verwijder ze via de publieke Activiteit-pagina; het admin-paneel blijft synchroon. Het paneel toont de positie en de notitie van het bezoek bij elke gast, dus ook bij gekoppelde spelers.

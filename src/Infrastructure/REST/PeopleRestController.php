@@ -247,9 +247,21 @@ class PeopleRestController {
         }
         $id = $repo->create( $payload );
         if ( $id === false ) {
+            $refused = self::refusalResponse( $repo, $payload );
+            if ( $refused !== null ) return $refused;
+
             global $wpdb;
-            Logger::error( 'rest.person.create.failed', [ 'db_error' => (string) $wpdb->last_error, 'payload' => $payload ] );
-            return RestResponse::error( 'db_error', __( 'The person could not be created.', 'talenttrack' ), 500 );
+            // Read it BEFORE logging: the logger writes a row, which resets
+            // `$wpdb->last_error`, so a response composed after it carried an
+            // empty string every time.
+            $db_error = (string) $wpdb->last_error;
+            Logger::error( 'rest.person.create.failed', [ 'db_error' => $db_error, 'payload' => $payload ] );
+            return RestResponse::error(
+                'db_error',
+                __( 'The person could not be created.', 'talenttrack' ),
+                500,
+                [ 'db_error' => $db_error ]
+            );
         }
         return RestResponse::success( [ 'id' => (int) $id ] );
     }
@@ -262,13 +274,63 @@ class PeopleRestController {
         if ( $refused !== null ) return $refused;
 
         $repo = new PeopleRepository();
+        // #4002 — resolve the record the id names. `update()` scopes its own
+        // WHERE by club, so a write to a person in another club (or to no
+        // person at all) matched no row — and `$wpdb->update` answers 0, not
+        // false, so the route reported `200 { id }` for a record it had not
+        // touched and does not have. The sibling DELETE already answers 404
+        // in that case; this makes PUT agree with it.
+        if ( $repo->find( $id ) === null ) {
+            return RestResponse::error( 'not_found', __( 'Person not found in your club.', 'talenttrack' ), 404 );
+        }
         $payload = self::extract( $r, false );
         if ( ! $repo->update( $id, $payload ) ) {
+            $refused = self::refusalResponse( $repo, $payload );
+            if ( $refused !== null ) return $refused;
+
             global $wpdb;
-            Logger::error( 'rest.person.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
-            return RestResponse::error( 'db_error', __( 'The person could not be updated.', 'talenttrack' ), 500 );
+            // Before logging, for the reason `create_person()` spells out.
+            $db_error = (string) $wpdb->last_error;
+            Logger::error( 'rest.person.update.failed', [ 'db_error' => $db_error, 'id' => $id ] );
+            return RestResponse::error(
+                'db_error',
+                __( 'The person could not be updated.', 'talenttrack' ),
+                500,
+                [ 'db_error' => $db_error ]
+            );
         }
         return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    /**
+     * #4019 — turn a refusal the repository made into the status it means.
+     *
+     * `create()` and `update()` answer `false` for a failed write and for
+     * the #1104 one-account-one-person rule alike. Reporting both as
+     * `500 db_error` told an admin linking a coach's login that the
+     * database had broken, with an empty `details` and nothing to act on —
+     * and in demo mode the person already holding the account is hidden
+     * from `list()`, so searching for them found nothing either. The id in
+     * `details` is the way out of that.
+     *
+     * Returns null when the `false` was a real write failure, which the
+     * caller still reports as a 500.
+     *
+     * @param array<string, mixed> $payload
+     */
+    private static function refusalResponse( PeopleRepository $repo, array $payload ): ?\WP_REST_Response {
+        if ( $repo->lastRefusal() !== PeopleRepository::REFUSAL_USER_LINKED ) {
+            return null;
+        }
+        return RestResponse::error(
+            PeopleRepository::REFUSAL_USER_LINKED,
+            __( 'This WordPress account is already linked to another active person.', 'talenttrack' ),
+            409,
+            [
+                'wp_user_id' => (int) ( $payload['wp_user_id'] ?? 0 ),
+                'person_id'  => $repo->lastRefusalPersonId(),
+            ]
+        );
     }
 
     /**
