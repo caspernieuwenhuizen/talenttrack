@@ -339,7 +339,7 @@ final class AttendanceGridQuery {
                 'player_id'         => (int) $pl->id,
                 'first_name'        => (string) ( $pl->first_name ?? '' ),
                 'last_name'         => (string) ( $pl->last_name ?? '' ),
-                'jersey_number'     => isset( $pl->jersey_number ) && $pl->jersey_number !== null ? (int) $pl->jersey_number : null,
+                'jersey_number'     => isset( $pl->jersey_number ) ? (int) $pl->jersey_number : null,
                 'on_current_roster' => false,
                 // The bulk-write guard refuses these and reports nothing, so
                 // the row says so instead of offering an edit that no-ops.
