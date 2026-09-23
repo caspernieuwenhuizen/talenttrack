@@ -1,3 +1,0 @@
-#: src/Modules/Teams/Services/TeamStaffPrompt.php
-msgid "%s has no head coach yet. Assign one under Staff on the team — notifications about a player go to their head coach, so a team without one receives none of them."
-msgstr "%s heeft nog geen hoofdcoach. Wijs er een aan onder Staf bij het team — meldingen over een speler gaan naar de hoofdcoach, dus een team zonder hoofdcoach ontvangt er geen enkele."

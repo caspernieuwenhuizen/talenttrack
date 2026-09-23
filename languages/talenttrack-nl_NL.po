@@ -66317,6 +66317,263 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Infrastructure/REST/TrainingRunsRestController.php
+msgid "That player is not in your scope."
+msgstr "Die speler valt buiten je bereik."
+
+#: src/Shared/Admin/BulkActionsHelper.php
+msgid "Nothing was changed — none of the selected records are yours to change."
+msgstr "Er is niets aangepast — geen van de geselecteerde records is van jou om aan te passen."
+
+#: src/Modules/Teams/Services/TeamStaffPrompt.php
+msgid "%s has no head coach yet. Assign one under Staff on the team — notifications about a player go to their head coach, so a team without one receives none of them."
+msgstr "%s heeft nog geen hoofdcoach. Wijs er een aan onder Staf bij het team — meldingen over een speler gaan naar de hoofdcoach, dus een team zonder hoofdcoach ontvangt er geen enkele."
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Left the squad"
+msgstr "Uit de selectie"
+
+#. translators: %s is the team the player is on now.
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Left the squad — now %s"
+msgstr "Uit de selectie — nu %s"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgid "Players who have left the squad since this period are listed at the bottom. Their attendance is shown as it was recorded and cannot be changed here."
+msgstr "Spelers die sinds deze periode uit de selectie zijn, staan onderaan. Hun aanwezigheid wordt getoond zoals die is vastgelegd en kan hier niet worden gewijzigd."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "At-risk players (%1$d or more missed, %2$d or more late)"
+msgstr "Risicospelers (%1$d keer of meer gemist, %2$d keer of meer te laat)"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "%d late"
+msgstr "%d keer te laat"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+msgid "Open the activities behind the at-risk flag for %1$s (%2$s)"
+msgstr "Open de activiteiten achter de risicomarkering van %1$s (%2$s)"
+
+#: src/Modules/Alerts/Services/FamilyReachability.php
+msgid "Without a team"
+msgstr "Zonder team"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%1$d of %2$d families reachable"
+msgstr "%1$d van %2$d gezinnen bereikbaar"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "A family counts as reachable when the club has a guardian e-mail address, a guardian phone number or a linked parent account. It is an extra reading of the same data, not a replacement for the dossier checks: open a team's dossier completeness to see whose file is still incomplete and which field is empty."
+msgstr "Een gezin geldt als bereikbaar zodra de club een e-mailadres van de verzorger, een telefoonnummer van de verzorger of een gekoppeld ouderaccount heeft. Het is een extra lezing van dezelfde gegevens, geen vervanging van de dossiercontroles: open de dossiercompleetheid van een team om te zien wiens dossier nog onvolledig is en welk veld leeg is."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Families we can reach"
+msgstr "Gezinnen die we kunnen bereiken"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "A family counts as reachable when this player has a guardian e-mail address, a guardian phone number or a linked parent account. The checks below stay separate on purpose: an account is how a parent reads their child's record, and the guardian fields are how the club phones somebody on a Saturday morning."
+msgstr "Een gezin geldt als bereikbaar zodra deze speler een e-mailadres van de verzorger, een telefoonnummer van de verzorger of een gekoppeld ouderaccount heeft. De controles hieronder blijven bewust apart: een account is hoe een ouder het dossier van zijn kind meeleest, en de velden van de verzorger zijn hoe de club op zaterdagochtend iemand belt."
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "Consent request still waiting"
+msgstr "Toestemmingsverzoek wacht nog"
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "A consent request logged for a prospect is still waiting for an answer. Nothing can be arranged for the child until the family agrees, and a request nobody chases eventually ages out of the system altogether — so this says how long the wait has been running."
+msgstr "Een toestemmingsverzoek dat voor een talent is vastgelegd, wacht nog op antwoord. Zolang het gezin niet akkoord is, kan er niets voor het kind worden geregeld, en een verzoek dat niemand najaagt verdwijnt uiteindelijk helemaal uit het systeem — daarom staat hier hoe lang het al wacht."
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "A prospect"
+msgstr "Een talent"
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "%1$s has not answered the consent request for %2$s — %3$d day waiting."
+msgid_plural "%1$s has not answered the consent request for %2$s — %3$d days waiting."
+msgstr[0] "%1$s heeft het toestemmingsverzoek voor %2$s niet beantwoord — %3$d dag wachten."
+msgstr[1] "%1$s heeft het toestemmingsverzoek voor %2$s niet beantwoord — %3$d dagen wachten."
+
+#: src/Modules/Prospects/Alerts/ProspectConsentAwaitingAlert.php
+msgid "The consent request for %1$s has been waiting %2$d day."
+msgid_plural "The consent request for %1$s has been waiting %2$d days."
+msgstr[0] "Het toestemmingsverzoek voor %1$s wacht al %2$d dag."
+msgstr[1] "Het toestemmingsverzoek voor %1$s wacht al %2$d dagen."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php
+msgid "Consent waiting"
+msgstr "Toestemming wacht"
+
+#: src/Infrastructure/REST/PeopleRestController.php
+msgid "This WordPress account is already linked to another active person."
+msgstr "Dit WordPress-account is al aan een andere actieve persoon gekoppeld."
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "This WordPress account is already linked to another active person. Unlink that person or set them to inactive first."
+msgstr "Dit WordPress-account is al aan een andere actieve persoon gekoppeld. Ontkoppel die persoon eerst, of zet hem of haar op inactief."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "\"%1$s\" is not a position code TalentTrack can plan with (player %2$d). Accepted codes: %3$s."
+msgstr "\"%1$s\" is geen positiecode waarmee TalentTrack kan plannen (speler %2$d). Toegestane codes: %3$s."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "\"%1$s\" is not a formation this academy has. Known formations: %2$s."
+msgstr "\"%1$s\" is geen formatie die deze academie heeft. Bekende formaties: %2$s."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
+msgid "This score follows the tournament planner. Change it on the fixture."
+msgstr "Deze uitslag volgt de toernooiplanner. Wijzig hem bij de wedstrijd."
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "There is no team you can plan VCT training for yet. Ask your academy administrator for VCT access to a team."
+msgstr "Er is nog geen team waarvoor je VCT-trainingen kunt plannen. Vraag je academiebeheerder om VCT-toegang tot een team."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Every player is covered in every window that has started."
+msgstr "Elke speler is gedekt in elke periode die begonnen is."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Not started yet"
+msgstr "Nog niet begonnen"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "This window has not started yet"
+msgstr "Deze periode is nog niet begonnen"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "You are not linked to a team yet"
+msgstr "Je bent nog niet aan een team gekoppeld"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "This list shows the teams you are assigned to, and you have none yet. Ask your academy administrator to assign you to a team."
+msgstr "Deze lijst toont de teams waaraan je bent toegewezen, en dat zijn er nog geen. Vraag je academiebeheerder om je aan een team toe te wijzen."
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "This list shows the teams you are assigned to. Your account is not linked to a staff record yet, so there is nothing to show. Ask your academy administrator to add you as staff and assign you to a team."
+msgstr "Deze lijst toont de teams waaraan je bent toegewezen. Je account is nog niet aan een stafrecord gekoppeld, dus er is niets te tonen. Vraag je academiebeheerder om je als staflid toe te voegen en aan een team toe te wijzen."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Period %1$d: %2$d of %3$d positions filled"
+msgstr "Periode %1$d: %2$d van %3$d posities gevuld"
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "This lineup does not fill the formation, so the minutes it would record are not what was played. %s."
+msgstr "Deze opstelling vult de formatie niet, dus de minuten die hij zou vastleggen zijn niet wat er gespeeld is. %s."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Check the minutes each player got, then confirm."
+msgstr "Controleer de minuten die elke speler heeft gekregen en bevestig."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "This lineup does not fill the formation in every period."
+msgstr "Deze opstelling vult de formatie niet in elke periode."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Completing it anyway records these minutes as what was played."
+msgstr "Toch afsluiten legt deze minuten vast als wat er gespeeld is."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "%s minutes in total"
+msgstr "%s minuten in totaal"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture: in the opening lineup"
+msgid "Started"
+msgstr "Startte"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture: came off the bench"
+msgid "Came on"
+msgstr "Kwam erin"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture: stayed on the bench"
+msgid "Did not play"
+msgstr "Speelde niet"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Could not load the completion step."
+msgstr "De afsluitstap kon niet worden geladen."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "The match could not be completed."
+msgstr "De wedstrijd kon niet worden afgesloten."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Kick off this match?"
+msgstr "Aftrap geven voor deze wedstrijd?"
+
+#: src/Modules/Vct/Services/LoadRestriction.php
+msgctxt "player load flag"
+msgid "Load restriction"
+msgstr "Belastingbeperking"
+
+#: src/Modules/Vct/Services/LoadRestriction.php
+msgid "Growth spurt (PHV)"
+msgstr "Groeispurt (PHV)"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "This player has a load restriction"
+msgstr "Deze speler heeft een belastingbeperking"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Where the load restriction appears:"
+msgstr "Waar de belastingbeperking verschijnt:"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Load restriction — workload adjusted"
+msgstr "Belastingbeperking — belasting aangepast"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Load restriction: %s — workload adjusted"
+msgstr "Belastingbeperking: %s — belasting aangepast"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "You do not have permission to set load restrictions."
+msgstr "Je hebt geen rechten om belastingbeperkingen in te stellen."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Load restriction saved."
+msgstr "Belastingbeperking opgeslagen."
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+msgctxt "load-restriction sideline tag"
+msgid "Load"
+msgstr "Belasting"
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+#, php-format
+msgid "Load restriction — %d player"
+msgid_plural "Load restrictions — %d players"
+msgstr[0] "Belastingbeperking — %d speler"
+msgstr[1] "Belastingbeperkingen — %d spelers"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Restricted-player load reduction %"
+msgstr "Belastingreductie beperkte speler %"
+
+#: src/Modules/Vct/Rules/RuleMessages.php
+#, php-format
+msgid "The load was eased by %d%% because some players carry a load restriction."
+msgstr "De belasting is met %d%% verlaagd omdat sommige spelers een belastingbeperking hebben."
+
+#: src/Modules/Vct/Rules/RuleMessages.php
+msgid "The load was eased because some players carry a load restriction."
+msgstr "De belasting is verlaagd omdat sommige spelers een belastingbeperking hebben."
+
+#: src/Modules/Vct/Rest/VctPhvFlagsRestController.php
+msgid "The load restriction could not be saved."
+msgstr "De belastingbeperking kon niet worden opgeslagen."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Per player, in shirt-number order"
+msgstr "Per speler, in volgorde van rugnummer"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Team average %s. In shirt-number order."
+msgstr "Teamgemiddelde %s. In volgorde van rugnummer."
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "

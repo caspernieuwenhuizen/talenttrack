@@ -1,3 +1,0 @@
-#: src/Shared/Admin/BulkActionsHelper.php
-msgid "Nothing was changed — none of the selected records are yours to change."
-msgstr "Er is niets aangepast — geen van de geselecteerde records is van jou om aan te passen."

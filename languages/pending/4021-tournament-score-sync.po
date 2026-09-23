@@ -1,3 +1,0 @@
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
-msgid "This score follows the tournament planner. Change it on the fixture."
-msgstr "Deze uitslag volgt de toernooiplanner. Wijzig hem bij de wedstrijd."

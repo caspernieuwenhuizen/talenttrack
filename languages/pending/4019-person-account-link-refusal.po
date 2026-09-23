@@ -1,7 +1,0 @@
-#: src/Infrastructure/REST/PeopleRestController.php
-msgid "This WordPress account is already linked to another active person."
-msgstr "Dit WordPress-account is al aan een andere actieve persoon gekoppeld."
-
-#: src/Modules/People/Admin/PeoplePage.php
-msgid "This WordPress account is already linked to another active person. Unlink that person or set them to inactive first."
-msgstr "Dit WordPress-account is al aan een andere actieve persoon gekoppeld. Ontkoppel die persoon eerst, of zet hem of haar op inactief."
