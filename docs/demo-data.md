@@ -234,6 +234,13 @@ what makes the child picker and the dashboard child switcher reachable. Every
 generated academy therefore demonstrates both, instead of the multi-child
 guardian appearing in roughly two runs out of three.
 
+**Measurements agree with the player record.** The Height and Weight tests
+read back what the player's profile says, walked back to the age they were at
+each earlier round, so their progression is growth rather than a second opinion
+about how tall the child is. The rest of the battery is scaled to the age group
+it was set for and never drops below what the test can physically read: the
+youngest squads get a juggling count, and a target band, that start above zero.
+
 Generation is reproducible: the same seed, preset and content language
 produce the same academy every time — and the same academy whether it was
 generated in one go or a step at a time.

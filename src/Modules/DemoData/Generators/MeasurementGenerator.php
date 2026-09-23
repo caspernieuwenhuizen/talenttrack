@@ -5,8 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\DemoData\DemoAnthropometry;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoCalendar;
+use TT\Modules\DemoData\DemoMeasurementModel;
 use TT\Modules\DemoData\DemoRoster;
 use TT\Modules\Measurements\Units\Dimensions;
 use TT\Modules\Measurements\Units\UnitContext;
@@ -108,6 +110,41 @@ class MeasurementGenerator implements DependentGeneratorInterface {
             'value_type' => 'scale', 'direction' => 'higher', 'frequency' => 'quarterly',
             'base' => 6.0, 'per_year' => 0.2, 'spread' => 1.5, 'improve' => 0.5, 'decimals' => 0,
         ],
+    ];
+
+    /**
+     * What each test can actually read, keyed by `name_en` (#4036): the
+     * lowest value it can physically produce, and what the youngest age group
+     * typically manages. Kept beside the battery rather than in them so the
+     * shape of `BATTERY` stays exactly what it was.
+     *
+     * `min` is the hard limit — zero for a count nobody managed, a time no
+     * child beats. `young` is only consulted where the age line has already
+     * gone below it by the bottom rung, which is the case juggling showed.
+     *
+     * @var array<string, array{min:float, young:float}>
+     */
+    private const RANGE = [
+        'Height'                => [ 'min' => 100.0, 'young' => 110.0 ],
+        'Weight'                => [ 'min' => 16.0,  'young' => 20.0 ],
+        '10 m sprint'           => [ 'min' => 1.5,   'young' => 2.5 ],
+        '30 m sprint'           => [ 'min' => 4.0,   'young' => 6.5 ],
+        '1500 m run'            => [ 'min' => 4.5,   'young' => 9.0 ],
+        'Countermovement jump'  => [ 'min' => 5.0,   'young' => 12.0 ],
+        'Shuttle run'           => [ 'min' => 0.5,   'young' => 2.5 ],
+        'Juggling'              => [ 'min' => 0.0,   'young' => 4.0 ],
+        'Passing accuracy'      => [ 'min' => 10.0,  'young' => 30.0 ],
+        'Dribble circuit'       => [ 'min' => 9.0,   'young' => 24.0 ],
+        'Focus self-assessment' => [ 'min' => 1.0,   'young' => 4.0 ],
+    ];
+
+    /**
+     * Where a test has a hard top as well. A percentage cannot read 104.
+     *
+     * @var array<string, float>
+     */
+    private const CEILINGS = [
+        'Passing accuracy' => 100.0,
     ];
 
     /** Weeks between testing rounds, by category. */
@@ -292,19 +329,40 @@ class MeasurementGenerator implements DependentGeneratorInterface {
             $spec  = $def['spec'];
             $units = self::unitsFor( $spec );
             foreach ( $age_groups as $group => $age ) {
-                $typical = (float) $spec['base'] + ( ( $age - 12 ) * (float) $spec['per_year'] );
-                $spread  = (float) $spec['spread'];
-                $better  = $spec['direction'] === 'lower' ? -1 : 1;
+                $model   = $this->modelFor( $spec, $age );
+                $typical = $model['typical'];
+                $spread  = $model['spread'];
 
-                // Green is the better half of the spread, amber the next
-                // band out; below that the status reads as a concern.
-                $green_edge = $typical + ( $better * $spread * 0.5 );
-                $amber_edge = $typical - ( $better * $spread * 0.5 );
+                if ( $spec['direction'] === 'neutral' ) {
+                    // Height and weight: neither end is "better", so the
+                    // band is centred and amber contains green, which is
+                    // what `MeasurementTargetsRepository` reads it as.
+                    $green_min = $typical - ( $spread * 0.5 );
+                    $green_max = $typical + ( $spread * 0.5 );
+                    $amber_min = $typical - $spread;
+                    $amber_max = $typical + $spread;
+                } else {
+                    $better = $spec['direction'] === 'lower' ? -1 : 1;
 
-                $green_min = min( $typical, $green_edge );
-                $green_max = max( $typical, $green_edge );
-                $amber_min = min( $amber_edge, $typical );
-                $amber_max = max( $amber_edge, $typical );
+                    // Green is the better half of the spread, amber the next
+                    // band out; below that the status reads as a concern.
+                    $green_edge = $typical + ( $better * $spread * 0.5 );
+                    $amber_edge = $typical - ( $better * $spread * 0.5 );
+
+                    $green_min = min( $typical, $green_edge );
+                    $green_max = max( $typical, $green_edge );
+                    $amber_min = min( $amber_edge, $typical );
+                    $amber_max = max( $amber_edge, $typical );
+                }
+
+                // #4036 — the band edges are held inside what the test can
+                // read, so a young age group never opens at a negative count.
+                $floor     = self::floorFor( $spec );
+                $ceiling   = self::ceilingFor( $spec );
+                $green_min = DemoMeasurementModel::clamp( $green_min, $floor, $ceiling );
+                $green_max = DemoMeasurementModel::clamp( $green_max, $floor, $ceiling );
+                $amber_min = DemoMeasurementModel::clamp( $amber_min, $floor, $ceiling );
+                $amber_max = DemoMeasurementModel::clamp( $amber_max, $floor, $ceiling );
 
                 $ok = $wpdb->query( $wpdb->prepare(
                     "INSERT IGNORE INTO {$wpdb->prefix}tt_measurement_targets
@@ -399,12 +457,28 @@ class MeasurementGenerator implements DependentGeneratorInterface {
                         if ( mt_rand( 1, 100 ) > 92 ) continue;
 
                         $player_id = (int) $p->id;
-                        $value = (float) $spec['base']
-                            + ( ( $age - 12 ) * (float) $spec['per_year'] )
-                            + ( $offsets[ $player_id ] * (float) $spec['spread'] * 0.5 )
-                            + ( $t * (float) $spec['improve'] )
-                            + ( ( mt_rand( -30, 30 ) / 100 ) * (float) $spec['spread'] * 0.2 );
+                        $anchor    = $this->recordAnchor( $spec, $p, $when );
 
+                        if ( $anchor !== null ) {
+                            // #4036 — height and weight are not a second
+                            // opinion about the player record. The reading is
+                            // the record, walked back to the age the player
+                            // was on the day, so the latest round agrees with
+                            // their profile and the earlier ones read as growth.
+                            $value = $anchor + ( ( mt_rand( -4, 4 ) / 10 ) );
+                        } else {
+                            $model = $this->modelFor( $spec, $age );
+                            $value = $model['typical']
+                                + ( $offsets[ $player_id ] * $model['spread'] * 0.5 )
+                                + ( $t * $model['improve'] )
+                                + ( ( mt_rand( -30, 30 ) / 100 ) * $model['spread'] * 0.2 );
+                        }
+
+                        $value = DemoMeasurementModel::clamp(
+                            $value,
+                            self::floorFor( $spec ),
+                            self::ceilingFor( $spec )
+                        );
                         $value = round( $value, (int) $spec['decimals'] );
                         if ( $spec['value_type'] === 'scale' ) {
                             $value = max( 1, min( 10, $value ) );
@@ -436,6 +510,149 @@ class MeasurementGenerator implements DependentGeneratorInterface {
             }
         }
         return $total;
+    }
+
+    /**
+     * What one battery entry looks like at one age — the typical value, the
+     * cohort's spread around it and the gain across the window (#4036).
+     *
+     * Height and weight come off the shared body model, so the band an age
+     * group is judged against is centred on the value `PlayerGenerator` wrote
+     * to the record. Everything else comes off the battery's age curve.
+     *
+     * @param array<string,mixed> $spec
+     * @return array{typical:float, spread:float, improve:float}
+     */
+    private function modelFor( array $spec, int $age ): array {
+        $body = self::bodyTypical( $spec, $age );
+        if ( $body !== null ) {
+            return [
+                'typical' => $body,
+                'spread'  => (float) $spec['spread'],
+                'improve' => (float) $spec['improve'],
+            ];
+        }
+
+        $range = self::rangeFor( $spec );
+
+        return DemoMeasurementModel::forAge( [
+            'base'      => (float) $spec['base'],
+            'per_year'  => (float) $spec['per_year'],
+            'spread'    => (float) $spec['spread'],
+            'improve'   => (float) $spec['improve'],
+            'min'       => $range['min'],
+            'young'     => $range['young'],
+            'direction' => (string) $spec['direction'],
+        ], $age );
+    }
+
+    /**
+     * The body model's typical value for an anthropometric test, or null for
+     * every other entry in the battery.
+     *
+     * @param array<string,mixed> $spec
+     */
+    private static function bodyTypical( array $spec, int $age ): ?float {
+        if ( (string) $spec['category'] !== 'Anthropometric' ) return null;
+
+        switch ( (string) $spec['name_en'] ) {
+            case 'Height':
+                return DemoAnthropometry::typicalHeight( $age );
+            case 'Weight':
+                return DemoAnthropometry::typicalWeight( $age );
+        }
+        return null;
+    }
+
+    /**
+     * One player's own height or weight, walked back to the age they were on
+     * the day of the round (#4036).
+     *
+     * A measurement of a child's body is a reading of a fact the player
+     * record already states. Generating it from a separate age line is what
+     * put 15 kg in a U7 player's history while their profile said 24.
+     *
+     * Null for every test that is not height or weight, and for a player
+     * whose record does not carry the figure.
+     *
+     * @param array<string,mixed> $spec
+     */
+    private function recordAnchor( array $spec, object $player, int $when ): ?float {
+        if ( (string) $spec['category'] !== 'Anthropometric' ) return null;
+
+        $row    = (array) $player;
+        $record = (string) $spec['name_en'] === 'Height'
+            ? (float) ( $row['height_cm'] ?? 0 )
+            : (float) ( $row['weight_kg'] ?? 0 );
+        if ( $record <= 0.0 ) return null;
+
+        $dob      = isset( $row['date_of_birth'] ) ? (string) $row['date_of_birth'] : '';
+        $age_then = self::ageOn( $dob, $when );
+        $age_now  = self::ageOn( $dob, $this->calendar->now() );
+        if ( $age_then === null || $age_now === null ) return $record;
+
+        $typical_then = self::bodyTypicalAt( $spec, $age_then );
+        $typical_now  = self::bodyTypicalAt( $spec, $age_now );
+        if ( $typical_then === null || $typical_now === null ) return $record;
+
+        return $record - ( $typical_now - $typical_then );
+    }
+
+    /**
+     * The body model between two birthdays. Whole years would step the series
+     * on the child's birthday and hold it flat in between, which is not what a
+     * growth chart is for.
+     *
+     * @param array<string,mixed> $spec
+     */
+    private static function bodyTypicalAt( array $spec, float $age ): ?float {
+        $lower = (int) floor( $age );
+        $below = self::bodyTypical( $spec, $lower );
+        $above = self::bodyTypical( $spec, $lower + 1 );
+        if ( $below === null || $above === null ) return null;
+
+        return $below + ( ( $above - $below ) * ( $age - $lower ) );
+    }
+
+    /** Age in years, fractional, or null when the date of birth is unusable. */
+    private static function ageOn( string $dob, int $ts ): ?float {
+        if ( $dob === '' ) return null;
+
+        $born = strtotime( $dob . ' 00:00:00 UTC' );
+        if ( $born === false ) return null;
+
+        return max( 0.0, ( $ts - $born ) / YEAR_IN_SECONDS );
+    }
+
+    /**
+     * What this test can read at the bottom, and what the youngest age group
+     * typically manages.
+     *
+     * @param array<string,mixed> $spec
+     * @return array{min:float, young:float}
+     */
+    private static function rangeFor( array $spec ): array {
+        return self::RANGE[ (string) $spec['name_en'] ] ?? [ 'min' => 0.0, 'young' => 0.0 ];
+    }
+
+    /**
+     * The lowest reading this test can produce.
+     *
+     * @param array<string,mixed> $spec
+     */
+    private static function floorFor( array $spec ): float {
+        return self::rangeFor( $spec )['min'];
+    }
+
+    /**
+     * The highest reading this test can produce, where it has one.
+     *
+     * @param array<string,mixed> $spec
+     */
+    private static function ceilingFor( array $spec ): ?float {
+        $name = (string) $spec['name_en'];
+
+        return isset( self::CEILINGS[ $name ] ) ? (float) self::CEILINGS[ $name ] : null;
     }
 
     /** JO13 / U13 → 13. Falls back to 12, the model's reference age. */
