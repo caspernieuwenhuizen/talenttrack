@@ -150,3 +150,14 @@ can record evaluations can edit them. The more attributes you fill in, the
 more the engine has to work with; un-rated attributes simply don't count
 rather than scoring zero. The reworked scores stay behind a per-academy
 toggle until you switch over.
+
+**The development group is staff-only.** Potential, Development forecast
+and Ceiling estimate are the academy's judgement of how far a player will
+go — the same judgement as the status verdict and the potential band, and
+withheld from families for the same reason. Only staff who hold player
+potential see that group: the head coach for their own squad, the Head of
+Development and the academy admin for any team. It is left out of the
+screen and out of the API response for everyone else, including a player
+reading their own profile and a guardian reading their child's. The other
+five groups are recorded observations and stay visible to anyone who may
+view the player.

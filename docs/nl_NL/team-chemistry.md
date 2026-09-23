@@ -152,3 +152,14 @@ attributen je invult, hoe meer de engine heeft om mee te werken; niet-
 beoordeelde attributen tellen simpelweg niet mee in plaats van nul te
 scoren. De vernieuwde scores blijven achter een academie-schakelaar tot je
 overstapt.
+
+**De groep ontwikkeling is alleen voor staf.** Potentieel,
+Ontwikkelingsprognose en Plafondinschatting zijn het oordeel van de
+academie over hoe ver een speler komt — hetzelfde oordeel als het
+statusverdict en de potentieelband, en om dezelfde reden niet voor
+gezinnen. Alleen staf met spelerpotentieel ziet die groep: de hoofdtrainer
+voor de eigen selectie, het hoofd opleidingen en de academie-admin voor elk
+team. Voor alle anderen blijft de groep weg uit het scherm én uit het
+API-antwoord, ook voor een speler die het eigen profiel leest en een ouder
+die het profiel van het kind leest. De andere vijf groepen zijn vastgelegde
+observaties en blijven zichtbaar voor iedereen die de speler mag bekijken.

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\TeamDevelopment\Repositories\PlayerAttributesRepository;
+use TT\Modules\TeamDevelopment\Services\PlayerAttributeAudience;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -62,6 +63,12 @@ final class FrontendPlayerAttributesView extends FrontendViewBase {
         }
 
         $grouped = ( new PlayerAttributesRepository() )->forPlayer( $player_id );
+        // #4030 — the same audience rule the REST read applies, so the
+        // screen and the payload cannot disagree about who sees the
+        // academy's forecast for a child. A reader who can record an
+        // evaluation but holds no `player_potential` edits the five
+        // observed groups and not the forecast.
+        $grouped = PlayerAttributeAudience::filterGroups( $grouped, $user_id, $player_id );
 
         self::enqueueAssets();
         wp_enqueue_style(

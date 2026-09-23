@@ -10,6 +10,7 @@ use TT\Modules\TeamDevelopment\Chemistry\PairChemistryEngine;
 use TT\Modules\TeamDevelopment\Repositories\ChemistryConfig;
 use TT\Modules\TeamDevelopment\Repositories\ChemistryPositionMatrixRepository;
 use TT\Modules\TeamDevelopment\Repositories\PlayerAttributesRepository;
+use TT\Modules\TeamDevelopment\Services\PlayerAttributeAudience;
 
 /**
  * PlayerAttributesRestController (#1912) — the SaaS contract for the
@@ -24,6 +25,11 @@ use TT\Modules\TeamDevelopment\Repositories\PlayerAttributesRepository;
  * resolve through canViewPlayer / canEvaluatePlayer (player development
  * data, same as evaluations); the matrix + weights are admin config gated
  * on the `team_chemistry` entity at global scope.
+ *
+ * #4030 — the attribute read narrows once more inside the handler:
+ * `PlayerAttributeAudience` withholds the `development` group (potential,
+ * development forecast, ceiling estimate) from a reader who does not hold
+ * `player_potential`, which is every family persona.
  */
 class PlayerAttributesRestController {
 
@@ -116,6 +122,10 @@ class PlayerAttributesRestController {
     public static function get_attributes( \WP_REST_Request $r ) {
         $player_id = absint( $r['player_id'] );
         $grouped   = ( new PlayerAttributesRepository() )->forPlayer( $player_id );
+        // #4030 — the development group is the academy's forecast for the
+        // child (potential, development forecast, ceiling estimate) and is
+        // staff-only. `canViewPlayer` alone let a guardian read it.
+        $grouped   = PlayerAttributeAudience::filterGroups( $grouped, get_current_user_id(), $player_id );
         return new \WP_REST_Response( [ 'player_id' => $player_id, 'groups' => $grouped ], 200 );
     }
 
