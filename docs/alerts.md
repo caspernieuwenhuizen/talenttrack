@@ -81,6 +81,16 @@ Each alert links straight to the record it is about, so fixing it is one click a
 | --- | --- | --- |
 | **Trial ending without a decision** | A trial period is within the warning window — or has already run out — and no decision has been recorded. The sentence names the panellists who have submitted no input, because that is usually what the decision is waiting for. It goes to whoever may decide trials, not to the team's head coach: deciding is the one job on a trial case nobody else can do. It resolves itself the moment the decision is recorded or the case is extended, and the decision resolves it immediately rather than on the next sweep. | *Where is this player going?* — asked while there is still time to answer it. A trial window closing in silence is a child and a family waiting on an academy that has lost track of them. |
 
+### Prospects
+
+| Alert | What it means | Which player question it answers |
+| --- | --- | --- |
+| **Consent request still waiting** | A consent request logged for a prospect has been waiting for an answer longer than your academy's threshold, and the sentence names the club that was asked and how many days it has been. It goes to whoever may edit prospects — the scout who logged it and whoever covers for them — and any recorded outcome clears it immediately, agreed, declined or no reply. Consent already on record, by either route, silences it: there is nothing left to chase. | *Where is this player going?* — for a child who cannot go anywhere until somebody answers. No test training can be arranged without the family's consent, so a request nobody chases is a journey stopped at the first step. |
+
+Waiting also shows on the prospects list, in a **Consent waiting** column, so an ageing request is visible where you are already looking rather than only when the alert arrives.
+
+This one is worth knowing why it exists. An open consent request pauses the prospect-retention clock, but only for as long as the request itself is fresh — a request nobody ever followed up on ages out on the normal rule, and the child's record is deleted. Before this alert, nothing anywhere showed the wait, so the likeliest end for an unchased request was a silent purge. The default threshold of five days is set well inside the retention window on purpose; if you lengthen it, keep that relationship, because a threshold past the window would warn about a record that has already gone.
+
 ### Measurements
 
 | Alert | What it means | Which player question it answers |
@@ -160,6 +170,7 @@ These live in academy configuration, not in code, because academies genuinely di
 | `alerts_goal_overdue_lookback_days` | 365 days | How far past its date a goal is still worth chasing. Beyond that it is abandoned rather than overdue, and the fix is a tidy-up, not an alert. |
 | `alerts_pdp_no_conversation_days` | 45 days | How far into a PDP cycle before "no conversation held" becomes an alert. |
 | `alerts_trial_decision_due_days` | 3 days | How much warning you get before a trial ends with no decision recorded. An academy running two-week trials wants a shorter warning than one running six-week ones. |
+| `alerts_prospect_consent_awaiting_days` | 5 days | How long a consent request may sit waiting for an answer before the alert appears. Keep it well inside `tt_prospect_retention_days_no_progress` (90 days by default): a request nobody chases is eventually purged, and a threshold past that window would warn about a record that has already gone. |
 | `alerts_player_turns_18_days` | 30 days | How much notice you get before a player's eighteenth birthday. The age itself is not a setting: it is a fact about the jurisdiction the academy operates in, not a preference. |
 | `alerts_parent_invite_stale_days` | 14 days | How long a parent invitation may sit unused before the alert appears. |
 | `alerts_staff_cert_expiring_days` | 60 days | The window around today for the certificate alert. It reaches both forwards and backwards: a certificate that lapsed last week is the most actionable case of all, and one that lapsed a year ago is not "expiring", it is a different conversation. |
@@ -295,11 +306,28 @@ You still do not receive an alert per team, and that is on purpose. Twenty teams
 
 The summary only ever counts teams you already oversee. It counts each affected record once, even when two coaches were both told about it, so the number is "three unmarked activities", never "six".
 
+"Teams you oversee" comes from your access, not from a job title. If you can read every team's activities — a Head of Development, an academy admin, a scout, a read-only observer — the summary covers the whole academy. A coach assigned to particular teams sees exactly those. Nothing you can put in a link widens it.
+
+### How many of our families can we reach?
+
+Underneath is a second line answering the board's version of the same question: **"3 of 82 families reachable"**, with a count per team beside it.
+
+A family counts as reachable when the club has a guardian e-mail address, a guardian phone number **or** a linked parent account — any one of the three is a route to somebody. Before this, answering it meant opening the dossier completeness report for every squad in turn, reading past every missing player's name, and adding the columns up by hand.
+
+Two things it deliberately does not do:
+
+- **It names nobody.** Academy-wide you get counts and team names. Whose file is missing what stays on that team's dossier completeness page, behind the permissions it already has, because a club-wide list of the families nobody can reach would be an export of children's contact details with a friendlier heading.
+- **It does not replace the dossier checks.** Reachable means "there is some way to contact this family", not "this file is complete". A player whose parent has an account but whose guardian phone number is empty is reachable by e-mail and still nobody you can telephone on a Saturday morning.
+
+The count covers every player on the books, including players not yet placed in a team, so it reconciles with the per-team reports. That is a wider group than the **Player with no guardian contact** alert raises, which waits until a message would actually be sent about the player.
+
+A coach sees the count for their own squads; anyone who can read the whole academy's records sees the academy.
+
 ## For administrators (alerts on records)
 
 - Rendering chips on a list costs **one** database query for the whole page, regardless of how many rows carry a chip. Anything that surfaces alerts on a list must read them in one batch; a per-row read is a bug, not a slow version of the same thing.
 - The per-team summary is a grouped read over the alerts that already exist. It creates nothing, which is what lets the "no alert per team for Heads of Development" rule hold.
-- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, and `GET /alerts/rollup` for the per-team summary. The list pages with `per_page` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`.
+- The same filters are available on the API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, `GET /alerts/rollup` for the per-team summary, and `GET /alerts/family-reachability` for the reachable-families count. The list pages with `per_page` and `page`, and every response carries `X-WP-Total` and `X-WP-TotalPages`.
 - Switching an alert off for the club also clears the ones it has already raised, rather than leaving them stored where nobody can see them.
 - Every alert is also available through the REST API at `/wp-json/talenttrack/v1/alerts`, along with `/alerts/preferences` and `/alerts/policy`.
 

@@ -3,10 +3,13 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Teams\Services\TeamStaffPrompt;
 
 /**
  * TeamsRestController — /wp-json/talenttrack/v1/teams
@@ -96,6 +99,29 @@ class TeamsRestController {
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_team' ],
                 'permission_callback' => $can_edit,
+            ],
+        ] );
+        // #4038 — a player's own team, player-facing.
+        //
+        // `GET /teams/{id}` stays a staff read and keeps its 403 for a player
+        // and a parent: it carries the whole team row and the squad counts,
+        // and #3568 decided collections and staff records are not widened.
+        // That left a player with no route to the squad the `My team` screen
+        // shows them, and a parent none to their child's.
+        //
+        // This is the per-player read, gated the way `players/{id}/goals`
+        // (#3653) and `players/{id}/evaluations` (#3478) are: canViewPlayer(),
+        // which the linked parent already passes for their own child. The
+        // payload is exactly what `FrontendMyTeamView` renders, from the same
+        // query layer, so the screen and the route cannot drift.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/team', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_player_team' ],
+                'permission_callback' => [ __CLASS__, 'can_view_player' ],
+                'args'                => [
+                    'id' => [ 'type' => 'integer', 'required' => true, 'description' => 'The player whose own team to read.' ],
+                ],
             ],
         ] );
         // #2835 — what share of the minutes the team played each player got,
@@ -300,7 +326,8 @@ class TeamsRestController {
                                AND p.archived_at IS NULL
                                AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
                             ) AS hc_person_ids,
-                            " . self::playerCountSql( $p ) . " AS player_count
+                            " . self::playerCountSql( $p ) . " AS player_count,
+                            " . self::trialCountSql( $p ) . " AS trial_count
                      FROM {$p}tt_teams t
                      WHERE {$where_sql}
                      ORDER BY {$orderby} {$order}
@@ -365,7 +392,8 @@ class TeamsRestController {
                        AND p.club_id = t.club_id
                        AND ( tp.end_date IS NULL OR tp.end_date >= CURDATE() )
                     ) AS hc_person_ids,
-                    " . self::playerCountSql( $p ) . " AS player_count
+                    " . self::playerCountSql( $p ) . " AS player_count,
+                    " . self::trialCountSql( $p ) . " AS trial_count
              FROM {$p}tt_teams t
              WHERE t.id = %d AND t.club_id = %d",
             $id, CurrentClub::id()
@@ -385,9 +413,42 @@ class TeamsRestController {
      * #3601 — the squad-size subselect, shared by the list and the detail
      * so the two cannot count differently again. Expects the team aliased
      * `t`.
+     *
+     * #4025 — **active players only**, and trashed rows excluded. It counted
+     * every non-archived row on the team, so trialists, inactive, released and
+     * graduated players all counted toward a team's "21 players" while the
+     * training roster, the monthly team report, eval coverage and the persona
+     * dashboard all said 17. Active-only is the plugin's dominant definition
+     * of a squad; this route was the outlier. Trialists are not lost —
+     * {@see trialCountSql()} counts them separately, beside the roster the
+     * team detail already lists them in.
      */
     private static function playerCountSql( string $p ): string {
-        return "(SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = t.id AND pl.archived_at IS NULL AND pl.club_id = t.club_id)";
+        return self::squadCountSql( $p, PlayerStatus::ACTIVE );
+    }
+
+    /**
+     * #4025 — the trial squad, counted apart from the roster. A coach's
+     * trialists are part of what they are managing, so dropping them from
+     * `player_count` without offering the number would hide them; this is the
+     * number the team detail's trial list already shows.
+     */
+    private static function trialCountSql( string $p ): string {
+        return self::squadCountSql( $p, PlayerStatus::TRIAL );
+    }
+
+    /**
+     * One subselect shape for both counts. `$status` is a PlayerStatus
+     * constant — a closed PHP set, never user input — so it is safe to
+     * interpolate; the lifecycle guard comes from the shared helper.
+     */
+    private static function squadCountSql( string $p, string $status ): string {
+        $lifecycle = ArchiveRepository::filterClause( 'active', 'pl' );
+        return "(SELECT COUNT(*) FROM {$p}tt_players pl
+                  WHERE pl.team_id = t.id
+                    AND pl.club_id = t.club_id
+                    AND pl.status = '{$status}'
+                    AND {$lifecycle})";
     }
 
     /**
@@ -613,6 +674,127 @@ class TeamsRestController {
         ] ] + self::writeArgs();
     }
 
+    /**
+     * #4038 — "may you read this player's record", the gate every per-player
+     * sub-route in the plugin shares. A linked parent passes it for their own
+     * child, which is what makes one route answer both personas.
+     */
+    public static function can_view_player( \WP_REST_Request $r ): bool {
+        $uid       = get_current_user_id();
+        $player_id = (int) $r['id'];
+        if ( $uid <= 0 || $player_id <= 0 ) return false;
+
+        return AuthorizationService::canViewPlayer( $uid, $player_id );
+    }
+
+    /**
+     * #4038 — one player's own team, as the `My team` screen shows it: the
+     * team's name and age group, who runs it, and who the player trains with.
+     *
+     * Deliberately narrow. No ratings, no statuses, no medical data, no
+     * contact details — a teammate row is the name, shirt number and position
+     * a player already reads on the roster. The team rank is opt-in per
+     * academy (`tt_player_visible_rank`, default off, #1384): when it is off
+     * the key is `null` rather than absent, so a consumer can tell "your
+     * academy does not show rank" from "not rated yet".
+     */
+    public static function get_player_team( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+        $player    = QueryHelpers::get_player( $player_id );
+        if ( ! $player ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+
+        $team_id = isset( $player->team_id ) ? (int) $player->team_id : 0;
+        if ( $team_id <= 0 ) {
+            // Not an error: "no team yet" is the answer the screen gives too.
+            return RestResponse::success( [ 'player_id' => $player_id, 'team' => null, 'teammates' => [], 'rank' => null ] );
+        }
+
+        $team = QueryHelpers::get_team( $team_id );
+        $svc  = new \TT\Infrastructure\Stats\TeamStatsService();
+
+        $rank = null;
+        if ( QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1' ) {
+            $rank_info = $svc->getRankInTeam( $player_id, 5 );
+            $rank      = $rank_info === null ? null : [
+                'rank'  => (int) $rank_info['rank'],
+                'total' => (int) $rank_info['total'],
+            ];
+        }
+
+        $teammates = [];
+        foreach ( $svc->getTeammatesOfPlayer( $player_id ) as $mate ) {
+            $codes = self::positionCodes( $mate );
+            $teammates[] = [
+                'player_id'     => (int) ( $mate->id ?? 0 ),
+                // The `My team` screen's own choice of teammate name (#4038):
+                // the roster a player reads in the dressing room.
+                'name'          => QueryHelpers::player_display_name( $mate ),
+                'jersey_number' => isset( $mate->jersey_number ) && $mate->jersey_number !== ''
+                    ? (int) $mate->jersey_number
+                    : null,
+                // `preferred_positions` is a JSON array of codes. The codes
+                // are what a consumer can act on; the label is the same
+                // translated string the player file's Key facts row shows.
+                'positions'      => $codes,
+                'position_label' => self::positionLabel( $codes ),
+            ];
+        }
+
+        return RestResponse::success( [
+            'player_id' => $player_id,
+            'team'      => [
+                'id'              => $team_id,
+                'name'            => isset( $team->name ) ? (string) $team->name : '',
+                'age_group'       => isset( $team->age_group ) ? (string) $team->age_group : '',
+                'head_coach_name' => ( new \TT\Modules\Analytics\EvalCoverageService() )->headCoachNameForTeam( $team_id ),
+            ],
+            'teammates' => $teammates,
+            'rank'      => $rank,
+        ] );
+    }
+
+    /**
+     * #4038 — the stored position codes of one player row. `null`, a JSON
+     * array and an older comma-separated value all read the same way, so a
+     * pre-JSON row is not silently dropped.
+     *
+     * @return list<string>
+     */
+    private static function positionCodes( object $player ): array {
+        $raw = trim( (string) ( $player->preferred_positions ?? '' ) );
+        if ( $raw === '' ) return [];
+
+        $codes = json_decode( $raw, true );
+        if ( ! is_array( $codes ) ) {
+            $codes = explode( ',', $raw );
+        }
+
+        $out = [];
+        foreach ( $codes as $code ) {
+            if ( ! is_scalar( $code ) ) continue;
+            $code = trim( (string) $code );
+            if ( $code !== '' ) $out[] = $code;
+        }
+        return $out;
+    }
+
+    /**
+     * #4038 — the same translated position line the player file's Key facts
+     * row shows, from the shared label translator. An unknown or custom code
+     * passes through as itself rather than being dropped.
+     *
+     * @param list<string> $codes
+     */
+    private static function positionLabel( array $codes ): string {
+        $labels = [];
+        foreach ( $codes as $code ) {
+            $labels[] = \TT\Infrastructure\Query\LabelTranslator::positionLabel( $code );
+        }
+        return implode( ' / ', $labels );
+    }
+
     public static function create_team( \WP_REST_Request $r ) {
         // #3817 — the body's shape before its values.
         $refused = BaseController::checkBody( $r, self::writeArgs() );
@@ -648,7 +830,19 @@ class TeamsRestController {
         $team_id = (int) $wpdb->insert_id;
         // v3.76.2 — auto-tag demo-on rows.
         \TT\Modules\DemoData\DemoMode::tagIfActive( 'team', $team_id );
-        return RestResponse::success( [ 'id' => $team_id ] );
+        // #4007 — the one post-insert extension point on team creation, and
+        // the staffless-team prompt that hangs off it. A team with nobody
+        // running it receives none of the notifications addressed to a head
+        // coach, and nothing said so at the moment it could still be fixed
+        // in one click.
+        TeamStaffPrompt::afterCreate( $team_id, (string) ( $data['name'] ?? '' ) );
+        return RestResponse::success( [
+            'id' => $team_id,
+            // The prompt is a flash on the next page load; the flag lets a
+            // client that renders its own confirmation ask the same question
+            // without a second request.
+            'needs_head_coach' => ! TeamStaffPrompt::hasHeadCoach( $team_id ),
+        ] );
     }
 
     public static function update_team( \WP_REST_Request $r ) {
@@ -915,7 +1109,10 @@ class TeamsRestController {
         }
 
         $age_group    = (string) ( $t->age_group ?? '' );
+        // #4025 — `player_count` is the active squad; trialists carry their
+        // own count so a coach does not lose sight of them.
         $player_count = isset( $t->player_count ) ? (int) $t->player_count : null;
+        $trial_count  = isset( $t->trial_count ) ? (int) $t->trial_count : null;
 
         // #1614 — pre-built Variant B card fragment for the teams-list
         // card grid. Mirrors the `name_link_html` pattern above: the
@@ -949,6 +1146,7 @@ class TeamsRestController {
             'coach_link_html' => $coach_link_html,
             'notes'           => (string) ( $t->notes ?? '' ),
             'player_count'    => $player_count,
+            'trial_count'     => $trial_count,
             // #1614 — next-14-day activity count + pre-rendered card.
             'upcoming_count'  => $upcoming_count,
             'card_html'       => $card_html,

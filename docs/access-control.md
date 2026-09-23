@@ -328,7 +328,11 @@ Pass per-link context through `['ctx' => [...]]`; pass an explicit one-off gate 
 2. Wrap the link render in `CrossViewLink::render( '<slug>', … )` (or branch on `CrossViewLink::allows`).
 3. If the link needs record context (a player id, team id), pass it via `['ctx' => …]` and read it in the gate closure.
 
-An unregistered slug falls back to a permissive read check (the tile's declared entity at `read` when the matrix is active, else allow) so pre-existing internal links keep working; the `xview-link-lint.yml` CI gate fails a PR that adds a **new** ungated `tt_view` cross-view link in a `src/**/Frontend/**` file. For a genuine exception, add a trailing `/* tt-xview-ok */` on the line.
+An unregistered slug falls back to a permissive read check (the tile's declared entity at `read` when the matrix is active, else allow) so pre-existing internal links keep working; the `xview-link-lint.yml` CI gate fails a PR that adds a **new** ungated cross-view link in a `src/**/Frontend/**` file. For a genuine exception, add a trailing `/* tt-xview-ok */` on the line.
+
+**The lint matches two spellings** (#4039): the literal `add_query_arg( [ 'tt_view' => … ] )`, and `RecordLink::detailUrlFor…()`, which builds the same URL indirectly. Every record-link call site used to be invisible to the gate, which is how the season summary shipped a link to a team page the dispatcher refuses — the lint written to prevent exactly that could not see the line. Existing call sites stay grandfathered; the gate is diff-only.
+
+**When dispatch is the gate, ask dispatch.** A slug whose tile declares an entity *other* than the one its capability maps to cannot be gated by restating the capability: `teams` declares `team_roster_panel`, while `tt_view_teams` maps to `team:read`, so a read-only observer passes the capability and is refused the view. Its gate therefore calls `DashboardShortcode::dispatchAllows()`, the dispatcher's own predicate, rather than a third copy of the rule. Prefer that for any surface where the two rungs are known to differ — and note that a KPI tile or link gated on a bare capability is, on those surfaces, gated on the wrong thing.
 
 ## Onboarding-pipeline entities
 

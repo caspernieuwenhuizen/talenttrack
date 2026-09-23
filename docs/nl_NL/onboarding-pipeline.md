@@ -122,6 +122,8 @@ Vier uitkomsten: *wacht op antwoord*, *het gezin ging akkoord*, *het gezin wees 
 
 **Een openstaand verzoek zet de bewaarklok stil.** Een prospect zonder voortgang wordt na 90 dagen verwijderd. Een regel met de uitkomst *wacht op antwoord* telt als voortgang, zodat een academie die echt zit te wachten het kind niet onder zich vandaan verliest. De klok loopt vanaf die regel, niet vanaf de prospect, dus een verzoek dat nooit is nagebeld verjaart alsnog volgens de normale regel. Wordt een prospect verwijderd, dan gaan de toestemmingsregels mee.
 
+**Een wachttijd die oploopt wordt hardop gezegd.** De talentenlijst heeft een kolom **Toestemming wacht** met het aantal dagen dat elk openstaand verzoek al wacht, en na vijf dagen — de instelling `alerts_prospect_consent_awaiting_days` van je academie — gaat er een melding naar wie talenten mag bewerken, met de naam van de club die is gevraagd. Elke vastgelegde uitkomst ruimt de melding direct op. Ze bestaat vanwege de alinea hierboven: zonder haar was de waarschijnlijkste uitkomst van een verzoek dat niemand najoeg dat het dossier van het kind stil werd verwijderd, terwijl de wachttijd nergens te zien was. Zie *Toestemmingsverzoek wacht nog* in het onderwerp Meldingen.
+
 ## Geen uitnodiging zonder toestemming
 
 *Uitnodigen voor testtraining* weigert te verzenden zolang er geen toestemming vastligt — óf een toestemmingsdatum op de prospect, óf een toestemmingsverzoek dat *akkoord* terugkwam.
@@ -158,3 +160,11 @@ De knop verschijnt alleen als er niets anders te doen is: een prospect met een o
 De legacy-keten startte met een `LogProspectTemplate`-klus en gaf daarna door aan `InviteToTestTrainingTemplate`. De wizard *is* het formulier dat de LogProspect-klus omhulde, dus die klus aanmaken om data te vragen die de wizard al verzamelde, was een overbodige stap. De wizard gaat direct naar `InviteToTestTrainingTemplate`.
 
 `LogProspectTemplate` en het `/prospects/log` REST-endpoint blijven bestaan voor backward compat — externe integraties (bijv. het ouder-zelfbevestigingstoken) en elke custom workflow-trigger die ze aanroept blijven werken.
+
+## Een talent vastleggen van buiten TalentTrack
+
+`POST /wp-json/talenttrack/v1/prospects` legt een talent direct vast: voor- en achternaam (verplicht), geboortedatum, huidige club, waar je hem zag, je aantekeningen, het scoutingbezoek waar hij is gevonden, het contactblok van de ouder met bijbehorende toestemming, en `duplicate_override`. Het endpoint antwoordt met **201** en het id van het talent, en het talent telt daarna mee op zijn scoutingbezoek, net als een talent dat via de wizard is aangemaakt. Het vraagt hetzelfde recht als de wizard en zet dezelfde vervolgklus voor het Hoofd Opleiding open.
+
+**`prospects/log` is iets anders en verdwijnt niet.** Dat endpoint maakt geen talent aan — het opent een klus *Talent vastleggen* voor de aanroeper en antwoordt met een `task_id`. Externe integraties en de zelfbevestiging door de ouder gebruiken dat, dus het blijft. Wil je een talentdossier, post dan naar `/prospects`.
+
+De wizard, de klus *Talent vastleggen* en dit endpoint leggen alle drie vast via één aanmaakservice, dus ze gebruiken dezelfde veldindeling en dezelfde dubbelcheck. Een waarschijnlijke dubbele komt terug als **409** met de kandidaten en `duplicate_override: false`; post opnieuw met `duplicate_override: true` zodra iemand ernaar heeft gekeken. Dat spiegelt de wizard met opzet — twee kinderen kunnen echt dezelfde naam hebben, en de check bestaat om iemand te laten kijken, niet om de tweede onvastlegbaar te maken.

@@ -63,7 +63,7 @@ use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
  * minutes available in matches whose minutes were actually recorded, so a month
  * with no recorded minutes has no share rather than a share of zero.
  *
- * @phpstan-type AttendanceRow array{player_id:int, first_name:string, last_name:string, team_name:string, activities:int, total:int, present:int, late:int, absent:int, excused:int, injured:int, present_pct:?float, missed:int, flagged:bool}
+ * @phpstan-type AttendanceRow array{player_id:int, first_name:string, last_name:string, team_name:string, activities:int, total:int, present:int, late:int, absent:int, excused:int, injured:int, present_pct:?float, missed:int, flagged:bool, flag_reasons:list<string>}
  * @phpstan-type MinutesRow array{player_id:int, first_name:string, last_name:string, jersey_number:?int, total_minutes:int, matches:int, starts:int, subs_in:int, subs_off:int, by_type:array<string,int>, available_minutes:int}
  * @phpstan-type Window array{from:string,to:string}
  */

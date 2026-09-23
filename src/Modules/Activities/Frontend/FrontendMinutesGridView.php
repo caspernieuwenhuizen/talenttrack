@@ -422,6 +422,23 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             return;
         }
 
+        // #4021 — a fixture played at a tournament keeps its result on the
+        // fixture, where the planner records it. This column used to offer its
+        // own pair of boxes on top of those, so one fixture had two independent
+        // score stores and whichever was typed into last won. The score is
+        // shown, read-only, and the planner is where it is changed.
+        //
+        // Neutral, so there is no "our end" to pick a stored column by: the
+        // academy's goals are the home column and the opponent's the away one,
+        // which is the orientation the sync writes.
+        if ( ! empty( $a['is_neutral'] ) ) {
+            $neutral = $a[ $field ] ?? null;
+            echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--derived" colspan="3" title="'
+                . esc_attr__( 'This score follows the tournament planner. Change it on the fixture.', 'talenttrack' )
+                . '">' . ( $neutral === null ? '&mdash;' : esc_html( (string) (int) $neutral ) ) . '</td>';
+            return;
+        }
+
         if ( $live ) {
             echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--live" colspan="3" title="'
                 . esc_attr__( 'This score follows the match sheet. Correct a goal in the post-match review and it follows.', 'talenttrack' )

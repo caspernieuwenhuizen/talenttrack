@@ -49,6 +49,28 @@ at the club telephones a family on a Saturday morning. A player can easily
 have one and not the other, and a report that merged them would tell you a
 file was complete when there is still nobody to call.
 
+## Families we can reach
+
+Above the six checks is one line saying how many of the squad's families the
+club can reach at all: **"3 of 21 families reachable"**. A family counts as
+reachable when the player has a guardian e-mail address, a guardian phone
+number **or** a linked parent account — any one of the three is a route to
+somebody.
+
+It is there because the two facts above read as though they disagreed. A
+squad with no guardian e-mail addresses and three linked parent accounts
+shows "0 of 21" on one card and "3 of 21" on another, and both are true. The
+line says what they add up to, so nobody has to work it out on a phone.
+
+It does not replace the checks and it never will. Reachable means "there is
+some way to contact this family", not "this file is complete" — a player
+whose parent has an account but whose guardian phone number is empty is
+reachable by e-mail and still nobody you can telephone on a Saturday
+morning. That is why the cards stay separate underneath.
+
+For the same count across the whole academy, see *The overview for Heads of
+Development and admins* in the Alerts topic.
+
 **"Pictures on file with no consent" counts items as well as players.** One
 player with nine photographs is a different-sized conversation from nine
 players with one each, and that is what you are deciding between when you
@@ -93,7 +115,12 @@ consent on record.
 
 The same answer is available at
 `GET /wp-json/talenttrack/v1/teams/{team_id}/dossier-completeness`. It
-returns `player_count` and one entry per check with `total`, `complete`,
-`counts` and a `needs` list naming the players — the same envelope
-`GET /teams/{team_id}/measurement-coverage` answers in. It is gated on a
-global or team-scoped player read, and it carries no contact values either.
+returns `player_count`, `family_reachable` and one entry per check with
+`total`, `complete`, `counts` and a `needs` list naming the players — the
+same envelope `GET /teams/{team_id}/measurement-coverage` answers in. It is
+gated on a global or team-scoped player read, and it carries no contact
+values either.
+
+The academy-wide count is `GET /wp-json/talenttrack/v1/alerts/family-reachability`,
+which answers with totals and team names only — no player is named there,
+which is why there is still no club-wide dossier route.

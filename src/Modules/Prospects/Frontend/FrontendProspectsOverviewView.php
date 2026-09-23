@@ -82,6 +82,10 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
                 'discovered_at' => [ 'label' => __( 'Discovered',    'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
                 'discovered_by' => [ 'label' => __( 'Discovered by', 'talenttrack' ) ],
                 'status_label'  => [ 'label' => __( 'Status',        'talenttrack' ) ],
+                // #4017 — a consent request logged as waiting was invisible
+                // here, so the only thing chasing it was the scout's own
+                // notebook. Empty when nothing is waiting.
+                'consent_waiting_label' => [ 'label' => __( 'Consent waiting', 'talenttrack' ) ],
             ],
             // #2838 — the correction path. `{id}` is a raw template the
             // list-table JS substitutes per row; tt_back is appended so

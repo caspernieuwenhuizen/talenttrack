@@ -119,6 +119,8 @@ Four outcomes: *waiting for an answer*, *the family agreed*, *the family decline
 
 **An open request holds the retention clock.** A prospect with no progress is purged after 90 days. An entry with the outcome *waiting for an answer* counts as progress, so an academy that is genuinely waiting does not lose the child out from under it. The clock runs from the entry, not the prospect, so a request nobody ever chased still ages out on the normal rule. When a prospect is purged its consent entries go with it.
 
+**A wait that runs on is said out loud.** The prospects list carries a **Consent waiting** column showing how many days each open request has been waiting, and after five days — your academy's `alerts_prospect_consent_awaiting_days` setting — an alert goes to whoever may edit prospects, naming the club that was asked. Recording any outcome clears it straight away. It exists because of the paragraph above: without it, the likeliest end for a request nobody chased was the child's record being quietly purged, with nothing anywhere having shown the wait. See *Consent request still waiting* in the Alerts topic.
+
 ## No invitation without consent
 
 *Invite to test training* refuses to submit unless there is consent on record — either a consent date on the prospect, or a consent request that came back *agreed*.
@@ -155,3 +157,11 @@ The button appears only when there is nothing else to do: a prospect with any op
 The legacy chain dispatched a `LogProspectTemplate` task as the first step, which then handed off to `InviteToTestTrainingTemplate`. The wizard *is* the form that LogProspect's task wrapped, so creating that task to capture data the wizard already collected was a redundant step. The wizard goes straight to `InviteToTestTrainingTemplate`.
 
 `LogProspectTemplate` and the `/prospects/log` REST endpoint stay in place for backward compat — external integrations (e.g. the parent self-confirmation token endpoint) and any custom workflow trigger that calls them keep working.
+
+## Recording a prospect from outside TalentTrack
+
+`POST /wp-json/talenttrack/v1/prospects` records a prospect directly: first and last name (required), date of birth, current club, where you saw them, your notes, the scouting visit they were found at, the parent contact block with its consent, and `duplicate_override`. It answers **201** with the prospect's id, and the prospect then counts on its scouting visit exactly as one created in the wizard does. It needs the same permission as the wizard, and it opens the same follow-on task for the Head of Development.
+
+**`prospects/log` is a different thing and is not going away.** It creates no prospect — it opens a *Log a prospect* task for the caller and answers with a `task_id`. That is what external integrations and the parent self-confirmation flow use, so it stays. If what you want is a prospect record, post to `/prospects`.
+
+The wizard, the *Log a prospect* task and this route all commit through one create service, so they apply the same field map and the same duplicate rule. A likely duplicate comes back as **409** listing the candidates with `duplicate_override: false`; re-post with `duplicate_override: true` once somebody has looked. That mirrors the wizard on purpose — two children genuinely do share a name, and the check exists to make a human check, not to make the second one unrecordable.

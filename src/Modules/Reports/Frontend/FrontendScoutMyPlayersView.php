@@ -151,7 +151,7 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         $back_url = remove_query_arg( [ 'player_id' ] );
         ?>
         <a class="tt-smp-backlink" href="<?php echo esc_url( $back_url ); ?>"><span aria-hidden="true">&larr;</span> <?php esc_html_e( 'Back to my players', 'talenttrack' ); ?></a>
-        <div class="tt-rwz-report-host">
+        <div class="tt-smp-report-host">
             <?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped + photos inlined. ?>
         </div>
         <?php

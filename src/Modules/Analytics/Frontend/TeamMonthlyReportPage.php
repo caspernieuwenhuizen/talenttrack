@@ -575,7 +575,7 @@ final class TeamMonthlyReportPage {
             'coverage'   => [ 'title' => _x( 'Data coverage', 'team monthly report section', 'talenttrack' ),        'note' => __( 'What the report could not see', 'talenttrack' ) ],
             'kpi'        => [ 'title' => _x( 'Headline numbers', 'team monthly report section', 'talenttrack' ),     'note' => __( 'Six figures against last period', 'talenttrack' ) ],
             'status'     => [ 'title' => _x( 'Squad status', 'team monthly report section', 'talenttrack' ),         'note' => __( 'How many players are on track', 'talenttrack' ) ],
-            'attendance' => [ 'title' => _x( 'Attendance', 'team monthly report section', 'talenttrack' ),           'note' => __( 'Per player, lowest first', 'talenttrack' ) ],
+            'attendance' => [ 'title' => _x( 'Attendance', 'team monthly report section', 'talenttrack' ),           'note' => __( 'Per player, in shirt-number order', 'talenttrack' ) ],
             'minutes'    => [ 'title' => _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),        'note' => __( 'Per player, against the target', 'talenttrack' ) ],
             'matches'    => [ 'title' => _x( 'Matches', 'team monthly report section', 'talenttrack' ),               'note' => __( 'Results, scorers and squads', 'talenttrack' ) ],
             'attention'  => [ 'title' => _x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ), 'note' => __( 'The agenda', 'talenttrack' ) ],
@@ -786,12 +786,17 @@ final class TeamMonthlyReportPage {
             _x( 'Attendance', 'team monthly report section', 'talenttrack' ),
             $avg !== null
                 /* translators: %s: team average attendance percentage */
-                ? sprintf( __( 'Team average %s. Lowest first.', 'talenttrack' ), self::pct( $avg ) )
+                ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::pct( $avg ) )
                 : __( 'No attendance recorded.', 'talenttrack' ),
             self::link( 'attendance-report-team', $source, __( 'Open the attendance report', 'talenttrack' ) )
         );
         if ( $rows !== [] ) {
-            // Worst first, the order the query already returns.
+            // #3518 — shirt order, set by the report's attendance block. The
+            // subtitle above says so: it claimed "lowest first" for three
+            // releases after the order changed, and a coach reading the top
+            // rows as the at-risk players was reading shirt numbers (#4035).
+            // Players below the amber / red line are still named in words and
+            // colour by renderBars(), wherever they sit.
             self::renderBars( $rows, 'present_pct', null );
         }
         self::sectionClose();

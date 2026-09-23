@@ -2,7 +2,6 @@
  * frontend-scout-reports.css — 2026 green/gold restyle (#1695) for the
  * Reports + Scout body surfaces:
  *
- *   - Report wizard       (?tt_view=report-wizard)   .tt-rwz-*
  *   - Scout access         (?tt_view=scout-access)    .tt-sa-*
  *   - Scout reports history(?tt_view=scout-history)   .tt-sh-*
  *   - Scout my players     (?tt_view=scout-my-players).tt-smp-*
@@ -280,147 +279,11 @@
 .tt-dashboard .tt-smp-backlink:hover,
 .tt-dashboard .tt-smp-backlink:focus-visible { text-decoration: underline; }
 
-/* ====================================================================
- * Report wizard  (.tt-rwz-*) — moved off the inline <style> block
- * ==================================================================== */
-.tt-dashboard .tt-report-wizard {
-    max-width: 760px;
-    margin: 0 0 var(--tt-sp-6, 24px);
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-4, 16px);
-}
-.tt-dashboard .tt-rwz-step {
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    box-shadow: var(--tt-shadow-md);
-    padding: var(--tt-sp-4, 16px) var(--tt-sp-5, 20px);
-    background: var(--tt-paper, #fff);
-    margin: 0;
-}
-.tt-dashboard .tt-rwz-step legend {
-    font-weight: 700;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 0 var(--tt-sp-1, 4px);
-    color: var(--tt-primary, #0b3d2e);
-}
-.tt-dashboard .tt-rwz-step--scout {
-    border-color: var(--tt-secondary, #e8b624);
-    border-left-width: 4px;
-}
-.tt-dashboard .tt-rwz-help {
-    margin: var(--tt-sp-1, 4px) 0 var(--tt-sp-3, 12px);
-    font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-muted, #6a6d66);
-    line-height: var(--tt-lh-body, 1.5);
-}
-.tt-dashboard .tt-rwz-radios,
-.tt-dashboard .tt-rwz-checks,
-.tt-dashboard .tt-rwz-scope {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-2, 8px);
-}
-.tt-dashboard .tt-rwz-radio {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: var(--tt-sp-2, 8px);
-    min-height: 48px;
-    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
-    border: 1px solid transparent;
-    border-radius: var(--tt-radius, 8px);
-    cursor: pointer;
-    touch-action: manipulation;
-}
-.tt-dashboard .tt-rwz-radio:hover,
-.tt-dashboard .tt-rwz-radio:focus-within {
-    background: var(--tt-bg-soft, #f4f6f3);
-    border-color: var(--tt-line, #e3e6e1);
-}
-.tt-dashboard .tt-rwz-radio input { margin-top: 2px; }
-.tt-dashboard .tt-rwz-radio-label {
-    font-weight: 600;
-    color: var(--tt-ink, #0e1a14);
-}
-.tt-dashboard .tt-rwz-radio-desc {
-    display: block;
-    width: 100%;
-    margin-left: 24px;
-    font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-muted, #6a6d66);
-}
-.tt-dashboard .tt-rwz-scope .tt-rwz-radio { min-height: 44px; padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px); }
-.tt-dashboard .tt-rwz-custom-range {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--tt-sp-3, 12px);
-    margin-top: var(--tt-sp-2, 8px);
-}
-.tt-dashboard .tt-rwz-custom-range label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-1, 4px);
-    font-size: var(--tt-fs-sm, 0.85rem);
-    color: var(--tt-ink, #0e1a14);
-}
-.tt-dashboard .tt-rwz-check {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--tt-sp-2, 8px);
-    min-height: 48px;
-    color: var(--tt-ink, #0e1a14);
-}
-.tt-dashboard .tt-rwz-check--inline { gap: var(--tt-sp-3, 12px); }
-.tt-dashboard .tt-rwz-check--inline input[type="number"] { width: 80px; }
-.tt-dashboard .tt-rwz-field {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-1, 4px);
-    margin-bottom: var(--tt-sp-3, 12px);
-    color: var(--tt-ink, #0e1a14);
-}
-.tt-dashboard .tt-rwz-field input,
-.tt-dashboard .tt-rwz-field select,
-.tt-dashboard .tt-rwz-field textarea,
-.tt-dashboard .tt-rwz-custom-range input,
-.tt-dashboard .tt-rwz-check--inline input[type="number"] {
-    padding: 0.5rem 0.7rem;
-    min-height: 48px;
-    font-size: 1rem; /* ≥16px — no iOS zoom */
-    color: var(--tt-ink, #0e1a14);
-    background: var(--tt-paper, #fff);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius, 8px);
-}
-.tt-dashboard .tt-rwz-field textarea { min-height: 72px; }
-.tt-dashboard .tt-rwz-field input:focus-visible,
-.tt-dashboard .tt-rwz-field select:focus-visible,
-.tt-dashboard .tt-rwz-field textarea:focus-visible,
-.tt-dashboard .tt-rwz-custom-range input:focus-visible {
-    outline: 2px solid var(--tt-primary, #0b3d2e);
-    outline-offset: 1px;
-}
-.tt-dashboard .tt-rwz-actions { padding-top: var(--tt-sp-1, 4px); }
-
-.tt-dashboard .tt-rwz-preview { margin-top: var(--tt-sp-6, 24px); }
-.tt-dashboard .tt-rwz-preview-head {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--tt-sp-3, 12px);
-    margin: 0 0 var(--tt-sp-3, 12px);
-    padding-bottom: var(--tt-sp-2, 8px);
-    border-bottom: 2px solid var(--tt-primary, #0b3d2e);
-}
-.tt-dashboard .tt-rwz-preview-title {
-    font-size: var(--tt-fs-h3, 1.25rem);
-    margin: 0;
-    color: var(--tt-ink, #0e1a14);
-}
-.tt-dashboard .tt-rwz-report-host {
+/* The frame a scout reads one player's report in. It carried the retired
+ * report wizard's class prefix until #3985 — the wizard's own rules are gone,
+ * this surface is not, and a live class should not be named after a dead
+ * screen. See the release note for the old name. */
+.tt-dashboard .tt-smp-report-host {
     background: var(--tt-paper, #fff);
     border: 1px solid var(--tt-line, #e3e6e1);
     border-radius: var(--tt-radius-lg, 14px);
@@ -428,13 +291,11 @@
     padding: var(--tt-sp-4, 16px);
 }
 
+/* Printing a scout surface prints the record, not the chrome around it. */
 @media print {
-    .tt-report-wizard,
-    .tt-rwz-preview-head,
-    .tt-rwz-help,
     .tt-fview-title,
     .tt-back-link { display: none !important; }
-    .tt-dashboard .tt-rwz-report-host {
+    .tt-dashboard .tt-smp-report-host {
         border: 0;
         box-shadow: none;
         padding: 0;
@@ -514,7 +375,6 @@
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-dashboard .tt-sa-add { flex-wrap: nowrap; }
-    .tt-dashboard .tt-rwz-radio { flex-wrap: nowrap; }
 }
 
 @media (min-width: 768px) {

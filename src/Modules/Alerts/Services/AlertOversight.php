@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
+use TT\Modules\Authorization\AllTeamsScope;
 
 /**
  * AlertOversight (#2633, epic #2629) — the aggregate that makes epic
@@ -32,17 +33,26 @@ final class AlertOversight {
      * Teams the viewer oversees.
      *
      * Resolved through the same capability model every other team-scoped
-     * surface uses: a settings-capable user (academy admin) oversees every
-     * team; anyone else oversees the teams their role scopes grant, which is
-     * re-derived per request and expires with the scope's end date. Nothing
-     * here reads a role name.
+     * surface uses: a user with club-wide read oversees every team; anyone
+     * else oversees the teams their role scopes grant, which is re-derived
+     * per request and expires with the scope's end date. Nothing here reads
+     * a role name.
+     *
+     * The club-wide question is asked of the matrix through `AllTeamsScope`
+     * (#1942) rather than of `tt_edit_settings`. That settings cap was the
+     * phantom stand-in for "club-wide read", and #4023 is what it cost: the
+     * Head of Development holds global read on activities but no settings
+     * cap and no team-scope rows, so the stand-in returned no teams at all
+     * and the roll-up — the one surface epic decision 7 owes them — came
+     * back empty. `activities` is the entity the roll-up actually reads:
+     * `rollupByTeams()` groups team- and activity-subject occurrences.
      *
      * @return list<int>
      */
     public static function teamIdsFor( int $userId ): array {
         if ( $userId <= 0 ) return [];
 
-        $teams = user_can( $userId, 'tt_edit_settings' )
+        $teams = AllTeamsScope::canSeeAllTeamsActivities( $userId )
             ? QueryHelpers::get_teams()
             : QueryHelpers::get_teams_for_coach( $userId );
 

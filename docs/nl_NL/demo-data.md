@@ -218,6 +218,24 @@ twee, en dat is wat de kindkiezer en de kindwisselaar op het dashboard
 bereikbaar maakt. Elke gegenereerde academie laat allebei zien, in plaats van
 dat de ouder met meerdere kinderen in ongeveer twee van de drie runs opdook.
 
+**Schoolvakanties staan op de kalender waar ze horen.** De vakantieperiodes
+die een run wegschrijft zijn die van het schooljaar zelf — voorjaarsvakantie,
+meivakantie, zomerstop, herfstvakantie, kerstvakantie — elk gedateerd op zijn
+eigen plek in het jaar, en alleen de periodes die het gegenereerde venster
+daadwerkelijk raakt. Een kort venster in het najaar krijgt dus een
+herfstvakantie en geen zomerstop, en een run in juli levert nooit een
+winterstop in juli op. Elke periode krijgt een notitie, zodat een gegenereerde
+vakantie leest als een die de club zelf heeft ingevoerd. Een venster dat geen
+enkele vakantie raakt krijgt er geen, en dat is het eerlijke antwoord.
+
+**Metingen kloppen met het spelersdossier.** De testen lengte en gewicht lezen
+terug wat het profiel van de speler zegt, teruggerekend naar de leeftijd die
+hij bij elke eerdere ronde had, zodat de reeks groei laat zien in plaats van een
+tweede mening over hoe lang het kind is. De rest van de testbatterij is
+geschaald op de leeftijdsgroep waarvoor hij is ingesteld en zakt nooit onder wat
+de test kan meten: de jongste selecties krijgen een aantal keren hooghouden, en
+een streefband, die boven nul beginnen.
+
 Genereren is reproduceerbaar: dezelfde seed, preset en inhoudstaal leveren
 elke keer dezelfde academie op — en dezelfde academie of je hem nu in één keer
 of stap voor stap laat maken.

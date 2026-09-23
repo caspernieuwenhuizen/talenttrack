@@ -102,6 +102,14 @@ Het bladwijzer-icoon naast de chips opent een menu. **Een weergave bijwerken.** 
 activiteiten zegt een percentage op zichzelf weinig; de breuk vertelt zonder
 rekenwerk wat er werkelijk gebeurde.
 
+**Wie te laat kwam, was er wel.** Aanwezig-% is *aanwezig + te laat gedeeld door
+de getelde activiteiten*, dus de breuk ernaast is iedereen die is komen opdagen.
+Een keer te laat drukt het percentage dus niet, maar wordt gemeld in de kolom
+**Te laat** en apart gemarkeerd (zie *ranglijst + risicomarkering* hieronder).
+Voorheen kon een speler die bij elke sessie was maar vier keer te laat kwam, als
+de slechtste aanwezige van de selectie op het scherm staan, zonder ooit
+gemarkeerd te worden.
+
 **Te laat, Afwezig, Afgemeld en Geblesseerd tonen het aantal**, geen percentage.
 Twee gemiste trainingen staan er als **2**. De kolommen sorteren op getal, dus 2
 komt vóór 10.
@@ -495,9 +503,11 @@ de bestemming mist (§7 verbergen-niet-plagen).
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).
 
-Spelers die een instelbaar aantal activiteiten hebben **gemist** in de periode (afwezig / afgemeld / geblesseerd) worden **gemarkeerd**: een ⚠-badge met het aantal gemiste activiteiten, een licht gekleurde rij, en een paneel **Risicospelers** boven de tabel. De drempel (standaard **3**) is de *enige bron van waarheid* die gedeeld wordt met de dagelijkse aanwezigheidsmelding, zodat het rapport en de melding altijd overeenkomen.
+**Wat geldt als aanwezig, en wat als gemist.** *Aanwezig* is **aanwezig of te laat** — wie te laat kwam, was er. *Gemist* is **afwezig, afgemeld of geblesseerd**. Elk aanwezigheidsgetal in de plugin leest die twee definities op één plek, zodat het percentage, de kleurband, de markering, de ranglijst, het maandrapport per team en de dagelijkse melding het niet met elkaar oneens kunnen zijn.
 
-De ⚠-badge (en elke naam in het paneel **Risicospelers**) is een **link** — tik erop om de markering te herleiden tot de onderliggende sessies. Hij opent dezelfde spelergerichte activiteitenlijst als het *Activiteiten*-aantal (deze speler, het team van het rapport, de periode van het rapport), zodat je de datumsessies ziet die de speler bijwoonde en het aantal gemiste activiteiten kunt verifiëren. Een **← Terug**-link keert terug naar het rapport.
+Spelers worden **gemarkeerd** op beide aantallen: een instelbaar aantal **gemiste** activiteiten in de periode, of een instelbaar aantal keren **te laat**. Een gemarkeerde speler krijgt een ⚠-badge, een licht gekleurde rij en een plek in het paneel **Risicospelers** boven de tabel. **De badge zegt welk van de twee het is** — *3 gemist*, *4 te laat*, of beide — zodat een speler die bij elke sessie is maar nooit op tijd, niet wordt gelezen als iemand die sessies overslaat, en een speler die sessies mist niet wordt vrijgepleit door een mooi percentage. Het paneel zet verzuim eerst, te laat komen daarna.
+
+De ⚠-badge (en elke naam in het paneel **Risicospelers**) is een **link** — tik erop om de markering te herleiden tot de onderliggende sessies. Hij opent dezelfde spelergerichte activiteitenlijst als het *Activiteiten*-aantal (deze speler, het team van het rapport, de periode van het rapport), zodat je de datumsessies ziet die de speler bijwoonde en het aantal kunt verifiëren. Een **← Terug**-link keert terug naar het rapport.
 
 ### Het activiteitenaantal natrekken (drill-down)
 
@@ -506,6 +516,8 @@ Het **Activiteiten**-aantal van elke speler is een link. Open het om de daadwerk
 ### De risicodrempel instellen
 
 De drempel staat onder **Configuratie → Algemeen → Risicodrempel aanwezigheid** (een instelling voor de academy-beheerder). Eén getal, tussen 1 en 50, bepaalt elke risicomarkering: het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding lezen het allemaal. Zet hem lager om verzuim eerder op te merken, of hoger als jullie academy alleen op aanhoudend verzuim wil reageren.
+
+**De drempel voor te laat komen volgt datzelfde getal**, tenzij jullie academy er een eigen instelt. Daar is een eigen instelsleutel voor (`attendance_late_flag_threshold`), voor een academy die op te laat komen eerder of later wil reageren dan op verzuim; laat je hem leeg — de standaard — dan markeren drie keer gemist en drie keer te laat allebei, en is er dus maar één getal om af te stemmen.
 
 ## Aanwezigheidsranglijst
 
@@ -520,6 +532,8 @@ Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-
 - `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold` en de periode: `{ players, threshold, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold, from, to }`.
+
+Elke spelersrij op die drie routes draagt `present_pct` (aanwezig + te laat gedeeld door de getelde activiteiten, `null` als de speler geen rijen heeft), `missed` (afwezig + afgemeld + geblesseerd), `flagged` en `flag_reasons` — een lijst met `absence`, `lateness`, of beide, zodat een integratie kan zeggen *waarom* een speler gemarkeerd is zonder de regel zelf opnieuw te bedenken.
 
 De optionele `activity_type_key` op elk aanwezigheids-endpoint beperkt tot één activiteittype, gelijk aan het Type-filter in de rapport-UI.
 

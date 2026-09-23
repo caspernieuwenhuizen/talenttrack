@@ -1,0 +1,7 @@
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "\"%1$s\" is not a position code TalentTrack can plan with (player %2$d). Accepted codes: %3$s."
+msgstr "\"%1$s\" is geen positiecode waarmee TalentTrack kan plannen (speler %2$d). Toegestane codes: %3$s."
+
+#: src/Infrastructure/REST/TournamentsRestController.php
+msgid "\"%1$s\" is not a formation this academy has. Known formations: %2$s."
+msgstr "\"%1$s\" is geen formatie die deze academie heeft. Bekende formaties: %2$s."

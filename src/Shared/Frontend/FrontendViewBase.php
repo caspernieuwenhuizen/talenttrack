@@ -150,8 +150,8 @@ abstract class FrontendViewBase {
         // Reports + Scout body surfaces 2026 restyle (#1695): scout
         // access, scout history, scout my-players. Depends
         // on the app-chrome sheet for the brand tokens + .tt-kpi styling.
-        // Cheap no-op on views that don't render the .tt-rwz-/.tt-sa-/
-        // .tt-sh-/.tt-smp- surfaces.
+        // Cheap no-op on views that don't render the .tt-sa-/.tt-sh-/
+        // .tt-smp- surfaces.
         wp_enqueue_style(
             'tt-frontend-scout-reports',
             TT_PLUGIN_URL . 'assets/css/frontend-scout-reports.css',

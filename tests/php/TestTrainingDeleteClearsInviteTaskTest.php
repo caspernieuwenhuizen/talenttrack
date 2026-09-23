@@ -20,14 +20,25 @@ use TT\Modules\Workflow\WorkflowModule;
  * a column no migration had created. The UPDATE failed, the cascade rolled
  * back, and the delete failed with it. Migration 0288 adds the column and
  * backfills it; the invite template writes it on completion.
+ *
+ * #3986 — the purge case observes the state a real purge leaves, so it cannot
+ * read through `preview()`. The cascade's own COMMIT ends the suite's per-test
+ * transaction, so this test cleans up after itself and commits that too. See
+ * `CommitsAfterCascade`.
  */
 final class TestTrainingDeleteClearsInviteTaskTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private int $hod         = 0;
     private int $prospect_id = 0;
 
     public function set_up(): void {
         parent::set_up();
+
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added.
+        $this->markFixtureFloor();
 
         ( new RolesService() )->installRoles();
         MatrixRepository::clearCache();
@@ -91,6 +102,43 @@ final class TestTrainingDeleteClearsInviteTaskTest extends WP_UnitTestCase {
         $this->assertSame( (string) $before['status'], (string) $after['status'] );
         $this->assertSame( (string) $before['prospect_id'], (string) $after['prospect_id'] );
         $this->assertSame( (string) $before['completed_at'], (string) $after['completed_at'] );
+
+        // #3986 — everything above is read after the cascade's COMMIT, which
+        // is the point of this case and also what put these fixtures beyond
+        // the suite's rollback. Take them out again, for good.
+        $this->cleanUpAndCommit();
+        $this->assertSame(
+            [],
+            $this->rowsAboveFixtureFloor(),
+            'a purge test must not hand its fixtures to the rest of the suite'
+        );
+    }
+
+    /**
+     * #3986 — the guard on the case above. This runs in its own transaction,
+     * so anything the purge test committed is visible here. Before the fix it
+     * saw two prospects and a leftover invite task.
+     */
+    public function test_the_purge_case_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $prospects = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE first_name = %s",
+            'Tycho'
+        ) );
+        $this->assertSame( 1, $prospects, "only this case's own prospect is in the table" );
+
+        $tasks = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_workflow_tasks WHERE template_key = %s",
+            InviteToTestTrainingTemplate::KEY
+        ) );
+        $this->assertSame( 0, $tasks, 'no invite task outlived the case that arranged one' );
+
+        $trainings = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_test_trainings WHERE date LIKE %s",
+            '2026-11-14%'
+        ) );
+        $this->assertSame( 0, $trainings );
     }
 
     public function test_the_migration_backfills_completed_invites_and_leaves_dangling_ones_null(): void {

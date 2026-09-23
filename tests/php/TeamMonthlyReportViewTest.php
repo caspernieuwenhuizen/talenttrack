@@ -111,6 +111,65 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tt-mr-roster', $html );
     }
 
+    /**
+     * #4035 — the attendance section's subtitle names the order its rows are
+     * actually in. It read "Lowest first" while the rows had been in shirt
+     * order since #3518, so a coach reading the top rows as the players who
+     * miss sessions was reading shirt numbers.
+     */
+    public function test_the_attendance_section_names_the_order_its_rows_are_in(): void {
+        global $wpdb;
+
+        // Shirt order 7 / 9 / 11; attendance order is the reverse of it.
+        $players = [];
+        foreach ( [ [ 7, 'Zeven', 3 ], [ 9, 'Negen', 2 ], [ 11, 'Elf', 1 ] ] as [ $jersey, $last, $present ] ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_players", [
+                'club_id'       => 1,
+                'team_id'       => $this->team_id,
+                'first_name'    => 'Speler',
+                'last_name'     => $last,
+                'jersey_number' => $jersey,
+                'status'        => 'active',
+            ] );
+            $players[] = [ 'id' => (int) $wpdb->insert_id, 'last' => $last, 'present' => $present ];
+        }
+
+        $activities = [];
+        foreach ( [ '2020-03-03', '2020-03-10', '2020-03-17' ] as $date ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+                'club_id' => 1, 'team_id' => $this->team_id, 'title' => 'Training ' . $date,
+                'session_date' => $date, 'activity_type_key' => 'training',
+                'activity_status_key' => 'completed', 'plan_state' => 'completed',
+            ] );
+            $activities[] = (int) $wpdb->insert_id;
+        }
+        foreach ( $players as $player ) {
+            foreach ( $activities as $i => $activity_id ) {
+                $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+                    'club_id'     => 1,
+                    'activity_id' => $activity_id,
+                    'player_id'   => $player['id'],
+                    'status'      => $i < $player['present'] ? 'present' : 'absent',
+                    'is_guest'    => 0,
+                    'record_type' => 'actual',
+                ] );
+            }
+        }
+
+        $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'attendance' ] );
+
+        $this->assertStringNotContainsString( 'Lowest first', $html, 'the subtitle must not claim an order the rows do not follow' );
+        $this->assertStringContainsString( 'In shirt-number order', $html );
+
+        $seven = strpos( $html, 'Speler Zeven' );
+        $nine  = strpos( $html, 'Speler Negen' );
+        $eleven = strpos( $html, 'Speler Elf' );
+        $this->assertNotFalse( $seven );
+        $this->assertNotFalse( $nine );
+        $this->assertNotFalse( $eleven );
+        $this->assertTrue( $seven < $nine && $nine < $eleven, 'rows follow shirt order 7, 9, 11 — not attendance' );
+    }
+
     public function test_the_report_is_refused_when_switched_off(): void {
         \TT\Core\FeatureRegistry::setEnabled( 'report_team_monthly', false );
         $this->assertFalse( \TT\Core\FeatureRegistry::isEnabled( 'report_team_monthly' ), 'Precondition: the toggle took.' );

@@ -76,6 +76,31 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #4032 — the completion step is built client-side, so every string on
+        // it reaches the script from the catalogue. The only confirm before
+        // this was a hard-coded English `window.confirm` (CLAUDE.md §4).
+        wp_localize_script( 'tt-tournament-planner', 'TT_TournamentPlanner', [
+            'i18n' => [
+                'completeTitle'   => __( 'Complete match', 'talenttrack' ),
+                'completeIntro'   => __( 'Check the minutes each player got, then confirm.', 'talenttrack' ),
+                'lineupShort'     => __( 'This lineup does not fill the formation in every period.', 'talenttrack' ),
+                /* translators: 1: period number, counted from 1. 2: positions filled. 3: positions the formation has. */
+                'lineupPeriod'    => __( 'Period %1$d: %2$d of %3$d positions filled', 'talenttrack' ),
+                'lineupAnyway'    => __( 'Completing it anyway records these minutes as what was played.', 'talenttrack' ),
+                /* translators: %s: the player's name. */
+                'minutesFor'      => __( 'Minutes for %s', 'talenttrack' ),
+                /* translators: %s: a number of minutes. */
+                'minutesTotal'    => __( '%s minutes in total', 'talenttrack' ),
+                'roleStart'       => _x( 'Started', 'tournament fixture: in the opening lineup', 'talenttrack' ),
+                'roleSub'         => _x( 'Came on', 'tournament fixture: came off the bench', 'talenttrack' ),
+                'roleBench'       => _x( 'Did not play', 'tournament fixture: stayed on the bench', 'talenttrack' ),
+                'cancel'          => __( 'Cancel', 'talenttrack' ),
+                'loading'         => __( 'Loading…', 'talenttrack' ),
+                'loadFailed'      => __( 'Could not load the completion step.', 'talenttrack' ),
+                'completeFailed'  => __( 'The match could not be completed.', 'talenttrack' ),
+                'kickoffConfirm'  => __( 'Kick off this match?', 'talenttrack' ),
+            ],
+        ] );
         wp_enqueue_script(
             'tt-tournament-ticker',
             TT_PLUGIN_URL . 'assets/js/tournament-ticker.js',

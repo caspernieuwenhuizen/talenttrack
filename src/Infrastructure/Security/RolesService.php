@@ -73,9 +73,18 @@ class RolesService {
     ];
 
     /**
-     * #0014 Sprint 4+5 caps. Generate-report is the wizard gate;
-     * generate-scout-report is the wizard's scout-delivery gate;
-     * view-scout-assignments is the scout-side "My players" gate.
+     * #0014 Sprint 4+5 caps. Generate-scout-report is the scout-delivery
+     * gate; view-scout-assignments is the scout-side "My players" gate.
+     *
+     * `tt_generate_report` was the report wizard's gate, and #3955 retired
+     * the wizard — the player report composes, shares with the family and
+     * sends to a scout, each gated per player by `PlayerReportAccess`. So
+     * **nothing reads this cap today** (#3985), and it is kept deliberately
+     * rather than deleted: it is granted on every existing install and
+     * bridged to `reports:create_delete` by `LegacyCapMapper`, so dropping it
+     * would rewrite an operator's role grants and matrix cells to buy nothing
+     * — no gate would change either way. If a report-generation act ever
+     * needs a capability again, this is the one it already has.
      */
     public const REPORT_CAPS = [
         'tt_generate_report',

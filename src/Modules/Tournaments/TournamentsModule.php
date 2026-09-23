@@ -61,6 +61,13 @@ class TournamentsModule implements ModuleInterface {
         // board going with it.
         Rest\PlayerTournamentsRestController::init();
 
+        // #4031 — the tournament day's own activity, created with the
+        // tournament instead of at the first kick-off, so the day is on the
+        // team's calendar while it is still being planned. A listener rather
+        // than a call in the REST controller: the wizard writes its rows
+        // directly and fires the same action.
+        Services\TournamentDayActivity::init();
+
         // v4.8.0 (#975) — admin-post.php handler for the post-creation
         // Add-match surface (?tt_view=tournament-match&action=new). The
         // dispatch case for the GET view lives in DashboardShortcode.

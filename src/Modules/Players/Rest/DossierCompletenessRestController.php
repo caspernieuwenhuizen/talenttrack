@@ -23,6 +23,13 @@ use TT\Modules\Players\Services\DossierCompletenessService;
  * club-wide version answering it with names and addresses would be a bulk
  * export of families' contact details behind a reporting capability.
  *
+ * #4014 added `family_reachable` to the payload: a count of how many of this
+ * squad's families the club has any route to — guardian e-mail, guardian
+ * phone or a linked parent account. Still counts, still no details, and the
+ * six checks are unchanged beside it. The club-wide form of that question is
+ * answered by `GET /alerts/family-reachability`, which is counts and team
+ * names only; the refusal above is about *names*, and it stands.
+ *
  * Its own controller rather than a route on `PlayersRestController`: this is
  * a report keyed by team, gated by team scope, and composing it next to the
  * player CRUD would put a team-scoped read behind a players collection whose

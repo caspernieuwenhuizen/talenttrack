@@ -157,9 +157,28 @@ Het spelersdossier is opnieuw opgebouwd als een port van `.local-mockups/player-
 - **Drie responsive vormen.** Mobiel (≤719px) — één kolom, sticky horizontaal-scrollende tabs. Tablet (720-1023px) — één kolom op max 720px, tabs vouwen, Profiel-kaarten 2-koloms, 96px avatar. Desktop (≥1024px) — twee-koloms grid: 320px linkerkolom (Kerngegevens + In één oogopslag verticaal) + flexibele rechterkolom (tabs + actieve sectie). Hero + actierij overspannen beide kolommen. De `.tt-player-detail__rail` en `.tt-player-detail__main` wrappers gebruiken `display: contents` onder 1024px, zodat de kolomhoogtes onafhankelijk blijven op desktop.
 - **Wat eruit blijft.** Er is geen Analytics-tab, en geen inline archiveren of verwijderen op een Evaluaties-rij — destructieve acties leven op de evaluatie-detailpagina.
 
+## Een nieuw team zonder hoofdcoach meldt dat zelf
+
+Maak een team aan en laat de hoofdcoach leeg — de stafstap in de wizard is
+overslaanbaar, en het platte formulier heeft helemaal geen stafvelden — en de
+volgende pagina meldt het: *"JO14-1 heeft nog geen hoofdcoach. Wijs er een aan
+onder Staf bij het team."* De melding verschijnt één keer, op de pagina waar je
+na het aanmaken belandt, en is te sluiten.
+
+Dat is op dat moment het zeggen waard, omdat bijna elke melding in de plugin aan
+de hoofdcoach van een team is geadresseerd. Een team zonder hoofdcoach mist niet
+alleen een naam in een veld: het ontvangt stilletjes niets meer over zijn
+spelers. De doorlopende melding **Team heeft geen hoofdcoach** geldt bewust
+alleen voor teams die al spelers hebben, niet voor kersverse lege teams — deze
+prompt dekt precies dat gat, zolang het nog met één klik op te lossen is.
+
 ## Teamdetail — stagespelers
 
 De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.
+
+**Het spelersaantal van een team is de actieve selectie.** Het getal op de teamkaart, in de hero-pillen en in de strip Kernfeiten telt alleen **actieve** spelers — geen stagespelers, en geen spelers die inactief zijn, vertrokken of doorgestroomd. Voorheen telden die allemaal mee, en daardoor kon een team 21 spelers tonen terwijl de trainingsroster, het maandrapport en de beoordelingsdekking alle drie 17 zeiden. Stagespelers worden nog steeds geteld, maar apart: de API geeft `trial_count` naast `player_count`, en de teampagina toont ze in de kaart **Stagespelers**. Het cijfer *Actieve spelers* in het seizoensoverzicht en de kolom *Spelers* per team volgen dezelfde regel.
+
+De voorgestelde **selectiegrootte** van een trainingsplan is bewust een ander getal: dat is de opkomst om op te plannen, gelezen uit de recente aanwezigheid. Op een selectie van 17 kan daar dus 15 staan. Dat is wat de laatste sessies werkelijk aan spelers hadden, geen meningsverschil over wie in het team zit.
 
 ## Teamdetail — herontwerp in spelersprofiel-stijl (v4.40.0 — #1613)
 

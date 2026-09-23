@@ -54,6 +54,8 @@ The team podium leads — top 3 players by rolling rating, gold/silver/bronze. B
 
 **Parents see the same page without the podium.** A parent opening their child's team gets the next match, the form line, their child's own card and growth trend, and the teammate roster — but not the top-three ranking. The podium is a dressing-room thing for the players in it; handed to another family's parent it becomes a league table of other people's children, so it stays with the players.
 
+**Through the API.** A player's own team is also readable at `GET /players/{id}/team` — the team's name and age group, who runs it, and the roster (name, shirt number, position). Nothing else: no ratings, no statuses, no medical data, no contact details, and the team rank only when your academy has switched it on. It answers for the player themselves and for a linked parent about their own child, and for nobody else; the staff team endpoint stays staff-only. Apps and integrations read the same squad the screen shows, from the same queries, so the two cannot come to disagree.
+
 Throughout these pages, a parent is addressed as the parent: headings read "Bas's goals" and "How Bas is doing" rather than "My goals" and "How you're doing", and the parent's navigation drops the "My" from the labels that are about their child.
 
 ### My evaluations

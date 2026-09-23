@@ -22,6 +22,7 @@ use TT\Modules\Trials\Reminders\TrialReminderScheduler;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 use TT\Modules\Trials\Services\TrialCaseOpener;
 use TT\Modules\Trials\Services\TrialDecisionDeadline;
+use TT\Modules\Trials\Services\TrialDecisionService;
 
 /**
  * REST surface for #0017 — trial cases.
@@ -36,7 +37,9 @@ use TT\Modules\Trials\Services\TrialDecisionDeadline;
  *                                     caller who may read the synthesis
  *   PUT  /trial-cases/{id}            patch (track / dates / status)
  *   POST /trial-cases/{id}/extend     log extension + bump end_date
- *   POST /trial-cases/{id}/decision   record decision + status transition
+ *   POST /trial-cases/{id}/decision   record decision + status transition,
+ *                                     and generate the letter the decision
+ *                                     warrants, as the case screen does
  *   GET  /trial-cases/{id}/staff      list assigned staff
  *   POST /trial-cases/{id}/staff      assign staff
  *   GET  /trial-cases/{id}/inputs     staff inputs visible to the caller
@@ -361,7 +364,14 @@ class TrialsRestController {
             'user_id' => [
                 'type'        => 'integer',
                 'required'    => true,
-                'description' => 'The staff member to put on the panel.',
+                // #4028 — an id arg names where its id comes from, the way
+                // `ParentAccountRestController`'s `wp_user_id` does. A
+                // caller had no route to consult and nothing in the
+                // description saying so, so assigning a panel meant
+                // guessing an account id. There is no assignable-staff
+                // lookup yet; until there is, the panel read is the one
+                // route that hands these ids back.
+                'description' => 'The account id of the staff member to put on the panel. Read it from user_id on a row of GET trial-cases/{id}/staff, or from the club\'s staff list in People. No lookup of assignable staff exists yet.',
             ],
             'role_label' => [
                 'type'        => [ 'string', 'null' ],
@@ -927,17 +937,30 @@ class TrialsRestController {
             return RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
         }
 
-        $repo = new TrialCasesRepository();
-        // The hook fires from `recordDecision()` now — the journey
+        // #4042 — the same domain call the case screen's decide action
+        // makes. This route used to call `recordDecision()` on its own and
+        // stop, so deciding over HTTP recorded the decision and produced no
+        // letter, while deciding on the screen produced both. The decision →
+        // audience mapping lived in the view, which is why the API could not
+        // have made the second half of the call even if it had wanted to.
+        //
+        // The hook still fires from `recordDecision()` — the journey
         // subscriber and the player-status subscriber both hang off it, and
         // firing it here as well would double every entry.
-        $ok = $repo->recordDecision(
+        $result = ( new TrialDecisionService() )->record(
             $id, $decision, get_current_user_id(), $notes,
             isset( $payload['strengths_summary'] ) ? sanitize_textarea_field( (string) $payload['strengths_summary'] ) : null,
             isset( $payload['growth_areas'] )      ? sanitize_textarea_field( (string) $payload['growth_areas'] )      : null
         );
-        return $ok ? RestResponse::success( [ 'recorded' => true ] )
-                   : RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
+        if ( ! $result['recorded'] ) {
+            return RestResponse::error( 'bad_request', __( 'Could not record decision.', 'talenttrack' ), 400 );
+        }
+        // The letter id is reported so a caller can fetch what the family
+        // will read, without guessing which audience the decision warranted.
+        return RestResponse::success( [
+            'recorded'  => true,
+            'letter_id' => $result['letter_id'] > 0 ? $result['letter_id'] : null,
+        ] );
     }
 
     public static function list_staff( \WP_REST_Request $r ): \WP_REST_Response {
@@ -950,7 +973,81 @@ class TrialsRestController {
             return RestResponse::error( 'forbidden', __( 'No access to this case.', 'talenttrack' ), 403 );
         }
         $rows = ( new TrialCaseStaffRepository() )->listForCase( $id );
-        return RestResponse::success( [ 'staff' => $rows ] );
+        return RestResponse::success( [ 'staff' => self::formatStaffRows( $rows ) ] );
+    }
+
+    /**
+     * The panel, with names on it (#4028).
+     *
+     * The rows come out of the repository as a `SELECT *`, so what a caller
+     * got was `user_id` and nothing to read: a panel of numeric ids, which
+     * no screen can render and no reviewer can check. `display_name` comes
+     * from `staffNames()` — the batched lookup the inputs payload already
+     * uses, so there is one name-resolution path — and `person_id` resolves
+     * the account back to the club's own person record where it has one,
+     * since `tt_players.id` / `tt_people.id` is the portable identity and
+     * the WP user id is one mapping to it (CLAUDE.md §4).
+     *
+     * `null` rather than an omitted key when either does not resolve: a
+     * deactivated account, or a staff member who was never entered in
+     * People. A caller reading `display_name` should not have to branch on
+     * whether the key exists.
+     *
+     * @param object[] $rows
+     * @return array<int,array<string,mixed>>
+     */
+    private static function formatStaffRows( array $rows ): array {
+        $user_ids = [];
+        foreach ( $rows as $row ) {
+            $user_ids[] = (int) ( ( (array) $row )['user_id'] ?? 0 );
+        }
+        $names   = self::staffNames( $user_ids );
+        $persons = self::staffPersonIds( $user_ids );
+
+        $out = [];
+        foreach ( $rows as $row ) {
+            $data = (array) $row;
+            $uid  = (int) ( $data['user_id'] ?? 0 );
+            $name = (string) ( $names[ $uid ] ?? '' );
+
+            $data['display_name'] = $name !== '' ? $name : null;
+            $data['person_id']    = isset( $persons[ $uid ] ) ? (int) $persons[ $uid ] : null;
+            $out[] = $data;
+        }
+        return $out;
+    }
+
+    /**
+     * Person records for a set of accounts, in one query (#4028).
+     *
+     * Club-scoped, so a second tenant's person row can never be handed
+     * back for an account that happens to be on both.
+     *
+     * @param array<int,int> $user_ids
+     * @return array<int,int> wp user id => person id
+     */
+    private static function staffPersonIds( array $user_ids ): array {
+        $ids = array_values( array_unique( array_filter(
+            array_map( 'intval', $user_ids ),
+            static fn( int $id ): bool => $id > 0
+        ) ) );
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $ph   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, wp_user_id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id IN ({$ph}) AND club_id = %d",
+            ...array_merge( $ids, [ \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $data = (array) $row;
+            $uid  = (int) ( $data['wp_user_id'] ?? 0 );
+            if ( $uid > 0 ) $out[ $uid ] = (int) ( $data['id'] ?? 0 );
+        }
+        return $out;
     }
 
     public static function assign_staff( \WP_REST_Request $r ): \WP_REST_Response {
