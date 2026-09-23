@@ -152,15 +152,18 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             return;
         }
 
-        $threshold = AttendanceFlagService::threshold();
-        $at_risk   = array_values( array_filter( $rows, static fn( array $r ): bool => ! empty( $r['flagged'] ) ) );
+        $threshold      = AttendanceFlagService::threshold();
+        $late_threshold = AttendanceFlagService::lateThreshold();
+        $at_risk        = array_values( array_filter( $rows, static fn( array $r ): bool => ! empty( $r['flagged'] ) ) );
 
         // #1695 — KPI summary strip computed from the already-fetched rows
         // (presentation-level aggregation only; the query stays the source).
+        // #4013 — attended is present + late, the same numerator the rows'
+        // own `present_pct` uses, so the strip and the table agree.
         $player_count = count( $rows );
         $sum_present = 0; $sum_total = 0;
         foreach ( $rows as $r ) {
-            $sum_present += (int) $r['present'];
+            $sum_present += (int) $r['present'] + (int) $r['late'];
             $sum_total   += (int) $r['total'];
         }
         $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
@@ -175,12 +178,18 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '</div>';
 
         if ( $at_risk !== [] ) {
-            usort( $at_risk, static fn( $a, $b ) => (int) $b['missed'] <=> (int) $a['missed'] );
+            // #4013 — absences first, lateness as the tiebreak, matching the
+            // shared query's at-risk order.
+            usort( $at_risk, static function ( array $a, array $b ): int {
+                $cmp = (int) $b['missed'] <=> (int) $a['missed'];
+                return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
+            } );
             echo '<div class="tt-atrisk-card">';
             echo '<h3 class="tt-atrisk-card__title">' . esc_html( sprintf(
-                /* translators: %d is the missed-activities threshold */
-                __( 'At-risk players (%d or more missed)', 'talenttrack' ),
-                $threshold
+                /* translators: 1: missed-activities threshold, 2: lateness threshold */
+                __( 'At-risk players (%1$d or more missed, %2$d or more late)', 'talenttrack' ),
+                $threshold,
+                $late_threshold
             ) ) . '</h3>';
             echo '<ul class="tt-atrisk-list">';
             foreach ( $at_risk as $r ) {
@@ -202,7 +211,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 if ( $type_key !== '' ) $card_args['activity_type_key'] = $type_key;
                 $card_url = BackLink::appendTo( add_query_arg( $card_args, RecordLink::dashboardUrl() ) );
                 echo '<li><a class="tt-record-link tt-att-drill" href="' . esc_url( $card_url ) . '">' . esc_html( $nm ) . '</a> <span class="missed">'
-                    . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
+                    . esc_html( self::flagReasonText( $r ) )
                     . '</span></li>';
             }
             echo '</ul></div>';
@@ -262,17 +271,22 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             // tt_back hint back to this report, matching the count drill-down.
             $badge = '';
             if ( ! empty( $r['flagged'] ) ) {
-                $missed_label = sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] );
+                // #4013 — the badge says which count flagged the player, so a
+                // player who is at every session but never on time no longer
+                // reads as having missed sessions.
+                $flag_label = self::flagReasonText( $r );
                 $badge = ' <a class="tt-flag-badge tt-att-drill" href="' . esc_url( $activities_url ) . '" title="'
-                    . esc_attr( $missed_label ) . '" aria-label="'
+                    . esc_attr( $flag_label ) . '" aria-label="'
                     . esc_attr( sprintf(
-                        /* translators: 1: missed count, 2: player name */
-                        __( 'View the %1$d missed activities for %2$s', 'talenttrack' ),
-                        (int) $r['missed'],
-                        $player_name
-                    ) ) . '">⚠ ' . (int) $r['missed'] . '</a>';
+                        /* translators: 1: player name, 2: why they are flagged, e.g. "3 missed, 4 late" */
+                        __( 'Open the activities behind the at-risk flag for %1$s (%2$s)', 'talenttrack' ),
+                        $player_name,
+                        $flag_label
+                    ) ) . '">⚠ ' . esc_html( $flag_label ) . '</a>';
             }
-            $present_pct = (int) $r['total'] > 0 ? ( (int) $r['present'] / (int) $r['total'] ) * 100 : null;
+            // #4013 — the percentage the shared query derived (present + late
+            // over total), not a second numerator computed here.
+            $present_pct = $r['present_pct'] !== null ? (float) $r['present_pct'] : null;
             echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
@@ -291,7 +305,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             }
             echo '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct, (int) $r['present'], (int) $r['total'] ) . '</td>';
+            echo '<td>' . self::attendanceBar( $present_pct, (int) $r['present'] + (int) $r['late'], (int) $r['total'] ) . '</td>';
             // #2834 — the count, not the percentage. `data-sort` carries the
             // number so the client-side sorter orders 2 before 10 instead of
             // lexically.
@@ -304,6 +318,28 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         }
         echo '</tbody></table></div></div>';
         echo '</div>'; // #3338 — /.tt-filter-region
+    }
+
+    /**
+     * #4013 — why this player is on the at-risk list, in words: the missed
+     * count, the late count, or both. The list used to say "%d missed" for
+     * every flagged player, which for a player flagged on lateness alone
+     * read as "0 missed" and told the coach the opposite of the truth.
+     *
+     * @param array<string,mixed> $row  a row from AttendanceRankingQuery
+     */
+    private static function flagReasonText( array $row ): string {
+        $reasons = is_array( $row['flag_reasons'] ?? null ) ? $row['flag_reasons'] : [];
+        $parts   = [];
+        foreach ( $reasons as $reason ) {
+            $parts[] = $reason === AttendanceFlagService::REASON_LATENESS
+                ? sprintf( /* translators: %d activities the player arrived late for */ __( '%d late', 'talenttrack' ), (int) ( $row['late'] ?? 0 ) )
+                : sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
+        }
+        if ( $parts === [] ) {
+            $parts[] = sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) ( $row['missed'] ?? 0 ) );
+        }
+        return implode( ', ', $parts );
     }
 
     /**

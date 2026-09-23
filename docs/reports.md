@@ -102,6 +102,13 @@ The bookmark icon beside the chips opens a menu. **Update a view.** Open a saved
 Over three activities a percentage on its own is noise; the fraction says what
 actually happened without any arithmetic.
 
+**A player who arrived late was at the session.** Present % is *present + late
+over the activities counted*, so the fraction beside it is everyone who turned
+up. A late mark never drags a percentage down on its own — it is reported in
+the **Late** column and flagged separately (see *ranking + at-risk flags*
+below). Before this, a player at every session but late four times could read
+as the worst attender in the squad while never being flagged.
+
 **Late, Absent, Excused and Injured show the count**, not a percentage. Two
 missed sessions read as **2**. The columns sort numerically, so 2 comes before
 10.
@@ -465,9 +472,11 @@ destination's capability (§7 hide-don't-tease).
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
-Players who have **missed** a configurable number of activities in the window (absent / excused / injured) are **flagged**: an inline ⚠ badge with the missed count, a tinted row, and an **At-risk players** panel above the table listing them worst-first. The threshold (default **3**) is the *single source of truth* shared with the daily attendance-flag notification, so the report and the nudge email always agree.
+**What counts as attended, and what counts as missed.** *Attended* is **present or late** — a player who arrived late was there. *Missed* is **absent, excused or injured**. Every attendance figure in the plugin reads those two definitions from one place, so the percentage, the colour band, the flag, the leaderboard, the monthly team report and the daily notification cannot disagree with each other.
 
-The ⚠ badge (and each name in the **At-risk players** panel) is a **link** — tap it to trace the flag to the sessions behind it. It opens the same player-scoped activities list the *Activities* count uses (this player, the report's team, the report's window), so you can see the dated sessions the player attended and reconcile the missed count. A **← Back** link returns to the report.
+Players are **flagged** on either count: a configurable number of **missed** activities in the window, or a configurable number of **late** marks. A flagged player gets an inline ⚠ badge, a tinted row, and a place in the **At-risk players** panel above the table. **The badge says which it is** — *3 missed*, *4 late*, or both — so a player who is at every session but never on time is not read as having skipped sessions, and a player who misses sessions is not excused by a good percentage. The panel lists absences first, lateness second.
+
+The ⚠ badge (and each name in the **At-risk players** panel) is a **link** — tap it to trace the flag to the sessions behind it. It opens the same player-scoped activities list the *Activities* count uses (this player, the report's team, the report's window), so you can see the dated sessions the player attended and reconcile the count. A **← Back** link returns to the report.
 
 ### Tracing the activity count (drill-down)
 
@@ -476,6 +485,8 @@ Each player's **Activities** count is a link. Open it to see the actual sessions
 ### Setting the at-risk threshold
 
 The threshold lives in **Configuration → General → Attendance at-risk threshold** (an academy-admin setting). One number, between 1 and 50, drives every at-risk flag: the player attendance report, the attendance leaderboard, and the daily attendance-flag notification all read it. Lower it to catch slips earlier; raise it if your academy only wants to act on persistent absence.
+
+**The lateness bar follows the same number** unless your academy sets its own. It has its own setting key (`attendance_late_flag_threshold`) for an academy that wants to act on lateness sooner or later than on absence; left unset — the default — three missed and three late flag alike, so there is only ever one number to tune.
 
 ## Attendance leaderboard
 
@@ -490,6 +501,8 @@ Integrations can read the same data — with the same `tt_view_analytics` gate a
 - `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold` and the window: `{ players, threshold, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold, from, to }`.
+
+Every player row on those three routes carries `present_pct` (present + late over the counted activities, `null` when the player has no rows), `missed` (absent + excused + injured), `flagged`, and `flag_reasons` — a list holding `absence`, `lateness`, or both, so an integration can say *why* a player is flagged without re-deriving the rule.
 
 The optional `activity_type_key` on every attendance endpoint narrows to one activity type, matching the report UI's Type filter.
 

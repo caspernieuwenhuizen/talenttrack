@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
@@ -338,7 +340,14 @@ final class CommsScheduledCron {
         // #1488 — shared, operator-configurable threshold (single source
         // of truth with the attendance report). Validated int (>= 1),
         // safe to interpolate.
-        $threshold = \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold();
+        // #4013 — and the missed set itself comes from the service, not from
+        // a third copy of the three statuses written as a SQL literal. The
+        // lifecycle gate moves to ActivityLifecycle too: `plan_state`
+        // defaults to 'completed' on every row the planner did not create,
+        // so this detector was nudging on sessions that had not happened.
+        $threshold = AttendanceFlagService::threshold();
+        $missed    = AttendanceFlagService::missedStatusClause( 'att.status' );
+        $completed = ActivityLifecycle::completedClause( 'a' );
         $rows = $wpdb->get_results(
             "SELECT pl.id AS player_id, pl.club_id, pl.team_id, pl.first_name, pl.last_name,
                     COUNT(*) AS missed_count
@@ -346,10 +355,10 @@ final class CommsScheduledCron {
                 JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
                 JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
                 WHERE a.session_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-                  AND a.plan_state = 'completed'
+                  AND {$completed}
                   AND att.is_guest = 0
                   AND att.record_type = 'actual'
-                  AND LOWER(att.status) IN ('absent', 'excused', 'injured')
+                  AND {$missed}
                 GROUP BY pl.id, pl.club_id, pl.team_id, pl.first_name, pl.last_name
                 HAVING COUNT(*) >= {$threshold}
                 ORDER BY missed_count DESC

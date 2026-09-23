@@ -33,16 +33,21 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  *   - Tenant-scoped on `tt_players.club_id` (no-op single-tenant
  *     today; structural for SaaS).
  *
- * "Missed" + the flag threshold are delegated to AttendanceFlagService
- * so the report badge / panel, this query, and the Comms cron can never
- * drift apart.
+ * "Attended", "missed" and the flag thresholds are delegated to
+ * AttendanceFlagService so the report badge / panel, this query, and the
+ * Comms cron can never drift apart. Since #4013 that includes the
+ * percentage's numerator: `present_pct` is `(present + late) / total`,
+ * because a player who arrived late was at the session. Lateness is not
+ * lost by that — it flags on its own threshold and says so in
+ * `flag_reasons`.
  */
 final class AttendanceRankingQuery {
 
     /**
      * Per-player attendance rows for the window, each enriched with a
      * derived `present_pct` (null when the player has no rows), a
-     * `missed` count, and a boolean `flagged`.
+     * `missed` count, a boolean `flagged` and, when flagged, the
+     * `flag_reasons` behind it (`absence` / `lateness` — #4013).
      *
      * Default order is worst-attendance-first (lowest present %),
      * no-data rows last — the order the report + leaderboard both want.
@@ -54,7 +59,7 @@ final class AttendanceRankingQuery {
      *     player_id:int, first_name:string, last_name:string, team_name:string,
      *     activities:int, total:int,
      *     present:int, late:int, absent:int, excused:int, injured:int,
-     *     present_pct:?float, missed:int, flagged:bool
+     *     present_pct:?float, missed:int, flagged:bool, flag_reasons:list<string>
      * }>
      */
     public function rows( string $from, string $to, int $team_id = 0, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
@@ -118,12 +123,17 @@ final class AttendanceRankingQuery {
         ) );
         if ( ! is_array( $raw ) || $raw === [] ) return [];
 
-        $threshold = AttendanceFlagService::threshold();
         $rows = [];
         foreach ( $raw as $r ) {
             $total   = (int) ( $r->total ?? 0 );
             $present = (int) ( $r->present ?? 0 );
-            $missed  = AttendanceFlagService::missed( $r );
+            $late    = (int) ( $r->late ?? 0 );
+            // #4013 — one definition of each, from the service: attended is
+            // present + late, missed is absent + excused + injured, and the
+            // flag can fire on either count.
+            $attended = AttendanceFlagService::attended( $r );
+            $missed   = AttendanceFlagService::missed( $r );
+            $reasons  = AttendanceFlagService::flagReasons( $missed, $late );
             $rows[]  = [
                 'player_id'   => (int) $r->player_id,
                 'first_name'  => (string) ( $r->first_name ?? '' ),
@@ -132,13 +142,14 @@ final class AttendanceRankingQuery {
                 'activities'  => (int) ( $r->activities ?? 0 ),
                 'total'       => $total,
                 'present'     => $present,
-                'late'        => (int) ( $r->late ?? 0 ),
+                'late'        => $late,
                 'absent'      => (int) ( $r->absent ?? 0 ),
                 'excused'     => (int) ( $r->excused ?? 0 ),
                 'injured'     => (int) ( $r->injured ?? 0 ),
-                'present_pct' => $total > 0 ? round( ( $present / $total ) * 100, 1 ) : null,
+                'present_pct' => AttendanceFlagService::presentPct( $attended, $total ),
                 'missed'      => $missed,
-                'flagged'     => $missed >= $threshold,
+                'flagged'     => $reasons !== [],
+                'flag_reasons' => $reasons,
             ];
         }
 
@@ -147,9 +158,11 @@ final class AttendanceRankingQuery {
     }
 
     /**
-     * The at-risk subset: players flagged on the configurable
-     * missed-activities threshold, ordered worst-first by missed count.
-     * Optionally augmented with a declining-trend marker.
+     * The at-risk subset: players flagged on either configurable threshold
+     * — missed activities or lateness (#4013) — ordered worst-first by
+     * missed count, then by lateness, so a player who is only ever late
+     * still appears with `flag_reasons` saying why. Optionally augmented
+     * with a declining-trend marker.
      *
      * @param list<int>|null $allowed_team_ids
      * @return list<array<string,mixed>>  rows from {@see rows()} that are flagged,
@@ -163,7 +176,10 @@ final class AttendanceRankingQuery {
             $row['declining'] = $this->isDeclining( (int) $row['player_id'], $to );
             $at_risk[] = $row;
         }
-        usort( $at_risk, static fn( $a, $b ) => (int) $b['missed'] <=> (int) $a['missed'] );
+        usort( $at_risk, static function ( array $a, array $b ): int {
+            $cmp = (int) $b['missed'] <=> (int) $a['missed'];
+            return $cmp !== 0 ? $cmp : ( (int) $b['late'] <=> (int) $a['late'] );
+        } );
         return $at_risk;
     }
 
@@ -222,7 +238,10 @@ final class AttendanceRankingQuery {
         ) );
         if ( ! is_array( $recent ) || count( $recent ) < 6 ) return false;
 
-        $missed = static fn( string $s ): int => in_array( $s, [ 'absent', 'excused', 'injured' ], true ) ? 1 : 0;
+        // #4013 — the missed set comes from the service; this method used to
+        // carry its own copy of the three statuses, one method away from the
+        // definition it was meant to share.
+        $missed = static fn( string $s ): int => in_array( $s, AttendanceFlagService::MISSED_STATUSES, true ) ? 1 : 0;
         $recent_missed = 0;
         $prior_missed  = 0;
         foreach ( $recent as $i => $row ) {
