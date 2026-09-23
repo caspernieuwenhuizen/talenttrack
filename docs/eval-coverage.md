@@ -46,16 +46,33 @@ with one column per window. Each cell shows:
 - **• Not evaluated** — a gap. The cell is marked with a dot and a
  "Not evaluated" label (state is conveyed by icon and text, never colour
  alone).
+- **– Not started yet** — the window begins in the future, so there is
+ nothing to be behind on. Shown neutral, and it counts as neither covered
+ nor a gap.
+
+**A window that has not started is never a gap.** In September, a season
+whose later rounds begin in October, January and April would otherwise
+report three gaps for every player, including the ones who were fully up
+to date — and a player on track would look identical to a player nobody
+had seen. A window that is open, or has closed, with no evaluation in it
+is still a gap; that is the question the report exists to answer. An
+evaluation dated inside a window that has not opened yet still marks it
+covered: the cell follows the data, not the calendar.
 
 A KPI strip across the top totals players, windows, overall coverage
-percentage, and the number of gaps.
+percentage, and the number of gaps. **Coverage** is covered cells divided
+by the cells that are actually due — the ones whose window has started —
+so an academy that has evaluated everybody in the open round reads 100%,
+not 25%.
 
 ## Gaps by coach
 
 The **Gaps by coach** strip tallies how many uncovered cells fall under
 each team's head coach, sorted worst-first. Players whose team has no
 head coach assigned roll up under **Unassigned**. This is the "who owns
-the gap" answer at a glance.
+the gap" answer at a glance. Windows that have not started are left out
+of the tally, for the same reason they are left out of the matrix's gap
+count.
 
 ## Open evaluations by coach
 

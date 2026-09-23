@@ -1,0 +1,19 @@
+msgid ""
+msgstr ""
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Every player is covered in every window that has started."
+msgstr "Elke speler is gedekt in elke periode die begonnen is."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Not started yet"
+msgstr "Nog niet begonnen"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "This window has not started yet"
+msgstr "Deze periode is nog niet begonnen"

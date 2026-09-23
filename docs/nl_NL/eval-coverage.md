@@ -48,9 +48,24 @@ team, met één kolom per periode. Elke cel toont:
 - **• Niet geëvalueerd** — een gat. De cel is gemarkeerd met een punt en
  het label "Niet geëvalueerd" (de status blijkt uit pictogram en tekst,
  nooit uit kleur alleen).
+- **– Nog niet begonnen** — de periode start in de toekomst, dus er valt
+ nog niets in te halen. Neutraal weergegeven, en het telt niet als gedekt
+ en niet als gat.
+
+**Een periode die nog niet begonnen is, is nooit een gat.** In september
+zou een seizoen met rondes die in oktober, januari en april starten
+anders drie gaten melden voor élke speler, ook voor wie volledig bij was
+— en dan lijkt een speler die op schema zit precies op een speler die
+niemand heeft gezien. Een periode die open is of al gesloten is en geen
+evaluatie bevat, blijft wél een gat; dat is de vraag waarvoor het rapport
+bestaat. Een evaluatie met een datum in een periode die nog niet open is,
+dekt die periode alsnog: de cel volgt de gegevens, niet de kalender.
 
 Een KPI-strook boven aan toont het totaal aantal spelers, periodes, het
-totale dekkingspercentage en het aantal gaten.
+totale dekkingspercentage en het aantal gaten. **Dekking** is het aantal
+gedekte cellen gedeeld door de cellen die daadwerkelijk aan de orde zijn
+— die waarvan de periode begonnen is — dus een academie die iedereen in
+de open ronde heeft beoordeeld leest 100%, niet 25%.
 
 ## Gaten per coach
 
@@ -58,6 +73,8 @@ De strook **Gaten per coach** telt hoeveel niet-gedekte cellen onder de
 hoofdcoach van elk team vallen, slechtste eerst. Spelers wier team geen
 hoofdcoach heeft, vallen onder **Niet toegewezen**. Dit is in één
 oogopslag het antwoord op "wie is verantwoordelijk voor het gat".
+Periodes die nog niet begonnen zijn blijven buiten deze telling, om
+dezelfde reden als in de matrix.
 
 ## Evaluaties openen per coach
 

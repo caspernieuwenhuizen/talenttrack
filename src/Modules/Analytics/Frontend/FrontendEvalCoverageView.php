@@ -194,9 +194,12 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
      */
     private static function renderSummary( array $coverage ): void {
         $windows_count = count( $coverage['windows'] );
-        $cells_total   = $coverage['total_players'] * $windows_count;
-        $covered       = $cells_total - $coverage['total_gaps'];
-        $pct           = $cells_total > 0 ? number_format_i18n( $covered / $cells_total * 100, 1 ) . '%' : '—';
+        // #4026 — the denominator is the cells that are actually due, not
+        // players × windows. Counting rounds that start in January put a
+        // fully up-to-date academy at 25% in September.
+        $due           = $coverage['due_cells'];
+        $covered       = $due - $coverage['total_gaps'];
+        $pct           = $due > 0 ? number_format_i18n( $covered / $due * 100, 1 ) . '%' : '—';
 
         echo '<div class="tt-ec-kpis">';
         // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
@@ -215,7 +218,9 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
      */
     private static function renderCoachGaps( array $coach_gaps ): void {
         if ( $coach_gaps === [] ) {
-            echo '<p class="tt-notice tt-notice--ok">' . esc_html__( 'Every player is covered in every window.', 'talenttrack' ) . '</p>';
+            // #4026 — "every window" used to include windows that had not
+            // started, which the report could never have called covered.
+            echo '<p class="tt-notice tt-notice--ok">' . esc_html__( 'Every player is covered in every window that has started.', 'talenttrack' ) . '</p>';
             return;
         }
         echo '<section class="tt-ec-card" aria-labelledby="tt-ec-coach-gaps-title">';
@@ -284,8 +289,12 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
         }
         echo '</tr></thead><tbody>';
 
-        $covered_label = esc_html__( 'Evaluated', 'talenttrack' );
-        $gap_label     = esc_html__( 'Not evaluated', 'talenttrack' );
+        $covered_label  = esc_html__( 'Evaluated', 'talenttrack' );
+        $gap_label      = esc_html__( 'Not evaluated', 'talenttrack' );
+        // #4026 — a window that has not started reads as neutral, not as a
+        // gap. A dash rather than a bullet, and its own screen-reader text,
+        // because the distinction has to survive without colour.
+        $upcoming_label = esc_html__( 'Not started yet', 'talenttrack' );
 
         foreach ( $coverage['teams'] as $team ) {
             $team_name = $team['team_name'] !== '' ? $team['team_name'] : '#' . $team['team_id'];
@@ -311,6 +320,11 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
                         echo '<td class="tt-ec-cell tt-ec-cell--ok" title="' . esc_attr( $title ) . '">'
                             . '<span class="tt-ec-cell__icon" aria-hidden="true">&#10003;</span>'
                             . '<span class="tt-screen-reader-text">' . $covered_label . '</span>'
+                            . '</td>';
+                    } elseif ( $cell['state'] === 'upcoming' ) {
+                        echo '<td class="tt-ec-cell tt-ec-cell--upcoming" title="' . esc_attr__( 'This window has not started yet', 'talenttrack' ) . '">'
+                            . '<span class="tt-ec-cell__icon" aria-hidden="true">&ndash;</span>'
+                            . '<span class="tt-screen-reader-text">' . $upcoming_label . '</span>'
                             . '</td>';
                     } else {
                         echo '<td class="tt-ec-cell tt-ec-cell--gap" title="' . esc_attr__( 'No evaluation in this window', 'talenttrack' ) . '">'
