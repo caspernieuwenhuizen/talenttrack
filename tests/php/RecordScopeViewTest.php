@@ -118,13 +118,21 @@ final class RecordScopeViewTest extends WP_UnitTestCase {
         $this->assertBreadcrumbed( $theirs_edit );
     }
 
-    public function test_the_status_capture_screen_refuses_a_player_the_caller_is_not_staff_for(): void {
+    /**
+     * The behaviour-and-potential screen serves its notice to anyone who
+     * reaches the route — #3715's line, so that a reader is not told which of
+     * "we don't record this" and "you may not see it" applies. What it must not
+     * do is name the child anyway, which is what the breadcrumb chain was
+     * doing: the page said nothing and the crumb said who.
+     */
+    public function test_the_status_capture_screen_names_only_a_player_the_caller_is_staff_for(): void {
         $mine = $this->render( FrontendPlayerStatusCaptureView::class, [ 'tt_view' => 'player-status-capture', 'player_id' => (string) $this->minePlayer ] );
-        $this->assertStringNotContainsString( 'Player not found', $mine, 'the grant: the squad coach reaches their own player' );
+        $this->assertStringContainsString( 'Viewalpha', $mine, 'the grant: the squad coach reaches their own player' );
+        $this->assertStringNotContainsString( 'Player not found', $mine );
 
         $theirs = $this->render( FrontendPlayerStatusCaptureView::class, [ 'tt_view' => 'player-status-capture', 'player_id' => (string) $this->otherPlayer ] );
-        $this->assertStringNotContainsString( 'Viewbravo', $theirs );
-        $this->assertStringContainsString( 'Player not found', $theirs, 'answered as a player who is not there' );
+        $this->assertStringNotContainsString( 'Viewbravo', $theirs, 'not in the body, and not in the breadcrumb either' );
+        $this->assertStringNotContainsString( 'tt-psc-history__list', $theirs, 'and no trajectory' );
         $this->assertBreadcrumbed( $theirs );
     }
 

@@ -98,7 +98,13 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
         // v3.92.1 — breadcrumb chain. When player is loaded, chain
         // through Players → [player name]; otherwise just Dashboard.
-        if ( $player ) {
+        //
+        // #4001 — and only when the caller is staff for that player. The
+        // history branch above deliberately serves its notice to anyone who
+        // reaches the route, which left the chain naming the child to a viewer
+        // who may not read them: the page said nothing and the crumb said who.
+        // The chain is the one place a refusal still leaked the record.
+        if ( $player && $is_staff ) {
             $player_name = QueryHelpers::player_display_name( $player );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 $page_title,
