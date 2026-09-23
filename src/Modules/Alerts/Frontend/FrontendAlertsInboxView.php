@@ -7,6 +7,7 @@ use TT\Modules\Alerts\AlertRegistry;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
 use TT\Modules\Alerts\Services\AlertOversight;
+use TT\Modules\Alerts\Services\FamilyReachability;
 use TT\Shared\Frontend\Components\AlertChip;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -82,6 +83,7 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         $filters = self::filtersFromQuery();
 
         self::renderRollup( $user_id );
+        self::renderFamilyReachability( $user_id );
         self::renderFilters( $filters );
 
         $args = [
@@ -447,6 +449,59 @@ final class FrontendAlertsInboxView extends FrontendViewBase {
         echo '</ul>';
         echo '<p class="tt-alert-rollup__note">'
             . esc_html__( 'These are the conditions your teams\' coaches have been told about. You are not sent one alert per team.', 'talenttrack' )
+            . '</p>';
+        echo '</section>';
+    }
+
+    /**
+     * #4014 — "how many of our families can we reach?"
+     *
+     * The board question the per-team dossier reports could not answer
+     * without four calls and a hand count. It is a census, not an alert
+     * list: counts and team names, never a family's name, because a
+     * club-wide report naming families would be a bulk export of children's
+     * contact details. The named drill-down stays on the per-team dossier
+     * report, behind the gate it already has.
+     *
+     * Rendered only when there is a squad to count and somebody is
+     * unreachable. An academy where every family is contactable does not
+     * need to be told so on the alerts page.
+     */
+    private static function renderFamilyReachability( int $user_id ): void {
+        $census = FamilyReachability::forUser( $user_id );
+        if ( $census['total'] < 1 || $census['unreachable'] < 1 ) return;
+
+        echo '<section class="tt-alert-rollup" aria-labelledby="tt-alert-reach-title">';
+        printf(
+            '<h2 class="tt-alert-rollup__title" id="tt-alert-reach-title">%s</h2>',
+            esc_html( sprintf(
+                /* translators: 1: number of families the club can contact, 2: number of players counted. */
+                __( '%1$d of %2$d families reachable', 'talenttrack' ),
+                (int) $census['reachable'],
+                (int) $census['total']
+            ) )
+        );
+
+        echo '<ul class="tt-alert-rollup__list">';
+        foreach ( $census['teams'] as $team ) {
+            $team_id = (int) $team['team_id'];
+            printf(
+                '<li class="tt-alert-rollup__row"><span class="tt-alert-chip tt-alert-chip--%1$s tt-alert-chip--static">'
+                    . '<span class="tt-alert-chip__dot" aria-hidden="true"></span>'
+                    . '<span class="tt-alert-chip__count">%2$s</span></span>%3$s</li>',
+                esc_attr( $team['unreachable'] > 0 ? Severity::ATTENTION : Severity::INFO ),
+                esc_html( sprintf( '%d/%d', (int) $team['reachable'], (int) $team['total'] ) ),
+                $team_id > 0
+                    ? RecordLink::inline(
+                        (string) $team['team_name'],
+                        RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                    )
+                    : esc_html( (string) $team['team_name'] )
+            );
+        }
+        echo '</ul>';
+        echo '<p class="tt-alert-rollup__note">'
+            . esc_html__( 'A family counts as reachable when the club has a guardian e-mail address, a guardian phone number or a linked parent account. It is an extra reading of the same data, not a replacement for the dossier checks: open a team\'s dossier completeness to see whose file is still incomplete and which field is empty.', 'talenttrack' )
             . '</p>';
         echo '</section>';
     }

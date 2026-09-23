@@ -97,9 +97,41 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
             return;
         }
 
+        self::renderReachability( $report['family_reachable'] );
+
         foreach ( $report['checks'] as $check ) {
             self::renderCheckCard( $check );
         }
+    }
+
+    /**
+     * #4014 — what the guardian columns and the parent-account link add up
+     * to.
+     *
+     * An administrator read "0 of 21 guardian e-mail addresses" beside "3 of
+     * 21 parent accounts" as two sources that disagreed, and could not tell
+     * which one the office uses to contact a family. Both are true, and
+     * neither answers "can we reach this family at all". This line does, and
+     * it is deliberately placed above the checks rather than among them:
+     * it is a reading of them, not a seventh one.
+     *
+     * @param array{total:int,reachable:int,unreachable:int} $reach
+     */
+    private static function renderReachability( array $reach ): void {
+        if ( $reach['total'] < 1 ) return;
+
+        echo '<section class="tt-dc-card">';
+        echo '<h2 class="tt-dc-card__title">' . esc_html__( 'Families we can reach', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-dc-card__summary">' . esc_html( sprintf(
+            /* translators: 1: number of families the club can contact, 2: squad size. */
+            __( '%1$d of %2$d families reachable', 'talenttrack' ),
+            (int) $reach['reachable'],
+            (int) $reach['total']
+        ) ) . '</p>';
+        echo '<p class="tt-dc-source">'
+            . esc_html__( 'A family counts as reachable when this player has a guardian e-mail address, a guardian phone number or a linked parent account. The checks below stay separate on purpose: an account is how a parent reads their child\'s record, and the guardian fields are how the club phones somebody on a Saturday morning.', 'talenttrack' )
+            . '</p>';
+        echo '</section>';
     }
 
     /**

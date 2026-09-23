@@ -3,7 +3,7 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Prospects\Repositories\ProspectsRepository;
+use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -17,21 +17,26 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * how to render — the response payload shape is final, only the
  * presentation lifts in the next pass.
  *
- * Duplicate detection runs at validate time. `ProspectsRepository::
- * findDuplicateCandidates()` returns up-to-5 matches on first/last
- * name + age group + current club. If matches exist and the user
- * hasn't ticked the "I've checked, this is a new prospect" override,
- * validation fails with a `__form` error listing the candidates.
- * False positives are preferable to false negatives in this domain.
+ * Duplicate detection runs at validate time, through
+ * `ProspectCreationService::findDuplicates()` — up to five matches on
+ * first/last name plus current club. If matches exist and the user hasn't
+ * ticked the "I've checked, this is a new prospect" override, validation
+ * fails with a `__form` error listing the candidates. False positives are
+ * preferable to false negatives in this domain.
  *
- * On `serializeResponse()` (called after validate has passed), the
- * form writes the `tt_prospects` row directly via the repository and
- * embeds `prospect_id` in the returned payload. The template's
- * `onComplete()` stamps the ID onto the task's `prospect_id` column
- * so the pipeline widget can join. This is a deliberate choice over
- * a separate "create prospect" REST call — the form IS the entity-
- * creation flow; splitting it would invite race conditions where the
- * task completes but the prospect doesn't exist (or vice-versa).
+ * On `serializeResponse()` (called after validate has passed), the form
+ * creates the prospect through `ProspectCreationService` and embeds
+ * `prospect_id` in the returned payload. The template's `onComplete()`
+ * stamps the ID onto the task's `prospect_id` column so the pipeline widget
+ * can join. Creating inline rather than through a separate REST call is
+ * deliberate — the form IS the entity-creation flow, and splitting it would
+ * invite race conditions where the task completes but the prospect doesn't
+ * exist (or vice-versa).
+ *
+ * #4015 replaced this form's own copy of the field map and the duplicate
+ * check with the shared service. The two copies had already drifted: only
+ * the wizard's passed `scouting_visit_id`, so a prospect logged through this
+ * task counted on no scouting visit.
  */
 class LogProspectForm implements FormInterface {
 
@@ -170,24 +175,17 @@ class LogProspectForm implements FormInterface {
             $errors['parent_email'] = __( 'Enter a valid parent email or leave it blank.', 'talenttrack' );
         }
 
+        // #4015 — the duplicate rule and its sentence come from
+        // `ProspectCreationService`, shared with the wizard and
+        // `POST /prospects`. This form had the second of three copies.
         if ( empty( $errors ) && empty( $raw['duplicate_override'] ) ) {
-            $repo = new ProspectsRepository();
-            $candidates = $repo->findDuplicateCandidates(
+            $candidates = ProspectCreationService::findDuplicates(
                 $first,
                 $last,
-                null, // age_group_lookup_id not yet captured by this form
                 trim( (string) ( $raw['current_club'] ?? '' ) ) ?: null
             );
-            if ( ! empty( $candidates ) ) {
-                $names = array_map(
-                    static fn ( $c ) => trim( ( $c->first_name ?? '' ) . ' ' . ( $c->last_name ?? '' ) ),
-                    array_slice( $candidates, 0, 5 )
-                );
-                $errors['__form'] = sprintf(
-                    /* translators: %s: comma-separated list of likely-duplicate prospect names. */
-                    __( 'A prospect with this name already exists (%s). Tick "this is a new entry" if you have already checked.', 'talenttrack' ),
-                    implode( ', ', array_filter( $names ) )
-                );
+            if ( $candidates !== [] ) {
+                $errors['__form'] = ProspectCreationService::duplicateMessage( $candidates );
             }
         }
 
@@ -195,24 +193,25 @@ class LogProspectForm implements FormInterface {
     }
 
     public function serializeResponse( array $raw, array $task ): array {
-        $repo = new ProspectsRepository();
-
         $consent_at = ! empty( $raw['consent_given'] ) ? current_time( 'mysql', true ) : null;
 
-        $prospect_id = $repo->create( [
-            'first_name'                  => sanitize_text_field( (string) ( $raw['first_name'] ?? '' ) ),
-            'last_name'                   => sanitize_text_field( (string) ( $raw['last_name']  ?? '' ) ),
-            'date_of_birth'               => trim( (string) ( $raw['date_of_birth'] ?? '' ) ) ?: null,
-            'discovered_at'               => gmdate( 'Y-m-d' ),
-            'discovered_by_user_id'       => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
-            'discovered_at_event'         => sanitize_text_field( (string) ( $raw['discovered_at_event'] ?? '' ) ) ?: null,
-            'current_club'                => sanitize_text_field( (string) ( $raw['current_club'] ?? '' ) ) ?: null,
-            'scouting_notes'              => sanitize_textarea_field( (string) ( $raw['scouting_notes'] ?? '' ) ) ?: null,
-            'parent_name'                 => sanitize_text_field( (string) ( $raw['parent_name'] ?? '' ) ) ?: null,
-            'parent_email'                => sanitize_email( (string) ( $raw['parent_email'] ?? '' ) ) ?: null,
-            'parent_phone'                => sanitize_text_field( (string) ( $raw['parent_phone'] ?? '' ) ) ?: null,
-            'consent_given_at'            => $consent_at,
-        ] );
+        // #4015 — one create path. `false` because this form is a step in
+        // the LogProspect chain, which spawns the invite task itself; a
+        // second one would be a duplicate in the head of development's
+        // inbox. The wizard and the REST route pass the default.
+        //
+        // The discoverer is the task's assignee rather than whoever is
+        // signed in: an administrator completing a scout's task is recording
+        // the scout's find, not their own.
+        $created = ( new ProspectCreationService() )->create( array_merge( $raw, [
+            'discovered_by_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
+            'consent_given_at'      => $consent_at,
+        ] ), false );
+
+        // `validate()` has already refused everything this can refuse, so a
+        // WP_Error here is a failed write. Answering 0, as this always did,
+        // keeps the task's stored response readable rather than half-shaped.
+        $prospect_id = $created instanceof \WP_Error ? 0 : (int) $created;
 
         return [
             'prospect_id'         => $prospect_id,

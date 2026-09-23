@@ -1,0 +1,20 @@
+#: src/Modules/Alerts/Services/FamilyReachability.php
+msgid "Without a team"
+msgstr "Zonder team"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "%1$d of %2$d families reachable"
+msgstr "%1$d van %2$d gezinnen bereikbaar"
+
+#: src/Modules/Alerts/Frontend/FrontendAlertsInboxView.php
+msgid "A family counts as reachable when the club has a guardian e-mail address, a guardian phone number or a linked parent account. It is an extra reading of the same data, not a replacement for the dossier checks: open a team's dossier completeness to see whose file is still incomplete and which field is empty."
+msgstr "Een gezin geldt als bereikbaar zodra de club een e-mailadres van de verzorger, een telefoonnummer van de verzorger of een gekoppeld ouderaccount heeft. Het is een extra lezing van dezelfde gegevens, geen vervanging van de dossiercontroles: open de dossiercompleetheid van een team om te zien wiens dossier nog onvolledig is en welk veld leeg is."
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "Families we can reach"
+msgstr "Gezinnen die we kunnen bereiken"
+
+#: src/Modules/Players/Frontend/FrontendDossierCompletenessView.php
+msgid "A family counts as reachable when this player has a guardian e-mail address, a guardian phone number or a linked parent account. The checks below stay separate on purpose: an account is how a parent reads their child's record, and the guardian fields are how the club phones somebody on a Saturday morning."
+msgstr "Een gezin geldt als bereikbaar zodra deze speler een e-mailadres van de verzorger, een telefoonnummer van de verzorger of een gekoppeld ouderaccount heeft. De controles hieronder blijven bewust apart: een account is hoe een ouder het dossier van zijn kind meeleest, en de velden van de verzorger zijn hoe de club op zaterdagochtend iemand belt."

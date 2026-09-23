@@ -25,8 +25,11 @@ use TT\Shared\Wizards\WizardInterface;
  *   3. Parent     — parent_name / parent_email / parent_phone / consent
  *   4. Review     — confirm + create
  *
- * On submit the review step inserts the `tt_prospects` row and
- * dispatches `InviteToTestTrainingTemplate` for the HoD. No
+ * On submit the review step hands the collected state to
+ * `Prospects\Domain\ProspectCreationService`, which inserts the
+ * `tt_prospects` row and dispatches `InviteToTestTrainingTemplate` for the
+ * HoD. `POST /prospects` (#4015) calls the same service, so the API and this
+ * wizard apply the same field map and the same duplicate rule. No
  * `LogProspectTemplate` task is created — the wizard IS the form
  * that the LogProspect task used to wrap. The chain effectively
  * starts at "Invite", which is the next intentional human action

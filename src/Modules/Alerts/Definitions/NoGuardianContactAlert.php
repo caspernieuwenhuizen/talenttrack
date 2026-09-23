@@ -52,6 +52,19 @@ use TT\Shared\Frontend\Components\RecordLink;
  * The demo academy will show a lot of these: most demo players have no
  * guardian by design. That is an honest picture of the data, not noise to
  * special-case.
+ *
+ * ## The club-wide count (#4014)
+ *
+ * This definition raises one occurrence per unreachable player, at the
+ * people who can fix that player. The board asks the same data a different
+ * question — "how many of our families can we reach?" — and used to answer
+ * it by calling four per-team dossier reports and adding up by hand.
+ * `FamilyReachability` is that answer: the same union of guardian e-mail,
+ * guardian phone and linked parent account, counted club-wide with a
+ * per-team breakdown and no family named. It is the aggregate side of this
+ * alert, not a second definition, and it is deliberately a census over
+ * every player on the books rather than only the ones this alert speaks
+ * for.
  */
 final class NoGuardianContactAlert extends AbstractPlayerAlert {
 

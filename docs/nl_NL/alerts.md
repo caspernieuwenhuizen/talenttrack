@@ -81,6 +81,16 @@ Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen
 | --- | --- | --- |
 | **Stage eindigt zonder besluit** | Een stage valt binnen de waarschuwingstermijn — of is al verstreken — en er is nog geen besluit vastgelegd. De zin noemt de panelleden die nog geen input hebben ingeleverd, want daar wacht het besluit meestal op. De melding gaat naar wie stages mag besluiten, niet naar de hoofdtrainer van het team: besluiten is het enige werk op een stagedossier dat niemand anders kan doen. Ze lost zichzelf op zodra het besluit is vastgelegd of het dossier is verlengd, en het besluit ruimt haar meteen op in plaats van bij de volgende ronde. | *Waar gaat deze speler heen?* — gevraagd terwijl er nog tijd is om te antwoorden. Een stage die in stilte afloopt, is een kind en een gezin dat wacht op een academie die hen uit het oog verloren is. |
 
+### Talenten
+
+| Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
+| --- | --- | --- |
+| **Toestemmingsverzoek wacht nog** | Een toestemmingsverzoek dat voor een talent is vastgelegd, wacht langer op antwoord dan de drempel van je academie. De zin noemt de club die is gevraagd en hoeveel dagen het al duurt. De melding gaat naar wie talenten mag bewerken — de scout die het verzoek vastlegde en wie voor hem invalt — en elke vastgelegde uitkomst ruimt haar meteen op: akkoord, afgewezen of geen reactie. Is er al toestemming vastgelegd, langs welke route ook, dan blijft de melding weg: er valt niets meer na te jagen. | *Waar gaat deze speler heen?* — voor een kind dat nergens heen kan tot iemand antwoordt. Zonder toestemming van het gezin kan er geen proeftraining worden geregeld, dus een verzoek dat niemand najaagt is een reis die bij de eerste stap stilstaat. |
+
+De wachttijd staat ook op de talentenlijst, in de kolom **Toestemming wacht**, zodat een verlopend verzoek zichtbaar is waar je toch al kijkt en niet pas als de melding komt.
+
+Bij deze melding is het de moeite waard te weten waarom ze bestaat. Een open toestemmingsverzoek zet de bewaartermijn van een talent op pauze, maar alleen zolang het verzoek zelf nog vers is — een verzoek dat niemand ooit heeft opgevolgd verloopt op de normale regel, en dan wordt het dossier van het kind verwijderd. Vóór deze melding was de wachttijd nergens te zien, dus was een stille verwijdering de waarschijnlijkste uitkomst van een verzoek dat niemand najoeg. De standaarddrempel van vijf dagen ligt met opzet ruim binnen de bewaartermijn; verhoog je hem, houd die verhouding dan aan, want een drempel voorbij de termijn waarschuwt over een dossier dat al weg is.
+
 ### Metingen
 
 | Melding | Wat het betekent | Welke spelersvraag het beantwoordt |
@@ -161,6 +171,7 @@ Deze staan in de academie-instellingen en niet in de code, omdat academies echt 
 | `alerts_goal_overdue_lookback_days` | 365 dagen | Hoe lang na de streefdatum een doel nog de moeite waard is om achteraan te gaan. Daarna is het niet te laat maar opgegeven, en is opruimen de oplossing, geen melding. |
 | `alerts_pdp_no_conversation_days` | 45 dagen | Hoe ver in een PDP-cyclus voordat "nog geen gesprek gevoerd" een melding wordt. |
 | `alerts_trial_decision_due_days` | 3 dagen | Hoeveel dagen van tevoren je hoort dat een stage afloopt zonder vastgelegd besluit. Een academie met stages van twee weken wil eerder gewaarschuwd worden dan een met stages van zes weken. |
+| `alerts_prospect_consent_awaiting_days` | 5 dagen | Hoe lang een toestemmingsverzoek op antwoord mag wachten voordat de melding verschijnt. Houd deze waarde ruim binnen `tt_prospect_retention_days_no_progress` (standaard 90 dagen): een verzoek dat niemand najaagt wordt uiteindelijk verwijderd, en een drempel voorbij die termijn waarschuwt over een dossier dat al weg is. |
 | `alerts_player_turns_18_days` | 30 dagen | Hoeveel dagen van tevoren je hoort dat een speler achttien wordt. De leeftijd zelf is geen instelling: dat is een gegeven van het rechtsgebied waarin de academie werkt, geen voorkeur. |
 | `alerts_parent_invite_stale_days` | 14 dagen | Hoe lang een ouderuitnodiging ongebruikt mag blijven voordat de melding verschijnt. |
 | `alerts_staff_cert_expiring_days` | 60 dagen | Het venster rond vandaag voor de certificaatmelding. Het kijkt zowel vooruit als terug: een certificaat dat vorige week verliep is juist het meest urgent, en eentje dat een jaar geleden verliep "verloopt" niet meer maar vraagt een ander gesprek. |
@@ -296,11 +307,28 @@ Je krijgt nog steeds niet per team een eigen melding, en dat is met opzet. Meldi
 
 De samenvatting telt alleen teams waar je al verantwoordelijk voor bent. Elk betrokken record telt één keer mee, ook als twee trainers er allebei bericht over kregen: er staat dus "drie niet-afgeronde activiteiten", nooit "zes".
 
+"Teams waar je verantwoordelijk voor bent" volgt uit je rechten, niet uit je functietitel. Mag je de activiteiten van elk team lezen — Hoofd Opleiding, beheerder, scout, meelezer — dan beslaat de samenvatting de hele academie. Een trainer die aan bepaalde teams is gekoppeld ziet precies die teams. Er is geen link waarmee je dat kunt verbreden.
+
+### Hoeveel gezinnen kunnen we bereiken?
+
+Daaronder staat een tweede regel met het antwoord op de bestuursversie van dezelfde vraag: **"3 van 82 gezinnen bereikbaar"**, met een telling per team ernaast.
+
+Een gezin geldt als bereikbaar zodra de club een e-mailadres van de verzorger, een telefoonnummer van de verzorger **of** een gekoppeld ouderaccount heeft — elk van de drie is een route naar iemand. Voorheen betekende die vraag beantwoorden: het rapport dossiercompleetheid voor elke selectie apart openen, langs de naam van elke onvolledige speler lezen en de kolommen met de hand optellen.
+
+Twee dingen doet deze regel bewust niet:
+
+- **Er wordt niemand genoemd.** Academiebreed krijg je tellingen en teamnamen. Wie wát mist blijft op de pagina dossiercompleetheid van dat team, achter de rechten die daar al gelden, want een clubbrede lijst met de gezinnen die niemand kan bereiken is een export van contactgegevens van kinderen met een vriendelijker kopje.
+- **De dossiercontroles worden niet vervangen.** Bereikbaar betekent "er is een manier om dit gezin te bereiken", niet "dit dossier is compleet". Een speler van wie de ouder een account heeft maar van wie het telefoonnummer leeg is, is per e-mail bereikbaar en nog steeds niemand die je op zaterdagochtend kunt bellen.
+
+De telling gaat over elke speler die in de boeken staat, ook spelers zonder team, zodat ze klopt met de rapporten per team. Dat is een ruimere groep dan de melding **Speler zonder contact thuis** oplevert: die wacht tot er daadwerkelijk een bericht over de speler verstuurd zou worden.
+
+Een trainer ziet de telling voor zijn eigen selecties; wie de dossiers van de hele academie mag lezen ziet de academie.
+
 ## Voor beheerders (meldingen op records)
 
 - Labels tonen op een lijst kost **één** databasequery voor de hele pagina, hoeveel regels er ook een label dragen. Elke plek die meldingen op een lijst toont moet ze in één keer ophalen; per regel ophalen is een fout, geen langzamere variant van hetzelfde.
 - De samenvatting per team is een gegroepeerde leesactie over de meldingen die er al zijn. Er wordt niets aangemaakt, en juist dat maakt de regel "geen eigen melding per team voor het Hoofd Opleiding" houdbaar.
-- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, en `GET /alerts/rollup` voor de samenvatting per team. De lijst pagineert met `per_page` en `page`, en elk antwoord draagt `X-WP-Total` en `X-WP-TotalPages`.
+- Dezelfde filters zitten op de API: `GET /alerts?subject_type=activity&subject_id=12`, `GET /alerts?player_id=7`, `GET /alerts?alert_key=people.no_guardian_contact`, `GET /alerts/rollup` voor de samenvatting per team, en `GET /alerts/family-reachability` voor de telling van bereikbare gezinnen. De lijst pagineert met `per_page` en `page`, en elk antwoord draagt `X-WP-Total` en `X-WP-TotalPages`.
 - Een melding uitzetten voor de club ruimt ook op wat er al gemeld was, in plaats van rijen te laten staan die niemand meer kan zien.
 - Alle meldingen zijn ook beschikbaar via de REST API op `/wp-json/talenttrack/v1/alerts`, samen met `/alerts/preferences` en `/alerts/policy`.
 

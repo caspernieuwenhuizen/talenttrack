@@ -25,6 +25,7 @@ Every action and filter the plugin exposes for extension. Names are prefixed `tt
 | `tt_measurement_result_saved`            | After a measurement result is created, edited or archived                      | `int $result_id`, `int $player_id`         |
 | `tt_staff_certification_saved`           | After a staff certificate is recorded, renewed or archived                     | `int $certification_id`, `int $person_id`  |
 | `tt_pdp_conversation_saved`              | After a conversation in a PDP cycle is updated (including being marked conducted) | `int $conversation_id`, `int $pdp_file_id` |
+| `tt_prospect_consent_outcome_recorded`   | After a prospect consent request is logged or its outcome changed. Fired from the repository, so the REST route, the workflow form and the demo generator all announce; fires on any outcome, `awaiting` included | `int $prospect_id`, `int $entry_id`, `string $outcome` |
 | `tt_functional_role_mapping_updated`     | After a functional-role mapping is created / removed                           | `int $assignment_id`, `array $changes`     |
 | `tt_onboarding_step_completed`           | At the end of each setup wizard step                                           | `string $step_key`, `array $context`       |
 | `tt_onboarding_completed`                | Wizard finished                                                                | `array $summary`                           |

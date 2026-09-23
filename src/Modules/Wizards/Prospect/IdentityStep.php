@@ -3,17 +3,19 @@ namespace TT\Modules\Wizards\Prospect;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
  * Step 1 — first / last / DOB / current_club.
  *
- * Mirrors the LogProspectForm identity fields. Duplicate detection
- * runs at validate time via `ProspectsRepository::findDuplicateCandidates()`
- * — same logic the legacy form used. If matches exist and the user
- * hasn't ticked the override, validation fails with the candidate
- * names listed.
+ * Mirrors the LogProspectForm identity fields. Duplicate detection runs at
+ * validate time through `ProspectCreationService::findDuplicates()` (#4015)
+ * — the same rule and the same sentence the legacy workflow form and
+ * `POST /prospects` use, rather than a third copy of it here. If matches
+ * exist and the user hasn't ticked the override, validation fails with the
+ * candidate names listed.
  */
 final class IdentityStep implements WizardStepInterface {
 
@@ -136,19 +138,15 @@ final class IdentityStep implements WizardStepInterface {
             return new \WP_Error( 'bad_dob', __( 'Use YYYY-MM-DD for the date of birth.', 'talenttrack' ) );
         }
 
+        // #4015 — the duplicate rule and its sentence come from
+        // `ProspectCreationService`, which is also what `POST /prospects`
+        // and the legacy workflow form ask. Three copies of this check had
+        // become three chances for the surfaces to disagree about whether a
+        // second child with the same name may be recorded.
         if ( ! $override ) {
-            $repo = new ProspectsRepository();
-            $candidates = $repo->findDuplicateCandidates( $first, $last, null, $club ?: null );
-            if ( ! empty( $candidates ) ) {
-                $names = array_filter( array_map(
-                    static fn ( $c ) => trim( ( $c->first_name ?? '' ) . ' ' . ( $c->last_name ?? '' ) ),
-                    array_slice( $candidates, 0, 5 )
-                ) );
-                return new \WP_Error( 'duplicate_candidates', sprintf(
-                    /* translators: %s: comma-separated list of likely-duplicate prospect names. */
-                    __( 'A prospect with this name already exists (%s). Tick "this is a new entry" if you have already checked.', 'talenttrack' ),
-                    implode( ', ', $names )
-                ) );
+            $candidates = ProspectCreationService::findDuplicates( $first, $last, $club ?: null );
+            if ( $candidates !== [] ) {
+                return ProspectCreationService::duplicateError( $candidates );
             }
         }
 

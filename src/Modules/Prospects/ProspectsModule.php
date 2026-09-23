@@ -48,5 +48,44 @@ class ProspectsModule implements ModuleInterface {
         // #3812 — the dated log of asking a child's club to pass a consent
         // request on to the family.
         ProspectConsentRequestsRestController::init();
+
+        // #4017 — "the club never came back". Registered from the module
+        // rather than from the Alerts catalogue so an academy without the
+        // prospects module stops being asked about prospects by
+        // construction, with no second toggle to keep in step.
+        add_filter( 'tt_register_alerts', [ self::class, 'registerAlerts' ] );
+
+        // #4017 — resolve it the moment an outcome is recorded rather than
+        // on the next hourly sweep. Recording the answer IS the fix, and
+        // reminding somebody an hour later to chase what they have just
+        // finished chasing is how a catalogue teaches people to ignore it.
+        add_filter( 'tt_alert_invalidation_map', [ self::class, 'registerAlertInvalidation' ] );
+    }
+
+    /**
+     * @param list<mixed> $alerts
+     * @return list<mixed>
+     */
+    public static function registerAlerts( array $alerts ): array {
+        if ( ! class_exists( \TT\Modules\Alerts\Definitions\AbstractDataQualityAlert::class ) ) {
+            return $alerts;
+        }
+
+        $alerts[] = new Alerts\ProspectConsentAwaitingAlert();
+        return $alerts;
+    }
+
+    /**
+     * @param array<string,callable> $map
+     * @return array<string,callable>
+     */
+    public static function registerAlertInvalidation( array $map ): array {
+        // prospects.consent_awaiting. The hook carries the prospect id
+        // first, and the alert's subject is the prospect — one occurrence
+        // per child, however many times their club was asked.
+        $map['tt_prospect_consent_outcome_recorded'] = static function ( $prospect_id ): array {
+            return [ [ 'prospect', [ (int) $prospect_id ] ] ];
+        };
+        return $map;
     }
 }

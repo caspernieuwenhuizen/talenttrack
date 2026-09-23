@@ -47,7 +47,11 @@ class ProspectConsentRequestsRepository {
             'notes'       => $notes !== '' ? $notes : null,
             'created_by'  => get_current_user_id(),
         ] );
-        return $ok ? (int) $wpdb->insert_id : 0;
+        if ( ! $ok ) return 0;
+
+        $id = (int) $wpdb->insert_id;
+        self::announce( $prospect_id, $id, $outcome );
+        return $id;
     }
 
     /**
@@ -64,11 +68,43 @@ class ProspectConsentRequestsRepository {
             $data['notes'] = $notes !== '' ? $notes : null;
         }
 
-        return false !== $wpdb->update(
+        $ok = false !== $wpdb->update(
             $wpdb->prefix . self::TABLE,
             $data,
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
+        if ( ! $ok ) return false;
+
+        $row = $this->findById( $id );
+        self::announce( (int) ( $row['prospect_id'] ?? 0 ), $id, $outcome );
+        return true;
+    }
+
+    /**
+     * #4017 — say that this prospect's consent state moved.
+     *
+     * Fired from the repository rather than from each caller, because there
+     * are three: the REST route, the workflow form the scout fills in, and
+     * the demo generator. `prospects.consent_awaiting` is state-derived, so
+     * one of those three quietly not announcing would not break anything
+     * loudly — the alert would simply stay up to an hour stale, which is the
+     * failure this hook exists to avoid.
+     *
+     * Fires on any outcome, not only on a move away from `awaiting`. A
+     * correction back to `awaiting` is equally a reason to re-derive, and the
+     * listener only ever asks the definition to look again.
+     */
+    private static function announce( int $prospect_id, int $entry_id, string $outcome ): void {
+        if ( $prospect_id <= 0 || ! function_exists( 'do_action' ) ) return;
+
+        /**
+         * A consent request's outcome was recorded or changed.
+         *
+         * @param int    $prospect_id The prospect the request belongs to.
+         * @param int    $entry_id    The consent-request entry.
+         * @param string $outcome     What it came back with.
+         */
+        do_action( 'tt_prospect_consent_outcome_recorded', $prospect_id, $entry_id, $outcome );
     }
 
     /**
@@ -131,6 +167,64 @@ class ProspectConsentRequestsRepository {
               WHERE club_id = %d AND prospect_id = %d AND outcome = %s",
             CurrentClub::id(), $prospect_id, ConsentOutcome::AGREED
         ) ) > 0;
+    }
+
+    /**
+     * #4017 — how long each of these prospects has been waiting for an
+     * answer, keyed by prospect id.
+     *
+     * A prospect with no open request, or with consent already on record by
+     * either route, is absent from the result rather than present with a
+     * zero: "not waiting" and "asked today" are different answers and a list
+     * has to show them differently.
+     *
+     * One query for the whole page. The list this feeds shows up to a
+     * hundred rows, and `forProspect()` per row would be a hundred queries
+     * for one column.
+     *
+     * @param list<int> $prospect_ids
+     * @return array<int,int> prospect id => days waiting
+     */
+    public function waitingDaysFor( array $prospect_ids ): array {
+        global $wpdb; $p = $wpdb->prefix;
+
+        $ids = [];
+        foreach ( $prospect_ids as $id ) {
+            $id = (int) $id;
+            if ( $id > 0 ) $ids[] = $id;
+        }
+        $ids = array_values( array_unique( $ids ) );
+        if ( $ids === [] || ! self::tableExists() ) return [];
+
+        // Every id is an int by construction, so the list is safe to inline.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT cr.prospect_id AS prospect_id,
+                    DATEDIFF( CURDATE(), MIN( cr.asked_at ) ) AS waiting_days
+               FROM {$p}tt_prospect_consent_requests cr
+              WHERE cr.club_id = %d
+                AND cr.outcome = %s
+                AND cr.prospect_id IN (" . implode( ',', $ids ) . ")
+                AND NOT EXISTS (
+                        SELECT 1 FROM {$p}tt_prospect_consent_requests agreed
+                         WHERE agreed.prospect_id = cr.prospect_id
+                           AND agreed.club_id = cr.club_id
+                           AND agreed.outcome = %s
+                    )
+           GROUP BY cr.prospect_id",
+            CurrentClub::id(),
+            ConsentOutcome::AWAITING,
+            ConsentOutcome::AGREED
+        ), ARRAY_A );
+
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $id = (int) ( $row['prospect_id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            $out[ $id ] = max( 0, (int) ( $row['waiting_days'] ?? 0 ) );
+        }
+        return $out;
     }
 
     /** Does the table exist yet? Installs that predate migration 0284 answer no. */
