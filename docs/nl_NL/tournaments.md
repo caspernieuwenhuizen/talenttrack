@@ -129,9 +129,35 @@ Speelt jouw leeftijdsgroep een vorm die niet in de standaardlijst staat, voeg
 die dan bij Configuratie → Toernooiformaties toe met zijn slotlabels; daarna
 wordt hij overal geaccepteerd, planner inbegrepen.
 
+## De toernooidag op de teamagenda
+
+Zodra je een toernooi aanmaakt, staat **de dag zelf** op de activiteitenlijst van
+het team, als geplande toernooiactiviteit met de naam en de startdatum van het
+toernooi. Hernoem je het toernooi of verplaats je het naar een andere datum, dan
+verhuist die agenda-regel mee.
+
+Dat is wat de teammanager in staat stelt vervoer en kleding te regelen, en wat de
+assistent-coach en de ouders de dag ziet aankomen terwijl de planner nog gevuld
+wordt. Voorheen verscheen er pas iets zodra iemand die ochtend op **Aftrap**
+tikte — een toernooi dat drie weken vooruit gepland was, was dus onzichtbaar voor
+iedereen die met de activiteitenlijst werkt, en er was niets om aanwezigheid op
+vast te leggen.
+
+**Aanwezigheid leg je één keer vast, voor de dag.** Een toernooidag is meerdere
+wedstrijden en de presentielijst hoort bij de dag, niet bij elke wedstrijd.
+
+Een toernooi dat voor deze wijziging is aangemaakt, krijgt zijn agenda-regel de
+eerstvolgende keer dat je het bewerkt of er een wedstrijd aan toevoegt — je hoeft
+niets opnieuw te laten lopen.
+
 ## Aftrap en afsluiten van een wedstrijd
 
-- **Aftrap** — promoveert de geplande wedstrijd tot een echte activiteit. De wedstrijd verschijnt op de player journey en op de wedstrijdlijst van het team.
+- **Aftrap** — promoveert de geplande wedstrijd tot een eigen echte activiteit,
+  náást de dag. De wedstrijd verschijnt op de player journey en op de
+  wedstrijdlijst van het team. De dag-regel wordt hergebruikt en nooit
+  gedupliceerd: één dag, hoeveel wedstrijden er ook zijn. De wedstrijd heeft een
+  eigen activiteit nodig omdat daar de uitslag en de minuten worden vastgelegd,
+  terwijl de dag een alleen-lezen optelling is van wat zijn wedstrijden bevatten.
 - **Wedstrijd afsluiten** — zet de afsluit-timestamp, synct de basisopstelling van periode 0 naar **aanwezigheid**: iedereen die startte wordt gemarkeerd als `start` met zijn positie uit periode 0; gewisselde spelers als `bench`. Gespeelde minuten gaan van "verwacht" naar "gespeeld" in de ticker.
 
 Je kunt **Afsluiten** zonder eerst expliciet aftrap te geven — het systeem doet de aftrap automatisch.

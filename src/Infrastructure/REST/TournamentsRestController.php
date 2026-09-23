@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
+use TT\Domain\Vocabularies\Lookups\TournamentFormation;
 use TT\Domain\Vocabularies\Lookups\TournamentOpponentLevel;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -12,6 +13,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Tournaments\Services\TournamentDayActivity;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
 use TT\Modules\Tournaments\TournamentAccess;
 
@@ -491,7 +493,11 @@ class TournamentsRestController {
         if ( $payload['team_id'] <= 0 ) {
             return RestResponse::error( 'team_required', __( 'An anchor team is required.', 'talenttrack' ), 422 );
         }
-        if ( $payload['start_date'] === '' ) {
+        // #4031 — `extractTournament()` turns a blank date into null, so the
+        // `=== ''` this used to compare never matched and a tournament could
+        // be created with no date at all. It then has no day to put on the
+        // calendar, which is how the gap was found.
+        if ( $payload['start_date'] === null || $payload['start_date'] === '' ) {
             return RestResponse::error( 'start_date_required', __( 'Start date is required.', 'talenttrack' ), 422 );
         }
 
@@ -538,6 +544,8 @@ class TournamentsRestController {
             self::insertMatch( $id, (array) $m, $seq );
         }
 
+        // #4031 — `TournamentDayActivity` listens here and puts the day on the
+        // team's calendar, so the wizard's own insert path gets it too.
         do_action( 'tt_tournament_created', $id, $payload );
 
         $row = self::fetchTournamentRow( $id );
@@ -588,6 +596,8 @@ class TournamentsRestController {
             Logger::error( 'rest.tournament.update.failed', [ 'id' => $id, 'db_error' => (string) $wpdb->last_error ] );
             return RestResponse::error( 'db_error', __( 'The tournament could not be updated.', 'talenttrack' ), 500 );
         }
+        // #4031 — `TournamentDayActivity` listens here and moves the day's
+        // calendar entry when the tournament moves.
         do_action( 'tt_tournament_updated', $id, $payload );
 
         $row = self::fetchTournamentRow( $id );
@@ -704,6 +714,9 @@ class TournamentsRestController {
         if ( $match_id === 0 ) {
             return RestResponse::error( 'db_error', __( 'The match could not be created.', 'talenttrack' ), 500 );
         }
+
+        // #4031 — `TournamentDayActivity` listens here too, so a fixture added
+        // to a tournament that predates the day activity creates it.
         do_action( 'tt_tournament_match_created', $tournament_id, $match_id );
         return RestResponse::success( self::fetchMatch( $match_id ) );
     }
@@ -867,6 +880,13 @@ class TournamentsRestController {
      *
      * Idempotent: a match already linked to an activity returns the
      * existing activity_id without creating a duplicate.
+     *
+     * #4031 — the tournament **day** has its own activity from the moment the
+     * tournament is created, and this makes sure of it for a tournament that
+     * predates that. The fixture still gets one of its own: the day is a
+     * roll-up of its fixtures (#3857) and the fixture activity is the only
+     * place a single fixture's score (#4021) and confirmed minutes (#4032) can
+     * live. Two activities, two jobs.
      */
     public static function kickoff_match( \WP_REST_Request $r ) {
         // #3819 — the body's shape before its values. `complete_match()`
@@ -888,11 +908,16 @@ class TournamentsRestController {
 
         global $wpdb; $p = $wpdb->prefix;
 
+        // #4031 — the day's calendar entry, for a tournament created before it
+        // was made automatic.
+        $day_activity_id = TournamentDayActivity::ensureFor( $tournament_id );
+
         // Idempotent: if already linked, just return.
         if ( ! empty( $match['activity_id'] ) ) {
             return RestResponse::success( [
                 'match_id'    => $match_id,
                 'activity_id' => (int) $match['activity_id'],
+                'day_activity_id'    => $day_activity_id,
                 'already_kicked_off' => true,
             ] );
         }
@@ -959,8 +984,9 @@ class TournamentsRestController {
         do_action( 'tt_tournament_match_kicked_off', $tournament_id, $match_id, $activity_id );
 
         return RestResponse::success( [
-            'match_id'    => $match_id,
-            'activity_id' => $activity_id,
+            'match_id'        => $match_id,
+            'activity_id'     => $activity_id,
+            'day_activity_id' => $day_activity_id,
         ] );
     }
 
@@ -2089,7 +2115,7 @@ class TournamentsRestController {
             $name = (string) $name;
             if ( $name !== '' && ! in_array( $name, $out, true ) ) $out[] = $name;
         }
-        return $out ?: \TT\Domain\Vocabularies\Lookups\TournamentFormation::ALL;
+        return $out ?: TournamentFormation::ALL;
     }
 
     /**

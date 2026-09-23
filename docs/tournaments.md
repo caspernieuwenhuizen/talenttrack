@@ -126,9 +126,35 @@ The level shows as its translated label everywhere you meet it — the pill on t
 
 The auto-balancer **does not** auto-weight by opponent level. That's coach judgment; the tool shows the data and you apply the judgment via manual swaps.
 
+## The tournament day on the team's calendar
+
+Creating a tournament puts **the day itself** on the team's activity list right
+away, as a planned tournament activity carrying the tournament's name and its
+start date. Rename the tournament or move it to another date and the calendar
+entry follows.
+
+That is what lets the team manager sort transport and kit, and the assistant
+coach and the parents see the day coming, while the planner is still being
+filled in. It used to appear only when somebody tapped **Kick off** on the
+morning itself — so a tournament planned three weeks ahead was invisible to
+everybody who works from the activity list, and there was nothing to register
+availability against.
+
+**Attendance is registered once, for the day.** A tournament day is several
+matches and the register belongs to the day, not to each fixture.
+
+A tournament created before this behaviour landed gets its calendar entry the
+next time you edit it or add a match to it — there is nothing to re-run.
+
 ## Kicking off and completing a match
 
-- **Kick off** — promotes the planned match to a real activity. The match shows up on the player journey, on the team's activity list, and on the existing match-day team sheet exporter.
+- **Kick off** — promotes the planned match to a real activity of its own,
+  alongside the day. The match shows up on the player journey, on the team's
+  activity list, and on the existing match-day team sheet exporter. The day
+  entry is reused, never duplicated: one day, however many fixtures. The
+  fixture needs an activity of its own because that is where its score and its
+  minutes are recorded, while the day is a read-only roll-up of what its
+  fixtures hold.
 - **Complete match** — sets the match's completion timestamp, syncs the period-0 starting lineup to **attendance**: every player who started is marked `start` with their period-0 position; benched players are marked `bench`. Played minutes flip from "expected" to "played" in the ticker.
 
 You can **Complete** a match without explicit Kick off — the system will auto-kick-off first, so the common "the match just finished" flow is a single button tap.
