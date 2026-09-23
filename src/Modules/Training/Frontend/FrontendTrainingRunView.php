@@ -89,6 +89,13 @@ final class FrontendTrainingRunView extends FrontendViewBase {
             if ( $existing ) {
                 $run_id = (int) $existing->id;
             } else {
+                // #4001 — attaching a plan writes against this activity, so it
+                // asks the question the activity writes ask. A refusal reads as
+                // an activity that is not there.
+                if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversActivity( $user_id, $activity_id ) ) {
+                    self::renderNotFound();
+                    return;
+                }
                 self::renderAttach( $activity_id );
                 return;
             }
@@ -100,12 +107,37 @@ final class FrontendTrainingRunView extends FrontendViewBase {
         }
 
         $run = $runs->findById( $run_id );
-        if ( ! $run ) {
+        // #4001 — `tt_training_plan` is held club-wide, so the check at the top
+        // answers whether the caller runs trainings, never whose. The sideline
+        // screen carries a named squad's roster and their per-block notes, and
+        // it took `?id=` straight out of the URL. A run the caller may not
+        // reach answers exactly as a run that no longer exists.
+        if ( ! $run || ! self::mayOpenRun( $user_id, $run ) ) {
             self::renderNotFound();
             return;
         }
 
         self::renderSideline( $run, $runs );
+    }
+
+    /**
+     * The run's team, resolved from the run row and falling back to its
+     * activity, then asked of `AllTeamsScope`.
+     *
+     * A run with no team on either — a club-wide plan run against an activity
+     * that has no squad — has no team to be out of scope for, which is the line
+     * `TrainingRunsRestController` takes for the same records.
+     */
+    private static function mayOpenRun( int $user_id, object $run ): bool {
+        $team_id = (int) ( $run->team_id ?? 0 );
+        if ( $team_id <= 0 ) {
+            $team_id = (int) ( \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity(
+                (int) ( $run->activity_id ?? 0 )
+            ) ?? 0 );
+        }
+        if ( $team_id <= 0 ) return true;
+
+        return \TT\Modules\Authorization\AllTeamsScope::canReadTeam( $user_id, $team_id );
     }
 
     private static function renderNotFound(): void {

@@ -42,6 +42,23 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
 
         $player = $player_id > 0 ? QueryHelpers::get_player( $player_id ) : null;
 
+        // #4001 — `tt_rate_player_behaviour` / `tt_set_player_potential` are
+        // held club-wide, so the route's capability answers whether the caller
+        // records these judgements, never about which children. This screen
+        // both shows and writes the academy's view of how far a named child
+        // will go — the surface `isStaffForPlayer()` exists for, and the one
+        // the history branch below has asked since #3715. The capture branch
+        // asked nothing, so a coach could record a potential band against any
+        // player in the academy by editing `?player_id=`.
+        //
+        // A refusal answers as a player who is not there, which is what this
+        // view already prints for an id that does not resolve.
+        if ( $player !== null
+            && ! \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer( $user_id, $player_id )
+        ) {
+            $player = null;
+        }
+
         // #2574 / #3243 — both halves are feature-gated now, so the view is
         // reachable while EITHER is available and refuses only when neither
         // is. Without this it would render a heading and nothing else for an

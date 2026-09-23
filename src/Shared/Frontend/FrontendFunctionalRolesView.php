@@ -99,6 +99,21 @@ class FrontendFunctionalRolesView extends FrontendViewBase {
                 echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to change assignments.', 'talenttrack' ) . '</p>';
                 return;
             }
+            // #4001 — `tt_edit_people` is club-wide, so the check above answers
+            // whether the caller changes assignments, never whose team's. An
+            // assignment names a person AND a team, and editing one changes who
+            // coaches that squad — the act `PeopleModule::handleAssignStaff()`
+            // has gated on `canAssignStaff` since v2.8.0. The team comes off the
+            // assignment row, and a refusal answers as an assignment that is no
+            // longer there.
+            if ( $assignment !== null
+                && ! \TT\Infrastructure\Security\AuthorizationService::canAssignStaff(
+                    $user_id,
+                    (int) ( $assignment->team_id ?? 0 )
+                )
+            ) {
+                $assignment = null;
+            }
             if ( $assignment === null ) {
                 self::renderHeader( __( 'Assignment not found', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'That assignment no longer exists.', 'talenttrack' ) . '</p>';

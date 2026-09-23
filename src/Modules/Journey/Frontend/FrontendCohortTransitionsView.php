@@ -67,8 +67,18 @@ class FrontendCohortTransitionsView {
 
         $allowed = PlayerEventsRepository::visibilitiesForUser( $user_id );
 
+        // #4001 — `team_id` comes off the query string, so it is asked about
+        // rather than trusted. The gate above already requires *global* read on
+        // `cohort_transitions`, so today this can only pass — but it is the
+        // clamp every sibling analytics view applies, and it means the day this
+        // entity is granted at team scope the filter does not quietly become a
+        // way to read another cohort. A refused team answers as a team with no
+        // events in the range: the empty result, not a different screen.
+        $may_read_team = $team_id <= 0
+            || \TT\Modules\Authorization\AllTeamsScope::canReadTeamFor( $user_id, $team_id, 'cohort_transitions' );
+
         $rows = [];
-        if ( $event_type !== '' ) {
+        if ( $event_type !== '' && $may_read_team ) {
             $rows = ( new PlayerEventsRepository() )->cohortByType(
                 $event_type, $from . ' 00:00:00', $to . ' 23:59:59', $team_id > 0 ? $team_id : null, $allowed
             );

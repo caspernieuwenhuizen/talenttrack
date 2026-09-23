@@ -4494,7 +4494,38 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // on-screen view + ActivityBriefPdfExporter share one source of
         // truth. Pre-fix the two surfaces inlined $wpdb queries with
         // subtly different filter sets — same data-fork class as #1059.
-        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id );
+        return self::inScope(
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id )
+        );
+    }
+
+    /**
+     * #4001 — the activity, or null when the viewer does not coach its team.
+     *
+     * `tt_view_activities` / `tt_edit_activities` are club-wide, so the
+     * dispatcher's capability answers whether the caller opens activities,
+     * never whose. The list has always narrowed to the caller's teams, so the
+     * detail and edit routes reached by id were the gap — the same gap
+     * `ActivityTeamScope` closed on the match-day views in #3151 and on the
+     * write routes in #3616.
+     *
+     * Applied at the read rather than at each branch, so the refusal lands on
+     * every code path this view has, including the duplicate-prefill: a null
+     * is exactly what a missing row returns, so all of them already say "that
+     * activity no longer exists" with their breadcrumb chain intact.
+     *
+     * An activity with no team has no team to be out of scope for, the line
+     * the REST writes take for the same records.
+     */
+    private static function inScope( ?object $session ): ?object {
+        if ( $session === null ) return null;
+
+        $team_id = (int) ( $session->team_id ?? 0 );
+        if ( $team_id <= 0 ) return $session;
+
+        return \TT\Modules\Authorization\ActivityTeamScope::coversTeam( get_current_user_id(), $team_id )
+            ? $session
+            : null;
     }
 
     /**
@@ -4505,7 +4536,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * either state; the header branches on `archived_at`.
      */
     private static function loadSessionForDetail( int $id ): ?object {
-        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $id );
+        return self::inScope(
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $id )
+        );
     }
 
     /**
