@@ -3,6 +3,8 @@ namespace TT\Modules\MatchAnalysis\Print;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\ActivityTeamScope;
+
 /**
  * MatchAnalysisPrintRouter (#2709) — isolated print route for a match
  * analysis.
@@ -72,7 +74,15 @@ class MatchAnalysisPrintRouter {
     }
 
     public static function renderHtml( int $activity_id ): string {
-        $body      = MatchAnalysisPrintableRenderer::forActivity( $activity_id );
+        // #4000 — `tt_view_activities` is held club-wide, so it answers
+        // whether the caller reads analyses, never whose. An activity
+        // outside their teams resolves to 0 here, which is the same id a
+        // caller passing a number that does not exist gets: the body comes
+        // back empty and the document prints "Nothing has been written for
+        // this match yet." One output for both, so the URL cannot be walked
+        // to learn which matches exist.
+        $scoped    = ActivityTeamScope::coversActivity( get_current_user_id(), $activity_id ) ? $activity_id : 0;
+        $body      = MatchAnalysisPrintableRenderer::forActivity( $scoped );
         $styles    = MatchAnalysisPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-analysis', 'activity_id' => $activity_id ],

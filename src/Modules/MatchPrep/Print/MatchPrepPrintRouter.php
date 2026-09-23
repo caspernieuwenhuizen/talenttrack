@@ -4,6 +4,7 @@ namespace TT\Modules\MatchPrep\Print;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Modules\Export\Exporters\MatchDayTeamSheetPdfExporter;
 
 /**
@@ -102,7 +103,7 @@ class MatchPrepPrintRouter {
 
     public static function renderHtml( int $activity_id ): string {
         $club_id   = (int) CurrentClub::id();
-        $body      = MatchPrepPrintableRenderer::bodyHtml( $activity_id, $club_id );
+        $body      = MatchPrepPrintableRenderer::bodyHtml( self::scopedActivityId( $activity_id ), $club_id );
         $styles    = MatchPrepPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
@@ -142,9 +143,24 @@ class MatchPrepPrintRouter {
         return (string) ob_get_clean();
     }
 
+    /**
+     * #4000 — the activity id the document body is built from, or 0 when
+     * the caller does not coach the activity's team.
+     *
+     * `tt_view_activities` / `tt_edit_activities` are held club-wide, so the
+     * capability above answers whether the caller runs matches, never whose.
+     * Resolving to 0 is what makes a refusal indistinguishable from an id
+     * that does not exist: both hand the renderer an activity it cannot
+     * find, so both print the same empty-sheet notice. The toolbar's close
+     * URL keeps the requested id, exactly as it does for a missing one.
+     */
+    private static function scopedActivityId( int $activity_id ): int {
+        return ActivityTeamScope::coversActivity( get_current_user_id(), $activity_id ) ? $activity_id : 0;
+    }
+
     public static function renderTeamSheetHtml( int $activity_id ): string {
         $club_id   = (int) CurrentClub::id();
-        $parts     = MatchDayTeamSheetPdfExporter::documentParts( $activity_id, $club_id );
+        $parts     = MatchDayTeamSheetPdfExporter::documentParts( self::scopedActivityId( $activity_id ), $club_id );
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()

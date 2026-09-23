@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportException;
+use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 
@@ -70,6 +71,29 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
         $p = $wpdb->prefix;
 
         $activity_id = (int) ( $request->filters['activity_id'] ?? 0 );
+
+        // #4000 — `collect()` is the authoritative check on this pipeline.
+        // `ExportService::run()` only asks whether the caller holds
+        // `tt_view_activities`, which every coach holds club-wide, so it
+        // answers whether they read team sheets and never whose.
+        //
+        // `coversActivity()` is false for an activity that does not exist as
+        // well as for one outside the caller's teams, so a coach gets this one
+        // answer for both and the filter cannot be walked for a squad list.
+        // A message, not an empty file — the line `docs/exports.md` takes for
+        // every scoped exporter, because an empty download reads as a broken
+        // one. The admin flag is resolved from the requesting user rather than
+        // left to default: an export can be produced for a user who is not the
+        // one the current request is authenticated as, and `current_user_can()`
+        // would then answer about the wrong person.
+        $requester = (int) $request->requesterUserId;
+        if ( ! ActivityTeamScope::coversActivity(
+            $requester,
+            $activity_id,
+            user_can( $requester, 'tt_edit_settings' )
+        ) ) {
+            throw new ExportException( 'forbidden', ActivityTeamScope::refusalMessage() );
+        }
 
         $activity = $wpdb->get_row( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.location, a.team_id, a.activity_type_key,
