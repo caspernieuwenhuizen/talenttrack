@@ -732,6 +732,11 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
+        /* record-scope-ok: token is the grant */
+        // This renders without a session at all — an assistant coach or an
+        // analyst outside the academy follows a signed link. There is no user
+        // to ask a per-record question about; the token verified below IS the
+        // grant, and rotating it is how the grant is withdrawn.
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
         if ( $uuid === '' || $token === '' ) {
@@ -890,7 +895,22 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $id = isset( $_GET['id'] ) ? (int) $_GET['id'] : 0;
         if ( $id <= 0 ) wp_die( esc_html__( 'Bad blueprint id.', 'talenttrack' ), '', [ 'response' => 400 ] );
         check_admin_referer( 'tt_blueprint_rotate_share_' . $id );
-        ( new TeamBlueprintsRepository() )->rotateShareTokenSeed( $id, (int) get_current_user_id() );
+
+        // #4001 — `canManage()` asks "do you hold blueprint change authority
+        // anywhere", which is the right question for a tile and the wrong one
+        // for a handler that takes `?id=`. head_coach holds `team_chemistry
+        // [rc, team]`, so it answered yes for every blueprint in the academy:
+        // rotating the seed breaks every share URL the owning coach handed out,
+        // which is a change to their squad's surface, made from outside it.
+        // `canManageForTeam()` asks the question the grant is written in (#3181).
+        // `teamIdFor()` answers 0 for a blueprint that is not in this club, so a
+        // bad id fails the scope check rather than slipping past it.
+        $repo = new TeamBlueprintsRepository();
+        if ( ! TeamChemistryAccess::canManageForTeam( get_current_user_id(), $repo->teamIdFor( $id ) ) ) {
+            wp_die( esc_html__( 'You do not have permission to rotate the share link.', 'talenttrack' ), '', [ 'response' => 403 ] );
+        }
+
+        $repo->rotateShareTokenSeed( $id, (int) get_current_user_id() );
         wp_safe_redirect( add_query_arg( [
             'tt_view' => 'team-blueprints',
             'id'      => $id,

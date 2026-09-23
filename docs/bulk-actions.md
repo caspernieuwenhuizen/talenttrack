@@ -17,6 +17,12 @@ Most list pages support bulk actions — handy when you want to archive or delet
 3. Click **Apply**.
 4. A confirmation page tells you what will happen. Confirm or cancel.
 
+## Only your own rows
+
+A bulk action acts on the records you could act on one at a time, never more. The selection is checked row by row when you apply it, so a batch that mixes twelve of your own players with one from another squad archives your twelve and leaves the other alone. The confirmation afterwards counts what actually changed, so the number never overstates.
+
+If none of the selected rows were yours to change, nothing happens and the page says so rather than reporting "0 items archived", which reads like a fault in the list.
+
 ## Archive vs delete
 
 ### Archive

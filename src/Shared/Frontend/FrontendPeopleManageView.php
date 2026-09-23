@@ -44,6 +44,13 @@ class FrontendPeopleManageView extends FrontendViewBase {
             TT_VERSION
         );
 
+        /* record-scope-ok: no player dimension */
+        // #4001 looked at this view and found nothing to add. A `tt_people` row
+        // is a member of academy staff, not a child, and there is no
+        // per-person visibility rule in the product: the people list is
+        // club-wide for everyone holding `tt_view_people`, and the repository
+        // read below is club-scoped. If people ever become team-scoped, this
+        // marker is what has to be reconsidered.
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 

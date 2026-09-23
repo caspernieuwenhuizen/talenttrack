@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\PlayerSex;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendListTable;
@@ -67,10 +68,18 @@ class FrontendPlayersManageView extends FrontendViewBase {
         self::enqueueAssets();
 
         // Detail / rate-card route — preserved for deep links.
+        //
+        // #4001 — `tt_view_players` is club-wide, so the dispatcher's
+        // capability answers whether the caller reads players and never which.
+        // `FrontendPlayerDetailView` has asked `canViewPlayer` since #3158;
+        // this route renders the same child's identity and ratings and asked
+        // nothing. A refused id falls through exactly as a missing one does —
+        // to the list, which is the answer a deep link to a player who is not
+        // there already gets, breadcrumbs and all.
         $player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         if ( $player_id > 0 ) {
             $player = QueryHelpers::get_player( $player_id );
-            if ( $player ) {
+            if ( $player && AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
                 self::renderDetail( $player );
                 return;
             }
@@ -91,6 +100,15 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
         if ( $id > 0 ) {
             $player = self::loadPlayer( $id );
+            // #4001 — the edit form is for a player the viewer may change.
+            // `tt_edit_players` is club-wide, and `PlayersPage::handle_save()`
+            // has asked `canEditPlayer` about the record since v2.8.0, so the
+            // form in front of it asks the same. A refusal is answered as a
+            // missing player, title and breadcrumb included, so an id cannot
+            // be probed for existence.
+            if ( $player && ! AuthorizationService::canEditPlayer( $user_id, $id ) ) {
+                $player = null;
+            }
             $title  = $player ? sprintf( __( 'Edit player — %s', 'talenttrack' ), QueryHelpers::player_display_name( $player ) ) : __( 'Player not found', 'talenttrack' );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $parent_crumb );
             self::renderHeader( $title );

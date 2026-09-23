@@ -4,8 +4,11 @@ namespace TT\Modules\Goals\Print;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Goals\GoalAccess;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
+use TT\Modules\Authorization\AllTeamsScope;
 
 /**
  * PlayerGoalIntakePrintRouter (#1064) — printable season-start
@@ -57,7 +60,24 @@ class PlayerGoalIntakePrintRouter {
             wp_die( esc_html__( 'You do not have access to print this intake.', 'talenttrack' ) );
         }
 
-        $season = isset( $_GET['season'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['season'] ) ) : self::upcomingSeason();
+        // #4000 — `tt_edit_goals` is held club-wide, so the check above
+        // answers whether the caller sets goals, never for whom. The intake
+        // sheet carries a named child's stats, prior ratings and coach notes,
+        // so it follows the per-player check every other goals surface
+        // follows (`GoalAccess`, #3998). A team batch additionally asks
+        // whether the caller may read that squad at all.
+        //
+        // Both refusals say what a missing record says, word for word, so an
+        // operator walking `?player_id=` cannot learn who is on the books.
+        $user_id = get_current_user_id();
+        if ( $player_id > 0 && ! GoalAccess::mayRead( $user_id, $player_id ) ) {
+            wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
+        }
+        if ( $team_id > 0 && ! AllTeamsScope::canReadTeam( $user_id, $team_id ) ) {
+            wp_die( esc_html__( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $season =isset( $_GET['season'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['season'] ) ) : self::upcomingSeason();
 
         add_filter( 'show_admin_bar', '__return_false' );
         status_header( 200 );
@@ -138,15 +158,22 @@ class PlayerGoalIntakePrintRouter {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // #1149 — drop the club_id filter and use demo-scope, matching
-        // the per-player emit() path. Same scope-strictness mismatch
-        // family otherwise.
+        // #1149 dropped the `club_id` filter here to match the per-player
+        // emit() path, which had 404'd on a club mismatch. #4000 puts it
+        // back on both: tenancy is a boundary, not a strictness setting, and
+        // a batch that reaches across it is the one query on this surface
+        // that would hand a whole squad over at once.
+        $club_id    = (int) CurrentClub::id();
         $team_scope = QueryHelpers::apply_demo_scope( 't', 'team' );
         $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d {$team_scope} LIMIT 1",
-            $team_id
+            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d AND t.club_id = %d {$team_scope} LIMIT 1",
+            $team_id,
+            $club_id
         ) );
-        if ( ! $team ) {
+        // #4000 — the squad check sits on the batch itself as well as on the
+        // route, so this entry point is safe whoever calls it. A squad the
+        // caller may not read says what a squad that is not there says.
+        if ( ! $team || ! AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ) {
             wp_die( esc_html__( 'Team not found.', 'talenttrack' ) );
         }
 
@@ -154,9 +181,21 @@ class PlayerGoalIntakePrintRouter {
         $players = $wpdb->get_col( $wpdb->prepare(
             "SELECT pl.id FROM {$p}tt_players pl
               WHERE pl.team_id = %d
+                AND pl.club_id = %d
                 AND ( pl.archived_at IS NULL ) {$player_scope}
               ORDER BY COALESCE(pl.jersey_number, 999) ASC, pl.last_name ASC",
-            $team_id
+            $team_id,
+            $club_id
+        ) );
+
+        // #4000 — the per-player check applies inside the batch too. A squad
+        // the caller may read can still hold a player whose goals they may
+        // not (a restricted record, a parent-gated section), and the batch is
+        // the one path that would otherwise print them all.
+        $user_id = get_current_user_id();
+        $players = array_values( array_filter(
+            $players,
+            static fn ( $pid ): bool => GoalAccess::mayRead( $user_id, (int) $pid )
         ) );
 
         ob_start();
@@ -271,8 +310,9 @@ class PlayerGoalIntakePrintRouter {
         global $wpdb;
         $p   = $wpdb->prefix;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT first_name, last_name FROM {$p}tt_players WHERE id = %d LIMIT 1",
-            $player_id
+            "SELECT first_name, last_name FROM {$p}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id,
+            CurrentClub::id()
         ) );
         if ( ! $row ) return '';
         return trim( (string) $row->first_name . ' ' . (string) $row->last_name );
@@ -303,15 +343,14 @@ class PlayerGoalIntakePrintRouter {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // #1149 — was filtered by `pl.club_id = CurrentClub::id()` (always 1),
-        // which 404'd on installs where the player row carried a different
-        // club_id than the resolved current club. The player profile view
-        // ([FrontendPlayersManageView::loadPlayer](src/Shared/Frontend/FrontendPlayersManageView.php#L631-L640))
-        // doesn't enforce club_id either — only demo-scope — so the print
-        // router was a stricter gate than the page that linked here, and
-        // pilot 2026-06-03 hit a hard "Player not found" on a valid link.
-        // Pivot to the player's stored club_id (read it back from the row)
-        // for the sub-queries below.
+        // #1149 removed `pl.club_id = CurrentClub::id()` here after a pilot
+        // link 404'd on a club mismatch. #4000 restores it: this sheet is a
+        // named child's record, and the boundary that keeps one academy's
+        // children out of another's print job is not the kind of filter to
+        // trade for a link that works. The club_id is still read back off the
+        // row for the sub-queries below, which the mismatch would break
+        // anyway. The sibling `tt_goals` read took the same direction in
+        // #3998.
         $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         // #1267 — was `pl.attachment_id_avatar` (nonexistent column);
         // canonical column is `pl.photo_url` per migration 0001 /
@@ -325,11 +364,19 @@ class PlayerGoalIntakePrintRouter {
                     t.name AS team_name
                FROM {$p}tt_players pl
                LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
-              WHERE pl.id = %d {$scope}
+              WHERE pl.id = %d AND pl.club_id = %d {$scope}
               LIMIT 1",
-            $player_id
+            $player_id,
+            CurrentClub::id()
         ) );
         if ( ! $player ) {
+            return null;
+        }
+        // #4000 — the per-player check sits on the sheet itself, not only on
+        // the route, so both public entry points inherit it: `emit()` turns a
+        // null into the same "Player not found." the missing row produces, and
+        // the team batch skips the player and carries on.
+        if ( ! GoalAccess::mayRead( get_current_user_id(), $player_id ) ) {
             return null;
         }
         $club_id = (int) $player->club_id;
@@ -811,9 +858,10 @@ CSS;
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.first_name, pl.last_name
                FROM {$p}tt_players pl
-              WHERE pl.id = %d {$scope}
+              WHERE pl.id = %d AND pl.club_id = %d {$scope}
               LIMIT 1",
-            $player_id
+            $player_id,
+            CurrentClub::id()
         ) );
         if ( ! $player ) {
             wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
@@ -848,9 +896,11 @@ CSS;
         global $wpdb;
         $p = $wpdb->prefix;
         $team_scope = QueryHelpers::apply_demo_scope( 't', 'team' );
+        $club_id = (int) CurrentClub::id();
         $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d {$team_scope} LIMIT 1",
-            $team_id
+            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d AND t.club_id = %d {$team_scope} LIMIT 1",
+            $team_id,
+            $club_id
         ) );
         if ( ! $team ) {
             wp_die( esc_html__( 'Team not found.', 'talenttrack' ) );
@@ -860,8 +910,10 @@ CSS;
         $player_count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_players pl
               WHERE pl.team_id = %d
+                AND pl.club_id = %d
                 AND ( pl.archived_at IS NULL ) {$player_scope}",
-            $team_id
+            $team_id,
+            $club_id
         ) );
 
         $print_all_url = add_query_arg( [

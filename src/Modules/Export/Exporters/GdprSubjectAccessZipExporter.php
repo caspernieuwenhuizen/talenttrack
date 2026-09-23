@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 
@@ -63,6 +64,21 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
         $player_id = (int) ( $request->filters['player_id'] ?? 0 );
 
         $player = QueryHelpers::get_player( $player_id );
+
+        // #4000 — `collect()` is the authoritative check on this pipeline.
+        // `ExportService::run()` asks only for `tt_edit_settings`, which is
+        // club-wide, so it answers whether the caller administers the academy
+        // and never which children they administer. This archive is every
+        // record the academy holds about one named minor, so it also asks the
+        // per-player question — and records the refusal, because an attempt to
+        // extract a child's file is itself something the academy's compliance
+        // trail should hold.
+        $requester = (int) $request->requesterUserId;
+        if ( $player && ! AuthorizationService::canViewPlayer( $requester, $player_id ) ) {
+            self::audit( 'gdpr.subject_access_refused', $player_id, $requester, 0 );
+            $player = null;
+        }
+
         if ( ! $player ) {
             return [
                 'entries' => [
@@ -227,29 +243,35 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             'tombstones_note' => __( 'comms_log rows with empty address_blob and subject reflect GDPR retention tombstoning (#0066) — the audit fact is preserved without the PII payload.', 'talenttrack' ),
         ];
 
-        // Audit the export. Failures here are non-fatal — the export
-        // must still complete (the data subject has a legal right to
-        // it) but we want the academy's own compliance trail to
-        // record what happened.
-        try {
-            ( new AuditService() )->record(
-                'gdpr.subject_access_export',
-                'player',
-                $player_id,
-                [
-                    'requesting_user_id' => (int) $request->requesterUserId,
-                    'generated_at'       => gmdate( 'c' ),
-                    'entry_count'        => count( $entries ),
-                ]
-            );
-        } catch ( \Throwable $e ) {
-            // Swallow — auditing must never block delivery.
-        }
+        self::audit( 'gdpr.subject_access_export', $player_id, $requester, count( $entries ) );
 
         return [
             'entries'  => $entries,
             'manifest' => $manifest,
         ];
+    }
+
+    /**
+     * One compliance-trail row: which user asked for which player's file, and
+     * whether they got it. Failures here are non-fatal — the export must
+     * still complete, because the data subject has a legal right to it — but
+     * the academy's own trail should record what happened either way.
+     */
+    private static function audit( string $action, int $player_id, int $user_id, int $entry_count ): void {
+        try {
+            ( new AuditService() )->record(
+                $action,
+                'player',
+                $player_id,
+                [
+                    'requesting_user_id' => $user_id,
+                    'generated_at'       => gmdate( 'c' ),
+                    'entry_count'        => $entry_count,
+                ]
+            );
+        } catch ( \Throwable $e ) {
+            // Swallow — auditing must never block delivery.
+        }
     }
 
     private static function tableExists( string $table ): bool {

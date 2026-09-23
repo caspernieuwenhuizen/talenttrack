@@ -17,6 +17,12 @@ De meeste lijstpagina's ondersteunen bulkacties — handig als je veel rijen teg
 3. Klik op **Toepassen**.
 4. Een bevestigingspagina laat zien wat er gaat gebeuren. Bevestig of annuleer.
 
+## Alleen je eigen rijen
+
+Een bulkactie raakt de records die je ook één voor één had mogen aanpassen, nooit meer. De selectie wordt rij voor rij gecontroleerd op het moment dat je hem uitvoert, dus een batch met twaalf spelers van jezelf en één van een andere selectie archiveert jouw twaalf en laat die andere staan. De melding erna telt wat er echt is veranderd, zodat het aantal nooit te hoog uitvalt.
+
+Was geen enkele geselecteerde rij van jou, dan gebeurt er niets en zegt de pagina dat ook — in plaats van "0 items gearchiveerd", wat leest als een storing in de lijst.
+
 ## Archiveren versus verwijderen
 
 ### Archiveren

@@ -72,6 +72,14 @@ Alle vijf de schrijfacties op één record stellen nu beide vragen. De regel gaa
 
 Een activiteit zonder team heeft geen team om buiten scope van te vallen; daar is het recht het hele antwoord.
 
+**De WordPress-beheerpagina's stellen dezelfde vragen.** Zij waren de andere helft van hetzelfde patroon: op meerdere pagina's zocht de ene tak het record op en de tweelingtak niet — opslaan controleerde, verwijderen niet; aanmaken controleerde, een statuswijziging niet. Verwijderen, iemand van een team afhalen en een planning stilzetten zijn alle drie schrijfacties, en een clubbreed recht beantwoordt er geen van. Dus: het verwijderen van een speler en van een team vragen wat hun opslaan vraagt, de activiteitenpagina vraagt naar het team van de activiteit bij weergeven, opslaan en verwijderen, iemand van een team afhalen vraagt naar het team op de toewijzingsregel in plaats van naar het team uit het formulier, een PDP-dossier definitief verwijderen vraagt of de aanvrager het dossier van die speler überhaupt mag zien, een Spond-verversing vraagt of de aanvrager de activiteiten van die selectie mag schrijven, en een geplande rapportage pauzeren, hervatten, archiveren of verwijderen vraagt wat het aanmaken ervan vroeg over hetzelfde team of dezelfde speler.
+
+Een bulkactie filtert de selectie rij voor rij voordat hij iets uitvoert, en meldt het aantal dat daadwerkelijk is aangepast.
+
+**De detail- en bewerkschermen in de frontend stellen de vraag ook.** Het spelersprofiel doet dat sinds #3158 en het beoordelingsdetail sinds #3949; de schermen ernaast haalden een record op id op en toonden het gewoon. Nu vraagt de spelersweergave naar de speler op zowel de detail- als de bewerkroute, weigert de bewerktak van een beoordeling precies zoals de detailtak dat doet, vraagt de activiteitenweergave naar het team van de activiteit bij detail én bewerken, vraagt een trainingsuitvoering naar het team van die uitvoering, vraagt het scherm "wedstrijd toevoegen" naar het toernooi bij het formulier en bij het versturen, vraagt het scherm voor gedrag en potentie of de aanvrager staf is van dat kind, vraagt het verversen van een deel-link naar het team van die blauwdruk, en vraagt het bewerken van een stafopdracht naar het team dat erin staat.
+
+In alle gevallen toont een weigering wat het scherm toch al toont voor een record dat er niet is — dezelfde melding, hetzelfde kruimelpad. "Deze mag je niet zien" zou bevestigen dat het record bestaat, en een URL met een nummer erin hoort geen manier te zijn om dat te ontdekken.
+
 ## Een leesrecht is geen clubbrede gegevenstoegang
 
 `tt_view_players` beantwoordt de vraag *"mag deze persoon naar spelers kijken"*.

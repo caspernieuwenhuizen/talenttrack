@@ -16,6 +16,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Services\ActivityCoachAssignment;
 use TT\Modules\Activities\Services\ActivityLifecycle;
+use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\AdminListScope;
 use TT\Shared\Admin\BackButton;
@@ -38,9 +39,41 @@ class ActivitiesPage {
         add_action( 'admin_post_tt_delete_activity', [ __CLASS__, 'handle_delete' ] );
     }
 
+    /**
+     * #4003 — may the current user reach this activity?
+     *
+     * `tt_edit_activities` is held club-wide, so the capability every branch
+     * here checks answers whether the caller runs activities, never whose. This
+     * is the question `ActivitiesRestController::refuseUnlessTeamWritable()`
+     * asks on the same records, and it answers the same way in two places the
+     * REST side already settled: an activity that does not exist passes, so
+     * "not found" stays the handler's own answer rather than becoming a
+     * refusal; and an activity with no team has no team to be out of scope
+     * for, so the capability is the whole answer for it.
+     */
+    private static function coversActivity( int $activity_id ): bool {
+        $stored = ( new ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
+        if ( $stored === null ) return true;
+
+        $team_id = (int) ( $stored->team_id ?? 0 );
+        if ( $team_id <= 0 ) return true;
+
+        return ActivityTeamScope::coversTeam( get_current_user_id(), $team_id );
+    }
+
     public static function render_page(): void {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+
+        // #4003 — `render_form` renders whatever id is in the URL, squad and
+        // coach notes included, and `tt_edit_activities` is club-wide, so
+        // walking `?action=edit&id=1,2,3…` read every fixture in the academy.
+        // The same notice `TeamsPage` prints for a squad out of scope (#3158).
+        if ( $action === 'edit' && $id > 0 && ! self::coversActivity( $id ) ) {
+            echo '<div class="wrap"><h1>' . esc_html__( 'Activities', 'talenttrack' ) . '</h1>'
+                . ActivityTeamScope::refusalNotice() . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped by refusalNotice().
+            return;
+        }
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
 
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
@@ -510,6 +543,17 @@ class ActivitiesPage {
 
         $team_id = isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0;
 
+        // #4003 — both halves of the question the REST write routes ask: the
+        // activity being edited, and the team it is being written for. Checking
+        // only the first would let a coach move their own fixture onto another
+        // squad; only the second, edit another squad's fixture by posting their
+        // own team id.
+        if ( ( $id > 0 && ! self::coversActivity( $id ) )
+            || ( $team_id > 0 && ! ActivityTeamScope::coversTeam( get_current_user_id(), $team_id ) )
+        ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
         // #3745 — the coach is the person who runs the activity, picked on
         // the form and defaulting to the team's head coach. It used to be
         // `get_current_user_id()`, which made the administrator typing a
@@ -648,6 +692,9 @@ class ActivitiesPage {
         check_admin_referer( 'tt_del_act_' . $id );
         // #1319 — matrix-aware cap mirroring ActivitiesRestController.
         if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #4003 — the same per-record question the save path asks, on the
+        // record being deleted together with its attendance rows.
+        if ( ! self::coversActivity( $id ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'activity.delete' );
         ( new ActivitiesRepository() )->deleteWithAttendance( $id );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-activities&tt_msg=deleted' ) );

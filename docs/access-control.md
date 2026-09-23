@@ -78,6 +78,14 @@ All five single-record writes now ask both questions. The rule is about **scope,
 
 An activity with no team has no team to be out of scope for; the capability is the whole answer for it.
 
+**The WordPress admin pages ask the same questions.** They were the other half of the same shape: on several pages one branch resolved the record and its twin did not — the save path checked, the delete path did not; the create path checked, the status change did not. A delete, an unassign and a paused schedule are all writes, and a capability that is club-wide answers none of them. So the player and team deletes ask what their saves ask, the activity page asks about the activity's team on render, save and delete, unassigning a staff member asks about the team on the assignment row rather than the team named in the form, permanently deleting a PDP file asks whether the caller may see that player's file at all, a Spond refresh asks whether the caller writes that squad's activities, and pausing, resuming, archiving or deleting a scheduled report asks what creating it asked about the same team or player.
+
+A bulk action filters the selection row by row before it dispatches, and reports the count it actually acted on.
+
+**The frontend detail and edit screens ask it too.** A player's own profile has asked since #3158 and an evaluation's detail since #3949; the screens beside them loaded a record by id and rendered it. Now the players view asks about the player on both its detail and its edit route, the evaluation edit branch refuses exactly as its detail branch does, the activities view asks about the activity's team on detail and edit alike, a training run asks about the run's team, the add-match screen asks about the tournament on the form and on the submit, the status-capture screen asks whether the caller is staff for that child, rotating a blueprint's share link asks about that blueprint's team, and editing a staff assignment asks about the team it names.
+
+In every case a refusal renders what the screen already shows for a record that is not there — the same notice, the same breadcrumb trail. Saying "you may not see this one" would confirm the record exists, and a URL with a number in it should not be a way to find that out.
+
 ## A view capability is not a club-wide data grant
 
 `tt_view_players` answers *"may this person look at players"*. It does not

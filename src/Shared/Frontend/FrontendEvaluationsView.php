@@ -72,6 +72,21 @@ class FrontendEvaluationsView extends FrontendViewBase {
         // detail when the user can't edit.
         if ( $action === 'edit' && $id > 0 && current_user_can( 'tt_edit_evaluations' ) ) {
             $existing = self::loadEvaluation( $id );
+            // #4001 — the edit branch refuses exactly as the detail branch
+            // does. `tt_edit_evaluations` is club-wide, so the check above
+            // answers whether the caller writes evaluations, never whose; the
+            // detail branch has asked the per-player question since #3949 and
+            // the form that rewrites the same row asked nothing. Reading is the
+            // floor and writing needs `canEvaluatePlayer` on top, which is what
+            // `POST /evaluations` asks for the player it writes for.
+            if ( $existing ) {
+                $eval_player = (int) ( $existing->player_id ?? 0 );
+                if ( ! self::mayReadEvaluationOf( $user_id, $eval_player )
+                    || ( $eval_player > 0 && ! \TT\Infrastructure\Security\AuthorizationService::canEvaluatePlayer( $user_id, $eval_player ) )
+                ) {
+                    $existing = null;
+                }
+            }
             if ( ! $existing ) {
                 \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                     __( 'Evaluation not found', 'talenttrack' ),

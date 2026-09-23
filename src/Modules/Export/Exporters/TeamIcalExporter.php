@@ -3,8 +3,10 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportException;
 
 /**
  * TeamIcalExporter (#0063 use case 12) — read-only iCal feed of a
@@ -60,6 +62,22 @@ final class TeamIcalExporter implements ExporterInterface {
         $team_id = $request->entityId ?? 0;
         if ( $team_id <= 0 ) {
             return [ 'calendar_name' => 'TalentTrack', 'events' => [] ];
+        }
+
+        // #4000 — `collect()` is the authoritative check on this pipeline.
+        // `ExportService::run()` asks only for `tt_view_activities`, which
+        // every coach holds club-wide, so it answers whether the caller
+        // subscribes to a calendar and never to whose. A feed is a standing
+        // subscription, which makes walking `entity_id` cheaper here than
+        // anywhere else.
+        //
+        // `canReadTeam()` is false for a team that does not exist as well as
+        // for one the caller is not assigned to, so a coach gets this one
+        // answer for both. A message, not an empty calendar — an empty feed is
+        // a silent wrong answer, and `docs/exports.md` says a refusal is always
+        // a message.
+        if ( ! AllTeamsScope::canReadTeam( (int) $request->requesterUserId, $team_id ) ) {
+            throw new ExportException( 'forbidden', __( 'You do not have access to this team.', 'talenttrack' ) );
         }
 
         $months_back  = (int) ( $request->filters['months_back']  ?? 1 );

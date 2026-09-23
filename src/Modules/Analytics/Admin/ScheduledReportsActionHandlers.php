@@ -42,6 +42,7 @@ final class ScheduledReportsActionHandlers {
         check_admin_referer( self::ACTION_DELETE, 'tt_sched_nonce' );
         $id = isset( $_POST['schedule_id'] ) ? (int) $_POST['schedule_id'] : 0;
         if ( $id <= 0 ) self::redirectBack( 'schedule_invalid' );
+        self::requireReachable( $id );
         try {
             ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'scheduled_report', [ $id ] );
         } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
@@ -204,6 +205,7 @@ final class ScheduledReportsActionHandlers {
         check_admin_referer( $nonce_action, 'tt_sched_nonce' );
         $id = isset( $_POST['schedule_id'] ) ? (int) $_POST['schedule_id'] : 0;
         if ( $id <= 0 ) self::redirectBack( 'schedule_invalid' );
+        self::requireReachable( $id );
         $repo = new ScheduledReportsRepository();
         $repo->setStatus( $id, $new_status );
         // #3462 — resuming is the answer to a stopped schedule; its reason
@@ -227,6 +229,46 @@ final class ScheduledReportsActionHandlers {
             || ! ( current_user_can( 'tt_edit_settings' )
                 || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id ) )
         ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+    }
+
+    /**
+     * #4003 — the per-record check the create path applies, on a schedule that
+     * already exists.
+     *
+     * `guard()` answers whether the caller runs schedules at all; it says
+     * nothing about which schedule. Pausing, resuming, archiving and deleting
+     * took `schedule_id` out of the POST and acted on it, so a holder of the
+     * analytics pair could stop another team's monthly report — and a stopped
+     * schedule is silent, which is the kind of change nobody notices.
+     *
+     * The question is the one `createTeamMonthly()` / `createPlayerReport()`
+     * ask about the same composition: may this caller read what the schedule
+     * renders. A KPI schedule has no team or player dimension, so it is
+     * club-wide by construction and `guard()` is the whole answer for it.
+     */
+    private static function requireReachable( int $schedule_id ): void {
+        $schedule = ( new ScheduledReportsRepository() )->findById( $schedule_id );
+        if ( $schedule === null ) {
+            self::redirectBack( 'schedule_invalid' );
+            return;
+        }
+
+        $user_id     = get_current_user_id();
+        $composition = (array) ( $schedule['composition'] ?? [] );
+        $team_id     = (int) ( $composition['team_id'] ?? 0 );
+        $player_id   = (int) ( $composition['player_id'] ?? 0 );
+
+        if ( $team_id > 0 ) {
+            $allowed = \TT\Modules\Analytics\Reports\TeamReportAccess::canRead( $user_id, $team_id );
+        } elseif ( $player_id > 0 ) {
+            $allowed = \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( $user_id, $player_id );
+        } else {
+            $allowed = true;
+        }
+
+        if ( ! $allowed ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
     }

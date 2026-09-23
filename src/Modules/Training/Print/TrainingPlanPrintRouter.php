@@ -3,6 +3,9 @@ namespace TT\Modules\Training\Print;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\AllTeamsScope;
+use TT\Modules\Training\Repositories\TrainingPlansRepository;
+
 /**
  * TrainingPlanPrintRouter (#2499) — isolated print route for the
  * coach's clipboard sheet.
@@ -41,7 +44,7 @@ final class TrainingPlanPrintRouter {
             wp_die( esc_html__( 'You do not have access to print this training plan.', 'talenttrack' ) );
         }
 
-        $parts = TrainingPlanPrintable::render( $plan_id );
+        $parts = TrainingPlanPrintable::render( self::scopedPlanId( $plan_id ) );
 
         add_filter( 'show_admin_bar', '__return_false' );
         status_header( 200 );
@@ -50,6 +53,31 @@ final class TrainingPlanPrintRouter {
 
         echo self::document( $parts, $plan_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — composed by TrainingPlanPrintable with esc_html() on every dynamic field.
         exit;
+    }
+
+    /**
+     * #4000 — the plan id the sheet is built from, or 0 when the caller may
+     * not read the plan's team.
+     *
+     * `tt_training_plan` is held club-wide, so the check above answers
+     * whether the caller plans training at all, never whose. A plan with no
+     * team is a club-wide template and stays open to every planner, which is
+     * the line `TrainingPlansRestController` takes for the same routes.
+     * Resolving to 0 hands the printable a plan it cannot find, so a refused
+     * id prints the same "That training plan no longer exists." sheet as an
+     * id that was never there.
+     *
+     * Public because `maybeRender()` ends in `exit` — this is the contract a
+     * test can assert.
+     */
+    public static function scopedPlanId( int $plan_id ): int {
+        $plan = ( new TrainingPlansRepository() )->findById( $plan_id );
+        if ( ! $plan ) return $plan_id; // not-found is the printable's own answer.
+
+        $team_id = (int) ( $plan->team_id ?? 0 );
+        if ( $team_id <= 0 ) return $plan_id;
+
+        return AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ? $plan_id : 0;
     }
 
     private static function isPrintRequest(): bool {

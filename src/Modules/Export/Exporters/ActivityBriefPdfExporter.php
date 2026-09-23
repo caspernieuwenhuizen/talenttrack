@@ -4,7 +4,9 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
+use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportException;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -54,6 +56,27 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
 
     public function collect( ExportRequest $request ): array {
         $activity_id = (int) ( $request->filters['activity_id'] ?? 0 );
+
+        // #4000 — `collect()` is the authoritative check on this pipeline: the
+        // coarse gate in `ExportService::run()` asks only for
+        // `tt_view_activities`, which is club-wide, so it answers whether the
+        // caller reads briefs and never whose. A brief carries the roster and
+        // the coach's notes.
+        //
+        // `coversActivity()` is false for an activity that does not exist as
+        // well as for one outside the caller's teams, so a coach gets this one
+        // answer for both and the id cannot be probed. A message, not an empty
+        // file — the line `docs/exports.md` takes for every scoped exporter.
+        // The admin flag comes from the requesting user, who need not be the
+        // user the current request is authenticated as.
+        $requester = (int) $request->requesterUserId;
+        if ( ! ActivityTeamScope::coversActivity(
+            $requester,
+            $activity_id,
+            user_can( $requester, 'tt_edit_settings' )
+        ) ) {
+            throw new ExportException( 'forbidden', ActivityTeamScope::refusalMessage() );
+        }
 
         // v4.20.32 (#1190) — routed through ActivitiesRepository so the
         // exporter and the on-screen view share a single data source.

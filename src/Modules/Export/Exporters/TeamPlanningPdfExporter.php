@@ -3,8 +3,10 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportException;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
@@ -172,6 +174,20 @@ final class TeamPlanningPdfExporter implements ExporterInterface {
         $team_id   = (int) ( $request->filters['team_id']   ?? 0 );
         $date_from = (string) ( $request->filters['date_from'] ?? '' );
         $date_to   = (string) ( $request->filters['date_to']   ?? '' );
+
+        // #4000 — `collect()` is the authoritative check on this pipeline; the
+        // coarse gate in `ExportService::run()` asks only for the club-wide
+        // activities capability, which answers whether the caller prints a
+        // schedule and never whose.
+        //
+        // `canReadTeam()` is false for a team that does not exist as well as
+        // for one the caller is not assigned to, so a coach gets this one
+        // answer for both and the filter cannot be walked for the squad list.
+        // A message, not an empty schedule — `docs/exports.md` is explicit
+        // that a refusal never arrives as an empty file.
+        if ( ! AllTeamsScope::canReadTeam( (int) $request->requesterUserId, $team_id ) ) {
+            throw new ExportException( 'forbidden', __( 'You do not have access to this team.', 'talenttrack' ) );
+        }
 
         $team = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, name FROM {$p}tt_teams WHERE id = %d AND club_id = %d LIMIT 1",

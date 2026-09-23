@@ -7,6 +7,7 @@ use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -499,7 +500,25 @@ class PeoplePage {
         check_admin_referer( 'tt_unassign_staff_' . $assignment_id, 'tt_nonce' );
 
         $repo = new PeopleRepository();
-        $ok = $assignment_id > 0 && $repo->unassign( $assignment_id );
+
+        // #4003 — `CAP_EDIT` is club-wide, so it answers whether the caller
+        // edits staff records, never whose team they may reorganise. The assign
+        // side has asked `canAssignStaff()` about the team since v2.8.0
+        // (`PeopleModule::handleAssignStaff`); unassign — which is how a coach
+        // loses a squad — asked nothing.
+        //
+        // The team comes off the assignment row, not off `$_POST['team_id']`:
+        // that field only steers the redirect, so trusting it would let a
+        // caller name a team they do manage and still remove someone from one
+        // they do not.
+        $assignment = $assignment_id > 0 ? $repo->findAssignment( $assignment_id ) : null;
+        if ( $assignment !== null
+            && ! AuthorizationService::canAssignStaff( get_current_user_id(), (int) ( $assignment->team_id ?? 0 ) )
+        ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+
+        $ok = $assignment !== null && $repo->unassign( $assignment_id );
 
         $redirect = $team_id > 0
             ? admin_url( 'admin.php?page=tt-teams&action=edit&id=' . $team_id . '&tt_msg=' . ( $ok ? 'saved' : 'error' ) )

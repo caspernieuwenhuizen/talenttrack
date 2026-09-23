@@ -4,6 +4,7 @@ namespace TT\Modules\Planning\Print;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\AllTeamsScope;
 
 /**
  * TeamPlannerWeeklyPrintRouter (#1631) — isolated print route for the
@@ -53,7 +54,7 @@ class TeamPlannerWeeklyPrintRouter {
         $header = self::toggleParam( 'header', TeamPlannerWeeklyPrintable::DEFAULT_HEADER );
 
         $parts = TeamPlannerWeeklyPrintable::render(
-            $team_id, $from, $to, $fields, $header, (int) CurrentClub::id()
+            self::scopedTeamId( $team_id ), $from, $to, $fields, $header, (int) CurrentClub::id()
         );
 
         add_filter( 'show_admin_bar', '__return_false' );
@@ -63,6 +64,24 @@ class TeamPlannerWeeklyPrintRouter {
 
         echo self::document( $parts, $team_id, $from, $to ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — composed by TeamPlannerWeeklyPrintable with esc_html() on every dynamic field.
         exit;
+    }
+
+    /**
+     * #4000 — the team id the sheet is built from, or 0 when the caller may
+     * not read that team.
+     *
+     * `tt_view_activities` is held club-wide, so the capability the route
+     * checks answers whether the caller prints a planner, never whose team's.
+     * Resolving to 0 is what makes a refusal indistinguishable from a team id
+     * that does not exist: the printable finds no team and no activities
+     * either way, so both print the same empty sheet, and the close link keeps
+     * the requested id in both cases too.
+     *
+     * Public because `maybeRender()` ends in `exit` — this is the contract a
+     * test can assert.
+     */
+    public static function scopedTeamId( int $team_id ): int {
+        return AllTeamsScope::canReadTeam( get_current_user_id(), $team_id ) ? $team_id : 0;
     }
 
     /**

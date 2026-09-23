@@ -4,6 +4,9 @@ namespace TT\Shared\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Infrastructure\Goals\GoalAccess;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\ActivityTeamScope;
 
 /**
  * BulkActionsHelper — renders the shared UI bits for bulk archive/delete.
@@ -227,6 +230,21 @@ class BulkActionsHelper {
         // #0071 follow-up — block all bulk operations during impersonation.
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'bulk.' . $action );
 
+        // #4003 — the capability above is club-wide, so it answers whether the
+        // caller archives players and never which players. `ids[]` arrives
+        // straight from the POST, and a checkbox list is trivially edited, so
+        // the batch is filtered row by row before anything is dispatched.
+        //
+        // Dropping the unreachable rows rather than refusing the whole batch is
+        // deliberate: a coach who ticked twelve of their own players and one of
+        // someone else's should get their twelve archived, and the message says
+        // how many were acted on, so the count never quietly overstates.
+        $ids = self::reachableIds( $entity, $ids );
+        if ( $ids === [] ) {
+            self::redirectWithMessage( $entity, $view, 'unauthorized', 0 );
+            return;
+        }
+
         // #0013 Sprint 2 — fire a pre-bulk action so the Backup module
         // can take an auto-safety snapshot when the affected row count
         // exceeds the configured threshold. The undo notice on the
@@ -264,6 +282,13 @@ class BulkActionsHelper {
                 exit;
         }
 
+        self::redirectWithMessage( $entity, $view, $msg_key, $count );
+    }
+
+    /**
+     * Back to the list with the outcome in `tt_bulk_msg`. Never returns.
+     */
+    private static function redirectWithMessage( string $entity, string $view, string $msg_key, int $count ): void {
         $back = wp_get_referer() ?: admin_url( 'admin.php?page=' . self::pageSlugForEntity( $entity ) );
         $back = add_query_arg( [
             'tt_view'     => $view,
@@ -271,6 +296,49 @@ class BulkActionsHelper {
         ], remove_query_arg( [ 'tt_bulk_msg' ], $back ) );
         wp_safe_redirect( $back );
         exit;
+    }
+
+    /**
+     * #4003 — the selected ids the caller may actually act on.
+     *
+     * Every `capForEntity()` capability is held club-wide, so it says what kind
+     * of record the caller manages, never which ones. These are the per-record
+     * questions the single-record admin handlers on the same pages ask, applied
+     * once per row.
+     *
+     * An entity with no per-record dimension — a lookup, a widget, a
+     * measurement definition — passes through: there is no player or team to
+     * narrow to, and inventing one would refuse work nobody asked to protect.
+     * `team` is deliberately not in the map either. The obvious candidate,
+     * `canManageTeam()`, asks for the `team.manage` permission rather than
+     * team assignment, so wiring it in here would change who can bulk-archive
+     * a squad rather than only who can bulk-archive *another* squad — a
+     * different decision, and one for its own issue.
+     *
+     * Public because `handle()` ends in `exit` — this is the contract a test
+     * can assert.
+     *
+     * @param int[] $ids
+     * @return int[]
+     */
+    public static function reachableIds( string $entity, array $ids ): array {
+        $user_id = get_current_user_id();
+        $checks  = [
+            'player'   => static fn ( int $id ): bool => AuthorizationService::canEditPlayer( $user_id, $id ),
+            'activity' => static fn ( int $id ): bool => ActivityTeamScope::coversActivity( $user_id, $id ),
+            'goal'     => static function ( int $id ) use ( $user_id ): bool {
+                $player_id = GoalAccess::playerIdOf( $id );
+                // A goal that is not in this club is not this caller's to act
+                // on either; `null` is "no such goal", which the repository
+                // would skip anyway.
+                return $player_id !== null && GoalAccess::mayChange( $user_id, $player_id );
+            },
+        ];
+
+        if ( ! isset( $checks[ $entity ] ) ) return $ids;
+
+        $check = $checks[ $entity ];
+        return array_values( array_filter( $ids, static fn ( int $id ): bool => $id > 0 && $check( $id ) ) );
     }
 
     /**
@@ -306,6 +374,15 @@ class BulkActionsHelper {
                     $count
                 );
                 break;
+            case 'unauthorized':
+                // #4003 — every selected row was outside the caller's scope, so
+                // there was nothing to do. A warning rather than "0 items
+                // archived", which reads as a bug in the list.
+                echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html__(
+                    'Nothing was changed — none of the selected records are yours to change.',
+                    'talenttrack'
+                ) . '</p></div>';
+                return;
             case 'blocked':
                 // #1783 — referential-integrity block; warning, not success.
                 echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html( sprintf(

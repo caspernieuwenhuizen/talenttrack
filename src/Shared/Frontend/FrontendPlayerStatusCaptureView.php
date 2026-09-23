@@ -68,19 +68,43 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // file — and can read the same data over REST — to a page with one
         // sentence on it.
         $history_only = $player !== null && ! $behaviour_ok && ! $potential_ok;
-        // Only asked on the branch that needs it — the capture screen
-        // proper has already been gated by the route.
-        $may_read     = $history_only && \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer(
-            get_current_user_id(),
-            $player_id
-        );
+        // #4001 — resolved once and used twice below: the history branch reads
+        // it, and the capture branch is now refused without it.
+        $is_staff     = $player !== null
+            && \TT\Infrastructure\Security\AuthorizationService::isStaffForPlayer( $user_id, $player_id );
+        $may_read     = $history_only && $is_staff;
         $page_title   = ( $history_only && $may_read )
             ? __( 'Behaviour & potential history', 'talenttrack' )
             : __( 'Capture behaviour & potential', 'talenttrack' );
 
+        // #4001 — `tt_rate_player_behaviour` / `tt_set_player_potential` are
+        // held club-wide, so the route's capability answers whether the caller
+        // records these judgements, never about which children. The capture
+        // branch below shows and writes the academy's view of how far a named
+        // child will go, and it asked nothing: a coach could record a potential
+        // band against any player in the academy by editing `?player_id=`.
+        //
+        // Scoped to that branch on purpose. #3715 settled that the history
+        // branch's notice is shown to anyone who reaches the route — telling a
+        // reader which of "we don't do this" and "you may not" applies would
+        // leak the club's configuration — and that only the history itself is
+        // gated. A load-level check would have taken that notice away too.
+        //
+        // Before the breadcrumb chain, so a refusal does not carry the child's
+        // name in the crumb, and answers exactly as a player who is not there.
+        if ( $player !== null && ! $history_only && ! $is_staff ) {
+            $player = null;
+        }
+
         // v3.92.1 — breadcrumb chain. When player is loaded, chain
         // through Players → [player name]; otherwise just Dashboard.
-        if ( $player ) {
+        //
+        // #4001 — and only when the caller is staff for that player. The
+        // history branch above deliberately serves its notice to anyone who
+        // reaches the route, which left the chain naming the child to a viewer
+        // who may not read them: the page said nothing and the crumb said who.
+        // The chain is the one place a refusal still leaked the record.
+        if ( $player && $is_staff ) {
             $player_name = QueryHelpers::player_display_name( $player );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 $page_title,

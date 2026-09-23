@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Tournaments\Wizard\WizardAssets;
 use TT\Shared\Frontend\Components\BackLink;
@@ -303,6 +304,20 @@ final class FrontendTournamentMatchAddView extends FrontendViewBase {
         return home_url( '/' );
     }
 
+    /**
+     * The tournament, or null when the caller may not change it.
+     *
+     * #4001 — `tt_edit_tournaments` is club-wide, so the capability both entry
+     * points check answers whether the caller edits tournaments, never which
+     * ones. The sibling manage view asks `canEditTournament` about the record;
+     * this view — which renders the tournament's existing match list and then
+     * writes a new match into it — asked nothing, on the render and on the POST
+     * alike.
+     *
+     * Asking at the read covers both, and makes a refusal read exactly as a
+     * tournament that no longer exists: the same notice on screen, the same 404
+     * on the POST.
+     */
     private static function loadTournament( int $id ): ?object {
         if ( $id <= 0 ) return null;
         global $wpdb; $p = $wpdb->prefix;
@@ -310,6 +325,8 @@ final class FrontendTournamentMatchAddView extends FrontendViewBase {
             "SELECT * FROM {$p}tt_tournaments WHERE id = %d AND club_id = %d",
             $id, CurrentClub::id()
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+
+        return AuthorizationService::canEditTournament( get_current_user_id(), $id ) ? $row : null;
     }
 }

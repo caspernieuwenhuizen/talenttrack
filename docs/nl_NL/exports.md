@@ -41,6 +41,8 @@ Een weigering is altijd een melding, nooit een leeg bestand. Een lege download z
 
 De exports per speler op de spelerspagina — de one-pager en het beoordelingsrapport — openen voor precies de spelers die je al kunt zien, en lezen anders als *niet gevonden*.
 
+Hetzelfde geldt voor de exports die om één team of één activiteit gaan: de teamagenda-feed, de team-planning-pdf, de activiteitenbrief en het wedstrijdformulier. Elk daarvan vraagt eerst of je met die selectie werkt en antwoordt anders met "je bent geen trainer van het team van deze activiteit" of "je hebt geen toegang tot dit team". Een team of activiteit die niet bestaat krijgt hetzelfde antwoord, zodat een opgeslagen link niet valt om te bouwen tot een rondgang langs de andere selecties van de academie. De inzage-export stelt dezelfde vraag over de speler die erin staat, en legt zowel de export als de geweigerde poging vast in het auditlogboek.
+
 ## Wat er in de KPI-momentopname staat
 
 Twee tabbladen. Het eerste bevat de kerncijfers over de gekozen periode: actieve en totale spelers, actieve teams, activiteiten, evaluaties, aanwezigheid en doelen, plus van hoeveel actieve spelers een potentieelband is vastgelegd en van hoeveel niet.
