@@ -2026,10 +2026,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // the domain service the REST route uses (CLAUDE.md §4). The state
         // only: no injury detail reaches this card, so a coach without
         // injury access can plan around it.
-        $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
+        $unavailable = PlayerAvailability::unavailableSet( array_map(
             static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
             $roster
-        ) ) );
+        ) );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {

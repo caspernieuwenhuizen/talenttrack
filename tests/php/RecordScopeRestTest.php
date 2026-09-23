@@ -202,8 +202,8 @@ final class RecordScopeRestTest extends WP_UnitTestCase {
     }
 
     public function test_another_teams_training_run_is_not_found(): void {
-        $theirs = $this->run( $this->otherTeam, $this->otherActivity );
-        $mine   = $this->run( $this->mineTeam, $this->mineActivity );
+        $theirs = $this->trainingRun( $this->otherTeam, $this->otherActivity );
+        $mine   = $this->trainingRun( $this->mineTeam, $this->mineActivity );
 
         $this->assertNotFound( TrainingRunsRestController::get_run( $this->req( [ 'id' => $theirs ] ) ) );
         $this->assertNotFound( TrainingRunsRestController::detach( $this->req( [ 'id' => $theirs ] ) ) );
@@ -392,7 +392,8 @@ final class RecordScopeRestTest extends WP_UnitTestCase {
         ) );
     }
 
-    private function run( int $team_id, int $activity_id ): int {
+    /** Named `trainingRun`, not `run`: `TestCase::run()` is public and final-ish. */
+    private function trainingRun( int $team_id, int $activity_id ): int {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_training_plan_runs', [
             'club_id'     => 1,

@@ -2902,10 +2902,10 @@ class ActivitiesRestController {
 
         $roster = $repo->plannedRosterForActivity( $id );
         $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableSet(
-            array_values( array_map(
+            array_map(
                 static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
                 $roster
-            ) )
+            )
         );
         $out = array_map( static function ( $row ) use ( $unavailable ) {
             $status = (string) ( $row->status ?? '' );

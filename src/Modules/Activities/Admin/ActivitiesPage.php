@@ -429,7 +429,7 @@ class ActivitiesPage {
                             $bits = [];
                             if ( $is_linked ) {
                                 $name = trim( (string) $g->first_name . ' ' . (string) $g->last_name );
-                                if ( $g->guest_team_name ) $bits[] = (string) $g->guest_team_name;
+                                if ( ! empty( $g->guest_team_name ) ) $bits[] = (string) $g->guest_team_name;
                             } else {
                                 $name = (string) ( $g->guest_name ?? __( 'Guest', 'talenttrack' ) );
                                 if ( $g->guest_age ) $bits[] = (int) $g->guest_age;
