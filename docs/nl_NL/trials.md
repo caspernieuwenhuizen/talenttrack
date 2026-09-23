@@ -60,6 +60,8 @@ Moet de periode verlengd worden, dan vraagt **Stage verlengen** op het Overzicht
 
 De kaart **Toegewezen staf** op Overzicht toont per panellid of de input al is ingeleverd — *Ingeleverd op <datum>* of *Nog geen input*. Die status is alleen zichtbaar voor wie de samenvatting van het dossier al mag lezen; een toegewezen coach die alleen zijn eigen input schrijft, ziet de lijst zonder die status.
 
+Wie het panel via de API opvraagt, krijgt dezelfde mensen: elke regel bevat de naam van het staflid en, als die er is, het id van het bijbehorende Mensen-record. Zo toont een koppeling een panel met namen in plaats van accountnummers.
+
 Loopt de stage bijna af en is er nog geen besluit vastgelegd, dan verschijnt onder de hero een **Deadline**-melding met hoeveel tijd er nog is — of hoe lang de periode al verstreken is. Die verdwijnt vanzelf zodra het besluit is vastgelegd of het dossier is verlengd; er valt niets weg te klikken. Hoeveel dagen vooraf er gewaarschuwd wordt, staat in de instelling `alerts_trial_decision_due_days`, standaard drie dagen.
 
 Dezelfde situatie levert het hoofd opleiding een melding **Stage eindigt zonder besluit** op, met de namen van de panelleden die nog niets hebben ingeleverd, zodat je ziet waar het besluit op wacht. Die melding lost zichzelf op zodra het besluit binnen is of het dossier wordt verlengd.
@@ -94,7 +96,9 @@ Het beslissingsformulier vereist een interne motivatie van minimaal 30 tekens.
 
 ### 5. Brief genereren
 
-Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het tabblad **Brief** toont de brief in de pagina en biedt een afdrukweergave aan. **Afdrukweergave openen** toont de brief los van de rest — geen navigatie, geen tabbladen, geen briefgeschiedenis, alleen de brief en een knop Printen — zodat je precies uitprint wat je aan het gezin meegeeft. Alleen hoofd opleiding en clubbeheer kunnen die weergave openen; wie geen toegang tot het dossier heeft, krijgt een melding. Drie sjablonen worden meegeleverd:
+Bij het vastleggen van een besluit wordt de brief die erbij hoort aangemaakt — de aanbodbrief bij aannemen, een van de twee afwijzingsbrieven bij een afwijzing. Dat gebeurt waar het besluit ook wordt vastgelegd: op het tabblad **Beslissing**, waar de knop dat ook zegt, en via de API. Zo leest een dossier langs beide wegen hetzelfde en bepaalt één plek welke brief bij welk besluit hoort.
+
+Aangemaakt is niet verstuurd, en ook niet definitief. Het tabblad **Brief** toont de brief in de pagina en biedt een afdrukweergave aan, en met **Brief opnieuw genereren** maak je hem opnieuw — na een wijziging in de sjablonen of in de naam van de academie — zodat je leest wat het gezin gaat lezen voordat iemand hem uitprint. **Afdrukweergave openen** toont de brief los van de rest — geen navigatie, geen tabbladen, geen briefgeschiedenis, alleen de brief en een knop Printen — zodat je precies uitprint wat je aan het gezin meegeeft. Alleen hoofd opleiding en clubbeheer kunnen die weergave openen; wie geen toegang tot het dossier heeft, krijgt een melding. Drie sjablonen worden meegeleverd:
 
 - **Aanbod** — warm welkom, vervolgstappen, eventueel een acceptatiestrook op pagina 2 als de club die functie aan heeft staan.
 - **Afwijzen (definitief)** — respectvol en duidelijk.
@@ -135,6 +139,7 @@ Een dossier blijft "open" — zichtbaar voor toegewezen staf, telt mee voor de w
 Gebruik het tabblad **Beslissing** om een uitkomst vast te leggen (`Aannemen` / `Afwijzen (definitief)` / `Afwijzen (met aanmoediging)`) plus de verplichte motivatie van ≥ 30 tekens. Het vastleggen:
 
 - Verandert de status van de speler, volgens de tabel hieronder.
+- Maakt de brief aan die bij het besluit hoort — de aanbodbrief, of een van de twee afwijzingsbrieven. Zie *Brief genereren* hierboven. De drie besluiten die de workflow rond de stagegroep vastlegt leveren geen brief op; twee daarvan sluiten de stage ook niet af.
 - Schrijft de bijbehorende regel op de tijdlijn van de speler — *Stage afgerond*, plus *Vastgelegd* bij aannemen of *Afscheid genomen* bij een definitieve afwijzing.
 - Stempelt `decision_made_at` + `decision_made_by` voor het audittrail.
 - Bewaart de motivatie zelf, daarna leesbaar voor iedereen die de staf-input van het dossier mag lezen — de Hoofd Opleiding en de toegewezen trainers. De motivatie gaat **niet** naar het gezin: de brief en het oudergesprek bevatten er niets van.
@@ -155,7 +160,7 @@ De derde regel is het lezen waard. *Afwijzen met aanmoediging* betekent "nu niet
 
 Alleen een speler die nog op **Stage** staat verandert. Is hij al langs een andere route doorgestroomd, of wordt de beslissing een tweede keer vastgelegd, dan gebeurt er niets — een beslissing kan een actieve speler niet terugzetten.
 
-De brief wordt **niet** automatisch gegenereerd. Ga naar het tabblad **Brief** en maak hem aan wanneer je zover bent; een brief aan een gezin hoort gelezen te zijn voordat hij bestaat. De rest van het gesprek loopt via het tabblad Oudergesprek.
+De brief is aangemaakt, niet verstuurd. Lees hem op het tabblad **Brief** voordat iemand hem uitprint, maak hem opnieuw aan als de tekst moet wijzigen, en leg vast hoe het gezin hem gekregen heeft zodra hij de deur uit is. De rest van het gesprek loopt via het tabblad Oudergesprek.
 
 ### De zes beslissingen, en welke de stage afsluiten
 
