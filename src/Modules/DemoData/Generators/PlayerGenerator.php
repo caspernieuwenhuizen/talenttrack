@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\DemoData\DemoAnthropometry;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\SeedLoader;
 
@@ -421,17 +422,18 @@ class PlayerGenerator implements GeneratorInterface {
         return gmdate( 'Y-m-d', strtotime( "{$year}-01-01 +{$day} days" ) ?: $now );
     }
 
+    /**
+     * #4036 — the body model lives in `DemoAnthropometry` now, because the
+     * measurement battery derives its Height and Weight bands from the same
+     * curve. Two copies is how a U7 record said 114 cm while their test
+     * history said 117.5.
+     */
     private function heightForAge( int $age ): int {
-        // Very simple: 110 cm at 6 years, +6 cm/year through 15, then +2/year.
-        $base = 110;
-        $height = $age <= 15 ? $base + ( $age - 6 ) * 6 : 164 + ( $age - 15 ) * 2;
-        return max( 110, $height + mt_rand( -4, 6 ) );
+        return DemoAnthropometry::heightForAge( $age );
     }
 
     private function weightForAge( int $age, int $height_cm ): int {
-        $bmi = $age < 12 ? 16 : ( $age < 15 ? 18 : 20 );
-        $w   = (int) round( $bmi * ( $height_cm / 100 ) * ( $height_cm / 100 ) );
-        return max( 20, $w + mt_rand( -3, 4 ) );
+        return DemoAnthropometry::weightForAge( $age, $height_cm );
     }
 
     private function pickJersey( array $used ): int {
