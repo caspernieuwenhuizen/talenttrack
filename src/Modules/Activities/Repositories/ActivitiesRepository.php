@@ -1993,29 +1993,43 @@ final class ActivitiesRepository {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
-        // Attendance computed columns via correlated subqueries. The
-        // numerator + denominator share a player set (current active
-        // roster) so the list-view % equals the detail-page form's
-        // present/total ratio — see the v3.110.95 note in git history.
+        // Attendance computed columns via correlated subqueries.
         //
-        // #3585 — `record_type = 'actual'` in both, for the reason the
+        // #3585 — `record_type = 'actual'` throughout, for the reason the
         // `your_attendance_status` subquery below spells out: the planned
         // squad is `expected` rows, and counting them listed an unplayed
         // match as "16 recorded, 16 present" with an empty register — and
         // put it in the `complete` bucket of `filter[attendance]`.
-        $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a
+        //
+        // #4009 — the numerators count the activity's RECORDED rows and no
+        // longer narrow to the player's CURRENT team. They used to: after a
+        // summer's age-group moves the squad that played a fixture is on
+        // another team, so the same activity read `register.attendance:
+        // recorded 20 / 20, complete` next to `attendance_count 0` and
+        // `attendance_pct 0`. A register is a record of who was there; whose
+        // roster they are on today cannot unmake it.
+        //
+        // The denominator keeps the current active roster as its floor —
+        // that is what "how many should be on this register" means for a
+        // current-season activity — but never reads lower than the number of
+        // players actually recorded, so a historical activity cannot report
+        // more marks than it expected (and `present_count > roster_size`,
+        // the >100% case `format_row()` clamps, can no longer arise).
+        $recorded_from = "FROM {$p}tt_attendance a
                INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
               WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                AND a.record_type = 'actual'
-                AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a
-               INNER JOIN {$p}tt_players pl_b ON pl_b.id = a.player_id AND pl_b.club_id = a.club_id
-              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                AND a.record_type = 'actual'
-                AND pl_b.team_id = s.team_id AND pl_b.status = 'active'
-                AND a.status = 'Present') AS present_count,
-            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
+                AND a.record_type = 'actual'";
+        $recorded_sql = "(SELECT COUNT(*) {$recorded_from})";
+        $present_sql  = "(SELECT COUNT(*) {$recorded_from} AND a.status = 'Present')";
+        $roster_sql   = "GREATEST(
+                (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active'),
+                {$recorded_sql}
+            )";
+
+        $select_cols = "s.*, t.name AS team_name,
+            {$recorded_sql} AS attendance_count,
+            {$present_sql} AS present_count,
+            {$roster_sql} AS roster_size";
 
         $your_status_pid = (int) ( $args['your_status_pid'] ?? 0 );
         if ( $your_status_pid > 0 ) {
@@ -2064,14 +2078,13 @@ final class ActivitiesRepository {
         $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
 
         if ( $having !== '' ) {
+            // #4009 — the same two expressions the list selects, so the
+            // `filter[attendance]` buckets and the columns they filter on
+            // cannot disagree about what a complete register is.
             $count_sql = "SELECT COUNT(*) FROM (
                 SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a
-                       INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
-                      WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                        AND a.record_type = 'actual'
-                        AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
-                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size
+                    {$recorded_sql} AS attendance_count,
+                    {$roster_sql} AS roster_size
                 FROM {$p}tt_activities s
                 LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
                 WHERE {$where_sql}

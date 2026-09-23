@@ -258,6 +258,19 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
     }
 
     /**
+     * #4009 — the translated label for a recorded status, for the read-only
+     * former-squad cells, which carry no `<select>` to name them.
+     *
+     * @param list<array{value:string,label:string,short:string,mod:string}> $statuses
+     */
+    private static function statusLabel( array $statuses, string $value ): string {
+        foreach ( $statuses as $s ) {
+            if ( $s['value'] === $value ) return $s['label'];
+        }
+        return '';
+    }
+
+    /**
      * @param array<string,mixed> $matrix
      */
     private static function renderGrid( array $matrix, int $team_id ): void {
@@ -320,12 +333,26 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             $jersey = $pl['jersey_number'] !== null ? (int) $pl['jersey_number'] : null;
             $name   = trim( (string) $pl['first_name'] . ' ' . (string) $pl['last_name'] );
             if ( $name === '' ) $name = '#' . $pid;
+            // #4009 — a player with a recorded mark in this window who has
+            // since moved on. Their register is history: the bulk write
+            // refuses a mark for a player off the activity's team, so the row
+            // shows the marks and offers no control that would no-op.
+            $editable = ! array_key_exists( 'editable', $pl ) || ! empty( $pl['editable'] );
+            $moved_to = (string) ( $pl['current_team_name'] ?? '' );
 
-            echo '<tr>';
+            echo '<tr' . ( $editable ? '' : ' class="tt-agrid__row--former"' ) . '>';
             echo '<th class="tt-agrid__player" scope="row"><span class="tt-agrid__who">';
             if ( $jersey !== null ) echo '<span class="tt-agrid__no">' . esc_html( (string) $jersey ) . '</span>';
             echo '<span class="tt-agrid__nm">' . esc_html( $name ) . '</span>';
-            echo '</span></th>';
+            echo '</span>';
+            if ( ! $editable ) {
+                $badge = $moved_to !== ''
+                    /* translators: %s is the team the player is on now. */
+                    ? sprintf( __( 'Left the squad — now %s', 'talenttrack' ), $moved_to )
+                    : __( 'Left the squad', 'talenttrack' );
+                echo '<span class="tt-agrid__former-note">' . esc_html( $badge ) . '</span>';
+            }
+            echo '</th>';
 
             $attended = 0;
             $recorded = 0;
@@ -338,7 +365,17 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                     if ( $value === 'present' || $value === 'late' ) $attended++;
                 }
                 $mod = $mods[ $value ] ?? 'empty';
-                echo '<td class="tt-agrid-cell tt-agrid-cell--' . esc_attr( $mod ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
+                echo '<td class="tt-agrid-cell tt-agrid-cell--' . esc_attr( $mod ) . ( $editable ? '' : ' tt-agrid-cell--locked' ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
+                if ( ! $editable ) {
+                    // Read-only: the recorded mark in words, no control.
+                    $label = $value !== '' ? self::statusLabel( $statuses, $value ) : '';
+                    echo '<span class="tt-agrid-locked">';
+                    echo '<span class="tt-agrid-locked__mark">' . esc_html( $value !== '' ? (string) $abbr[ $value ] : (string) $abbr[''] ) . '</span>';
+                    if ( $label !== '' ) echo '<span class="tt-screen-reader-text">' . esc_html( $label ) . '</span>';
+                    echo '</span>';
+                    echo '</td>';
+                    continue;
+                }
                 echo '<select class="tt-agrid-sel" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '" aria-label="' . esc_attr( sprintf(
                     /* translators: 1: player name, 2: activity date. */
                     __( 'Attendance for %1$s on %2$s', 'talenttrack' ),
@@ -359,6 +396,16 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         }
 
         echo '</tbody></table></div>';
+
+        // #4009 — say why some rows cannot be edited, in words. Without this
+        // the greyed rows read as a bug rather than as history.
+        $former = (int) ( $matrix['summary']['former_squad_players'] ?? 0 );
+        if ( $former > 0 ) {
+            echo '<p class="tt-agrid-former-note">' . esc_html__(
+                'Players who have left the squad since this period are listed at the bottom. Their attendance is shown as it was recorded and cannot be changed here.',
+                'talenttrack'
+            ) . '</p>';
+        }
 
         self::renderLegend( $statuses );
 

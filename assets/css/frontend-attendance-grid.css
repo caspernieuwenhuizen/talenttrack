@@ -187,6 +187,45 @@ table.tt-agrid {
   border: 1px solid #e3e6e1;
 }
 
+/* ---- Former squad rows (#4009) ------------------------------- */
+/* A player with a recorded mark in the window who has since moved to
+   another team. The register is history here: the bulk write refuses a mark
+   for a player off the activity's team, so the row carries no control at
+   all. Marked three ways, never by colour alone — the row is tinted, the
+   name carries the team they moved to in words, and a note under the grid
+   says the rows cannot be changed. */
+.tt-agrid tr.tt-agrid__row--former th.tt-agrid__player { background: #f6f7f6; }
+.tt-agrid__former-note {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  font-style: italic;
+  color: #6a6d66;
+  white-space: normal;
+}
+/* The state colour still carries the mark's meaning — it is the same
+   register everywhere else in the grid. Read-only is signalled by the
+   absent control, not by repainting the status. */
+.tt-agrid-locked {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  padding: 2px;
+}
+.tt-agrid-locked__mark {
+  font-weight: 800;
+  font-size: 13px;
+  color: inherit;
+}
+.tt-agrid-former-note {
+  margin: 0;
+  padding: 10px 14px 0;
+  font-size: 12px;
+  color: #6a6d66;
+  max-width: 70ch;
+}
+
 /* ---- Save bar (§6 Save + Cancel) ----------------------------- */
 .tt-agrid-savebar {
   position: sticky;

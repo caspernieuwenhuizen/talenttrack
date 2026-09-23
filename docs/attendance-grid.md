@@ -35,6 +35,25 @@ built for a desktop or laptop; on a phone the guided wizard is the easier path.
 - The **Present %** column on the right is a quick read of how often each
  player attended in the shown period.
 
+## Looking back at a previous season
+
+Squads move up every summer, and a register does not move with them. So when
+the period you pick reaches back before the last age-group move, the grid also
+lists the players who were in the squad then and have since left it. They
+appear **under** the current roster, greyed, with the team they are on now
+beside their name — *"Left the squad — now JO12-1"*.
+
+Those rows are **read-only**: you can see every status that was recorded, but
+there is no dropdown to change one. Attendance can only be recorded for a
+player who is in the squad, and offering an edit that would be refused is
+worse than not offering it. A note under the grid says so. To correct a mark
+for a player who has moved on, edit it on the activity's own attendance form.
+
+This is also why the team's own activity list now agrees with itself for such
+an activity: the counts on the card ("recorded 20 / 20", the present
+percentage) count the register as it was recorded, not the players who happen
+to be on the team today.
+
 ## Recording attendance
 
 1. Choose the **team**, the **period** (a quick pill or a custom date range),
