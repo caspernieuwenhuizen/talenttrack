@@ -22,6 +22,13 @@ use TT\Modules\Workflow\WorkflowModule;
  *
  *   POST  /talenttrack/v1/prospects/log     dispatch the LogProspect
  *                                           chain for the current user.
+ *                                           Creates no prospect — it opens
+ *                                           a task. Kept for external
+ *                                           integrations and the parent
+ *                                           self-confirmation flow (#4015).
+ *   POST  /talenttrack/v1/prospects         record a prospect, through the
+ *                                           same create service the
+ *                                           `new-prospect` wizard uses.
  *   GET   /talenttrack/v1/prospects         paginated list.
  *   GET   /talenttrack/v1/prospects/{id}    one prospect.
  *   PATCH /talenttrack/v1/prospects/{id}    correct the parent contact
@@ -62,10 +69,23 @@ class ProspectsRestController {
         ] );
         // v3.110.99 — list endpoint backing FrontendListTable on the new
         // ?tt_view=prospects-overview page.
+        //
+        // #4015 — POST on the same collection. Until this, `prospects/log`
+        // was the only prospect write route and it creates no prospect: it
+        // opens a task and returns a `task_id`, so a scout back from a visit
+        // had nowhere to put what they saw over the API (CLAUDE.md §4).
         register_rest_route( self::NS, '/prospects', [
-            'methods'             => 'GET',
-            'callback'            => [ self::class, 'list_prospects' ],
-            'permission_callback' => [ self::class, 'can_view' ],
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'list_prospects' ],
+                'permission_callback' => [ self::class, 'can_view' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'create_prospect' ],
+                'permission_callback' => [ self::class, 'can_log' ],
+                'args'                => self::createArgs(),
+            ],
         ] );
         // #2838 — a prospect could be created and never corrected. The
         // repository's update() already whitelisted these fields; nothing
@@ -93,6 +113,76 @@ class ProspectsRestController {
             'permission_callback' => [ self::class, 'can_log' ],
             'args'                => [],
         ] );
+    }
+
+    /**
+     * The fields `POST /prospects` accepts (#4015).
+     *
+     * Declared in full, and `BaseController::checkBody()` refuses anything
+     * outside it with the allowed list — the lesson `prospects/log` taught
+     * the hard way (#3818): a route that answered 201 while dropping the
+     * fields it was sent told a scout their prospect was recorded when
+     * nothing had been.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    private static function createArgs(): array {
+        return [
+            'first_name' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'The player\'s first name.',
+            ],
+            'last_name' => [
+                'type'        => 'string',
+                'required'    => true,
+                'description' => 'The player\'s last name.',
+            ],
+            'date_of_birth' => [
+                'type'        => 'string',
+                'description' => 'Date of birth, YYYY-MM-DD. Optional — a scout often does not know it yet.',
+            ],
+            'current_club' => [
+                'type'        => 'string',
+                'description' => 'The club the player is at now.',
+            ],
+            'discovered_at_event' => [
+                'type'        => 'string',
+                'description' => 'Where they were seen, in words, when it was not a logged scouting visit.',
+            ],
+            'scouting_notes' => [
+                'type'        => 'string',
+                'description' => 'What the scout saw.',
+            ],
+            'scouting_visit_id' => [
+                'type'        => 'integer',
+                'description' => 'The scouting visit they were found at (#3600), so the visit\'s own page lists them.',
+            ],
+            'parent_name' => [
+                'type'        => 'string',
+                'description' => 'Name of the parent or guardian. Only with the family\'s consent.',
+            ],
+            'parent_email' => [
+                'type'        => 'string',
+                'description' => 'Email of the parent or guardian. Only with the family\'s consent.',
+            ],
+            'parent_phone' => [
+                'type'        => 'string',
+                'description' => 'Phone number of the parent or guardian. Only with the family\'s consent.',
+            ],
+            'consent_given' => [
+                'type'        => 'boolean',
+                'description' => 'The family has agreed. Stamps the consent date as now.',
+            ],
+            'consent_given_at' => [
+                'type'        => 'string',
+                'description' => 'The date the family agreed, when it was not today. Takes precedence over consent_given.',
+            ],
+            'duplicate_override' => [
+                'type'        => 'boolean',
+                'description' => 'Record this prospect even though a likely duplicate exists. Send it after reading the candidates a 409 returned.',
+            ],
+        ];
     }
 
     /**
@@ -219,11 +309,15 @@ class ProspectsRestController {
         // request ageing anywhere, and the only code reading an ageing
         // `awaiting` row uses it to hold the retention clock — so an
         // unchased request ended in a silent purge.
+        // Through an array cast: `search()` answers bare `stdClass` rows,
+        // whose properties static analysis cannot check.
+        $page_ids = [];
+        foreach ( $rows as $row ) {
+            $id = (int) ( ( (array) $row )['id'] ?? 0 );
+            if ( $id > 0 ) $page_ids[] = $id;
+        }
         $waiting = ( new \TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository() )
-            ->waitingDaysFor( array_map(
-                static fn( $row ): int => (int) ( $row->id ?? 0 ),
-                is_array( $rows ) ? $rows : []
-            ) );
+            ->waitingDaysFor( $page_ids );
 
         $base = home_url( '/' );
         $formatted = array_map( static function ( $row ) use ( $base, $waiting ): array {
@@ -253,7 +347,9 @@ class ProspectsRestController {
                 $status = 'joined';
             }
             $status_label = self::statusLabelFor( $status );
-            $waiting_days = $waiting[ (int) $row->id ] ?? null;
+            // Array cast, like the id list above: `search()` answers bare
+            // `stdClass` rows, whose properties static analysis cannot check.
+            $waiting_days = $waiting[ (int) ( ( (array) $row )['id'] ?? 0 ) ] ?? null;
             return [
                 'id'              => (int) $row->id,
                 'first_name'      => $first,
@@ -300,6 +396,69 @@ class ProspectsRestController {
         $n = absint( $value );
         if ( ! in_array( $n, [ 10, 25, 50, 100 ], true ) ) return 25;
         return $n;
+    }
+
+    /**
+     * POST /prospects — record the player a scout has just seen (#4015).
+     *
+     * Shares one create path with the `new-prospect` wizard and the legacy
+     * `LogProspectForm`: `ProspectCreationService` owns the field map, the
+     * duplicate rule and the head of development's follow-on invite task, so
+     * the API and the wizard cannot answer differently about the same child.
+     *
+     * A likely duplicate comes back as **409** with the candidates and
+     * `duplicate_override: false`, mirroring the wizard rather than refusing
+     * outright. Re-post with `duplicate_override: true` once somebody has
+     * looked: two children genuinely do share a name, and the check exists to
+     * make a human check, not to make the second one unrecordable.
+     */
+    public static function create_prospect( \WP_REST_Request $r ): \WP_REST_Response {
+        $bad = BaseController::checkBody( $r, self::createArgs() );
+        if ( $bad ) return $bad;
+
+        $created = ( new \TT\Modules\Prospects\Domain\ProspectCreationService() )->create( [
+            'first_name'          => (string) ( $r['first_name'] ?? '' ),
+            'last_name'           => (string) ( $r['last_name'] ?? '' ),
+            'date_of_birth'       => (string) ( $r['date_of_birth'] ?? '' ),
+            'current_club'        => (string) ( $r['current_club'] ?? '' ),
+            'discovered_at_event' => (string) ( $r['discovered_at_event'] ?? '' ),
+            'scouting_notes'      => (string) ( $r['scouting_notes'] ?? '' ),
+            'scouting_visit_id'   => (int) ( $r['scouting_visit_id'] ?? 0 ),
+            'parent_name'         => (string) ( $r['parent_name'] ?? '' ),
+            'parent_email'        => (string) ( $r['parent_email'] ?? '' ),
+            'parent_phone'        => (string) ( $r['parent_phone'] ?? '' ),
+            'consent_given'       => ! empty( $r['consent_given'] ),
+            'consent_given_at'    => (string) ( $r['consent_given_at'] ?? '' ),
+            'duplicate_override'  => ! empty( $r['duplicate_override'] ),
+        ] );
+
+        if ( $created instanceof \WP_Error ) {
+            $code = $created->get_error_code();
+            if ( $code === \TT\Modules\Prospects\Domain\ProspectCreationService::ERR_DUPLICATE ) {
+                $data = $created->get_error_data();
+                return RestResponse::error(
+                    (string) $code,
+                    $created->get_error_message(),
+                    409,
+                    is_array( $data ) ? $data : []
+                );
+            }
+            $status = $code === \TT\Modules\Prospects\Domain\ProspectCreationService::ERR_CREATE_FAILED ? 500 : 400;
+            return RestResponse::error( (string) $code, $created->get_error_message(), $status );
+        }
+
+        $prospect_id = (int) $created;
+
+        ( new AuditService() )->record( 'prospect.created', 'prospect', $prospect_id, [
+            'scouting_visit_id' => (int) ( $r['scouting_visit_id'] ?? 0 ),
+            'source'            => 'rest',
+        ] );
+
+        $row = ( new ProspectsRepository() )->find( $prospect_id );
+        return RestResponse::success( [
+            'prospect_id' => $prospect_id,
+            'prospect'    => $row,
+        ], 201 );
     }
 
     /**

@@ -157,3 +157,11 @@ The button appears only when there is nothing else to do: a prospect with any op
 The legacy chain dispatched a `LogProspectTemplate` task as the first step, which then handed off to `InviteToTestTrainingTemplate`. The wizard *is* the form that LogProspect's task wrapped, so creating that task to capture data the wizard already collected was a redundant step. The wizard goes straight to `InviteToTestTrainingTemplate`.
 
 `LogProspectTemplate` and the `/prospects/log` REST endpoint stay in place for backward compat — external integrations (e.g. the parent self-confirmation token endpoint) and any custom workflow trigger that calls them keep working.
+
+## Recording a prospect from outside TalentTrack
+
+`POST /wp-json/talenttrack/v1/prospects` records a prospect directly: first and last name (required), date of birth, current club, where you saw them, your notes, the scouting visit they were found at, the parent contact block with its consent, and `duplicate_override`. It answers **201** with the prospect's id, and the prospect then counts on its scouting visit exactly as one created in the wizard does. It needs the same permission as the wizard, and it opens the same follow-on task for the Head of Development.
+
+**`prospects/log` is a different thing and is not going away.** It creates no prospect — it opens a *Log a prospect* task for the caller and answers with a `task_id`. That is what external integrations and the parent self-confirmation flow use, so it stays. If what you want is a prospect record, post to `/prospects`.
+
+The wizard, the *Log a prospect* task and this route all commit through one create service, so they apply the same field map and the same duplicate rule. A likely duplicate comes back as **409** listing the candidates with `duplicate_override: false`; re-post with `duplicate_override: true` once somebody has looked. That mirrors the wizard on purpose — two children genuinely do share a name, and the check exists to make a human check, not to make the second one unrecordable.

@@ -3,19 +3,16 @@ namespace TT\Modules\Wizards\Prospect;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Prospects\Repositories\ProspectsRepository;
-use TT\Modules\Workflow\TaskContext;
-use TT\Modules\Workflow\Templates\InviteToTestTrainingTemplate;
-use TT\Modules\Workflow\WorkflowModule;
+use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
  * Step 4 — confirm + create.
  *
- * `submit()` writes the prospect row via `ProspectsRepository::create()`
- * and dispatches `InviteToTestTrainingTemplate` for the HoD with the
- * fresh `prospect_id` on the context. The chain effectively starts at
- * "Invite" rather than at "LogProspect" — the wizard IS the form that
+ * `submit()` hands the collected state to `ProspectCreationService`, which
+ * writes the row and dispatches `InviteToTestTrainingTemplate` for the HoD
+ * with the fresh `prospect_id` on the context. The chain effectively starts
+ * at "Invite" rather than at "LogProspect" — the wizard IS the form that
  * the legacy `LogProspectTemplate` task used to wrap, so creating a
  * task to capture data the wizard already collected would be a
  * redundant "tap once to begin, tap again to fill in" detour.
@@ -82,41 +79,17 @@ final class ReviewStep implements WizardStepInterface {
     public function nextStep( array $state ): ?string { return null; }
 
     public function submit( array $state ) {
-        $repo = new ProspectsRepository();
-        $consent_at = ! empty( $state['consent_given'] ) ? current_time( 'mysql', true ) : null;
-
-        $prospect_id = $repo->create( [
-            'first_name'              => (string) ( $state['first_name']          ?? '' ),
-            'last_name'               => (string) ( $state['last_name']           ?? '' ),
-            'date_of_birth'           => trim( (string) ( $state['date_of_birth'] ?? '' ) ) ?: null,
-            'discovered_at'           => gmdate( 'Y-m-d' ),
-            'discovered_by_user_id'   => get_current_user_id(),
-            'discovered_at_event'     => trim( (string) ( $state['discovered_at_event'] ?? '' ) ) ?: null,
-            'current_club'            => trim( (string) ( $state['current_club']  ?? '' ) ) ?: null,
-            'scouting_notes'          => trim( (string) ( $state['scouting_notes'] ?? '' ) ) ?: null,
-            // #3600 — seeded by the wizard from `from_visit`.
-            'scouting_visit_id'       => (int) ( $state['scouting_visit_id'] ?? 0 ),
-            'parent_name'             => trim( (string) ( $state['parent_name']   ?? '' ) ) ?: null,
-            'parent_email'            => trim( (string) ( $state['parent_email']  ?? '' ) ) ?: null,
-            'parent_phone'            => trim( (string) ( $state['parent_phone']  ?? '' ) ) ?: null,
-            'consent_given_at'        => $consent_at,
-        ] );
-
-        if ( ! $prospect_id ) {
-            return new \WP_Error( 'prospect_create_failed', __( 'Could not create the prospect record.', 'talenttrack' ) );
-        }
-
-        // Dispatch the next chain step — the HoD-facing invitation
-        // task. Skips `LogProspectTemplate` entirely; the wizard
-        // already collected the data that template would have asked
-        // for in its form.
-        if ( class_exists( WorkflowModule::class ) && class_exists( InviteToTestTrainingTemplate::class ) ) {
-            $context = new TaskContext(
-                null, null, null, null, null, null, null,
-                $prospect_id
-            );
-            WorkflowModule::engine()->dispatch( InviteToTestTrainingTemplate::KEY, $context );
-        }
+        // #4015 — the field map, the duplicate rule and the follow-on
+        // invite task all live in `ProspectCreationService` now. This step
+        // had its own copy of the first two, `LogProspectForm` had another,
+        // and `POST /prospects` would have been a third. The step's job is
+        // to confirm, not to decide what a prospect is.
+        //
+        // `duplicate_override` rides along from `IdentityStep`, so a scout
+        // who already answered "yes, this is a different child" is not asked
+        // again on the last screen.
+        $prospect_id = ( new ProspectCreationService() )->create( $state );
+        if ( $prospect_id instanceof \WP_Error ) return $prospect_id;
 
         return [
             'redirect_url' => add_query_arg(

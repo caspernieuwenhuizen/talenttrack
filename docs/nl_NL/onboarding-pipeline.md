@@ -160,3 +160,11 @@ De knop verschijnt alleen als er niets anders te doen is: een prospect met een o
 De legacy-keten startte met een `LogProspectTemplate`-klus en gaf daarna door aan `InviteToTestTrainingTemplate`. De wizard *is* het formulier dat de LogProspect-klus omhulde, dus die klus aanmaken om data te vragen die de wizard al verzamelde, was een overbodige stap. De wizard gaat direct naar `InviteToTestTrainingTemplate`.
 
 `LogProspectTemplate` en het `/prospects/log` REST-endpoint blijven bestaan voor backward compat — externe integraties (bijv. het ouder-zelfbevestigingstoken) en elke custom workflow-trigger die ze aanroept blijven werken.
+
+## Een talent vastleggen van buiten TalentTrack
+
+`POST /wp-json/talenttrack/v1/prospects` legt een talent direct vast: voor- en achternaam (verplicht), geboortedatum, huidige club, waar je hem zag, je aantekeningen, het scoutingbezoek waar hij is gevonden, het contactblok van de ouder met bijbehorende toestemming, en `duplicate_override`. Het endpoint antwoordt met **201** en het id van het talent, en het talent telt daarna mee op zijn scoutingbezoek, net als een talent dat via de wizard is aangemaakt. Het vraagt hetzelfde recht als de wizard en zet dezelfde vervolgklus voor het Hoofd Opleiding open.
+
+**`prospects/log` is iets anders en verdwijnt niet.** Dat endpoint maakt geen talent aan — het opent een klus *Talent vastleggen* voor de aanroeper en antwoordt met een `task_id`. Externe integraties en de zelfbevestiging door de ouder gebruiken dat, dus het blijft. Wil je een talentdossier, post dan naar `/prospects`.
+
+De wizard, de klus *Talent vastleggen* en dit endpoint leggen alle drie vast via één aanmaakservice, dus ze gebruiken dezelfde veldindeling en dezelfde dubbelcheck. Een waarschijnlijke dubbele komt terug als **409** met de kandidaten en `duplicate_override: false`; post opnieuw met `duplicate_override: true` zodra iemand ernaar heeft gekeken. Dat spiegelt de wizard met opzet — twee kinderen kunnen echt dezelfde naam hebben, en de check bestaat om iemand te laten kijken, niet om de tweede onvastlegbaar te maken.
