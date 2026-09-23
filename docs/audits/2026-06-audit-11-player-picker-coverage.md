@@ -40,12 +40,12 @@ Five surfaces don't use either canonical pattern:
 | Surface | File | Current shape | Target |
 |---|---|---|---|
 | Activity wizard | [src/Modules/Wizards/Activity/TeamStep.php](../../src/Modules/Wizards/Activity/TeamStep.php) | Team picker only — no player step exists | #1297 adds AttendanceRosterStep |
-| Admin Goals page (legacy) | [includes/Admin/Goals.php:48](../../includes/Admin/Goals.php#L48) | Raw `<select name="player_id">` over `Helpers::get_players()` — no team filter | Candidate for deletion in legacy `includes/` sweep |
-| Admin Evaluations page (legacy) | [includes/Admin/Evaluations.php:78](../../includes/Admin/Evaluations.php#L78) | Same shape | Candidate for deletion |
+| Admin Goals page (legacy) | `includes/Admin/Goals.php` | Raw `<select name="player_id">` over `Helpers::get_players()` — no team filter | Deleted by #4003 with the rest of `includes/Admin/` |
+| Admin Evaluations page (legacy) | `includes/Admin/Evaluations.php` | Same shape | Deleted by #4003 |
 | Frontend coach eval form (legacy) | [includes/Frontend/App.php:239](../../includes/Frontend/App.php#L239) | Flat scoped `<select>` of all team-assigned players — no UI team filter | Candidate for deletion (modern wizard covers the surface) |
 | Frontend coach goals form (legacy) | [includes/Frontend/App.php:330](../../includes/Frontend/App.php#L330) | Same shape | Candidate for deletion (modern wizard covers the surface) |
 
-Three of the five live in `includes/` — the pre-`src/` legacy namespace. They're strong deletion candidates rather than retrofit candidates, because modern Goal + Evaluation wizards cover the surface. Cleanup deferred to the legacy-removal sweep (no separate issue filed; the existing legacy-removal slices will claim them in bulk). File a follow-up if a pilot operator reports landing on the legacy admin pages.
+Three of the five live in `includes/` — the pre-`src/` legacy namespace. They're strong deletion candidates rather than retrofit candidates, because modern Goal + Evaluation wizards cover the surface. The two admin pages are gone: #4003 deleted every page class under `includes/Admin/`, which registered duplicate `admin_post_*` handlers with no capability check and no nonce and was only ever dead because Composer maps `TT\` to `src/`. The two `includes/Frontend/App.php` forms still stand; file a follow-up if a pilot operator reports landing on one.
 
 The activity-wizard gap is the only forward-only retrofit worth doing today — tracked as enhancement #1297.
 

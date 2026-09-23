@@ -740,10 +740,17 @@ class PlayersPage {
         check_admin_referer( 'tt_delete_player_' . $id );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'player.delete' );
 
-        // v2.8.0: delete remains capability-only (not entity-scoped). Deleting
-        // a player is destructive, so team coaches shouldn't be able to delete
-        // players they only coach. Only users with tt_manage_players can delete.
-        if ( ! current_user_can( 'tt_edit_players' ) ) {
+        // v2.8.0 read this as "delete is capability-only, so a team coach
+        // cannot delete a player they merely coach". But `tt_edit_players` is
+        // held club-wide by every coach who can edit one, so the capability
+        // never narrowed anything — it let any of them archive any player in
+        // the academy, which is the opposite of what the comment intended.
+        //
+        // #4003 — ask the question the save path at handle_save() asks: the
+        // same `canEditPlayer` check, on the record being deleted.
+        if ( ! current_user_can( 'tt_edit_players' )
+            || ! AuthorizationService::canEditPlayer( get_current_user_id(), $id )
+        ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }
 

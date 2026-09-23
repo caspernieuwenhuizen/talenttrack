@@ -64,6 +64,21 @@ final class PdpHardDeleteAdminPost {
             return;
         }
 
+        // #4003 — `tt_delete_pdp` is held club-wide, so the check at the top
+        // answers whether the caller permanently deletes PDP files, never whose.
+        // This handler took `pdp_file_id` out of the POST and went on to delete
+        // the file and its whole conversation history, and the typed-name
+        // confirm is no barrier: the confirm surface prints the name to type.
+        //
+        // The question is the one every other PDP surface asks — may this caller
+        // see this player's file at all — on top of the delete capability the
+        // top of this method already required. A refused id answers as a file
+        // that is not there, so the id cannot be probed for existence.
+        if ( ! PdpAccess::canSeeFile( get_current_user_id(), (int) $file->player_id ) ) {
+            self::redirectWithNotice( 'not_found' );
+            return;
+        }
+
         $player = \TT\Infrastructure\Query\QueryHelpers::get_player( (int) $file->player_id );
         $expected_name = $player ? \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player ) : '';
         $typed_raw     = isset( $_POST['confirm_name'] ) ? wp_unslash( (string) $_POST['confirm_name'] ) : '';

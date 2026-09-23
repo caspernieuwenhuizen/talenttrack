@@ -78,6 +78,10 @@ All five single-record writes now ask both questions. The rule is about **scope,
 
 An activity with no team has no team to be out of scope for; the capability is the whole answer for it.
 
+**The WordPress admin pages ask the same questions.** They were the other half of the same shape: on several pages one branch resolved the record and its twin did not — the save path checked, the delete path did not; the create path checked, the status change did not. A delete, an unassign and a paused schedule are all writes, and a capability that is club-wide answers none of them. So the player and team deletes ask what their saves ask, the activity page asks about the activity's team on render, save and delete, unassigning a staff member asks about the team on the assignment row rather than the team named in the form, permanently deleting a PDP file asks whether the caller may see that player's file at all, a Spond refresh asks whether the caller writes that squad's activities, and pausing, resuming, archiving or deleting a scheduled report asks what creating it asked about the same team or player.
+
+A bulk action filters the selection row by row before it dispatches, and reports the count it actually acted on.
+
 ## A view capability is not a club-wide data grant
 
 `tt_view_players` answers *"may this person look at players"*. It does not

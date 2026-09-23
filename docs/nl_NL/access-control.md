@@ -72,6 +72,10 @@ Alle vijf de schrijfacties op één record stellen nu beide vragen. De regel gaa
 
 Een activiteit zonder team heeft geen team om buiten scope van te vallen; daar is het recht het hele antwoord.
 
+**De WordPress-beheerpagina's stellen dezelfde vragen.** Zij waren de andere helft van hetzelfde patroon: op meerdere pagina's zocht de ene tak het record op en de tweelingtak niet — opslaan controleerde, verwijderen niet; aanmaken controleerde, een statuswijziging niet. Verwijderen, iemand van een team afhalen en een planning stilzetten zijn alle drie schrijfacties, en een clubbreed recht beantwoordt er geen van. Dus: het verwijderen van een speler en van een team vragen wat hun opslaan vraagt, de activiteitenpagina vraagt naar het team van de activiteit bij weergeven, opslaan en verwijderen, iemand van een team afhalen vraagt naar het team op de toewijzingsregel in plaats van naar het team uit het formulier, een PDP-dossier definitief verwijderen vraagt of de aanvrager het dossier van die speler überhaupt mag zien, een Spond-verversing vraagt of de aanvrager de activiteiten van die selectie mag schrijven, en een geplande rapportage pauzeren, hervatten, archiveren of verwijderen vraagt wat het aanmaken ervan vroeg over hetzelfde team of dezelfde speler.
+
+Een bulkactie filtert de selectie rij voor rij voordat hij iets uitvoert, en meldt het aantal dat daadwerkelijk is aangepast.
+
 ## Een leesrecht is geen clubbrede gegevenstoegang
 
 `tt_view_players` beantwoordt de vraag *"mag deze persoon naar spelers kijken"*.

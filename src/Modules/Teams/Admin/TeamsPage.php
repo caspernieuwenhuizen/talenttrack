@@ -352,10 +352,18 @@ class TeamsPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_delete_team_' . $id );
-        // v2.8.0: delete remains capability-only. Destructive ops should stay
-        // with users who have global tt_manage_players; coaches of a team
-        // shouldn't be able to delete the team they coach.
-        if ( ! current_user_can( 'tt_edit_teams' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // v2.8.0 meant "delete stays with users who hold the global
+        // capability, so a coach cannot delete the team they coach". But
+        // `tt_edit_teams` is club-wide on every role that holds it, so the
+        // capability narrowed nothing: any holder could delete any squad in the
+        // academy, together with its staff assignments.
+        //
+        // #4003 — ask what handle_save() asks, on the record being deleted.
+        if ( ! current_user_can( 'tt_edit_teams' )
+            || ! AuthorizationService::canManageTeam( get_current_user_id(), $id )
+        ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'team.delete' );
         global $wpdb;
         // Also clean up any staff assignments pointing at this team, to avoid orphans.

@@ -4,6 +4,7 @@ namespace TT\Modules\Spond\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\ActivityTeamScope;
 use TT\Modules\Spond\CredentialsManager;
 use TT\Modules\Spond\SpondClient;
 use TT\Modules\Spond\SpondSync;
@@ -292,7 +293,18 @@ final class SpondOverviewPage {
         check_admin_referer( self::NONCE_KEY, self::NONCE_NAME );
 
         $team_id = isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0;
-        if ( $team_id <= 0 ) {
+
+        // #4003 — `tt_edit_teams` is held club-wide, so the check above answers
+        // whether the caller manages squads, never which. This handler takes
+        // `team_id` out of the POST and runs a full Spond sync against it,
+        // which writes that squad's activities and attendance — so the question
+        // is the one the activity writes ask, `ActivityTeamScope`, rather than
+        // the team-management one: what the sync produces is activities. A
+        // squad outside the caller's scope gets the notice a squad that is not
+        // there gets.
+        if ( $team_id <= 0
+            || ! ActivityTeamScope::coversTeam( get_current_user_id(), $team_id )
+        ) {
             wp_safe_redirect( add_query_arg( 'tt_spond_msg', 'no_team', admin_url( 'admin.php?page=' . self::SLUG ) ) );
             exit;
         }
