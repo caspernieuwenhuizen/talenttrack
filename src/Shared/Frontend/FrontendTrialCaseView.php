@@ -7,7 +7,6 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Reports\AudienceType;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\StaffPickerComponent;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
@@ -20,6 +19,7 @@ use TT\Modules\Trials\Domain\TrialDecisionMotivation;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 use TT\Modules\Trials\Services\TrialDecisionDeadline;
+use TT\Modules\Trials\Services\TrialDecisionService;
 
 /**
  * FrontendTrialCaseView — the trial case working surface at
@@ -1177,27 +1177,23 @@ class FrontendTrialCaseView extends FrontendViewBase {
                     return;
                 }
 
-                $ok = $cases->recordDecision( $case_id, $decision, $user_id, $notes, $strengths, $growth );
-                if ( $ok ) {
-                    $case = $cases->find( $case_id );
-                    if ( $case ) {
-                        // #3786 — the player status is NOT written here.
-                        // `TrialDecisionPlayerStatusSubscriber` owns that
-                        // transition, off the `tt_trial_decision_recorded`
-                        // hook `recordDecision()` fires. This branch used to
-                        // write it too, a second writer to one state, and it
-                        // wrote `archived` — not a value `PlayerStatus`
-                        // recognises — over the subscriber's `inactive` for a
-                        // decline with encouragement. The docs have always
-                        // said that player stays Inactive.
-                        $audience = self::audienceForDecision( $decision );
-                        $svc      = new TrialLetterService();
-                        // #3223 — `generate()` supersedes the prior live
-                        // letter itself now, so the follow-up revoke that
-                        // used to sit here has gone with it.
-                        $svc->generate( $case, $audience, $user_id, $strengths ?: null, $growth ?: null );
-                    }
-                }
+                // #3786 — the player status is NOT written here.
+                // `TrialDecisionPlayerStatusSubscriber` owns that transition,
+                // off the `tt_trial_decision_recorded` hook
+                // `recordDecision()` fires. This branch used to write it too,
+                // a second writer to one state, and it wrote `archived` — not
+                // a value `PlayerStatus` recognises — over the subscriber's
+                // `inactive` for a decline with encouragement. The docs have
+                // always said that player stays Inactive.
+                //
+                // #4042 — record-then-generate is one domain call now, the
+                // same one `POST trial-cases/{id}/decision` makes. This
+                // branch used to own the decision → audience mapping, so
+                // deciding over REST recorded the decision and produced no
+                // letter at all.
+                ( new TrialDecisionService() )->record(
+                    $case_id, $decision, $user_id, $notes, $strengths ?: null, $growth ?: null
+                );
                 return;
 
             case 'regenerate_letter':
@@ -1205,10 +1201,17 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 if ( ! self::nonceOk( 'tt_trial_regenerate_' . $case_id, 'tt_trial_regenerate_nonce' ) ) return;
                 $case = $cases->find( $case_id );
                 if ( ! $case || ! $case->decision ) return;
-                $audience = self::audienceForDecision( (string) $case->decision );
-                $svc      = new TrialLetterService();
-                // #3223 — same as above: superseding is the service's job.
-                $svc->generate( $case, $audience, $user_id, $case->strengths_summary, $case->growth_areas );
+                // #3223 — superseding is the letter service's job, so there
+                // is no revoke to follow this with. #4042 — and the audience
+                // a decision warrants is the domain's, so this branch and the
+                // decide branch cannot drift apart on it.
+                ( new TrialDecisionService() )->generateFor(
+                    $case_id,
+                    (string) $case->decision,
+                    $user_id,
+                    $case->strengths_summary,
+                    $case->growth_areas
+                );
                 return;
 
             case 'record_delivery':
@@ -1241,15 +1244,6 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
     private static function nonceOk( string $action, string $field ): bool {
         return isset( $_POST[ $field ] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST[ $field ] ) ), $action );
-    }
-
-    private static function audienceForDecision( string $decision ): string {
-        switch ( $decision ) {
-            case TrialCasesRepository::DECISION_ADMIT:           return AudienceType::TRIAL_ADMITTANCE;
-            case TrialCasesRepository::DECISION_DENY_FINAL:      return AudienceType::TRIAL_DENIAL_FINAL;
-            case TrialCasesRepository::DECISION_DENY_ENCOURAGE:  return AudienceType::TRIAL_DENIAL_ENCOURAGE;
-        }
-        return AudienceType::TRIAL_DENIAL_FINAL;
     }
 
     /** Two-letter initials from a player name; '?' when empty. */

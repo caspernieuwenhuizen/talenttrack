@@ -34,17 +34,48 @@ use TT\Modules\Trials\Repositories\TrialExtensionsRepository;
  */
 class TrialCaseGenerator implements DependentGeneratorInterface {
 
-    /** @var array<string, array{panel:string, input:string, extension:string, decision:string}> */
+    /**
+     * #4034 — `input` is a pool, not a sentence.
+     *
+     * It used to be one sentence per language, written into every staff
+     * input on every case. Three panellists on a trial each said the same
+     * thing word for word while their ratings differed, which reads as a
+     * bulk write that overwrote three individual assessments — a
+     * data-corruption alarm on a screen whose whole job is to show three
+     * independent views of a child. Each case starts at its own point in
+     * the pool and deals from there in order, so no two panellists on one
+     * case agree by accident.
+     *
+     * @var array<string, array{panel:string, input:non-empty-list<string>, extension:string, decision:string}>
+     */
     private const COPY_BY_LANGUAGE = [
         'en_US' => [
             'panel'     => 'Trial panel',
-            'input'     => 'Settled in quickly. Handles the tempo; needs work defending in transition.',
+            'input'     => [
+                'Settled in quickly. Handles the tempo; needs work defending in transition.',
+                'Comfortable on both feet and looks for the pass forward. Concentration drops late in a session.',
+                'Strongest in the one-on-one duels. Decisions under pressure are still rushed.',
+                'Reads the game well for this age group. Has to get stronger in the air.',
+                'Trains at full intensity and takes coaching on board. Positioning without the ball drifts.',
+                'Quick over the first ten metres and a threat in behind. First touch suffers when marked tightly.',
+                'Organises the players around them and is heard on the pitch. Build-up under pressure is inconsistent.',
+                'Technically tidy in possession. Still has to learn when to keep it simple.',
+            ],
             'extension' => 'Missed two sessions through illness — extending to see a fair sample.',
             'decision'  => 'Consistent across the trial period. Offered a place in the age group.',
         ],
         'nl_NL' => [
             'panel'     => 'Beoordelingspanel',
-            'input'     => 'Snel zijn draai gevonden. Kan het tempo aan; moet groeien in het verdedigen bij omschakeling.',
+            'input'     => [
+                'Snel zijn draai gevonden. Kan het tempo aan; moet groeien in het verdedigen bij omschakeling.',
+                'Tweebenig en durft de bal vooruit te spelen. Verliest laat in de training de concentratie.',
+                'Sterk in de duels één tegen één. Kiest onder druk nog te haastig.',
+                'Leest het spel goed voor deze lichting. Moet sterker worden in de lucht.',
+                'Traint op volle intensiteit en pikt coaching goed op. Positiespel zonder bal zakt weg.',
+                'Explosief over de eerste tien meter en gevaarlijk in de diepte. Eerste aanname moet beter bij druk in de rug.',
+                'Organiseert de spelers om zich heen en is hoorbaar op het veld. Opbouw onder druk is wisselvallig.',
+                'Technisch verzorgd aan de bal. Moet nog leren wanneer het simpel kan.',
+            ],
             'extension' => 'Twee trainingen gemist door ziekte — verlengd voor een eerlijk beeld.',
             'decision'  => 'Constant gedurende de proefperiode. Plek aangeboden in de leeftijdsgroep.',
         ],
@@ -173,6 +204,14 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
             // this generator having to remember to say so.
 
             // Staff panel of two or three, most of whom submit an assessment.
+            //
+            // #4034 — each case starts at its own point in the note pool and
+            // deals from there in order. The pool is longer than any panel,
+            // so no two panellists on a case can be handed the same sentence,
+            // and two cases do not read identically either.
+            $pool       = $copy['input'];
+            $offset     = mt_rand( 0, count( $pool ) - 1 );
+            $dealt      = 0;
             $panel_size = min( count( $panel ), mt_rand( 2, 3 ) );
             for ( $i = 0; $i < $panel_size; $i++ ) {
                 $user_id = (int) $panel[ $i ];
@@ -183,7 +222,9 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 }
 
                 if ( mt_rand( 1, 100 ) <= 80 ) {
-                    $total += $this->recordStaffInput( $case_id, $user_id, $copy, $start_ts, $end_ts );
+                    $note   = $pool[ ( $offset + $dealt ) % count( $pool ) ];
+                    $dealt++;
+                    $total += $this->recordStaffInput( $case_id, $user_id, $note, $start_ts, $end_ts );
                 }
             }
 
@@ -200,6 +241,21 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 if ( $ext_id > 0 ) {
                     $this->registry->tag( 'trial_extension', $ext_id );
                     $total++;
+
+                    // #4022 — and move the case with it. Recording the
+                    // extension row alone left the case reading as
+                    // un-extended while its own history said otherwise:
+                    // `end_date` on the old date, `extension_count` 0,
+                    // status `open`, and the decision deadline counting
+                    // down to a day that had been extended past. Both
+                    // production paths — the case screen's `extend` action
+                    // and `POST trial-cases/{id}/extend` — record and
+                    // update as one step; this generator did half of it.
+                    $cases->update( $case_id, [
+                        'end_date'        => $new_end,
+                        'extension_count' => 1,
+                        'status'          => TrialCasesRepository::STATUS_EXTENDED,
+                    ] );
                 }
             }
 
@@ -285,8 +341,15 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
         return $out;
     }
 
-    /** @param array<string,string> $copy */
-    private function recordStaffInput( int $case_id, int $user_id, array $copy, int $start_ts, int $end_ts ): int {
+    /**
+     * One panel member's assessment.
+     *
+     * `$note` is dealt by the caller rather than read from the copy table
+     * here: whether two inputs on a case can carry the same sentence is a
+     * question about the case, and the caller is the only place that can
+     * see all of them (#4034).
+     */
+    private function recordStaffInput( int $case_id, int $user_id, string $note, int $start_ts, int $end_ts ): int {
         global $wpdb;
 
         $ratings = [];
@@ -302,7 +365,7 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
             'submitted_at'          => gmdate( 'Y-m-d H:i:s', self::submissionTs( $start_ts, $end_ts ) ),
             'category_ratings_json' => (string) wp_json_encode( $ratings ),
             'overall_rating'        => $overall,
-            'free_text_notes'       => $copy['input'],
+            'free_text_notes'       => $note,
         ] );
         $id = (int) $wpdb->insert_id;
         if ( ! $id ) return 0;
