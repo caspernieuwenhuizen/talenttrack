@@ -261,7 +261,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'cta_label' => __( 'Create your first team', 'talenttrack' ),
                 'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
                     'new-team',
-                    add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url )
+                    add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url ) /* tt-xview-ok — same view, its own create action; the CTA is gated by cta_cap below */
                 ),
                 'cta_cap'   => 'tt_edit_teams',
             ]
