@@ -265,7 +265,12 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 // `recordDecision()` announces `tt_trial_decision_recorded`
                 // itself; announcing it again here ran every subscriber
                 // twice per admit.
-                $cases->recordDecision( $case_id, 'admit', $hjo, $copy['decision'] );
+                //
+                // #4110 — dated on the day the trial ended, so the
+                // `trial_ended` and `signed` journey events land before the
+                // player joined the roster rather than on the day the demo
+                // was generated.
+                $cases->recordDecision( $case_id, 'admit', $hjo, $copy['decision'], null, null, [], gmdate( 'Y-m-d H:i:s', $end_ts ) );
 
                 // #4008 — the admit created its follow-up checklist off the
                 // decision hook; tag the rows so the wipe reaches them.
