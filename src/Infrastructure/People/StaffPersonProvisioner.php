@@ -96,7 +96,7 @@ final class StaffPersonProvisioner {
         $user = get_userdata( $user_id );
         if ( ! $user instanceof \WP_User ) return 0;
 
-        $roles = array_map( 'strval', (array) $user->roles );
+        $roles = array_values( array_map( 'strval', (array) $user->roles ) );
         if ( array_intersect( $roles, StaffDirectory::STAFF_ROLES ) === [] ) return 0;
         if ( array_intersect( $roles, self::BOUND_ROLES ) !== [] ) return 0;
         if ( $this->isBound( $user_id ) ) return 0;

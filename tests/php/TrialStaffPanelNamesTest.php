@@ -142,9 +142,12 @@ final class TrialStaffPanelNamesTest extends WP_UnitTestCase {
             $args += (array) ( $handler['args'] ?? [] );
         }
 
-        $this->assertArrayHasKey( 'user_id', $args );
-        $description = (string) ( $args['user_id']['description'] ?? '' );
-        $this->assertStringContainsString( 'trial-cases/{id}/staff', $description );
+        // #4091 — `user_id` is gone; `person_id` is the one id and names the
+        // lookup it comes from.
+        $this->assertArrayNotHasKey( 'user_id', $args );
+        $this->assertArrayHasKey( 'person_id', $args );
+        $description = (string) ( $args['person_id']['description'] ?? '' );
+        $this->assertStringContainsString( 'GET staff?search=', $description );
     }
 
     /** @return array<int,array<string,mixed>> */

@@ -4,6 +4,7 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_UnitTestCase;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Infrastructure\People\StaffPersonProvisioner;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Rest\TrialCaseChecklistRestController;
@@ -115,6 +116,9 @@ final class TrialCaseChecklistTest extends WP_UnitTestCase {
     public function test_an_item_can_be_ticked_and_assigned_by_hand(): void {
         $case     = $this->decidedCase( TrialCaseDecision::ADMIT );
         $assignee = self::factory()->user->create( [ 'role' => 'tt_coach', 'display_name' => 'Gijs Coach' ] );
+        // #4091 — staff are People records; the suite holds the role hook
+        // that creates one in production, so the fixture asks for it.
+        ( new StaffPersonProvisioner() )->ensureForUser( $assignee );
 
         $res = TrialCaseChecklistRestController::update_item( $this->patch( $case, TrialCaseChecklistService::GUARDIAN_CONTACT, [
             'done'             => true,
