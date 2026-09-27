@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\PlayerStatus\StatusVerdict;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Pdp\EvidencePacket;
 use TT\Shared\Dates\TTDate;
 
@@ -147,7 +148,10 @@ final class PlayerTalkingPoints {
 
         if ( (float) $was_rate - (float) $now_rate < $drop ) return null;
 
-        $missed = $now_total - (int) ( $current['present'] ?? 0 );
+        // #4041 — missed is absent + excused + injured, from the service via
+        // the packet. It used to be "everything but present", which made
+        // late a miss and raised attendance the at-risk list did not flag.
+        $missed = AttendanceFlagService::missed( (object) $current );
 
         return [
             'key'      => 'attendance',

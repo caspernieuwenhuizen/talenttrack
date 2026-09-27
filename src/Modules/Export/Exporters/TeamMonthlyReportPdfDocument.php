@@ -619,7 +619,7 @@ final class TeamMonthlyReportPdfDocument {
             $out .= '<div class="muted recon">' . esc_html( sprintf(
                 /* translators: 1: goals with a scorer entered, 2: goals scored in the record */
                 _n( '%1$d of %2$d goal attributed.', '%1$d of %2$d goals attributed.', $for, 'talenttrack' ),
-                (int) ( $totals['goals'] ?? $sum_g ),
+                (int) ( $totals['attributed_goals'] ?? $totals['goals'] ?? $sum_g ),
                 $for
             ) ) . '</div>';
         }
@@ -651,7 +651,20 @@ final class TeamMonthlyReportPdfDocument {
                 'talenttrack'
             ),
             $count
-        ) ) . '</div>';
+        ) . self::tournamentScorersNote( $m ) ) . '</div>';
+    }
+
+    /**
+     * #4079 — the scorers table is a leaderboard and keeps tournament goals,
+     * while the record and the "N of M goals attributed" line do not. When
+     * both are on the page, the tournament note says which is which.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function tournamentScorersNote( array $m ): string {
+        $shows = is_array( $m['shows'] ?? null ) ? $m['shows'] : [];
+        if ( empty( $shows['scorers'] ) ) return '';
+        return ' ' . __( 'Goals scored at a tournament still count in the scorers table, but not against the record.', 'talenttrack' );
     }
 
     /** @param array<string,mixed> $record */

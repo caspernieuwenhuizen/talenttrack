@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 
@@ -84,12 +85,16 @@ final class TeamActivitiesCsvExporter implements ExporterInterface {
             $params[] = $team_id;
         }
 
+        // #4041 — attended (present + late) from the team's own players,
+        // the one rule from AttendanceFlagService.
+        $attended = AttendanceFlagService::attendedStatusClause( 'att.status' );
         $sql = "SELECT a.id, a.session_date, a.title, a.location,
                        t.name AS team_name,
                        (SELECT COUNT(*) FROM {$p}tt_attendance att
                           WHERE att.activity_id = a.id
                             AND att.club_id = a.club_id
-                            AND att.status = 'present'
+                            AND {$attended}
+                            AND att.is_guest = 0
                             AND att.record_type = 'actual'
                        ) AS attendance_count,
                        (SELECT ROUND(AVG(er.rating), 2)

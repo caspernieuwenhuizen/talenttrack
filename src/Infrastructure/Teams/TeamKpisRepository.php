@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
 /**
  * TeamKpisRepository — the at-a-glance signals on the team detail page
@@ -56,9 +57,11 @@ class TeamKpisRepository {
         $days = max( 1, $days );
         // #2521 — count only sessions the coach marked completed.
         $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
+        // #4041 — attended is the one rule (present + late), from the service.
+        $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
         $row  = $wpdb->get_row( $wpdb->prepare(
             "SELECT
-                SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
+                {$attended} AS present_n,
                 COUNT(*) AS total_n
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id

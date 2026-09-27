@@ -167,6 +167,29 @@ final class GoalContributionQuery {
     }
 
     /**
+     * Goals of ours with a scorer entered, over exactly the fixtures given
+     * (#4079). The monthly report compares this with the goals in its match
+     * record, which leaves tournaments out, so the count has to be taken
+     * over the same fixtures or the line reads "9 of 8 goals attributed".
+     * The scorers table keeps tournament goals; this number does not.
+     *
+     * @param list<int> $activity_ids
+     */
+    public function attributedGoalsIn( int $team_id, array $activity_ids ): int {
+        $activity_ids = array_values( array_filter( array_map( 'intval', $activity_ids ), static fn( int $id ): bool => $id > 0 ) );
+        if ( $team_id <= 0 || $activity_ids === [] ) return 0;
+
+        $count = 0;
+        foreach ( $this->fetchEvents( [ 'team_id' => $team_id, 'activity_ids' => $activity_ids ] ) as $row ) {
+            $scorer  = (int) ( $row['player_id'] ?? 0 );
+            $own     = ! empty( $row['is_own_goal'] );
+            $is_ours = ( (string) ( $row['team'] ?? 'home' ) === 'home' );
+            if ( $scorer > 0 && ! $own && $is_ours ) $count++;
+        }
+        return $count;
+    }
+
+    /**
      * Non-reversed goal events joined to their activity, club-scoped and
      * windowed. One query; the counting happens above so both entry points
      * apply exactly the same rules.
@@ -175,7 +198,7 @@ final class GoalContributionQuery {
      * here is read through a `??` default, and an array says that plainly
      * where a stdClass only says it to the reader who already knows.
      *
-     * @param array{from?:string, to?:string, team_id?:int, player_id?:int} $filters
+     * @param array{from?:string, to?:string, team_id?:int, player_id?:int, activity_ids?:list<int>} $filters
      * @return array<int, array<string, mixed>>
      */
     private function fetchEvents( array $filters ): array {
@@ -216,6 +239,11 @@ final class GoalContributionQuery {
             $where .= ' AND ( ge.player_id = %d OR ge.assist_player_id = %d )';
             $params[] = $player;
             $params[] = $player;
+        }
+        $ids = $filters['activity_ids'] ?? [];
+        if ( $ids !== [] ) {
+            $where .= ' AND a.id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ')';
+            foreach ( $ids as $id ) $params[] = $id;
         }
 
         // #3094 — joined on the goal's own `activity_id` rather than through

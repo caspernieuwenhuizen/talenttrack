@@ -1160,8 +1160,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
         }
 
-        // Attendance %: present rows / actual attendance rows on
-        // completed activities in the last 30 days, via
+        // Attendance %: attended rows (present + late, #4041) / actual,
+        // non-guest attendance rows on completed activities in the last
+        // 30 days, via
         // ActivitiesRepository::attendanceRateForPlayer (same scope as
         // the activities tab — only completed activities count).
         $att_row   = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->attendanceRateForPlayer( $player_id, 30 );

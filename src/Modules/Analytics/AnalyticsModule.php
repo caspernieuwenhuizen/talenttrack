@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Domain\DateTimeColumn;
 use TT\Modules\Analytics\Domain\Dimension;
 use TT\Modules\Analytics\Domain\Fact;
@@ -141,7 +142,12 @@ class AnalyticsModule implements ModuleInterface {
                 // DENOMINATOR as well, so they resolve to NULL rather than
                 // to 0 — `AVG` skips NULLs, and a selection scoring 0%
                 // attendance would be the same error upside down.
-                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type <> 'actual' THEN NULL WHEN LOWER(f.status)='present' THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
+                //
+                // #4041 — the one rule from AttendanceFlagService: attended
+                // is present or late, and guest rows are left out of the
+                // denominator too. Changed in place rather than versioned, so
+                // attendance figures in saved explorations move.
+                new Measure( 'attendance_pct', __( 'Attendance %', 'talenttrack' ), Measure::AGG_AVG, "CASE WHEN f.record_type <> 'actual' OR f.is_guest <> 0 THEN NULL WHEN " . AttendanceFlagService::attendedStatusClause( 'f.status' ) . " THEN 100 ELSE 0 END", Measure::UNIT_PERCENT, Measure::FORMAT_PERCENT ),
             ],
             timeColumn:  new DateTimeColumn( 'a.session_date', 'tt_activities a', 'activity_id' ),
             entityScope: 'player',

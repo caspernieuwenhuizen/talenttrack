@@ -616,7 +616,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <div class="tt-mexec-overrun-actions">
                         <button type="button" class="tt-btn tt-btn-primary tt-mexec-overrun-btn" data-tt-mexec-end-scheduled><?php esc_html_e( 'End half at scheduled length', 'talenttrack' ); ?></button>
                         <?php if ( $record_after_url !== '' ) : ?>
-                            <a class="tt-btn tt-btn-secondary tt-mexec-overrun-btn" href="<?php echo esc_url( $record_after_url ); ?>"><?php esc_html_e( 'Record the match afterwards', 'talenttrack' ); ?></a>
+                            <a class="tt-btn tt-btn-secondary tt-mexec-overrun-btn" href="<?php echo esc_url( $record_after_url ); ?>"><?php esc_html_e( 'Correct the minutes afterwards', 'talenttrack' ); ?></a>
                         <?php endif; ?>
                     </div>
                 </div>

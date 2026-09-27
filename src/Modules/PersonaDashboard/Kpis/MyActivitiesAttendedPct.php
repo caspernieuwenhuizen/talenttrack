@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -33,15 +34,19 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
         $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
         $state_placeholders = implode( ',', array_fill( 0, count( self::ACTIVITY_STATES_COUNTING ), '%s' ) );
 
+        // #4041 — attended is the one rule (present + late), over the
+        // player's own team's activities: guest appearances are left out.
+        $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from a constant array.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS total,
-                    SUM( CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END ) AS present
+                    {$attended} AS present
                FROM {$att} a
                JOIN {$act} act ON act.id = a.activity_id
               WHERE act.club_id = %d
                 AND a.player_id = %d
                 AND a.record_type = 'actual'
+                AND a.is_guest = 0
                 AND act.session_date >= %s
                 AND act.session_date <= %s
                 AND act.plan_state IN ({$state_placeholders})
@@ -51,7 +56,7 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
 
         if ( ! $row || (int) $row->total === 0 ) return KpiValue::unavailable();
 
-        $pct = round( ( (int) $row->present / (int) $row->total ) * 100, 0 );
+        $pct = (float) AttendanceFlagService::presentPct( (int) $row->present, (int) $row->total );
         return KpiValue::of( number_format_i18n( $pct, 0 ) . '%' );
     }
 }

@@ -525,7 +525,7 @@ class MatchExecutionRestController {
     public static function route_start_half( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        $half = (int) $r->get_json_params()['half'] ?? 1;
+        $half = (int) ( $r->get_json_params()['half'] ?? 1 );
         if ( $half !== 1 && $half !== 2 ) return RestResponse::error( 'bad_half', __( 'Half must be 1 or 2.', 'talenttrack' ), 400 );
 
         $repo = new MatchExecutionRepository();
@@ -750,7 +750,7 @@ class MatchExecutionRestController {
     public static function route_end_half( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
-        $half = (int) $r->get_json_params()['half'] ?? 1;
+        $half = (int) ( $r->get_json_params()['half'] ?? 1 );
         if ( $half !== 1 && $half !== 2 ) return RestResponse::error( 'bad_half', __( 'Half must be 1 or 2.', 'talenttrack' ), 400 );
         $activity_id = absint( $r['activity_id'] );
 

@@ -27,10 +27,13 @@ Every match the team **played** in the window, at that match's own length.
  activity is completed, its date has passed, or it already carries recorded
  minutes. A fixture kicking off this evening is not in the denominator, so
  nobody's share drops on the morning of a match.
-- **Its own length** means the match's half length doubled — the value on the
- match prep if one was set, otherwise the default for the team's age
- category, otherwise 35 minutes a half. A U9 team on 30-minute halves has
- 600 available over ten matches, not 700.
+- **Its own length** is worked out the same way on every minutes report — the
+ minutes report, the minutes audit and this one — so they always agree
+ about a match: the half length on the match prep if one was set, otherwise
+ the match length set on the activity, otherwise the default for the team's
+ age category, otherwise the scheduled time from start to end, otherwise 35
+ minutes a half. A U9 team on 30-minute halves has 600 available over ten
+ matches, not 700, whether or not those matches had a match prep.
 
 So ten completed 70-minute matches make **700 available minutes**, and a
 player with 350 recorded is on **50%**.

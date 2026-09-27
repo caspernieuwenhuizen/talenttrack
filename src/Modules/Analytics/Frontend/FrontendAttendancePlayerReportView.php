@@ -161,12 +161,8 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         // #4013 — attended is present + late, the same numerator the rows'
         // own `present_pct` uses, so the strip and the table agree.
         $player_count = count( $rows );
-        $sum_present = 0; $sum_total = 0;
-        foreach ( $rows as $r ) {
-            $sum_present += (int) $r['present'] + (int) $r['late'];
-            $sum_total   += (int) $r['total'];
-        }
-        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+        $pooled       = AttendanceFlagService::pooledPresentPct( $rows );
+        $avg          = $pooled !== null ? number_format_i18n( $pooled, 1 ) . '%' : '—';
         $at_risk_count = count( $at_risk );
 
         echo '<div class="tt-report-kpis">';
@@ -312,7 +308,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             }
             echo '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct, (int) $r['present'] + (int) $r['late'], (int) $r['total'] ) . '</td>';
+            echo '<td>' . self::attendanceBar( $present_pct, AttendanceFlagService::attended( (object) $r ), (int) $r['total'] ) . '</td>';
             // #2834 — the count, not the percentage. `data-sort` carries the
             // number so the client-side sorter orders 2 before 10 instead of
             // lexically.

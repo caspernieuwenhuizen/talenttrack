@@ -290,7 +290,11 @@ Twee dingen doet de sectie bewust niet:
 - **Toernooien blijven buiten beschouwing.** Een toernooi is een dag met
   meerdere wedstrijden, en één uitslagregel kan dat niet beschrijven. Vallen er
   toernooien in de periode, dan zegt de sectie dat erbij, zodat je je niet
-  afvraagt waarom de stand niet klopt met wat je je herinnert.
+  afvraagt waarom de stand niet klopt met wat je je herinnert. De tabel met
+  doelpuntenmakers houdt doelpunten op een toernooi wel mee — het is een
+  ranglijst — maar de zin *"7 van 8 doelpunten toegeschreven"* telt alleen de
+  wedstrijden die de stand telt, zodat beide getallen over dezelfde wedstrijden
+  gaan.
 
 Is bij een wedstrijd niet vastgelegd of die thuis of uit was, dan staat de
 tegenstander er zonder die vermelding bij — liever dat dan gokken hoe de

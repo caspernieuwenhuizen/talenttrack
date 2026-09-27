@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -95,7 +96,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         // rolling % matches the activities list / attendance pages.
         $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        // v3.110.3 — `LOWER(a.status)='present'` to match both the
+        // v3.110.3 — status compared through LOWER() to match both the
         // seeded capitalised lookup values ('Present') and any legacy
         // lowercase data from the v2.x present-int → status-string
         // backfill in `Activator::installSchema`.
@@ -103,18 +104,23 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         // expected-attendance rows (added by ship 2) don't pollute the
         // rolling percentage. Mirrors the same fix shipped on
         // `MyTeamAttendancePct` in v3.110.177.
+        //
+        // #4041 — attended is the one rule (present + late) and guest
+        // appearances are left out, both from AttendanceFlagService.
+        $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
-                SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) AS present
+                {$attended} AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
              WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s
                AND a.record_type = 'actual'
+               AND a.is_guest = 0
                AND act.plan_state = 'completed' {$scope}",
             $club_id, $start, $end
         ) );
         if ( ! $row || (int) $row->total === 0 ) return null;
-        return round( ( (int) $row->present / (int) $row->total ) * 100, 1 );
+        return AttendanceFlagService::presentPct( (int) $row->present, (int) $row->total );
     }
 }

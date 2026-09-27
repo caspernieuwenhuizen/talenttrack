@@ -228,14 +228,16 @@ final class EvidencePanel {
             $rate = $att['rate'] ?? null;
             $out .= '<dl class="tt-evidence__stats">';
             $out .= self::stat( __( 'Activities', 'talenttrack' ), (string) $activities );
+            // #4041 — attended is present + late, the count the rate is of.
+            $attended = (int) ( $att['attended'] ?? $att['present'] ?? 0 );
             $out .= self::stat(
-                __( 'Present', 'talenttrack' ),
+                _x( 'Attended', 'attendance count: present or late', 'talenttrack' ),
                 $rate === null
-                    ? (string) (int) ( $att['present'] ?? 0 )
+                    ? (string) $attended
                     : sprintf(
                         /* translators: 1: present count, 2: attendance percentage */
                         __( '%1$d (%2$d%%)', 'talenttrack' ),
-                        (int) ( $att['present'] ?? 0 ),
+                        $attended,
                         (int) $rate
                     )
             );

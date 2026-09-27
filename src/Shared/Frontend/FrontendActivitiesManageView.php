@@ -1093,7 +1093,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $stats->present !== null && $stats->roster_size !== null ) {
             $cells[] = [
                 (string) $stats->present . ' / ' . (string) $stats->roster_size,
-                __( 'Present', 'talenttrack' ),
+                // #4041 — present + late: the count is "attended", not "present".
+                _x( 'Attended', 'attendance count: present or late', 'talenttrack' ),
             ];
         }
         if ( $is_match ) {
@@ -2158,8 +2159,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '<div class="tt-act-card-d__body">';
 
         $headline = sprintf(
-            /* translators: 1: present count, 2: roster size, 3: percentage 0-100 */
-            __( '%1$d / %2$d present (%3$d%%)', 'talenttrack' ),
+            /* translators: 1: players who attended (present or late), 2: roster size, 3: percentage 0-100 */
+            __( '%1$d / %2$d attended (%3$d%%)', 'talenttrack' ),
             $present, $roster_size, $pct
         );
         echo '<p class="tt-act-att__head">' . esc_html( $headline ) . '</p>';

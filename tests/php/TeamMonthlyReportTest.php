@@ -273,6 +273,63 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->assertSame( [ 1, 2, 3, 3, null ], array_map( static fn( array $r ) => $r['rank'], $ranked ) );
     }
 
+    private function fixture( string $date, string $type, ?int $ours, ?int $theirs ): int {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id'             => 1,
+            'team_id'             => $this->team_id,
+            'title'               => ucfirst( $type ) . ' ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => $type,
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
+            'home_away'           => 'home',
+            'home_score'          => $ours,
+            'away_score'          => $theirs,
+        ] );
+        return (int) $wpdb->insert_id;
+    }
+
+    private function scored( int $activity_id, int $scorer ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_match_execution_goal_events", [
+            'event_uuid'     => wp_generate_uuid4(),
+            'club_id'        => 1,
+            'execution_id'   => 0,
+            'activity_id'    => $activity_id,
+            'player_id'      => $scorer,
+            'half'           => 1,
+            'minute_in_half' => 10,
+            'team'           => 'home',
+            'is_own_goal'    => 0,
+        ] );
+    }
+
+    /**
+     * #4079 — "N of M goals attributed" counts N over the fixtures M comes
+     * from. A tournament's goals stay in the scorers table, a leaderboard,
+     * but are not set against a record that leaves tournaments out.
+     */
+    public function test_goals_attributed_leaves_out_tournament_goals_the_record_leaves_out(): void {
+        $striker = $this->player( 'Striker' );
+        $league  = $this->fixture( '2020-03-07', 'game', 3, 1 );
+        $cup     = $this->fixture( '2020-03-14', 'tournament', null, null );
+        $this->scored( $league, $striker );
+        $this->scored( $league, $striker );
+        $this->scored( $league, $striker );
+        $this->scored( $cup, $striker );
+        $this->scored( $cup, $striker );
+
+        $m = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'matches' ] )['data']['matches'];
+
+        $this->assertSame( 3, $m['record']['goals_for'] );
+        $this->assertSame( 3, $m['scorer_totals']['attributed_goals'], '3 of 3, not 5 of 3.' );
+        $this->assertSame( 3, $m['scorer_totals']['goals_for'] );
+        $this->assertSame( 5, $m['scorer_totals']['goals'], 'The scorers table keeps the tournament goals.' );
+        $this->assertSame( 5, $m['scorers'][0]['goals'] );
+        $this->assertSame( 1, $m['tournaments_excluded'] );
+    }
+
     public function test_the_rest_route_refuses_a_caller_without_reports_read(): void {
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
 

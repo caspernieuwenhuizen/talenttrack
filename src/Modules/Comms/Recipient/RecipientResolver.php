@@ -4,9 +4,9 @@ namespace TT\Modules\Comms\Recipient;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Comms\Domain\Recipient;
-use TT\Modules\Invitations\PlayerParentsRepository;
 
 /**
  * RecipientResolver (#0066, #0042 enforcer) — translates a "who is this
@@ -38,17 +38,13 @@ use TT\Modules\Invitations\PlayerParentsRepository;
  * `Recipient::coach()` directly. The resolver only handles "message
  * about a player."
  *
- * Stateless. The constructor takes a repository for testability;
- * production code calls `forPlayer()` which lazily resolves a default
- * repo when none is supplied.
+ * Guardians are whoever `ParentChildResolver::guardiansOf()` says they
+ * are (#3979): a released, archived or binned child's family is sent
+ * nothing about them.
+ *
+ * Stateless.
  */
 final class RecipientResolver {
-
-    private ?PlayerParentsRepository $parents;
-
-    public function __construct( ?PlayerParentsRepository $parents = null ) {
-        $this->parents = $parents;
-    }
 
     /**
      * Resolve the recipients for one player, applying the #0042 rules.
@@ -118,9 +114,15 @@ final class RecipientResolver {
      * @return Recipient[]
      */
     private function parentsOf( int $playerId, array $player ): array {
-        $repo = $this->parents ?? new PlayerParentsRepository();
-        $rows = $repo->parentsForPlayer( $playerId );
-        if ( ! is_array( $rows ) || $rows === [] ) {
+        // #3979 — the guardians come from `ParentChildResolver`, not the raw
+        // pivot, so a released, archived or binned child's family is sent
+        // nothing about them. The legacy guardian fields follow the same
+        // rule: they are consulted only for a child who is not closed out,
+        // or an empty guardian list would reach the family through them.
+        if ( ParentChildResolver::isClosedOut( $playerId ) ) return [];
+
+        $uids = ParentChildResolver::guardiansOf( $playerId );
+        if ( $uids === [] ) {
             // Fallback: legacy guardian fields on tt_players still in use.
             $email = (string) ( $player['guardian_email'] ?? '' );
             $phone = (string) ( $player['guardian_phone'] ?? '' );
@@ -129,17 +131,7 @@ final class RecipientResolver {
         }
 
         $out = [];
-        foreach ( $rows as $row ) {
-            // #3081 — `parentsForPlayer()` returns a list of parent user
-            // ids, not row arrays. The scalar branch used to yield 0 and
-            // `continue`, so a player WITH linked parents resolved to no
-            // recipients at all — and having rows also suppressed the
-            // legacy-guardian fallback below, so nobody was reachable.
-            // Nothing sent through this resolver until now, which is why
-            // it went unnoticed. Both shapes are accepted so a caller
-            // injecting a repository that returns rows still works.
-            $uid = (int) ( is_array( $row ) ? ( $row['parent_user_id'] ?? $row['user_id'] ?? 0 ) : $row );
-            if ( $uid <= 0 ) continue;
+        foreach ( $uids as $uid ) {
             $email  = (string) ( ContactResolver::emailForUser( $uid ) ?? '' );
             $phone  = (string) ( ContactResolver::phoneForUser( $uid ) ?? '' );
             $locale = (string) get_user_meta( $uid, 'locale', true );

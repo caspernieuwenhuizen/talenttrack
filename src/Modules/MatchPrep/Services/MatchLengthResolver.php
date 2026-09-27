@@ -125,6 +125,96 @@ class MatchLengthResolver {
     }
 
     /**
+     * #4077 — how long a match that has been played lasted, in minutes.
+     * The one chain every minutes report reads (minutes report, minutes
+     * audit, minutes share), so the three cannot disagree about the same
+     * match. Most specific first:
+     *
+     *  1. the match prep's period length × the number of periods — what
+     *     the match execution ran its clock and minutes against;
+     *  2. the activity's own `match_length_minutes`;
+     *  3. the configured half length for the team's age group × 2;
+     *  4. the scheduled duration, `end_time − start_time`;
+     *  5. {@see FALLBACK_HALF_MINUTES} × 2.
+     *
+     * Step 4 is the slot and can include warm-up (#4058): a coach whose
+     * figures read wrong fixes it by setting the match length or the
+     * age-group default, not by recording different minutes.
+     *
+     * Deliberately separate from {@see halfMinutesForActivityDefault()}:
+     * a new match prep must not start from a slot that includes warm-up.
+     */
+    public static function resolvePlayedLength(
+        int $prep_period_minutes,
+        int $activity_minutes,
+        int $age_group_half_minutes,
+        string $start_time,
+        string $end_time,
+        int $periods = 2
+    ): int {
+        if ( $prep_period_minutes > 0 ) return $prep_period_minutes * max( 1, $periods );
+        if ( $activity_minutes > 0 ) return $activity_minutes;
+        if ( $age_group_half_minutes > 0 ) return $age_group_half_minutes * 2;
+
+        $scheduled = self::scheduledMinutes( $start_time, $end_time );
+        if ( $scheduled > 0 ) return $scheduled;
+
+        return self::FALLBACK_HALF_MINUTES * 2;
+    }
+
+    /**
+     * #4077 — {@see resolvePlayedLength()} for one activity, reading the
+     * activity's length, its scheduled times and its team's age group in
+     * one club-scoped query. The prep's period length is passed in by the
+     * caller, which usually holds the prep row already.
+     */
+    public function playedMatchMinutes( int $activity_id, int $prep_period_minutes = 0, int $periods = 2 ): int {
+        if ( $prep_period_minutes > 0 || $activity_id <= 0 ) {
+            return self::resolvePlayedLength( $prep_period_minutes, 0, 0, '', '', $periods );
+        }
+
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT a.match_length_minutes, a.start_time, a.end_time, t.age_group
+               FROM {$this->t_activities} a
+               LEFT JOIN {$this->t_teams} t
+                 ON t.id = a.team_id AND t.club_id = a.club_id
+              WHERE a.id = %d AND a.club_id = %d
+              LIMIT 1",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( ! is_object( $row ) ) {
+            return self::resolvePlayedLength( 0, 0, 0, '', '', $periods );
+        }
+
+        $age_group = trim( (string) ( $row->age_group ?? '' ) );
+
+        return self::resolvePlayedLength(
+            0,
+            (int) ( $row->match_length_minutes ?? 0 ),
+            $age_group !== '' ? $this->lookupHalf( $age_group ) : 0,
+            (string) ( $row->start_time ?? '' ),
+            (string) ( $row->end_time ?? '' ),
+            $periods
+        );
+    }
+
+    /**
+     * Minutes between two `TIME` values on the same day; 0 when either is
+     * missing or the end is not after the start.
+     */
+    public static function scheduledMinutes( string $start_time, string $end_time ): int {
+        $start_time = trim( $start_time );
+        $end_time   = trim( $end_time );
+        if ( $start_time === '' || $end_time === '' ) return 0;
+
+        $start = strtotime( '1970-01-01 ' . $start_time . ' UTC' );
+        $end   = strtotime( '1970-01-01 ' . $end_time . ' UTC' );
+        if ( $start === false || $end === false || $end <= $start ) return 0;
+
+        return (int) floor( ( $end - $start ) / 60 );
+    }
+
+    /**
      * A full match length as minutes per half, rounded up so an odd
      * length (25 minutes for the youngest ages) never silently loses a
      * minute. 0 in, 0 out — "no length set".
