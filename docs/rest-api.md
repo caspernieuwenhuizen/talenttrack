@@ -1329,7 +1329,7 @@ Turning a staff member's name into the ids the trial panel takes. Before it, a c
 
 Staff whose name contains `search`: `{ staff: [ { person_id, user_id, display_name } ] }`, at most 20, sorted by name, club-scoped. `search` is required and at least two characters; shorter is `400 bad_search`.
 
-"Staff" is two populations: a People record in this club that is not a parent, not archived and not inactive — with or without a login, so `user_id` may be `null` — and an account holding a staff role that has no People record here, which comes back with `person_id: null`. A login bound to a player is never staff, whatever role it holds. No e-mail address is returned.
+"Staff" is a People record in this club that is not a parent, not archived and not inactive, with or without a login, so `user_id` may be `null`. `person_id` is always set (#4091). Every account holding a staff role has a People record: migration 0296 created one for each account that had none, and `StaffPersonProvisioner` creates one whenever an account gains a staff role (a new user, a role change, a staff invitation that named no person). An account linked to a player, or as a parent to a child, never gets one. A login bound to a player is never staff, whatever role it holds. No e-mail address is returned.
 
 **Permission:** `tt_manage_trials` or `tt_manage_parent_accounts`, through `AuthorizationService::userCanOrMatrix()`. Searching staff by name is a directory read over the whole club, so it is for whoever assigns staff to something; a scout who only sits on panels gets `403`. The parent link keeps its own candidate list, `GET /parent-accounts/eligible`, whose rules are about parents and are unchanged.
 
@@ -1339,10 +1339,9 @@ Staff whose name contains `search`: `{ staff: [ { person_id, user_id, display_na
 
 - A person with no login is `422 no_account` with `details.field = "person_id"`: they could never give an input, so seating them would leave a panellist who stays missing.
 - A `person_id` that is not a staff person of this club (unknown, archived, a parent, a player's login) is `422 not_staff`.
-- Sending both ids for different people is `422 conflicting_ids`.
-- Sending neither is `400 bad_request` with `details.field = "person_id"`.
+- Sending no `person_id` is `400 bad_request` with `details.field = "person_id"`.
 
-**Deprecated:** `user_id` is still accepted for one release, for a caller that already has an account id, and for staff who have a login but no People record (`person_id: null` in the lookup). Move to `person_id`; enter those staff in People before `user_id` is removed.
+**Removed (#4091):** `user_id`, deprecated for one release by #4043. A body carrying `user_id`, alone or next to `person_id`, is `400 field_removed` with `details.field = "user_id"` and `details.use = "person_id"`, and nothing is assigned. `422 conflicting_ids` went with it. Every staff account has a People record now, so there is no staff member `person_id` cannot name.
 
 ## Guardian contact requests (#3794)
 

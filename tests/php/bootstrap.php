@@ -69,3 +69,13 @@ if ( class_exists( '\\TT\\Infrastructure\\Database\\MigrationRunner' ) ) {
 if ( class_exists( '\\TT\\Core\\Kernel' ) ) {
     \TT\Core\Kernel::instance()->boot();
 }
+
+// #4091 — in production an account that gains a staff role gets a People
+// record from the role hook. The suite's fixtures build their own person
+// rows for the staff users they create, often by raw insert, and would end
+// up with two records per account. So the hook is held for the suite;
+// StaffPersonProvisionerTest releases it for its own tests and holds it
+// again afterwards.
+if ( class_exists( '\\TT\\Infrastructure\\People\\StaffPersonProvisioner' ) ) {
+    \TT\Infrastructure\People\StaffPersonProvisioner::hold();
+}

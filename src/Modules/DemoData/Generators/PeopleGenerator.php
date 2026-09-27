@@ -27,13 +27,19 @@ use TT\Modules\DemoData\SeedLoader;
  *     the same seeds used by PlayerGenerator, so the demo feels like
  *     a real Dutch academy. The bound WP user's display_name is synced
  *     to match.
- *   - hjo, hjo2, scout, staff keep their operational slot-style labels
+ *   - admin, hjo, hjo2, scout, staff keep their operational slot-style labels
  *     ('Demo Head of Development', etc.) — they're easier to recognize
  *     on stage that way.
  */
 class PeopleGenerator implements GeneratorInterface {
 
+    /**
+     * #4091 — `admin` is here too. It holds a staff role, and every staff
+     * account has a People record now; without one the demo administrator
+     * was the one staff member the trial panel could not name by person.
+     */
     private const STAFF_SLOTS = [
+        'admin'    => [ 'role_type' => 'staff',   'dutch' => false, 'label' => 'Demo Admin' ],
         'hjo'      => [ 'role_type' => 'other',   'dutch' => false, 'label' => 'Demo Head of Development' ],
         'hjo2'     => [ 'role_type' => 'other',   'dutch' => false, 'label' => 'Demo Deputy Head of Development' ],
         'scout'    => [ 'role_type' => 'scout',   'dutch' => false, 'label' => 'Demo Scout' ],

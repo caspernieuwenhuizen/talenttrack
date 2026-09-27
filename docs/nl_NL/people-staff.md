@@ -19,9 +19,17 @@ Een **persoon** is een echte rol bij de club. Een **WordPress-gebruiker** is een
 
 - Een hoofdcoach kan zowel een persoon ÉN een WP-gebruiker zijn (zodat hij/zij kan inloggen en evalueren).
 - Een fysiotherapeut kan een persoon ZONDER WP-gebruiker zijn (hij/zij logt nooit in).
-- Een WP-beheerder kan een gebruiker ZONDER persoonsrecord zijn (hij/zij onderhoudt alleen het systeem).
+- Een WordPress-gebruiker zonder stafrol, zoals een speler of een ouder, heeft hier geen persoonsrecord.
 
 Koppel ze als beide bestaan. De koppeling maakt dingen mogelijk als "coach X mag team Y zien" en "wie coacht dit team".
+
+### Stafaccounts krijgen automatisch een persoon
+
+Elk account met een stafrol (beheerder, clubbeheerder, hoofd opleidingen, coach, teammanager, scout, staf) heeft een persoonsrecord. Krijgt een account een stafrol, doordat het zo wordt aangemaakt, de rol later krijgt of ontstaat door het accepteren van een stafuitnodiging, dan wordt het persoonsrecord op hetzelfde moment aangemaakt, met de naam van het account. Noemt een stafuitnodiging al een persoon, dan wordt het account aan die persoon gekoppeld en komt er geen tweede bij.
+
+Accounts die al bestonden zonder persoonsrecord kregen er een bij het bijwerken van de plugin. Accounts die aan een speler gekoppeld zijn, of als ouder aan een kind, krijgen er nooit een, en een account dat al bij een inactieve of gearchiveerde persoon hoort ook niet.
+
+Omdat het record al bestaat, wordt het koppelen van een nieuw stafaccount aan een persoon die je zelf aanmaakt geweigerd als *al gekoppeld*: open de persoon die voor het account is aangemaakt en vul die aan.
 
 ### Eén account, één actieve persoon
 

@@ -4,6 +4,8 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\People\StaffDirectory;
+use TT\Infrastructure\People\StaffPersonProvisioner;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -75,7 +77,9 @@ final class StaffLookupRestTest extends WP_UnitTestCase {
             'status' => 'active', 'wp_user_id' => $player_user,
         ] );
 
-        // A coach who was never entered in People: found through the role.
+        // A coach who was never entered in People. The suite holds the role
+        // hook (tests/php/bootstrap.php), so this account has no person
+        // record until a test runs the backfill.
         $this->account_only = self::factory()->user->create( [ 'role' => 'tt_coach', 'display_name' => 'Anouk Alleenaccount' ] );
 
         $wpdb->insert( "{$p}tt_trial_tracks", [ 'club_id' => $club, 'slug' => 'std-' . uniqid(), 'name' => 'Standard' ] );
@@ -123,12 +127,32 @@ final class StaffLookupRestTest extends WP_UnitTestCase {
         $this->assertNull( $rows[0]['user_id'] );
     }
 
-    public function test_staff_never_entered_in_people_are_found_through_their_role(): void {
-        $rows = $this->search( 'Alleenaccount' );
+    /**
+     * #4091 — a staff account never entered in People used to come back
+     * with `person_id` null. It is found only once it has a person record,
+     * which the backfill (migration 0296) gives it.
+     */
+    public function test_staff_never_entered_in_people_are_found_once_backfilled(): void {
+        $this->assertSame( [], $this->search( 'Alleenaccount' ), 'the directory reads People alone' );
 
+        ( new StaffPersonProvisioner() )->backfill();
+
+        $rows = $this->search( 'Alleenaccount' );
         $this->assertCount( 1, $rows );
-        $this->assertNull( $rows[0]['person_id'] );
+        $this->assertIsInt( $rows[0]['person_id'] );
+        $this->assertGreaterThan( 0, $rows[0]['person_id'] );
         $this->assertSame( $this->account_only, $rows[0]['user_id'] );
+    }
+
+    public function test_the_directory_never_returns_a_null_person_id(): void {
+        ( new StaffPersonProvisioner() )->backfill();
+
+        $all = ( new StaffDirectory() )->all();
+        $this->assertNotEmpty( $all );
+        foreach ( $all as $row ) {
+            $this->assertIsInt( $row['person_id'], 'a staff row came back without a person record' );
+            $this->assertGreaterThan( 0, $row['person_id'] );
+        }
     }
 
     public function test_parents_and_players_never_appear(): void {
@@ -187,13 +211,26 @@ final class StaffLookupRestTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new TrialCaseStaffRepository() )->listForCase( $this->case_id ) );
     }
 
-    public function test_user_id_is_still_accepted_this_release(): void {
-        [ , $status ] = $this->send( 'POST', 'trial-cases/' . $this->case_id . '/staff', [
-            'user_id' => $this->account_only,
+    /** #4091 — `user_id` had its one deprecated release and is gone. */
+    public function test_user_id_alone_is_refused_with_what_replaced_it(): void {
+        [ $data, $status ] = $this->send( 'POST', 'trial-cases/' . $this->case_id . '/staff', [
+            'user_id' => $this->coach_user,
         ] );
 
-        $this->assertSame( 200, $status );
-        $this->assertTrue( ( new TrialCaseStaffRepository() )->isAssigned( $this->case_id, $this->account_only ) );
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'field_removed', $data['errors'][0]['code'] ?? null );
+        $this->assertStringContainsString( 'person_id', (string) ( $data['errors'][0]['message'] ?? '' ) );
+        $this->assertSame( [], ( new TrialCaseStaffRepository() )->listForCase( $this->case_id ) );
+    }
+
+    public function test_user_id_next_to_person_id_is_refused_too(): void {
+        [ $data, $status ] = $this->send( 'POST', 'trial-cases/' . $this->case_id . '/staff', [
+            'person_id' => $this->coach_person, 'user_id' => $this->coach_user,
+        ] );
+
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'field_removed', $data['errors'][0]['code'] ?? null );
+        $this->assertSame( [], ( new TrialCaseStaffRepository() )->listForCase( $this->case_id ) );
     }
 
     public function test_neither_id_is_refused(): void {
