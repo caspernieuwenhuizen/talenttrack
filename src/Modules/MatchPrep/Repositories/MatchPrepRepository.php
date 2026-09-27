@@ -248,7 +248,9 @@ class MatchPrepRepository {
     public function hasStartingLineupForActivity( int $activity_id ): bool {
         $prep = $this->findByActivity( $activity_id );
         if ( ! $prep ) return false;
-        foreach ( $this->listLineup( (int) $prep->id ) as $row ) {
+        // `findByActivity()` declares `?object`, not a shape; the array cast
+        // reads the id without claiming the property exists.
+        foreach ( $this->listLineup( (int) ( ( (array) $prep )['id'] ?? 0 ) ) as $row ) {
             if ( (int) ( $row->half ?? 0 ) === 1 && (int) ( $row->player_id ?? 0 ) > 0 ) return true;
         }
         return false;

@@ -276,7 +276,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         // starting line-up in match prep, recording afterwards
                         // starts there instead of on a review with nobody in it.
                         if ( $can_record_after
-                            && ! ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->hasStartingLineupForActivity( (int) $session->id )
+                            && ! ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->hasStartingLineupForActivity( (int) ( ( (array) $session )['id'] ?? 0 ) )
                         ) {
                             $exec_url = $prep_url;
                         }
