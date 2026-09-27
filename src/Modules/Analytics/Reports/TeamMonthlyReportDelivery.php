@@ -114,6 +114,7 @@ final class TeamMonthlyReportDelivery {
                 'to'      => $plan['window']['to'],
                 'layout'  => $c['layout'],
                 'blocks'  => $c['blocks'],
+                'options' => $c['options'],
             ] );
             $bytes = ( new PdfRenderer() )->render( $request, $payload )->bytes;
         } catch ( \Throwable $e ) {
@@ -135,6 +136,64 @@ final class TeamMonthlyReportDelivery {
         $out['ok']    = true;
         $out['bytes'] = $bytes;
         return $out;
+    }
+
+    /**
+     * #4117 — what the schedule sends for the sections that take options, one
+     * line each, for the schedule form to show before it is saved.
+     *
+     * A detail the chosen layout cannot print is named with the reason, by the
+     * same rule the report panel and the PDF use (#4095): the schedule keeps
+     * the option and the PDF prints the fallback, so the form says so rather
+     * than letting the difference arrive by email.
+     *
+     * @param array{layout:string, blocks:list<string>, options:array<string,array<string,mixed>>} $composition
+     * @return list<array{text:string, note:string}>
+     */
+    public static function optionLines( array $composition ): array {
+        $selected = TeamMonthlyReportBlock::normalise( $composition['blocks'] );
+        $lines    = [];
+
+        if ( in_array( TeamMonthlyReportBlock::MATCHES, $selected, true ) ) {
+            $bag   = is_array( $composition['options'][ TeamMonthlyReportBlock::MATCHES ] ?? null ) ? $composition['options'][ TeamMonthlyReportBlock::MATCHES ] : [];
+            $parts = [];
+            foreach ( MatchesBlockOptions::labels() as $part => $label ) {
+                if ( MatchesBlockOptions::shows( $bag, $part ) ) $parts[] = $label;
+            }
+            $lines[] = [
+                'text' => sprintf(
+                    /* translators: %s: the parts of the match section that print, comma-separated (e.g. Record, Scorers and assists) */
+                    __( 'Matches: %s.', 'talenttrack' ),
+                    $parts !== [] ? implode( ', ', $parts ) : _x( 'heading only', 'monthly report matches option summary', 'talenttrack' )
+                ),
+                'note' => '',
+            ];
+        }
+
+        if ( in_array( TeamMonthlyReportBlock::TESTS, $selected, true ) ) {
+            $bag    = is_array( $composition['options'][ TeamMonthlyReportBlock::TESTS ] ?? null ) ? $composition['options'][ TeamMonthlyReportBlock::TESTS ] : [];
+            $show   = TestsBlockOptions::show( $bag );
+            $ids    = TestsBlockOptions::definitionIds( $bag );
+            $labels = TestsBlockOptions::showLabels();
+            $which  = $ids === []
+                ? __( 'every test taken in the month', 'talenttrack' )
+                : sprintf(
+                    /* translators: %d: number of tests the coach chose */
+                    _n( '%d chosen test', '%d chosen tests', count( $ids ), 'talenttrack' ),
+                    count( $ids )
+                );
+            $lines[] = [
+                'text' => sprintf(
+                    /* translators: 1: how much per test (e.g. Readings and change), 2: which tests (e.g. 2 chosen tests) */
+                    __( 'Tests: %1$s, %2$s.', 'talenttrack' ),
+                    $labels[ $show ] ?? $show,
+                    $which
+                ),
+                'note' => TeamMonthlyReportLayout::testsShowReason( $composition['layout'], $show ),
+            ];
+        }
+
+        return $lines;
     }
 
     /**

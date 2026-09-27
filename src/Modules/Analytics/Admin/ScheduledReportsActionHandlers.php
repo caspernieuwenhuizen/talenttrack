@@ -106,11 +106,12 @@ final class ScheduledReportsActionHandlers {
      * as them.
      */
     private static function createTeamMonthly( string $name, string $rec_raw ): void {
-        $composition = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::normalise( [
+        $composition = \TT\Modules\Analytics\Reports\TeamMonthlyReportComposition::forSchedule( [
             'team_id' => isset( $_POST['team_id'] ) ? absint( $_POST['team_id'] ) : 0,
             'layout'  => isset( $_POST['layout'] ) ? sanitize_key( (string) $_POST['layout'] ) : '',
             'blocks'  => isset( $_POST['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['blocks'] ) ) : '',
-            'period'  => \TT\Modules\Analytics\Reports\TeamMonthlyReport::DEFAULT_PERIOD,
+            // #4117 — the tests and matches options the report was composed with.
+            'options' => isset( $_POST['options'] ) ? wp_unslash( (string) $_POST['options'] ) : '', // phpcs:ignore WordPress.Security.ValidationSanitization.InputNotSanitized -- normalised by the composition.
         ] );
         $recipients = array_values( array_filter( array_map( 'trim', preg_split( "/[\r\n]+/", $rec_raw ) ?: [] ) ) );
 

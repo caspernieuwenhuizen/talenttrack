@@ -180,8 +180,12 @@ Met **Maandelijks inplannen** onder het paneel komt het rapport elke 1e van de
 maand als pdf per e-mail binnen. Elk rapport gaat over de maand die net voorbij
 is, dus het rapport van 1 oktober gaat over september. Je geeft de planning een
 naam en ontvangers; het team, de rapportsoort en de secties zijn die je hebt
-samengesteld. Het rapport noemt spelers bij naam, dus stuur het alleen naar
-stafleden.
+samengesteld, en dat geldt ook voor wat je bij **Wedstrijden** en **Testen**
+koos: welke testen, en hoeveel van elke test. Het formulier zet die keuzes op
+een rij voordat je opslaat. Kan de rapportsoort een keuze niet afdrukken, zoals
+metingen op de versie van één pagina, dan zegt het formulier dat, en drukt de
+pdf de samenvatting af. Het rapport noemt spelers bij naam, dus stuur het
+alleen naar stafleden.
 
 De planning bewaart **een eigen kopie** van het rapport. Wat je later aan een
 van je opgeslagen weergaven verandert of verwijdert, verandert niet wat er wordt
@@ -242,7 +246,10 @@ mee.
   zelf ziet, bepaal je zelf — zie *Kiezen wat erin staat*. De versie van één
   pagina en het liggende overzicht drukken de samenvatting af, en het paneel
   zegt dat al voordat je afdrukt.
-- **Per speler** — elke meetwaarde van elke speler in één tabel.
+- **Per speler** — elke meetwaarde van elke speler in één tabel. De kolom
+  **Geblesseerd** markeert een speler met een openstaande blessure; de kolom
+  **Geschorst** zegt bij hoeveel activiteiten de speler in de periode ontbrak
+  door een schorsing, zodat die afwezigheid verklaard is.
 - **Besluiten en acties** — ruimte op de afdruk om te noteren wat het overleg
   afspreekt.
 - **Datakwaliteit** — wat ontbreekt en de moeite waard is om vóór volgende maand
@@ -286,7 +293,9 @@ cijfers dat niet zijn. Dat is de bedoeling: je schrijft vooraf iets voor en legt
 tijdens het overleg vast wat er besloten is. Bij elke notitie staat wie hem het
 laatst schreef en wanneer. Een notitie leegmaken en opslaan verwijdert hem. De
 PDF van een momentopname drukt de notities mee af, zodat papier en scherm
-hetzelfde zeggen.
+hetzelfde zeggen. Het aantal pagina's van een momentopname telt de notities
+mee, dus een lange notitie die een sectie naar een andere pagina duwt, wordt
+meegerekend.
 
 ### Een momentopname is niet met een link te delen
 

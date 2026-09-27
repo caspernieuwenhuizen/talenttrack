@@ -67,7 +67,7 @@ use TT\Modules\Measurements\Units\UnitContext;
  * minutes available in matches whose minutes were actually recorded, so a month
  * with no recorded minutes has no share rather than a share of zero.
  *
- * @phpstan-type AttendanceRow array{player_id:int, first_name:string, last_name:string, team_name:string, activities:int, total:int, present:int, late:int, absent:int, excused:int, injured:int, present_pct:?float, missed:int, flagged:bool, flag_reasons:list<string>}
+ * @phpstan-type AttendanceRow array{player_id:int, first_name:string, last_name:string, team_name:string, activities:int, total:int, present:int, late:int, absent:int, excused:int, injured:int, suspended:int, present_pct:?float, missed:int, flagged:bool, flag_reasons:list<string>}
  * @phpstan-type MinutesRow array{player_id:int, first_name:string, last_name:string, jersey_number:?int, total_minutes:int, matches:int, starts:int, subs_in:int, subs_off:int, by_type:array<string,int>, available_minutes:int}
  * @phpstan-type Window array{from:string,to:string}
  */
@@ -615,6 +615,7 @@ final class TeamMonthlyReport {
                 'absent'      => $r['absent'],
                 'excused'     => $r['excused'],
                 'injured'     => $r['injured'],
+                'suspended'   => $r['suspended'],
                 'present_pct' => $r['present_pct'],
                 'band'        => self::attendanceBand( $r['present_pct'] ),
                 'flagged'     => $r['flagged'],
@@ -1458,6 +1459,9 @@ final class TeamMonthlyReport {
                 'share_pct'      => $min !== null ? self::share( $min['total_minutes'], $min['available_minutes'] ) : null,
                 'open_goals'     => $goals[ $pid ] ?? 0,
                 'injured'        => isset( $injured[ $pid ] ),
+                // #4114 — activities the player missed suspended this window
+                // (#4102), so a suspension is not a gap nobody can explain.
+                'suspended'      => $att !== null ? $att['suspended'] : 0,
             ];
         }
         return [ 'rows' => $rows ];

@@ -115,6 +115,29 @@ final class TeamMonthlyReportComposition {
     }
 
     /**
+     * #4117 — the composition a monthly schedule keeps, from the fields the
+     * "Schedule monthly" link and the schedule form carry.
+     *
+     * The window is always the default period — "the month before" each run —
+     * because a monthly schedule of one fixed date range would mail the same
+     * month forever. Everything else is the report as the coach composed it,
+     * the per-section options included: a schedule that dropped them would
+     * send the default tests and matches detail, whatever had been chosen.
+     *
+     * @param array<string,mixed> $raw team_id, layout, blocks, options.
+     * @return Composition
+     */
+    public static function forSchedule( array $raw ): array {
+        return self::normalise( [
+            'team_id' => $raw['team_id'] ?? 0,
+            'layout'  => $raw['layout'] ?? '',
+            'blocks'  => $raw['blocks'] ?? '',
+            'options' => $raw['options'] ?? null,
+            'period'  => TeamMonthlyReport::DEFAULT_PERIOD,
+        ] );
+    }
+
+    /**
      * #3514 — the option bags, keyed by block.
      *
      * Accepts the JSON a URL carries as well as a decoded array, because the

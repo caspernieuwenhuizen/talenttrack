@@ -78,6 +78,19 @@
 .tt-dashboard .tt-sched-tablewrap { max-width: 960px; }
 
 /* #3462 — why the last run did not send. */
+/* #4117 — the tests and matches detail a monthly schedule keeps. */
+.tt-dashboard .tt-sched-options {
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding-left: 1.25rem;
+    line-height: var(--tt-lh-body, 1.5);
+}
+.tt-dashboard .tt-sched-options__note {
+    display: block;
+    font-size: var(--tt-fs-sm, 0.875rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
 .tt-dashboard .tt-sched-error {
     margin: var(--tt-sp-1, 0.25rem) 0 0;
     font-size: var(--tt-fs-sm, 0.875rem);

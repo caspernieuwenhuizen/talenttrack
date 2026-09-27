@@ -145,6 +145,30 @@ final class TeamMonthlyReportLayout {
     public const STRIP_CHANGES = 6;
 
     /**
+     * #4118 — a snapshot's note under a section (#3517): its margin and
+     * padding, and a line of 7.5pt text. Measured on DomPDF: one line costs
+     * 10.0 mm, ten lines 46.6 mm. The base is a millimetre over, so a close
+     * call estimates a page too many rather than printing one more than shown.
+     */
+    private const NOTE_BASE_MM = 7.0;
+    private const NOTE_LINE_MM = 4.1;
+
+    /**
+     * Characters of a note per printed line at full portrait width (about 116
+     * measured over Dutch prose, rounded down like the others).
+     */
+    private const NOTE_CHARS_PER_LINE = 112;
+
+    /**
+     * The same on the landscape matrix, by how many strips share its footer;
+     * a section above the footer is one strip wide (about 164, 79, 51 and 44
+     * measured).
+     *
+     * @var array<int,int>
+     */
+    private const NOTE_STRIP_CHARS_PER_LINE = [ 1 => 158, 2 => 76, 3 => 48, 4 => 42 ];
+
+    /**
      * #4095 — the landscape matrix prints its tests as lines in a footer strip
      * a third of the page wide, so it holds this many tests. The rest are
      * named on the page, never dropped without a word.
@@ -302,32 +326,37 @@ final class TeamMonthlyReportLayout {
      * cannot split the report differently. `group_pages` (#4097) is how many
      * sheets each group prints on, so the screen can say where it lands.
      *
+     * `$notes` (#4118) are a snapshot's section notes, which print under
+     * their sections; a live report has none.
+     *
      * @param array{data:array<string,array<string,mixed>>} $report a `TeamMonthlyReport::forTeam()` payload.
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}
      */
-    public static function fit( array $report, string $layout ): array {
+    public static function fit( array $report, string $layout, array $notes = [] ): array {
         $layout = self::isValid( $layout ) ? $layout : self::DEFAULT;
         $data   = $report['data'];
         if ( isset( $data['tests'] ) ) {
             // #4095 — measure what this layout prints, not what was asked for.
             $data['tests'] = self::testsForLayout( $data['tests'], $layout );
         }
+        $note_mm = self::noteHeights( $notes, $data, $layout );
 
         if ( $layout === self::PACK ) {
-            return self::fitPack( $data );
+            return self::fitPack( $data, $note_mm );
         }
 
         $capacity = $layout === self::MATRIX ? self::LANDSCAPE_MM : self::PORTRAIT_MM;
         $degraded = [];
 
-        $height = self::singleSheetHeight( $data, $layout, $degraded );
+        $height = self::singleSheetHeight( $data, $layout, $degraded, $note_mm );
         if ( $height > $capacity && $layout === self::ONE_PAGER ) {
             $degraded[] = self::ELIDE_RANKED;
-            $height     = self::singleSheetHeight( $data, $layout, $degraded );
+            $height     = self::singleSheetHeight( $data, $layout, $degraded, $note_mm );
         }
         if ( $height > $capacity && $layout === self::ONE_PAGER ) {
             $degraded[] = self::TRIM_ATTENTION;
-            $height     = self::singleSheetHeight( $data, $layout, $degraded );
+            $height     = self::singleSheetHeight( $data, $layout, $degraded, $note_mm );
         }
 
         $fill  = (int) round( $height / $capacity * 100 );
@@ -345,9 +374,10 @@ final class TeamMonthlyReportLayout {
 
     /**
      * @param array<string,array<string,mixed>> $data
+     * @param array<string,float>               $note_mm
      * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}
      */
-    private static function fitPack( array $data ): array {
+    private static function fitPack( array $data, array $note_mm = [] ): array {
         $none = [];
 
         // #4092 — the pack prints everything that was ticked and grows to a
@@ -364,8 +394,8 @@ final class TeamMonthlyReportLayout {
         $meeting = [ 'matches', 'attention', 'changes' ];
         $closing = [ 'tests', 'notes', 'quality' ];
 
-        $page_3 = self::sum( $data, $meeting, self::PACK, $none );
-        $page_4 = self::sum( $data, $closing, self::PACK, $none );
+        $page_3 = self::sum( $data, $meeting, self::PACK, $none, $note_mm );
+        $page_4 = self::sum( $data, $closing, self::PACK, $none, $note_mm );
         if ( $page_3 <= 0.0 || $page_3 + $page_4 <= self::PORTRAIT_MM ) {
             $groups[] = array_merge( $meeting, $closing );
         } else {
@@ -379,7 +409,7 @@ final class TeamMonthlyReportLayout {
         $printed     = [];
         $group_pages = [];
         foreach ( $groups as $group ) {
-            $mm = self::sum( $data, $group, self::PACK, $none );
+            $mm = self::sum( $data, $group, self::PACK, $none, $note_mm );
             if ( $mm <= 0.0 ) continue; // a page with nothing selected on it is not printed
             $sheets        = (int) max( 1, ceil( $mm / self::PORTRAIT_MM ) );
             $pages        += $sheets;
@@ -418,36 +448,106 @@ final class TeamMonthlyReportLayout {
     /**
      * @param array<string,array<string,mixed>> $data
      * @param list<string>                      $degraded
+     * @param array<string,float>               $note_mm
      */
-    private static function singleSheetHeight( array $data, string $layout, array $degraded ): float {
+    private static function singleSheetHeight( array $data, string $layout, array $degraded, array $note_mm = [] ): float {
         if ( $layout === self::MATRIX ) {
-            $mm = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'roster' ], $layout, $degraded );
-            foreach ( [ 'changes', 'tests', 'notes' ] as $footer_block ) {
-                if ( isset( $data[ $footer_block ] ) ) {
-                    // As tall as its tallest strip: the notes set the floor, and
-                    // a "what changed" strip with long entries can outgrow it.
-                    $strips = count( array_intersect( [ 'matches', 'changes', 'tests', 'notes' ], array_map( 'strval', array_keys( $data ) ) ) );
-                    $footer = max( self::MM['matrix_footer'], isset( $data['changes'] ) ? self::changesStripHeight( $data['changes'], $strips ) : 0.0 );
-                    return $mm + $footer + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
-                }
-            }
-            return $mm + self::sum( $data, [ 'attention', 'quality' ], $layout, $degraded );
+            $mm = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality' ], $layout, $degraded, $note_mm );
+            return $mm + self::matrixFooterHeight( $data, $note_mm );
         }
-        return self::sum( $data, TeamMonthlyReportBlock::ALL, $layout, $degraded );
+        return self::sum( $data, TeamMonthlyReportBlock::ALL, $layout, $degraded, $note_mm );
+    }
+
+    /**
+     * #4118 — the matches or tests strip of the landscape footer, above a note
+     * under it. Measured on DomPDF with three tests, and with four results and
+     * six scorers; a strip with less in it is estimated a little tall.
+     */
+    private const STRIP_CONTENT_MM = 38.0;
+
+    /** The sections the landscape matrix prints side by side in its footer. */
+    private const MATRIX_FOOTER = [ 'matches', 'changes', 'tests', 'notes' ];
+
+    /**
+     * The landscape matrix's footer: as tall as its tallest strip. The notes
+     * set the floor, and a "what changed" strip with long entries can outgrow
+     * it; so can a strip with a snapshot's note under it (#4118).
+     *
+     * @param array<string,array<string,mixed>> $data
+     * @param array<string,float>               $note_mm
+     */
+    private static function matrixFooterHeight( array $data, array $note_mm ): float {
+        $in_footer = array_values( array_intersect( self::MATRIX_FOOTER, array_map( 'strval', array_keys( $data ) ) ) );
+        $strips    = count( $in_footer );
+
+        $footer = 0.0;
+        if ( array_intersect( [ 'changes', 'tests', 'notes' ], $in_footer ) !== [] ) {
+            $footer = max( self::MM['matrix_footer'], isset( $data['changes'] ) ? self::changesStripHeight( $data['changes'], $strips ) : 0.0 );
+        }
+
+        foreach ( $in_footer as $block ) {
+            $note = $note_mm[ $block ] ?? 0.0;
+            if ( $note <= 0.0 ) continue;
+            $content = $block === 'changes'
+                ? self::changesStripHeight( $data['changes'], $strips )
+                : ( $block === 'notes' ? self::MM['matrix_footer'] : self::STRIP_CONTENT_MM );
+            $footer = max( $footer, $content + $note );
+        }
+        return $footer;
     }
 
     /**
      * @param array<string,array<string,mixed>> $data
      * @param list<string>                      $blocks
      * @param list<string>                      $degraded
+     * @param array<string,float>               $note_mm #4118 the snapshot note under each section.
      */
-    private static function sum( array $data, array $blocks, string $layout, array $degraded ): float {
+    private static function sum( array $data, array $blocks, string $layout, array $degraded, array $note_mm = [] ): float {
         $mm = 0.0;
         foreach ( $blocks as $block ) {
             if ( ! isset( $data[ $block ] ) ) continue;
             $mm += self::blockHeight( $block, $data[ $block ], $layout, $degraded );
+            // The matrix footer's notes are counted with the footer.
+            if ( $layout !== self::MATRIX || ! in_array( $block, self::MATRIX_FOOTER, true ) ) {
+                $mm += $note_mm[ $block ] ?? 0.0;
+            }
         }
         return $mm;
+    }
+
+    /**
+     * #4118 — how much each snapshot note adds under its section, in mm. A
+     * note prints whole and wraps, like the other written text (#3970); a line
+     * break in it starts a new line. Only sections the report prints count.
+     *
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     * @param array<string,array<string,mixed>>                               $data
+     * @return array<string,float>
+     */
+    private static function noteHeights( array $notes, array $data, string $layout ): array {
+        $strips = count( array_intersect( self::MATRIX_FOOTER, array_map( 'strval', array_keys( $data ) ) ) );
+        $out    = [];
+        foreach ( $notes as $block => $note ) {
+            $block = (string) $block;
+            if ( $block === TeamMonthlyReportBlock::LETTERHEAD || ! isset( $data[ $block ] ) ) continue;
+            $body = str_replace( [ "\r\n", "\r" ], "\n", trim( $note['body'] ) );
+            if ( $body === '' ) continue;
+
+            if ( $layout !== self::MATRIX ) {
+                $per_line = self::NOTE_CHARS_PER_LINE;
+            } elseif ( in_array( $block, self::MATRIX_FOOTER, true ) ) {
+                $per_line = self::NOTE_STRIP_CHARS_PER_LINE[ max( 1, min( 4, $strips ) ) ];
+            } else {
+                $per_line = self::NOTE_STRIP_CHARS_PER_LINE[1];
+            }
+
+            $lines = 0;
+            foreach ( explode( "\n", $body ) as $paragraph ) {
+                $lines += self::lines( mb_strlen( $paragraph ), $per_line );
+            }
+            $out[ $block ] = self::NOTE_BASE_MM + $lines * self::NOTE_LINE_MM;
+        }
+        return $out;
     }
 
     /**

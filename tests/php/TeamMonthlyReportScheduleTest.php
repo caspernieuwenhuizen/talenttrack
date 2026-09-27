@@ -188,6 +188,58 @@ final class TeamMonthlyReportScheduleTest extends WP_UnitTestCase {
         $this->assertSame( $audit_before + 1, $audit_after );
     }
 
+    /**
+     * #4117 — the schedule keeps the tests and matches options the report was
+     * composed with, and a schedule saved before it did sends the defaults.
+     */
+    public function test_a_schedule_keeps_the_tests_and_matches_options(): void {
+        $owner   = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $options = (string) wp_json_encode( [
+            'tests'   => [ 'definitions' => [ 7, 9 ], 'show' => 'values_trend' ],
+            'matches' => [ 'squads' => true, 'scorers' => false ],
+        ] );
+
+        // The fields the schedule form posts, as the handler reads them.
+        $composition = TeamMonthlyReportComposition::forSchedule( [
+            'team_id' => $this->team_id,
+            'layout'  => 'B',
+            'blocks'  => 'kpi,matches,tests',
+            'options' => $options,
+        ] );
+        $this->assertSame( 'last_month', $composition['period'], 'A schedule always reports on the month before.' );
+
+        $id = $this->repo->create( [
+            'name'        => 'Monthly report JO13-1',
+            'report_key'  => ScheduledReportsRepository::REPORT_TEAM_MONTHLY,
+            'composition' => $composition,
+            'frequency'   => ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST,
+            'recipients'  => [ 'staff@example.test' ],
+            'format'      => 'pdf',
+        ], $owner );
+
+        $plan = TeamMonthlyReportDelivery::plan( (array) $this->repo->findById( $id ), '2026-10-01' );
+        $this->assertTrue( $plan['ok'], $plan['error'] );
+        $this->assertSame( [ 7, 9 ], $plan['composition']['options']['tests']['definitions'] );
+        $this->assertSame( 'values_trend', $plan['composition']['options']['tests']['show'] );
+        $this->assertSame( [ 'scorers' => false, 'squads' => true ], $plan['composition']['options']['matches'] );
+
+        $old = TeamMonthlyReportDelivery::plan( $this->schedule( $owner ), '2026-10-01' );
+        $this->assertSame( [], $old['composition']['options'], 'A schedule without options sends the defaults.' );
+    }
+
+    /** #4117 — a detail the layout cannot print is named on the form, not dropped. */
+    public function test_the_schedule_form_names_a_tests_detail_the_layout_prints_as_its_summary(): void {
+        $options = [ 'tests' => [ 'show' => 'values' ] ];
+
+        $pack = TeamMonthlyReportDelivery::optionLines( TeamMonthlyReportComposition::forSchedule( [ 'team_id' => $this->team_id, 'layout' => 'B', 'blocks' => 'tests', 'options' => $options ] ) );
+        $this->assertCount( 1, $pack );
+        $this->assertSame( '', $pack[0]['note'] );
+
+        $one = TeamMonthlyReportDelivery::optionLines( TeamMonthlyReportComposition::forSchedule( [ 'team_id' => $this->team_id, 'layout' => 'A', 'blocks' => 'tests', 'options' => $options ] ) );
+        $this->assertCount( 1, $one );
+        $this->assertNotSame( '', $one[0]['note'] );
+    }
+
     /** @return array<string,mixed> a hydrated team-monthly schedule for `$owner`. */
     private function schedule( int $owner ): array {
         $id = $this->repo->create( [

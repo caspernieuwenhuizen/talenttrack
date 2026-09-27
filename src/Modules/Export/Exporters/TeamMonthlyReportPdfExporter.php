@@ -193,7 +193,7 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         // #4097 — the same preparation the web page's sheets are built from:
         // the tests detail this layout can print (#4095), the estimate and
         // its page groups, and whatever the one-pager shortens.
-        $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
+        $prepared = TeamMonthlyReportDocument::prepare( $report, $layout, $notes );
 
         return [
             'html'    => TeamMonthlyReportDocument::html( $prepared['report'], $layout, $team_name, $notes, $prepared['fit']['groups'] ),
