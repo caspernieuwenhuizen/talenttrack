@@ -286,7 +286,7 @@ final class PotentialStaleAlertTest extends WP_UnitTestCase {
             'player_id'      => $player_id,
             'set_at'         => $set_at,
             'set_by'         => 1,
-            'potential_band' => PotentialBand::SEMI_PRO,
+            'potential_band' => PotentialBand::ON_TRACK,
         ] );
     }
 

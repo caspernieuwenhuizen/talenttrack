@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\DemoRatingScale;
-use TT\Modules\Players\PlayerStatusModule;
 
 /**
  * PlayerStatusGenerator — the two traffic-light inputs the demo academy had
@@ -28,15 +27,12 @@ use TT\Modules\Players\PlayerStatusModule;
  * make visible, and a demo where every line only ever goes up teaches the
  * wrong thing about what the band is for.
  *
- * ## And it stops below the age floor
+ * ## Every age is seeded
  *
- * #3265 declines to ask for a potential band below
- * `PlayerStatusModule::POTENTIAL_MIN_AGE`. Seeding one anyway would make the
- * demo contradict the rule it is meant to illustrate, so eligibility is
- * checked against the same predicate the product uses rather than a second
- * copy of the age arithmetic. On a squad below the floor this generator
- * writes behaviour ratings and no potential at all, which is exactly what a
- * real academy running that squad would have.
+ * The bands place a player against their own age group (#3981), which an
+ * academy answers for a U7 as readily as for a U17, so every squad gets
+ * potential histories. There used to be an age floor here, mirroring the
+ * one the adult-ceiling bands carried; it went with them.
  *
  * ## Deliberate gaps
  *
@@ -54,20 +50,20 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
      * not a useful illustration of a judgement.
      */
     private const BANDS = [
-        'first_team',
-        'professional_elsewhere',
-        'semi_pro',
-        'top_amateur',
-        'recreational',
+        'exceptional',
+        'ahead',
+        'on_track',
+        'needs_time',
+        'below_level',
     ];
 
     /** Cumulative weights — the middle of the ladder is where most sit. */
     private const BAND_WEIGHTS = [
-        [ 8,   'first_team' ],
-        [ 26,  'professional_elsewhere' ],
-        [ 58,  'semi_pro' ],
-        [ 88,  'top_amateur' ],
-        [ 100, 'recreational' ],
+        [ 8,   'exceptional' ],
+        [ 26,  'ahead' ],
+        [ 58,  'on_track' ],
+        [ 88,  'needs_time' ],
+        [ 100, 'below_level' ],
     ];
 
     /** @var array<string, string[]> */
@@ -174,8 +170,6 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
 
             $total += $this->behaviourFor( $player_id, $behaviour_table, $actor, $beh_notes, $window_days );
 
-            if ( ! $this->potentialApplies( $p ) ) continue;
-
             $team_id   = (int) ( $p->team_id ?? 0 );
             $owe_down  = ! isset( $downgrade_owed[ $team_id ] );
             // Never the same player: a band that is both freshly revised
@@ -193,23 +187,6 @@ class PlayerStatusGenerator implements DependentGeneratorInterface {
         }
 
         return $total;
-    }
-
-    /**
-     * Is this player old enough to be asked? (#3265)
-     *
-     * Asks the product's own predicate rather than re-deriving the age, so
-     * the demo cannot end up illustrating a floor the product does not
-     * apply. Falls back to seeding when `PlayerStatusModule` is unavailable
-     * — a generator is not the place to decide a product rule.
-     */
-    private function potentialApplies( object $player ): bool {
-        if ( ! class_exists( PlayerStatusModule::class ) ) return true;
-        if ( ! method_exists( PlayerStatusModule::class, 'potentialAppliesAtBirthdate' ) ) return true;
-
-        return PlayerStatusModule::potentialAppliesAtBirthdate(
-            isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
-        );
     }
 
     /**

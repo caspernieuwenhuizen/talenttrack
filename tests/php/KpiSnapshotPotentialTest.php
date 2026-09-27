@@ -46,7 +46,7 @@ final class KpiSnapshotPotentialTest extends WP_UnitTestCase {
 
     public function test_a_player_with_a_band_carries_it_translated(): void {
         $player = $this->player( 'Jelle', 'de Vries' );
-        $this->band( $player, PotentialBand::FIRST_TEAM, '2026-03-01 10:00:00' );
+        $this->band( $player, PotentialBand::EXCEPTIONAL, '2026-03-01 10:00:00' );
 
         $row = $this->potentialRowFor( 'Jelle de Vries' );
 
@@ -57,7 +57,7 @@ final class KpiSnapshotPotentialTest extends WP_UnitTestCase {
         // the label is editable data, and pinning today's English string
         // would make this test fail on a rename it should not care about.
         $this->assertSame(
-            ExportValueFormatter::potentialBand( PotentialBand::FIRST_TEAM ),
+            ExportValueFormatter::potentialBand( PotentialBand::EXCEPTIONAL ),
             $row[2]
         );
         $this->assertSame( '2026-03-01', $row[3] );
@@ -76,22 +76,22 @@ final class KpiSnapshotPotentialTest extends WP_UnitTestCase {
     /** The band shown is the current one — the same row the status dot uses. */
     public function test_the_most_recent_band_wins(): void {
         $player = $this->player( 'Tim', 'Jansen' );
-        $this->band( $player, PotentialBand::RECREATIONAL, '2025-09-01 10:00:00' );
-        $this->band( $player, PotentialBand::SEMI_PRO, '2026-02-01 10:00:00' );
+        $this->band( $player, PotentialBand::BELOW_LEVEL, '2025-09-01 10:00:00' );
+        $this->band( $player, PotentialBand::ON_TRACK, '2026-02-01 10:00:00' );
 
         $row    = $this->potentialRowFor( 'Tim Jansen' );
         $latest = ( new PlayerPotentialRepository() )->latestFor( $player );
 
         $this->assertNotNull( $row );
         $this->assertNotNull( $latest );
-        $this->assertSame( PotentialBand::SEMI_PRO, (string) $latest->potential_band );
+        $this->assertSame( PotentialBand::ON_TRACK, (string) $latest->potential_band );
         $this->assertSame( '2026-02-01', $row[3] );
     }
 
     /** A released player's band is history, not a snapshot of the academy. */
     public function test_an_inactive_player_is_not_listed(): void {
         $player = $this->player( 'Oud', 'Speler', 'released' );
-        $this->band( $player, PotentialBand::TOP_AMATEUR, '2026-01-01 10:00:00' );
+        $this->band( $player, PotentialBand::NEEDS_TIME, '2026-01-01 10:00:00' );
 
         $this->assertNull( $this->potentialRowFor( 'Oud Speler' ) );
     }
@@ -99,7 +99,7 @@ final class KpiSnapshotPotentialTest extends WP_UnitTestCase {
     /** The headline metrics count both sides, so a gap is visible at a glance. */
     public function test_the_kpi_sheet_counts_recorded_and_unrecorded_bands(): void {
         $with = $this->player( 'Met', 'Band' );
-        $this->band( $with, PotentialBand::SEMI_PRO, '2026-03-01 10:00:00' );
+        $this->band( $with, PotentialBand::ON_TRACK, '2026-03-01 10:00:00' );
         $this->player( 'Zonder', 'Band' );
         $this->player( 'Ook Zonder', 'Band' );
 

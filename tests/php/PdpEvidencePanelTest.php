@@ -108,7 +108,7 @@ final class PdpEvidencePanelTest extends WP_UnitTestCase {
             'window'          => [ 'from' => '2026-10-01', 'to' => '2027-06-30', 'scope' => 'conversation' ],
             'status'          => [],
             'behaviour'       => [ (object) [ 'rating' => 7.5, 'rated_at' => '2026-11-02 09:00:00' ] ],
-            'potential'       => [ (object) [ 'potential_band' => 'first_team', 'set_at' => '2026-11-02 09:00:00' ] ],
+            'potential'       => [ (object) [ 'potential_band' => 'exceptional', 'set_at' => '2026-11-02 09:00:00' ] ],
             'evaluations'     => [
                 [
                     'id'            => 88,

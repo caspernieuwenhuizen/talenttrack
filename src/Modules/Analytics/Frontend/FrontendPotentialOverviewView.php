@@ -238,20 +238,6 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
      * @param array<string,string> $bands
      */
     private static function bandCell( array $row, array $bands, bool $editable ): string {
-        // #3265 — below the age floor the academy is not asked. Saying so
-        // is not the same as saying "nobody has got round to it", and
-        // rendering a picker there would invite exactly the judgement the
-        // floor exists to avoid.
-        if ( ! $row['eligible'] ) {
-            return '<span class="tt-po-band tt-po-band--na">'
-                . esc_html( sprintf(
-                    /* translators: %d is the minimum age in years, e.g. 13. */
-                    __( 'Not asked below %d', 'talenttrack' ),
-                    PlayerStatusModule::POTENTIAL_MIN_AGE
-                ) )
-                . '</span>';
-        }
-
         if ( ! $editable ) {
             return $row['recorded']
                 ? '<span class="tt-po-band">' . esc_html( (string) $row['band_label'] ) . '</span>'
@@ -366,20 +352,6 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
         echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Coverage', 'talenttrack' ), 'value' => $coverage ] );
         // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
         echo '</div>';
-
-        if ( $summary['not_asked'] > 0 ) {
-            echo '<p class="tt-po-footnote">' . esc_html( sprintf(
-                /* translators: 1: number of players, 2: minimum age in years. */
-                _n(
-                    '%1$d player is below %2$d, so the academy is not asked for a band and they are not counted as a gap.',
-                    '%1$d players are below %2$d, so the academy is not asked for a band and they are not counted as gaps.',
-                    $summary['not_asked'],
-                    'talenttrack'
-                ),
-                $summary['not_asked'],
-                PlayerStatusModule::POTENTIAL_MIN_AGE
-            ) ) . '</p>';
-        }
     }
 
     /**
@@ -564,8 +536,8 @@ final class FrontendPotentialOverviewView extends FrontendViewBase {
             $message .= ' ' . sprintf(
                 /* translators: %d is the number of players whose band could not be recorded. */
                 _n(
-                    '%d player was skipped — they are outside this scope or below the age the band is asked at.',
-                    '%d players were skipped — they are outside this scope or below the age the band is asked at.',
+                    '%d player was skipped because they are outside this scope.',
+                    '%d players were skipped because they are outside this scope.',
                     $skipped,
                     'talenttrack'
                 ),

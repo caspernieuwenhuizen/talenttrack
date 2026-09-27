@@ -97,7 +97,7 @@ final class PerPlayerGateTest extends WP_UnitTestCase {
         AuthorizationService::flushCache();
 
         $request = new WP_REST_Request( 'POST', "/talenttrack/v1/players/{$this->theirs}/potential" );
-        $request->set_param( 'band', 'first_team' );
+        $request->set_param( 'band', 'exceptional' );
 
         $this->assertSame(
             403,

@@ -45,23 +45,14 @@ use TT\Modules\Alerts\Domain\Severity;
  * the trial case is for — and an archived one has left.
  * `activePlayerWhere()` already excludes both.
  *
- * ## So are players below the age floor (#3265)
+ * ## Every age is in (#3981)
  *
- * Potential is not asked below `PlayerStatusModule::POTENTIAL_MIN_AGE`, so
- * this must not ask either. Without the floor the clock below does exactly
- * the wrong thing on an academy running young squads: a player with no
- * potential row is measured from their creation date, so **every** U7 goes
- * overdue at the same moment and stays there, with no action that resolves
- * it except recording a professional-ceiling judgement on a small child.
- * An alert nobody can honestly clear is worse than the gap it reports.
- *
- * Excluded in the query rather than filtered in `evaluate()`: this is a
- * property of the player, not of the recipient, and doing it in SQL means
- * the row never exists rather than being created and dropped.
- *
- * A player with **no** birthdate on record is included. A data gap is not
- * evidence of being too young, and an academy that has not filled the field
- * in should still be told the potential is missing.
+ * Players below 13 used to be excluded, because the bands described a
+ * professional ceiling and that is not a fair question about a small child.
+ * The bands now place a player against their own age group and the academy
+ * pathway, which a coach can answer honestly for a U7, so the alert covers
+ * every age. The 180-day default still suits the youngest groups: two
+ * missed quarters is as much a gap in a U8 squad as in a U17 one.
  *
  * ## The window
  *
@@ -289,9 +280,6 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
               WHERE " . $this->activePlayerWhere( 'p' ) . "
                 AND p.club_id = %d
                 AND p.team_id > 0
-                AND ( p.date_of_birth IS NULL
-                      OR p.date_of_birth = ''
-                      OR p.date_of_birth <= DATE_SUB( CURDATE(), INTERVAL %d YEAR ) )
                 AND GREATEST(
                         COALESCE(
                             ( SELECT MAX( pot.set_at )
@@ -305,7 +293,6 @@ final class PotentialStaleAlert extends AbstractPlayerAlert {
             . $context->applyScope( self::SUBJECT_TYPE, 'p.id' ) . "
               ORDER BY p.team_id ASC, p.id ASC",
             CurrentClub::id(),
-            \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE,
             $stale
         );
 

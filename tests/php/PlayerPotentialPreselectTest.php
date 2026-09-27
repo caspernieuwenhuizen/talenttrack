@@ -59,11 +59,11 @@ final class PlayerPotentialPreselectTest extends WP_UnitTestCase {
             'a player who never had a band set has nothing to pre-select'
         );
 
-        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'first_team' ] );
+        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'exceptional' ] );
         $latest = $repo->latestFor( $player_id );
 
         $this->assertNotNull( $latest );
-        $this->assertSame( 'first_team', (string) $latest->potential_band );
+        $this->assertSame( 'exceptional', (string) $latest->potential_band );
         $this->assertNotEmpty( $latest->set_at, 'the popover shows when the band was set' );
     }
 
@@ -72,10 +72,10 @@ final class PlayerPotentialPreselectTest extends WP_UnitTestCase {
         $player_id = $this->makePlayer();
         $repo      = new PlayerPotentialRepository();
 
-        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'recreational' ] );
-        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'first_team' ] );
+        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'below_level' ] );
+        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'exceptional' ] );
 
-        $this->assertSame( 'first_team', (string) $repo->latestFor( $player_id )->potential_band );
+        $this->assertSame( 'exceptional', (string) $repo->latestFor( $player_id )->potential_band );
     }
 
     /**
@@ -103,13 +103,13 @@ final class PlayerPotentialPreselectTest extends WP_UnitTestCase {
 
         $player_id = $this->makePlayer();
         $repo      = new PlayerPotentialRepository();
-        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'first_team' ] );
+        $repo->create( [ 'player_id' => $player_id, 'potential_band' => 'exceptional' ] );
 
         $this->assertCount( 1, $repo->historyFor( $player_id ) );
 
         $same = new WP_REST_Request( 'POST', '/talenttrack/v1/players/' . $player_id . '/potential' );
         $same->set_header( 'Content-Type', 'application/json' );
-        $same->set_body( wp_json_encode( [ 'potential_band' => 'first_team' ] ) );
+        $same->set_body( wp_json_encode( [ 'potential_band' => 'exceptional' ] ) );
         $res = rest_do_request( $same );
 
         $this->assertSame( 200, $res->get_status(), 're-stating the current band is not an error' );
@@ -119,7 +119,7 @@ final class PlayerPotentialPreselectTest extends WP_UnitTestCase {
         $with_notes = new WP_REST_Request( 'POST', '/talenttrack/v1/players/' . $player_id . '/potential' );
         $with_notes->set_header( 'Content-Type', 'application/json' );
         $with_notes->set_body( wp_json_encode( [
-            'potential_band' => 'first_team',
+            'potential_band' => 'exceptional',
             'notes'          => 'Still first team, but the last six weeks have been flat.',
         ] ) );
         $res2 = rest_do_request( $with_notes );

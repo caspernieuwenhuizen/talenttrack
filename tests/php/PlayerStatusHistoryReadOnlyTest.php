@@ -35,10 +35,10 @@ final class PlayerStatusHistoryReadOnlyTest extends WP_UnitTestCase {
 
     /** Oldest first — a rise, a rise, then a revision down. */
     private const SERIES = [
-        PotentialBand::RECREATIONAL,
-        PotentialBand::TOP_AMATEUR,
-        PotentialBand::FIRST_TEAM,
-        PotentialBand::SEMI_PRO,
+        PotentialBand::BELOW_LEVEL,
+        PotentialBand::NEEDS_TIME,
+        PotentialBand::EXCEPTIONAL,
+        PotentialBand::ON_TRACK,
     ];
 
     public function set_up(): void {
@@ -167,7 +167,7 @@ final class PlayerStatusHistoryReadOnlyTest extends WP_UnitTestCase {
         $html = $this->captureHtml();
 
         $this->assertStringContainsString( 'tt-psc-history__list', $html, 'The trajectory is still missing.' );
-        $this->assertStringContainsString( 'Semi-pro', $html );
+        $this->assertStringContainsString( 'On track', $html );
         $this->assertStringContainsString( 'Recent ratings', $html, 'The behaviour ratings are still missing.' );
         $this->assertStringContainsString( 'Led the warm-up.', $html );
     }
@@ -212,13 +212,13 @@ final class PlayerStatusHistoryReadOnlyTest extends WP_UnitTestCase {
             'player_id'      => $this->player_id,
             'set_at'         => gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 30 * DAY_IN_SECONDS ),
             'set_by'         => $this->staff,
-            'potential_band' => PotentialBand::TOP_AMATEUR,
+            'potential_band' => PotentialBand::NEEDS_TIME,
         ] );
 
         $this->withdrawByFeature();
         $html = $this->captureHtml();
 
-        $this->assertStringContainsString( 'Top amateur', $html );
+        $this->assertStringContainsString( 'Needs time', $html );
         $this->assertStringNotContainsString( 'tt-psc-history__list', $html, 'One entry is not a trajectory.' );
     }
 
@@ -262,7 +262,7 @@ final class PlayerStatusHistoryReadOnlyTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'are not being recorded here', $html );
         $this->assertStringNotContainsString( 'tt-psc-history__list', $html );
         $this->assertStringNotContainsString( 'Recent ratings', $html );
-        $this->assertStringNotContainsString( 'Semi-pro', $html );
+        $this->assertStringNotContainsString( 'On track', $html );
     }
 
     public function test_a_viewer_who_may_capture_still_gets_the_form(): void {

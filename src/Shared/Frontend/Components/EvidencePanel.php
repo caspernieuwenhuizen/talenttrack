@@ -431,7 +431,7 @@ final class EvidencePanel {
         $out .= '<ul class="tt-evidence__cards">';
 
         foreach ( $potential as $row ) {
-            $band = LookupTranslator::byTypeAndName( 'potential_band', (string) ( $row->potential_band ?? '' ) );
+            $band = \TT\Modules\Players\Services\PotentialTrajectory::labelFor( (string) ( $row->potential_band ?? '' ) );
             $out .= '<li class="tt-evidence__card">'
                 // _x() — the plain msgid already exists behind the player
                 // profile's own context, and a second bare one would ship

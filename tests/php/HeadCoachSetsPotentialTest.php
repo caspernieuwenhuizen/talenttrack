@@ -119,7 +119,7 @@ final class HeadCoachSetsPotentialTest extends WP_UnitTestCase {
 
     private function postPotential( int $player_id ): int {
         $request = new WP_REST_Request( 'POST', "/talenttrack/v1/players/{$player_id}/potential" );
-        $request->set_param( 'potential_band', 'semi_pro' );
+        $request->set_param( 'potential_band', 'on_track' );
         return (int) rest_do_request( $request )->get_status();
     }
 

@@ -183,7 +183,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // #3241 — the same sentence the capture screen leads with,
                 // so the two ways in agree. The full band meanings live on
                 // the capture screen, one link away from this popover.
-                'band_hint'            => __( 'How high you believe this player can reach at their peak — not where they are now.', 'talenttrack' ),
+                'band_hint'            => __( 'Where this player stands against their age group and the academy pathway.', 'talenttrack' ),
                 'save_behaviour'       => __( 'Save rating',                 'talenttrack' ),
                 'save_potential'       => __( 'Update potential',            'talenttrack' ),
                 'view_all_behaviour'   => __( 'View all behaviour ratings →','talenttrack' ),
@@ -1830,14 +1830,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                     ?>
                                 </p>
                             <?php endif; ?>
-                        <?php elseif ( $potential['applies'] ) : ?>
+                        <?php else : ?>
                             <p class="tt-bp-card__empty"><?php esc_html_e( 'No potential band set yet.', 'talenttrack' ); ?></p>
                         <?php endif; ?>
-                        <?php if ( ! $potential['applies'] ) : ?>
-                            <p class="tt-bp-card__empty"><?php echo esc_html( FrontendPlayerStatusCaptureView::tooYoungForPotential() ); ?></p>
-                        <?php endif; ?>
                         <div class="tt-bp-card__actions">
-                            <?php if ( $potential['can_record'] && $potential['applies'] ) : ?>
+                            <?php if ( $potential['can_record'] ) : ?>
                                 <button type="button" class="tt-btn tt-btn-secondary" data-tt-popover-trigger="potential">
                                     <?php esc_html_e( 'Set potential', 'talenttrack' ); ?>
                                 </button>

@@ -1,32 +1,30 @@
 <?php
 /**
  * PotentialBand — typed constants for the five values stored on
- * `tt_player_potential.potential_band`. Backs the `potential_band`
- * lookup seeded by migration 0042 with operator-editable display
- * labels (English / Dutch / etc. via `tt_translations`). The five
- * keys themselves are the canonical contract between the
- * `PlayerStatusCalculator` (which scores each band 100 / 80 / 60 / 40
- * / 20) and every UI that captures the trainer's stated belief about
- * how high the player can reach.
+ * `tt_player_potential.potential_band`.
  *
- * Bands, top to bottom:
+ * The bands say where a player stands **against their age group and the
+ * academy pathway**, not how far they will go as an adult. A youth academy
+ * decides keep, push up a year, give time or release; it does not decide a
+ * career ceiling, and asking a coach for one below the age where it means
+ * anything produced guesses (#3981).
  *
- *   FIRST_TEAM             — eventual first-team contributor at the club
- *   PROFESSIONAL_ELSEWHERE — pro at another club / level
- *   SEMI_PRO               — semi-professional
- *   TOP_AMATEUR            — top of the amateur pyramid
- *   RECREATIONAL           — recreational level
+ * The keys, their order and the score each carries are fixed here and in
+ * `PlayerStatusCalculator`. The **display label** is the `potential_band`
+ * lookup's, which an academy may rename per language through the lookup
+ * admin; renaming a band never moves a player's status.
  *
- * Use the constants in PHP comparisons:
+ * Bands, best first:
  *
- *     if ( $row->potential_band === PotentialBand::FIRST_TEAM ) { ... }
- *     [ 'potential_band' => PotentialBand::SEMI_PRO ]
+ *   EXCEPTIONAL — well beyond the age group; a candidate to play up
+ *   AHEAD       — ahead of the age group
+ *   ON_TRACK    — where the pathway expects them to be
+ *   NEEDS_TIME  — behind for now, with a reason to give them time
+ *   BELOW_LEVEL — below the level the academy works at
  *
- * SQL string literals stay as literals — DB is the source of truth.
- *
- * REST endpoints accept BOTH the literal AND the constant for one
- * release per #988's backward-compat allowlist; see docs/rest-api.md
- * for the deprecation timeline.
+ * `LEGACY` maps the five adult-ceiling keys the bands replaced, rank for
+ * rank. The REST write path accepts them for one release and stores the
+ * mapped key; see docs/rest-api.md for the deprecation.
  */
 
 namespace TT\Domain\Vocabularies\Lookups;
@@ -35,22 +33,43 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 final class PotentialBand {
 
-    public const FIRST_TEAM             = 'first_team';
-    public const PROFESSIONAL_ELSEWHERE = 'professional_elsewhere';
-    public const SEMI_PRO               = 'semi_pro';
-    public const TOP_AMATEUR            = 'top_amateur';
-    public const RECREATIONAL           = 'recreational';
+    public const EXCEPTIONAL = 'exceptional';
+    public const AHEAD       = 'ahead';
+    public const ON_TRACK    = 'on_track';
+    public const NEEDS_TIME  = 'needs_time';
+    public const BELOW_LEVEL = 'below_level';
 
     /** @var list<string> */
     public const ALL = [
-        self::FIRST_TEAM,
-        self::PROFESSIONAL_ELSEWHERE,
-        self::SEMI_PRO,
-        self::TOP_AMATEUR,
-        self::RECREATIONAL,
+        self::EXCEPTIONAL,
+        self::AHEAD,
+        self::ON_TRACK,
+        self::NEEDS_TIME,
+        self::BELOW_LEVEL,
+    ];
+
+    /**
+     * The retired adult-ceiling keys, mapped by rank to the pathway keys.
+     *
+     * @var array<string,string>
+     */
+    public const LEGACY = [
+        'first_team'             => self::EXCEPTIONAL,
+        'professional_elsewhere' => self::AHEAD,
+        'semi_pro'               => self::ON_TRACK,
+        'top_amateur'            => self::NEEDS_TIME,
+        'recreational'           => self::BELOW_LEVEL,
     ];
 
     public static function isValid( string $value ): bool {
         return in_array( $value, self::ALL, true );
+    }
+
+    /**
+     * The current key for a value, mapping a retired key to its successor.
+     * Anything else is returned unchanged, so a caller still validates it.
+     */
+    public static function normalise( string $value ): string {
+        return self::LEGACY[ $value ] ?? $value;
     }
 }

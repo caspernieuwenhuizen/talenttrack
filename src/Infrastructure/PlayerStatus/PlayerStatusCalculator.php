@@ -27,8 +27,8 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  * from `tt_config` so the calculator stays correct after the
  * 1–5 → 5–10 scale flip. Previously hardcoded `×10` (ratings) and
  * `÷ 5 × 100` (behaviour) which both assumed the legacy scale.
- *   - potential:  banded (first_team=100 / professional_elsewhere=80 /
- *                 semi_pro=60 / top_amateur=40 / recreational=20)
+ *   - potential:  banded (exceptional=100 / ahead=80 / on_track=60 /
+ *                 needs_time=40 / below_level=20)
  *
  * Edge cases:
  *   - Player with no evaluations + no behaviour + < 3 sessions →
@@ -39,11 +39,11 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 final class PlayerStatusCalculator {
 
     private const POTENTIAL_BAND_SCORES = [
-        PotentialBand::FIRST_TEAM             => 100,
-        PotentialBand::PROFESSIONAL_ELSEWHERE => 80,
-        PotentialBand::SEMI_PRO               => 60,
-        PotentialBand::TOP_AMATEUR            => 40,
-        PotentialBand::RECREATIONAL           => 20,
+        PotentialBand::EXCEPTIONAL => 100,
+        PotentialBand::AHEAD       => 80,
+        PotentialBand::ON_TRACK    => 60,
+        PotentialBand::NEEDS_TIME  => 40,
+        PotentialBand::BELOW_LEVEL => 20,
     ];
 
     private PlayerBehaviourRatingsRepository $behaviourRepo;

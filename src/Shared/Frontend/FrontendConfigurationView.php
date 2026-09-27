@@ -216,7 +216,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Tournament formations', 'talenttrack' ), __( 'Formations selectable when configuring a tournament (4-3-3, 3-5-2, …).',                     'talenttrack' ), 'tournament_formations',      'kanban' ],
             [ __( 'Opponent levels',       'talenttrack' ), __( 'Opponent strength buckets selectable on tournament setup.',                                  'talenttrack' ), 'tournament_opponent_levels', 'podium' ],
             [ __( 'Behaviour ratings',     'talenttrack' ), __( 'Needs support … Exemplary. Labels for the player behaviour card and evaluation review.',         'talenttrack' ), 'behaviour_ratings',          'profile' ],
-            [ __( 'Potential bands',       'talenttrack' ), __( 'Far below club level … Elite potential. Drives the player potential card.',                  'talenttrack' ), 'potential_bands',            'categories' ],
+            [ __( 'Potential bands',       'talenttrack' ), __( 'Exceptional … Below academy level, against the age group. Rename a band here; its order and score stay fixed.', 'talenttrack' ), 'potential_bands',            'categories' ],
             [ __( 'Journey event types',   'talenttrack' ), __( 'Trial / signing / promotion / release / graduation. Tags player timeline events.',          'talenttrack' ), 'journey_event_types',        'track' ],
             [ __( 'Competition types',     'talenttrack' ), __( 'Competition categories (league, cup, friendly, tournament, …) used by match pickers.',       'talenttrack' ), 'competition_types',          'methodology' ],
             // v3.110.205 (#803/#808) — invitation status labels relabel /
