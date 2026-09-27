@@ -185,7 +185,7 @@ final class PlannedAttendanceAvailabilityTest extends WP_UnitTestCase {
 
         $cases = [
             '2026-09-10' => [ 'injured_later' => PlayerAvailability::AVAILABLE,   'recovered' => PlayerAvailability::UNAVAILABLE ],
-            '2026-09-13' => [ 'injured_later' => PlayerAvailability::AVAILABLE,   'recovered' => PlayerAvailability::AVAILABLE ],
+            '2026-09-17' => [ 'injured_later' => PlayerAvailability::AVAILABLE,   'recovered' => PlayerAvailability::AVAILABLE ],
             '2026-09-27' => [ 'injured_later' => PlayerAvailability::UNAVAILABLE, 'recovered' => PlayerAvailability::AVAILABLE ],
         ];
 

@@ -130,7 +130,7 @@ final class TournamentSquadAvailabilityTest extends WP_UnitTestCase {
         $this->injuryDated( 'injured_later', '2026-09-20', null, null );
         $this->injuryDated( 'recovered', '2026-09-01', null, '2026-09-15' );
 
-        $before = $this->rowsByName( $this->render( '2026-09-13' ) );
+        $before = $this->rowsByName( $this->render( '2026-09-17' ) );
         $this->assertStringNotContainsString( 'ttw-unavailable', $before['injured_later'], 'fit before the injury started' );
         $this->assertStringNotContainsString( 'ttw-unavailable', $before['recovered'], 'back before the tournament' );
 
