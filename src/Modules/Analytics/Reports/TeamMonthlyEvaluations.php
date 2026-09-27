@@ -193,7 +193,7 @@ final class TeamMonthlyEvaluations {
         foreach ( $now_by as $pid => $rows ) {
             if ( ! isset( $in_squad[ $pid ] ) ) continue;
             $now  = self::mean( self::flatten( $rows, 'ratings' ) );
-            $then = self::mean( array_map( 'floatval', is_array( $before[ $pid ] ?? null ) ? $before[ $pid ] : [] ) );
+            $then = self::mean( array_values( array_map( 'floatval', is_array( $before[ $pid ] ?? null ) ? $before[ $pid ] : [] ) ) );
             if ( $now === null || $then === null ) continue;
             $delta = round( round( $now, 1 ) - round( $then, 1 ), 1 );
             if ( abs( $delta ) < 0.05 ) continue;
@@ -263,8 +263,15 @@ final class TeamMonthlyEvaluations {
             $v = self::mean( self::valuesFor( $rows, $key, $id ) );
             if ( $v !== null ) $per_player[] = $v;
         }
-        $min = $per_player !== [] ? round( min( $per_player ), 1 ) : null;
-        $max = $per_player !== [] ? round( max( $per_player ), 1 ) : null;
+        $min  = null;
+        $max  = null;
+        $wide = false;
+        if ( $per_player !== [] ) {
+            $min = round( min( $per_player ), 1 );
+            $max = round( max( $per_player ), 1 );
+            // "Wide" when the players span the whole scale.
+            $wide = $min <= $scale['min'] && $max >= $scale['max'];
+        }
 
         return [
             'category_id'   => $id,
@@ -276,8 +283,7 @@ final class TeamMonthlyEvaluations {
             'band_from_pct' => $min !== null ? self::pctOf( $min, $scale ) : null,
             'band_to_pct'   => $max !== null ? self::pctOf( $max, $scale ) : null,
             'avg_pct'       => $now !== null ? self::pctOf( $now, $scale ) : null,
-            // "Wide" when the players span the whole scale.
-            'wide'          => $min !== null && $max !== null && $min <= $scale['min'] && $max >= $scale['max'],
+            'wide'          => $wide,
         ];
     }
 
@@ -638,7 +644,6 @@ final class TeamMonthlyEvaluations {
     public static function typeLabels(): array {
         $out = [];
         foreach ( QueryHelpers::get_lookups( 'eval_type' ) as $row ) {
-            if ( ! is_object( $row ) ) continue;
             $out[ (int) ( $row->id ?? 0 ) ] = LookupTranslator::name( $row );
         }
         return $out;

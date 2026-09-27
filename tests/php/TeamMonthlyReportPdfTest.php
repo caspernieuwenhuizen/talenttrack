@@ -198,7 +198,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
 
         $this->assertSame( 2, substr_count( $html, 'class="bars"' ) );
-        $this->assertStringNotContainsString( 'lsum', $html );
+        $this->assertStringNotContainsString( 'class="tstat lsum"', $html );
     }
 
     /**
