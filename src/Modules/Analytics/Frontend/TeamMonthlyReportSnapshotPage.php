@@ -182,7 +182,7 @@ final class TeamMonthlyReportSnapshotPage {
         // with, notes included: the snapshot on screen is its PDF.
         $layout = (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'];
         TeamMonthlyReportPage::renderDocument(
-            TeamMonthlyReportDocument::prepare( $report, $layout ),
+            TeamMonthlyReportDocument::prepare( $report, $layout, $notes ),
             $layout,
             (string) ( $team->name ?? '' ),
             $notes,

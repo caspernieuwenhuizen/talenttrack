@@ -235,6 +235,31 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->assertSame( $report['data']['attendance']['team_avg_pct'], $report['data']['kpi']['attendance_pct']['value'] );
     }
 
+    /**
+     * #4114 — a Suspended mark in the window lands in the roster's Suspended
+     * column (and the attendance row), not under no status at all.
+     */
+    public function test_a_suspended_mark_is_counted_in_the_roster(): void {
+        $suspended = $this->player( 'Suspended' );
+        $playing   = $this->player( 'Playing' );
+        $tue       = $this->training( '2020-03-03', 'Tuesday' );
+        $thu       = $this->training( '2020-03-05', 'Thursday' );
+
+        $this->present( $tue, $suspended, 'Suspended' );
+        $this->present( $thu, $suspended, 'Suspended' );
+        $this->present( $tue, $playing );
+        $this->present( $thu, $playing );
+
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'attendance', 'roster' ] );
+
+        $roster = array_column( $report['data']['roster']['rows'], 'suspended', 'player_id' );
+        $this->assertSame( 2, $roster[ $suspended ] );
+        $this->assertSame( 0, $roster[ $playing ] );
+
+        $attendance = array_column( $report['data']['attendance']['rows'], 'suspended', 'player_id' );
+        $this->assertSame( 2, $attendance[ $suspended ] );
+    }
+
     /** #4068 — 100% means everybody attended everything, never a rounded 99.96. */
     public function test_the_attendance_average_never_rounds_up_to_one_hundred(): void {
         $players = [];

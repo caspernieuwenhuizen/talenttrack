@@ -144,6 +144,63 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4114 — a Suspended column beside Injured, in every layout that prints
+     * the roster, on paper and on the screen's sheets alike: the activities
+     * the player missed suspended this window, blank when none.
+     */
+    public function test_the_roster_has_a_suspended_column_beside_injured(): void {
+        $report = $this->only( $this->report( 20 ), [ 'roster' ] );
+        foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+            $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
+            $paper    = TeamMonthlyReportDocument::html( $prepared['report'], $layout, 'Pdf U13', [], $prepared['fit']['groups'] );
+            $screen   = TeamMonthlyReportDocument::screen( $prepared['report'], $layout, 'Pdf U13', $prepared['fit'] );
+
+            foreach ( [ 'paper' => $paper, 'screen' => $screen ] as $out => $html ) {
+                $injured   = strpos( $html, '>Injured</th>' );
+                $suspended = strpos( $html, '>Suspended</th>' );
+                $this->assertNotFalse( $suspended, "{$layout} {$out}: no Suspended column" );
+                $this->assertGreaterThan( (int) $injured, (int) $suspended, "{$layout} {$out}: Suspended sits after Injured" );
+                $this->assertSame( 1, substr_count( $html, 'data-label="Suspended">2</td>' ), "{$layout} {$out}: the suspended player's count" );
+            }
+        }
+    }
+
+    /**
+     * #4118 — a snapshot prints each section's note under it, so the estimate
+     * counts the notes. A 10-line note on Tests moves the tests to a page of
+     * their own; the meter says so, and DomPDF prints that many pages.
+     */
+    public function test_a_snapshots_section_notes_are_in_the_page_count(): void {
+        $report = $this->withLongText( $this->report( 20 ) );
+        $body   = implode( "\n", array_map( static fn( int $i ): string => 'Afspraak ' . $i . ': de spelers oefenen het omschakelen na balverlies.', range( 1, 10 ) ) );
+        $notes  = [ 'tests' => [ 'body' => $body, 'author' => 1, 'updated_at' => '2026-09-01 10:00:00' ] ];
+
+        $live     = TeamMonthlyReportLayout::fit( $report, 'B' );
+        $snapshot = TeamMonthlyReportLayout::fit( $report, 'B', $notes );
+        $this->assertSame( 3, $live['pages'], 'Precondition: without the note the pack is three pages.' );
+        $this->assertSame( 4, $snapshot['pages'], 'The note pushes the tests onto a page of their own.' );
+        $this->assertSame( $live, TeamMonthlyReportLayout::fit( $report, 'B', [] ), 'A live report, without notes, is unchanged.' );
+
+        $prepared = TeamMonthlyReportDocument::prepare( $report, 'B', $notes );
+        $this->assertSame( $snapshot, $prepared['fit'] );
+
+        if ( ! class_exists( \Dompdf\Dompdf::class ) ) {
+            $this->markTestSkipped( 'DomPDF not installed.' );
+        }
+        $payload = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13', $notes );
+        $this->assertStringContainsString( 'Afspraak 10', $payload['html'] );
+
+        $options = new \Dompdf\Options();
+        $options->set( 'defaultFont', 'DejaVu Sans' );
+        $options->set( 'isHtml5ParserEnabled', true );
+        $dompdf = new \Dompdf\Dompdf( $options );
+        $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+        $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+        $dompdf->render();
+        $this->assertSame( $snapshot['pages'], $dompdf->getCanvas()->get_page_count(), 'the meter and the paper disagree' );
+    }
+
+    /**
      * #4097 — the web page shows what prints: for every layout and
      * composition the page-count test covers, the screen's sheets hold the
      * same sections, in the same order and the same page grouping, as the
@@ -199,7 +256,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             $name         = 'Player ' . $i;
             $attendance[] = [ 'player_id' => $i, 'name' => $name, 'present_pct' => 58 + $i * 2, 'band' => $i <= 3 ? 'red' : 'green' ];
             $minutes[]    = [ 'player_id' => $i, 'name' => $name, 'share_pct' => 18 + $i * 3.5 ];
-            $roster[]     = [ 'player_id' => $i, 'name' => $name, 'jersey_number' => $i, 'status' => 'green', 'attendance_pct' => 80, 'minutes' => 540, 'share_pct' => 55.5, 'open_goals' => 2, 'injured' => $i === 5 ];
+            $roster[]     = [ 'player_id' => $i, 'name' => $name, 'jersey_number' => $i, 'status' => 'green', 'attendance_pct' => 80, 'minutes' => 540, 'share_pct' => 55.5, 'open_goals' => 2, 'injured' => $i === 5, 'suspended' => $i === 6 ? 2 : 0 ];
         }
         $attention = [];
         for ( $i = 1; $i <= 5; $i++ ) {

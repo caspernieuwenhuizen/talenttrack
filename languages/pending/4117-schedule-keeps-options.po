@@ -1,0 +1,25 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: %s: the parts of the match section that print, comma-separated (e.g. Record, Scorers and assists)
+msgid "Matches: %s."
+msgstr "Wedstrijden: %s."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgctxt "monthly report matches option summary"
+msgid "heading only"
+msgstr "alleen de kop"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "every test taken in the month"
+msgstr "elke test van die maand"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: %d: number of tests the coach chose
+msgid "%d chosen test"
+msgid_plural "%d chosen tests"
+msgstr[0] "%d gekozen test"
+msgstr[1] "%d gekozen testen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: 1: how much per test (e.g. Readings and change), 2: which tests (e.g. 2 chosen tests)
+msgid "Tests: %1$s, %2$s."
+msgstr "Testen: %1$s, %2$s."

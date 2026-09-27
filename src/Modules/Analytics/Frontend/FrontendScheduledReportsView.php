@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\KpiRegistry;
-use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
@@ -143,11 +142,12 @@ class FrontendScheduledReportsView extends FrontendViewBase {
      * forever.
      */
     private static function renderTeamMonthlyForm(): void {
-        $composition = TeamMonthlyReportComposition::normalise( [
+        $composition = TeamMonthlyReportComposition::forSchedule( [
             'team_id' => isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0,
             'layout'  => isset( $_GET['layout'] ) ? sanitize_key( (string) $_GET['layout'] ) : '',
             'blocks'  => isset( $_GET['blocks'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['blocks'] ) ) : '',
-            'period'  => TeamMonthlyReport::DEFAULT_PERIOD,
+            // #4117 — normalised by the composition, which drops what no block knows.
+            'options' => isset( $_GET['options'] ) ? wp_unslash( (string) $_GET['options'] ) : '', // phpcs:ignore WordPress.Security.ValidationSanitization.InputNotSanitized
         ] );
         $team = $composition['team_id'] > 0 ? QueryHelpers::get_team( $composition['team_id'] ) : null;
 
@@ -173,6 +173,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             $layouts[ $composition['layout'] ]['title'] ?? $composition['layout'],
             $sections
         ) ) . '</p>';
+        self::renderTeamMonthlyOptions( $composition );
         echo '<p class="tt-sched-intro">' . esc_html__( 'The schedule keeps its own copy of this report. Changing or deleting a saved view later does not change what it sends.', 'talenttrack' ) . '</p>';
 
         echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-sched-form">';
@@ -182,6 +183,9 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         echo '<input type="hidden" name="team_id" value="' . (int) $composition['team_id'] . '">';
         echo '<input type="hidden" name="layout" value="' . esc_attr( $composition['layout'] ) . '">';
         echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $composition['blocks'] ) ) . '">';
+        if ( $composition['options'] !== [] ) {
+            echo '<input type="hidden" name="options" value="' . esc_attr( (string) wp_json_encode( $composition['options'] ) ) . '">';
+        }
 
         echo '<label class="tt-sched-field">';
         echo '<span class="tt-sched-field__label">' . esc_html__( 'Name', 'talenttrack' ) . '</span>';
@@ -207,6 +211,28 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             'cancel_url' => $cancel_url,
         ] );
         echo '</form>';
+    }
+
+    /**
+     * #4117 — the tests and matches detail the schedule keeps, so the coach
+     * sees before saving what the monthly email will carry, including a
+     * detail the chosen layout prints as its fallback.
+     *
+     * @param array{layout:string, blocks:list<string>, options:array<string,array<string,mixed>>} $composition
+     */
+    private static function renderTeamMonthlyOptions( array $composition ): void {
+        $lines = \TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery::optionLines( $composition );
+        if ( $lines === [] ) return;
+
+        echo '<ul class="tt-sched-options">';
+        foreach ( $lines as $line ) {
+            echo '<li class="tt-sched-options__item">' . esc_html( $line['text'] );
+            if ( $line['note'] !== '' ) {
+                echo '<span class="tt-sched-options__note">' . esc_html( $line['note'] ) . '</span>';
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
     }
 
     /**

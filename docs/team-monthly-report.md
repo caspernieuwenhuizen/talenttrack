@@ -172,8 +172,12 @@ forwarded link.
 **Schedule monthly** under the panel sets the report up to arrive by email as a
 PDF on the 1st of every month. Each one covers the month that just ended, so
 the one sent on 1 October is about September. You give the schedule a name and
-its recipients; the team, report type and sections are the ones you composed.
-The report names players, so send it to staff only.
+its recipients; the team, report type and sections are the ones you composed,
+and so are the choices for **Matches** and **Tests**: which tests, and how much
+of each. The form lists those choices before you save. When the report type
+cannot print a choice, such as test readings on the one-pager, the form says
+so, and the PDF prints the summary instead. The report names players, so send
+it to staff only.
 
 The schedule keeps **its own copy** of the report. Changing or deleting one of
 your saved views later does not change what it sends. To send something
@@ -230,7 +234,10 @@ move with it.
   readings themselves, is up to you — see *Choosing what goes in it*. The
   one-pager and the landscape matrix print the summary, and the panel says so
   before you print.
-- **Player by player** — every measure for every player in one table.
+- **Player by player** — every measure for every player in one table. The
+  **Injured** column marks a player with an open injury; the **Suspended**
+  column says how many activities the player missed through a suspension in
+  the period, so those absences are explained.
 - **Decisions and actions** — space on the printed copy to write what the
   meeting agrees.
 - **Data quality** — what is missing and worth fixing before next month.
@@ -269,7 +276,8 @@ stay editable after the snapshot is taken while the numbers do not. That is the
 point: you draft before the meeting and write down what was decided during it.
 Each note records who last wrote it and when. Clearing a note and saving removes
 it. The PDF of a snapshot prints the notes, so the printed copy and the screen
-say the same thing.
+say the same thing. The page count of a snapshot includes its notes, so a long
+note that moves a section to another page is counted.
 
 ### Snapshots cannot be shared by link
 

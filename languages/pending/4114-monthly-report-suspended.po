@@ -1,0 +1,4 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgctxt "team monthly report column"
+msgid "Suspended"
+msgstr "Geschorst"

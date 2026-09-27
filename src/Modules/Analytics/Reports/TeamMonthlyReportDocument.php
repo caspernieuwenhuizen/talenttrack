@@ -97,15 +97,19 @@ final class TeamMonthlyReportDocument {
      * (`degrade()`). The exporter, the live page and a snapshot all start
      * here, so the panel's meter, the sheets and the paper are one answer.
      *
+     * A snapshot's section notes (#4118) print under their sections, so the
+     * estimate counts them; a live report has none.
+     *
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      * @return array{report:array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}, fit:array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}}
      */
-    public static function prepare( array $report, string $layout ): array {
+    public static function prepare( array $report, string $layout, array $notes = [] ): array {
         $layout = TeamMonthlyReportLayout::isValid( $layout ) ? $layout : TeamMonthlyReportLayout::DEFAULT;
         if ( isset( $report['data']['tests'] ) ) {
             $report['data']['tests'] = TeamMonthlyReportLayout::testsForLayout( $report['data']['tests'], $layout );
         }
-        $fit            = TeamMonthlyReportLayout::fit( $report, $layout );
+        $fit            = TeamMonthlyReportLayout::fit( $report, $layout, $notes );
         $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
 
         return [ 'report' => $report, 'fit' => $fit ];
@@ -313,7 +317,7 @@ final class TeamMonthlyReportDocument {
             return [ [ 'blocks' => self::printed( $blocks, $layout ), 'html' => $head . self::sections( $data, $blocks, TeamMonthlyReportLayout::printOrder( $layout ), false ) ] ];
         }
 
-        if ( $groups === [] ) $groups = TeamMonthlyReportLayout::fit( $report, $layout )['groups'];
+        if ( $groups === [] ) $groups = TeamMonthlyReportLayout::fit( $report, $layout, self::$notes )['groups'];
         $out = [];
         foreach ( $groups as $group ) {
             $letterhead = in_array( TeamMonthlyReportBlock::LETTERHEAD, $group, true );
@@ -1470,6 +1474,7 @@ final class TeamMonthlyReportDocument {
             'share'      => _x( 'Share', 'minutes share column', 'talenttrack' ),
             'goals'      => __( 'Open goals', 'talenttrack' ),
             'injured'    => _x( 'Injured', 'team monthly report column', 'talenttrack' ),
+            'suspended'  => _x( 'Suspended', 'team monthly report column', 'talenttrack' ),
         ];
         $cols   = [];
         $cols[] = [ __( 'Player', 'talenttrack' ), '' ];
@@ -1481,6 +1486,7 @@ final class TeamMonthlyReportDocument {
         if ( $wide ) $cols[] = [ '', '' ];
         $cols[] = [ $labels['goals'], 'r' ];
         $cols[] = [ $labels['injured'], 'c' ];
+        $cols[] = [ $labels['suspended'], 'c' ];
 
         $out .= '<table class="tbl"><thead><tr>';
         foreach ( $cols as $i => $col ) {
@@ -1495,11 +1501,14 @@ final class TeamMonthlyReportDocument {
             $name  = (string) ( $row['name'] ?? '' );
             $jersey = $row['jersey_number'] ?? null;
             if ( $jersey !== null ) $name = '#' . (int) $jersey . ' ' . $name;
+            // #4114 — how many activities the player missed suspended in the
+            // window; blank when none, like the injured column.
+            $suspended = (int) ( $row['suspended'] ?? 0 );
 
             // #4098 — each figure carries its column's name, so a phone that
             // stacks the row can still say what the number is.
             $out .= '<tr>'
-                . '<td class="nm">' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 34 : 28 ) . '</td>'
+                . '<td class="nm">' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 31 : 26 ) . '</td>'
                 . '<td class="stat" data-label="' . esc_attr( $labels['status'] ) . '">' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
                 . '<td class="r" data-label="' . esc_attr( $labels['attendance'] ) . '">' . esc_html( self::pct( $att ) ) . '</td>'
                 . ( $wide ? '<td class="bar">' . self::miniBar( $att ) . '</td>' : '' )
@@ -1508,6 +1517,7 @@ final class TeamMonthlyReportDocument {
                 . ( $wide ? '<td class="bar">' . self::miniBar( $share ) . '</td>' : '' )
                 . '<td class="r" data-label="' . esc_attr( $labels['goals'] ) . '">' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
                 . '<td class="c" data-label="' . esc_attr( $labels['injured'] ) . '">' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
+                . '<td class="c" data-label="' . esc_attr( $labels['suspended'] ) . '">' . ( $suspended > 0 ? (int) $suspended : '' ) . '</td>'
                 . '</tr>';
         }
         return $out . '</tbody></table></div>';
@@ -1643,10 +1653,11 @@ final class TeamMonthlyReportDocument {
 
     /**
      * Roster column widths, mm: content widths, so with each cell's padding
-     * they sum to the printable width (273 landscape, 186 portrait).
+     * they sum to the printable width (273 landscape, 186 portrait). The last
+     * two are injured and suspended (#4114).
      */
     private static function columnWidths( bool $landscape ): string {
-        $mm  = $landscape ? [ 60, 26, 20, 30, 18, 18, 30, 21, 18 ] : [ 48, 24, 18, 16, 16, 22, 20 ];
+        $mm  = $landscape ? [ 54, 26, 20, 26, 18, 18, 26, 20, 17, 14 ] : [ 44, 22, 18, 16, 14, 18, 16, 14 ];
         $css = '';
         foreach ( $mm as $i => $w ) $css .= '.tbl .w' . $i . '{width:' . $w . 'mm}';
         return $css;
