@@ -19,9 +19,17 @@ A **person** is a real-world role at the club. A **WordPress user** is a login a
 
 - A head coach might be a person AND a WP user (so they can log in and evaluate).
 - A physio might be a person WITHOUT a WP user (they never log in).
-- A WP admin might be a user WITHOUT a person record (they only maintain the system).
+- A WordPress user without a staff role, such as a player or a parent, has no person record here.
 
 Link them when both exist. The link powers things like "coach X can see team Y" and "who coaches this team".
+
+### Staff accounts get a person automatically
+
+Every account with a staff role (administrator, club admin, head of development, coach, team manager, scout, staff) has a person record. When an account gets a staff role, whether it is created that way, given the role later, or created by accepting a staff invitation, its person record is created at the same time, named after the account. A staff invitation that already names a person links the account to that person instead of creating a second one.
+
+Accounts that already existed without a person record got one when the plugin was updated. Accounts linked to a player, or as a parent to a child, never get one, and neither does an account that an inactive or archived person already holds.
+
+Because the record already exists, linking a new staff account to a person you create by hand is refused as *already linked*: open the person that was created for the account and complete it instead.
 
 ### One account, one active person
 

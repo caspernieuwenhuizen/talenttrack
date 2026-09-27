@@ -323,16 +323,31 @@ class TrialCasesRepository {
      * that simply has nothing to say about them — the workflow forms all
      * are.
      *
+     * `$decided_at` is when the decision was made, as a UTC `Y-m-d H:i:s`
+     * (a bare `Y-m-d` is read as midnight). Null means now, which is what
+     * every live caller wants: the UI, the workflow forms and REST never
+     * pass it, and the REST route does not read a date from the body. The
+     * demo generator is the one caller that passes it, with the seeded
+     * trial's end date, so `decision_made_at` and the journey events the
+     * hook writes (`trial_ended`, `signed`, `released`) land when the
+     * seeded trial ended rather than on the day the demo was built (#4110).
+     * An unparseable value falls back to now.
+     *
      * @param array<string,mixed> $extra Extra columns for this decision
      *                                   (`continued_until`, `archived_at`,
      *                                   …). Filtered by `update()`.
      */
-    public function recordDecision( int $id, string $decision, int $user_id, string $notes, ?string $strengths = null, ?string $growth = null, array $extra = [] ): bool {
+    public function recordDecision( int $id, string $decision, int $user_id, string $notes, ?string $strengths = null, ?string $growth = null, array $extra = [], ?string $decided_at = null ): bool {
         if ( ! TrialCaseDecision::isValid( $decision ) ) {
             return false;
         }
 
-        $decided_at = current_time( 'mysql', true );
+        $decided_ts = $decided_at !== null && trim( $decided_at ) !== ''
+            ? strtotime( trim( $decided_at ) . ' UTC' )
+            : false;
+        $decided_at = $decided_ts !== false
+            ? gmdate( 'Y-m-d H:i:s', $decided_ts )
+            : current_time( 'mysql', true );
 
         $patch = [
             'decision'         => $decision,

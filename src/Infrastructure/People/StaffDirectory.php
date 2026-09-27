@@ -15,13 +15,17 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * (`GET /staff`) and the trial staff pickers read it, so both find the
  * same people.
  *
- * Staff is two populations, merged:
+ * Staff is a person record in this club that is not a parent, not
+ * archived and not inactive, with or without a login. Every row carries a
+ * `person_id`.
  *
- *   - a person record in this club that is not a parent, not archived and
- *     not inactive — with or without a login;
- *   - an account holding a staff role that has no person record here, so
- *     an administrator or coach who was never entered in People is still
- *     findable. It comes back with `person_id` null.
+ * An account holding a staff role used to come back here too when it had
+ * no person record, with `person_id` null, so it could only be named by
+ * its account id. Migration 0296 gave every such account a person record
+ * and `StaffPersonProvisioner` creates one whenever an account gains a
+ * staff role (#4091), so the directory reads People alone. `STAFF_ROLES`
+ * stays the one list of roles that make an account staff; the provisioner
+ * reads it.
  *
  * A login bound to a player of this club is never staff, whatever role it
  * holds. The parent link's own candidate rules stay in
@@ -36,7 +40,8 @@ final class StaffDirectory {
     public const MAX_RESULTS = 20;
 
     /**
-     * Account roles that make a login staff when there is no person record.
+     * Account roles that make a login staff, and so give it a person
+     * record (`StaffPersonProvisioner`).
      *
      * @var list<string>
      */
@@ -53,7 +58,7 @@ final class StaffDirectory {
     /**
      * Staff whose name contains `$term`, at most `$limit` of them.
      *
-     * @return list<array{person_id:?int,user_id:?int,display_name:string}>
+     * @return list<array{person_id:int,user_id:?int,display_name:string}>
      */
     public function search( string $term, int $limit = self::MAX_RESULTS ): array {
         $term = trim( $term );
@@ -64,7 +69,7 @@ final class StaffDirectory {
     /**
      * Every staff member, for a picker that filters on the client.
      *
-     * @return list<array{person_id:?int,user_id:?int,display_name:string}>
+     * @return list<array{person_id:int,user_id:?int,display_name:string}>
      */
     public function all(): array {
         return $this->collect( '', 0 );
@@ -104,7 +109,7 @@ final class StaffDirectory {
     }
 
     /**
-     * @return list<array{person_id:?int,user_id:?int,display_name:string}>
+     * @return list<array{person_id:int,user_id:?int,display_name:string}>
      */
     private function collect( string $term, int $limit ): array {
         global $wpdb;
@@ -134,42 +139,15 @@ final class StaffDirectory {
         $out = [];
         foreach ( is_array( $rows ) ? $rows : [] as $row ) {
             $data = (array) $row;
+            $pid  = (int) ( $data['id'] ?? 0 );
+            if ( $pid <= 0 ) continue;
             $uid  = (int) ( $data['wp_user_id'] ?? 0 );
             if ( $uid > 0 && in_array( $uid, $players, true ) ) continue;
             $name = trim( (string) ( $data['first_name'] ?? '' ) . ' ' . (string) ( $data['last_name'] ?? '' ) );
             $out[] = [
-                'person_id'    => (int) ( $data['id'] ?? 0 ),
+                'person_id'    => $pid,
                 'user_id'      => $uid > 0 ? $uid : null,
                 'display_name' => $name,
-            ];
-        }
-
-        // Every account a person row of this club holds is already answered
-        // above, or deliberately left out (a parent, an archived record); it
-        // must not come back in through its role.
-        $claimed = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
-            "SELECT wp_user_id FROM {$p}tt_people
-              WHERE club_id = %d AND wp_user_id IS NOT NULL AND wp_user_id > 0",
-            $club
-        ) ) );
-
-        $args = [
-            'role__in' => self::STAFF_ROLES,
-            'fields'   => [ 'ID', 'display_name' ],
-            'orderby'  => 'display_name',
-            'order'    => 'ASC',
-            'exclude'  => array_values( array_unique( array_merge( $claimed, $players ) ) ),
-        ];
-        if ( $term !== '' ) {
-            $args['search']         = '*' . $term . '*';
-            $args['search_columns'] = [ 'display_name' ];
-        }
-        foreach ( get_users( $args ) as $user ) {
-            $u     = (array) $user;
-            $out[] = [
-                'person_id'    => null,
-                'user_id'      => (int) ( $u['ID'] ?? 0 ),
-                'display_name' => (string) ( $u['display_name'] ?? '' ),
             ];
         }
 

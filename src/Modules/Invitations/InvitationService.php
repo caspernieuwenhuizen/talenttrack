@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\FeatureToggles\FeatureToggleService;
+use TT\Infrastructure\People\StaffPersonProvisioner;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -268,15 +269,28 @@ class InvitationService {
         $last  = (string) ( $invitation->prefill_last_name  ?? '' );
         $login = $this->generateUniqueLogin( $first, $last, $email );
 
-        $userId = wp_insert_user( [
-            'user_login'   => $login,
-            'user_pass'    => $password,
-            'user_email'   => $email,
-            'first_name'   => $first,
-            'last_name'    => $last,
-            'display_name' => trim( $first . ' ' . $last ) !== '' ? trim( $first . ' ' . $last ) : $login,
-            'role'         => $this->resolveWpRoleForKind( (string) $invitation->kind, (string) ( $invitation->target_functional_role_key ?? '' ) ),
-        ] );
+        // #4091 — a staff account gets its person record when its role is
+        // set, which `wp_insert_user()` does. A staff invitation usually
+        // names the person already, and `runLinking()` attaches the account
+        // to it a moment later; letting the role hook run first would leave
+        // two records for one account. So the hook waits, and the
+        // provisioner is asked once linking is done — it creates a record
+        // only when the invitation named nobody.
+        $is_staff = self::isStaffInvitation( $invitation );
+        if ( $is_staff ) StaffPersonProvisioner::hold();
+        try {
+            $userId = wp_insert_user( [
+                'user_login'   => $login,
+                'user_pass'    => $password,
+                'user_email'   => $email,
+                'first_name'   => $first,
+                'last_name'    => $last,
+                'display_name' => trim( $first . ' ' . $last ) !== '' ? trim( $first . ' ' . $last ) : $login,
+                'role'         => $this->resolveWpRoleForKind( (string) $invitation->kind, (string) ( $invitation->target_functional_role_key ?? '' ) ),
+            ] );
+        } finally {
+            if ( $is_staff ) StaffPersonProvisioner::release();
+        }
         if ( is_wp_error( $userId ) ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => (string) $userId->get_error_message() ];
         }
@@ -288,6 +302,7 @@ class InvitationService {
         }
 
         $this->runLinking( $invitation, (int) $userId, $payload );
+        if ( $is_staff ) ( new StaffPersonProvisioner() )->ensureForUser( (int) $userId );
 
         do_action( 'tt_invitation_accepted', (int) $invitation->id, (string) $invitation->kind, (int) $userId );
 
@@ -314,6 +329,11 @@ class InvitationService {
         // #1904 — thread the payload so a parent's relationship choice is
         // applied on the silent-link path (previously always empty).
         $this->runLinking( $invitation, $existingUserId, $payload );
+        if ( self::isStaffInvitation( $invitation ) ) {
+            // #4091 — as in accept(): a staff invitation that named nobody
+            // still leaves the account with a person record.
+            ( new StaffPersonProvisioner() )->ensureForUser( $existingUserId );
+        }
         do_action( 'tt_invitation_accepted', (int) $invitation->id, (string) $invitation->kind, $existingUserId );
         return [ 'ok' => true, 'user_id' => $existingUserId, 'error' => null ];
     }
@@ -453,6 +473,12 @@ class InvitationService {
     private static function isAccountInvitation( object $invitation ): bool {
         $row = (array) $invitation;
         return InvitationKind::isValid( (string) ( $row['kind'] ?? '' ) );
+    }
+
+    /** #4091 — a staff invitation, whose account gets a person record. */
+    private static function isStaffInvitation( object $invitation ): bool {
+        $row = (array) $invitation;
+        return (string) ( $row['kind'] ?? '' ) === InvitationKind::STAFF;
     }
 
     private static function accountEmail( int $userId ): string {

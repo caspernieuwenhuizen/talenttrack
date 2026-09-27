@@ -72,7 +72,7 @@ final class RecruitmentRouteArgsTest extends WP_UnitTestCase {
             '/talenttrack/v1/trial-cases'                              => [ 'POST', [ 'player_id', 'track_id', 'start_date', 'end_date', 'notes' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)'                  => [ 'PUT',  [ 'track_id', 'start_date', 'end_date', 'status', 'notes' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/extend'           => [ 'POST', [ 'new_end_date', 'justification' ] ],
-            '/talenttrack/v1/trial-cases/(?P<id>\d+)/staff'            => [ 'POST', [ 'person_id', 'user_id', 'role_label' ] ],
+            '/talenttrack/v1/trial-cases/(?P<id>\d+)/staff'            => [ 'POST', [ 'person_id', 'role_label' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/letters'          => [ 'POST', [ 'audience', 'strengths_summary', 'growth_areas' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/inputs/release'   => [ 'POST', [] ],
             '/talenttrack/v1/trial-reminders/run'                      => [ 'POST', [] ],
@@ -211,12 +211,13 @@ final class RecruitmentRouteArgsTest extends WP_UnitTestCase {
 
     public function test_an_undeclared_staff_key_is_refused(): void {
         [ $data, $status ] = $this->send( 'POST', 'trial-cases/' . $this->case . '/staff', [
-            'user_id' => $this->admin, 'role' => 'Keepertrainer',
+            'person_id' => 1, 'role' => 'Keepertrainer',
         ] );
 
         $this->assertSame( 400, $status );
         $this->assertSame( 'unknown_field', $data['errors'][0]['code'] ?? null );
         $this->assertContains( 'role_label', $data['errors'][0]['details']['allowed'] ?? [] );
+        $this->assertNotContains( 'user_id', $data['errors'][0]['details']['allowed'] ?? [], 'user_id was removed in #4091' );
     }
 
     public function test_an_undeclared_letter_key_is_refused(): void {

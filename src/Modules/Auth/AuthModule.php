@@ -56,5 +56,10 @@ class AuthModule implements ModuleInterface {
         // row aligned, in both directions. Registered here because this is
         // already the module that owns WP-user lifecycle hooks.
         \TT\Infrastructure\Identity\ContactSync::init();
+
+        // #4091 — an account that gains a staff role gets its People
+        // record at the same moment, so the trial panel and every other
+        // staff picker can name it by person.
+        \TT\Infrastructure\People\StaffPersonProvisioner::init();
     }
 }

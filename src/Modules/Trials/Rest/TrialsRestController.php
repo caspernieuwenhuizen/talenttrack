@@ -365,15 +365,16 @@ class TrialsRestController {
             // #4043 — the person record is the portable identity (CLAUDE.md
             // §4), so the panel is assigned by person and the account is
             // resolved here. GET staff?search= hands the id back.
+            //
+            // #4091 — `user_id` was accepted for one release after that and
+            // is gone: every staff account has a person record now, so there
+            // is nobody it could name that `person_id` cannot. Required, but
+            // enforced by the callback rather than by core, so a caller still
+            // sending `user_id` is told what replaced it instead of reading a
+            // bare "missing parameter".
             'person_id' => [
                 'type'        => 'integer',
-                'description' => 'The staff member to put on the panel. Find them with GET staff?search=. Required unless user_id is sent.',
-            ],
-            'user_id' => [
-                'type'        => 'integer',
-                // #4028 — an id arg names where its id comes from, the way
-                // `ParentAccountRestController`'s `wp_user_id` does.
-                'description' => 'Deprecated: send person_id. The account id of the staff member, as user_id on a row of GET trial-cases/{id}/staff or GET staff?search=. Still accepted for one release.',
+                'description' => 'Required. The staff member to put on the panel, as person_id on a row of GET staff?search=.',
             ],
             'role_label' => [
                 'type'        => [ 'string', 'null' ],
@@ -1054,47 +1055,27 @@ class TrialsRestController {
 
     public static function assign_staff( \WP_REST_Request $r ): \WP_REST_Response {
         $id = absint( $r['id'] );
-        $refused = BaseController::checkBody( $r, self::assignStaffArgs() );
-        if ( $refused ) return $refused;
 
         $payload = (array) $r->get_json_params();
         if ( ! $payload ) $payload = (array) $r->get_body_params();
-        $person_id = absint( $payload['person_id'] ?? 0 );
-        $u         = absint( $payload['user_id'] ?? 0 );
 
-        // #4043 — a person is resolved to their account here. A person with
-        // no login is refused rather than seated: they could never give an
-        // input, so the panel would carry a name that stays missing.
-        if ( $person_id > 0 ) {
-            $resolved = ( new StaffDirectory() )->accountForPerson( $person_id );
-            if ( $resolved['status'] === 'no_account' ) {
-                return RestResponse::error(
-                    'no_account',
-                    __( 'This person has no account, so they couldn\'t give an input.', 'talenttrack' ),
-                    422,
-                    [ 'field' => 'person_id' ]
-                );
-            }
-            if ( $resolved['status'] !== 'ok' ) {
-                return RestResponse::error(
-                    'not_staff',
-                    __( 'That person is not a staff member of this club.', 'talenttrack' ),
-                    422,
-                    [ 'field' => 'person_id' ]
-                );
-            }
-            if ( $u > 0 && $u !== $resolved['user_id'] ) {
-                return RestResponse::error(
-                    'conflicting_ids',
-                    __( 'person_id and user_id name different people. Send person_id only.', 'talenttrack' ),
-                    422,
-                    [ 'fields' => [ 'person_id', 'user_id' ] ]
-                );
-            }
-            $u = $resolved['user_id'];
+        // #4091 — `user_id` was removed after its one deprecated release.
+        // Answered before the generic unknown-field check so the caller
+        // reads what replaced it, not only that it is not accepted.
+        if ( array_key_exists( 'user_id', $payload ) ) {
+            return RestResponse::error(
+                'field_removed',
+                __( 'user_id is no longer accepted. Send person_id instead: find it with GET staff?search=.', 'talenttrack' ),
+                400,
+                [ 'field' => 'user_id', 'use' => 'person_id' ]
+            );
         }
 
-        if ( $u <= 0 ) {
+        $refused = BaseController::checkBody( $r, self::assignStaffArgs() );
+        if ( $refused ) return $refused;
+
+        $person_id = absint( $payload['person_id'] ?? 0 );
+        if ( $person_id <= 0 ) {
             return RestResponse::error(
                 'bad_request',
                 __( 'Say who to put on the panel: person_id is required.', 'talenttrack' ),
@@ -1102,12 +1083,34 @@ class TrialsRestController {
                 [ 'field' => 'person_id' ]
             );
         }
+
+        // #4043 — a person is resolved to their account here. A person with
+        // no login is refused rather than seated: they could never give an
+        // input, so the panel would carry a name that stays missing.
+        $resolved = ( new StaffDirectory() )->accountForPerson( $person_id );
+        if ( $resolved['status'] === 'no_account' ) {
+            return RestResponse::error(
+                'no_account',
+                __( 'This person has no account, so they couldn\'t give an input.', 'talenttrack' ),
+                422,
+                [ 'field' => 'person_id' ]
+            );
+        }
+        if ( $resolved['status'] !== 'ok' ) {
+            return RestResponse::error(
+                'not_staff',
+                __( 'That person is not a staff member of this club.', 'talenttrack' ),
+                422,
+                [ 'field' => 'person_id' ]
+            );
+        }
+        $u = $resolved['user_id'];
         $label = isset( $payload['role_label'] ) ? sanitize_text_field( (string) $payload['role_label'] ) : null;
         ( new TrialCaseStaffRepository() )->assign( $id, $u, $label ?: null );
         return RestResponse::success( [
             'assigned'  => true,
             'user_id'   => $u,
-            'person_id' => $person_id > 0 ? $person_id : null,
+            'person_id' => $person_id,
         ] );
     }
 
