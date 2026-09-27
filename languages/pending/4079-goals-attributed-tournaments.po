@@ -1,0 +1,4 @@
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Goals scored at a tournament still count in the scorers table, but not against the record."
+msgstr "Doelpunten op een toernooi tellen wel mee in de tabel met doelpuntenmakers, maar niet in de stand."

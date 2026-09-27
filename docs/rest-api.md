@@ -1070,8 +1070,12 @@ row is 100%.
 
 **Matches (#4069).** `matches.scorers` is ranked by goals, then assists, then
 shirt order; each row carries `rank` (shared on a tie, `null` for a player with
-assists only). `matches.scorer_totals` is `{ goals, assists, goals_for }`, where
-`goals_for` is the record's, so a consumer can say "7 of 8 goals attributed".
+assists only). `matches.scorer_totals` is
+`{ goals, assists, attributed_goals, goals_for }`. `goals` and `assists` total
+the scorers table, tournaments included. `goals_for` is the record's, and
+`attributed_goals` counts the goals with a scorer over the same fixtures the
+record counts (scored, no tournaments), so a consumer can say "7 of 8 goals
+attributed" without comparing two different sets of matches.
 
 **Tests (#4063, #4069).** Each round carries `unit_label` (`mm:ss` for a
 duration, the unit symbol otherwise), `is_duration`, `direction` (`lower`,

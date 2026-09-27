@@ -272,7 +272,9 @@ Two things it deliberately does not do:
 - **Tournaments are left out.** A tournament is a multi-game day, and one score
   line cannot describe one. When any fall in the period the section says so,
   rather than leaving you to wonder why the record does not match what you
-  remember.
+  remember. The scorers table does keep goals scored at a tournament — it is a
+  leaderboard — but the *"7 of 8 goals attributed"* line counts only the matches
+  the record counts, so its two numbers always describe the same matches.
 
 If a match has no home-or-away recorded, the opponent is shown without it
 rather than guessing which way round the score goes.
