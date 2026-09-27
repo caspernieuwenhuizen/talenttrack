@@ -614,7 +614,7 @@ final class MinutesAuditQuery {
      *
      * Recorded minutes are not consulted here; the caller lets them win.
      *
-     * @param list<int> $activity_ids
+     * @param array<int> $activity_ids
      * @return array<int, array<int, bool>> activity id => [ player id => unavailable ]
      */
     private function squadMarks( array $activity_ids ): array {

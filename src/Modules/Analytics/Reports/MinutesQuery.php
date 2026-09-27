@@ -323,7 +323,7 @@ final class MinutesQuery {
      * Activities without a line-up or a substitution are absent from the
      * result; a caller reads them as two halves.
      *
-     * @param list<int> $activity_ids
+     * @param array<int> $activity_ids
      * @return array<int,int> activity id => period count
      */
     public static function periodCountsFor( array $activity_ids ): array {
