@@ -1,3 +1,0 @@
-# Parent e-mail forwarding: a trialist's development pushes no longer reach their guardian (#4128)
-
-The parent-email step of the push chain now classifies each push the same way the Comms recipient resolver does, through one classifier (`RecipientResolver::isDevelopmentMessage()`). A trialist's family is forwarded a cancelled or moved training and the trial welcome, and nothing about the child's development, such as a self-evaluation or goal task. The legacy parent column is no longer consulted as a fallback for a push the family may not receive. Active players' families are unchanged; the families of released, archived, binned and graduated players still receive nothing.

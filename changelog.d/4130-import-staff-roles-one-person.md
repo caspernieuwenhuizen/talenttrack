@@ -1,5 +1,0 @@
-# Excel import assigns staff to their teams again; a staff invitation keeps one People record per account (#4130)
-
-The Excel import wrote staff team assignments to a `role` column that `tt_team_people` does not have, so every imported staff member arrived without their team and nobody was told. Assignments now go through the same write the People screens use: the typed role is matched to a functional role by key or label (anything else lands on Other), the row carries its role and head-coach flag, and it is removed again when the import is undone. An assignment that still cannot be written is named in the import report.
-
-Accepting a staff invitation while signed in to an account that already has a People record no longer binds a second record to that account. The invitation links to the existing record: the invited record's team assignments move across, its details fill what the existing record leaves empty, and it is set inactive. When the invited record has its own history or belongs to another account, the accept is refused with a readable message and the invitation stays pending.

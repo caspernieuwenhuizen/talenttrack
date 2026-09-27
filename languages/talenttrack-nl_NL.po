@@ -67572,6 +67572,193 @@ msgstr[1] "%d gekozen testen"
 msgid "Tests: %1$s, %2$s."
 msgstr "Testen: %1$s, %2$s."
 
+#. translators: 1: the person's name, 2: the role typed on their People sheet row
+#: src/Modules/Import/Excel/ExcelImporter.php
+#, php-format
+msgid "People sheet: %1$s was imported, but could not be assigned to their team as \"%2$s\"."
+msgstr "Blad People: %1$s is geïmporteerd, maar kon niet als \"%2$s\" aan het team worden toegewezen."
+
+#: src/Modules/Invitations/InvitationService.php
+msgid "This invitation is for a staff record that already belongs to another account. Ask an administrator to check the invitation."
+msgstr "Deze uitnodiging is voor een stafrecord dat al bij een ander account hoort. Vraag een beheerder de uitnodiging te controleren."
+
+#: src/Modules/Invitations/InvitationService.php
+msgid "You already have a staff record in this academy, and the record this invitation is for has its own history. Ask an administrator to merge the two records, then accept the invitation again."
+msgstr "Je hebt al een stafrecord in deze academie, en het record waarvoor deze uitnodiging is heeft een eigen geschiedenis. Vraag een beheerder de twee records samen te voegen en accepteer de uitnodiging daarna opnieuw."
+
+msgctxt "monthly report section level"
+msgid "Summary"
+msgstr "Samengevat"
+
+msgctxt "monthly report section level"
+msgid "Details"
+msgstr "Details"
+
+msgctxt "monthly report tests option"
+msgid "With change since the previous reading"
+msgstr "Met verschil sinds de vorige meting"
+
+msgctxt "monthly report tests option summary"
+msgid "without the change"
+msgstr "zonder verschil"
+
+msgid "every evaluation type"
+msgstr "elke evaluatiesoort"
+
+#. translators: 1: section title, 2: Summary or Details, 3: what else the section is set to
+msgid "%1$s: %2$s, %3$s."
+msgstr "%1$s: %2$s, %3$s."
+
+#. translators: 1: section title, 2: Summary or Details
+msgid "%1$s: %2$s."
+msgstr "%1$s: %2$s."
+
+#. translators: %s: team average attendance percentage
+msgid "Team average %s."
+msgstr "Teamgemiddelde %s."
+
+msgctxt "attendance status"
+msgid "Absent"
+msgstr "Afwezig"
+
+msgctxt "attendance status"
+msgid "Excused"
+msgstr "Afgemeld"
+
+msgctxt "attendance status"
+msgid "Injured"
+msgstr "Geblesseerd"
+
+msgctxt "attendance status"
+msgid "Suspended"
+msgstr "Geschorst"
+
+#. translators: %s: the attendance line, e.g. "70%"
+msgid "Below %s"
+msgstr "Onder %s"
+
+msgid "Absences by kind"
+msgstr "Afwezigheid per soort"
+
+msgctxt "minutes share target"
+msgid "Norm"
+msgstr "Norm"
+
+msgid "Under the norm"
+msgstr "Onder de norm"
+
+msgid "Nobody"
+msgstr "Niemand"
+
+msgctxt "team monthly report section"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+msgid "Per area of the game, and who moved"
+msgstr "Per onderdeel van het spel, en wie er bewoog"
+
+msgid "Which evaluations"
+msgstr "Welke evaluaties"
+
+msgid "Types from your evaluation-type list. Tick them all, or none, to count every type."
+msgstr "Soorten uit je lijst met evaluatiesoorten. Vink ze allemaal aan, of geen, om elke soort mee te tellen."
+
+msgid "Nothing was rated at subcategory level this period, so there are no subcategories to add."
+msgstr "Er is deze periode niets op subcategorie beoordeeld, dus er zijn geen subcategorieën om toe te voegen."
+
+msgctxt "monthly report evaluations option"
+msgid "With subcategories"
+msgstr "Met subcategorieën"
+
+msgctxt "evaluation without a type"
+msgid "Other"
+msgstr "Overig"
+
+msgid "No evaluations this period."
+msgstr "Geen evaluaties deze periode."
+
+#. translators: %d: number of evaluations
+msgid "%d evaluation"
+msgid_plural "%d evaluations"
+msgstr[0] "%d evaluatie"
+msgstr[1] "%d evaluaties"
+
+#. translators: 1: players evaluated, 2: players in the squad
+msgid "%1$d of %2$d players"
+msgstr "%1$d van %2$d spelers"
+
+msgid "all types"
+msgstr "alle soorten"
+
+msgid "Per category: average, change, spread"
+msgstr "Per categorie: gemiddelde, verschil, spreiding"
+
+#. translators: 1: lowest rating on the scale, 2: highest
+msgid "Bar: lowest to highest player; line: squad average; scale %1$s–%2$s. \"Wide\" when the players span the whole scale."
+msgstr "Balk: laagste tot hoogste speler; streep: selectiegemiddelde; schaal %1$s–%2$s. \"Breed\" wanneer de spelers de hele schaal beslaan."
+
+msgid "Biggest risers"
+msgstr "Grootste stijgers"
+
+msgid "Biggest fallers"
+msgstr "Grootste dalers"
+
+#. translators: %s: change of the squad average, e.g. "▲ 0,2"
+msgctxt "monthly report evaluations: squad average change"
+msgid "%s vs previous month"
+msgstr "%s t.o.v. vorige maand"
+
+#. translators: %s: names of the players without an evaluation
+msgid "Missing: %s"
+msgstr "Ontbreekt: %s"
+
+msgid "Everyone"
+msgstr "Iedereen"
+
+#. translators: %d: number of coaches
+msgid "by %d coach"
+msgid_plural "by %d coaches"
+msgstr[0] "door %d trainer"
+msgstr[1] "door %d trainers"
+
+msgctxt "monthly report evaluations: players up and down"
+msgid "Rose · fell"
+msgstr "Gestegen · gedaald"
+
+msgid "against their own previous evaluation"
+msgstr "t.o.v. eigen vorige evaluatie"
+
+msgctxt "monthly report evaluations: spread covers the whole scale"
+msgid "wide"
+msgstr "breed"
+
+msgid "Nobody this period."
+msgstr "Niemand deze periode."
+
+msgctxt "monthly report evaluations column: average"
+msgid "Avg."
+msgstr "Gem."
+
+msgctxt "monthly report evaluations column: number of evaluations"
+msgid "Evals"
+msgstr "Evals"
+
+msgctxt "monthly report evaluations column: date of the last evaluation"
+msgid "Last"
+msgstr "Laatste"
+
+msgctxt "monthly report evaluations: a player without an evaluation this month"
+msgid "not evaluated"
+msgstr "niet geëvalueerd"
+
+msgctxt "monthly report evaluations: the squad average row"
+msgid "Squad"
+msgstr "Selectie"
+
+#. translators: 1: lowest rating on the scale, 2: highest
+msgid "Cell: the player's average this month in that category; ▲/▼ against the previous month. The colour follows the scale, %1$s low to %2$s high. In shirt-number order."
+msgstr "Cel: het gemiddelde van de speler deze maand in die categorie; ▲/▼ t.o.v. de vorige maand. De kleur volgt de schaal, %1$s laag tot %2$s hoog. Op rugnummer."
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
