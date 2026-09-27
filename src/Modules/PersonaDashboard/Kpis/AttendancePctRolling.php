@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
@@ -108,7 +109,9 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         // #4041 — attended is the one rule (present + late) and guest
         // appearances are left out, both from AttendanceFlagService.
         $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
-        $row = $wpdb->get_row( $wpdb->prepare(
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed = ActivityLifecycle::completedClause( 'act' );
+        $row =$wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
                 {$attended} AS present
@@ -117,7 +120,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
              WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s
                AND a.record_type = 'actual'
                AND a.is_guest = 0
-               AND act.plan_state = 'completed' {$scope}",
+               AND {$completed} {$scope}",
             $club_id, $start, $end
         ) );
         if ( ! $row || (int) $row->total === 0 ) return null;

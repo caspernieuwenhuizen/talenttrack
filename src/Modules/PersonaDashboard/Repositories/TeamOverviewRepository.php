@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
@@ -70,7 +71,9 @@ final class TeamOverviewRepository {
         // every row, from AttendanceFlagService. It used to be present over
         // present + absent, dropping late, excused and injured from the
         // denominator, which read higher than every other surface.
-        $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
+        $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed = ActivityLifecycle::completedClause( 'act' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id AS team_id,
                     t.name AS team_name,
@@ -104,7 +107,7 @@ final class TeamOverviewRepository {
                            AND att.club_id = t.club_id
                            AND att.is_guest = 0
                            AND att.record_type = 'actual'
-                           AND act.plan_state = 'completed'
+                           AND {$completed}
                            AND act.session_date >= %s
                            AND act.session_date <= %s
                     ) AS attendance_counts,
@@ -154,7 +157,9 @@ final class TeamOverviewRepository {
         $to      = ( new \DateTimeImmutable() )->format( 'Y-m-d' );
 
         // #4041 — the one rule, as in summariesFor().
-        $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
+        $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed = ActivityLifecycle::completedClause( 'act' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id AS player_id,
                     pl.first_name, pl.last_name,
@@ -166,7 +171,7 @@ final class TeamOverviewRepository {
                            AND att.club_id = pl.club_id
                            AND att.is_guest = 0
                            AND att.record_type = 'actual'
-                           AND act.plan_state = 'completed'
+                           AND {$completed}
                            AND act.session_date >= %s
                            AND act.session_date <= %s
                     ) AS attendance_counts,

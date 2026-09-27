@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
@@ -100,7 +101,9 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
         // player's own team's activities, the one rule from
         // AttendanceFlagService; guest appearances are left out.
         $attended = AttendanceFlagService::attendedStatusClause( 'att.status' );
-        $roster = $wpdb->get_results( $wpdb->prepare(
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed = ActivityLifecycle::completedClause( 'a' );
+        $roster =$wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
                     pl.jersey_number, pl.preferred_foot, pl.preferred_positions,
                     pl.status,
@@ -112,7 +115,7 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                         AND {$attended}
                         AND att.is_guest = 0
                         AND att.record_type = 'actual'
-                        AND a.plan_state = 'completed'
+                        AND {$completed}
                         AND a.session_date BETWEEN %s AND %s
                     ) AS attendance_count,
                     (SELECT COALESCE(SUM(att.minutes_played), 0) FROM {$p}tt_attendance att
@@ -120,7 +123,7 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                       WHERE att.player_id = pl.id
                         AND att.club_id  = pl.club_id
                         AND att.record_type = 'actual'
-                        AND a.plan_state = 'completed'
+                        AND {$completed}
                         AND a.session_date BETWEEN %s AND %s
                     ) AS minutes_total,
                     (SELECT ROUND(AVG(er.rating), 2) FROM {$p}tt_eval_ratings er

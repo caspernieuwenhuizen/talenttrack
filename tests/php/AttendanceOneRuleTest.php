@@ -105,6 +105,51 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4086 — which activities count is one rule too: the status the coach
+     * set (`activity_status_key`), never the planner's `plan_state`.
+     *
+     * Two trainings marked completed whose `plan_state` was left at
+     * 'scheduled' count everywhere; a planned training carrying the
+     * column's default `plan_state = 'completed'` and a pre-filled register
+     * counts nowhere. 5 attended of 8 = 62.5. Gating on `plan_state`
+     * instead reads 55.6 (the planned one in, the stale ones out) or 50.
+     */
+    public function test_completed_is_decided_by_status_not_plan_state(): void {
+        $this->attend( $this->activity( $this->team, '2020-03-23', 'completed', 'scheduled' ), 'Present' );
+        $this->attend( $this->activity( $this->team, '2020-03-25', 'Completed', 'scheduled' ), 'late' );
+        $this->attend( $this->activity( $this->team, '2020-03-27', 'planned', 'completed' ), 'Absent' );
+
+        $expected = 62.5;
+
+        $rows = ( new AttendanceRankingQuery() )->rows( self::FROM, self::TO, $this->team );
+        $this->assertSame( $expected, $rows[0]['present_pct'], 'player report' );
+
+        $board = ( new AttendanceRankingQuery() )->leaderboard( self::FROM, self::TO, 0, $this->team );
+        $this->assertSame( $expected, $board['bottom'][0]['present_pct'], 'leaderboard' );
+
+        $teams = ( new AttendanceRankingQuery() )->teamRows( self::FROM, self::TO );
+        $this->assertSame( $expected, $teams[0]['present_pct'], 'team report' );
+
+        $this->assertSame( $expected, $this->snapshotPct(), 'KPI snapshot export' );
+
+        $monthly = ( new TeamMonthlyReport() )->forTeam( $this->team, self::FROM, self::TO, [ 'attendance' ] );
+        $this->assertSame( $expected, $monthly['data']['attendance']['rows'][0]['present_pct'], 'team monthly report' );
+
+        $overview = ( new TeamOverviewRepository() )->teamPlayerBreakdown( $this->team, self::daysSince( self::FROM ) );
+        $this->assertSame( $expected, $overview[0]['attendance_pct'], 'team overview' );
+
+        $packet = EvidencePacket::attendanceFor( $this->player, self::FROM, self::TO );
+        // The packet shows a whole percentage: 62.5 rounds to 63. With the
+        // planned activity counted it would read 56.
+        $this->assertSame( round( $expected ), (float) $packet['rate'], 'evidence packet leaves the planned activity out' );
+        $this->assertSame( 8, $packet['activities'] );
+        $this->assertSame( 3, $packet['missed'], 'the pre-filled absence on the planned activity is not a miss' );
+
+        $score = ( new PlayerAttendanceCalculator() )->scoreFor( $this->player, self::FROM, self::TO );
+        $this->assertSame( 8, $score['sessions'], 'status light counts the same activities' );
+    }
+
+    /**
      * The one exception: excused and injured leave the status score's
      * denominator, late still counts as attended, and a guest appearance
      * does not raise it. 3 attended of 4 countable = 75.
@@ -172,7 +217,7 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function activity( int $team_id, string $date ): int {
+    private function activity( int $team_id, string $date, string $status = 'completed', string $plan_state = 'completed' ): int {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id'             => self::CLUB,
@@ -180,8 +225,8 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
             'title'               => 'Training ' . $date,
             'session_date'        => $date,
             'activity_type_key'   => 'training',
-            'activity_status_key' => 'completed',
-            'plan_state'          => 'completed',
+            'activity_status_key' => $status,
+            'plan_state'          => $plan_state,
         ] );
         return (int) $wpdb->insert_id;
     }

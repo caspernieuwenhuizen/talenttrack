@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
@@ -26,25 +27,6 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
     private const WINDOW_DAYS = 28;
 
     /**
-     * v3.110.177 (#775) — second source-of-truth constant. The KPI
-     * counts attendance rows in the window; planned / draft / scheduled
-     * / cancelled activities have no business contributing because the
-     * coach hasn't run them (or won't). Both `compute()` and `linkUrl()`
-     * consume this list so the KPI's universe and the destination
-     * filter's universe are guaranteed to match.
-     *
-     * `completed` — the typical case: the session happened, attendance
-     * marked.
-     * `in_progress` — coach has begun marking attendance during the
-     * session itself. Rows already exist and reflect real presence.
-     *
-     * Excluded: `draft`, `scheduled`, `planned` (pre-attendance),
-     * `cancelled` (post-decision to not run). If any of those somehow
-     * has an attendance row attached, the KPI ignores it.
-     */
-    private const ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ];
-
-    /**
      * v3.110.165 (#476) — real implementation. Returns the rolling
      * 4-week present-rate across every attendance row recorded against
      * a player on a team the coach head-coaches.
@@ -63,12 +45,12 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
      *     the rolling KPI)
      *   - team_id IN (coach's teams) via the players join
      *   - 28-day window (today − 28 days through today, inclusive)
-     *   - v3.110.177 (#775): plan_state IN ('completed', 'in_progress')
-     *     — planned / draft / scheduled / cancelled activities don't
-     *     contribute (even if they somehow have an attendance row
-     *     attached, e.g. a session cancelled after attendance was
-     *     marked). Matches the pilot's mental model: "only activities
-     *     that actually happened count."
+     *   - completed activities only, through
+     *     `ActivityLifecycle::completedClause()` (#4086) — planned and
+     *     cancelled activities don't contribute, even with an attendance
+     *     row attached. "Only activities that actually happened count",
+     *     decided by the status the coach set, the same rule as the Team
+     *     attendance report the card opens.
      *
      * Empty states:
      *   - Coach has no teams → unavailable (the KPI doesn't apply).
@@ -94,8 +76,8 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         [ 'from' => $from, 'to' => $to ] = self::windowDates();
         $start = $from . ' 00:00:00';
         $end   = $to   . ' 23:59:59';
-        $team_placeholders  = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-        $state_placeholders = implode( ',', array_fill( 0, count( self::ACTIVITY_STATES_COUNTING ), '%s' ) );
+        $team_placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $completed         = ActivityLifecycle::completedClause( 'act' );
 
         // v3.110.182 (#781) — demo-mode scope on the activity row so the
         // coach's team attendance % matches the activities list under
@@ -105,8 +87,8 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from constant arrays.
         // #788 ship 1 — count actuals only; planned-attendance rows
         // (ship 2) are not part of the coach's "what already happened"
-        // KPI. The existing plan_state filter narrows to in_progress +
-        // completed but expected rows could land on those too.
+        // KPI. The completed-activity filter alone would not keep them
+        // out: expected rows can land on a completed activity too.
         //
         // #4041 — attended is the one rule (present + late), guests left out.
         $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
@@ -123,13 +105,12 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
                AND a.is_guest = 0
                AND act.session_date >= %s
                AND act.session_date <= %s
-               AND act.plan_state IN ({$state_placeholders})
+               AND {$completed}
                {$scope}",
             array_merge(
                 [ $club_id ],
                 $team_ids,
-                [ $start, $end ],
-                self::ACTIVITY_STATES_COUNTING
+                [ $start, $end ]
             )
         ) );
 

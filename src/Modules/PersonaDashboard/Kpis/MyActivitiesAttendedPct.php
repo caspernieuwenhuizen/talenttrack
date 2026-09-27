@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
@@ -16,7 +17,6 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
 
     /** Mirror of MyTeamAttendancePct's window + counting universe. */
     private const WINDOW_DAYS = 28;
-    private const ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ];
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         $player_id = PlayerKpiResolver::playerId( $user_id );
@@ -32,12 +32,14 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
         $from  = gmdate( 'Y-m-d', strtotime( '-' . self::WINDOW_DAYS . ' days' ) ) . ' 00:00:00';
         $to    = gmdate( 'Y-m-d' ) . ' 23:59:59';
         $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
-        $state_placeholders = implode( ',', array_fill( 0, count( self::ACTIVITY_STATES_COUNTING ), '%s' ) );
 
         // #4041 — attended is the one rule (present + late), over the
         // player's own team's activities: guest appearances are left out.
         $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from a constant array.
+        // #4086 — only activities that happened, decided by the status the
+        // coach set rather than the planner's plan_state.
+        $completed = ActivityLifecycle::completedClause( 'act' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — literal SQL from helpers, no user input.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS total,
                     {$attended} AS present
@@ -49,9 +51,9 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
                 AND a.is_guest = 0
                 AND act.session_date >= %s
                 AND act.session_date <= %s
-                AND act.plan_state IN ({$state_placeholders})
+                AND {$completed}
                 {$scope}",
-            array_merge( [ $club_id, $player_id, $from, $to ], self::ACTIVITY_STATES_COUNTING )
+            $club_id, $player_id, $from, $to
         ) );
 
         if ( ! $row || (int) $row->total === 0 ) return KpiValue::unavailable();
