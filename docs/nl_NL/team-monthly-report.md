@@ -116,6 +116,29 @@ Wat er is geschreven, wordt volledig afgedrukt, over zoveel regels als nodig: wa
 er veranderde, waarom een speler een gesprek nodig heeft en de namen van de
 spelers zonder evaluatie. Het aantal pagina's op de meter telt die regels mee.
 
+Op papier begint **Wedstrijden** met de stand als een rij tegels — gespeeld,
+gewonnen, gelijk, verloren, doelpunten voor en tegen, en het saldo, met de
+uitslag in zijn kleur. Daaronder staan de uitslagen (datum, **T** of **U**,
+tegenstander, de score in de kleur van de uitslag) naast de doelpuntenmakers,
+gerangschikt op doelpunten en daarna assists, elk met een balk. Een totaalregel
+en een zin als *"7 van 8 doelpunten toegeschreven"* laten zien of bij elk
+doelpunt een maker is ingevuld.
+
+Elke test krijgt op papier een kaart: de naam, welke kant beter is, de datum en
+hoeveel spelers getest zijn, dan een strook cijfers — het selectiegemiddelde en
+hoe dat veranderde sinds de vorige ronde, de beste meting, hoeveel spelers beter
+of slechter werden, hoeveel er binnen de norm voor de leeftijdsgroep zitten (als
+de test normen heeft) en het selectiegemiddelde over de laatste vier rondes. Met
+**Uitslagen** of **Uitslagen en verschil** volgt een tabel, van beste naar
+slechtste: de meting van elke speler met een balk in de kleur van zijn norm, de
+vorige meting, het verschil (groen als het een verbetering is, dus een snellere
+tijd is groen), het verschil met het selectiegemiddelde, en **PR** bij een
+persoonlijk record. Een stippellijn geeft aan waar het selectiegemiddelde ligt.
+De versie van één pagina drukt alleen de strook af, met de slechtste meting in
+plaats van het verloop. Dreigt de derde pagina van het pakket over te lopen, dan
+drukken de testen eerst alleen hun strook af en houdt daarna de agenda de twee
+dringendste spelers; de meter zegt welke.
+
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.
 
@@ -189,9 +212,10 @@ waar het vandaan komt.
 
 Spelerstabellen staan op **rugnummer**, zodat een speler op elke pagina en op de
 afdruk op dezelfde plek staat. Spelers zonder rugnummer staan onderaan, op
-alfabet. Twee tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
-gespeeld aandeel en **Gesprek nodig** op urgentie — daar is de volgorde zelf de
-uitkomst.
+alfabet. Vier tabellen blijven bewust zoals ze zijn: **Minutenaandeel** staat op
+gespeeld aandeel, **Gesprek nodig** op urgentie, de **doelpuntenmakers** op
+doelpunten en daarna assists, en de metingen van een test van beste naar
+slechtste als lager of hoger beter is — daar is de volgorde zelf de uitkomst.
 
 **Elke sectie benoemt boven de tabel in welke volgorde de rijen staan.**
 Aanwezigheid leest *"Teamgemiddelde 93%. In volgorde van rugnummer."* — er stond
@@ -247,7 +271,8 @@ De sectie heeft drie onderdelen, elk met een eigen vinkje in het paneel:
 
 - **Standen** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen,
   en het saldo. Standaard aan.
-- **Doelpunten en assists** — per speler over de periode. Standaard aan.
+- **Doelpunten en assists** — per speler over de periode, de meeste doelpunten
+  eerst, dan de meeste assists. Standaard aan.
 - **Selectie en minuten per wedstrijd** — wie speelde er en hoe lang.
   Standaard **uit**: het is het langste onderdeel en herhaalt wat de sectie
   Minutenaandeel al toont.

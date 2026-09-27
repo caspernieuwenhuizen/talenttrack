@@ -141,6 +141,62 @@ final class TeamMonthlyReportTestRoundsTest extends WP_UnitTestCase {
         $this->assertSame( [ 'Squad High', 'Squad Low' ], array_column( $this->roundFor( $def )['readings'], 'name' ) );
     }
 
+    /**
+     * #4069 — the figures the PDF's stat strip prints are the composer's:
+     * squad average against the previous round, best and worst, who moved,
+     * band counts from the age group's target, a PB, and the history.
+     */
+    public function test_a_round_carries_the_stat_strip_figures(): void {
+        $def  = $this->durationTest( 'lower' );
+        $fast = $this->player( 'Fast', 1 );
+        $slow = $this->player( 'Slow', 2 );
+        $new  = $this->player( 'New', 3 );
+
+        global $wpdb;
+        // Green up to 12:30, amber up to 13:30, in canonical seconds.
+        $wpdb->insert( "{$wpdb->prefix}tt_measurement_targets", [
+            'club_id' => $this->club, 'definition_id' => $def, 'age_group' => 'U14',
+            'green_max' => 750.0, 'amber_max' => 810.0,
+        ] );
+
+        $this->round( $def, '2020-05-01', [ $fast => 700.0, $slow => 900.0 ] );
+        $this->round( $def, '2020-07-01', [ $fast => 720.0, $slow => 940.0 ] );
+        $this->round( $def, '2020-09-01', [ $fast => 678.0, $slow => 964.0, $new => 780.0 ] );
+
+        $round = $this->roundFor( $def );
+
+        $this->assertSame( '2020-07-01', $round['previous_date'] );
+        $this->assertSame( '13:27', $round['average']['display'], 'Mean of 11:18, 16:04 and 13:00, to the second.' );
+        $this->assertSame( '13:50', $round['average']['previous_display'] );
+        $this->assertSame( 'up', $round['average']['trend'], 'A lower average on a lower-is-better test.' );
+        $this->assertSame( 'Squad Fast', $round['best']['name'] );
+        $this->assertSame( '11:18', $round['best']['value_display'] );
+        $this->assertSame( 'Squad Slow', $round['worst']['name'] );
+        $this->assertSame( [ 'up' => 1, 'down' => 1, 'flat' => 0, 'first' => 1 ], $round['moves'] );
+        $this->assertSame( [ 'age_group' => 'U14', 'ok' => 1, 'warn' => 1, 'bad' => 1, 'of' => 3 ], $round['bands'] );
+        $this->assertSame( [ '2020-05-01', '2020-07-01', '2020-09-01' ], array_column( $round['history'], 'date' ) );
+
+        $by_name = array_column( $round['readings'], null, 'name' );
+        $this->assertTrue( $by_name['Squad Fast']['pb'], 'Faster than every earlier reading.' );
+        $this->assertFalse( $by_name['Squad Slow']['pb'] );
+        $this->assertFalse( $by_name['Squad New']['pb'], 'A first reading is not a record.' );
+        $this->assertSame( 'ok', $by_name['Squad Fast']['flag'] );
+        $this->assertSame( 'bad', $by_name['Squad Slow']['flag'] );
+        $this->assertSame( '12:00', $by_name['Squad Fast']['previous_display'] );
+        $this->assertSame( 1, $by_name['Squad Fast']['rank'] );
+        $this->assertTrue( $by_name['Squad Slow']['worse_than_avg'] );
+        $this->assertFalse( $by_name['Squad Fast']['worse_than_avg'] );
+    }
+
+    /** #4069 — no band for the team's age group is no band cell, not "0 on target". */
+    public function test_a_test_without_a_band_has_no_band_counts(): void {
+        $def    = $this->plainTest( 'lower', 's' );
+        $player = $this->player( 'Sprinter', 3 );
+        $this->round( $def, '2020-09-05', [ $player => 3.45 ] );
+
+        $this->assertNull( $this->roundFor( $def )['bands'] );
+    }
+
     public function test_a_test_without_a_direction_stays_in_shirt_order(): void {
         $def   = $this->plainTest( 'neutral', 'cm' );
         $tall  = $this->player( 'Tall', 8 );

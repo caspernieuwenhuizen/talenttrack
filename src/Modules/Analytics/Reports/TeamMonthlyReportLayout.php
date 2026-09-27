@@ -46,6 +46,12 @@ final class TeamMonthlyReportLayout {
     /** Degradation rung: attention keeps its two most urgent players. */
     public const TRIM_ATTENTION = 'trim_attention';
 
+    /**
+     * Degradation rung, the pack's third page: each test prints its stat
+     * strip without the table of readings — what the one-pager always does.
+     */
+    public const TESTS_SUMMARY = 'tests_summary';
+
     /** Rows a ranked list keeps once elided: top 3, bottom 4. */
     public const ELIDE_KEEP_TOP = 3;
     public const ELIDE_KEEP_BOTTOM = 4;
@@ -73,9 +79,25 @@ final class TeamMonthlyReportLayout {
         'bar_row'         => 3.85,
         'attention_item'  => 17.2,
         'change_row'      => 4.6,
-        'match_record'    => 11.0,
-        'match_row'       => 4.6,
-        'scorer_row'      => 4.4,
+        // #4069 — the record as tiles; results beside the ranked scorers,
+        // the section as tall as the taller of the two. Each list carries its
+        // sub-heading, and the results their H/A legend (`results_base`); the
+        // scorers also their column heads, totals row and reconciliation line.
+        'match_record'    => 17.0,
+        'match_row'       => 5.5,
+        'results_base'    => 8.5,
+        'scorer_row'      => 5.5,
+        'scorers_base'    => 18.5,
+        'match_note'      => 4.2,
+        'squad_line'      => 3.6,
+        'squad_base'      => 0.9,
+        // #4069 — a test is a card: header and stat strip, and on the full
+        // layouts the ranked readings under a taller strip that carries the
+        // squad average per round, with column heads and a legend.
+        'test_card'       => 25.0,
+        'test_card_table' => 38.5,
+        'test_reading'    => 5.0,
+        'test_empty'      => 9.0,
         'test_round'      => 9.2,
         'roster_head'     => 5.5,
         'roster_row'      => 5.5,
@@ -211,7 +233,25 @@ final class TeamMonthlyReportLayout {
         $none   = [];
         $page_1 = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], self::PACK, $none );
         $page_2 = self::sum( $data, [ 'roster' ], self::PACK, $none );
-        $page_3 = self::sum( $data, [ 'attention', 'changes', 'tests', 'notes', 'quality' ], self::PACK, $none );
+
+        // The pack prints matches on its third page, so they count there.
+        // That page degrades before it overflows (#4069): the tests drop
+        // their tables of readings first, then the agenda keeps its two most
+        // urgent players.
+        $page_3_blocks = [ 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ];
+        $degraded      = [];
+        $page_3        = self::sum( $data, $page_3_blocks, self::PACK, $degraded );
+        if ( $page_3 > self::PORTRAIT_MM && isset( $data['tests'] ) ) {
+            $summary = self::sum( $data, $page_3_blocks, self::PACK, [ self::TESTS_SUMMARY ] );
+            if ( $summary < $page_3 ) {
+                $degraded[] = self::TESTS_SUMMARY;
+                $page_3     = $summary;
+            }
+        }
+        if ( $page_3 > self::PORTRAIT_MM && self::count( $data['attention'] ?? [], 'items' ) > self::ATTENTION_KEEP ) {
+            $degraded[] = self::TRIM_ATTENTION;
+            $page_3     = self::sum( $data, $page_3_blocks, self::PACK, $degraded );
+        }
 
         $fill  = [];
         $fits  = true;
@@ -228,7 +268,7 @@ final class TeamMonthlyReportLayout {
             'max_pages' => 3,
             'fits'      => $fits,
             'fill'      => $fill,
-            'degraded'  => [],
+            'degraded'  => $degraded,
         ];
     }
 
@@ -314,24 +354,10 @@ final class TeamMonthlyReportLayout {
                 return $mm;
 
             case 'tests':
-                return $layout === self::MATRIX ? 0.0 : $base + self::count( $block_data, 'rounds' ) * self::MM['test_round'];
+                return $layout === self::MATRIX ? 0.0 : $base + self::testsHeight( $block_data, $layout, $degraded );
 
             case 'matches':
-                if ( $layout === self::MATRIX ) return 0.0;
-                $shows = is_array( $block_data['shows'] ?? null ) ? $block_data['shows'] : [];
-                $mm    = $base;
-                if ( ! empty( $shows['record'] ) )  $mm += self::MM['match_record'];
-                if ( ! empty( $shows['scorers'] ) ) $mm += self::count( $block_data, 'scorers' ) * self::MM['scorer_row'];
-                $mm += self::count( $block_data, 'fixtures' ) * self::MM['match_row'];
-                if ( ! empty( $shows['squads'] ) ) {
-                    // Each fixture grows by its own squad, so this is the rung
-                    // the one-pager trips on — which is the point of the
-                    // option defaulting off.
-                    foreach ( self::listOf( $block_data, 'fixtures' ) as $fixture ) {
-                        $mm += self::count( is_array( $fixture ) ? $fixture : [], 'squad' ) * self::MM['bar_row'];
-                    }
-                }
-                return $mm;
+                return $layout === self::MATRIX ? 0.0 : $base + self::matchesHeight( $block_data );
 
             case 'roster':
                 $row = $layout === self::ONE_PAGER
@@ -352,6 +378,92 @@ final class TeamMonthlyReportLayout {
                 return $base + ( self::qualityLines( $block_data ) + $extra ) * self::MM['quality_row'];
         }
         return 0.0;
+    }
+
+    /**
+     * Characters of a match's squad line per printed line (#4069): beside the
+     * scorers the results column is half the page, without them the whole.
+     * Measured on DomPDF at 6.5pt and rounded down.
+     */
+    private const SQUAD_CHARS_BESIDE = 48;
+    private const SQUAD_CHARS_FULL   = 110;
+
+    /**
+     * The match section under its heading (#4069): the record tiles, then the
+     * results and the scorers side by side, as tall as the taller.
+     *
+     * @param array<string,mixed> $block_data
+     */
+    private static function matchesHeight( array $block_data ): float {
+        $shows    = is_array( $block_data['shows'] ?? null ) ? $block_data['shows'] : [];
+        $fixtures = self::listOf( $block_data, 'fixtures' );
+        if ( $fixtures === [] ) return self::MM['match_note'];
+
+        $record = is_array( $block_data['record'] ?? null ) ? $block_data['record'] : [];
+        $mm     = 0.0;
+        if ( ! empty( $shows['record'] ) ) {
+            $mm += self::MM['match_record'];
+            if ( (int) ( $record['without_score'] ?? 0 ) > 0 ) $mm += self::MM['match_note'];
+        }
+        if ( (int) ( $block_data['tournaments_excluded'] ?? 0 ) > 0 ) $mm += self::MM['match_note'];
+
+        $beside  = ! empty( $shows['scorers'] );
+        $results = self::MM['results_base'] + count( $fixtures ) * self::MM['match_row'];
+        if ( ! empty( $shows['squads'] ) ) {
+            // Each squad wraps under its match, so this is the part the
+            // one-pager trips on — which is the point of the option
+            // defaulting off.
+            $per_line = $beside ? self::SQUAD_CHARS_BESIDE : self::SQUAD_CHARS_FULL;
+            foreach ( $fixtures as $fixture ) {
+                $squad = self::listOf( is_array( $fixture ) ? $fixture : [], 'squad' );
+                if ( $squad === [] ) continue;
+                $chars = 0;
+                foreach ( $squad as $player ) {
+                    $chars += mb_strlen( is_array( $player ) ? (string) ( $player['name'] ?? '' ) : '' ) + 7;
+                }
+                $results += self::MM['squad_base'] + self::lines( $chars, $per_line ) * self::MM['squad_line'];
+            }
+        }
+
+        $scorers = $beside
+            ? self::MM['scorers_base'] + self::count( $block_data, 'scorers' ) * self::MM['scorer_row']
+            : 0.0;
+
+        return $mm + max( $results, $scorers );
+    }
+
+    /**
+     * The tests section under its heading (#4069). A round frozen in a
+     * snapshot before the cards existed prints as lines, and is counted as
+     * such.
+     *
+     * @param array<string,mixed> $block_data
+     * @param list<string>        $degraded
+     */
+    private static function testsHeight( array $block_data, string $layout, array $degraded ): float {
+        $rounds = self::listOf( $block_data, 'rounds' );
+        if ( $rounds === [] ) return self::MM['match_note'];
+
+        $show       = TestsBlockOptions::show( [ 'show' => $block_data['show'] ?? null ] );
+        $with_table = $layout !== self::ONE_PAGER
+            && ! in_array( self::TESTS_SUMMARY, $degraded, true )
+            && TestsBlockOptions::showsPlayers( $show );
+
+        $mm = 0.0;
+        foreach ( $rounds as $round ) {
+            if ( ! is_array( $round ) ) continue;
+            $readings = self::count( $round, 'readings' );
+            if ( ! empty( $round['empty'] ) ) {
+                $mm += self::MM['test_empty'];
+            } elseif ( ! is_array( $round['average'] ?? null ) ) {
+                $mm += self::MM['test_round'] + ( $with_table && $readings > 0 ? self::MM['roster_head'] + $readings * self::MM['test_reading'] : 0.0 );
+            } elseif ( $with_table && $readings > 0 ) {
+                $mm += self::MM['test_card_table'] + $readings * self::MM['test_reading'];
+            } else {
+                $mm += self::MM['test_card'];
+            }
+        }
+        return $mm;
     }
 
     /** The words around the names in "N players have no evaluation this period: …". */
@@ -438,6 +550,9 @@ final class TeamMonthlyReportLayout {
                 $rows = self::listOf( $report['data'][ $block ], 'rows' );
                 $report['data'][ $block ]['rows'] = self::elide( array_values( $rows ), $value_key );
             }
+        }
+        if ( in_array( self::TESTS_SUMMARY, $rungs, true ) && isset( $report['data']['tests'] ) ) {
+            $report['data']['tests']['show'] = TestsBlockOptions::SHOW_SUMMARY;
         }
         if ( in_array( self::TRIM_ATTENTION, $rungs, true ) && isset( $report['data']['attention'] ) ) {
             $items = self::listOf( $report['data']['attention'], 'items' );

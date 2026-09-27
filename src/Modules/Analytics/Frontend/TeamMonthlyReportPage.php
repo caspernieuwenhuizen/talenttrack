@@ -563,6 +563,13 @@ final class TeamMonthlyReportPage {
                 ? __( 'Does not fit on one page. Drop a section, or switch to the three-page pack.', 'talenttrack' )
                 : __( 'A page overflows. Drop a section to keep the pack to three pages.', 'talenttrack' );
             echo '<p class="tt-mr-fit__msg is-over">' . esc_html( $msg ) . '</p>';
+        } elseif ( in_array( TeamMonthlyReportLayout::TESTS_SUMMARY, $fit['degraded'], true ) ) {
+            // #4069 — the pack's third page drops the tables of readings
+            // before it overflows, and says so.
+            $msg = in_array( TeamMonthlyReportLayout::TRIM_ATTENTION, $fit['degraded'], true )
+                ? __( 'Fits by shortening: each test prints its summary without the table of readings, and the agenda keeps its two most urgent players.', 'talenttrack' )
+                : __( 'Fits by shortening: each test prints its summary without the table of readings.', 'talenttrack' );
+            echo '<p class="tt-mr-fit__msg is-tight">' . esc_html( $msg ) . '</p>';
         } elseif ( $fit['degraded'] !== [] ) {
             echo '<p class="tt-mr-fit__msg is-tight">' . esc_html__( 'Fits by shortening: long player lists keep their top and bottom, and the agenda keeps its two most urgent players.', 'talenttrack' ) . '</p>';
         } else {

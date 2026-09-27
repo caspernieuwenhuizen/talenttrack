@@ -1062,6 +1062,30 @@ not `0`.
 unattended caller gets public and coaching-staff events only, never medical or
 safeguarding ones.
 
+**Attendance KPI (#4068).** `kpi.attendance_pct` is `attendance.team_avg_pct`:
+the mean of the per-player percentages (late counts as attended), one decimal,
+for both windows. A value below 100 is capped at `99.9`, so `100` means every
+row is 100%.
+
+**Matches (#4069).** `matches.scorers` is ranked by goals, then assists, then
+shirt order; each row carries `rank` (shared on a tie, `null` for a player with
+assists only). `matches.scorer_totals` is `{ goals, assists, goals_for }`, where
+`goals_for` is the record's, so a consumer can say "7 of 8 goals attributed".
+
+**Tests (#4063, #4069).** Each round carries `unit_label` (`mm:ss` for a
+duration, the unit symbol otherwise), `is_duration`, `direction` (`lower`,
+`higher` or `""`), `previous_date`, and the figures its stat strip prints:
+`average` (`value`, `display`, `previous`, `previous_display`, `delta_display`,
+`trend`), `best` and `worst` (`player_id`, `name`, `value_display`), `moves`
+(`up`, `down`, `flat`, `first`), `bands` (`age_group`, `ok`, `warn`, `bad`,
+`of`, or `null` when the test has no target band for the team's age group) and
+`history` (the squad average over the last four rounds). `readings` run best to
+worst on a test with a direction, shirt order otherwise, and each carries
+`value_display`, `delta_display` (seconds for a duration), `previous_display`,
+`rank`, `pb`, `flag` (`ok` / `warn` / `bad` / `""`), `bar_pct`,
+`vs_avg_display` and `worse_than_avg`. `improved` and `declined` stay in shirt
+order.
+
 ## A player's evaluations, player-facing (#3478)
 
 ### `GET /players/{id}/evaluations?scope=current|all`

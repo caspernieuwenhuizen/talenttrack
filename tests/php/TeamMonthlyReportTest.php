@@ -253,6 +253,26 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->assertSame( 99.9, $report['data']['kpi']['attendance_pct']['value'], 'One absence in 900 is not 100%.' );
     }
 
+    /**
+     * #4069 — scorers read goals first, then assists, then shirt order (the
+     * order they arrive in). A tie shares its rank; assists only has none.
+     */
+    public function test_scorers_are_ranked_by_goals_then_assists(): void {
+        $rank = new \ReflectionMethod( TeamMonthlyReport::class, 'rankScorers' );
+        $rank->setAccessible( true );
+
+        $ranked = $rank->invoke( null, [
+            [ 'player_id' => 1, 'name' => 'Shirt 1', 'goals' => 1, 'assists' => 1 ],
+            [ 'player_id' => 2, 'name' => 'Shirt 2', 'goals' => 0, 'assists' => 2 ],
+            [ 'player_id' => 3, 'name' => 'Shirt 3', 'goals' => 4, 'assists' => 0 ],
+            [ 'player_id' => 4, 'name' => 'Shirt 4', 'goals' => 1, 'assists' => 1 ],
+            [ 'player_id' => 5, 'name' => 'Shirt 5', 'goals' => 1, 'assists' => 3 ],
+        ] );
+
+        $this->assertSame( [ 'Shirt 3', 'Shirt 5', 'Shirt 1', 'Shirt 4', 'Shirt 2' ], array_column( $ranked, 'name' ) );
+        $this->assertSame( [ 1, 2, 3, 3, null ], array_map( static fn( array $r ) => $r['rank'], $ranked ) );
+    }
+
     public function test_the_rest_route_refuses_a_caller_without_reports_read(): void {
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'subscriber' ] ) );
 
