@@ -116,15 +116,18 @@ automatically, so the role pane never points at an unavailable player.
 ## Availability drawer
 
 Click **Availability** in the toolbar to slide in the drawer with
-four chips per player: **Present**, **Absent (excused)**, **Injured**,
-**Suspended**. Add an optional reason for absences. **Mark all present**
+five chips per player: **Present**, **Absent (excused)**, **Absent**,
+**Injured**, **Suspended**. **Absent (excused)** is a player who let you
+know; plain **Absent** is one who did not — a no-show. Add an optional
+reason for absences. **Mark all present**
 is the shortcut for "the whole roster is here today." Closing the drawer
 saves; marking anyone anything other than Present pulls them out of
 every lineup slot and role row. The chip you picked is what is stored,
-so after a reload the same chip is still selected, and Injured and
-Suspended reach the rest of the app as themselves: a suspended player
-does not count against their attendance score, and the minutes audit
-shows them as unavailable rather than as missing minutes.
+so after a reload the same chip is still selected, and each one reaches
+the rest of the app as itself — the same statuses the availability step
+offers when you start the prep. A suspended player does not count
+against their attendance score, and the minutes audit shows them as
+unavailable rather than as missing minutes.
 
 A player with a recorded [suspension](suspensions.md) that covers this
 match starts on **Suspended**, with a reason such as "Suspended, match 2

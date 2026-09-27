@@ -1,0 +1,9 @@
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgctxt "availability chip"
+msgid "Absent (excused)"
+msgstr "Afwezig (afgemeld)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgctxt "availability chip"
+msgid "Absent"
+msgstr "Afwezig"

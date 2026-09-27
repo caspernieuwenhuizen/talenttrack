@@ -53,7 +53,9 @@
     var state = {
         activityId:     parseInt(bootstrap.activity_id, 10) || 0,
         prepId:         parseInt(bootstrap.prep_id, 10) || 0,
-        halfLength:     parseInt(bootstrap.half_length, 10) || 35,
+        // No half length on the bootstrap → the server's fallback, never a
+        // number of this file's own (#4115).
+        halfLength:     parseInt(bootstrap.half_length, 10) || parseInt(cfg.fallback_half_length, 10) || 0,
         formationShape: String(bootstrap.formation_shape || '4-3-3'),
         formationTemplateId: parseInt(bootstrap.formation_template_id, 10) || 0,
         slotLayouts:    bootstrap.slot_layouts || {},
@@ -106,10 +108,11 @@
     // ---------------------------------------------------------------------
 
     /*
-     * The drawer writes the real attendance status (Absent, Injured,
-     * Suspended) to the availability row. Rows saved before that carried
-     * `Absent` with the chip folded into `reason` ("Injured" / "Excused");
-     * read those back as the chip they came from, so a reload selects it.
+     * The drawer writes the real attendance status (Absent, Excused,
+     * Injured, Suspended) to the availability row. Rows saved before that
+     * carried `Absent` with the chip folded into `reason` ("Injured" /
+     * "Excused"); read those back as the chip they came from, so a reload
+     * selects it and the next save stores the real status.
      */
     function normaliseAvailability(entry) {
         var e = entry || {};
@@ -119,6 +122,7 @@
             status = 'Injured';
             reason = '';
         } else if (status.toLowerCase() === 'absent' && reason === 'Excused') {
+            status = 'Excused';
             reason = '';
         }
         return { status: status, reason: reason };
@@ -393,7 +397,7 @@
      *
      * The two are deliberately not synced: every minutes surface reads the
      * prep, so rewriting it under a coach who had already planned around
-     * 2 x 35 would move a player's recorded minutes without asking. The
+     * two fixed halves would move a player's recorded minutes without asking. The
      * server decides whether they disagree and answers with the flag on
      * every save; this repaints the caption from it.
      */
@@ -946,14 +950,15 @@
         saver.send({ method: 'PUT', url: baseUrl + state.activityId, body: payload });
     }
 
-    // One chip per availability status. `matches` are the stored statuses
-    // (lower case) that select it: an Excused row written by the match-prep
-    // wizard lights the excused chip rather than none.
+    // One chip per availability status, storing the same status the
+    // match-prep wizard does. `matches` are the stored statuses (lower
+    // case) that select it.
     var DRAWER_CHIPS = [
-        { set: 'Present',   matches: ['present'],           cls: '',                      key: 'present',        fallback: 'Present' },
-        { set: 'Absent',    matches: ['absent', 'excused'], cls: 'tt-mp-chip-excused',    key: 'absent_excused', fallback: 'Absent (excused)' },
-        { set: 'Injured',   matches: ['injured'],           cls: 'tt-mp-chip-injured',    key: 'absent_injured', fallback: 'Injured' },
-        { set: 'Suspended', matches: ['suspended'],         cls: 'tt-mp-chip-suspended',  key: 'suspended',      fallback: 'Suspended' }
+        { set: 'Present',   matches: ['present'],   cls: '',                     key: 'present',        fallback: 'Present' },
+        { set: 'Excused',   matches: ['excused'],   cls: 'tt-mp-chip-excused',   key: 'absent_excused', fallback: 'Absent (excused)' },
+        { set: 'Absent',    matches: ['absent'],    cls: 'tt-mp-chip-absent',    key: 'absent',         fallback: 'Absent' },
+        { set: 'Injured',   matches: ['injured'],   cls: 'tt-mp-chip-injured',   key: 'absent_injured', fallback: 'Injured' },
+        { set: 'Suspended', matches: ['suspended'], cls: 'tt-mp-chip-suspended', key: 'suspended',      fallback: 'Suspended' }
     ];
 
     function renderDrawer() {

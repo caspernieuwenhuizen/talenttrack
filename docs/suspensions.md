@@ -55,6 +55,8 @@ A suspension is served the moment the **last match it covers is completed** — 
 
 Nothing has to be done by hand, and there is no nightly job: completing the match is what serves it.
 
+**Reopen** that last match and the suspension is running again: it is no longer served, *Suspension served* leaves the journey, and the player is unavailable for that match once more. Complete the match again and it is served again, with one journey entry. Reopening an earlier match of the ban changes nothing while the last one stays completed.
+
 Once a suspension has been served, its start date and number of matches are fixed. The reason and the note can still be corrected.
 
 ## Where it shows

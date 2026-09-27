@@ -124,14 +124,17 @@ speler verwijst.
 ## Beschikbaarheids-drawer
 
 Klik **Beschikbaarheid** in de werkbalk om de drawer in te schuiven
-met vier chips per speler: **Aanwezig**, **Afwezig (excused)**,
-**Geblesseerd**, **Geschorst**. Voeg desgewenst een reden toe bij een
+met vijf chips per speler: **Aanwezig**, **Afwezig (afgemeld)**,
+**Afwezig**, **Geblesseerd**, **Geschorst**. **Afwezig (afgemeld)** is een
+speler die het heeft laten weten; gewoon **Afwezig** is een speler die dat
+niet deed — niet komen opdagen. Voeg desgewenst een reden toe bij een
 afwezigheid. **Iedereen aanwezig** is de snelkoppeling voor "vandaag is
 de hele selectie er." Het sluiten van de drawer slaat op; wie iets anders
 dan aanwezig krijgt, wordt uit elke positie en rolrij verwijderd. De chip
 die je kiest is wat wordt opgeslagen, dus na herladen staat dezelfde chip
-nog aan, en Geblesseerd en Geschorst komen als zichzelf in de rest van de
-app terecht: een geschorste speler verliest er niets mee op zijn
+nog aan, en iedere chip komt als zichzelf in de rest van de app terecht —
+dezelfde statussen die de beschikbaarheidsstap aanbiedt als je de
+voorbereiding begint. Een geschorste speler verliest er niets mee op zijn
 aanwezigheidsscore, en de minutencontrole toont hem als niet beschikbaar
 in plaats van als ontbrekende minuten.
 

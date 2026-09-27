@@ -172,6 +172,46 @@ final class PlayerSuspensionTest extends WP_UnitTestCase {
         $this->assertSame( 1, $this->eventCount( JourneyEventType::SUSPENSION_ENDED ) );
     }
 
+    /** #4120 — reopening the serving match un-serves it; completing it again serves it once. */
+    public function test_reopening_the_last_covered_match_unserves_it_and_retracts_the_ended_event(): void {
+        $m1 = $this->activity( '2026-10-03', 'game' );
+        $m2 = $this->activity( '2026-10-10', 'game' );
+        $id = $this->suspend( $this->player, '2026-10-01', 2 );
+
+        $this->complete( $m1 );
+        $this->complete( $m2 );
+        $this->assertSame( 1, $this->eventCount( JourneyEventType::SUSPENSION_ENDED ) );
+
+        $this->reopen( $m2 );
+        $row = ( new SuspensionRepository() )->find( $id );
+        $this->assertNotNull( $row );
+        $this->assertEmpty( $row['served_on'], 'the reopened match no longer serves the ban' );
+        $this->assertSame( 0, $this->eventCount( JourneyEventType::SUSPENSION_ENDED ), 'the journey stops saying it ended' );
+        $this->assertTrue( SuspensionService::coversActivity( $this->player, $m2 ) );
+        $this->assertArrayHasKey( $this->player, PlayerAvailability::unavailableForActivity( [ $this->player ], $m2 ) );
+
+        $this->complete( $m2 );
+        $row = ( new SuspensionRepository() )->find( $id );
+        $this->assertNotNull( $row );
+        $this->assertSame( '2026-10-10', (string) $row['served_on'] );
+        $this->assertSame( 1, $this->eventCount( JourneyEventType::SUSPENSION_ENDED ), 'served once more, with one event' );
+    }
+
+    public function test_reopening_an_earlier_covered_match_leaves_a_served_ban_alone(): void {
+        $m1 = $this->activity( '2026-10-03', 'game' );
+        $m2 = $this->activity( '2026-10-10', 'game' );
+        $id = $this->suspend( $this->player, '2026-10-01', 2 );
+
+        $this->complete( $m1 );
+        $this->complete( $m2 );
+        $this->reopen( $m1 );
+
+        $row = ( new SuspensionRepository() )->find( $id );
+        $this->assertNotNull( $row );
+        $this->assertSame( '2026-10-10', (string) $row['served_on'], 'the last covered match decides, both ways' );
+        $this->assertSame( 1, $this->eventCount( JourneyEventType::SUSPENSION_ENDED ) );
+    }
+
     public function test_a_tournament_day_serves_one_match_per_fixture(): void {
         $day = $this->activity( '2026-10-03', 'tournament' );
         $f1  = $this->activity( '2026-10-03', 'match', 'planned', 0, '10:00:00' );
@@ -298,6 +338,17 @@ final class PlayerSuspensionTest extends WP_UnitTestCase {
             [ 'id' => $activity_id ]
         );
         do_action( 'tt_activity_marked_completed', $activity_id );
+    }
+
+    /** What the Reopen button does: back to planned, then the status hook. */
+    private function reopen( int $activity_id ): void {
+        global $wpdb;
+        $wpdb->update(
+            "{$wpdb->prefix}tt_activities",
+            [ 'activity_status_key' => 'planned', 'plan_state' => 'scheduled' ],
+            [ 'id' => $activity_id ]
+        );
+        do_action( 'tt_activity_status_changed', $activity_id, 'planned' );
     }
 
     private function activity( string $date, string $type, string $status = 'planned', int $team_id = 0, ?string $start = null ): int {
