@@ -134,6 +134,30 @@
     opacity: 0.75;
 }
 
+/* #4095 — an option the chosen layout cannot print: disabled, with the
+   reason under it in full contrast, so it reads as information, not as a
+   broken control. */
+.tt-mr-block.is-unavailable {
+    cursor: not-allowed;
+    background: var(--tt-bg-soft);
+}
+
+.tt-mr-block.is-unavailable .tt-mr-block__t { color: var(--tt-muted); }
+
+.tt-mr-block__why {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-warning-ink);
+}
+
+.tt-mr-block__why:empty { display: none; }
+
+.tt-mr-panel__hint--warn {
+    color: var(--tt-warning-ink);
+    font-weight: 600;
+}
+
+.tt-mr-panel__hint[hidden] { display: none; }
+
 .tt-mr-panel__actions {
     display: flex;
     flex-wrap: wrap;
@@ -217,6 +241,68 @@
 .tt-mr-preset.is-drifted { color: var(--tt-warning-ink); }
 
 /* ---- Report body -------------------------------------------------------- */
+
+/* #4096 — the section header, the same component the PDF prints: number,
+   title and what the section holds, on a band tinted with the club colour
+   and a bar in it. The tint is mixed where it is used, so a theme that sets
+   --tt-primary lower in the tree still colours it. Mobile-first: the meta
+   line sits under the title, and beside it from 480px. */
+.tt-mr {
+    --tt-mr-band: color-mix(in srgb, var(--tt-primary, #0b3d2e) 9%, var(--tt-paper, #ffffff));
+}
+
+.tt-mr .tt-mr-sh {
+    width: 100%;
+    margin: 0 0 var(--tt-sp-3);
+    border-collapse: collapse;
+    background: var(--tt-mr-band);
+}
+
+.tt-mr .tt-mr-sh tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--tt-sp-2);
+    padding: var(--tt-sp-2) var(--tt-sp-3) var(--tt-sp-2) 0;
+    border-left: 5px solid var(--tt-primary, #0b3d2e);
+}
+
+.tt-mr .tt-mr-sh td {
+    padding: 0;
+    border: 0;
+}
+
+.tt-mr .tt-mr-sh__no {
+    padding-left: var(--tt-sp-3);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-mr.tt-mr--ink-numbers .tt-mr-sh__no { color: var(--tt-ink); }
+
+.tt-mr .tt-mr-sh h2 {
+    margin: 0;
+    font-size: var(--tt-fs-lg);
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--tt-ink);
+}
+
+.tt-mr .tt-mr-sh__meta {
+    grid-column: 2;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+}
+
+.tt-mr-section__source {
+    margin: 0 0 var(--tt-sp-2);
+}
+
+@media (min-width: 480px) {
+    .tt-mr .tt-mr-sh tr { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .tt-mr .tt-mr-sh__meta { grid-column: auto; text-align: right; }
+}
 
 .tt-mr-empty,
 .tt-mr-muted {
@@ -319,7 +405,21 @@
     vertical-align: middle;
 }
 
-.tt-mr-bars th { min-width: 8rem; }
+/* #4099 — the name column is as wide as the longest name and never wraps,
+   so every row is one line high; the track takes the rest. On a phone a
+   very long name ellipsizes rather than pushing the track off screen. */
+.tt-mr-bars th {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.tt-mr-bars__name {
+    display: block;
+    max-width: 45vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .tt-mr-bars__track { width: 100%; }
 
@@ -406,6 +506,13 @@
 }
 
 .tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
+
+/* #4093 — the target the readings are judged against. */
+.tt-mr-test__target {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+}
 
 /* Snapshots (#3517). The bar says plainly that this is frozen, and why it
    cannot be shared by link. */
@@ -559,6 +666,7 @@
 
 @media (min-width: 480px) {
     .tt-mr-blocks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tt-mr-bars__name { max-width: none; }
 }
 
 @media (min-width: 768px) {

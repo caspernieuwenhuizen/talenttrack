@@ -46,12 +46,6 @@ final class TeamMonthlyReportLayout {
     /** Degradation rung: attention keeps its two most urgent players. */
     public const TRIM_ATTENTION = 'trim_attention';
 
-    /**
-     * Degradation rung, the pack's third page: each test prints its stat
-     * strip without the table of readings — what the one-pager always does.
-     */
-    public const TESTS_SUMMARY = 'tests_summary';
-
     /** Rows a ranked list keeps once elided: top 3, bottom 4. */
     public const ELIDE_KEEP_TOP = 3;
     public const ELIDE_KEEP_BOTTOM = 4;
@@ -74,8 +68,9 @@ final class TeamMonthlyReportLayout {
         'letterhead'      => 24.5,
         'coverage'        => 13.2,
         'kpi'             => 25.0,
-        'status'          => 20.4,
-        'section_base'    => 9.5,
+        // #4096 — every section opens with the numbered header band.
+        'status'          => 21.0,
+        'section_base'    => 10.0,
         'bar_row'         => 3.85,
         'attention_item'  => 17.2,
         'change_row'      => 4.6,
@@ -103,7 +98,7 @@ final class TeamMonthlyReportLayout {
         'roster_row'      => 5.5,
         'roster_row_mini' => 4.7,
         'roster_row_wide' => 4.7,
-        'notes'           => 48.5,
+        'notes'           => 49.0,
         'quality_row'     => 4.6,
         'matrix_footer'   => 42.0,
     ];
@@ -149,12 +144,118 @@ final class TeamMonthlyReportLayout {
     /** Rows the matrix footer's "what changed" strip prints. */
     public const STRIP_CHANGES = 6;
 
+    /**
+     * #4095 — the landscape matrix prints its tests as lines in a footer strip
+     * a third of the page wide, so it holds this many tests. The rest are
+     * named on the page, never dropped without a word.
+     */
+    public const MATRIX_MAX_TESTS = 3;
+
     public static function isValid( string $layout ): bool {
         return in_array( $layout, self::ALL, true );
     }
 
+    /**
+     * #4095 — can this layout print this tests `show` value?
+     *
+     * The one place the answer lives: the composition panel disables what a
+     * layout cannot print and says why, and the PDF prints the fallback,
+     * both from here. A player table (readings, change, or both) needs the
+     * pack; the one-pager and the landscape strip print the summary.
+     */
+    public static function supportsTestsShow( string $layout, string $show ): bool {
+        return ! TestsBlockOptions::showsPlayers( $show ) || $layout === self::PACK;
+    }
+
+    /** The `show` value this layout prints: the one asked for, or the summary. */
+    public static function testsShowFor( string $layout, string $show ): string {
+        return self::supportsTestsShow( $layout, $show ) ? $show : TestsBlockOptions::SHOW_SUMMARY;
+    }
+
+    /** How many tests this layout prints; null when it prints every one. */
+    public static function maxTests( string $layout ): ?int {
+        return $layout === self::MATRIX ? self::MATRIX_MAX_TESTS : null;
+    }
+
+    /**
+     * Why this layout cannot print this `show` value, for the panel. Empty
+     * when it can.
+     */
+    public static function testsShowReason( string $layout, string $show ): string {
+        if ( self::supportsTestsShow( $layout, $show ) ) return '';
+        return $layout === self::MATRIX
+            ? __( 'Needs the pack (up to four pages). Landscape prints the summary.', 'talenttrack' )
+            : __( 'Needs the pack (up to four pages). The one-pager prints the summary.', 'talenttrack' );
+    }
+
+    /**
+     * #4095 — the tests section as this layout prints it: `show` reduced to
+     * what the layout can hold, and on the landscape matrix the tests past
+     * `MATRIX_MAX_TESTS` taken off the page and named in `omitted`, so the
+     * page can say which ones went.
+     *
+     * Applied before `fit()` measures and before the document renders, so
+     * the estimate, the paper and the panel read the same thing.
+     *
+     * @param array<string,mixed> $tests the report's `tests` block.
+     * @return array<string,mixed>
+     */
+    public static function testsForLayout( array $tests, string $layout ): array {
+        $tests['show'] = self::testsShowFor( $layout, TestsBlockOptions::show( [ 'show' => $tests['show'] ?? null ] ) );
+
+        $max    = self::maxTests( $layout );
+        $rounds = self::listOf( $tests, 'rounds' );
+        if ( $max !== null && count( $rounds ) > $max ) {
+            $omitted = [];
+            foreach ( array_slice( $rounds, $max ) as $round ) {
+                $omitted[] = is_array( $round ) ? (string) ( $round['name'] ?? '' ) : '';
+            }
+            $tests['rounds']  = array_values( array_slice( $rounds, 0, $max ) );
+            $tests['omitted'] = $omitted;
+        }
+
+        return $tests;
+    }
+
+    /**
+     * #4096 — the order a layout prints its sections in. The pack moves the
+     * roster onto its own page ahead of the meeting pages; the landscape
+     * matrix prints the roster as the page and gathers matches, what changed,
+     * tests and notes in a footer strip.
+     *
+     * @return list<string>
+     */
+    public static function printOrder( string $layout ): array {
+        switch ( $layout ) {
+            case self::PACK:
+                return [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'roster', 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ];
+            case self::MATRIX:
+                return [ 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality', 'matches', 'changes', 'tests', 'notes' ];
+        }
+        return array_values( array_diff( TeamMonthlyReportBlock::ALL, [ TeamMonthlyReportBlock::LETTERHEAD ] ) );
+    }
+
+    /**
+     * #4096 — each ticked section's number, following the sections this
+     * layout prints in the order it prints them, so "section 6" is the same
+     * section on screen and on paper.
+     *
+     * @param list<string> $selected
+     * @return array<string,int>
+     */
+    public static function sectionNumbers( array $selected, string $layout ): array {
+        $out = [];
+        $n   = 0;
+        foreach ( self::printOrder( $layout ) as $block ) {
+            if ( ! in_array( $block, TeamMonthlyReportBlock::HEADED, true ) || ! in_array( $block, $selected, true ) ) continue;
+            $out[ $block ] = ++$n;
+        }
+        return $out;
+    }
+
     public static function maxPages( string $layout ): int {
-        return $layout === self::PACK ? 3 : 1;
+        // #4092 — the pack grows to a fourth page rather than shortening.
+        return $layout === self::PACK ? 4 : 1;
     }
 
     /**
@@ -169,8 +270,8 @@ final class TeamMonthlyReportLayout {
                 'desc'  => __( 'A4 portrait, one page. A copy for everyone at the table.', 'talenttrack' ),
             ],
             self::PACK      => [
-                'title' => __( 'Three-page pack', 'talenttrack' ),
-                'desc'  => __( 'A4 portrait, up to three pages. Room for the player-by-player table.', 'talenttrack' ),
+                'title' => __( 'Pack (up to four pages)', 'talenttrack' ),
+                'desc'  => __( 'A4 portrait, up to four pages. Room for the player-by-player table and every test reading.', 'talenttrack' ),
             ],
             self::MATRIX    => [
                 'title' => __( 'Landscape matrix', 'talenttrack' ),
@@ -191,12 +292,21 @@ final class TeamMonthlyReportLayout {
     /**
      * Does this composition fit this layout, and at what cost?
      *
+     * `groups` (#4092) is the sections each printed page group holds, in
+     * print order: one group on the single-sheet layouts, up to four on the
+     * pack. The PDF lays its pages out from it, so the estimate and the paper
+     * cannot split the report differently.
+     *
      * @param array{data:array<string,array<string,mixed>>} $report a `TeamMonthlyReport::forTeam()` payload.
-     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>}
+     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>}
      */
     public static function fit( array $report, string $layout ): array {
         $layout = self::isValid( $layout ) ? $layout : self::DEFAULT;
         $data   = $report['data'];
+        if ( isset( $data['tests'] ) ) {
+            // #4095 — measure what this layout prints, not what was asked for.
+            $data['tests'] = self::testsForLayout( $data['tests'], $layout );
+        }
 
         if ( $layout === self::PACK ) {
             return self::fitPack( $data );
@@ -222,54 +332,76 @@ final class TeamMonthlyReportLayout {
             'fits'      => $height <= $capacity,
             'fill'      => [ $fill ],
             'degraded'  => $degraded,
+            'groups'    => self::singleSheetGroups( $data, $layout ),
         ];
     }
 
     /**
      * @param array<string,array<string,mixed>> $data
-     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>}
+     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>}
      */
     private static function fitPack( array $data ): array {
-        $none   = [];
-        $page_1 = self::sum( $data, [ 'letterhead', 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], self::PACK, $none );
-        $page_2 = self::sum( $data, [ 'roster' ], self::PACK, $none );
+        $none = [];
 
-        // The pack prints matches on its third page, so they count there.
-        // That page degrades before it overflows (#4069): the tests drop
-        // their tables of readings first, then the agenda keeps its two most
-        // urgent players.
-        $page_3_blocks = [ 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ];
-        $degraded      = [];
-        $page_3        = self::sum( $data, $page_3_blocks, self::PACK, $degraded );
-        if ( $page_3 > self::PORTRAIT_MM && isset( $data['tests'] ) ) {
-            $summary = self::sum( $data, $page_3_blocks, self::PACK, [ self::TESTS_SUMMARY ] );
-            if ( $summary < $page_3 ) {
-                $degraded[] = self::TESTS_SUMMARY;
-                $page_3     = $summary;
-            }
-        }
-        if ( $page_3 > self::PORTRAIT_MM && self::count( $data['attention'] ?? [], 'items' ) > self::ATTENTION_KEEP ) {
-            $degraded[] = self::TRIM_ATTENTION;
-            $page_3     = self::sum( $data, $page_3_blocks, self::PACK, $degraded );
+        // #4092 — the pack prints everything that was ticked and grows to a
+        // fourth page rather than shortening anything. Page 3 holds the
+        // meeting's matches, agenda and changes; the tests, the ruled lines
+        // and the data-quality list stay under them while they fit, and
+        // otherwise move, whole, to a page 4 of their own. A page that still
+        // runs over flows onto a further sheet, as the roster always has, and
+        // the meter says so.
+        $groups = [
+            [ 'letterhead', 'coverage', 'kpi', 'status', 'attendance', 'minutes' ],
+            [ 'roster' ],
+        ];
+        $meeting = [ 'matches', 'attention', 'changes' ];
+        $closing = [ 'tests', 'notes', 'quality' ];
+
+        $page_3 = self::sum( $data, $meeting, self::PACK, $none );
+        $page_4 = self::sum( $data, $closing, self::PACK, $none );
+        if ( $page_3 <= 0.0 || $page_3 + $page_4 <= self::PORTRAIT_MM ) {
+            $groups[] = array_merge( $meeting, $closing );
+        } else {
+            $groups[] = $meeting;
+            $groups[] = $closing;
         }
 
-        $fill  = [];
-        $fits  = true;
-        $pages = 0;
-        foreach ( [ $page_1, $page_2, $page_3 ] as $mm ) {
+        $fill    = [];
+        $fits    = true;
+        $pages   = 0;
+        $printed = [];
+        foreach ( $groups as $group ) {
+            $mm = self::sum( $data, $group, self::PACK, $none );
             if ( $mm <= 0.0 ) continue; // a page with nothing selected on it is not printed
-            $pages += (int) max( 1, ceil( $mm / self::PORTRAIT_MM ) );
-            $fill[] = (int) round( $mm / self::PORTRAIT_MM * 100 );
+            $pages    += (int) max( 1, ceil( $mm / self::PORTRAIT_MM ) );
+            $fill[]    = (int) round( $mm / self::PORTRAIT_MM * 100 );
+            $printed[] = array_values( array_filter( $group, static fn( string $b ): bool => isset( $data[ $b ] ) ) );
             if ( $mm > self::PORTRAIT_MM ) $fits = false;
         }
 
         return [
             'pages'     => max( 1, $pages ),
-            'max_pages' => 3,
+            'max_pages' => self::maxPages( self::PACK ),
             'fits'      => $fits,
             'fill'      => $fill,
-            'degraded'  => $degraded,
+            'degraded'  => [],
+            'groups'    => $printed,
         ];
+    }
+
+    /**
+     * The sections a single-sheet layout prints, in its print order, as its
+     * one page group.
+     *
+     * @param array<string,array<string,mixed>> $data
+     * @return list<list<string>>
+     */
+    private static function singleSheetGroups( array $data, string $layout ): array {
+        $blocks = [];
+        foreach ( array_merge( [ 'letterhead' ], self::printOrder( $layout ) ) as $block ) {
+            if ( isset( $data[ $block ] ) ) $blocks[] = $block;
+        }
+        return [ $blocks ];
     }
 
     /**
@@ -444,10 +576,8 @@ final class TeamMonthlyReportLayout {
         $rounds = self::listOf( $block_data, 'rounds' );
         if ( $rounds === [] ) return self::MM['match_note'];
 
-        $show       = TestsBlockOptions::show( [ 'show' => $block_data['show'] ?? null ] );
-        $with_table = $layout !== self::ONE_PAGER
-            && ! in_array( self::TESTS_SUMMARY, $degraded, true )
-            && TestsBlockOptions::showsPlayers( $show );
+        $show       = self::testsShowFor( $layout, TestsBlockOptions::show( [ 'show' => $block_data['show'] ?? null ] ) );
+        $with_table = TestsBlockOptions::showsPlayers( $show );
 
         $mm = 0.0;
         foreach ( $rounds as $round ) {
@@ -463,6 +593,8 @@ final class TeamMonthlyReportLayout {
                 $mm += self::MM['test_card'];
             }
         }
+        // #4093 — the "no target" explanation, once per section.
+        if ( TeamMonthlyReport::testsHaveTargetlessRound( $block_data ) ) $mm += self::MM['match_note'];
         return $mm;
     }
 
@@ -550,9 +682,6 @@ final class TeamMonthlyReportLayout {
                 $rows = self::listOf( $report['data'][ $block ], 'rows' );
                 $report['data'][ $block ]['rows'] = self::elide( array_values( $rows ), $value_key );
             }
-        }
-        if ( in_array( self::TESTS_SUMMARY, $rungs, true ) && isset( $report['data']['tests'] ) ) {
-            $report['data']['tests']['show'] = TestsBlockOptions::SHOW_SUMMARY;
         }
         if ( in_array( self::TRIM_ATTENTION, $rungs, true ) && isset( $report['data']['attention'] ) ) {
             $items = self::listOf( $report['data']['attention'], 'items' );

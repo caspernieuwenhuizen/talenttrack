@@ -8,6 +8,9 @@ use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
+use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Export\Exporters\TeamMonthlyReportPdfDocument;
+use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
@@ -44,6 +47,17 @@ final class TeamMonthlyReportPage {
     public const SLUG = 'team-monthly';
 
     /**
+     * #4096 — each shown section's number in print order, and the data its
+     * header's meta line is read from. Set once per render.
+     *
+     * @var array<string,int>
+     */
+    private static array $numbers = [];
+
+    /** @var array<string,array<string,mixed>> */
+    private static array $data = [];
+
+    /**
      * @param object                                          $team   tt_teams row.
      * @param array{from:string,to:string,period:string}      $window the resolved window.
      */
@@ -61,8 +75,8 @@ final class TeamMonthlyReportPage {
 
         self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit, $options );
 
-        echo '<div class="tt-mr" data-tt-monthly-report>';
-        self::renderBlocks( $report, $team, $window );
+        echo '<div class="' . esc_attr( self::wrapperClass() ) . '" data-tt-monthly-report>';
+        self::renderBlocks( $report, $team, $window, $layout );
         echo '</div>';
 
         TeamMonthlyReportSnapshotPage::renderTakeAndList( $team_id, $window, $layout, $report['blocks'], $options );
@@ -82,7 +96,7 @@ final class TeamMonthlyReportPage {
      * @param array<string,array{body:string, author:int, updated_at:string}>                           $notes
      * @param string                                                                                    $snapshot uuid, '' on the live report
      */
-    public static function renderBlocks( array $report, ?object $team, array $window, array $notes = [], string $snapshot = '' ): void {
+    public static function renderBlocks( array $report, ?object $team, array $window, string $layout = TeamMonthlyReportLayout::DEFAULT, array $notes = [], string $snapshot = '' ): void {
         $data    = $report['data'];
         $team_id = (int) ( $team->id ?? 0 );
         $head    = $data['letterhead'] ?? [];
@@ -97,8 +111,19 @@ final class TeamMonthlyReportPage {
             return;
         }
 
+        // #4096 — sections in the order the chosen layout prints them, each
+        // numbered as on paper. A section the layout leaves off the page (the
+        // landscape matrix folds attendance and minutes into its roster) is
+        // still shown here, after the rest and without a number.
+        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $report['blocks'], $layout );
+        self::$data    = $data;
+        $order         = TeamMonthlyReportLayout::printOrder( $layout );
         foreach ( $report['blocks'] as $block ) {
-            if ( $block === TeamMonthlyReportBlock::LETTERHEAD ) continue;
+            if ( $block !== TeamMonthlyReportBlock::LETTERHEAD && ! in_array( $block, $order, true ) ) $order[] = $block;
+        }
+
+        foreach ( $order as $block ) {
+            if ( ! in_array( $block, $report['blocks'], true ) ) continue;
             $block_data = $data[ $block ] ?? [];
             switch ( $block ) {
                 case TeamMonthlyReportBlock::COVERAGE:   self::renderCoverage( $block_data ); break;
@@ -129,6 +154,15 @@ final class TeamMonthlyReportPage {
     /** The report's own styles, for a surface that is not the live report. */
     public static function enqueuePublic(): void {
         self::enqueue();
+    }
+
+    /**
+     * The report wrapper's classes. #4096 — a club colour too pale to read as
+     * the section number on its own tint gets ink numbers instead, decided by
+     * the same check the PDF makes.
+     */
+    public static function wrapperClass(): string {
+        return 'tt-mr' . ( ReportBrandColour::readableOnTint( ReportBrandColour::primary() ) ? '' : ' tt-mr--ink-numbers' );
     }
 
     /* ---------------------------------------------------------------
@@ -285,6 +319,14 @@ final class TeamMonthlyReportPage {
             [ 'tt-frontend-standard-reports' ],
             TT_VERSION
         );
+        // #4093 — the test standing chip is the player profile's, from its
+        // own stylesheet, so the two cannot drift apart in colour.
+        wp_enqueue_style(
+            'tt-frontend-measurements',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurements.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         wp_enqueue_script(
             'tt-frontend-team-monthly-report',
             TT_PLUGIN_URL . 'assets/js/frontend-team-monthly-report.js',
@@ -404,7 +446,7 @@ final class TeamMonthlyReportPage {
         // auto-placement; below 1024px it simply follows Sections.
         echo '<div class="tt-mr-panel__side">';
         self::renderMatchesOptions( $selected, $options );
-        self::renderTestsOptions( $team_id, $window, $selected, $options );
+        self::renderTestsOptions( $team_id, $window, $layout, $selected, $options );
         echo '</div>';
 
         self::renderFitMeter( $fit );
@@ -559,17 +601,12 @@ final class TeamMonthlyReportPage {
         echo '</ul>';
 
         if ( ! $fit['fits'] ) {
+            // #4092 — the pack shortens nothing: a page that runs over flows
+            // onto another sheet, and this says so.
             $msg = $fit['max_pages'] === 1
-                ? __( 'Does not fit on one page. Drop a section, or switch to the three-page pack.', 'talenttrack' )
-                : __( 'A page overflows. Drop a section to keep the pack to three pages.', 'talenttrack' );
+                ? __( 'Does not fit on one page. Drop a section, or switch to the pack.', 'talenttrack' )
+                : __( 'A page runs over onto another sheet. Nothing is left out; drop a section to keep the pack to four pages.', 'talenttrack' );
             echo '<p class="tt-mr-fit__msg is-over">' . esc_html( $msg ) . '</p>';
-        } elseif ( in_array( TeamMonthlyReportLayout::TESTS_SUMMARY, $fit['degraded'], true ) ) {
-            // #4069 — the pack's third page drops the tables of readings
-            // before it overflows, and says so.
-            $msg = in_array( TeamMonthlyReportLayout::TRIM_ATTENTION, $fit['degraded'], true )
-                ? __( 'Fits by shortening: each test prints its summary without the table of readings, and the agenda keeps its two most urgent players.', 'talenttrack' )
-                : __( 'Fits by shortening: each test prints its summary without the table of readings.', 'talenttrack' );
-            echo '<p class="tt-mr-fit__msg is-tight">' . esc_html( $msg ) . '</p>';
         } elseif ( $fit['degraded'] !== [] ) {
             echo '<p class="tt-mr-fit__msg is-tight">' . esc_html__( 'Fits by shortening: long player lists keep their top and bottom, and the agenda keeps its two most urgent players.', 'talenttrack' ) . '</p>';
         } else {
@@ -754,7 +791,7 @@ final class TeamMonthlyReportPage {
         $previous = is_array( $s['previous'] ?? null ) ? $s['previous'] : null;
         $total    = array_sum( array_map( 'intval', $counts ) );
 
-        self::sectionOpen( _x( 'Squad status', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::STATUS );
         if ( $total > 0 ) {
             echo '<div class="tt-mr-band" role="img" aria-label="' . esc_attr( self::statusSentence( $counts ) ) . '">';
             foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $color ) {
@@ -783,7 +820,6 @@ final class TeamMonthlyReportPage {
      */
     private static function renderAttendance( array $a, int $team_id, array $window ): void {
         $rows = is_array( $a['rows'] ?? null ) ? $a['rows'] : [];
-        $avg  = $a['team_avg_pct'] ?? null;
 
         // Gated where it is rendered: link() only emits the anchor when
         // CrossViewLink::allows() says the reader can open the target.
@@ -795,11 +831,7 @@ final class TeamMonthlyReportPage {
         ], RecordLink::dashboardUrl() ) );
 
         self::sectionOpen(
-            _x( 'Attendance', 'team monthly report section', 'talenttrack' ),
-            $avg !== null
-                /* translators: %s: team average attendance percentage */
-                ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::pct( $avg ) )
-                : __( 'No attendance recorded.', 'talenttrack' ),
+            TeamMonthlyReportBlock::ATTENDANCE,
             self::link( 'attendance-report-team', $source, __( 'Open the attendance report', 'talenttrack' ) )
         );
         if ( $rows !== [] ) {
@@ -832,14 +864,7 @@ final class TeamMonthlyReportPage {
         ], RecordLink::dashboardUrl() ) );
 
         self::sectionOpen(
-            _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),
-            sprintf(
-                /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
-                __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),
-                (int) ( $m['matches_recorded'] ?? 0 ),
-                (int) ( $m['matches_played'] ?? 0 ),
-                $target
-            ),
+            TeamMonthlyReportBlock::MINUTES,
             self::link( 'standard-report', $source, __( 'Open the minutes share report', 'talenttrack' ) )
         );
         if ( $rows === [] ) {
@@ -868,7 +893,7 @@ final class TeamMonthlyReportPage {
             }
             $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $r['player_id'] ?? 0 ) );
             echo '<tr class="is-' . esc_attr( $band !== '' ? $band : 'none' ) . '">';
-            echo '<th scope="row">' . self::link( 'players', $url, (string) ( $r['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+            echo '<th scope="row"><span class="tt-mr-bars__name">' . self::link( 'players', $url, (string) ( $r['name'] ?? '' ) ) . '</span></th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             echo '<td class="tt-mr-bars__track"><span class="tt-mr-track">';
             if ( $pct !== null ) {
                 echo '<i style="width:' . (int) max( 0, min( 100, round( $pct ) ) ) . '%;"></i>'; /* tt-inline-ok */
@@ -893,10 +918,7 @@ final class TeamMonthlyReportPage {
     private static function renderAttention( array $a ): void {
         $items = is_array( $a['items'] ?? null ) ? $a['items'] : [];
 
-        self::sectionOpen(
-            _x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ),
-            __( 'Players the status model flags, most urgent first.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::ATTENTION );
         if ( $items === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'Nobody is flagged this period.', 'talenttrack' ) . '</p>';
             self::sectionClose();
@@ -941,16 +963,8 @@ final class TeamMonthlyReportPage {
     /** @param array<string,mixed> $c */
     private static function renderChanges( array $c ): void {
         $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
-        $open   = (int) ( $c['open_injuries'] ?? 0 );
 
-        self::sectionOpen(
-            _x( 'What changed', 'team monthly report section', 'talenttrack' ),
-            sprintf(
-                /* translators: %d: players with an open injury */
-                _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
-                $open
-            )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::CHANGES );
         if ( $events === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</p>';
         } else {
@@ -972,7 +986,7 @@ final class TeamMonthlyReportPage {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
         $show   = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
 
-        self::sectionOpen( _x( 'Tests', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::TESTS );
         if ( $rounds === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</p>';
             self::sectionClose();
@@ -1000,6 +1014,12 @@ final class TeamMonthlyReportPage {
                     (int) ( $s['squad'] ?? 0 )
                 ) ) . '</p>';
 
+            // #4093 — the target the readings are judged against.
+            $target = TeamMonthlyReport::testTargetLabel( $s );
+            if ( $target !== '' ) {
+                echo '<p class="tt-mr-test__target">' . esc_html( $target ) . '</p>';
+            }
+
             if ( TestsBlockOptions::showsPlayers( $show ) ) {
                 self::renderTestReadings( $s, $show );
                 echo '</div>';
@@ -1019,6 +1039,10 @@ final class TeamMonthlyReportPage {
                 echo '<p class="tt-mr-muted">' . esc_html( sprintf( $template, implode( ', ', $names ) ) ) . '</p>';
             }
             echo '</div>';
+        }
+        // #4093 — once per section, as on the player profile.
+        if ( TeamMonthlyReport::testsHaveTargetlessRound( $t ) ) {
+            echo '<p class="tt-meas-note">' . esc_html__( '"No target" means the test has no better or worse — the reading is recorded, not judged.', 'talenttrack' ) . '</p>';
         }
         self::sectionClose();
     }
@@ -1067,7 +1091,7 @@ final class TeamMonthlyReportPage {
         $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
         $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
 
-        self::sectionOpen( _x( 'Matches', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::MATCHES );
 
         if ( $fixtures === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</p>';
@@ -1256,7 +1280,7 @@ final class TeamMonthlyReportPage {
      * @param list<string>                                 $selected
      * @param array<string,array<string,mixed>>            $options
      */
-    private static function renderTestsOptions( int $team_id, array $window, array $selected, array $options ): void {
+    private static function renderTestsOptions( int $team_id, array $window, string $layout, array $selected, array $options ): void {
         if ( ! in_array( TeamMonthlyReportBlock::TESTS, $selected, true ) ) return;
 
         $available = TeamMonthlyReport::testableDefinitions( $team_id, $window['from'], $window['to'] );
@@ -1289,16 +1313,54 @@ final class TeamMonthlyReportPage {
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Tick none to show every test taken this period.', 'talenttrack' ) . '</p>';
         echo '</div>';
 
-        $select_id = 'tt-mr-tests-show';
+        // #4095 — radios rather than a select, so an option the chosen
+        // layout cannot print can stand disabled with its reason under it.
+        // The panel script re-evaluates them when the layout changes; without
+        // script the page does it on "Update report".
+        $printed = TeamMonthlyReportLayout::testsShowFor( $layout, $show );
         echo '<div class="tt-mr-opts__row">';
-        echo '<label class="tt-mr-opts__label" for="' . esc_attr( $select_id ) . '">' . esc_html__( 'How much to show', 'talenttrack' ) . '</label>';
-        echo '<select class="tt-input" id="' . esc_attr( $select_id ) . '" name="opt_tests_show" data-tt-mr-block>';
+        echo '<span class="tt-mr-opts__label" id="tt-mr-tests-show">' . esc_html__( 'How much to show', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-mr-blocks" role="radiogroup" aria-labelledby="tt-mr-tests-show">';
         foreach ( TestsBlockOptions::showLabels() as $value => $label ) {
-            echo '<option value="' . esc_attr( $value ) . '"' . selected( $show, $value, false ) . '>' . esc_html( $label ) . '</option>';
+            $id     = 'tt-mr-tests-show-' . $value;
+            $reason = TeamMonthlyReportLayout::testsShowReason( $layout, $value );
+            $whys   = '';
+            foreach ( TeamMonthlyReportLayout::ALL as $key ) {
+                $whys .= ' data-tt-mr-why-' . strtolower( $key ) . '="' . esc_attr( TeamMonthlyReportLayout::testsShowReason( $key, $value ) ) . '"';
+            }
+            echo '<label class="tt-mr-block tt-mr-block--opt' . ( $reason !== '' ? ' is-unavailable' : '' ) . '" for="' . esc_attr( $id ) . '" data-tt-mr-show-option' . $whys . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $whys is escaped above.
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="opt_tests_show" value="' . esc_attr( $value ) . '"'
+                . checked( $printed, $value, false ) . disabled( $reason !== '', true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
+            echo '<span class="tt-mr-block__why" data-tt-mr-why>' . esc_html( $reason ) . '</span>';
+            echo '</label>';
         }
-        echo '</select>';
-        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Readings and change print as a table, which the one-pager shortens to the summary.', 'talenttrack' ) . '</p>';
         echo '</div>';
+        if ( $printed !== $show ) {
+            // A saved view, a shared link or a schedule asked for more than
+            // this layout prints. It renders the summary, and says so here
+            // rather than on the coach's printer.
+            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn">' . esc_html( sprintf(
+                /* translators: %s: the tests option that was asked for, e.g. "Readings" */
+                __( 'This report asked for “%s”, which this layout cannot print. It prints the summary; choose the pack to print the tables.', 'talenttrack' ),
+                TestsBlockOptions::showLabels()[ $show ] ?? $show
+            ) ) . '</p>';
+        }
+        echo '</div>';
+
+        // #4095 — the landscape strip holds three tests; say so before the
+        // PDF does, and which ones fall off.
+        $max   = TeamMonthlyReportLayout::MATRIX_MAX_TESTS;
+        $count = $chosen !== [] ? count( $chosen ) : count( $available );
+        if ( $count > $max ) {
+            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn" data-tt-mr-when-layout="' . esc_attr( TeamMonthlyReportLayout::MATRIX ) . '"'
+                . ( TeamMonthlyReportLayout::maxTests( $layout ) === null ? ' hidden' : '' ) . '>' . esc_html( sprintf(
+                /* translators: 1: tests the landscape layout prints, 2: tests selected */
+                __( 'Landscape prints up to %1$d tests; %2$d are selected. The PDF names the ones it leaves out.', 'talenttrack' ),
+                $max,
+                $count
+            ) ) . '</p>';
+        }
 
         echo '</fieldset>';
     }
@@ -1319,6 +1381,13 @@ final class TeamMonthlyReportPage {
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
+        // #4093 — the standing column appears where there is a standing to
+        // show: a test with a target for this age group.
+        $standing = false;
+        foreach ( $rows as $row ) {
+            if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
+        }
+
         echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-test-readings">';
         echo '<thead><tr><th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         if ( $values ) {
@@ -1328,6 +1397,9 @@ final class TeamMonthlyReportPage {
                     ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
                     : _x( 'Result', 'monthly report tests column', 'talenttrack' )
             ) . '</th>';
+        }
+        if ( $standing ) {
+            echo '<th scope="col">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
         }
         if ( $trend ) {
             echo '<th scope="col" class="num">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
@@ -1341,6 +1413,12 @@ final class TeamMonthlyReportPage {
             echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             if ( $values ) {
                 echo '<td class="num">' . esc_html( self::testValue( $row ) ) . '</td>';
+            }
+            if ( $standing ) {
+                $label = (string) ( $row['verdict_label'] ?? '' );
+                echo '<td>' . ( $label !== ''
+                    ? '<span class="tt-meas-chip ' . esc_attr( TestVerdict::chipClass( (string) ( $row['verdict_tone'] ?? '' ) ) ) . '">' . esc_html( $label ) . '</span>'
+                    : '' ) . '</td>';
             }
             if ( $trend ) {
                 echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'
@@ -1386,7 +1464,7 @@ final class TeamMonthlyReportPage {
     private static function renderRoster( array $r ): void {
         $rows = is_array( $r['rows'] ?? null ) ? $r['rows'] : [];
 
-        self::sectionOpen( _x( 'Player by player', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::ROSTER );
         echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-roster">';
         echo '<thead><tr>'
             . '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
@@ -1423,10 +1501,7 @@ final class TeamMonthlyReportPage {
     }
 
     private static function renderNotes(): void {
-        self::sectionOpen(
-            _x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ),
-            __( 'Ruled lines on the printed copy, for what the meeting agrees.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::NOTES );
         echo '<div class="tt-mr-lines" aria-hidden="true">';
         for ( $i = 0; $i < 4; $i++ ) echo '<span></span>';
         echo '</div>';
@@ -1442,10 +1517,7 @@ final class TeamMonthlyReportPage {
         $not_evaluated = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
         $incomplete    = is_array( $q['players_with_incomplete_status'] ?? null ) ? $q['players_with_incomplete_status'] : [];
 
-        self::sectionOpen(
-            _x( 'Data quality', 'team monthly report section', 'talenttrack' ),
-            __( 'Fix these before next month and the report gets sharper.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::QUALITY );
         $lines = [];
         if ( $no_register !== [] ) {
             /* translators: %d: activities without an attendance register */
@@ -1509,12 +1581,19 @@ final class TeamMonthlyReportPage {
      * Helpers
      * ------------------------------------------------------------- */
 
-    private static function sectionOpen( string $title, string $hint = '', string $action_html = '' ): void {
-        echo '<section class="tt-rep-section tt-mr-section">';
-        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html( $title ) . '</h2>';
-        if ( $hint !== '' ) echo '<span class="tt-rep-section__hint">' . esc_html( $hint ) . '</span>';
-        if ( $action_html !== '' ) echo '<span class="tt-mr-section__source">' . $action_html . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by link().
-        echo '</div>';
+    /**
+     * #4096 — a section opens with the header the PDF prints: its number in
+     * print order, its title, and the line saying what it holds, from the
+     * same component and the same data.
+     */
+    private static function sectionOpen( string $block, string $action_html = '' ): void {
+        echo '<section class="tt-rep-section tt-mr-section" id="' . esc_attr( 'tt-mr-sec-' . $block ) . '">';
+        echo TeamMonthlyReportPdfDocument::sectionHeader( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes.
+            self::$numbers[ $block ] ?? 0,
+            TeamMonthlyReportBlock::title( $block ),
+            TeamMonthlyReport::sectionMeta( $block, self::$data[ $block ] ?? [] )
+        );
+        if ( $action_html !== '' ) echo '<p class="tt-mr-section__source">' . $action_html . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by link().
     }
 
     private static function sectionClose(): void {

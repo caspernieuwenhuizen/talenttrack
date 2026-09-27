@@ -28,8 +28,13 @@ Above the report is a panel with two choices.
 **Report type** decides how the printed copy is laid out:
 
 - **One-pager** — one A4 page, a copy for everyone at the table.
-- **Three-page pack** — up to three A4 pages, with room for the full
-  player-by-player table.
+- **Pack (up to four pages)** — up to four A4 pages, with room for the full
+  player-by-player table and every test reading. Page 1 is the dashboard and
+  page 2 the player-by-player table. Page 3 holds the matches, who needs a
+  conversation and what changed; the tests, the decisions and data quality
+  follow on page 3 when they fit, and start a fourth page when they do not.
+  The pack never shortens what you ticked. A page that still runs over
+  continues on another sheet, and the printed-size meter says so.
 - **Landscape matrix** — one landscape page with every player in a single row,
   the whole squad comparable at a glance.
 
@@ -63,6 +68,14 @@ decides what each test prints:
   result.
 - **Readings and change** — both columns.
 
+The three options with a player table need the pack. On the one-pager and the
+landscape matrix they are greyed out, with the reason under them, and the
+printed copy shows the summary. Switch the report type and the options follow.
+A saved view or a link that asks for readings on a layout that cannot print
+them opens with the summary, and the panel says why. The landscape matrix
+prints up to three tests. With more selected, the panel warns you, and the
+printed copy names the tests it left out.
+
 A timed test reads as minutes and seconds (`16:04`), the way it was entered,
 and its change is in seconds (`−7 s`). A test where lower or higher is better
 lists its players from best to worst; a test without a direction, such as
@@ -76,7 +89,7 @@ as an oversight. A test that has since been deleted is left out.
 each page is. On the one-pager, long player lists are shortened to their top and
 bottom first, and the agenda to its two most urgent players, before the page is
 reported as too full. If it still does not fit, drop a section or switch to the
-three-page pack.
+pack. The pack shortens nothing: it shows a bar for each page, up to four.
 
 ## Saving your usual report
 
@@ -118,6 +131,14 @@ colour of the result) sit beside the scorers, ranked by goals and then assists,
 each with a bar. A totals row and a line such as *"7 of 8 goals attributed"*
 show whether every goal has a scorer entered.
 
+Each test shows its **target** for the team's age group, such as *"Target
+O14: ≤ 12:30"*, and every reading its **standing** against it: *on target*,
+*just over target* or *well over target* (*under* on a test where higher is
+better), in the same words and colours as the test register on the player's
+own profile. A test without a better or worse reads *no target*, and the
+section says once what that means. A test with no target for the age group
+shows neither.
+
 Each test on paper gets a card: its name, which way is better, the date and how
 many were tested, then a strip of figures — the squad average and how it moved
 since the previous round, the best reading, how many got better or worse, how
@@ -128,9 +149,9 @@ bar in the colour of their target band, their previous reading, the change
 (green when it is an improvement, so a faster time is green), the gap to the
 squad average, and **PB** on a personal best. A dashed line marks where the
 squad average falls. The one-pager prints the strip only, with the worst
-reading in place of the history. On the three-page pack, when the third page
-would overflow, the tests print their strip only first, and then the agenda
-keeps its two most urgent players; the meter says which.
+reading in place of the history. On the pack, tests that do not fit under the
+agenda move to a fourth page with their tables in full; nothing is left out
+to save paper.
 
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.
@@ -156,6 +177,15 @@ put right.
 Scheduled reports are part of the Standard plan and above.
 
 ## What the sections show
+
+Every section opens with the same header on screen and on paper: a number,
+the title, and a short line saying what the section holds, such as *"4 played
+· 2 W 1 D 1 L"* or *"5 players · most urgent first"*. The header sits on a
+band in the club's colour, so the start of each section is easy to find when
+you leaf through the printed copy. The numbers follow the sections you ticked,
+in the order the chosen type prints them, so "section 6" is the same section
+on screen and on paper. Tick or untick a section and the numbers after it
+move with it.
 
 - **Data coverage** — how many of the period's completed trainings and matches
   have an attendance register, and which do not. It sits above the numbers
@@ -187,7 +217,8 @@ Scheduled reports are part of the Standard plan and above.
 - **Tests** — test rounds held, how many players took part, and who improved or
   declined since their last result. Which tests, and whether you also see the
   readings themselves, is up to you — see *Choosing what goes in it*. The
-  one-pager always prints the summary, because a readings table would not fit.
+  one-pager and the landscape matrix print the summary, and the panel says so
+  before you print.
 - **Player by player** — every measure for every player in one table.
 - **Decisions and actions** — space on the printed copy to write what the
   meeting agrees.

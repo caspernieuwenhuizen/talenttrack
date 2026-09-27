@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Shared\Frontend\FrontendViewBase;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
+use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -296,8 +297,16 @@ class FrontendMeasurementsView extends FrontendViewBase {
         }
         $never = ( $value === '' && $readings === 0 );
 
-        [ $chip_label, $chip_class ] = self::verdict( $t, $never );
-        [ $target, $target_absent ]  = self::target( $t );
+        // #4093 — the verdict and the target come from the helper the team
+        // monthly report prints them with, so the two surfaces cannot word,
+        // colour or format them differently.
+        $verdict    = TestVerdict::verdict( $type, $direction, $flag, $never, (string) ( $t['latest_value'] ?? '' ) );
+        $chip_label = $verdict['label'];
+        $chip_class = TestVerdict::chipClass( $verdict['tone'], (string) ( $t['level_token'] ?? '' ) );
+
+        $target_cell   = is_array( $t['target'] ?? null ) ? $t['target'] : [];
+        $target        = (string) ( $target_cell['text'] ?? '' );
+        $target_absent = ! empty( $target_cell['absent'] );
 
         $history = '';
         if ( ! $never && count( $series ) >= 2 ) {
@@ -320,109 +329,6 @@ class FrontendMeasurementsView extends FrontendViewBase {
             'never_measured'  => $never,
             'overdue'         => ! empty( $t['overdue'] ),
         ];
-    }
-
-    /**
-     * The verdict, in words. The table is fixed (#3526, locked decision 3) —
-     * colour restates it, never replaces it.
-     *
-     * A direction-less test gets no chip at all: there is no better or worse
-     * to report, and the target column says so once.
-     *
-     * @param array<string, mixed> $t
-     * @return array{0:string, 1:string}
-     */
-    private static function verdict( array $t, bool $never ): array {
-        // Every label here goes through `_x()`. They are two or three words
-        // long, which is exactly the length at which a msgid picks up another
-        // surface's sense: "on target" was already in the catalogue as "op
-        // schema" — on *schedule* — which is a different statement about a
-        // different thing, and reusing it would have printed it on a sprint
-        // time.
-        if ( $never ) {
-            return [
-                _x( 'not measured yet', 'a test that has never been measured', 'talenttrack' ),
-                'tt-meas-chip--none',
-            ];
-        }
-
-        $type = (string) ( $t['value_type'] ?? '' );
-
-        // A level is its own verdict, already named and already coloured by
-        // the operator's own palette. Restating it as "on target" would be
-        // inventing a judgement the level vocabulary does not make.
-        if ( $type === 'status' ) {
-            $token = (string) ( $t['level_token'] ?? '' );
-            // The shipped level palette already paints `.tt-meas-value--status`
-            // at =4.5:1 across the curated swatches; the chip reuses it rather
-            // than opening a second set of level colours to keep in step.
-            $class = $token !== ''
-                ? 'tt-meas-value--status ' . \TT\Modules\Measurements\Levels\MeasurementLevelPalette::cssClass( $token )
-                : 'tt-meas-chip--none';
-            return [ (string) ( $t['latest_value'] ?? '' ), $class ];
-        }
-
-        if ( $type === 'passfail' ) {
-            return [ '', '' ];
-        }
-
-        $direction = (string) ( $t['direction'] ?? '' );
-        if ( $direction !== 'higher' && $direction !== 'lower' ) {
-            return [ '', '' ];
-        }
-
-        switch ( (string) ( $t['flag'] ?? '' ) ) {
-            case 'ok':
-                return [
-                    _x( 'on target', 'a test reading meets its target', 'talenttrack' ),
-                    'tt-meas-chip--ok',
-                ];
-            case 'warn':
-                return $direction === 'higher'
-                    ? [ _x( 'just under target', 'a reading a little below a higher-is-better target', 'talenttrack' ), 'tt-meas-chip--warn' ]
-                    : [ _x( 'just over target', 'a reading a little above a lower-is-better target', 'talenttrack' ), 'tt-meas-chip--warn' ];
-            case 'bad':
-                return $direction === 'higher'
-                    ? [ _x( 'well under target', 'a reading far below a higher-is-better target', 'talenttrack' ), 'tt-meas-chip--bad' ]
-                    : [ _x( 'well over target', 'a reading far above a lower-is-better target', 'talenttrack' ), 'tt-meas-chip--bad' ];
-        }
-
-        return [ '', '' ];
-    }
-
-    /**
-     * The target the flag is computed against, rendered from the same band the
-     * flag uses — so a coach can finally check the colour against something.
-     *
-     * The band is open on the better side (#3028), which is why it renders as
-     * a floor or a ceiling rather than a range. A level-banded test has
-     * several thresholds and no single cell can hold them, so it renders an em
-     * dash and lets the chip carry the level name (locked decision 2).
-     *
-     * @param array<string, mixed> $t
-     * @return array{0:string, 1:bool} the cell, and whether it means "no target"
-     */
-    private static function target( array $t ): array {
-        $type = (string) ( $t['value_type'] ?? '' );
-        if ( $type === 'status' || $type === 'passfail' ) {
-            return [ '', false ];
-        }
-
-        $direction = (string) ( $t['direction'] ?? '' );
-        if ( $direction !== 'higher' && $direction !== 'lower' ) {
-            return [ _x( 'no target', 'a test with no better or worse value', 'talenttrack' ), true ];
-        }
-
-        $band = is_array( $t['band'] ?? null ) ? (array) $t['band'] : null;
-        if ( $band === null ) return [ '', false ];
-
-        $unit = (string) ( $t['unit'] ?? '' );
-        $edge = $direction === 'higher' ? ( $band['min'] ?? null ) : ( $band['max'] ?? null );
-        if ( $edge === null ) return [ '', false ];
-
-        $number = self::formatNumber( (float) $edge ) . ( $unit !== '' ? ' ' . $unit : '' );
-
-        return [ ( $direction === 'higher' ? '≥ ' : '≤ ' ) . $number, false ];
     }
 
     /**

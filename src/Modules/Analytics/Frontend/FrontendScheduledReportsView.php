@@ -162,7 +162,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         $sections  = count( TeamMonthlyReportBlock::normalise( $composition['blocks'] ) );
 
         echo '<p class="tt-sched-intro">' . esc_html( sprintf(
-            /* translators: 1: team name, 2: report type (e.g. Three-page pack), 3: number of sections */
+            /* translators: 1: team name, 2: report type (e.g. Pack (up to four pages)), 3: number of sections */
             _n(
                 '%1$s · %2$s · %3$d section. Sent on the 1st of every month as a PDF, covering the month before.',
                 '%1$s · %2$s · %3$d sections. Sent on the 1st of every month as a PDF, covering the month before.',

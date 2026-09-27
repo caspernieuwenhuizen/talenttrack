@@ -10293,7 +10293,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property object\:\:\$value_type\.$#'
 			identifier: property.notFound
-			count: 2
+			count: 1
 			path: src/Modules/Measurements/Services/PlayerMeasurementProfile.php
 
 		-

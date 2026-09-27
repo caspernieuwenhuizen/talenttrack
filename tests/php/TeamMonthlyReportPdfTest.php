@@ -114,10 +114,17 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'pack, matches and 3 tests' => [ 'B', null, false, 3 ],
             'pack, no roster, 3 tests' => [ 'B', [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'matches', 'tests' ], false, 3 ],
             'one-pager, matches, tests' => [ 'A', [ 'kpi', 'matches', 'tests' ], false, 3 ],
+            // #4095 — landscape keeps three tests and names the other two.
+            'matrix, five tests'       => [ 'C', null, false, 5 ],
+            // #4092 — the pack grows to a fourth page instead of shortening,
+            // and past it onto further sheets rather than dropping anything.
+            'pack, four pages'         => [ 'B', null, false, 3, 5 ],
+            'pack, page 4 runs over'   => [ 'B', null, false, 2, 15 ],
         ];
         foreach ( $cases as $label => $case ) {
             [ $layout, $blocks ] = $case;
-            $base    = ! empty( $case[3] ) ? $this->withMatchesAndTests( $this->report( 18 ), (int) $case[3] ) : $this->report( 20 );
+            $squad   = (int) ( $case[4] ?? 18 );
+            $base    = ! empty( $case[3] ) ? $this->withMatchesAndTests( $this->report( $squad ), (int) $case[3] ) : $this->report( 20 );
             $report  = $blocks === null ? $base : $this->only( $base, $blocks );
             if ( ! empty( $case[2] ) ) $report = $this->withLongText( $report );
             $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
@@ -207,6 +214,69 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '16:04', $one, 'With the worst reading in place of the history.' );
     }
 
+    /**
+     * #4092 — the pack prints everything ticked. Page 3 keeps every player
+     * who needs a conversation; the tests move, with their full tables, to a
+     * page 4 of their own.
+     */
+    public function test_the_pack_grows_to_a_fourth_page_instead_of_shortening(): void {
+        $report = $this->withMatchesAndTests( $this->report( 5 ), 3 );
+        $fit    = TeamMonthlyReportLayout::fit( $report, 'B' );
+
+        $this->assertSame( 4, $fit['pages'] );
+        $this->assertSame( 4, TeamMonthlyReportLayout::maxPages( 'B' ) );
+        $this->assertSame( [], $fit['degraded'], 'The pack shortens nothing.' );
+        $this->assertSame( [ 'tests', 'notes', 'quality' ], $fit['groups'][3] );
+
+        $html  = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $pages = explode( '<div class="page break">', $html );
+        $this->assertCount( 4, $pages );
+        $this->assertSame( 5, substr_count( $pages[2], 'class="a-red"' ), 'Page 3 lists all five players.' );
+        $this->assertSame( 3, substr_count( $pages[3], 'class="rd"' ), 'Page 4 has all three tests with their readings.' );
+
+        // A bigger squad runs page 4 over onto another sheet: still nothing
+        // dropped, and the meter says the pack does not fit.
+        $big     = $this->withMatchesAndTests( $this->report( 18 ), 3 );
+        $big_fit = TeamMonthlyReportLayout::fit( $big, 'B' );
+        $this->assertFalse( $big_fit['fits'] );
+        $big_html = TeamMonthlyReportPdfExporter::payload( $big, 'B', 'Pdf U13' )['html'];
+        $this->assertSame( 3, substr_count( $big_html, 'class="rd"' ) );
+        $this->assertSame( 5, substr_count( $big_html, 'class="a-red"' ) );
+    }
+
+    /** #4092 — a pack whose third page fits keeps three pages. */
+    public function test_a_pack_whose_third_page_fits_stays_three_pages(): void {
+        $fit = TeamMonthlyReportLayout::fit( $this->report( 20 ), 'B' );
+        $this->assertSame( 3, $fit['pages'] );
+        $this->assertCount( 3, $fit['groups'] );
+        $this->assertSame( [ 'attention', 'changes', 'tests', 'notes', 'quality' ], $fit['groups'][2], 'The tests stay on page 3 under the agenda.' );
+    }
+
+    /**
+     * #4093 — the test header carries the target, each reading its standing
+     * in the profile's words; the summary keeps the target in its header.
+     */
+    public function test_tests_print_the_target_and_each_readings_standing(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
+
+        $pack = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'Target U13: ≤ 12:30', $pack );
+        $this->assertStringContainsString( '<span class="vc vc-warn">just over target</span>', $pack );
+        $this->assertStringContainsString( '<span class="vc vc-bad">well over target</span>', $pack );
+
+        $one = TeamMonthlyReportPdfExporter::payload( $report, 'A', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'Target U13: ≤ 12:30', $one, 'the summary keeps the target' );
+        $this->assertStringNotContainsString( 'class="vc ', $one );
+
+        // A test without a direction: "no target", and the reason once.
+        $report['data']['tests']['rounds'][0]['target']        = null;
+        $report['data']['tests']['rounds'][0]['target_absent'] = true;
+        $report['data']['tests']['rounds'][1]                  = $report['data']['tests']['rounds'][0];
+        $none = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'no target', $none );
+        $this->assertSame( 1, substr_count( $none, 'the reading is recorded, not judged' ) );
+    }
+
     /** #4069 — a test with no target band for the age group has no band cell. */
     public function test_a_test_without_bands_prints_no_band_cell(): void {
         $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
@@ -254,6 +324,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
                 'player_id' => $i, 'name' => 'Player ' . $i, 'value' => 11.0 + $i / 10, 'value_display' => '11:' . str_pad( (string) ( $i * 3 ), 2, '0', STR_PAD_LEFT ),
                 'previous_display' => '12:10', 'delta_display' => '−9 s', 'trend' => 'up', 'first' => $i === 3, 'pb' => $i % 4 === 0,
                 'flag' => [ 'ok', 'warn', 'bad' ][ $i % 3 ], 'rank' => $i, 'bar_pct' => 50 + $i * 2,
+                'verdict_label' => [ 'on target', 'just over target', 'well over target' ][ $i % 3 ], 'verdict_tone' => [ 'ok', 'warn', 'bad' ][ $i % 3 ],
                 'vs_avg_display' => '−0:40', 'worse_than_avg' => $i > $players / 2,
             ];
         }
@@ -266,6 +337,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'worst'    => [ 'player_id' => 2, 'name' => 'Player 2', 'value_display' => '16:04' ],
             'moves'    => [ 'up' => 9, 'down' => 5, 'flat' => 0, 'first' => 1 ],
             'bands'    => [ 'age_group' => 'U13', 'ok' => 8, 'warn' => 5, 'bad' => 5, 'of' => $players ],
+            'target'   => '≤ 12:30', 'target_age_group' => 'U13', 'target_absent' => false,
             'history'  => [
                 [ 'date' => '2026-02-10', 'value' => 13.4, 'display' => '13:24', 'pct' => 100.0 ],
                 [ 'date' => '2026-04-10', 'value' => 13.2, 'display' => '13:12', 'pct' => 98.5 ],

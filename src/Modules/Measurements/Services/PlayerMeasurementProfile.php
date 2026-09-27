@@ -48,7 +48,11 @@ class PlayerMeasurementProfile {
      *   where a test is:
      *   [ 'definition_id', 'name', 'unit', 'value_type', 'frequency',
      *     'direction', 'latest_value', 'latest_date', 'flag', 'band',
-     *     'series', 'overdue' ]
+     *     'target', 'series', 'overdue' ]
+     *
+     * `target` (#4093) is `[ 'text' => string, 'absent' => bool ]` from
+     * `TestVerdict::target()`: the band's edge as printed, "no target" with
+     * `absent` for a test without a direction, empty when there is no band.
      *
      * `latest_value` is the reading in the test's entry unit, as a bare number
      * with a dot decimal (`mm:ss` for a duration, the recorded text for a level
@@ -82,7 +86,8 @@ class PlayerMeasurementProfile {
         $grouped = [];
         foreach ( $definitions as $def ) {
             $def_id      = (int) $def->id;
-            $is_status   = (string) $def->value_type === 'status';
+            $value_type  = (string) $def->value_type;
+            $is_status   = $value_type === 'status';
             $latest_row  = $latest[ $def_id ] ?? null;
             $value       = $this->displayValue( $def, $latest_row );
             $flag        = '';
@@ -157,7 +162,7 @@ class PlayerMeasurementProfile {
                 'definition_id' => $def_id,
                 'name'          => (string) $def->name,
                 'unit'          => $units->symbol(),
-                'value_type'    => (string) $def->value_type,
+                'value_type'    => $value_type,
                 'frequency'     => $frequency,
                 'direction'     => (string) $def->direction,
                 'latest_value'  => $value,
@@ -165,6 +170,10 @@ class PlayerMeasurementProfile {
                 'flag'          => $flag,
                 'level_token'   => $level_token,
                 'band'          => $band,
+                // #4093 — the target as printed (`≤ 12:30`, `≥ 45 cm`, or "no
+                // target"), from the same helper the team monthly report uses,
+                // so the two cannot word or format it differently.
+                'target'        => TestVerdict::target( $value_type, $direction, $target, $units ),
                 'series'        => $series,
                 // #3526 — is this test past its own measuring frequency? A
                 // derivation rather than presentation, so it lives here and

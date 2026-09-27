@@ -28,8 +28,14 @@ Boven het rapport staat een paneel met twee keuzes.
 **Rapportsoort** bepaalt hoe de afdruk eruitziet:
 
 - **Eén pagina** — één A4, een exemplaar voor iedereen aan tafel.
-- **Pakket van drie pagina's** — tot drie A4-pagina's, met ruimte voor de
-  volledige tabel per speler.
+- **Pakket (tot vier pagina's)** — tot vier A4-pagina's, met ruimte voor de
+  volledige tabel per speler en elke testuitslag. Pagina 1 is het dashboard en
+  pagina 2 de tabel per speler. Pagina 3 bevat de wedstrijden, wie een gesprek
+  nodig heeft en wat er veranderde; de testen, de besluiten en de datakwaliteit
+  volgen op pagina 3 als ze passen, en beginnen anders een vierde pagina. Het
+  pakket kort niets in van wat je hebt aangevinkt. Loopt een pagina dan nog
+  over, dan gaat die verder op een volgend vel, en de meter voor het
+  afdrukformaat zegt dat.
 - **Liggend overzicht** — één liggende pagina met elke speler op één regel, de
   hele selectie in één oogopslag vergelijkbaar.
 
@@ -65,6 +71,14 @@ tonen** bepaalt wat er per test op papier komt:
   meting.
 - **Uitslagen en verschil** — beide kolommen.
 
+De drie keuzes met een spelerstabel hebben het pakket nodig. Op de versie van
+één pagina en op het liggende overzicht staan ze grijs, met de reden eronder, en
+de afdruk toont de samenvatting. Kies je een andere rapportsoort, dan passen de
+keuzes zich aan. Een opgeslagen weergave of een link die uitslagen vraagt op een
+soort die ze niet kan afdrukken, opent met de samenvatting, en het paneel zegt
+waarom. Het liggende overzicht drukt maximaal drie testen af. Kies je er meer,
+dan waarschuwt het paneel, en de afdruk noemt de testen die zijn weggelaten.
+
 Een test op tijd leest in minuten en seconden (`16:04`), zoals hij is ingevoerd,
 en het verschil in seconden (`−7 s`). Een test waarbij lager of hoger beter is,
 zet de spelers van beste naar slechtste; een test zonder richting, zoals lengte,
@@ -79,7 +93,8 @@ weg.
 elke pagina is. Op de versie van één pagina worden lange spelerslijsten eerst
 ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
 voordat de pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
-sectie weg of kies het pakket van drie pagina's.
+sectie weg of kies het pakket. Het pakket kort niets in: het toont een balk per
+pagina, tot vier.
 
 ## Je vaste rapport bewaren
 
@@ -124,6 +139,14 @@ gerangschikt op doelpunten en daarna assists, elk met een balk. Een totaalregel
 en een zin als *"7 van 8 doelpunten toegeschreven"* laten zien of bij elk
 doelpunt een maker is ingevuld.
 
+Elke test toont zijn **doel** voor de leeftijdsgroep van het team, zoals
+*"Doel O14: ≤ 12:30"*, en elke meting haar **stand** ten opzichte daarvan: *op
+doel*, *net boven doel* of *ver boven doel* (*onder* bij een test waarbij hoger
+beter is), met dezelfde woorden en kleuren als het testoverzicht op het profiel
+van de speler zelf. Een test zonder beter of slechter toont *geen doel*, en de
+sectie legt één keer uit wat dat betekent. Een test zonder doel voor de
+leeftijdsgroep toont geen van beide.
+
 Elke test krijgt op papier een kaart: de naam, welke kant beter is, de datum en
 hoeveel spelers getest zijn, dan een strook cijfers — het selectiegemiddelde en
 hoe dat veranderde sinds de vorige ronde, de beste meting, hoeveel spelers beter
@@ -135,9 +158,9 @@ vorige meting, het verschil (groen als het een verbetering is, dus een snellere
 tijd is groen), het verschil met het selectiegemiddelde, en **PR** bij een
 persoonlijk record. Een stippellijn geeft aan waar het selectiegemiddelde ligt.
 De versie van één pagina drukt alleen de strook af, met de slechtste meting in
-plaats van het verloop. Dreigt de derde pagina van het pakket over te lopen, dan
-drukken de testen eerst alleen hun strook af en houdt daarna de agenda de twee
-dringendste spelers; de meter zegt welke.
+plaats van het verloop. Passen de testen in het pakket niet meer onder de
+agenda, dan gaan ze met hun volledige tabellen naar een vierde pagina; er wordt
+niets weggelaten om papier te sparen.
 
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.
@@ -165,6 +188,15 @@ opgelost.
 Geplande rapporten horen bij het Standard-pakket en hoger.
 
 ## Wat de secties laten zien
+
+Elke sectie begint op het scherm en op papier met dezelfde kop: een nummer, de
+titel en een korte regel over wat erin staat, zoals *"4 gespeeld · 2 W 1 G 1 V"*
+of *"5 spelers · dringendste eerst"*. De kop staat op een balk in de kleur van
+de club, zodat je bij het doorbladeren van de afdruk het begin van elke sectie
+snel vindt. De nummers volgen de secties die je hebt aangevinkt, in de volgorde
+waarin de gekozen soort ze afdrukt, dus "sectie 6" is op het scherm en op papier
+dezelfde sectie. Vink je een sectie aan of uit, dan schuiven de nummers erna
+mee.
 
 - **Datadekking** — hoeveel van de afgeronde trainingen en wedstrijden in de
   periode een presentielijst hebben, en welke niet. Dit staat boven de cijfers
@@ -199,8 +231,8 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 - **Testen** — gehouden testmomenten, hoeveel spelers meededen en wie vooruit of
   achteruit ging sinds de vorige meting. Welke testen, en of je ook de metingen
   zelf ziet, bepaal je zelf — zie *Kiezen wat erin staat*. De versie van één
-  pagina drukt altijd de samenvatting af, omdat een tabel met metingen er niet
-  op past.
+  pagina en het liggende overzicht drukken de samenvatting af, en het paneel
+  zegt dat al voordat je afdrukt.
 - **Per speler** — elke meetwaarde van elke speler in één tabel.
 - **Besluiten en acties** — ruimte op de afdruk om te noteren wat het overleg
   afspreekt.

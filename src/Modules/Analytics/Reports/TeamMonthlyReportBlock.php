@@ -49,6 +49,46 @@ final class TeamMonthlyReportBlock {
         self::QUALITY,
     ];
 
+    /**
+     * #4096 — the sections that open with a numbered header, on screen and
+     * on paper. The letterhead, the coverage banner and the headline tiles
+     * sit above the numbered sections and carry no header of their own.
+     */
+    public const HEADED = [
+        self::STATUS,
+        self::ATTENDANCE,
+        self::MINUTES,
+        self::MATCHES,
+        self::ATTENTION,
+        self::CHANGES,
+        self::TESTS,
+        self::ROSTER,
+        self::NOTES,
+        self::QUALITY,
+    ];
+
+    /**
+     * A section's title, the same on screen and on paper (#4096).
+     */
+    public static function title( string $key ): string {
+        switch ( $key ) {
+            case self::LETTERHEAD: return _x( 'Letterhead', 'team monthly report section', 'talenttrack' );
+            case self::COVERAGE:   return _x( 'Data coverage', 'team monthly report section', 'talenttrack' );
+            case self::KPI:        return _x( 'Headline numbers', 'team monthly report section', 'talenttrack' );
+            case self::STATUS:     return _x( 'Squad status', 'team monthly report section', 'talenttrack' );
+            case self::ATTENDANCE: return _x( 'Attendance', 'team monthly report section', 'talenttrack' );
+            case self::MINUTES:    return _x( 'Minutes share', 'team monthly report section', 'talenttrack' );
+            case self::MATCHES:    return _x( 'Matches', 'team monthly report section', 'talenttrack' );
+            case self::ATTENTION:  return _x( 'Needs a conversation', 'team monthly report section', 'talenttrack' );
+            case self::CHANGES:    return _x( 'What changed', 'team monthly report section', 'talenttrack' );
+            case self::TESTS:      return _x( 'Tests', 'team monthly report section', 'talenttrack' );
+            case self::ROSTER:     return _x( 'Player by player', 'team monthly report section', 'talenttrack' );
+            case self::NOTES:      return _x( 'Decisions and actions', 'team monthly report section', 'talenttrack' );
+            case self::QUALITY:    return _x( 'Data quality', 'team monthly report section', 'talenttrack' );
+        }
+        return '';
+    }
+
     public static function isValid( string $key ): bool {
         return in_array( $key, self::ALL, true );
     }

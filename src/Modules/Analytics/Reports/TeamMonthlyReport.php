@@ -19,6 +19,7 @@ use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Modules\Measurements\Units\DurationFormat;
 use TT\Modules\Measurements\Units\UnitContext;
 
@@ -210,6 +211,146 @@ final class TeamMonthlyReport {
      */
     public static function periodWindow( string $period, string $today ): ?array {
         return ReportFilters::periodWindow( $period, $today );
+    }
+
+    /**
+     * #4096 — the line beside a section's title saying what it holds: "4
+     * played · 2 W 1 D 1 L", "5 players · most urgent first". Read off the
+     * block's own data, so a snapshot frozen months ago says the same thing
+     * on screen and on paper, and neither renderer counts anything itself.
+     *
+     * @param array<string,mixed> $d the block's data, as the layout prints it.
+     */
+    public static function sectionMeta( string $block, array $d ): string {
+        $list = static fn( string $key ): array => is_array( $d[ $key ] ?? null ) ? $d[ $key ] : [];
+
+        switch ( $block ) {
+            case TeamMonthlyReportBlock::STATUS:
+                $counts = $list( 'counts' );
+                $total  = 0;
+                foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) $total += (int) ( $counts[ $c ] ?? 0 );
+                return sprintf(
+                    /* translators: 1: players on track, 2: players in the squad */
+                    __( '%1$d of %2$d on track', 'talenttrack' ),
+                    (int) ( $counts['green'] ?? 0 ),
+                    $total
+                );
+
+            case TeamMonthlyReportBlock::ATTENDANCE:
+                $avg = $d['team_avg_pct'] ?? null;
+                return is_int( $avg ) || is_float( $avg )
+                    /* translators: %s: team average attendance percentage */
+                    ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::metaPct( (float) $avg ) )
+                    : __( 'No attendance recorded.', 'talenttrack' );
+
+            case TeamMonthlyReportBlock::MINUTES:
+                return sprintf(
+                    /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
+                    __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),
+                    (int) ( $d['matches_recorded'] ?? 0 ),
+                    (int) ( $d['matches_played'] ?? 0 ),
+                    (int) ( $d['target_pct'] ?? 50 )
+                );
+
+            case TeamMonthlyReportBlock::MATCHES:
+                if ( $list( 'fixtures' ) === [] ) return __( 'No matches played this period.', 'talenttrack' );
+                $record = $list( 'record' );
+                return sprintf(
+                    /* translators: 1: matches played, 2: won, 3: drawn, 4: lost */
+                    __( '%1$d played · %2$d W %3$d D %4$d L', 'talenttrack' ),
+                    count( $list( 'fixtures' ) ),
+                    (int) ( $record['won'] ?? 0 ),
+                    (int) ( $record['drawn'] ?? 0 ),
+                    (int) ( $record['lost'] ?? 0 )
+                );
+
+            case TeamMonthlyReportBlock::ATTENTION:
+                $n = count( $list( 'items' ) ) + (int) ( $d['omitted'] ?? 0 );
+                if ( $n === 0 ) return __( 'Nobody is flagged this period.', 'talenttrack' );
+                /* translators: %d: players who need a conversation */
+                return sprintf( _n( '%d player · most urgent first', '%d players · most urgent first', $n, 'talenttrack' ), $n );
+
+            case TeamMonthlyReportBlock::CHANGES:
+                $events = count( $list( 'events' ) );
+                $open   = (int) ( $d['open_injuries'] ?? 0 );
+                return sprintf(
+                    /* translators: %d: entries under "what changed" */
+                    _nx( '%d change', '%d changes', $events, 'monthly report: entries under what changed', 'talenttrack' ),
+                    $events
+                ) . ' · ' . sprintf(
+                    /* translators: %d: players with an open injury */
+                    _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
+                    $open
+                );
+
+            case TeamMonthlyReportBlock::TESTS:
+                $rounds = count( $list( 'rounds' ) ) + count( $list( 'omitted' ) );
+                if ( $rounds === 0 ) return __( 'No tests taken this period.', 'talenttrack' );
+                $show = TestsBlockOptions::show( [ 'show' => $d['show'] ?? null ] );
+                /* translators: %d: number of tests */
+                return sprintf( _n( '%d test', '%d tests', $rounds, 'talenttrack' ), $rounds )
+                    . ' · ' . ( TestsBlockOptions::showLabels()[ $show ] ?? '' );
+
+            case TeamMonthlyReportBlock::ROSTER:
+                $n = count( $list( 'rows' ) );
+                /* translators: %d: players in the squad */
+                return sprintf( _n( '%d player', '%d players', $n, 'talenttrack' ), $n );
+
+            case TeamMonthlyReportBlock::NOTES:
+                return __( 'Space to write on', 'talenttrack' );
+
+            case TeamMonthlyReportBlock::QUALITY:
+                $gaps = count( $list( 'activities_without_register' ) ) > 0 ? 1 : 0;
+                foreach ( [ 'activities_never_closed', 'matches_without_opponent', 'players_not_evaluated', 'players_with_incomplete_status' ] as $key ) {
+                    if ( $list( $key ) !== [] ) $gaps++;
+                }
+                if ( (int) ( $d['matches_without_minutes'] ?? 0 ) > 0 ) $gaps++;
+                if ( $gaps === 0 ) return _x( 'Nothing missing', 'monthly report data quality, section header', 'talenttrack' );
+                /* translators: %d: kinds of missing data to fix */
+                return sprintf( _n( '%d thing to fix', '%d things to fix', $gaps, 'talenttrack' ), $gaps );
+        }
+        return '';
+    }
+
+    /**
+     * #4093 — a test round's target as its header prints it: "Target O14:
+     * ≤ 12:30", or "no target" on a test without a better or worse. Empty
+     * when the round has no target for the age group, which also covers a
+     * snapshot frozen before rounds carried one.
+     *
+     * @param array<string,mixed> $round
+     */
+    public static function testTargetLabel( array $round ): string {
+        if ( ! empty( $round['target_absent'] ) ) {
+            return _x( 'no target', 'a test with no better or worse value', 'talenttrack' );
+        }
+        $target = is_string( $round['target'] ?? null ) ? $round['target'] : '';
+        if ( $target === '' ) return '';
+
+        $age_group = is_string( $round['target_age_group'] ?? null ) ? $round['target_age_group'] : '';
+        return $age_group !== ''
+            /* translators: 1: age group, e.g. "O14", 2: the target, e.g. "≤ 12:30" */
+            ? sprintf( _x( 'Target %1$s: %2$s', 'a test target for an age group', 'talenttrack' ), $age_group, $target )
+            /* translators: %s: the target, e.g. "≤ 12:30" */
+            : sprintf( _x( 'Target: %s', 'a test target', 'talenttrack' ), $target );
+    }
+
+    /**
+     * #4093 — does any round in this tests block have no target because the
+     * test has no better or worse? Surfaces print the explanation once.
+     *
+     * @param array<string,mixed> $tests
+     */
+    public static function testsHaveTargetlessRound( array $tests ): bool {
+        foreach ( is_array( $tests['rounds'] ?? null ) ? $tests['rounds'] : [] as $round ) {
+            if ( is_array( $round ) && ! empty( $round['target_absent'] ) ) return true;
+        }
+        return false;
+    }
+
+    /** A percentage as the report prints one: a decimal only when there is one. */
+    private static function metaPct( float $v ): string {
+        return number_format_i18n( $v, floor( $v ) != $v ? 1 : 0 ) . '%';
     }
 
     /**
@@ -837,6 +978,12 @@ final class TeamMonthlyReport {
             $prev_date = is_int( $at ) && $at > 0 ? $dates[ $at - 1 ] : null;
             $target    = $age_group !== '' ? $targets->forDefinitionAndAge( $def_id, $age_group ) : null;
 
+            // #4093 — the target and each reading's standing, worded by the
+            // helper the player profile's register uses, so a reading reads
+            // the same on the report as on the player's own page.
+            $value_type  = is_array( $definition ) ? (string) ( $definition['value_type'] ?? '' ) : '';
+            $target_cell = TestVerdict::target( $value_type, $raw_direction, $target, $units );
+
             $tested   = 0;
             $improved = [];
             $declined = [];
@@ -860,6 +1007,8 @@ final class TeamMonthlyReport {
                 // no change.
                 $value    = (float) $values[ $date ];
                 $previous = $prev_date !== null && isset( $values[ $prev_date ] ) ? (float) $values[ $prev_date ] : null;
+                $flag     = $targets->flagFor( $units->toBase( $value ), $target, $raw_direction !== '' ? $raw_direction : 'neutral' );
+                $verdict  = TestVerdict::verdict( $value_type, $raw_direction, $flag );
                 $all[]    = $entry + [
                     'value'            => $value,
                     'value_display'    => self::testValueDisplay( $units, $value ),
@@ -872,7 +1021,9 @@ final class TeamMonthlyReport {
                     // sits against the age group's target band. Bands hold
                     // canonical values, the trend the entry unit.
                     'pb'               => self::isPersonalBest( $values, $date, $direction ),
-                    'flag'             => $targets->flagFor( $units->toBase( $value ), $target, $raw_direction !== '' ? $raw_direction : 'neutral' ),
+                    'flag'             => $flag,
+                    'verdict_label'    => $verdict['label'],
+                    'verdict_tone'     => $verdict['tone'],
                 ];
 
                 if ( ! is_array( $step ) ) continue;
@@ -912,6 +1063,12 @@ final class TeamMonthlyReport {
                 'worst'         => self::testExtreme( $ranked, $direction, false ),
                 'moves'         => self::testMoves( $ranked ),
                 'bands'         => self::testBands( $ranked, $target !== null ? $age_group : '', $tested ),
+                // #4093 — the target as printed, `≤ 12:30`, or null when the
+                // age group has no band; `target_absent` when the test has no
+                // better or worse and so cannot have one.
+                'target'           => $target_cell['text'] !== '' && ! $target_cell['absent'] ? $target_cell['text'] : null,
+                'target_age_group' => $age_group,
+                'target_absent'    => $target_cell['absent'],
                 'history'       => self::testHistory( $units, $trend['average'], $dates, is_int( $at ) ? $at : count( $dates ) - 1 ),
                 'readings'      => TestsBlockOptions::showsPlayers( $show ) ? $ranked : [],
             ];
@@ -1162,6 +1319,9 @@ final class TeamMonthlyReport {
             'worst'         => null,
             'moves'         => null,
             'bands'         => null,
+            'target'           => null,
+            'target_age_group' => '',
+            'target_absent'    => false,
             'history'       => [],
             'tested'        => 0,
             'squad'         => count( $this->players() ),

@@ -4,11 +4,14 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
+use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Shared\Dates\TTDate;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Services\TestVerdict;
 
 /**
  * TeamMonthlyReportPdfDocument (#3460, epic #3457) — the team monthly report as
@@ -50,12 +53,28 @@ final class TeamMonthlyReportPdfDocument {
     private static string $layout = TeamMonthlyReportLayout::DEFAULT;
 
     /**
+     * #4096 — each printed section's number, following the ticked sections
+     * in print order, and the data the header's meta line is read from.
+     *
+     * @var array<string,int>
+     */
+    private static array $numbers = [];
+
+    /** @var array<string,array<string,mixed>> */
+    private static array $data = [];
+
+    /** The club colour the headers carry (#4096). */
+    private static string $primary = ReportBrandColour::FALLBACK;
+
+    /**
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      *        already degraded by `TeamMonthlyReportLayout::degrade()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      *        a snapshot's section notes; empty for a live report (#3517).
+     * @param list<list<string>> $groups the page groups `TeamMonthlyReportLayout::fit()`
+     *        split the report into (#4092); measured here when not given.
      */
-    public static function html( array $report, string $layout, string $team_name, array $notes = [] ): string {
+    public static function html( array $report, string $layout, string $team_name, array $notes = [], array $groups = [] ): string {
         $data   = $report['data'];
         $blocks = $report['blocks'];
         $wide   = $layout === TeamMonthlyReportLayout::MATRIX;
@@ -65,8 +84,11 @@ final class TeamMonthlyReportPdfDocument {
         // being printed, and every one of those methods would otherwise grow
         // a parameter it does not use. Reset on every call so one export
         // cannot leak a note into the next.
-        self::$notes  = $notes;
-        self::$layout = $layout;
+        self::$notes   = $notes;
+        self::$layout  = $layout;
+        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $blocks, $layout );
+        self::$data    = $data;
+        self::$primary = ReportBrandColour::primary();
 
         $head  = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
         $empty = (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
@@ -75,7 +97,7 @@ final class TeamMonthlyReportPdfDocument {
         if ( $empty ) {
             $body = $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>';
         } elseif ( $layout === TeamMonthlyReportLayout::PACK ) {
-            $body = self::pack( $data, $blocks, $head );
+            $body = self::pack( $data, $blocks, $head, $groups !== [] ? $groups : TeamMonthlyReportLayout::fit( $report, $layout )['groups'] );
         } elseif ( $wide ) {
             $body = self::matrix( $data, $blocks, $head );
         } else {
@@ -94,22 +116,23 @@ final class TeamMonthlyReportPdfDocument {
      * ------------------------------------------------------------- */
 
     /**
-     * Three-page pack: dashboard, roster, then the meeting pages. A page with
-     * nothing selected on it is not printed, so deselecting the roster gives a
-     * two-page pack rather than a blank page two.
+     * The pack: dashboard, roster, then the meeting pages, split where
+     * `TeamMonthlyReportLayout::fit()` split them (#4092) — the tests, the
+     * ruled lines and the data-quality list share page 3 when they fit
+     * there and start a page 4 when they do not. A page with nothing
+     * selected on it is not printed, so deselecting the roster gives a
+     * shorter pack rather than a blank page.
      *
      * @param array<string,array<string,mixed>> $data
      * @param list<string>                      $blocks
+     * @param list<list<string>>                $groups
      */
-    private static function pack( array $data, array $blocks, string $head ): string {
-        $pages = [
-            $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], false ),
-            self::sections( $data, $blocks, [ 'roster' ], false ),
-            self::sections( $data, $blocks, [ 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ], false ),
-        ];
+    private static function pack( array $data, array $blocks, string $head, array $groups ): string {
         $out   = '';
         $first = true;
-        foreach ( $pages as $page ) {
+        foreach ( $groups as $group ) {
+            $page = ( in_array( TeamMonthlyReportBlock::LETTERHEAD, $group, true ) ? $head : '' )
+                . self::sections( $data, $blocks, $group, false );
             if ( $page === '' ) continue;
             $out  .= '<div class="page' . ( $first ? '' : ' break' ) . '">' . $page . '</div>';
             $first = false;
@@ -169,8 +192,8 @@ final class TeamMonthlyReportPdfDocument {
             case 'coverage':   return self::coverage( $d );
             case 'kpi':        return self::kpi( $d );
             case 'status':     return self::status( $d );
-            case 'attendance': return self::bars( _x( 'Attendance', 'team monthly report section', 'talenttrack' ), $d, 'present_pct', null );
-            case 'minutes':    return self::bars( _x( 'Minutes share', 'team monthly report section', 'talenttrack' ), $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
+            case 'attendance': return self::bars( 'attendance', $d, 'present_pct', null );
+            case 'minutes':    return self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
@@ -180,6 +203,34 @@ final class TeamMonthlyReportPdfDocument {
             case 'quality':    return self::quality( $d );
         }
         return '';
+    }
+
+    /**
+     * #4096 — the section header, one component for screen and paper: the
+     * section's number, its title and a line saying what it holds, on a band
+     * tinted with the club colour and a bar in it. A one-row table, because
+     * DomPDF prints nothing else side by side; the title is an `h2` so the
+     * screen keeps its heading outline.
+     *
+     * `$compact` is the landscape footer strip, a third of the page wide,
+     * where the meta line would not fit beside the title.
+     */
+    public static function sectionHeader( int $number, string $title, string $meta, bool $compact = false ): string {
+        return '<table class="tt-mr-sh' . ( $compact ? ' tt-mr-sh--compact' : '' ) . '"><tr>'
+            . '<td class="tt-mr-sh__no">' . ( $number > 0 ? esc_html( sprintf( '%02d', $number ) ) : '' ) . '</td>'
+            . '<td class="tt-mr-sh__t"><h2>' . esc_html( $title ) . '</h2></td>'
+            . ( ! $compact && $meta !== '' ? '<td class="tt-mr-sh__meta">' . esc_html( $meta ) . '</td>' : '' )
+            . '</tr></table>';
+    }
+
+    /** The header for one of this document's sections (#4096). */
+    private static function head( string $block, bool $compact = false ): string {
+        return self::sectionHeader(
+            self::$numbers[ $block ] ?? 0,
+            TeamMonthlyReportBlock::title( $block ),
+            self::cut( TeamMonthlyReport::sectionMeta( $block, self::$data[ $block ] ?? [] ), 64 ),
+            $compact
+        );
     }
 
     /* ---------------------------------------------------------------
@@ -305,7 +356,7 @@ final class TeamMonthlyReportPdfDocument {
         $total  = 0;
         foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) $total += (int) ( $counts[ $c ] ?? 0 );
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Squad status', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'status' );
         if ( $total > 0 ) {
             $out .= '<table class="band"><tr>';
             foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) {
@@ -324,9 +375,9 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /** @param array<string,mixed> $d */
-    private static function bars( string $title, array $d, string $value_key, ?int $target ): string {
+    private static function bars( string $block, array $d, string $value_key, ?int $target ): string {
         $rows = is_array( $d['rows'] ?? null ) ? $d['rows'] : [];
-        $out  = '<div class="sec"><div class="h">' . esc_html( $title ) . '</div><table class="bars">';
+        $out  = '<div class="sec">' . self::head( $block ) . '<table class="bars">';
         foreach ( $rows as $r ) {
             if ( ! is_array( $r ) ) continue;
             if ( isset( $r['elided'] ) ) {
@@ -360,7 +411,7 @@ final class TeamMonthlyReportPdfDocument {
         $items   = is_array( $a['items'] ?? null ) ? $a['items'] : [];
         $omitted = (int) ( $a['omitted'] ?? 0 );
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'attention' );
         if ( $items === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'Nobody is flagged this period.', 'talenttrack' ) . '</div></div>';
         }
@@ -390,7 +441,7 @@ final class TeamMonthlyReportPdfDocument {
     /** @param array<string,mixed> $c */
     private static function changes( array $c, bool $compact ): string {
         $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
-        $out    = '<div class="sec"><div class="h">' . esc_html_x( 'What changed', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out    = '<div class="sec">' . self::head( 'changes', $compact );
         if ( $events === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</div></div>';
         }
@@ -418,7 +469,7 @@ final class TeamMonthlyReportPdfDocument {
         $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
         $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Matches', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'matches', $compact );
 
         if ( $fixtures === [] ) {
             $out .= '<div class="muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</div>';
@@ -736,34 +787,54 @@ final class TeamMonthlyReportPdfDocument {
     /** @param array<string,mixed> $t */
     private static function tests( array $t, bool $compact ): string {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
-        $out      = '<div class="sec"><div class="h">' . esc_html_x( 'Tests', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out      = '<div class="sec">' . self::head( 'tests', $compact );
         if ( $rounds === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</div></div>';
         }
-        // #3515 — the readings table is the widest thing this section can
-        // print, so the one-pager keeps the summary whatever was asked for.
-        // Degrading to less detail is the ladder's job; overflowing the page
-        // is not an option, and a truncated table is worse than a summary.
-        $show = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
-        if ( $compact ) $show = TestsBlockOptions::SHOW_SUMMARY;
+        // #4095 — what the layout can print, by the same rule the panel
+        // offers its options by (`TeamMonthlyReportLayout::testsShowFor()`):
+        // a player table needs the pack, and the panel says so before the
+        // coach downloads anything. The exporter has already applied it; it
+        // is applied here too so no path prints a table a layout cannot hold.
+        $show = TeamMonthlyReportLayout::testsShowFor( self::$layout, TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] ) );
 
-        // #4069 — a test is a card: header, stat strip, and on the full
-        // layouts the ranked readings. The one-pager prints the strip only;
-        // the landscape strip, a third of the page wide, keeps its lines. A
-        // snapshot frozen before the strip existed has no figures for it and
-        // prints the lines too.
+        // #4069 — a test is a card: header, stat strip, and on the pack the
+        // ranked readings. The landscape strip, a third of the page wide,
+        // keeps its lines. A snapshot frozen before the strip existed has no
+        // figures for it and prints the lines too.
         if ( ! $compact ) {
-            $strip_only = self::$layout === TeamMonthlyReportLayout::ONE_PAGER;
             foreach ( $rounds as $s ) {
                 if ( ! is_array( $s ) ) continue;
                 $out .= is_array( $s['average'] ?? null ) || ! empty( $s['empty'] )
-                    ? self::testCard( $s, $show, $strip_only )
-                    : self::testLines( [ $s ], $strip_only ? TestsBlockOptions::SHOW_SUMMARY : $show, false );
+                    ? self::testCard( $s, $show )
+                    : self::testLines( [ $s ], $show, false );
+            }
+            // #4093 — once per section, as on the player profile.
+            if ( TeamMonthlyReport::testsHaveTargetlessRound( $t ) ) {
+                $out .= '<div class="muted">' . esc_html__( '"No target" means the test has no better or worse — the reading is recorded, not judged.', 'talenttrack' ) . '</div>';
             }
             return $out . '</div>';
         }
 
-        return $out . self::testLines( array_slice( $rounds, 0, 3 ), $show, true ) . '</div>';
+        return $out . self::testLines( $rounds, $show, true ) . self::omittedTests( $t ) . '</div>';
+    }
+
+    /**
+     * #4095 — the tests the landscape strip had no room for, named, so the
+     * page says what it left out rather than quietly printing three.
+     *
+     * @param array<string,mixed> $t
+     */
+    private static function omittedTests( array $t ): string {
+        $names = is_array( $t['omitted'] ?? null ) ? array_map( 'strval', $t['omitted'] ) : [];
+        if ( $names === [] ) return '';
+
+        return '<div class="muted">' . esc_html( sprintf(
+            /* translators: 1: number of tests not printed, 2: their names */
+            _n( '+ %1$d more test, in the pack: %2$s', '+ %1$d more tests, in the pack: %2$s', count( $names ), 'talenttrack' ),
+            count( $names ),
+            self::cut( implode( ', ', $names ), 40 )
+        ) ) . '</div>';
     }
 
     /**
@@ -791,6 +862,8 @@ final class TeamMonthlyReportPdfDocument {
                 (int) ( $s['tested'] ?? 0 ),
                 (int) ( $s['squad'] ?? 0 )
             );
+            $target = TeamMonthlyReport::testTargetLabel( $s );
+            if ( $target !== '' ) $head .= ' · ' . $target;
             $out .= '<tr><td><b>' . esc_html( self::cut( $head, $compact ? 60 : 110 ) ) . '</b></td></tr>';
 
             if ( TestsBlockOptions::showsPlayers( $show ) ) {
@@ -816,7 +889,7 @@ final class TeamMonthlyReportPdfDocument {
      *
      * @param array<string,mixed> $s
      */
-    private static function testCard( array $s, string $show, bool $strip_only ): string {
+    private static function testCard( array $s, string $show ): string {
         $name = (string) ( $s['name'] ?? '' );
         if ( ! empty( $s['empty'] ) ) {
             return '<div class="tcard"><table class="thead"><tr><td><span class="tname">' . esc_html( self::cut( $name, 70 ) ) . '</span></td></tr></table>'
@@ -832,11 +905,15 @@ final class TeamMonthlyReportPdfDocument {
             (int) ( $s['squad'] ?? 0 )
         );
 
-        $with_table = ! $strip_only && TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
+        $with_table = TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
+        // #4093 — the target the readings are judged against, on every
+        // layout, the summary included.
+        $target = TeamMonthlyReport::testTargetLabel( $s );
 
         return '<div class="tcard"><table class="thead"><tr>'
-            . '<td><span class="tname">' . esc_html( self::cut( $name, 60 ) ) . '</span>'
-            . ( $chip !== '' ? '<span class="dirchip">' . esc_html( $chip ) . '</span>' : '' ) . '</td>'
+            . '<td><span class="tname">' . esc_html( self::cut( $name, $target !== '' ? 40 : 60 ) ) . '</span>'
+            . ( $chip !== '' ? '<span class="dirchip">' . esc_html( $chip ) . '</span>' : '' )
+            . ( $target !== '' ? '<span class="tgt' . ( ! empty( $s['target_absent'] ) ? ' tgt-none' : '' ) . '">' . esc_html( $target ) . '</span>' : '' ) . '</td>'
             . '<td class="tmeta">' . esc_html( $meta ) . '</td>'
             . '</tr></table>'
             . self::testStrip( $s, $with_table )
@@ -965,6 +1042,13 @@ final class TeamMonthlyReportPdfDocument {
         $unit   = (string) ( $s['unit_label'] ?? '' );
         $ranked = (string) ( $s['direction'] ?? '' ) !== '';
 
+        // #4093 — each reading's standing against the target, in words, as
+        // on the player's profile. Only where a target exists.
+        $standing = false;
+        foreach ( $rows as $row ) {
+            if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
+        }
+
         $head = '<tr><th class="rk">#</th><th class="nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         $cols = 2;
         if ( $values ) {
@@ -975,6 +1059,10 @@ final class TeamMonthlyReportPdfDocument {
                     : _x( 'Result', 'monthly report tests column', 'talenttrack' )
             ) . '</th><th class="bb"></th>';
             $cols += 2;
+        }
+        if ( $standing ) {
+            $head .= '<th class="st">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
+            $cols++;
         }
         if ( $trend ) {
             $head .= '<th class="pv">' . esc_html__( 'Previous', 'talenttrack' ) . '</th>'
@@ -1010,6 +1098,13 @@ final class TeamMonthlyReportPdfDocument {
                 $body .= '<td class="v">' . esc_html( self::testValue( $row ) ) . '</td>'
                     . '<td class="bb">' . self::gauge( 'tb ' . $fill, (float) ( $row['bar_pct'] ?? 0 ) ) . '</td>';
             }
+            if ( $standing ) {
+                $label = (string) ( $row['verdict_label'] ?? '' );
+                $tone  = (string) ( $row['verdict_tone'] ?? '' );
+                $body .= '<td class="st">' . ( $label !== ''
+                    ? '<span class="vc vc-' . esc_attr( in_array( $tone, [ 'ok', 'warn', 'bad' ], true ) ? $tone : 'none' ) . '">' . esc_html( self::cut( $label, 20 ) ) . '</span>'
+                    : '' ) . '</td>';
+            }
             if ( $trend ) {
                 $first = ! empty( $row['first'] );
                 $body .= '<td class="pv">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
@@ -1025,7 +1120,11 @@ final class TeamMonthlyReportPdfDocument {
         $legend = [];
         if ( $any_flag && $values ) {
             foreach ( [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ] as $flag => $class ) {
-                $legend[] = '<span class="dot ' . $class . '"></span>' . esc_html( MeasurementTargetsRepository::flagLabel( $flag ) );
+                // #4093 — the key names the colours in the standing's own
+                // words, so "just over target" on a timed test is not keyed
+                // as "below target".
+                $word     = TestVerdict::verdict( 'numeric', (string) ( $s['direction'] ?? '' ), $flag )['label'];
+                $legend[] = '<span class="dot ' . $class . '"></span>' . esc_html( $word !== '' ? $word : MeasurementTargetsRepository::flagLabel( $flag ) );
             }
         }
         if ( $any_pb ) $legend[] = esc_html__( 'PB = personal best', 'talenttrack' );
@@ -1130,7 +1229,7 @@ final class TeamMonthlyReportPdfDocument {
      */
     private static function roster( array $r, bool $wide ): string {
         $rows = is_array( $r['rows'] ?? null ) ? $r['rows'] : [];
-        $out  = '<div class="sec"><div class="h">' . esc_html_x( 'Player by player', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out  = '<div class="sec">' . self::head( 'roster' );
         // A fixed-layout table takes its widths from the header cells
         // (`.w0`…, see css()), so a long name is cut, never squeezes its
         // neighbours. DomPDF ignores `<col>` widths.
@@ -1179,13 +1278,13 @@ final class TeamMonthlyReportPdfDocument {
     private static function notes(): string {
         $lines = '';
         for ( $i = 0; $i < 5; $i++ ) $lines .= '<tr><td class="rule"></td></tr>';
-        return '<div class="sec"><div class="h">' . esc_html_x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ) . '</div><table class="lines">' . $lines . '</table></div>';
+        return '<div class="sec">' . self::head( 'notes' ) . '<table class="lines">' . $lines . '</table></div>';
     }
 
     private static function notesCompact(): string {
         $lines = '';
         for ( $i = 0; $i < 4; $i++ ) $lines .= '<tr><td class="rule"></td></tr>';
-        return '<div class="sec"><div class="h">' . esc_html_x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ) . '</div><table class="lines">' . $lines . '</table></div>';
+        return '<div class="sec">' . self::head( 'notes', true ) . '<table class="lines">' . $lines . '</table></div>';
     }
 
     /** @param array<string,mixed> $q */
@@ -1235,7 +1334,7 @@ final class TeamMonthlyReportPdfDocument {
         if ( $lines === [] ) $lines[] = __( 'Nothing missing. Every register, minute and evaluation this report looks for is in.', 'talenttrack' );
 
         // Exactly `TeamMonthlyReportLayout::qualityLines()` rows, one line each.
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Data quality', 'team monthly report section', 'talenttrack' ) . '</div><table class="list">';
+        $out = '<div class="sec">' . self::head( 'quality' ) . '<table class="list">';
         foreach ( array_slice( $lines, 0, TeamMonthlyReportLayout::qualityLines( $q ) ) as $line ) {
             $out .= '<tr><td class="wrap">' . esc_html( $line ) . '</td></tr>';
         }
@@ -1350,7 +1449,14 @@ final class TeamMonthlyReportPdfDocument {
             // so a reader can tell what the data said from what the meeting
             // said about it.
             . '.note{margin:0 0 3mm;padding:1.5mm 2mm;border-left:2px solid ' . $ink . ';font-size:7.5pt}'
-            . '.h{height:5mm;font-size:9.5pt;font-weight:bold;border-bottom:1px solid ' . $line . ';margin-bottom:1mm}'
+            // #4096 — the section header: number, title and what the section
+            // holds, on a band tinted with the club colour and a bar in it.
+            . '.tt-mr-sh{margin:0 0 1.5mm;border-spacing:0;background:' . ReportBrandColour::tint( self::$primary ) . '}'
+            . '.tt-mr-sh td{height:6.5mm;padding:0 2mm;vertical-align:middle;white-space:nowrap}'
+            . '.tt-mr-sh td.tt-mr-sh__no{width:6mm;border-left:1.2mm solid ' . self::$primary . ';font-size:8pt;font-weight:bold;color:' . ReportBrandColour::numberColour( self::$primary ) . '}'
+            . '.tt-mr-sh h2{margin:0;padding:0;font-size:11pt;font-weight:bold;color:' . $ink . '}'
+            . '.tt-mr-sh td.tt-mr-sh__meta{text-align:right;font-size:7.5pt;color:#3d4a43}'
+            . '.tt-mr-sh--compact h2{font-size:9.5pt}'
             . '.band{height:6mm;margin-bottom:1mm}.band td{color:#fff;font-weight:bold;text-align:center;font-size:7.5pt}'
             . '.b-green{background:#1f7a4a}.b-amber{background:#c88a12}.b-red{background:#b3261e}.b-unknown{background:#8a8f96}'
             . '.bars td{height:3.8mm;padding:0;font-size:7.5pt;line-height:1.1;vertical-align:middle}'
@@ -1420,7 +1526,16 @@ final class TeamMonthlyReportPdfDocument {
             . '.rd td{height:4.6mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden;font-size:7.5pt}'
             . '.rd .rk{width:5mm;text-align:right;color:' . $muted . ';padding-right:1.5mm}'
             . '.rd .v{width:21mm;text-align:right;font-weight:bold}.rd .pv{width:15mm;text-align:right;color:' . $muted . '}'
-            . '.rd .ch{width:14mm;text-align:right}.rd .av{width:15mm;text-align:right;color:' . $muted . '}.rd .bb{width:34mm;padding-left:2mm}'
+            . '.rd .ch{width:14mm;text-align:right}.rd .av{width:15mm;text-align:right;color:' . $muted . '}.rd .bb{width:28mm;padding-left:2mm}'
+            // #4093 — the target in the test's header, and each reading's
+            // standing against it in the profile's words and colours.
+            . '.tgt{display:inline-block;margin-left:1.5mm;padding:0.3mm 1.6mm;font-size:7pt;font-weight:bold;color:#fff;background:'
+            . ( ReportBrandColour::contrast( self::$primary, '#ffffff' ) >= 4.5 ? self::$primary : ReportBrandColour::INK ) . '}'
+            . '.tgt-none{color:' . $muted . ';background:#fff;border:1px solid #8a8f96;font-weight:normal}'
+            . '.rd th.st,.rd td.st{width:24mm;text-align:left;padding-left:2mm}'
+            . '.vc{display:inline-block;padding:0.2mm 1mm;border:1px solid;font-size:6.2pt;line-height:1.1;font-weight:bold}'
+            . '.vc-ok{color:#1f6d41;border-color:#1f6d41;background:#dff5e1}.vc-warn{color:#8a5300;border-color:#c88a12;background:#fdf3d8}'
+            . '.vc-bad{color:#a32b22;border-color:#b3261e;background:#fde2e2}.vc-none{color:' . $muted . ';border-color:#8a8f96;background:#f4f6f3}'
             . '.pb{display:inline-block;font-size:5.8pt;line-height:1.1;font-weight:bold;color:#1f7a4a;border:1px solid #1f7a4a;padding:0.2mm 0.8mm;margin-left:1mm;vertical-align:middle}'
             . '.tb{height:2.6mm;background:#eceee9}.tb div{height:2.6mm}'
             . '.tb.fg div{background:#1f7a4a}.tb.fa div{background:#c88a12}.tb.fr div{background:#b3261e}.tb.fn div{background:#8a8f96}'
