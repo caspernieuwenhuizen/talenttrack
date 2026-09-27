@@ -177,11 +177,12 @@ final class TeamMonthlyReportSnapshotPage {
 
         self::renderHeader( $row, $report );
 
-        echo '<div class="tt-mr" data-tt-monthly-report>';
+        echo '<div class="' . esc_attr( TeamMonthlyReportPage::wrapperClass() ) . '" data-tt-monthly-report>';
         TeamMonthlyReportPage::renderBlocks(
             $report,
             $team,
             [ 'from' => $report['from'], 'to' => $report['to'], 'period' => '' ],
+            (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'],
             $notes,
             $uuid
         );

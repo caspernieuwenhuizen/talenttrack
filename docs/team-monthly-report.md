@@ -165,6 +165,15 @@ Scheduled reports are part of the Standard plan and above.
 
 ## What the sections show
 
+Every section opens with the same header on screen and on paper: a number,
+the title, and a short line saying what the section holds, such as *"4 played
+· 2 W 1 D 1 L"* or *"5 players · most urgent first"*. The header sits on a
+band in the club's colour, so the start of each section is easy to find when
+you leaf through the printed copy. The numbers follow the sections you ticked,
+in the order the chosen type prints them, so "section 6" is the same section
+on screen and on paper. Tick or untick a section and the numbers after it
+move with it.
+
 - **Data coverage** — how many of the period's completed trainings and matches
   have an attendance register, and which do not. It sits above the numbers
   because every percentage below depends on it. When nothing is missing it says

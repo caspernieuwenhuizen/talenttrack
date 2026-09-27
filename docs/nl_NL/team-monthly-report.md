@@ -174,6 +174,15 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 
 ## Wat de secties laten zien
 
+Elke sectie begint op het scherm en op papier met dezelfde kop: een nummer, de
+titel en een korte regel over wat erin staat, zoals *"4 gespeeld · 2 W 1 G 1 V"*
+of *"5 spelers · dringendste eerst"*. De kop staat op een balk in de kleur van
+de club, zodat je bij het doorbladeren van de afdruk het begin van elke sectie
+snel vindt. De nummers volgen de secties die je hebt aangevinkt, in de volgorde
+waarin de gekozen soort ze afdrukt, dus "sectie 6" is op het scherm en op papier
+dezelfde sectie. Vink je een sectie aan of uit, dan schuiven de nummers erna
+mee.
+
 - **Datadekking** — hoeveel van de afgeronde trainingen en wedstrijden in de
   periode een presentielijst hebben, en welke niet. Dit staat boven de cijfers
   omdat elk percentage eronder ervan afhangt. Als er niets ontbreekt, staat dat

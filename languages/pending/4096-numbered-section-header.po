@@ -1,0 +1,31 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%1$d of %2$d on track"
+msgstr "%1$d van %2$d op koers"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%1$d played · %2$d W %3$d D %4$d L"
+msgstr "%1$d gespeeld · %2$d W %3$d G %4$d V"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%d player · most urgent first"
+msgid_plural "%d players · most urgent first"
+msgstr[0] "%d speler · dringendste eerst"
+msgstr[1] "%d spelers · dringendste eerst"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "monthly report: entries under what changed"
+msgid "%d change"
+msgid_plural "%d changes"
+msgstr[0] "%d wijziging"
+msgstr[1] "%d wijzigingen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "monthly report data quality, section header"
+msgid "Nothing missing"
+msgstr "Niets ontbreekt"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%d thing to fix"
+msgid_plural "%d things to fix"
+msgstr[0] "%d punt om op te lossen"
+msgstr[1] "%d punten om op te lossen"

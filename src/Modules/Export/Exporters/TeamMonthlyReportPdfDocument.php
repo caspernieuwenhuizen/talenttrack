@@ -4,6 +4,8 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
+use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Shared\Dates\TTDate;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
@@ -50,6 +52,20 @@ final class TeamMonthlyReportPdfDocument {
     private static string $layout = TeamMonthlyReportLayout::DEFAULT;
 
     /**
+     * #4096 — each printed section's number, following the ticked sections
+     * in print order, and the data the header's meta line is read from.
+     *
+     * @var array<string,int>
+     */
+    private static array $numbers = [];
+
+    /** @var array<string,array<string,mixed>> */
+    private static array $data = [];
+
+    /** The club colour the headers carry (#4096). */
+    private static string $primary = ReportBrandColour::FALLBACK;
+
+    /**
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      *        already degraded by `TeamMonthlyReportLayout::degrade()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
@@ -65,8 +81,11 @@ final class TeamMonthlyReportPdfDocument {
         // being printed, and every one of those methods would otherwise grow
         // a parameter it does not use. Reset on every call so one export
         // cannot leak a note into the next.
-        self::$notes  = $notes;
-        self::$layout = $layout;
+        self::$notes   = $notes;
+        self::$layout  = $layout;
+        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $blocks, $layout );
+        self::$data    = $data;
+        self::$primary = ReportBrandColour::primary();
 
         $head  = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
         $empty = (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
@@ -169,8 +188,8 @@ final class TeamMonthlyReportPdfDocument {
             case 'coverage':   return self::coverage( $d );
             case 'kpi':        return self::kpi( $d );
             case 'status':     return self::status( $d );
-            case 'attendance': return self::bars( _x( 'Attendance', 'team monthly report section', 'talenttrack' ), $d, 'present_pct', null );
-            case 'minutes':    return self::bars( _x( 'Minutes share', 'team monthly report section', 'talenttrack' ), $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
+            case 'attendance': return self::bars( 'attendance', $d, 'present_pct', null );
+            case 'minutes':    return self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
@@ -180,6 +199,34 @@ final class TeamMonthlyReportPdfDocument {
             case 'quality':    return self::quality( $d );
         }
         return '';
+    }
+
+    /**
+     * #4096 — the section header, one component for screen and paper: the
+     * section's number, its title and a line saying what it holds, on a band
+     * tinted with the club colour and a bar in it. A one-row table, because
+     * DomPDF prints nothing else side by side; the title is an `h2` so the
+     * screen keeps its heading outline.
+     *
+     * `$compact` is the landscape footer strip, a third of the page wide,
+     * where the meta line would not fit beside the title.
+     */
+    public static function sectionHeader( int $number, string $title, string $meta, bool $compact = false ): string {
+        return '<table class="tt-mr-sh' . ( $compact ? ' tt-mr-sh--compact' : '' ) . '"><tr>'
+            . '<td class="tt-mr-sh__no">' . ( $number > 0 ? esc_html( sprintf( '%02d', $number ) ) : '' ) . '</td>'
+            . '<td class="tt-mr-sh__t"><h2>' . esc_html( $title ) . '</h2></td>'
+            . ( ! $compact && $meta !== '' ? '<td class="tt-mr-sh__meta">' . esc_html( $meta ) . '</td>' : '' )
+            . '</tr></table>';
+    }
+
+    /** The header for one of this document's sections (#4096). */
+    private static function head( string $block, bool $compact = false ): string {
+        return self::sectionHeader(
+            self::$numbers[ $block ] ?? 0,
+            TeamMonthlyReportBlock::title( $block ),
+            self::cut( TeamMonthlyReport::sectionMeta( $block, self::$data[ $block ] ?? [] ), 64 ),
+            $compact
+        );
     }
 
     /* ---------------------------------------------------------------
@@ -305,7 +352,7 @@ final class TeamMonthlyReportPdfDocument {
         $total  = 0;
         foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) $total += (int) ( $counts[ $c ] ?? 0 );
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Squad status', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'status' );
         if ( $total > 0 ) {
             $out .= '<table class="band"><tr>';
             foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) {
@@ -324,9 +371,9 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /** @param array<string,mixed> $d */
-    private static function bars( string $title, array $d, string $value_key, ?int $target ): string {
+    private static function bars( string $block, array $d, string $value_key, ?int $target ): string {
         $rows = is_array( $d['rows'] ?? null ) ? $d['rows'] : [];
-        $out  = '<div class="sec"><div class="h">' . esc_html( $title ) . '</div><table class="bars">';
+        $out  = '<div class="sec">' . self::head( $block ) . '<table class="bars">';
         foreach ( $rows as $r ) {
             if ( ! is_array( $r ) ) continue;
             if ( isset( $r['elided'] ) ) {
@@ -360,7 +407,7 @@ final class TeamMonthlyReportPdfDocument {
         $items   = is_array( $a['items'] ?? null ) ? $a['items'] : [];
         $omitted = (int) ( $a['omitted'] ?? 0 );
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'attention' );
         if ( $items === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'Nobody is flagged this period.', 'talenttrack' ) . '</div></div>';
         }
@@ -390,7 +437,7 @@ final class TeamMonthlyReportPdfDocument {
     /** @param array<string,mixed> $c */
     private static function changes( array $c, bool $compact ): string {
         $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
-        $out    = '<div class="sec"><div class="h">' . esc_html_x( 'What changed', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out    = '<div class="sec">' . self::head( 'changes', $compact );
         if ( $events === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</div></div>';
         }
@@ -418,7 +465,7 @@ final class TeamMonthlyReportPdfDocument {
         $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
         $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
 
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Matches', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out = '<div class="sec">' . self::head( 'matches', $compact );
 
         if ( $fixtures === [] ) {
             $out .= '<div class="muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</div>';
@@ -736,7 +783,7 @@ final class TeamMonthlyReportPdfDocument {
     /** @param array<string,mixed> $t */
     private static function tests( array $t, bool $compact ): string {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
-        $out      = '<div class="sec"><div class="h">' . esc_html_x( 'Tests', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out      = '<div class="sec">' . self::head( 'tests', $compact );
         if ( $rounds === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</div></div>';
         }
@@ -1146,7 +1193,7 @@ final class TeamMonthlyReportPdfDocument {
      */
     private static function roster( array $r, bool $wide ): string {
         $rows = is_array( $r['rows'] ?? null ) ? $r['rows'] : [];
-        $out  = '<div class="sec"><div class="h">' . esc_html_x( 'Player by player', 'team monthly report section', 'talenttrack' ) . '</div>';
+        $out  = '<div class="sec">' . self::head( 'roster' );
         // A fixed-layout table takes its widths from the header cells
         // (`.w0`…, see css()), so a long name is cut, never squeezes its
         // neighbours. DomPDF ignores `<col>` widths.
@@ -1195,13 +1242,13 @@ final class TeamMonthlyReportPdfDocument {
     private static function notes(): string {
         $lines = '';
         for ( $i = 0; $i < 5; $i++ ) $lines .= '<tr><td class="rule"></td></tr>';
-        return '<div class="sec"><div class="h">' . esc_html_x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ) . '</div><table class="lines">' . $lines . '</table></div>';
+        return '<div class="sec">' . self::head( 'notes' ) . '<table class="lines">' . $lines . '</table></div>';
     }
 
     private static function notesCompact(): string {
         $lines = '';
         for ( $i = 0; $i < 4; $i++ ) $lines .= '<tr><td class="rule"></td></tr>';
-        return '<div class="sec"><div class="h">' . esc_html_x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ) . '</div><table class="lines">' . $lines . '</table></div>';
+        return '<div class="sec">' . self::head( 'notes', true ) . '<table class="lines">' . $lines . '</table></div>';
     }
 
     /** @param array<string,mixed> $q */
@@ -1251,7 +1298,7 @@ final class TeamMonthlyReportPdfDocument {
         if ( $lines === [] ) $lines[] = __( 'Nothing missing. Every register, minute and evaluation this report looks for is in.', 'talenttrack' );
 
         // Exactly `TeamMonthlyReportLayout::qualityLines()` rows, one line each.
-        $out = '<div class="sec"><div class="h">' . esc_html_x( 'Data quality', 'team monthly report section', 'talenttrack' ) . '</div><table class="list">';
+        $out = '<div class="sec">' . self::head( 'quality' ) . '<table class="list">';
         foreach ( array_slice( $lines, 0, TeamMonthlyReportLayout::qualityLines( $q ) ) as $line ) {
             $out .= '<tr><td class="wrap">' . esc_html( $line ) . '</td></tr>';
         }
@@ -1366,7 +1413,14 @@ final class TeamMonthlyReportPdfDocument {
             // so a reader can tell what the data said from what the meeting
             // said about it.
             . '.note{margin:0 0 3mm;padding:1.5mm 2mm;border-left:2px solid ' . $ink . ';font-size:7.5pt}'
-            . '.h{height:5mm;font-size:9.5pt;font-weight:bold;border-bottom:1px solid ' . $line . ';margin-bottom:1mm}'
+            // #4096 — the section header: number, title and what the section
+            // holds, on a band tinted with the club colour and a bar in it.
+            . '.tt-mr-sh{margin:0 0 1.5mm;border-spacing:0;background:' . ReportBrandColour::tint( self::$primary ) . '}'
+            . '.tt-mr-sh td{height:6.5mm;padding:0 2mm;vertical-align:middle;white-space:nowrap}'
+            . '.tt-mr-sh td.tt-mr-sh__no{width:6mm;border-left:1.2mm solid ' . self::$primary . ';font-size:8pt;font-weight:bold;color:' . ReportBrandColour::numberColour( self::$primary ) . '}'
+            . '.tt-mr-sh h2{margin:0;padding:0;font-size:11pt;font-weight:bold;color:' . $ink . '}'
+            . '.tt-mr-sh td.tt-mr-sh__meta{text-align:right;font-size:7.5pt;color:#3d4a43}'
+            . '.tt-mr-sh--compact h2{font-size:9.5pt}'
             . '.band{height:6mm;margin-bottom:1mm}.band td{color:#fff;font-weight:bold;text-align:center;font-size:7.5pt}'
             . '.b-green{background:#1f7a4a}.b-amber{background:#c88a12}.b-red{background:#b3261e}.b-unknown{background:#8a8f96}'
             . '.bars td{height:3.8mm;padding:0;font-size:7.5pt;line-height:1.1;vertical-align:middle}'

@@ -112,6 +112,24 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4096 — the screen numbers its sections as the PDF of the same
+     * composition does: following the ticked sections, in print order.
+     */
+    public function test_sections_on_screen_carry_the_numbers_the_pdf_prints(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id' => 1, 'team_id' => $this->team_id, 'title' => 'Tuesday', 'session_date' => '2020-03-03',
+            'activity_type_key' => 'training', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
+        ] );
+
+        $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'layout' => 'B', 'blocks' => 'kpi,attendance,roster,quality' ] );
+
+        $this->assertStringContainsString( '<td class="tt-mr-sh__no">01</td><td class="tt-mr-sh__t"><h2>Attendance</h2>', $html );
+        $this->assertStringContainsString( '<td class="tt-mr-sh__no">02</td><td class="tt-mr-sh__t"><h2>Player by player</h2>', $html );
+        $this->assertStringContainsString( '<td class="tt-mr-sh__no">03</td><td class="tt-mr-sh__t"><h2>Data quality</h2>', $html );
+    }
+
+    /**
      * #4035 — the attendance section's subtitle names the order its rows are
      * actually in. It read "Lowest first" while the rows had been in shirt
      * order since #3518, so a coach reading the top rows as the players who

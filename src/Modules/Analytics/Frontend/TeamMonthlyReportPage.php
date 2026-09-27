@@ -8,6 +8,8 @@ use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
+use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Export\Exporters\TeamMonthlyReportPdfDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
@@ -44,6 +46,17 @@ final class TeamMonthlyReportPage {
     public const SLUG = 'team-monthly';
 
     /**
+     * #4096 — each shown section's number in print order, and the data its
+     * header's meta line is read from. Set once per render.
+     *
+     * @var array<string,int>
+     */
+    private static array $numbers = [];
+
+    /** @var array<string,array<string,mixed>> */
+    private static array $data = [];
+
+    /**
      * @param object                                          $team   tt_teams row.
      * @param array{from:string,to:string,period:string}      $window the resolved window.
      */
@@ -61,8 +74,8 @@ final class TeamMonthlyReportPage {
 
         self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit, $options );
 
-        echo '<div class="tt-mr" data-tt-monthly-report>';
-        self::renderBlocks( $report, $team, $window );
+        echo '<div class="' . esc_attr( self::wrapperClass() ) . '" data-tt-monthly-report>';
+        self::renderBlocks( $report, $team, $window, $layout );
         echo '</div>';
 
         TeamMonthlyReportSnapshotPage::renderTakeAndList( $team_id, $window, $layout, $report['blocks'], $options );
@@ -82,7 +95,7 @@ final class TeamMonthlyReportPage {
      * @param array<string,array{body:string, author:int, updated_at:string}>                           $notes
      * @param string                                                                                    $snapshot uuid, '' on the live report
      */
-    public static function renderBlocks( array $report, ?object $team, array $window, array $notes = [], string $snapshot = '' ): void {
+    public static function renderBlocks( array $report, ?object $team, array $window, string $layout = TeamMonthlyReportLayout::DEFAULT, array $notes = [], string $snapshot = '' ): void {
         $data    = $report['data'];
         $team_id = (int) ( $team->id ?? 0 );
         $head    = $data['letterhead'] ?? [];
@@ -97,8 +110,19 @@ final class TeamMonthlyReportPage {
             return;
         }
 
+        // #4096 — sections in the order the chosen layout prints them, each
+        // numbered as on paper. A section the layout leaves off the page (the
+        // landscape matrix folds attendance and minutes into its roster) is
+        // still shown here, after the rest and without a number.
+        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $report['blocks'], $layout );
+        self::$data    = $data;
+        $order         = TeamMonthlyReportLayout::printOrder( $layout );
         foreach ( $report['blocks'] as $block ) {
-            if ( $block === TeamMonthlyReportBlock::LETTERHEAD ) continue;
+            if ( $block !== TeamMonthlyReportBlock::LETTERHEAD && ! in_array( $block, $order, true ) ) $order[] = $block;
+        }
+
+        foreach ( $order as $block ) {
+            if ( ! in_array( $block, $report['blocks'], true ) ) continue;
             $block_data = $data[ $block ] ?? [];
             switch ( $block ) {
                 case TeamMonthlyReportBlock::COVERAGE:   self::renderCoverage( $block_data ); break;
@@ -129,6 +153,15 @@ final class TeamMonthlyReportPage {
     /** The report's own styles, for a surface that is not the live report. */
     public static function enqueuePublic(): void {
         self::enqueue();
+    }
+
+    /**
+     * The report wrapper's classes. #4096 — a club colour too pale to read as
+     * the section number on its own tint gets ink numbers instead, decided by
+     * the same check the PDF makes.
+     */
+    public static function wrapperClass(): string {
+        return 'tt-mr' . ( ReportBrandColour::readableOnTint( ReportBrandColour::primary() ) ? '' : ' tt-mr--ink-numbers' );
     }
 
     /* ---------------------------------------------------------------
@@ -754,7 +787,7 @@ final class TeamMonthlyReportPage {
         $previous = is_array( $s['previous'] ?? null ) ? $s['previous'] : null;
         $total    = array_sum( array_map( 'intval', $counts ) );
 
-        self::sectionOpen( _x( 'Squad status', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::STATUS );
         if ( $total > 0 ) {
             echo '<div class="tt-mr-band" role="img" aria-label="' . esc_attr( self::statusSentence( $counts ) ) . '">';
             foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $color ) {
@@ -783,7 +816,6 @@ final class TeamMonthlyReportPage {
      */
     private static function renderAttendance( array $a, int $team_id, array $window ): void {
         $rows = is_array( $a['rows'] ?? null ) ? $a['rows'] : [];
-        $avg  = $a['team_avg_pct'] ?? null;
 
         // Gated where it is rendered: link() only emits the anchor when
         // CrossViewLink::allows() says the reader can open the target.
@@ -795,11 +827,7 @@ final class TeamMonthlyReportPage {
         ], RecordLink::dashboardUrl() ) );
 
         self::sectionOpen(
-            _x( 'Attendance', 'team monthly report section', 'talenttrack' ),
-            $avg !== null
-                /* translators: %s: team average attendance percentage */
-                ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::pct( $avg ) )
-                : __( 'No attendance recorded.', 'talenttrack' ),
+            TeamMonthlyReportBlock::ATTENDANCE,
             self::link( 'attendance-report-team', $source, __( 'Open the attendance report', 'talenttrack' ) )
         );
         if ( $rows !== [] ) {
@@ -832,14 +860,7 @@ final class TeamMonthlyReportPage {
         ], RecordLink::dashboardUrl() ) );
 
         self::sectionOpen(
-            _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),
-            sprintf(
-                /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
-                __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),
-                (int) ( $m['matches_recorded'] ?? 0 ),
-                (int) ( $m['matches_played'] ?? 0 ),
-                $target
-            ),
+            TeamMonthlyReportBlock::MINUTES,
             self::link( 'standard-report', $source, __( 'Open the minutes share report', 'talenttrack' ) )
         );
         if ( $rows === [] ) {
@@ -893,10 +914,7 @@ final class TeamMonthlyReportPage {
     private static function renderAttention( array $a ): void {
         $items = is_array( $a['items'] ?? null ) ? $a['items'] : [];
 
-        self::sectionOpen(
-            _x( 'Needs a conversation', 'team monthly report section', 'talenttrack' ),
-            __( 'Players the status model flags, most urgent first.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::ATTENTION );
         if ( $items === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'Nobody is flagged this period.', 'talenttrack' ) . '</p>';
             self::sectionClose();
@@ -941,16 +959,8 @@ final class TeamMonthlyReportPage {
     /** @param array<string,mixed> $c */
     private static function renderChanges( array $c ): void {
         $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
-        $open   = (int) ( $c['open_injuries'] ?? 0 );
 
-        self::sectionOpen(
-            _x( 'What changed', 'team monthly report section', 'talenttrack' ),
-            sprintf(
-                /* translators: %d: players with an open injury */
-                _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
-                $open
-            )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::CHANGES );
         if ( $events === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</p>';
         } else {
@@ -972,7 +982,7 @@ final class TeamMonthlyReportPage {
         $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
         $show   = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
 
-        self::sectionOpen( _x( 'Tests', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::TESTS );
         if ( $rounds === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</p>';
             self::sectionClose();
@@ -1067,7 +1077,7 @@ final class TeamMonthlyReportPage {
         $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
         $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
 
-        self::sectionOpen( _x( 'Matches', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::MATCHES );
 
         if ( $fixtures === [] ) {
             echo '<p class="tt-mr-muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</p>';
@@ -1424,7 +1434,7 @@ final class TeamMonthlyReportPage {
     private static function renderRoster( array $r ): void {
         $rows = is_array( $r['rows'] ?? null ) ? $r['rows'] : [];
 
-        self::sectionOpen( _x( 'Player by player', 'team monthly report section', 'talenttrack' ) );
+        self::sectionOpen( TeamMonthlyReportBlock::ROSTER );
         echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-roster">';
         echo '<thead><tr>'
             . '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
@@ -1461,10 +1471,7 @@ final class TeamMonthlyReportPage {
     }
 
     private static function renderNotes(): void {
-        self::sectionOpen(
-            _x( 'Decisions and actions', 'team monthly report section', 'talenttrack' ),
-            __( 'Ruled lines on the printed copy, for what the meeting agrees.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::NOTES );
         echo '<div class="tt-mr-lines" aria-hidden="true">';
         for ( $i = 0; $i < 4; $i++ ) echo '<span></span>';
         echo '</div>';
@@ -1480,10 +1487,7 @@ final class TeamMonthlyReportPage {
         $not_evaluated = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
         $incomplete    = is_array( $q['players_with_incomplete_status'] ?? null ) ? $q['players_with_incomplete_status'] : [];
 
-        self::sectionOpen(
-            _x( 'Data quality', 'team monthly report section', 'talenttrack' ),
-            __( 'Fix these before next month and the report gets sharper.', 'talenttrack' )
-        );
+        self::sectionOpen( TeamMonthlyReportBlock::QUALITY );
         $lines = [];
         if ( $no_register !== [] ) {
             /* translators: %d: activities without an attendance register */
@@ -1547,12 +1551,19 @@ final class TeamMonthlyReportPage {
      * Helpers
      * ------------------------------------------------------------- */
 
-    private static function sectionOpen( string $title, string $hint = '', string $action_html = '' ): void {
-        echo '<section class="tt-rep-section tt-mr-section">';
-        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html( $title ) . '</h2>';
-        if ( $hint !== '' ) echo '<span class="tt-rep-section__hint">' . esc_html( $hint ) . '</span>';
-        if ( $action_html !== '' ) echo '<span class="tt-mr-section__source">' . $action_html . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by link().
-        echo '</div>';
+    /**
+     * #4096 — a section opens with the header the PDF prints: its number in
+     * print order, its title, and the line saying what it holds, from the
+     * same component and the same data.
+     */
+    private static function sectionOpen( string $block, string $action_html = '' ): void {
+        echo '<section class="tt-rep-section tt-mr-section" id="' . esc_attr( 'tt-mr-sec-' . $block ) . '">';
+        echo TeamMonthlyReportPdfDocument::sectionHeader( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes.
+            self::$numbers[ $block ] ?? 0,
+            TeamMonthlyReportBlock::title( $block ),
+            TeamMonthlyReport::sectionMeta( $block, self::$data[ $block ] ?? [] )
+        );
+        if ( $action_html !== '' ) echo '<p class="tt-mr-section__source">' . $action_html . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by link().
     }
 
     private static function sectionClose(): void {

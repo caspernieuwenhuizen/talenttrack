@@ -74,8 +74,9 @@ final class TeamMonthlyReportLayout {
         'letterhead'      => 24.5,
         'coverage'        => 13.2,
         'kpi'             => 25.0,
-        'status'          => 20.4,
-        'section_base'    => 9.5,
+        // #4096 — every section opens with the numbered header band.
+        'status'          => 21.0,
+        'section_base'    => 10.0,
         'bar_row'         => 3.85,
         'attention_item'  => 17.2,
         'change_row'      => 4.6,
@@ -103,7 +104,7 @@ final class TeamMonthlyReportLayout {
         'roster_row'      => 5.5,
         'roster_row_mini' => 4.7,
         'roster_row_wide' => 4.7,
-        'notes'           => 48.5,
+        'notes'           => 49.0,
         'quality_row'     => 4.6,
         'matrix_footer'   => 42.0,
     ];
@@ -220,6 +221,42 @@ final class TeamMonthlyReportLayout {
         }
 
         return $tests;
+    }
+
+    /**
+     * #4096 — the order a layout prints its sections in. The pack moves the
+     * roster onto its own page ahead of the meeting pages; the landscape
+     * matrix prints the roster as the page and gathers matches, what changed,
+     * tests and notes in a footer strip.
+     *
+     * @return list<string>
+     */
+    public static function printOrder( string $layout ): array {
+        switch ( $layout ) {
+            case self::PACK:
+                return [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'roster', 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ];
+            case self::MATRIX:
+                return [ 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality', 'matches', 'changes', 'tests', 'notes' ];
+        }
+        return array_values( array_diff( TeamMonthlyReportBlock::ALL, [ TeamMonthlyReportBlock::LETTERHEAD ] ) );
+    }
+
+    /**
+     * #4096 — each ticked section's number, following the sections this
+     * layout prints in the order it prints them, so "section 6" is the same
+     * section on screen and on paper.
+     *
+     * @param list<string> $selected
+     * @return array<string,int>
+     */
+    public static function sectionNumbers( array $selected, string $layout ): array {
+        $out = [];
+        $n   = 0;
+        foreach ( self::printOrder( $layout ) as $block ) {
+            if ( ! in_array( $block, TeamMonthlyReportBlock::HEADED, true ) || ! in_array( $block, $selected, true ) ) continue;
+            $out[ $block ] = ++$n;
+        }
+        return $out;
     }
 
     public static function maxPages( string $layout ): int {

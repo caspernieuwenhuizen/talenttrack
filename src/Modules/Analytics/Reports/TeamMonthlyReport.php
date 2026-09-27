@@ -213,6 +213,110 @@ final class TeamMonthlyReport {
     }
 
     /**
+     * #4096 — the line beside a section's title saying what it holds: "4
+     * played · 2 W 1 D 1 L", "5 players · most urgent first". Read off the
+     * block's own data, so a snapshot frozen months ago says the same thing
+     * on screen and on paper, and neither renderer counts anything itself.
+     *
+     * @param array<string,mixed> $d the block's data, as the layout prints it.
+     */
+    public static function sectionMeta( string $block, array $d ): string {
+        $list = static fn( string $key ): array => is_array( $d[ $key ] ?? null ) ? $d[ $key ] : [];
+
+        switch ( $block ) {
+            case TeamMonthlyReportBlock::STATUS:
+                $counts = $list( 'counts' );
+                $total  = 0;
+                foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $c ) $total += (int) ( $counts[ $c ] ?? 0 );
+                return sprintf(
+                    /* translators: 1: players on track, 2: players in the squad */
+                    __( '%1$d of %2$d on track', 'talenttrack' ),
+                    (int) ( $counts['green'] ?? 0 ),
+                    $total
+                );
+
+            case TeamMonthlyReportBlock::ATTENDANCE:
+                $avg = $d['team_avg_pct'] ?? null;
+                return is_int( $avg ) || is_float( $avg )
+                    /* translators: %s: team average attendance percentage */
+                    ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::metaPct( (float) $avg ) )
+                    : __( 'No attendance recorded.', 'talenttrack' );
+
+            case TeamMonthlyReportBlock::MINUTES:
+                return sprintf(
+                    /* translators: 1: matches with minutes recorded, 2: matches played, 3: target percentage */
+                    __( 'Minutes recorded for %1$d of %2$d matches played. Target %3$d%%.', 'talenttrack' ),
+                    (int) ( $d['matches_recorded'] ?? 0 ),
+                    (int) ( $d['matches_played'] ?? 0 ),
+                    (int) ( $d['target_pct'] ?? 50 )
+                );
+
+            case TeamMonthlyReportBlock::MATCHES:
+                if ( $list( 'fixtures' ) === [] ) return __( 'No matches played this period.', 'talenttrack' );
+                $record = $list( 'record' );
+                return sprintf(
+                    /* translators: 1: matches played, 2: won, 3: drawn, 4: lost */
+                    __( '%1$d played · %2$d W %3$d D %4$d L', 'talenttrack' ),
+                    count( $list( 'fixtures' ) ),
+                    (int) ( $record['won'] ?? 0 ),
+                    (int) ( $record['drawn'] ?? 0 ),
+                    (int) ( $record['lost'] ?? 0 )
+                );
+
+            case TeamMonthlyReportBlock::ATTENTION:
+                $n = count( $list( 'items' ) ) + (int) ( $d['omitted'] ?? 0 );
+                if ( $n === 0 ) return __( 'Nobody is flagged this period.', 'talenttrack' );
+                /* translators: %d: players who need a conversation */
+                return sprintf( _n( '%d player · most urgent first', '%d players · most urgent first', $n, 'talenttrack' ), $n );
+
+            case TeamMonthlyReportBlock::CHANGES:
+                $events = count( $list( 'events' ) );
+                $open   = (int) ( $d['open_injuries'] ?? 0 );
+                return sprintf(
+                    /* translators: %d: entries under "what changed" */
+                    _nx( '%d change', '%d changes', $events, 'monthly report: entries under what changed', 'talenttrack' ),
+                    $events
+                ) . ' · ' . sprintf(
+                    /* translators: %d: players with an open injury */
+                    _n( '%d player currently injured.', '%d players currently injured.', $open, 'talenttrack' ),
+                    $open
+                );
+
+            case TeamMonthlyReportBlock::TESTS:
+                $rounds = count( $list( 'rounds' ) ) + count( $list( 'omitted' ) );
+                if ( $rounds === 0 ) return __( 'No tests taken this period.', 'talenttrack' );
+                $show = TestsBlockOptions::show( [ 'show' => $d['show'] ?? null ] );
+                /* translators: %d: number of tests */
+                return sprintf( _n( '%d test', '%d tests', $rounds, 'talenttrack' ), $rounds )
+                    . ' · ' . ( TestsBlockOptions::showLabels()[ $show ] ?? '' );
+
+            case TeamMonthlyReportBlock::ROSTER:
+                $n = count( $list( 'rows' ) );
+                /* translators: %d: players in the squad */
+                return sprintf( _n( '%d player', '%d players', $n, 'talenttrack' ), $n );
+
+            case TeamMonthlyReportBlock::NOTES:
+                return __( 'Space to write on', 'talenttrack' );
+
+            case TeamMonthlyReportBlock::QUALITY:
+                $gaps = count( $list( 'activities_without_register' ) ) > 0 ? 1 : 0;
+                foreach ( [ 'activities_never_closed', 'matches_without_opponent', 'players_not_evaluated', 'players_with_incomplete_status' ] as $key ) {
+                    if ( $list( $key ) !== [] ) $gaps++;
+                }
+                if ( (int) ( $d['matches_without_minutes'] ?? 0 ) > 0 ) $gaps++;
+                if ( $gaps === 0 ) return _x( 'Nothing missing', 'monthly report data quality, section header', 'talenttrack' );
+                /* translators: %d: kinds of missing data to fix */
+                return sprintf( _n( '%d thing to fix', '%d things to fix', $gaps, 'talenttrack' ), $gaps );
+        }
+        return '';
+    }
+
+    /** A percentage as the report prints one: a decimal only when there is one. */
+    private static function metaPct( float $v ): string {
+        return number_format_i18n( $v, floor( $v ) != $v ? 1 : 0 ) . '%';
+    }
+
+    /**
      * The whole calendar month before the one `$ts` falls in. Integer month
      * arithmetic rather than a "-1 month" relative string, which lands on the
      * wrong month from the 29th to the 31st.
