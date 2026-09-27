@@ -62,6 +62,8 @@ De kaart **Toegewezen staf** op Overzicht toont per panellid of de input al is i
 
 Wie het panel via de API opvraagt, krijgt dezelfde mensen: elke regel bevat de naam van het staflid en, als die er is, het id van het bijbehorende Mensen-record. Zo toont een koppeling een panel met namen in plaats van accountnummers.
 
+Iemand aan het panel toevoegen gaat ook op naam. De stafkiezer, op het dossier en in de wizard voor een nieuwe stage, biedt de staf van de club aan: mensen in Mensen die geen ouder zijn, en accounts met een stafrol. Spelers en ouders staan er nooit in. Alleen staf met een login wordt aangeboden, want wie niet kan inloggen, kan ook nooit input inleveren. Een koppeling doet hetzelfde via de stafzoekfunctie, die een staflid vindt op twee of meer letters van de naam. Die is alleen open voor wie stages of ouderkoppelingen beheert, dus een scout die alleen in panels zit, kan de staflijst niet doorbladeren.
+
 Loopt de stage bijna af en is er nog geen besluit vastgelegd, dan verschijnt onder de hero een **Deadline**-melding met hoeveel tijd er nog is — of hoe lang de periode al verstreken is. Die verdwijnt vanzelf zodra het besluit is vastgelegd of het dossier is verlengd; er valt niets weg te klikken. Hoeveel dagen vooraf er gewaarschuwd wordt, staat in de instelling `alerts_trial_decision_due_days`, standaard drie dagen.
 
 Dezelfde situatie levert het hoofd opleiding een melding **Stage eindigt zonder besluit** op, met de namen van de panelleden die nog niets hebben ingeleverd, zodat je ziet waar het besluit op wacht. Die melding lost zichzelf op zodra het besluit binnen is of het dossier wordt verlengd.
