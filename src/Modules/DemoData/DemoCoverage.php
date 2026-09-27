@@ -1422,7 +1422,7 @@ class DemoCoverage {
             'trials'      => __( 'Trial cases', 'talenttrack' ),
             'guardians'   => __( 'Guardians', 'talenttrack' ),
             'injuries'    => __( 'Injuries', 'talenttrack' ),
-            'suspensions' => __( 'Suspensions', 'talenttrack' ),
+            'suspensions' => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
             'player_profile' => __( 'Player profile', 'talenttrack' ),
             'reports'     => __( 'Player reports', 'talenttrack' ),
             'report_snapshots' => __( 'Meeting snapshots', 'talenttrack' ),

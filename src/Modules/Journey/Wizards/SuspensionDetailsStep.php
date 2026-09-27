@@ -23,7 +23,7 @@ use TT\Shared\Wizards\WizardStepInterface;
 final class SuspensionDetailsStep implements WizardStepInterface {
 
     public function slug(): string  { return 'details'; }
-    public function label(): string { return __( 'Suspension', 'talenttrack' ); }
+    public function label(): string { return _x( 'Suspension', 'disciplinary record', 'talenttrack' ); }
 
     public function render( array $state ): void {
         self::renderFields( [
@@ -106,7 +106,13 @@ final class SuspensionDetailsStep implements WizardStepInterface {
         ];
     }
 
-    public function nextStep( array $state ): ?string { return 'confirm'; }
+    /** Always names the next step, so the framework never submits from here. */
+    public function nextStep( array $state ): string { return 'confirm'; }
 
-    public function submit( array $state ) { return null; }
+    /**
+     * Unreachable: only the final step submits.
+     *
+     * @return array<string,mixed>
+     */
+    public function submit( array $state ): array { return []; }
 }

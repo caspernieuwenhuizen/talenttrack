@@ -53,7 +53,7 @@ final class SuspensionCards {
         $started   = (string) ( $row['started_on'] ?? '' );
         $notes     = (string) ( $row['notes'] ?? '' );
 
-        $title = $reason !== '' ? $reason : __( 'Suspension', 'talenttrack' );
+        $title = $reason !== '' ? $reason : _x( 'Suspension', 'disciplinary record', 'talenttrack' );
         if ( $show_player ) {
             $name  = trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) );
             $title = ( $name !== '' ? $name : '#' . $player_id ) . ' · ' . $title;
@@ -116,7 +116,7 @@ final class SuspensionCards {
             return $status['served_on'] !== ''
                 /* translators: %s: a date */
                 ? sprintf( __( 'Served on %s', 'talenttrack' ), TTDate::date( $status['served_on'] ) )
-                : __( 'Served', 'talenttrack' );
+                : _x( 'Served', 'suspension state', 'talenttrack' );
         }
         /* translators: 1: matches already served, 2: matches in total */
         return sprintf( __( '%1$d of %2$d served', 'talenttrack' ), $status['served'], $status['of'] );

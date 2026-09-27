@@ -302,7 +302,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( \TT\Infrastructure\Journey\SuspensionService::isEnabled()
             && \TT\Infrastructure\Security\AuthorizationService::canAccessSuspensions( $user_id, $player_id, MatrixGate::READ )
         ) {
-            $tabs['suspensions'] = __( 'Suspensions', 'talenttrack' );
+            $tabs['suspensions'] = _x( 'Suspensions', 'disciplinary record', 'talenttrack' );
         }
         // #2594 (epic #2589) — photos and video in context. Gated on the
         // `media` entity, which `canAnyScope()` also runs the feature

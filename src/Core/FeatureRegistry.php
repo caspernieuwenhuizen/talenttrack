@@ -436,7 +436,7 @@ class FeatureRegistry {
             // and planning surfaces stop flagging suspended players. The
             // Suspended attendance status stays, set by hand as before.
             'player_suspensions' => [
-                'label'           => __( 'Suspensions', 'talenttrack' ),
+                'label'           => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
                 'description'     => __( 'Record a suspension for a number of matches, so match prep and the planned squad flag the player for exactly those matches and the journey shows it. The Suspended attendance status stays available when this is off.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\Journey\\JourneyModule',
                 'default_enabled' => true,

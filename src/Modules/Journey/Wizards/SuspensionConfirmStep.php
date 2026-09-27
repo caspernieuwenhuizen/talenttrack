@@ -61,7 +61,12 @@ final class SuspensionConfirmStep implements WizardStepInterface {
         }
     }
 
-    public function validate( array $post, array $state ) {
+    /**
+     * Nothing to answer here; the read-back is the step.
+     *
+     * @return array<string,mixed>
+     */
+    public function validate( array $post, array $state ): array {
         return [];
     }
 

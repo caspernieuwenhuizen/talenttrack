@@ -38,7 +38,7 @@ use TT\Shared\Wizards\WizardEntryPoint;
 final class FrontendSuspensionsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        $title  = __( 'Suspensions', 'talenttrack' );
+        $title  = _x( 'Suspensions', 'disciplinary record', 'talenttrack' );
         // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only view routing.
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) wp_unslash( $_GET['action'] ) ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
@@ -69,14 +69,15 @@ final class FrontendSuspensionsView extends FrontendViewBase {
         self::renderOverview( $user_id, $is_admin );
     }
 
+    /** @return array<int, array{label:string, url:string}> */
     private static function listCrumb(): array {
-        return [ FrontendBreadcrumbs::viewCrumb( 'suspensions', __( 'Suspensions', 'talenttrack' ) ) ];
+        return [ FrontendBreadcrumbs::viewCrumb( 'suspensions', _x( 'Suspensions', 'disciplinary record', 'talenttrack' ) ) ];
     }
 
     // Overview ---------------------------------------------------------
 
     private static function renderOverview( int $user_id, bool $is_admin ): void {
-        $title = __( 'Suspensions', 'talenttrack' );
+        $title = _x( 'Suspensions', 'disciplinary record', 'talenttrack' );
         FrontendBreadcrumbs::fromDashboard( $title );
 
         $see_all = $is_admin || MatrixGate::can( $user_id, 'player_suspensions', MatrixGate::READ, MatrixGate::SCOPE_GLOBAL );
@@ -174,8 +175,8 @@ final class FrontendSuspensionsView extends FrontendViewBase {
         $player_id = $row !== null ? (int) $row['player_id'] : 0;
 
         if ( $row === null || ! AuthorizationService::canAccessSuspensions( $user_id, $player_id, 'read' ) ) {
-            FrontendBreadcrumbs::fromDashboard( __( 'Suspension', 'talenttrack' ), self::listCrumb() );
-            self::renderHeader( __( 'Suspension', 'talenttrack' ) );
+            FrontendBreadcrumbs::fromDashboard( _x( 'Suspension', 'disciplinary record', 'talenttrack' ), self::listCrumb() );
+            self::renderHeader( _x( 'Suspension', 'disciplinary record', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'That suspension was not found.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -185,7 +186,7 @@ final class FrontendSuspensionsView extends FrontendViewBase {
         $title  = $name !== ''
             /* translators: %s: player name */
             ? sprintf( __( 'Suspension — %s', 'talenttrack' ), $name )
-            : __( 'Suspension', 'talenttrack' );
+            : _x( 'Suspension', 'disciplinary record', 'talenttrack' );
 
         FrontendBreadcrumbs::fromDashboard( $title, self::listCrumb() );
         self::renderHeader( $title );
@@ -210,7 +211,7 @@ final class FrontendSuspensionsView extends FrontendViewBase {
         foreach ( $covered as $fixture ) {
             $label = SuspensionConfirmStep::fixtureLabel( $fixture['id'], $fixture['date'] );
             if ( $fixture['status'] === 'completed' ) {
-                $label .= ' · ' . __( 'played', 'talenttrack' );
+                $label .= ' · ' . _x( 'played', 'a match that has been completed', 'talenttrack' );
             }
             echo '<li>' . esc_html( $label ) . '</li>';
         }

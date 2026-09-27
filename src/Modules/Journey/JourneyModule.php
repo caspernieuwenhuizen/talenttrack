@@ -98,7 +98,7 @@ class JourneyModule implements ModuleInterface {
                 'group'             => __( 'People', 'talenttrack' ),
                 'kind'              => 'work',
                 'order'             => 36,
-                'label'             => __( 'Suspensions', 'talenttrack' ),
+                'label'             => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
                 'description'       => __( 'Who is suspended, for which matches, and when they can play again.', 'talenttrack' ),
                 'icon'              => 'alert',
                 'color'             => '#8a5300',

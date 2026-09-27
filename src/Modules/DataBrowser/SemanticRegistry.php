@@ -142,7 +142,7 @@ class SemanticRegistry {
                 ],
             ],
             'tt_player_suspensions' => [
-                'label'       => __( 'Suspensions', 'talenttrack' ),
+                'label'       => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
                 'description' => __( 'Suspensions per player: how many matches, counted from when, and whether they have been served.', 'talenttrack' ),
                 'columns'     => [
                     'player_id'   => [ 'label' => __( 'Player', 'talenttrack' ),            'description' => __( 'The suspended player.', 'talenttrack' ) ],

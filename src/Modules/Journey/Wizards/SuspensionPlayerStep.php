@@ -86,9 +86,15 @@ final class SuspensionPlayerStep implements WizardStepInterface {
         return [ 'player_id' => $pid ];
     }
 
-    public function nextStep( array $state ): ?string { return 'details'; }
+    /** Always names the next step, so the framework never submits from here. */
+    public function nextStep( array $state ): string { return 'details'; }
 
-    public function submit( array $state ) { return null; }
+    /**
+     * Unreachable: only the final step submits.
+     *
+     * @return array<string,mixed>
+     */
+    public function submit( array $state ): array { return []; }
 
     /**
      * The teams whose players this user may record a suspension for.
