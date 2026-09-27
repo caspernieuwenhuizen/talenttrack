@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
@@ -13,8 +14,9 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  *
  * Sources of truth:
  *   - `tt_attendance.minutes_played` (record_type='actual') → minute totals
- *   - `tt_match_prep_lineup`            → starts per half
- *   - `tt_match_execution_substitutions` → subs_in / subs_off events
+ *   - `tt_match_prep_lineup` + `tt_match_execution_substitutions`, walked
+ *     together by `MatchStints` → starts / subs_in / subs_off (#4059,
+ *     #4060); the first-period line-up alone when no execution exists
  *   - `tt_activities.game_subtype_key`   → League / Cup / Friendly bucket
  *
  * #2193 — minutes are read ONLY from persisted `record_type='actual'`
@@ -32,6 +34,9 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  *   - No `Analytics\FactRegistry` integration. Same follow-up.
  */
 final class MinutesQuery {
+
+    /** The most periods a match is played in (quarters). */
+    private const MAX_PERIODS = 4;
 
     /**
      * @return list<array{
@@ -112,21 +117,24 @@ final class MinutesQuery {
 
             $half_length = $prep ? (int) $prep->half_length_minutes : 0;
             if ( $half_length <= 0 ) $half_length = 35; // sane fallback
-            $match_length = $half_length * 2;
-            $available_minutes += $match_length;
 
-            $start1 = [];
-            $start2 = [];
+            // Line-ups per period. The column is a period number, so a
+            // quarters match carries four of them rather than two halves.
+            $lineups = [];
             if ( $prep ) {
-                $lineup = $prep_repo->listLineup( (int) $prep->id );
-                foreach ( $lineup as $l ) {
-                    if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
-                    if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
+                foreach ( $prep_repo->listLineup( (int) $prep->id ) as $l ) {
+                    $period = (int) $l->half;
+                    $pid    = (int) $l->player_id;
+                    if ( $period > 0 && $pid > 0 ) $lineups[ $period ][] = $pid;
                 }
             }
 
             $exec = $exec_repo->findByActivity( $aid );
             $exec_id = $exec ? (int) $exec->id : 0;
+            $sub_rows = $exec_id > 0 ? $exec_repo->listSubstitutions( $exec_id ) : [];
+
+            $periods = self::periodCount( $lineups, $sub_rows );
+            $available_minutes += $half_length * $periods;
 
             // #1489 — persisted per-player minutes (written to
             // tt_attendance.minutes_played by the match execution on
@@ -141,37 +149,16 @@ final class MinutesQuery {
             // that was planned but never recorded contributes 0, not a
             // recompute from its (unplayed) lineup.
 
-            // Starts counter — once per activity, even if started both halves.
-            $on_pitch = [];
-            foreach ( array_merge( $start1, $start2 ) as $pid ) {
-                if ( ! isset( $starts[ $pid ] ) ) $starts[ $pid ] = 0;
-                if ( ! isset( $on_pitch[ $pid ] ) ) {
-                    $starts[ $pid ]++;
-                    $on_pitch[ $pid ] = true;
-                }
-            }
+            // #4059 / #4060 — started / came on / went off, once per match.
+            // Read off the same spells the persisted minutes were summed
+            // from, rather than re-derived from the line-ups on their own:
+            // reading both half line-ups as "starts" is how a half-time
+            // substitute became a starter, and reading only the
+            // substitution log is how a half-time change reached neither
+            // Ingevallen nor Gewisseld.
+            $facts = self::appearanceFacts( $lineups, $exec_id > 0 ? $sub_rows : null, $half_length, $periods );
 
-            // Subs in / off counters from substitution log.
-            $sub_rows = $exec_id > 0 ? $exec_repo->listSubstitutions( $exec_id ) : [];
-            $subbed_on = [];
-            $subbed_off = [];
-            foreach ( $sub_rows as $sub ) {
-                $on  = (int) $sub->player_on_id;
-                $off = (int) $sub->player_off_id;
-                if ( $on  > 0 ) $subbed_on[ $on ]   = true;
-                if ( $off > 0 ) $subbed_off[ $off ] = true;
-            }
-            foreach ( array_keys( $subbed_on ) as $pid ) {
-                if ( ! isset( $subs_in[ $pid ] ) ) $subs_in[ $pid ] = 0;
-                $subs_in[ $pid ]++;
-                if ( ! isset( $on_pitch[ $pid ] ) ) $on_pitch[ $pid ] = true;
-            }
-            foreach ( array_keys( $subbed_off ) as $pid ) {
-                if ( ! isset( $subs_off[ $pid ] ) ) $subs_off[ $pid ] = 0;
-                $subs_off[ $pid ]++;
-            }
-
-            // Fold minutes + match-type bucket per player.
+            // Fold minutes + match-type bucket + appearance facts per player.
             foreach ( $minutes_map as $pid => $mins ) {
                 $pid = (int) $pid;
                 if ( $pid <= 0 ) continue;
@@ -182,9 +169,17 @@ final class MinutesQuery {
                 // #1489 — a player with persisted minutes played in this
                 // match even if they aren't in the (possibly empty) prep
                 // lineup / sub log, so count the appearance.
-                if ( isset( $on_pitch[ $pid ] ) || $mins > 0 ) {
-                    $matches[ $pid ] = ( $matches[ $pid ] ?? 0 ) + 1;
-                }
+                $matches[ $pid ] = ( $matches[ $pid ] ?? 0 ) + 1;
+
+                // Only a player who played can have started, come on or
+                // gone off — a line-up name with no recorded minutes did
+                // not turn up, and counting them would let starts outrun
+                // matches (#2252).
+                $f = $facts[ $pid ] ?? null;
+                if ( $f === null ) continue;
+                if ( $f['started'] )  $starts[ $pid ]   = ( $starts[ $pid ]   ?? 0 ) + 1;
+                if ( $f['came_on'] )  $subs_in[ $pid ]  = ( $subs_in[ $pid ]  ?? 0 ) + 1;
+                if ( $f['went_off'] ) $subs_off[ $pid ] = ( $subs_off[ $pid ] ?? 0 ) + 1;
             }
         }
 
@@ -228,6 +223,68 @@ final class MinutesQuery {
         } );
 
         return $rows;
+    }
+
+    /**
+     * Whether each player started, came on and went off in one match
+     * (#4059, #4060).
+     *
+     * With a match-execution record (`$subs` is a list, possibly empty) the
+     * facts come from {@see MatchStints}: the line-ups and the substitution
+     * log walked together, which is also what the persisted minutes were
+     * summed from. A half-time change is a line-up difference there, not a
+     * substitution row, and it reaches both columns: the player coming on
+     * at the break came on, the player they replaced went off. Nothing is
+     * written to the substitution log to make that happen — the log stays
+     * a record of what a coach tapped.
+     *
+     * Without one (`$subs` null — a match recorded by hand, #2159) there is
+     * no timeline to read, so the first-period line-up is the start and
+     * nobody came on or went off. Those zeros are not invented facts about
+     * the match: `MatchExecutionMissingAlert` tells the coach the record
+     * behind them is missing.
+     *
+     * @param array<int,list<int>> $lineups period => player ids on at its first minute
+     * @param iterable<object>|null $subs   non-reversed substitutions, or null when no execution record exists
+     * @return array<int, array{started:bool, came_on:bool, went_off:bool}>
+     */
+    public static function appearanceFacts( array $lineups, ?iterable $subs, int $period_length, int $periods = 2 ): array {
+        if ( $subs === null ) {
+            $out = [];
+            foreach ( $lineups[1] ?? [] as $pid ) {
+                $pid = (int) $pid;
+                if ( $pid > 0 ) $out[ $pid ] = [ 'started' => true, 'came_on' => false, 'went_off' => false ];
+            }
+            return $out;
+        }
+
+        $periods = max( 1, $periods );
+        $lengths = array_fill( 1, $periods, max( 0, $period_length ) );
+
+        return MatchStints::appearances(
+            MatchStints::intervalsForPeriods( $subs, $lineups, $lengths ),
+            $periods * max( 0, $period_length )
+        );
+    }
+
+    /**
+     * How many periods a match was played in: two halves unless its
+     * line-ups or substitutions name a later period.
+     *
+     * @param array<int,list<int>> $lineups
+     * @param iterable<object>     $subs
+     */
+    private static function periodCount( array $lineups, iterable $subs ): int {
+        $periods = 2;
+        foreach ( array_keys( $lineups ) as $period ) {
+            $periods = max( $periods, (int) $period );
+        }
+        foreach ( $subs as $sub ) {
+            $periods = max( $periods, (int) ( $sub->half ?? 0 ) );
+        }
+        // Quarters are the most a match is split into; a stray period number
+        // must not multiply the available minutes.
+        return min( self::MAX_PERIODS, $periods );
     }
 
     /**

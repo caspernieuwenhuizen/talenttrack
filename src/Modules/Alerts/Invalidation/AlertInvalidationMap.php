@@ -95,7 +95,9 @@ final class AlertInvalidationMap {
 
             // ── Activities ────────────────────────────────────────────
             // activities.past_still_planned, activities.attendance_unrecorded,
-            // activities.no_coach_assigned.
+            // activities.no_coach_assigned, activities.match_execution_missing
+            // (#4060 — creating the execution record fires no hook of its
+            // own, so that half of it resolves on the hourly sweep).
 
             /** @param object $ctx TaskContext */
             'tt_activity_completed' => static function ( $ctx ): array {

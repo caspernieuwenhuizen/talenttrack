@@ -4,6 +4,8 @@ namespace TT\Modules\Analytics\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
+use TT\Modules\Teams\FootballFormResolver;
 
 /**
  * MinutesAuditQuery (#2368) — the games × players auditability matrix for
@@ -34,8 +36,11 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * game's selection, independent of whether their minutes were recorded.
  *
  * Per-row completeness (status chip):
- *   - `complete`   → every on-squad player has minutes recorded
- *   - `partial`    → some on-squad players have minutes, some are 0
+ *   - `complete`   → every on-squad player has minutes recorded AND the
+ *                    total equals `available_minutes` (#4058)
+ *   - `partial`    → some on-squad players are 0, or the total is short
+ *                    of / over what the match holds (`status_reason` says
+ *                    which)
  *   - `none`       → no minutes recorded at all for the game
  *
  * #3857 — a TOURNAMENT day is a read-only roll-up (`is_rollup`), not a
@@ -61,7 +66,8 @@ final class MinutesAuditQuery {
      *   games: list<array{
      *     activity_id:int, session_date:string, title:string, type_key:string,
      *     minutes:array<int,int>, on_squad:array<int,bool>,
-     *     total_minutes:int, recorded_count:int, squad_count:int, status:string,
+     *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
+     *     status:string, status_reason:string,
      *     is_rollup:bool, editable:bool, tournament_id:int
      *   }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
@@ -98,7 +104,8 @@ final class MinutesAuditQuery {
         //    row totals reconcile with the minutes report.
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title
+            "SELECT id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
+                    match_length_minutes, start_time, end_time
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -115,6 +122,22 @@ final class MinutesAuditQuery {
         if ( empty( $activities ) ) return $empty;
 
         $activity_ids = array_map( static fn( $a ): int => (int) $a->id, $activities );
+
+        // #4058 — what a whole match holds, per game: players a side times
+        // the match length. Resolved once per team; the length per game.
+        $team_basis = $this->teamBasis( $team_id );
+        $available  = [];
+        foreach ( $activities as $a ) {
+            $available[ (int) $a->id ] = self::isTournamentRow( $a ) ? 0 : self::availableMinutes(
+                $team_basis['players_a_side'],
+                self::resolveMatchLength(
+                    (int) ( $a->match_length_minutes ?? 0 ),
+                    $team_basis['config_half_minutes'],
+                    isset( $a->start_time ) ? (string) $a->start_time : '',
+                    isset( $a->end_time ) ? (string) $a->end_time : ''
+                )
+            );
+        }
 
         // 2. Squad membership per game — every non-guest attendance row on
         //    those activities. This is how the attendance report resolves the
@@ -207,10 +230,12 @@ final class MinutesAuditQuery {
                     'type_key'       => self::rowTypeKey( $a ),
                     'minutes'        => [],
                     'on_squad'       => [],
-                    'total_minutes'  => 0,
-                    'recorded_count' => 0,
-                    'squad_count'    => 0,
-                    'status'         => 'none',
+                    'total_minutes'     => 0,
+                    'available_minutes' => $available[ (int) $a->id ] ?? 0,
+                    'recorded_count'    => 0,
+                    'squad_count'       => 0,
+                    'status'            => 'none',
+                    'status_reason'     => '',
                     'is_rollup'      => $is_rollup,
                     'editable'       => ! $is_rollup,
                     'tournament_id'  => (int) ( $a->tournament_id ?? 0 ),
@@ -298,21 +323,25 @@ final class MinutesAuditQuery {
                 }
             }
 
-            // Completeness: complete when every squad player has minutes;
-            // none when nothing recorded; partial otherwise.
-            if ( $recorded === 0 ) {
-                $status = 'none';
-            } elseif ( $squad_count > 0 && $recorded >= $squad_count ) {
-                $status = 'complete';
-            } else {
-                $status = 'partial';
-            }
+            $available_minutes = $available[ $aid ] ?? 0;
+            [ $status, $status_reason ] = self::completeness(
+                $recorded,
+                $squad_count,
+                $row_total,
+                $is_rollup ? null : $available_minutes
+            );
 
             if ( $is_rollup ) {
                 $summary['rollups']++;
             } else {
                 $summary['total_games']++;
-                $summary[ $status ]++;
+                if ( $status === 'complete' ) {
+                    $summary['complete']++;
+                } elseif ( $status === 'partial' ) {
+                    $summary['partial']++;
+                } else {
+                    $summary['none']++;
+                }
                 $grand_total += $row_total;
             }
 
@@ -323,10 +352,15 @@ final class MinutesAuditQuery {
                 'type_key'       => self::rowTypeKey( $a ),
                 'minutes'        => $minutes,
                 'on_squad'       => $on_squad,
-                'total_minutes'  => $row_total,
-                'recorded_count' => $recorded,
-                'squad_count'    => $squad_count,
-                'status'         => $status,
+                'total_minutes'     => $row_total,
+                // #4058 — what the match holds, so the verdict can be
+                // explained. 0 on a tournament roll-up, which is not judged
+                // against a match length.
+                'available_minutes' => $available_minutes,
+                'recorded_count'    => $recorded,
+                'squad_count'       => $squad_count,
+                'status'            => $status,
+                'status_reason'     => $status_reason,
                 // #3857 — a tournament day is a read-only roll-up of its
                 // fixtures. `editable` is what the client keys the edit
                 // affordance off; `tournament_id` is where the minutes
@@ -343,6 +377,109 @@ final class MinutesAuditQuery {
             'column_totals' => $column_totals,
             'grand_total'   => $grand_total,
             'summary'       => $summary,
+        ];
+    }
+
+    /**
+     * #4058 — a game's completeness verdict, and why it is not complete.
+     *
+     *  - `none`     — nothing recorded;
+     *  - `complete` — every squad player has minutes AND the minutes add up
+     *    to exactly what the match holds;
+     *  - `partial`  — anything else.
+     *
+     * Counting players alone called a game complete when eleven players had
+     * 30 minutes each of a 70-minute match. Over-recording is caught too:
+     * more minutes than the match can contain is usually a substitution
+     * counted twice, and it inflates every report reading the same rows.
+     *
+     * The reason is `players_missing`, `minutes_short`, `minutes_over` or
+     * `''`, so the screen can say which of the two checks failed — the chip
+     * alone cannot. Pass `$available` null for a tournament roll-up, which
+     * is judged on its players only: it has no match length of its own.
+     *
+     * @return array{0:string, 1:string} [ status, reason ]
+     */
+    public static function completeness( int $recorded, int $squad_count, int $total_minutes, ?int $available ): array {
+        if ( $recorded === 0 ) return [ 'none', '' ];
+
+        if ( $squad_count <= 0 || $recorded < $squad_count ) return [ 'partial', 'players_missing' ];
+
+        if ( $available !== null ) {
+            if ( $total_minutes < $available ) return [ 'partial', 'minutes_short' ];
+            if ( $total_minutes > $available ) return [ 'partial', 'minutes_over' ];
+        }
+
+        return [ 'complete', '' ];
+    }
+
+    /**
+     * #4058 — how long one match lasted, in minutes, most specific first:
+     *
+     *  1. the activity's own `match_length_minutes`;
+     *  2. the configured length for the team's age group
+     *     (`match_minutes_by_age_group`, stored per half);
+     *  3. the scheduled duration, `end_time − start_time`;
+     *  4. the global default {@see MatchLengthResolver::FALLBACK_HALF_MINUTES}
+     *     per half, the same one match prep starts from.
+     *
+     * The last step means the check always has a figure to compare against.
+     * Step 3 is the slot, which can include warm-up — a coach who sees a
+     * correctly-recorded game read Incomplete fixes it by setting the
+     * match length, not by recording different minutes.
+     */
+    public static function resolveMatchLength( int $field_minutes, int $config_half_minutes, string $start_time, string $end_time ): int {
+        if ( $field_minutes > 0 ) return $field_minutes;
+        if ( $config_half_minutes > 0 ) return $config_half_minutes * 2;
+
+        $scheduled = self::scheduledMinutes( $start_time, $end_time );
+        if ( $scheduled > 0 ) return $scheduled;
+
+        return MatchLengthResolver::FALLBACK_HALF_MINUTES * 2;
+    }
+
+    /** #4058 — the player-minutes a whole match holds. */
+    public static function availableMinutes( int $players_a_side, int $match_length ): int {
+        return max( 0, $players_a_side ) * max( 0, $match_length );
+    }
+
+    /**
+     * Minutes between two `TIME` values on the same day; 0 when either is
+     * missing or the end is not after the start.
+     */
+    private static function scheduledMinutes( string $start_time, string $end_time ): int {
+        $start_time = trim( $start_time );
+        $end_time   = trim( $end_time );
+        if ( $start_time === '' || $end_time === '' ) return 0;
+
+        $start = strtotime( '1970-01-01 ' . $start_time . ' UTC' );
+        $end   = strtotime( '1970-01-01 ' . $end_time . ' UTC' );
+        if ( $start === false || $end === false || $end <= $start ) return 0;
+
+        return (int) floor( ( $end - $start ) / 60 );
+    }
+
+    /**
+     * Players a side and the configured half length for one team, read once
+     * for the whole matrix.
+     *
+     * @return array{players_a_side:int, config_half_minutes:int}
+     */
+    private function teamBasis( int $team_id ): array {
+        global $wpdb;
+        $team = $wpdb->get_row( $wpdb->prepare(
+            "SELECT football_form, age_group FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+            $team_id,
+            CurrentClub::id()
+        ) );
+
+        $form      = is_object( $team ) ? FootballFormResolver::forTeamRow( $team ) : FootballFormResolver::FALLBACK_FORM;
+        $age_group = is_object( $team ) ? trim( (string) ( $team->age_group ?? '' ) ) : '';
+        $map       = ( new MatchLengthResolver() )->configuredMap();
+
+        return [
+            'players_a_side'      => FootballFormResolver::playersASide( $form ),
+            'config_half_minutes' => $age_group !== '' ? (int) ( $map[ $age_group ] ?? 0 ) : 0,
         ];
     }
 

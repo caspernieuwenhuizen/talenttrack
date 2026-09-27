@@ -253,6 +253,30 @@ exceed matches. For a multi-game-day tournament the line-up-derived "starts" are
 approximate (one line-up covers several games), so the recorded *minutes* are
 the meaningful figure there, not the start count.
 
+**What counts as a start, a substitute appearance and a substitution.** For a
+match run through match execution, the three columns are read from the same
+timeline the player's minutes were worked out from — the line-up of each half
+together with the substitutions logged during the match:
+
+- **Start** — the player was on the pitch at kick-off. A player who only comes
+ on at half time did **not** start; they count as a substitute appearance.
+- **Came on** (*Ingevallen*) — the player came onto the pitch after kick-off,
+ including at half time.
+- **Went off** (*Gewisseld*) — the player left the pitch before full time,
+ including at half time.
+
+Each counts at most once per match: a player who goes off and comes back on
+again has one start, one substitute appearance and one substitution for that
+match. A half-time change is read from the difference between the two half
+line-ups; nothing is added to the substitution log for it. A match played in
+quarters is read period by period in the same way.
+
+For a match that was **not** run through match execution — minutes typed in
+afterwards — there is no timeline to read. The first-half line-up still counts
+as the starts, but *came on* and *went off* stay at 0 for that match. The
+**Match played without a match record** alert tells the coach about such a
+match, so those zeros are not mistaken for "never rotated".
+
 Every player's minutes total is a **drill-down**: open it to see the per-match
 rows that sum to it — date, match, type, source (`actual` recorded minutes) and
 minutes. The breakdown reconciles
@@ -301,10 +325,27 @@ The surface is a spreadsheet-style matrix:
  is minutes recorded; a red **0** is a player who was in the squad but has no
  minutes recorded (a gap to chase); a hatched dash is a player who was not in
  that game's squad.
-- Each row carries a **row total**, a completeness **status chip** — *Complete*
- (every squad player has minutes), *Incomplete* (some do, some don't), or *Not
- recorded* (nothing recorded for the game) — and the bottom **column-total** row
- sums each player's minutes across the visible games.
+- Each row carries a **row total**, a completeness **status chip** — *Complete*,
+ *Incomplete* or *Not recorded* (nothing recorded for the game) — and the bottom
+ **column-total** row sums each player's minutes across the visible games.
+
+A game is **Complete** only when two things hold: every squad player has
+minutes, **and** the minutes add up to a whole match — players a side times the
+match length. Eleven players with 30 minutes each of a 70-minute match is
+*Incomplete*, and so is a game with more minutes than the match can hold
+(usually a substitution counted twice). The row total shows the recorded minutes
+against what the match holds (for example *770 of 770*), and an *Incomplete*
+chip says why: players without minutes, minutes short of a full match, or
+minutes more than the match holds.
+
+The match length is taken from the first of these that is set: the match length
+on the activity itself, the match length configured for the team's age group,
+the scheduled time between start and end, and otherwise 2 × 35 minutes. Players
+a side come from the team's football form (11v11, 8v8 and so on). If a correctly
+recorded game reads *Incomplete* because its scheduled slot includes the
+warm-up, set the match length on the activity. A match cut short — a sending-off,
+an abandoned game — also holds fewer minutes than a full one and stays
+*Incomplete*; that is the honest reading.
 
 Above the matrix, four **gap KPIs** — *Games*, *Fully recorded*, *Incomplete*,
 *Not recorded* — summarise the window. Each KPI is clickable and filters the

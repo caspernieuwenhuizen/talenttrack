@@ -307,8 +307,34 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
                 }
             }
 
-            echo '<td class="tt-maud-cell tt-maud-cell--tot">' . esc_html( (string) number_format_i18n( (int) $g['total_minutes'] ) ) . '</td>';
-            echo '<td>' . self::statusChip( $rollup ? 'rollup' : $status ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
+            // #4058 — recorded against what the match holds, so a row that
+            // reads Incomplete with every player filled in can say why.
+            $total     = (int) $g['total_minutes'];
+            $avail     = (int) ( $g['available_minutes'] ?? 0 );
+            $total_fmt = number_format_i18n( $total );
+            if ( ! $rollup && $avail > 0 ) {
+                $avail_fmt = number_format_i18n( $avail );
+                $title_att = sprintf(
+                    /* translators: 1: minutes recorded for the match, 2: player-minutes the whole match holds */
+                    __( '%1$s of the %2$s minutes this match holds are recorded', 'talenttrack' ),
+                    $total_fmt,
+                    $avail_fmt
+                );
+                echo '<td class="tt-maud-cell tt-maud-cell--tot" title="' . esc_attr( $title_att ) . '">' . esc_html( $total_fmt );
+                echo '<small class="tt-maud-cell__of">' . esc_html( sprintf(
+                    /* translators: %s: player-minutes the whole match holds */
+                    _x( 'of %s', 'minutes audit: recorded of available minutes', 'talenttrack' ),
+                    $avail_fmt
+                ) ) . '</small></td>';
+            } else {
+                echo '<td class="tt-maud-cell tt-maud-cell--tot">' . esc_html( $total_fmt ) . '</td>';
+            }
+            echo '<td>' . self::statusChip( $rollup ? 'rollup' : $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
+            if ( ! $rollup ) {
+                $reason = self::reasonText( (string) ( $g['status_reason'] ?? '' ), $total, $avail );
+                if ( $reason !== '' ) echo '<small class="tt-maud-chip__reason">' . esc_html( $reason ) . '</small>';
+            }
+            echo '</td>';
 
             // #2367 — the per-row affordance now deep-links to the minutes
             // EDITOR (?tt_view=minutes-audit&match_id=N), not the activity
@@ -378,8 +404,33 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--min"></span>' . esc_html__( 'minutes recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--zero"></span>' . esc_html__( 'in squad, 0 recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--na"></span>' . esc_html__( 'not in squad', 'talenttrack' ) . '</span>';
+        echo '<span>' . esc_html__( 'Complete means every player in the squad has minutes and the total adds up to a whole match: players a side times the match length.', 'talenttrack' ) . '</span>';
         echo '<span>' . esc_html__( 'A tournament day is a roll-up of its fixtures: its minutes are recorded in the tournament planner and are already counted in the fixture rows, so it is left out of the column totals.', 'talenttrack' ) . '</span>';
         echo '</div>';
+    }
+
+    /**
+     * #4058 — the words for a `status_reason` the query decided. An empty
+     * reason (complete, not recorded) says nothing.
+     */
+    private static function reasonText( string $reason, int $total, int $available ): string {
+        switch ( $reason ) {
+            case 'players_missing':
+                return __( 'Players in the squad without minutes', 'talenttrack' );
+            case 'minutes_short':
+                return sprintf(
+                    /* translators: %s: number of minutes missing */
+                    __( '%s minutes short of a full match', 'talenttrack' ),
+                    number_format_i18n( max( 0, $available - $total ) )
+                );
+            case 'minutes_over':
+                return sprintf(
+                    /* translators: %s: number of minutes over */
+                    __( '%s minutes more than the match holds', 'talenttrack' ),
+                    number_format_i18n( max( 0, $total - $available ) )
+                );
+        }
+        return '';
     }
 
     private static function statusChip( string $status ): string {
