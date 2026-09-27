@@ -142,12 +142,32 @@ final class ReportFilters {
         $range_chip = self::customRangeChip( $effective, $from, $to );
         $seeded     = self::seasonDefaultWindow();
 
+        // #4075 — the empty-key preset still labelled with the generic
+        // "Custom range" duplicates the custom branch below, and does the
+        // opposite: it drops the dates and goes back to the seeded window.
+        // The branch replaces it. A surface that gave the empty key its own
+        // label (the standard reports' default window) keeps it, because
+        // that row is a real preset. Its URL survives as `default_url`, which
+        // is where a chip's clear link goes back to.
+        $default_url = '';
+        $presets     = [];
+        foreach ( $options as $opt ) {
+            if ( (string) ( $opt['value'] ?? '' ) === ''
+                && (string) ( $opt['label'] ?? '' ) === $labels['']
+            ) {
+                $default_url = (string) ( $opt['url'] ?? '' );
+                continue;
+            }
+            $presets[] = $opt;
+        }
+
         return [
             'type'          => 'period',
             'key'           => 'period',
             'label'         => __( 'Period', 'talenttrack' ),
             'active_label'  => $range_chip ?? (string) ( $labels[ $effective ] ?? $labels[''] ),
-            'options'       => $options,
+            'options'       => $presets,
+            'default_url'   => $default_url,
             // #3346 — the empty key is where these surfaces open: no
             // `?period=`, the seeded season window. Declaring it is what lets
             // `FilterBar::activeChips()` tell "this season, because that is

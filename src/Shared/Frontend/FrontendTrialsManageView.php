@@ -461,6 +461,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
                 'label'       => sprintf( __( 'Staff slot %d', 'talenttrack' ), $i + 1 ),
                 'required'    => false,
                 'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                'source'      => 'directory',
             ] );
             echo ' <input type="text" name="staff_role_label[]" class="tt-input" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
             echo '</div>';

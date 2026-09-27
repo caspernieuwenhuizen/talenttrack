@@ -63,6 +63,7 @@ final class TrialStaffStep implements WizardStepInterface {
                 'required'    => false,
                 'selected'    => $uid,
                 'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                'source'      => 'directory',
             ] );
             echo '<input type="text" name="staff_role_label[]" class="tt-input"'
                 . ' value="' . esc_attr( $label ) . '"'

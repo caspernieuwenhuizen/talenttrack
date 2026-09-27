@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend\Components;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\People\StaffDirectory;
+
 /**
  * StaffPickerComponent — autocomplete-driven staff/coach picker.
  *
@@ -44,6 +46,7 @@ class StaffPickerComponent {
      *   roles?:array<int,string>,
      *   selected?:int,
      *   placeholder?:string,
+     *   source?:string,
      * } $args
      */
     public static function render( array $args = [] ): string {
@@ -54,7 +57,14 @@ class StaffPickerComponent {
         $selected    = (int) ( $args['selected'] ?? 0 );
         $roles       = (array) ( $args['roles'] ?? [ 'tt_coach', 'tt_head_dev', 'tt_club_admin', 'administrator' ] );
 
-        $rows = self::buildRows( $roles );
+        // #4043 — `'source' => 'directory'` offers the staff `GET /staff`
+        // finds, so the trial panel picker and the REST lookup agree on who
+        // is staff. Only people with a login are offered: the value posted
+        // is an account id, and a panellist without one could never give an
+        // input.
+        $rows = ( $args['source'] ?? '' ) === 'directory'
+            ? self::buildDirectoryRows()
+            : self::buildRows( $roles );
         $selected_label = '';
         foreach ( $rows as $r ) {
             if ( (int) $r['id'] === $selected ) {
@@ -135,6 +145,29 @@ class StaffPickerComponent {
                 'label'   => $label,
                 'team_id' => 0,
                 'search'  => $search,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Rows from the staff directory (#4043), in the same shape as
+     * `buildRows()`.
+     *
+     * @return array<int, array{id:int, label:string, team_id:int, search:string}>
+     */
+    private static function buildDirectoryRows(): array {
+        $out = [];
+        foreach ( ( new StaffDirectory() )->all() as $staff ) {
+            $uid = (int) ( $staff['user_id'] ?? 0 );
+            if ( $uid <= 0 ) continue;
+            $name     = $staff['display_name'];
+            $role_lbl = self::primaryRoleLabel( $uid );
+            $out[] = [
+                'id'      => $uid,
+                'label'   => $role_lbl !== '' ? sprintf( '%s — %s', $name, $role_lbl ) : $name,
+                'team_id' => 0,
+                'search'  => strtolower( $name . ' ' . $role_lbl ),
             ];
         }
         return $out;

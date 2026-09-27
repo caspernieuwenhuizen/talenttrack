@@ -72,7 +72,7 @@ final class RecruitmentRouteArgsTest extends WP_UnitTestCase {
             '/talenttrack/v1/trial-cases'                              => [ 'POST', [ 'player_id', 'track_id', 'start_date', 'end_date', 'notes' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)'                  => [ 'PUT',  [ 'track_id', 'start_date', 'end_date', 'status', 'notes' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/extend'           => [ 'POST', [ 'new_end_date', 'justification' ] ],
-            '/talenttrack/v1/trial-cases/(?P<id>\d+)/staff'            => [ 'POST', [ 'user_id', 'role_label' ] ],
+            '/talenttrack/v1/trial-cases/(?P<id>\d+)/staff'            => [ 'POST', [ 'person_id', 'user_id', 'role_label' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/letters'          => [ 'POST', [ 'audience', 'strengths_summary', 'growth_areas' ] ],
             '/talenttrack/v1/trial-cases/(?P<id>\d+)/inputs/release'   => [ 'POST', [] ],
             '/talenttrack/v1/trial-reminders/run'                      => [ 'POST', [] ],
