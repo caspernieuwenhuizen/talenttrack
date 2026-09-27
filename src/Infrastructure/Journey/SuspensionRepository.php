@@ -18,7 +18,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Side-effects follow the injury record: a create emits
  * `suspension_started` on the journey, and `markServed()` emits
  * `suspension_ended`. Both are keyed on (Journey, suspension, id,
- * event_type), so re-saving never multiplies events.
+ * event_type), so re-saving never multiplies events. `markUnserved()`
+ * removes the ended event again when the serving match is reopened.
  *
  * Rows come back as arrays. `$wpdb` is read with `global` in each method
  * rather than held as a property, which keeps the `literal-string`
@@ -176,6 +177,47 @@ final class SuspensionRepository {
         return true;
     }
 
+    /**
+     * #4120 — undo `markServed()`: the match that served the suspension was
+     * reopened. Clears `served_on` and removes the `suspension_ended` event,
+     * so the journey stops saying the ban ended and a later completion
+     * writes one fresh event rather than finding the old one. Only a served
+     * suspension moves; a second call is a no-op.
+     */
+    public function markUnserved( int $id ): bool {
+        global $wpdb;
+        $row = $this->find( $id );
+        if ( $row === null || empty( $row['served_on'] ) ) return false;
+
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_player_suspensions',
+            [ 'served_on' => null, 'updated_at' => current_time( 'mysql' ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        if ( $ok === false ) return false;
+
+        $wpdb->delete( $wpdb->prefix . 'tt_player_events', [
+            'source_module'      => 'Journey',
+            'source_entity_type' => 'suspension',
+            'source_entity_id'   => $id,
+            'event_type'         => JourneyEventType::SUSPENSION_ENDED,
+            'club_id'            => CurrentClub::id(),
+        ] );
+
+        $player_id = (int) $row['player_id'];
+
+        /**
+         * #4120 — a served suspension is running again because the match
+         * that served it was reopened.
+         *
+         * @param int $suspension_id
+         * @param int $player_id
+         */
+        do_action( 'tt_player_suspension_unserved', $id, $player_id );
+
+        return true;
+    }
+
     public function archive( int $id, int $user_id ): bool {
         global $wpdb;
         if ( $id <= 0 ) return false;
@@ -259,6 +301,29 @@ final class SuspensionRepository {
                 AND served_on IS NULL
               ORDER BY started_on ASC, id ASC",
             $team_id, CurrentClub::id()
+        ), ARRAY_A );
+        return self::rows( $rows );
+    }
+
+    /**
+     * #4120 — served suspensions of one team that a match on `$date` could
+     * have served: started on or before it, served on or after it.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function servedForTeamAround( int $team_id, string $date ): array {
+        global $wpdb;
+        $date = self::cleanDate( $date );
+        if ( $team_id <= 0 || $date === '' ) return [];
+        $p    = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_player_suspensions
+              WHERE team_id = %d AND club_id = %d
+                AND archived_at IS NULL AND trashed_at IS NULL
+                AND served_on IS NOT NULL
+                AND started_on <= %s AND served_on >= %s
+              ORDER BY started_on ASC, id ASC",
+            $team_id, CurrentClub::id(), $date, $date
         ), ARRAY_A );
         return self::rows( $rows );
     }

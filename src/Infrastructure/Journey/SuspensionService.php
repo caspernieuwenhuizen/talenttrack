@@ -31,7 +31,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *   `match_count` of them are covered.
  * - **Served** when the last covered fixture is completed: `served_on` is
  *   set to its date and `suspension_ended` goes on the journey. That
- *   happens from the completion hooks, never from a cron job.
+ *   happens from the completion hooks, never from a cron job. Reopening
+ *   that match undoes it (#4120): `served_on` is cleared and the ended
+ *   event removed, from the same hooks.
  *
  * With the `player_suspensions` feature switched off, every question here
  * answers "nothing covered", so no planning surface flags a player for a
@@ -209,13 +211,47 @@ final class SuspensionService {
         return ( new SuspensionRepository() )->markServed( (int) ( $suspension['id'] ?? 0 ), $last['date'] );
     }
 
-    /** Reconcile every open suspension served by one team's matches. */
-    public static function reconcileTeam( int $team_id ): int {
+    /**
+     * #4120 — the reverse of `reconcile()`: a served suspension whose last
+     * covered match is no longer completed (it was reopened, or cancelled
+     * so the ban now reaches a match not yet played) is running again.
+     * Returns true when it moved.
+     *
+     * @param array<string, mixed> $suspension
+     */
+    public static function unserveIfReopened( array $suspension ): bool {
+        if ( empty( $suspension['served_on'] ) ) return false;
+        $of = (int) ( $suspension['match_count'] ?? 0 );
+        if ( $of <= 0 ) return false;
+
+        // The covered matches as if it had never been served, so a match
+        // after the old `served_on` can take the reopened one's place.
+        $unserved              = $suspension;
+        $unserved['served_on'] = null;
+        $covered               = self::coveredFixtures( $unserved );
+        if ( count( $covered ) >= $of && $covered[ $of - 1 ]['status'] === 'completed' ) return false;
+
+        return ( new SuspensionRepository() )->markUnserved( (int) ( $suspension['id'] ?? 0 ) );
+    }
+
+    /**
+     * Reconcile one team's suspensions after a change to its matches. With
+     * `$changed_on` (the changed match's date), a served suspension that
+     * match could have served is checked first, so a reopened match un-serves
+     * it; then every open suspension is checked for being served.
+     */
+    public static function reconcileTeam( int $team_id, string $changed_on = '' ): int {
         if ( $team_id <= 0 || ! self::isEnabled() ) return 0;
         self::flushCache();
 
+        $repo  = new SuspensionRepository();
         $moved = 0;
-        foreach ( ( new SuspensionRepository() )->openForTeam( $team_id ) as $suspension ) {
+        if ( $changed_on !== '' ) {
+            foreach ( $repo->servedForTeamAround( $team_id, $changed_on ) as $suspension ) {
+                if ( self::unserveIfReopened( $suspension ) ) $moved++;
+            }
+        }
+        foreach ( $repo->openForTeam( $team_id ) as $suspension ) {
             if ( self::reconcile( $suspension ) ) $moved++;
         }
         return $moved;
@@ -228,7 +264,7 @@ final class SuspensionService {
     public static function onActivityChanged( int $activity_id ): void {
         $activity = self::activity( $activity_id );
         if ( $activity === null || ! self::isFixtureType( $activity['type'] ) ) return;
-        self::reconcileTeam( $activity['team_id'] );
+        self::reconcileTeam( $activity['team_id'], $activity['date'] );
     }
 
     /** A suspension was just recorded: it may already be served. */

@@ -848,6 +848,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
             'rest_nonce' => wp_create_nonce( 'wp_rest' ),
             'prep_id'    => (int) $prep_id,
             'activity_id' => (int) $activity_id,
+            // #4115 — the half length the screen falls back to when the
+            // bootstrap carries none; one number, owned by the resolver.
+            'fallback_half_length' => MatchLengthResolver::FALLBACK_HALF_MINUTES,
             'i18n'       => [
                 'search'          => __( 'Search player…', 'talenttrack' ),
                 'no_players'      => __( 'No available players found.', 'talenttrack' ),
@@ -857,7 +860,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'half_1'          => __( '1st', 'talenttrack' ),
                 'half_2'          => __( '2nd', 'talenttrack' ),
                 'present'         => __( 'Present', 'talenttrack' ),
-                'absent_excused'  => __( 'Absent (excused)', 'talenttrack' ),
+                // #4116 — two absence chips: excused stores `Excused`, the
+                // plain one stores `Absent` (an unexcused no-show).
+                'absent_excused'  => _x( 'Absent (excused)', 'availability chip', 'talenttrack' ),
+                'absent'          => _x( 'Absent', 'availability chip', 'talenttrack' ),
                 'absent_injured'  => __( 'Injured', 'talenttrack' ),
                 'suspended'       => __( 'Suspended', 'talenttrack' ),
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),

@@ -55,6 +55,8 @@ Een schorsing is uitgezeten op het moment dat de **laatste wedstrijd waarvoor ze
 
 Daar hoeft niemand iets voor te doen, en er draait geen nachtelijke taak: het afronden van de wedstrijd zet de schorsing op uitgezeten.
 
+**Heropen** je die laatste wedstrijd, dan loopt de schorsing weer: ze staat niet langer op uitgezeten, *Schorsing uitgezeten* verdwijnt van de tijdlijn en de speler is voor die wedstrijd weer niet beschikbaar. Rond je de wedstrijd opnieuw af, dan is de schorsing opnieuw uitgezeten, met één regel op de tijdlijn. Het heropenen van een eerdere wedstrijd uit de schorsing verandert niets zolang de laatste afgerond blijft.
+
 Is een schorsing uitgezeten, dan liggen de startdatum en het aantal wedstrijden vast. De reden en de notitie kun je nog corrigeren.
 
 ## Waar je haar ziet
