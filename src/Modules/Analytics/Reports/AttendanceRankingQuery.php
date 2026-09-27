@@ -90,6 +90,8 @@ final class AttendanceRankingQuery {
             $where_scope  = $wpdb->prepare( " AND a.team_id IN ($placeholders)", ...$allowed_team_ids );
         }
 
+        $counts = AttendanceFlagService::statusCountsSql( 'att.status' );
+
         /** @var object[] $raw */
         $raw = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -99,11 +101,7 @@ final class AttendanceRankingQuery {
                 t.name AS team_name,
                 COUNT(DISTINCT a.id) AS activities,
                 COUNT(att.id) AS total,
-                SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END ) AS present,
-                SUM( CASE WHEN LOWER(att.status) = 'late'    THEN 1 ELSE 0 END ) AS late,
-                SUM( CASE WHEN LOWER(att.status) = 'absent'  THEN 1 ELSE 0 END ) AS absent,
-                SUM( CASE WHEN LOWER(att.status) = 'excused' THEN 1 ELSE 0 END ) AS excused,
-                SUM( CASE WHEN LOWER(att.status) = 'injured' THEN 1 ELSE 0 END ) AS injured
+                {$counts}
               FROM {$wpdb->prefix}tt_attendance att
               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL AND a.trashed_at IS NULL
               JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND p.archived_at IS NULL
@@ -154,6 +152,77 @@ final class AttendanceRankingQuery {
         }
 
         usort( $rows, [ self::class, 'compareWorstFirst' ] );
+        return $rows;
+    }
+
+    /**
+     * #4041 — per-team attendance for the team attendance report: one row
+     * per team with activities in the window, the status counts, and
+     * `present_pct` on the one rule (present + late over every row). The
+     * same filters as {@see rows()}: completed, actual, non-guest, past.
+     * Moved here from the view so the REST API and the page agree.
+     *
+     * @param list<int>|null $allowed_team_ids null = unrestricted
+     * @return list<array{
+     *     team_id:int, team_name:string, activities:int, total:int,
+     *     present:int, late:int, absent:int, excused:int, injured:int,
+     *     present_pct:?float
+     * }>
+     */
+    public function teamRows( string $from, string $to, ?array $allowed_team_ids = null, string $activity_type_key = '' ): array {
+        global $wpdb;
+        if ( $allowed_team_ids !== null && $allowed_team_ids === [] ) return [];
+
+        $where_scope = '';
+        if ( $allowed_team_ids !== null ) {
+            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
+            $where_scope  = $wpdb->prepare( " AND t.id IN ($placeholders)", ...$allowed_team_ids );
+        }
+        $where_type = $activity_type_key !== ''
+            ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
+            : '';
+        $completed = ActivityLifecycle::completedClause( 'a' );
+        $counts    = AttendanceFlagService::statusCountsSql( 'att.status' );
+
+        $raw = $wpdb->get_results( $wpdb->prepare(
+            "SELECT
+                t.id   AS team_id,
+                t.name AS team_name,
+                COUNT(DISTINCT a.id) AS activities,
+                COUNT(att.id) AS total,
+                {$counts}
+              FROM {$wpdb->prefix}tt_teams t
+              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL AND a.trashed_at IS NULL
+              JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
+             WHERE t.club_id = %d
+               AND att.record_type = 'actual'
+               AND a.session_date BETWEEN %s AND %s
+               AND {$completed}
+               AND a.session_date <= CURDATE()
+               {$where_type}
+               {$where_scope}
+             GROUP BY t.id, t.name
+             ORDER BY t.name ASC",
+            CurrentClub::id(), $from, $to
+        ) );
+        if ( ! is_array( $raw ) ) return [];
+
+        $rows = [];
+        foreach ( $raw as $r ) {
+            $total  = (int) ( $r->total ?? 0 );
+            $rows[] = [
+                'team_id'     => (int) ( $r->team_id ?? 0 ),
+                'team_name'   => (string) ( $r->team_name ?? '' ),
+                'activities'  => (int) ( $r->activities ?? 0 ),
+                'total'       => $total,
+                'present'     => (int) ( $r->present ?? 0 ),
+                'late'        => (int) ( $r->late ?? 0 ),
+                'absent'      => (int) ( $r->absent ?? 0 ),
+                'excused'     => (int) ( $r->excused ?? 0 ),
+                'injured'     => (int) ( $r->injured ?? 0 ),
+                'present_pct' => AttendanceFlagService::presentPct( AttendanceFlagService::attended( $r ), $total ),
+            ];
+        }
         return $rows;
     }
 
@@ -248,7 +317,7 @@ final class AttendanceRankingQuery {
         // #4013 — the missed set comes from the service; this method used to
         // carry its own copy of the three statuses, one method away from the
         // definition it was meant to share.
-        $missed = static fn( string $s ): int => in_array( $s, AttendanceFlagService::MISSED_STATUSES, true ) ? 1 : 0;
+        $missed = static fn( string $s ): int => AttendanceFlagService::isMissed( $s ) ? 1 : 0;
         $recent_missed = 0;
         $prior_missed  = 0;
         foreach ( $recent as $i => $row ) {

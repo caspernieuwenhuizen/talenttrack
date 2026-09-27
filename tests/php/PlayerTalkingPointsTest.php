@@ -130,6 +130,21 @@ final class PlayerTalkingPointsTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '100', $points[0]['evidence'] );
     }
 
+    /**
+     * #4041 — late is attended, not missed. The count in the point is
+     * absent + excused + injured, the at-risk list's own definition.
+     */
+    public function test_late_is_not_counted_as_a_missed_activity(): void {
+        foreach ( [ '2020-01-06', '2020-01-13', '2020-01-20', '2020-02-03', '2020-02-10' ] as $d ) $this->attend( $d, 'Present' );
+
+        // Two of six attended (one of them late): 33%, against 100% before.
+        $now = [ 'activities' => 6, 'present' => 1, 'late' => 1, 'absent' => 4, 'excused' => 0, 'injured' => 0, 'rate' => 33.0 ];
+        $points = $this->derive( [ 'attendance' => $now, 'evaluations' => [ [ 'id' => 1 ] ] ] );
+
+        $this->assertSame( [ 'attendance' ], $this->keys( $points ) );
+        $this->assertStringStartsWith( '4 of 6', $points[0]['text'], 'four missed, not five: the late one was there' );
+    }
+
     public function test_no_drop_is_not_raised(): void {
         foreach ( [ '2020-01-06', '2020-01-13', '2020-01-20', '2020-02-03', '2020-02-10' ] as $d ) $this->attend( $d, 'Present' );
 

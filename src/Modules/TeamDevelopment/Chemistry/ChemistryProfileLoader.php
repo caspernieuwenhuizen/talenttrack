@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\TeamDevelopment\Repositories\PlayerAttributesRepository;
 
 /**
@@ -68,6 +69,11 @@ final class ChemistryProfileLoader {
         // it, so sessions nobody had completed were being read as
         // chemistry. Two players who were never on a pitch together could
         // come out of this as a partnership.
+        //
+        // #4041 — "was there" is the one rule, present or late, from
+        // AttendanceFlagService: a player who arrived late still shared the
+        // pitch.
+        $attended = AttendanceFlagService::attendedStatusClause( 'att.status' );
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id, a.id AS activity_id, a.activity_type_key
                FROM {$p}tt_attendance att
@@ -75,7 +81,7 @@ final class ChemistryProfileLoader {
               WHERE att.player_id IN ($in)
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'
-                AND att.status = 'present'
+                AND {$attended}
                 AND a.archived_at IS NULL
                 AND " . ActivityLifecycle::completedClause( 'a' ) . "
                 AND ( a.club_id = %d OR a.club_id IS NULL )",

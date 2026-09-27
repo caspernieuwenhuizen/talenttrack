@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
 /**
  * TeamOverviewRepository (#0073) — per-team headline numbers for the HoD
@@ -64,6 +65,12 @@ final class TeamOverviewRepository {
         // raised "Unknown column 't.age_group_id' in 'on clause'", which
         // made wpdb->get_results() return false → empty array → widget
         // empty state ("No teams with recent activity") on every render.
+        //
+        // #4041 — attendance is the one rule: attended (present + late) over
+        // every row, from AttendanceFlagService. It used to be present over
+        // present + absent, dropping late, excused and injured from the
+        // denominator, which read higher than every other surface.
+        $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id AS team_id,
                     t.name AS team_name,
@@ -90,12 +97,7 @@ final class TeamOverviewRepository {
                            AND e.eval_date <= %s
                     ) AS avg_rating,
                     (
-                        SELECT
-                            CASE WHEN SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) > 0
-                                 THEN ROUND( SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END )
-                                             / SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) * 100, 1 )
-                                 ELSE NULL
-                            END
+                        SELECT CONCAT( {$attended}, ':', COUNT(*) )
                           FROM {$p}tt_attendance att
                           INNER JOIN {$p}tt_activities act ON act.id = att.activity_id AND act.club_id = att.club_id
                          WHERE act.team_id = t.id
@@ -105,7 +107,7 @@ final class TeamOverviewRepository {
                            AND act.plan_state = 'completed'
                            AND act.session_date >= %s
                            AND act.session_date <= %s
-                    ) AS attendance_pct,
+                    ) AS attendance_counts,
                     (
                         SELECT COUNT(*)
                           FROM {$p}tt_players pl
@@ -126,7 +128,7 @@ final class TeamOverviewRepository {
                 (string) $r->age_group,
                 $r->head_coach_name !== null && $r->head_coach_name !== '' ? (string) $r->head_coach_name : null,
                 $r->avg_rating !== null ? (float) $r->avg_rating : null,
-                $r->attendance_pct !== null ? (float) $r->attendance_pct : null,
+                self::attendancePct( $r->attendance_counts ?? null ),
                 (int) $r->player_count,
                 0
             );
@@ -151,16 +153,13 @@ final class TeamOverviewRepository {
         $from    = ( new \DateTimeImmutable( "-{$days} days" ) )->format( 'Y-m-d' );
         $to      = ( new \DateTimeImmutable() )->format( 'Y-m-d' );
 
+        // #4041 — the one rule, as in summariesFor().
+        $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id AS player_id,
                     pl.first_name, pl.last_name,
                     (
-                        SELECT
-                            CASE WHEN SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) > 0
-                                 THEN ROUND( SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END )
-                                             / SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) * 100, 1 )
-                                 ELSE NULL
-                            END
+                        SELECT CONCAT( {$attended}, ':', COUNT(*) )
                           FROM {$p}tt_attendance att
                           INNER JOIN {$p}tt_activities act ON act.id = att.activity_id AND act.club_id = att.club_id
                          WHERE att.player_id = pl.id
@@ -170,7 +169,7 @@ final class TeamOverviewRepository {
                            AND act.plan_state = 'completed'
                            AND act.session_date >= %s
                            AND act.session_date <= %s
-                    ) AS attendance_pct,
+                    ) AS attendance_counts,
                     (
                         SELECT AVG(r.rating)
                           FROM {$p}tt_eval_ratings r
@@ -194,11 +193,24 @@ final class TeamOverviewRepository {
             return [
                 'player_id'      => (int) $r->player_id,
                 'name'           => $name !== '' ? $name : '—',
-                'attendance_pct' => $r->attendance_pct !== null ? (float) $r->attendance_pct : null,
+                'attendance_pct' => self::attendancePct( $r->attendance_counts ?? null ),
                 'avg_rating'     => $r->avg_rating !== null ? (float) $r->avg_rating : null,
                 'status_color'   => '', // matrix-based status pill rendering is a follow-up
             ];
         }, $rows );
+    }
+
+    /**
+     * The percentage from an `"<attended>:<total>"` pair the queries above
+     * return, through AttendanceFlagService so the rounding and the
+     * no-data case match every other surface. Null when nothing is recorded.
+     *
+     * @param mixed $counts
+     */
+    private static function attendancePct( $counts ): ?float {
+        if ( ! is_string( $counts ) || strpos( $counts, ':' ) === false ) return null;
+        [ $attended, $total ] = explode( ':', $counts, 2 );
+        return AttendanceFlagService::presentPct( (int) $attended, (int) $total );
     }
 
     /**

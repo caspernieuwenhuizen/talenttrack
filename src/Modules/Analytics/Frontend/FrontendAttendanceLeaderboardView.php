@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
@@ -199,13 +200,13 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     private static function renderKpiStrip( array $board ): void {
         $rows = $board['bottom'];
         $player_count = count( $rows );
-        $sum_present = 0; $sum_total = 0; $at_risk_count = 0;
+        $at_risk_count = 0;
         foreach ( $rows as $r ) {
-            $sum_present += (int) $r['present'];
-            $sum_total   += (int) $r['total'];
             if ( ! empty( $r['flagged'] ) ) $at_risk_count++;
         }
-        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+        // #4041 — late counts as attended, as in every row below.
+        $pooled = AttendanceFlagService::pooledPresentPct( $rows );
+        $avg    = $pooled !== null ? number_format_i18n( $pooled, 1 ) . '%' : '—';
 
         echo '<div class="tt-report-kpis">';
         // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.

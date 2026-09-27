@@ -4,6 +4,7 @@ namespace TT\Modules\Vct\Workflow;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
 use TT\Modules\Vct\Repositories\VctSessionBlocksRepository;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
@@ -164,12 +165,19 @@ class VctWorkloadAggregationTaskTemplate extends TaskTemplate {
                 // physio reads when deciding whether a player is being
                 // overloaded, so counting a session nobody attended is the kind
                 // of wrong that reaches a child.
+                //
+                // #4041 — "turned up" is AttendanceFlagService's attended:
+                // present or late. A late player still trained and carries
+                // the load. Guest rows stay in on purpose: this is physical
+                // load, not an attendance percentage, and a player guesting
+                // with another team did that training's work.
+                $attended = AttendanceFlagService::attendedStatusClause( 'status' );
                 $present_player_ids = (array) $wpdb->get_col( $wpdb->prepare(
                     "SELECT player_id FROM {$attendance_table}
                       WHERE club_id = %d
                         AND activity_id = %d
                         AND record_type = 'actual'
-                        AND status = 'Present'",
+                        AND {$attended}",
                     $club_id, $activity_id
                 ) );
             }

@@ -14,6 +14,7 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Visibility\RecordVisibility;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Services\PlayerMeasurementProfile;
@@ -361,8 +362,9 @@ final class EvidencePacket {
     }
 
     /**
-     * Activities in the window with the present / absent / excused split
-     * and the rate the player profile shows, so the two cannot disagree.
+     * Activities in the window with the status split, attended and missed,
+     * and the rate the player profile shows, so the two cannot disagree:
+     * attended (present + late) over every activity (#4041).
      *
      * The count is keyed `activities`, not the `sessions` the old packet
      * used: the entity was renamed under #0035 and the packet was carrying
@@ -381,12 +383,15 @@ final class EvidencePacket {
 
         $date_col = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
 
+        // #4041 — the status counts come from AttendanceFlagService, and so
+        // do attended (present + late) and missed (absent + excused +
+        // injured), the one rule every attendance figure uses.
+        $counts = AttendanceFlagService::statusCountsSql( 'att.status' );
+
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
-                SUM(CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END) AS present,
-                SUM(CASE WHEN att.status = 'Absent'  THEN 1 ELSE 0 END) AS absent,
-                SUM(CASE WHEN att.status = 'Excused' THEN 1 ELSE 0 END) AS excused
+                {$counts}
               FROM {$p}tt_attendance att
               JOIN {$p}tt_activities act ON act.id = att.activity_id AND act.club_id = att.club_id
              WHERE att.player_id = %d
@@ -399,15 +404,21 @@ final class EvidencePacket {
             $player_id, $club_id, $from, $to
         ), ARRAY_A );
 
-        $total   = (int) ( $row['total'] ?? 0 );
-        $present = (int) ( $row['present'] ?? 0 );
+        $counts   = (object) ( is_array( $row ) ? $row : [] );
+        $total    = (int) ( $counts->total ?? 0 );
+        $attended = AttendanceFlagService::attended( $counts );
 
         return [
             'activities' => $total,
-            'present'    => $present,
-            'absent'     => (int) ( $row['absent'] ?? 0 ),
-            'excused'    => (int) ( $row['excused'] ?? 0 ),
-            'rate'       => $total > 0 ? round( $present / $total * 100 ) : null,
+            'present'    => (int) ( $counts->present ?? 0 ),
+            'late'       => (int) ( $counts->late ?? 0 ),
+            'absent'     => (int) ( $counts->absent ?? 0 ),
+            'excused'    => (int) ( $counts->excused ?? 0 ),
+            'injured'    => (int) ( $counts->injured ?? 0 ),
+            'attended'   => $attended,
+            'missed'     => AttendanceFlagService::missed( $counts ),
+            // Whole percent, rounded once from the counts.
+            'rate'       => $total > 0 ? round( $attended / $total * 100 ) : null,
         ];
     }
 
