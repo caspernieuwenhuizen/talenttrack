@@ -109,10 +109,11 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
     // ── the registry ───────────────────────────────────────────────────
 
     /**
-     * Two blocks own options so far: `tests` (#3515) and `matches` (#3516).
-     * This is not a rule about which — it is a reminder that every other block
-     * still renders from the block list alone, so giving one block options
-     * must not change what the rest do.
+     * The blocks that own options: `tests` (#3515), `matches` (#3516), and
+     * since #4133 / #4134 attendance, minutes share and evaluations, which
+     * take the Summary / Details choice. This is not a rule about which — it
+     * is a reminder that every other block still renders from the block list
+     * alone, so giving one block options must not change what the rest do.
      */
     public function test_only_the_registered_blocks_accept_options(): void {
         $accepting = array_values( array_filter(
@@ -122,7 +123,13 @@ final class TeamMonthlyReportBlockOptionsTest extends WP_UnitTestCase {
         sort( $accepting );
 
         $this->assertSame(
-            [ TeamMonthlyReportBlock::MATCHES, TeamMonthlyReportBlock::TESTS ],
+            [
+                TeamMonthlyReportBlock::ATTENDANCE,
+                TeamMonthlyReportBlock::EVALUATIONS,
+                TeamMonthlyReportBlock::MATCHES,
+                TeamMonthlyReportBlock::MINUTES,
+                TeamMonthlyReportBlock::TESTS,
+            ],
             $accepting
         );
     }

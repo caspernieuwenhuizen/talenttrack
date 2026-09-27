@@ -212,7 +212,6 @@ final class TeamMatchStatsQuery {
                 AND a.session_date BETWEEN %s AND %s
                 AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
-                AND a.plan_state <> 'cancelled'
                 {$scope}
            ORDER BY a.session_date ASC, a.id ASC",
             $team_id, CurrentClub::id(), $from, $to
@@ -242,7 +241,6 @@ final class TeamMatchStatsQuery {
                 AND a.session_date BETWEEN %s AND %s
                 AND " . ArchiveRepository::filterClause( 'active', 'a' ) . "
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
-                AND a.plan_state <> 'cancelled'
                 {$scope}",
             $team_id, CurrentClub::id(), $from, $to
         ) );

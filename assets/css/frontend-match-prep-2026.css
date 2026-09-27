@@ -230,7 +230,10 @@
 .tt-mp-drawer .tt-mp-chip {
     border-radius: 999px;
 }
-.tt-mp-drawer .tt-mp-chip.tt-mp-on {
+/* #4131 — the brand colour is for the plain "selected" chip only. Excused,
+   absent, injured and suspended keep their own colours from
+   frontend-match-prep.css, so the coach tells them apart at a glance. */
+.tt-mp-drawer .tt-mp-chip.tt-mp-on:not(.tt-mp-chip-excused):not(.tt-mp-chip-absent):not(.tt-mp-chip-injured):not(.tt-mp-chip-suspended) {
     background: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
 }

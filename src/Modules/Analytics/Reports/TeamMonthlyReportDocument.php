@@ -106,9 +106,8 @@ final class TeamMonthlyReportDocument {
      */
     public static function prepare( array $report, string $layout, array $notes = [] ): array {
         $layout = TeamMonthlyReportLayout::isValid( $layout ) ? $layout : TeamMonthlyReportLayout::DEFAULT;
-        if ( isset( $report['data']['tests'] ) ) {
-            $report['data']['tests'] = TeamMonthlyReportLayout::testsForLayout( $report['data']['tests'], $layout );
-        }
+        // #4133 — every section at the level this layout can print.
+        $report['data'] = TeamMonthlyReportLayout::forLayout( $report['data'], $layout );
         $fit            = TeamMonthlyReportLayout::fit( $report, $layout, $notes );
         $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
 
@@ -126,7 +125,7 @@ final class TeamMonthlyReportDocument {
      *        split the report into (#4092); measured here when not given.
      */
     public static function html( array $report, string $layout, string $team_name, array $notes = [], array $groups = [] ): string {
-        self::begin( $report, $layout, $notes, false, null );
+        self::begin( $report, $layout, $notes, false, null, $groups );
 
         $out   = '';
         $first = true;
@@ -157,7 +156,7 @@ final class TeamMonthlyReportDocument {
      *        under a section, keyed by block.
      */
     public static function screen( array $report, string $layout, string $team_name, array $fit, array $notes = [], ?callable $after_section = null, string $pdf_url = '' ): string {
-        self::begin( $report, $layout, $notes, true, $after_section );
+        self::begin( $report, $layout, $notes, true, $after_section, $fit['groups'] );
 
         $pages = self::pageGroups( $report, $layout, $team_name, $fit['groups'] );
         $total = max( 1, (int) $fit['pages'] );
@@ -263,8 +262,9 @@ final class TeamMonthlyReportDocument {
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      * @param (callable(string):string)|null $after_section
+     * @param list<list<string>> $groups the page groups, so the numbers follow the paper (#4134).
      */
-    private static function begin( array $report, string $layout, array $notes, bool $screen, ?callable $after_section ): void {
+    private static function begin( array $report, string $layout, array $notes, bool $screen, ?callable $after_section, array $groups = [] ): void {
         // #3517 — a snapshot's section notes. Static rather than threaded
         // through six render methods: they are a property of the document
         // being printed, and every one of those methods would otherwise grow
@@ -272,11 +272,27 @@ final class TeamMonthlyReportDocument {
         // cannot leak a note into the next.
         self::$notes         = $notes;
         self::$layout        = $layout;
-        self::$numbers       = TeamMonthlyReportLayout::sectionNumbers( $report['blocks'], $layout );
+        self::$numbers       = TeamMonthlyReportLayout::sectionNumbers( self::printedBlocks( $report ), $layout, $groups );
         self::$data          = $report['data'];
         self::$primary       = ReportBrandColour::primary();
         self::$screen        = $screen;
         self::$after_section = $after_section;
+    }
+
+    /**
+     * The selected sections that have data to print. The composer gives every
+     * selected section its data; a payload missing one — a snapshot taken
+     * before the section existed — prints without it rather than with an
+     * empty header the estimate never counted.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>} $report
+     * @return list<string>
+     */
+    private static function printedBlocks( array $report ): array {
+        return array_values( array_filter(
+            $report['blocks'],
+            static fn( string $b ): bool => $b === TeamMonthlyReportBlock::LETTERHEAD || array_key_exists( $b, $report['data'] )
+        ) );
     }
 
     private static function confidential(): string {
@@ -300,7 +316,7 @@ final class TeamMonthlyReportDocument {
      */
     public static function pageGroups( array $report, string $layout, string $team_name, array $groups = [] ): array {
         $data   = $report['data'];
-        $blocks = $report['blocks'];
+        $blocks = self::printedBlocks( $report );
         $head   = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
 
         if ( (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0 ) {
@@ -352,10 +368,10 @@ final class TeamMonthlyReportDocument {
      * @param list<string>                      $blocks
      */
     private static function matrix( array $data, array $blocks, string $head ): string {
-        $out = $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'roster', 'attention', 'quality' ], true );
+        $out = $head . self::sections( $data, $blocks, TeamMonthlyReportLayout::matrixBody(), true );
 
         $cells = [];
-        foreach ( [ 'matches', 'changes', 'tests', 'notes' ] as $block ) {
+        foreach ( TeamMonthlyReportLayout::MATRIX_FOOTER as $block ) {
             if ( ! in_array( $block, $blocks, true ) ) continue;
             $cells[] = '<td class="strip">' . self::marker( $block ) . self::section( $block, $data[ $block ] ?? [], true ) . self::note( $block ) . self::after( $block ) . '</td>';
         }
@@ -422,8 +438,15 @@ final class TeamMonthlyReportDocument {
             case 'coverage':   return self::coverage( $d );
             case 'kpi':        return self::kpi( $d );
             case 'status':     return self::status( $d );
-            case 'attendance': return self::bars( 'attendance', $d, 'present_pct', null );
-            case 'minutes':    return self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
+            case 'evaluations': return self::evaluations( $d );
+            // #4133 — a payload without a level is Details: what these
+            // sections printed before the choice, a snapshot's included.
+            case 'attendance': return ( $d['level'] ?? '' ) === SectionLevel::SUMMARY
+                ? self::attendanceSummary( $d )
+                : self::bars( 'attendance', $d, 'present_pct', null );
+            case 'minutes':    return ( $d['level'] ?? '' ) === SectionLevel::SUMMARY
+                ? self::minutesSummary( $d )
+                : self::bars( 'minutes', $d, 'share_pct', (int) ( $d['target_pct'] ?? 50 ) );
             case 'attention':  return self::attention( $d, $wide );
             case 'changes':    return self::changes( $d, $wide );
             case 'tests':      return self::tests( $d, $wide );
@@ -634,6 +657,388 @@ final class TeamMonthlyReportDocument {
                 . '</tr>';
         }
         return $out . '</table></div>';
+    }
+
+    /**
+     * #4133 — attendance at the summary level: the squad average, who is
+     * below the amber line, and the absences by kind, as one strip.
+     *
+     * @param array<string,mixed> $d
+     */
+    private static function attendanceSummary( array $d ): string {
+        $below    = is_array( $d['below'] ?? null ) ? $d['below'] : [];
+        $absences = is_array( $d['absences'] ?? null ) ? $d['absences'] : [];
+        $kinds    = [
+            'absent'    => _x( 'Absent', 'attendance status', 'talenttrack' ),
+            'excused'   => _x( 'Excused', 'attendance status', 'talenttrack' ),
+            'injured'   => _x( 'Injured', 'attendance status', 'talenttrack' ),
+            'suspended' => _x( 'Suspended', 'attendance status', 'talenttrack' ),
+        ];
+        $parts = [];
+        $total = 0;
+        foreach ( $kinds as $kind => $label ) {
+            $n      = (int) ( $absences[ $kind ] ?? 0 );
+            $total += $n;
+            if ( $n > 0 ) $parts[] = $label . ' ' . $n;
+        }
+
+        $cells = [
+            self::statCell( esc_html( self::pct( $d['team_avg_pct'] ?? null ) ), __( 'Squad average', 'talenttrack' ), '', '' ),
+            self::statCell(
+                (string) count( $below ),
+                /* translators: %s: the attendance line, e.g. "70%" */
+                sprintf( __( 'Below %s', 'talenttrack' ), self::pct( $d['amber_below'] ?? TeamMonthlyReport::ATTENDANCE_AMBER_BELOW ) ),
+                self::cut( self::namesWithPct( $below ), 58 ),
+                count( $below ) > 0 ? 'dn' : ''
+            ),
+            self::statCell(
+                (string) $total,
+                __( 'Absences by kind', 'talenttrack' ),
+                self::cut( $parts !== [] ? implode( ' · ', $parts ) : __( 'None', 'talenttrack' ), 58 ),
+                ''
+            ),
+        ];
+
+        return '<div class="sec">' . self::head( 'attendance' ) . '<table class="tstat lsum"><tr>' . implode( '', $cells ) . '</tr></table></div>';
+    }
+
+    /**
+     * #4133 — minutes share at the summary level: the median, the academy's
+     * target, and who is under it.
+     *
+     * @param array<string,mixed> $d
+     */
+    private static function minutesSummary( array $d ): string {
+        $under = is_array( $d['under'] ?? null ) ? $d['under'] : [];
+        $cells = [
+            self::statCell( esc_html( self::pct( $d['median_share_pct'] ?? null ) ), __( 'Median share', 'talenttrack' ), '', '' ),
+            self::statCell( esc_html( self::pct( (int) ( $d['target_pct'] ?? 50 ) ) ), _x( 'Norm', 'minutes share target', 'talenttrack' ), '', '' ),
+            self::statCell(
+                (string) count( $under ),
+                __( 'Under the norm', 'talenttrack' ),
+                self::cut( self::namesWithPct( $under ), 58 ),
+                count( $under ) > 0 ? 'dn' : ''
+            ),
+        ];
+
+        return '<div class="sec">' . self::head( 'minutes' ) . '<table class="tstat lsum"><tr>' . implode( '', $cells ) . '</tr></table></div>';
+    }
+
+    /**
+     * "Jan 45%, Piet 52%" — the players a summary names, lowest first.
+     *
+     * @param array<int|string,mixed> $rows
+     */
+    private static function namesWithPct( array $rows ): string {
+        $out = [];
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $out[] = (string) ( $row['name'] ?? '' ) . ' ' . self::pct( $row['pct'] ?? null );
+        }
+        return $out !== [] ? implode( ', ', $out ) : __( 'Nobody', 'talenttrack' );
+    }
+
+    /**
+     * #4134 — the Evaluations section: the squad average and coverage as a
+     * strip, each main category's average with its change and the spread of
+     * the players on the scale, the biggest movers, and at the Details level
+     * the player × category grid.
+     *
+     * @param array<string,mixed> $e
+     */
+    private static function evaluations( array $e ): string {
+        $out = '<div class="sec">' . self::head( 'evaluations' );
+        if ( (int) ( $e['evaluations'] ?? 0 ) === 0 ) {
+            return $out . '<div class="muted">' . esc_html__( 'No evaluations this period.', 'talenttrack' ) . '</div></div>';
+        }
+
+        $scale = self::scaleOf( $e );
+        $out  .= self::evalStrip( $e );
+
+        $cats = is_array( $e['categories'] ?? null ) ? $e['categories'] : [];
+        if ( $cats !== [] ) {
+            $out .= '<div class="sub">' . esc_html__( 'Per category: average, change, spread', 'talenttrack' ) . '</div>'
+                . '<table class="ecat">';
+            foreach ( $cats as $cat ) {
+                if ( ! is_array( $cat ) ) continue;
+                $out .= self::evalCategoryRow( $cat, false );
+                foreach ( is_array( $cat['subcategories'] ?? null ) ? $cat['subcategories'] : [] as $sub ) {
+                    if ( is_array( $sub ) ) $out .= self::evalCategoryRow( $sub, true );
+                }
+            }
+            $out .= '</table><div class="muted">' . esc_html( sprintf(
+                /* translators: 1: lowest rating on the scale, 2: highest */
+                __( 'Bar: lowest to highest player; line: squad average; scale %1$s–%2$s. "Wide" when the players span the whole scale.', 'talenttrack' ),
+                self::rating( $scale['min'] ),
+                self::rating( $scale['max'] )
+            ) ) . '</div>';
+        }
+
+        $out .= '<table class="cols2 emov"><tr>'
+            . '<td class="left">' . self::movers( __( 'Biggest risers', 'talenttrack' ), is_array( $e['rising'] ?? null ) ? $e['rising'] : [] ) . '</td>'
+            . '<td class="right">' . self::movers( __( 'Biggest fallers', 'talenttrack' ), is_array( $e['falling'] ?? null ) ? $e['falling'] : [] ) . '</td>'
+            . '</tr></table>';
+
+        $grid = is_array( $e['grid'] ?? null ) ? $e['grid'] : null;
+        if ( ( $e['level'] ?? '' ) === SectionLevel::DETAILS && $grid !== null ) {
+            $out .= self::evalGrid( $e, $grid, $cats );
+        }
+
+        return $out . '</div>';
+    }
+
+    /**
+     * The four headline figures: squad average and its change, how many of
+     * the squad were evaluated (and who was not), how many evaluations by how
+     * many coaches and of which types, and how many rose or fell.
+     *
+     * @param array<string,mixed> $e
+     */
+    private static function evalStrip( array $e ): string {
+        $avg   = $e['squad_avg'] ?? null;
+        $delta = $e['squad_avg_delta'] ?? null;
+        $change = '';
+        $class  = '';
+        if ( is_int( $delta ) || is_float( $delta ) ) {
+            $change = sprintf(
+                /* translators: %s: change of the squad average, e.g. "▲ 0,2" */
+                _x( '%s vs previous month', 'monthly report evaluations: squad average change', 'talenttrack' ),
+                self::arrowDelta( (float) $delta )
+            );
+            $class = self::moveClass( $delta > 0 ? 'up' : ( $delta < 0 ? 'down' : '' ) );
+        }
+
+        $missing = is_array( $e['missing'] ?? null ) ? $e['missing'] : [];
+        $names   = array_map( static fn( $p ): string => is_array( $p ) ? (string) ( $p['name'] ?? '' ) : '', $missing );
+        $types   = [];
+        foreach ( is_array( $e['by_type'] ?? null ) ? $e['by_type'] : [] as $t ) {
+            if ( is_array( $t ) ) $types[] = (int) ( $t['count'] ?? 0 ) . ' ' . (string) ( $t['label'] ?? '' );
+        }
+        $coaches = (int) ( $e['coaches'] ?? 0 );
+
+        $cells = [
+            self::statCell( esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ), __( 'Squad average', 'talenttrack' ), $change, $class ),
+            self::statCell(
+                esc_html( (int) ( $e['evaluated'] ?? 0 ) . ' / ' . (int) ( $e['squad'] ?? 0 ) ),
+                __( 'Evaluated', 'talenttrack' ),
+                self::cut( $names !== [] ? sprintf(
+                    /* translators: %s: names of the players without an evaluation */
+                    __( 'Missing: %s', 'talenttrack' ),
+                    implode( ', ', $names )
+                ) : __( 'Everyone', 'talenttrack' ), 44 ),
+                ''
+            ),
+            self::statCell(
+                (string) (int) ( $e['evaluations'] ?? 0 ),
+                __( 'Evaluations', 'talenttrack' ),
+                self::cut( sprintf(
+                    /* translators: %d: number of coaches */
+                    _n( 'by %d coach', 'by %d coaches', $coaches, 'talenttrack' ),
+                    $coaches
+                ) . ( $types !== [] ? ' · ' . implode( ', ', $types ) : '' ), 44 ),
+                ''
+            ),
+            self::statCell(
+                '<span class="up">' . (int) ( $e['rising_count'] ?? 0 ) . '</span> · <span class="dn">' . (int) ( $e['falling_count'] ?? 0 ) . '</span>',
+                _x( 'Rose · fell', 'monthly report evaluations: players up and down', 'talenttrack' ),
+                __( 'against their own previous evaluation', 'talenttrack' ),
+                'eq'
+            ),
+        ];
+
+        return '<table class="tstat ekpi"><tr>' . implode( '', $cells ) . '</tr></table>';
+    }
+
+    /**
+     * One category's line: name, squad average, change, the band from the
+     * lowest to the highest player with the squad average marked, and the
+     * range in figures. A band is table cells of percentage widths: DomPDF
+     * positions nothing absolutely inside a cell.
+     *
+     * @param array<string,mixed> $cat
+     */
+    private static function evalCategoryRow( array $cat, bool $sub ): string {
+        $avg   = $cat['avg'] ?? null;
+        $delta = $cat['delta'] ?? null;
+        $min   = $cat['min'] ?? null;
+        $max   = $cat['max'] ?? null;
+
+        $change = '—';
+        $class  = 'eq';
+        if ( is_int( $delta ) || is_float( $delta ) ) {
+            $change = self::arrowDelta( (float) $delta );
+            $class  = self::moveClass( $delta > 0 ? 'up' : ( $delta < 0 ? 'down' : '' ) );
+        }
+
+        $range = ( is_int( $min ) || is_float( $min ) ) && ( is_int( $max ) || is_float( $max ) )
+            ? self::rating( (float) $min ) . ' – ' . self::rating( (float) $max )
+            : '—';
+        $wide = ! empty( $cat['wide'] );
+        if ( $wide ) $range .= ' ' . _x( 'wide', 'monthly report evaluations: spread covers the whole scale', 'talenttrack' );
+
+        return '<tr' . ( $sub ? ' class="esub"' : '' ) . '>'
+            . '<td class="nm">' . esc_html( self::cut( (string) ( $cat['label'] ?? '' ), $sub ? 24 : 26 ) ) . '</td>'
+            . '<td class="v">' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
+            . '<td class="c ' . $class . '">' . esc_html( $change ) . '</td>'
+            . '<td class="sp">' . self::spreadBand( $cat ) . '</td>'
+            . '<td class="rl' . ( $wide ? ' wide' : '' ) . '">' . esc_html( $range ) . '</td>'
+            . '</tr>';
+    }
+
+    /** @param array<string,mixed> $cat */
+    private static function spreadBand( array $cat ): string {
+        $from = $cat['band_from_pct'] ?? null;
+        $to   = $cat['band_to_pct'] ?? null;
+        $at   = $cat['avg_pct'] ?? null;
+        if ( ! is_numeric( $from ) || ! is_numeric( $to ) ) {
+            return '<table class="rng"><tr><td class="gap"></td></tr></table>';
+        }
+        $from = max( 0.0, min( 100.0, (float) $from ) );
+        $to   = max( $from, min( 100.0, (float) $to ) );
+        $at   = is_numeric( $at ) ? max( 0.0, min( 100.0, (float) $at ) ) : null;
+
+        // gap · band up to the marker · marker · band after it · gap
+        $mark  = 1.2;
+        $cells = [];
+        if ( $at === null ) {
+            $cells = [ [ $from, 'gap' ], [ $to - $from, 'band' ], [ 100 - $to, 'gap' ] ];
+        } else {
+            $left  = max( 0.0, min( $at, $to ) - $from - $mark / 2 );
+            $right = max( 0.0, $to - max( $at, $from ) - $mark / 2 );
+            $gap_r = max( 0.0, 100 - $from - $left - $mark - $right );
+            $cells = [ [ $from, 'gap' ], [ $left, 'band' ], [ $mark, 'mk' ], [ $right, 'band' ], [ $gap_r, 'gap' ] ];
+        }
+
+        $out = '<table class="rng"><tr>';
+        foreach ( $cells as [ $w, $class ] ) {
+            if ( $w < 0.1 ) continue;
+            $out .= '<td class="' . $class . '" style="width:' . round( $w, 1 ) . '%"></td>'; /* tt-inline-ok */
+        }
+        return $out . '</tr></table>';
+    }
+
+    /**
+     * @param array<int|string,mixed> $rows
+     */
+    private static function movers( string $title, array $rows ): string {
+        $out = '<div class="sub">' . esc_html( $title ) . '</div>';
+        if ( $rows === [] ) {
+            return $out . '<table class="mv"><tr><td class="muted">' . esc_html__( 'Nobody this period.', 'talenttrack' ) . '</td></tr></table>';
+        }
+        $out .= '<table class="mv">';
+        foreach ( $rows as $m ) {
+            if ( ! is_array( $m ) ) continue;
+            $delta = (float) ( $m['delta'] ?? 0 );
+            $out  .= '<tr><td class="nm">' . self::player( (string) ( $m['name'] ?? '' ), (int) ( $m['player_id'] ?? 0 ), 24 ) . '</td>'
+                . '<td class="c ' . self::moveClass( $delta > 0 ? 'up' : 'down' ) . '">' . esc_html( self::arrowDelta( $delta ) ) . '</td>'
+                . '<td class="ft muted">' . esc_html( self::rating( (float) ( $m['from'] ?? 0 ) ) . ' → ' . self::rating( (float) ( $m['to'] ?? 0 ) ) ) . '</td></tr>';
+        }
+        return $out . '</table>';
+    }
+
+    /**
+     * #4134 — the player × main-category grid, in shirt order: each cell the
+     * month average in its tone with an arrow against the previous month; the
+     * overall average, the number of evaluations and the last date; a greyed
+     * row for a player not evaluated, and the squad row last. The header is a
+     * `thead`, which DomPDF repeats on a page the grid runs onto.
+     *
+     * @param array<string,mixed>      $e
+     * @param array<string,mixed>      $grid
+     * @param array<int|string,mixed>  $cats
+     */
+    private static function evalGrid( array $e, array $grid, array $cats ): string {
+        $rows  = is_array( $grid['rows'] ?? null ) ? $grid['rows'] : [];
+        $n     = max( 1, count( $cats ) );
+        $chars = max( 4, (int) floor( TeamMonthlyReportLayout::gridCategoryWidth( $n, self::$layout ) / 1.55 ) );
+
+        $head = '<thead><tr><th class="jn">#</th><th class="l nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        foreach ( $cats as $cat ) {
+            if ( ! is_array( $cat ) ) continue;
+            $head .= '<th class="cat">' . esc_html( self::cut( (string) ( $cat['label'] ?? '' ), $chars ) ) . '</th>';
+        }
+        $head .= '<th class="oa">' . esc_html_x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) . '</th>'
+            . '<th class="cnt">' . esc_html_x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) . '</th>'
+            . '<th class="l last">' . esc_html_x( 'Last', 'monthly report evaluations column: date of the last evaluation', 'talenttrack' ) . '</th></tr></thead>';
+
+        $labels = [];
+        foreach ( $cats as $cat ) {
+            if ( is_array( $cat ) ) $labels[] = (string) ( $cat['label'] ?? '' );
+        }
+
+        $body = '';
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $jersey = $row['jersey_number'] ?? null;
+            $none   = empty( $row['evaluated'] );
+            $body  .= '<tr' . ( $none ? ' class="none"' : '' ) . '>'
+                . '<td class="jn">' . esc_html( $jersey !== null ? (string) (int) $jersey : '' ) . '</td>'
+                . '<td class="l nm">' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), 24 ) . '</td>';
+            foreach ( is_array( $row['cells'] ?? null ) ? array_values( $row['cells'] ) : [] as $i => $cell ) {
+                if ( ! is_array( $cell ) ) continue;
+                $label = $labels[ $i ] ?? '';
+                $value = $cell['value'] ?? null;
+                if ( ! is_int( $value ) && ! is_float( $value ) ) {
+                    $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '">—</td>';
+                    continue;
+                }
+                $trend = (string) ( $cell['trend'] ?? '' );
+                $arrow = $trend === 'up' ? '▲' : ( $trend === 'down' ? '▼' : ( $trend === 'flat' ? '=' : '' ) );
+                $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '"><span class="r t' . (int) ( $cell['tone'] ?? 3 ) . '">' . esc_html( self::rating( (float) $value ) ) . '</span>'
+                    . ( $arrow !== '' ? '<span class="ar ' . self::moveClass( $trend ) . '">' . esc_html( $arrow ) . '</span>' : '' ) . '</td>';
+            }
+            $avg   = $row['avg'] ?? null;
+            $last  = (string) ( $row['last'] ?? '' );
+            $body .= '<td class="oa" data-label="' . esc_attr_x( 'Avg.', 'monthly report evaluations column: average', 'talenttrack' ) . '">' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
+                . '<td class="cnt" data-label="' . esc_attr_x( 'Evals', 'monthly report evaluations column: number of evaluations', 'talenttrack' ) . '">' . (int) ( $row['count'] ?? 0 ) . '</td>'
+                . '<td class="l last">' . esc_html( $none ? _x( 'not evaluated', 'monthly report evaluations: a player without an evaluation this month', 'talenttrack' ) : self::shortDate( $last ) ) . '</td>'
+                . '</tr>';
+        }
+
+        // The squad row.
+        $body .= '<tr class="tot"><td class="jn"></td><td class="l nm">' . esc_html_x( 'Squad', 'monthly report evaluations: the squad average row', 'talenttrack' ) . '</td>';
+        foreach ( $cats as $i => $cat ) {
+            if ( ! is_array( $cat ) ) continue;
+            $v     = $cat['avg'] ?? null;
+            $body .= '<td class="cat" data-label="' . esc_attr( $labels[ $i ] ?? '' ) . '">' . esc_html( ( is_int( $v ) || is_float( $v ) ) ? self::rating( (float) $v ) : '—' ) . '</td>';
+        }
+        $avg   = $e['squad_avg'] ?? null;
+        $body .= '<td class="oa">' . esc_html( ( is_int( $avg ) || is_float( $avg ) ) ? self::rating( (float) $avg ) : '—' ) . '</td>'
+            . '<td class="cnt">' . (int) ( $e['evaluations'] ?? 0 ) . '</td><td class="l last"></td></tr>';
+
+        $scale = self::scaleOf( $e );
+        return '<div class="sub">' . esc_html__( 'Per player', 'talenttrack' ) . '</div>'
+            . '<table class="egrid">' . $head . '<tbody>' . $body . '</tbody></table>'
+            . '<div class="muted">' . esc_html( sprintf(
+                /* translators: 1: lowest rating on the scale, 2: highest */
+                __( 'Cell: the player\'s average this month in that category; ▲/▼ against the previous month. The colour follows the scale, %1$s low to %2$s high. In shirt-number order.', 'talenttrack' ),
+                self::rating( $scale['min'] ),
+                self::rating( $scale['max'] )
+            ) ) . '</div>';
+    }
+
+    /**
+     * @param array<string,mixed> $e
+     * @return array{min:float,max:float}
+     */
+    private static function scaleOf( array $e ): array {
+        $s   = is_array( $e['scale'] ?? null ) ? $e['scale'] : [];
+        $min = is_numeric( $s['min'] ?? null ) ? (float) $s['min'] : 5.0;
+        $max = is_numeric( $s['max'] ?? null ) ? (float) $s['max'] : 10.0;
+        return [ 'min' => $min, 'max' => $max ];
+    }
+
+    /** A rating as the report prints one: a decimal only when there is one. */
+    private static function rating( float $v ): string {
+        $v = round( $v, 1 );
+        return number_format_i18n( $v, floor( $v ) != $v ? 1 : 0 );
+    }
+
+    /** "▲ 0,3", "▼ 0,2", "= 0" — a change on the rating scale. */
+    private static function arrowDelta( float $d ): string {
+        $d = round( $d, 1 );
+        $arrow = $d > 0 ? '▲' : ( $d < 0 ? '▼' : '=' );
+        return $arrow . ' ' . number_format_i18n( abs( $d ), 1 );
     }
 
     /** @param array<string,mixed> $a */
@@ -1028,7 +1433,7 @@ final class TeamMonthlyReportDocument {
         // a player table needs the pack, and the panel says so before the
         // coach downloads anything. The exporter has already applied it; it
         // is applied here too so no path prints a table a layout cannot hold.
-        $show = TeamMonthlyReportLayout::testsShowFor( self::$layout, TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] ) );
+        $show = TeamMonthlyReportLayout::testsShowFor( self::$layout, TestsBlockOptions::storedShow( $t['show'] ?? null ) );
 
         // #4069 — a test is a card: header, stat strip, and on the pack the
         // ranked readings. The landscape strip, a third of the page wide,
@@ -1792,6 +2197,32 @@ final class TeamMonthlyReportDocument {
             . '.tb.fg div{background:#1f7a4a}.tb.fa div{background:#c88a12}.tb.fr div{background:#b3261e}.tb.fn div{background:#8a8f96}'
             . '.dot{display:inline-block;width:2mm;height:2mm;margin-right:1mm}.dot.fg{background:#1f7a4a}.dot.fa{background:#c88a12}.dot.fr{background:#b3261e}'
             . '.rd tr.avgline td{height:0;padding:0;border-bottom:1px dashed ' . $ink . '}'
+            // #4133 — attendance and minutes share at the summary level: the
+            // test strip's cells, three to a row.
+            . '.tstat.lsum td{width:33.3%}'
+            // #4134 — evaluations: the strip, the categories with their
+            // spread on the scale, the movers and the player grid.
+            . '.tstat.ekpi td{width:25%}'
+            . '.ecat{margin-bottom:1mm}'
+            . '.ecat td{height:5.6mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            . '.ecat .nm{width:36mm;font-weight:bold}.ecat .v{width:10mm;text-align:right;font-weight:bold}.ecat .c{width:14mm;text-align:right}'
+            . '.ecat .sp{padding:0 3mm}.ecat .rl{width:24mm;text-align:right;color:' . $muted . ';font-size:7pt}.ecat .rl.wide{color:#7a4a00;font-weight:bold}'
+            . '.ecat tr.esub td{height:4.8mm;font-size:7.5pt}.ecat tr.esub td.nm{padding-left:4mm;font-weight:normal}'
+            . '.rng{height:3mm;border-spacing:0}.ecat .rng td{height:3mm;padding:0;border:0}'
+            . '.rng td.gap{background:#eceee9}.rng td.band{background:#b9cfc2}.rng td.mk{background:' . $ink . '}'
+            . '.emov{margin-top:2mm}'
+            . '.mv td{height:5mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            . '.mv .c{width:13mm;text-align:right}.mv .ft{width:20mm;text-align:right}'
+            . '.egrid th{height:4.5mm;font-size:6.5pt;text-transform:uppercase;color:' . $muted . ';font-weight:bold;text-align:center;border-bottom:1px solid ' . $ink . ';padding:0 0.8mm;white-space:nowrap;overflow:hidden}'
+            . '.egrid td{height:5mm;padding:0 0.8mm;border-bottom:1px solid ' . $line . ';white-space:nowrap;overflow:hidden;text-align:center;font-size:7.5pt;vertical-align:middle}'
+            . '.egrid th.l,.egrid td.l{text-align:left}'
+            . '.egrid .jn{width:6mm;color:' . $muted . ';text-align:right}.egrid .nm{width:40mm}.egrid .oa{width:11mm;font-weight:bold}.egrid .cnt{width:10mm}.egrid .last{width:17mm;color:' . $muted . '}'
+            . '.egrid tr.none td{color:' . $muted . ';font-style:italic}'
+            . '.egrid tr.tot td{border-top:1px solid ' . $ink . ';font-weight:bold;background:#f4f6f3}'
+            . '.r{display:inline-block;min-width:7mm;padding:0.2mm 0;font-weight:bold;text-align:center}'
+            . '.t1{background:#fde2e2;color:#a32b22}.t2{background:#fdf3d8;color:#7a4a00}.t3{background:#eef3ef;color:' . $ink . '}'
+            . '.t4{background:#dff5e1;color:#1f6d41}.t5{background:#b9e3c6;color:#174f30}'
+            . '.ar{font-size:6.5pt;margin-left:0.6mm}'
             . self::columnWidths( $landscape )
             . '.lines td.rule{height:7mm;border-bottom:1px solid ' . $line . '}'
             . '.cols{border-spacing:0}.cols td.strip{width:33.3%;vertical-align:top;padding-right:4mm}';

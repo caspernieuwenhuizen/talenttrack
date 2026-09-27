@@ -79,10 +79,36 @@ final class TestsBlockOptionsTest extends WP_UnitTestCase {
 
     // ── how much ───────────────────────────────────────────────────────
 
-    public function test_each_show_value_is_kept(): void {
-        foreach ( [ 'values', 'trend', 'values_trend' ] as $show ) {
-            $this->assertSame( $show, $this->bag( [ 'show' => $show ] )['show'], $show );
-        }
+    /**
+     * #4133 — the old four-way `show` maps onto Summary / Details and the
+     * "with change" switch: readings alone are Details without the change,
+     * the other two Details with it (the default, so not recorded).
+     */
+    public function test_each_old_show_value_maps_onto_the_level(): void {
+        $this->assertSame( [ 'level' => 'details', 'change' => false ], $this->bag( [ 'show' => 'values' ] ) );
+        $this->assertSame( [ 'level' => 'details' ], $this->bag( [ 'show' => 'trend' ] ) );
+        $this->assertSame( [ 'level' => 'details' ], $this->bag( [ 'show' => 'values_trend' ] ) );
+    }
+
+    /** The mapped bag prints what the old value printed, but for trend alone. */
+    public function test_a_mapped_bag_prints_the_readings_it_asked_for(): void {
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES, TestsBlockOptions::show( [ 'show' => 'values' ] ) );
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES_TREND, TestsBlockOptions::show( [ 'show' => 'values_trend' ] ) );
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES_TREND, TestsBlockOptions::show( [ 'show' => 'trend' ] ) );
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES, TestsBlockOptions::show( [ 'level' => 'details', 'change' => '0' ] ) );
+        $this->assertSame( TestsBlockOptions::SHOW_SUMMARY, TestsBlockOptions::show( [ 'level' => 'summary', 'change' => true ] ) );
+    }
+
+    /** A new key wins over the old one that may still ride along. */
+    public function test_the_level_wins_over_an_old_show_value(): void {
+        $this->assertSame( [], $this->bag( [ 'level' => 'summary', 'show' => 'values_trend' ] ) );
+    }
+
+    /** A payload is read as stored: a snapshot frozen with `trend` prints the change alone. */
+    public function test_a_stored_payload_show_value_is_read_as_it_stands(): void {
+        $this->assertSame( 'trend', TestsBlockOptions::storedShow( 'trend' ) );
+        $this->assertSame( TestsBlockOptions::SHOW_SUMMARY, TestsBlockOptions::storedShow( 'everything' ) );
+        $this->assertSame( TestsBlockOptions::SHOW_SUMMARY, TestsBlockOptions::storedShow( null ) );
     }
 
     /** A value from a later version of the report, or a typo. */
@@ -130,6 +156,7 @@ final class TestsBlockOptionsTest extends WP_UnitTestCase {
 
     public function test_the_known_keys_are_not_reported(): void {
         $this->assertSame( [], TestsBlockOptions::unknownKeys( [ 'definitions' => [ 3 ], 'show' => 'values' ] ) );
+        $this->assertSame( [], TestsBlockOptions::unknownKeys( [ 'level' => 'details', 'change' => false ] ) );
     }
 
     /** An unknown *value* is expected — a deleted test — and is not an error. */
@@ -165,7 +192,8 @@ final class TestsBlockOptionsTest extends WP_UnitTestCase {
         $bag = TeamMonthlyReportComposition::optionsFor( $composition, 'tests' );
 
         $this->assertSame( [ 5, 9 ], $bag['definitions'] );
-        $this->assertSame( 'values_trend', $bag['show'] );
+        $this->assertSame( 'details', $bag['level'] );
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES_TREND, TestsBlockOptions::show( $bag ) );
     }
 
     /** Options for a section the reader switched off describe nothing. */

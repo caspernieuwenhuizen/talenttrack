@@ -7,6 +7,7 @@ use TT\Infrastructure\Filters\SavedViewsRepository;
 use TT\Modules\Analytics\Cron\ScheduledReportsRunner;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
+use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Modules\Analytics\ScheduledReportsRepository;
 use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
 use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
@@ -220,7 +221,9 @@ final class TeamMonthlyReportScheduleTest extends WP_UnitTestCase {
         $plan = TeamMonthlyReportDelivery::plan( (array) $this->repo->findById( $id ), '2026-10-01' );
         $this->assertTrue( $plan['ok'], $plan['error'] );
         $this->assertSame( [ 7, 9 ], $plan['composition']['options']['tests']['definitions'] );
-        $this->assertSame( 'values_trend', $plan['composition']['options']['tests']['show'] );
+        // #4133 — stored as the Summary / Details choice, printing the same.
+        $this->assertSame( 'details', $plan['composition']['options']['tests']['level'] );
+        $this->assertSame( TestsBlockOptions::SHOW_VALUES_TREND, TestsBlockOptions::show( $plan['composition']['options']['tests'] ) );
         $this->assertSame( [ 'scorers' => false, 'squads' => true ], $plan['composition']['options']['matches'] );
 
         $old = TeamMonthlyReportDelivery::plan( $this->schedule( $owner ), '2026-10-01' );

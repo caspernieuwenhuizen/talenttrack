@@ -22,6 +22,7 @@ final class TeamMonthlyReportBlock {
     public const COVERAGE   = 'coverage';
     public const KPI        = 'kpi';
     public const STATUS     = 'status';
+    public const EVALUATIONS = 'evaluations';
     public const ATTENDANCE = 'attendance';
     public const MINUTES    = 'minutes';
     public const MATCHES    = 'matches';
@@ -38,6 +39,7 @@ final class TeamMonthlyReportBlock {
         self::COVERAGE,
         self::KPI,
         self::STATUS,
+        self::EVALUATIONS,
         self::ATTENDANCE,
         self::MINUTES,
         self::MATCHES,
@@ -56,6 +58,7 @@ final class TeamMonthlyReportBlock {
      */
     public const HEADED = [
         self::STATUS,
+        self::EVALUATIONS,
         self::ATTENDANCE,
         self::MINUTES,
         self::MATCHES,
@@ -76,6 +79,7 @@ final class TeamMonthlyReportBlock {
             case self::COVERAGE:   return _x( 'Data coverage', 'team monthly report section', 'talenttrack' );
             case self::KPI:        return _x( 'Headline numbers', 'team monthly report section', 'talenttrack' );
             case self::STATUS:     return _x( 'Squad status', 'team monthly report section', 'talenttrack' );
+            case self::EVALUATIONS: return _x( 'Evaluations', 'team monthly report section', 'talenttrack' );
             case self::ATTENDANCE: return _x( 'Attendance', 'team monthly report section', 'talenttrack' );
             case self::MINUTES:    return _x( 'Minutes share', 'team monthly report section', 'talenttrack' );
             case self::MATCHES:    return _x( 'Matches', 'team monthly report section', 'talenttrack' );

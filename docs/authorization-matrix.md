@@ -244,7 +244,7 @@ Three caps bridge to it, rather than the usual view/edit pair. Uploading is a *c
 
 Seeded grants:
 
-| Persona | Activities | Scope |
+| Persona | Access | Scope |
 | - | - | - |
 | player | r | self |
 | parent | r | player |
