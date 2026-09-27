@@ -200,6 +200,14 @@ class DemoCoverage {
             'written_by'  => TrialCaseGenerator::class,
             'depends_on'  => [ 'trial_case' ],
         ],
+        // #4008 — created off the decision hook when the generator records
+        // an admit; the generator tags the rows afterwards.
+        'tt_trial_case_checklist' => [
+            'entity_type' => 'trial_case_checklist',
+            'category'    => 'trials',
+            'written_by'  => TrialCaseGenerator::class,
+            'depends_on'  => [ 'trial_case' ],
+        ],
 
         // ===== Player spine =====
 
@@ -1055,7 +1063,7 @@ class DemoCoverage {
         'trials' => [
             'tier'      => 'dependent',
             'run_order' => 140,
-            'cascade'   => [ 'trial_extension', 'trial_case_staff_input', 'trial_case_staff', 'trial_case' ],
+            'cascade'   => [ 'trial_case_checklist', 'trial_extension', 'trial_case_staff_input', 'trial_case_staff', 'trial_case' ],
         ],
         'pipeline' => [
             'tier'      => 'dependent',

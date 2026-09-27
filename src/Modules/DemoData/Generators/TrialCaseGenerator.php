@@ -264,6 +264,13 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
                 // player's journey start at a trial rather than nowhere.
                 $cases->recordDecision( $case_id, 'admit', $hjo, $copy['decision'] );
                 do_action( 'tt_trial_decision_recorded', $case_id, $player_id, 'admit', gmdate( 'Y-m-d H:i:s', $end_ts ) );
+
+                // #4008 — the admit created its follow-up checklist off the
+                // decision hook; tag the rows so the wipe reaches them.
+                foreach ( ( new \TT\Modules\Trials\Repositories\TrialCaseChecklistRepository() )->idsForCase( $case_id ) as $item_id ) {
+                    $this->registry->tag( 'trial_case_checklist', $item_id );
+                    $total++;
+                }
             }
         }
         return $total;

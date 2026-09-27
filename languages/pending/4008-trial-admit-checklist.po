@@ -1,0 +1,76 @@
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Admittance letter sent"
+msgstr "Toelatingsbrief verstuurd"
+
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Player added to a team"
+msgstr "Speler aan een team toegevoegd"
+
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Guardian contact collected"
+msgstr "Contact met ouder of verzorger vastgelegd"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial case checklist card title"
+msgid "Follow-up"
+msgstr "Opvolging"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Who does this: %s"
+msgstr "Wie pakt dit op: %s"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Mark as not done"
+msgstr "Markeren als niet gedaan"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Mark as done"
+msgstr "Markeren als gedaan"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Who does this"
+msgstr "Wie pakt dit op"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Save who does this"
+msgstr "Opslaan wie dit oppakt"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Not done yet."
+msgstr "Nog niet gedaan."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Ticked itself on %s."
+msgstr "Vinkte zichzelf aan op %s."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Done on %1$s by %2$s."
+msgstr "Gedaan op %1$s door %2$s."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Done on %s."
+msgstr "Gedaan op %s."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "This case has no such follow-up item."
+msgstr "Dit dossier heeft zo'n opvolgstap niet."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That account is not a staff member of this academy."
+msgstr "Dat account is geen staflid van deze academie."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "Send done, an assignee, or both."
+msgstr "Stuur done, iemand die het oppakt, of allebei."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That staff member has no login, so they cannot be named on an item."
+msgstr "Dat staflid heeft geen login en kan dus niet bij een stap worden genoemd."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That person is not a staff member of this academy."
+msgstr "Die persoon is geen staflid van deze academie."

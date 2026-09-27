@@ -41,6 +41,11 @@ class TrialsModule implements ModuleInterface {
         // journey entry records the transition, this one performs it.
         TrialDecisionPlayerStatusSubscriber::init();
 
+        // #4008 — an ADMIT gets its follow-up checklist off the same hook,
+        // so every path that records the decision creates it.
+        Services\TrialCaseChecklistService::init();
+        Rest\TrialCaseChecklistRestController::init();
+
         // #3661 — the letter on paper, outside the dashboard shell. The
         // "Print view" link used to reopen the case page with all its
         // chrome, which is not something you hand to a family.

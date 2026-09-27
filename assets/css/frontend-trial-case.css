@@ -319,3 +319,74 @@
     color: var(--tt-warning-ink);
     font-size: var(--tt-fs-sm);
 }
+
+/* ---- Follow-up checklist after an admit (#4008) ---------------------- *
+ * One row per item: the mark and label, who ticked it and when, who does
+ * it, and for a manager the two single-field forms. Stacked at 360px; the
+ * forms sit side by side from tablet width. */
+.tt-dashboard .tt-trial-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-trial-checklist__item {
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+}
+.tt-dashboard .tt-trial-checklist__item[data-done="1"] {
+    background: var(--tt-success-subtle);
+}
+.tt-dashboard .tt-trial-checklist__head {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    font-weight: 700;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-checklist__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    color: var(--tt-success-ink);
+}
+.tt-dashboard .tt-trial-checklist__item[data-done="1"] .tt-trial-checklist__mark {
+    border-color: var(--tt-success-ink);
+}
+.tt-dashboard .tt-trial-checklist__meta {
+    margin: var(--tt-sp-1) 0 0;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-trial-checklist__actions {
+    margin-top: var(--tt-sp-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-trial-checklist-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trial-checklist-form button {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-trial-checklist__actions {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+    .tt-dashboard .tt-trial-checklist-form {
+        flex: 1 1 0;
+    }
+}
