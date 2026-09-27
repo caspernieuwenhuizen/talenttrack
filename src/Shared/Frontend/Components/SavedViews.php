@@ -185,12 +185,17 @@ final class SavedViews {
             // a filter afterwards can update this view rather than only save a
             // new one. It is not one of the surface's filters, so it never
             // takes part in matching.
+            //
+            // #4135 — the values are percent-encoded: `add_query_arg()` does
+            // not, and a JSON value (a monthly report's section options) is
+            // stripped by the esc_url() the link is printed through.
+            $params = array_map( 'strval', [ self::OPENED_PARAM => (string) $id ] + $filters + $base_params );
             $out[] = [
                 'id'         => $id,
                 'name'       => (string) $view->name,
                 'is_default' => ! empty( $view->is_default ),
                 'is_active'  => $id === $active_id,
-                'apply'      => add_query_arg( array_map( 'strval', [ self::OPENED_PARAM => (string) $id ] + $filters + $base_params ), $base_url ),
+                'apply'      => add_query_arg( array_map( 'rawurlencode', $params ), $base_url ),
             ];
         }
         return $out;

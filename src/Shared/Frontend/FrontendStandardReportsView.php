@@ -541,7 +541,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $period_options[] = [
                 'value'  => $key,
                 'label'  => $label,
-                'url'    => add_query_arg( $args, $dash_url ),
+                // #4135 — encoded: a report's options JSON would otherwise be
+                // stripped by the esc_url() the pill is printed through.
+                'url'    => add_query_arg( urlencode_deep( $args ), $dash_url ),
                 'active' => ( $period === $key ),
             ];
         }
@@ -557,7 +559,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         \TT\Shared\Frontend\Components\FilterBar::render( [
             'hidden'       => $hidden,
-            'reset_url'    => add_query_arg( $reset_args, $dash_url ),
+            'reset_url'    => add_query_arg( urlencode_deep( $reset_args ), $dash_url ),
             // #3338 — NOT migrated to in-place refresh, deliberately.
             //
             // This one view renders eight sub-reports through this one bar,
