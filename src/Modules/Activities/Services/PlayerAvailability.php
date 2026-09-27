@@ -29,11 +29,24 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *    injury access learns only that the player cannot be planned for
  *    (CLAUDE.md §1).
  *
- * An injury is open when it is not archived or trashed, has no
- * `actual_return`, and its `expected_return` is null or today or later. An
- * un-closed record whose expected return has passed is stale data, not an
- * open injury: counting it would let last season's forgotten entry poison
- * every squad from now on.
+ * Availability is a question about a day (#4100): *could this player take
+ * part on day D?* D is the date being planned for — the activity's date, or
+ * a tournament's start date — and today when a caller has none. An injury
+ * counts on day D when it is not archived or trashed, started on or before D,
+ * and on D the player was not yet back:
+ *
+ * - with an `actual_return`, D falls before it (the return day is fit);
+ * - without one, `expected_return` is null or D or later.
+ *
+ * So a current injury does not rewrite the matches the player was fit for,
+ * and an injury the player has since recovered from still counts for the
+ * match it kept them out of.
+ *
+ * An un-closed record whose expected return has passed before D is stale
+ * data, not an open injury: counting it would let last season's forgotten
+ * entry poison every squad from then on.
+ *
+ * The date goes in; only the state comes out — decision 3 holds.
  */
 final class PlayerAvailability {
 
@@ -44,14 +57,16 @@ final class PlayerAvailability {
     public const UNAVAILABLE = 'unavailable';
 
     /**
-     * The subset of `$player_ids` carrying an open injury, as a set keyed by
-     * player id, so a caller can ask about a whole roster in one query.
+     * The subset of `$player_ids` injured on `$on`, as a set keyed by player
+     * id, so a caller can ask about a whole roster in one query.
      *
      * @param list<int>   $player_ids
-     * @param string|null $today Y-m-d; site time when null.
+     * @param string|null $on The day being planned for, Y-m-d (a datetime is
+     *                        cut to its date); today in site time when null
+     *                        or not a date.
      * @return array<int, true>
      */
-    public static function unavailableSet( array $player_ids, ?string $today = null ): array {
+    public static function unavailableSet( array $player_ids, ?string $on = null ): array {
         $ids = [];
         foreach ( $player_ids as $pid ) {
             $pid = (int) $pid;
@@ -62,8 +77,8 @@ final class PlayerAvailability {
         global $wpdb;
         $ids    = array_keys( $ids );
         $in     = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $today  = $today ?? AttendanceDateRule::today();
-        $params = array_merge( $ids, [ (int) CurrentClub::id(), $today ] );
+        $day    = self::day( $on );
+        $params = array_merge( $ids, [ (int) CurrentClub::id(), $day, $day, $day ] );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_col( $wpdb->prepare(
@@ -73,8 +88,12 @@ final class PlayerAvailability {
                 AND club_id = %d
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
-                AND actual_return IS NULL
-                AND ( expected_return IS NULL OR expected_return >= %s )",
+                AND started_on <= %s
+                AND (
+                      ( actual_return IS NOT NULL AND actual_return > %s )
+                   OR ( actual_return IS NULL
+                        AND ( expected_return IS NULL OR expected_return >= %s ) )
+                )",
             $params
         ) );
 
@@ -96,8 +115,18 @@ final class PlayerAvailability {
     }
 
     /** One player, one query — for a surface that has a single name to ask about. */
-    public static function isUnavailable( int $player_id, ?string $today = null ): bool {
-        return isset( self::unavailableSet( [ $player_id ], $today )[ $player_id ] );
+    public static function isUnavailable( int $player_id, ?string $on = null ): bool {
+        return isset( self::unavailableSet( [ $player_id ], $on )[ $player_id ] );
+    }
+
+    /**
+     * The day to ask about: the date part of `$on`, or today when the caller
+     * has no date or passed something that is not one. Today is the
+     * conservative fallback — it is what every surface showed before #4100.
+     */
+    private static function day( ?string $on ): string {
+        $date = substr( trim( (string) $on ), 0, 10 );
+        return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) === 1 ? $date : AttendanceDateRule::today();
     }
 
     /**

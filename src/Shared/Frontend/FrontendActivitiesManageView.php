@@ -2043,11 +2043,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #4005 — who cannot be planned for, derived from open injuries by
         // the domain service the REST route uses (CLAUDE.md §4). The state
         // only: no injury detail reaches this card, so a coach without
-        // injury access can plan around it.
+        // injury access can plan around it. #4100 — asked for the
+        // activity's own date, so a current injury does not rewrite a match
+        // the player was fit for.
         $unavailable = PlayerAvailability::unavailableSet( array_map(
             static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
             $roster
-        ) );
+        ), (string) ( $session->session_date ?? '' ) );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
@@ -4115,8 +4117,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // #4005 — who is carrying an open injury, so the coach picking
             // the squad is not left to remember it. Derived by the same
             // domain service the REST route uses; it never changes the
-            // stored plan, and it carries no medical detail.
-            $plan_unavailable = PlayerAvailability::unavailableSet( array_map( 'intval', array_keys( $planned_rows ) ) );
+            // stored plan, and it carries no medical detail. #4100 — on the
+            // activity's date, the same day the REST route asks about.
+            $plan_unavailable = PlayerAvailability::unavailableSet(
+                array_map( 'intval', array_keys( $planned_rows ) ),
+                $session ? (string) ( $session->session_date ?? '' ) : null
+            );
             ?>
             <?php
             // #2245 + #2248 — planned attendance renders only while the

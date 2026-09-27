@@ -2921,8 +2921,9 @@ class ActivitiesRestController {
      * Each row carries `player_id`, `is_guest`, `name`, `plan_status`
      * (`expected` / `not_coming` / `maybe`), `notes` and `availability`.
      *
-     * #4005 — `availability` is derived per request from the player's open
-     * injuries (`PlayerAvailability`) and sits BESIDE `plan_status`, which
+     * #4005 — `availability` is derived per request from the injuries the
+     * player was carrying on the activity's date (`PlayerAvailability`,
+     * #4100) and sits BESIDE `plan_status`, which
      * keeps its three values and its write path. It is not a fourth plan
      * state: a coach may deliberately expect an injured player (light
      * session, rehab minutes, travelling with the squad), and folding
@@ -2940,11 +2941,14 @@ class ActivitiesRestController {
         if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
         $roster = $repo->plannedRosterForActivity( $id );
+        // #4100 — on the activity's date, the same day the detail page asks
+        // about, so the two answers cannot differ for one activity.
         $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableSet(
             array_map(
                 static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
                 $roster
-            )
+            ),
+            $repo->activityDate( $id )
         );
         $out = array_map( static function ( $row ) use ( $unavailable ) {
             $status = (string) ( $row->status ?? '' );
