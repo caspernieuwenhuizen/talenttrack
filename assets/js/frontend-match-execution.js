@@ -1878,6 +1878,26 @@
         });
     })();
 
+    // #4061 — record a past match afterwards. The server moves it straight
+    // to pending review; the reload asks for the review with Edit on, so
+    // the late goal / substitution panels are there to fill in.
+    (function wireRecordAfterwards() {
+        var btn = root.querySelector('[data-tt-mexec-record-afterwards]');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            if (!window.confirm(i18n.record_after_confirm || 'Record this match afterwards?')) return;
+            btn.disabled = true;
+            doFetch((cfg.rest_url || '') + 'record-afterwards', 'POST', {}).then(function () {
+                var url = new URL(window.location.href);
+                url.searchParams.set('tt_mexec_edit', '1');
+                window.location.assign(url.toString());
+            }).catch(function (err) {
+                btn.disabled = false;
+                window.alert((i18n.record_after_error || 'Could not open the match for recording:') + ' ' + failureText(err));
+            });
+        });
+    })();
+
     // --- #2858 — correcting a goal's attribution after the match ---
     // The live sheet lets a goal be saved with no scorer so the clock is
     // never waiting on an attribution nobody can make from the touchline.

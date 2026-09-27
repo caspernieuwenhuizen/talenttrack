@@ -1,0 +1,36 @@
+#: src/Modules/Activities/Services/ActivityHeaderActions.php
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Record match afterwards"
+msgstr "Wedstrijd achteraf vastleggen"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "This match has already been started or recorded."
+msgstr "Deze wedstrijd is al gestart of vastgelegd."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid ""
+"A match can only be recorded afterwards once its date has passed. On match "
+"day, start it instead."
+msgstr ""
+"Een wedstrijd kun je pas achteraf vastleggen als de datum voorbij is. Op de "
+"wedstrijddag start je hem gewoon."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid ""
+"Set the starting line-up in match prep first. The minutes are built from it."
+msgstr ""
+"Zet eerst de basisopstelling in de wedstrijdvoorbereiding. De minuten worden "
+"daaruit berekend."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid ""
+"Record this match afterwards? It opens the post-match review, where you add "
+"the substitutions and goals with their minute."
+msgstr ""
+"Deze wedstrijd achteraf vastleggen? De nabespreking opent, waar je de wissels "
+"en doelpunten met hun minuut toevoegt."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not open the match for recording:"
+msgstr "Kon de wedstrijd niet openen om vast te leggen:"

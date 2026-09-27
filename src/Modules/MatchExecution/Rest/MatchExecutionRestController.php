@@ -36,6 +36,7 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   POST   /<activity_id>/finish
  *   POST   /<activity_id>/finalize
  *   POST   /<activity_id>/reopen        (#2271 re-open finalized)
+ *   POST   /<activity_id>/record-afterwards  (#4061 past match, not_started -> pending_review)
  *
  * Idempotent endpoints take a client-generated `event_uuid` so the
  * offline-queue flush can replay without double-inserting.
@@ -121,6 +122,11 @@ class MatchExecutionRestController {
         ] );
         register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/reopen', [
             [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_reopen' ], self::activityIdArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::activityIdArgs() ],
+        ] );
+        // #4061 — a past match that never ran live goes straight into the
+        // post-match review, without the clock.
+        register_rest_route( self::NS, '/match-execution/(?P<activity_id>\d+)/record-afterwards', [
+            [ 'methods' => 'POST', 'callback' => self::gate( [ __CLASS__, 'route_record_afterwards' ], self::activityIdArgs() ), 'permission_callback' => [ __CLASS__, 'can_edit' ], 'args' => self::activityIdArgs() ],
         ] );
 
         // #2275 — PATCH corrects a logged goal's half + minute (ours or the
@@ -1478,6 +1484,90 @@ class MatchExecutionRestController {
         return RestResponse::success( [
             'execution_id' => $exec_id,
             'activity_id'  => (int) $exec->activity_id,
+            'state'        => MatchExecutionState::PENDING_REVIEW,
+        ] );
+    }
+
+    /**
+     * #4061 — record a match afterwards: `not_started` (or no execution yet)
+     * straight to PENDING_REVIEW for a match whose date has passed, without
+     * the clock. Every half timestamp stays null; the minutes derive from
+     * the prep line-up and the half length, and the review surface's late
+     * goal / substitution panels take an explicit half and minute.
+     *
+     * Refusals, all 409 except the missing activity:
+     *   - `not_found`  (404) — no such match in this club;
+     *   - `bad_state`  — the execution has already started or ended;
+     *   - `not_past`   — the match is today or in the future (on match day
+     *                    the normal Start applies);
+     *   - `no_lineup`  — match prep has no starting line-up. The line-up has
+     *                    one source, so the coach sets it there first.
+     *
+     * The rule is {@see MatchExecutionState::canRecordAfterwards()}, shared
+     * with the activity header and the execution view. Audit-logged like
+     * `reopen`.
+     */
+    public static function route_record_afterwards( \WP_REST_Request $r ): \WP_REST_Response {
+        $activity_id = absint( $r['activity_id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_activity', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+
+        global $wpdb;
+        $session_date = $wpdb->get_var( $wpdb->prepare(
+            "SELECT session_date FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( $session_date === null ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        $existing = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        $state    = $existing ? (string) ( ( (array) $existing )['state'] ?? '' ) : '';
+        if ( $state !== '' && $state !== MatchExecutionState::NOT_STARTED ) {
+            return RestResponse::error(
+                'bad_state',
+                __( 'This match has already been started or recorded.', 'talenttrack' ),
+                409
+            );
+        }
+        if ( ! MatchExecutionState::canRecordAfterwards( $state, (string) $session_date ) ) {
+            return RestResponse::error(
+                'not_past',
+                __( 'A match can only be recorded afterwards once its date has passed. On match day, start it instead.', 'talenttrack' ),
+                409
+            );
+        }
+        if ( ! ( new MatchPrepRepository() )->hasStartingLineupForActivity( $activity_id ) ) {
+            return RestResponse::error(
+                'no_lineup',
+                __( 'Set the starting line-up in match prep first. The minutes are built from it.', 'talenttrack' ),
+                409
+            );
+        }
+
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+
+        ( new MatchExecutionRepository() )->update( $exec_id, [
+            'state' => MatchExecutionState::PENDING_REVIEW,
+        ] );
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record(
+            'match_execution.recorded_afterwards',
+            'match_execution',
+            $exec_id,
+            [ 'activity_id' => $activity_id ]
+        );
+
+        Logger::info( 'match_execution.record_afterwards', [
+            'execution_id' => $exec_id,
+            'activity_id'  => $activity_id,
+        ] );
+
+        return RestResponse::success( [
+            'execution_id' => $exec_id,
+            'activity_id'  => $activity_id,
             'state'        => MatchExecutionState::PENDING_REVIEW,
         ] );
     }

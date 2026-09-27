@@ -240,6 +240,21 @@ class MatchPrepRepository {
     }
 
     /**
+     * #4061 — whether the activity's prep has a first-half starting line-up
+     * with at least one player in it. Recording a match afterwards builds
+     * the minutes from that line-up, and match prep is its only source, so
+     * without one the coach is sent to match prep first.
+     */
+    public function hasStartingLineupForActivity( int $activity_id ): bool {
+        $prep = $this->findByActivity( $activity_id );
+        if ( ! $prep ) return false;
+        foreach ( $this->listLineup( (int) $prep->id ) as $row ) {
+            if ( (int) ( $row->half ?? 0 ) === 1 && (int) ( $row->player_id ?? 0 ) > 0 ) return true;
+        }
+        return false;
+    }
+
+    /**
      * Replace the lineup for one half. `$slots` keyed by slot_number =>
      * player_id. Pass an empty array to clear that half.
      *

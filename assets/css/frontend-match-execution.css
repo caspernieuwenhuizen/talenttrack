@@ -2377,6 +2377,25 @@
 .tt-mexec-start-lock[hidden] { display: none; }
 .tt-mexec--sections .tt-mexec-bar .tt-mexec-start-lock { color: rgba(255, 255, 255, 0.85); }
 
+/* ----- #4061 — record a past match afterwards, in place of the lock ----- */
+.tt-mexec-record-after {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+}
+.tt-mexec-record-after-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-mexec-record-after-note {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--tt-mexec-ink-soft);
+}
+.tt-mexec--sections .tt-mexec-bar .tt-mexec-record-after-note { color: rgba(255, 255, 255, 0.85); }
+
 /* ----- #3667 — who started the match, and a half left running ----- */
 .tt-mexec-started-by {
     margin: 4px 0 0;

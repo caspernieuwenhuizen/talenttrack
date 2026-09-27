@@ -54,10 +54,19 @@ final class ActivityHeaderActions {
      * activity leaves `planned` only the read label survives — "Start
      * match" used to fall through on any completed match whose date
      * still matched, offering a second kick-off.
+     *
+     * #4061 — a past match that never ran live can be recorded afterwards,
+     * whatever the activity's status: a completed match is exactly the one
+     * a coach comes back to fill in. `$can_record_afterwards` is
+     * {@see MatchExecutionState::canRecordAfterwards()}, computed by the
+     * caller from the stored state and date.
      */
-    public static function matchExecutionLabel( bool $is_planned, string $exec_state, bool $is_match_day ): ?string {
+    public static function matchExecutionLabel( bool $is_planned, string $exec_state, bool $is_match_day, bool $can_record_afterwards = false ): ?string {
         if ( MatchExecutionState::isPostLive( $exec_state ) ) {
             return __( 'View match', 'talenttrack' );
+        }
+        if ( $can_record_afterwards ) {
+            return __( 'Record match afterwards', 'talenttrack' );
         }
         if ( ! $is_planned ) {
             return null;

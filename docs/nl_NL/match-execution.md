@@ -94,7 +94,10 @@ doorlopen zonder per ongeluk iets vast te leggen.
 
 Een wedstrijd kan alleen op de wedstrijddag worden gestart. Daarvóór zijn
 **Start** en **Wedstrijd starten** ook grijs, en de reden — *Beschikbaar op
-wedstrijddag* met de datum — staat onder de klok.
+wedstrijddag* met de datum — staat onder de klok. Is de datum voorbij
+zonder dat de wedstrijd is gestart, dan staat daar in plaats van die regel
+**Wedstrijd achteraf vastleggen** (zie *Een wedstrijd achteraf vastleggen*
+hieronder).
 
 **Op Start tikken zet alles direct aan.** Er is geen pagina om opnieuw te
 laden en geen Bewerken-knop om te zoeken: van het eerste tot het laatste
@@ -218,6 +221,45 @@ de rapporten kloppend blijven.
 Zowel afsluiten als heropenen vereist de capability `tt_edit_activities`,
 dezelfde rechten die ook de rest van het wedstrijduitvoeringsscherm
 afschermen.
+
+## Een wedstrijd achteraf vastleggen
+
+Niet elke wedstrijd wordt live bijgehouden. De telefoon was leeg, niemand
+had tijd, of het is gewoon vergeten. Een wedstrijd waarvan de datum voorbij
+is en die nooit is gestart, kan achteraf toch volledig worden vastgelegd:
+opstelling, wissels, doelpunten en minuten.
+
+Op de activiteitenpagina van zo'n wedstrijd biedt de kop **Wedstrijd
+achteraf vastleggen**, of de activiteit nu nog gepland of al afgerond is.
+Het wedstrijduitvoeringsscherm toont dezelfde knop op de plek van de regel
+*Beschikbaar op wedstrijddag*.
+
+1. **Zet eerst de opstelling.** De minuten worden berekend uit de
+   basisopstelling in de wedstrijdvoorbereiding, en dat is de enige plek
+   waar je die kiest. Zonder opstelling brengt de knop je naar de
+   wedstrijdvoorbereiding.
+2. **Tik op Wedstrijd achteraf vastleggen** en bevestig. De wedstrijd opent
+   in *nabespreking* met bewerken al aan. De klok wordt nooit gestart;
+   niets doet alsof de wedstrijd live is gevolgd.
+3. **Vul in wat er gebeurde** met de panelen *Laat doelpunt / wissel
+   toevoegen*. Elk paneel vraagt de helft en de minuut, en je kunt ze in
+   elke volgorde toevoegen: eerst een wissel in de tweede helft, dan een
+   doelpunt in de eerste helft, dan een wissel in de eerste helft. Elke
+   wissel herberekent de minuten.
+4. **Sluit af** zoals altijd. De stand volgt de doelpunten die je hebt
+   toegevoegd; afsluiten zet die stand op de wedstrijd en zet de activiteit
+   op afgerond.
+
+Elke datum in het verleden is toegestaan. Op de wedstrijddag zelf geldt de
+gewone **Start**, en een wedstrijd in de toekomst kun je nog niet
+vastleggen. Elk gebruik wordt vastgelegd in het auditlog, en je hebt
+dezelfde rechten `tt_edit_activities` voor het team nodig als voor de rest
+van dit scherm.
+
+Het minuten- en statistiekenraster blijft de snelle manier om alleen
+minuten en een stand in te voeren. Zodra een wedstrijd hier is vastgelegd,
+horen de minuten en de stand bij het wedstrijdformulier, net als bij een
+wedstrijd die live is bijgehouden.
 
 ## Gevolgde spelers
 
