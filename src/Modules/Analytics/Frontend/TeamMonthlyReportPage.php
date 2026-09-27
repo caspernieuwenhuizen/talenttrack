@@ -1142,7 +1142,19 @@ final class TeamMonthlyReportPage {
                 'talenttrack'
             ),
             $count
-        ) ) . '</p>';
+        ) . self::tournamentScorersNote( $m ) ) . '</p>';
+    }
+
+    /**
+     * #4079 — the scorers table is a leaderboard and keeps tournament goals;
+     * the record does not. The tournament note says which is which.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function tournamentScorersNote( array $m ): string {
+        $shows = is_array( $m['shows'] ?? null ) ? $m['shows'] : [];
+        if ( empty( $shows['scorers'] ) ) return '';
+        return ' ' . __( 'Goals scored at a tournament still count in the scorers table, but not against the record.', 'talenttrack' );
     }
 
     /** @param list<array<string,mixed>>|array<int,mixed> $scorers */

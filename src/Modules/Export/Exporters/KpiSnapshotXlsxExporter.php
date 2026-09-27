@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportValueFormatter;
@@ -116,28 +117,23 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
                   AND e.eval_date BETWEEN %s AND %s",
             $club_id, $date_from, $date_to
         ) );
-        $attendance_total = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_attendance att
+        // #4041 — attended (present + late) over every row, own-team rows
+        // only: the one rule, from AttendanceFlagService.
+        $attended_sum = AttendanceFlagService::attendedSumSql( 'att.status' );
+        $attendance   = $wpdb->get_row( $wpdb->prepare(
+            "SELECT COUNT(*) AS total, {$attended_sum} AS attended
+               FROM {$p}tt_attendance att
                 INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
                 WHERE att.club_id = %d
                   AND att.record_type = 'actual'
+                  AND att.is_guest = 0
                   AND a.plan_state = 'completed'
                   AND a.session_date BETWEEN %s AND %s",
             $club_id, $date_from, $date_to
         ) );
-        $attendance_present = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_attendance att
-                INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                WHERE att.club_id = %d
-                  AND att.record_type = 'actual'
-                  AND a.plan_state = 'completed'
-                  AND a.session_date BETWEEN %s AND %s
-                  AND att.status = 'present'",
-            $club_id, $date_from, $date_to
-        ) );
-        $attendance_pct = $attendance_total > 0
-            ? round( ( $attendance_present / $attendance_total ) * 100, 1 )
-            : '';
+        $attendance_total   = (int) ( $attendance->total ?? 0 );
+        $attendance_present = (int) ( $attendance->attended ?? 0 );
+        $attendance_pct     = AttendanceFlagService::presentPct( $attendance_present, $attendance_total ) ?? '';
 
         $goals_total = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_goals WHERE club_id = %d",

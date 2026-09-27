@@ -35,6 +35,12 @@ use TT\Infrastructure\Config\ConfigService;
  * falling back to the absence threshold when unset). A flagged player
  * therefore carries one or both **reasons** — absence, lateness — so the
  * at-risk list can say which it is instead of implying absences.
+ *
+ * #4041 — every attendance percentage in the plugin is derived here, over
+ * the player's own team's activities (`is_guest = 0`): reports, exports,
+ * dashboards, the semantic-layer measure. There is exactly one exception,
+ * {@see presentPctForStatus()}, for the player status traffic light, and it
+ * is a named method here rather than a second formula somewhere else.
  */
 final class AttendanceFlagService {
 
@@ -146,8 +152,92 @@ final class AttendanceFlagService {
      * class's own constants.
      */
     public static function missedStatusClause( string $column = 'att.status' ): string {
-        $col  = preg_replace( '/[^A-Za-z0-9_.]/', '', $column );
-        $list = "'" . implode( "', '", self::MISSED_STATUSES ) . "'";
+        return self::inClause( $column, self::MISSED_STATUSES );
+    }
+
+    /**
+     * #4041 — the SQL predicate for "this attendance row counts as attended"
+     * (present or late). Same construction as {@see missedStatusClause()}.
+     */
+    public static function attendedStatusClause( string $column = 'att.status' ): string {
+        return self::inClause( $column, self::ATTENDED_STATUSES );
+    }
+
+    /**
+     * #4041 — `SUM(...)` of the attended rows, for a query that aggregates
+     * in the database: `SELECT {$attended} AS attended, COUNT(*) AS total`.
+     */
+    public static function attendedSumSql( string $column = 'att.status' ): string {
+        return 'SUM( CASE WHEN ' . self::attendedStatusClause( $column ) . ' THEN 1 ELSE 0 END )';
+    }
+
+    /**
+     * #4041 — one `SUM(...) AS <status>` column per known status, for the
+     * queries that report the breakdown (present, late, absent, excused,
+     * injured). Callers then read the counts through {@see attended()} and
+     * {@see missed()} rather than adding them up themselves.
+     */
+    public static function statusCountsSql( string $column = 'att.status' ): string {
+        $col  = self::column( $column );
+        $sums = [];
+        foreach ( array_merge( self::ATTENDED_STATUSES, self::MISSED_STATUSES ) as $status ) {
+            $sums[] = "SUM( CASE WHEN LOWER({$col}) = '{$status}' THEN 1 ELSE 0 END ) AS {$status}";
+        }
+        return implode( ",\n                ", $sums );
+    }
+
+    /** #4041 — does this one status (any case) count as attended? */
+    public static function isAttended( string $status ): bool {
+        return in_array( strtolower( trim( $status ) ), self::ATTENDED_STATUSES, true );
+    }
+
+    /** #4041 — does this one status (any case) count as missed? */
+    public static function isMissed( string $status ): bool {
+        return in_array( strtolower( trim( $status ) ), self::MISSED_STATUSES, true );
+    }
+
+    /**
+     * #4041 — attended over total across several attendance-report rows
+     * (arrays or objects carrying `present`, `late` and `total`): the pooled
+     * figure a report's "Avg. attendance" tile shows. Null with no rows.
+     *
+     * @param iterable<array<string,mixed>|object> $rows
+     */
+    public static function pooledPresentPct( iterable $rows ): ?float {
+        $attended = 0;
+        $total    = 0;
+        foreach ( $rows as $r ) {
+            $o         = (object) $r;
+            $attended += self::attended( $o );
+            $total    += (int) ( $o->total ?? 0 );
+        }
+        return self::presentPct( $attended, $total );
+    }
+
+    /**
+     * #4041 — THE ONE EXCEPTION to the rule above, and deliberately named so.
+     *
+     * The player status traffic light (and the cohort board, which shows the
+     * same score) leaves excused and injured activities out of the
+     * denominator, so a player is not marked down for being injured or for
+     * an absence the club excused. Late still counts as attended. Every other
+     * surface uses {@see presentPct()}; nothing else may divide by anything
+     * but the full total.
+     *
+     * Null when nothing is left to count once those are set aside.
+     */
+    public static function presentPctForStatus( int $attended, int $total, int $excused, int $injured ): ?float {
+        return self::presentPct( $attended, max( 0, $total - $excused - $injured ) );
+    }
+
+    /** @param list<string> $statuses */
+    private static function inClause( string $column, array $statuses ): string {
+        $col  = self::column( $column );
+        $list = "'" . implode( "', '", $statuses ) . "'";
         return "LOWER({$col}) IN ( {$list} )";
+    }
+
+    private static function column( string $column ): string {
+        return (string) preg_replace( '/[^A-Za-z0-9_.]/', '', $column );
     }
 }

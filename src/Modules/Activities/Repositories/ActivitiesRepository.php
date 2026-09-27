@@ -9,6 +9,7 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
 /**
  * ActivitiesRepository — shared read-path for `tt_activities` + the
@@ -373,7 +374,8 @@ final class ActivitiesRepository {
 
     /**
      * #1358 — attendance summary for the player-profile "Attendance"
-     * KPI: present rows vs. all actual attendance rows on completed,
+     * KPI: attended rows (present + late, #4041) vs. all actual, non-guest
+     * attendance rows on completed,
      * non-archived activities in the trailing window. Matches the
      * "actual attendance" scope of the player Activities tab — only
      * completed activities count.
@@ -390,29 +392,28 @@ final class ActivitiesRepository {
 
         global $wpdb;
         $p   = $wpdb->prefix;
-        // #1382 — PLAYER-level attendance includes guest appearances: a
-        // played-up player guesting for another team has an attendance
-        // row keyed by either `player_id` (is_guest = 1) or
-        // `guest_player_id` (player_id NULL). Match both and drop the
-        // `is_guest = 0` filter so the profile KPI reflects everything
-        // the player actually did. Team-level attendance (TeamKpisRepository,
-        // AttendanceRankingQuery) keeps its guest-exclusive filter.
+        // #4041 — the one rule: attended = present + late, over the player's
+        // own team's activities. Guest appearances (#1382 used to count them
+        // here) are left out, as on every other attendance surface; they
+        // stay visible on the activity and in the player's journey.
         //
         // #2521 — gated on the coach-set status, not `plan_state`.
         $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
+        $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
-                SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
+                {$attended} AS present_n,
                 COUNT(*) AS total_n
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE ( att.player_id = %d OR att.guest_player_id = %d )
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
                 AND att.club_id = %d
                 AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
                 AND {$completed}
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
-            $player_id, $player_id, CurrentClub::id(), $days
+            $player_id, CurrentClub::id(), $days
         ) );
         return $row ?: null;
     }
@@ -1188,8 +1189,9 @@ final class ActivitiesRepository {
      *
      * Aggregates the actual attendance rows (`record_type='actual'`,
      * `is_guest=0`) of players still on the team's current active
-     * roster into per-status counts, plus the roster size, the present
-     * count and the present percentage. The view composes the bar +
+     * roster into per-status counts, plus the roster size, the attended
+     * count (present + late, #4041, still keyed `present`) and its
+     * percentage of the roster. The view composes the bar +
      * legend from this shape; the SQL stays out of the view (CLAUDE.md
      * §4). `LOWER(a.status)` normalises legacy capitalised rows into
      * the same bucket as current lowercase rows (same case-handling as
@@ -1240,7 +1242,12 @@ final class ActivitiesRepository {
             $by_status[ $key ] = $cnt;
             $total           += $cnt;
         }
-        $present = (int) ( $by_status['present'] ?? 0 );
+        // #4041 — `present` is the attended count (present + late), the one
+        // rule every attendance figure uses; `by_status` keeps the split.
+        $present = 0;
+        foreach ( $by_status as $status => $cnt ) {
+            if ( AttendanceFlagService::isAttended( (string) $status ) ) $present += $cnt;
+        }
         $pct     = (int) round( ( $present / $roster_size ) * 100 );
         if ( $pct > 100 ) $pct = 100;
 
@@ -2012,7 +2019,9 @@ final class ActivitiesRepository {
               WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
                 AND a.record_type = 'actual'";
         $recorded_sql = "(SELECT COUNT(*) {$recorded_from})";
-        $present_sql  = "(SELECT COUNT(*) {$recorded_from} AND a.status = 'Present')";
+        // #4041 — `present_count` counts attended rows (present + late).
+        $attended_where = AttendanceFlagService::attendedStatusClause( 'a.status' );
+        $present_sql  = "(SELECT COUNT(*) {$recorded_from} AND {$attended_where})";
         $roster_sql   = "GREATEST(
                 (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active'),
                 {$recorded_sql}

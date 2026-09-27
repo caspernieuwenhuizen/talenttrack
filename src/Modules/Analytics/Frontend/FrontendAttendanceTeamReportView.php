@@ -3,9 +3,9 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
+use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FilterBar;
@@ -27,9 +27,9 @@ use TT\Shared\Frontend\FrontendViewBase;
  * and an activity-type filter. #2137 — each team row expands inline to a
  * per-player sub-table loaded from `AttendanceRankingQuery::rows()`.
  *
- * Status %s use `LOWER(att.status)` to match the v3.110.78
- * case-insensitivity fix — legacy mixed-case rows aggregate into the same
- * bucket as the current-shape lowercase rows. Only past, actually-held
+ * The rows come from `AttendanceRankingQuery::teamRows()` (#4041), so
+ * Present % is the one rule — present + late over every row — and matches
+ * the player report and the leaderboard. Only past, actually-held
  * activities count (#2135: `session_date <= CURDATE()`).
  *
  * Cap-gated on `tt_view_analytics` (same as the parent Analytics view).
@@ -125,7 +125,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
 
         self::renderFilterForm( $from, $to, $effective_period, $type_key );
 
-        $rows = self::query( $from, $to, $allowed_team_ids, $type_key );
+        // #4041 — the rows and their percentages come from the shared query,
+        // on the one rule (late counts as attended), not from the view.
+        $rows = ( new AttendanceRankingQuery() )->teamRows( $from, $to, $allowed_team_ids, $type_key );
 
         // #3338 — everything the filters govern, in one region the refresh
         // swaps. The empty state is inside it: filtering down to nothing has
@@ -146,15 +148,13 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         // #1688 — KPI summary strip computed from the already-fetched rows
         // (presentation-level aggregation only; the query stays the source).
         $team_count = count( $rows );
-        $sum_activities = 0; $sum_present = 0; $sum_total = 0; $below = 0;
+        $sum_activities = 0; $below = 0;
         foreach ( $rows as $r ) {
-            $sum_activities += (int) $r->activities;
-            $sum_present    += (int) $r->present;
-            $sum_total      += (int) $r->total;
-            $tp = (int) $r->total > 0 ? ( (int) $r->present / (int) $r->total ) * 100 : null;
-            if ( $tp !== null && $tp < 70 ) $below++;
+            $sum_activities += $r['activities'];
+            if ( $r['present_pct'] !== null && $r['present_pct'] < 70 ) $below++;
         }
-        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+        $pooled = AttendanceFlagService::pooledPresentPct( $rows );
+        $avg    = $pooled !== null ? number_format_i18n( $pooled, 1 ) . '%' : '—';
 
         echo '<div class="tt-report-kpis">';
         // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
@@ -177,14 +177,14 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $r ) {
-            $team_id = (int) $r->team_id;
+            $team_id = $r['team_id'];
             $team_url = BackLink::appendTo( add_query_arg(
                 [ 'tt_view' => 'teams', 'id' => $team_id ],
                 RecordLink::dashboardUrl()
             ) );
-            $name = (string) ( $r->team_name ?? '' );
+            $name = $r['team_name'];
             if ( $name === '' ) $name = '#' . $team_id;
-            $present_pct = (int) $r->total > 0 ? ( (int) $r->present / (int) $r->total ) * 100 : null;
+            $present_pct = $r['present_pct'];
 
             // #2137 — no-JS fallback: the player report pre-filtered to
             // this team (with the active window + type). JS upgrades the
@@ -206,13 +206,13 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             echo '<a class="tt-att-team-link tt-record-link" href="' . esc_url( $team_url ) . '">' . esc_html__( 'Open team', 'talenttrack' ) . '</a>';
             echo ' <a class="tt-att-team-drill" href="' . esc_url( $drill_url ) . '">' . esc_html__( 'View players', 'talenttrack' ) . '</a>';
             echo '</td>';
-            echo '<td class="tt-num">' . (int) $r->activities . '</td>';
+            echo '<td class="tt-num">' . (int) $r['activities'] . '</td>';
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
             echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r->late,    $r->total ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r->absent,  $r->total ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r->excused, $r->total ) ) . '</td>';
-            echo '<td class="tt-num">' . esc_html( self::pct( $r->injured, $r->total ) ) . '</td>';
+            echo '<td class="tt-num">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
+            echo '<td class="tt-num">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
+            echo '<td class="tt-num">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
+            echo '<td class="tt-num">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
             echo '</tr>';
             // Lazy target row — JS injects the per-player sub-table here.
             // #2893 — `data-tt-table-noop` keeps it out of the table
@@ -243,60 +243,9 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             . '</span>';
     }
 
-    /**
-     * @param list<int>|null $allowed_team_ids null = unrestricted
-     * @param string $activity_type_key when non-empty, narrows to one type.
-     * @return list<object>  one row per team in the window with raw
-     *                        counters; PHP `pct()` does the formatting.
-     */
-    private static function query( string $from, string $to, ?array $allowed_team_ids, string $activity_type_key = '' ): array {
-        global $wpdb;
-        $where_scope = '';
-        if ( $allowed_team_ids !== null ) {
-            if ( $allowed_team_ids === [] ) return [];
-            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
-            $where_scope  = $wpdb->prepare( " AND t.id IN ($placeholders)", ...$allowed_team_ids );
-        }
-        // #2136 — optional activity-type narrowing (mirrors the player query).
-        $where_type = $activity_type_key !== ''
-            ? $wpdb->prepare( ' AND a.activity_type_key = %s', $activity_type_key )
-            : '';
-        // #2521 — the status the coach set decides whether the session
-        // counted; `plan_state` defaults to 'completed' and cannot.
-        $completed = ActivityLifecycle::completedClause( 'a' );
-        /** @var object[] $rows */
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT
-                t.id   AS team_id,
-                t.name AS team_name,
-                COUNT(DISTINCT a.id) AS activities,
-                COUNT(att.id) AS total,
-                SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END ) AS present,
-                SUM( CASE WHEN LOWER(att.status) = 'late'    THEN 1 ELSE 0 END ) AS late,
-                SUM( CASE WHEN LOWER(att.status) = 'absent'  THEN 1 ELSE 0 END ) AS absent,
-                SUM( CASE WHEN LOWER(att.status) = 'excused' THEN 1 ELSE 0 END ) AS excused,
-                SUM( CASE WHEN LOWER(att.status) = 'injured' THEN 1 ELSE 0 END ) AS injured
-              FROM {$wpdb->prefix}tt_teams t
-              JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL AND a.trashed_at IS NULL
-              JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
-             WHERE t.club_id = %d
-               AND att.record_type = 'actual'
-               AND a.session_date BETWEEN %s AND %s
-               AND {$completed}
-               AND a.session_date <= CURDATE()
-               {$where_type}
-               {$where_scope}
-             GROUP BY t.id, t.name
-             ORDER BY t.name ASC",
-            CurrentClub::id(), $from, $to
-        ) );
-        return is_array( $rows ) ? $rows : [];
-    }
-
-    private static function pct( $part, $total ): string {
-        $total = (int) $total;
+    private static function pct( int $part, int $total ): string {
         if ( $total <= 0 ) return '—';
-        return number_format_i18n( ( (int) $part / $total ) * 100, 1 ) . '%';
+        return number_format_i18n( ( $part / $total ) * 100, 1 ) . '%';
     }
 
     /**

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -227,15 +228,21 @@ class TeamRosterTableWidget extends AbstractWidget {
         // #788 ship 1 — filter to actual rows on completed activities
         // so planned-attendance rows (ship 2) don't pollute the per-
         // player percentage.
+        //
+        // #4041 — already on the one rule; now it reads it from
+        // AttendanceFlagService instead of agreeing by coincidence, and
+        // leaves guest appearances out like every other surface.
+        $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id,
                     COUNT(*) AS total,
-                    SUM(CASE WHEN att.status IN ( 'present', 'late' ) THEN 1 ELSE 0 END) AS present_count
+                    {$attended} AS present_count
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
               WHERE att.club_id = %d
                 AND att.player_id IN ( {$placeholders} )
                 AND att.record_type = 'actual'
+                AND att.is_guest = 0
                 AND a.plan_state = 'completed'
                 AND a.session_date >= %s
                 {$act_scope}

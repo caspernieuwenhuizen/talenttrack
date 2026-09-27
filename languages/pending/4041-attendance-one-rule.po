@@ -1,0 +1,11 @@
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#: src/Shared/Frontend/Components/EvidencePanel.php
+msgctxt "attendance count: present or late"
+msgid "Attended"
+msgstr "Opgekomen"
+
+#. translators: 1: players who attended (present or late), 2: roster size, 3: percentage 0-100
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%1$d / %2$d attended (%3$d%%)"
+msgstr "%1$d / %2$d opgekomen (%3$d%%)"

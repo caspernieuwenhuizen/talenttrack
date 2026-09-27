@@ -548,10 +548,11 @@ class PlayerReportRenderer {
             ...$params
         ) );
 
+        // #4041 — attended is present or late, from AttendanceFlagService.
         $total = count( $rows );
         $present = 0;
         foreach ( $rows as $r ) {
-            if ( strcasecmp( (string) $r->status, 'Present' ) === 0 ) $present++;
+            if ( \TT\Modules\Analytics\Domain\AttendanceFlagService::isAttended( (string) $r->status ) ) $present++;
         }
         $pct = $total > 0 ? (int) round( ( $present / $total ) * 100 ) : 0;
         return [ 'present' => $present, 'total' => $total, 'pct' => $pct ];

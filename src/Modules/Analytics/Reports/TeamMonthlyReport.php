@@ -644,13 +644,21 @@ final class TeamMonthlyReport {
                     'assists'   => $assists,
                 ];
             }
+            // #4079 — the record counts only scored, non-tournament fixtures,
+            // so the attributed count is taken over exactly those. The table
+            // above keeps tournament goals: it is a leaderboard.
+            $scored = [];
+            foreach ( $activities as $a ) {
+                if ( $a['outcome'] !== '' ) $scored[] = $a['activity_id'];
+            }
             $out['scorers']       = self::rankScorers( PlayerOrder::sort( $rows, $jerseys ) );
             $out['scorer_totals'] = [
-                'goals'     => array_sum( array_column( $rows, 'goals' ) ),
-                'assists'   => array_sum( array_column( $rows, 'assists' ) ),
+                'goals'            => array_sum( array_column( $rows, 'goals' ) ),
+                'assists'          => array_sum( array_column( $rows, 'assists' ) ),
                 // Reconciled against the record, like the minutes grid footer:
                 // "7 of 8 goals attributed" says a scorer was not entered.
-                'goals_for' => $out['record']['goals_for'],
+                'attributed_goals' => ( new GoalContributionQuery() )->attributedGoalsIn( $this->team_id, $scored ),
+                'goals_for'        => $out['record']['goals_for'],
             ];
         }
 
