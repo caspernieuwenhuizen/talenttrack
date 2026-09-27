@@ -364,6 +364,8 @@ A scout now holds `player` scope for a player through either of two links, resol
 
 Since #3807 the scout's **`players`** row is written at `player` scope too, joining the four above. It was the last of the block still at `global`, which the two earlier passes over these grants had each left behind — `evaluations` was narrowed in #1378 and `media` in #2591, both on the reasoning that a scout reads about the children they are linked to rather than the whole academy. The full player record carries guardian name, e-mail and phone alongside every custom field a club has defined, with no per-field filter, so it belongs on the same footing as the two that moved before it. Migration `0285` narrows existing installs and touches only `is_default = 1` rows, so an academy that widened this deliberately keeps its own setting.
 
+**Goals and activities** follow the same line. A scout reads a player's development goals and the trainings and matches that player took part in only for the players they are linked to; an unlinked player's goals answer 403, and the goals and activities lists leave them out. A scout holds no team, so the activities list shows a scout nothing until it is asked for one linked player (`filter[player_id]`). Visit planning is not affected: it runs on `scouting_visits_panel`, `test_trainings` and `prospects`, which stay academy-wide. Migration `0291` narrows existing installs, again touching only `is_default = 1` rows.
+
 What a scout reads instead is the player card below — shipped in the same change, precisely so that narrowing the record does not take away the squad comparison the job depends on.
 
 Three things this deliberately does not do:

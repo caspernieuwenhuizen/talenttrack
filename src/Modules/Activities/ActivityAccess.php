@@ -66,6 +66,21 @@ final class ActivityAccess {
     }
 
     /**
+     * #3972 — a scout reads activities only through a `player`-scoped
+     * grant, for the players they are linked to. True when this player is
+     * one of them. A scout holds no team, so without this branch the list
+     * would answer a linked scout with nothing at all.
+     */
+    public static function canReadAsLinkedScout( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        return in_array(
+            $player_id,
+            AuthorizationService::scoutLinkedReadablePlayerIds( $user_id, 'activities' ),
+            true
+        );
+    }
+
+    /**
      * The player a non-staff caller of the list is scoped to, derived from
      * the session rather than trusted from the query:
      *   - their own linked player, when they have one (the requested id is
@@ -139,6 +154,11 @@ final class ActivityAccess {
 
         $repo = new ActivitiesRepository();
         foreach ( self::readablePlayerIds( $user_id ) as $player_id ) {
+            if ( $repo->isVisibleToPlayer( $activity_id, $player_id ) ) return true;
+        }
+        // #3972 — a linked scout reads the activities their players took
+        // part in, by the same visibility clause.
+        foreach ( AuthorizationService::scoutLinkedReadablePlayerIds( $user_id, 'activities' ) as $player_id ) {
             if ( $repo->isVisibleToPlayer( $activity_id, $player_id ) ) return true;
         }
         return false;

@@ -1168,8 +1168,14 @@ class ActivitiesRestController {
         // coach-scope restriction for these requests; otherwise a
         // logged-in player calling `?tt_view=my-activities` got an empty
         // list because they have zero head-coach teams.
+        // #3972 — a linked scout reads the same player-scoped list for the
+        // players they are linked to; any other id falls through to the
+        // coach scope below, which a scout holds none of, so it is empty.
         $is_player_scoped = ! empty( $filter['player_id'] )
-            && ActivityAccess::canReadAsPlayerOrParent( $uid, (int) $filter['player_id'] );
+            && (
+                ActivityAccess::canReadAsPlayerOrParent( $uid, (int) $filter['player_id'] )
+                || ActivityAccess::canReadAsLinkedScout( $uid, (int) $filter['player_id'] )
+            );
 
         // v3.91.2 — bypass the coach-scope restriction for personas with
         // matrix `activities:r[global]` (scout, head_of_development,
