@@ -100,8 +100,8 @@ final class TeamMonthlyReport {
     /** @var array<string,list<object>> window key => scheduled (uncancelled) activities */
     private array $scheduled = [];
 
-    /** @var list<AttendanceRow>|null */
-    private ?array $attendance = null;
+    /** @var array<string,list<AttendanceRow>> window key => rows */
+    private array $attendance = [];
 
     /** @var array<string,list<MinutesRow>> window key => rows */
     private array $minutes = [];
@@ -150,7 +150,7 @@ final class TeamMonthlyReport {
         $this->team_row       = null;
         $this->players        = null;
         $this->activities     = [];
-        $this->attendance     = null;
+        $this->attendance     = [];
         $this->minutes        = [];
         $this->verdicts       = [];
         $this->options        = $options;
@@ -405,8 +405,10 @@ final class TeamMonthlyReport {
         $prev_n   = count( $this->scheduledIn( $previous['from'], $previous['to'] ) );
         $has_prev = $prev_n > 0;
 
-        $att_now  = $kpis->avgAttendanceBetween( $this->team_id, $this->from, $this->to );
-        $att_prev = $has_prev ? $kpis->avgAttendanceBetween( $this->team_id, $previous['from'], $previous['to'] ) : null;
+        // #4068 — the attendance section's own squad average, so the tile and
+        // the table under it cannot disagree. Both windows the same way.
+        $att_now  = self::squadAttendancePct( $this->attendanceRowsIn( $this->from, $this->to ) );
+        $att_prev = $has_prev ? self::squadAttendancePct( $this->attendanceRowsIn( $previous['from'], $previous['to'] ) ) : null;
 
         $min_now  = self::medianShare( $this->minutesIn( $this->from, $this->to ) );
         $min_prev = $has_prev ? self::medianShare( $this->minutesIn( $previous['from'], $previous['to'] ) ) : null;
@@ -461,13 +463,7 @@ final class TeamMonthlyReport {
     /** @return array<string,mixed> */
     private function attendanceBlock(): array {
         $rows = [];
-        $sum  = 0.0;
-        $n    = 0;
         foreach ( $this->attendanceRows() as $r ) {
-            if ( $r['present_pct'] !== null ) {
-                $sum += $r['present_pct'];
-                $n++;
-            }
             $rows[] = [
                 'player_id'   => $r['player_id'],
                 'name'        => trim( $r['first_name'] . ' ' . $r['last_name'] ),
@@ -488,7 +484,7 @@ final class TeamMonthlyReport {
         $rows = PlayerOrder::sort( $rows, PlayerOrder::jerseys( $this->players() ) );
 
         return [
-            'team_avg_pct' => $n > 0 ? round( $sum / $n, 1 ) : null,
+            'team_avg_pct' => self::squadAttendancePct( $this->attendanceRows() ),
             'amber_below'  => self::ATTENDANCE_AMBER_BELOW,
             'red_below'    => self::ATTENDANCE_RED_BELOW,
             'rows'         => $rows,
@@ -1160,10 +1156,47 @@ final class TeamMonthlyReport {
 
     /** @return list<AttendanceRow> */
     private function attendanceRows(): array {
-        if ( $this->attendance === null ) {
-            $this->attendance = ( new AttendanceRankingQuery() )->rows( $this->from, $this->to, $this->team_id );
+        return $this->attendanceRowsIn( $this->from, $this->to );
+    }
+
+    /**
+     * Per-player attendance over a window, from the shared ranking query.
+     *
+     * @return list<AttendanceRow>
+     */
+    private function attendanceRowsIn( string $from, string $to ): array {
+        $key = $from . '|' . $to;
+        if ( ! isset( $this->attendance[ $key ] ) ) {
+            $this->attendance[ $key ] = ( new AttendanceRankingQuery() )->rows( $from, $to, $this->team_id );
         }
-        return $this->attendance;
+        return $this->attendance[ $key ];
+    }
+
+    /**
+     * The squad's attendance: the mean of the per-player percentages, one
+     * decimal (#4068). The attendance section prints it above its table and
+     * the headline tile prints the same number, so the two cannot disagree —
+     * the tile used to pool every register row, count only "present" and
+     * round to a whole percent, and read 100% above a player at 93.8%.
+     *
+     * Late counts as attended, as it does in every row (#4013). A value below
+     * 100 is capped at 99.9, so 100% means everybody attended everything.
+     * Null when nobody has a register row, so a quiet month reads "—".
+     *
+     * @param list<AttendanceRow> $rows
+     */
+    private static function squadAttendancePct( array $rows ): ?float {
+        $sum = 0.0;
+        $n   = 0;
+        foreach ( $rows as $r ) {
+            if ( $r['present_pct'] === null ) continue;
+            $sum += $r['present_pct'];
+            $n++;
+        }
+        if ( $n === 0 ) return null;
+
+        $mean = $sum / $n;
+        return $mean < 100.0 ? min( round( $mean, 1 ), 99.9 ) : 100.0;
     }
 
     /**

@@ -147,7 +147,9 @@ Scheduled reports are part of the Standard plan and above.
 - **Headline numbers** — activities, attendance, median minutes share,
   evaluation coverage, squad rating and the number of players needing attention,
   each compared with the period before. Where there is nothing to compare with,
-  you see a dash, not a zero.
+  you see a dash, not a zero. Attendance is the squad average the attendance
+  section shows above its table, so the two always agree: late counts as
+  attended, and it reads 100% only when every player attended everything.
 - **Squad status** — how many players are on track, to watch, needing action, or
   without a read yet, and how that looked last period.
 - **Attendance** and **Minutes share** — per player, with links to the full

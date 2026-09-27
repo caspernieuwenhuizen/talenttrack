@@ -154,7 +154,10 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 - **Kerncijfers** — activiteiten, aanwezigheid, mediaan minutenaandeel,
   evaluatiedekking, selectiebeoordeling en het aantal spelers dat aandacht nodig
   heeft, elk vergeleken met de periode ervoor. Is er niets om mee te vergelijken,
-  dan zie je een streepje en geen nul.
+  dan zie je een streepje en geen nul. Aanwezigheid is het selectiegemiddelde
+  dat de sectie aanwezigheid boven haar tabel toont, zodat de twee altijd
+  overeenkomen: te laat telt als aanwezig, en er staat alleen 100% als elke
+  speler overal bij was.
 - **Status selectie** — hoeveel spelers op koers liggen, in de gaten gehouden
   moeten worden, actie nodig hebben of nog geen beeld hebben, en hoe dat er de
   vorige periode uitzag.
