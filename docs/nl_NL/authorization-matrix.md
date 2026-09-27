@@ -42,7 +42,7 @@ Drie echte redenen om de matrix aan te raken:
 
 1. **Een nieuwe persona komt in de club.** Je introduceert een "Director of Football" naast het Hoofd Opleidingen; de meegeleverde matrix kent die persona niet. Voeg de persona toe aan het seed-bestand (of wacht op het persona-beheer-UI in v2 van de matrix-epic).
 2. **De standaard-scope klopt niet voor jouw club.** Misschien mogen Hoofdcoaches in jouw setup geen activiteiten verwijderen. Schakel de `D`-pil uit voor `head_coach × activities`.
-3. **Compliance.** Een bestuursbesluit eist dat scouts geen evaluaties mogen lezen van spelers buiten hun toegewezen scoutgebied. Wijzig de scope van `global` naar `team` voor `scout × evaluations × read`.
+3. **Compliance.** Een bestuursbesluit eist dat scouts geen teams mogen lezen buiten hun toegewezen scoutgebied. Wijzig de scope van `global` naar `team` voor `scout × team × read`.
 
 Voor al het andere — laat het met rust. De matrix bewerken is scherp; een beheerder die per ongeluk een scope op de verkeerde cel aanscherpt, sluit echte gebruikers buiten echte schermen.
 
@@ -253,9 +253,9 @@ Geseede rechten:
 
 Drie daarvan zijn keuzes en geen vanzelfsprekendheden:
 
-**De scout leest op `player`-scope, niet globaal.** Dat volgt de aanscherping van `evaluations` voor dezelfde persona in #1378. Een foto van een kind is minstens zo gevoelig als een geschreven oordeel erover, en academiebrede leestoegang was vóór #1378 het breedste recht op gevoelige gegevens in de matrix.
+**De scout leest op `player`-scope, niet globaal.** Dat volgt het `evaluations`-recht van de scout. Een foto van een kind is minstens zo gevoelig als een geschreven oordeel erover, en academiebrede leestoegang tot een van beide zou het breedste recht op gevoelige gegevens in de matrix zijn.
 
-Let op het praktische gevolg, dat `evaluations` overigens al kent: `MatrixGate::userHasScope()` kan `player`-scope alleen oplossen voor de speler zelf en voor diens ouder. Er bestaat geen koppeling scout → speler totdat #0017 landt, dus **komt het mediarecht van een scout vandaag nergens op uit** — een scout ziet in de praktijk geen media. Dat is de veilige kant van dat gat, en de rij wordt nu al geseed zodat scouts precies het bedoelde recht krijgen zodra #0017 de koppeling levert, in plaats van dat er dan een matrixwijziging nodig is.
+In de praktijk ziet een scout alleen media van de spelers aan wie hij via een stage- of prospecttoewijzing gekoppeld is. `MatrixGate::userHasScope()` lost `player`-scope op voor de speler zelf, diens ouder en — alleen voor de scout-persona — de gekoppelde spelers van de scout. Dezelfde grens geldt voor elke andere scout-rij op `player`-scope: het spelersdossier, evaluaties, doelen en de activiteiten waaraan die spelers deelnamen. Een scout zonder gekoppelde spelers ziet helemaal geen media.
 
 **Trainers hebben `create_delete` omdat create en delete één werkwoord zijn.** Een trainer die niet kan aanmaken, kan niet uploaden — en dan is de functie onbruikbaar voor precies de mensen voor wie zij bestaat. Het gevolg, dat hetzelfde recht ook verwijderen toestaat, is de juiste afweging: wie per ongeluk een foto met een gezin deelt, moet die zelf kunnen terugtrekken zonder op een beheerder te wachten.
 

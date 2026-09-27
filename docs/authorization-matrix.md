@@ -42,7 +42,7 @@ Three real reasons to touch the matrix:
 
 1. **A new persona joins the club.** You introduced a "Director of Football" alongside the Head of Development; the shipped matrix doesn't know about them. Add their persona to the seed file (or wait for the persona-management UI in v2 of the matrix epic).
 2. **Default scope is wrong for your club.** Maybe Head Coaches should not be able to delete sessions in your setup. Toggle the `D` pill off for `head_coach × activities`.
-3. **Compliance.** A board policy requires that scouts cannot read evaluations of players outside their assigned scouting region. Switch the scope from `global` to `team` for `scout × evaluations × read`.
+3. **Compliance.** A board policy requires that scouts cannot read the teams outside their assigned scouting region. Switch the scope from `global` to `team` for `scout × team × read`.
 
 Anything else — leave it alone. Editing the matrix is sharp; an admin who tightens a scope on the wrong cell can lock real users out of real surfaces.
 
@@ -257,9 +257,9 @@ Seeded grants:
 
 Three of those are decisions rather than defaults, and are worth stating:
 
-**The scout reads at `player` scope, not globally.** This mirrors the #1378 tightening of `evaluations` for the same persona. A photograph of a child is at least as sensitive as a written judgment about them, and academy-wide read was the widest sensitive-data grant in the matrix before #1378 removed it.
+**The scout reads at `player` scope, not globally.** This mirrors the scout's `evaluations` grant. A photograph of a child is at least as sensitive as a written judgment about them, and academy-wide read of either would be the widest sensitive-data grant in the matrix.
 
-Note the practical consequence, which is the same one `evaluations` already has: `MatrixGate::userHasScope()` resolves `player` scope only for the player themselves and their parent. There is no scout → player link path until #0017 lands, so **a scout's media grant does not resolve to anything today** — in effect a scout currently sees no media. That is the deliberately safe end of the gap, and the row is seeded now so scouts pick up exactly the intended access the moment #0017 provides the link, rather than needing a matrix edit at that point.
+In practice a scout sees media only for the players they are linked to through a trial or prospect assignment. `MatrixGate::userHasScope()` resolves `player` scope for the player themselves, their parent, and — for the scout persona alone — the scout's linked players. The same line applies to every other player-scoped scout row: the player record, evaluations, goals, and the activities those players took part in. A scout with no linked players sees no media at all.
 
 **Coaches hold `create_delete` because create and delete are one verb.** A coach who cannot create cannot upload, which makes the feature unusable for the people it exists for. The consequence — the same grant lets them delete — is the right trade: someone who publishes a photograph to a family in error must be able to withdraw it without waiting for an admin.
 

@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -219,8 +220,7 @@ final class GoalContributionQuery {
                     AND LOWER(a.activity_type_key) IN ({$types})
                     AND a.archived_at IS NULL
                     AND a.trashed_at IS NULL
-                    AND a.plan_state <> 'cancelled'
-                    AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )";
+                    AND " . ActivityLifecycle::notCancelledClause( 'a' );
 
         if ( $team > 0 ) {
             $where .= ' AND a.team_id = %d';

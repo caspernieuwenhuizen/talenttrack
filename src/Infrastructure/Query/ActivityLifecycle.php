@@ -58,20 +58,25 @@ final class ActivityLifecycle {
 
     /**
      * "This activity was not called off." Use for queries that legitimately
-     * span planned and completed rows (entry grids, planner surfaces) and
-     * only need to drop cancellations.
+     * span planned and completed rows (entry grids, planner surfaces,
+     * minutes) and only need to drop cancellations.
+     *
+     * Unlike "completed", a cancellation is honoured on either axis: the
+     * planner cancels through `plan_state`, the coach through the status,
+     * and a session called off in one place never took place in the other.
      */
     public static function notCancelledClause( string $alias = 'a' ): string {
-        $col = self::column( $alias );
-        return "LOWER(COALESCE({$col}, '')) <> 'cancelled'";
+        $col  = self::column( $alias );
+        $plan = self::column( $alias, 'plan_state' );
+        return "LOWER(COALESCE({$col}, '')) <> 'cancelled' AND LOWER(COALESCE({$plan}, '')) <> 'cancelled'";
     }
 
     /**
-     * Qualify the status column with the caller's alias. An empty alias means
+     * Qualify a lifecycle column with the caller's alias. An empty alias means
      * the query has a single unaliased table.
      */
-    private static function column( string $alias ): string {
+    private static function column( string $alias, string $column = 'activity_status_key' ): string {
         $alias = preg_replace( '/[^A-Za-z0-9_]/', '', $alias );
-        return $alias !== '' ? "{$alias}.activity_status_key" : 'activity_status_key';
+        return $alias !== '' ? "{$alias}.{$column}" : $column;
     }
 }

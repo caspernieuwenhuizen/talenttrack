@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Teams\FootballFormResolver;
@@ -122,8 +123,7 @@ final class MinutesAuditQuery {
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
-                AND plan_state <> 'cancelled'
-                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
                 {$where_type}
               ORDER BY {$date_col} ASC, id ASC",
             $club_id, $team_id, $from, $to
