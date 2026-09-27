@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
  * MinutesGridQuery (#2386, epic #2381) — the players × matches minutes-entry
@@ -17,6 +18,13 @@ use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
  * recorded minutes for that match — COALESCE(minutes_override, minutes_played)
  * on the non-guest attendance row — the exact value the Minutes-audit matrix
  * and the Minutes-played report show, so all three reconcile.
+ *
+ * #4053 — with one documented fallback. A tournament fixture completed before
+ * v4.135.0 has a register row per squad member and no minutes on it, because
+ * the confirm step that writes them did not exist yet; its cells fall back to
+ * the rotation plan's figure through `TournamentMinutesResolver`, which is
+ * also what the player's Tournaments tab and the coach's ticker read. A
+ * register figure always wins, a confirmed `0` included.
  *
  * Since #3094 a cell also carries the player's **goals and assists** for that
  * match, read from the goal-event log by `activity_id`. That is what lets a
@@ -195,17 +203,47 @@ final class MinutesGridQuery {
             $activities[ $i ]['attributed_goals'] = $attributed[ $a['activity_id'] ] ?? 0;
         }
 
-        $cells = [];
+        // #4053 — a tournament fixture completed before v4.135.0 has a register
+        // row per squad member with no minutes on it, because the confirm step
+        // that writes them did not exist yet. Those cells read 0 for a child who
+        // played twelve minutes. The rotation plan is the fallback, arbitrated
+        // by `TournamentMinutesResolver` — the same class the player's own
+        // Tournaments tab and the coach's ticker use, so the three cannot
+        // disagree. Only **completed** fixtures are in the map: handing the grid
+        // an uncompleted fixture's plan would print planned minutes in a
+        // minutes-entry box (#3713).
+        // `is_neutral` is the flag a tournament fixture carries; the day itself
+        // carries it too and is simply never any fixture's activity, so it
+        // costs nothing to ask about and keeps the rule read from one column.
+        $tournament_activity_ids = [];
+        foreach ( $activities as $a ) {
+            if ( $a['is_neutral'] ) $tournament_activity_ids[] = $a['activity_id'];
+        }
+        $planned = TournamentMinutesResolver::plannedByActivity( $tournament_activity_ids );
+
+        // A register figure wins whenever there is one, a confirmed 0 included;
+        // `minutes` is NULL here only when no row carried a figure at all.
+        $register = [];
         foreach ( (array) $att_rows as $r ) {
             $pid = (int) $r->player_id;
             $aid = (int) $r->activity_id;
             if ( $pid <= 0 || $aid <= 0 ) continue;
-            $cells[ $pid ][ $aid ] = [
-                'minutes' => $r->minutes !== null ? (int) $r->minutes : 0,
-                'squad'   => true,
-                'goals'   => (int) ( $contributions[ $aid ][ $pid ]['goals'] ?? 0 ),
-                'assists' => (int) ( $contributions[ $aid ][ $pid ]['assists'] ?? 0 ),
-            ];
+            $register[ $aid ][ $pid ] = $r->minutes !== null ? (int) $r->minutes : null;
+        }
+
+        $cells = [];
+        foreach ( $register as $aid => $by_player ) {
+            $resolved = TournamentMinutesResolver::arbitrate( $by_player, $planned[ $aid ] ?? [] );
+            foreach ( array_keys( $by_player ) as $pid ) {
+                $cells[ $pid ][ $aid ] = [
+                    // A player with a register row and nothing on it either way
+                    // is 0, as before: the cell is the box a coach types into.
+                    'minutes' => (int) ( $resolved[ $pid ]['minutes'] ?? 0 ),
+                    'squad'   => true,
+                    'goals'   => (int) ( $contributions[ $aid ][ $pid ]['goals'] ?? 0 ),
+                    'assists' => (int) ( $contributions[ $aid ][ $pid ]['assists'] ?? 0 ),
+                ];
+            }
         }
 
         // A player can be credited with a goal in a match whose attendance

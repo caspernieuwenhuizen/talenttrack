@@ -263,6 +263,21 @@
     padding: 2px 8px;
     font-weight: 700;
 }
+/* #4057 — a player carrying an open injury cannot be planned for. The pill
+   states only that, never anything about the injury: a coach without injury
+   access picks around it without seeing a child's medical record. Never colour
+   alone — the word is the signal, the tint only reinforces it. */
+.tt-tournament-wizard .ttw-unavailable {
+    display: inline-block;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-weight: 700;
+}
 .tt-tournament-wizard .ttw-positions {
     display: flex;
     gap: 0.375rem;

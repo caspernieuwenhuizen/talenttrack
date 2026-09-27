@@ -7,6 +7,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Tournaments\PlayerTournamentAccess;
 use TT\Modules\Tournaments\Services\PlayerTournamentHistoryQuery;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -40,10 +41,12 @@ use TT\Shared\Dates\TTDate;
  *
  * ## The source is named on the page
  *
- * Minutes follow the rotation plan of completed fixtures, and the page says
- * so, pointing at the Activities tab for recorded minutes. The two are
- * never added together — a tournament day's attendance is one total for the
- * day — and a reader should not have to work that out.
+ * #4053 — minutes are the figures the coach confirmed when the fixture was
+ * completed. Where none were confirmed — a fixture still to come, or one
+ * completed before the confirm step shipped — the rotation plan answers and
+ * the row is marked **Planned**. The page says so, and every row that is not
+ * a confirmed figure carries the pill, because planned minutes reading as
+ * played on a child's record is the thing #3713 forbids.
  */
 final class PlayerTournamentsTab {
 
@@ -322,6 +325,15 @@ final class PlayerTournamentsTab {
             (int) ( $fixture['minutes'] ?? 0 ),
             (int) ( $fixture['duration_min'] ?? 0 )
         ) ) . '</span>';
+        // #4053 / #3713 — a figure nobody confirmed says so. On a fixture
+        // still to come that is the plan; on one completed before the confirm
+        // step shipped it is the plan too, and neither may read as what was
+        // played on a child's record.
+        if ( (string) ( $fixture['minutes_source'] ?? '' ) === TournamentMinutesResolver::SOURCE_PLAN ) {
+            echo '<span class="tt-ptour__planned">'
+                . esc_html( _x( 'Planned', 'tournament fixture: these minutes are the rotation plan, not a confirmed figure', 'talenttrack' ) )
+                . '</span>';
+        }
         $positions = (array) ( $fixture['positions'] ?? [] );
         echo '<span>' . esc_html( $positions !== [] ? implode( ', ', array_map( 'strval', $positions ) ) : '—' ) . '</span>';
         echo '</span>';
@@ -348,11 +360,11 @@ final class PlayerTournamentsTab {
 
     /**
      * Where the numbers come from, said on the page rather than left for a
-     * reader to assume. The two sources are never added together.
+     * reader to assume.
      */
     private static function renderSource(): void {
         echo '<p class="tt-ptour__source">'
-            . esc_html__( 'Minutes follow the rotation plan of completed fixtures. Minutes entered afterwards in the minutes overview are on the Activities tab, and the two are never added together.', 'talenttrack' )
+            . esc_html__( 'Minutes are the figures the coach confirmed when the fixture was completed. Where none were confirmed the rotation plan is shown instead, marked Planned.', 'talenttrack' )
             . '</p>';
     }
 }

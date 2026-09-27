@@ -7,6 +7,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
  * MinutesQuery (#1034) — per-player minutes aggregation for a team
@@ -25,6 +26,14 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
  * stored there. This query never estimates, calculates, or constructs
  * minutes at report time; a match with no recorded minutes contributes
  * 0. Per-player totals are summed across all activities in the window.
+ *
+ * #4053 — with one named exception, and only one: a **tournament fixture
+ * completed before v4.135.0** has a register with no minutes on it, because
+ * the confirm step that writes them did not exist yet, so every minutes
+ * surface read the whole squad as nil. Those fixtures fall back to the
+ * rotation plan through `TournamentMinutesResolver`, which is also what the
+ * player's Tournaments tab and the coach's ticker read. A register figure
+ * always wins, a confirmed `0` included, and nothing else is ever derived.
  *
  * v1 scope:
  *   - Team-scoped only. A player-detail variant lives in a follow-up.
@@ -97,7 +106,7 @@ final class MinutesQuery {
             // tt_attendance but no match-prep; it must still appear. The
             // recorded minutes — not the presence of a prep line-up — are
             // what qualify a match to count (see the #2252 gate below).
-            $minutes_map = self::persistedMinutes( $aid, $club_id );
+            $minutes_map = self::minutesFor( $aid, $club_id );
 
             $prep = $prep_repo->findByActivity( $aid );
 
@@ -330,6 +339,38 @@ final class MinutesQuery {
     }
 
     /**
+     * #4053 — one activity's minutes, with the single documented fallback.
+     *
+     * For everything but a tournament fixture this is `persistedMinutes()`
+     * unchanged: the #2193 single source of truth, and nothing is derived.
+     *
+     * A **completed tournament fixture whose register carries no minutes at
+     * all** is the exception. Those predate the confirm step (v4.135.0), which
+     * wrote the register without minutes, so every minutes surface read the
+     * whole squad as nil for them. `TournamentMinutesResolver` answers for
+     * those — register first, rotation plan only where the register holds no
+     * figure — and it is the same class the player's Tournaments tab and the
+     * coach's ticker read, so the three cannot disagree about one child's
+     * afternoon. A confirmed `0` is a real figure and never falls back.
+     *
+     * Only players who got on the pitch, which is what `persistedMinutes()`
+     * has always answered: a nil is a fact about the register, not an
+     * appearance to count.
+     *
+     * @return array<int,int> player_id => minutes
+     */
+    private static function minutesFor( int $activity_id, int $club_id ): array {
+        $resolved = TournamentMinutesResolver::effectiveForActivity( $activity_id );
+        if ( $resolved === [] ) return self::persistedMinutes( $activity_id, $club_id );
+
+        $map = [];
+        foreach ( $resolved as $player_id => $minutes ) {
+            if ( $minutes > 0 ) $map[ $player_id ] = $minutes;
+        }
+        return $map;
+    }
+
+    /**
      * #2832 — the one definition of "this match has been played", as a SQL
      * fragment every minutes surface shares.
      *
@@ -544,7 +585,7 @@ final class MinutesQuery {
     public static function squadForActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
 
-        return self::persistedMinutes( $activity_id, (int) CurrentClub::id() );
+        return self::minutesFor( $activity_id, (int) CurrentClub::id() );
     }
 
     /**
@@ -591,7 +632,7 @@ final class MinutesQuery {
             // `record_type = 'actual'` minutes ONLY. Minutes are never
             // recomputed from a lineup at report time; a planned-but-never-
             // recorded match contributes no breakdown row.
-            $minutes_map = self::persistedMinutes( $aid, $club_id );
+            $minutes_map = self::minutesFor( $aid, $club_id );
             $record_type = 'actual';
 
             if ( ! isset( $minutes_map[ $player_id ] ) ) continue;

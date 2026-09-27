@@ -15,6 +15,7 @@ use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Tournaments\Services\TournamentDayActivity;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 use TT\Modules\Tournaments\TournamentAccess;
 
 /**
@@ -2648,6 +2649,15 @@ class TournamentsRestController {
      * array on the same even-split assumption the planner uses:
      * `minutes_per_period = duration_min / (windows + 1)`.
      *
+     * #4053 — `played_minutes` is the figure the coach **confirmed** on the
+     * completion step where there is one, and the rotation plan's only where
+     * the register holds nothing. `TournamentMinutesResolver` arbitrates, the
+     * same class the player's own Tournaments tab uses: the ticker and a
+     * child's record are the same fixtures read from two ends and a
+     * correction has to reach both. `expected_minutes`, `starts` and
+     * `full_matches` stay plan-derived — an uncompleted fixture has nothing
+     * confirmed, and a planned start is what the ticker has always counted.
+     *
      * @return array<int, array<string,mixed>>
      */
     private static function computeTotals( int $tournament_id ): array {
@@ -2680,14 +2690,11 @@ class TournamentsRestController {
             $total_match_minutes += $shape['duration'];
         }
 
-        // Per-player aggregates from tt_tournament_assignments.
-        $assignment_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.player_id, a.match_id, a.period_index, a.position_code
-               FROM {$p}tt_tournament_assignments a
-               JOIN {$p}tt_tournament_matches m ON m.id = a.match_id
-              WHERE m.tournament_id = %d AND a.club_id = %d",
-            $tournament_id, CurrentClub::id()
-        ), ARRAY_A ) ?: [];
+        // #4053 — per-player minutes from the one resolver, register first.
+        // This used to read `tt_tournament_assignments` here and compute the
+        // plan figure itself, which is how the ticker and the player's own
+        // record came to disagree about a fixture the coach had corrected.
+        $resolved = TournamentMinutesResolver::forMatches( array_keys( $match_meta ) );
 
         $per_player = [];
         // Initialise from squad.
@@ -2716,31 +2723,23 @@ class TournamentsRestController {
             ];
         }
 
-        // #3561 — grouped by (player, fixture) so the calculator answers
-        // one fixture at a time, the way the player file asks it. The
-        // assignments table is unique on (match_id, period_index,
-        // player_id), so grouping loses nothing.
-        $by_player_match = [];
-        foreach ( $assignment_rows as $a ) {
-            $pid = (int) $a['player_id'];
-            if ( ! isset( $per_player[ $pid ] ) ) continue;
-            $match_id = (int) $a['match_id'];
+        // #3561 — the resolver answers one fixture at a time, keyed by player,
+        // the way the player file asks it, so the two cannot drift on the
+        // equal-length-periods assumption or on the register fallback.
+        foreach ( $resolved as $match_id => $players ) {
             if ( ! isset( $match_meta[ $match_id ] ) ) continue;
-            $by_player_match[ $pid ][ $match_id ][] = [
-                'period_index'  => (int) $a['period_index'],
-                'position_code' => (string) $a['position_code'],
-            ];
-        }
+            $completed = (bool) $match_meta[ $match_id ]['completed'];
 
-        foreach ( $by_player_match as $pid => $fixtures ) {
-            foreach ( $fixtures as $match_id => $assignments ) {
-                $meta = $match_meta[ $match_id ];
-                $out  = TournamentMinutesCalculator::forPlayer( $meta, $assignments );
+            foreach ( $players as $pid => $out ) {
+                if ( ! isset( $per_player[ $pid ] ) ) continue;
 
-                if ( $meta['completed'] ) {
+                if ( $completed ) {
+                    // Played: what was confirmed, or the plan where nothing
+                    // was (#4053).
                     $per_player[ $pid ]['played_minutes'] += $out['minutes'];
                 } else {
-                    $per_player[ $pid ]['expected_minutes'] += $out['minutes'];
+                    // Expected: the plan, because there is nothing else yet.
+                    $per_player[ $pid ]['expected_minutes'] += $out['planned'];
                 }
                 if ( $out['started'] ) $per_player[ $pid ]['starts']++;
                 if ( $out['full'] )    $per_player[ $pid ]['full_matches']++;

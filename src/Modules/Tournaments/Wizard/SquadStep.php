@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -22,6 +23,29 @@ use TT\Shared\Wizards\WizardStepInterface;
  *
  * Cross-team adds are a follow-up affordance; v1 wizard scope is the
  * anchor team's roster (active + trial).
+ *
+ * ## The availability flag (#4057, from #4005)
+ *
+ * A player carrying an open injury is flagged beside their name, from
+ * `Modules\Activities\Services\PlayerAvailability` — the same service the
+ * planned-attendance card, the planned-attendance picker and
+ * `GET /activities/{id}/planned-attendance` read, and the same label, so the
+ * four surfaces cannot drift on what "unavailable" means.
+ *
+ * Three rules it inherits, all of them load-bearing:
+ *
+ * - **Advisory, never a gate.** Ticking a flagged player is still allowed. A
+ *   child may travel with the squad, take rehab minutes, or be picked because
+ *   the coach knows something the injury record does not. The flag exists so
+ *   that never happens *unknowingly* — the reported harm was a head coach
+ *   picking a squad with nothing warning them, and having to remember it.
+ * - **The state and nothing else.** No injury type, body part, note or date
+ *   reaches this screen or any payload behind it. These are minors, and an
+ *   assistant coach without injury access learns only that the player cannot
+ *   be planned for (CLAUDE.md §1).
+ * - **Derived per request.** Never stored, so a `expected_return` that has
+ *   passed stops counting on its own rather than poisoning every squad from
+ *   last season onwards.
  */
 final class SquadStep implements WizardStepInterface {
 
@@ -83,6 +107,14 @@ final class SquadStep implements WizardStepInterface {
 
         $position_codes = self::positionCodes();
 
+        // #4057 — who cannot be planned for, from the service the
+        // planned-attendance surfaces use. One query for the whole roster, and
+        // the state only: no injury detail reaches this screen.
+        $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
+            static fn( $player ): int => (int) ( $player->id ?? 0 ),
+            $players
+        ) ) );
+
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
         echo '<div class="ttw-card" data-ttw-squad>';
@@ -111,9 +143,15 @@ final class SquadStep implements WizardStepInterface {
                 ? $row['eligible_positions']
                 : self::defaultsFor( (string) $pl->preferred_positions );
 
+            $is_unavailable = isset( $unavailable[ $pid ] );
+
             $name_for_filter = esc_attr( $name );
             $trial_attr = $is_trial ? ' data-trial="1"' : '';
-            echo '<li class="ttw-squad-row" data-name="' . $name_for_filter . '"' . $trial_attr . '>';
+            // The row is marked so the flag can be styled without the pill
+            // being the only carrier of the state; the word is still what says
+            // it, never the colour alone.
+            $unavailable_attr = $is_unavailable ? ' data-unavailable="1"' : '';
+            echo '<li class="ttw-squad-row" data-name="' . $name_for_filter . '"' . $trial_attr . $unavailable_attr . '>';
 
             echo '<span class="ttw-row-check">';
             echo '<input type="checkbox" id="ttw-squad-in-' . esc_attr( (string) $pid ) . '" name="squad_in[]" value="' . esc_attr( (string) $pid ) . '" ' . checked( $checked, true, false ) . '>';
@@ -123,6 +161,12 @@ final class SquadStep implements WizardStepInterface {
             echo '<label class="ttw-name" for="ttw-squad-in-' . esc_attr( (string) $pid ) . '">' . esc_html( $name ) . '</label>';
             if ( $is_trial ) {
                 echo ' <span class="ttw-trial-badge">' . esc_html__( 'Trial', 'talenttrack' ) . '</span>';
+            }
+            // #4057 — advisory, beside the name. The tick box above is
+            // untouched: a coach may still pick this player, they just cannot
+            // do it without being told.
+            if ( $is_unavailable ) {
+                echo ' <span class="ttw-unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
             }
             echo '</div>';
 

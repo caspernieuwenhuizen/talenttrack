@@ -31,7 +31,7 @@ Players and parents do not see the tournament planner.
 2. The wizard walks you through five steps:
  - **Basics** — name, anchor team, start date, optional end date. The tournament's format (7v7 / 9v9 / 11v11) is derived automatically from the anchor team's age group; no manual Format dropdown.
  - **Formation** — pick a default formation (e.g. `1-3-4-3`) from a radio-card grid. Each card shows a tiny dot glyph of the formation shape. You can override per match later.
- - **Squad** — tick the players in the squad from the anchor team's roster, and for each one tap chips for the **specific positions** they can play: GK · CB · LB · RB · DM · CM · AM · LW · RW · ST. Defaults are seeded from each player's preferred positions. Trial players appear in the list with a `Trial` badge but are unchecked by default — tap their row to add them. A live count above the list reads "X in squad · Y not picked".
+ - **Squad** — tick the players in the squad from the anchor team's roster, and for each one tap chips for the **specific positions** they can play: GK · CB · LB · RB · DM · CM · AM · LW · RW · ST. Defaults are seeded from each player's preferred positions. Trial players appear in the list with a `Trial` badge but are unchecked by default — tap their row to add them. A live count above the list reads "X in squad · Y not picked". A player carrying an open injury is marked **Unavailable** beside their name, the same flag and the same word the planned-attendance screens use. It is advisory, not a block: you can still tick them — for rehab minutes, or because they are travelling with the squad — you just cannot do it without being told. The flag says only that the player is carrying an open injury; no injury type, note or date appears here, so a coach without access to the injury record can pick around it without seeing a child's medical details.
  - **Matches** — each match is its own card with a sequence circle and a live headline ("vs Den Helder JO13", "Final", "New match — fill in opponent below"). Fields: label, opponent, level, formation override, duration, substitution windows. Subs use a chip editor: type a minute and press Enter or comma to add a chip; Backspace from an empty input pops the last chip; click × to remove. The hint "Values must be 1–N" live-updates as you change the duration. Tap **+ Add another match** to append a blank card; **Remove** drops the card and re-numbers the rest.
  - **Review** — one card per upstream step with an **Edit** link in the top-right corner that jumps the wizard back to that step (preserving everything you've entered). Then tap **Create tournament**.
 3. You land on the tournament detail page.
@@ -231,6 +231,13 @@ up wherever that activity is read — the minutes overview included. It shows
 there **read-only**, pointing back here. The two used to be separate boxes for
 one and the same fixture, so whichever was filled in last silently won.
 
+That holds over the API too: `PUT /activities/{id}/result` refuses a score for
+an activity that came from a tournament fixture, and for a tournament day,
+answering `400 score_owned_by_fixture` and naming the fixture's own route
+instead. Nothing offered that write on a screen any more, and the next sync
+from the fixture discarded it — so an integration got a `200` and lost the
+value. Being told where the result lives is better than being told nothing.
+
 **A tournament fixture is neither home nor away.** A game at a tournament has no
 home leg, so nothing frames it as one. The minutes overview labels the two
 numbers with your club's short code and *Opp.* rather than home and away. Before
@@ -276,17 +283,30 @@ the wrong place to learn how much more somebody else played. Only a
 shortfall is coloured, and the numbers are written out beside the bar, so
 nothing on the page depends on seeing a colour.
 
-**Where the minutes come from is written on the page.** They follow the
-rotation plan of the fixtures that have been completed: once a fixture is
-completed the planner locks its assignments, so the plan of a completed fixture
-*is* the rotation that was used. Minutes typed in afterwards on the minutes
-overview live on the **Activities** tab, and the two are never added together.
+**Where the minutes come from is written on the page.** They are the figures
+the coach confirmed on the completion step (above) — what the child actually
+played, not what was scheduled for them. A correction made there is the number
+this tab, the minutes overview, the minutes reports and the coach's own minutes
+ticker all show. There is one answer, and it is the confirmed one.
 
-Since the completion step (above), a fixture also records what the coach
-confirmed on its own register, which is what the minutes overview and the
-minutes reports show. Where a coach corrected the plan, this tab and those
-reports can differ by that correction — the tab reads the plan. Which of the two
-a player's tournament record should follow is being decided separately.
+Where nothing was confirmed, the rotation plan answers instead and the row is
+marked **Planned**. That happens in two cases, and only two:
+
+- a fixture that has not been completed yet — the minutes are still a plan, and
+  saying so is the point;
+- a fixture completed before the completion step shipped — its register was
+  written without minutes, so the plan is the best record there is of that day.
+
+**A confirmed nil is a real nil.** If a coach confirms that a child did not get
+on, the tab shows 0 minutes and the row reads **Bench** — it does not quietly
+fall back to the twelve minutes the plan had for them. "He did not play" is an
+answer, and overwriting it would be the same wrong number the completion step
+exists to prevent.
+
+Older tournaments were not rewritten to make this work: nothing was migrated
+and nothing was backfilled. A fixture from last season simply falls back to its
+plan, marked **Planned**, and a coach who wants the real figures for it can
+type them into the minutes overview.
 
 A fixture with no result recorded says **no result**, not 0-0. A goalless
 draw and a game nobody typed in are different facts about a child's season.
