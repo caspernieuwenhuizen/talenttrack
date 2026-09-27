@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Players;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -222,5 +223,77 @@ final class ParentChildResolver {
     public static function isParentOf( int $parent_user_id, int $player_id ): bool {
         if ( $parent_user_id <= 0 || $player_id <= 0 ) return false;
         return in_array( $player_id, self::childIds( $parent_user_id ), true );
+    }
+
+    /**
+     * #3979 — who is *sent* something about this player: the guardians a
+     * notification path may reach, asked from the child's side.
+     *
+     * Nobody, once the child is closed out — released, archived or in the
+     * recycle bin — the same three #3937 and #3947 end guardian access on.
+     * There is no exception list: close-out letters (a release letter, a
+     * data export, a subject-access response) are sent by staff outside the
+     * notification paths.
+     *
+     * ## Why this is not `status = 'active'` like `children()`
+     *
+     * `children()` is what a guardian may *open*, and it admits only
+     * `active` players. A notification path also sends about a trialist —
+     * the trial welcome goes to the family of a child whose status is
+     * `trial` by construction — so the send-side rule names the closed-out
+     * states instead of the one open one. A child who is on trial,
+     * inactive or has graduated still has guardians here.
+     *
+     * Primary guardian first, then by when they were linked.
+     *
+     * @return list<int> parent WP user ids
+     */
+    public static function guardiansOf( int $player_id ): array {
+        if ( self::isClosedOut( $player_id ) ) return [];
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_player_parents';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return [];
+        }
+
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT parent_user_id FROM {$table}
+              WHERE player_id = %d AND club_id = %d
+              ORDER BY is_primary DESC, created_at ASC",
+            $player_id, CurrentClub::id()
+        ) );
+
+        $out = [];
+        foreach ( (array) $ids as $id ) {
+            $id = (int) $id;
+            if ( $id > 0 && ! in_array( $id, $out, true ) ) $out[] = $id;
+        }
+        return $out;
+    }
+
+    /**
+     * #3979 — has the academy finished with this child, as far as their
+     * family is concerned?
+     *
+     * True when the player is released, archived or in the recycle bin, and
+     * when there is no such player in this club. A notification path asks
+     * this before any fallback it keeps, so a legacy contact column cannot
+     * reach a family the pivot is no longer allowed to.
+     */
+    public static function isClosedOut( int $player_id ): bool {
+        if ( $player_id <= 0 ) return true;
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT status, archived_at, trashed_at FROM {$wpdb->prefix}tt_players
+              WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id, CurrentClub::id()
+        ), ARRAY_A );
+        if ( ! is_array( $row ) ) return true;
+
+        return (string) ( $row['status'] ?? '' ) === PlayerStatus::RELEASED
+            || ! empty( $row['archived_at'] )
+            || ! empty( $row['trashed_at'] );
     }
 }
