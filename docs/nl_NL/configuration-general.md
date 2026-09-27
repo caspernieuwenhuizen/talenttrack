@@ -22,6 +22,8 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 | **Locale** | Standaardtaal voor datum- en getalnotatie. Alleen geïnstalleerde talen worden getoond. |
 | **Tegelbreedte (px)** | Exacte breedte van de dashboardtegelkolom in pixels (140–400). Een expliciete override die **voorrang heeft** op het grootte-preset en de %-tegelschaal voor de breedte; laat leeg om het preset + de schaal te gebruiken. |
 | **Tegelpictogram-grootte (px)** | Exacte grootte van het tegelpictogram in pixels (14–64); de pictogramchip schaalt eromheen. Laat leeg om de preset-/%-schaalgrootte te gebruiken. |
+| **Aanwezigheid — Risicodrempel aanwezigheid** | Hoeveel **gemiste** activiteiten (afwezig, afgemeld of geblesseerd) een speler als risico markeren. Eén getal tussen 1 en 50, gelezen door het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding. Standaard 3. |
+| **Aanwezigheid — Risicodrempel te laat komen** | Hoeveel keer **te laat** een speler als risico markeert, apart geteld omdat wie te laat kwam er wél was. Laat leeg om de drempel hierboven te volgen — het veld toont dat overgenomen getal als placeholder, en leeg opslaan houdt beide op één getal. |
 | **E-mailafzender — Afzendernaam** | De naam waarvandaan plugin-e-mails worden verzonden. Leeg = de standaard WordPress-afzendernaam. |
 | **E-mailafzender — Afzenderadres** | Het adres waarvandaan plugin-e-mails worden verzonden. Moet een geldig e-mailadres zijn; leeg of ongeldig valt terug op de WordPress-standaard. |
 
@@ -42,6 +44,29 @@ De datumnotatie wordt toegepast overal waar een **volledige datum** wordt getoon
 **Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
 
 **Tijden staan los.** De preset bepaalt de datum; de klok volgt de eigen instelling **Tijdnotatie** van WordPress. Een tijdstempel bij een bericht is jouw datumnotatie gevolgd door jouw tijdnotatie.
+
+## De risicodrempels
+
+De groep **Aanwezigheid** bevat de twee getallen die bepalen wanneer een speler
+als risico wordt gemarkeerd. Het zijn aparte tellingen, want het zijn twee
+verschillende problemen: **gemiste** activiteiten (afwezig, afgemeld of
+geblesseerd) en **te laat** komen. Wie te laat komt, was bij de activiteit, dus
+te laat komen verlaagt het aanwezigheidspercentage niet — het markeert op zijn
+eigen telling.
+
+**De drempel voor te laat komen neemt die van aanwezigheid over.** Standaard is
+er dus maar één getal om af te stemmen: laat het veld voor te laat komen leeg en
+drie keer gemist en drie keer te laat markeren allebei. Het veld toont het
+overgenomen getal als placeholder, zodat je ziet wat het nu doet voordat je het
+verandert, en het blijft leeg tot je iets typt — het formulier opslaan maakt van
+het overgenomen getal geen vast getal achter je rug om. Wil je terug naar één
+getal, maak het veld dan leeg en sla op.
+
+Stel hem in als jullie academy eerder op aanhoudend te laat komen wil reageren
+dan op verzuim (een lager getal) of later (een hoger getal). In beide gevallen
+zegt de badge op het rapport welke telling de speler markeerde, zodat een speler
+die er altijd is maar nooit op tijd, niet wordt gelezen als iemand die
+activiteiten overslaat. Volledige uitleg in [Rapporten](reports.md).
 
 ## De prompt om de app op mobiel te installeren
 

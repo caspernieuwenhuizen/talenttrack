@@ -290,6 +290,18 @@
     font-size: var(--tt-fs-body);
 }
 
+/* #4056 — the two attendance flag thresholds (missed activities, late
+   arrivals). A short numeric field is where a coarse pointer is most
+   likely to miss: the shared input base lands a little under the 48px
+   floor once its padding and line-height resolve, and these two sit
+   directly above one another, so the floor is stated here. The field
+   itself stays full-width like every other setting; only the height is
+   pinned — the spacing between the two comes from .tt-field, which is
+   what the inline margins these two used to carry were duplicating. */
+.tt-dashboard .tt-cfg-threshold .tt-input {
+    min-height: 48px;
+}
+
 /* FormSaveButton state variants — idle/saving/saved/error.
    The button's data-state drives the visible treatment. */
 .tt-dashboard .tt-save-btn[data-state="saving"] { opacity: 0.75; cursor: progress; }

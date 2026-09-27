@@ -517,7 +517,7 @@ Het **Activiteiten**-aantal van elke speler is een link. Open het om de daadwerk
 
 De drempel staat onder **Configuratie → Algemeen → Risicodrempel aanwezigheid** (een instelling voor de academy-beheerder). Eén getal, tussen 1 en 50, bepaalt elke risicomarkering: het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding lezen het allemaal. Zet hem lager om verzuim eerder op te merken, of hoger als jullie academy alleen op aanhoudend verzuim wil reageren.
 
-**De drempel voor te laat komen volgt datzelfde getal**, tenzij jullie academy er een eigen instelt. Daar is een eigen instelsleutel voor (`attendance_late_flag_threshold`), voor een academy die op te laat komen eerder of later wil reageren dan op verzuim; laat je hem leeg — de standaard — dan markeren drie keer gemist en drie keer te laat allebei, en is er dus maar één getal om af te stemmen.
+**De drempel voor te laat komen volgt datzelfde getal**, tenzij jullie academy er een eigen instelt. Daar is een eigen instelling voor — **Configuratie → Algemeen → Risicodrempel te laat komen**, direct naast die hierboven (opgeslagen als `attendance_late_flag_threshold`) — voor een academy die op te laat komen eerder of later wil reageren dan op verzuim. Laat je hem leeg, dan markeren drie keer gemist en drie keer te laat allebei, en is er dus maar één getal om af te stemmen; het veld toont het overgenomen getal als placeholder, zodat je ziet wat het nu doet voordat je het verandert. Maak hem leeg en sla op om weer de aanwezigheidsdrempel te volgen. Volledige uitleg in [Configuratie — Algemeen](configuration-general.md).
 
 ## Aanwezigheidsranglijst
 

@@ -486,7 +486,7 @@ Each player's **Activities** count is a link. Open it to see the actual sessions
 
 The threshold lives in **Configuration → General → Attendance at-risk threshold** (an academy-admin setting). One number, between 1 and 50, drives every at-risk flag: the player attendance report, the attendance leaderboard, and the daily attendance-flag notification all read it. Lower it to catch slips earlier; raise it if your academy only wants to act on persistent absence.
 
-**The lateness bar follows the same number** unless your academy sets its own. It has its own setting key (`attendance_late_flag_threshold`) for an academy that wants to act on lateness sooner or later than on absence; left unset — the default — three missed and three late flag alike, so there is only ever one number to tune.
+**The lateness bar follows the same number** unless your academy sets its own. It has its own setting — **Configuration → General → Lateness at-risk threshold**, right beside the one above (stored as `attendance_late_flag_threshold`) — for an academy that wants to act on lateness sooner or later than on absence. Leave it blank and three missed and three late flag alike, so there is only ever one number to tune; the field shows the number it is inheriting as its placeholder, so you can see what it does today before changing it. Clear it and save to go back to following the attendance threshold. Full detail in [Configuration — General](configuration-general.md).
 
 ## Attendance leaderboard
 

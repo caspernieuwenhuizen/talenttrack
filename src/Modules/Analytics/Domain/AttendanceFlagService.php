@@ -69,8 +69,23 @@ final class AttendanceFlagService {
      * that raised the absence bar raises both unless it says otherwise.
      */
     public static function lateThreshold(): int {
+        return self::lateThresholdOverride() ?? self::threshold();
+    }
+
+    /**
+     * The lateness threshold an operator actually set, or `null` when this
+     * academy is inheriting the absence threshold.
+     *
+     * The settings field needs that difference and `lateThreshold()` cannot
+     * express it: it resolves the inheritance, so "set to 3" and "following
+     * 3" come back identical, and a field pre-filled from it would post the
+     * resolved number back on the next save and quietly end the inheritance.
+     * A stored value below 1 (blank, or junk from an older hand-edit) reads
+     * as unset, which is what the fallback already does with it.
+     */
+    public static function lateThresholdOverride(): ?int {
         $raw = (int) ( new ConfigService() )->get( self::LATE_CONFIG_KEY, '' );
-        return $raw >= 1 ? $raw : self::threshold();
+        return $raw >= 1 ? $raw : null;
     }
 
     /**

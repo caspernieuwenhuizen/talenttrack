@@ -1954,15 +1954,48 @@ class FrontendConfigurationView extends FrontendViewBase {
                     </p>
                 </div>
 
-                <?php // #1488 — attendance at-risk flag threshold. ?>
-                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                <?php
+                // #1488 — attendance at-risk flag threshold. #4056 — the
+                // lateness bar beside it: its own key, inheriting the
+                // absence number until an academy sets one.
+                //
+                // The lateness input renders from the OVERRIDE, not from
+                // the resolved threshold: blank while the academy is
+                // inheriting, with the inherited number as its placeholder
+                // and in its hint. A pre-filled value would be posted back
+                // on the next save and turn the inheritance into a fixed
+                // number nobody chose.
+                $tt_absence_threshold = \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold();
+                $tt_late_override     = \TT\Modules\Analytics\Domain\AttendanceFlagService::lateThresholdOverride();
+                $tt_late_threshold    = $tt_late_override === null ? '' : (string) $tt_late_override;
+                ?>
+                <div class="tt-field tt-field--section-top tt-cfg-threshold">
+                    <h4 class="tt-field-subhead"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h4>
                     <label class="tt-field-label" for="tt-cfg-attendance-threshold"><?php esc_html_e( 'Attendance at-risk threshold', 'talenttrack' ); ?></label>
                     <input type="number" inputmode="numeric" id="tt-cfg-attendance-threshold" class="tt-input"
                         name="config[<?php echo esc_attr( \TT\Modules\Analytics\Domain\AttendanceFlagService::CONFIG_KEY ); ?>]"
-                        min="1" max="50" step="1"
-                        value="<?php echo esc_attr( (string) \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold() ); ?>" />
-                    <p class="tt-field-hint" style="margin-top:6px;">
+                        min="1" max="50" step="1" autocomplete="off"
+                        value="<?php echo esc_attr( (string) $tt_absence_threshold ); ?>" />
+                    <p class="tt-field-hint">
                         <?php esc_html_e( 'How many missed activities (absent, excused or injured) flag a player as at risk. Used by the player attendance report, the attendance leaderboard, and the daily attendance-flag notification — they all read this one number. Default 3.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+                <div class="tt-field tt-cfg-threshold">
+                    <label class="tt-field-label" for="tt-cfg-attendance-late-threshold"><?php esc_html_e( 'Lateness at-risk threshold', 'talenttrack' ); ?></label>
+                    <input type="number" inputmode="numeric" id="tt-cfg-attendance-late-threshold" class="tt-input"
+                        name="config[<?php echo esc_attr( \TT\Modules\Analytics\Domain\AttendanceFlagService::LATE_CONFIG_KEY ); ?>]"
+                        min="1" max="50" step="1" autocomplete="off"
+                        placeholder="<?php echo esc_attr( (string) $tt_absence_threshold ); ?>"
+                        aria-describedby="tt-cfg-attendance-late-threshold-hint"
+                        value="<?php echo esc_attr( $tt_late_threshold ); ?>" />
+                    <p class="tt-field-hint" id="tt-cfg-attendance-late-threshold-hint">
+                        <?php
+                        printf(
+                            /* translators: %d is the attendance at-risk threshold the lateness bar currently inherits. */
+                            esc_html__( 'How many late arrivals flag a player as at risk, counted on its own because a player who arrived late was still at the activity. Leave it blank to follow the attendance at-risk threshold above, which is %d today.', 'talenttrack' ),
+                            (int) $tt_absence_threshold
+                        );
+                        ?>
                     </p>
                 </div>
 

@@ -22,6 +22,8 @@ Academy-wide basics that affect how dates and the calendar read across TalentTra
 | **Locale** | Default language for date and number formatting. Only installed languages are listed. |
 | **Tile width (px)** | Exact dashboard tile column width in pixels (140–400). An explicit override that **wins over** the size preset and the % tile scale for width; leave blank to use the preset + scale. |
 | **Tile icon size (px)** | Exact tile icon glyph size in pixels (14–64); the icon chip scales around it. Leave blank to use the preset / % scale sizing. |
+| **Attendance — Attendance at-risk threshold** | How many **missed** activities (absent, excused or injured) flag a player as at risk. One number between 1 and 50, read by the player attendance report, the attendance leaderboard and the daily attendance-flag notification. Default 3. |
+| **Attendance — Lateness at-risk threshold** | How many **late arrivals** flag a player as at risk, counted separately because a late player was still at the session. Leave it blank to follow the attendance threshold above — the field shows that inherited number as its placeholder, and saving it blank keeps the two on one number. |
 | **Email sender — Sender name** | The name plugin emails are sent from. Blank = the WordPress default sender name. |
 | **Email sender — Sender address** | The address plugin emails are sent from. Must be a valid email; blank or invalid falls back to the WordPress default. |
 
@@ -42,6 +44,28 @@ The date notation applies wherever a **full date** is shown — player profiles,
 **Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
 
 **Times are separate.** The preset covers the date; the clock format stays WordPress's own **Time format** setting. A message timestamp is your date notation followed by your time format.
+
+## The at-risk thresholds
+
+The **Attendance** group holds the two numbers that decide when a player is
+flagged as at risk. They are separate counts, because the two problems are
+different: *missed* activities (absent, excused or injured) and *late* arrivals.
+A player who turns up late was at the activity, so lateness never lowers the
+attendance percentage — it flags on its own count instead.
+
+**The lateness threshold inherits the attendance one.** Out of the box there is
+only one number to tune: leave the lateness field blank and three missed and
+three late flag alike. The field shows the number it is inheriting as its
+placeholder, so you can see what it does today before changing it, and it stays
+blank until you type something — saving the form does not turn the inherited
+number into a fixed one behind your back. To go back to one number, clear the
+field and save.
+
+Set it if your academy wants to act on chronic lateness sooner than on absence
+(a lower number) or later (a higher one). Either way the badge on the report
+says which count flagged the player, so a player who is at everything but never
+on time is not read as having skipped activities. Full detail in
+[Reports](reports.md).
 
 ## The install-on-mobile prompt
 
