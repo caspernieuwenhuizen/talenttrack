@@ -1174,14 +1174,14 @@ class DemoCoverage {
             'run_order' => 260,
             'cascade'   => [ 'team_report_snapshot', 'player_report_snapshot' ],
         ],
-        // #4103 — appended at 270 rather than inserted, so every generator
-        // before it keeps drawing the same values from the seeded stream and
-        // the same (seed, preset) keeps reproducing the same academy. Runs
-        // after the fixtures and their results exist, so a suspension whose
-        // matches were played is served on the date of the last of them.
+        // #4103 — 255: after every generator that writes fixtures and results
+        // (so a suspension whose matches were played is served on the date of
+        // the last of them, and every generator before it keeps drawing the
+        // same values), and before `report_snapshots`, which must stay last
+        // because it composes a report out of everything the others wrote.
         'suspensions' => [
             'tier'      => 'dependent',
-            'run_order' => 270,
+            'run_order' => 255,
             'cascade'   => [ 'player_suspension' ],
         ],
         'knowledge' => [
