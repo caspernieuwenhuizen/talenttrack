@@ -48,7 +48,7 @@ final class PlayerSuspensionsTab {
         echo '<div class="tt-player-card__head">';
         echo '<h3 class="tt-player-card__title">' . esc_html_x( 'Suspensions', 'disciplinary record', 'talenttrack' ) . '</h3>';
         if ( $add_url !== '' ) {
-            echo '<a class="tt-btn tt-btn-primary tt-btn-small" href="' . esc_url( $add_url ) . '">' . esc_html__( 'Record suspension', 'talenttrack' ) . '</a>';
+            echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $add_url ) . '">' . esc_html__( 'Record suspension', 'talenttrack' ) . '</a>';
         }
         echo '</div>';
         echo '<div class="tt-player-card__body">';

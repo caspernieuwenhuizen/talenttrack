@@ -73,7 +73,9 @@ Only the first draft goes through the wizard. Re-opening an analysis you already
 
 Site admins go to **Administration → Wizards**. Each registered wizard is shown as a tickbox card with its label and slug; the **Enable all wizards** master toggle at the top ticks or unticks the lot. Save the changes with the button at the bottom — there's nothing to type.
 
-Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`.
+Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`.
+
+The `new-suspension` wizard records a [suspension](suspensions.md): pick the team and player (skipped when you start from the player's profile) → the reason, the number of matches and the day it counts from → confirm, which lists the matches it will cover before saving.
 
 The `new-activity` wizard adds a fifth flow: pick a team → pick the activity type and status → fill in the date / title / location / notes (and the conditional game-subtype or other-label) → review → create. The "+ New activity" button on the frontend Activities manager and on the player profile both route through `WizardEntryPoint::urlFor()`, so toggling `new-activity` off in the admin tickbox takes the surface back to the legacy single-page form. The wizard also offers a **Save as draft** button alongside Cancel: clicking it writes a `draft`-status activity that hides from the regular dropdowns and can be picked up again from the activities list.
 
