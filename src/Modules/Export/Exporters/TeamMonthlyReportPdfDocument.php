@@ -70,8 +70,10 @@ final class TeamMonthlyReportPdfDocument {
      *        already degraded by `TeamMonthlyReportLayout::degrade()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      *        a snapshot's section notes; empty for a live report (#3517).
+     * @param list<list<string>> $groups the page groups `TeamMonthlyReportLayout::fit()`
+     *        split the report into (#4092); measured here when not given.
      */
-    public static function html( array $report, string $layout, string $team_name, array $notes = [] ): string {
+    public static function html( array $report, string $layout, string $team_name, array $notes = [], array $groups = [] ): string {
         $data   = $report['data'];
         $blocks = $report['blocks'];
         $wide   = $layout === TeamMonthlyReportLayout::MATRIX;
@@ -94,7 +96,7 @@ final class TeamMonthlyReportPdfDocument {
         if ( $empty ) {
             $body = $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>';
         } elseif ( $layout === TeamMonthlyReportLayout::PACK ) {
-            $body = self::pack( $data, $blocks, $head );
+            $body = self::pack( $data, $blocks, $head, $groups !== [] ? $groups : TeamMonthlyReportLayout::fit( $report, $layout )['groups'] );
         } elseif ( $wide ) {
             $body = self::matrix( $data, $blocks, $head );
         } else {
@@ -113,22 +115,23 @@ final class TeamMonthlyReportPdfDocument {
      * ------------------------------------------------------------- */
 
     /**
-     * Three-page pack: dashboard, roster, then the meeting pages. A page with
-     * nothing selected on it is not printed, so deselecting the roster gives a
-     * two-page pack rather than a blank page two.
+     * The pack: dashboard, roster, then the meeting pages, split where
+     * `TeamMonthlyReportLayout::fit()` split them (#4092) — the tests, the
+     * ruled lines and the data-quality list share page 3 when they fit
+     * there and start a page 4 when they do not. A page with nothing
+     * selected on it is not printed, so deselecting the roster gives a
+     * shorter pack rather than a blank page.
      *
      * @param array<string,array<string,mixed>> $data
      * @param list<string>                      $blocks
+     * @param list<list<string>>                $groups
      */
-    private static function pack( array $data, array $blocks, string $head ): string {
-        $pages = [
-            $head . self::sections( $data, $blocks, [ 'coverage', 'kpi', 'status', 'attendance', 'minutes' ], false ),
-            self::sections( $data, $blocks, [ 'roster' ], false ),
-            self::sections( $data, $blocks, [ 'matches', 'attention', 'changes', 'tests', 'notes', 'quality' ], false ),
-        ];
+    private static function pack( array $data, array $blocks, string $head, array $groups ): string {
         $out   = '';
         $first = true;
-        foreach ( $pages as $page ) {
+        foreach ( $groups as $group ) {
+            $page = ( in_array( TeamMonthlyReportBlock::LETTERHEAD, $group, true ) ? $head : '' )
+                . self::sections( $data, $blocks, $group, false );
             if ( $page === '' ) continue;
             $out  .= '<div class="page' . ( $first ? '' : ' break' ) . '">' . $page . '</div>';
             $first = false;

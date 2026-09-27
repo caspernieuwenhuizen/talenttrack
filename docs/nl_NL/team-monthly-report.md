@@ -28,8 +28,14 @@ Boven het rapport staat een paneel met twee keuzes.
 **Rapportsoort** bepaalt hoe de afdruk eruitziet:
 
 - **Eén pagina** — één A4, een exemplaar voor iedereen aan tafel.
-- **Pakket van drie pagina's** — tot drie A4-pagina's, met ruimte voor de
-  volledige tabel per speler.
+- **Pakket (tot vier pagina's)** — tot vier A4-pagina's, met ruimte voor de
+  volledige tabel per speler en elke testuitslag. Pagina 1 is het dashboard en
+  pagina 2 de tabel per speler. Pagina 3 bevat de wedstrijden, wie een gesprek
+  nodig heeft en wat er veranderde; de testen, de besluiten en de datakwaliteit
+  volgen op pagina 3 als ze passen, en beginnen anders een vierde pagina. Het
+  pakket kort niets in van wat je hebt aangevinkt. Loopt een pagina dan nog
+  over, dan gaat die verder op een volgend vel, en de meter voor het
+  afdrukformaat zegt dat.
 - **Liggend overzicht** — één liggende pagina met elke speler op één regel, de
   hele selectie in één oogopslag vergelijkbaar.
 
@@ -87,7 +93,8 @@ weg.
 elke pagina is. Op de versie van één pagina worden lange spelerslijsten eerst
 ingekort tot hun top en onderkant, en de agenda tot de twee dringendste spelers,
 voordat de pagina als te vol wordt gemeld. Past het dan nog niet, laat dan een
-sectie weg of kies het pakket van drie pagina's.
+sectie weg of kies het pakket. Het pakket kort niets in: het toont een balk per
+pagina, tot vier.
 
 ## Je vaste rapport bewaren
 
@@ -143,9 +150,9 @@ vorige meting, het verschil (groen als het een verbetering is, dus een snellere
 tijd is groen), het verschil met het selectiegemiddelde, en **PR** bij een
 persoonlijk record. Een stippellijn geeft aan waar het selectiegemiddelde ligt.
 De versie van één pagina drukt alleen de strook af, met de slechtste meting in
-plaats van het verloop. Dreigt de derde pagina van het pakket over te lopen, dan
-drukken de testen eerst alleen hun strook af en houdt daarna de agenda de twee
-dringendste spelers; de meter zegt welke.
+plaats van het verloop. Passen de testen in het pakket niet meer onder de
+agenda, dan gaan ze met hun volledige tabellen naar een vierde pagina; er wordt
+niets weggelaten om papier te sparen.
 
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.

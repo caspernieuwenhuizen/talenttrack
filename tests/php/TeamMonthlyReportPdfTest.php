@@ -116,10 +116,15 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'one-pager, matches, tests' => [ 'A', [ 'kpi', 'matches', 'tests' ], false, 3 ],
             // #4095 — landscape keeps three tests and names the other two.
             'matrix, five tests'       => [ 'C', null, false, 5 ],
+            // #4092 — the pack grows to a fourth page instead of shortening,
+            // and past it onto further sheets rather than dropping anything.
+            'pack, four pages'         => [ 'B', null, false, 3, 5 ],
+            'pack, page 4 runs over'   => [ 'B', null, false, 2, 15 ],
         ];
         foreach ( $cases as $label => $case ) {
             [ $layout, $blocks ] = $case;
-            $base    = ! empty( $case[3] ) ? $this->withMatchesAndTests( $this->report( 18 ), (int) $case[3] ) : $this->report( 20 );
+            $squad   = (int) ( $case[4] ?? 18 );
+            $base    = ! empty( $case[3] ) ? $this->withMatchesAndTests( $this->report( $squad ), (int) $case[3] ) : $this->report( 20 );
             $report  = $blocks === null ? $base : $this->only( $base, $blocks );
             if ( ! empty( $case[2] ) ) $report = $this->withLongText( $report );
             $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
@@ -207,6 +212,44 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'class="tstat"', $one );
         $this->assertStringNotContainsString( 'class="rd"', $one, 'The one-pager prints the strip only.' );
         $this->assertStringContainsString( '16:04', $one, 'With the worst reading in place of the history.' );
+    }
+
+    /**
+     * #4092 — the pack prints everything ticked. Page 3 keeps every player
+     * who needs a conversation; the tests move, with their full tables, to a
+     * page 4 of their own.
+     */
+    public function test_the_pack_grows_to_a_fourth_page_instead_of_shortening(): void {
+        $report = $this->withMatchesAndTests( $this->report( 5 ), 3 );
+        $fit    = TeamMonthlyReportLayout::fit( $report, 'B' );
+
+        $this->assertSame( 4, $fit['pages'] );
+        $this->assertSame( 4, TeamMonthlyReportLayout::maxPages( 'B' ) );
+        $this->assertSame( [], $fit['degraded'], 'The pack shortens nothing.' );
+        $this->assertSame( [ 'tests', 'notes', 'quality' ], $fit['groups'][3] );
+
+        $html  = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $pages = explode( '<div class="page break">', $html );
+        $this->assertCount( 4, $pages );
+        $this->assertSame( 5, substr_count( $pages[2], 'class="a-red"' ), 'Page 3 lists all five players.' );
+        $this->assertSame( 3, substr_count( $pages[3], 'class="rd"' ), 'Page 4 has all three tests with their readings.' );
+
+        // A bigger squad runs page 4 over onto another sheet: still nothing
+        // dropped, and the meter says the pack does not fit.
+        $big     = $this->withMatchesAndTests( $this->report( 18 ), 3 );
+        $big_fit = TeamMonthlyReportLayout::fit( $big, 'B' );
+        $this->assertFalse( $big_fit['fits'] );
+        $big_html = TeamMonthlyReportPdfExporter::payload( $big, 'B', 'Pdf U13' )['html'];
+        $this->assertSame( 3, substr_count( $big_html, 'class="rd"' ) );
+        $this->assertSame( 5, substr_count( $big_html, 'class="a-red"' ) );
+    }
+
+    /** #4092 — a pack whose third page fits keeps three pages. */
+    public function test_a_pack_whose_third_page_fits_stays_three_pages(): void {
+        $fit = TeamMonthlyReportLayout::fit( $this->report( 20 ), 'B' );
+        $this->assertSame( 3, $fit['pages'] );
+        $this->assertCount( 3, $fit['groups'] );
+        $this->assertSame( [ 'attention', 'changes', 'tests', 'notes', 'quality' ], $fit['groups'][2], 'The tests stay on page 3 under the agenda.' );
     }
 
     /** #4069 — a test with no target band for the age group has no band cell. */

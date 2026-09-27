@@ -592,17 +592,12 @@ final class TeamMonthlyReportPage {
         echo '</ul>';
 
         if ( ! $fit['fits'] ) {
+            // #4092 — the pack shortens nothing: a page that runs over flows
+            // onto another sheet, and this says so.
             $msg = $fit['max_pages'] === 1
-                ? __( 'Does not fit on one page. Drop a section, or switch to the three-page pack.', 'talenttrack' )
-                : __( 'A page overflows. Drop a section to keep the pack to three pages.', 'talenttrack' );
+                ? __( 'Does not fit on one page. Drop a section, or switch to the pack.', 'talenttrack' )
+                : __( 'A page runs over onto another sheet. Nothing is left out; drop a section to keep the pack to four pages.', 'talenttrack' );
             echo '<p class="tt-mr-fit__msg is-over">' . esc_html( $msg ) . '</p>';
-        } elseif ( in_array( TeamMonthlyReportLayout::TESTS_SUMMARY, $fit['degraded'], true ) ) {
-            // #4069 — the pack's third page drops the tables of readings
-            // before it overflows, and says so.
-            $msg = in_array( TeamMonthlyReportLayout::TRIM_ATTENTION, $fit['degraded'], true )
-                ? __( 'Fits by shortening: each test prints its summary without the table of readings, and the agenda keeps its two most urgent players.', 'talenttrack' )
-                : __( 'Fits by shortening: each test prints its summary without the table of readings.', 'talenttrack' );
-            echo '<p class="tt-mr-fit__msg is-tight">' . esc_html( $msg ) . '</p>';
         } elseif ( $fit['degraded'] !== [] ) {
             echo '<p class="tt-mr-fit__msg is-tight">' . esc_html__( 'Fits by shortening: long player lists keep their top and bottom, and the agenda keeps its two most urgent players.', 'talenttrack' ) . '</p>';
         } else {

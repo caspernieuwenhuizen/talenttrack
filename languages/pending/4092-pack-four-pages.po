@@ -1,0 +1,15 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "Pack (up to four pages)"
+msgstr "Pakket (tot vier pagina's)"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "A4 portrait, up to four pages. Room for the player-by-player table and every test reading."
+msgstr "A4 staand, tot vier pagina's. Ruimte voor de tabel per speler en elke testuitslag."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Does not fit on one page. Drop a section, or switch to the pack."
+msgstr "Past niet op één pagina. Laat een sectie weg, of kies het pakket."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A page runs over onto another sheet. Nothing is left out; drop a section to keep the pack to four pages."
+msgstr "Een pagina loopt door op een volgend vel. Er wordt niets weggelaten; laat een sectie weg om het pakket op vier pagina's te houden."

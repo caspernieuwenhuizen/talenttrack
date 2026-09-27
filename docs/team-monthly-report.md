@@ -28,8 +28,13 @@ Above the report is a panel with two choices.
 **Report type** decides how the printed copy is laid out:
 
 - **One-pager** — one A4 page, a copy for everyone at the table.
-- **Three-page pack** — up to three A4 pages, with room for the full
-  player-by-player table.
+- **Pack (up to four pages)** — up to four A4 pages, with room for the full
+  player-by-player table and every test reading. Page 1 is the dashboard and
+  page 2 the player-by-player table. Page 3 holds the matches, who needs a
+  conversation and what changed; the tests, the decisions and data quality
+  follow on page 3 when they fit, and start a fourth page when they do not.
+  The pack never shortens what you ticked. A page that still runs over
+  continues on another sheet, and the printed-size meter says so.
 - **Landscape matrix** — one landscape page with every player in a single row,
   the whole squad comparable at a glance.
 
@@ -84,7 +89,7 @@ as an oversight. A test that has since been deleted is left out.
 each page is. On the one-pager, long player lists are shortened to their top and
 bottom first, and the agenda to its two most urgent players, before the page is
 reported as too full. If it still does not fit, drop a section or switch to the
-three-page pack.
+pack. The pack shortens nothing: it shows a bar for each page, up to four.
 
 ## Saving your usual report
 
@@ -136,9 +141,9 @@ bar in the colour of their target band, their previous reading, the change
 (green when it is an improvement, so a faster time is green), the gap to the
 squad average, and **PB** on a personal best. A dashed line marks where the
 squad average falls. The one-pager prints the strip only, with the worst
-reading in place of the history. On the three-page pack, when the third page
-would overflow, the tests print their strip only first, and then the agenda
-keeps its two most urgent players; the meter says which.
+reading in place of the history. On the pack, tests that do not fit under the
+agenda move to a fourth page with their tables in full; nothing is left out
+to save paper.
 
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.

@@ -198,7 +198,7 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
 
         return [
-            'html'    => TeamMonthlyReportPdfDocument::html( $report, $layout, $team_name, $notes ),
+            'html'    => TeamMonthlyReportPdfDocument::html( $report, $layout, $team_name, $notes, $fit['groups'] ),
             'options' => [
                 'paper'       => 'A4',
                 'orientation' => $layout === TeamMonthlyReportLayout::MATRIX ? 'landscape' : 'portrait',
