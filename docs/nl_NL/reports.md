@@ -265,6 +265,32 @@ toernooidag met meerdere wedstrijden zijn de uit de opstelling afgeleide
 zijn daar de vastgelegde *minuten* de betekenisvolle waarde, niet het aantal
 basisplaatsen.
 
+**Wat telt als basisplaats, invalbeurt en wissel.** Voor een wedstrijd die via
+de wedstrijduitvoering is gespeeld, worden de drie kolommen gelezen uit
+dezelfde tijdlijn waaruit de minuten van de speler zijn berekend — de opstelling
+van elke helft samen met de wissels die tijdens de wedstrijd zijn vastgelegd:
+
+- **Basisplaats** — de speler stond bij de aftrap op het veld. Een speler die pas
+ in de rust in het veld komt, heeft **geen** basisplaats; dat telt als
+ invalbeurt.
+- **Ingevallen** — de speler kwam na de aftrap in het veld, ook in de rust.
+- **Gewisseld** — de speler ging voor het eindsignaal van het veld, ook in de
+ rust.
+
+Elk telt hoogstens één keer per wedstrijd: een speler die eruit gaat en later
+weer terugkomt, heeft voor die wedstrijd één basisplaats, één invalbeurt en één
+wissel. Een wissel in de rust wordt afgeleid uit het verschil tussen de
+opstellingen van de twee helften; er wordt daarvoor niets aan het wissellog
+toegevoegd. Een wedstrijd in vier kwarten wordt op dezelfde manier per periode
+gelezen.
+
+Voor een wedstrijd die **niet** via de wedstrijduitvoering is gespeeld — minuten
+achteraf ingevuld — is er geen tijdlijn om te lezen. De opstelling van de eerste
+helft telt dan nog wel als basisplaatsen, maar *ingevallen* en *gewisseld* blijven
+voor die wedstrijd op 0. De melding **Wedstrijd gespeeld zonder
+wedstrijduitvoering** wijst de trainer op zo'n wedstrijd, zodat die nullen niet
+worden gelezen als "nooit gewisseld".
+
 Het minutentotaal van elke speler is een **drill-down**: open het om de rijen per
 wedstrijd te zien die optellen tot het totaal — datum, wedstrijd, type, bron
 (`werkelijk` vastgelegde minuten) en minuten. De uitsplitsing sluit exact aan op
@@ -317,10 +343,28 @@ Het scherm is een matrix in spreadsheet-stijl:
  een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
  zat.
 - Elke rij heeft een **rijtotaal**, een **statuschip** voor volledigheid —
- *Volledig* (elke speler uit de selectie heeft minuten), *Onvolledig* (sommigen
- wel, sommigen niet) of *Niet geregistreerd* (niets geregistreerd voor de
+ *Volledig*, *Onvolledig* of *Niet geregistreerd* (niets geregistreerd voor de
  wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
  over de zichtbare wedstrijden op.
+
+Een wedstrijd is pas **Volledig** als aan twee dingen is voldaan: elke speler uit
+de selectie heeft minuten, **en** de minuten tellen op tot een hele wedstrijd —
+het aantal spelers per team maal de wedstrijdduur. Elf spelers met elk 30 minuten
+van een wedstrijd van 70 minuten is *Onvolledig*, en een wedstrijd met meer
+minuten dan erin passen ook (meestal een dubbel getelde wissel). Het rijtotaal
+toont de geregistreerde minuten tegenover wat de wedstrijd bevat (bijvoorbeeld
+*770 van 770*), en een chip *Onvolledig* zegt waarom: spelers zonder minuten,
+minuten te kort voor een hele wedstrijd, of meer minuten dan de wedstrijd bevat.
+
+De wedstrijdduur komt van het eerste dat is ingesteld: de wedstrijdduur op de
+activiteit zelf, de wedstrijdduur die voor de leeftijdscategorie van het team is
+ingesteld, de geplande tijd tussen begin en eind, en anders 2 × 35 minuten. Het
+aantal spelers per team komt uit de spelvorm van het team (11 tegen 11, 8 tegen 8
+enzovoort). Staat een correct geregistreerde wedstrijd op *Onvolledig* omdat het
+geplande tijdslot de warming-up meetelt, stel dan de wedstrijdduur op de
+activiteit in. Een wedstrijd die korter duurde — een rode kaart, een gestaakte
+wedstrijd — bevat ook minder minuten dan een hele en blijft *Onvolledig*; dat is
+de eerlijke lezing.
 
 Boven de matrix vatten vier **gat-KPI's** — *Wedstrijden*, *Volledig
 geregistreerd*, *Onvolledig*, *Niet geregistreerd* — de periode samen. Elke KPI is

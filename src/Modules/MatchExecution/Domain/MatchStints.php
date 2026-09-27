@@ -49,14 +49,42 @@ final class MatchStints {
         int $half1_length,
         int $half2_length
     ): array {
+        return self::intervalsForPeriods(
+            $subs,
+            [ 1 => $starting_half1, 2 => $starting_half2 ],
+            [ 1 => $half1_length, 2 => $half2_length ]
+        );
+    }
+
+    /**
+     * The same walk over any number of periods (#4059).
+     *
+     * `intervals()` is the two-halves case of this. The line-up column is a
+     * period number rather than a pair of halves, so a match played in
+     * quarters walks four periods here instead of losing the last two.
+     *
+     * Periods are walked in ascending order of their key, each starting where
+     * the previous one ended. A period with no line-up starts empty, and a
+     * substitution naming a period that is not in `$lengths` is ignored.
+     *
+     * @param iterable<object>     $subs     non-reversed substitutions, chronological
+     * @param array<int,list<int>> $lineups  period => player ids on at its first minute
+     * @param array<int,int>       $lengths  period => its length in minutes
+     * @return array<int, list<array{0:int,1:int}>> player_id => spells
+     */
+    public static function intervalsForPeriods( iterable $subs, array $lineups, array $lengths ): array {
         $rows = [];
         foreach ( $subs as $sub ) $rows[] = $sub;
 
-        $intervals = [];
+        ksort( $lengths );
 
-        foreach ( [ 1 => [ $starting_half1, 0, $half1_length ], 2 => [ $starting_half2, $half1_length, $half2_length ] ] as $half => $spec ) {
-            [ $starting, $offset, $length ] = $spec;
-            $half_end = $offset + max( 0, $length );
+        $intervals = [];
+        $offset    = 0;
+
+        foreach ( $lengths as $half => $length ) {
+            $half     = (int) $half;
+            $starting = $lineups[ $half ] ?? [];
+            $half_end = $offset + max( 0, (int) $length );
 
             /** @var array<int,int> $open player_id => minute their current spell began */
             $open = [];
@@ -87,11 +115,64 @@ final class MatchStints {
             foreach ( $open as $pid => $start ) {
                 self::close( $intervals, (int) $pid, (int) $start, $half_end );
             }
+
+            $offset = $half_end;
         }
 
-        // The walk visits the second half after the first, and within a half
-        // in minute order, so each player's spells come out chronological.
+        // The walk visits the periods in order, and within a period in
+        // minute order, so each player's spells come out chronological.
         return $intervals;
+    }
+
+    /**
+     * What each player's match looked like from the touchline (#4059, #4060):
+     * did they start, did they come on, did they go off.
+     *
+     * Read off the same spells the persisted minutes are summed from, so the
+     * appearance columns and the minutes beside them cannot disagree.
+     *
+     *  - **started**  — on the pitch at minute 0;
+     *  - **came_on**  — a spell begins after minute 0;
+     *  - **went_off** — a spell ends before full time.
+     *
+     * A player on for both halves has two spells that touch at half time
+     * (`[0,35]` and `[35,70]`); they are one stay on the pitch, so touching
+     * spells are joined before anything is read. Without that every
+     * ninety-minute player would "go off" at the break and "come on" again.
+     *
+     * Each fact is per match, not per event: a player who goes off and comes
+     * back twice still came on once in this match, the way a start is.
+     *
+     * @param array<int, list<array{0:int,1:int}>> $intervals from `intervals()` / `intervalsForPeriods()`
+     * @return array<int, array{started:bool, came_on:bool, went_off:bool}>
+     */
+    public static function appearances( array $intervals, int $full_time ): array {
+        $out = [];
+        foreach ( $intervals as $pid => $spells ) {
+            $pid = (int) $pid;
+            if ( $pid <= 0 || $spells === [] ) continue;
+
+            usort( $spells, static function ( array $a, array $b ): int {
+                return $a[0] <=> $b[0];
+            } );
+
+            $facts = [ 'started' => false, 'came_on' => false, 'went_off' => false ];
+            $start = null;
+            $end   = 0;
+            foreach ( $spells as $spell ) {
+                if ( $start !== null && $spell[0] <= $end ) {
+                    $end = max( $end, $spell[1] );
+                    continue;
+                }
+                if ( $start !== null ) self::readSpell( $facts, $start, $end, $full_time );
+                $start = $spell[0];
+                $end   = $spell[1];
+            }
+            if ( $start !== null ) self::readSpell( $facts, $start, $end, $full_time );
+
+            $out[ $pid ] = $facts;
+        }
+        return $out;
     }
 
     /**
@@ -110,6 +191,18 @@ final class MatchStints {
             $out[ (int) $pid ] = $total;
         }
         return $out;
+    }
+
+    /**
+     * @param array{started:bool, came_on:bool, went_off:bool} $facts
+     */
+    private static function readSpell( array &$facts, int $start, int $end, int $full_time ): void {
+        if ( $start <= 0 ) {
+            $facts['started'] = true;
+        } else {
+            $facts['came_on'] = true;
+        }
+        if ( $end < $full_time ) $facts['went_off'] = true;
     }
 
     /**

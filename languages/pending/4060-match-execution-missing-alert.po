@@ -1,0 +1,22 @@
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid "Match played without a match record"
+msgstr "Wedstrijd gespeeld zonder wedstrijduitvoering"
+
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid ""
+"A game is completed and has minutes recorded, but it was never run through "
+"match execution. Its starts, substitute appearances and substitutions cannot "
+"be counted, so the minutes report shows 0 for them."
+msgstr ""
+"Een wedstrijd is afgerond en heeft geregistreerde minuten, maar is nooit via "
+"de wedstrijduitvoering gespeeld. De basisplaatsen, invalbeurten en wissels "
+"kunnen niet worden geteld, dus toont het minutenrapport daarvoor 0."
+
+#. translators: %s: match name
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid ""
+"%s has minutes but no match record, so its starts and substitutions cannot "
+"be counted."
+msgstr ""
+"%s heeft minuten maar geen wedstrijduitvoering, dus de basisplaatsen en "
+"wissels kunnen niet worden geteld."

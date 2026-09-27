@@ -17,6 +17,7 @@ use TT\Modules\Alerts\Definitions\GoalPastTargetDateAlert;
 use TT\Modules\Alerts\Definitions\GoalUpdatedForMyChildAlert;
 use TT\Modules\Alerts\Definitions\InvitationNeverSentAlert;
 use TT\Modules\Alerts\Definitions\InvitationStaleAlert;
+use TT\Modules\Alerts\Definitions\MatchExecutionMissingAlert;
 use TT\Modules\Alerts\Definitions\MessagingNeverConfiguredAlert;
 use TT\Modules\Alerts\Definitions\NoConsentWithMediaAlert;
 use TT\Modules\Alerts\Definitions\NoGuardianContactAlert;
@@ -122,6 +123,10 @@ final class AlertsModule implements ModuleInterface {
         $alerts[] = new PastStillPlannedAlert();
         $alerts[] = new AttendanceUnrecordedAlert();
         $alerts[] = new NoCoachAssignedAlert();
+        // #4060 — a completed game with minutes but no match-execution
+        // record: its starts and substitutions can never be counted, and the
+        // report's zeros would otherwise read as fact.
+        $alerts[] = new MatchExecutionMissingAlert();
 
         // #2636 instalment 1 — Evaluations. The catalogue grows one module
         // per release (epic decision 9): a new definition arrives ON for
