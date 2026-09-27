@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Export\Domain\ExportRequest;
@@ -189,16 +190,13 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
      */
     public static function payload( array $report, string $layout, string $team_name, array $notes = [] ): array {
         $layout = TeamMonthlyReportLayout::isValid( $layout ) ? $layout : TeamMonthlyReportLayout::DEFAULT;
-        // #4095 — the tests detail this layout can print, by the rule the
-        // panel disables its options by. Nothing else overrides it later.
-        if ( isset( $report['data']['tests'] ) ) {
-            $report['data']['tests'] = TeamMonthlyReportLayout::testsForLayout( $report['data']['tests'], $layout );
-        }
-        $fit    = TeamMonthlyReportLayout::fit( $report, $layout );
-        $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
+        // #4097 — the same preparation the web page's sheets are built from:
+        // the tests detail this layout can print (#4095), the estimate and
+        // its page groups, and whatever the one-pager shortens.
+        $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
 
         return [
-            'html'    => TeamMonthlyReportPdfDocument::html( $report, $layout, $team_name, $notes, $fit['groups'] ),
+            'html'    => TeamMonthlyReportDocument::html( $prepared['report'], $layout, $team_name, $notes, $prepared['fit']['groups'] ),
             'options' => [
                 'paper'       => 'A4',
                 'orientation' => $layout === TeamMonthlyReportLayout::MATRIX ? 'landscape' : 'portrait',

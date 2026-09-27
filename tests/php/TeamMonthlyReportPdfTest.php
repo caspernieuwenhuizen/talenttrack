@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterRegistry;
@@ -140,6 +141,48 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
 
             $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$label}: the panel and the paper disagree." );
         }
+    }
+
+    /**
+     * #4097 — the web page shows what prints: for every layout and
+     * composition the page-count test covers, the screen's sheets hold the
+     * same sections, in the same order and the same page grouping, as the
+     * PDF's pages. Names are record links on screen only; paper prints text.
+     */
+    public function test_the_screen_sheets_hold_what_the_pdf_pages_hold(): void {
+        $cases = [
+            [ 'A', null, 0, 20 ], [ 'B', null, 0, 20 ], [ 'C', null, 0, 20 ],
+            [ 'A', [ 'coverage', 'kpi', 'status', 'attendance', 'attention', 'quality' ], 0, 20 ],
+            [ 'B', [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'attention', 'notes' ], 0, 20 ],
+            [ 'C', [ 'kpi', 'roster' ], 0, 20 ],
+            [ 'B', null, 1, 18 ], [ 'B', null, 3, 18 ], [ 'B', null, 3, 5 ], [ 'C', null, 5, 18 ],
+            [ 'A', [ 'kpi', 'matches', 'tests' ], 3, 18 ],
+        ];
+        foreach ( $cases as $i => [ $layout, $blocks, $tests, $squad ] ) {
+            $base   = $tests > 0 ? $this->withMatchesAndTests( $this->report( $squad ), $tests ) : $this->report( $squad );
+            $report = $blocks === null ? $base : $this->only( $base, $blocks );
+
+            $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
+            $paper    = TeamMonthlyReportDocument::html( $prepared['report'], $layout, 'Pdf U13', [], $prepared['fit']['groups'] );
+            $screen   = TeamMonthlyReportDocument::screen( $prepared['report'], $layout, 'Pdf U13', $prepared['fit'] );
+
+            $pages  = array_slice( explode( '<div class="page', $paper ), 1 );
+            $sheets = array_slice( explode( '<article class="tt-mr-sheet"', $screen ), 1 );
+            $this->assertSame(
+                array_map( [ $this, 'blocksIn' ], $pages ),
+                array_map( [ $this, 'blocksIn' ], $sheets ),
+                "case {$i} ({$layout}): the sheets and the pages differ"
+            );
+            $stamp = static fn( string $h ): string => (string) preg_replace( '/Generated [^<]*/', '', $h );
+            $this->assertSame( $stamp( TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' )['html'] ), $stamp( $paper ), "case {$i}: the exporter prints this document" );
+            $this->assertStringNotContainsString( '<a ', $paper, 'paper carries no links' );
+        }
+    }
+
+    /** @return list<string> the sections a page or sheet holds, in order. */
+    private function blocksIn( string $html ): array {
+        preg_match_all( '/<!--tt-block:([a-z]+)-->/', $html, $m );
+        return $m[1];
     }
 
     /**

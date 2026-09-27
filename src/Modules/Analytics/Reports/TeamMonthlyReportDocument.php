@@ -1,21 +1,31 @@
 <?php
-namespace TT\Modules\Export\Exporters;
+namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Modules\Analytics\Reports\MatchesBlockOptions;
-use TT\Modules\Analytics\Reports\ReportBrandColour;
-use TT\Modules\Analytics\Reports\TeamMonthlyReport;
-use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Shared\Dates\TTDate;
-use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
-use TT\Modules\Analytics\Reports\TestsBlockOptions;
+use TT\Shared\Frontend\Components\CrossViewLink;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 use TT\Modules\Measurements\Services\TestVerdict;
 
 /**
- * TeamMonthlyReportPdfDocument (#3460, epic #3457) — the team monthly report as
- * printable HTML for DomPDF.
+ * TeamMonthlyReportDocument (#4097, epic #4094; the PDF template since #3460)
+ * — the team monthly report as one document: letterhead, sections in print
+ * order, page groups and page breaks.
+ *
+ * ## One document, two outputs
+ *
+ * The PDF prints it (`html()`, exporter → DomPDF). The web page shows the same
+ * markup (`screen()`): on a desktop each page group is an A4 sheet, on a phone
+ * the same sections stack as cards with a "page N in the PDF" tag. There is no
+ * second renderer for the screen, so a fix lands on paper and on screen at
+ * once, and a coach can read the paper off the screen.
+ *
+ * What only the screen has does not change what prints: player names are
+ * record links on screen and plain text on paper, and a page can hang a
+ * screen-only line under a section (the link to the full attendance report, a
+ * snapshot's note editor) through `screen()`'s `$after_section`.
  *
  * ## Built for DomPDF, not for a browser
  *
@@ -23,20 +33,23 @@ use TT\Modules\Measurements\Services\TestVerdict;
  * render as plain blocks**, so a layout written with them looks right in a
  * browser and prints as one collapsed column. Everything here is a table — the
  * KPI strip, the side-by-side pairs, the bars (a percentage-width `<div>` in a
- * cell). A test greps the output for `display:flex` and `display:grid`.
+ * cell). A test greps the output for `display:flex` and `display:grid`. The
+ * browser gets the same stylesheet (`css()`), scoped under the report wrapper
+ * and prefixed (`screenCss()`), plus the enqueued card styles for a phone.
  *
  * ## Built to match the estimate
  *
- * `TeamMonthlyReportLayout::fit()` predicts page counts, and the composition
- * panel shows that prediction. So rows here have fixed heights in millimetres,
- * and names, labels and generated lines are cut to one line. Written text —
- * what changed, why a player needs a conversation, who has no evaluation —
- * prints whole and wraps (#3970), because a sentence cut off on paper cannot
- * be finished; the estimate counts the lines it wraps to.
+ * `TeamMonthlyReportLayout::fit()` predicts page counts and decides the page
+ * groups, and the composition panel shows that prediction. So rows here have
+ * fixed heights in millimetres, and names, labels and generated lines are cut
+ * to one line. Written text — what changed, why a player needs a
+ * conversation, who has no evaluation — prints whole and wraps (#3970),
+ * because a sentence cut off on paper cannot be finished; the estimate counts
+ * the lines it wraps to.
  *
  * Pure rendering: every figure arrives in the composer's payload.
  */
-final class TeamMonthlyReportPdfDocument {
+final class TeamMonthlyReportDocument {
 
     /**
      * The snapshot notes being printed, if any (#3517).
@@ -66,49 +79,204 @@ final class TeamMonthlyReportPdfDocument {
     /** The club colour the headers carry (#4096). */
     private static string $primary = ReportBrandColour::FALLBACK;
 
+    /** #4097 — rendering for the screen: names become record links. */
+    private static bool $screen = false;
+
     /**
+     * #4097 — a screen-only line under a section, from the page showing the
+     * document. Never called for paper.
+     *
+     * @var (callable(string):string)|null
+     */
+    private static $after_section = null;
+
+    /**
+     * #4097 — the report as the chosen layout prints it, and the estimate it
+     * was measured with: the tests detail the layout can hold (#4095), the
+     * page groups and fill (`fit()`), and the lists the one-pager shortens
+     * (`degrade()`). The exporter, the live page and a snapshot all start
+     * here, so the panel's meter, the sheets and the paper are one answer.
+     *
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
-     *        already degraded by `TeamMonthlyReportLayout::degrade()`.
+     * @return array{report:array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}, fit:array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}}
+     */
+    public static function prepare( array $report, string $layout ): array {
+        $layout = TeamMonthlyReportLayout::isValid( $layout ) ? $layout : TeamMonthlyReportLayout::DEFAULT;
+        if ( isset( $report['data']['tests'] ) ) {
+            $report['data']['tests'] = TeamMonthlyReportLayout::testsForLayout( $report['data']['tests'], $layout );
+        }
+        $fit            = TeamMonthlyReportLayout::fit( $report, $layout );
+        $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
+
+        return [ 'report' => $report, 'fit' => $fit ];
+    }
+
+    /**
+     * The printable document, for DomPDF.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     *        already prepared by `prepare()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      *        a snapshot's section notes; empty for a live report (#3517).
      * @param list<list<string>> $groups the page groups `TeamMonthlyReportLayout::fit()`
      *        split the report into (#4092); measured here when not given.
      */
     public static function html( array $report, string $layout, string $team_name, array $notes = [], array $groups = [] ): string {
-        $data   = $report['data'];
-        $blocks = $report['blocks'];
-        $wide   = $layout === TeamMonthlyReportLayout::MATRIX;
+        self::begin( $report, $layout, $notes, false, null );
 
+        $out   = '';
+        $first = true;
+        foreach ( self::pageGroups( $report, $layout, $team_name, $groups ) as $page ) {
+            $out  .= '<div class="page' . ( $first ? '' : ' break' ) . '">' . $page['html'] . '</div>';
+            $first = false;
+        }
+
+        // DomPDF reads no enqueued stylesheet; the document carries its own.
+        return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css( $layout ) . '</style></head><body>' /* tt-inline-ok */
+            . '<div class="footer">' . esc_html( self::confidential() ) . '</div>'
+            . $out
+            . '</body></html>';
+    }
+
+    /**
+     * #4097 — the same document for the web page: each page group as a sheet
+     * with its place in the PDF, behind a page switcher. On a desktop the
+     * sheets are A4; on a phone the enqueued stylesheet stacks the same
+     * sections as cards and the sheet's tag says where they land on paper.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     *        already prepared by `prepare()`.
+     * @param array{pages:int, groups:list<list<string>>, group_pages:list<int>} $fit
+     *        the estimate the report was prepared with.
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     * @param (callable(string):string)|null $after_section screen-only markup
+     *        under a section, keyed by block.
+     */
+    public static function screen( array $report, string $layout, string $team_name, array $fit, array $notes = [], ?callable $after_section = null, string $pdf_url = '' ): string {
+        self::begin( $report, $layout, $notes, true, $after_section );
+
+        $pages = self::pageGroups( $report, $layout, $team_name, $fit['groups'] );
+        $total = max( 1, (int) $fit['pages'] );
+        $first = 1;
+
+        $nav    = '';
+        $sheets = '';
+        foreach ( $pages as $i => $page ) {
+            $count = max( 1, (int) ( $fit['group_pages'][ $i ] ?? 1 ) );
+            $last  = min( $total, $first + $count - 1 );
+            $range = $last > $first
+                /* translators: 1: first page, 2: last page, 3: pages in the PDF */
+                ? sprintf( __( 'Pages %1$d–%2$d of %3$d', 'talenttrack' ), $first, $last, $total )
+                /* translators: 1: page number, 2: pages in the PDF */
+                : sprintf( __( 'Page %1$d of %2$d', 'talenttrack' ), $first, $total );
+            $tag   = $last > $first
+                /* translators: 1: first page, 2: last page, 3: pages in the PDF */
+                ? sprintf( __( 'Pages %1$d–%2$d of %3$d in the PDF', 'talenttrack' ), $first, $last, $total )
+                /* translators: 1: page number, 2: pages in the PDF */
+                : sprintf( __( 'Page %1$d of %2$d in the PDF', 'talenttrack' ), $first, $total );
+            $id    = 'tt-mr-sheet-' . ( $i + 1 );
+
+            if ( count( $pages ) > 1 ) {
+                $nav .= '<a class="tt-mr-pager__page" href="#' . esc_attr( $id ) . '" aria-label="' . esc_attr( $range ) . '">' . esc_html( (string) $first ) . '</a>';
+            }
+            $sheets .= '<article class="tt-mr-sheet" id="' . esc_attr( $id ) . '" aria-label="' . esc_attr( $range ) . '">'
+                . '<p class="tt-mr-sheet__no">' . esc_html( $range ) . '</p>'
+                . '<p class="tt-mr-sheet__tag">' . esc_html( $tag ) . '</p>'
+                . self::prefixClasses( $page['html'] )
+                . '<p class="tt-mr-sheet__foot">' . esc_html( self::confidential() ) . '</p>'
+                . '</article>';
+            $first = $last + 1;
+        }
+
+        $bar = '';
+        if ( $nav !== '' || $pdf_url !== '' ) {
+            $bar = '<nav class="tt-mr-pager" aria-label="' . esc_attr__( 'Pages of the printed report', 'talenttrack' ) . '">'
+                . ( $nav !== '' ? '<span class="tt-mr-pager__label">' . esc_html_x( 'Page', 'monthly report page switcher', 'talenttrack' ) . '</span>' . $nav : '' )
+                . ( $pdf_url !== '' ? '<a class="tt-btn tt-btn-secondary tt-mr-pager__pdf" href="' . esc_url( $pdf_url ) . '">' . esc_html__( 'Download PDF', 'talenttrack' ) . '</a>' : '' )
+                . '</nav>';
+        }
+
+        self::$screen        = false;
+        self::$after_section = null;
+
+        return '<div class="tt-mr-doc tt-mr-doc--' . esc_attr( strtolower( $layout ) ) . '">' . $bar . '<div class="tt-mr-sheets">' . $sheets . '</div></div>';
+    }
+
+    /**
+     * #4097 — the document's stylesheet for the browser: `css()` scoped under
+     * the report wrapper, its classes prefixed as the screen markup's are,
+     * and applied from the desktop breakpoint, where the sheets are A4. One
+     * PHP source of the colours and sizes feeds paper and screen.
+     */
+    public static function screenCss( string $layout ): string {
+        self::$primary = ReportBrandColour::primary();
+        $scoped = (string) preg_replace_callback(
+            '/([^{}]+)\{([^{}]*)\}/',
+            static function ( array $m ): string {
+                $selectors = trim( $m[1] );
+                if ( strpos( $selectors, '@' ) === 0 ) return '';
+                $out = [];
+                foreach ( explode( ',', $selectors ) as $selector ) {
+                    $selector = trim( $selector );
+                    if ( $selector === '' || $selector === '.footer' ) continue;
+                    if ( $selector === 'body' ) {
+                        $out[] = '.tt-mr-doc';
+                        continue;
+                    }
+                    $out[] = '.tt-mr-doc ' . (string) preg_replace( '/\.(?!tt-)([a-z][a-z0-9_-]*)/', '.tt-d-$1', $selector );
+                }
+                return $out === [] ? '' : implode( ',', $out ) . '{' . $m[2] . '}';
+            },
+            self::css( $layout )
+        );
+
+        return '@media (min-width: 1024px){' . $scoped . '}';
+    }
+
+    /**
+     * Prefix the document's own classes for the screen (`rd` → `tt-d-rd`),
+     * so a theme's `.note` or `.page` cannot reach into the sheets. Classes
+     * that already carry the `tt-` prefix — the section header, record links —
+     * stay as they are.
+     */
+    private static function prefixClasses( string $html ): string {
+        return (string) preg_replace_callback(
+            '/class="([^"]*)"/',
+            static function ( array $m ): string {
+                $tokens = preg_split( '/\s+/', trim( $m[1] ) ) ?: [];
+                $out    = [];
+                foreach ( $tokens as $token ) {
+                    if ( $token === '' ) continue;
+                    $out[] = strpos( $token, 'tt-' ) === 0 ? $token : 'tt-d-' . $token;
+                }
+                return 'class="' . implode( ' ', $out ) . '"';
+            },
+            $html
+        );
+    }
+
+    /**
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     * @param (callable(string):string)|null $after_section
+     */
+    private static function begin( array $report, string $layout, array $notes, bool $screen, ?callable $after_section ): void {
         // #3517 — a snapshot's section notes. Static rather than threaded
         // through six render methods: they are a property of the document
         // being printed, and every one of those methods would otherwise grow
         // a parameter it does not use. Reset on every call so one export
         // cannot leak a note into the next.
-        self::$notes   = $notes;
-        self::$layout  = $layout;
-        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $blocks, $layout );
-        self::$data    = $data;
-        self::$primary = ReportBrandColour::primary();
+        self::$notes         = $notes;
+        self::$layout        = $layout;
+        self::$numbers       = TeamMonthlyReportLayout::sectionNumbers( $report['blocks'], $layout );
+        self::$data          = $report['data'];
+        self::$primary       = ReportBrandColour::primary();
+        self::$screen        = $screen;
+        self::$after_section = $after_section;
+    }
 
-        $head  = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
-        $empty = (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
-
-        $body = '';
-        if ( $empty ) {
-            $body = $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>';
-        } elseif ( $layout === TeamMonthlyReportLayout::PACK ) {
-            $body = self::pack( $data, $blocks, $head, $groups !== [] ? $groups : TeamMonthlyReportLayout::fit( $report, $layout )['groups'] );
-        } elseif ( $wide ) {
-            $body = self::matrix( $data, $blocks, $head );
-        } else {
-            $body = $head . self::sections( $data, $blocks, array_values( array_diff( TeamMonthlyReportBlock::ALL, [ TeamMonthlyReportBlock::LETTERHEAD ] ) ), false );
-        }
-
-        // DomPDF reads no enqueued stylesheet; the document carries its own.
-        return '<!doctype html><html><head><meta charset="UTF-8"><style>' . self::css( $layout ) . '</style></head><body>' /* tt-inline-ok */
-            . '<div class="footer">' . esc_html__( 'Confidential — staff only. This report names minors and describes their development. Do not share it with players, parents or anyone outside the coaching staff.', 'talenttrack' ) . '</div>'
-            . $body
-            . '</body></html>';
+    private static function confidential(): string {
+        return __( 'Confidential — staff only. This report names minors and describes their development. Do not share it with players, parents or anyone outside the coaching staff.', 'talenttrack' );
     }
 
     /* ---------------------------------------------------------------
@@ -116,28 +284,60 @@ final class TeamMonthlyReportPdfDocument {
      * ------------------------------------------------------------- */
 
     /**
-     * The pack: dashboard, roster, then the meeting pages, split where
-     * `TeamMonthlyReportLayout::fit()` split them (#4092) — the tests, the
-     * ruled lines and the data-quality list share page 3 when they fit
-     * there and start a page 4 when they do not. A page with nothing
-     * selected on it is not printed, so deselecting the roster gives a
-     * shorter pack rather than a blank page.
+     * #4097 — the document as its page groups, each with the sections it
+     * holds: the one list both outputs lay out. The pack splits where
+     * `fit()` split it (#4092); the one-pager and the landscape matrix are
+     * one group. A group with nothing selected on it is not printed, so
+     * deselecting the roster gives a shorter pack rather than a blank page.
      *
-     * @param array<string,array<string,mixed>> $data
-     * @param list<string>                      $blocks
-     * @param list<list<string>>                $groups
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @param list<list<string>> $groups
+     * @return list<array{blocks:list<string>, html:string}>
      */
-    private static function pack( array $data, array $blocks, string $head, array $groups ): string {
-        $out   = '';
-        $first = true;
+    public static function pageGroups( array $report, string $layout, string $team_name, array $groups = [] ): array {
+        $data   = $report['data'];
+        $blocks = $report['blocks'];
+        $head   = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
+
+        if ( (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0 ) {
+            return [ [
+                'blocks' => [ TeamMonthlyReportBlock::LETTERHEAD ],
+                'html'   => $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>',
+            ] ];
+        }
+
+        if ( $layout === TeamMonthlyReportLayout::MATRIX ) {
+            return [ [ 'blocks' => self::printed( $blocks, $layout ), 'html' => self::matrix( $data, $blocks, $head ) ] ];
+        }
+        if ( $layout !== TeamMonthlyReportLayout::PACK ) {
+            return [ [ 'blocks' => self::printed( $blocks, $layout ), 'html' => $head . self::sections( $data, $blocks, TeamMonthlyReportLayout::printOrder( $layout ), false ) ] ];
+        }
+
+        if ( $groups === [] ) $groups = TeamMonthlyReportLayout::fit( $report, $layout )['groups'];
+        $out = [];
         foreach ( $groups as $group ) {
-            $page = ( in_array( TeamMonthlyReportBlock::LETTERHEAD, $group, true ) ? $head : '' )
-                . self::sections( $data, $blocks, $group, false );
-            if ( $page === '' ) continue;
-            $out  .= '<div class="page' . ( $first ? '' : ' break' ) . '">' . $page . '</div>';
-            $first = false;
+            $letterhead = in_array( TeamMonthlyReportBlock::LETTERHEAD, $group, true );
+            $html       = ( $letterhead ? $head : '' ) . self::sections( $data, $blocks, $group, false );
+            if ( $html === '' ) continue;
+            $out[] = [
+                'blocks' => array_values( array_filter( $group, static fn( string $b ): bool => in_array( $b, $blocks, true ) ) ),
+                'html'   => $html,
+            ];
         }
         return $out;
+    }
+
+    /**
+     * The selected sections a single-sheet layout prints, in print order.
+     *
+     * @param list<string> $blocks
+     * @return list<string>
+     */
+    private static function printed( array $blocks, string $layout ): array {
+        return array_values( array_filter(
+            array_merge( [ TeamMonthlyReportBlock::LETTERHEAD ], TeamMonthlyReportLayout::printOrder( $layout ) ),
+            static fn( string $b ): bool => in_array( $b, $blocks, true )
+        ) );
     }
 
     /**
@@ -153,7 +353,7 @@ final class TeamMonthlyReportPdfDocument {
         $cells = [];
         foreach ( [ 'matches', 'changes', 'tests', 'notes' ] as $block ) {
             if ( ! in_array( $block, $blocks, true ) ) continue;
-            $cells[] = '<td class="strip">' . self::section( $block, $data[ $block ] ?? [], true ) . '</td>';
+            $cells[] = '<td class="strip">' . self::marker( $block ) . self::section( $block, $data[ $block ] ?? [], true ) . self::note( $block ) . self::after( $block ) . '</td>';
         }
         if ( $cells !== [] ) {
             $out .= '<table class="cols"><tr>' . implode( '', $cells ) . '</tr></table>';
@@ -169,10 +369,24 @@ final class TeamMonthlyReportPdfDocument {
     private static function sections( array $data, array $selected, array $order, bool $wide ): string {
         $out = '';
         foreach ( $order as $block ) {
-            if ( ! in_array( $block, $selected, true ) ) continue;
-            $out .= self::section( $block, $data[ $block ] ?? [], $wide ) . self::note( $block );
+            if ( $block === TeamMonthlyReportBlock::LETTERHEAD || ! in_array( $block, $selected, true ) ) continue;
+            $out .= self::marker( $block ) . self::section( $block, $data[ $block ] ?? [], $wide ) . self::note( $block ) . self::after( $block );
         }
         return $out;
+    }
+
+    /**
+     * Where a section starts, for a test that compares what the sheets and
+     * the paper hold. A comment: neither DomPDF nor a browser shows it.
+     */
+    private static function marker( string $block ): string {
+        return '<!--tt-block:' . $block . '-->';
+    }
+
+    /** A screen-only line under a section; nothing on paper. */
+    private static function after( string $block ): string {
+        if ( ! self::$screen || self::$after_section === null ) return '';
+        return (string) ( self::$after_section )( $block );
     }
 
     /**
@@ -184,6 +398,18 @@ final class TeamMonthlyReportPdfDocument {
         if ( $note === null || trim( $note['body'] ) === '' ) return '';
 
         return '<div class="note">' . nl2br( esc_html( $note['body'] ) ) . '</div>';
+    }
+
+    /**
+     * A player's name: a record link on screen where the reader may open
+     * the profile, plain text on paper and wherever they may not.
+     */
+    private static function player( string $name, int $player_id, int $chars ): string {
+        $text = self::cut( $name, $chars );
+        if ( ! self::$screen || $player_id <= 0 || ! CrossViewLink::allows( 'players' ) ) return esc_html( $text );
+
+        $url = RecordLink::detailUrlForWithBack( 'players', $player_id );
+        return $url === '' ? esc_html( $text ) : '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $text ) . '</a>';
     }
 
     /** @param array<string,mixed> $d */
@@ -261,7 +487,7 @@ final class TeamMonthlyReportPdfDocument {
 
         return '<table class="lh"><tr>'
             . '<td class="lh-title"><div class="lh-kicker">' . esc_html__( 'Monthly report', 'talenttrack' ) . '</div>'
-            . '<div class="lh-team">' . esc_html( self::cut( $team_name, 48 ) ) . '</div></td>'
+            . '<h1 class="lh-team">' . esc_html( self::cut( $team_name, 48 ) ) . '</h1></td>'
             . '<td class="lh-meta"><div class="lh-period">' . esc_html( $period ) . '</div>'
             . '<div>' . esc_html( self::cut( implode( ' · ', $meta ), 70 ) ) . '</div>'
             /* translators: %s: date and time the report was generated */
@@ -398,7 +624,7 @@ final class TeamMonthlyReportPdfDocument {
             $w    = $pct !== null ? max( 0, min( 100, (int) round( $pct ) ) ) : 0;
 
             $out .= '<tr>'
-                . '<td class="nm">' . esc_html( self::cut( (string) ( $r['name'] ?? '' ), 26 ) ) . '</td>'
+                . '<td class="nm">' . self::player( (string) ( $r['name'] ?? '' ), (int) ( $r['player_id'] ?? 0 ), 26 ) . '</td>'
                 . '<td class="tr"><div class="track"><div class="fill f-' . esc_attr( $band !== '' ? $band : 'none' ) . '" style="width:' . $w . '%"></div></div></td>' /* tt-inline-ok */
                 . '<td class="vl">' . esc_html( self::pct( $pct ) ) . '</td>'
                 . '</tr>';
@@ -426,7 +652,7 @@ final class TeamMonthlyReportPdfDocument {
             foreach ( is_array( $item['reasons'] ?? null ) ? $item['reasons'] : [] as $reason ) $facts[] = (string) $reason;
 
             $out .= '<tr><td class="a-' . esc_attr( $color ) . '">'
-                . '<div class="att-n">' . esc_html( self::cut( (string) ( $item['name'] ?? '' ), 40 ) ) . ' · ' . esc_html( self::statusLabel( $color ) ) . '</div>'
+                . '<div class="att-n">' . self::player( (string) ( $item['name'] ?? '' ), (int) ( $item['player_id'] ?? 0 ), 40 ) . ' · ' . esc_html( self::statusLabel( $color ) ) . '</div>'
                 . '<div class="att-w">' . esc_html( implode( ' · ', $facts ) ) . '</div>'
                 . '</td></tr>';
         }
@@ -449,8 +675,10 @@ final class TeamMonthlyReportPdfDocument {
         $out  .= '<table class="list">';
         foreach ( array_slice( $events, 0, $limit ) as $e ) {
             if ( ! is_array( $e ) ) continue;
-            $line = self::shortDate( (string) ( $e['date'] ?? '' ) ) . '  ' . (string) ( $e['name'] ?? '' ) . ' — ' . (string) ( $e['summary'] ?? '' );
-            $out .= '<tr><td class="wrap">' . esc_html( $line ) . '</td></tr>';
+            $name = (string) ( $e['name'] ?? '' );
+            $out .= '<tr><td class="wrap">' . esc_html( self::shortDate( (string) ( $e['date'] ?? '' ) ) . '  ' )
+                . self::player( $name, (int) ( $e['player_id'] ?? 0 ), max( 1, mb_strlen( $name ) ) )
+                . esc_html( ' — ' . (string) ( $e['summary'] ?? '' ) ) . '</td></tr>';
         }
         return $out . '</table></div>';
     }
@@ -654,7 +882,7 @@ final class TeamMonthlyReportPdfDocument {
             $rank = $row['rank'] ?? null;
             $out .= '<tr' . ( $rank === 1 ? ' class="top"' : '' ) . '>'
                 . '<td class="rk">' . esc_html( is_int( $rank ) ? (string) $rank : '–' ) . '</td>'
-                . '<td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), 24 ) ) . '</td>'
+                . '<td class="nm">' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), 24 ) . '</td>'
                 . '<td class="num g">' . $g . '</td>'
                 . '<td class="bar">' . self::gauge( 'gbar', $max_g > 0 ? $g / $max_g * 100 : 0.0 ) . '</td>'
                 . '<td class="num">' . $a . '</td>'
@@ -1091,7 +1319,7 @@ final class TeamMonthlyReportPdfDocument {
             $any_pb   = $any_pb || $pb;
             $rank     = $row['rank'] ?? null;
             $body    .= '<tr><td class="rk">' . esc_html( is_int( $rank ) ? (string) $rank : '' ) . '</td>'
-                . '<td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), $pb ? 22 : 26 ) )
+                . '<td class="nm">' . self::player( (string) ( $row['name'] ?? '' ), (int) ( $row['player_id'] ?? 0 ), $pb ? 22 : 26 )
                 . ( $pb ? '<span class="pb">' . esc_html_x( 'PB', 'personal best, short tag', 'talenttrack' ) . '</span>' : '' ) . '</td>';
             if ( $values ) {
                 $fill  = [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ][ $flag ] ?? 'fn';
@@ -1107,12 +1335,12 @@ final class TeamMonthlyReportPdfDocument {
             }
             if ( $trend ) {
                 $first = ! empty( $row['first'] );
-                $body .= '<td class="pv">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
+                $body .= '<td class="pv" data-label="' . esc_attr__( 'Previous', 'talenttrack' ) . '">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
                     . '<td class="ch ' . ( $first ? 'eq' : self::moveClass( (string) ( $row['trend'] ?? '' ) ) ) . '">'
                     . esc_html( $first ? _x( 'first', 'a first test reading, nothing to compare with', 'talenttrack' ) : self::testDelta( $row ) ) . '</td>';
             }
             if ( $values ) {
-                $body .= '<td class="av">' . esc_html( (string) ( $row['vs_avg_display'] ?? '—' ) ) . '</td>';
+                $body .= '<td class="av" data-label="' . esc_attr_x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) . '">' . esc_html( (string) ( $row['vs_avg_display'] ?? '—' ) ) . '</td>';
             }
             $body .= '</tr>';
         }
@@ -1235,16 +1463,24 @@ final class TeamMonthlyReportPdfDocument {
         // neighbours. DomPDF ignores `<col>` widths.
         // [ label, alignment class ]; the matrix adds a bar column after
         // attendance and after share.
+        $labels = [
+            'status'     => _x( 'Status', 'team monthly report column', 'talenttrack' ),
+            'attendance' => __( 'Attendance', 'talenttrack' ),
+            'minutes'    => __( 'Minutes', 'talenttrack' ),
+            'share'      => _x( 'Share', 'minutes share column', 'talenttrack' ),
+            'goals'      => __( 'Open goals', 'talenttrack' ),
+            'injured'    => _x( 'Injured', 'team monthly report column', 'talenttrack' ),
+        ];
         $cols   = [];
         $cols[] = [ __( 'Player', 'talenttrack' ), '' ];
-        $cols[] = [ _x( 'Status', 'team monthly report column', 'talenttrack' ), '' ];
-        $cols[] = [ __( 'Attendance', 'talenttrack' ), 'r' ];
+        $cols[] = [ $labels['status'], '' ];
+        $cols[] = [ $labels['attendance'], 'r' ];
         if ( $wide ) $cols[] = [ '', '' ];
-        $cols[] = [ __( 'Minutes', 'talenttrack' ), 'r' ];
-        $cols[] = [ _x( 'Share', 'minutes share column', 'talenttrack' ), 'r' ];
+        $cols[] = [ $labels['minutes'], 'r' ];
+        $cols[] = [ $labels['share'], 'r' ];
         if ( $wide ) $cols[] = [ '', '' ];
-        $cols[] = [ __( 'Open goals', 'talenttrack' ), 'r' ];
-        $cols[] = [ _x( 'Injured', 'team monthly report column', 'talenttrack' ), 'c' ];
+        $cols[] = [ $labels['goals'], 'r' ];
+        $cols[] = [ $labels['injured'], 'c' ];
 
         $out .= '<table class="tbl"><thead><tr>';
         foreach ( $cols as $i => $col ) {
@@ -1260,16 +1496,18 @@ final class TeamMonthlyReportPdfDocument {
             $jersey = $row['jersey_number'] ?? null;
             if ( $jersey !== null ) $name = '#' . (int) $jersey . ' ' . $name;
 
+            // #4098 — each figure carries its column's name, so a phone that
+            // stacks the row can still say what the number is.
             $out .= '<tr>'
-                . '<td>' . esc_html( self::cut( $name, $wide ? 34 : 28 ) ) . '</td>'
-                . '<td>' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
-                . '<td class="r">' . esc_html( self::pct( $att ) ) . '</td>'
+                . '<td class="nm">' . self::player( $name, (int) ( $row['player_id'] ?? 0 ), $wide ? 34 : 28 ) . '</td>'
+                . '<td class="stat" data-label="' . esc_attr( $labels['status'] ) . '">' . esc_html( self::statusLabel( (string) ( $row['status'] ?? '' ) ) ) . '</td>'
+                . '<td class="r" data-label="' . esc_attr( $labels['attendance'] ) . '">' . esc_html( self::pct( $att ) ) . '</td>'
                 . ( $wide ? '<td class="bar">' . self::miniBar( $att ) . '</td>' : '' )
-                . '<td class="r">' . esc_html( ( is_int( $min ) || is_float( $min ) ) ? number_format_i18n( (float) $min ) : '—' ) . '</td>'
-                . '<td class="r">' . esc_html( self::pct( $share ) ) . '</td>'
+                . '<td class="r" data-label="' . esc_attr( $labels['minutes'] ) . '">' . esc_html( ( is_int( $min ) || is_float( $min ) ) ? number_format_i18n( (float) $min ) : '—' ) . '</td>'
+                . '<td class="r" data-label="' . esc_attr( $labels['share'] ) . '">' . esc_html( self::pct( $share ) ) . '</td>'
                 . ( $wide ? '<td class="bar">' . self::miniBar( $share ) . '</td>' : '' )
-                . '<td class="r">' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
-                . '<td class="c">' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
+                . '<td class="r" data-label="' . esc_attr( $labels['goals'] ) . '">' . (int) ( $row['open_goals'] ?? 0 ) . '</td>'
+                . '<td class="c" data-label="' . esc_attr( $labels['injured'] ) . '">' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>'
                 . '</tr>';
         }
         return $out . '</tbody></table></div>';
@@ -1425,7 +1663,9 @@ final class TeamMonthlyReportPdfDocument {
         $roster_mm = $layout === TeamMonthlyReportLayout::PACK ? '5.2' : '4.4';
         $ink = '#0e1a14'; $muted = '#5b6470'; $line = '#d9dcd6';
         return '@page{margin:12mm}'
-            . 'body{font-family:"DejaVu Sans",sans-serif;font-size:8.5pt;color:' . $ink . ';margin:0}'
+            // DejaVu Sans is DomPDF's; a browser showing the sheet (#4097)
+            // falls back to the nearest metric match.
+            . 'body{font-family:"DejaVu Sans",Verdana,sans-serif;font-size:8.5pt;color:' . $ink . ';margin:0}'
             . '.footer{position:fixed;bottom:-9mm;left:0;right:0;height:6mm;font-size:6.5pt;color:' . $muted . ';text-align:center}'
             . '.break{page-break-before:always}'
             . '.muted{color:' . $muted . ';font-size:7.5pt}'
@@ -1434,7 +1674,7 @@ final class TeamMonthlyReportPdfDocument {
             . '.lh{height:22mm;margin-bottom:2mm;border-bottom:2px solid ' . $ink . '}'
             . '.lh td{vertical-align:bottom;padding:0 0 2mm 0}'
             . '.lh-kicker{font-size:7.5pt;text-transform:uppercase;letter-spacing:1px;color:' . $muted . '}'
-            . '.lh-team{font-size:16pt;font-weight:bold}'
+            . '.lh-team{margin:0;padding:0;font-size:16pt;font-weight:bold}'
             . '.lh-meta{text-align:right}'
             . '.lh-period{font-size:10pt;font-weight:bold}'
             . '.cov{margin-bottom:4mm}.cov td{height:7mm;padding:0 2mm;font-size:7.5pt;vertical-align:middle;white-space:nowrap;overflow:hidden}'

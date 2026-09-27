@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamReportAccess;
 use TT\Modules\Analytics\Reports\TeamReportSnapshotRepository;
 use TT\Shared\Dates\TTDate;
@@ -177,16 +178,17 @@ final class TeamMonthlyReportSnapshotPage {
 
         self::renderHeader( $row, $report );
 
-        echo '<div class="' . esc_attr( TeamMonthlyReportPage::wrapperClass() ) . '" data-tt-monthly-report>';
-        TeamMonthlyReportPage::renderBlocks(
-            $report,
-            $team,
-            [ 'from' => $report['from'], 'to' => $report['to'], 'period' => '' ],
-            (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'],
+        // #4097 — the frozen payload through the renderer the PDF prints
+        // with, notes included: the snapshot on screen is its PDF.
+        $layout = (string) TeamReportSnapshotRepository::compositionOf( $row )['layout'];
+        TeamMonthlyReportPage::renderDocument(
+            TeamMonthlyReportDocument::prepare( $report, $layout ),
+            $layout,
+            (string) ( $team->name ?? '' ),
             $notes,
-            $uuid
+            static fn( string $section ): string => self::noteEditor( $section, $notes, $uuid ),
+            self::pdfUrl( $uuid )
         );
-        echo '</div>';
 
         return true;
     }
@@ -222,7 +224,10 @@ final class TeamMonthlyReportSnapshotPage {
     }
 
     /**
-     * The note on one section: what it says, and the form to change it.
+     * Under one section on screen: who last wrote its note and when, and the
+     * form to change it. The note itself is part of the document, printed
+     * under the section on the sheet and on paper alike (#4097); this is the
+     * screen-only part.
      *
      * Explicit Save with a real Cancel (CLAUDE.md §6). Cancel is a link back to
      * the snapshot rather than a reset, so abandoning a half-written note
@@ -230,19 +235,18 @@ final class TeamMonthlyReportSnapshotPage {
      *
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
      */
-    public static function renderNote( string $section, array $notes, string $uuid ): void {
-        if ( $uuid === '' || ! TeamMonthlyReportBlock::isValid( $section ) ) return;
+    public static function noteEditor( string $section, array $notes, string $uuid ): string {
+        if ( $uuid === '' || ! TeamMonthlyReportBlock::isValid( $section ) || $section === TeamMonthlyReportBlock::LETTERHEAD ) return '';
 
         $note = $notes[ $section ] ?? null;
         $id   = 'tt-mr-note-' . $section;
 
-        echo '<div class="tt-mr-note" id="' . esc_attr( $id ) . '">';
+        $out = '<div class="tt-mr-note" id="' . esc_attr( $id ) . '">';
 
         if ( $note !== null ) {
-            echo '<p class="tt-mr-note__body">' . nl2br( esc_html( $note['body'] ) ) . '</p>';
             $author = (int) $note['author'];
             $name   = $author > 0 ? get_the_author_meta( 'display_name', $author ) : '';
-            echo '<p class="tt-mr-muted tt-mr-note__by">' . esc_html( sprintf(
+            $out   .= '<p class="tt-mr-muted tt-mr-note__by">' . esc_html( sprintf(
                 /* translators: 1: who wrote the note, 2: when */
                 __( '%1$s, %2$s', 'talenttrack' ),
                 $name !== '' ? $name : __( 'a staff member', 'talenttrack' ),
@@ -251,26 +255,28 @@ final class TeamMonthlyReportSnapshotPage {
         }
 
         $field = $id . '-field';
-        echo '<details class="tt-mr-note__edit">';
-        echo '<summary>' . esc_html( $note === null
-            ? __( 'Add a note', 'talenttrack' )
-            : __( 'Edit this note', 'talenttrack' ) ) . '</summary>';
-        echo '<form method="post" class="tt-mr-note__form">';
-        wp_nonce_field( self::ACTION_NOTE );
-        echo '<input type="hidden" name="tt_action" value="' . esc_attr( self::ACTION_NOTE ) . '">';
-        echo '<input type="hidden" name="snapshot" value="' . esc_attr( $uuid ) . '">';
-        echo '<input type="hidden" name="section" value="' . esc_attr( $section ) . '">';
-        echo '<label class="tt-label" for="' . esc_attr( $field ) . '">' . esc_html__( 'Note for this section', 'talenttrack' ) . '</label>';
-        echo '<textarea class="tt-input" id="' . esc_attr( $field ) . '" name="note" rows="4" maxlength="' . esc_attr( (string) TeamReportSnapshotRepository::MAX_NOTE_LENGTH ) . '">'
-            . esc_textarea( $note['body'] ?? '' ) . '</textarea>';
-        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Clearing the note and saving removes it.', 'talenttrack' ) . '</p>';
-        echo '<div class="tt-form-actions">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::url( $uuid ) ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save note', 'talenttrack' ) . '</button>';
-        echo '</div>';
-        echo '</form>';
-        echo '</details>';
-        echo '</div>';
+        $out  .= '<details class="tt-mr-note__edit">'
+            . '<summary>' . esc_html( $note === null
+                ? __( 'Add a note', 'talenttrack' )
+                : __( 'Edit this note', 'talenttrack' ) ) . '</summary>'
+            . '<form method="post" class="tt-mr-note__form">'
+            . wp_nonce_field( self::ACTION_NOTE, '_wpnonce', true, false )
+            . '<input type="hidden" name="tt_action" value="' . esc_attr( self::ACTION_NOTE ) . '">'
+            . '<input type="hidden" name="snapshot" value="' . esc_attr( $uuid ) . '">'
+            . '<input type="hidden" name="section" value="' . esc_attr( $section ) . '">'
+            . '<label class="tt-label" for="' . esc_attr( $field ) . '">' . esc_html__( 'Note for this section', 'talenttrack' ) . '</label>'
+            . '<textarea class="tt-input" id="' . esc_attr( $field ) . '" name="note" rows="4" maxlength="' . esc_attr( (string) TeamReportSnapshotRepository::MAX_NOTE_LENGTH ) . '">'
+            . esc_textarea( $note['body'] ?? '' ) . '</textarea>'
+            . '<p class="tt-mr-panel__hint">' . esc_html__( 'Clearing the note and saving removes it.', 'talenttrack' ) . '</p>'
+            . '<div class="tt-form-actions">'
+            . '<a class="tt-btn tt-btn-secondary" href="' . esc_url( self::url( $uuid ) ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>'
+            . '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save note', 'talenttrack' ) . '</button>'
+            . '</div>'
+            . '</form>'
+            . '</details>'
+            . '</div>';
+
+        return $out;
     }
 
     /**

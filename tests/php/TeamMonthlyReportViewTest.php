@@ -92,9 +92,12 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
     public function test_a_quiet_team_gets_the_letterhead_and_one_sentence(): void {
         $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] );
 
-        $this->assertStringContainsString( 'tt-mr-head', $html );
-        $this->assertStringContainsString( 'tt-mr-empty', $html );
-        $this->assertStringNotContainsString( 'tt-mr-kpis', $html, 'No page of zeroes.' );
+        // #4097 — the screen shows the printed document: its letterhead and
+        // its one sentence, on one sheet.
+        $this->assertStringContainsString( 'class="tt-d-lh"', $html );
+        $this->assertStringContainsString( 'class="tt-d-empty"', $html );
+        $this->assertStringNotContainsString( 'class="tt-d-kpi"', $html, 'No page of zeroes.' );
+        $this->assertSame( 1, substr_count( $html, '<article class="tt-mr-sheet"' ) );
     }
 
     public function test_a_deselected_section_is_absent_from_the_page(): void {
@@ -106,9 +109,9 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
 
         $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'blocks' => 'kpi' ] );
 
-        $this->assertStringContainsString( 'tt-mr-kpis', $html );
-        $this->assertStringNotContainsString( 'tt-mr-coverage ', $html );
-        $this->assertStringNotContainsString( 'tt-mr-roster', $html );
+        $this->assertStringContainsString( 'class="tt-d-kpi"', $html );
+        $this->assertStringNotContainsString( 'class="tt-d-cov"', $html );
+        $this->assertStringNotContainsString( 'class="tt-d-tbl"', $html );
     }
 
     /**
@@ -186,6 +189,29 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
         $this->assertNotFalse( $nine );
         $this->assertNotFalse( $eleven );
         $this->assertTrue( $seven < $nine && $nine < $eleven, 'rows follow shirt order 7, 9, 11 — not attendance' );
+
+        // #4097 — on screen a name opens the player's profile; the printed
+        // copy of the same document names them as text.
+        $this->assertMatchesRegularExpression( '/<a class="tt-record-link" href="[^"]*">Speler Zeven<\/a>/', $html );
+    }
+
+    /**
+     * #4097 — the page shows the document the PDF prints, as sheets, and
+     * none of the retired web-only section renderers' markup.
+     */
+    public function test_the_page_shows_the_printed_sheets(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id' => 1, 'team_id' => $this->team_id, 'title' => 'Tuesday', 'session_date' => '2020-03-03',
+            'activity_type_key' => 'training', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
+        ] );
+
+        $html = $this->renderReport( [ 'from' => '2020-03-01', 'to' => '2020-03-31', 'layout' => 'B', 'blocks' => 'kpi,roster,quality' ] );
+
+        $this->assertStringContainsString( 'class="tt-mr-doc tt-mr-doc--b"', $html );
+        $this->assertSame( 3, substr_count( $html, '<article class="tt-mr-sheet"' ), 'dashboard, roster, and the meeting page' );
+        $this->assertStringContainsString( 'Page 3 of 3 in the PDF', $html );
+        $this->assertStringNotContainsString( 'tt-mr-section', $html, 'no web-only section renderer is left' );
     }
 
     public function test_the_report_is_refused_when_switched_off(): void {
