@@ -192,11 +192,16 @@ final class CascadeRegistry {
         // Injury (#1784) — a minor's medical record. Its journey-timeline
         // events are owned (polymorphic source_entity_type='injury') and
         // removed with it so a right-to-erasure delete actually erases.
+        // #4122 — both of them: the started event is written as `injury`,
+        // the recovery event as `injury_recovery`, each keyed to the injury.
         'injury' => [
             'table'        => 'tt_player_injuries',
             'ref_columns'  => [],
             'cascade'      => [],
-            'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'injury' ] ],
+            'cascade_poly' => [
+                [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'injury' ],
+                [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'injury_recovery' ],
+            ],
             'threads'      => null,
             'set_null'     => [],
             'block_only'   => false,

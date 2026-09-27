@@ -7,6 +7,7 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Recipient\RecipientResolver;
 
 /**
  * ParentEmailDispatcher — sends to the linked parent(s) of a player
@@ -23,6 +24,14 @@ use TT\Modules\Comms\Domain\Recipient;
  * with the legacy `tt_players.parent_user_id` column as a fallback where
  * no pivot row exists. A released, archived or binned child's family is
  * reached by neither.
+ *
+ * #4128 — a forward is classified the way `RecipientResolver` classifies
+ * any message about a player: by its kind, through
+ * `RecipientResolver::isDevelopmentMessage()`. The chain context's `event`
+ * is the kind. A development forward (a task to reflect on a goal, a
+ * self-evaluation) reaches the family only while the child is active; a
+ * trialist's family is forwarded the schedule and attendance and nothing
+ * else.
  */
 final class ParentEmailDispatcher implements DispatcherInterface {
 
@@ -31,17 +40,29 @@ final class ParentEmailDispatcher implements DispatcherInterface {
     public function applicableTo( array $context ): bool {
         $user_id = (int) ( $context['user_id'] ?? 0 );
         if ( $user_id <= 0 ) return false;
-        return ! empty( $this->parentEmailsFor( $user_id ) );
+        return ! empty( $this->parentEmailsFor( $user_id, self::isDevelopment( $context ) ) );
     }
 
     public function deliver( array $context ): bool {
         $user_id = (int) ( $context['user_id'] ?? 0 );
         if ( $user_id <= 0 ) return false;
 
-        $recipients = $this->parentRecipientsFor( $user_id );
+        $recipients = $this->parentRecipientsFor( $user_id, self::isDevelopment( $context ) );
         if ( empty( $recipients ) ) return false;
 
         return NotificationDelivery::send( $context, $recipients );
+    }
+
+    /**
+     * #4128 — is this forward about the child's development? Decided by the
+     * one classifier every player message goes through. A context that
+     * names no kind is development content: less reaches the family, never
+     * more.
+     *
+     * @param array<string,mixed> $context
+     */
+    public static function isDevelopment( array $context ): bool {
+        return RecipientResolver::isDevelopmentMessage( (string) ( $context['event'] ?? '' ) );
     }
 
     /**
@@ -56,13 +77,13 @@ final class ParentEmailDispatcher implements DispatcherInterface {
      *
      * @return list<Recipient>
      */
-    private function parentRecipientsFor( int $user_id ): array {
+    private function parentRecipientsFor( int $user_id, bool $development ): array {
         $player_id = $this->playerIdForUser( $user_id );
         if ( $player_id <= 0 ) return [];
 
         $out  = [];
         $seen = [];
-        foreach ( $this->parentUserIdsFor( $player_id ) as $parent_user_id ) {
+        foreach ( $this->parentUserIdsFor( $player_id, $development ) as $parent_user_id ) {
             $email = ContactResolver::emailForUser( (int) $parent_user_id );
             if ( $email === null ) continue;
 
@@ -90,12 +111,12 @@ final class ParentEmailDispatcher implements DispatcherInterface {
      *
      * @return list<string>
      */
-    private function parentEmailsFor( int $user_id ): array {
+    private function parentEmailsFor( int $user_id, bool $development ): array {
         $player_id = $this->playerIdForUser( $user_id );
         if ( $player_id <= 0 ) return [];
 
         $emails = [];
-        foreach ( $this->parentUserIdsFor( $player_id ) as $pid ) {
+        foreach ( $this->parentUserIdsFor( $player_id, $development ) as $pid ) {
             $email = ContactResolver::emailForUser( (int) $pid );
             if ( $email !== null ) $emails[] = $email;
         }
@@ -122,13 +143,17 @@ final class ParentEmailDispatcher implements DispatcherInterface {
      * for a child who is not closed out, otherwise an empty guardian list
      * would hand the family straight back through the old column.
      *
+     * #4128 — the same holds for a development forward about a child whose
+     * family may not be sent their development: the fallback is not asked.
+     *
      * @return list<int>
      */
-    private function parentUserIdsFor( int $player_id ): array {
+    private function parentUserIdsFor( int $player_id, bool $development ): array {
         global $wpdb;
         if ( ParentChildResolver::isClosedOut( $player_id ) ) return [];
+        if ( $development && ! ParentChildResolver::isDevelopmentOpen( $player_id ) ) return [];
 
-        $parent_ids = ParentChildResolver::guardiansOf( $player_id );
+        $parent_ids = ParentChildResolver::guardiansOf( $player_id, $development );
 
         // Legacy column fallback — older installs may have written
         // tt_players.parent_user_id without ever populating the pivot.

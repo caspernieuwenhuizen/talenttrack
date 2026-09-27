@@ -1,0 +1,13 @@
+#. translators: 1: the person's name, 2: the role typed on their People sheet row
+#: src/Modules/Import/Excel/ExcelImporter.php
+#, php-format
+msgid "People sheet: %1$s was imported, but could not be assigned to their team as \"%2$s\"."
+msgstr "Blad People: %1$s is geïmporteerd, maar kon niet als \"%2$s\" aan het team worden toegewezen."
+
+#: src/Modules/Invitations/InvitationService.php
+msgid "This invitation is for a staff record that already belongs to another account. Ask an administrator to check the invitation."
+msgstr "Deze uitnodiging is voor een stafrecord dat al bij een ander account hoort. Vraag een beheerder de uitnodiging te controleren."
+
+#: src/Modules/Invitations/InvitationService.php
+msgid "You already have a staff record in this academy, and the record this invitation is for has its own history. Ask an administrator to merge the two records, then accept the invitation again."
+msgstr "Je hebt al een stafrecord in deze academie, en het record waarvoor deze uitnodiging is heeft een eigen geschiedenis. Vraag een beheerder de twee records samen te voegen en accepteer de uitnodiging daarna opnieuw."

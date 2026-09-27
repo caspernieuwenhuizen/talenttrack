@@ -127,7 +127,8 @@ final class GenericCascadeDeleter {
                 $sql = "DELETE FROM {$p}{$table} WHERE {$type_col} = %s AND {$id_col} IN ({$ph})";
                 $n   = $wpdb->query( $wpdb->prepare( $sql, ...array_merge( [ $type_val ], $ids ) ) );
                 $this->guard( $n, $table );
-                if ( (int) $n > 0 ) $per_table[ $table ] = (int) $n;
+                // Summed: one table can hold several owned types (#4122).
+                if ( (int) $n > 0 ) $per_table[ $table ] = ( $per_table[ $table ] ?? 0 ) + (int) $n;
             }
 
             // 3) Thread messages + reads owned by this entity.
