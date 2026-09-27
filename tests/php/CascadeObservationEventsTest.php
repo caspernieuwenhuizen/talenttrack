@@ -19,8 +19,16 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Both observation types are covered, because the older one
  * (`training_observed`, #2500) had the same hole and a fix for only the
  * newer one would leave it.
+ *
+ * #4054 — a case asserting an event is *gone* has to read after the delete, so
+ * it runs a real `cascade()` and inherits its COMMIT, which ends the suite's
+ * per-test transaction and leaves the fixtures standing for the rest of the
+ * run. Those cases clean up after themselves and commit that too; the guard at
+ * the bottom proves it. See `CommitsAfterCascade`.
  */
 final class CascadeObservationEventsTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private string $p;
 
@@ -28,6 +36,9 @@ final class CascadeObservationEventsTest extends WP_UnitTestCase {
         parent::set_up();
         global $wpdb;
         $this->p = $wpdb->prefix;
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added.
+        $this->markFixtureFloor();
     }
 
     // ---- fixtures ---------------------------------------------------------
@@ -142,6 +153,9 @@ final class CascadeObservationEventsTest extends WP_UnitTestCase {
             $this->eventExists( $fixture['event'] ),
             'the timeline entry outlived the item it describes'
         );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_the_preview_counts_the_events_it_will_remove(): void {
@@ -174,6 +188,9 @@ final class CascadeObservationEventsTest extends WP_UnitTestCase {
             $this->eventExists( $survivor['event'] ),
             'deleting one match took another match\'s timeline entry with it'
         );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     // ---- training observations (#2500, same hole) --------------------------
@@ -224,5 +241,39 @@ final class CascadeObservationEventsTest extends WP_UnitTestCase {
             $observation_id
         ) );
         $this->assertSame( 0, $left, 'the observation itself must go with its activity too' );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
+    }
+
+    /**
+     * #4054 — the guard on the three cases above. This runs in its own
+     * transaction, so anything they committed is visible here. Before the fix
+     * it saw four Cascade players and the timeline entries of two matches.
+     */
+    public function test_the_purge_cases_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $players = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_players WHERE first_name = 'Cascade'"
+        );
+        $this->assertSame( 0, $players, 'no fixture player outlived the case that made it' );
+
+        $events = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_player_events
+              WHERE summary = 'Observed something worth remembering.'"
+        );
+        $this->assertSame( 0, $events, 'a journey entry about a fixture child is nobody else\'s business' );
+
+        $analyses = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_match_analyses WHERE summary = 'Grew into it.'"
+        );
+        $this->assertSame( 0, $analyses );
+
+        $activities = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_activities
+              WHERE title IN ('Game 2026-08-15', 'Training 2026-08-15')"
+        );
+        $this->assertSame( 0, $activities );
     }
 }

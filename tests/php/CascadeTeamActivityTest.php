@@ -4,7 +4,6 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Archive\CascadeRegistry;
 use TT\Infrastructure\Archive\GenericCascadeDeleter;
-use TT\Infrastructure\Archive\DeleteBlockedException;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -21,8 +20,17 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * referencing column, so a future schema addition that introduces a new
  * team_id / activity_id column fails this test loudly instead of silently
  * making team / activity un-purgeable again.
+ *
+ * #4054 — every case here that runs a real `cascade()` observes the state the
+ * purge leaves, so it cannot read through `preview()`. The cascade's own COMMIT
+ * ends the suite's per-test transaction, which is what handed this class's
+ * fixture teams to an unrelated age-group count in #3949. Each of those cases
+ * cleans up after itself and commits that too; `test_the_purge_cases_left_...`
+ * at the bottom is the guard. See `CommitsAfterCascade`.
  */
 final class CascadeTeamActivityTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private string $p;
 
@@ -30,6 +38,9 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
         parent::set_up();
         global $wpdb;
         $this->p = $wpdb->prefix;
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added.
+        $this->markFixtureFloor();
     }
 
     // ---- set_zero unit coverage ----------------------------------------
@@ -62,6 +73,9 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
         ) );
         $this->assertNotNull( $row, 'the player survives the team delete' );
         $this->assertSame( 0, (int) $row->team_id, 'the player team_id is reset to the 0 sentinel' );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_preview_classifies_set_zero_into_zeroings_bucket(): void {
@@ -130,6 +144,9 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
         // The team itself is gone.
         $this->assertNull( $wpdb->get_row( $wpdb->prepare(
             "SELECT id FROM {$this->p}tt_teams WHERE id = %d", $team_id ) ) );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     // ---- activity purge end-to-end -------------------------------------
@@ -172,6 +189,9 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
             $this->assertNotNull( $row, 'the evaluation outlives the activity' );
             $this->assertNull( $row->activity_id, 'the evaluation activity link is nulled' );
         }
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_activity_purge_removes_match_execution_children(): void {
@@ -210,6 +230,9 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
                 "SELECT id FROM {$this->p}tt_match_execution_goal_events WHERE id = %d", $goal_event_id ) ),
                 'parent-keyed goal-event child is removed ahead of the parent' );
         }
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     // ---- block_only removed --------------------------------------------
@@ -266,17 +289,54 @@ final class CascadeTeamActivityTest extends WP_UnitTestCase {
     }
 
     /**
-     * The end-to-end fail-closed proof: a real team purge on a schema
-     * carrying every reference must NOT throw DeleteBlockedException.
+     * The other half of the fail-closed proof: on a schema carrying every
+     * reference, a team purge must not block.
+     *
+     * Read through `preview()` rather than a real `cascade()`. Whether a purge
+     * blocks is settled entirely by `scanReferences()` before the transaction
+     * opens — `cascade()` throws `DeleteBlockedException` from exactly the
+     * classification `preview()` reports as `blockers`, so the two reach the
+     * same verdict on the same schema. The real-purge path is covered by the
+     * end-to-end cases above; this reads the verdict without the COMMIT that
+     * made them leak (#4054), and names the offending column instead of
+     * failing on a bare exception message.
      */
     public function test_team_purge_does_not_block_on_a_clean_schema(): void {
         $team_id = $this->insertTeam( 'U21 noblock' );
-        try {
-            ( new GenericCascadeDeleter() )->cascade( 'team', [ $team_id ] );
-        } catch ( DeleteBlockedException $e ) {
-            $this->fail( 'team purge blocked on an undeclared reference: ' . $e->getMessage() );
-        }
-        $this->assertTrue( true );
+
+        $preview = ( new GenericCascadeDeleter() )->preview( 'team', [ $team_id ] );
+
+        $this->assertSame(
+            [],
+            $preview['blockers'],
+            'team purge would block on an undeclared reference: ' . implode( ', ', array_keys( $preview['blockers'] ) )
+        );
+    }
+
+    /**
+     * #4054 — the guard on every purge case above. This runs in its own
+     * transaction, so anything they committed is visible here. Before the fix
+     * it saw four teams, three players and two activities.
+     */
+    public function test_the_purge_cases_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $teams = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_teams
+              WHERE name IN ('U17 set_zero', 'U18 preview', 'U19 purge', 'U21 noblock')"
+        );
+        $this->assertSame( 0, $teams, 'no fixture team outlived the case that made it' );
+
+        $players = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_players
+              WHERE last_name IN ('Player', 'Iew', 'Vive') AND first_name IN ('Zero', 'Prev', 'Sur')"
+        );
+        $this->assertSame( 0, $players, 'a set_zero player is re-homed, not handed to the next test' );
+
+        $activities = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_activities WHERE title = 'Match' AND session_date = '2026-02-01'"
+        );
+        $this->assertSame( 0, $activities );
     }
 
     // ---- helpers --------------------------------------------------------

@@ -1,6 +1,8 @@
 <?php
 namespace TT\Tests\Php;
 
+use TT\Infrastructure\Tenancy\CurrentClub;
+
 /**
  * #3986 — cleaning up after a test that runs a real cascade purge.
  *
@@ -41,6 +43,9 @@ trait CommitsAfterCascade {
 
     private int $cascade_user_floor = 0;
 
+    /** @var array<string,string|null> config_key => value before the fixtures, null when it had no row */
+    private array $cascade_config = [];
+
     /**
      * Where the database stood before this test wrote anything. Call it from
      * `set_up()`, straight after `parent::set_up()`.
@@ -56,6 +61,32 @@ trait CommitsAfterCascade {
     }
 
     /**
+     * The `tt_config` keys the code under test writes on its way through a
+     * purge. Call it from `set_up()` alongside `markFixtureFloor()`.
+     *
+     * The floor sweep is keyed on `id`, and `tt_config` has none — its primary
+     * key is `(club_id, config_key)`. So a key the purge path wrote is
+     * committed along with everything else and then survives the sweep, which
+     * matters for `tt_recycle_bin_last_purge_date`: left behind, it tells every
+     * later sweep in the run that today's has already happened. Name the keys
+     * here and `cleanUpAndCommit()` puts them back the way it found them —
+     * removed when there was no row, restored to the old value when there was.
+     */
+    protected function markConfigKeys( string ...$keys ): void {
+        global $wpdb;
+
+        $this->cascade_config = [];
+        foreach ( $keys as $key ) {
+            $value = $wpdb->get_var( $wpdb->prepare(
+                "SELECT config_value FROM {$wpdb->prefix}tt_config WHERE club_id = %d AND config_key = %s",
+                CurrentClub::id(),
+                $key
+            ) );
+            $this->cascade_config[ $key ] = $value === null ? null : (string) $value;
+        }
+    }
+
+    /**
      * Delete everything written since the mark and commit it, so the purge's
      * own commit does not hand this test's fixtures to the next one.
      */
@@ -67,6 +98,23 @@ trait CommitsAfterCascade {
         }
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->usermeta} WHERE user_id > %d", $this->cascade_user_floor ) );
         $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->users} WHERE ID > %d", $this->cascade_user_floor ) );
+
+        // The id-less tables the sweep above cannot reach. Empty unless the
+        // test named keys with `markConfigKeys()`.
+        foreach ( $this->cascade_config as $key => $value ) {
+            if ( $value === null ) {
+                $wpdb->delete( $wpdb->prefix . 'tt_config', [
+                    'club_id'    => CurrentClub::id(),
+                    'config_key' => $key,
+                ] );
+                continue;
+            }
+            $wpdb->replace( $wpdb->prefix . 'tt_config', [
+                'club_id'      => CurrentClub::id(),
+                'config_key'   => $key,
+                'config_value' => $value,
+            ] );
+        }
 
         // Autocommit is off, so without this the cleanup is rolled back with
         // the transaction that opened after the purge committed.

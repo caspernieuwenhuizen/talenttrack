@@ -23,8 +23,16 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * Plus the lifecycle ordering guard (must be archived before trash), the
  * restore-to-archived (not active) contract, and purge delegating to the
  * existing fail-closed cascade.
+ *
+ * #4054 — the cases that actually reach the cascade read the row back
+ * afterwards (or assert the audit row the purge wrote), so they cannot read
+ * through `preview()`. The cascade's own COMMIT ends the suite's per-test
+ * transaction, so those cases clean up after themselves and commit that too;
+ * the guard at the bottom proves it. See `CommitsAfterCascade`.
  */
 final class RecycleBinLifecycleTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private string $p;
     private ArchiveRepository $repo;
@@ -33,6 +41,9 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
         parent::set_up();
         global $wpdb;
         $this->p = $wpdb->prefix;
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added — the actor below included.
+        $this->markFixtureFloor();
         $this->repo = new ArchiveRepository();
         // Lifecycle methods + the visibility gate require an authenticated
         // user; default to an academy admin (passes tt_* caps via the
@@ -95,6 +106,9 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
             $this->row( 'tt_teams', $id ),
             'the team row is gone after purge'
         );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_purge_ignores_a_row_that_is_not_in_the_bin(): void {
@@ -141,6 +155,13 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
             $this->assertNotNull( $this->row( 'tt_evaluations', $eval_id ), 'a blocked purge writes nothing' );
         }
         $this->assertTrue( true );
+
+        // Either branch is covered: a refusal is thrown before the cascade
+        // opens a transaction and commits nothing, a clean purge commits
+        // everything. The cleanup is correct for both, and cheap for the one
+        // that needed none.
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     // ---- #2 visibility gate ---------------------------------------------
@@ -267,6 +288,9 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
         $before = $audit->count( [ 'action' => 'team.purged' ] );
         $this->repo->purge( 'team', [ $id ], get_current_user_id() );
         $this->assertSame( $before + 1, $audit->count( [ 'action' => 'team.purged' ] ), 'purge writes team.purged' );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures — or its audit trail — to the rest of the suite' );
     }
 
     // ---- filter vocabulary ---------------------------------------------
@@ -307,6 +331,39 @@ final class RecycleBinLifecycleTest extends WP_UnitTestCase {
         $this->assertSame( 'trashed', ArchiveRepository::sanitizeView( 'trashed' ) );
         $this->assertSame( 'all', ArchiveRepository::sanitizeView( 'all' ) );
         $this->assertSame( 'active', ArchiveRepository::sanitizeView( 'bogus' ) );
+    }
+
+    // ---- #4054 fixture containment --------------------------------------
+
+    /**
+     * The guard on every case above that reached the cascade. This runs in its
+     * own transaction, so anything they committed is visible here. Before the
+     * fix it saw the teams of the three purge cases — and #3949 saw them from
+     * an age-group count in a different class.
+     *
+     * Every team name the class uses is listed, not only the purge cases', so a
+     * case that starts committing later is caught here rather than in whatever
+     * unrelated count it lands in.
+     */
+    public function test_the_purge_cases_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $teams = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_teams WHERE name IN (
+                'Active team', 'Archived team', 'Round-trip team', 'Purge team',
+                'Archived-only team', 'Visible active', 'Visible archived',
+                'Binned visible to admin', 'Binned hidden from coach', 'Owned',
+                'Other club', 'Mine binned', 'Theirs binned', 'Countdown', 'Audited'
+             )"
+        );
+        $this->assertSame( 0, $teams, 'no fixture team outlived the case that made it' );
+
+        $evaluations = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_evaluations
+              WHERE eval_date = '2026-02-01' AND player_id = 0 AND coach_id = 0
+                AND trashed_at IS NOT NULL"
+        );
+        $this->assertSame( 0, $evaluations, 'no binned evaluation outlived the case that binned it' );
     }
 
     // ---- helpers --------------------------------------------------------

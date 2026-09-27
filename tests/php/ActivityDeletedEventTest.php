@@ -19,8 +19,17 @@ use TT\Modules\Vct\VctModule;
  * wrong as one that never fires — it would tear down the bindings of a
  * live activity whose delete matched nothing — so the no-op delete is
  * asserted too.
+ *
+ * #4054 — the two cases that route through the cascade (`purge()` and
+ * `deletePermanently()`) read the session back afterwards, so they cannot read
+ * through `preview()`. The cascade's own COMMIT ends the suite's per-test
+ * transaction, so those two clean up after themselves and commit that too. The
+ * `deleteWithAttendance()` cases are a plain club-scoped DELETE with no
+ * transaction of its own and need nothing. See `CommitsAfterCascade`.
  */
 final class ActivityDeletedEventTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     /** @var int */
     private $team_id;
@@ -28,6 +37,9 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         global $wpdb;
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added — the actor below included.
+        $this->markFixtureFloor();
         // The bin's lifecycle methods record an actor on every transition.
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
         $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'Delete Event Team' ] );
@@ -143,6 +155,9 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
         ) );
         $this->assertSame( $other_id, (int) $spared->activity_id, 'A session bound elsewhere was unbound.' );
         $this->assertSame( 'published', (string) $spared->status );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     /**
@@ -165,6 +180,9 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
         $this->assertNotNull( $row );
         $this->assertNull( $row->activity_id );
         $this->assertSame( 'draft', (string) $row->status );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_media_links_to_the_activity_are_removed(): void {
@@ -188,6 +206,37 @@ final class ActivityDeletedEventTest extends WP_UnitTestCase {
             $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_media WHERE id = %d", $media_id ) ),
             'The media item is still linked elsewhere and must survive.'
         );
+    }
+
+    /**
+     * #4054 — the guard on the two cascade cases above. This runs in its own
+     * transaction, so anything any earlier case committed is visible here.
+     * Before the fix it saw three teams, five activities and three VCT
+     * sessions.
+     */
+    public function test_the_cascade_cases_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $teams = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE name = 'Delete Event Team'"
+        );
+        $this->assertSame( 1, $teams, "only this case's own team is in the table" );
+
+        $activities = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE title = 'Delete event training'"
+        );
+        $this->assertSame( 0, $activities, 'no fixture activity outlived the case that made it' );
+
+        $sessions = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_vct_sessions
+              WHERE session_date = '2026-04-01' AND total_duration_minutes = 75 AND age_group = 'U17'"
+        );
+        $this->assertSame( 0, $sessions, "an unbound session is not the next test's problem" );
+
+        $media = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_media WHERE storage_key = 'test/delete-event.jpg'"
+        );
+        $this->assertSame( 0, $media );
     }
 
     // ── helpers ────────────────────────────────────────────────────────
