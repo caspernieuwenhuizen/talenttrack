@@ -45,8 +45,8 @@ final class MinutesShareQuery {
     /** tt_config key holding the minimum share every player should reach. */
     public const TARGET_CONFIG_KEY = 'minutes_share_target_pct';
 
-    /** The pilot's rule of thumb, and the default for a fresh install. */
-    public const DEFAULT_TARGET_PCT = 30;
+    /** Half the available minutes: the default for an install that has saved no target of its own. */
+    public const DEFAULT_TARGET_PCT = 50;
 
     /**
      * The academy's minimum-share target, as a percentage.

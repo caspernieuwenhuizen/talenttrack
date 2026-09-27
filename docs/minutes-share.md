@@ -48,7 +48,7 @@ surface: a player who is fit, in the squad, and not getting on.
 ## The target
 
 Every player should reach a minimum share of the playing time. The default is
-**30%**, and an academy can change it under **Configuration → Match minutes**,
+**50%**, and an academy can change it under **Configuration → Match minutes**,
 beside the per-age-category match lengths — those set the denominator, this
 draws the line across it.
 

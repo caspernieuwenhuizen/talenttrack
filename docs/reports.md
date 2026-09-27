@@ -241,7 +241,7 @@ missing minutes on which game.
 These two reports answer in absolutes, and one number they cannot give you is
 what share of what was actually on offer each player got. **Team · Minutes
 share** does: every played match's own length summed into a denominator, each
-player's recorded minutes over it, and a configurable target — 30% by default —
+player's recorded minutes over it, and a configurable target — 50% by default —
 that flags anyone below it. It is documented in full in
 [Minutes share](minutes-share.md).
 

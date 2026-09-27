@@ -61,7 +61,31 @@ final class MinutesShareTest extends WP_UnitTestCase {
         $this->assertCount( 1, $data['players'] );
         $this->assertSame( 350, $data['players'][0]['minutes'] );
         $this->assertEqualsWithDelta( 50.0, $data['players'][0]['share_pct'], 0.001 );
-        $this->assertFalse( $data['players'][0]['below_target'], '50% clears the 30% default' );
+        $this->assertFalse( $data['players'][0]['below_target'], 'exactly on the 50% default is not below it' );
+    }
+
+    /** The default is 50%: a clear margin either side of it decides the flag. */
+    public function test_the_default_target_is_half_the_minutes(): void {
+        $this->assertSame( 50, MinutesShareQuery::DEFAULT_TARGET_PCT );
+        $this->assertSame( 50, MinutesShareQuery::targetPct() );
+
+        $team_id = $this->insertTeam( 'U14 default norm' );
+        $under   = $this->insertPlayer( $team_id, 'Forty', 'Percent' );
+        $over    = $this->insertPlayer( $team_id, 'Sixty', 'Percent' );
+
+        for ( $i = 1; $i <= 10; $i++ ) {
+            $match = $this->insertMatch( $team_id, sprintf( '2026-04-%02d', $i ) );
+            $this->setPrepHalfLength( $match, 35 );          // 2 × 35 = 70
+            $this->insertAttendance( $match, $under, 28 );   // 40%
+            $this->insertAttendance( $match, $over, 42 );    // 60%
+        }
+
+        $data = ( new MinutesShareQuery() )->forTeam( $team_id, self::FROM, self::TO );
+
+        $this->assertSame( 50, $data['target_pct'] );
+        $this->assertSame( $under, $data['players'][0]['player_id'] );
+        $this->assertTrue( $data['players'][0]['below_target'], '40% is below the 50% default' );
+        $this->assertFalse( $data['players'][1]['below_target'], '60% clears the 50% default' );
     }
 
     /**
