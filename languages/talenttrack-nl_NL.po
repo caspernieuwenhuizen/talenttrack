@@ -67503,6 +67503,75 @@ msgstr ""
 "Te veel gele kaarten, rode kaart, besluit van de club. De speler en de "
 "ouders zien de reden op de tijdlijn."
 
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "During the trial"
+msgstr "Tijdens de stage"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+#, php-format
+msgid "%s is on trial. During the trial you can see their trainings, matches and attendance. The rest of their record opens once they have signed with the academy."
+msgstr "%s is op stage. Tijdens de stage zie je de trainingen, wedstrijden en aanwezigheid. De rest van het dossier gaat open zodra je kind bij de academie getekend heeft."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Your child"
+msgstr "Je kind"
+
+#: src/Modules/Threads/Rest/ThreadsRestController.php
+#: src/Shared/Frontend/Components/FrontendThreadView.php
+msgid "You can read this conversation, but you cannot reply to it."
+msgstr "Je kunt dit gesprek lezen, maar je kunt er niet op reageren."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This player has graduated. You can still read their record, but you can no longer change or acknowledge anything on it."
+msgstr "Deze speler is doorgestroomd. Je kunt het dossier nog lezen, maar je kunt er niets meer aan wijzigen of bevestigen."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "user_id is no longer accepted. Send person_id instead: find it with GET staff?search=."
+msgstr "user_id wordt niet meer geaccepteerd. Stuur in plaats daarvan person_id mee: zoek die op met GET staff?search=."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgctxt "team monthly report column"
+msgid "Suspended"
+msgstr "Geschorst"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgctxt "availability chip"
+msgid "Absent (excused)"
+msgstr "Afwezig (afgemeld)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgctxt "availability chip"
+msgid "Absent"
+msgstr "Afwezig"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: %s: the parts of the match section that print, comma-separated (e.g. Record, Scorers and assists)
+msgid "Matches: %s."
+msgstr "Wedstrijden: %s."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgctxt "monthly report matches option summary"
+msgid "heading only"
+msgstr "alleen de kop"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+msgid "every test taken in the month"
+msgstr "elke test van die maand"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: %d: number of tests the coach chose
+msgid "%d chosen test"
+msgid_plural "%d chosen tests"
+msgstr[0] "%d gekozen test"
+msgstr[1] "%d gekozen testen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDelivery.php
+#. translators: 1: how much per test (e.g. Readings and change), 2: which tests (e.g. 2 chosen tests)
+msgid "Tests: %1$s, %2$s."
+msgstr "Testen: %1$s, %2$s."
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "

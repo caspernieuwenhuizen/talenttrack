@@ -1,3 +1,0 @@
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "user_id is no longer accepted. Send person_id instead: find it with GET staff?search=."
-msgstr "user_id wordt niet meer geaccepteerd. Stuur in plaats daarvan person_id mee: zoek die op met GET staff?search=."
