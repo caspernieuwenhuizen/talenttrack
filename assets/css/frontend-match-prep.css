@@ -829,6 +829,7 @@
 .tt-mp-chip.tt-mp-on { background: var(--tt-mp-accent); color: #fff; border-color: var(--tt-mp-accent); }
 .tt-mp-chip.tt-mp-on.tt-mp-chip-excused { background: var(--tt-mp-warn); border-color: var(--tt-mp-warn); }
 .tt-mp-chip.tt-mp-on.tt-mp-chip-injured { background: #8b1f1f; border-color: #8b1f1f; }
+.tt-mp-chip.tt-mp-on.tt-mp-chip-suspended { background: var(--tt-warning-ink); border-color: var(--tt-warning-ink); color: var(--tt-paper); }
 .tt-mp-drawer-foot {
     padding: 0.75rem 1.125rem;
     border-top: 1px solid var(--tt-mp-line);

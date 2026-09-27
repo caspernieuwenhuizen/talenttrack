@@ -33,7 +33,9 @@ desktop of laptop; op een telefoon is de begeleide wizard handiger.
  periode, oudste links. De kolommen groeien met het seizoen; de
  periodefilter bepaalt hoeveel je er ziet.
 - **Elke cel is een status.** Kies er één uit de keuzelijst:
- - **Aanwezig**, **Laat**, **Afwezig**, **Geoorloofd**, **Blessure**.
+ - **Aanwezig**, **Laat**, **Afwezig**, **Geoorloofd**, **Blessure**, **Geschorst**.
+ - **Geschorst** is voor een speler die een schorsing uitzit. Net als
+   Blessure telt het niet mee tegen de aanwezigheidsscore op zijn statuslicht.
  - De cel toont een korte letter; de keuzelijst toont het hele woord.
 - De kolom **Aanwezig %** rechts laat snel zien hoe vaak een speler in de
  getoonde periode aanwezig was.
@@ -81,8 +83,8 @@ heeft plaatsgevonden, dus het raster weigert die cellen op een activiteit in
 de toekomst. Al het andere wordt opgeslagen, de geweigerde cellen krijgen een
 rode rand en de opslagbalk zegt hoeveel er niet zijn opgeslagen en waarom.
 
-Een **afwezigheid** kun je wél vooraf vastleggen: **Afwezig**, **Geoorloofd**
-of **Blessure** voor een speler van wie je al weet dat die volgende week niet
+Een **afwezigheid** kun je wél vooraf vastleggen: **Afwezig**, **Geoorloofd**,
+**Blessure** of **Geschorst** voor een speler van wie je al weet dat die volgende week niet
 komt. Het raster toont komende activiteiten alleen als er al zo'n markering
 op staat, zodat je die kunt zien en wissen. Een komende training waarop nog
 niets is vastgelegd verschijnt nog niet. Wie er komt plan je in de geplande

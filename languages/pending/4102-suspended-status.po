@@ -1,0 +1,35 @@
+#: src/Infrastructure/Query/LabelTranslator.php
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Suspended"
+msgstr "Geschorst"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgctxt "attendance status abbreviation: suspended"
+msgid "S"
+msgstr "G"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Suspended %"
+msgstr "Geschorst %"
+
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php
+msgid "⛔ SUSPENDED"
+msgstr "⛔ GESCHORST"
+
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php
+msgid "⛔ Suspended"
+msgstr "⛔ Geschorst"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many missed activities (absent, excused, injured or suspended) flag a "
+"player as at risk. Used by the player attendance report, the attendance "
+"leaderboard, and the daily attendance-flag notification — they all read this "
+"one number. Default 3."
+msgstr ""
+"Hoeveel gemiste activiteiten (afwezig, afgemeld, geblesseerd of geschorst) "
+"een speler als risico markeren. Wordt gebruikt door het aanwezigheidsrapport "
+"per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding — "
+"ze lezen allemaal dit ene getal. Standaard 3."

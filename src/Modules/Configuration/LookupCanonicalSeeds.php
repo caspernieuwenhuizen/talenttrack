@@ -65,7 +65,7 @@ final class LookupCanonicalSeeds {
             'goal_priority' => [ 'Low', 'Medium', 'High' ],
 
             // 0001 + 0047 + 0093
-            'attendance_status' => [ 'Present', 'Absent', 'Late', 'Injured', 'Excused' ],
+            'attendance_status' => [ 'Present', 'Absent', 'Late', 'Injured', 'Excused', 'Suspended' ],
 
             // 0033_activity_type_lookup + 0040
             'activity_type' => [ 'Training', 'Match', 'Friendly', 'Tournament', 'Trial', 'Other' ],
@@ -220,6 +220,7 @@ final class LookupCanonicalSeeds {
                 'Te laat'          => 'Late',
                 'Geblesseerd'      => 'Injured',
                 'Verontschuldigd'  => 'Excused',
+                'Geschorst'        => 'Suspended',
             ],
             'eval_type' => [
                 'Wedstrijd'      => 'Match',

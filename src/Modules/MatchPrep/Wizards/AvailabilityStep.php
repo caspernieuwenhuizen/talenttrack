@@ -11,7 +11,8 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * AvailabilityStep — Present/Absent/Excused/Injured toggle per
+ * AvailabilityStep — one toggle per attendance status (Present, Absent, Excused,
+ * Injured, Suspended, whatever the lookup holds) per
  * roster player. `Late` is filtered out via `tt_lookups.meta.hide_from_prep`.
  *
  * #1453 — first-render defaults are seeded from the activity's planned

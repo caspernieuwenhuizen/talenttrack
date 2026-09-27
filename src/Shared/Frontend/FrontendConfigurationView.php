@@ -1977,7 +1977,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                         min="1" max="50" step="1" autocomplete="off"
                         value="<?php echo esc_attr( (string) $tt_absence_threshold ); ?>" />
                     <p class="tt-field-hint">
-                        <?php esc_html_e( 'How many missed activities (absent, excused or injured) flag a player as at risk. Used by the player attendance report, the attendance leaderboard, and the daily attendance-flag notification — they all read this one number. Default 3.', 'talenttrack' ); ?>
+                        <?php esc_html_e( 'How many missed activities (absent, excused, injured or suspended) flag a player as at risk. Used by the player attendance report, the attendance leaderboard, and the daily attendance-flag notification — they all read this one number. Default 3.', 'talenttrack' ); ?>
                     </p>
                 </div>
                 <div class="tt-field tt-cfg-threshold">

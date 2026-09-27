@@ -220,6 +220,7 @@ final class LookupTranslationSeeds {
                 'Late'     => [ 'nl_NL' => 'Te laat',         'fr_FR' => 'En retard', 'de_DE' => 'Verspätet', 'es_ES' => 'Tarde' ],
                 'Injured'  => [ 'nl_NL' => 'Geblesseerd',     'fr_FR' => 'Blessé',    'de_DE' => 'Verletzt',  'es_ES' => 'Lesionado' ],
                 'Excused'  => [ 'nl_NL' => 'Verontschuldigd', 'fr_FR' => 'Excusé',    'de_DE' => 'Entschuldigt','es_ES' => 'Justificado' ],
+                'Suspended' => [ 'nl_NL' => 'Geschorst',      'fr_FR' => 'Suspendu',  'de_DE' => 'Gesperrt',  'es_ES' => 'Sancionado' ],
             ],
 
             // #3117 — re-keyed to `JourneyEventType::ALL`, the keys

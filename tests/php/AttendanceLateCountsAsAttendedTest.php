@@ -134,7 +134,7 @@ final class AttendanceLateCountsAsAttendedTest extends WP_UnitTestCase {
     /** The service's definitions, without a database. */
     public function test_service_owns_the_status_sets_and_the_sql_clause(): void {
         $this->assertSame( [ 'present', 'late' ], AttendanceFlagService::ATTENDED_STATUSES );
-        $this->assertSame( [ 'absent', 'excused', 'injured' ], AttendanceFlagService::MISSED_STATUSES );
+        $this->assertSame( [ 'absent', 'excused', 'injured', 'suspended' ], AttendanceFlagService::MISSED_STATUSES );
 
         $row = (object) [ 'present' => 7, 'late' => 4, 'absent' => 2, 'excused' => 0, 'injured' => 0 ];
         $this->assertSame( 11, AttendanceFlagService::attended( $row ) );

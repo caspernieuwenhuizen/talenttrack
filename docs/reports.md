@@ -109,7 +109,7 @@ the **Late** column and flagged separately (see *ranking + at-risk flags*
 below). Before this, a player at every session but late four times could read
 as the worst attender in the squad while never being flagged.
 
-**Late, Absent, Excused and Injured show the count**, not a percentage. Two
+**Late, Absent, Excused, Injured and Suspended show the count**, not a percentage. Two
 missed sessions read as **2**. The columns sort numerically, so 2 comes before
 10.
 
@@ -521,9 +521,9 @@ destination's capability (§7 hide-don't-tease).
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
-**What counts as attended, and what counts as missed.** *Attended* is **present or late** — a player who arrived late was there. *Missed* is **absent, excused or injured**. The percentage is attended divided by every recorded activity, counted over the player's **own team's** activities: a guest appearance with another team is shown on that activity and in the player's journey, but never counts toward anyone's percentage. Every attendance figure in the plugin reads those definitions from one place — the player and team attendance reports, the leaderboard, the monthly team report, the team overview, the dashboard tiles, the player report's talking points, the exports and the *Attendance %* measure in the data explorer — so they cannot disagree with each other.
+**What counts as attended, and what counts as missed.** *Attended* is **present or late** — a player who arrived late was there. *Missed* is **absent, excused, injured or suspended**. The percentage is attended divided by every recorded activity, counted over the player's **own team's** activities: a guest appearance with another team is shown on that activity and in the player's journey, but never counts toward anyone's percentage. Every attendance figure in the plugin reads those definitions from one place — the player and team attendance reports, the leaderboard, the monthly team report, the team overview, the dashboard tiles, the player report's talking points, the exports and the *Attendance %* measure in the data explorer — so they cannot disagree with each other.
 
-**The one exception: the player status light.** The status traffic light (and the cohort board, which shows the same score) leaves **excused and injured** activities out of the count altogether, so a player is not marked down for being injured or for an absence the club excused. Late still counts as attended there. This is the only attendance figure that works differently, and it does so on purpose.
+**The one exception: the player status light.** The status traffic light (and the cohort board, which shows the same score) leaves **excused, injured and suspended** activities out of the count altogether, so a player is not marked down for being injured, for serving a suspension, or for an absence the club excused. Late still counts as attended there. This is the only attendance figure that works differently, and it does so on purpose.
 
 Players are **flagged** on either count: a configurable number of **missed** activities in the window, or a configurable number of **late** marks. A flagged player gets an inline ⚠ badge, a tinted row, and a place in the **At-risk players** panel above the table. **The badge says which it is** — *3 missed*, *4 late*, or both — so a player who is at every session but never on time is not read as having skipped sessions, and a player who misses sessions is not excused by a good percentage. The panel lists absences first, lateness second.
 

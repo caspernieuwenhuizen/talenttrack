@@ -936,7 +936,7 @@ class Activator {
         foreach ( [ 'Low','Medium','High' ] as $i => $pr ) {
             $wpdb->insert( "{$p}tt_lookups", [ 'lookup_type' => 'goal_priority', 'name' => $pr, 'sort_order' => $i + 1 ] );
         }
-        foreach ( [ 'Present','Absent','Late','Injured','Excused' ] as $i => $a ) {
+        foreach ( [ 'Present','Absent','Late','Injured','Excused','Suspended' ] as $i => $a ) {
             $wpdb->insert( "{$p}tt_lookups", [ 'lookup_type' => 'attendance_status', 'name' => $a, 'sort_order' => $i + 1 ] );
         }
         // #0044 — player values lookup. 8 starters; per-club editable.

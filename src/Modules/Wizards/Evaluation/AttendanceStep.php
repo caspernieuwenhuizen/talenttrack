@@ -87,7 +87,7 @@ final class AttendanceStep implements WizardStepInterface {
         // (or a subset). Clubs that customised `attendance_status` with
         // additional values fall back to the legacy radio matrix so no
         // status is silently dropped.
-        $canonical = [ 'present', 'late', 'absent', 'excused', 'injured' ];
+        $canonical = [ 'present', 'late', 'absent', 'excused', 'injured', 'suspended' ];
         $card_ui_ok = true;
         foreach ( $names_lower as $n ) {
             if ( ! in_array( $n, $canonical, true ) ) { $card_ui_ok = false; break; }
@@ -101,6 +101,7 @@ final class AttendanceStep implements WizardStepInterface {
         $has_late     = in_array( 'late', $names_lower, true );
         $has_excused  = in_array( 'excused', $names_lower, true );
         $has_injured  = in_array( 'injured', $names_lower, true );
+        $has_suspended = in_array( 'suspended', $names_lower, true );
         ?>
         <p class="tt-att-intro">
             <?php esc_html_e( "Mark each player's attendance. Present is the default — tap a card only if it differs. Only present + late players appear in the rating step.", 'talenttrack' ); ?>
@@ -156,11 +157,12 @@ final class AttendanceStep implements WizardStepInterface {
                         <span class="tt-att-badge tt-att-badge-absent"   <?php if ( $stored !== 'absent' )  echo 'hidden'; ?>><?php esc_html_e( '✕ ABSENT', 'talenttrack' ); ?></span>
                         <span class="tt-att-badge tt-att-badge-excused"  <?php if ( $stored !== 'excused' ) echo 'hidden'; ?>><?php esc_html_e( '🛡 EXCUSED', 'talenttrack' ); ?></span>
                         <span class="tt-att-badge tt-att-badge-injured"  <?php if ( $stored !== 'injured' ) echo 'hidden'; ?>><?php esc_html_e( '🩹 INJURED', 'talenttrack' ); ?></span>
+                        <span class="tt-att-badge tt-att-badge-suspended" <?php if ( $stored !== 'suspended' ) echo 'hidden'; ?>><?php esc_html_e( '⛔ SUSPENDED', 'talenttrack' ); ?></span>
                     </header>
 
                     <div class="tt-att-toggle" role="group" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: player name */ __( 'Attendance for %s', 'talenttrack' ), $name ) ); ?>">
                         <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ 'present', 'late' ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="present"><?php esc_html_e( 'Present', 'talenttrack' ); ?></button>
-                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ 'absent', 'excused', 'injured' ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="absent"><?php esc_html_e( 'Absent', 'talenttrack' ); ?></button>
+                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ 'absent', 'excused', 'injured', 'suspended' ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="absent"><?php esc_html_e( 'Absent', 'talenttrack' ); ?></button>
                     </div>
 
                     <?php if ( $has_late ) : ?>
@@ -171,14 +173,17 @@ final class AttendanceStep implements WizardStepInterface {
                         </div>
                     <?php endif; ?>
 
-                    <?php if ( $has_excused || $has_injured ) : ?>
-                        <div class="tt-att-reason-row" <?php if ( ! in_array( $stored, [ 'absent', 'excused', 'injured' ], true ) ) echo 'hidden'; ?>>
+                    <?php if ( $has_excused || $has_injured || $has_suspended ) : ?>
+                        <div class="tt-att-reason-row" <?php if ( ! in_array( $stored, [ 'absent', 'excused', 'injured', 'suspended' ], true ) ) echo 'hidden'; ?>>
                             <span class="tt-att-reason-label"><?php esc_html_e( 'Reason (optional):', 'talenttrack' ); ?></span>
                             <?php if ( $has_excused ) : ?>
                                 <button type="button" class="tt-att-reason-btn<?php echo $stored === 'excused' ? ' is-active' : ''; ?>" data-tt-att-reason="excused"><?php esc_html_e( '🛡 Excused', 'talenttrack' ); ?></button>
                             <?php endif; ?>
                             <?php if ( $has_injured ) : ?>
                                 <button type="button" class="tt-att-reason-btn<?php echo $stored === 'injured' ? ' is-active' : ''; ?>" data-tt-att-reason="injured"><?php esc_html_e( '🩹 Injured', 'talenttrack' ); ?></button>
+                            <?php endif; ?>
+                            <?php if ( $has_suspended ) : ?>
+                                <button type="button" class="tt-att-reason-btn<?php echo $stored === 'suspended' ? ' is-active' : ''; ?>" data-tt-att-reason="suspended"><?php esc_html_e( '⛔ Suspended', 'talenttrack' ); ?></button>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -203,7 +208,8 @@ final class AttendanceStep implements WizardStepInterface {
             //   late     -> present  (late-revert button)
             //   absent  <-> excused  (excused chip — tap again to clear)
             //   absent  <-> injured  (injured chip — tap again to clear)
-            //   excused/injured -> present  (toggle back to Present)
+            //   absent  <-> suspended (suspended chip — tap again to clear)
+            //   excused/injured/suspended -> present  (toggle back to Present)
             //
             // Tested manually on Chrome iOS 17, Safari iOS 17, Chrome
             // Android (Moto G5+).
@@ -245,7 +251,7 @@ final class AttendanceStep implements WizardStepInterface {
                 // Reason row (only visible on absent branch)
                 var reasonRow = card.querySelector( '.tt-att-reason-row' );
                 if ( reasonRow ) {
-                    if ( next === 'absent' || next === 'excused' || next === 'injured' ) {
+                    if ( next === 'absent' || next === 'excused' || next === 'injured' || next === 'suspended' ) {
                         show( reasonRow );
                         card.querySelectorAll( '[data-tt-att-reason]' ).forEach( function ( btn ) {
                             btn.classList.toggle( 'is-active', btn.getAttribute( 'data-tt-att-reason' ) === next );
@@ -256,7 +262,7 @@ final class AttendanceStep implements WizardStepInterface {
                 }
 
                 // Status badges
-                [ 'late', 'absent', 'excused', 'injured' ].forEach( function ( s ) {
+                [ 'late', 'absent', 'excused', 'injured', 'suspended' ].forEach( function ( s ) {
                     var b = card.querySelector( '.tt-att-badge-' + s );
                     if ( b ) ( next === s ? show( b ) : hide( b ) );
                 } );
@@ -326,7 +332,7 @@ final class AttendanceStep implements WizardStepInterface {
     /**
      * Legacy radio matrix — kept as a fallback for installs whose
      * `attendance_status` lookup vocabulary contains values outside the
-     * canonical [present, late, absent, excused, injured] set. The card
+     * canonical [present, late, absent, excused, injured, suspended] set. The card
      * UI's toggle + reason chips can't represent custom statuses; rather
      * than drop them silently, render the original 5+-column matrix.
      *

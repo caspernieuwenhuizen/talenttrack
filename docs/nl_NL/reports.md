@@ -110,7 +110,7 @@ Voorheen kon een speler die bij elke sessie was maar vier keer te laat kwam, als
 de slechtste aanwezige van de selectie op het scherm staan, zonder ooit
 gemarkeerd te worden.
 
-**Te laat, Afwezig, Afgemeld en Geblesseerd tonen het aantal**, geen percentage.
+**Te laat, Afwezig, Afgemeld, Geblesseerd en Geschorst tonen het aantal**, geen percentage.
 Twee gemiste trainingen staan er als **2**. De kolommen sorteren op getal, dus 2
 komt vóór 10.
 
@@ -556,9 +556,9 @@ de bestemming mist (§7 verbergen-niet-plagen).
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Het toont **elke speler** met geregistreerde aanwezigheid in de periode — geen top-N-limiet — en elke kolom blijft sorteerbaar (klik op een kop om opnieuw te sorteren).
 
-**Wat geldt als aanwezig, en wat als gemist.** *Aanwezig* is **aanwezig of te laat** — wie te laat kwam, was er. *Gemist* is **afwezig, afgemeld of geblesseerd**. Het percentage is aanwezig gedeeld door alle vastgelegde activiteiten, geteld over de activiteiten van het **eigen team** van de speler: een gastoptreden bij een ander team staat bij die activiteit en in de ontwikkelingslijn van de speler, maar telt nooit mee in iemands percentage. Elk aanwezigheidsgetal in de plugin leest die definities op één plek — de aanwezigheidsrapporten per speler en per team, de ranglijst, het maandrapport per team, het teamoverzicht, de dashboardtegels, de gesprekspunten in het spelersrapport, de exports en de maat *Aanwezigheid %* in de data-verkenner — zodat ze het niet met elkaar oneens kunnen zijn.
+**Wat geldt als aanwezig, en wat als gemist.** *Aanwezig* is **aanwezig of te laat** — wie te laat kwam, was er. *Gemist* is **afwezig, afgemeld, geblesseerd of geschorst**. Het percentage is aanwezig gedeeld door alle vastgelegde activiteiten, geteld over de activiteiten van het **eigen team** van de speler: een gastoptreden bij een ander team staat bij die activiteit en in de ontwikkelingslijn van de speler, maar telt nooit mee in iemands percentage. Elk aanwezigheidsgetal in de plugin leest die definities op één plek — de aanwezigheidsrapporten per speler en per team, de ranglijst, het maandrapport per team, het teamoverzicht, de dashboardtegels, de gesprekspunten in het spelersrapport, de exports en de maat *Aanwezigheid %* in de data-verkenner — zodat ze het niet met elkaar oneens kunnen zijn.
 
-**De enige uitzondering: het statuslicht van een speler.** Het stoplicht voor de spelersstatus (en het cohortbord, dat dezelfde score toont) laat **afgemelde en geblesseerde** activiteiten helemaal buiten de telling, zodat een speler niet lager uitkomt omdat hij geblesseerd was of met toestemming van de club afwezig was. Te laat telt daar nog steeds als aanwezig. Dit is het enige aanwezigheidsgetal dat anders werkt, en dat is bewust.
+**De enige uitzondering: het statuslicht van een speler.** Het stoplicht voor de spelersstatus (en het cohortbord, dat dezelfde score toont) laat **afgemelde, geblesseerde en geschorste** activiteiten helemaal buiten de telling, zodat een speler niet lager uitkomt omdat hij geblesseerd was, een schorsing uitzat of met toestemming van de club afwezig was. Te laat telt daar nog steeds als aanwezig. Dit is het enige aanwezigheidsgetal dat anders werkt, en dat is bewust.
 
 Spelers worden **gemarkeerd** op beide aantallen: een instelbaar aantal **gemiste** activiteiten in de periode, of een instelbaar aantal keren **te laat**. Een gemarkeerde speler krijgt een ⚠-badge, een licht gekleurde rij en een plek in het paneel **Risicospelers** boven de tabel. **De badge zegt welk van de twee het is** — *3 gemist*, *4 te laat*, of beide — zodat een speler die bij elke sessie is maar nooit op tijd, niet wordt gelezen als iemand die sessies overslaat, en een speler die sessies mist niet wordt vrijgepleit door een mooi percentage. Het paneel zet verzuim eerst, te laat komen daarna.
 

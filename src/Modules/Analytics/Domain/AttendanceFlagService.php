@@ -20,7 +20,7 @@ use TT\Infrastructure\Config\ConfigService;
  *   - **Attended** = present **or late**. A player who turned up late was
  *     at the session; the academy counts them as there. So the present
  *     percentage every surface reports is `(present + late) / total`.
- *   - **Missed** = absent / excused / injured on a completed, actual,
+ *   - **Missed** = absent / excused / injured / suspended on a completed, actual,
  *     non-guest attendance row. A player is flagged when their missed count
  *     in the window reaches the absence threshold.
  *
@@ -58,7 +58,7 @@ final class AttendanceFlagService {
     public const ATTENDED_STATUSES = [ 'present', 'late' ];
 
     /** Statuses that mean the player was not. */
-    public const MISSED_STATUSES   = [ 'absent', 'excused', 'injured' ];
+    public const MISSED_STATUSES   = [ 'absent', 'excused', 'injured', 'suspended' ];
 
     /** Flag reasons, in the order a surface should read them out. */
     public const REASON_ABSENCE  = 'absence';
@@ -105,12 +105,13 @@ final class AttendanceFlagService {
 
     /**
      * Non-present count from an attendance-report row object that carries
-     * `absent` / `excused` / `injured` sums.
+     * `absent` / `excused` / `injured` / `suspended` sums.
      */
     public static function missed( object $row ): int {
         return (int) ( $row->absent ?? 0 )
             + (int) ( $row->excused ?? 0 )
-            + (int) ( $row->injured ?? 0 );
+            + (int) ( $row->injured ?? 0 )
+            + (int) ( $row->suspended ?? 0 );
     }
 
     /**
@@ -218,16 +219,17 @@ final class AttendanceFlagService {
      * #4041 — THE ONE EXCEPTION to the rule above, and deliberately named so.
      *
      * The player status traffic light (and the cohort board, which shows the
-     * same score) leaves excused and injured activities out of the
-     * denominator, so a player is not marked down for being injured or for
-     * an absence the club excused. Late still counts as attended. Every other
-     * surface uses {@see presentPct()}; nothing else may divide by anything
-     * but the full total.
+     * same score) leaves excused, injured and suspended activities out of
+     * the denominator, so a player is not marked down for being injured,
+     * for serving a suspension, or for an absence the club excused. Late
+     * still counts as attended. Every other surface uses
+     * {@see presentPct()}; nothing else may divide by anything but the full
+     * total.
      *
      * Null when nothing is left to count once those are set aside.
      */
-    public static function presentPctForStatus( int $attended, int $total, int $excused, int $injured ): ?float {
-        return self::presentPct( $attended, max( 0, $total - $excused - $injured ) );
+    public static function presentPctForStatus( int $attended, int $total, int $excused, int $injured, int $suspended = 0 ): ?float {
+        return self::presentPct( $attended, max( 0, $total - $excused - $injured - $suspended ) );
     }
 
     /** @param list<string> $statuses */

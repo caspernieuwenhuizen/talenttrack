@@ -2302,6 +2302,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'late'    => '#d9a006',
             'excused' => '#9aa3a8',
             'injured' => '#7b53b6',
+            // #4102 — the `--tt-warning-ink` token's value, as the lookup
+            // colour migration 0294 seeds.
+            'suspended' => '#8a5300',
         ];
     }
 

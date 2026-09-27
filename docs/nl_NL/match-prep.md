@@ -20,7 +20,7 @@ Open het scherm vanaf de detailpagina van een wedstrijd-type
 activiteit; de URL is `?tt_view=match-prep&activity_id=<id>`. De
 eerste keer dat je het scherm voor een wedstrijd opent draait eerst
 de **Beschikbaarheids-wizard** zodat de selectie de Aanwezig / Afwezig
-/ Geblesseerd-chips krijgt die nodig zijn.
+/ Geblesseerd / Geschorst-chips krijgt die nodig zijn.
 
 ## Indeling
 
@@ -124,11 +124,16 @@ speler verwijst.
 ## Beschikbaarheids-drawer
 
 Klik **Beschikbaarheid** in de werkbalk om de drawer in te schuiven
-met drie chips per speler: **Aanwezig**, **Afwezig (excused)**,
-**Geblesseerd**. Voeg desgewenst een reden toe bij een afwezigheid.
-**Iedereen aanwezig** is de snelkoppeling voor "vandaag is de hele
-selectie er." Het sluiten van de drawer slaat op; wie als afwezig
-wordt gemarkeerd wordt uit elke positie en rolrij verwijderd.
+met vier chips per speler: **Aanwezig**, **Afwezig (excused)**,
+**Geblesseerd**, **Geschorst**. Voeg desgewenst een reden toe bij een
+afwezigheid. **Iedereen aanwezig** is de snelkoppeling voor "vandaag is
+de hele selectie er." Het sluiten van de drawer slaat op; wie iets anders
+dan aanwezig krijgt, wordt uit elke positie en rolrij verwijderd. De chip
+die je kiest is wat wordt opgeslagen, dus na herladen staat dezelfde chip
+nog aan, en Geblesseerd en Geschorst komen als zichzelf in de rest van de
+app terecht: een geschorste speler verliest er niets mee op zijn
+aanwezigheidsscore, en de minutencontrole toont hem als niet beschikbaar
+in plaats van als ontbrekende minuten.
 
 Heeft de wedstrijdactiviteit een **geplande selectie** (de verwachte
 spelers die je bij het aanmaken koos), dan begint de

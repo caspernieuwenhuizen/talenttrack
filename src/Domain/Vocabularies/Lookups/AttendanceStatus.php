@@ -2,7 +2,7 @@
 /**
  * AttendanceStatus — the canonical `tt_attendance.status` vocabulary.
  *
- * THIS CLASS IS THE AUTHORITY (#2909). The five constants below are the only
+ * THIS CLASS IS THE AUTHORITY (#2909). The constants below are the only
  * values that may be written to the column. The `attendance_status` lookup
  * table supplies the *label* an operator sees and may rename freely; renaming
  * a lookup row changes the display and nothing else.
@@ -42,6 +42,13 @@ final class AttendanceStatus {
     public const EXCUSED = 'Excused';
     public const INJURED = 'Injured';
 
+    /**
+     * Not available because of a suspension. Like Injured, it is set aside
+     * from the player status attendance score rather than counted against
+     * the player.
+     */
+    public const SUSPENDED = 'Suspended';
+
     /** @var list<string> */
     public const ALL = [
         self::PRESENT,
@@ -49,6 +56,7 @@ final class AttendanceStatus {
         self::LATE,
         self::EXCUSED,
         self::INJURED,
+        self::SUSPENDED,
     ];
 
     public static function isValid( string $value ): bool {
@@ -57,7 +65,7 @@ final class AttendanceStatus {
 
     /**
      * Fold any casing to the canonical member, or null when the value is not
-     * one of the five.
+     * one of the members.
      *
      * This is what makes the vocabulary safe to tighten: input arriving from a
      * REST client, an import, or a pre-#2909 row is matched case-insensitively

@@ -855,6 +855,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'present'         => __( 'Present', 'talenttrack' ),
                 'absent_excused'  => __( 'Absent (excused)', 'talenttrack' ),
                 'absent_injured'  => __( 'Injured', 'talenttrack' ),
+                'suspended'       => __( 'Suspended', 'talenttrack' ),
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),

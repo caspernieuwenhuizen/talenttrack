@@ -76,6 +76,7 @@ class LabelTranslator {
             case 'Late':    return __( 'Late', 'talenttrack' );
             case 'Injured': return __( 'Injured', 'talenttrack' );
             case 'Excused': return __( 'Excused', 'talenttrack' );
+            case 'Suspended': return __( 'Suspended', 'talenttrack' );
             default:        return $name;
         }
     }

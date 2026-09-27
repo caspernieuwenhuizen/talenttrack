@@ -145,6 +145,9 @@ table.tt-agrid {
 .tt-agrid-cell--absent  { background: #fbe7e5; color: #9a2b23; }
 .tt-agrid-cell--excused { background: #ecefec; color: #565b54; }
 .tt-agrid-cell--injured { background: #efe7f6; color: #5b3a86; }
+/* suspended: the lookup pill's colour (--tt-warning-ink) as a solid cell,
+   so it cannot be mistaken for late's pale amber */
+.tt-agrid-cell--suspended { background: var(--tt-warning-ink); color: var(--tt-paper); }
 .tt-agrid-cell--empty   { background: #fff;    color: #c8ccc6; }
 
 /* a cell edited but not yet saved */

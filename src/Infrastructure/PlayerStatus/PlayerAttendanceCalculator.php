@@ -16,7 +16,7 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  *
  * #4041 — the score is AttendanceFlagService's one named exception,
  * {@see AttendanceFlagService::presentPctForStatus()}: attended (present +
- * late) over the activities that remain once excused and injured ones are
+ * late) over the activities that remain once excused, injured and suspended ones are
  * set aside, so a player is not marked down for being injured or for an
  * absence the club excused. Every other surface divides by the full total.
  *
@@ -31,7 +31,7 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
 final class PlayerAttendanceCalculator {
 
     /**
-     * @return array{sessions:int,present:int,late:int,absent:int,excused:int,injured:int,attended:int,score:?float,low_confidence:bool}
+     * @return array{sessions:int,present:int,late:int,absent:int,excused:int,injured:int,suspended:int,attended:int,score:?float,low_confidence:bool}
      */
     public function scoreFor( int $player_id, string $from, string $to ): array {
         global $wpdb;
@@ -62,11 +62,12 @@ final class PlayerAttendanceCalculator {
         $row      = is_object( $raw ) ? $raw : new \stdClass();
         $sessions = (int) ( $row->sessions ?? 0 );
         $excused  = (int) ( $row->excused ?? 0 );
-        $injured  = (int) ( $row->injured ?? 0 );
-        $attended = AttendanceFlagService::attended( $row );
+        $injured   = (int) ( $row->injured ?? 0 );
+        $suspended = (int) ( $row->suspended ?? 0 );
+        $attended  = AttendanceFlagService::attended( $row );
 
-        $countable = max( 0, $sessions - $excused - $injured );
-        $score     = AttendanceFlagService::presentPctForStatus( $attended, $sessions, $excused, $injured );
+        $countable = max( 0, $sessions - $excused - $injured - $suspended );
+        $score     = AttendanceFlagService::presentPctForStatus( $attended, $sessions, $excused, $injured, $suspended );
 
         return [
             'sessions'       => $sessions,
@@ -75,6 +76,7 @@ final class PlayerAttendanceCalculator {
             'absent'         => (int) ( $row->absent ?? 0 ),
             'excused'        => $excused,
             'injured'        => $injured,
+            'suspended'      => $suspended,
             'attended'       => $attended,
             'score'          => $score,
             'low_confidence' => $countable < 3,

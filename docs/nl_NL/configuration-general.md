@@ -22,7 +22,7 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 | **Locale** | Standaardtaal voor datum- en getalnotatie. Alleen geïnstalleerde talen worden getoond. |
 | **Tegelbreedte (px)** | Exacte breedte van de dashboardtegelkolom in pixels (140–400). Een expliciete override die **voorrang heeft** op het grootte-preset en de %-tegelschaal voor de breedte; laat leeg om het preset + de schaal te gebruiken. |
 | **Tegelpictogram-grootte (px)** | Exacte grootte van het tegelpictogram in pixels (14–64); de pictogramchip schaalt eromheen. Laat leeg om de preset-/%-schaalgrootte te gebruiken. |
-| **Aanwezigheid — Risicodrempel aanwezigheid** | Hoeveel **gemiste** activiteiten (afwezig, afgemeld of geblesseerd) een speler als risico markeren. Eén getal tussen 1 en 50, gelezen door het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding. Standaard 3. |
+| **Aanwezigheid — Risicodrempel aanwezigheid** | Hoeveel **gemiste** activiteiten (afwezig, afgemeld, geblesseerd of geschorst) een speler als risico markeren. Eén getal tussen 1 en 50, gelezen door het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding. Standaard 3. |
 | **Aanwezigheid — Risicodrempel te laat komen** | Hoeveel keer **te laat** een speler als risico markeert, apart geteld omdat wie te laat kwam er wél was. Laat leeg om de drempel hierboven te volgen — het veld toont dat overgenomen getal als placeholder, en leeg opslaan houdt beide op één getal. |
 | **E-mailafzender — Afzendernaam** | De naam waarvandaan plugin-e-mails worden verzonden. Leeg = de standaard WordPress-afzendernaam. |
 | **E-mailafzender — Afzenderadres** | Het adres waarvandaan plugin-e-mails worden verzonden. Moet een geldig e-mailadres zijn; leeg of ongeldig valt terug op de WordPress-standaard. |
@@ -49,8 +49,8 @@ De datumnotatie wordt toegepast overal waar een **volledige datum** wordt getoon
 
 De groep **Aanwezigheid** bevat de twee getallen die bepalen wanneer een speler
 als risico wordt gemarkeerd. Het zijn aparte tellingen, want het zijn twee
-verschillende problemen: **gemiste** activiteiten (afwezig, afgemeld of
-geblesseerd) en **te laat** komen. Wie te laat komt, was bij de activiteit, dus
+verschillende problemen: **gemiste** activiteiten (afwezig, afgemeld,
+geblesseerd of geschorst) en **te laat** komen. Wie te laat komt, was bij de activiteit, dus
 te laat komen verlaagt het aanwezigheidspercentage niet — het markeert op zijn
 eigen telling.
 
