@@ -175,4 +175,22 @@ final class MatchExecutionState {
     public static function isMatchDay( string $session_date ): bool {
         return $session_date !== '' && substr( $session_date, 0, 10 ) === current_time( 'Y-m-d' );
     }
+
+    /**
+     * #4061 — may this match be recorded afterwards, straight into the
+     * post-match review without running the clock? Only a match that never
+     * started (no execution yet reads as `''`) and whose date is before
+     * today: on match day the normal Start applies, and a future match has
+     * nothing to record. Any past date is allowed; the audit log and
+     * `tt_edit_activities` are the guard.
+     *
+     * Shared by the REST route, the activity header action and the
+     * execution view, so the three cannot disagree.
+     */
+    public static function canRecordAfterwards( string $state, string $session_date ): bool {
+        if ( $state !== '' && $state !== self::NOT_STARTED ) return false;
+        $day = substr( $session_date, 0, 10 );
+        if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $day ) !== 1 ) return false;
+        return $day < current_time( 'Y-m-d' );
+    }
 }

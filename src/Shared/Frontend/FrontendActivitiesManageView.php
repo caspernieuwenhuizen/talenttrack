@@ -249,10 +249,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // through whenever the date matched, so a finished match
                     // invited a second kick-off. The status branch lives in
                     // the resolver with the rest of them.
+                    // #4061 — a past match that never ran live can be recorded
+                    // afterwards, on a completed activity as well as a planned
+                    // one. Not on a cancelled one: nothing was played.
+                    $can_record_after = $status_now !== ActivityStatusKey::CANCELLED
+                        && \TT\Domain\Vocabularies\Enums\MatchExecutionState::canRecordAfterwards(
+                            (string) $exec_state,
+                            (string) ( $session->session_date ?? '' )
+                        );
                     $exec_label = \TT\Modules\Activities\Services\ActivityHeaderActions::matchExecutionLabel(
                         $is_planned,
                         (string) $exec_state,
-                        $is_match_day
+                        $is_match_day,
+                        $can_record_after
                     );
 
                     if ( $exec_label !== null ) {
@@ -263,6 +272,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             ],
                             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                         );
+                        // #4061 — the line-up has one source. Without a
+                        // starting line-up in match prep, recording afterwards
+                        // starts there instead of on a review with nobody in it.
+                        if ( $can_record_after
+                            && ! ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->hasStartingLineupForActivity( (int) ( ( (array) $session )['id'] ?? 0 ) )
+                        ) {
+                            $exec_url = $prep_url;
+                        }
                         $detail_actions[] = [
                             'label'    => $exec_label,
                             'href'     => $exec_url,

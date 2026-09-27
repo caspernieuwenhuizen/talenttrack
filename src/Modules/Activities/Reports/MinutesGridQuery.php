@@ -109,10 +109,10 @@ final class MinutesGridQuery {
                 // must not read as it.
                 'home_score'         => $a->home_score !== null ? (int) $a->home_score : null,
                 // #3531 — the grid now *asks* for the scoreline it was already
-                // reconciling against, so it needs both sides of it and which
-                // way round they go. Framed here rather than in the view, the
-                // way `recentResultsForTeam()` frames it: the academy team is
-                // home unless the row says away.
+                // reconciling against, so it needs both sides of it. #4066 —
+                // `home_score` is our goals and `away_score` theirs whatever the
+                // venue (#3530); `is_home` below is a label only and never
+                // decides which column is ours.
                 'away_score'         => $a->away_score !== null ? (int) $a->away_score : null,
                 // #4021 — `null`, not `true`, on a neutral fixture. This used
                 // to read "anything that is not literally away is home", which

@@ -88,7 +88,9 @@ the game without logging anything by accident.
 
 A match can only be started on its match day. Before then **Start** and
 **Start match** are greyed out too, and the reason — *Available on match
-day* with the date — is written under the clock.
+day* with the date — is written under the clock. Once the date has passed
+without the match being started, that line is replaced by **Record match
+afterwards** (see *Recording a match afterwards* below).
 
 **Tapping Start switches everything on in place.** There is no page to
 reload and no Edit button to find: from the first whistle to the last,
@@ -199,6 +201,40 @@ calculation so the reports stay consistent.
 
 Both finalizing and re-opening need the `tt_edit_activities` capability,
 the same permission that gates the rest of the match-execution screen.
+
+## Recording a match afterwards
+
+Not every match gets run live. The phone was flat, nobody had time, or the
+match was simply forgotten. A match whose date has passed and that was
+never started can still get its full record — line-up, substitutions,
+goals and minutes — after the fact.
+
+On the match's activity page, the header offers **Record match
+afterwards** for such a match, whether the activity is still planned or
+already completed. The match-execution screen offers the same button in
+place of the *Available on match day* line.
+
+1. **Set the line-up first.** The minutes are built from the starting
+   line-up in match prep, and match prep is the only place it is picked.
+   Without one, the button takes you to match prep instead.
+2. **Tap Record match afterwards** and confirm. The match opens in the
+   *pending review* state with editing already switched on. The clock is
+   never started; nothing claims to have watched the match live.
+3. **Add what happened** with the *Add late goal / substitution* panels.
+   Each takes the half and the minute, and events can be added in any
+   order: a second-half substitution first, then a first-half goal, then
+   a first-half substitution. Every substitution re-runs the minutes.
+4. **Finalize** as usual. The score follows the goals you added, and
+   finalizing copies it to the match and marks the activity completed.
+
+Any past date is allowed. On match day itself the normal **Start** applies,
+and a future match cannot be recorded yet. Each use is written to the audit
+log, and it needs the same `tt_edit_activities` permission for the team as
+the rest of this screen.
+
+The minutes + statistics grid stays the quick way to enter only minutes
+and a score. Once a match is recorded here, its minutes and score belong to
+the match sheet, the same as a match run live.
 
 ## Tracked players
 

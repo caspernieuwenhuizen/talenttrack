@@ -8,6 +8,7 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 
 /**
@@ -313,32 +314,28 @@ final class TeamMatchStatsQuery {
     /**
      * One fixture from the academy's side, or null when it carries no result.
      *
-     * Home or away is read the way `ActivitiesRepository::recentResultsForTeam()`
-     * reads it — the academy team is home unless the row says `away` — so the
-     * two never disagree about which way round a scoreline goes.
+     * The scoreline is framed by {@see MatchResultQuery::frame()}, the one
+     * place the column convention lives: `home_score` is the academy's goals
+     * whatever the venue (#3530, #4066). `home_away` is only the label; the
+     * academy team is home unless the row says `away`.
      *
      * @return array{activity_id:int, session_date:string, opponent:string,
      *               home_away:string, team_score:int, opp_score:int, outcome:string}|null
      */
     private function frame( object $fixture ): ?array {
-        $home = $fixture->home_score ?? null;
-        $away = $fixture->away_score ?? null;
-        if ( $home === null || $away === null || $home === '' || $away === '' ) {
+        $result = MatchResultQuery::frame( $fixture->home_score ?? null, $fixture->away_score ?? null );
+        if ( $result['our_score'] === null || $result['their_score'] === null ) {
             return null;
         }
-
-        $is_home = ( (string) ( $fixture->home_away ?? '' ) ) !== 'away';
-        $team    = (int) ( $is_home ? $home : $away );
-        $opp     = (int) ( $is_home ? $away : $home );
 
         return [
             'activity_id'  => (int) ( $fixture->id ?? 0 ),
             'session_date' => (string) ( $fixture->session_date ?? '' ),
             'opponent'     => (string) ( $fixture->opponent ?? '' ),
-            'home_away'    => $is_home ? 'home' : 'away',
-            'team_score'   => $team,
-            'opp_score'    => $opp,
-            'outcome'      => $team > $opp ? 'W' : ( $team < $opp ? 'L' : 'D' ),
+            'home_away'    => ( (string) ( $fixture->home_away ?? '' ) ) === 'away' ? 'away' : 'home',
+            'team_score'   => $result['our_score'],
+            'opp_score'    => $result['their_score'],
+            'outcome'      => $result['outcome'],
         ];
     }
 

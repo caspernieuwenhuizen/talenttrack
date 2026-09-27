@@ -407,13 +407,11 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $when  = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
         $live  = ! empty( $a['owned_by_execution'] );
 
-        // Stored home/away, read from the academy's side. `is_home` decides
-        // which stored column is ours, so the box a coach types into is always
-        // "our goals" whichever end of the fixture we were at.
-        $is_home = ! empty( $a['is_home'] );
-        $ours    = $is_home ? 'home_score' : 'away_score';
-        $column  = ( $field === 'home_score' ) ? $ours : ( $ours === 'home_score' ? 'away_score' : 'home_score' );
-        $value   = $a[ $column ] ?? null;
+        // #4066 — `home_score` is our goals and `away_score` theirs whatever
+        // the venue (#3530), so the box binds to the stored column of the
+        // same name. This used to swap the pair on an away match, which wrote
+        // "our goals" into `away_score`; `home_away` is only a label.
+        $value = $a[ $field ] ?? null;
 
         if ( ! empty( $a['is_tournament'] ) ) {
             echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--na" colspan="3" aria-label="'
@@ -427,12 +425,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         // own pair of boxes on top of those, so one fixture had two independent
         // score stores and whichever was typed into last won. The score is
         // shown, read-only, and the planner is where it is changed.
-        //
-        // Neutral, so there is no "our end" to pick a stored column by: the
-        // academy's goals are the home column and the opponent's the away one,
-        // which is the orientation the sync writes.
         if ( ! empty( $a['is_neutral'] ) ) {
-            $neutral = $a[ $field ] ?? null;
+            $neutral = $value;
             echo '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-score tt-agrid-score--derived" colspan="3" title="'
                 . esc_attr__( 'This score follows the tournament planner. Change it on the fixture.', 'talenttrack' )
                 . '">' . ( $neutral === null ? '&mdash;' : esc_html( (string) (int) $neutral ) ) . '</td>';
@@ -456,7 +450,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '<input class="tt-agrid-score-in" type="number" inputmode="numeric" min="0" max="99" step="1"'
             . ' value="' . esc_attr( $value === null ? '' : (string) (int) $value ) . '"'
             . ' data-activity="' . esc_attr( (string) $aid ) . '"'
-            . ' data-field="' . esc_attr( $column ) . '"'
+            . ' data-field="' . esc_attr( $field ) . '"'
             . ' aria-label="' . esc_attr( $label ) . '">';
         echo '</td>';
     }

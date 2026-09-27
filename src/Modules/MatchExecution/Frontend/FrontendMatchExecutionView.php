@@ -449,6 +449,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // review, which keeps the #2222 accidental-edit guard (opens "off",
         // Edit-to-enable); FINALIZED renders read-only with no toggle.
         $initial_edit_mode = MatchExecutionState::opensInEditMode( $state ) ? 'on' : 'off';
+        // #4061 — "Record match afterwards" lands here with Edit on: the
+        // coach asked to fill the match in, so the review opens ready for
+        // it rather than behind the accidental-edit guard.
+        if ( $state === MatchExecutionState::PENDING_REVIEW && isset( $_GET['tt_mexec_edit'] ) && absint( $_GET['tt_mexec_edit'] ) === 1 ) {
+            $initial_edit_mode = 'on';
+        }
         $pre_kickoff       = ( $state === MatchExecutionState::NOT_STARTED );
         // Before kickoff the live controls render `disabled` and point at
         // the note that says why (#3549).
@@ -476,8 +482,23 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // detail-page "Start match" button can't drift.
         $is_match_day   = MatchExecutionState::isMatchDay( $session_date );
         $start_locked   = ( ! $is_match_day && $state === MatchExecutionState::NOT_STARTED );
+        // #4061 — a past match that never ran live is not locked, it is
+        // recorded afterwards: the dated lock is replaced by that action.
+        // Without a starting line-up the action goes to match prep, the
+        // line-up's only source. Not on a cancelled activity.
+        $can_record_after = ( (string) ( $activity->activity_status_key ?? '' ) ) !== 'cancelled'
+            && MatchExecutionState::canRecordAfterwards( $execution ? $state : '', $session_date );
+        $record_after_prep_url = '';
+        if ( $can_record_after && ! $prep_repo->hasStartingLineupForActivity( $activity_id ) ) {
+            $record_after_prep_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg(
+                    [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                )
+            );
+        }
         $start_lock_msg = '';
-        if ( $start_locked ) {
+        if ( $start_locked && ! $can_record_after ) {
             $start_lock_msg = sprintf(
                 /* translators: %s: localized match date, e.g. "14 Jun" */
                 __( 'Available on match day (%s)', 'talenttrack' ),
@@ -563,11 +584,23 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <?php // #3548 — the reason a locked Start is locked, on screen.
                           // A `title` never shows on touch, which is the device
                           // this surface runs on; the tooltip stays as a bonus. ?>
+                    <?php if ( $can_record_after ) : ?>
+                        <?php // #4061 — in place of the dated lock, which on a past match was a dead end. ?>
+                        <div class="tt-mexec-record-after">
+                            <?php if ( $record_after_prep_url !== '' ) : ?>
+                                <a class="tt-btn tt-btn-primary tt-mexec-record-after-btn" href="<?php echo esc_url( $record_after_prep_url ); ?>"><?php esc_html_e( 'Record match afterwards', 'talenttrack' ); ?></a>
+                                <p class="tt-mexec-record-after-note"><?php esc_html_e( 'Set the starting line-up in match prep first. The minutes are built from it.', 'talenttrack' ); ?></p>
+                            <?php else : ?>
+                                <button type="button" class="tt-btn tt-btn-primary tt-mexec-record-after-btn" data-tt-mexec-record-afterwards><?php esc_html_e( 'Record match afterwards', 'talenttrack' ); ?></button>
+                            <?php endif; ?>
+                        </div>
+                    <?php else : ?>
                     <p class="tt-mexec-start-lock" id="tt-mexec-start-lock" data-tt-mexec-start-lock<?php echo $start_locked ? '' : ' hidden'; ?>><?php echo esc_html( $start_lock_msg ); ?></p>
+                    <?php endif; ?>
                     <?php // #3667 — who started the match and when the running half began. ?>
                     <p class="tt-mexec-started-by" data-tt-mexec-started-by<?php echo $started_line === '' ? ' hidden' : ''; ?>><?php echo esc_html( $started_line ); ?></p>
                 </div>
-                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
+                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ( $can_record_after ? ' disabled' : ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' ) : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
                 <?php // #3667 — a half left running past its length + stoppage.
                       // The live controls stay; any end of a half is clamped
                       // server-side anyway. The JS shows this same notice when
@@ -1543,7 +1576,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 <?php self::cut( 'cta' ); ?>
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
-                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
+                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ( $can_record_after ? ' disabled' : ' disabled title="' . esc_attr( $start_lock_msg ) . '" aria-describedby="tt-mexec-start-lock"' ) : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
                     <p class="tt-mexec-footer-sub" data-state="online" data-tt-mexec-status>
                         <span class="tt-mexec-footer-dot"></span>
                         <span data-tt-mexec-status-text><?php esc_html_e( 'Synced', 'talenttrack' ); ?></span>
@@ -1820,6 +1853,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 'started_at_second' => __( 'Second half started at %s', 'talenttrack' ),
                 'end_scheduled_arm' => __( 'Tap again to end the half', 'talenttrack' ),
                 'end_scheduled_error' => __( 'Could not end the half:', 'talenttrack' ),
+                // #4061 — recording a past match afterwards.
+                'record_after_confirm' => __( 'Record this match afterwards? It opens the post-match review, where you add the substitutions and goals with their minute.', 'talenttrack' ),
+                'record_after_error'   => __( 'Could not open the match for recording:', 'talenttrack' ),
             ],
         ] );
     }

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -1723,30 +1724,21 @@ final class ActivitiesRepository {
 
         $out = [];
         foreach ( $rows as $r ) {
-            $home_away = (string) ( $r->home_away ?? '' );
-            $has_score = $r->home_score !== null && $r->away_score !== null;
-
-            // The academy team is 'home' unless the row says 'away'.
-            $is_home    = $home_away !== 'away';
-            $team_score = $has_score ? (int) ( $is_home ? $r->home_score : $r->away_score ) : null;
-            $opp_score  = $has_score ? (int) ( $is_home ? $r->away_score : $r->home_score ) : null;
-
-            // No score recorded means no outcome, which is what keeps the match
-            // out of won/drawn/lost rather than counting as a goalless draw.
-            $outcome = '';
-            if ( $has_score ) {
-                $outcome = $team_score > $opp_score ? 'W' : ( $team_score < $opp_score ? 'L' : 'D' );
-            }
+            // #4066 — `home_score` is ours whatever the venue (#3530), so
+            // `home_away` only labels the fixture. No score recorded means no
+            // outcome, which keeps the match out of won/drawn/lost rather than
+            // counting it as a goalless draw.
+            $result = MatchResultQuery::frame( $r->home_score, $r->away_score );
 
             $out[] = [
                 'activity_id' => (int) $r->id,
                 'date'        => (string) ( $r->session_date ?? '' ),
                 'title'       => (string) ( $r->title ?? '' ),
                 'opponent'    => (string) ( $r->opponent ?? '' ),
-                'home_away'   => $home_away,
-                'team_score'  => $team_score,
-                'opp_score'   => $opp_score,
-                'outcome'     => $outcome,
+                'home_away'   => (string) ( $r->home_away ?? '' ),
+                'team_score'  => $result['our_score'],
+                'opp_score'   => $result['their_score'],
+                'outcome'     => $result['outcome'],
             ];
         }
 

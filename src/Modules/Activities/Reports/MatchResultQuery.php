@@ -107,6 +107,35 @@ final class MatchResultQuery {
     }
 
     /**
+     * One stored scoreline read from the academy's side: the one place the
+     * column convention above is applied, so no reader can put a venue swap
+     * back (#4066). `home_away` is deliberately not a parameter; it labels a
+     * fixture ("away to X") and never decides which column is ours.
+     *
+     * Both scores present or the result is empty: a half-recorded score is
+     * not a result, and null is not zero (#3529).
+     *
+     * @param mixed $home_score stored `home_score` (int, numeric string, '' or null)
+     * @param mixed $away_score stored `away_score`
+     * @return array{our_score:?int, their_score:?int, outcome:string}
+     */
+    public static function frame( $home_score, $away_score ): array {
+        $has = $home_score !== null && $away_score !== null && $home_score !== '' && $away_score !== '';
+        if ( ! $has ) {
+            return [ 'our_score' => null, 'their_score' => null, 'outcome' => '' ];
+        }
+
+        $ours   = (int) $home_score;
+        $theirs = (int) $away_score;
+
+        return [
+            'our_score'   => $ours,
+            'their_score' => $theirs,
+            'outcome'     => $ours > $theirs ? 'W' : ( $ours < $theirs ? 'L' : 'D' ),
+        ];
+    }
+
+    /**
      * A single fixture: the current `game` key or the legacy `match` value.
      * `tournament` is deliberately absent (see {@see forActivity}).
      */

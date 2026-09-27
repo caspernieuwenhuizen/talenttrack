@@ -126,7 +126,7 @@ final class TeamMatchStatsQueryTest extends WP_UnitTestCase {
     public function test_the_record_counts_wins_draws_and_losses_from_our_side(): void {
         $this->seedFixture( 8101, '2026-02-01', 3, 1 );            // home win
         $this->seedFixture( 8102, '2026-02-08', 2, 2 );            // home draw
-        $this->seedFixture( 8103, '2026-02-15', 4, 0, 'away' );    // away loss, 0-4
+        $this->seedFixture( 8103, '2026-02-15', 0, 4, 'away' );    // away loss, 0-4 (home_score is ours, #4066)
 
         $record = $this->stats()['record'];
 
@@ -139,9 +139,10 @@ final class TeamMatchStatsQueryTest extends WP_UnitTestCase {
         $this->assertSame( -2, $record['goal_difference'] );
     }
 
-    public function test_an_away_row_is_read_from_the_academy_side(): void {
-        // Stored home 1 – away 5 with the academy away: a 5-1 win for us.
-        $this->seedFixture( 8110, '2026-03-01', 1, 5, 'away' );
+    public function test_an_away_row_keeps_home_score_as_ours(): void {
+        // #4066 — `home_score` is ours whatever the venue (#3530). Stored
+        // home 5 – away 1 with the academy away is a 5-1 win, not a defeat.
+        $this->seedFixture( 8110, '2026-03-01', 5, 1, 'away' );
 
         $form = $this->stats()['form'][0];
 
