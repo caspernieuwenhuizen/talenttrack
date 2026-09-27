@@ -64,15 +64,16 @@ final class MinutesGridScoreRowsTest extends WP_UnitTestCase {
         $this->assertTrue( $column['is_home'] );
     }
 
-    public function test_an_away_column_says_which_way_round_it_goes(): void {
-        // Stored home 1 – away 5 with the academy away. The grid needs to know
-        // that the box a coach types "our goals" into is the away column.
-        $this->seed( 9310, '2026-02-10', 1, 5, 'away' );
+    public function test_an_away_column_keeps_home_score_as_ours(): void {
+        // #4066 — stored home 5 – away 1 with the academy away is a 5-1 win:
+        // `home_score` is ours whatever the venue, and `is_home` only labels.
+        $this->seed( 9310, '2026-02-10', 5, 1, 'away' );
 
         $column = $this->column( 9310 );
 
         $this->assertFalse( $column['is_home'] );
-        $this->assertSame( 5, $column['away_score'] );
+        $this->assertSame( 5, $column['home_score'] );
+        $this->assertSame( 1, $column['away_score'] );
     }
 
     public function test_an_unrecorded_score_is_null_on_both_sides(): void {
