@@ -1285,7 +1285,7 @@ final class TeamMonthlyReportPage {
     }
 
     /**
-     * One test's readings per player, in shirt order (#3515).
+     * One test's readings per player (#3515), in the composer's order: best to worst on a test with a direction (#4063).
      *
      * @param array<string,mixed> $round
      */
@@ -1296,7 +1296,7 @@ final class TeamMonthlyReportPage {
             return;
         }
 
-        $unit   = (string) ( $round['unit'] ?? '' );
+        $unit   = (string) ( $round['unit_label'] ?? $round['unit'] ?? '' );
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
@@ -1321,8 +1321,7 @@ final class TeamMonthlyReportPage {
             echo '<tr>';
             echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             if ( $values ) {
-                $value = $row['value'] ?? null;
-                echo '<td class="num">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+                echo '<td class="num">' . esc_html( self::testValue( $row ) ) . '</td>';
             }
             if ( $trend ) {
                 echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'
@@ -1334,7 +1333,20 @@ final class TeamMonthlyReportPage {
     }
 
     /**
-     * A reading's change since the player's previous one.
+     * A reading as the composer spelled it (#4063). A snapshot frozen before
+     * the composer spelled it falls back to the raw value.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testValue( array $row ): string {
+        if ( isset( $row['value_display'] ) && is_string( $row['value_display'] ) ) return $row['value_display'];
+        $value = $row['value'] ?? null;
+        return is_scalar( $value ) ? (string) $value : '—';
+    }
+
+    /**
+     * A reading's change since the player's previous one, as the composer
+     * spelled it (#4063).
      *
      * A first reading has nothing to compare with, which is not the same as no
      * change — it gets a dash, like every other "no comparison" in this report.
@@ -1343,13 +1355,12 @@ final class TeamMonthlyReportPage {
      */
     private static function testDelta( array $row ): string {
         if ( ! empty( $row['first'] ) ) return '—';
+        if ( isset( $row['delta_display'] ) && is_string( $row['delta_display'] ) ) return $row['delta_display'];
 
         $delta = (float) ( $row['delta'] ?? 0 );
         if ( abs( $delta ) < 0.0001 ) return '0';
 
-        $formatted = number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
-
-        return ( $delta > 0 ? '+' : '−' ) . $formatted;
+        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
     }
 
     /** @param array<string,mixed> $r */

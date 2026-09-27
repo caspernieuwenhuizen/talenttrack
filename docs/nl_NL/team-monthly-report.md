@@ -49,7 +49,9 @@ of niet, zodat het overeenkomt met wat je in de activiteitenlijst ziet.
 Geannuleerde sessies blijven erbuiten.
 
 Van sommige secties kun je meer instellen dan of ze meedoen. Vink je zo'n sectie
-aan en druk je op **Rapport bijwerken**, dan verschijnen de instellingen eronder.
+aan en druk je op **Rapport bijwerken**, dan verschijnen de instellingen eronder
+— of, op een breed scherm, in een kolom rechts ervan, met het afdrukformaat en
+de knoppen onder de secties.
 
 **Testen** heeft er twee. **Welke testen** toont de testen die je selectie deze
 periode daadwerkelijk heeft gedaan — vink aan waar het overleg over gaat, of laat
@@ -62,6 +64,11 @@ tonen** bepaalt wat er per test op papier komt:
 - **Verschil met vorige keer** — hoeveel elke speler veranderde sinds de vorige
   meting.
 - **Uitslagen en verschil** — beide kolommen.
+
+Een test op tijd leest in minuten en seconden (`16:04`), zoals hij is ingevoerd,
+en het verschil in seconden (`−7 s`). Een test waarbij lager of hoger beter is,
+zet de spelers van beste naar slechtste; een test zonder richting, zoals lengte,
+zet ze op rugnummer.
 
 Sla je het rapport op en heeft een gekozen test volgende maand geen metingen,
 dan verschijnt die sectie alsnog en zegt dat erbij. Een sectie die zomaar

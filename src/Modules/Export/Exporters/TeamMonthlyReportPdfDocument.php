@@ -595,7 +595,7 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /**
-     * One test's readings per player, in shirt order (#3515).
+     * One test's readings per player (#3515), in the composer's order: best to worst on a test with a direction (#4063).
      *
      * @param array<string,mixed> $round
      */
@@ -605,7 +605,7 @@ final class TeamMonthlyReportPdfDocument {
             return '<span class="muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</span>';
         }
 
-        $unit   = (string) ( $round['unit'] ?? '' );
+        $unit   = (string) ( $round['unit_label'] ?? $round['unit'] ?? '' );
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
@@ -627,8 +627,7 @@ final class TeamMonthlyReportPdfDocument {
             if ( ! is_array( $row ) ) continue;
             $out .= '<tr><td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), 28 ) ) . '</td>';
             if ( $values ) {
-                $value = $row['value'] ?? null;
-                $out  .= '<td class="r">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+                $out .= '<td class="r">' . esc_html( self::testValue( $row ) ) . '</td>';
             }
             if ( $trend ) {
                 $out .= '<td class="r">' . esc_html( self::testDelta( $row ) ) . '</td>';
@@ -640,14 +639,28 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /**
-     * A reading's change since the player's previous one. A first reading has
-     * nothing to compare with and gets a dash, as everywhere else in this
-     * report.
+     * A reading as the composer spelled it (#4063): m:ss for a duration, a
+     * locale number otherwise. A snapshot frozen before the composer spelled
+     * it falls back to the raw value.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testValue( array $row ): string {
+        if ( isset( $row['value_display'] ) && is_string( $row['value_display'] ) ) return $row['value_display'];
+        $value = $row['value'] ?? null;
+        return is_scalar( $value ) ? (string) $value : '—';
+    }
+
+    /**
+     * A reading's change since the player's previous one, as the composer
+     * spelled it (#4063). A first reading has nothing to compare with and gets
+     * a dash, as everywhere else in this report.
      *
      * @param array<string,mixed> $row
      */
     private static function testDelta( array $row ): string {
         if ( ! empty( $row['first'] ) ) return '—';
+        if ( isset( $row['delta_display'] ) && is_string( $row['delta_display'] ) ) return $row['delta_display'];
 
         $delta = (float) ( $row['delta'] ?? 0 );
         if ( abs( $delta ) < 0.0001 ) return '0';

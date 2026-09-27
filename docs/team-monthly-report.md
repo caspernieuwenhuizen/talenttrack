@@ -48,7 +48,8 @@ sessions are left out.
 
 Some sections can be told more than whether to appear. When you tick a section
 that has settings and press **Update report**, its controls appear under the
-section list.
+section list — or, on a wide screen, in a column to the right of it, with the
+printed size and the buttons under the sections.
 
 **Tests** has two. **Which tests** lists the tests your squad actually took in
 this period — tick the ones the meeting is about, or leave them all unticked to
@@ -61,6 +62,11 @@ decides what each test prints:
 - **Change since last time** — how much each player moved since their previous
   result.
 - **Readings and change** — both columns.
+
+A timed test reads as minutes and seconds (`16:04`), the way it was entered,
+and its change is in seconds (`−7 s`). A test where lower or higher is better
+lists its players from best to worst; a test without a direction, such as
+height, lists them in squad-number order.
 
 If you save the report and a test you picked has no readings next month, its
 section still appears and says so. A section that quietly vanished would read

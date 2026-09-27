@@ -18,6 +18,8 @@ use TT\Modules\Analytics\EvalCoverageService;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
+use TT\Modules\Measurements\Units\DurationFormat;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * TeamMonthlyReport (#3458, epic #3457) — the document a monthly staff meeting
@@ -768,6 +770,13 @@ final class TeamMonthlyReport {
 
             $trend = $trends->forDefinition( $def_id, [ 'team_id' => $this->team_id, 'date_to' => $this->to ] );
 
+            // #4063 — the trend values are in the test's entry unit; the unit
+            // context says how a person reads them (mm:ss for a duration).
+            $units     = UnitContext::forDefinition( ( new MeasurementDefinitionsRepository() )->find( $def_id ) );
+            $direction = $trend['has_direction'] && is_array( $trend['definition'] )
+                ? (string) ( $trend['definition']['direction'] ?? '' )
+                : '';
+
             $in_window = [];
             foreach ( $trend['dates'] as $d ) {
                 if ( $d >= $this->from && $d <= $this->to ) $in_window[] = $d;
@@ -797,10 +806,13 @@ final class TeamMonthlyReport {
                     // A player tested for the first time has a reading but no
                     // step: null reads as "nothing to compare with", which is
                     // not the same as no change.
+                    $value      = (float) $values[ $date ];
                     $readings[] = $entry + [
-                        'value' => $values[ $date ],
-                        'trend' => is_array( $step ) ? (string) ( $step['trend'] ?? '' ) : '',
-                        'first' => ! is_array( $step ),
+                        'value'         => $value,
+                        'value_display' => self::testValueDisplay( $units, $value ),
+                        'delta_display' => is_array( $step ) ? self::testDeltaDisplay( $units, $entry['delta'] ) : '—',
+                        'trend'         => is_array( $step ) ? (string) ( $step['trend'] ?? '' ) : '',
+                        'first'         => ! is_array( $step ),
                     ];
                 }
 
@@ -815,6 +827,9 @@ final class TeamMonthlyReport {
                 'definition_id' => $def_id,
                 'name'          => is_array( $definition ) ? (string) ( $definition['name'] ?? '' ) : (string) ( $s->definition_name ?? '' ),
                 'unit'          => is_array( $definition ) ? (string) ( $definition['unit'] ?? '' ) : '',
+                'unit_label'    => self::testUnitLabel( $units ),
+                'is_duration'   => $units->isDuration(),
+                'direction'     => $direction,
                 'date'          => $date,
                 'tested'        => $tested,
                 'squad'         => $squad,
@@ -822,7 +837,9 @@ final class TeamMonthlyReport {
                 // like every other player list in the report.
                 'improved'      => PlayerOrder::sort( $improved, $jerseys ),
                 'declined'      => PlayerOrder::sort( $declined, $jerseys ),
-                'readings'      => PlayerOrder::sort( $readings, $jerseys ),
+                // #4063 — a result table, though: best to worst on a test
+                // with a direction, shirt order otherwise.
+                'readings'      => self::rankReadings( PlayerOrder::sort( $readings, $jerseys ), $direction ),
             ];
         }
 
@@ -839,10 +856,15 @@ final class TeamMonthlyReport {
         $definition = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
         if ( ! $definition ) return null;
 
+        $units = UnitContext::forDefinition( $definition );
+
         return [
             'definition_id' => $definition_id,
             'name'          => (string) ( $definition->name ?? '' ),
             'unit'          => (string) ( $definition->unit ?? '' ),
+            'unit_label'    => self::testUnitLabel( $units ),
+            'is_duration'   => $units->isDuration(),
+            'direction'     => '',
             'date'          => '',
             'tested'        => 0,
             'squad'         => count( $this->players() ),
@@ -851,6 +873,93 @@ final class TeamMonthlyReport {
             'readings'      => [],
             'empty'         => true,
         ];
+    }
+
+    /**
+     * What a test's result column is headed with: `mm:ss` for a duration,
+     * the unit's symbol otherwise.
+     */
+    private static function testUnitLabel( UnitContext $units ): string {
+        return $units->isDuration() ? 'mm:ss' : $units->symbol();
+    }
+
+    /**
+     * One reading as a person reads it (#4063). Trend values arrive in the
+     * entry unit; a duration goes back to seconds and prints as m:ss, rounded
+     * to the hundredth first so float noise from the unit conversion cannot
+     * turn 16:04 into 16:03.99.
+     */
+    private static function testValueDisplay( UnitContext $units, float $value ): string {
+        if ( $units->isDuration() ) {
+            return DurationFormat::format( round( $units->toBase( $value ), 2 ) );
+        }
+        return UnitContext::localeNumber( $value );
+    }
+
+    /**
+     * A change between two readings (#4063). A duration's change is spoken in
+     * seconds ("−7 s"), whatever unit the test is entered in; anything else
+     * keeps the entry unit, which the column header names.
+     */
+    private static function testDeltaDisplay( UnitContext $units, float $delta ): string {
+        if ( $units->isDuration() ) {
+            $seconds = round( $units->deltaFromBase( $units->toBase( $delta ) ), 1 );
+            if ( abs( $seconds ) < 0.05 ) return '0 ' . $units->deltaSymbol();
+            return ( $seconds > 0 ? '+' : '−' ) . UnitContext::localeNumber( abs( $seconds ) ) . ' ' . $units->deltaSymbol();
+        }
+        if ( abs( $delta ) < 0.0001 ) return '0';
+        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
+    }
+
+    /**
+     * Readings best to worst on a test with a direction (#4063): ascending on
+     * `lower`, descending on `higher`. Without a direction there is no better
+     * or worse, so the shirt order they arrive in stands. Ties keep that shirt
+     * order too.
+     *
+     * @param list<array<string,mixed>> $readings in shirt order
+     * @return list<array<string,mixed>>
+     */
+    private static function rankReadings( array $readings, string $direction ): array {
+        if ( $direction !== 'lower' && $direction !== 'higher' ) return $readings;
+
+        $sign = $direction === 'lower' ? 1 : -1;
+        return self::stableSort(
+            $readings,
+            static fn( array $a, array $b ): int => $sign * ( (float) ( $a['value'] ?? 0 ) <=> (float) ( $b['value'] ?? 0 ) )
+        );
+    }
+
+    /**
+     * `usort` with ties left in the order the rows arrived — PHP 7.4's sort
+     * is not stable, and every ranking here falls back to shirt order.
+     *
+     * @param list<array<string,mixed>> $rows
+     * @param callable(array<string,mixed>, array<string,mixed>): int $cmp
+     * @return list<array<string,mixed>>
+     */
+    private static function stableSort( array $rows, callable $cmp ): array {
+        $indexed = [];
+        foreach ( $rows as $i => $row ) {
+            $indexed[] = [ $i, $row ];
+        }
+        usort(
+            $indexed,
+            /**
+             * @param array{int, array<string,mixed>} $a
+             * @param array{int, array<string,mixed>} $b
+             */
+            static function ( array $a, array $b ) use ( $cmp ): int {
+                $c = $cmp( $a[1], $b[1] );
+                return $c !== 0 ? $c : $a[0] <=> $b[0];
+            }
+        );
+
+        $out = [];
+        foreach ( $indexed as $pair ) {
+            $out[] = $pair[1];
+        }
+        return $out;
     }
 
     /**
