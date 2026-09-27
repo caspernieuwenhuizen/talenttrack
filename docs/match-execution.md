@@ -132,9 +132,11 @@ warning:
 - **End half at scheduled length** ends the half at exactly its planned
   length, for example 30:00. It needs a second tap, like **End match**.
   In the second half it also ends the match, which then goes to review.
-- **Record the match afterwards** opens the place to enter the match
-  after the fact: the minutes + statistics grid when your club uses it,
-  otherwise the match's per-match minutes editor.
+- **Correct the minutes afterwards** opens the place to correct the
+  minutes after the fact: the minutes + statistics grid when your club
+  uses it, otherwise the match's per-match minutes editor. It is not the
+  same as **Record match afterwards**, which is for a match that was
+  never started.
 
 The normal controls stay available. However a half is ended, it is
 never stored as longer than its length plus 10 minutes, the same

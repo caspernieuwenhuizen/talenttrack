@@ -9439,12 +9439,6 @@ parameters:
 			path: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
-
-		-
 			message: '#^Method TT\\Modules\\MatchExecution\\Rest\\MatchExecutionRestController\:\:ensureExecution\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

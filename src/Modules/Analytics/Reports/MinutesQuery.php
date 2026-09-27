@@ -7,6 +7,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
@@ -19,6 +20,9 @@ use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
  *     together by `MatchStints` → starts / subs_in / subs_off (#4059,
  *     #4060); the first-period line-up alone when no execution exists
  *   - `tt_activities.game_subtype_key`   → League / Cup / Friendly bucket
+ *   - `MatchLengthResolver::playedMatchMinutes()` → each match's length for
+ *     `available_minutes`, the same chain the audit and minutes share read
+ *     (#4077)
  *
  * #2193 — minutes are read ONLY from persisted `record_type='actual'`
  * attendance rows. They are computed exactly once, when a played match
@@ -86,6 +90,7 @@ final class MinutesQuery {
 
         $exec_repo = new MatchExecutionRepository();
         $prep_repo = new MatchPrepRepository();
+        $length_resolver = new MatchLengthResolver();
 
         // Aggregators keyed by player_id.
         $totals      = []; // total minutes
@@ -124,8 +129,7 @@ final class MinutesQuery {
                 continue; // no recorded minutes — nothing to count.
             }
 
-            $half_length = $prep ? (int) $prep->half_length_minutes : 0;
-            if ( $half_length <= 0 ) $half_length = 35; // sane fallback
+            $prep_period = $prep ? (int) $prep->half_length_minutes : 0;
 
             // Line-ups per period. The column is a period number, so a
             // quarters match carries four of them rather than two halves.
@@ -142,8 +146,14 @@ final class MinutesQuery {
             $exec_id = $exec ? (int) $exec->id : 0;
             $sub_rows = $exec_id > 0 ? $exec_repo->listSubstitutions( $exec_id ) : [];
 
-            $periods = self::periodCount( $lineups, $sub_rows );
-            $available_minutes += $half_length * $periods;
+            // #4077 — the match's length comes from the same chain the
+            // minutes audit and the minutes share read, so "% available"
+            // agrees with them. A match with no prep row used to count as
+            // 2 × 35 here even when its age group plays 2 × 30.
+            $periods      = self::periodCount( $lineups, $sub_rows );
+            $match_length = $length_resolver->playedMatchMinutes( $aid, $prep_period, $periods );
+            $half_length  = $prep_period > 0 ? $prep_period : (int) ceil( $match_length / $periods );
+            $available_minutes += $match_length;
 
             // #1489 — persisted per-player minutes (written to
             // tt_attendance.minutes_played by the match execution on

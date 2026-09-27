@@ -28,10 +28,14 @@ van die wedstrijd.
  activiteit is voltooid, de datum is voorbij, of er zijn al minuten
  vastgelegd. Een wedstrijd die vanavond begint zit niet in de noemer, dus
  niemands aandeel zakt op de ochtend van een wedstrijd.
-- **Eigen duur** betekent de helftduur maal twee — de waarde op de
- wedstrijdvoorbereiding als die is ingevuld, anders de standaard voor de
- leeftijdscategorie van het team, anders 35 minuten per helft. Een O9-team met
- helften van 30 minuten heeft over tien wedstrijden 600 beschikbaar, geen 700.
+- **Eigen duur** wordt op elk minutenrapport op dezelfde manier bepaald — het
+ minutenrapport, de minutencontrole en dit rapport — zodat ze het over een
+ wedstrijd altijd eens zijn: de helftduur op de wedstrijdvoorbereiding als die
+ is ingevuld, anders de wedstrijdduur op de activiteit, anders de standaard
+ voor de leeftijdscategorie van het team, anders de geplande tijd van begin
+ tot eind, anders 35 minuten per helft. Een O9-team met helften van 30 minuten
+ heeft over tien wedstrijden 600 beschikbaar, geen 700, of die wedstrijden nu
+ een wedstrijdvoorbereiding hadden of niet.
 
 Tien voltooide wedstrijden van 70 minuten leveren dus **700 beschikbare
 minuten** op, en een speler met 350 vastgelegde minuten staat op **50%**.
