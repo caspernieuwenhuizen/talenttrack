@@ -146,13 +146,20 @@ final class PlayerTournamentsTabTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( '0–0', $html );
     }
 
+    /**
+     * #4053 — the confirmed figures are the minutes, and the page says so. The
+     * seeded tournament has no register at all, so every row falls back to the
+     * plan and carries the **Planned** pill: a figure nobody confirmed must not
+     * read as what was played (#3713).
+     */
     public function test_the_page_names_where_the_minutes_come_from(): void {
         $player = $this->seedPlayerWithATournament();
 
         $html = $this->render( $player, $this->admin );
 
-        $this->assertStringContainsString( 'rotation plan of completed fixtures', $html );
-        $this->assertStringContainsString( 'Activities tab', $html );
+        $this->assertStringContainsString( 'the figures the coach confirmed', $html );
+        $this->assertStringContainsString( 'rotation plan is shown instead', $html );
+        $this->assertStringContainsString( 'tt-ptour__planned', $html );
     }
 
     /** Only a shortfall is coloured, and the figures are spelled out beside it. */

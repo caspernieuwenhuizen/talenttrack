@@ -14,8 +14,10 @@ use TT\Modules\Tournaments\Services\PlayerTournamentHistoryQuery;
  * `GET /players/{id}/tournaments`.
  *
  * One player's tournament record: every tournament they were in the squad
- * for, every fixture of those they were assigned to, the minutes the
- * rotation plan gave them, and what is still ahead. The player file's
+ * for, every fixture of those they were assigned to, the minutes they got —
+ * the figures the coach confirmed, and the rotation plan's only where none
+ * were confirmed, with `minutes_source` saying which (#4053) — and what is
+ * still ahead. The player file's
  * Tournaments tab (#3562) renders exactly this and computes none of it, so
  * the screen and a non-WordPress front end cannot disagree (CLAUDE.md §4).
  *
