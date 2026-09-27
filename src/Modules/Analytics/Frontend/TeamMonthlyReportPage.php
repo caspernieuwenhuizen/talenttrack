@@ -893,7 +893,7 @@ final class TeamMonthlyReportPage {
             }
             $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $r['player_id'] ?? 0 ) );
             echo '<tr class="is-' . esc_attr( $band !== '' ? $band : 'none' ) . '">';
-            echo '<th scope="row">' . self::link( 'players', $url, (string) ( $r['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
+            echo '<th scope="row"><span class="tt-mr-bars__name">' . self::link( 'players', $url, (string) ( $r['name'] ?? '' ) ) . '</span></th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             echo '<td class="tt-mr-bars__track"><span class="tt-mr-track">';
             if ( $pct !== null ) {
                 echo '<i style="width:' . (int) max( 0, min( 100, round( $pct ) ) ) . '%;"></i>'; /* tt-inline-ok */

@@ -405,7 +405,21 @@
     vertical-align: middle;
 }
 
-.tt-mr-bars th { min-width: 8rem; }
+/* #4099 — the name column is as wide as the longest name and never wraps,
+   so every row is one line high; the track takes the rest. On a phone a
+   very long name ellipsizes rather than pushing the track off screen. */
+.tt-mr-bars th {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.tt-mr-bars__name {
+    display: block;
+    max-width: 45vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 .tt-mr-bars__track { width: 100%; }
 
@@ -652,6 +666,7 @@
 
 @media (min-width: 480px) {
     .tt-mr-blocks { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tt-mr-bars__name { max-width: none; }
 }
 
 @media (min-width: 768px) {
