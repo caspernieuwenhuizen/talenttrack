@@ -654,7 +654,13 @@ class QueryHelpers {
         // active-only, so this agrees with the matrix and the dashboard about
         // a guardian whose child has been released rather than being a sixth
         // opinion.
-        return \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [];
+        // #4089 — any child the parent keeps access on, a trialist included:
+        // this decides whether the parent surfaces exist at all, and each
+        // surface then asks what this parent may read on the child in front
+        // of it.
+        return \TT\Infrastructure\Players\ParentChildResolver::childIds(
+            $user_id, \TT\Infrastructure\Players\ParentChildResolver::NEED_SCHEDULE
+        ) !== [];
     }
 
     /**

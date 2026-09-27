@@ -87,7 +87,9 @@ final class SubjectVoice {
         if ( $uid > 0 && (int) ( $player->wp_user_id ?? 0 ) === $uid ) {
             return new self( self::SELF, $player_id, $name, $first );
         }
-        if ( in_array( $player_id, ParentChildResolver::childIds( $uid ), true ) ) {
+        // #4089 — any child the parent keeps access on, a trialist included:
+        // this only decides how the screen addresses the reader.
+        if ( in_array( $player_id, ParentChildResolver::childIds( $uid, ParentChildResolver::NEED_SCHEDULE ), true ) ) {
             return new self( self::PARENT, $player_id, $name, $first );
         }
         return new self( self::STAFF, $player_id, $name, $first );

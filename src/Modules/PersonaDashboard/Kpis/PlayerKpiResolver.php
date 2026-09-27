@@ -30,7 +30,12 @@ final class PlayerKpiResolver {
         }
 
         // Single-child parent fallback — canonical pivot, not guardian_email.
+        // #4089 — only when the parent reads that child's development record:
+        // a KPI is development data, and a trialist's family reads none.
         $children = ParentChildResolver::children( $user_id );
-        return count( $children ) === 1 ? (int) $children[0]->id : 0;
+        if ( count( $children ) !== 1 ) return 0;
+
+        $child_id = (int) $children[0]->id;
+        return ParentChildResolver::isParentOf( $user_id, $child_id ) ? $child_id : 0;
     }
 }

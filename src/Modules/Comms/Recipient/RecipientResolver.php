@@ -53,9 +53,28 @@ final class RecipientResolver {
     /**
      * Resolve the recipients for one player, applying the #0042 rules.
      *
+     * #4089 — `$development` marks a message whose content is the child's
+     * development (a goal nudge, a plan being ready). Its family is reached
+     * only while the child is active: a trialist's family reads nothing of
+     * the development record, so is sent nothing about it either. The
+     * player's own account is unaffected.
+     *
      * @return Recipient[]
      */
-    public function forPlayer( int $playerId ): array {
+    public function forPlayer( int $playerId, bool $development = false ): array {
+        $recipients = $this->tiered( $playerId );
+        if ( ! $development || ParentChildResolver::isDevelopmentOpen( $playerId ) ) return $recipients;
+
+        return array_values( array_filter(
+            $recipients,
+            static fn( Recipient $r ): bool => $r->kind !== Recipient::KIND_PARENT
+        ) );
+    }
+
+    /**
+     * @return Recipient[]
+     */
+    private function tiered( int $playerId ): array {
         if ( $playerId <= 0 ) return [];
 
         $player = self::loadPlayer( $playerId );

@@ -52,6 +52,14 @@ Your dashboard mirrors exactly what your child sees: the same development tiles,
 
 A single parent account can be linked to several children. Each child has their own profile under "My children"; switching between them takes one tap. You only need one TalentTrack install and one set of notifications — pushes name the relevant child in the body so you know which one a message is about.
 
+## While your child is on trial, and after they graduate
+
+What you see depends on where your child is in the academy:
+
+- **On trial** — you see the trial's trainings and matches, and whether your child was there. Evaluations, goals, the development plan and the coaches' other notes open once your child has signed with the academy. Until then, those screens tell you so instead of showing them.
+- **Graduated** — you can still read what you could see before, as it stood when your child graduated. You can no longer reply in conversations or acknowledge anything, and the academy no longer sends you messages about your child.
+- **Released** — your access to your child's record ends. If you need a copy, ask the academy.
+
 ## When your child turns 11 or 12
 
 The contact strategy shifts. From U11 your child can have their own phone account and start receiving their pushes directly. You stay linked as a parent and continue to see everything, but the coach can also reach the player straight on their phone.

@@ -111,10 +111,16 @@ final class ParentSearchService {
 
         $date = self::asDate( $query );
 
+        // #4089 — the schedule is searched for every child; evaluations and
+        // goals only for a child whose record this parent reads (never a
+        // trialist) and who has not kept that section from them (#1867).
+        $evaluation_ids = $this->sectionReadable( $parent_user_id, $player_ids, 'evaluations' );
+        $goal_ids       = $this->sectionReadable( $parent_user_id, $player_ids, 'goals' );
+
         $results = array_merge(
             $this->activities( $player_ids, $query, $date ),
-            $this->evaluations( $player_ids, $query, $date ),
-            $this->goals( $player_ids, $query, $date ),
+            $evaluation_ids !== [] ? $this->evaluations( $evaluation_ids, $query, $date ) : [],
+            $goal_ids !== [] ? $this->goals( $goal_ids, $query, $date ) : [],
             $this->messages( $parent_user_id, $query, $date )
         );
 
@@ -135,6 +141,22 @@ final class ParentSearchService {
             'results'  => $results,
             'total'    => count( $results ),
         ];
+    }
+
+    /**
+     * The children whose `$section` this parent reads.
+     *
+     * @param list<int> $player_ids
+     * @return list<int>
+     */
+    private function sectionReadable( int $parent_user_id, array $player_ids, string $section ): array {
+        $out = [];
+        foreach ( $player_ids as $player_id ) {
+            if ( ! ParentChildResolver::isParentOf( $parent_user_id, $player_id ) ) continue;
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $parent_user_id, $player_id, $section ) ) continue;
+            $out[] = $player_id;
+        }
+        return $out;
     }
 
     /** @return list<object> */

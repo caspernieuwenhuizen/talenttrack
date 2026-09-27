@@ -121,7 +121,7 @@ class MatrixGate {
 
                 if ( $scope_kind === self::SCOPE_GLOBAL ) return true;
                 if ( $scope_kind === self::SCOPE_SELF )   return true;
-                if ( self::userHasAnyScope( $user_id, $scope_kind, $persona ) ) return true;
+                if ( self::userHasAnyScope( $user_id, $scope_kind, $persona, $entity, $activity ) ) return true;
             }
         }
 
@@ -195,7 +195,7 @@ class MatrixGate {
                         'source_row_id' => $repo->rowIdFor( $persona, $entity, $activity, $scope_kind ),
                     ];
                 }
-                $assigned = self::firstScopeAssignment( $user_id, $scope_kind, $persona );
+                $assigned = self::firstScopeAssignment( $user_id, $scope_kind, $persona, $entity, $activity );
                 if ( $assigned !== null ) {
                     return [
                         'allowed'       => true,
@@ -232,7 +232,7 @@ class MatrixGate {
      * in `userHasAnyScope()` but returns the matching id (team / player)
      * so the admin can show "scope_value=42".
      */
-    private static function firstScopeAssignment( int $user_id, string $scope_kind, string $persona = '' ): ?int {
+    private static function firstScopeAssignment( int $user_id, string $scope_kind, string $persona, string $entity, string $activity ): ?int {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -246,8 +246,17 @@ class MatrixGate {
             // #3476 — was a fifth inline pivot query, club-unscoped like the
             // rest. The resolver orders most-recent link first, which is the
             // same default subject the dashboard and the Me-views resolve.
-            $children = \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id );
-            if ( $children !== [] ) return $children[0];
+            // #4089 — the first child on whom the guardian's access level
+            // allows this entity and activity, as `resolveScoped()` asks.
+            foreach ( \TT\Infrastructure\Players\ParentChildResolver::children( $user_id ) as $child ) {
+                $child_id = (int) ( ( (array) $child )['id'] ?? 0 );
+                if ( $child_id > 0
+                    && \TT\Infrastructure\Players\ParentChildResolver::accessAllowsEntity(
+                        \TT\Infrastructure\Players\ParentChildResolver::accessOf( $child ), $entity, $activity
+                    ) ) {
+                    return $child_id;
+                }
+            }
 
             // #3566 — the scout branch, for the scout persona alone.
             if ( $persona === 'scout' ) {
@@ -377,7 +386,7 @@ class MatrixGate {
                 continue;
             }
 
-            if ( self::userHasScope( $user_id, $scope_kind, $scope_target_id, $persona ) ) {
+            if ( self::userHasScope( $user_id, $scope_kind, $scope_target_id, $persona, $entity, $activity ) ) {
                 return true;
             }
         }
@@ -413,7 +422,7 @@ class MatrixGate {
      * by `canAnyScope()` where the question is "is there any team /
      * any linked player at all", not "the specific team N".
      */
-    private static function userHasAnyScope( int $user_id, string $scope_kind, string $persona = '' ): bool {
+    private static function userHasAnyScope( int $user_id, string $scope_kind, string $persona, string $entity, string $activity ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -428,7 +437,11 @@ class MatrixGate {
             // This used to be an inline pivot query with neither filter, so
             // a guardian of a released child still satisfied `player` scope
             // here while the dashboard showed them nothing.
-            if ( \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) !== [] ) return true;
+            // #4089 — and entity-aware: a trialist's guardian holds `player`
+            // scope for the schedule and attendance only, a graduated
+            // child's for reads only. The `user_has_cap` bridge asks this,
+            // so a write capability does not come back through it either.
+            if ( \TT\Infrastructure\Players\ParentChildResolver::guardianAllowsAny( $user_id, $entity, $activity ) ) return true;
 
             // #3566 — the scout branch, for the scout persona alone.
             if ( $persona === 'scout' ) {
@@ -461,7 +474,7 @@ class MatrixGate {
         return false;
     }
 
-    private static function userHasScope( int $user_id, string $scope_kind, int $target_id, string $persona = '' ): bool {
+    private static function userHasScope( int $user_id, string $scope_kind, int $target_id, string $persona, string $entity, string $activity ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -478,8 +491,11 @@ class MatrixGate {
             if ( $self_player === $target_id ) return true;
 
             // Parent of the player? #3476 — one club-scoped implementation,
-            // not a fifth copy of the pivot query.
-            if ( \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $target_id ) ) return true;
+            // not a fifth copy of the pivot query. #4089 — narrowed by the
+            // child's status: schedule + attendance reads for a trialist,
+            // reads for a graduated child, everything the row grants for an
+            // active one.
+            if ( \TT\Infrastructure\Players\ParentChildResolver::guardianAllows( $user_id, $target_id, $entity, $activity ) ) return true;
 
             // #3566 — the scout branch, for the scout persona alone.
             if ( $persona === 'scout' ) {
