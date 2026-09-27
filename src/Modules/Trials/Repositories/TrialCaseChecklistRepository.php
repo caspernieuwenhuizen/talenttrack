@@ -32,8 +32,9 @@ class TrialCaseChecklistRepository {
      */
     public function listForCase( int $case_id ): array {
         if ( $case_id <= 0 ) return [];
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->wpdb->prefix}tt_trial_case_checklist WHERE trial_case_id = %d AND club_id = %d ORDER BY id ASC",
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tt_trial_case_checklist WHERE trial_case_id = %d AND club_id = %d ORDER BY id ASC",
             $case_id,
             CurrentClub::id()
         ) );
@@ -59,8 +60,9 @@ class TrialCaseChecklistRepository {
      */
     public function ensureItem( int $case_id, string $item_key ): bool {
         if ( $case_id <= 0 || $item_key === '' ) return false;
-        $written = $this->wpdb->query( (string) $this->wpdb->prepare(
-            "INSERT IGNORE INTO {$this->wpdb->prefix}tt_trial_case_checklist (club_id, uuid, trial_case_id, item_key, created_at, updated_at)
+        global $wpdb;
+        $written = $wpdb->query( (string) $wpdb->prepare(
+            "INSERT IGNORE INTO {$wpdb->prefix}tt_trial_case_checklist (club_id, uuid, trial_case_id, item_key, created_at, updated_at)
              VALUES (%d, %s, %d, %s, %s, %s)",
             CurrentClub::id(),
             wp_generate_uuid4(),
