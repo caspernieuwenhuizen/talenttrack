@@ -19,15 +19,18 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * squad's day had been divided, and nowhere could you see how one child's
  * season of them had.
  *
- * ## Minutes come from the rotation plan
+ * ## Minutes come from the fixture's register, then from the plan
  *
- * Never from `tt_attendance`. A tournament day's attendance is one total
- * for the day, so there is no per-fixture record of what was played; and
- * once a fixture completes the planner locks its assignments, so the plan
- * of a completed fixture *is* the rotation used. The two are never added
- * together (epic decision), and `TournamentMinutesCalculator` is the single
- * copy of the arithmetic — `TournamentsRestController::computeTotals()`
- * calls it too.
+ * #4053 — the figures a coach confirmed on the completion step are what a
+ * child's record carries; the rotation plan answers only where the register
+ * holds nothing, which is every fixture completed before v4.135.0. A
+ * confirmed `0` is a real 0 and never falls back.
+ *
+ * The rule is not implemented here. `TournamentMinutesResolver` holds it,
+ * and the minutes grid, the minutes reports and
+ * `TournamentsRestController::computeTotals()` come through the same class —
+ * two surfaces disagreeing about one child's minutes is the bug that class
+ * exists to close, and a second copy of the fallback would recreate it.
  *
  * ## What "no result" means
  *
@@ -73,8 +76,16 @@ final class PlayerTournamentHistoryQuery {
         $tournaments = $this->tournaments( $player_id );
         if ( $tournaments === [] ) return $empty;
 
-        $fixtures    = $this->fixtures( array_keys( $tournaments ) );
-        $assignments = $this->assignments( $player_id, array_keys( $tournaments ) );
+        $fixtures = $this->fixtures( array_keys( $tournaments ) );
+
+        // #4053 — every figure below comes from the one resolver, register
+        // first. Narrowed to this player, so a child's file reads their own
+        // row and nobody else's.
+        $match_ids = [];
+        foreach ( $fixtures as $list ) {
+            foreach ( $list as $fixture ) $match_ids[] = (int) $fixture['match_id'];
+        }
+        $resolved = TournamentMinutesResolver::forMatches( $match_ids, $player_id );
 
         $out      = [];
         $totals   = self::emptyTotals();
@@ -91,13 +102,11 @@ final class PlayerTournamentHistoryQuery {
             $harder_minutes    = 0;
 
             foreach ( $fixtures[ $tid ] ?? [] as $fixture ) {
-                // A fixture the player is not assigned to at all is not on
-                // their record. A bench-only one is: being in the squad and
-                // not playing is a fact about their day.
-                $mine = $assignments[ (int) $fixture['match_id'] ] ?? [];
-                if ( $mine === [] ) continue;
-
-                $out_row = TournamentMinutesCalculator::forPlayer( $fixture['shape'], $mine );
+                // A fixture the player has neither an assignment nor a register
+                // row for is not on their record. A bench-only one is: being in
+                // the squad and not playing is a fact about their day.
+                $out_row = $resolved[ (int) $fixture['match_id'] ][ $player_id ] ?? null;
+                if ( $out_row === null ) continue;
 
                 $rows[] = [
                     'match_id'       => (int) $fixture['match_id'],
@@ -110,6 +119,12 @@ final class PlayerTournamentHistoryQuery {
                     'completed'      => (bool) $fixture['completed'],
                     'duration_min'   => (int) $fixture['shape']['duration'],
                     'minutes'        => (int) $out_row['minutes'],
+                    // #4053 — which of the two answered, said rather than
+                    // implied. `plan` on a completed fixture means its register
+                    // was never written (it predates v4.135.0); on an
+                    // uncompleted one it means these minutes are still a plan,
+                    // and the tab labels them as one (#3713).
+                    'minutes_source' => (string) $out_row['source'],
                     'role'           => (string) $out_row['role'],
                     'positions'      => $out_row['positions'],
                 ];
@@ -307,45 +322,6 @@ final class PlayerTournamentHistoryQuery {
                     (int) $row['duration_min'],
                     (string) $row['substitution_windows']
                 ),
-            ];
-        }
-
-        return $out;
-    }
-
-    /**
-     * This player's assignment rows, grouped by fixture.
-     *
-     * @param list<int> $tournament_ids
-     * @return array<int, list<array{period_index:int, position_code:string}>>
-     */
-    private function assignments( int $player_id, array $tournament_ids ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        if ( $tournament_ids === [] ) return [];
-
-        $placeholders = implode( ',', array_fill( 0, count( $tournament_ids ), '%d' ) );
-        $params       = array_map( 'intval', $tournament_ids );
-        $params[]     = $player_id;
-        $params[]     = (int) CurrentClub::id();
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated, values are bound below.
-        $sql = "SELECT a.match_id, a.period_index, a.position_code
-                  FROM {$p}tt_tournament_assignments a
-                  JOIN {$p}tt_tournament_matches m ON m.id = a.match_id AND m.club_id = a.club_id
-                 WHERE m.tournament_id IN ($placeholders)
-                   AND a.player_id = %d
-                   AND a.club_id = %d";
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ), ARRAY_A );
-
-        $out = [];
-        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row['match_id'] ][] = [
-                'period_index'  => (int) $row['period_index'],
-                'position_code' => (string) $row['position_code'],
             ];
         }
 

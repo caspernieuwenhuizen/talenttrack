@@ -179,6 +179,20 @@
 .tt-player-tab-panel .tt-ptour__fixture.is-bench .tt-ptour__role { color: var(--tt-ink-soft); }
 .tt-player-tab-panel .tt-ptour__fixture.is-upcoming .tt-ptour__opp { color: var(--tt-ink-soft); }
 
+/* #4053 — minutes nobody confirmed. The word is the signal; the tint only
+   reinforces it, so the state never depends on seeing a colour. */
+.tt-player-tab-panel .tt-ptour__planned {
+    align-self: center;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: var(--tt-surface-muted, #eef2f4);
+    color: var(--tt-ink-soft);
+}
+
 .tt-player-tab-panel .tt-ptour__level {
     font-size: 11px;
     font-weight: 700;

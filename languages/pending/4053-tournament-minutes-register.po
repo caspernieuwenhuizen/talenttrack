@@ -1,0 +1,8 @@
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgctxt "tournament fixture: these minutes are the rotation plan, not a confirmed figure"
+msgid "Planned"
+msgstr "Gepland"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "Minutes are the figures the coach confirmed when the fixture was completed. Where none were confirmed the rotation plan is shown instead, marked Planned."
+msgstr "De minuten zijn de aantallen die de trainer heeft bevestigd bij het afronden van de wedstrijd. Is er niets bevestigd, dan staat het rotatieplan er, met het label Gepland."

@@ -274,19 +274,32 @@ aan, en het dossier van een kind is de verkeerde plek om te leren hoeveel
 meer een ander speelde. Alleen een tekort krijgt kleur, en de getallen staan
 naast de balk, zodat niets op de pagina van kleur afhangt.
 
-**Waar de minuten vandaan komen staat op de pagina.** Ze volgen het
-rotatieplan van de afgeronde wedstrijden: zodra een wedstrijd is afgerond
-zet de planner de opstelling vast, dus het plan van een afgeronde wedstrijd
-*is* de gebruikte rotatie. Minuten die achteraf in het minutenoverzicht zijn
-ingevoerd staan op het tabblad **Activiteiten**, en de twee worden nooit bij
-elkaar opgeteld.
+**Waar de minuten vandaan komen staat op de pagina.** Het zijn de aantallen
+die de coach in de afsluitstap (hierboven) heeft bevestigd — wat het kind
+werkelijk speelde, niet wat er voor hem was ingepland. Een correctie die daar
+wordt gemaakt, is het getal dat dit tabblad, het minutenoverzicht, de
+minutenrapporten én de minutenteller van de trainer allemaal laten zien. Er is
+één antwoord, en dat is het bevestigde.
 
-Sinds de afsluitstap (hierboven) legt een wedstrijd ook vast wat de coach heeft
-bevestigd, op zijn eigen presentielijst; dat is wat het minutenoverzicht en de
-minutenrapporten laten zien. Heeft een coach het plan gecorrigeerd, dan kunnen
-dit tabblad en die rapporten precies die correctie verschillen — het tabblad
-leest het plan. Welke van de twee het toernooidossier van een speler moet volgen,
-wordt apart besloten.
+Is er niets bevestigd, dan antwoordt het rotatieplan en krijgt de regel het
+label **Gepland**. Dat gebeurt in twee gevallen, en alleen in die twee:
+
+- een wedstrijd die nog niet is afgerond — de minuten zijn nog een plan, en dat
+  moet er ook staan;
+- een wedstrijd die is afgerond vóórdat de afsluitstap bestond — de
+  presentielijst werd toen zonder minuten vastgelegd, dus het plan is het beste
+  wat er van die dag is.
+
+**Een bevestigde nul is een echte nul.** Bevestigt een trainer dat een kind
+niet in het veld kwam, dan laat het tabblad 0 minuten zien en leest de regel
+**Bank** — het valt niet stilletjes terug op de twaalf minuten die het plan
+voor hem had. "Hij speelde niet" is een antwoord, en dat overschrijven zou
+precies het verkeerde getal opleveren dat de afsluitstap moet voorkomen.
+
+Oudere toernooien zijn hiervoor niet herschreven: er is niets gemigreerd en
+niets bijgewerkt. Een wedstrijd van vorig seizoen valt simpelweg terug op zijn
+plan, met het label **Gepland**, en een trainer die de echte aantallen wil, kan
+ze in het minutenoverzicht invoeren.
 
 Een wedstrijd zonder vastgelegde uitslag zegt **geen uitslag**, niet 0-0.
 Een doelpuntloos gelijkspel en een wedstrijd die niemand heeft ingevoerd
