@@ -65,6 +65,36 @@
     border-radius: var(--tt-radius);
     cursor: pointer;
     touch-action: manipulation;
+    /* A card stretched by a taller neighbour keeps its text under the title. */
+    align-content: start;
+}
+
+/* #4062 — a test option reads name and date on one line. */
+.tt-mr-block--test {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+}
+
+.tt-mr-block.tt-mr-block--test input {
+    grid-row: auto;
+    margin: 0;
+}
+
+.tt-mr-block--test .tt-mr-block__n {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The section options: one stack, whatever the width. */
+.tt-mr-panel__side {
+    display: grid;
+    gap: var(--tt-sp-4);
+    align-content: start;
+    min-width: 0;
+}
+
+.tt-mr-panel__side:empty {
+    display: none;
 }
 
 .tt-mr-type input,
@@ -544,6 +574,40 @@
     .tt-mr-blocks { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tt-mr-panel__actions { grid-column: 1 / -1; }
     .tt-mr-preset { grid-column: 1 / -1; }
+
+    /* #4062 — the team panel: Sections, the printed size and the buttons on
+       the left; the section options in a sidebar on the right. DOM order
+       stays Sections -> options -> meter -> buttons, so Tab reaches the
+       options before Update / PDF. */
+    .tt-mr-panel--split {
+        grid-template-columns: minmax(0, 1fr) minmax(16rem, 22rem);
+        grid-template-rows: auto auto auto auto 1fr;
+        column-gap: var(--tt-sp-5);
+    }
+    .tt-mr-panel--split .tt-mr-panel__group--sections { grid-column: 1; grid-row: 2; }
+    .tt-mr-panel--split .tt-mr-panel__side {
+        grid-column: 2;
+        grid-row: 2 / -1;
+        align-self: stretch;
+        padding-left: var(--tt-sp-4);
+        border-left: 1px solid var(--tt-line);
+    }
+    .tt-mr-panel--split .tt-mr-fit {
+        grid-column: 1;
+        grid-row: 3;
+        padding-top: var(--tt-sp-4);
+        border-top: 1px solid var(--tt-line);
+    }
+    .tt-mr-panel--split .tt-mr-panel__actions { grid-column: 1; grid-row: 4; }
+    .tt-mr-panel--split .tt-mr-preset { grid-column: 1; grid-row: 5; }
+    .tt-mr-panel--split .tt-mr-fit__bars {
+        grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+        column-gap: var(--tt-sp-4);
+    }
+    .tt-mr-panel--split .tt-mr-blocks--sections { grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+    .tt-mr-panel--split .tt-mr-panel__side .tt-mr-blocks { grid-template-columns: minmax(0, 1fr); }
+    /* Without section options the left column takes the whole width. */
+    .tt-mr-panel--split:not(:has(.tt-mr-panel__side > *)) { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

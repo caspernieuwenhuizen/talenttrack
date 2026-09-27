@@ -349,7 +349,7 @@ final class TeamMonthlyReportPage {
             $action = strtok( $action, '?' );
         }
 
-        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
+        echo '<form class="tt-mr-panel tt-mr-panel--split" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
         foreach ( $hidden as $name => $value ) {
             echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
         }
@@ -372,9 +372,9 @@ final class TeamMonthlyReportPage {
         echo '</fieldset>';
 
         // Blocks.
-        echo '<fieldset class="tt-mr-panel__group">';
+        echo '<fieldset class="tt-mr-panel__group tt-mr-panel__group--sections">';
         echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Sections', 'team monthly report panel', 'talenttrack' ) . '</legend>';
-        echo '<div class="tt-mr-blocks">';
+        echo '<div class="tt-mr-blocks tt-mr-blocks--sections">';
         foreach ( TeamMonthlyReportBlock::ALL as $key ) {
             $id     = 'tt-mr-blk-' . $key;
             $locked = $key === TeamMonthlyReportBlock::LETTERHEAD;
@@ -399,8 +399,13 @@ final class TeamMonthlyReportPage {
         echo '</div>';
         echo '</fieldset>';
 
+        // #4062 — the section options stack in a sidebar on desktop. The
+        // wrapper keeps that stack explicit instead of leaving it to grid
+        // auto-placement; below 1024px it simply follows Sections.
+        echo '<div class="tt-mr-panel__side">';
         self::renderMatchesOptions( $selected, $options );
         self::renderTestsOptions( $team_id, $window, $selected, $options );
+        echo '</div>';
 
         self::renderFitMeter( $fit );
 
@@ -1254,7 +1259,7 @@ final class TeamMonthlyReportPage {
         foreach ( $available as $definition ) {
             $def_id = (int) $definition['definition_id'];
             $id     = 'tt-mr-test-' . $def_id;
-            echo '<label class="tt-mr-block" for="' . esc_attr( $id ) . '">';
+            echo '<label class="tt-mr-block tt-mr-block--test" for="' . esc_attr( $id ) . '">';
             echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_tests_def[]" value="' . esc_attr( (string) $def_id ) . '"'
                 . checked( in_array( $def_id, $chosen, true ), true, false ) . ' data-tt-mr-block>';
             echo '<span class="tt-mr-block__t">' . esc_html( (string) $definition['name'] ) . '</span>';
