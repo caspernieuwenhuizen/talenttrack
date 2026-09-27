@@ -325,6 +325,13 @@ The surface is a spreadsheet-style matrix:
  is minutes recorded; a red **0** is a player who was in the squad but has no
  minutes recorded (a gap to chase); a hatched dash is a player who was not in
  that game's squad.
+- A hatched cell labelled **Unavailable** is a player who was marked as not
+ available for that game — anything other than *Present* in the match prep, or
+ on the attendance register (absent, excused, injured and so on). Their zero is
+ not a gap: they do not count towards the squad, so a game where everyone who
+ could play has minutes can still reach *Complete*. The cell says only that the
+ player was unavailable, never why. Recorded minutes always win: a player marked
+ unavailable who did play is counted with the minutes recorded for them.
 - Each row carries a **row total**, a completeness **status chip** — *Complete*,
  *Incomplete* or *Not recorded* (nothing recorded for the game) — and the bottom
  **column-total** row sums each player's minutes across the visible games.
@@ -338,8 +345,9 @@ against what the match holds (for example *770 of 770*), and an *Incomplete*
 chip says why: players without minutes, minutes short of a full match, or
 minutes more than the match holds.
 
-The match length is taken from the first of these that is set: the match length
-on the activity itself, the match length configured for the team's age group,
+The match length is taken from the first of these that is set: the period length
+on the match prep times the periods the match was played in (so four quarters of
+15 minutes is 60, not 30), the match length on the activity itself, the match length configured for the team's age group,
 the scheduled time between start and end, and otherwise 2 × 35 minutes. Players
 a side come from the team's football form (11v11, 8v8 and so on). If a correctly
 recorded game reads *Incomplete* because its scheduled slot includes the

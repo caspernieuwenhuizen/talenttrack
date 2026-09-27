@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\BackLink;
@@ -294,11 +295,17 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             $minutes = $g['minutes'];
             /** @var array<int,bool> $on_squad */
             $on_squad = $g['on_squad'];
+            /** @var array<int,bool> $unavailable */
+            $unavailable = $g['unavailable'];
             foreach ( $players as $pl ) {
                 $pid  = (int) $pl['player_id'];
                 $mins = (int) ( $minutes[ $pid ] ?? 0 );
                 $sq   = ! empty( $on_squad[ $pid ] );
-                if ( ! $sq ) {
+                if ( ! $sq && ! empty( $unavailable[ $pid ] ) ) {
+                    // Marked unavailable for this game: their zero is not a
+                    // recording gap. The state only, never the reason.
+                    echo '<td class="tt-maud-cell tt-maud-cell--unavailable"><span class="tt-maud-cell__label">' . esc_html( PlayerAvailability::label() ) . '</span></td>';
+                } elseif ( ! $sq ) {
                     echo '<td class="tt-maud-cell tt-maud-cell--na" aria-label="' . esc_attr__( 'Not in squad', 'talenttrack' ) . '">&mdash;</td>';
                 } elseif ( $mins > 0 ) {
                     echo '<td class="tt-maud-cell tt-maud-cell--min">' . esc_html( (string) $mins ) . '</td>';
@@ -403,6 +410,7 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         echo '<div class="tt-maud-legend">';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--min"></span>' . esc_html__( 'minutes recorded', 'talenttrack' ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--zero"></span>' . esc_html__( 'in squad, 0 recorded', 'talenttrack' ) . '</span>';
+        echo '<span><span class="tt-maud-swatch tt-maud-swatch--unavailable"></span>' . esc_html( PlayerAvailability::label() ) . '</span>';
         echo '<span><span class="tt-maud-swatch tt-maud-swatch--na"></span>' . esc_html__( 'not in squad', 'talenttrack' ) . '</span>';
         echo '<span>' . esc_html__( 'Complete means every player in the squad has minutes and the total adds up to a whole match: players a side times the match length.', 'talenttrack' ) . '</span>';
         echo '<span>' . esc_html__( 'A tournament day is a roll-up of its fixtures: its minutes are recorded in the tournament planner and are already counted in the fixture rows, so it is left out of the column totals.', 'talenttrack' ) . '</span>';

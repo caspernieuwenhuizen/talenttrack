@@ -301,9 +301,78 @@ final class MinutesQuery {
         foreach ( $subs as $sub ) {
             $periods = max( $periods, (int) ( $sub->half ?? 0 ) );
         }
-        // Quarters are the most a match is split into; a stray period number
-        // must not multiply the available minutes.
-        return min( self::MAX_PERIODS, $periods );
+        return self::clampPeriods( $periods );
+    }
+
+    /**
+     * Two halves at the least, quarters at the most: a stray period number
+     * must not multiply the available minutes.
+     */
+    public static function clampPeriods( int $highest_period ): int {
+        return min( self::MAX_PERIODS, max( 2, $highest_period ) );
+    }
+
+    /**
+     * How many periods each match was played in, for a set of activities at
+     * once — the same answer {@see periodCount()} gives per match, read in
+     * two grouped queries so the minutes audit and the minutes share can ask
+     * about a whole season without a lookup per match. A quarters match
+     * (four line-ups, or a substitution in period 4) reads 4, so its length
+     * is the prep's period length × 4 rather than × 2 (#4087).
+     *
+     * Activities without a line-up or a substitution are absent from the
+     * result; a caller reads them as two halves.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int,int> activity id => period count
+     */
+    public static function periodCountsFor( array $activity_ids ): array {
+        $ids = [];
+        foreach ( $activity_ids as $aid ) {
+            $aid = (int) $aid;
+            if ( $aid > 0 ) $ids[ $aid ] = true;
+        }
+        if ( $ids === [] ) return [];
+
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $ids     = array_keys( $ids );
+        $in      = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $params  = array_merge( $ids, [ (int) CurrentClub::id() ] );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $lineup_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT mp.activity_id, MAX( l.half ) AS highest
+               FROM {$p}tt_match_prep_lineup l
+               JOIN {$p}tt_match_prep mp ON mp.id = l.match_prep_id AND mp.club_id = l.club_id
+              WHERE mp.activity_id IN ($in)
+                AND l.club_id = %d
+              GROUP BY mp.activity_id",
+            $params
+        ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $sub_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.activity_id, MAX( s.half ) AS highest
+               FROM {$p}tt_match_execution_substitutions s
+               JOIN {$p}tt_match_execution e ON e.id = s.execution_id AND e.club_id = s.club_id
+              WHERE e.activity_id IN ($in)
+                AND s.club_id = %d
+                AND s.reversed_at IS NULL
+              GROUP BY e.activity_id",
+            $params
+        ) );
+
+        $highest = [];
+        foreach ( array_merge( (array) $lineup_rows, (array) $sub_rows ) as $row ) {
+            $aid = (int) $row->activity_id;
+            $highest[ $aid ] = max( $highest[ $aid ] ?? 0, (int) $row->highest );
+        }
+
+        $out = [];
+        foreach ( $highest as $aid => $n ) {
+            $out[ $aid ] = self::clampPeriods( $n );
+        }
+        return $out;
     }
 
     /**

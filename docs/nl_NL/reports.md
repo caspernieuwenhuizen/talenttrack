@@ -342,6 +342,14 @@ Het scherm is een matrix in spreadsheet-stijl:
  selectie zat maar geen geregistreerde minuten heeft (een gat om aan te pakken);
  een gearceerd streepje is een speler die niet in de selectie van die wedstrijd
  zat.
+- Een gearceerde cel met **Niet beschikbaar** is een speler die voor die
+ wedstrijd als niet beschikbaar is gemarkeerd — alles behalve *Aanwezig* in de
+ wedstrijdvoorbereiding of op de presentielijst (afwezig, afgemeld, geblesseerd
+ enzovoort). Die 0 is geen gat: de speler telt niet mee in de selectie, dus een
+ wedstrijd waarin iedereen die kon spelen minuten heeft, kan gewoon *Volledig*
+ worden. De cel zegt alleen dat de speler niet beschikbaar was, nooit waarom.
+ Vastgelegde minuten gaan altijd voor: een als niet beschikbaar gemarkeerde
+ speler die toch speelde, telt mee met de minuten die voor hem zijn vastgelegd.
 - Elke rij heeft een **rijtotaal**, een **statuschip** voor volledigheid —
  *Volledig*, *Onvolledig* of *Niet geregistreerd* (niets geregistreerd voor de
  wedstrijd) — en de onderste **kolomtotaal**-rij telt de minuten van elke speler
@@ -356,8 +364,9 @@ toont de geregistreerde minuten tegenover wat de wedstrijd bevat (bijvoorbeeld
 *770 van 770*), en een chip *Onvolledig* zegt waarom: spelers zonder minuten,
 minuten te kort voor een hele wedstrijd, of meer minuten dan de wedstrijd bevat.
 
-De wedstrijdduur komt van het eerste dat is ingesteld: de wedstrijdduur op de
-activiteit zelf, de wedstrijdduur die voor de leeftijdscategorie van het team is
+De wedstrijdduur komt van het eerste dat is ingesteld: de periodeduur op de
+wedstrijdvoorbereiding maal het aantal periodes waarin gespeeld is (vier kwarten
+van 15 minuten is dus 60, geen 30), de wedstrijdduur op de activiteit zelf, de wedstrijdduur die voor de leeftijdscategorie van het team is
 ingesteld, de geplande tijd tussen begin en eind, en anders 2 × 35 minuten. Het
 aantal spelers per team komt uit de spelvorm van het team (11 tegen 11, 8 tegen 8
 enzovoort). Staat een correct geregistreerde wedstrijd op *Onvolledig* omdat het

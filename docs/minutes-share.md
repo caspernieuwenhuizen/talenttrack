@@ -29,7 +29,8 @@ Every match the team **played** in the window, at that match's own length.
  nobody's share drops on the morning of a match.
 - **Its own length** is worked out the same way on every minutes report — the
  minutes report, the minutes audit and this one — so they always agree
- about a match: the half length on the match prep if one was set, otherwise
+ about a match: the period length on the match prep times the periods the
+ match was played in (two halves, or four quarters) if one was set, otherwise
  the match length set on the activity, otherwise the default for the team's
  age category, otherwise the scheduled time from start to end, otherwise 35
  minutes a half. A U9 team on 30-minute halves has 600 available over ten
