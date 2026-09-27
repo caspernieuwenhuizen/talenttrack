@@ -10,6 +10,7 @@ use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -388,6 +389,10 @@ final class EvidencePacket {
         // injured), the one rule every attendance figure uses.
         $counts = AttendanceFlagService::statusCountsSql( 'att.status' );
 
+        // #4086 — only activities that happened. A planned activity with a
+        // pre-filled register is not attendance yet.
+        $completed = ActivityLifecycle::completedClause( 'act' );
+
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
@@ -398,6 +403,7 @@ final class EvidencePacket {
                AND att.club_id = %d
                AND att.is_guest = 0
                AND att.record_type = 'actual'
+               AND {$completed}
                AND " . ArchiveRepository::filterClause( 'active', 'act' ) . "
                AND act.{$date_col} >= %s
                AND act.{$date_col} <= %s",

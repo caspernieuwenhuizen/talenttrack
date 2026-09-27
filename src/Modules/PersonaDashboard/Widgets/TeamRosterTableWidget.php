@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -233,7 +234,9 @@ class TeamRosterTableWidget extends AbstractWidget {
         // AttendanceFlagService instead of agreeing by coincidence, and
         // leaves guest appearances out like every other surface.
         $attended = AttendanceFlagService::attendedSumSql( 'att.status' );
-        $att_rows = $wpdb->get_results( $wpdb->prepare(
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed = ActivityLifecycle::completedClause( 'a' );
+        $att_rows =$wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id,
                     COUNT(*) AS total,
                     {$attended} AS present_count
@@ -243,7 +246,7 @@ class TeamRosterTableWidget extends AbstractWidget {
                 AND att.player_id IN ( {$placeholders} )
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND a.plan_state = 'completed'
+                AND {$completed}
                 AND a.session_date >= %s
                 {$act_scope}
               GROUP BY att.player_id",

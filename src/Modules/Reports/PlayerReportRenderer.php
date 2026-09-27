@@ -528,7 +528,8 @@ class PlayerReportRenderer {
         // planned. Filter to actual rows on completed activities so
         // expected-attendance rows (introduced by ship 2) can never
         // double-count or appear in a printed report.
-        $where  = [ 'a.player_id = %d', 'a.is_guest = 0', "a.record_type = 'actual'", "s.plan_state = 'completed'" ];
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $where  = [ 'a.player_id = %d', 'a.is_guest = 0', "a.record_type = 'actual'", \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 's' ) ];
         $params = [ $player_id ];
         if ( $filters['date_from'] !== '' ) {
             $where[]  = 's.session_date >= %s';

@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
@@ -120,6 +121,8 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
         // #4041 — attended (present + late) over every row, own-team rows
         // only: the one rule, from AttendanceFlagService.
         $attended_sum = AttendanceFlagService::attendedSumSql( 'att.status' );
+        // #4086 — "completed" is the status the coach set, not plan_state.
+        $completed    = ActivityLifecycle::completedClause( 'a' );
         $attendance   = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS total, {$attended_sum} AS attended
                FROM {$p}tt_attendance att
@@ -127,7 +130,7 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
                 WHERE att.club_id = %d
                   AND att.record_type = 'actual'
                   AND att.is_guest = 0
-                  AND a.plan_state = 'completed'
+                  AND {$completed}
                   AND a.session_date BETWEEN %s AND %s",
             $club_id, $date_from, $date_to
         ) );
