@@ -117,6 +117,14 @@ class ConfigRestController {
         // notification. Un-mapped in KEY_AREA_MAP → resolves to the
         // tt_edit_settings umbrella (admins / club admins).
         'attendance_flag_threshold',
+        // #4013 / #4056 — the lateness bar, saved from the same Attendance
+        // group. Its own key so an academy can act on chronic lateness
+        // sooner or later than on absence; stored EMPTY means "inherit the
+        // absence threshold", which is what an operator who clears the
+        // field is asking for, so the empty string is written rather than
+        // rejected. Un-mapped in KEY_AREA_MAP → tt_edit_settings, like its
+        // neighbour.
+        'attendance_late_flag_threshold',
         // #1727 — central per-age-category default match minutes. JSON
         // map `{ "<age_group>": <half_minutes_N> }`; the single source of
         // truth for match length across match prep + the direct

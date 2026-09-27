@@ -1,0 +1,13 @@
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Lateness at-risk threshold"
+msgstr "Risicodrempel te laat komen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many late arrivals flag a player as at risk, counted on its own because "
+"a player who arrived late was still at the activity. Leave it blank to "
+"follow the attendance at-risk threshold above, which is %d today."
+msgstr ""
+"Hoeveel keer te laat een speler als risico markeert, apart geteld omdat een "
+"speler die te laat kwam er bij de activiteit wél was. Laat het leeg om de "
+"risicodrempel aanwezigheid hierboven te volgen, die nu %d is."
