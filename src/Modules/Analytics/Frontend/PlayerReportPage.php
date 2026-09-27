@@ -468,7 +468,7 @@ final class PlayerReportPage {
             'blocks'    => implode( ',', $selected ),
             'period'    => $window['period'],
         ];
-        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
+        if ( $options !== [] ) $args['options'] = rawurlencode( (string) wp_json_encode( $options ) );
 
         return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
     }
@@ -493,7 +493,7 @@ final class PlayerReportPage {
             'to'        => $window['to'],
             '_wpnonce'  => wp_create_nonce( 'wp_rest' ),
         ];
-        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
+        if ( $options !== [] ) $args['options'] = rawurlencode( (string) wp_json_encode( $options ) );
         return add_query_arg( $args, rest_url( 'talenttrack/v1/exports/player_report_pdf' ) );
     }
 
