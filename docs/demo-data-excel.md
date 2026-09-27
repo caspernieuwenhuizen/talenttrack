@@ -36,7 +36,7 @@ It exists for the case a club is actually in on its first day — someone has a 
 
 Sheets you leave out are skipped silently, so a squad workbook raises no complaints about the twelve absent tabs. If a club does have history to bring across, the full fifteen-sheet template is still the way to do it.
 
-Staff belong on the **People** sheet, with a `role` and a `team_key` — there is no separate Staff sheet.
+Staff belong on the **People** sheet, with a `role` and a `team_key` — there is no separate Staff sheet. The `role` names one of the academy's functional roles, by key (`head_coach`) or by its label (`Head Coach`); a role that matches none lands on **Other**. The person is then assigned to that team in that role, exactly as if they had been added on the team's staff screen. If an assignment cannot be written, the import report says which person it was; the person is imported either way.
 
 ## What v1.5 imports
 

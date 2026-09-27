@@ -323,6 +323,14 @@ class InvitationService {
         if ( (string) $invitation->status !== InvitationStatus::PENDING ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'This invitation is no longer pending.', 'talenttrack' ) ];
         }
+        // #4130 — one People record per account. Asked before the claim, so
+        // a refusal leaves the invitation pending for an administrator.
+        if ( self::isStaffInvitation( $invitation ) ) {
+            $conflict = $this->staffLinkConflict( $invitation, $existingUserId );
+            if ( $conflict !== null ) {
+                return [ 'ok' => false, 'user_id' => null, 'error' => $conflict ];
+            }
+        }
         if ( ! $this->repo->claimForAcceptance( (int) $invitation->id, $existingUserId ) ) {
             return [ 'ok' => false, 'user_id' => null, 'error' => __( 'Already accepted.', 'talenttrack' ) ];
         }
@@ -367,6 +375,9 @@ class InvitationService {
         $kind = (string) $invitation->kind;
         $playerId = (int) ( $invitation->target_player_id ?? 0 );
         $personId = (int) ( $invitation->target_person_id ?? 0 );
+        $heldBy   = ( $kind === InvitationKind::STAFF && $personId > 0 )
+            ? self::personHoldingAccount( $userId, $personId )
+            : 0;
 
         if ( $kind === InvitationKind::PLAYER && $playerId > 0 ) {
             $jersey = isset( $payload['jersey_number'] ) ? sanitize_text_field( (string) $payload['jersey_number'] ) : '';
@@ -409,6 +420,11 @@ class InvitationService {
             $existing = $this->parents->parentsForPlayer( $playerId );
             $isPrimary = empty( $existing );
             $this->parents->link( $playerId, $userId, $isPrimary );
+        } elseif ( $heldBy > 0 ) {
+            // #4130 — the account already has a People record. The invitation
+            // links to that one, and the invited record is folded into it,
+            // rather than a second record being bound to the same account.
+            $this->foldInvitedPerson( $personId, $heldBy, $userId );
         } elseif ( $kind === InvitationKind::STAFF && $personId > 0 ) {
             $link = [ 'wp_user_id' => $userId ];
 
@@ -446,6 +462,137 @@ class InvitationService {
             // actual `tt_functional_role_assignments` row stays the
             // existing PeopleModule's responsibility on save.
         }
+    }
+
+    /**
+     * Tables whose rows belong to a staff member's own history, keyed to
+     * the column holding the person id. Folding an invited record into the
+     * account's record moves team assignments only; an invited record that
+     * already carries any of these is refused rather than half-merged.
+     *
+     * @var array<string, list<string>>
+     */
+    private const STAFF_HISTORY_COLUMNS = [
+        'tt_staff_goals'          => [ 'person_id' ],
+        'tt_staff_evaluations'    => [ 'person_id' ],
+        'tt_staff_certifications' => [ 'person_id' ],
+        'tt_staff_pdp'            => [ 'person_id' ],
+        'tt_staff_mentorships'    => [ 'mentor_person_id', 'mentee_person_id' ],
+        'tt_course_enrolments'    => [ 'person_id' ],
+    ];
+
+    /**
+     * #4130 — the People record of this club that already holds the account,
+     * other than the invited one; 0 when there is none. An active record is
+     * preferred, newest first, matching the resolver's tiebreak.
+     */
+    private static function personHoldingAccount( int $userId, int $invitedPersonId ): int {
+        global $wpdb;
+        if ( $userId <= 0 ) return 0;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id = %d AND club_id = %d AND id <> %d AND status = 'active'
+              ORDER BY id DESC LIMIT 1",
+            $userId, CurrentClub::id(), $invitedPersonId
+        ) );
+    }
+
+    /**
+     * #4130 — why a staff invitation cannot be linked to this signed-in
+     * account, or null when it can. Only asked when the account already has
+     * a People record, since that is the case that folds two into one.
+     */
+    private function staffLinkConflict( object $invitation, int $userId ): ?string {
+        global $wpdb;
+        $personId = (int) ( $invitation->target_person_id ?? 0 );
+        if ( $personId <= 0 || self::personHoldingAccount( $userId, $personId ) <= 0 ) return null;
+
+        $p       = $wpdb->prefix;
+        $boundTo = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT wp_user_id FROM {$p}tt_people WHERE id = %d AND club_id = %d",
+            $personId, CurrentClub::id()
+        ) );
+        if ( $boundTo > 0 && $boundTo !== $userId ) {
+            return __( 'This invitation is for a staff record that already belongs to another account. Ask an administrator to check the invitation.', 'talenttrack' );
+        }
+
+        foreach ( self::STAFF_HISTORY_COLUMNS as $table => $columns ) {
+            $full = $p . $table;
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) ) !== $full ) continue;
+            foreach ( $columns as $column ) {
+                // Table and column names come from the constant above, never from input.
+                $count = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM `{$full}` WHERE `{$column}` = %d",
+                    $personId
+                ) );
+                if ( $count > 0 ) {
+                    return __( 'You already have a staff record in this academy, and the record this invitation is for has its own history. Ask an administrator to merge the two records, then accept the invitation again.', 'talenttrack' );
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * #4130 — fold the invited People record into the one the account
+     * already holds: its team assignments move across, its name and contact
+     * details fill whatever the account's record leaves empty, and the
+     * invited record is set inactive, the state migration 0139 leaves a
+     * duplicate in. Nothing is deleted, and the fold is logged.
+     */
+    private function foldInvitedPerson( int $invitedId, int $keptId, int $userId ): void {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+
+        $invited = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_people WHERE id = %d AND club_id = %d", $invitedId, $club ) );
+        $kept    = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$p}tt_people WHERE id = %d AND club_id = %d", $keptId, $club ) );
+        if ( ! $invited || ! $kept ) return;
+
+        $fill = [];
+        foreach ( [ 'first_name', 'last_name', 'email', 'phone' ] as $field ) {
+            $current = trim( (string) ( $kept->$field ?? '' ) );
+            $offered = trim( (string) ( $invited->$field ?? '' ) );
+            if ( $current === '' && $offered !== '' ) $fill[ $field ] = $offered;
+        }
+        if ( $fill !== [] ) {
+            $wpdb->update( "{$p}tt_people", $fill, [ 'id' => $keptId, 'club_id' => $club ] );
+        }
+
+        $assignments = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, team_id, functional_role_id, role_in_team FROM {$p}tt_team_people
+              WHERE person_id = %d AND club_id = %d",
+            $invitedId, $club
+        ) );
+        $teams = [];
+        foreach ( (array) $assignments as $row ) {
+            $teams[ (int) $row->team_id ] = true;
+            $duplicate = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_team_people
+                  WHERE person_id = %d AND team_id = %d AND club_id = %d
+                    AND ( functional_role_id = %d OR role_in_team = %s )
+                  LIMIT 1",
+                $keptId, (int) $row->team_id, $club, (int) $row->functional_role_id, (string) $row->role_in_team
+            ) );
+            if ( $duplicate > 0 ) {
+                $wpdb->delete( "{$p}tt_team_people", [ 'id' => (int) $row->id, 'club_id' => $club ] );
+            } else {
+                $wpdb->update( "{$p}tt_team_people", [ 'person_id' => $keptId ], [ 'id' => (int) $row->id, 'club_id' => $club ] );
+            }
+        }
+        foreach ( array_keys( $teams ) as $teamId ) {
+            \TT\Infrastructure\People\PeopleRepository::syncTeamScopeRow( $teamId, $invitedId );
+            \TT\Infrastructure\People\PeopleRepository::syncTeamScopeRow( $teamId, $keptId );
+        }
+
+        $wpdb->update( "{$p}tt_people", [ 'status' => 'inactive' ], [ 'id' => $invitedId, 'club_id' => $club ] );
+
+        \TT\Infrastructure\Logging\Logger::info( 'invitation.redeem.person_folded', [
+            'invited_person_id' => $invitedId,
+            'kept_person_id'    => $keptId,
+            'wp_user_id'        => $userId,
+            'assignments_moved' => count( (array) $assignments ),
+        ] );
     }
 
     // Helpers

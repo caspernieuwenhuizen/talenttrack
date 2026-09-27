@@ -154,7 +154,7 @@ final class ExcelImporter {
         $batch_id = $batch_id_in ?? ( 'excel-' . gmdate( 'Ymd-His' ) );
         $registry = ( $this->sink_factory )( $batch_id );
 
-        $imported = $this->insertAll( $rows, $registry );
+        $imported = $this->insertAll( $rows, $registry, $warnings );
 
         return [
             'ok'                  => true,
@@ -376,9 +376,10 @@ final class ExcelImporter {
      * entity so the caller can report them.
      *
      * @param array<string,list<array<string,mixed>>> $rows
+     * @param list<string> $warnings  rows that were imported only in part
      * @return array<string,int>
      */
-    private function insertAll( array $rows, ImportTagSink $registry ): array {
+    private function insertAll( array $rows, ImportTagSink $registry, array &$warnings ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -416,20 +417,16 @@ final class ExcelImporter {
                 $registry->tag( 'person', $id, [ 'source' => 'excel' ] );
 
                 $team_key = (string) ( $r['team_key'] ?? '' );
-                $role     = (string) ( $r['role']     ?? '' );
                 if ( $team_key !== '' && isset( $team_id_by_key[ $team_key ] ) ) {
-                    $assigned_team_id = (int) $team_id_by_key[ $team_key ];
-                    $wpdb->insert( "{$p}tt_team_people", [
-                        'club_id'   => CurrentClub::id(),
-                        'team_id'   => $assigned_team_id,
-                        'person_id' => $id,
-                        'role'      => $role !== '' ? $role : 'staff',
-                    ] );
-                    // #2571 — mirror into `tt_user_role_scopes`. An imported
-                    // academy otherwise ends up with staff who show as head
-                    // coach on the team page but hold no team scope, so
-                    // team-scoped reads return nothing for them.
-                    \TT\Infrastructure\People\PeopleRepository::syncTeamScopeRow( $assigned_team_id, $id );
+                    // #4130 — a failed assignment is reported, not swallowed.
+                    if ( ! $this->assignStaffToTeam( (int) $team_id_by_key[ $team_key ], $id, (string) ( $r['role'] ?? '' ), $registry ) ) {
+                        $warnings[] = sprintf(
+                            /* translators: 1: the person's name, 2: the role typed on their People sheet row */
+                            __( 'People sheet: %1$s was imported, but could not be assigned to their team as "%2$s".', 'talenttrack' ),
+                            trim( (string) ( $r['first_name'] ?? '' ) . ' ' . (string) ( $r['last_name'] ?? '' ) ),
+                            (string) ( $r['role'] ?? '' )
+                        );
+                    }
                 }
             }
         }
@@ -535,6 +532,16 @@ final class ExcelImporter {
             if ( $attendance_id !== null && $attendance_id > 0 ) $counts['attendance']++;
         }
 
+        // #4121 — every activity above is written straight to the table as
+        // completed, so nothing listening for "completed" heard about it: a
+        // suspension whose last match was imported stayed open until that
+        // match was next saved. Fired once per activity, after its register
+        // is in, so a listener sees the match as it will stay.
+        foreach ( $activity_id_by_key as $activity_id ) {
+            /** This action is documented in ActivitiesRepository::completeIfNotTerminal(). */
+            do_action( 'tt_activity_marked_completed', (int) $activity_id );
+        }
+
         // Evaluations.
         $eval_id_by_key = [];
         foreach ( $rows['evaluations'] ?? [] as $r ) {
@@ -620,6 +627,72 @@ final class ExcelImporter {
         }
 
         return $counts;
+    }
+
+    /**
+     * #4130 — put an imported staff member on their team, through the same
+     * write the People screens use (`PeopleRepository::assignToTeam()`), so
+     * the row carries `functional_role_id`, `role_in_team` and
+     * `is_head_coach` together and the team scope follows. It used to insert
+     * a `role` column the table does not have, and every imported
+     * assignment failed without a word.
+     *
+     * The typed role is matched to a functional role by key or by label;
+     * anything unrecognised lands on `other`, the fallback the role backfill
+     * uses. Returns false when nothing was written.
+     */
+    private function assignStaffToTeam( int $team_id, int $person_id, string $typed_role, ImportTagSink $registry ): bool {
+        $role_id = self::functionalRoleIdFor( $typed_role );
+        if ( $role_id <= 0 ) return false;
+
+        if ( ! ( new \TT\Infrastructure\People\PeopleRepository() )->assignToTeam( $team_id, $person_id, $role_id ) ) {
+            return false;
+        }
+
+        // Tagged so an undo takes the assignment with the person and team.
+        // Read back rather than from `insert_id`: the scope sync inside
+        // `assignToTeam()` runs its own queries after the insert.
+        global $wpdb;
+        $assignment_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_team_people
+              WHERE team_id = %d AND person_id = %d AND functional_role_id = %d AND club_id = %d
+              ORDER BY id DESC LIMIT 1",
+            $team_id, $person_id, $role_id, CurrentClub::id()
+        ) );
+        if ( $assignment_id > 0 ) {
+            $registry->tag( 'team_person', $assignment_id, [ 'source' => 'excel' ] );
+        }
+        return true;
+    }
+
+    /**
+     * The functional role a workbook's "Role" cell names: by key
+     * (`head_coach`, or `Head coach` typed as words), then by label, then
+     * `other`. 0 when the install has none of them.
+     */
+    private static function functionalRoleIdFor( string $typed_role ): int {
+        $repo  = new \TT\Infrastructure\Authorization\FunctionalRolesRepository();
+        $typed = strtolower( trim( $typed_role ) );
+
+        if ( $typed !== '' ) {
+            $key = (string) preg_replace( '/[^a-z0-9]+/', '_', $typed );
+            $row = $repo->findRoleByKey( trim( $key, '_' ) );
+            if ( $row !== null ) return (int) $row->id;
+
+            foreach ( $repo->listRoles() as $role ) {
+                $labels = [
+                    (string) ( $role->label ?? '' ),
+                    (string) ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? '' ),
+                ];
+                foreach ( $labels as $label ) {
+                    $label = strtolower( trim( $label ) );
+                    if ( $label !== '' && $label === $typed ) return (int) $role->id;
+                }
+            }
+        }
+
+        $other = $repo->findRoleByKey( 'other' );
+        return $other !== null ? (int) $other->id : 0;
     }
 
     /**

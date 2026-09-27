@@ -36,7 +36,7 @@ Dat sjabloon past bij de situatie waarin een club op dag één zit: er ligt een 
 
 Tabbladen die je weglaat worden stil overgeslagen; een selectiebestand klaagt dus niet over de twaalf ontbrekende tabbladen. Heeft een club wél historie mee te nemen, dan blijft het volledige sjabloon met vijftien tabbladen daarvoor de weg.
 
-Staf hoort op het tabblad **People**, met een `role` en een `team_key` — er is geen apart Staff-tabblad.
+Staf hoort op het tabblad **People**, met een `role` en een `team_key` — er is geen apart Staff-tabblad. De `role` noemt een van de functionele rollen van de academie, via de sleutel (`head_coach`) of het label (`Hoofdtrainer`); een rol die met geen enkele overeenkomt, wordt **Overig**. De persoon wordt vervolgens in die rol aan dat team toegewezen, precies alsof hij op het stafscherm van het team was toegevoegd. Lukt een toewijzing niet, dan staat in het importrapport om welke persoon het gaat; de persoon wordt hoe dan ook geïmporteerd.
 
 ## Wat v1.5 importeert
 
