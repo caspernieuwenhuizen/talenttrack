@@ -533,7 +533,7 @@ final class TeamMonthlyReportPage {
             'layout'  => $layout,
             'blocks'  => implode( ',', $selected ),
         ];
-        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
+        if ( $options !== [] ) $args['options'] = rawurlencode( (string) wp_json_encode( $options ) );
 
         return BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
     }
@@ -554,7 +554,7 @@ final class TeamMonthlyReportPage {
             'layout'  => $layout,
             'blocks'  => implode( ',', $selected ),
         ];
-        if ( $options !== [] ) $args['options'] = (string) wp_json_encode( $options );
+        if ( $options !== [] ) $args['options'] = rawurlencode( (string) wp_json_encode( $options ) );
         if ( $window['period'] !== '' ) {
             $args['period'] = $window['period'];
         } else {
