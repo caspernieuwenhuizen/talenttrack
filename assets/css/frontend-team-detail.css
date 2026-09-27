@@ -24,6 +24,17 @@
 .tt-player-hero__avatar[data-status="archived"] { border-color: var(--tt-line-soft, #eef0ec); }
 .tt-player-pill[data-status="archived"] { background: var(--tt-mute-soft, #f0f3f2); color: var(--tt-ink-soft, #6a6d66); }
 
+/* ---------- Tab strip + Statistics tab on the rail/main grid ---------- */
+
+/* The spine is a direct child of the `.tt-player-detail` grid, which gives
+   it no column of its own, so it would auto-place into the 320px rail cell.
+   It spans the page under the action row instead, on both tabs. The
+   Statistics tab has no rail, so its wrapper takes the full width too. */
+@media (min-width: 1024px) {
+    .tt-team-detail > .tt-spine,
+    .tt-team-detail > .tt-team-detail__stats { grid-column: 1 / -1; }
+}
+
 /* ---------- Whole-row link on hand-rolled .tt-table lists ---------- */
 
 .tt-team-detail .tt-table tr.is-row-link { cursor: pointer; }
