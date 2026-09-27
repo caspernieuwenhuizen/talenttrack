@@ -71,7 +71,7 @@ final class PotentialRatingToggleTest extends WP_UnitTestCase {
             'player_id'      => $this->player_id,
             'set_at'         => gmdate( 'Y-m-d H:i:s', current_time( 'timestamp' ) - 400 * DAY_IN_SECONDS ),
             'set_by'         => $this->hod,
-            'potential_band' => PotentialBand::SEMI_PRO,
+            'potential_band' => PotentialBand::ON_TRACK,
         ] );
     }
 
@@ -134,7 +134,7 @@ final class PotentialRatingToggleTest extends WP_UnitTestCase {
 
         $latest = ( new \TT\Modules\Players\Repositories\PlayerPotentialRepository() )->latestFor( $this->player_id );
         $this->assertNotNull( $latest );
-        $this->assertSame( PotentialBand::SEMI_PRO, (string) $latest->potential_band );
+        $this->assertSame( PotentialBand::ON_TRACK, (string) $latest->potential_band );
 
         $series = ( new \TT\Modules\Players\Services\PotentialTrajectory() )->forPlayer( $this->player_id );
         $this->assertCount( 1, $series, 'the #3226 trajectory is a read path and is not gated' );

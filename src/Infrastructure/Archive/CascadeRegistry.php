@@ -112,6 +112,8 @@ final class CascadeRegistry {
                 [ 'tt_trial_case_staff', 'case_id' ],
                 [ 'tt_trial_case_staff_inputs', 'case_id' ],
                 [ 'tt_trial_extensions', 'case_id' ],
+                // #4008 — the follow-up checklist is the case's own.
+                [ 'tt_trial_case_checklist', 'trial_case_id' ],
             ],
             'cascade_poly' => [],
             'threads'      => null,

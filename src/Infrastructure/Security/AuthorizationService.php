@@ -297,6 +297,35 @@ class AuthorizationService {
         return $allowed;
     }
 
+    /**
+     * #3972 — the players a scout reads this entity for through their
+     * `player`-scoped grant: the scout's linked players (an active
+     * trial-case panel seat or the assignment list, {@see ScoutPlayerLinks})
+     * on which the matrix actually grants the read.
+     *
+     * The collection routes need the list form of the question the gate
+     * answers per player: a scout holds no team, so without this a
+     * player-scoped grant reads as "nothing" on a list and as "everything"
+     * nowhere. Empty for everybody who is not a linked scout.
+     *
+     * @return list<int>
+     */
+    public static function scoutLinkedReadablePlayerIds( int $user_id, string $entity ): array {
+        if ( $user_id <= 0 || $entity === '' ) return [];
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return [];
+
+        $out = [];
+        foreach ( \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id ) as $player_id ) {
+            if ( \TT\Modules\Authorization\MatrixGate::can(
+                $user_id, $entity, \TT\Modules\Authorization\MatrixGate::READ,
+                \TT\Modules\Authorization\MatrixGate::SCOPE_PLAYER, $player_id
+            ) ) {
+                $out[] = $player_id;
+            }
+        }
+        return $out;
+    }
+
     public static function registerCacheInvalidators(): void {
         static $registered = false;
         if ( $registered ) return;

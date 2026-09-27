@@ -4,6 +4,7 @@ namespace TT\Modules\Configuration;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
+use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Domain\Vocabularies\Lookups\TournamentFormation;
 use TT\Domain\Vocabularies\Lookups\TournamentOpponentLevel;
 use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
@@ -105,11 +106,10 @@ final class LookupCanonicalSeeds {
                 'Above expectations', 'Exemplary',
             ],
 
-            // 0042 — potential bands
-            'potential_band' => [
-                'Far below club level', 'Below club level', 'Club level',
-                'Above club level', 'Elite potential',
-            ],
+            // #3981 — potential bands, read from the typed vocabulary. The
+            // five labels listed here before were never stored names (0042
+            // seeded keys), so the drift audit flagged every row.
+            'potential_band' => PotentialBand::ALL,
 
             // 0058 — goal approval decision
             'goal_approval_decision' => [ 'Pending', 'Approved', 'Rejected', 'Changes requested' ],

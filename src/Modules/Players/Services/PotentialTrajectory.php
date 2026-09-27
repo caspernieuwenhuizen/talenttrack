@@ -4,6 +4,7 @@ namespace TT\Modules\Players\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 
 /**
@@ -53,25 +54,51 @@ class PotentialTrajectory {
     /**
      * The band vocabulary with its human labels, best band first.
      *
-     * Single source: `FrontendPlayerDetailView`'s popover, the capture
-     * screen's select and this trajectory all read it here. There were two
-     * copies of this map before #3226 and adding a third was not an option.
+     * Single source for every surface that shows a band: the popover, the
+     * card, the capture screen, this trajectory, the potential overview,
+     * the KPI export and the PDP evidence. The label is the `potential_band`
+     * lookup's, in the reader's language, so an academy that renames a band
+     * sees the new name everywhere (#3981). The keys and their order stay
+     * fixed in `PotentialBand`, so a rename never moves a player's status.
+     *
+     * A lookup row with no label of its own for the reader's language falls
+     * back to the shipped label below rather than to the raw key.
      *
      * @return array<string,string> band code => label
      */
     public static function labels(): array {
+        $out = [];
+        foreach ( self::defaultLabels() as $key => $fallback ) {
+            $label       = LookupTranslator::byTypeAndName( 'potential_band', $key );
+            $out[ $key ] = ( $label === '' || $label === $key ) ? $fallback : $label;
+        }
+        return $out;
+    }
+
+    /**
+     * The shipped English labels, which the migration seeds into the lookup
+     * and which stand in when a row carries no label for the reader.
+     *
+     * @return array<string,string> band code => label
+     */
+    public static function defaultLabels(): array {
         return [
-            PotentialBand::FIRST_TEAM             => __( 'First team', 'talenttrack' ),
-            PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Professional elsewhere', 'talenttrack' ),
-            PotentialBand::SEMI_PRO               => __( 'Semi-pro', 'talenttrack' ),
-            PotentialBand::TOP_AMATEUR            => __( 'Top amateur', 'talenttrack' ),
-            PotentialBand::RECREATIONAL           => __( 'Foundation', 'talenttrack' ),
+            PotentialBand::EXCEPTIONAL => _x( 'Exceptional', 'potential band', 'talenttrack' ),
+            PotentialBand::AHEAD       => _x( 'Ahead of age group', 'potential band', 'talenttrack' ),
+            PotentialBand::ON_TRACK    => _x( 'On track', 'potential band', 'talenttrack' ),
+            PotentialBand::NEEDS_TIME  => _x( 'Needs time', 'potential band', 'talenttrack' ),
+            PotentialBand::BELOW_LEVEL => _x( 'Below academy level', 'potential band', 'talenttrack' ),
         ];
     }
 
+    /**
+     * The label for one band. A retired key still renders under its
+     * successor's name, and a value the vocabulary never had renders as
+     * itself rather than disappearing.
+     */
     public static function labelFor( string $band ): string {
         $labels = self::labels();
-        return $labels[ $band ] ?? $band;
+        return $labels[ PotentialBand::normalise( $band ) ] ?? $band;
     }
 
     /**
@@ -114,7 +141,9 @@ class PotentialTrajectory {
         $prev_rank = null;
 
         foreach ( $rows as $row ) {
-            $band = (string) ( $row->potential_band ?? '' );
+            // #3981 — a retired key reads as its successor, so a response
+            // never carries the old vocabulary.
+            $band = PotentialBand::normalise( (string) ( $row->potential_band ?? '' ) );
             $rank = self::rankOf( $band );
 
             if ( $prev_rank === null || $rank === null ) {

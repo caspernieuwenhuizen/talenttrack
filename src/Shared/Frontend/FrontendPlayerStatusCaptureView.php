@@ -47,16 +47,9 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // is. Without this it would render a heading and nothing else for an
         // academy that switched both off.
         $behaviour_ok = \TT\Modules\Players\PlayerStatusModule::behaviourCaptureAvailableFor( $player_id );
-        // #3265 — three questions now, not two. The third is about the
-        // player rather than the academy or the user: below U13 the
-        // professional-ceiling question is not one to ask, so the potential
-        // half explains itself rather than offering empty bands. Behaviour
-        // is unaffected at every age — how a child trains is a fair thing to
-        // record at seven.
-        $old_enough   = \TT\Modules\Players\PlayerStatusModule::potentialAppliesAtBirthdate(
-            $player !== null && isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null
-        );
-        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) && $old_enough;
+        // #3981 — no age floor: the bands place a player against their own
+        // age group, which is a fair question at any age.
+        $potential_ok = \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id );
 
         // #3715 — nothing may be captured here, by this user, for this
         // player. That withdraws the forms; it must not withdraw the
@@ -131,15 +124,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             // coach which of "your academy does not do this" and "you may
             // not do this" applies would leak the club's configuration to
             // somebody who cannot act on either.
-            //
-            // The age floor is the exception and gets said out loud: it is
-            // not configuration, it leaks nothing, and a coach who is not
-            // told will go looking for a setting that does not exist.
-            if ( ! $old_enough && \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) ) {
-                echo '<p class="tt-notice">' . esc_html( self::tooYoungForPotential() ) . '</p>';
-            } else {
-                echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
-            }
+            echo '<p class="tt-notice">' . esc_html__( 'Behaviour and potential ratings are not being recorded here.', 'talenttrack' ) . '</p>';
             // A viewer without read access on this player gets the notice
             // and nothing else, exactly as before.
             if ( $may_read ) {
@@ -182,11 +167,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 $notes = isset( $_POST['notes'] )          ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
                 $valid = PotentialBand::ALL;
                 if ( in_array( $band, $valid, true ) ) {
-                    ( new PlayerPotentialRepository() )->create( [
-                        'player_id'      => $player_id,
-                        'potential_band' => $band,
-                        'notes'          => $notes !== '' ? $notes : null,
-                    ] );
+                    // The repository's shape makes `notes` optional rather
+                    // than nullable; omitting it is how "no note" is spelled.
+                    $entry = [ 'player_id' => $player_id, 'potential_band' => $band ];
+                    if ( $notes !== '' ) $entry['notes'] = $notes;
+                    ( new PlayerPotentialRepository() )->create( $entry );
                     $flash = __( 'Potential band saved.', 'talenttrack' );
                 }
             }
@@ -301,25 +286,6 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         endif;
 
         // Potential column
-        //
-        // #3265 — a player below the floor gets the card and an explanation
-        // rather than nothing at all. Rendering nothing would read as a
-        // permission problem or a broken screen; saying the question is not
-        // asked yet is the whole point of having a floor. The potential
-        // *history* still renders below either way — a band recorded before
-        // the floor existed stays visible.
-        if ( \TT\Modules\Players\PlayerStatusModule::potentialCaptureAvailableFor( $player_id ) && ! $old_enough ) :
-            ?>
-            <section class="tt-psc-card">
-                <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
-                <p class="tt-psc-notyet"><?php echo esc_html( self::tooYoungForPotential() ); ?></p>
-                <p class="tt-psc-notyet__why">
-                    <?php esc_html_e( 'The bands describe how far a player might go as a professional. That is a fair question to put to a coach about a teenager and a guess about a child, so it is asked once there is something to judge.', 'talenttrack' ); ?>
-                </p>
-            </section>
-            <?php
-        endif;
-
         if ( $potential_ok ) :
             ?>
             <section class="tt-psc-card">
@@ -343,7 +309,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             <?php endforeach; ?>
                         </select>
                         <span class="tt-field-hint">
-                            <?php esc_html_e( 'How high you believe this player can reach at their peak — not where they are now. Read the bands below before choosing.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'Where this player stands against their age group and the academy pathway. Read the bands below before choosing.', 'talenttrack' ); ?>
                         </span>
                     </p>
                     <?php self::renderBandMeanings(); ?>
@@ -472,7 +438,6 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
     private static function renderCurrentPotential( ?object $latest ): void {
         if ( $latest === null ) return;
 
-        $bands = PotentialTrajectory::labels();
         // v3.74.2 — show set_at (the meaningful "this is when we judged
         // it" date) instead of created_at.
         $when_set = (string) ( $latest->set_at ?? $latest->created_at ?? '' );
@@ -482,7 +447,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         printf(
             /* translators: 1: band 2: timestamp */
             esc_html__( 'Current: %1$s (recorded on %2$s).', 'talenttrack' ),
-            esc_html( (string) ( $bands[ $band ] ?? $band ) ),
+            esc_html( PotentialTrajectory::labelFor( $band ) ),
             esc_html( $when_set )
         );
         echo '</p>';
@@ -491,38 +456,24 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
     /**
      * #3241 — what each band means, next to the picker that asks for one.
      *
-     * The bands describe a professional ceiling and nothing on this screen
-     * said so, which is how two coaches record the same player differently
-     * and three surfaces downstream treat both the same. Five sentences,
-     * beside the select rather than in a doc nobody opens mid-form.
+     * #3981 — the bands place a player against their own age group and the
+     * academy pathway, not against an adult career. Nothing on the screen
+     * said what they meant, which is how two coaches record the same player
+     * differently. Five sentences, beside the select rather than in a doc
+     * nobody opens mid-form.
      *
      * Keyed off `PotentialTrajectory::labels()` so the list cannot drift
      * from the picker: a band added to the vocabulary without a meaning
      * here shows its label and no explanation, which is visibly incomplete
      * rather than silently wrong.
      */
-    /**
-     * The one sentence explaining the age floor, in one place (#3265).
-     *
-     * Two surfaces say it — the entry refusal and the potential card — and
-     * two copies of a sentence carrying a number is how the number ends up
-     * different in each after somebody changes the constant.
-     */
-    public static function tooYoungForPotential(): string {
-        return sprintf(
-            /* translators: %d is the minimum age in years, e.g. 13. */
-            __( 'Potential is not recorded below age %d. Behaviour ratings still are.', 'talenttrack' ),
-            \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE
-        );
-    }
-
     private static function renderBandMeanings(): void {
         $meanings = [
-            PotentialBand::FIRST_TEAM             => __( 'Can reach this club\'s own first team.', 'talenttrack' ),
-            PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Can play professionally, most likely at another club.', 'talenttrack' ),
-            PotentialBand::SEMI_PRO               => __( 'Can play at semi-professional level.', 'talenttrack' ),
-            PotentialBand::TOP_AMATEUR            => __( 'Can play at the highest amateur level.', 'talenttrack' ),
-            PotentialBand::RECREATIONAL           => __( 'Will play for the love of it. Not a lesser player to coach — a different ceiling.', 'talenttrack' ),
+            PotentialBand::EXCEPTIONAL => __( 'Well beyond their age group; a candidate to play a year up.', 'talenttrack' ),
+            PotentialBand::AHEAD       => __( 'Ahead of what the pathway expects at this age.', 'talenttrack' ),
+            PotentialBand::ON_TRACK    => __( 'Where the pathway expects a player of this age to be.', 'talenttrack' ),
+            PotentialBand::NEEDS_TIME  => __( 'Behind their age group for now, with good reason to give them time.', 'talenttrack' ),
+            PotentialBand::BELOW_LEVEL => __( 'Below the level the academy works at for this age group.', 'talenttrack' ),
         ];
 
         echo '<details class="tt-psc-bands">';

@@ -132,6 +132,7 @@ class PlayerDeletionCascade {
                 [ 'tt_trial_case_staff',        'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_case_staff_inputs', 'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_extensions',        'case_id',     'tt_trial_cases',  'id' ],
+                [ 'tt_trial_case_checklist',    'trial_case_id', 'tt_trial_cases', 'id' ],
             ];
             foreach ( $children as [ $child, $fk, $parent, $pk ] ) {
                 if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) continue;

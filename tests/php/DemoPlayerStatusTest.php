@@ -8,7 +8,6 @@ use TT\Modules\DemoData\DemoCoverage;
 use TT\Modules\DemoData\DemoRatingScale;
 use TT\Modules\DemoData\Generators\PlayerStatusGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
-use TT\Modules\Players\PlayerStatusModule;
 
 /**
  * #3242 — the demo academy's missing traffic-light inputs, and the age
@@ -21,9 +20,9 @@ use TT\Modules\Players\PlayerStatusModule;
  * testing convenience.
  *
  * The properties pinned here are the ones a careless regeneration would
- * lose: that a squad above the potential floor exists at all, that the
- * generator respects #3265's floor rather than seeding a judgement the
- * product declines to ask for, and that the deliberate gaps survive — a
+ * lose: that the age spread reaches both ends of the ladder, that every
+ * squad is seeded with a potential history (#3981 removed the age floor),
+ * and that the deliberate gaps survive — a
  * demo where nothing is ever missing or overdue teaches the wrong thing
  * about what the product notices.
  */
@@ -55,22 +54,6 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
         $this->assertSame( 'JO7', $three[0], 'The youngest squad is still represented.' );
         $this->assertSame( 'JO19', $three[2], 'And so is the oldest — which is the half that was missing.' );
         $this->assertSame( $three, array_unique( $three ), 'No squad is created twice.' );
-    }
-
-    /** The property the rest of this issue depends on. */
-    public function test_the_default_preset_includes_a_squad_above_the_potential_floor(): void {
-        $ladder = [ 'JO7', 'JO8', 'JO9', 'JO10', 'JO11', 'JO12', 'JO13', 'JO14', 'JO15', 'JO16', 'JO17', 'JO19' ];
-
-        $ages = [];
-        foreach ( TeamGenerator::spreadAcrossLadder( $ladder, 3 ) as $group ) {
-            $ages[] = preg_match( '/(\d+)/', $group, $m ) ? (int) $m[1] : 0;
-        }
-
-        $this->assertGreaterThanOrEqual(
-            PlayerStatusModule::POTENTIAL_MIN_AGE,
-            max( $ages ),
-            'Without a squad at or above the floor, potential cannot be demonstrated at all.'
-        );
     }
 
     public function test_the_spread_degrades_sensibly(): void {
@@ -135,22 +118,17 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
     }
 
     /**
-     * The floor is the product's, asked through `PlayerStatusModule` rather
-     * than re-derived — so the demo cannot end up illustrating a rule the
-     * product does not apply.
+     * #3981 — the bands place a player against their own age group, so a
+     * young squad is seeded too. There used to be an age floor here.
      */
-    public function test_no_potential_is_seeded_below_the_age_floor(): void {
+    public function test_a_young_squad_gets_potential_too(): void {
         [ $potential, $behaviour ] = $this->generateFor( $this->squadAged( 8, 14 ) );
 
-        $this->assertSame( 0, $potential, 'A squad of eight-year-olds gets no potential at all.' );
-        $this->assertGreaterThan(
-            0,
-            $behaviour,
-            'Behaviour is unaffected at every age — how a child trains is a fair thing to record at eight.'
-        );
+        $this->assertGreaterThan( 0, $potential, 'A squad of eight-year-olds is placed on the pathway as well.' );
+        $this->assertGreaterThan( 0, $behaviour );
     }
 
-    public function test_a_squad_above_the_floor_gets_both(): void {
+    public function test_an_older_squad_gets_both(): void {
         [ $potential, $behaviour ] = $this->generateFor( $this->squadAged( 16, 14 ) );
 
         $this->assertGreaterThan( 0, $potential );
@@ -198,7 +176,7 @@ final class DemoPlayerStatusTest extends WP_UnitTestCase {
         );
 
         // Best-first, so a LATER entry with a HIGHER index is a downgrade.
-        $order = [ 'first_team', 'professional_elsewhere', 'semi_pro', 'top_amateur', 'recreational' ];
+        $order = [ 'exceptional', 'ahead', 'on_track', 'needs_time', 'below_level' ];
         $seen  = [];
         $down  = false;
 

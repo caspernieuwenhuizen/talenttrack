@@ -1169,7 +1169,7 @@ final class PlayerReportPage {
         foreach ( $items as $row ) {
             if ( ! is_array( $row ) ) continue;
             echo '<li class="tt-evidence__card">'
-                . '<span class="tt-evidence__card-title">' . esc_html( LookupTranslator::byTypeAndName( 'potential_band', (string) ( $row['potential_band'] ?? '' ) ) ) . '</span>'
+                . '<span class="tt-evidence__card-title">' . esc_html( \TT\Modules\Players\Services\PotentialTrajectory::labelFor( (string) ( $row['potential_band'] ?? '' ) ) ) . '</span>'
                 . '<span class="tt-evidence__card-meta">' . esc_html( TTDate::date( (string) ( $row['set_at'] ?? '' ) ) ) . '</span>'
                 . '</li>';
         }

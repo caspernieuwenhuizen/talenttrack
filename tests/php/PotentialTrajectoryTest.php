@@ -60,7 +60,7 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
     }
 
     public function test_the_first_entry_has_no_direction(): void {
-        $this->record( PotentialBand::SEMI_PRO, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-01-10 09:00:00' );
 
         $series = $this->series();
 
@@ -71,23 +71,23 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
 
     /** Oldest first — a trajectory is read forwards. */
     public function test_entries_come_back_oldest_first(): void {
-        $this->record( PotentialBand::TOP_AMATEUR, '2026-01-10 09:00:00' );
-        $this->record( PotentialBand::SEMI_PRO, '2026-06-10 09:00:00' );
+        $this->record( PotentialBand::NEEDS_TIME, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-06-10 09:00:00' );
 
         $series = $this->series();
 
-        $this->assertSame( PotentialBand::TOP_AMATEUR, $series[0]['band'] );
-        $this->assertSame( PotentialBand::SEMI_PRO, $series[1]['band'] );
+        $this->assertSame( PotentialBand::NEEDS_TIME, $series[0]['band'] );
+        $this->assertSame( PotentialBand::ON_TRACK, $series[1]['band'] );
     }
 
     /**
-     * Top amateur → Semi-pro is a move toward the first team, so it is a
+     * Needs time → On track is a move up the pathway, so it is a
      * revision UP even though the array index went down. This is the
      * assertion that catches the comparison being inverted.
      */
     public function test_moving_toward_the_first_team_is_revised_up(): void {
-        $this->record( PotentialBand::TOP_AMATEUR, '2026-01-10 09:00:00' );
-        $this->record( PotentialBand::SEMI_PRO, '2026-06-10 09:00:00' );
+        $this->record( PotentialBand::NEEDS_TIME, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-06-10 09:00:00' );
 
         $series = $this->series();
 
@@ -96,13 +96,13 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
     }
 
     public function test_moving_away_from_the_first_team_is_revised_down(): void {
-        $this->record( PotentialBand::FIRST_TEAM, '2026-01-10 09:00:00' );
-        $this->record( PotentialBand::TOP_AMATEUR, '2026-06-10 09:00:00' );
+        $this->record( PotentialBand::EXCEPTIONAL, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::NEEDS_TIME, '2026-06-10 09:00:00' );
 
         $series = $this->series();
 
         $this->assertSame( PotentialTrajectory::DOWN, $series[1]['direction'] );
-        $this->assertSame( 3, $series[1]['steps'], 'first_team to top_amateur is three bands.' );
+        $this->assertSame( 3, $series[1]['steps'], 'exceptional to needs_time is three bands.' );
     }
 
     /**
@@ -110,9 +110,9 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
      * one season must both read as down, not just the last one.
      */
     public function test_two_downward_revisions_both_read_as_down(): void {
-        $this->record( PotentialBand::FIRST_TEAM, '2026-01-10 09:00:00' );
-        $this->record( PotentialBand::SEMI_PRO, '2026-04-10 09:00:00' );
-        $this->record( PotentialBand::RECREATIONAL, '2026-08-10 09:00:00' );
+        $this->record( PotentialBand::EXCEPTIONAL, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-04-10 09:00:00' );
+        $this->record( PotentialBand::BELOW_LEVEL, '2026-08-10 09:00:00' );
 
         $series = $this->series();
 
@@ -127,8 +127,8 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
      * revision, and must not render as one.
      */
     public function test_reaffirming_the_same_band_is_not_a_revision(): void {
-        $this->record( PotentialBand::SEMI_PRO, '2026-01-10 09:00:00' );
-        $this->record( PotentialBand::SEMI_PRO, '2026-06-10 09:00:00', 'Flat six weeks.' );
+        $this->record( PotentialBand::ON_TRACK, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-06-10 09:00:00', 'Flat six weeks.' );
 
         $series = $this->series();
 
@@ -143,7 +143,7 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
      * treated as the bottom of the scale.
      */
     public function test_an_unknown_band_renders_without_a_direction(): void {
-        $this->record( PotentialBand::SEMI_PRO, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-01-10 09:00:00' );
         $this->record( 'retired_band', '2026-06-10 09:00:00' );
 
         $series = $this->series();
@@ -157,9 +157,9 @@ final class PotentialTrajectoryTest extends WP_UnitTestCase {
      * known band is compared against the last known one.
      */
     public function test_an_unknown_band_does_not_break_the_next_comparison(): void {
-        $this->record( PotentialBand::TOP_AMATEUR, '2026-01-10 09:00:00' );
+        $this->record( PotentialBand::NEEDS_TIME, '2026-01-10 09:00:00' );
         $this->record( 'retired_band', '2026-04-10 09:00:00' );
-        $this->record( PotentialBand::SEMI_PRO, '2026-08-10 09:00:00' );
+        $this->record( PotentialBand::ON_TRACK, '2026-08-10 09:00:00' );
 
         $series = $this->series();
 

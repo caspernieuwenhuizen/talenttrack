@@ -7,7 +7,6 @@ use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\AllTeamsScope;
-use TT\Modules\Players\PlayerStatusModule;
 use TT\Modules\Players\Services\PotentialTrajectory;
 
 /**
@@ -47,9 +46,9 @@ use TT\Modules\Players\Services\PotentialTrajectory;
  * opposite of the truth, and it is precisely those players the screen
  * exists to find. They come back with `band = ''` and `recorded = false`.
  *
- * Under the #3265 age floor the academy is not *asked* for a band below
- * 13, so those players carry `eligible = false` and are not counted as
- * gaps — a U12 with no band is not a coverage failure.
+ * `eligible` and the summary's `not_asked` are kept in the response shape
+ * but no longer vary: the bands place a player against their age group,
+ * which is asked at every age (#3981), so every player is eligible.
  *
  * @phpstan-type PotentialRow array{
  *     player_id:int, player_name:string, team_id:int, team_name:string,
@@ -222,9 +221,9 @@ final class PotentialOverviewQuery {
             'team_name'           => $team_name,
             'age_group'           => $age_group,
             'date_of_birth'       => $player['date_of_birth'],
-            'eligible'            => PlayerStatusModule::potentialAppliesAtBirthdate(
-                $player['date_of_birth'] !== '' ? $player['date_of_birth'] : null
-            ),
+            // #3981 — no age floor any more, so every player is asked. The
+            // field stays in the v1 response shape for one release.
+            'eligible'            => true,
             'recorded'            => $current !== null,
             'band'                => $band,
             'band_label'          => $band !== '' ? PotentialTrajectory::labelFor( $band ) : '',
@@ -383,8 +382,8 @@ final class PotentialOverviewQuery {
      * Ordering happens in PHP, not SQL: the band's order is the
      * vocabulary's order, which lives in `PotentialBand::ALL` rather than
      * in the column, and sorting a `VARCHAR` of band codes alphabetically
-     * would put `first_team` between `professional_elsewhere` and
-     * `recreational`. A squad is tens of rows, not thousands.
+     * would put `ahead` above `exceptional`. A squad is tens of rows, not
+     * thousands.
      *
      * @param list<PotentialRow> $rows
      * @return list<PotentialRow>
@@ -436,9 +435,8 @@ final class PotentialOverviewQuery {
     /**
      * Headline counts for the report's KPI strip.
      *
-     * `missing` counts only players the academy is actually asked about —
-     * the #3265 age floor means a U12 without a band is not a gap, and
-     * counting them would report a coverage problem that is policy.
+     * `missing` counts the players the academy is asked about, which since
+     * #3981 is every player; `not_asked` is kept for the response shape.
      *
      * @param list<PotentialRow> $rows
      * @return array{players:int,recorded:int,missing:int,not_asked:int,coverage:?float}

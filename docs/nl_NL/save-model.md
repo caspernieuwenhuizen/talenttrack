@@ -102,6 +102,10 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
 - Een evaluatie of doel **aanmaken** — in tegenstelling tot bewerken.
 - De kaart **Aflevering** op het tabblad [Brief](trials.md) van een
   stagedossier, waar het hoofd opleiding vastlegt dat het gezin de brief heeft.
+- De kaart **Opvolging** op het tabblad [Overzicht](trials.md) van een
+  aangenomen stagedossier: elk vinkje, en elk "wie pakt dit op", is een eigen
+  formulier met één veld. De knop is de hele vastlegging, dus er is niets
+  half gedaans dat een Annuleren ongedaan zou moeten maken.
 - Configuratieschermen en keuzelijsten.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.

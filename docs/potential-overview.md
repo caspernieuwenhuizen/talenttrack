@@ -12,7 +12,7 @@ order: 31
 
 # Potential overview
 
-The **Potential overview** answers a question the rest of the product could not: *show me every player in this age group with their potential band, sorted.* Until this screen existed, the band — First team, Professional elsewhere, Semi-pro, Top amateur, Foundation — appeared nowhere that showed more than one player at a time. You could read it on a player's file, one player at a time, and that was all.
+The **Potential overview** answers a question the rest of the product could not: *show me every player in this age group with their potential band, sorted.* Until this screen existed, the band — Exceptional, Ahead of age group, On track, Needs time, Below academy level — appeared nowhere that showed more than one player at a time. You could read it on a player's file, one player at a time, and that was all.
 
 It lives under **Reports**, next to the Cohort decision board and Evaluation coverage, and it is built for periodic review rather than daily use.
 
@@ -49,8 +49,6 @@ This is the part worth reading twice. A list that quietly left out the players n
 
 **Coverage** is the share of players the academy has actually formed a view on. It reads the scope, not your band filter — ticking a box narrows the list, not the squad, and a coverage figure that moved when you filtered would mean nothing.
 
-Players below the age the band is asked at are a third case, and are counted separately. TalentTrack does not ask for a professional ceiling on a twelve-year-old (see [Player status](player-status.md)), so those rows read **Not asked below 13** and are not counted as gaps. A footnote under the summary says how many there are.
-
 ## Setting a band from here
 
 If you may record potential, the band cell is a dropdown. Change as many as you like and press **Save bands** once — one commit for the whole squad, and **Cancel** takes you back to the list as it stands without writing anything. That is deliberate: a coach working through a squad on a phone at a pitch gets one commit point rather than twenty silent saves on a connection that may not be there.
@@ -59,7 +57,7 @@ What it writes is exactly what the **Set potential** popover on a player's file 
 
 - Leaving a player on **Not recorded** records nothing for them. It is not an instruction to clear anything.
 - Choosing the band a player is already on records nothing either — restating a standing judgement is not a change of mind, and it would fill the history with entries that look like revisions.
-- A player below the age floor is skipped, and the confirmation says how many were.
+- A player outside the scope you are looking at is skipped, and the confirmation says how many were.
 
 Every save appends to the player's potential history, so the trajectory on their file keeps its shape, and their traffic-light status picks the new band up immediately.
 

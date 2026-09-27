@@ -282,16 +282,16 @@ final class LookupTranslationSeeds {
                 '5' => [ 'nl_NL' => 'Voorbeeldig',       'fr_FR' => 'Exemplaire',             'de_DE' => 'Vorbildlich',             'es_ES' => 'Ejemplar' ],
             ],
 
-            // #3117 — re-keyed. Migration 0153 replaced the "club level"
-            // ladder with the destination a player is projected to reach
-            // (`PotentialBand::ALL`), which is a claim about a career
-            // rather than a comparison to the club's own first team.
+            // #3981 — re-keyed again. The bands now place a player against
+            // their age group and the academy pathway (`PotentialBand::ALL`)
+            // rather than naming an adult career ceiling. Migration 0292
+            // replaces the lookup rows and seeds these.
             'potential_band' => [
-                'first_team'             => [ 'nl_NL' => 'Eerste elftal',       'fr_FR' => 'Équipe première',        'de_DE' => 'Erste Mannschaft',  'es_ES' => 'Primer equipo' ],
-                'professional_elsewhere' => [ 'nl_NL' => 'Profvoetbal elders',  'fr_FR' => 'Professionnel ailleurs', 'de_DE' => 'Profi anderswo',    'es_ES' => 'Profesional en otro club' ],
-                'semi_pro'               => [ 'nl_NL' => 'Semi-professional',   'fr_FR' => 'Semi-professionnel',     'de_DE' => 'Halbprofi',         'es_ES' => 'Semiprofesional' ],
-                'top_amateur'            => [ 'nl_NL' => 'Hoog amateur',        'fr_FR' => 'Haut niveau amateur',    'de_DE' => 'Top-Amateur',       'es_ES' => 'Amateur de alto nivel' ],
-                'recreational'           => [ 'nl_NL' => 'Recreatief',          'fr_FR' => 'Loisir',                 'de_DE' => 'Freizeit',          'es_ES' => 'Recreativo' ],
+                'exceptional' => [ 'nl_NL' => 'Uitzonderlijk',        'fr_FR' => 'Exceptionnel',             'de_DE' => 'Außergewöhnlich',         'es_ES' => 'Excepcional' ],
+                'ahead'       => [ 'nl_NL' => 'Voorloper',            'fr_FR' => 'En avance sur son âge',    'de_DE' => 'Dem Jahrgang voraus',     'es_ES' => 'Adelantado a su edad' ],
+                'on_track'    => [ 'nl_NL' => 'Op koers',             'fr_FR' => 'Dans la trajectoire',      'de_DE' => 'Im Plan',                 'es_ES' => 'En línea' ],
+                'needs_time'  => [ 'nl_NL' => 'Heeft tijd nodig',     'fr_FR' => 'A besoin de temps',        'de_DE' => 'Braucht Zeit',            'es_ES' => 'Necesita tiempo' ],
+                'below_level' => [ 'nl_NL' => 'Onder academieniveau', 'fr_FR' => "Sous le niveau de l'académie", 'de_DE' => 'Unter Akademieniveau', 'es_ES' => 'Por debajo del nivel de la academia' ],
             ],
 
             // #3117 — re-keyed. This is the report-audience vocabulary

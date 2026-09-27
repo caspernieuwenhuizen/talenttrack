@@ -31,7 +31,7 @@ The shipped methodology weighs four inputs:
 | Ratings | 40% | Average evaluation rating in the last 90 days |
 | Behaviour | 25% | Average behaviour observation in the last 90 days |
 | Attendance | 20% | Present-rate at sessions in the last 90 days |
-| Potential | 15% | Trainer's stated belief about how high the player can reach |
+| Potential | 15% | Where the trainer places the player against their age group and the academy pathway |
 
 A behaviour rating below the midpoint of your rating scale floors the colour at amber, regardless of the other scores.
 
@@ -45,7 +45,7 @@ A behaviour rating below the midpoint of your rating scale floors the colour at 
 
 Coaches and HoD see the full breakdown (the four input scores + the threshold reasons).
 
-**Staff only.** Players and parents see neither the status nor the potential band, not even for their own record. Both are the academy's own judgement of a child: how they are doing, and how far they are expected to go. A parent reading "potential: academy level, revised down twice this season" without the conversation that should come with it is exactly what this rule prevents. The conversation is where that judgement belongs. The family's version of the player report leaves both out for the same reason. An academy that deliberately wants families to see the status can grant `player_status` to the parent or player persona in the Authorization matrix. The default does not.
+**Staff only.** Players and parents see neither the status nor the potential band, not even for their own record. Both are the academy's own judgement of a child: how they are doing, and where they stand against their age group. A parent reading "potential: needs time, revised down twice this season" without the conversation that should come with it is exactly what this rule prevents. The conversation is where that judgement belongs. The family's version of the player report leaves both out for the same reason. An academy that deliberately wants families to see the status can grant `player_status` to the parent or player persona in the Authorization matrix. The default does not.
 
 ## A hollow dot means the colour was computed on less
 
@@ -77,33 +77,33 @@ Staff opening a player's profile see one card for both inputs, next to Identity:
 - **Behaviour** — the latest rating, when it was given and by whom, and the average over the last 90 days — the figure the traffic light reads.
 - **Potential** — the current band, how many days ago it was set and by whom, and **Due a look.** once it is older than your academy's revisit window.
 
-A half with nothing recorded says so — *No behaviour recorded yet.*, *No potential band set yet.* — and shows the button beside it if you may record it. A player under 13 gets the age sentence instead of a Set potential button. A half your academy has switched off is left out, and a player or parent looking at their own profile never sees the card.
+A half with nothing recorded says so — *No behaviour recorded yet.*, *No potential band set yet.* — and shows the button beside it if you may record it. A half your academy has switched off is left out, and a player or parent looking at their own profile never sees the card.
 
-A behaviour rating is a score on your academy's own rating scale (**Configuration → Rating scale**), with optional notes and a related activity. A potential band is one of First team, Professional elsewhere, Semi-pro, Top amateur or Foundation.
+A behaviour rating is a score on your academy's own rating scale (**Configuration → Rating scale**), with optional notes and a related activity. A potential band says where the player stands against their age group and the academy pathway: Exceptional, Ahead of age group, On track, Needs time or Below academy level.
 
 Attendance and evaluation ratings are captured by their own flows; the calculator reads them directly.
 
-Integrations write the same records through `POST /players/{id}/behaviour-ratings` and `POST /players/{id}/potential` (band keys `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`).
+Integrations write the same records through `POST /players/{id}/behaviour-ratings` and `POST /players/{id}/potential` (band keys `exceptional` / `ahead` / `on_track` / `needs_time` / `below_level`).
 
 Both forms now say what they are asking for, on the screen rather than in this document.
 
 The behaviour form names the ends of your configured scale and says the rating is about the week you just watched, not the player as a whole — the trend across ratings is what the status reads, so a single low week is information rather than a verdict.
 
-The potential form asks how high you believe the player can reach **at their peak**, not where they are now, and carries a *What the bands mean* section next to the picker: one line each for First team, Professional elsewhere, Semi-pro, Top amateur and Foundation. Worth reading once as a staff group, because two coaches guessing at the bands is how the same player gets recorded differently.
+The potential form asks where the player stands against their age group and the academy pathway, and carries a *What the bands mean* section next to the picker: one line each for the five bands. Worth reading once as a staff group, because two coaches guessing at the bands is how the same player gets recorded differently.
 
-### Potential is not asked below 13
+| Band | What it means |
+| --- | --- |
+| Exceptional | Well beyond their age group; a candidate to play a year up. |
+| Ahead of age group | Ahead of what the pathway expects at this age. |
+| On track | Where the pathway expects a player of this age to be. |
+| Needs time | Behind their age group for now, with good reason to give them time. |
+| Below academy level | Below the level the academy works at for this age group. |
 
-The bands describe how far a player might go **as a professional**. That is a fair question to put to a coach about a teenager and a guess about a child, so TalentTrack does not ask it below age 13.
+### Why the bands are relative to the age group
 
-On a younger player the **Set potential** card says so instead of offering the bands, and the API refuses a write with the same reason. Behaviour ratings are unaffected at every age — how a child trains, listens and treats their teammates is a fair thing to record at seven.
+A youth academy decides whether to keep a player, push them up a year, give them time or let them go. It does not decide how far a child will go as an adult, and asking a coach for that about a nine-year-old gets a guess. So the bands place a player against their own age group, which a coach can answer honestly at any age, and potential can be set on every player.
 
-Three things follow from this that are worth knowing:
-
-- **The *Potential not revisited* alert skips them too.** Without that it would flag every player in a U7 squad the moment they had been on the books long enough, forever, with no way to clear it except recording exactly the judgement the rule exists to avoid.
-- **Bands already recorded stay visible.** If your academy set potential on younger players before this rule existed, those entries still show on the profile and still draw the trajectory. What stops is being asked again.
-- **A player with no date of birth on record is still asked.** A missing field is not evidence of being too young, and treating it as such would make a data gap look like a broken screen. Fill the date in and the rule applies.
-
-The age is fixed at 13 rather than being a setting. It is where age-group football starts treating trajectory as a real question, and a configurable minimum is the kind of thing that gets set once and then quietly explains a gap nobody can find.
+You can rename a band in **Configuration → Potential bands**, per language. The new name shows everywhere the band appears: the profile card, the popover, this screen, the trajectory, the potential overview and the exports. The band's order and the score it gives the traffic light stay the same, so renaming never moves a player's status.
 
 ### How often potential is expected
 
@@ -117,9 +117,9 @@ Potential is not a label, it is a judgement the academy revises. Every time some
 
 The **Behaviour & potential** screen now shows that sequence under the current band, newest first. Each entry gives the band, when it was set and by whom, any notes that came with it, and how it changed:
 
-- **▲ revised up** — toward the first team.
-- **▼ revised down** — away from it.
-- **= reaffirmed** — the same band recorded again. That happens deliberately: re-stating a band *with notes* ("still first team, but the last six weeks have been flat") is a real act and is kept, while re-saving the same band with nothing to add records nothing.
+- **▲ revised up** — further ahead of the age group.
+- **▼ revised down** — further behind it.
+- **= reaffirmed** — the same band recorded again. That happens deliberately: re-stating a band *with notes* ("still ahead, but the last six weeks have been flat") is a real act and is kept, while re-saving the same band with nothing to add records nothing.
 
 The direction is written in words as well as shown with an arrow and a colour, so it reads the same to somebody who cannot distinguish the colours or is using a screen reader.
 

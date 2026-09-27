@@ -18,6 +18,7 @@ use TT\Modules\Trials\Repositories\TrialStaffInputsRepository;
 use TT\Modules\Trials\Domain\TrialDecisionMotivation;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
+use TT\Modules\Trials\Services\TrialCaseChecklistService;
 use TT\Modules\Trials\Services\TrialDecisionDeadline;
 use TT\Modules\Trials\Services\TrialDecisionService;
 
@@ -496,6 +497,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
         }
         self::cardClose();
 
+        self::renderFollowUpCard( $case, $is_manager );
+
         self::cardOpen( __( 'Assigned staff', 'talenttrack' ) );
         if ( ! $staff ) {
             echo '<p class="tt-player-empty">' . esc_html__( 'No staff assigned yet.', 'talenttrack' ) . '</p>';
@@ -560,6 +563,96 @@ class FrontendTrialCaseView extends FrontendViewBase {
             self::renderExtensionForm( (int) $case->id, (string) $case->end_date );
         }
         self::cardClose();
+    }
+
+    /**
+     * #4008 — what has to follow an ADMIT, on the case the whole panel can
+     * see. Shown only once the case carries a checklist, which only an ADMIT
+     * creates. Composes `TrialCaseChecklistService`, the same answer
+     * `GET trial-cases/{id}/checklist` gives; the auto-ticks happen there.
+     *
+     * Each tick and each assignment is its own one-field form: a single
+     * commit, saved on tap, so there is nothing half-done to cancel.
+     */
+    private static function renderFollowUpCard( object $case, bool $is_manager ): void {
+        $case_id = (int) ( $case->id ?? 0 );
+        $items   = ( new TrialCaseChecklistService() )->itemsFor( $case_id );
+        if ( $items === [] ) return;
+
+        self::cardOpen( _x( 'Follow-up', 'trial case checklist card title', 'talenttrack' ) );
+        echo '<ul class="tt-trial-checklist">';
+        foreach ( $items as $item ) {
+            $key = $item['item_key'];
+            echo '<li class="tt-trial-checklist__item" data-done="' . esc_attr( $item['done'] ? '1' : '0' ) . '">';
+
+            echo '<div class="tt-trial-checklist__head">';
+            echo '<span class="tt-trial-checklist__mark" aria-hidden="true">' . ( $item['done'] ? '&#10003;' : '' ) . '</span>';
+            echo '<span class="tt-trial-checklist__label">' . esc_html( $item['label'] ) . '</span>';
+            echo '</div>';
+
+            echo '<p class="tt-trial-checklist__meta">' . esc_html( self::checklistState( $item ) ) . '</p>';
+            if ( $item['assignee_name'] !== '' ) {
+                echo '<p class="tt-trial-checklist__meta">' . esc_html( sprintf(
+                    /* translators: %s: staff member name */
+                    __( 'Who does this: %s', 'talenttrack' ),
+                    $item['assignee_name']
+                ) ) . '</p>';
+            }
+
+            if ( $is_manager ) {
+                echo '<div class="tt-trial-checklist__actions">';
+                echo '<form method="post" class="tt-trial-checklist-form">';
+                wp_nonce_field( 'tt_trial_checklist_' . $case_id, 'tt_trial_checklist_nonce' );
+                echo '<input type="hidden" name="tt_trial_action" value="checklist_toggle">';
+                echo '<input type="hidden" name="item_key" value="' . esc_attr( $key ) . '">';
+                echo '<input type="hidden" name="done" value="' . esc_attr( $item['done'] ? '0' : '1' ) . '">';
+                echo '<button type="submit" class="tt-btn ' . ( $item['done'] ? 'tt-btn-secondary' : 'tt-btn-primary' ) . '">'
+                    . esc_html( $item['done'] ? __( 'Mark as not done', 'talenttrack' ) : __( 'Mark as done', 'talenttrack' ) )
+                    . '</button>';
+                echo '</form>';
+
+                echo '<form method="post" class="tt-trial-checklist-form">';
+                wp_nonce_field( 'tt_trial_checklist_' . $case_id, 'tt_trial_checklist_nonce' );
+                echo '<input type="hidden" name="tt_trial_action" value="checklist_assign">';
+                echo '<input type="hidden" name="item_key" value="' . esc_attr( $key ) . '">';
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes internally.
+                echo StaffPickerComponent::render( [
+                    'name'        => 'assignee_user_id',
+                    'label'       => __( 'Who does this', 'talenttrack' ),
+                    'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+                    'selected'    => (int) ( $item['assignee_user_id'] ?? 0 ),
+                    'source'      => 'directory',
+                ] );
+                echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save who does this', 'talenttrack' ) . '</button>';
+                echo '</form>';
+                echo '</div>';
+            }
+
+            echo '</li>';
+        }
+        echo '</ul>';
+        self::cardClose();
+    }
+
+    /**
+     * "Done on <date> by <name>", "Ticked itself on <date>" or "Not done yet".
+     *
+     * @param array{done:bool, done_at:?string, done_by_name:string, done_automatically:bool} $item
+     */
+    private static function checklistState( array $item ): string {
+        if ( ! $item['done'] || $item['done_at'] === null ) {
+            return __( 'Not done yet.', 'talenttrack' );
+        }
+        $when = \TT\Shared\Dates\TTDate::date( get_date_from_gmt( $item['done_at'] ) );
+        if ( $item['done_automatically'] ) {
+            /* translators: %s: date */
+            return sprintf( __( 'Ticked itself on %s.', 'talenttrack' ), $when );
+        }
+        return $item['done_by_name'] !== ''
+            /* translators: 1: date, 2: staff member name */
+            ? sprintf( __( 'Done on %1$s by %2$s.', 'talenttrack' ), $when, $item['done_by_name'] )
+            /* translators: %s: date */
+            : sprintf( __( 'Done on %s.', 'talenttrack' ), $when );
     }
 
     private static function renderAssignStaffForm( int $case_id ): void {
@@ -1233,6 +1326,30 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 $letter_id = isset( $_POST['letter_id'] ) ? absint( $_POST['letter_id'] ) : 0;
                 if ( $letter_id <= 0 ) return;
                 ( new TrialLetterService() )->clearDelivery( $letter_id, $case_id );
+                return;
+
+            // #4008 — the follow-up checklist. The same service, and the
+            // same audit entry, as `PATCH trial-cases/{id}/checklist/{item}`.
+            case 'checklist_toggle':
+            case 'checklist_assign':
+                if ( ! TrialCaseAccessPolicy::canManageCase( $user_id, $case_id ) ) return;
+                if ( ! self::nonceOk( 'tt_trial_checklist_' . $case_id, 'tt_trial_checklist_nonce' ) ) return;
+                $item_key  = isset( $_POST['item_key'] ) ? sanitize_key( (string) wp_unslash( $_POST['item_key'] ) ) : '';
+                $checklist = new TrialCaseChecklistService();
+                if ( $action === 'checklist_toggle' ) {
+                    $done = isset( $_POST['done'] ) && (string) $_POST['done'] === '1';
+                    if ( ! $checklist->setDone( $case_id, $item_key, $done, $user_id ) ) return;
+                    $changes = [ 'done' => $done ];
+                } else {
+                    $assignee = isset( $_POST['assignee_user_id'] ) ? absint( $_POST['assignee_user_id'] ) : 0;
+                    $assignee = $assignee > 0 ? $assignee : null;
+                    if ( $checklist->setAssignee( $case_id, $item_key, $assignee ) !== 'ok' ) return;
+                    $changes = [ 'assignee_user_id' => $assignee ];
+                }
+                ( new \TT\Infrastructure\Audit\AuditService() )->record( 'trial_case.checklist_updated', 'trial_case', $case_id, [
+                    'item_key' => $item_key,
+                    'changes'  => $changes,
+                ] );
                 return;
 
             case 'accept_received':

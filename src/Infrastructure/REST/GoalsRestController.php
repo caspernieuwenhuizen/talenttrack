@@ -263,18 +263,28 @@ class GoalsRestController {
         $where[] = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $archived_view, 'g' );
 
         // v3.91.2 — bypass coach-scope filter for personas with matrix
-        // `goals:r[global]` (scout, head_of_development, academy_admin).
+        // `goals:r[global]` (head_of_development, academy_admin).
+        // #3972 — a scout reads goals at `player` scope: the players they
+        // are linked to, alongside any team they coach.
         if ( ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'goals' ) ) {
             $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
-            if ( ! $coach_teams ) {
+            $team_ids    = array_map( static function ( $t ): int { return (int) $t->id; }, $coach_teams );
+            $linked_ids  = \TT\Infrastructure\Security\AuthorizationService::scoutLinkedReadablePlayerIds( get_current_user_id(), 'goals' );
+            if ( $team_ids === [] && $linked_ids === [] ) {
                 return RestResponse::success( [
                     'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
                 ] );
             }
-            $team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
-            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $where[] = "pl.team_id IN ($placeholders)";
-            $params  = array_merge( $params, $team_ids );
+            $ors = [];
+            if ( $team_ids !== [] ) {
+                $ors[]  = 'pl.team_id IN (' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ')';
+                $params = array_merge( $params, $team_ids );
+            }
+            if ( $linked_ids !== [] ) {
+                $ors[]  = 'g.player_id IN (' . implode( ',', array_fill( 0, count( $linked_ids ), '%d' ) ) . ')';
+                $params = array_merge( $params, $linked_ids );
+            }
+            $where[] = '(' . implode( ' OR ', $ors ) . ')';
         }
 
         $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];

@@ -12,7 +12,7 @@ order: 31
 
 # Potentieeloverzicht
 
-Het **Potentieeloverzicht** beantwoordt een vraag die de rest van het product niet aankon: *laat me elke speler in deze leeftijdscategorie zien met zijn potentieelklasse, gesorteerd.* Tot dit scherm er was, kwam de klasse — Eerste elftal, Profvoetbal elders, Semiprof, Topamateur, Fundament — nergens voor waar meer dan één speler tegelijk te zien was. Je kon hem lezen op het dossier van een speler, één speler tegelijk, en dat was het.
+Het **Potentieeloverzicht** beantwoordt een vraag die de rest van het product niet aankon: *laat me elke speler in deze leeftijdscategorie zien met zijn potentieelklasse, gesorteerd.* Tot dit scherm er was, kwam de klasse — Uitzonderlijk, Voorloper, Op koers, Heeft tijd nodig, Onder academieniveau — nergens voor waar meer dan één speler tegelijk te zien was. Je kon hem lezen op het dossier van een speler, één speler tegelijk, en dat was het.
 
 Het scherm staat onder **Rapportages**, naast het Cohortbeslissingsbord en Evaluatiedekking, en is gemaakt voor periodieke review in plaats van dagelijks gebruik.
 
@@ -49,8 +49,6 @@ Dit is het stuk dat het herlezen waard is. Een lijst die de spelers weglaat die 
 
 **Dekking** is het aandeel spelers waarover de academie daadwerkelijk een oordeel heeft gevormd. Dat cijfer leest de scope, niet je klassenfilter — een vinkje beperkt de lijst, niet de selectie, en een dekkingscijfer dat meebeweegt met een filter zegt niets.
 
-Spelers onder de leeftijd waarop de klasse gevraagd wordt zijn een derde geval en worden apart geteld. TalentTrack vraagt geen profplafond over een twaalfjarige (zie [Spelerstatus](player-status.md)), dus die rijen lezen **Niet gevraagd onder 13** en tellen niet als hiaat. Een voetnoot onder de samenvatting zegt om hoeveel spelers het gaat.
-
 ## Hier een klasse vastleggen
 
 Mag je potentieel vastleggen, dan is de potentieelcel een keuzelijst. Pas er zoveel aan als je wilt en druk één keer op **Klassen opslaan** — één vastlegmoment voor de hele selectie, en **Annuleren** brengt je terug naar de lijst zoals hij was, zonder iets te schrijven. Dat is bewust zo: een coach die langs een veld een selectie doorwerkt krijgt één vastlegmoment in plaats van twintig stille opslagacties op een verbinding die er misschien niet is.
@@ -59,7 +57,7 @@ Wat het wegschrijft is precies wat de popover **Potentieel instellen** op een sp
 
 - Een speler op **Niet vastgelegd** laten staan legt niets vast. Het is geen opdracht om iets te wissen.
 - De klasse kiezen die een speler al heeft legt ook niets vast — een staand oordeel herhalen is geen verandering van inzicht, en het zou de historie vullen met vermeldingen die op herzieningen lijken.
-- Een speler onder de leeftijdsgrens wordt overgeslagen, en de bevestiging zegt hoeveel dat er waren.
+- Een speler buiten het bereik dat je bekijkt wordt overgeslagen, en de bevestiging zegt hoeveel dat er waren.
 
 Elke opslag voegt toe aan de potentieelhistorie van de speler, zodat het verloop op zijn dossier klopt, en zijn stoplichtstatus neemt de nieuwe klasse meteen mee.
 

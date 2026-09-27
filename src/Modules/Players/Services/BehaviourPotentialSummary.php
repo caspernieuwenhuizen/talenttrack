@@ -65,7 +65,6 @@ final class BehaviourPotentialSummary {
      *   },
      *   potential: ?array{
      *     can_record: bool,
-     *     applies: bool,
      *     current: ?array{band: string, label: string, set_at: string, set_by: string},
      *     days_since: ?int,
      *     overdue: bool,
@@ -120,7 +119,6 @@ final class BehaviourPotentialSummary {
     /**
      * @return ?array{
      *   can_record: bool,
-     *   applies: bool,
      *   current: ?array{band: string, label: string, set_at: string, set_by: string},
      *   days_since: ?int,
      *   overdue: bool,
@@ -130,7 +128,6 @@ final class BehaviourPotentialSummary {
     private function potentialHalf( int $player_id, ?object $player, int $user_id ): ?array {
         if ( ! \TT\Core\FeatureRegistry::isEnabled( 'potential_rating' ) ) return null;
 
-        $dob     = $player !== null && isset( $player->date_of_birth ) ? (string) $player->date_of_birth : null;
         $history = $this->potential->historyFor( $player_id );
 
         $current    = null;
@@ -155,7 +152,6 @@ final class BehaviourPotentialSummary {
 
         return [
             'can_record' => PlayerStatusModule::potentialCaptureAvailableFor( $player_id, $user_id ),
-            'applies'    => PlayerStatusModule::potentialAppliesAtBirthdate( $dob ),
             'current'    => $current,
             'days_since' => $days_since,
             'overdue'    => $days_since !== null && $days_since >= self::staleDays(),

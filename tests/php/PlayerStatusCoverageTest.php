@@ -76,7 +76,7 @@ final class PlayerStatusCoverageTest extends WP_UnitTestCase {
     public function test_a_player_without_potential_differs_in_coverage_not_colour(): void {
         $with    = $this->playerWithFullAttendance( 'With', 'Potential' );
         $without = $this->playerWithFullAttendance( 'Without', 'Potential' );
-        $this->recordPotential( $with, PotentialBand::FIRST_TEAM );
+        $this->recordPotential( $with, PotentialBand::EXCEPTIONAL );
 
         $a = $this->verdictFor( $with );
         $b = $this->verdictFor( $without );
@@ -104,7 +104,7 @@ final class PlayerStatusCoverageTest extends WP_UnitTestCase {
     public function test_a_partial_verdict_says_so_in_its_reasons_and_a_complete_one_does_not(): void {
         $with    = $this->playerWithFullAttendance( 'Reason', 'Full' );
         $without = $this->playerWithFullAttendance( 'Reason', 'Partial' );
-        $this->recordPotential( $with, PotentialBand::SEMI_PRO );
+        $this->recordPotential( $with, PotentialBand::ON_TRACK );
 
         $complete = implode( ' | ', $this->verdictFor( $with )->reasons );
         $partial  = implode( ' | ', $this->verdictFor( $without )->reasons );
@@ -164,7 +164,7 @@ final class PlayerStatusCoverageTest extends WP_UnitTestCase {
     public function test_the_dot_distinguishes_partial_from_complete_without_relying_on_colour(): void {
         $with    = $this->playerWithFullAttendance( 'Dot', 'Full' );
         $without = $this->playerWithFullAttendance( 'Dot', 'Partial' );
-        $this->recordPotential( $with, PotentialBand::TOP_AMATEUR );
+        $this->recordPotential( $with, PotentialBand::NEEDS_TIME );
 
         $complete = PlayerStatusRenderer::dotFor( $this->verdictFor( $with ) );
         $partial  = PlayerStatusRenderer::dotFor( $this->verdictFor( $without ) );

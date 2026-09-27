@@ -4,25 +4,28 @@ namespace TT\Modules\Players\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PotentialBand;
-use TT\Modules\Players\PlayerStatusModule;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 
 /**
  * PotentialRecorder (#3412) — the one place a potential band is written.
  *
- * Three rules have always governed the write, and until now they lived
- * inside `PlayerStatusRestController::setPotential()`:
+ * The rules that govern the write, which until #3412 lived inside
+ * `PlayerStatusRestController::setPotential()`:
  *
- *   1. The band has to be one the vocabulary knows (#0057).
- *   2. The academy is not asked below `POTENTIAL_MIN_AGE` (#3265), and a
- *      rule that only exists in one caller is a rule every other caller
- *      ignores.
- *   3. Re-stating the standing band with no notes is not a change of mind
+ *   1. The band has to be one the vocabulary knows (#0057). A retired
+ *      adult-ceiling key is mapped to its pathway successor first, so a
+ *      client still sending the old vocabulary keeps working for one
+ *      release (#3981).
+ *   2. Re-stating the standing band with no notes is not a change of mind
  *      and does not belong in the history (#2876). Re-affirming it *with*
  *      notes is a real act and still appends.
  *
+ * There used to be an age floor as well (#3265). It went with the
+ * adult-ceiling bands: placing a player against their age group is a fair
+ * question at any age (#3981).
+ *
  * #3412 adds a second writer — the squad report's editable band cell —
- * and a second copy of three rules is how two surfaces come to disagree
+ * and a second copy of the rules is how two surfaces come to disagree
  * about what a potential entry means. So the rules moved here, the REST
  * controller became transport over them, and the new surface calls the
  * same method. The repository stays append-only underneath; this is the
@@ -37,7 +40,6 @@ final class PotentialRecorder {
     public const RECORDED   = 'recorded';
     public const UNCHANGED  = 'unchanged';
     public const INVALID    = 'invalid_band';
-    public const BELOW_AGE  = 'below_age_floor';
     public const NO_PLAYER  = 'no_player';
 
     private PlayerPotentialRepository $repo;
@@ -50,23 +52,19 @@ final class PotentialRecorder {
      * Record a band for a player, or explain why not.
      *
      * `result` is the outcome, never an exception: a squad grid saving
-     * twenty rows has to be able to report "eighteen saved, one unchanged,
-     * one too young" rather than abandoning the batch on the first row that
-     * does not apply.
+     * twenty rows has to be able to report "nineteen saved, one unchanged"
+     * rather than abandoning the batch on the first row that does not apply.
      *
      * @return array{result:string,id:int,band:string,set_at:string}
      */
     public function record( int $player_id, string $band, ?string $notes = null ): array {
+        $band  = PotentialBand::normalise( $band );
         $empty = [ 'result' => self::NO_PLAYER, 'id' => 0, 'band' => $band, 'set_at' => '' ];
 
         if ( $player_id <= 0 ) return $empty;
 
         if ( ! PotentialBand::isValid( $band ) ) {
             return [ 'result' => self::INVALID, 'id' => 0, 'band' => $band, 'set_at' => '' ];
-        }
-
-        if ( ! PlayerStatusModule::potentialAppliesToPlayer( $player_id ) ) {
-            return [ 'result' => self::BELOW_AGE, 'id' => 0, 'band' => $band, 'set_at' => '' ];
         }
 
         $notes  = ( $notes === null || trim( $notes ) === '' ) ? null : $notes;

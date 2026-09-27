@@ -95,16 +95,18 @@ final class ExportValueFormatter {
     }
 
     /**
-     * Potential band: `first_team` → "Eerste elftal".
+     * Potential band: `ahead` → "Voorloper".
      *
-     * Through the `potential_band` lookup, so a sheet carries the label an
-     * academy edited rather than the key the calculator scores.
+     * Through `PotentialTrajectory::labelFor()`, which reads the
+     * `potential_band` lookup, so a sheet carries the label an academy
+     * edited rather than the key the calculator scores, and the same label
+     * every other surface shows.
      *
      * @param mixed $value
      */
     public static function potentialBand( $value ): string {
         $code = self::str( $value );
-        return $code === '' ? '' : LookupTranslator::byTypeAndName( 'potential_band', $code );
+        return $code === '' ? '' : \TT\Modules\Players\Services\PotentialTrajectory::labelFor( $code );
     }
 
     /** Preferred foot: stored as a lookup value (`Right`, `Both`). */

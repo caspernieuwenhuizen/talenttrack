@@ -31,7 +31,7 @@ De meegeleverde methodiek weegt vier ingrediënten:
 | Evaluaties | 40% | Gemiddelde evaluatiescore in de laatste 90 dagen |
 | Gedrag | 25% | Gemiddelde gedragsobservatie in de laatste 90 dagen |
 | Aanwezigheid | 20% | Aanwezigheidsratio bij trainingen in de laatste 90 dagen |
-| Potentieel | 15% | Verwachting van de trainer over hoever de speler kan reiken |
+| Potentieel | 15% | Waar de trainer de speler plaatst ten opzichte van zijn leeftijdsgroep en de opleidingslijn |
 
 Een gedragsscore onder het midden van je beoordelingsschaal plafonneert de kleur op oranje, ongeacht de overige scores.
 
@@ -45,7 +45,7 @@ Een gedragsscore onder het midden van je beoordelingsschaal plafonneert de kleur
 
 Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels).
 
-**Alleen voor de staf.** Spelers en ouders zien de status en de potentieelband geen van beide, ook niet voor hun eigen dossier. Beide zijn het eigen oordeel van de academie over een kind: hoe het gaat, en hoe ver het naar verwachting komt. Een ouder die "potentieel: academieniveau, dit seizoen twee keer naar beneden bijgesteld" leest zonder het gesprek dat daarbij hoort, is precies wat deze regel voorkomt. Dat oordeel hoort in het gesprek thuis. De gezinsversie van het spelersrapport laat beide om dezelfde reden weg. Een academie die gezinnen de status bewust wil laten zien, kan `player_status` in de autorisatiematrix aan de persona ouder of speler toekennen. De standaard doet dat niet.
+**Alleen voor de staf.** Spelers en ouders zien de status en de potentieelband geen van beide, ook niet voor hun eigen dossier. Beide zijn het eigen oordeel van de academie over een kind: hoe het gaat, en waar het staat ten opzichte van zijn leeftijdsgroep. Een ouder die "potentieel: heeft tijd nodig, dit seizoen twee keer naar beneden bijgesteld" leest zonder het gesprek dat daarbij hoort, is precies wat deze regel voorkomt. Dat oordeel hoort in het gesprek thuis. De gezinsversie van het spelersrapport laat beide om dezelfde reden weg. Een academie die gezinnen de status bewust wil laten zien, kan `player_status` in de autorisatiematrix aan de persona ouder of speler toekennen. De standaard doet dat niet.
 
 ## Een holle stip betekent: berekend met minder
 
@@ -77,33 +77,33 @@ Stafleden die het profiel van een speler openen, zien naast Identiteit één kaa
 - **Gedrag** — de laatste beoordeling, wanneer die is gegeven en door wie, en het gemiddelde over de laatste 90 dagen — het getal dat het stoplicht leest.
 - **Potentieel** — de huidige band, hoeveel dagen geleden die is vastgelegd en door wie, en **Tijd om er weer naar te kijken.** zodra die ouder is dan de herzieningstermijn van je academie.
 
-Een helft waarin nog niets is vastgelegd zegt dat — *Nog geen gedrag vastgelegd.*, *Nog geen potentieelband ingesteld.* — en toont de knop ernaast als je het mag vastleggen. Bij een speler onder de 13 staat de zin over de leeftijd in plaats van de knop Potentieel instellen. Een helft die je academie heeft uitgezet, valt weg, en een speler of ouder op het eigen profiel ziet de kaart nooit.
+Een helft waarin nog niets is vastgelegd zegt dat — *Nog geen gedrag vastgelegd.*, *Nog geen potentieelband ingesteld.* — en toont de knop ernaast als je het mag vastleggen. Een helft die je academie heeft uitgezet, valt weg, en een speler of ouder op het eigen profiel ziet de kaart nooit.
 
-Een gedragsbeoordeling is een score op de eigen beoordelingsschaal van je academie (**Configuratie → Beoordelingsschaal**), met een optionele notitie en een gerelateerde activiteit. Een potentieelband is een van Eerste team, Profvoetbal elders, Semi-prof, Top amateur of Basis.
+Een gedragsbeoordeling is een score op de eigen beoordelingsschaal van je academie (**Configuratie → Beoordelingsschaal**), met een optionele notitie en een gerelateerde activiteit. Een potentieelband zegt waar de speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie: Uitzonderlijk, Voorloper, Op koers, Heeft tijd nodig of Onder academieniveau.
 
 Aanwezigheid en evaluaties worden via hun eigen flows vastgelegd; de calculator leest ze direct.
 
-Koppelingen schrijven dezelfde gegevens via `POST /players/{id}/behaviour-ratings` en `POST /players/{id}/potential` (bandsleutels `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`).
+Koppelingen schrijven dezelfde gegevens via `POST /players/{id}/behaviour-ratings` en `POST /players/{id}/potential` (bandsleutels `exceptional` / `ahead` / `on_track` / `needs_time` / `below_level`).
 
 Beide formulieren vertellen nu zelf waar ze om vragen, op het scherm in plaats van in dit document.
 
 Het gedragsformulier noemt de uiteinden van jullie eigen schaal en zegt erbij dat de beoordeling over de afgelopen week gaat, niet over de speler als geheel — de status leest het verloop over meerdere beoordelingen, dus één mindere week is informatie en geen oordeel.
 
-Het potentieelformulier vraagt hoe hoog je denkt dat de speler **op zijn top** kan reiken, niet waar hij nu staat, en heeft een blokje *Wat de bands betekenen* naast de keuzelijst: één regel per band voor Eerste team, Profvoetbal elders, Semi-prof, Top amateur en Basis. De moeite waard om één keer als staf samen door te lezen, want twee trainers die naar de betekenis raden is precies hoe dezelfde speler verschillend wordt vastgelegd.
+Het potentieelformulier vraagt waar de speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie, en heeft een blokje *Wat de bands betekenen* naast de keuzelijst: één regel per band. De moeite waard om één keer als staf samen door te lezen, want twee trainers die naar de betekenis raden is precies hoe dezelfde speler verschillend wordt vastgelegd.
 
-### Potentieel wordt niet gevraagd onder de 13
+| Band | Wat het betekent |
+| --- | --- |
+| Uitzonderlijk | Ver voorbij zijn leeftijdsgroep; een kandidaat om een jaar hoger te spelen. |
+| Voorloper | Verder dan de opleidingslijn op deze leeftijd verwacht. |
+| Op koers | Waar de opleidingslijn een speler van deze leeftijd verwacht. |
+| Heeft tijd nodig | Voorlopig achter op zijn leeftijdsgroep, met goede reden om hem tijd te geven. |
+| Onder academieniveau | Onder het niveau waarop de academie voor deze leeftijdsgroep werkt. |
 
-De klassen beschrijven hoe ver een speler **als prof** zou kunnen komen. Dat is een eerlijke vraag aan een trainer over een tiener en een gok over een kind, dus TalentTrack stelt hem niet onder de 13 jaar.
+### Waarom de bands relatief zijn aan de leeftijdsgroep
 
-Bij een jongere speler zegt de kaart **Potentieel instellen** dat, in plaats van de klassen aan te bieden, en de API weigert een schrijfactie met dezelfde reden. Gedragsbeoordelingen blijven op elke leeftijd gewoon werken — hoe een kind traint, luistert en met ploeggenoten omgaat, is op zijn zevende prima vast te leggen.
+Een jeugdacademie beslist of ze een speler houdt, een jaar hoger laat spelen, tijd geeft of laat gaan. Ze beslist niet hoe ver een kind als volwassene komt, en een trainer die dat over een negenjarige moet zeggen, gokt. Daarom plaatsen de bands een speler tegen zijn eigen leeftijdsgroep, een vraag die een trainer op elke leeftijd eerlijk kan beantwoorden, en kan potentieel bij elke speler worden vastgelegd.
 
-Drie dingen volgen hieruit die het waard zijn om te weten:
-
-- **De melding *Potentieel niet herzien* slaat ze ook over.** Zonder dat zou hij elke speler in een JO7-team markeren zodra die lang genoeg ingeschreven staat, voor altijd, zonder manier om hem op te lossen behalve precies het oordeel vastleggen dat deze regel wil voorkomen.
-- **Al vastgelegde klassen blijven zichtbaar.** Heeft je academie eerder potentieel bij jongere spelers vastgelegd, dan staan die vermeldingen nog op het profiel en tekenen ze nog steeds het verloop. Wat stopt, is dat er opnieuw naar gevraagd wordt.
-- **Een speler zonder geboortedatum krijgt de vraag wél.** Een leeg veld is geen bewijs dat iemand te jong is, en het zo behandelen laat een gat in de gegevens op een kapot scherm lijken. Vul de datum in en de regel gaat gelden.
-
-De leeftijd ligt vast op 13 en is geen instelling. Daar begint jeugdvoetbal ontwikkelrichting als een echte vraag te behandelen, en een instelbaar minimum is precies het soort instelling dat één keer wordt gezet en daarna stilletjes een gat verklaart dat niemand kan vinden.
+Je kunt een band hernoemen in **Configuratie → Potentieelbanden**, per taal. De nieuwe naam verschijnt overal waar de band staat: de profielkaart, het pop-upvenster, dit scherm, het verloop, het potentieeloverzicht en de exports. De volgorde van de band en de score die hij aan het stoplicht geeft, blijven gelijk, dus een nieuwe naam verschuift nooit de status van een speler.
 
 ### Hoe vaak potentieel wordt verwacht
 
@@ -117,9 +117,9 @@ Potentieel is geen etiket maar een inschatting die je bijstelt. Elke keer dat ie
 
 Het scherm **Gedrag & potentieel** toont dat verloop nu onder de huidige band, met de nieuwste bovenaan. Per regel zie je de band, wanneer die is vastgelegd en door wie, eventuele notities, en hoe het is veranderd:
 
-- **▲ naar boven bijgesteld** — richting het eerste elftal.
-- **▼ naar beneden bijgesteld** — daarvandaan af.
-- **= opnieuw bevestigd** — dezelfde band nog eens vastgelegd. Dat gebeurt bewust: dezelfde band opnieuw vastleggen *met een notitie* ("nog steeds eerste elftal, maar de laatste zes weken zijn vlak") is een echte handeling en blijft bewaard, terwijl dezelfde band opnieuw opslaan zonder toevoeging niets vastlegt.
+- **▲ naar boven bijgesteld** — verder voor op de leeftijdsgroep.
+- **▼ naar beneden bijgesteld** — verder erachter.
+- **= opnieuw bevestigd** — dezelfde band nog eens vastgelegd. Dat gebeurt bewust: dezelfde band opnieuw vastleggen *met een notitie* ("nog steeds voorloper, maar de laatste zes weken zijn vlak") is een echte handeling en blijft bewaard, terwijl dezelfde band opnieuw opslaan zonder toevoeging niets vastlegt.
 
 De richting staat er in woorden bij, niet alleen als pijl en kleur, zodat het net zo leesbaar is voor wie de kleuren niet kan onderscheiden of een schermlezer gebruikt.
 

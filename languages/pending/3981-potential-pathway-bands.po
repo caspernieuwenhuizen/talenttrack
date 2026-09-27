@@ -1,0 +1,63 @@
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Exceptional"
+msgstr "Uitzonderlijk"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Ahead of age group"
+msgstr "Voorloper"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "On track"
+msgstr "Op koers"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Needs time"
+msgstr "Heeft tijd nodig"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Below academy level"
+msgstr "Onder academieniveau"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Where this player stands against their age group and the academy pathway. Read the bands below before choosing."
+msgstr "Waar deze speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie. Lees de bands hieronder voordat je kiest."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Where this player stands against their age group and the academy pathway."
+msgstr "Waar deze speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Well beyond their age group; a candidate to play a year up."
+msgstr "Ver voorbij zijn leeftijdsgroep; een kandidaat om een jaar hoger te spelen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Ahead of what the pathway expects at this age."
+msgstr "Verder dan de opleidingslijn op deze leeftijd verwacht."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Where the pathway expects a player of this age to be."
+msgstr "Waar de opleidingslijn een speler van deze leeftijd verwacht."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Behind their age group for now, with good reason to give them time."
+msgstr "Voorlopig achter op zijn leeftijdsgroep, met goede reden om hem tijd te geven."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Below the level the academy works at for this age group."
+msgstr "Onder het niveau waarop de academie voor deze leeftijdsgroep werkt."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php
+#, php-format
+msgid "%d player was skipped because they are outside this scope."
+msgid_plural "%d players were skipped because they are outside this scope."
+msgstr[0] "%d speler is overgeslagen omdat die buiten dit bereik valt."
+msgstr[1] "%d spelers zijn overgeslagen omdat die buiten dit bereik vallen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Exceptional … Below academy level, against the age group. Rename a band here; its order and score stay fixed."
+msgstr "Uitzonderlijk … Onder academieniveau, ten opzichte van de leeftijdsgroep. Hernoem hier een band; volgorde en score blijven vast."

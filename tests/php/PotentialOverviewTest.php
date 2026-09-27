@@ -25,7 +25,7 @@ use TT\Modules\Players\Services\PotentialRecorder;
  *    A query that returned only the assessed players would look correct on
  *    every screenshot and answer the opposite of the question.
  *  - **Band order is the vocabulary's order, not the string's.** Sorting
- *    `VARCHAR` band codes alphabetically puts `first_team` in the middle.
+ *    `VARCHAR` band codes alphabetically puts `ahead` first.
  *  - **Scope cannot widen access.** The scope selector chooses between two
  *    ways of naming a team set; it must never be a way of reaching one.
  *  - **REST and the view answer the same.** CLAUDE.md §4 — a second
@@ -91,7 +91,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
     public function test_players_with_no_band_are_rows(): void {
         $assessed = $this->insertPlayer( $this->team_a, 'Assessed', 'Aa', 15 );
         $blank    = $this->insertPlayer( $this->team_a, 'Blank', 'Bb', 15 );
-        $this->recordBand( $assessed, PotentialBand::SEMI_PRO );
+        $this->recordBand( $assessed, PotentialBand::ON_TRACK );
 
         $rows = $this->teamRows( $this->team_a );
         $by_id = $this->index( $rows );
@@ -100,7 +100,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $this->assertTrue( $by_id[ $assessed ]['recorded'] );
         $this->assertFalse( $by_id[ $blank ]['recorded'] );
         $this->assertSame( '', $by_id[ $blank ]['band'] );
-        $this->assertSame( PotentialBand::SEMI_PRO, $by_id[ $assessed ]['band'] );
+        $this->assertSame( PotentialBand::ON_TRACK, $by_id[ $assessed ]['band'] );
     }
 
     /**
@@ -134,9 +134,9 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $low  = $this->insertPlayer( $this->team_a, 'Low', 'Xx', 15 );
         $none = $this->insertPlayer( $this->team_a, 'None', 'Ww', 15 );
 
-        $this->recordBand( $top, PotentialBand::FIRST_TEAM );
-        $this->recordBand( $mid, PotentialBand::SEMI_PRO );
-        $this->recordBand( $low, PotentialBand::RECREATIONAL );
+        $this->recordBand( $top, PotentialBand::EXCEPTIONAL );
+        $this->recordBand( $mid, PotentialBand::ON_TRACK );
+        $this->recordBand( $low, PotentialBand::BELOW_LEVEL );
 
         $asc = array_column( $this->teamRows( $this->team_a, [], 'band', 'asc' ), 'player_id' );
         $this->assertSame( [ $top, $mid, $low, $none ], $asc );
@@ -152,7 +152,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
     public function test_the_band_filter_can_select_the_unrecorded(): void {
         $assessed = $this->insertPlayer( $this->team_a, 'Has', 'Band', 15 );
         $blank    = $this->insertPlayer( $this->team_a, 'No', 'Band', 15 );
-        $this->recordBand( $assessed, PotentialBand::TOP_AMATEUR );
+        $this->recordBand( $assessed, PotentialBand::NEEDS_TIME );
 
         $only_none = array_column(
             $this->teamRows( $this->team_a, [ PotentialOverviewQuery::BAND_NONE ] ),
@@ -161,7 +161,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $this->assertSame( [ $blank ], $only_none );
 
         $only_band = array_column(
-            $this->teamRows( $this->team_a, [ PotentialBand::TOP_AMATEUR ] ),
+            $this->teamRows( $this->team_a, [ PotentialBand::NEEDS_TIME ] ),
             'player_id'
         );
         $this->assertSame( [ $assessed ], $only_band );
@@ -188,23 +188,23 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
      */
     public function test_movement_names_the_direction_and_the_band_it_came_from(): void {
         $risen = $this->insertPlayer( $this->team_a, 'Risen', 'Rr', 15 );
-        $this->recordBand( $risen, PotentialBand::RECREATIONAL, '-200 days' );
-        $this->recordBand( $risen, PotentialBand::SEMI_PRO,     '-20 days' );
+        $this->recordBand( $risen, PotentialBand::BELOW_LEVEL, '-200 days' );
+        $this->recordBand( $risen, PotentialBand::ON_TRACK,     '-20 days' );
 
         $fallen = $this->insertPlayer( $this->team_a, 'Fallen', 'Ff', 15 );
-        $this->recordBand( $fallen, PotentialBand::FIRST_TEAM, '-200 days' );
-        $this->recordBand( $fallen, PotentialBand::SEMI_PRO,   '-20 days' );
+        $this->recordBand( $fallen, PotentialBand::EXCEPTIONAL, '-200 days' );
+        $this->recordBand( $fallen, PotentialBand::ON_TRACK,   '-20 days' );
 
         $first = $this->insertPlayer( $this->team_a, 'First', 'Ee', 15 );
-        $this->recordBand( $first, PotentialBand::SEMI_PRO, '-20 days' );
+        $this->recordBand( $first, PotentialBand::ON_TRACK, '-20 days' );
 
         $rows = $this->index( $this->teamRows( $this->team_a ) );
 
         $this->assertSame( 'up', $rows[ $risen ]['direction'] );
-        $this->assertSame( PotentialBand::RECREATIONAL, $rows[ $risen ]['previous_band'] );
+        $this->assertSame( PotentialBand::BELOW_LEVEL, $rows[ $risen ]['previous_band'] );
 
         $this->assertSame( 'down', $rows[ $fallen ]['direction'] );
-        $this->assertSame( PotentialBand::FIRST_TEAM, $rows[ $fallen ]['previous_band'] );
+        $this->assertSame( PotentialBand::EXCEPTIONAL, $rows[ $fallen ]['previous_band'] );
 
         $this->assertSame( 'first', $rows[ $first ]['direction'] );
         $this->assertSame( '', $rows[ $first ]['previous_band'] );
@@ -212,25 +212,22 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
     }
 
     /**
-     * The #3265 age floor means the academy is not *asked* below 13, so a
-     * twelve-year-old without a band is not a coverage failure. Counting
-     * them would report a gap that is policy, and send somebody looking
-     * for work that must not be done.
+     * #3981 — the bands are asked at every age, so a young player without
+     * a band is a gap like any other.
      */
-    public function test_players_below_the_age_floor_are_not_counted_as_gaps(): void {
+    public function test_a_young_player_without_a_band_counts_as_a_gap(): void {
         $assessed = $this->insertPlayer( $this->team_a, 'Old', 'Enough', 15 );
         $this->insertPlayer( $this->team_a, 'Also', 'Fifteen', 15 );
-        $this->insertPlayer( $this->team_a, 'Too', 'Young', 11 );
-        $this->recordBand( $assessed, PotentialBand::SEMI_PRO );
+        $this->insertPlayer( $this->team_a, 'Also', 'Young', 11 );
+        $this->recordBand( $assessed, PotentialBand::ON_TRACK );
 
         $rows    = $this->teamRows( $this->team_a );
         $summary = PotentialOverviewQuery::summarise( $rows );
 
-        $this->assertSame( 3, $summary['players'], 'the young player is still a row' );
+        $this->assertSame( 3, $summary['players'] );
         $this->assertSame( 1, $summary['recorded'] );
-        $this->assertSame( 1, $summary['missing'], 'only the askable player counts as a gap' );
-        $this->assertSame( 1, $summary['not_asked'] );
-        $this->assertSame( 50.0, $summary['coverage'], 'coverage is over the askable players, not everybody' );
+        $this->assertSame( 2, $summary['missing'], 'the young player is a gap too' );
+        $this->assertSame( 0, $summary['not_asked'] );
     }
 
     /**
@@ -262,8 +259,8 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $a = $this->insertPlayer( $this->team_a, 'Rest', 'One', 15 );
         $b = $this->insertPlayer( $this->team_b, 'Rest', 'Two', 15 );
         $this->insertPlayer( $this->team_a, 'Rest', 'Three', 15 );
-        $this->recordBand( $a, PotentialBand::FIRST_TEAM );
-        $this->recordBand( $b, PotentialBand::RECREATIONAL );
+        $this->recordBand( $a, PotentialBand::EXCEPTIONAL );
+        $this->recordBand( $b, PotentialBand::BELOW_LEVEL );
 
         $request = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/potential-overview' );
         $request->set_param( 'scope', PotentialOverviewQuery::SCOPE_AGE_GROUP );
@@ -288,7 +285,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
     public function test_rest_reads_bands_as_a_list_or_a_comma_separated_string(): void {
         $blank = $this->insertPlayer( $this->team_a, 'Filter', 'Blank', 15 );
         $band  = $this->insertPlayer( $this->team_a, 'Filter', 'Band', 15 );
-        $this->recordBand( $band, PotentialBand::SEMI_PRO );
+        $this->recordBand( $band, PotentialBand::ON_TRACK );
 
         foreach ( [ PotentialOverviewQuery::BAND_NONE, [ PotentialOverviewQuery::BAND_NONE ] ] as $shape ) {
             $request = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/potential-overview' );
@@ -310,12 +307,12 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
     public function test_the_summary_is_computed_over_the_scope_not_the_filter(): void {
         $band = $this->insertPlayer( $this->team_a, 'Sum', 'Band', 15 );
         $this->insertPlayer( $this->team_a, 'Sum', 'Blank', 15 );
-        $this->recordBand( $band, PotentialBand::SEMI_PRO );
+        $this->recordBand( $band, PotentialBand::ON_TRACK );
 
         $request = new WP_REST_Request( 'GET', '/talenttrack/v1/reports/potential-overview' );
         $request->set_param( 'scope', PotentialOverviewQuery::SCOPE_TEAM );
         $request->set_param( 'team_id', $this->team_a );
-        $request->set_param( 'bands', [ PotentialBand::SEMI_PRO ] );
+        $request->set_param( 'bands', [ PotentialBand::ON_TRACK ] );
 
         $payload = ReportsRestController::potentialOverview( $request )->get_data();
         $body    = $payload['data'];
@@ -334,34 +331,35 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $player   = $this->insertPlayer( $this->team_a, 'Write', 'Path', 15 );
         $recorder = new PotentialRecorder();
 
-        $first = $recorder->record( $player, PotentialBand::SEMI_PRO );
+        $first = $recorder->record( $player, PotentialBand::ON_TRACK );
         $this->assertSame( PotentialRecorder::RECORDED, $first['result'] );
 
-        $again = $recorder->record( $player, PotentialBand::SEMI_PRO );
+        $again = $recorder->record( $player, PotentialBand::ON_TRACK );
         $this->assertSame( PotentialRecorder::UNCHANGED, $again['result'], 'restating a standing band is not a revision' );
 
-        $with_notes = $recorder->record( $player, PotentialBand::SEMI_PRO, 'Flat six weeks.' );
+        $with_notes = $recorder->record( $player, PotentialBand::ON_TRACK, 'Flat six weeks.' );
         $this->assertSame( PotentialRecorder::RECORDED, $with_notes['result'], 'reaffirming with notes is a real act' );
 
-        $changed = $recorder->record( $player, PotentialBand::FIRST_TEAM );
+        $changed = $recorder->record( $player, PotentialBand::EXCEPTIONAL );
         $this->assertSame( PotentialRecorder::RECORDED, $changed['result'] );
 
         $row = $this->index( $this->teamRows( $this->team_a ) )[ $player ];
-        $this->assertSame( PotentialBand::FIRST_TEAM, $row['band'] );
+        $this->assertSame( PotentialBand::EXCEPTIONAL, $row['band'] );
         $this->assertSame( 3, $row['revisions'], 'the no-op wrote nothing' );
     }
 
-    public function test_an_invalid_band_and_a_too_young_player_are_refused(): void {
+    public function test_an_invalid_band_is_refused_and_a_young_player_is_not(): void {
         $player = $this->insertPlayer( $this->team_a, 'Refused', 'Rr', 15 );
-        $young  = $this->insertPlayer( $this->team_a, 'Too', 'Small', 10 );
+        $young  = $this->insertPlayer( $this->team_a, 'Not', 'Small', 10 );
 
         $recorder = new PotentialRecorder();
 
         $this->assertSame( PotentialRecorder::INVALID,   $recorder->record( $player, 'wonderkid' )['result'] );
-        $this->assertSame( PotentialRecorder::NO_PLAYER, $recorder->record( 0, PotentialBand::SEMI_PRO )['result'] );
-        $this->assertSame( PotentialRecorder::BELOW_AGE, $recorder->record( $young, PotentialBand::SEMI_PRO )['result'] );
+        $this->assertSame( PotentialRecorder::NO_PLAYER, $recorder->record( 0, PotentialBand::ON_TRACK )['result'] );
+        // #3981 — no age floor any more.
+        $this->assertSame( PotentialRecorder::RECORDED,  $recorder->record( $young, PotentialBand::ON_TRACK )['result'] );
 
-        $this->assertFalse( $this->index( $this->teamRows( $this->team_a ) )[ $young ]['recorded'] );
+        $this->assertTrue( $this->index( $this->teamRows( $this->team_a ) )[ $young ]['recorded'] );
     }
 
     /**
@@ -376,7 +374,7 @@ final class PotentialOverviewTest extends WP_UnitTestCase {
         $before = $calc->calculate( $player );
         $this->assertContains( 'potential', $before->missing_inputs );
 
-        ( new PotentialRecorder() )->record( $player, PotentialBand::FIRST_TEAM );
+        ( new PotentialRecorder() )->record( $player, PotentialBand::EXCEPTIONAL );
 
         $after = $calc->calculate( $player );
         $this->assertNotContains( 'potential', $after->missing_inputs );

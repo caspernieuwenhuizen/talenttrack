@@ -98,6 +98,9 @@ first in tab order and Save on the right where the thumb finds it.
 - Creating an evaluation or a goal — as opposed to editing one.
 - The **Delivery** card on a trial case's [Letter tab](trials.md), where the
   head of development records that the family has the letter.
+- The **Follow-up** card on an admitted trial case's [Overview tab](trials.md):
+  each tick, and each "who does this", is its own one-field form. The button
+  is the whole commit, so there is nothing half-done for a Cancel to undo.
 - Configuration screens and lookup lists.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.

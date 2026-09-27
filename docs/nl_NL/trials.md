@@ -124,6 +124,18 @@ De meegeleverde Nederlandse brieven gebruiken een warme, informele clubtoon ("je
 
 Het tabblad **Oudergesprek** opent een schoon, schermvullend beeld dat ontworpen is om op een laptop of tablet aan ouders te laten zien. Interne gegevens worden bewust weggelaten — geen individuele beoordelingen, geen aanwezigheidspercentages, geen interne motivatie. Wat wél te zien is: foto, naam en leeftijd van de speler, de uitkomst en de brief, klaar om af te drukken of te mailen.
 
+### 7. Opvolging na een aanname
+
+Is een speler aangenomen, dan staat op het tabblad **Overzicht** van het dossier een kaart **Opvolging** met drie stappen waarvan je makkelijk aanneemt dat een ander ze al gedaan heeft:
+
+- **Toelatingsbrief verstuurd** — vinkt zichzelf aan zodra het dossier een toelatingsbrief heeft.
+- **Speler aan een team toegevoegd** — vinkt zichzelf aan zodra de speler in een academieteam zit (de stagegroep telt niet).
+- **Contact met ouder of verzorger vastgelegd** — vinkt zichzelf aan zodra er een e-mailadres van een ouder of verzorger bij de speler staat, of een gekoppeld ouderaccount met een e-mailadres.
+
+Bij elke stap zie je of hij af is, en wie hem wanneer heeft afgevinkt, of dat hij zichzelf heeft afgevinkt. Wie het dossier mag beheren, kan een stap met de hand aan- of uitvinken en aangeven wie hem oppakt; elke wijziging wordt meteen opgeslagen. De hele commissie ziet de kaart. Alleen een aanname krijgt er een: een afgewezen speler heeft geen team om bij te komen.
+
+Een stap afvinken verstuurt niets en start geen taak. Het is een registratie die de commissie deelt, zodat niets ervan afhangt dat iemand eraan denkt een ander een appje te sturen.
+
 ## Trajecten
 
 Trajecten zijn sjablonen die de standaard stageduur bepalen. Drie worden meegeleverd (Standaard / Scout / Keeper) en clubs kunnen via **Stagetrajecten** eigen trajecten toevoegen. Bestaande dossiers blijven werken als een traject wordt gearchiveerd; alleen nieuwe dossiers zien gearchiveerde trajecten niet meer.

@@ -183,7 +183,7 @@ final class PlayerStatusRestController {
     private static function potentialArgs(): array {
         return [
             'id'             => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player, from the URL. A copy in the body is accepted and ignored.' ],
-            'potential_band' => [ 'type' => 'string', 'description' => 'How far the academy thinks this player can go.' ],
+            'potential_band' => [ 'type' => 'string', 'description' => 'Where the player stands against their age group and the academy pathway: exceptional, ahead, on_track, needs_time or below_level. The retired keys (first_team, professional_elsewhere, semi_pro, top_amateur, recreational) are accepted for one release and stored as their mapped successor.' ],
             'notes'          => [ 'type' => 'string', 'description' => 'What the judgement rests on.' ],
         ];
     }
@@ -239,11 +239,11 @@ final class PlayerStatusRestController {
         $band      = isset( $r['potential_band'] ) ? sanitize_key( (string) $r['potential_band'] ) : '';
         $notes     = isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null;
 
-        // #3412 — the three write rules (valid band, the #3265 age floor,
-        // the #2876 no-op on a bare re-statement) moved to
-        // `PotentialRecorder` when the squad report became a second writer.
-        // This method is transport over them now; the rules are unchanged,
-        // and so are the status codes each one produces.
+        // #3412 — the write rules (valid band, the #2876 no-op on a bare
+        // re-statement) live in `PotentialRecorder`, shared with the squad
+        // report. #3981 — the recorder also maps a retired adult-ceiling key
+        // to its pathway successor for one release, and the age floor is
+        // gone with the old bands.
         $outcome = ( new PotentialRecorder() )->record( $player_id, $band, $notes );
 
         if ( $outcome['result'] === PotentialRecorder::NO_PLAYER
@@ -254,23 +254,6 @@ final class PlayerStatusRestController {
                 __( 'Player and a valid potential band are required.', 'talenttrack' ),
                 400,
                 [ 'allowed' => PotentialBand::ALL ]
-            );
-        }
-
-        // #3265 — 409 rather than 403: the caller holds the capability; the
-        // player's age is what rejects the write. The age floor is not
-        // screen-deep, so a client that never renders the capture form still
-        // meets it here.
-        if ( $outcome['result'] === PotentialRecorder::BELOW_AGE ) {
-            return RestResponse::error(
-                'potential_below_age_floor',
-                sprintf(
-                    /* translators: %d is the minimum age in years, e.g. 13. */
-                    __( 'Potential is not recorded below age %d.', 'talenttrack' ),
-                    \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE
-                ),
-                409,
-                [ 'min_age' => \TT\Modules\Players\PlayerStatusModule::POTENTIAL_MIN_AGE ]
             );
         }
 

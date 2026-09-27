@@ -124,6 +124,18 @@ The shipped Dutch letters use a warm, informal "je/jullie" club voice. If the wo
 
 The **Parent meeting** tab opens a fullscreen, sanitized view designed to be shown on a laptop or tablet during the meeting. It deliberately omits internal data — no individual staff ratings, no attendance percentages, no justification notes. What's shown: photo, player name and age, decision outcome, and the letter ready to print or email.
 
+### 7. Follow up after an admit
+
+Once a player is admitted, the case's **Overview** tab carries a **Follow-up** card with three steps that are easy to assume someone else has done:
+
+- **Admittance letter sent** — ticks itself as soon as the case has an admittance letter.
+- **Player added to a team** — ticks itself once the player is on an academy team (the trial group does not count).
+- **Guardian contact collected** — ticks itself once the player has a guardian e-mail address on record, or a linked parent account with one.
+
+Every step shows whether it is done, and who ticked it and when, or that it ticked itself. Anyone who may manage the case can tick or untick a step by hand and name who does it; each change saves straight away. The whole panel sees the card. Only an admit gets one: a declined player has no team to join.
+
+Ticking a step sends nothing and starts no task. It is a record the panel shares, so nothing depends on somebody remembering to text somebody else.
+
 ## Tracks
 
 Tracks are templates that decide the default trial duration. Three ship with the plugin (Standard / Scout / Goalkeeper) and clubs can add their own through **Trial tracks**. Existing cases keep working when a track is archived; new cases just don't see the archived option.

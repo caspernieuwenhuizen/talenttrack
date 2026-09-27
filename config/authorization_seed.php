@@ -687,8 +687,15 @@ return array_merge(
         // as a judgment about them, so a scout reads media only for the
         // players they are actually linked to, never academy-wide.
         'media'                      => [ 'r',   'player', $mod_media ],
-        'activities'                 => [ 'r',   'global', $mod_activities ],
-        'goals'                      => [ 'r',   'global', $mod_goals ],
+        // #3972 (2026-09-27) — both were global. A scout reads a player's
+        // development goals and the activities they took part in only for
+        // the players they are linked to (trial/prospect assignment via
+        // scout_access), the same line #1378, #2591 and #3807 drew above.
+        // Visit planning does not ride on `activities`: it runs on
+        // `scouting_visits_panel`, `test_trainings` and `prospects`, which
+        // stay global. Migration 0291 narrows existing installs.
+        'activities'                 => [ 'r',   'player', $mod_activities ],
+        'goals'                      => [ 'r',   'player', $mod_goals ],
         'reports'                    => [ 'r',   'global', $mod_reports ],
         'rate_cards'                 => [ 'r',   'global', $mod_stats ],
         'compare'                    => [ 'r',   'global', $mod_stats ],
