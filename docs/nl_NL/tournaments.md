@@ -234,6 +234,13 @@ het minutenoverzicht inbegrepen. Daar staat hij **alleen-lezen**, met een verwij
 naar hier. Het waren twee losse invulvakjes voor één en dezelfde wedstrijd, dus
 wat als laatste werd ingevuld won stilzwijgend.
 
+Dat geldt ook via de API: `PUT /activities/{id}/result` weigert een uitslag voor
+een activiteit die uit een toernooiwedstrijd komt, en voor een toernooidag, met
+`400 score_owned_by_fixture` en de route van de wedstrijd zelf erbij. Geen enkel
+scherm bood die invoer nog aan, en de volgende synchronisatie vanuit de wedstrijd
+gooide hem weg — een koppeling kreeg dus een `200` en verloor de waarde. Te horen
+krijgen waar de uitslag hoort is beter dan niets horen.
+
 **Een toernooiwedstrijd is thuis noch uit.** Een wedstrijd op een toernooi heeft
 geen thuiswedstrijd, dus niets doet alsof. Het minutenoverzicht labelt de twee
 getallen met de afkorting van je club en *Tgst.* in plaats van thuis en uit.

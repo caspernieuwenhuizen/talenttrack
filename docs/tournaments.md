@@ -231,6 +231,13 @@ up wherever that activity is read — the minutes overview included. It shows
 there **read-only**, pointing back here. The two used to be separate boxes for
 one and the same fixture, so whichever was filled in last silently won.
 
+That holds over the API too: `PUT /activities/{id}/result` refuses a score for
+an activity that came from a tournament fixture, and for a tournament day,
+answering `400 score_owned_by_fixture` and naming the fixture's own route
+instead. Nothing offered that write on a screen any more, and the next sync
+from the fixture discarded it — so an integration got a `200` and lost the
+value. Being told where the result lives is better than being told nothing.
+
 **A tournament fixture is neither home nor away.** A game at a tournament has no
 home leg, so nothing frames it as one. The minutes overview labels the two
 numbers with your club's short code and *Opp.* rather than home and away. Before

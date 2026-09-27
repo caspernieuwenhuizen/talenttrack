@@ -904,8 +904,18 @@ class ActivitiesRestController {
      * #3530 — PUT /activities/{id}/result. Body: `{ home_score, away_score }`,
      * either of which may be null to clear it.
      *
-     * Three refusals, each of which would otherwise corrupt something quietly:
+     * Four refusals, each of which would otherwise corrupt something quietly:
      *
+     * - **The fixture owns it.** #4021 made `tt_tournament_matches` the single
+     *   score store for a tournament fixture: the activity's scoreline is
+     *   derived from it and re-synced on completion, on the fixture's score
+     *   PATCH and on kick-off. This route still took the write, so a caller got
+     *   a `200` and the value was gone on the next sync — #4055. It answers
+     *   `400 score_owned_by_fixture` now, naming the fixture's own route in
+     *   `details.route`, and the same for a tournament **day**, which is a
+     *   read-only roll-up of its fixtures (#3857). Checked before the
+     *   `not_found` below so the day gets the refusal that names the rule
+     *   rather than one that reads as a missing record.
      * - **Not a fixture.** A training has no result, and a tournament is a
      *   multi-game day whose five fixtures one score line cannot describe
      *   (#2686). `MatchResultQuery::forActivity()` returns null for both.
@@ -927,8 +937,25 @@ class ActivitiesRestController {
         if ( $refused !== null ) return $refused;
 
         $activity_id = absint( $r['activity_id'] );
-        $query       = new \TT\Modules\Activities\Reports\MatchResultQuery();
-        $result      = $query->forActivity( $activity_id );
+
+        // #4055 — before anything else: a tournament result is changed on the
+        // fixture, and a write here would be discarded by the next sync.
+        $owner = \TT\Modules\Tournaments\Services\TournamentScoreOwnership::forActivity( $activity_id );
+        if ( $owner !== null ) {
+            return RestResponse::error(
+                'score_owned_by_fixture',
+                sprintf(
+                    /* translators: %s: a REST route, e.g. PATCH /tournaments/56/matches/123. */
+                    __( 'A tournament result is changed on the fixture itself, with %s. A score written here would be overwritten the next time the fixture syncs.', 'talenttrack' ),
+                    $owner['route']
+                ),
+                400,
+                $owner
+            );
+        }
+
+        $query  = new \TT\Modules\Activities\Reports\MatchResultQuery();
+        $result = $query->forActivity( $activity_id );
 
         if ( $result === null ) {
             return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
@@ -2094,13 +2121,19 @@ class ActivitiesRestController {
      * column, because a coach deleting the digits is saying "no result
      * recorded", not "it finished nil-nil" (#3529).
      *
+     * #4055 — the refusal for a tournament-owned activity is stated in the
+     * descriptions, so a caller reading the route's own contract learns where
+     * a tournament result is changed rather than meeting a 400 for it.
+     *
      * @return array<string, array<string, mixed>>
      */
     private static function resultArgs(): array {
+        $owned = ' On an activity promoted from a tournament fixture, or on a tournament day, this is refused with 400 score_owned_by_fixture: the result is changed on the fixture with PATCH /tournaments/{id}/matches/{match_id}.';
+
         return [
             'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
-            'home_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the home side. Null or blank means no result recorded.' ],
-            'away_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the away side. Null or blank means no result recorded.' ],
+            'home_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the home side. Null or blank means no result recorded.' . $owned ],
+            'away_score'  => [ 'type' => [ 'integer', 'string', 'null' ], 'description' => 'Goals for the away side. Null or blank means no result recorded.' . $owned ],
         ];
     }
 
