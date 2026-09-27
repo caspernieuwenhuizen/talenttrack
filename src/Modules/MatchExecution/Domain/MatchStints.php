@@ -150,25 +150,27 @@ final class MatchStints {
         $out = [];
         foreach ( $intervals as $pid => $spells ) {
             $pid = (int) $pid;
-            if ( $pid <= 0 || $spells === [] ) continue;
+            if ( $pid <= 0 ) continue;
 
             usort( $spells, static function ( array $a, array $b ): int {
                 return $a[0] <=> $b[0];
             } );
 
             $facts = [ 'started' => false, 'came_on' => false, 'went_off' => false ];
-            $start = null;
-            $end   = 0;
+            $first = array_shift( $spells );
+            if ( $first === null ) continue;
+            $start = $first[0];
+            $end   = $first[1];
             foreach ( $spells as $spell ) {
-                if ( $start !== null && $spell[0] <= $end ) {
+                if ( $spell[0] <= $end ) {
                     $end = max( $end, $spell[1] );
                     continue;
                 }
-                if ( $start !== null ) self::readSpell( $facts, $start, $end, $full_time );
+                self::readSpell( $facts, $start, $end, $full_time );
                 $start = $spell[0];
                 $end   = $spell[1];
             }
-            if ( $start !== null ) self::readSpell( $facts, $start, $end, $full_time );
+            self::readSpell( $facts, $start, $end, $full_time );
 
             $out[ $pid ] = $facts;
         }

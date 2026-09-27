@@ -123,6 +123,6 @@ final class MatchExecutionMissingAlert extends AbstractActivityAlert {
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $sql );
-        return is_array( $rows ) ? $rows : [];
+        return is_array( $rows ) ? array_values( array_filter( $rows, 'is_object' ) ) : [];
     }
 }

@@ -335,7 +335,13 @@ final class MinutesAuditQuery {
                 $summary['rollups']++;
             } else {
                 $summary['total_games']++;
-                $summary[ $status ]++;
+                if ( $status === 'complete' ) {
+                    $summary['complete']++;
+                } elseif ( $status === 'partial' ) {
+                    $summary['partial']++;
+                } else {
+                    $summary['none']++;
+                }
                 $grand_total += $row_total;
             }
 
