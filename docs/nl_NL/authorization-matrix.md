@@ -191,6 +191,25 @@ Een ouder passeert twee poorten, geen één: deze entiteit laat hen toe tot hun 
 
 Migratie `0283_authorization_seed_topup_player_tournaments` vult de zes rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft).
 
+### Matrix-entiteit `player_suspensions` — de schorsing
+
+Een schorsing wordt vastgelegd voor een aantal wedstrijden en is leesbaar voor de speler en het gezin, omdat het een officiële sanctie is. Het is geen medisch gegeven, dus anders dan `player_injuries` bereikt ze ook de assistent-trainer.
+
+| Persona | Recht |
+| --- | --- |
+| `player` | `read`, self |
+| `parent` | `read`, player |
+| `assistant_coach`, `head_coach` | `read` + `change`, team |
+| `head_of_development` | `read` + `change`, global |
+| `academy_admin` | `read` + `change` + `create_delete`, global |
+| `team_manager`, `scout`, `readonly_observer`, `staff` | *(geen)* |
+
+Twee capabilities verwijzen ernaar: `tt_view_suspensions` → `read` en `tt_manage_suspensions` → `change`. Een schorsing vastleggen en bewerken vraagt `change`, zoals een blessure vastleggen; er een verwijderen (archiveren) vraagt `create_delete`, en dat blijft bij de academiebeheerder. Het teambereik doet de afbakening: `AuthorizationService::canAccessSuspensions()` vraagt de entiteit naar het eigen team van de speler, daarna `self` voor de speler en `player` voor een gekoppelde ouder. Een trainer van een ander team wordt dus overal geweigerd: de routes, het tabblad op het profiel en het platte formulier.
+
+De entiteit hoort bij de functie `player_suspensions` van de module Tijdlijn. Staat die functie uit, dan weigert de matrix haar voor iedereen en markeren de planningsschermen geschorste spelers niet meer.
+
+Migratie `0295_player_suspensions` vult de rijen bij op bestaande installaties (idempotente `INSERT IGNORE`, en hij meldt wat hij geschreven heeft).
+
 ## Matrix-entiteit `exercises` — de oefeningenbibliotheek
 
 De oefeningen-/drilbibliotheek (`tt_exercises`, bediend door `ExercisesRestController` op `/wp-json/talenttrack/v1/exercises`) is clubbreed: een drill die een coach schrijft, is herbruikbaar voor de hele academie. De bibliotheek staat **los van `activities`**, de teamgebonden sessiekalender — daarom krijgt zij een eigen matrix-entiteit, `exercises`, in plaats van de activiteiten-scope te lenen.

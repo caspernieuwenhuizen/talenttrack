@@ -138,6 +138,7 @@ return [
     'safeguarding-broadcast'        => [ 'viewable', 'Question 3 would say desktop_only on blast radius, and question 1 gets there first: a safeguarding concern happens at the ground, not at a desk, which is the same reason the message ignores quiet hours. Gating it to a desk would delay the one message the product refuses to delay. Not native either — it is three fields and a confirm step, and it needs no pattern library to work at 360px.' ],
     'staff-overview'                => [ 'viewable', 'Staff development at a glance.' ],
     'submission-review'             => [ 'viewable', 'Reviewing a submitted item.' ],
+    'suspensions'                   => [ 'viewable', 'Who is suspended, as one card per suspension, and a four-field form. A card from the referee is handed over at the ground, so recording it must work on a phone; nothing here needs width.' ],
     'submit-idea'                   => [ 'viewable', 'Submitting an idea. Low frequency, no strong device pull.' ],
     'team-blueprint-share'          => [ 'viewable', 'The same: a link deliberately sent to someone, which must open where they are.' ],
     'tournaments'                   => [ 'viewable', 'Tournament records, consulted rather than worked in.' ],

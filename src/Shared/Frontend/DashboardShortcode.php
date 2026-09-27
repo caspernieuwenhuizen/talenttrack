@@ -1319,6 +1319,11 @@ class DashboardShortcode {
             case 'injuries':
                 \TT\Modules\Journey\Frontend\FrontendInjuriesView::render( $user_id, $is_admin );
                 return true;
+            // #4103 — who is suspended, one suspension, and the flat
+            // create / edit forms. Gated per player inside the view.
+            case 'suspensions':
+                \TT\Modules\Journey\Frontend\FrontendSuspensionsView::render( $user_id, $is_admin );
+                return true;
             // #2145 — the "Test results" analysis browser. Matrix-gated on
             // `measurements` read inside the view (and by matrixDispatchAllows
             // via the tile's `measurements` entity).

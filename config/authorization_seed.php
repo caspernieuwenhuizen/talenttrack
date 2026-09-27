@@ -190,6 +190,9 @@ return array_merge(
         'seasons'                 => [ 'r',   'self',   $mod_pdp ],
         'player_injuries'         => [ 'r',   'self',   $mod_journey ],
         'player_timeline'         => [ 'r',   'self',   $mod_journey ],
+        // #4103 — a suspension is an official sanction, so the player reads
+        // their own, reason included (decision 5).
+        'player_suspensions'      => [ 'r',   'self',   $mod_journey ],
     ] ),
 
     // ─── PARENT ─────────────────────────────────────────────────────
@@ -245,6 +248,8 @@ return array_merge(
         'seasons'                 => [ 'r',   'player', $mod_pdp ],
         'player_injuries'         => [ 'r',   'player', $mod_journey ],
         'player_timeline'         => [ 'r',   'player', $mod_journey ],
+        // #4103 — their own child's suspensions, reason included.
+        'player_suspensions'      => [ 'r',   'player', $mod_journey ],
         'trial_letters_generated' => [ 'r',   'player', $mod_trials ],
     ] ),
 
@@ -403,6 +408,11 @@ return array_merge(
         // family without the rotation board going with it; team-scoped, so
         // a coach reads it for their own squads' players and nobody else's.
         'player_tournaments'         => [ 'r',   'team',   $mod_tournaments ],
+        // #4103 — the team's coaches record a suspension, head and
+        // assistant alike (decision 3). Unlike an injury it is not medical
+        // data, so the assistant coach holds it. Team-scoped: another
+        // squad's player is refused. Deleting stays with the academy admin.
+        'player_suspensions'         => [ 'rc',  'team',   $mod_journey ],
         // #1945 — Email compose (in-product mailer). The raw `tt_send_email`
         // cap is held by the tt_coach WP role, which backs BOTH coach
         // personas — so AC must hold the action-entity too or it silently
@@ -502,6 +512,8 @@ return array_merge(
         // visibility on medical data).
         'player_injuries'            => [ 'rc',  'team',   $mod_journey ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
+        // #4103 — see assistant_coach.
+        'player_suspensions'         => [ 'rc',  'team',   $mod_journey ],
         'spond_integration'          => [ 'rc',  'team',   $mod_spond ],
         'strava_integration'         => [ 'rc',  'team',   $mod_strava ],
         'trial_cases'                => [ 'rc',  'team',   $mod_trials ],
@@ -911,6 +923,8 @@ return array_merge(
         'player_potential'              => [ 'rcd', 'global', $mod_players ],
         'player_behaviour_ratings'      => [ 'rc',  'global', $mod_players ],
         'player_injuries'               => [ 'rc',  'global', $mod_journey ],
+        // #4103 — records a suspension anywhere, as on every coach-managed record.
+        'player_suspensions'            => [ 'rc',  'global', $mod_journey ],
         'safeguarding_notes'            => [ 'rc',  'global', $mod_journey ],
         'cohort_transitions'            => [ 'r',   'global', $mod_journey ],
         'player_timeline'               => [ 'r',   'global', $mod_journey ],
@@ -1080,6 +1094,7 @@ return array_merge(
         'player_potential'              => [ 'rcd', 'global', $mod_players ],
         'player_behaviour_ratings'      => [ 'rcd', 'global', $mod_players ],
         'player_injuries'               => [ 'rcd', 'global', $mod_journey ],
+        'player_suspensions'            => [ 'rcd', 'global', $mod_journey ],
         'safeguarding_notes'            => [ 'rcd', 'global', $mod_journey ],
         'cohort_transitions'            => [ 'r',   'global', $mod_journey ],
         'player_timeline'               => [ 'rcd', 'global', $mod_journey ],

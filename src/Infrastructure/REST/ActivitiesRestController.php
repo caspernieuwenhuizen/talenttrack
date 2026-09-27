@@ -2942,12 +2942,14 @@ class ActivitiesRestController {
 
         $roster = $repo->plannedRosterForActivity( $id );
         // #4100 — on the activity's date, the same day the detail page asks
-        // about, so the two answers cannot differ for one activity.
-        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableSet(
+        // about, so the two answers cannot differ for one activity. #4103 —
+        // and a suspension that covers this match, still as the one state.
+        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity(
             array_map(
                 static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
                 $roster
             ),
+            $id,
             $repo->activityDate( $id )
         );
         $out = array_map( static function ( $row ) use ( $unavailable ) {

@@ -59,7 +59,36 @@ final class MatchPrepState {
         $state['player_goals'] = (object) self::playerGoalsByPlayer( $repo->listPlayerGoals( $prep_id ) );
         $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
 
+        // #4103 — who a recorded suspension covers in this match, so a
+        // client can pre-mark them Suspended the way the drawer does.
+        $roster_ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id ) as $player ) {
+            $pid = (int) ( ( (array) $player )['id'] ?? 0 );
+            if ( $pid > 0 ) $roster_ids[] = $pid;
+        }
+        $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
+
         return $state;
+    }
+
+    /**
+     * #4103 — the players in `$player_ids` whom a recorded suspension covers
+     * for this match, with which match of how many it is and the reason text
+     * the availability step and the drawer pre-mark them Suspended with.
+     *
+     * @param array<int, int> $player_ids
+     * @return array<int, array{match:int, of:int, reason:string}>
+     */
+    public static function suspendedByPlayer( int $activity_id, array $player_ids ): array {
+        $out = [];
+        foreach ( \TT\Infrastructure\Journey\SuspensionService::coveredSet( $player_ids, $activity_id ) as $pid => $cover ) {
+            $out[ $pid ] = [
+                'match'  => $cover['match'],
+                'of'     => $cover['of'],
+                'reason' => \TT\Infrastructure\Journey\SuspensionService::progressLabel( $cover['match'], $cover['of'] ),
+            ];
+        }
+        return $out;
     }
 
     /**

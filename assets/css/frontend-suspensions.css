@@ -1,0 +1,154 @@
+/*
+ * Suspensions (#4103) — the squad overview, the player's Suspensions tab,
+ * the flat form and the wizard read-back. Mobile-first: one card per
+ * suspension, stacked, from 360px up; wider screens only add space.
+ * Colours come from tokens.css.
+ */
+
+.tt-suspension-list {
+    display: grid;
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+    padding: 0;
+    list-style: none;
+}
+
+.tt-suspension-card {
+    display: grid;
+    gap: var(--tt-sp-2);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-left: 0.25rem solid var(--tt-warning);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-suspension-card--served {
+    border-left-color: var(--tt-success);
+}
+
+.tt-suspension-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2);
+}
+
+.tt-suspension-card__title {
+    margin: 0;
+    font-size: var(--tt-fs-lg);
+    color: var(--tt-ink);
+}
+
+.tt-suspension-card__meta,
+.tt-suspension-card__notes {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-suspension-card__notes {
+    color: var(--tt-ink-soft);
+    white-space: pre-line;
+}
+
+.tt-suspension-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+
+.tt-suspension-card__actions .tt-btn {
+    min-height: 3rem;
+    touch-action: manipulation;
+}
+
+.tt-suspension-state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.75rem;
+    padding: 0 var(--tt-sp-2);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
+.tt-suspension-state--served {
+    background: var(--tt-success-subtle);
+    color: var(--tt-success-ink);
+}
+
+/* Filter bar on the overview. */
+.tt-suspension-filters {
+    display: grid;
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+.tt-suspension-filters .tt-btn {
+    min-height: 3rem;
+}
+
+/* Form: the number-of-matches input stays narrow, never below 16px text. */
+.tt-suspension-form {
+    display: grid;
+    gap: var(--tt-sp-3);
+    max-width: 40rem;
+}
+
+.tt-suspension-matches {
+    max-width: 8rem;
+    font-size: max(1rem, 16px);
+}
+
+/* Wizard read-back and the covered-match list. */
+.tt-suspension-review {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--tt-sp-1);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-suspension-review dt {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+.tt-suspension-review dd {
+    margin: 0 0 var(--tt-sp-2);
+    color: var(--tt-ink);
+}
+
+.tt-suspension-matches-list {
+    margin: 0 0 var(--tt-sp-3);
+    padding-left: 1.25rem;
+    color: var(--tt-ink);
+}
+
+.tt-suspension-matches-list li {
+    padding: var(--tt-sp-1) 0;
+}
+
+@media (min-width: 480px) {
+    .tt-suspension-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+        align-items: end;
+    }
+
+    .tt-suspension-review {
+        grid-template-columns: minmax(8rem, max-content) minmax(0, 1fr);
+        column-gap: var(--tt-sp-4);
+    }
+
+    .tt-suspension-review dd {
+        margin-bottom: 0;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-suspension-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

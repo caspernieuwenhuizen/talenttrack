@@ -431,6 +431,18 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'team-planner' ],
                 'entities'        => [],
             ],
+            // #4103 — the suspension record. On by default: turning it off
+            // hides the Suspensions tile, page, profile tab and REST routes,
+            // and planning surfaces stop flagging suspended players. The
+            // Suspended attendance status stays, set by hand as before.
+            'player_suspensions' => [
+                'label'           => __( 'Suspensions', 'talenttrack' ),
+                'description'     => __( 'Record a suspension for a number of matches, so match prep and the planned squad flag the player for exactly those matches and the journey shows it. The Suspended attendance status stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Journey\\JourneyModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'suspensions' ],
+                'entities'        => [ 'player_suspensions' ],
+            ],
             'journey_medical_visibility' => [
                 'label'           => __( 'Medical events on timeline', 'talenttrack' ),
                 'description'     => __( 'Show injury and medical events on the player timeline to staff who already hold the medical-view permission. When off, medical events are hidden from the timeline even for authorised staff. The permission itself is unchanged.', 'talenttrack' ),

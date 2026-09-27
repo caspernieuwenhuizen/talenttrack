@@ -106,6 +106,9 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
   aangenomen stagedossier: elk vinkje, en elk "wie pakt dit op", is een eigen
   formulier met één veld. De knop is de hele vastlegging, dus er is niets
   half gedaans dat een Annuleren ongedaan zou moeten maken.
+- Een [schorsing](suspensions.md) vastleggen en bewerken op het formulier van
+  één pagina. Ze staat direct na opslaan op de tijdlijn die het gezin leest,
+  dus een half ingetikt aantal wedstrijden mag daar nooit terechtkomen.
 - Configuratieschermen en keuzelijsten.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.
@@ -157,7 +160,8 @@ opende en zich bedacht.
 op de laatste stap.
 
 **Waar.** Elke wizard — nieuwe speler, nieuwe evaluatie, nieuw doel, nieuwe
-wedstrijdanalyse, nieuwe teamaankondiging, installatie en import.
+wedstrijdanalyse, nieuwe schorsing, nieuwe teamaankondiging, installatie en
+import.
 
 **Waarom.** Een wizard houdt tussen de stappen al zijn eigen concept bij, dus
 er gaat niets verloren als je halverwege stopt en later terugkomt. Wat hij niet

@@ -66,6 +66,10 @@ De tegel **Blessures** geeft dezelfde gegevens op teamniveau: wie er nu uit ligt
 
 Het blessurerecord is **bewust minimaal**: lichaamsdeel, ernst, datums, notities en een coach-herinnering. Geen return-to-play-fasen, geen medische bijlagen, geen behandelplannen — TalentTrack volgt de ontwikkelimpact van een blessure, niet de klinische behandeling. Verwacht je fysio een medisch systeem, stel die verwachting dan vooraf bij: dit is er geen.
 
+## Schorsingen
+
+Een schorsing die je op het tabblad **Schorsingen** van de speler vastlegt, zet een regel *Schorsing ingegaan* op de spelersreis, met het aantal wedstrijden en de reden. Is de laatste wedstrijd waarvoor ze geldt afgerond, dan volgt *Schorsing uitgezeten*. Beide zijn **openbaar**: een schorsing is een officiële sanctie, dus de speler en de ouders zien haar. Alles hierover in [Schorsingen](suspensions.md).
+
 ## Privacy
 
 Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarheidsniveau**:

@@ -210,10 +210,13 @@ Every per-player section route asks both, and a guardian then also meets the chi
 | Training exposure | `training_exposure` |
 | The journey, transitions, and Strava sessions on it | `player_timeline` |
 | Injuries | `player_injuries` |
+| Suspensions (read by the player and their parents too) | `player_suspensions` |
 | The profile's Behaviour & potential card (staff only) | `player_status` |
 | The profile's Discovery card | `prospects` |
 
 The one-pager PDF carries only fields of the record itself, so the record check is its section check.
+
+**Suspensions are the family's to read.** A suspension is an official sanction, so the player reads their own and a parent their child's, reason and note included. Recording one is for the coaches of the player's team, head and assistant alike, and for the head of development and academy admin; only the academy admin removes one. `AuthorizationService::canAccessSuspensions()` answers every suspension surface, so a coach of another team is refused on all of them. See [Authorization matrix](authorization-matrix.md) for the grid.
 
 **Status and potential are staff-only.** The default matrix grants `player_status` to no family persona: a parent does not read it for their child and a player does not read it for themselves. The status verdict and the potential band are the academy's judgement of how a child is doing and how far they will go. That belongs in a conversation, not on a family's screen, which is the rule `isStaffForPlayer()` already states for the surfaces a family must not see. An academy can still grant it deliberately in the Authorization matrix; an upgrade removes only the default rows, never one an academy set itself.
 

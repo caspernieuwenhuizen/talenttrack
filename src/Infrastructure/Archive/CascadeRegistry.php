@@ -202,6 +202,20 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Suspension (#4103) — the player's suspension record. Its journey
+        // events (started, served) are owned (source_entity_type
+        // 'suspension') and go with it, so a purge leaves no timeline entry
+        // pointing at a record that no longer exists.
+        'suspension' => [
+            'table'        => 'tt_player_suspensions',
+            'ref_columns'  => [],
+            'cascade'      => [],
+            'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'suspension' ] ],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
         // Scheduled report (#1808) — standalone recurring-export config;
         // nothing references it, so a permanent delete just removes the row.
         // (#1784 migration 0172 added archived_at/archived_by + backfilled
@@ -288,6 +302,9 @@ final class CascadeRegistry {
                 [ 'tt_activities', 'team_id' ],
                 [ 'tt_tournaments', 'team_id' ],
                 [ 'tt_measurement_sessions', 'team_id' ],
+                // #4103 — a suspension is the player's record and outlives
+                // the team; with the team gone it covers no more matches.
+                [ 'tt_player_suspensions', 'team_id' ],
             ],
             'block_only'   => false,
         ],

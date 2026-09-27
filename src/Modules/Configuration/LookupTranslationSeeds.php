@@ -252,6 +252,17 @@ final class LookupTranslationSeeds {
                 // lookup row by migration 0265, so it reaches this map late
                 // for the same reason the two observation types did.
                 'goal_set'             => [ 'nl_NL' => 'Doel gesteld',                   'fr_FR' => 'Objectif fixé',                     'de_DE' => 'Ziel gesetzt',                     'es_ES' => 'Objetivo fijado' ],
+                // #4103 — seeded by migration 0295.
+                'suspension_started'   => [ 'nl_NL' => 'Schorsing ingegaan',             'fr_FR' => 'Suspension commencée',              'de_DE' => 'Sperre begonnen',                  'es_ES' => 'Sanción iniciada' ],
+                'suspension_ended'     => [ 'nl_NL' => 'Schorsing uitgezeten',           'fr_FR' => 'Suspension purgée',                 'de_DE' => 'Sperre abgesessen',                'es_ES' => 'Sanción cumplida' ],
+            ],
+
+            // #4103 — why a player is suspended. Seeded by migration 0295;
+            // an academy can rename or extend the list under Configuration.
+            'suspension_reason' => [
+                'Yellow card accumulation' => [ 'nl_NL' => 'Te veel gele kaarten', 'fr_FR' => 'Cumul de cartons jaunes', 'de_DE' => 'Gelbsperre',          'es_ES' => 'Acumulación de amarillas' ],
+                'Red card'                 => [ 'nl_NL' => 'Rode kaart',           'fr_FR' => 'Carton rouge',            'de_DE' => 'Rote Karte',          'es_ES' => 'Tarjeta roja' ],
+                'Club decision'            => [ 'nl_NL' => 'Besluit van de club',  'fr_FR' => 'Décision du club',        'de_DE' => 'Vereinsentscheidung', 'es_ES' => 'Decisión del club' ],
             ],
 
             // #3117 — re-keyed to the eight values migration 0031 seeds.

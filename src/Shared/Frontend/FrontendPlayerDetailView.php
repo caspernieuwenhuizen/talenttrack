@@ -295,6 +295,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::READ ) ) {
             $tabs['injuries'] = __( 'Injuries', 'talenttrack' );
         }
+        // #4103 — suspensions, beside injuries: the other reason a player
+        // cannot be picked. The strip and the panel ask the same per-player
+        // question, so a coach of another team gets neither, and the player
+        // and their parents get both (decision 5).
+        if ( \TT\Infrastructure\Journey\SuspensionService::isEnabled()
+            && \TT\Infrastructure\Security\AuthorizationService::canAccessSuspensions( $user_id, $player_id, MatrixGate::READ )
+        ) {
+            $tabs['suspensions'] = __( 'Suspensions', 'talenttrack' );
+        }
         // #2594 (epic #2589) — photos and video in context. Gated on the
         // `media` entity, which `canAnyScope()` also runs the feature
         // toggle against, so switching media off takes the tab with it.
@@ -632,6 +641,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'pdp':         self::renderPdpTab( $player_id ); break;
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'injuries':    self::renderInjuriesTab( $player_id, $user_id ); break;
+                        case 'suspensions':
+                            \TT\Modules\Journey\Frontend\PlayerSuspensionsTab::render( $player_id, $user_id );
+                            break;
                         case 'media':       self::renderMediaTab( $player_id, $user_id ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                         case \TT\Modules\Analytics\Frontend\PlayerFamilyReportsTab::TAB:

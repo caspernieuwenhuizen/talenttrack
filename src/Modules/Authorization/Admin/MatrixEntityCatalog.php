@@ -168,6 +168,8 @@ final class MatrixEntityCatalog {
             'player_status_breakdown'       => __( 'Player status breakdown', 'talenttrack' ),
             'player_status_methodology'     => __( 'Player status methodology', 'talenttrack' ),
             'player_injuries'               => __( 'Player injuries', 'talenttrack' ),
+            // #4103 — an official sanction, read by the player and family.
+            'player_suspensions'            => __( 'Player suspensions', 'talenttrack' ),
             'safeguarding_notes'            => __( 'Safeguarding notes', 'talenttrack' ),
             'pdp_file'                      => __( 'PDP file', 'talenttrack' ),
             'pdp_planning'                  => __( 'PDP planning', 'talenttrack' ),

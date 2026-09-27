@@ -289,6 +289,10 @@ final class CoreSurfaceRegistration {
         // dispatch gate matches the view's own MatrixGate read guard.
         $reg::register( 'injuries', [ 'player_injuries', 'read' ] );
 
+        // #4103 — the suspension overview and its forms. The view narrows
+        // to teams and players on top; this admits anyone holding the entity.
+        $reg::register( 'suspensions', [ 'player_suspensions', 'read' ] );
+
         // player-attributes guard: per-player canEvaluatePlayer (tighter than
         // the tt_edit_evaluations cap the old inline check used).
         $reg::register( 'player-attributes', static function ( int $uid, array $ctx ): bool {
@@ -434,6 +438,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'import-history', self::M_IMPORT );
 
         TileRegistry::registerSlugOwnership( 'injuries', self::M_JOURNEY );
+        TileRegistry::registerSlugOwnership( 'suspensions', self::M_JOURNEY );
 
         TileRegistry::registerSlugOwnership( 'course', self::M_KNOWLEDGE );
         TileRegistry::registerSlugOwnership( 'lesson', self::M_KNOWLEDGE );

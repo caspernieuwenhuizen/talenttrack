@@ -242,6 +242,41 @@ class AuthorizationService {
     }
 
     /**
+     * #4103 — may this user take `$activity` on a player's suspension record?
+     *
+     * The same four scopes `canRecordInjury()` asks, against the
+     * `player_suspensions` entity: global (head of development, academy
+     * admin), the player's own team (head and assistant coach alike —
+     * decision 3 on #4103), the player at `self`, and a linked parent at
+     * `player`. A coach of another team is refused: their team scope does
+     * not reach this player.
+     *
+     * `$activity` is `read` / `change` / `create_delete`.
+     */
+    public static function canAccessSuspensions( int $user_id, int $player_id, string $activity = 'read' ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        $gate = '\\TT\\Modules\\Authorization\\MatrixGate';
+        if ( $gate::can( $user_id, 'player_suspensions', $activity, 'global' ) ) {
+            return true;
+        }
+
+        $team_id = self::getPlayerTeamId( $player_id );
+        if ( $team_id && $gate::can( $user_id, 'player_suspensions', $activity, 'team', $team_id ) ) {
+            return true;
+        }
+
+        if ( self::isPlayerOwnRecord( $user_id, $player_id )
+            && $gate::can( $user_id, 'player_suspensions', $activity, 'self', $user_id ) ) {
+            return true;
+        }
+
+        return in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true )
+            && $gate::can( $user_id, 'player_suspensions', $activity, 'player', $player_id );
+    }
+
+    /**
      * #3958 — may this user read one section of this player's record?
      *
      * `canViewPlayer()` answers "may they open this player's record". A

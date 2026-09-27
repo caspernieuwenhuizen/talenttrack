@@ -792,6 +792,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 ];
             }, $roster_list ),
             'availability'   => (object) $availability_by_pid,
+            // #4103 — players a recorded suspension covers for this match,
+            // with the reason the drawer pre-marks them Suspended with. The
+            // drawer applies it only to a player with no saved choice.
+            'suspended'      => (object) self::suspendedReasons( (int) $activity_id, $roster_list ),
             'lineup'         => [
                 '1' => (object) $lineup_by_half[1],
                 '2' => (object) $lineup_by_half[2],
@@ -1079,6 +1083,28 @@ class FrontendMatchPrepView extends FrontendViewBase {
         $lines = array_values( array_map( 'strval', $lines ) );
         while ( count( $lines ) < $count ) $lines[] = '';
         return array_slice( $lines, 0, $count );
+    }
+
+    /**
+     * #4103 — player id => "Suspended, match 2 of 3" for each player a
+     * recorded suspension covers in this match. `MatchPrepState` decides,
+     * the same answer `GET match-prep/{id}` gives; this only keys it for
+     * the drawer.
+     *
+     * @param array<int, object> $roster
+     * @return array<int, string>
+     */
+    private static function suspendedReasons( int $activity_id, array $roster ): array {
+        $ids = [];
+        foreach ( $roster as $p ) {
+            $pid = (int) ( ( (array) $p )['id'] ?? 0 );
+            if ( $pid > 0 ) $ids[] = $pid;
+        }
+        $out = [];
+        foreach ( MatchPrepState::suspendedByPlayer( $activity_id, $ids ) as $pid => $cover ) {
+            $out[ $pid ] = $cover['reason'];
+        }
+        return $out;
     }
 
     /**

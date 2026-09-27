@@ -66,6 +66,10 @@ The **Injuries** tile gives the squad-wide version of the same data: who is out 
 
 The injury record is **deliberately minimal**: body part, severity, dates, notes and a coach reminder. There are no return-to-play stages, no medical-file attachments, no treatment plans — TalentTrack tracks the development impact of an injury, not its clinical management. If your physio expects a medical system, set that expectation up front: this isn't one.
 
+## Suspensions
+
+A suspension recorded on the player's **Suspensions** tab puts a *Suspension started* entry on the journey, with the number of matches and the reason. When the last match it covers is completed, a *Suspension served* entry follows. Both are **public**: a suspension is an official sanction, so the player and their parents see it. Full detail in [Suspensions](suspensions.md).
+
 ## Privacy
 
 Not every entry is visible to everyone. Each entry has a **visibility level**:

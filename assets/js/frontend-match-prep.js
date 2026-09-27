@@ -77,6 +77,14 @@
         Object.keys(availObj).forEach(function (pid) {
             state.availability[String(pid)] = normaliseAvailability(availObj[pid]);
         });
+        // #4103 — a recorded suspension that covers this match pre-marks
+        // the player Suspended ("Suspended, match 2 of 3"). A saved choice
+        // wins: this only fills a player the coach has not marked yet.
+        var suspObj = bootstrap.suspended || {};
+        Object.keys(suspObj).forEach(function (pid) {
+            if (state.availability[String(pid)]) return;
+            state.availability[String(pid)] = { status: 'Suspended', reason: String(suspObj[pid] || '') };
+        });
         ['1', '2'].forEach(function (half) {
             var src = (bootstrap.lineup || {})[half] || {};
             Object.keys(src).forEach(function (slot) {

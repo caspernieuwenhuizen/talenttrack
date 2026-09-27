@@ -195,6 +195,25 @@ A parent passes two gates, not one: this entity admits them to their own child, 
 
 Migration `0283_authorization_seed_topup_player_tournaments` backfills the six rows on existing installs (idempotent `INSERT IGNORE`, and it reports what it wrote).
 
+### Matrix entity `player_suspensions` — the suspension record
+
+A suspension is recorded for a number of matches and read by the player and their family, because it is an official sanction. It is not medical data, so unlike `player_injuries` it reaches the assistant coach.
+
+| Persona | Grant |
+| --- | --- |
+| `player` | `read`, self |
+| `parent` | `read`, player |
+| `assistant_coach`, `head_coach` | `read` + `change`, team |
+| `head_of_development` | `read` + `change`, global |
+| `academy_admin` | `read` + `change` + `create_delete`, global |
+| `team_manager`, `scout`, `readonly_observer`, `staff` | *(none)* |
+
+Two capabilities bridge to it: `tt_view_suspensions` → `read` and `tt_manage_suspensions` → `change`. Recording and editing a suspension take `change`, the way recording an injury does; removing one (archiving it) takes `create_delete`, so it stays with the academy admin. Team scope does the narrowing: `AuthorizationService::canAccessSuspensions()` asks the entity about the player's own team, then `self` for the player and `player` for a linked parent, so a coach of another team is refused on every route, the profile tab and the flat form alike.
+
+The entity belongs to the `player_suspensions` feature of the Journey module. With the feature off, the matrix refuses it for everyone and the planning surfaces stop flagging suspended players.
+
+Migration `0295_player_suspensions` backfills the rows on existing installs (idempotent `INSERT IGNORE`, and it reports what it wrote).
+
 ## Matrix entity `exercises` — the drill library
 
 The exercise / drill library (`tt_exercises`, served by `ExercisesRestController` at `/wp-json/talenttrack/v1/exercises`) is club-global: a drill any coach authors is reusable across the whole academy. It is **distinct from `activities`**, which is the per-team session calendar — so the library gets its own matrix entity, `exercises`, rather than borrowing the activities scope.
