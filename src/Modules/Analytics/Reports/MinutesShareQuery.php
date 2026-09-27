@@ -28,8 +28,10 @@ use TT\Modules\MatchPrep\Services\MatchLengthResolver;
  *
  * "Played" is {@see MinutesQuery::playedMatchSql()}, shared with the two
  * minutes reports so the three cannot disagree. Match length comes from
- * {@see MatchLengthResolver} with its full precedence (the prep row's own
- * half length → the age-group map → the 35-minute fallback), so a team
+ * {@see MatchLengthResolver::resolvePlayedLength()}, the chain the minutes
+ * report and the minutes audit read too (#4077): the prep row's own half
+ * length → the activity's match length → the age-group map → the
+ * scheduled duration → the 35-minute-per-half fallback. So a team
  * whose age group plays 30-minute halves gets 600 available over ten
  * matches rather than a flat 700.
  *
@@ -105,7 +107,7 @@ final class MinutesShareQuery {
         $resolver = new MatchLengthResolver();
         $minutes  = 0;
         foreach ( $rows as $r ) {
-            $minutes += $resolver->matchMinutesForActivity(
+            $minutes += $resolver->playedMatchMinutes(
                 (int) $r->id,
                 (int) $r->half_length_minutes
             );

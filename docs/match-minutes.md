@@ -59,6 +59,13 @@ For a given match, the half length is resolved most-specific first:
  (`match_minutes_by_age_group`);
 3. the global fallback of **35** minutes per half.
 
+The minutes reports (the minutes report's "% available", the minutes audit and
+the minutes share) all read the length of a played match the same way, so they
+agree about every match: the match prep's half length, then the match length on
+the activity, then the age-category default, then the scheduled time from start
+to end, then 35 minutes per half. A match without a match prep in an age group
+set to 2 x 30 counts as 60 minutes on all three.
+
 ## Recording minutes per player
 
 You do not need the sideline match-execution flow to record minutes. On any

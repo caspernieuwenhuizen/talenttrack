@@ -1,0 +1,3 @@
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Correct the minutes afterwards"
+msgstr "Minuten achteraf corrigeren"

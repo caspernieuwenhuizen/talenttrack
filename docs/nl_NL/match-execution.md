@@ -142,9 +142,11 @@ staan twee acties:
   geplande speeltijd, bijvoorbeeld 30:00. Dat kost een tweede tik, net als
   **Wedstrijd beëindigen**. In de tweede helft beëindigt het ook de
   wedstrijd, die daarna naar de controle gaat.
-- **Wedstrijd achteraf vastleggen** opent de plek om de wedstrijd achteraf
-  in te voeren: het raster minuten + statistieken als je club dat gebruikt,
-  anders de minuteneditor van deze wedstrijd.
+- **Minuten achteraf corrigeren** opent de plek om de minuten achteraf
+  te corrigeren: het raster minuten + statistieken als je club dat
+  gebruikt, anders de minuteneditor van deze wedstrijd. Dat is iets anders
+  dan **Wedstrijd achteraf vastleggen**, dat bedoeld is voor een wedstrijd
+  die nooit is gestart.
 
 De gewone knoppen blijven beschikbaar. Hoe een helft ook wordt beëindigd,
 ze wordt nooit langer opgeslagen dan haar speeltijd plus 10 minuten,

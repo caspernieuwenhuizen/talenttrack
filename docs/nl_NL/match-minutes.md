@@ -62,6 +62,15 @@ specifiek bepaald:
  (`match_minutes_by_age_group`);
 3. de globale terugval van **35** minuten per helft.
 
+De minutenrapporten (het "% beschikbaar" in het minutenrapport, de
+minutencontrole en het minutenaandeel) bepalen de duur van een gespeelde
+wedstrijd allemaal op dezelfde manier, zodat ze het over elke wedstrijd eens
+zijn: de helftduur op de wedstrijdvoorbereiding, dan de wedstrijdduur op de
+activiteit, dan de standaard per leeftijdscategorie, dan de geplande tijd van
+begin tot eind, dan 35 minuten per helft. Een wedstrijd zonder
+wedstrijdvoorbereiding in een leeftijdsgroep met 2 x 30 telt op alle drie als
+60 minuten.
+
 ## Minuten per speler vastleggen
 
 Je hebt de match-execution-flow vanaf de zijlijn niet nodig. Op elke

@@ -7,6 +7,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
  * #4058 — the minutes audit only calls a game complete when the minutes add
@@ -39,21 +40,26 @@ final class MinutesAuditFullMatchTest extends WP_UnitTestCase {
 
     // ── match length: one test per branch ──────────────────────────────
 
-    public function test_the_activitys_own_match_length_wins(): void {
-        $this->assertSame( 60, MinutesAuditQuery::resolveMatchLength( 60, 30, '10:00:00', '11:30:00' ) );
+    public function test_the_match_preps_period_length_wins(): void {
+        $this->assertSame( 50, MatchLengthResolver::resolvePlayedLength( 25, 60, 30, '10:00:00', '11:30:00' ) );
+        $this->assertSame( 60, MatchLengthResolver::resolvePlayedLength( 15, 0, 0, '', '', 4 ), 'four quarters of fifteen' );
+    }
+
+    public function test_the_activitys_own_match_length_is_next(): void {
+        $this->assertSame( 60, MatchLengthResolver::resolvePlayedLength( 0, 60, 30, '10:00:00', '11:30:00' ) );
     }
 
     public function test_the_age_group_config_is_next_and_is_stored_per_half(): void {
-        $this->assertSame( 50, MinutesAuditQuery::resolveMatchLength( 0, 25, '10:00:00', '11:30:00' ) );
+        $this->assertSame( 50, MatchLengthResolver::resolvePlayedLength( 0, 0, 25, '10:00:00', '11:30:00' ) );
     }
 
     public function test_the_scheduled_duration_is_next(): void {
-        $this->assertSame( 90, MinutesAuditQuery::resolveMatchLength( 0, 0, '10:00:00', '11:30:00' ) );
+        $this->assertSame( 90, MatchLengthResolver::resolvePlayedLength( 0, 0, 0, '10:00:00', '11:30:00' ) );
     }
 
     public function test_with_nothing_set_the_global_default_still_gives_a_figure(): void {
-        $this->assertSame( 70, MinutesAuditQuery::resolveMatchLength( 0, 0, '', '' ) );
-        $this->assertSame( 70, MinutesAuditQuery::resolveMatchLength( 0, 0, '11:00:00', '10:00:00' ), 'an end before the start is no duration' );
+        $this->assertSame( 70, MatchLengthResolver::resolvePlayedLength( 0, 0, 0, '', '' ) );
+        $this->assertSame( 70, MatchLengthResolver::resolvePlayedLength( 0, 0, 0, '11:00:00', '10:00:00' ), 'an end before the start is no duration' );
     }
 
     public function test_available_minutes_is_players_a_side_times_length(): void {

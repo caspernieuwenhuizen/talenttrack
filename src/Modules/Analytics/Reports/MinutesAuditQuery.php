@@ -105,7 +105,9 @@ final class MinutesAuditQuery {
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, game_subtype_key, activity_type_key, tournament_id, {$date_col} AS session_date, title,
-                    match_length_minutes, start_time, end_time
+                    match_length_minutes, start_time, end_time,
+                    ( SELECT mp.half_length_minutes FROM {$p}tt_match_prep mp
+                       WHERE mp.activity_id = {$p}tt_activities.id LIMIT 1 ) AS prep_half_minutes
                FROM {$p}tt_activities
               WHERE club_id = %d
                 AND team_id = %d
@@ -130,7 +132,8 @@ final class MinutesAuditQuery {
         foreach ( $activities as $a ) {
             $available[ (int) $a->id ] = self::isTournamentRow( $a ) ? 0 : self::availableMinutes(
                 $team_basis['players_a_side'],
-                self::resolveMatchLength(
+                MatchLengthResolver::resolvePlayedLength(
+                    (int) ( $a->prep_half_minutes ?? 0 ),
                     (int) ( $a->match_length_minutes ?? 0 ),
                     $team_basis['config_half_minutes'],
                     isset( $a->start_time ) ? (string) $a->start_time : '',
@@ -414,49 +417,12 @@ final class MinutesAuditQuery {
     }
 
     /**
-     * #4058 — how long one match lasted, in minutes, most specific first:
-     *
-     *  1. the activity's own `match_length_minutes`;
-     *  2. the configured length for the team's age group
-     *     (`match_minutes_by_age_group`, stored per half);
-     *  3. the scheduled duration, `end_time − start_time`;
-     *  4. the global default {@see MatchLengthResolver::FALLBACK_HALF_MINUTES}
-     *     per half, the same one match prep starts from.
-     *
-     * The last step means the check always has a figure to compare against.
-     * Step 3 is the slot, which can include warm-up — a coach who sees a
-     * correctly-recorded game read Incomplete fixes it by setting the
-     * match length, not by recording different minutes.
+     * #4058 — the player-minutes a whole match holds. The match length comes
+     * from {@see MatchLengthResolver::resolvePlayedLength()} (#4077), the one
+     * chain the minutes report and the minutes share read too.
      */
-    public static function resolveMatchLength( int $field_minutes, int $config_half_minutes, string $start_time, string $end_time ): int {
-        if ( $field_minutes > 0 ) return $field_minutes;
-        if ( $config_half_minutes > 0 ) return $config_half_minutes * 2;
-
-        $scheduled = self::scheduledMinutes( $start_time, $end_time );
-        if ( $scheduled > 0 ) return $scheduled;
-
-        return MatchLengthResolver::FALLBACK_HALF_MINUTES * 2;
-    }
-
-    /** #4058 — the player-minutes a whole match holds. */
     public static function availableMinutes( int $players_a_side, int $match_length ): int {
         return max( 0, $players_a_side ) * max( 0, $match_length );
-    }
-
-    /**
-     * Minutes between two `TIME` values on the same day; 0 when either is
-     * missing or the end is not after the start.
-     */
-    private static function scheduledMinutes( string $start_time, string $end_time ): int {
-        $start_time = trim( $start_time );
-        $end_time   = trim( $end_time );
-        if ( $start_time === '' || $end_time === '' ) return 0;
-
-        $start = strtotime( '1970-01-01 ' . $start_time . ' UTC' );
-        $end   = strtotime( '1970-01-01 ' . $end_time . ' UTC' );
-        if ( $start === false || $end === false || $end <= $start ) return 0;
-
-        return (int) floor( ( $end - $start ) / 60 );
     }
 
     /**
@@ -762,12 +728,13 @@ final class MinutesAuditQuery {
         $owned = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )
             ->existsForActivity( $activity_id );
 
-        // Half length hint (default 35') from the match prep when present.
-        $half_length = 35;
-        $prep = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $activity_id );
-        if ( $prep && (int) ( $prep->half_length_minutes ?? 0 ) > 0 ) {
-            $half_length = (int) $prep->half_length_minutes;
-        }
+        // Half length hint: the match prep's when present, otherwise half of
+        // what the shared match-length chain resolves (#4077).
+        $prep        = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $activity_id );
+        $prep_half   = $prep ? (int) $prep->half_length_minutes : 0;
+        $half_length = $prep_half > 0
+            ? $prep_half
+            : MatchLengthResolver::halfOf( ( new MatchLengthResolver() )->playedMatchMinutes( $activity_id ) );
 
         return [
             'activity' => [
