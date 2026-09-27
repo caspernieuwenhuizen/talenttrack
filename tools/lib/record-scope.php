@@ -21,7 +21,10 @@
  *   - A REST route's `callback` and `permission_callback` are ONE unit. They
  *     are two halves of one decision and the check may sit in either; asking
  *     them separately produced about fifteen false negatives in the audit
- *     this gate came out of.
+ *     this gate came out of. The unit is one registered METHOD: a route
+ *     registering GET, PUT and DELETE is three units, each its own
+ *     `callback` with its own `permission_callback`, inline closures
+ *     included (#4052).
  *   - A check one level deep counts. `mayWrite()`, `goalRefusal()`,
  *     `scopedActivityId()` — the fix for this shape is usually a small private
  *     helper, and a gate that could not see through one call would push people
@@ -114,24 +117,44 @@ function tt_rs_units( string $code, string $relative, array $config ): array {
     // pair contributes two indexes under one key.
     $candidates = [];
 
-    foreach ( tt_rs_rest_routes( $tokens, $count, $config['id_params'] ) as $route ) {
-        $indexes = [];
-        $names   = [];
-        foreach ( $route['handlers'] as $handler ) {
-            if ( ! isset( $by_name[ $handler ] ) ) continue;
-            $indexes[] = $by_name[ $handler ]['index'];
-            $names[]   = $handler;
-        }
-        if ( $indexes === [] ) continue;
+    // One candidate per registered METHOD, not per route (#4052). A route
+    // registering GET, PUT and DELETE is three decisions, each pairing its
+    // own `callback` with its own `permission_callback`; judged as one unit,
+    // a checked GET was reported unchecked because its DELETE sibling was.
+    $var_closures = tt_rs_variable_closures( $tokens, $count );
 
-        $key = implode( ' + ', $names );
-        if ( isset( $candidates[ $key ] ) ) continue;
-        $candidates[ $key ] = [
-            'kind'    => 'rest route ' . $route['route'],
-            'indexes' => $indexes,
-            'line'    => $route['line'],
-            'name'    => $key,
-        ];
+    foreach ( tt_rs_rest_routes( $tokens, $count, $config['id_params'] ) as $route ) {
+        foreach ( $route['entries'] as $entry ) {
+            // `'permission_callback' => $can_view_team` — read the closure the
+            // variable holds, the nearest assignment above this route.
+            if ( preg_match_all( '/\$([a-z_][a-z0-9_]*)/i', $entry['text'], $vm ) ) {
+                foreach ( array_unique( $vm[1] ) as $var ) {
+                    $closure = tt_rs_nearest_closure( $var_closures, $var, $route['at'] );
+                    if ( $closure !== null ) $entry['text'] .= "\n" . $closure;
+                }
+            }
+            $indexes = [];
+            $names   = [];
+            foreach ( $entry['handlers'] as $handler ) {
+                if ( ! isset( $by_name[ $handler ] ) ) continue;
+                $indexes[] = $by_name[ $handler ]['index'];
+                $names[]   = $handler;
+            }
+            if ( $indexes === [] ) continue;
+
+            $key = implode( ' + ', $names );
+            if ( isset( $candidates[ $key ] ) ) continue;
+            $candidates[ $key ] = [
+                'kind'     => 'rest route ' . $route['route'],
+                'indexes'  => $indexes,
+                'line'     => $route['line'],
+                'name'     => $key,
+                // The entry's own code, so an inline `permission_callback`
+                // closure is read with the method it guards.
+                'inline'   => $entry['text'],
+                'comments' => $entry['comments'],
+            ];
+        }
     }
 
     $is_view    = strpos( $relative, '/Frontend/' ) !== false;
@@ -181,12 +204,25 @@ function tt_rs_units( string $code, string $relative, array $config ): array {
         foreach ( $candidate['indexes'] as $index ) {
             $searched .= tt_rs_expanded( $index, $body, $by_name, TT_RS_CALL_DEPTH );
         }
+        $inline = (string) ( $candidate['inline'] ?? '' );
+        if ( $inline !== '' ) {
+            $searched .= $inline;
+            foreach ( tt_rs_callees( $inline ) as $callee ) {
+                if ( ! isset( $by_name[ $callee ] ) ) continue;
+                $searched .= tt_rs_expanded( $by_name[ $callee ]['index'], $body, $by_name, TT_RS_CALL_DEPTH - 1 );
+            }
+        }
+
+        $found_reasons = [];
+        foreach ( $candidate['indexes'] as $index ) {
+            $unit            = $units[ $index ];
+            $found_reasons[] = tt_rs_marker_reason( $tokens, $unit['open'], $unit['close'] );
+        }
+        $found_reasons[] = tt_rs_marker_in_comments( (array) ( $candidate['comments'] ?? [] ) );
 
         $marked     = false;
         $bad_reason = '';
-        foreach ( $candidate['indexes'] as $index ) {
-            $unit   = $units[ $index ];
-            $found  = tt_rs_marker_reason( $tokens, $unit['open'], $unit['close'] );
+        foreach ( $found_reasons as $found ) {
             if ( $found === null ) continue;
             if ( in_array( $found, TT_RS_REASONS, true ) ) {
                 $marked = true;
@@ -269,7 +305,7 @@ function tt_rs_function_units( array $tokens, int $count ): array {
  *
  * @param array<int, array{0:int, 1:string, 2:int}|string> $tokens
  * @param list<string> $id_params
- * @return list<array{route:string, line:int, handlers:list<string>}>
+ * @return list<array{route:string, line:int, entries:list<array{handlers:list<string>, text:string, comments:list<string>}>}>
  */
 function tt_rs_rest_routes( array $tokens, int $count, array $id_params ): array {
     $out = [];
@@ -284,12 +320,241 @@ function tt_rs_rest_routes( array $tokens, int $count, array $id_params ): array
         if ( $route === null ) continue;
 
         $out[] = [
-            'route'    => $route,
-            'line'     => (int) $tok[2],
-            'handlers' => tt_rs_quoted_strings( $args['text'] ),
+            'route'   => $route,
+            'line'    => (int) $tok[2],
+            'at'      => $i,
+            'entries' => tt_rs_route_entries( $args['text'] ),
         ];
     }
     return $out;
+}
+
+/**
+ * Closures assigned to a variable — `$can_edit = function ( $r ) { … };` —
+ * keyed by variable name, each with the token index of the assignment, so a
+ * route passing `$can_edit` as its `permission_callback` is judged by what
+ * the closure asks.
+ *
+ * @param array<int, array{0:int, 1:string, 2:int}|string> $tokens
+ * @return array<string, list<array{at:int, text:string}>>
+ */
+function tt_rs_variable_closures( array $tokens, int $count ): array {
+    $out = [];
+    for ( $i = 0; $i < $count; $i++ ) {
+        $tok = $tokens[ $i ];
+        if ( ! is_array( $tok ) || $tok[0] !== T_VARIABLE ) continue;
+
+        $j = tt_rs_next_significant( $tokens, $i + 1, $count );
+        if ( $j === null || $tokens[ $j ] !== '=' ) continue;
+        $j = tt_rs_next_significant( $tokens, $j + 1, $count );
+        if ( $j !== null && is_array( $tokens[ $j ] ) && $tokens[ $j ][0] === T_STATIC ) {
+            $j = tt_rs_next_significant( $tokens, $j + 1, $count );
+        }
+        if ( $j === null || ! is_array( $tokens[ $j ] ) ) continue;
+
+        $text = null;
+        if ( $tokens[ $j ][0] === T_FUNCTION ) {
+            $open  = tt_body_open( $tokens, $j, $count );
+            $close = $open === null ? null : tt_body_close( $tokens, $open, $count );
+            if ( $open !== null && $close !== null ) $text = tt_unit_code( $tokens, $open, $close );
+        } elseif ( $tokens[ $j ][0] === T_FN ) {
+            // An arrow function runs to the `;` or `,` that ends the expression.
+            $depth = 0;
+            $text  = '';
+            for ( $k = $j; $k < $count; $k++ ) {
+                $t = $tokens[ $k ];
+                if ( in_array( $t, [ '(', '[', '{' ], true ) ) $depth++;
+                if ( in_array( $t, [ ')', ']', '}' ], true ) ) {
+                    if ( $depth === 0 ) break;
+                    $depth--;
+                }
+                if ( $depth === 0 && ( $t === ';' || $t === ',' ) ) break;
+                if ( is_array( $t ) && ( $t[0] === T_COMMENT || $t[0] === T_DOC_COMMENT ) ) continue;
+                $text .= is_string( $t ) ? $t : $t[1];
+            }
+        }
+        if ( $text === null ) continue;
+
+        $out[ ltrim( $tok[1], '$' ) ][] = [ 'at' => $i, 'text' => $text ];
+    }
+    return $out;
+}
+
+/**
+ * The closure a variable held at a token position: the nearest assignment
+ * above it, so two methods reusing `$can_edit` for different closures are not
+ * confused with one another.
+ *
+ * @param array<string, list<array{at:int, text:string}>> $closures
+ */
+function tt_rs_nearest_closure( array $closures, string $var, int $at ): ?string {
+    if ( ! isset( $closures[ $var ] ) ) return null;
+    $best = null;
+    foreach ( $closures[ $var ] as $closure ) {
+        if ( $closure['at'] < $at ) $best = $closure['text'];
+    }
+    return $best;
+}
+
+/**
+ * Index of the next token that is not whitespace or a comment.
+ *
+ * @param array<int, array{0:int, 1:string, 2:int}|string> $tokens
+ */
+function tt_rs_next_significant( array $tokens, int $from, int $count ): ?int {
+    for ( $i = $from; $i < $count; $i++ ) {
+        $tok = $tokens[ $i ];
+        if ( is_array( $tok ) && in_array( $tok[0], [ T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ], true ) ) continue;
+        return $i;
+    }
+    return null;
+}
+
+/**
+ * The method entries a `register_rest_route()` call registers, each with the
+ * handler names it resolves and its own code (comments separated out).
+ *
+ * `register_rest_route( $ns, $route, [ [ GET… ], [ DELETE… ] ] )` yields one
+ * entry per inner array; the single-entry spelling
+ * `register_rest_route( $ns, $route, [ 'methods' => …, 'callback' => … ] )`
+ * yields one. Anything the parse cannot read — the endpoint array built
+ * elsewhere and passed as a variable — falls back to the whole argument list
+ * as one entry, which is how every route was judged before #4052.
+ *
+ * @return list<array{handlers:list<string>, text:string, comments:list<string>}>
+ */
+function tt_rs_route_entries( string $args ): array {
+    $tokens = token_get_all( '<?php ' . $args );
+    array_shift( $tokens ); // the open tag we added
+
+    $whole = [ tt_rs_entry_from_tokens( $tokens ) ];
+
+    $arguments = tt_rs_split_top_level( $tokens );
+    if ( count( $arguments ) < 3 ) return $whole;
+
+    $third = tt_rs_trim_tokens( $arguments[2] );
+    $inner = tt_rs_array_inner( $third );
+    if ( $inner === null ) return $whole;
+
+    $entries = [];
+    foreach ( tt_rs_split_top_level( $inner ) as $element ) {
+        $element = tt_rs_trim_tokens( $element );
+        if ( $element === [] ) continue;
+        // A keyed element (`'schema' => …`, or `'methods' => …` in the
+        // single-entry spelling) is not a method entry.
+        if ( tt_rs_array_inner( $element ) === null ) continue;
+        $entries[] = tt_rs_entry_from_tokens( $element );
+    }
+
+    return $entries === [] ? $whole : $entries;
+}
+
+/**
+ * @param array<int, array{0:int, 1:string, 2:int}|string> $tokens
+ * @return array{handlers:list<string>, text:string, comments:list<string>}
+ */
+function tt_rs_entry_from_tokens( array $tokens ): array {
+    $text     = '';
+    $comments = [];
+    foreach ( $tokens as $tok ) {
+        if ( is_array( $tok ) && ( $tok[0] === T_COMMENT || $tok[0] === T_DOC_COMMENT ) ) {
+            $comments[] = $tok[1];
+            continue;
+        }
+        $text .= is_string( $tok ) ? $tok : $tok[1];
+    }
+    return [
+        'handlers' => tt_rs_quoted_strings( $text ),
+        'text'     => $text,
+        'comments' => $comments,
+    ];
+}
+
+/**
+ * Split a token run on its depth-zero commas.
+ *
+ * @param array<int, array{0:int, 1:string, 2:int}|string> $tokens
+ * @return list<list<array{0:int, 1:string, 2:int}|string>>
+ */
+function tt_rs_split_top_level( array $tokens ): array {
+    $parts   = [];
+    $current = [];
+    $depth   = 0;
+    foreach ( $tokens as $tok ) {
+        $opens = in_array( $tok, [ '(', '[', '{' ], true )
+            || ( is_array( $tok ) && in_array( $tok[0], [ T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES ], true ) );
+        if ( $opens ) $depth++;
+        if ( in_array( $tok, [ ')', ']', '}' ], true ) ) $depth--;
+
+        if ( $tok === ',' && $depth === 0 ) {
+            $parts[] = $current;
+            $current = [];
+            continue;
+        }
+        $current[] = $tok;
+    }
+    $parts[] = $current;
+    return $parts;
+}
+
+/**
+ * The run without its leading and trailing whitespace and comments.
+ *
+ * @param list<array{0:int, 1:string, 2:int}|string> $tokens
+ * @return list<array{0:int, 1:string, 2:int}|string>
+ */
+function tt_rs_trim_tokens( array $tokens ): array {
+    $skip = static function ( $tok ): bool {
+        return is_array( $tok ) && in_array( $tok[0], [ T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ], true );
+    };
+    while ( $tokens !== [] && $skip( $tokens[0] ) ) array_shift( $tokens );
+    while ( $tokens !== [] && $skip( $tokens[ count( $tokens ) - 1 ] ) ) array_pop( $tokens );
+    return array_values( $tokens );
+}
+
+/**
+ * The inside of an array literal (`[ … ]` or `array( … )`), or null when the
+ * run is not exactly one array literal.
+ *
+ * @param list<array{0:int, 1:string, 2:int}|string> $tokens
+ * @return list<array{0:int, 1:string, 2:int}|string>|null
+ */
+function tt_rs_array_inner( array $tokens ): ?array {
+    $n = count( $tokens );
+    if ( $n < 2 ) return null;
+
+    if ( $tokens[0] === '[' ) {
+        $open = 0;
+        $close_char = ']';
+    } elseif ( is_array( $tokens[0] ) && $tokens[0][0] === T_ARRAY ) {
+        $open = null;
+        for ( $i = 1; $i < $n; $i++ ) {
+            if ( $tokens[ $i ] === '(' ) { $open = $i; break; }
+            if ( ! ( is_array( $tokens[ $i ] ) && $tokens[ $i ][0] === T_WHITESPACE ) ) return null;
+        }
+        if ( $open === null ) return null;
+        $close_char = ')';
+    } else {
+        return null;
+    }
+
+    // The opener must close on the run's last token, or this is something
+    // like `[ … ] + $more`, which is not one literal.
+    $depth = 0;
+    for ( $i = $open; $i < $n; $i++ ) {
+        $tok   = $tokens[ $i ];
+        $opens = in_array( $tok, [ '(', '[', '{' ], true )
+            || ( is_array( $tok ) && in_array( $tok[0], [ T_CURLY_OPEN, T_DOLLAR_OPEN_CURLY_BRACES ], true ) );
+        if ( $opens ) $depth++;
+        if ( in_array( $tok, [ ')', ']', '}' ], true ) ) {
+            $depth--;
+            if ( $depth === 0 ) {
+                if ( $i !== $n - 1 || $tok !== $close_char ) return null;
+                return array_values( array_slice( $tokens, $open + 1, $i - $open - 1 ) );
+            }
+        }
+    }
+    return null;
 }
 
 /**
@@ -535,6 +800,24 @@ function tt_rs_marker_reason( array $tokens, int $open, int $close ): ?string {
         if ( strpos( $tok[1], TT_RS_MARKER ) === false ) continue;
 
         if ( preg_match( '/' . TT_RS_MARKER . '\s*:\s*([^*\/\r\n]+)/', $tok[1], $m ) ) {
+            return trim( $m[1] );
+        }
+        return '';
+    }
+    return null;
+}
+
+/**
+ * The same, over the comments inside a route's method entry — where a marker
+ * on an inline `permission_callback` closure sits.
+ *
+ * @param array<int, mixed> $comments
+ */
+function tt_rs_marker_in_comments( array $comments ): ?string {
+    foreach ( $comments as $comment ) {
+        $comment = (string) $comment;
+        if ( strpos( $comment, TT_RS_MARKER ) === false ) continue;
+        if ( preg_match( '/' . TT_RS_MARKER . '\s*:\s*([^*\/\r\n]+)/', $comment, $m ) ) {
             return trim( $m[1] );
         }
         return '';

@@ -93,6 +93,141 @@ final class RecordScopeGateTest extends TestCase {
         $this->assertTrue( $in_callback['passed'] );
     }
 
+    // -----------------------------------------------------------------
+    // #4052 — one unit per registered method, not per route
+    // -----------------------------------------------------------------
+
+    public function test_each_method_on_a_route_is_its_own_unit(): void {
+        // The `/players/{id}` shape: GET and PUT check the record in their
+        // inline permission closures, DELETE asks a capability only. Judged
+        // as one route, the whole thing read as unguarded; judged per method,
+        // only the DELETE is a finding.
+        $units = $this->units( '<?php
+            class C {
+                public static function routes() {
+                    register_rest_route( "talenttrack/v1", "/players/(?P<id>\\\\d+)", [
+                        [
+                            "methods"             => "GET",
+                            "callback"            => [ __CLASS__, "get_player" ],
+                            "permission_callback" => function ( $r ) {
+                                return AuthorizationService::canViewPlayer( get_current_user_id(), (int) $r["id"] );
+                            },
+                        ],
+                        [
+                            "methods"             => "PUT",
+                            "callback"            => [ __CLASS__, "update_player" ],
+                            "permission_callback" => function ( $r ) {
+                                return AuthorizationService::canEditPlayer( get_current_user_id(), (int) $r["id"] );
+                            },
+                        ],
+                        [
+                            "methods"             => "DELETE",
+                            "callback"            => [ __CLASS__, "delete_player" ],
+                            "permission_callback" => function ( $r ) {
+                                return current_user_can( "tt_edit_players" );
+                            },
+                        ],
+                    ] );
+                }
+                public static function get_player( $r ) {
+                    return ( new PlayersRepository() )->find( (int) $r["id"] );
+                }
+                public static function update_player( $r ) {
+                    return ( new PlayersRepository() )->update( (int) $r["id"], [] );
+                }
+                public static function delete_player( $r ) {
+                    return ( new PlayersRepository() )->archive( (int) $r["id"] );
+                }
+            }
+        ' );
+
+        $this->assertSame(
+            [ 'file.php::get_player', 'file.php::update_player', 'file.php::delete_player' ],
+            array_column( $units, 'key' )
+        );
+
+        $findings = array_values( array_filter( $units, static function ( array $u ): bool {
+            return ! $u['passed'] && ! $u['marked'];
+        } ) );
+        $this->assertCount( 1, $findings, 'only the capability-only method is a finding' );
+        $this->assertSame( 'file.php::delete_player', $findings[0]['key'] );
+    }
+
+    public function test_a_permission_closure_held_in_a_variable_is_read(): void {
+        $unit = $this->only( '<?php
+            class C {
+                public static function routes() {
+                    $can_view = function ( $r ) {
+                        return AllTeamsScope::canReadTeam( get_current_user_id(), (int) $r["id"] );
+                    };
+                    register_rest_route( "talenttrack/v1", "/teams/(?P<id>\\\\d+)", [
+                        [
+                            "methods"             => "GET",
+                            "callback"            => [ __CLASS__, "get_team" ],
+                            "permission_callback" => $can_view,
+                        ],
+                    ] );
+                }
+                public static function get_team( $r ) {
+                    return ( new TeamsRepository() )->find( (int) $r["id"] );
+                }
+            }
+        ' );
+
+        $this->assertTrue( $unit['passed'] );
+    }
+
+    public function test_a_marker_on_an_inline_permission_closure_is_read(): void {
+        $unit = $this->only( '<?php
+            class C {
+                public static function routes() {
+                    register_rest_route( "talenttrack/v1", "/holidays/(?P<id>\\\\d+)", [
+                        [
+                            "methods"             => "GET",
+                            "callback"            => [ __CLASS__, "get_holiday" ],
+                            "permission_callback" => function () {
+                                /* record-scope-ok: no player dimension */
+                                return current_user_can( "tt_view_settings" );
+                            },
+                        ],
+                    ] );
+                }
+                public static function get_holiday( $r ) {
+                    return ( new HolidaysRepository() )->find( (int) $r["id"] );
+                }
+            }
+        ' );
+
+        $this->assertTrue( $unit['marked'] );
+    }
+
+    public function test_an_apostrophe_in_a_comment_does_not_hide_a_handler(): void {
+        // A comment reading "can\'t" inside the route arguments used to pair
+        // quotes across it, and the handler after it went unread.
+        $unit = $this->only( '<?php
+            class C {
+                public static function routes() {
+                    register_rest_route( "talenttrack/v1", "/seasons/(?P<id>\\\\d+)", [
+                        // A season in use can\'t be removed.
+                        [
+                            "methods"             => "DELETE",
+                            "callback"            => [ __CLASS__, "delete" ],
+                            "permission_callback" => [ __CLASS__, "can_admin" ],
+                        ],
+                    ] );
+                }
+                public static function can_admin() {
+                    return current_user_can( "tt_edit_settings" );
+                }
+                public static function delete( $r ) {
+                    return ( new SeasonsRepository() )->find( (int) $r["id"] );
+                }
+            }
+        ' );
+
+        $this->assertSame( 'file.php::delete + can_admin', $unit['key'] );
+    }
+
     public function test_a_route_whose_parameter_is_not_a_record_id_is_not_a_surface(): void {
         // A slug is a lookup key, not a record somebody owns.
         $this->assertSame( [], $this->units( '<?php

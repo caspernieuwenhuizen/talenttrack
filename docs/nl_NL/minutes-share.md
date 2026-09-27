@@ -51,7 +51,7 @@ niet aan spelen toekomt.
 ## De norm
 
 Elke speler zou een minimumaandeel van de speeltijd moeten halen. De standaard
-is **30%**, en een academie past dat aan onder **Configuratie →
+is **50%**, en een academie past dat aan onder **Configuratie →
 Wedstrijdminuten**, naast de wedstrijdduur per leeftijdscategorie: die bepalen
 de noemer, dit trekt de streep eroverheen.
 
