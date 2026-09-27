@@ -167,11 +167,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                 $notes = isset( $_POST['notes'] )          ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
                 $valid = PotentialBand::ALL;
                 if ( in_array( $band, $valid, true ) ) {
-                    ( new PlayerPotentialRepository() )->create( [
-                        'player_id'      => $player_id,
-                        'potential_band' => $band,
-                        'notes'          => $notes !== '' ? $notes : null,
-                    ] );
+                    // The repository's shape makes `notes` optional rather
+                    // than nullable; omitting it is how "no note" is spelled.
+                    $entry = [ 'player_id' => $player_id, 'potential_band' => $band ];
+                    if ( $notes !== '' ) $entry['notes'] = $notes;
+                    ( new PlayerPotentialRepository() )->create( $entry );
                     $flash = __( 'Potential band saved.', 'talenttrack' );
                 }
             }

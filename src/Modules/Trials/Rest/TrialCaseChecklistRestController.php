@@ -120,7 +120,7 @@ final class TrialCaseChecklistRestController {
         }
 
         if ( array_key_exists( 'done', $body ) ) {
-            $done = rest_sanitize_boolean( $body['done'] );
+            $done = in_array( $body['done'], [ true, 1, '1', 'true' ], true );
             $service->setDone( $case_id, $key, $done, $actor );
             $changes['done'] = $done;
         }
