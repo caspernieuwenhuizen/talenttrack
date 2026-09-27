@@ -118,11 +118,37 @@ final class TournamentSquadAvailabilityTest extends WP_UnitTestCase {
         $this->assertFalse( PlayerAvailability::isUnavailable( $this->players['stale'] ) );
     }
 
+    /**
+     * #4100 — the squad is picked for the tournament's start date, not for
+     * today: an injury that starts after the tournament does not flag, one
+     * the player is back from before it does not flag, and one that covers
+     * it does.
+     */
+    public function test_the_flag_is_for_the_tournaments_start_date(): void {
+        $this->player( 'injured_later' );
+        $this->player( 'recovered' );
+        $this->injuryDated( 'injured_later', '2026-09-20', null, null );
+        $this->injuryDated( 'recovered', '2026-09-01', null, '2026-09-15' );
+
+        $before = $this->rowsByName( $this->render( '2026-09-17' ) );
+        $this->assertStringNotContainsString( 'ttw-unavailable', $before['injured_later'], 'fit before the injury started' );
+        $this->assertStringNotContainsString( 'ttw-unavailable', $before['recovered'], 'back before the tournament' );
+
+        $during = $this->rowsByName( $this->render( '2026-09-10' ) );
+        $this->assertStringContainsString( 'ttw-unavailable', $during['recovered'], 'out on the start date' );
+
+        $after = $this->rowsByName( $this->render( '2026-09-27' ) );
+        $this->assertStringContainsString( 'ttw-unavailable', $after['injured_later'], 'injured by the start date' );
+    }
+
     // ---- fixtures --------------------------------------------------
 
-    private function render(): string {
+    private function render( string $start_date = '' ): string {
+        $state = [ 'team_id' => $this->team ];
+        if ( $start_date !== '' ) $state['start_date'] = $start_date;
+
         ob_start();
-        ( new SquadStep() )->render( [ 'team_id' => $this->team ] );
+        ( new SquadStep() )->render( $state );
         $html = (string) ob_get_clean();
 
         $this->assertStringContainsString( 'ttw-squad-list', $html, 'the step must render, or nothing below proves anything' );
@@ -171,6 +197,18 @@ final class TournamentSquadAvailabilityTest extends WP_UnitTestCase {
             'club_id'         => $this->club,
             'player_id'       => $this->players[ $key ],
             'started_on'      => gmdate( 'Y-m-d', strtotime( '-7 days' ) ),
+            'expected_return' => $expected_return,
+            'actual_return'   => $actual_return,
+            'notes'           => 'ankle',
+        ] );
+    }
+
+    private function injuryDated( string $key, string $started_on, ?string $expected_return, ?string $actual_return ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
+            'club_id'         => $this->club,
+            'player_id'       => $this->players[ $key ],
+            'started_on'      => $started_on,
             'expected_return' => $expected_return,
             'actual_return'   => $actual_return,
             'notes'           => 'ankle',

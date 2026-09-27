@@ -135,6 +135,80 @@ final class PlannedAttendanceAvailabilityTest extends WP_UnitTestCase {
         $this->assertSame( [], PlayerAvailability::unavailableSet( [] ) );
     }
 
+    /**
+     * #4100 — an injury that started after the match does not reach back to
+     * it. The player injured today was fit for last week's match.
+     */
+    public function test_an_injury_only_counts_from_the_day_it_started(): void {
+        $this->player( 'injured_later' );
+        $this->injuryDated( 'injured_later', '2026-09-20', null, null );
+        $pid = $this->players['injured_later'];
+
+        $this->assertFalse( PlayerAvailability::isUnavailable( $pid, '2026-09-13' ), 'fit for the match before the injury' );
+        $this->assertTrue( PlayerAvailability::isUnavailable( $pid, '2026-09-27' ), 'out for the match after it' );
+        $this->assertTrue( PlayerAvailability::isUnavailable( $pid, '2026-09-20' ), 'out on the day it happened' );
+    }
+
+    /**
+     * #4100 — a player who has since returned still missed the match the
+     * injury kept them out of; the return day itself is fit.
+     */
+    public function test_a_returned_injury_still_counts_for_the_days_it_covered(): void {
+        $this->player( 'recovered' );
+        $this->injuryDated( 'recovered', '2026-09-01', null, '2026-09-15' );
+        $pid = $this->players['recovered'];
+
+        $this->assertTrue( PlayerAvailability::isUnavailable( $pid, '2026-09-10' ), 'out during the injury' );
+        $this->assertFalse( PlayerAvailability::isUnavailable( $pid, '2026-09-20' ), 'back after the return' );
+        $this->assertFalse( PlayerAvailability::isUnavailable( $pid, '2026-09-15' ), 'back on the return day' );
+    }
+
+    /** #4005 unchanged: an un-closed record stops counting after its expected return. */
+    public function test_a_stale_injury_does_not_count_after_its_expected_return(): void {
+        $this->player( 'forgotten' );
+        $this->injuryDated( 'forgotten', '2026-08-01', '2026-08-20', null );
+        $pid = $this->players['forgotten'];
+
+        $this->assertFalse( PlayerAvailability::isUnavailable( $pid, '2026-09-13' ), 'stale after the expected return' );
+        $this->assertTrue( PlayerAvailability::isUnavailable( $pid, '2026-08-10' ), 'still out before it' );
+    }
+
+    /**
+     * #4100 — the route asks about the activity's own date, the same day the
+     * activity detail page asks about, so both give one answer per activity.
+     */
+    public function test_the_route_answers_for_the_activitys_date(): void {
+        $this->player( 'injured_later' );
+        $this->player( 'recovered' );
+        $this->injuryDated( 'injured_later', '2026-09-20', null, null );
+        $this->injuryDated( 'recovered', '2026-09-01', null, '2026-09-15' );
+
+        $cases = [
+            '2026-09-10' => [ 'injured_later' => PlayerAvailability::AVAILABLE,   'recovered' => PlayerAvailability::UNAVAILABLE ],
+            '2026-09-17' => [ 'injured_later' => PlayerAvailability::AVAILABLE,   'recovered' => PlayerAvailability::AVAILABLE ],
+            '2026-09-27' => [ 'injured_later' => PlayerAvailability::UNAVAILABLE, 'recovered' => PlayerAvailability::AVAILABLE ],
+        ];
+
+        foreach ( $cases as $date => $expected ) {
+            $activity = $this->activityOn( $date, [ 'injured_later', 'recovered' ] );
+            $rows     = $this->rows( $activity );
+            $service  = PlayerAvailability::unavailableSet(
+                [ $this->players['injured_later'], $this->players['recovered'] ],
+                $date
+            );
+
+            foreach ( $expected as $key => $flag ) {
+                $pid = $this->players[ $key ];
+                $this->assertSame( $flag, $rows[ $pid ]['availability'], $key . ' on ' . $date );
+                $this->assertSame(
+                    PlayerAvailability::flagFor( $pid, $service ),
+                    $rows[ $pid ]['availability'],
+                    'the route and the service agree for ' . $key . ' on ' . $date
+                );
+            }
+        }
+    }
+
     // ---- fixtures --------------------------------------------------
 
     private function player( string $key ): void {
@@ -173,11 +247,56 @@ final class PlannedAttendanceAvailabilityTest extends WP_UnitTestCase {
         ] );
     }
 
+    private function injuryDated( string $key, string $started_on, ?string $expected_return, ?string $actual_return ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
+            'club_id'         => $this->club,
+            'player_id'       => $this->players[ $key ],
+            'started_on'      => $started_on,
+            'expected_return' => $expected_return,
+            'actual_return'   => $actual_return,
+            'notes'           => 'ankle',
+        ] );
+    }
+
+    /**
+     * A match on `$date` with the named players in its plan, as Expected.
+     *
+     * @param list<string> $keys
+     */
+    private function activityOn( string $date, array $keys ): int {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->insert( "{$p}tt_activities", [
+            'club_id'             => $this->club,
+            'team_id'             => $this->team,
+            'title'               => 'Match ' . $date,
+            'session_date'        => $date,
+            'activity_type_key'   => 'match',
+            'activity_status_key' => 'planned',
+            'plan_state'          => 'scheduled',
+        ] );
+        $activity = (int) $wpdb->insert_id;
+
+        foreach ( $keys as $key ) {
+            $wpdb->insert( "{$p}tt_attendance", [
+                'club_id'     => $this->club,
+                'activity_id' => $activity,
+                'player_id'   => $this->players[ $key ],
+                'is_guest'    => 0,
+                'status'      => 'Present',
+                'record_type' => 'expected',
+            ] );
+        }
+
+        return $activity;
+    }
+
     /** @return array<string, mixed> */
-    private function payload(): array {
+    private function payload( int $activity = 0 ): array {
         $req = new WP_REST_Request(
             'GET',
-            '/talenttrack/v1/activities/' . $this->activity . '/planned-attendance'
+            '/talenttrack/v1/activities/' . ( $activity > 0 ? $activity : $this->activity ) . '/planned-attendance'
         );
         $res = rest_do_request( $req );
         $this->assertSame( 200, $res->get_status() );
@@ -186,9 +305,9 @@ final class PlannedAttendanceAvailabilityTest extends WP_UnitTestCase {
     }
 
     /** @return array<int, array<string, mixed>> keyed by player id */
-    private function rows(): array {
+    private function rows( int $activity = 0 ): array {
         $out = [];
-        foreach ( (array) ( $this->payload()['roster'] ?? [] ) as $row ) {
+        foreach ( (array) ( $this->payload( $activity )['roster'] ?? [] ) as $row ) {
             $row = (array) $row;
             $out[ (int) $row['player_id'] ] = $row;
         }

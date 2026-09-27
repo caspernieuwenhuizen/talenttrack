@@ -2363,6 +2363,21 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #4100 — the activity's date (Y-m-d) within the current club, or '' when
+     * there is no such activity. Archived rows answer too, as
+     * `activityExists()` does.
+     */
+    public function activityDate( int $activity_id ): string {
+        if ( $activity_id <= 0 ) return '';
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT session_date FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
      * #1712 — true when the player exists within the current club.
      */
     public function playerExists( int $player_id ): bool {

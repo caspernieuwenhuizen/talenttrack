@@ -26,7 +26,8 @@ use TT\Shared\Wizards\WizardStepInterface;
  *
  * ## The availability flag (#4057, from #4005)
  *
- * A player carrying an open injury is flagged beside their name, from
+ * A player injured on the tournament's start date (#4100) is flagged beside
+ * their name, from
  * `Modules\Activities\Services\PlayerAvailability` — the same service the
  * planned-attendance card, the planned-attendance picker and
  * `GET /activities/{id}/planned-attendance` read, and the same label, so the
@@ -109,11 +110,13 @@ final class SquadStep implements WizardStepInterface {
 
         // #4057 — who cannot be planned for, from the service the
         // planned-attendance surfaces use. One query for the whole roster, and
-        // the state only: no injury detail reaches this screen.
+        // the state only: no injury detail reaches this screen. #4100 — asked
+        // for the tournament's start date from the Basics step; today when
+        // the state has none.
         $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
             static fn( $player ): int => (int) ( $player->id ?? 0 ),
             $players
-        ) ) );
+        ) ), (string) ( $state['start_date'] ?? '' ) );
 
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
