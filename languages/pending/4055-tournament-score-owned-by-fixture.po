@@ -1,3 +1,0 @@
-#: src/Infrastructure/REST/ActivitiesRestController.php
-msgid "A tournament result is changed on the fixture itself, with %s. A score written here would be overwritten the next time the fixture syncs."
-msgstr "Een toernooiuitslag wijzig je op de wedstrijd zelf, met %s. Een uitslag die hier wordt opgeslagen, wordt bij de volgende synchronisatie vanuit de wedstrijd overschreven."

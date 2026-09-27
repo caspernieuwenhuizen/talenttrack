@@ -66574,6 +66574,127 @@ msgstr "Per speler, in volgorde van rugnummer"
 msgid "Team average %s. In shirt-number order."
 msgstr "Teamgemiddelde %s. In volgorde van rugnummer."
 
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgctxt "tournament fixture: these minutes are the rotation plan, not a confirmed figure"
+msgid "Planned"
+msgstr "Gepland"
+
+#: src/Modules/Tournaments/Frontend/PlayerTournamentsTab.php
+msgid "Minutes are the figures the coach confirmed when the fixture was completed. Where none were confirmed the rotation plan is shown instead, marked Planned."
+msgstr "De minuten zijn de aantallen die de trainer heeft bevestigd bij het afronden van de wedstrijd. Is er niets bevestigd, dan staat het rotatieplan er, met het label Gepland."
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "A tournament result is changed on the fixture itself, with %s. A score written here would be overwritten the next time the fixture syncs."
+msgstr "Een toernooiuitslag wijzig je op de wedstrijd zelf, met %s. Een uitslag die hier wordt opgeslagen, wordt bij de volgende synchronisatie vanuit de wedstrijd overschreven."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Lateness at-risk threshold"
+msgstr "Risicodrempel te laat komen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many late arrivals flag a player as at risk, counted on its own because "
+"a player who arrived late was still at the activity. Leave it blank to "
+"follow the attendance at-risk threshold above, which is %d today."
+msgstr ""
+"Hoeveel keer te laat een speler als risico markeert, apart geteld omdat een "
+"speler die te laat kwam er bij de activiteit wél was. Laat het leeg om de "
+"risicodrempel aanwezigheid hierboven te volgen, die nu %d is."
+
+#. translators: 1: minutes recorded for the match, 2: player-minutes the whole match holds
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "%1$s of the %2$s minutes this match holds are recorded"
+msgstr "%1$s van de %2$s minuten die deze wedstrijd bevat zijn geregistreerd"
+
+#. translators: %s: player-minutes the whole match holds
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgctxt "minutes audit: recorded of available minutes"
+msgid "of %s"
+msgstr "van %s"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "Players in the squad without minutes"
+msgstr "Spelers uit de selectie zonder minuten"
+
+#. translators: %s: number of minutes missing
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "%s minutes short of a full match"
+msgstr "%s minuten te kort voor een hele wedstrijd"
+
+#. translators: %s: number of minutes over
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "%s minutes more than the match holds"
+msgstr "%s minuten meer dan de wedstrijd bevat"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid ""
+"Complete means every player in the squad has minutes and the total adds up "
+"to a whole match: players a side times the match length."
+msgstr ""
+"Volledig betekent dat elke speler uit de selectie minuten heeft en dat het "
+"totaal optelt tot een hele wedstrijd: het aantal spelers per team maal de "
+"wedstrijdduur."
+
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid "Match played without a match record"
+msgstr "Wedstrijd gespeeld zonder wedstrijduitvoering"
+
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid ""
+"A game is completed and has minutes recorded, but it was never run through "
+"match execution. Its starts, substitute appearances and substitutions cannot "
+"be counted, so the minutes report shows 0 for them."
+msgstr ""
+"Een wedstrijd is afgerond en heeft geregistreerde minuten, maar is nooit via "
+"de wedstrijduitvoering gespeeld. De basisplaatsen, invalbeurten en wissels "
+"kunnen niet worden geteld, dus toont het minutenrapport daarvoor 0."
+
+#. translators: %s: match name
+#: src/Modules/Alerts/Definitions/MatchExecutionMissingAlert.php
+msgid ""
+"%s has minutes but no match record, so its starts and substitutions cannot "
+"be counted."
+msgstr ""
+"%s heeft minuten maar geen wedstrijduitvoering, dus de basisplaatsen en "
+"wissels kunnen niet worden geteld."
+
+#: src/Modules/Activities/Services/ActivityHeaderActions.php
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Record match afterwards"
+msgstr "Wedstrijd achteraf vastleggen"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid "This match has already been started or recorded."
+msgstr "Deze wedstrijd is al gestart of vastgelegd."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+msgid ""
+"A match can only be recorded afterwards once its date has passed. On match "
+"day, start it instead."
+msgstr ""
+"Een wedstrijd kun je pas achteraf vastleggen als de datum voorbij is. Op de "
+"wedstrijddag start je hem gewoon."
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid ""
+"Set the starting line-up in match prep first. The minutes are built from it."
+msgstr ""
+"Zet eerst de basisopstelling in de wedstrijdvoorbereiding. De minuten worden "
+"daaruit berekend."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid ""
+"Record this match afterwards? It opens the post-match review, where you add "
+"the substitutions and goals with their minute."
+msgstr ""
+"Deze wedstrijd achteraf vastleggen? De nabespreking opent, waar je de wissels "
+"en doelpunten met hun minuut toevoegt."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Could not open the match for recording:"
+msgstr "Kon de wedstrijd niet openen om vast te leggen:"
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
