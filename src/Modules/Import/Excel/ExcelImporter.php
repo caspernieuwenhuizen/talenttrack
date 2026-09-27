@@ -677,22 +677,24 @@ final class ExcelImporter {
         if ( $typed !== '' ) {
             $key = (string) preg_replace( '/[^a-z0-9]+/', '_', $typed );
             $row = $repo->findRoleByKey( trim( $key, '_' ) );
-            if ( $row !== null ) return (int) $row->id;
+            if ( $row !== null ) return (int) ( ( (array) $row )['id'] ?? 0 );
 
             foreach ( $repo->listRoles() as $role ) {
+                $role = (array) $role;
+                $id   = (int) ( $role['id'] ?? 0 );
                 $labels = [
-                    (string) ( $role->label ?? '' ),
-                    (string) ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role->role_key ?? '' ), (int) $role->id ) ?? '' ),
+                    (string) ( $role['label'] ?? '' ),
+                    (string) ( \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( (string) ( $role['role_key'] ?? '' ), $id ) ?? '' ),
                 ];
                 foreach ( $labels as $label ) {
                     $label = strtolower( trim( $label ) );
-                    if ( $label !== '' && $label === $typed ) return (int) $role->id;
+                    if ( $id > 0 && $label !== '' && $label === $typed ) return $id;
                 }
             }
         }
 
         $other = $repo->findRoleByKey( 'other' );
-        return $other !== null ? (int) $other->id : 0;
+        return $other !== null ? (int) ( ( (array) $other )['id'] ?? 0 ) : 0;
     }
 
     /**
