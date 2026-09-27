@@ -38,7 +38,11 @@ class TrialCaseChecklistRepository {
             $case_id,
             CurrentClub::id()
         ) );
-        return is_array( $rows ) ? $rows : [];
+        $out = [];
+        foreach ( (array) $rows as $row ) {
+            if ( is_object( $row ) ) $out[] = $row;
+        }
+        return $out;
     }
 
     /**
