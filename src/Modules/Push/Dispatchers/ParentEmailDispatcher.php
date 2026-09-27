@@ -4,9 +4,9 @@ namespace TT\Modules\Push\Dispatchers;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\Recipient;
-use TT\Modules\Invitations\PlayerParentsRepository;
 
 /**
  * ParentEmailDispatcher — sends to the linked parent(s) of a player
@@ -19,17 +19,12 @@ use TT\Modules\Invitations\PlayerParentsRepository;
  * (staff, coaches, scouts, admins) the dispatcher returns false and
  * the chain falls through to plain EmailDispatcher.
  *
- * The pivot table (`tt_player_parents`, #0032) and the legacy
- * `tt_players.parent_user_id` column both feed the resolution; the
- * pivot wins where present.
+ * The guardians come from `ParentChildResolver::guardiansOf()` (#3979),
+ * with the legacy `tt_players.parent_user_id` column as a fallback where
+ * no pivot row exists. A released, archived or binned child's family is
+ * reached by neither.
  */
 final class ParentEmailDispatcher implements DispatcherInterface {
-
-    private PlayerParentsRepository $parents;
-
-    public function __construct( ?PlayerParentsRepository $parents = null ) {
-        $this->parents = $parents ?? new PlayerParentsRepository();
-    }
 
     public function key(): string { return 'parent_email'; }
 
@@ -118,14 +113,22 @@ final class ParentEmailDispatcher implements DispatcherInterface {
     }
 
     /**
-     * Parent WP user ids for a player: the pivot first, falling back to
+     * Parent WP user ids for a player: the guardians first, falling back to
      * the legacy column.
+     *
+     * #3979 — through `ParentChildResolver::guardiansOf()`, not the raw
+     * pivot, so a released, archived or binned child's family is sent
+     * nothing. The legacy fallback follows the same rule: it is asked only
+     * for a child who is not closed out, otherwise an empty guardian list
+     * would hand the family straight back through the old column.
      *
      * @return list<int>
      */
     private function parentUserIdsFor( int $player_id ): array {
         global $wpdb;
-        $parent_ids = $this->parents->parentsForPlayer( $player_id );
+        if ( ParentChildResolver::isClosedOut( $player_id ) ) return [];
+
+        $parent_ids = ParentChildResolver::guardiansOf( $player_id );
 
         // Legacy column fallback — older installs may have written
         // tt_players.parent_user_id without ever populating the pivot.
