@@ -109,7 +109,7 @@ the **Late** column and flagged separately (see *ranking + at-risk flags*
 below). Before this, a player at every session but late four times could read
 as the worst attender in the squad while never being flagged.
 
-**Late, Absent, Excused and Injured show the count**, not a percentage. Two
+**Late, Absent, Excused, Injured and Suspended show the count**, not a percentage. Two
 missed sessions read as **2**. The columns sort numerically, so 2 comes before
 10.
 
@@ -325,6 +325,13 @@ The surface is a spreadsheet-style matrix:
  is minutes recorded; a red **0** is a player who was in the squad but has no
  minutes recorded (a gap to chase); a hatched dash is a player who was not in
  that game's squad.
+- A hatched cell labelled **Unavailable** is a player who was marked as not
+ available for that game — anything other than *Present* in the match prep, or
+ on the attendance register (absent, excused, injured and so on). Their zero is
+ not a gap: they do not count towards the squad, so a game where everyone who
+ could play has minutes can still reach *Complete*. The cell says only that the
+ player was unavailable, never why. Recorded minutes always win: a player marked
+ unavailable who did play is counted with the minutes recorded for them.
 - Each row carries a **row total**, a completeness **status chip** — *Complete*,
  *Incomplete* or *Not recorded* (nothing recorded for the game) — and the bottom
  **column-total** row sums each player's minutes across the visible games.
@@ -338,8 +345,9 @@ against what the match holds (for example *770 of 770*), and an *Incomplete*
 chip says why: players without minutes, minutes short of a full match, or
 minutes more than the match holds.
 
-The match length is taken from the first of these that is set: the match length
-on the activity itself, the match length configured for the team's age group,
+The match length is taken from the first of these that is set: the period length
+on the match prep times the periods the match was played in (so four quarters of
+15 minutes is 60, not 30), the match length on the activity itself, the match length configured for the team's age group,
 the scheduled time between start and end, and otherwise 2 × 35 minutes. Players
 a side come from the team's football form (11v11, 8v8 and so on). If a correctly
 recorded game reads *Incomplete* because its scheduled slot includes the
@@ -513,9 +521,9 @@ destination's capability (§7 hide-don't-tease).
 
 The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. It lists **every player** with recorded attendance in the window — no top-N cap — and every column stays sortable (click a header to re-sort).
 
-**What counts as attended, and what counts as missed.** *Attended* is **present or late** — a player who arrived late was there. *Missed* is **absent, excused or injured**. The percentage is attended divided by every recorded activity, counted over the player's **own team's** activities: a guest appearance with another team is shown on that activity and in the player's journey, but never counts toward anyone's percentage. Every attendance figure in the plugin reads those definitions from one place — the player and team attendance reports, the leaderboard, the monthly team report, the team overview, the dashboard tiles, the player report's talking points, the exports and the *Attendance %* measure in the data explorer — so they cannot disagree with each other.
+**What counts as attended, and what counts as missed.** *Attended* is **present or late** — a player who arrived late was there. *Missed* is **absent, excused, injured or suspended**. The percentage is attended divided by every recorded activity, counted over the player's **own team's** activities: a guest appearance with another team is shown on that activity and in the player's journey, but never counts toward anyone's percentage. Every attendance figure in the plugin reads those definitions from one place — the player and team attendance reports, the leaderboard, the monthly team report, the team overview, the dashboard tiles, the player report's talking points, the exports and the *Attendance %* measure in the data explorer — so they cannot disagree with each other.
 
-**The one exception: the player status light.** The status traffic light (and the cohort board, which shows the same score) leaves **excused and injured** activities out of the count altogether, so a player is not marked down for being injured or for an absence the club excused. Late still counts as attended there. This is the only attendance figure that works differently, and it does so on purpose.
+**The one exception: the player status light.** The status traffic light (and the cohort board, which shows the same score) leaves **excused, injured and suspended** activities out of the count altogether, so a player is not marked down for being injured, for serving a suspension, or for an absence the club excused. Late still counts as attended there. This is the only attendance figure that works differently, and it does so on purpose.
 
 Players are **flagged** on either count: a configurable number of **missed** activities in the window, or a configurable number of **late** marks. A flagged player gets an inline ⚠ badge, a tinted row, and a place in the **At-risk players** panel above the table. **The badge says which it is** — *3 missed*, *4 late*, or both — so a player who is at every session but never on time is not read as having skipped sessions, and a player who misses sessions is not excused by a good percentage. The panel lists absences first, lateness second.
 

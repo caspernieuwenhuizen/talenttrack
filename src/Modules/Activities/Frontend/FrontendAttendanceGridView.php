@@ -235,7 +235,7 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
     }
 
     /**
-     * The five attendance statuses + the empty sentinel, each with the
+     * The attendance statuses + the empty sentinel, each with the
      * dropdown label and the compact cell abbreviation. Shared by the
      * server render and the JS (localised once).
      *
@@ -249,6 +249,7 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             [ 'value' => 'absent',  'label' => __( 'Absent', 'talenttrack' ),     'short' => _x( 'A',  'attendance status abbreviation: absent', 'talenttrack' ),  'mod' => 'absent' ],
             [ 'value' => 'excused', 'label' => __( 'Excused', 'talenttrack' ),    'short' => _x( 'E',  'attendance status abbreviation: excused', 'talenttrack' ), 'mod' => 'excused' ],
             [ 'value' => 'injured', 'label' => __( 'Injured', 'talenttrack' ),    'short' => _x( 'I',  'attendance status abbreviation: injured', 'talenttrack' ), 'mod' => 'injured' ],
+            [ 'value' => 'suspended', 'label' => __( 'Suspended', 'talenttrack' ), 'short' => _x( 'S', 'attendance status abbreviation: suspended', 'talenttrack' ), 'mod' => 'suspended' ],
         ];
     }
 

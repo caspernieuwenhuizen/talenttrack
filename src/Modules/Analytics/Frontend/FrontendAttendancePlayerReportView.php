@@ -235,6 +235,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '<th class="tt-att-num">' . esc_html__( 'Absent',  'talenttrack' ) . '</th>';
         echo '<th class="tt-att-num">' . esc_html__( 'Excused', 'talenttrack' ) . '</th>';
         echo '<th class="tt-att-num">' . esc_html__( 'Injured', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-att-num">' . esc_html__( 'Suspended', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         // #2185 — drill-down: the "Activities" count links to the activities
@@ -312,7 +313,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             // #2834 — the count, not the percentage. `data-sort` carries the
             // number so the client-side sorter orders 2 before 10 instead of
             // lexically.
-            foreach ( [ 'late', 'absent', 'excused', 'injured' ] as $state ) {
+            foreach ( [ 'late', 'absent', 'excused', 'injured', 'suspended' ] as $state ) {
                 $n = (int) $r[ $state ];
                 echo '<td class="tt-att-num" data-sort="' . esc_attr( (string) $n ) . '">'
                     . esc_html( number_format_i18n( $n ) ) . '</td>';

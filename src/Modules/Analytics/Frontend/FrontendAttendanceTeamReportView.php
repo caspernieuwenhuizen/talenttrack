@@ -20,7 +20,7 @@ use TT\Shared\Frontend\FrontendViewBase;
  *
  * Reached via the "Standard reports" section on the central Analytics
  * surface (`?tt_view=analytics`). One row per team; columns: activities
- * in window, present %, absent %, late %, excused %, injured %.
+ * in window, present %, absent %, late %, excused %, injured %, suspended %.
  *
  * Date range filter (default last 90 days) via GET form, plus #2136
  * retrospective period quick-pills (Last week / This month / This season)
@@ -174,6 +174,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         echo '<th class="tt-num">' . esc_html__( 'Absent %',  'talenttrack' ) . '</th>';
         echo '<th class="tt-num">' . esc_html__( 'Excused %', 'talenttrack' ) . '</th>';
         echo '<th class="tt-num">' . esc_html__( 'Injured %', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-num">' . esc_html__( 'Suspended %', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $r ) {
@@ -213,13 +214,14 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             echo '<td class="tt-num">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
             echo '<td class="tt-num">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
             echo '<td class="tt-num">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
+            echo '<td class="tt-num">' . esc_html( self::pct( $r['suspended'], $r['total'] ) ) . '</td>';
             echo '</tr>';
             // Lazy target row — JS injects the per-player sub-table here.
             // #2893 — `data-tt-table-noop` keeps it out of the table
             // tools' row count. Every team emits one of these, so without
             // it the counter read exactly twice the number of teams.
             echo '<tr class="tt-att-sub-row" data-tt-table-noop="true" id="tt-att-sub-' . esc_attr( (string) $team_id ) . '" hidden>';
-            echo '<td colspan="7" class="tt-att-sub-cell"></td>';
+            echo '<td colspan="8" class="tt-att-sub-cell"></td>';
             echo '</tr>';
         }
         echo '</tbody></table></div></div>';

@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Teams\FootballFormResolver;
@@ -29,11 +30,17 @@ use TT\Modules\Teams\FootballFormResolver;
  * Cell state per (game, player):
  *   - `minutes`  > 0  → recorded (green)
  *   - `on_squad` true, minutes 0 → on the squad but 0 recorded (red gap)
+ *   - `unavailable` true → marked unavailable for this game (hatched, labelled)
  *   - `on_squad` false → not in this game's squad (hatched, informational)
  *
- * "On squad for a game" = the player has ANY non-guest attendance row for
- * that activity (planned OR actual) — attendance is how a player joins a
- * game's selection, independent of whether their minutes were recorded.
+ * "On squad for a game" = the player has recorded minutes, or has a
+ * non-guest attendance row for that activity (planned OR actual) and is not
+ * marked unavailable for it (#4101). Unavailable means the match prep's
+ * availability for the player is anything other than Present, or their
+ * attendance status is (the recorded register when there is one, the plan
+ * otherwise). The rule is "not Present", not a list, so a status added to
+ * the vocabulary later is covered without touching this file. Late is
+ * attendance, as everywhere else (#4041). Recorded minutes always win.
  *
  * Per-row completeness (status chip):
  *   - `complete`   → every on-squad player has minutes recorded AND the
@@ -65,7 +72,7 @@ final class MinutesAuditQuery {
      * @return array{
      *   games: list<array{
      *     activity_id:int, session_date:string, title:string, type_key:string,
-     *     minutes:array<int,int>, on_squad:array<int,bool>,
+     *     minutes:array<int,int>, on_squad:array<int,bool>, unavailable:array<int,bool>,
      *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
      *     status:string, status_reason:string,
      *     is_rollup:bool, editable:bool, tournament_id:int
@@ -127,7 +134,10 @@ final class MinutesAuditQuery {
 
         // #4058 — what a whole match holds, per game: players a side times
         // the match length. Resolved once per team; the length per game.
+        // #4087 — times the periods it was played in, as the minutes report
+        // counts it, so a quarters match is not read as half a match.
         $team_basis = $this->teamBasis( $team_id );
+        $periods    = MinutesQuery::periodCountsFor( $activity_ids );
         $available  = [];
         foreach ( $activities as $a ) {
             $available[ (int) $a->id ] = self::isTournamentRow( $a ) ? 0 : self::availableMinutes(
@@ -137,7 +147,8 @@ final class MinutesAuditQuery {
                     (int) ( $a->match_length_minutes ?? 0 ),
                     $team_basis['config_half_minutes'],
                     isset( $a->start_time ) ? (string) $a->start_time : '',
-                    isset( $a->end_time ) ? (string) $a->end_time : ''
+                    isset( $a->end_time ) ? (string) $a->end_time : '',
+                    $periods[ (int) $a->id ] ?? 2
                 )
             );
         }
@@ -145,17 +156,9 @@ final class MinutesAuditQuery {
         // 2. Squad membership per game — every non-guest attendance row on
         //    those activities. This is how the attendance report resolves the
         //    squad; using it (not tt_players.team_id) is the #2339 fix.
+        //    #4101 — minus the players marked unavailable for the game.
         $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $squad_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT activity_id, player_id
-               FROM {$p}tt_attendance
-              WHERE activity_id IN ($in_ids)
-                AND club_id = %d
-                AND is_guest = 0
-                AND player_id > 0",
-            array_merge( $activity_ids, [ $club_id ] )
-        ) );
+        $squad_marks = $this->squadMarks( $activity_ids );
 
         // 3. Recorded actual minutes per game+player (the same source
         //    MinutesQuery sums). Aggregated so a player with more than one
@@ -181,14 +184,18 @@ final class MinutesAuditQuery {
 
         // Fold into per-activity maps + collect the union of squad players.
         $squad_by_game   = []; // aid => [pid => true]
+        $unavail_by_game = []; // aid => [pid => true], #4101
         $minutes_by_game = []; // aid => [pid => minutes]
         $player_ids      = []; // set of every player that appears anywhere
-        foreach ( (array) $squad_rows as $r ) {
-            $aid = (int) $r->activity_id;
-            $pid = (int) $r->player_id;
-            if ( $pid <= 0 ) continue;
-            $squad_by_game[ $aid ][ $pid ] = true;
-            $player_ids[ $pid ]            = true;
+        foreach ( $squad_marks as $aid => $marks ) {
+            foreach ( $marks as $pid => $is_unavailable ) {
+                if ( $is_unavailable ) {
+                    $unavail_by_game[ $aid ][ $pid ] = true;
+                } else {
+                    $squad_by_game[ $aid ][ $pid ] = true;
+                }
+                $player_ids[ $pid ] = true;
+            }
         }
         foreach ( (array) $minute_rows as $r ) {
             $aid  = (int) $r->activity_id;
@@ -212,6 +219,10 @@ final class MinutesAuditQuery {
                 $squad_by_game[ $aid ][ $pid ] = true;
                 $player_ids[ $pid ]            = true;
             }
+            foreach ( $rollup['unavailable'] as $pid => $_off ) {
+                $unavail_by_game[ $aid ][ $pid ] = true;
+                $player_ids[ $pid ]              = true;
+            }
             foreach ( $rollup['minutes'] as $pid => $mins ) {
                 $minutes_by_game[ $aid ][ $pid ] = $mins;
                 $player_ids[ $pid ]              = true;
@@ -233,6 +244,7 @@ final class MinutesAuditQuery {
                     'type_key'       => self::rowTypeKey( $a ),
                     'minutes'        => [],
                     'on_squad'       => [],
+                    'unavailable'    => [],
                     'total_minutes'     => 0,
                     'available_minutes' => $available[ (int) $a->id ] ?? 0,
                     'recorded_count'    => 0,
@@ -296,14 +308,18 @@ final class MinutesAuditQuery {
 
         foreach ( $activities as $a ) {
             $aid       = (int) $a->id;
-            $squad_map = $squad_by_game[ $aid ]   ?? [];
-            $min_map   = $minutes_by_game[ $aid ] ?? [];
-            $is_rollup = self::isTournamentRow( $a );
+            $squad_map   = $squad_by_game[ $aid ]   ?? [];
+            $unavail_map = $unavail_by_game[ $aid ] ?? [];
+            $min_map     = $minutes_by_game[ $aid ] ?? [];
+            $is_rollup   = self::isTournamentRow( $a );
 
             // A player counts as on-squad for the game if they have an
             // attendance row OR recorded minutes (a paper match, #2159, may
-            // carry only an 'actual' minutes row).
+            // carry only an 'actual' minutes row). #4101 — a player marked
+            // unavailable is not on the squad: their zero is not a recording
+            // gap. Recorded minutes still win, since they are what happened.
             $on_squad      = [];
+            $unavailable   = [];
             $minutes       = [];
             $row_total     = 0;
             $recorded      = 0;
@@ -311,8 +327,9 @@ final class MinutesAuditQuery {
             foreach ( $ordered_pids as $pid ) {
                 $is_squad = isset( $squad_map[ $pid ] ) || isset( $min_map[ $pid ] );
                 $mins     = (int) ( $min_map[ $pid ] ?? 0 );
-                $on_squad[ $pid ] = $is_squad;
-                $minutes[ $pid ]  = $mins;
+                $on_squad[ $pid ]    = $is_squad;
+                $unavailable[ $pid ] = ! $is_squad && isset( $unavail_map[ $pid ] );
+                $minutes[ $pid ]     = $mins;
                 if ( $is_squad ) $squad_count++;
                 if ( $mins > 0 ) {
                     $recorded++;
@@ -355,6 +372,10 @@ final class MinutesAuditQuery {
                 'type_key'       => self::rowTypeKey( $a ),
                 'minutes'        => $minutes,
                 'on_squad'       => $on_squad,
+                // #4101 — marked unavailable for this game (not Present in
+                // match prep or on the register) and no minutes recorded.
+                // The state only: no reason or injury detail leaves here.
+                'unavailable'    => $unavailable,
                 'total_minutes'     => $row_total,
                 // #4058 — what the match holds, so the verdict can be
                 // explained. 0 on a tournament roll-up, which is not judged
@@ -482,7 +503,7 @@ final class MinutesAuditQuery {
      * honestly so: there are no recorded minutes anywhere for it.
      *
      * @param array<int,object> $activities
-     * @return array<int,array{squad:array<int,bool>, minutes:array<int,int>}>
+     * @return array<int,array{squad:array<int,bool>, unavailable:array<int,bool>, minutes:array<int,int>}>
      */
     private function fixtureRollups( array $activities ): array {
         global $wpdb;
@@ -527,17 +548,10 @@ final class MinutesAuditQuery {
         $in_a = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
         // Same two reads the matrix makes for an ordinary match, so a
-        // rolled-up minute is the same minute the fixture's own row shows.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $squad_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT activity_id, player_id
-               FROM {$p}tt_attendance
-              WHERE activity_id IN ($in_a)
-                AND club_id = %d
-                AND is_guest = 0
-                AND player_id > 0",
-            array_merge( $ids, [ $club_id ] )
-        ) );
+        // rolled-up minute is the same minute the fixture's own row shows,
+        // and a player unavailable for a fixture is left out of the day's
+        // squad the same way (#4101).
+        $squad_marks = $this->squadMarks( $ids );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $minute_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
@@ -552,11 +566,7 @@ final class MinutesAuditQuery {
             array_merge( $ids, [ $club_id ] )
         ) );
 
-        $squad_by_fixture   = [];
         $minutes_by_fixture = [];
-        foreach ( (array) $squad_rows as $row ) {
-            $squad_by_fixture[ (int) $row->activity_id ][ (int) $row->player_id ] = true;
-        }
         foreach ( (array) $minute_rows as $row ) {
             $aid = (int) $row->activity_id;
             $pid = (int) $row->player_id;
@@ -565,21 +575,131 @@ final class MinutesAuditQuery {
 
         $out = [];
         foreach ( $days as $day_id => $tournament_id ) {
-            $squad   = [];
-            $minutes = [];
+            $squad       = [];
+            $unavailable = [];
+            $minutes     = [];
             foreach ( $fixtures[ $tournament_id ] ?? [] as $fixture_id ) {
-                foreach ( array_keys( $squad_by_fixture[ $fixture_id ] ?? [] ) as $pid ) {
-                    $squad[ (int) $pid ] = true;
+                foreach ( $squad_marks[ $fixture_id ] ?? [] as $pid => $is_unavailable ) {
+                    if ( $is_unavailable ) {
+                        $unavailable[ (int) $pid ] = true;
+                    } else {
+                        $squad[ (int) $pid ] = true;
+                    }
                 }
                 foreach ( $minutes_by_fixture[ $fixture_id ] ?? [] as $pid => $mins ) {
                     $squad[ (int) $pid ]   = true;
                     $minutes[ (int) $pid ] = ( $minutes[ (int) $pid ] ?? 0 ) + (int) $mins;
                 }
             }
-            if ( $squad === [] && $minutes === [] ) continue;
-            $out[ $day_id ] = [ 'squad' => $squad, 'minutes' => $minutes ];
+            // On the day's squad for any fixture wins over unavailable for
+            // another: the player was there for part of the afternoon.
+            $unavailable = array_diff_key( $unavailable, $squad );
+            if ( $squad === [] && $minutes === [] && $unavailable === [] ) continue;
+            $out[ $day_id ] = [ 'squad' => $squad, 'unavailable' => $unavailable, 'minutes' => $minutes ];
         }
         return $out;
+    }
+
+    /**
+     * #4101 — every player with a non-guest attendance row on each activity,
+     * and whether they are marked unavailable for it.
+     *
+     * Unavailable is read from two places, either of which is enough:
+     *
+     *  - the match prep's availability for the player, when it is anything
+     *    other than Present (match prep writes an attendance row for every
+     *    player in its availability set, available or not);
+     *  - the player's attendance status: the recorded register when there is
+     *    one, the plan otherwise, since the register is what happened.
+     *
+     * Recorded minutes are not consulted here; the caller lets them win.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, array<int, bool>> activity id => [ player id => unavailable ]
+     */
+    private function squadMarks( array $activity_ids ): array {
+        if ( $activity_ids === [] ) return [];
+
+        global $wpdb;
+        $p      = $wpdb->prefix;
+        $in     = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        $params = array_merge( $activity_ids, [ (int) CurrentClub::id() ] );
+
+        // Both kinds on purpose: a planned row is how a player joins a
+        // game's selection, a recorded one says whether they turned up.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT activity_id, player_id, record_type, status
+               FROM {$p}tt_attendance
+              WHERE activity_id IN ($in)
+                AND club_id = %d
+                AND is_guest = 0
+                AND player_id > 0",
+            $params
+        ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $prep_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT mp.activity_id, av.player_id, av.status
+               FROM {$p}tt_match_prep_availability av
+               JOIN {$p}tt_match_prep mp ON mp.id = av.match_prep_id AND mp.club_id = av.club_id
+              WHERE mp.activity_id IN ($in)
+                AND av.club_id = %d",
+            $params
+        ) );
+
+        $prep = [];
+        foreach ( (array) $prep_rows as $r ) {
+            $prep[ (int) $r->activity_id ][ (int) $r->player_id ] = (string) ( $r->status ?? '' );
+        }
+
+        // activity => player => [ 'actual' => statuses, 'planned' => statuses ]
+        $statuses = [];
+        foreach ( (array) $rows as $r ) {
+            $aid  = (int) $r->activity_id;
+            $pid  = (int) $r->player_id;
+            $kind = (string) ( $r->record_type ?? '' ) === 'actual' ? 'actual' : 'planned';
+            if ( $pid <= 0 ) continue;
+            $statuses[ $aid ][ $pid ][ $kind ][] = (string) ( $r->status ?? '' );
+        }
+
+        $out = [];
+        foreach ( $statuses as $aid => $players ) {
+            foreach ( $players as $pid => $kinds ) {
+                $out[ $aid ][ $pid ] = self::isMarkedUnavailable(
+                    $prep[ $aid ][ $pid ] ?? null,
+                    $kinds['actual'] ?? $kinds['planned'] ?? []
+                );
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * #4101 — is a player marked unavailable for one game?
+     *
+     * Yes when the match prep's availability is anything but Present, or
+     * when none of their attendance statuses (one kind: the register, or the
+     * plan when there is no register) is a turn-up. The rule is "not
+     * Present" rather than a list of absences, so a status the vocabulary
+     * gains later is covered here without an edit. Late is a turn-up, as in
+     * the attendance one-rule (#4041). An empty status is the column's
+     * default, Present.
+     *
+     * @param list<string> $attendance_statuses
+     */
+    public static function isMarkedUnavailable( ?string $prep_status, array $attendance_statuses ): bool {
+        if ( $prep_status !== null && trim( $prep_status ) !== ''
+            && AttendanceStatus::normalise( $prep_status ) !== AttendanceStatus::PRESENT ) {
+            return true;
+        }
+        if ( $attendance_statuses === [] ) return false;
+
+        foreach ( $attendance_statuses as $status ) {
+            if ( trim( $status ) === '' ) return false;
+            $canonical = AttendanceStatus::normalise( $status );
+            if ( $canonical === AttendanceStatus::PRESENT || $canonical === AttendanceStatus::LATE ) return false;
+        }
+        return true;
     }
 
     /**

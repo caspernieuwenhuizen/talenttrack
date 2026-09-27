@@ -22,7 +22,7 @@ Academy-wide basics that affect how dates and the calendar read across TalentTra
 | **Locale** | Default language for date and number formatting. Only installed languages are listed. |
 | **Tile width (px)** | Exact dashboard tile column width in pixels (140–400). An explicit override that **wins over** the size preset and the % tile scale for width; leave blank to use the preset + scale. |
 | **Tile icon size (px)** | Exact tile icon glyph size in pixels (14–64); the icon chip scales around it. Leave blank to use the preset / % scale sizing. |
-| **Attendance — Attendance at-risk threshold** | How many **missed** activities (absent, excused or injured) flag a player as at risk. One number between 1 and 50, read by the player attendance report, the attendance leaderboard and the daily attendance-flag notification. Default 3. |
+| **Attendance — Attendance at-risk threshold** | How many **missed** activities (absent, excused, injured or suspended) flag a player as at risk. One number between 1 and 50, read by the player attendance report, the attendance leaderboard and the daily attendance-flag notification. Default 3. |
 | **Attendance — Lateness at-risk threshold** | How many **late arrivals** flag a player as at risk, counted separately because a late player was still at the session. Leave it blank to follow the attendance threshold above — the field shows that inherited number as its placeholder, and saving it blank keeps the two on one number. |
 | **Email sender — Sender name** | The name plugin emails are sent from. Blank = the WordPress default sender name. |
 | **Email sender — Sender address** | The address plugin emails are sent from. Must be a valid email; blank or invalid falls back to the WordPress default. |
@@ -49,7 +49,7 @@ The date notation applies wherever a **full date** is shown — player profiles,
 
 The **Attendance** group holds the two numbers that decide when a player is
 flagged as at risk. They are separate counts, because the two problems are
-different: *missed* activities (absent, excused or injured) and *late* arrivals.
+different: *missed* activities (absent, excused, injured or suspended) and *late* arrivals.
 A player who turns up late was at the activity, so lateness never lowers the
 attendance percentage — it flags on its own count instead.
 

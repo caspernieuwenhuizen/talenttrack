@@ -10,6 +10,7 @@ use TT\Modules\MatchAnalysis\MatchAnalysisEnums;
 use TT\Modules\MatchAnalysis\Repositories\MatchAnalysisRepository;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Shared\Util\PlayerShortName;
 
 /**
@@ -164,7 +165,7 @@ final class MatchAnalysisComposer {
         // absent entirely, and the column may not be set on an old row.
         $prep_columns = $prep ? get_object_vars( $prep ) : [];
         $half_length  = (int) ( $prep_columns['half_length_minutes'] ?? 0 );
-        if ( $half_length <= 0 ) $half_length = 35;
+        if ( $half_length <= 0 ) $half_length = MatchLengthResolver::FALLBACK_HALF_MINUTES;
 
         $ids = [];
         foreach ( $events as $ge ) {

@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
  * MatchPrepPrintableRenderer (#1059) — shared body renderer for the
@@ -136,7 +137,7 @@ final class MatchPrepPrintableRenderer {
         foreach ( $repo->listRoles( $prep_id ) as $r ) {
             $roles_by_key[ (string) $r->role_key ] = (int) $r->player_id;
         }
-        $half_length = (int) ( $prep->half_length_minutes ?? 35 );
+        $half_length = (int) ( $prep->half_length_minutes ?? MatchLengthResolver::FALLBACK_HALF_MINUTES );
 
         // #3574 — the same layout the prep screen and the live sheet draw:
         // the template's own geometry (#2099), its shape, the team's football

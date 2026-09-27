@@ -75,7 +75,7 @@
     (function () {
         var availObj = bootstrap.availability || {};
         Object.keys(availObj).forEach(function (pid) {
-            state.availability[String(pid)] = availObj[pid];
+            state.availability[String(pid)] = normaliseAvailability(availObj[pid]);
         });
         ['1', '2'].forEach(function (half) {
             var src = (bootstrap.lineup || {})[half] || {};
@@ -96,6 +96,29 @@
     // ---------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------
+
+    /*
+     * The drawer writes the real attendance status (Absent, Injured,
+     * Suspended) to the availability row. Rows saved before that carried
+     * `Absent` with the chip folded into `reason` ("Injured" / "Excused");
+     * read those back as the chip they came from, so a reload selects it.
+     */
+    function normaliseAvailability(entry) {
+        var e = entry || {};
+        var status = String(e.status || '');
+        var reason = String(e.reason || '');
+        if (status.toLowerCase() === 'absent' && reason === 'Injured') {
+            status = 'Injured';
+            reason = '';
+        } else if (status.toLowerCase() === 'absent' && reason === 'Excused') {
+            reason = '';
+        }
+        return { status: status, reason: reason };
+    }
+
+    function isUnavailableStatus(status) {
+        return status !== '' && String(status).toLowerCase() !== 'present';
+    }
 
     function $(sel, ctx) { return (ctx || root).querySelector(sel); }
     function $$(sel, ctx) { return Array.prototype.slice.call((ctx || root).querySelectorAll(sel)); }
@@ -901,13 +924,11 @@
         payload.availability = {};
         Object.keys(state.availability).forEach(function (pid) {
             var entry = state.availability[pid] || {};
-            // Server normalises sub into reason for the legacy availability
-            // row; the substatus is held in state.availability[pid].sub so
-            // the drawer can re-render after a reload doesn't matter here —
-            // pilot uses one drawer session per page load.
+            // The real status, so Injured and Suspended survive a reload and
+            // every reader sees them; `reason` is only the coach's own note.
             payload.availability[pid] = {
-                status: entry.status === 'Absent' ? 'Absent' : 'Present',
-                reason: String(entry.reason || (entry.sub || ''))
+                status: String(entry.status || '') || 'Present',
+                reason: String(entry.reason || '')
             };
         });
         // The availability drawer writes the full record with an extra
@@ -917,23 +938,33 @@
         saver.send({ method: 'PUT', url: baseUrl + state.activityId, body: payload });
     }
 
+    // One chip per availability status. `matches` are the stored statuses
+    // (lower case) that select it: an Excused row written by the match-prep
+    // wizard lights the excused chip rather than none.
+    var DRAWER_CHIPS = [
+        { set: 'Present',   matches: ['present'],           cls: '',                      key: 'present',        fallback: 'Present' },
+        { set: 'Absent',    matches: ['absent', 'excused'], cls: 'tt-mp-chip-excused',    key: 'absent_excused', fallback: 'Absent (excused)' },
+        { set: 'Injured',   matches: ['injured'],           cls: 'tt-mp-chip-injured',    key: 'absent_injured', fallback: 'Injured' },
+        { set: 'Suspended', matches: ['suspended'],         cls: 'tt-mp-chip-suspended',  key: 'suspended',      fallback: 'Suspended' }
+    ];
+
     function renderDrawer() {
         var body = $('[data-tt-mp-drawer-body]');
         if (!body) return;
         body.innerHTML = state.players.map(function (p) {
             var pidStr = String(p.id);
-            var a = state.availability[pidStr] || { status: '', sub: '', reason: '' };
-            var isPresent = a.status === 'Present';
-            var isAbsent = a.status === 'Absent';
-            var sub = a.sub || '';
+            var a = state.availability[pidStr] || { status: '', reason: '' };
+            var status = String(a.status || '').toLowerCase();
+            var chips = DRAWER_CHIPS.map(function (chip) {
+                var on = chip.matches.indexOf(status) >= 0;
+                return '<button type="button" class="tt-mp-chip ' + chip.cls + (on ? ' tt-mp-on' : '') + '"'
+                    + ' data-set="' + chip.set + '" aria-pressed="' + (on ? 'true' : 'false') + '">'
+                    + escapeHtml(i18n(chip.key, chip.fallback)) + '</button>';
+            }).join('');
             return '<div class="tt-mp-drawer-row" data-pid="' + p.id + '">'
                 + '<div class="tt-mp-drawer-name">' + escapeHtml(p.name) + '</div>'
-                + '<div class="tt-mp-chips">'
-                +   '<button type="button" class="tt-mp-chip ' + (isPresent ? 'tt-mp-on' : '') + '" data-set="Present">' + escapeHtml(i18n('present', 'Present')) + '</button>'
-                +   '<button type="button" class="tt-mp-chip tt-mp-chip-excused ' + (isAbsent && sub === 'Excused' ? 'tt-mp-on' : '') + '" data-set="Absent" data-sub="Excused">' + escapeHtml(i18n('absent_excused', 'Absent (excused)')) + '</button>'
-                +   '<button type="button" class="tt-mp-chip tt-mp-chip-injured ' + (isAbsent && sub === 'Injured' ? 'tt-mp-on' : '') + '" data-set="Absent" data-sub="Injured">' + escapeHtml(i18n('absent_injured', 'Injured')) + '</button>'
-                + '</div>'
-                + (isAbsent ? '<div class="tt-mp-drawer-reason"><input type="text" data-tt-mp-reason="' + p.id + '" value="' + escapeHtml(a.reason || '') + '" placeholder="' + escapeHtml(i18n('reason', 'Reason (optional)…')) + '"></div>' : '')
+                + '<div class="tt-mp-chips">' + chips + '</div>'
+                + (isUnavailableStatus(status) ? '<div class="tt-mp-drawer-reason"><input type="text" data-tt-mp-reason="' + p.id + '" value="' + escapeHtml(a.reason || '') + '" placeholder="' + escapeHtml(i18n('reason', 'Reason (optional)…')) + '"></div>' : '')
                 + '</div>';
         }).join('');
         $$('.tt-mp-chip', body).forEach(function (c) {
@@ -941,16 +972,17 @@
                 var row = c.closest('.tt-mp-drawer-row');
                 var pid = String(row.getAttribute('data-pid'));
                 var set = c.getAttribute('data-set');
-                var sub = c.getAttribute('data-sub') || '';
                 var cur = state.availability[pid] || {};
-                if (cur.status === set && (cur.sub || '') === sub) {
+                var chip = DRAWER_CHIPS.filter(function (x) { return x.set === set; })[0];
+                var curStatus = String(cur.status || '').toLowerCase();
+                if (chip && chip.matches.indexOf(curStatus) >= 0) {
                     // Toggle off — return to unset
                     delete state.availability[pid];
                 } else {
-                    state.availability[pid] = { status: set, sub: sub, reason: cur.reason || '' };
+                    state.availability[pid] = { status: set, reason: cur.reason || '' };
                 }
-                // Absent → pull out of lineup + roles
-                if (set === 'Absent') {
+                // Not available → pull out of lineup + roles
+                if (isUnavailableStatus(set)) {
                     [1, 2].forEach(function (half) {
                         state.lineup[String(half)].forEach(function (p2, s) {
                             if (p2 === parseInt(pid, 10)) state.lineup[String(half)].delete(s);
@@ -1005,7 +1037,7 @@
     if (markAll) {
         markAll.addEventListener('click', function () {
             state.players.forEach(function (p) {
-                state.availability[String(p.id)] = { status: 'Present', sub: '', reason: '' };
+                state.availability[String(p.id)] = { status: 'Present', reason: '' };
             });
             markDirty();
             renderDrawer();

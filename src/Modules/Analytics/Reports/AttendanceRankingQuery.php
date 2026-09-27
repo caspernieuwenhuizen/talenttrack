@@ -58,7 +58,7 @@ final class AttendanceRankingQuery {
      * @return list<array{
      *     player_id:int, first_name:string, last_name:string, team_name:string,
      *     activities:int, total:int,
-     *     present:int, late:int, absent:int, excused:int, injured:int,
+     *     present:int, late:int, absent:int, excused:int, injured:int, suspended:int,
      *     present_pct:?float, missed:int, flagged:bool, flag_reasons:list<string>
      * }>
      */
@@ -144,6 +144,7 @@ final class AttendanceRankingQuery {
                 'absent'      => (int) ( $r->absent ?? 0 ),
                 'excused'     => (int) ( $r->excused ?? 0 ),
                 'injured'     => (int) ( $r->injured ?? 0 ),
+                'suspended'   => (int) ( $r->suspended ?? 0 ),
                 'present_pct' => AttendanceFlagService::presentPct( $attended, $total ),
                 'missed'      => $missed,
                 'flagged'     => $reasons !== [],
@@ -165,7 +166,7 @@ final class AttendanceRankingQuery {
      * @param list<int>|null $allowed_team_ids null = unrestricted
      * @return list<array{
      *     team_id:int, team_name:string, activities:int, total:int,
-     *     present:int, late:int, absent:int, excused:int, injured:int,
+     *     present:int, late:int, absent:int, excused:int, injured:int, suspended:int,
      *     present_pct:?float
      * }>
      */
@@ -220,6 +221,7 @@ final class AttendanceRankingQuery {
                 'absent'      => (int) ( $r->absent ?? 0 ),
                 'excused'     => (int) ( $r->excused ?? 0 ),
                 'injured'     => (int) ( $r->injured ?? 0 ),
+                'suspended'   => (int) ( $r->suspended ?? 0 ),
                 'present_pct' => AttendanceFlagService::presentPct( AttendanceFlagService::attended( $r ), $total ),
             ];
         }

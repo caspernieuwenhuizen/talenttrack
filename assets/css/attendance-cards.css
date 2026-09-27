@@ -69,6 +69,7 @@
 .tt-att-card[data-tt-att-status="absent"]  { border-color: #fca5a5; box-shadow: 0 0 0 1px #fca5a5 inset; }
 .tt-att-card[data-tt-att-status="excused"] { border-color: #93c5fd; box-shadow: 0 0 0 1px #93c5fd inset; }
 .tt-att-card[data-tt-att-status="injured"] { border-color: #c4b5fd; box-shadow: 0 0 0 1px #c4b5fd inset; }
+.tt-att-card[data-tt-att-status="suspended"] { border-color: var(--tt-warning-ink); box-shadow: 0 0 0 1px var(--tt-warning-ink) inset; }
 
 /* ===== Card head ===== */
 
@@ -119,6 +120,7 @@
 .tt-att-badge-absent  { background: #dc2626; }
 .tt-att-badge-excused { background: #0284c7; }
 .tt-att-badge-injured { background: #7c3aed; }
+.tt-att-badge-suspended { background: var(--tt-warning-ink); }
 
 .tt-att-badge[hidden] { display: none; }
 
@@ -160,7 +162,8 @@
    (neutral) to keep the default unremarkable. */
 .tt-att-card[data-tt-att-status="absent"]  .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active,
 .tt-att-card[data-tt-att-status="excused"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active,
-.tt-att-card[data-tt-att-status="injured"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active {
+.tt-att-card[data-tt-att-status="injured"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active,
+.tt-att-card[data-tt-att-status="suspended"] .tt-att-toggle-btn[data-tt-att-toggle="absent"].is-active {
     background: #fef2f2;
     color: #991b1b;
 }
@@ -272,6 +275,13 @@
     background: #f5f3ff;
     border-color: #c4b5fd;
     color: #5b21b6;
+    font-weight: 600;
+}
+
+.tt-att-reason-btn.is-active[data-tt-att-reason="suspended"] {
+    background: var(--tt-warning-subtle);
+    border-color: var(--tt-warning-ink);
+    color: var(--tt-warning-ink);
     font-weight: 600;
 }
 

@@ -104,12 +104,19 @@ final class MinutesShareQuery {
         ) );
         $rows = is_array( $rows ) ? $rows : [];
 
+        // #4087 — the prep's period length times the periods the match was
+        // played in, as the minutes report counts it: a quarters match is
+        // four periods, not two halves.
+        $periods  = MinutesQuery::periodCountsFor(
+            array_map( static fn( $r ): int => (int) $r->id, $rows )
+        );
         $resolver = new MatchLengthResolver();
         $minutes  = 0;
         foreach ( $rows as $r ) {
             $minutes += $resolver->playedMatchMinutes(
                 (int) $r->id,
-                (int) $r->half_length_minutes
+                (int) $r->half_length_minutes,
+                $periods[ (int) $r->id ] ?? 2
             );
         }
 

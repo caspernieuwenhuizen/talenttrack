@@ -15,6 +15,7 @@ use TT\Modules\MatchExecution\Repositories\TrackedEventsRepository;
 use TT\Modules\MatchExecution\Services\MatchEventFeedService;
 use TT\Modules\MatchExecution\Services\PitchLayoutService;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 
 /**
@@ -1589,10 +1590,10 @@ class MatchExecutionRestController {
         $prep_repo = new MatchPrepRepository();
         $prep      = $prep_repo->findByActivity( $activity_id );
         if ( ! $prep ) {
-            return [ 35, [], [] ];
+            return [ MatchLengthResolver::FALLBACK_HALF_MINUTES, [], [] ];
         }
         $half_length = (int) $prep->half_length_minutes;
-        if ( $half_length <= 0 ) $half_length = 35;
+        if ( $half_length <= 0 ) $half_length = MatchLengthResolver::FALLBACK_HALF_MINUTES;
 
         $xi_half1 = [];
         $xi_half2 = [];

@@ -30,7 +30,9 @@ built for a desktop or laptop; on a phone the guided wizard is the easier path.
  period, oldest on the left. The columns grow as the season goes on; the
  period filter decides how many you see.
 - **Each cell is a status.** Pick one from the dropdown:
- - **Present**, **Late**, **Absent**, **Excused**, **Injured**.
+ - **Present**, **Late**, **Absent**, **Excused**, **Injured**, **Suspended**.
+ - **Suspended** is for a player serving a suspension. Like Injured, it does
+   not count against the player's attendance score on their status light.
  - The cell shows a short letter; the dropdown shows the full word.
 - The **Present %** column on the right is a quick read of how often each
  player attended in the shown period.
@@ -74,8 +76,8 @@ the grid refuses those cells on a future activity. It saves everything else,
 outlines the refused cells in red, and the save bar says how many weren't
 saved and why.
 
-You *can* record an **absence** in advance: **Absent**, **Excused** or
-**Injured** for a player you already know won't be there next week. The grid
+You *can* record an **absence** in advance: **Absent**, **Excused**,
+**Injured** or **Suspended** for a player you already know won't be there next week. The grid
 shows upcoming activities only when they already carry such a mark, so it can
 be seen and cleared. An upcoming session with nothing recorded on it doesn't
 appear yet. To plan who is coming, use the planned squad on the activity

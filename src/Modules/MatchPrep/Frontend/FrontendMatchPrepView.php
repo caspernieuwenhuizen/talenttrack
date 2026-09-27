@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\MatchPrep\Services\MatchPrepState;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -241,7 +242,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
         parent::enqueueAssets();
         self::enqueueViewAssets( $prep_id, $activity_id );
 
-        $half_length = (int) ( $prep->half_length_minutes ?? 35 );
+        $half_length = (int) ( $prep->half_length_minutes ?? MatchLengthResolver::FALLBACK_HALF_MINUTES );
 
         // #3682 — the activity carries its own match length (#1726) and
         // nothing syncs the two. A new prep is seeded from it; an existing
@@ -854,6 +855,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'present'         => __( 'Present', 'talenttrack' ),
                 'absent_excused'  => __( 'Absent (excused)', 'talenttrack' ),
                 'absent_injured'  => __( 'Injured', 'talenttrack' ),
+                'suspended'       => __( 'Suspended', 'talenttrack' ),
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),

@@ -30,7 +30,8 @@ van die wedstrijd.
  niemands aandeel zakt op de ochtend van een wedstrijd.
 - **Eigen duur** wordt op elk minutenrapport op dezelfde manier bepaald — het
  minutenrapport, de minutencontrole en dit rapport — zodat ze het over een
- wedstrijd altijd eens zijn: de helftduur op de wedstrijdvoorbereiding als die
+ wedstrijd altijd eens zijn: de periodeduur op de wedstrijdvoorbereiding maal
+ het aantal periodes waarin gespeeld is (twee helften of vier kwarten) als die
  is ingevuld, anders de wedstrijdduur op de activiteit, anders de standaard
  voor de leeftijdscategorie van het team, anders de geplande tijd van begin
  tot eind, anders 35 minuten per helft. Een O9-team met helften van 30 minuten

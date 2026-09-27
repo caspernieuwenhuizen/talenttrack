@@ -19,7 +19,7 @@ each set piece.
 Open it from a match-type activity's detail page; the URL is
 `?tt_view=match-prep&activity_id=<id>`. The first time you open it for
 a given match the **Availability wizard** runs first so the roster gets
-the Present / Absent / Injured chips it needs.
+the Present / Absent / Injured / Suspended chips it needs.
 
 ## Layout
 
@@ -116,11 +116,15 @@ automatically, so the role pane never points at an unavailable player.
 ## Availability drawer
 
 Click **Availability** in the toolbar to slide in the drawer with
-three chips per player: **Present**, **Absent (excused)**, **Injured**.
-Add an optional reason for absences. **Mark all present** is the
-shortcut for "the whole roster is here today." Closing the drawer
-saves; marking anyone Absent pulls them out of every lineup slot and
-role row.
+four chips per player: **Present**, **Absent (excused)**, **Injured**,
+**Suspended**. Add an optional reason for absences. **Mark all present**
+is the shortcut for "the whole roster is here today." Closing the drawer
+saves; marking anyone anything other than Present pulls them out of
+every lineup slot and role row. The chip you picked is what is stored,
+so after a reload the same chip is still selected, and Injured and
+Suspended reach the rest of the app as themselves: a suspended player
+does not count against their attendance score, and the minutes audit
+shows them as unavailable rather than as missing minutes.
 
 When the match activity has a **planned roster** (the expected players
 you picked when creating it), the availability step starts from that
