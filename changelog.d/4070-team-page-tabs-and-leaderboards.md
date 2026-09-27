@@ -1,3 +1,0 @@
-# Team page: tabs span the page, Statistics uses the full width, leaderboard rows line up (#4070)
-
-On desktop the team page's Overview / Statistics tab strip now runs the full width under the action row instead of sitting in the left column, and the Statistics tab no longer leaves the left third of the page blank. In the top scorers, assists and appearances tables each player's name and figure sit level on one row, the stripe covers the whole row, and names use the standard record-link style. The rows keep a 48px touch target, and on a phone they stay a table rather than turning into one card per player.

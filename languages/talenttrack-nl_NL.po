@@ -66695,6 +66695,318 @@ msgstr ""
 msgid "Could not open the match for recording:"
 msgstr "Kon de wedstrijd niet openen om vast te leggen:"
 
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Exceptional"
+msgstr "Uitzonderlijk"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Ahead of age group"
+msgstr "Voorloper"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "On track"
+msgstr "Op koers"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Needs time"
+msgstr "Heeft tijd nodig"
+
+#: src/Modules/Players/Services/PotentialTrajectory.php
+msgctxt "potential band"
+msgid "Below academy level"
+msgstr "Onder academieniveau"
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Where this player stands against their age group and the academy pathway. Read the bands below before choosing."
+msgstr "Waar deze speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie. Lees de bands hieronder voordat je kiest."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Where this player stands against their age group and the academy pathway."
+msgstr "Waar deze speler staat ten opzichte van zijn leeftijdsgroep en de opleidingslijn van de academie."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Well beyond their age group; a candidate to play a year up."
+msgstr "Ver voorbij zijn leeftijdsgroep; een kandidaat om een jaar hoger te spelen."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Ahead of what the pathway expects at this age."
+msgstr "Verder dan de opleidingslijn op deze leeftijd verwacht."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Where the pathway expects a player of this age to be."
+msgstr "Waar de opleidingslijn een speler van deze leeftijd verwacht."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Behind their age group for now, with good reason to give them time."
+msgstr "Voorlopig achter op zijn leeftijdsgroep, met goede reden om hem tijd te geven."
+
+#: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php
+msgid "Below the level the academy works at for this age group."
+msgstr "Onder het niveau waarop de academie voor deze leeftijdsgroep werkt."
+
+#: src/Modules/Analytics/Frontend/FrontendPotentialOverviewView.php
+#, php-format
+msgid "%d player was skipped because they are outside this scope."
+msgid_plural "%d players were skipped because they are outside this scope."
+msgstr[0] "%d speler is overgeslagen omdat die buiten dit bereik valt."
+msgstr[1] "%d spelers zijn overgeslagen omdat die buiten dit bereik vallen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Exceptional … Below academy level, against the age group. Rename a band here; its order and score stay fixed."
+msgstr "Uitzonderlijk … Onder academieniveau, ten opzichte van de leeftijdsgroep. Hernoem hier een band; volgorde en score blijven vast."
+
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Admittance letter sent"
+msgstr "Toelatingsbrief verstuurd"
+
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Player added to a team"
+msgstr "Speler aan een team toegevoegd"
+
+#: src/Modules/Trials/Services/TrialCaseChecklistService.php
+msgid "Guardian contact collected"
+msgstr "Contact met ouder of verzorger vastgelegd"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgctxt "trial case checklist card title"
+msgid "Follow-up"
+msgstr "Opvolging"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Who does this: %s"
+msgstr "Wie pakt dit op: %s"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Mark as not done"
+msgstr "Markeren als niet gedaan"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Mark as done"
+msgstr "Markeren als gedaan"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Who does this"
+msgstr "Wie pakt dit op"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Save who does this"
+msgstr "Opslaan wie dit oppakt"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Not done yet."
+msgstr "Nog niet gedaan."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Ticked itself on %s."
+msgstr "Vinkte zichzelf aan op %s."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Done on %1$s by %2$s."
+msgstr "Gedaan op %1$s door %2$s."
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+#, php-format
+msgid "Done on %s."
+msgstr "Gedaan op %s."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "This case has no such follow-up item."
+msgstr "Dit dossier heeft zo'n opvolgstap niet."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That account is not a staff member of this academy."
+msgstr "Dat account is geen staflid van deze academie."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "Send done, an assignee, or both."
+msgstr "Stuur done, iemand die het oppakt, of allebei."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That staff member has no login, so they cannot be named on an item."
+msgstr "Dat staflid heeft geen login en kan dus niet bij een stap worden genoemd."
+
+#: src/Modules/Trials/Rest/TrialCaseChecklistRestController.php
+msgid "That person is not a staff member of this academy."
+msgstr "Die persoon is geen staflid van deze academie."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#: src/Shared/Frontend/Components/EvidencePanel.php
+msgctxt "attendance count: present or late"
+msgid "Attended"
+msgstr "Opgekomen"
+
+#. translators: 1: players who attended (present or late), 2: roster size, 3: percentage 0-100
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%1$d / %2$d attended (%3$d%%)"
+msgstr "%1$d / %2$d opgekomen (%3$d%%)"
+
+#: src/Infrastructure/REST/StaffRestController.php
+msgid "Type at least two characters of the name."
+msgstr "Typ minstens twee tekens van de naam."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "This person has no account, so they couldn't give an input."
+msgstr "Deze persoon heeft geen account en kan dus geen input geven."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "That person is not a staff member of this club."
+msgstr "Die persoon is geen staflid van deze club."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "person_id and user_id name different people. Send person_id only."
+msgstr "person_id en user_id wijzen verschillende mensen aan. Stuur alleen person_id."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "Say who to put on the panel: person_id is required."
+msgstr "Geef aan wie in het panel moet: person_id is verplicht."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "home match, one letter"
+msgid "H"
+msgstr "T"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "away match, one letter"
+msgid "A"
+msgstr "U"
+
+#. translators: 1: the letter for a home match, 2: the letter for an away match
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$s = home · %2$s = away"
+msgstr "%1$s = thuis · %2$s = uit"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "goals, one-letter column heading"
+msgid "G"
+msgstr "G"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "assists, one-letter column heading"
+msgid "A"
+msgstr "A"
+
+#. translators: 1: goals with a scorer entered, 2: goals scored in the record
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$d of %2$d goal attributed."
+msgid_plural "%1$d of %2$d goals attributed."
+msgstr[0] "%1$d van %2$d doelpunt toegeschreven."
+msgstr[1] "%1$d van %2$d doelpunten toegeschreven."
+
+#. translators: 1: change of the squad average, e.g. "−4 s", 2: month of the previous test round
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "squad average against the previous test round"
+msgid "%1$s vs %2$s"
+msgstr "%1$s t.o.v. %2$s"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "best test reading"
+msgid "Best"
+msgstr "Beste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "highest test reading"
+msgid "Highest"
+msgstr "Hoogste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "lowest test reading"
+msgid "Lowest"
+msgstr "Laagste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "worst reading on a timed test"
+msgid "Slowest"
+msgstr "Langzaamste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Better · worse · same · first"
+msgstr "Beter · slechter · gelijk · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Better · worse · first"
+msgstr "Beter · slechter · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Rose · fell · same · first"
+msgstr "Hoger · lager · gelijk · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Rose · fell · first"
+msgstr "Hoger · lager · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "against their own previous reading"
+msgstr "t.o.v. eigen vorige meting"
+
+#. translators: %s: age group, e.g. "U14"
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "On target (%s)"
+msgstr "Op niveau (%s)"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Squad average per round"
+msgstr "Teamgemiddelde per ronde"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "monthly report tests column: difference to the squad average"
+msgid "vs avg."
+msgstr "t.o.v. gem."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "personal best, short tag"
+msgid "PB"
+msgstr "PR"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "a first test reading, nothing to compare with"
+msgid "first"
+msgstr "eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "PB = personal best"
+msgstr "PR = persoonlijk record"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Dashed line = squad average"
+msgstr "Stippellijn = teamgemiddelde"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid ""
+"Fits by shortening: each test prints its summary without the table of "
+"readings, and the agenda keeps its two most urgent players."
+msgstr ""
+"Past door in te korten: elke test drukt alleen zijn samenvatting af, zonder "
+"de tabel met uitslagen, en de agenda houdt de twee dringendste spelers."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid ""
+"Fits by shortening: each test prints its summary without the table of "
+"readings."
+msgstr ""
+"Past door in te korten: elke test drukt alleen zijn samenvatting af, zonder "
+"de tabel met uitslagen."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Correct the minutes afterwards"
+msgstr "Minuten achteraf corrigeren"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Goals scored at a tournament still count in the scorers table, but not against the record."
+msgstr "Doelpunten op een toernooi tellen wel mee in de tabel met doelpuntenmakers, maar niet in de stand."
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
