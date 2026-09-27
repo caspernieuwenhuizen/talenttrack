@@ -67007,6 +67007,120 @@ msgstr "Minuten achteraf corrigeren"
 msgid "Goals scored at a tournament still count in the scorers table, but not against the record."
 msgstr "Doelpunten op een toernooi tellen wel mee in de tabel met doelpuntenmakers, maar niet in de stand."
 
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "Pack (up to four pages)"
+msgstr "Pakket (tot vier pagina's)"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "A4 portrait, up to four pages. Room for the player-by-player table and every test reading."
+msgstr "A4 staand, tot vier pagina's. Ruimte voor de tabel per speler en elke testuitslag."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Does not fit on one page. Drop a section, or switch to the pack."
+msgstr "Past niet op één pagina. Laat een sectie weg, of kies het pakket."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "A page runs over onto another sheet. Nothing is left out; drop a section to keep the pack to four pages."
+msgstr "Een pagina loopt door op een volgend vel. Er wordt niets weggelaten; laat een sectie weg om het pakket op vier pagina's te houden."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "a test target for an age group"
+msgid "Target %1$s: %2$s"
+msgstr "Doel %1$s: %2$s"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "a test target"
+msgid "Target: %s"
+msgstr "Doel: %s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgctxt "monthly report tests column: a reading against its target"
+msgid "Standing"
+msgstr "Stand"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "Needs the pack (up to four pages). Landscape prints the summary."
+msgstr "Hiervoor is het pakket nodig (tot vier pagina's). Het liggende overzicht drukt de samenvatting af."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportLayout.php
+msgid "Needs the pack (up to four pages). The one-pager prints the summary."
+msgstr "Hiervoor is het pakket nodig (tot vier pagina's). De versie van één pagina drukt de samenvatting af."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "+ %1$d more test, in the pack: %2$s"
+msgid_plural "+ %1$d more tests, in the pack: %2$s"
+msgstr[0] "+ nog %1$d test, in het pakket: %2$s"
+msgstr[1] "+ nog %1$d testen, in het pakket: %2$s"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "This report asked for “%s”, which this layout cannot print. It prints the summary; choose the pack to print the tables."
+msgstr "Dit rapport vroeg om “%s”, en dat kan deze soort niet afdrukken. De afdruk toont de samenvatting; kies het pakket om de tabellen af te drukken."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Landscape prints up to %1$d tests; %2$d are selected. The PDF names the ones it leaves out."
+msgstr "Het liggende overzicht drukt maximaal %1$d testen af; er zijn er %2$d gekozen. De pdf noemt de testen die zijn weggelaten."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%1$d of %2$d on track"
+msgstr "%1$d van %2$d op koers"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%1$d played · %2$d W %3$d D %4$d L"
+msgstr "%1$d gespeeld · %2$d W %3$d G %4$d V"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%d player · most urgent first"
+msgid_plural "%d players · most urgent first"
+msgstr[0] "%d speler · dringendste eerst"
+msgstr[1] "%d spelers · dringendste eerst"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "monthly report: entries under what changed"
+msgid "%d change"
+msgid_plural "%d changes"
+msgstr[0] "%d wijziging"
+msgstr[1] "%d wijzigingen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgctxt "monthly report data quality, section header"
+msgid "Nothing missing"
+msgstr "Niets ontbreekt"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReport.php
+msgid "%d thing to fix"
+msgid_plural "%d things to fix"
+msgstr[0] "%d punt om op te lossen"
+msgstr[1] "%d punten om op te lossen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgid "Pages %1$d–%2$d of %3$d"
+msgstr "Pagina's %1$d–%2$d van %3$d"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgid "Pages %1$d–%2$d of %3$d in the PDF"
+msgstr "Pagina's %1$d–%2$d van %3$d in de pdf"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgid "Page %1$d of %2$d in the PDF"
+msgstr "Pagina %1$d van %2$d in de pdf"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgid "Pages of the printed report"
+msgstr "Pagina's van het afgedrukte rapport"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php
+msgctxt "monthly report page switcher"
+msgid "Page"
+msgstr "Pagina"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "The report below is the printed copy: the same sections, pages and detail as the PDF."
+msgstr "Het rapport hieronder is de afdruk zelf: dezelfde secties, pagina's en details als de pdf."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid "Landscape prints it as columns of the player-by-player table"
+msgstr "Het liggende overzicht drukt dit af als kolommen van de tabel per speler"
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "

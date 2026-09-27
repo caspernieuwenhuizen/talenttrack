@@ -1,3 +1,0 @@
-# Injury availability is judged for the activity's date, not today (#4100)
-
-The *Unavailable* flag on the planned-attendance card, the planned-attendance picker, `GET /activities/{id}/planned-attendance` and the tournament squad step now asks whether the player was injured on the activity's date (the tournament's start date for the squad step), instead of whether they are injured today. A player injured this week is no longer flagged on last week's match, and a player who has since returned is still flagged on the match the injury kept them out of. An un-closed injury whose expected return had passed by that date still does not count. No injury detail leaves the service; only the state.

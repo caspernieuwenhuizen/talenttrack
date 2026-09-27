@@ -1,3 +1,111 @@
+# TalentTrack v4.137.0 — Attendance counts the activities the coach marked completed, on every surface (#4086)
+
+After #4041 every attendance percentage used the same formula, but not the
+same activities. The rolling attendance KPI, the coach's team attendance KPI,
+the player's own attendance KPI, the team overview, the team roster widget,
+the player report PDF, the KPI snapshot export and the roster-stats export
+still decided "this activity happened" from the planner's `plan_state`
+instead of the status the coach set. A training marked completed whose
+planner state was left at "scheduled" dropped out, and a planned training
+still carrying the column's default counted. They now all read the activity
+status, like the attendance reports already did. The PDP evidence packet had
+no finished-activity filter at all, so a planned activity with a pre-filled
+register counted toward the rate discussed with a family; it now counts only
+completed activities too. The two "my attendance" KPIs no longer count an
+activity the planner has marked in progress until the coach completes it.
+
+# TalentTrack v4.137.0 — A released, archived or binned player is no longer sent messages (#4088)
+
+The Comms recipient resolver stopped messaging a closed-out player's family in the previous release, but still reached the player's own account. A player who has been released, archived or moved to the recycle bin now resolves to nobody for scheduled sends, announcements, safeguarding broadcasts and every other Comms message, with no exception list. Active and trial players are reached as before. The resolver also looks the player up within the current club only, so a player id from another academy resolves to nobody.
+
+# TalentTrack v4.137.0 — Demo data announces each trial decision once (#4090)
+
+Generating the demo academy announced every seeded trial admit twice, so every listener on the trial-decision hook ran twice per admit. It now fires once, from the decision itself. The authorization matrix documentation also now describes the scout's linked-player scope correctly: a scout reads players, evaluations, media, goals and activities only for the players they are linked to.
+
+# TalentTrack v4.137.0 — Monthly report: the pack grows to a fourth page instead of shortening (#4092)
+
+The multi-page layout of the team monthly report used to drop the tests'
+readings tables, and then cut "needs a conversation" to its two most urgent
+players, when its third page ran over. It now prints everything ticked: page
+3 holds the matches, the agenda and what changed, and the tests, the ruled
+lines and data quality follow there when they fit or move, whole, to a fourth
+page when they do not. A page that still runs over continues on another sheet
+and the printed-size meter says so. The layout card reads "Pack (up to four
+pages)"; saved views and schedules keep working. The one-pager keeps its
+shortening ladder.
+
+# TalentTrack v4.137.0 — Monthly report tests show each test's target and every result's standing (#4093)
+
+The team monthly report's Tests section now shows each test's target for the
+team's age group ("Target O14: ≤ 12:30") on screen and in the PDF, and a
+Standing column with the same chip as the player profile's test register: on
+target, just over / just under target, well over / well under target. A test
+without a better or worse reads "no target" with the explanation once; a test
+with no target for the age group shows neither. The wording, colours and
+target formatting now come from one helper shared by the profile and the
+report, which also fixes the profile's target for a timed test: it reads
+`≤ 12:30` instead of decimal minutes. The data reaches REST too.
+
+# TalentTrack v4.137.0 — Monthly report: the Tests detail you pick is the one that prints (#4095)
+
+Choosing **Readings** or **Readings and change** for the tests section used to
+print only the summary on the one-pager and the landscape matrix, without a
+word on paper or in the panel. The panel now greys out an option the chosen
+report type cannot print, with the reason under it, and re-checks the options
+when you switch the type. A saved view or link that asks for readings on a
+layout that cannot hold them opens with the summary and says why. The
+landscape matrix prints up to three tests: the panel warns when more are
+selected, and the PDF names the ones it left out. One rule, in the layout
+itself, decides this for both the panel and the PDF.
+
+# TalentTrack v4.137.0 — Monthly report: numbered section headers in the club colour (#4096)
+
+Every section of the team monthly report now opens with the same header on
+screen and in the PDF: a two-digit number, the title, and a line saying what
+the section holds ("4 played · 2 W 1 D 1 L", "5 players · most urgent
+first"), on a band tinted with the club's primary colour. The numbers follow
+the ticked sections in the order the chosen layout prints them, so section 6
+is the same section on screen and on paper, and the online sections now
+appear in that print order. On paper the colour is read from the same source
+as the screen (the club colour, or the theme's), and a colour too pale to
+read on its tint gets ink numbers.
+
+# TalentTrack v4.137.0 — Monthly report: the screen shows what prints (#4097)
+
+The team monthly report's web page and its PDF were two renderers that told
+different stories. There is now one document renderer: the PDF prints it, and
+the web page shows the same markup — on a computer as the A4 sheets the PDF
+will have, marked "Page N of M", with a page switcher and Download PDF beside
+them. The same sections, order, page grouping, target chips and numbered
+headers appear on screen and on paper; player names are links on screen and
+plain text in the PDF. The fit meter reads the estimate the sheets were laid
+out from. Snapshots render through the same document, notes included, with
+the note editor under each section on screen. On the landscape matrix the
+panel now says that attendance and minutes share print as roster columns.
+
+# TalentTrack v4.137.0 — Monthly report on a phone: the printed document as cards (#4098)
+
+Below 1024px the team monthly report shows the same document the PDF prints
+as stacked cards: one card per section in print order, each opening with its
+numbered header, and each page group tagged "Page 4 of 4 in the PDF" so a
+coach knows where it lands on paper. Test readings reflow to rows (name and
+standing chip on the left, reading and change on the right, 48px rows), the
+player-by-player table becomes one labelled row per player, and nothing on
+the sheet is left out. No horizontal scrolling at 360px.
+
+# TalentTrack v4.137.0 — Monthly report: player names in the bar lists stay on one line (#4099)
+
+The Attendance and Minutes share lists on the team monthly report wrapped long
+player names onto two lines, which made those rows taller than the rest and
+broke the scan down the list. The name column now sizes to the longest name
+and never wraps, with the bar taking the rest of the width. On a phone a very
+long name is shortened with an ellipsis instead of wrapping or pushing the bar
+off screen.
+
+# TalentTrack v4.137.0 — Injury availability is judged for the activity's date, not today (#4100)
+
+The *Unavailable* flag on the planned-attendance card, the planned-attendance picker, `GET /activities/{id}/planned-attendance` and the tournament squad step now asks whether the player was injured on the activity's date (the tournament's start date for the squad step), instead of whether they are injured today. A player injured this week is no longer flagged on last week's match, and a player who has since returned is still flagged on the match the injury kept them out of. An un-closed injury whose expected return had passed by that date still does not count. No injury detail leaves the service; only the state.
+
 # TalentTrack v4.136.0 — Scout: goals and activities narrowed to linked players (#3972)
 
 A scout now reads a player's development goals and the activities that player took part in only for the players they are linked to (an active trial-case panel seat or the scout assignment list), the same footing evaluations, media and the player record already have. An unlinked player's goals answer 403 and both lists leave unlinked players out. Visit planning, prospects, test trainings and the scout card are unaffected. Migration 0291 narrows existing installs and leaves any row an academy customised.
