@@ -139,7 +139,9 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
         $this->assertSame( $expected, $overview[0]['attendance_pct'], 'team overview' );
 
         $packet = EvidencePacket::attendanceFor( $this->player, self::FROM, self::TO );
-        $this->assertSame( $expected, (float) $packet['rate'], 'evidence packet leaves the planned activity out' );
+        // The packet shows a whole percentage: 62.5 rounds to 63. With the
+        // planned activity counted it would read 56.
+        $this->assertSame( round( $expected ), (float) $packet['rate'], 'evidence packet leaves the planned activity out' );
         $this->assertSame( 8, $packet['activities'] );
         $this->assertSame( 3, $packet['missed'], 'the pre-filled absence on the planned activity is not a miss' );
 
