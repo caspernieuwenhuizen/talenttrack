@@ -7,6 +7,7 @@ use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\AgeTier;
+use TT\Modules\Comms\Domain\MessageType;
 use TT\Modules\Comms\Domain\Recipient;
 
 /**
@@ -51,13 +52,36 @@ use TT\Modules\Comms\Domain\Recipient;
 final class RecipientResolver {
 
     /**
+     * #4128 — the messages whose content is the schedule or the attendance on
+     * it, and so may reach a trialist's family. Everything not listed is
+     * development content, so a message kind added later reaches a trial
+     * family only by being named here.
+     */
+    public const SCHEDULE_MESSAGES = [
+        MessageType::TRAINING_CANCELLED,
+        MessageType::SCHEDULE_CHANGE_FROM_SPOND,
+        MessageType::TRIAL_PLAYER_WELCOME,
+    ];
+
+    /**
+     * #4128 — is a message of this kind (a `MessageType` value, or the
+     * `event` a dispatcher-chain push carries) about the child's
+     * development? The answer is what `forPlayer()`'s `$development` and
+     * `ParentChildResolver::guardiansOf()`'s flag mean. Pure.
+     */
+    public static function isDevelopmentMessage( string $kind ): bool {
+        return ! in_array( $kind, self::SCHEDULE_MESSAGES, true );
+    }
+
+    /**
      * Resolve the recipients for one player, applying the #0042 rules.
      *
      * #4089 — `$development` marks a message whose content is the child's
      * development (a goal nudge, a plan being ready). Its family is reached
      * only while the child is active: a trialist's family reads nothing of
      * the development record, so is sent nothing about it either. The
-     * player's own account is unaffected.
+     * player's own account is unaffected. Whether a kind of message is
+     * development content is `isDevelopmentMessage()`.
      *
      * @return Recipient[]
      */
