@@ -571,6 +571,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             'label'       => __( 'Staff member', 'talenttrack' ),
             'required'    => true,
             'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
+            'source'      => 'directory',
         ] );
         echo '<label>' . esc_html__( 'Role label (optional)', 'talenttrack' ) . ' <input type="text" name="role_label" class="tt-input" placeholder="' . esc_attr__( 'e.g. Goalkeeping coach', 'talenttrack' ) . '"></label>';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';

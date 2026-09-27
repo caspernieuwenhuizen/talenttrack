@@ -62,6 +62,8 @@ The **Assigned staff** card on Overview shows each panellist with whether they h
 
 Reading the panel through the API gives the same people: each row carries the staff member's name, and the id of their People record where they have one, so an integration lists a panel by name rather than by account number.
 
+Putting someone on the panel works by name too. The staff picker, on the case and in the new-trial wizard, offers the club's staff: people entered in People who are not parents, and accounts with a staff role. Players and parents never appear in it. Only staff with a login are offered, because someone who cannot log in could never hand in an input. An integration does the same through the staff lookup, which finds a staff member from two or more letters of their name; it is open only to whoever manages trials or parent links, so a scout who only sits on panels cannot browse the staff list.
+
 When the trial is close to its end date and no decision has been recorded, a **Deadline** banner appears under the hero saying how long is left — or how long ago the window closed. It disappears by itself as soon as the decision is recorded or the case is extended; there is nothing to dismiss. How far ahead it starts warning is the `alerts_trial_decision_due_days` setting, three days by default.
 
 The same condition raises a **Trial ending without a decision** alert for the head of development, naming the panellists who have not submitted so you can see what the decision is waiting for. It resolves itself the moment the decision lands or the case is extended.

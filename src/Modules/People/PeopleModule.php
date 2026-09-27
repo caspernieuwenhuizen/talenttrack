@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\PeopleRestController;
+use TT\Infrastructure\REST\StaffRestController;
 use TT\Modules\People\Admin\PeoplePage;
 
 /**
@@ -36,6 +37,7 @@ class PeopleModule implements ModuleInterface {
         // #1138 — impact-preview dialog assets for the wp-admin bulk delete flow.
         add_action( 'admin_enqueue_scripts', [ PeoplePage::class, 'enqueueAssets' ] );
         PeopleRestController::init();
+        StaffRestController::init();
     }
 
     public function registerMenu(): void {
