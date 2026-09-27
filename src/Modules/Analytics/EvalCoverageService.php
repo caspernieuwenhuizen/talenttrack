@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -213,7 +214,7 @@ final class EvalCoverageService {
               JOIN {$wpdb->prefix}tt_activities a
                 ON a.team_id = t.id
                AND a.archived_at IS NULL
-               AND a.plan_state = 'completed'
+               AND " . ActivityLifecycle::completedClause( 'a' ) . "
                AND a.session_date BETWEEN %s AND %s
               LEFT JOIN {$wpdb->prefix}tt_attendance att
                 ON att.activity_id = a.id

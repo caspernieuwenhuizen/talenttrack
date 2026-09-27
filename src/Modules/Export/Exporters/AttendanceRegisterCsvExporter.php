@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -100,7 +101,7 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface, ScopeGat
             'a.club_id = %d',
             'a.session_date BETWEEN %s AND %s',
             "att.record_type = 'actual'",
-            "a.plan_state = 'completed'",
+            ActivityLifecycle::completedClause( 'a' ),
         ];
         $params = [ (int) $request->clubId, $date_from, $date_to ];
 

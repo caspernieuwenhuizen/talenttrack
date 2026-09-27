@@ -144,6 +144,28 @@ final class GoalContributionQueryTest extends WP_UnitTestCase {
         $this->assertSame( 0, $q->forPlayer( self::PLAYMAKER )['assists'], 'the assist goes with the goal' );
     }
 
+    /**
+     * A match cancelled on either lifecycle column never took place, so its
+     * goals count for nobody: one cancelled by status only, one by the
+     * planner's `plan_state` only.
+     */
+    public function test_a_cancelled_match_counts_for_nobody(): void {
+        global $wpdb;
+        $live       = $this->seedMatch( 9120, '2026-03-20' );
+        $by_status  = $this->seedMatch( 9121, '2026-03-21' );
+        $by_planner = $this->seedMatch( 9122, '2026-03-22' );
+        $this->goal( $live, self::STRIKER );
+        $this->goal( $by_status, self::STRIKER );
+        $this->goal( $by_planner, self::STRIKER );
+
+        $wpdb->update( $wpdb->prefix . 'tt_activities', [ 'activity_status_key' => 'cancelled' ], [ 'id' => 9121 ] );
+        $wpdb->update( $wpdb->prefix . 'tt_activities', [ 'plan_state' => 'cancelled' ], [ 'id' => 9122 ] );
+
+        $q = new GoalContributionQuery();
+        $this->assertSame( 1, $q->forPlayer( self::STRIKER )['goals'] );
+        $this->assertSame( 1, $q->forTeam( self::TEAM_ID )[ self::STRIKER ]['goals'] );
+    }
+
     // ---------------------------------------------------------------
     // Scoping
     // ---------------------------------------------------------------

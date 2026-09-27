@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
@@ -81,8 +82,7 @@ final class MinutesQuery {
                 AND session_date BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
-                AND plan_state <> 'cancelled'
-                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
               ORDER BY session_date ASC",
             $club_id, $team_id, $from, $to
         ) );
@@ -559,8 +559,7 @@ final class MinutesQuery {
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND a.archived_at IS NULL
                 AND a.trashed_at IS NULL
-                AND a.plan_state <> 'cancelled'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
                 AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
@@ -584,8 +583,7 @@ final class MinutesQuery {
                 AND {$played_sql}
                 AND a.archived_at IS NULL
                 AND a.trashed_at IS NULL
-                AND a.plan_state <> 'cancelled'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )",
+                AND " . ActivityLifecycle::notCancelledClause( 'a' ),
             $club_id, $team_id, $from, $to
         ) );
 
@@ -637,8 +635,7 @@ final class MinutesQuery {
                 AND a.{$date_col} BETWEEN %s AND %s
                 AND a.archived_at IS NULL
                 AND a.trashed_at IS NULL
-                AND a.plan_state <> 'cancelled'
-                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
                 AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
@@ -696,8 +693,7 @@ final class MinutesQuery {
                 AND {$date_col} BETWEEN %s AND %s
                 AND archived_at IS NULL
                 AND trashed_at IS NULL
-                AND plan_state <> 'cancelled'
-                AND ( activity_status_key IS NULL OR activity_status_key <> 'cancelled' )
+                AND " . ActivityLifecycle::notCancelledClause( '' ) . "
               ORDER BY {$date_col} ASC",
             $club_id, $team_id, $from, $to
         ) );
