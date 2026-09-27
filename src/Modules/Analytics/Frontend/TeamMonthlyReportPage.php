@@ -404,7 +404,7 @@ final class TeamMonthlyReportPage {
         // auto-placement; below 1024px it simply follows Sections.
         echo '<div class="tt-mr-panel__side">';
         self::renderMatchesOptions( $selected, $options );
-        self::renderTestsOptions( $team_id, $window, $selected, $options );
+        self::renderTestsOptions( $team_id, $window, $layout, $selected, $options );
         echo '</div>';
 
         self::renderFitMeter( $fit );
@@ -1256,7 +1256,7 @@ final class TeamMonthlyReportPage {
      * @param list<string>                                 $selected
      * @param array<string,array<string,mixed>>            $options
      */
-    private static function renderTestsOptions( int $team_id, array $window, array $selected, array $options ): void {
+    private static function renderTestsOptions( int $team_id, array $window, string $layout, array $selected, array $options ): void {
         if ( ! in_array( TeamMonthlyReportBlock::TESTS, $selected, true ) ) return;
 
         $available = TeamMonthlyReport::testableDefinitions( $team_id, $window['from'], $window['to'] );
@@ -1289,16 +1289,54 @@ final class TeamMonthlyReportPage {
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Tick none to show every test taken this period.', 'talenttrack' ) . '</p>';
         echo '</div>';
 
-        $select_id = 'tt-mr-tests-show';
+        // #4095 — radios rather than a select, so an option the chosen
+        // layout cannot print can stand disabled with its reason under it.
+        // The panel script re-evaluates them when the layout changes; without
+        // script the page does it on "Update report".
+        $printed = TeamMonthlyReportLayout::testsShowFor( $layout, $show );
         echo '<div class="tt-mr-opts__row">';
-        echo '<label class="tt-mr-opts__label" for="' . esc_attr( $select_id ) . '">' . esc_html__( 'How much to show', 'talenttrack' ) . '</label>';
-        echo '<select class="tt-input" id="' . esc_attr( $select_id ) . '" name="opt_tests_show" data-tt-mr-block>';
+        echo '<span class="tt-mr-opts__label" id="tt-mr-tests-show">' . esc_html__( 'How much to show', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-mr-blocks" role="radiogroup" aria-labelledby="tt-mr-tests-show">';
         foreach ( TestsBlockOptions::showLabels() as $value => $label ) {
-            echo '<option value="' . esc_attr( $value ) . '"' . selected( $show, $value, false ) . '>' . esc_html( $label ) . '</option>';
+            $id     = 'tt-mr-tests-show-' . $value;
+            $reason = TeamMonthlyReportLayout::testsShowReason( $layout, $value );
+            $whys   = '';
+            foreach ( TeamMonthlyReportLayout::ALL as $key ) {
+                $whys .= ' data-tt-mr-why-' . strtolower( $key ) . '="' . esc_attr( TeamMonthlyReportLayout::testsShowReason( $key, $value ) ) . '"';
+            }
+            echo '<label class="tt-mr-block tt-mr-block--opt' . ( $reason !== '' ? ' is-unavailable' : '' ) . '" for="' . esc_attr( $id ) . '" data-tt-mr-show-option' . $whys . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $whys is escaped above.
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="opt_tests_show" value="' . esc_attr( $value ) . '"'
+                . checked( $printed, $value, false ) . disabled( $reason !== '', true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
+            echo '<span class="tt-mr-block__why" data-tt-mr-why>' . esc_html( $reason ) . '</span>';
+            echo '</label>';
         }
-        echo '</select>';
-        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Readings and change print as a table, which the one-pager shortens to the summary.', 'talenttrack' ) . '</p>';
         echo '</div>';
+        if ( $printed !== $show ) {
+            // A saved view, a shared link or a schedule asked for more than
+            // this layout prints. It renders the summary, and says so here
+            // rather than on the coach's printer.
+            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn">' . esc_html( sprintf(
+                /* translators: %s: the tests option that was asked for, e.g. "Readings" */
+                __( 'This report asked for “%s”, which this layout cannot print. It prints the summary; choose the pack to print the tables.', 'talenttrack' ),
+                TestsBlockOptions::showLabels()[ $show ] ?? $show
+            ) ) . '</p>';
+        }
+        echo '</div>';
+
+        // #4095 — the landscape strip holds three tests; say so before the
+        // PDF does, and which ones fall off.
+        $max   = TeamMonthlyReportLayout::MATRIX_MAX_TESTS;
+        $count = $chosen !== [] ? count( $chosen ) : count( $available );
+        if ( $count > $max ) {
+            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn" data-tt-mr-when-layout="' . esc_attr( TeamMonthlyReportLayout::MATRIX ) . '"'
+                . ( TeamMonthlyReportLayout::maxTests( $layout ) === null ? ' hidden' : '' ) . '>' . esc_html( sprintf(
+                /* translators: 1: tests the landscape layout prints, 2: tests selected */
+                __( 'Landscape prints up to %1$d tests; %2$d are selected. The PDF names the ones it leaves out.', 'talenttrack' ),
+                $max,
+                $count
+            ) ) . '</p>';
+        }
 
         echo '</fieldset>';
     }

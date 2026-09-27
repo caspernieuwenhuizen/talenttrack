@@ -65,6 +65,14 @@ tonen** bepaalt wat er per test op papier komt:
   meting.
 - **Uitslagen en verschil** — beide kolommen.
 
+De drie keuzes met een spelerstabel hebben het pakket nodig. Op de versie van
+één pagina en op het liggende overzicht staan ze grijs, met de reden eronder, en
+de afdruk toont de samenvatting. Kies je een andere rapportsoort, dan passen de
+keuzes zich aan. Een opgeslagen weergave of een link die uitslagen vraagt op een
+soort die ze niet kan afdrukken, opent met de samenvatting, en het paneel zegt
+waarom. Het liggende overzicht drukt maximaal drie testen af. Kies je er meer,
+dan waarschuwt het paneel, en de afdruk noemt de testen die zijn weggelaten.
+
 Een test op tijd leest in minuten en seconden (`16:04`), zoals hij is ingevoerd,
 en het verschil in seconden (`−7 s`). Een test waarbij lager of hoger beter is,
 zet de spelers van beste naar slechtste; een test zonder richting, zoals lengte,
@@ -199,8 +207,8 @@ Geplande rapporten horen bij het Standard-pakket en hoger.
 - **Testen** — gehouden testmomenten, hoeveel spelers meededen en wie vooruit of
   achteruit ging sinds de vorige meting. Welke testen, en of je ook de metingen
   zelf ziet, bepaal je zelf — zie *Kiezen wat erin staat*. De versie van één
-  pagina drukt altijd de samenvatting af, omdat een tabel met metingen er niet
-  op past.
+  pagina en het liggende overzicht drukken de samenvatting af, en het paneel
+  zegt dat al voordat je afdrukt.
 - **Per speler** — elke meetwaarde van elke speler in één tabel.
 - **Besluiten en acties** — ruimte op de afdruk om te noteren wat het overleg
   afspreekt.

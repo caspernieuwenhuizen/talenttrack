@@ -189,6 +189,11 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
      */
     public static function payload( array $report, string $layout, string $team_name, array $notes = [] ): array {
         $layout = TeamMonthlyReportLayout::isValid( $layout ) ? $layout : TeamMonthlyReportLayout::DEFAULT;
+        // #4095 — the tests detail this layout can print, by the rule the
+        // panel disables its options by. Nothing else overrides it later.
+        if ( isset( $report['data']['tests'] ) ) {
+            $report['data']['tests'] = TeamMonthlyReportLayout::testsForLayout( $report['data']['tests'], $layout );
+        }
         $fit    = TeamMonthlyReportLayout::fit( $report, $layout );
         $report['data'] = TeamMonthlyReportLayout::degrade( $report, $fit['degraded'] )['data'];
 

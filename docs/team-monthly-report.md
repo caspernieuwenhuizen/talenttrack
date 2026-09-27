@@ -63,6 +63,14 @@ decides what each test prints:
   result.
 - **Readings and change** — both columns.
 
+The three options with a player table need the pack. On the one-pager and the
+landscape matrix they are greyed out, with the reason under them, and the
+printed copy shows the summary. Switch the report type and the options follow.
+A saved view or a link that asks for readings on a layout that cannot print
+them opens with the summary, and the panel says why. The landscape matrix
+prints up to three tests. With more selected, the panel warns you, and the
+printed copy names the tests it left out.
+
 A timed test reads as minutes and seconds (`16:04`), the way it was entered,
 and its change is in seconds (`−7 s`). A test where lower or higher is better
 lists its players from best to worst; a test without a direction, such as
@@ -187,7 +195,8 @@ Scheduled reports are part of the Standard plan and above.
 - **Tests** — test rounds held, how many players took part, and who improved or
   declined since their last result. Which tests, and whether you also see the
   readings themselves, is up to you — see *Choosing what goes in it*. The
-  one-pager always prints the summary, because a readings table would not fit.
+  one-pager and the landscape matrix print the summary, and the panel says so
+  before you print.
 - **Player by player** — every measure for every player in one table.
 - **Decisions and actions** — space on the printed copy to write what the
   meeting agrees.

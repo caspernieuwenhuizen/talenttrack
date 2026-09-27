@@ -114,6 +114,8 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'pack, matches and 3 tests' => [ 'B', null, false, 3 ],
             'pack, no roster, 3 tests' => [ 'B', [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'matches', 'tests' ], false, 3 ],
             'one-pager, matches, tests' => [ 'A', [ 'kpi', 'matches', 'tests' ], false, 3 ],
+            // #4095 — landscape keeps three tests and names the other two.
+            'matrix, five tests'       => [ 'C', null, false, 5 ],
         ];
         foreach ( $cases as $label => $case ) {
             [ $layout, $blocks ] = $case;

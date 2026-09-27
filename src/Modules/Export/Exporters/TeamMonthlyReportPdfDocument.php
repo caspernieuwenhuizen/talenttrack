@@ -740,30 +740,46 @@ final class TeamMonthlyReportPdfDocument {
         if ( $rounds === [] ) {
             return $out . '<div class="muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</div></div>';
         }
-        // #3515 — the readings table is the widest thing this section can
-        // print, so the one-pager keeps the summary whatever was asked for.
-        // Degrading to less detail is the ladder's job; overflowing the page
-        // is not an option, and a truncated table is worse than a summary.
-        $show = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
-        if ( $compact ) $show = TestsBlockOptions::SHOW_SUMMARY;
+        // #4095 — what the layout can print, by the same rule the panel
+        // offers its options by (`TeamMonthlyReportLayout::testsShowFor()`):
+        // a player table needs the pack, and the panel says so before the
+        // coach downloads anything. The exporter has already applied it; it
+        // is applied here too so no path prints a table a layout cannot hold.
+        $show = TeamMonthlyReportLayout::testsShowFor( self::$layout, TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] ) );
 
-        // #4069 — a test is a card: header, stat strip, and on the full
-        // layouts the ranked readings. The one-pager prints the strip only;
-        // the landscape strip, a third of the page wide, keeps its lines. A
-        // snapshot frozen before the strip existed has no figures for it and
-        // prints the lines too.
+        // #4069 — a test is a card: header, stat strip, and on the pack the
+        // ranked readings. The landscape strip, a third of the page wide,
+        // keeps its lines. A snapshot frozen before the strip existed has no
+        // figures for it and prints the lines too.
         if ( ! $compact ) {
-            $strip_only = self::$layout === TeamMonthlyReportLayout::ONE_PAGER;
             foreach ( $rounds as $s ) {
                 if ( ! is_array( $s ) ) continue;
                 $out .= is_array( $s['average'] ?? null ) || ! empty( $s['empty'] )
-                    ? self::testCard( $s, $show, $strip_only )
-                    : self::testLines( [ $s ], $strip_only ? TestsBlockOptions::SHOW_SUMMARY : $show, false );
+                    ? self::testCard( $s, $show )
+                    : self::testLines( [ $s ], $show, false );
             }
             return $out . '</div>';
         }
 
-        return $out . self::testLines( array_slice( $rounds, 0, 3 ), $show, true ) . '</div>';
+        return $out . self::testLines( $rounds, $show, true ) . self::omittedTests( $t ) . '</div>';
+    }
+
+    /**
+     * #4095 — the tests the landscape strip had no room for, named, so the
+     * page says what it left out rather than quietly printing three.
+     *
+     * @param array<string,mixed> $t
+     */
+    private static function omittedTests( array $t ): string {
+        $names = is_array( $t['omitted'] ?? null ) ? array_map( 'strval', $t['omitted'] ) : [];
+        if ( $names === [] ) return '';
+
+        return '<div class="muted">' . esc_html( sprintf(
+            /* translators: 1: number of tests not printed, 2: their names */
+            _n( '+ %1$d more test, in the pack: %2$s', '+ %1$d more tests, in the pack: %2$s', count( $names ), 'talenttrack' ),
+            count( $names ),
+            self::cut( implode( ', ', $names ), 40 )
+        ) ) . '</div>';
     }
 
     /**
@@ -816,7 +832,7 @@ final class TeamMonthlyReportPdfDocument {
      *
      * @param array<string,mixed> $s
      */
-    private static function testCard( array $s, string $show, bool $strip_only ): string {
+    private static function testCard( array $s, string $show ): string {
         $name = (string) ( $s['name'] ?? '' );
         if ( ! empty( $s['empty'] ) ) {
             return '<div class="tcard"><table class="thead"><tr><td><span class="tname">' . esc_html( self::cut( $name, 70 ) ) . '</span></td></tr></table>'
@@ -832,7 +848,7 @@ final class TeamMonthlyReportPdfDocument {
             (int) ( $s['squad'] ?? 0 )
         );
 
-        $with_table = ! $strip_only && TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
+        $with_table = TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
 
         return '<div class="tcard"><table class="thead"><tr>'
             . '<td><span class="tname">' . esc_html( self::cut( $name, 60 ) ) . '</span>'

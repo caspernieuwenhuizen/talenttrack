@@ -57,6 +57,40 @@
 		pending.hidden = params().toString() === applied;
 	}
 
+	/*
+	 * #4095 — an option the chosen layout cannot print is disabled, with the
+	 * reason under it. The server renders that for the layout the page was
+	 * opened with; switching the layout here re-evaluates it from the reasons
+	 * each option carries per layout, so no rule is duplicated in script.
+	 */
+	function applyLayout() {
+		var layout = form.querySelector( 'input[name="layout"]:checked' );
+		if ( ! layout ) return;
+		var key = layout.value.toLowerCase();
+
+		Array.prototype.forEach.call( form.querySelectorAll( '[data-tt-mr-show-option]' ), function ( option ) {
+			var why   = option.getAttribute( 'data-tt-mr-why-' + key ) || '';
+			var input = option.querySelector( 'input' );
+			var text  = option.querySelector( '[data-tt-mr-why]' );
+			if ( input ) input.disabled = why !== '';
+			if ( text ) text.textContent = why;
+			option.classList.toggle( 'is-unavailable', why !== '' );
+		} );
+
+		var current = form.querySelector( 'input[name="opt_tests_show"]:checked' );
+		if ( current && current.disabled ) {
+			var fallback = form.querySelector( 'input[name="opt_tests_show"]:not(:disabled)' );
+			if ( fallback ) fallback.checked = true;
+		}
+
+		Array.prototype.forEach.call( form.querySelectorAll( '[data-tt-mr-when-layout]' ), function ( el ) {
+			el.hidden = el.getAttribute( 'data-tt-mr-when-layout' ) !== layout.value;
+		} );
+	}
+
+	form.addEventListener( 'change', function ( e ) {
+		if ( e.target && e.target.name === 'layout' ) applyLayout();
+	} );
 	form.addEventListener( 'change', refresh );
 	form.addEventListener( 'tt-mr-panel-change', refresh );
 

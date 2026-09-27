@@ -134,6 +134,30 @@
     opacity: 0.75;
 }
 
+/* #4095 — an option the chosen layout cannot print: disabled, with the
+   reason under it in full contrast, so it reads as information, not as a
+   broken control. */
+.tt-mr-block.is-unavailable {
+    cursor: not-allowed;
+    background: var(--tt-bg-soft);
+}
+
+.tt-mr-block.is-unavailable .tt-mr-block__t { color: var(--tt-muted); }
+
+.tt-mr-block__why {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-warning-ink);
+}
+
+.tt-mr-block__why:empty { display: none; }
+
+.tt-mr-panel__hint--warn {
+    color: var(--tt-warning-ink);
+    font-weight: 600;
+}
+
+.tt-mr-panel__hint[hidden] { display: none; }
+
 .tt-mr-panel__actions {
     display: flex;
     flex-wrap: wrap;

@@ -149,8 +149,77 @@ final class TeamMonthlyReportLayout {
     /** Rows the matrix footer's "what changed" strip prints. */
     public const STRIP_CHANGES = 6;
 
+    /**
+     * #4095 — the landscape matrix prints its tests as lines in a footer strip
+     * a third of the page wide, so it holds this many tests. The rest are
+     * named on the page, never dropped without a word.
+     */
+    public const MATRIX_MAX_TESTS = 3;
+
     public static function isValid( string $layout ): bool {
         return in_array( $layout, self::ALL, true );
+    }
+
+    /**
+     * #4095 — can this layout print this tests `show` value?
+     *
+     * The one place the answer lives: the composition panel disables what a
+     * layout cannot print and says why, and the PDF prints the fallback,
+     * both from here. A player table (readings, change, or both) needs the
+     * pack; the one-pager and the landscape strip print the summary.
+     */
+    public static function supportsTestsShow( string $layout, string $show ): bool {
+        return ! TestsBlockOptions::showsPlayers( $show ) || $layout === self::PACK;
+    }
+
+    /** The `show` value this layout prints: the one asked for, or the summary. */
+    public static function testsShowFor( string $layout, string $show ): string {
+        return self::supportsTestsShow( $layout, $show ) ? $show : TestsBlockOptions::SHOW_SUMMARY;
+    }
+
+    /** How many tests this layout prints; null when it prints every one. */
+    public static function maxTests( string $layout ): ?int {
+        return $layout === self::MATRIX ? self::MATRIX_MAX_TESTS : null;
+    }
+
+    /**
+     * Why this layout cannot print this `show` value, for the panel. Empty
+     * when it can.
+     */
+    public static function testsShowReason( string $layout, string $show ): string {
+        if ( self::supportsTestsShow( $layout, $show ) ) return '';
+        return $layout === self::MATRIX
+            ? __( 'Needs the pack (up to four pages). Landscape prints the summary.', 'talenttrack' )
+            : __( 'Needs the pack (up to four pages). The one-pager prints the summary.', 'talenttrack' );
+    }
+
+    /**
+     * #4095 — the tests section as this layout prints it: `show` reduced to
+     * what the layout can hold, and on the landscape matrix the tests past
+     * `MATRIX_MAX_TESTS` taken off the page and named in `omitted`, so the
+     * page can say which ones went.
+     *
+     * Applied before `fit()` measures and before the document renders, so
+     * the estimate, the paper and the panel read the same thing.
+     *
+     * @param array<string,mixed> $tests the report's `tests` block.
+     * @return array<string,mixed>
+     */
+    public static function testsForLayout( array $tests, string $layout ): array {
+        $tests['show'] = self::testsShowFor( $layout, TestsBlockOptions::show( [ 'show' => $tests['show'] ?? null ] ) );
+
+        $max    = self::maxTests( $layout );
+        $rounds = self::listOf( $tests, 'rounds' );
+        if ( $max !== null && count( $rounds ) > $max ) {
+            $omitted = [];
+            foreach ( array_slice( $rounds, $max ) as $round ) {
+                $omitted[] = is_array( $round ) ? (string) ( $round['name'] ?? '' ) : '';
+            }
+            $tests['rounds']  = array_values( array_slice( $rounds, 0, $max ) );
+            $tests['omitted'] = $omitted;
+        }
+
+        return $tests;
     }
 
     public static function maxPages( string $layout ): int {
@@ -197,6 +266,10 @@ final class TeamMonthlyReportLayout {
     public static function fit( array $report, string $layout ): array {
         $layout = self::isValid( $layout ) ? $layout : self::DEFAULT;
         $data   = $report['data'];
+        if ( isset( $data['tests'] ) ) {
+            // #4095 — measure what this layout prints, not what was asked for.
+            $data['tests'] = self::testsForLayout( $data['tests'], $layout );
+        }
 
         if ( $layout === self::PACK ) {
             return self::fitPack( $data );
@@ -444,9 +517,8 @@ final class TeamMonthlyReportLayout {
         $rounds = self::listOf( $block_data, 'rounds' );
         if ( $rounds === [] ) return self::MM['match_note'];
 
-        $show       = TestsBlockOptions::show( [ 'show' => $block_data['show'] ?? null ] );
-        $with_table = $layout !== self::ONE_PAGER
-            && ! in_array( self::TESTS_SUMMARY, $degraded, true )
+        $show       = self::testsShowFor( $layout, TestsBlockOptions::show( [ 'show' => $block_data['show'] ?? null ] ) );
+        $with_table = ! in_array( self::TESTS_SUMMARY, $degraded, true )
             && TestsBlockOptions::showsPlayers( $show );
 
         $mm = 0.0;
