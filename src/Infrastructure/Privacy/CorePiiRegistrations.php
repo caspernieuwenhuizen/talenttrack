@@ -89,6 +89,12 @@ final class CorePiiRegistrations {
             'TT\\Modules\\Journey\\JourneyModule'
         );
         PlayerDataMap::register(
+            'tt_player_suspensions',
+            'player_id',
+            'Suspensions: how many matches, from when, the reason and a note.',
+            'TT\\Modules\\Journey\\JourneyModule'
+        );
+        PlayerDataMap::register(
             'tt_player_team_history',
             'player_id',
             'Per-season team and age-group movement history.',

@@ -54,6 +54,7 @@ final class RecycleBinEntities {
             'vct_exercise'           => __( 'Training exercise', 'talenttrack' ),
             'custom_widget'          => __( 'Custom widget', 'talenttrack' ),
             'injury'                 => __( 'Injury', 'talenttrack' ),
+            'suspension'             => _x( 'Suspension', 'disciplinary record', 'talenttrack' ),
             'scheduled_report'       => __( 'Scheduled report', 'talenttrack' ),
             'measurement_definition' => __( 'Measurement definition', 'talenttrack' ),
             'measurement_session'    => __( 'Measurement session', 'talenttrack' ),

@@ -64,6 +64,14 @@ final class JourneyEventType {
      * Seeded as a lookup row by migration 0230.
      */
     public const MATCH_OBSERVED       = 'match_observed';
+    /**
+     * #4103 — a suspension recorded for a number of matches, and the moment
+     * the last of them was completed. Public: a suspension is an official
+     * sanction, so the player and their parents see it on the journey.
+     * Seeded as lookup rows by migration 0295.
+     */
+    public const SUSPENSION_STARTED   = 'suspension_started';
+    public const SUSPENSION_ENDED     = 'suspension_ended';
 
     /** @var list<string> */
     public const ALL = [
@@ -84,6 +92,8 @@ final class JourneyEventType {
         self::GOAL_SET,
         self::TRAINING_OBSERVED,
         self::MATCH_OBSERVED,
+        self::SUSPENSION_STARTED,
+        self::SUSPENSION_ENDED,
     ];
 
     public static function isValid( string $value ): bool {

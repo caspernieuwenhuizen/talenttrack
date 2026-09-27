@@ -52,6 +52,7 @@ class ArchiveRepository {
         'vct_exercise'  => 'tt_vct_exercises',
         'custom_widget' => 'tt_custom_widgets',
         'injury'        => 'tt_player_injuries',
+        'suspension'    => 'tt_player_suspensions',
         'scheduled_report' => 'tt_scheduled_reports',
         'measurement_definition' => 'tt_measurement_definitions',
         'measurement_session'    => 'tt_measurement_sessions',

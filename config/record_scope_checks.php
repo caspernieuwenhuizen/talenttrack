@@ -46,6 +46,9 @@ return [
         'isStaffForPlayer',
         'isHeadCoachOfPlayer',
         'canRecordInjury',
+        // #4103 — the `player_suspensions` entity asked about one player:
+        // global, that player's team, self, or a linked parent.
+        'canAccessSuspensions',
         'coach_owns_player',
         'PlayerReportAccess::canRead',
         'ScoutPlayerCard::canRead',

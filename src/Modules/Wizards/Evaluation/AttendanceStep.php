@@ -480,7 +480,7 @@ final class AttendanceStep implements WizardStepInterface {
             $activity_id, CurrentClub::id()
         ) );
         if ( $current === 'completed' || $current === 'cancelled' ) return;
-        $wpdb->update(
+        $ok = $wpdb->update(
             "{$p}tt_activities",
             [
                 'activity_status_key' => 'completed',
@@ -488,6 +488,8 @@ final class AttendanceStep implements WizardStepInterface {
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
+        // #4103 — see `ActivitiesRepository::completeIfNotTerminal()`.
+        if ( $ok !== false ) do_action( 'tt_activity_marked_completed', $activity_id );
     }
 
     public function nextStep( array $state ): ?string {

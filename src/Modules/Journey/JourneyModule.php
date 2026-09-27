@@ -6,9 +6,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\Journey\JourneyEventSubscriber;
+use TT\Infrastructure\Journey\SuspensionService;
 use TT\Infrastructure\REST\PlayerJourneyRestController;
+use TT\Infrastructure\REST\SuspensionsRestController;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Journey\Wizards\NewInjuryWizard;
+use TT\Modules\Journey\Wizards\NewSuspensionWizard;
 use TT\Modules\Journey\Workflow\InjuryRecoveryDueTemplate;
 use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Tiles\TileRegistry;
@@ -57,7 +60,13 @@ class JourneyModule implements ModuleInterface {
         // no screen anywhere.
         if ( class_exists( WizardRegistry::class ) ) {
             WizardRegistry::register( new NewInjuryWizard() );
+            // #4103 — the suspension record's create flow (CLAUDE.md §3).
+            WizardRegistry::register( new NewSuspensionWizard() );
         }
+
+        // #4103 — suspensions: REST, and the hooks that mark one served.
+        SuspensionsRestController::init();
+        self::registerSuspensionHooks();
 
         if ( class_exists( TileRegistry::class ) ) {
             TileRegistry::register( [
@@ -78,7 +87,55 @@ class JourneyModule implements ModuleInterface {
                     return MatrixGate::canAnyScope( $uid, 'player_injuries', 'read' );
                 },
             ] );
+
+            // #4103 — who is suspended, for how many more matches. Staff
+            // only: a player and their parents read their own suspension on
+            // the journey and the profile, not a squad roll-up.
+            TileRegistry::register( [
+                'module_class'      => self::class,
+                'view_slug'         => 'suspensions',
+                'entity'            => 'player_suspensions',
+                'group'             => __( 'People', 'talenttrack' ),
+                'kind'              => 'work',
+                'order'             => 36,
+                'label'             => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
+                'description'       => __( 'Who is suspended, for which matches, and when they can play again.', 'talenttrack' ),
+                'icon'              => 'alert',
+                'color'             => '#8a5300',
+                'hide_for_personas' => [ 'player', 'parent' ],
+                'cap_callback'      => static function ( int $uid ): bool {
+                    return MatrixGate::canAnyScope( $uid, 'player_suspensions', 'read' );
+                },
+            ] );
         }
+    }
+
+    /**
+     * #4103 — a suspension is served the moment its last match is
+     * completed. There is no single write path for "completed": the REST
+     * form, the status buttons, the evaluation wizard, the final whistle
+     * and a tournament fixture each get there on their own. Every one of
+     * them fires one of these, and the service answers only for a match, so
+     * listening to all of them is cheap and misses none. No cron job.
+     */
+    private static function registerSuspensionHooks(): void {
+        $on_activity = static function ( $activity_id ): void {
+            SuspensionService::onActivityChanged( (int) $activity_id );
+        };
+        add_action( 'tt_activity_saved',            $on_activity, 20 );
+        add_action( 'tt_activity_status_changed',   $on_activity, 20 );
+        add_action( 'tt_activity_marked_completed', $on_activity, 20 );
+        add_action( 'tt_activity_completed', static function ( $ctx ): void {
+            if ( $ctx instanceof \TT\Modules\Workflow\TaskContext && $ctx->activity_id !== null ) {
+                SuspensionService::onActivityChanged( $ctx->activity_id );
+            }
+        }, 20 );
+        add_action( 'tt_tournament_match_completed', static function ( $tournament_id, $match_id, $activity_id ): void {
+            SuspensionService::onActivityChanged( (int) $activity_id );
+        }, 20, 3 );
+        add_action( 'tt_player_suspension_recorded', static function ( $suspension_id ): void {
+            SuspensionService::onSuspensionRecorded( (int) $suspension_id );
+        } );
     }
 
     public static function registerWorkflowTemplates(): void {
@@ -119,6 +176,18 @@ class JourneyModule implements ModuleInterface {
         foreach ( $safeguarding_roles as $r ) {
             $role = get_role( $r );
             if ( $role && ! $role->has_cap( $safeguarding ) ) $role->add_cap( $safeguarding );
+        }
+
+        // #4103 — the suspension caps, raw on the academy-wide roles so an
+        // install running without the matrix still has someone who can
+        // record one. Coaches, players and parents reach them through the
+        // matrix at team / self / player scope.
+        foreach ( $medical_roles as $r ) {
+            $role = get_role( $r );
+            if ( ! $role ) continue;
+            foreach ( [ 'tt_view_suspensions', 'tt_manage_suspensions' ] as $cap ) {
+                if ( ! $role->has_cap( $cap ) ) $role->add_cap( $cap );
+            }
         }
     }
 }

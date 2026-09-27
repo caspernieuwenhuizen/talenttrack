@@ -202,6 +202,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses',   'goals' ],
             [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities', 'goals' ],
             [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses',    'inbox' ],
+            [ __( 'Suspension reasons', 'talenttrack' ), __( 'Yellow-card accumulation, red card, club decision. The player and their parents see the reason on the journey.', 'talenttrack' ), 'suspension_reasons', 'alert' ],
             // v3.110.163 — surface `player_value` as a first-class lookup
             // tile. The Goal wizard's LinkStep already exposes a "Value"
             // picker that reads this vocabulary; it just had no maintenance
@@ -278,7 +279,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
 
         $groups = [
-            [ 'label' => __( 'Activities & attendance', 'talenttrack' ), 'slugs' => [ 'activity_types', 'activity_statuses', 'game_subtypes', 'competition_types', 'att_statuses' ] ],
+            [ 'label' => __( 'Activities & attendance', 'talenttrack' ), 'slugs' => [ 'activity_types', 'activity_statuses', 'game_subtypes', 'competition_types', 'att_statuses', 'suspension_reasons' ] ],
             [ 'label' => __( 'Players & teams', 'talenttrack' ),         'slugs' => [ 'positions', 'foot_options', 'age_groups', 'football_forms', 'journey_event_types' ] ],
             [ 'label' => __( 'Evaluations & development', 'talenttrack' ),'slugs' => [ 'eval_types', '__rating', 'behaviour_ratings', 'potential_bands', 'player_values', 'pdp_verdict_decisions' ] ],
             [ 'label' => __( 'Goals', 'talenttrack' ),                   'slugs' => [ 'goal_statuses', 'goal_priorities', 'goal_approval_decisions' ] ],
@@ -335,6 +336,9 @@ class FrontendConfigurationView extends FrontendViewBase {
             'goal_statuses'   => [ 'label' => __( 'Goal statuses',       'talenttrack' ), 'type' => 'goal_status',       'show_desc' => false, 'show_color' => true  ],
             'goal_priorities' => [ 'label' => __( 'Goal priorities',     'talenttrack' ), 'type' => 'goal_priority',     'show_desc' => false, 'show_color' => false ],
             'att_statuses'    => [ 'label' => __( 'Attendance statuses', 'talenttrack' ), 'type' => 'attendance_status', 'show_desc' => false, 'show_color' => true  ],
+            // #4103 — why a player is suspended. Shown to the player and
+            // their parents on the journey, so it is worth wording well.
+            'suspension_reasons' => [ 'label' => __( 'Suspension reasons', 'talenttrack' ), 'type' => 'suspension_reason', 'show_desc' => false, 'show_color' => false ],
             // v3.110.163 — player virtues used as PDP goal-link target.
             // Description column is on so the operator can write a short
             // gloss for each value ("Commitment — turning up on time and

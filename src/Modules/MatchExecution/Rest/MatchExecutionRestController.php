@@ -1325,7 +1325,7 @@ class MatchExecutionRestController {
         if ( $activity_id <= 0 ) return;
         global $wpdb;
         $p = $wpdb->prefix;
-        $wpdb->update(
+        $ok = $wpdb->update(
             "{$p}tt_activities",
             [
                 'activity_status_key' => 'completed',
@@ -1335,6 +1335,9 @@ class MatchExecutionRestController {
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
+        // #4103 — the final whistle completes the match; a suspension whose
+        // last match this was is served now.
+        if ( $ok !== false ) do_action( 'tt_activity_marked_completed', $activity_id );
     }
 
     /**

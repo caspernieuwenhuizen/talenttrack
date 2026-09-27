@@ -24,6 +24,7 @@ use TT\Modules\DemoData\Generators\PlayerReportGenerator;
 use TT\Modules\DemoData\Generators\TeamReportSnapshotGenerator;
 use TT\Modules\DemoData\Generators\PlayerStatusGenerator;
 use TT\Modules\DemoData\Generators\StaffDevelopmentGenerator;
+use TT\Modules\DemoData\Generators\SuspensionGenerator;
 use TT\Modules\DemoData\Generators\TeamDevelopmentGenerator;
 use TT\Modules\DemoData\Generators\TeamGenerator;
 use TT\Modules\DemoData\Generators\TestTrainingGenerator;
@@ -230,6 +231,14 @@ class DemoCoverage {
             'category'    => 'injuries',
             'written_by'  => InjuryGenerator::class,
             'depends_on'  => [ 'player' ],
+        ],
+        // #4103 — suspensions, recorded after the fixtures exist so the
+        // served ones are marked served the way a real one is.
+        'tt_player_suspensions' => [
+            'entity_type' => 'player_suspension',
+            'category'    => 'suspensions',
+            'written_by'  => SuspensionGenerator::class,
+            'depends_on'  => [ 'player', 'team' ],
         ],
         // #3242 — two of the traffic light's four inputs. Both were empty on
         // every generated player, so the status the demo showed was not the
@@ -962,7 +971,7 @@ class DemoCoverage {
             'cascade' => [
                 'goal_link', 'eval_category_note', 'eval_rating', 'evaluation', 'attendance', 'goal',
                 'player_event', 'trial_case', 'player_report', 'player_attribute_value',
-                'player_team_history', 'player_injury', 'player_parent_visibility',
+                'player_team_history', 'player_injury', 'player_suspension', 'player_parent_visibility',
                 'custom_value', 'player_parent',
                 'measurement_result', 'pdp_prep_answer', 'pdp_calendar_link', 'pdp_verdict',
                 'pdp_conversation', 'pdp_file',
@@ -1164,6 +1173,16 @@ class DemoCoverage {
             'tier'      => 'dependent',
             'run_order' => 260,
             'cascade'   => [ 'team_report_snapshot', 'player_report_snapshot' ],
+        ],
+        // #4103 — 255: after every generator that writes fixtures and results
+        // (so a suspension whose matches were played is served on the date of
+        // the last of them, and every generator before it keeps drawing the
+        // same values), and before `report_snapshots`, which must stay last
+        // because it composes a report out of everything the others wrote.
+        'suspensions' => [
+            'tier'      => 'dependent',
+            'run_order' => 255,
+            'cascade'   => [ 'player_suspension' ],
         ],
         'knowledge' => [
             'tier'      => 'dependent',
@@ -1403,6 +1422,7 @@ class DemoCoverage {
             'trials'      => __( 'Trial cases', 'talenttrack' ),
             'guardians'   => __( 'Guardians', 'talenttrack' ),
             'injuries'    => __( 'Injuries', 'talenttrack' ),
+            'suspensions' => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
             'player_profile' => __( 'Player profile', 'talenttrack' ),
             'reports'     => __( 'Player reports', 'talenttrack' ),
             'report_snapshots' => __( 'Meeting snapshots', 'talenttrack' ),
@@ -1439,6 +1459,7 @@ class DemoCoverage {
             'comms_ops'   => __( 'Conversations with their read state, saved filters, report presets, workflow tasks and invitations. No email is ever sent.', 'talenttrack' ),
             'guardians'   => __( 'Guardian links to the demo parent accounts, plus each player\'s parent-visibility grants.', 'talenttrack' ),
             'injuries'    => __( 'Injury records with their return-to-play dates and the journey events they raise.', 'talenttrack' ),
+            'suspensions' => __( 'A few suspensions per team, some already served and one still running, with the journey events they raise.', 'talenttrack' ),
             'player_profile' => __( 'Age-group history, attribute values, the club\'s custom fields and their values, and goal-to-evaluation links.', 'talenttrack' ),
             'reports'     => __( 'Generated player reports. No share links or recipients are created.', 'talenttrack' ),
             'report_snapshots' => __( 'One monthly report frozen for a staff meeting and one player report frozen for a conversation, each with the notes written on it.', 'talenttrack' ),

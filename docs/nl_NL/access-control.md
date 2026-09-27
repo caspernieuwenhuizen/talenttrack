@@ -206,10 +206,13 @@ Elke route per speler en per onderdeel vraagt beide, en voor een ouder geldt daa
 | Trainingsblootstelling | `training_exposure` |
 | De ontwikkelreis, overgangen en de Strava-sessies daarop | `player_timeline` |
 | Blessures | `player_injuries` |
+| Schorsingen (ook leesbaar voor de speler en de ouders) | `player_suspensions` |
 | De kaart Gedrag & potentieel op het profiel (alleen staf) | `player_status` |
 | De kaart Ontdekking op het profiel | `prospects` |
 
 De one-pager (PDF) bevat alleen velden van het dossier zelf, dus de dossiercontrole is daar de onderdeelcontrole.
+
+**Schorsingen mag het gezin lezen.** Een schorsing is een officiële sanctie, dus de speler leest de eigen schorsingen en een ouder die van het kind, met reden en notitie. Vastleggen is voor de trainers van het team van de speler, hoofd- en assistent-trainer allebei, en voor het hoofd opleidingen en de academiebeheerder; alleen de academiebeheerder verwijdert er een. `AuthorizationService::canAccessSuspensions()` beantwoordt elk schorsingsscherm, zodat een trainer van een ander team overal wordt geweigerd. Zie [Autorisatiematrix](authorization-matrix.md) voor het overzicht.
 
 **Status en potentieel zijn alleen voor de staf.** De standaardmatrix kent `player_status` aan geen enkele gezinspersona toe: een ouder leest het niet voor het eigen kind en een speler niet voor zichzelf. Het statusoordeel en de potentieelband zijn het oordeel van de academie over hoe een kind ervoor staat en hoe ver het komt. Dat hoort in een gesprek, niet op het scherm van een gezin. Dat is ook de regel die `isStaffForPlayer()` al noemt voor de onderdelen die een gezin niet mag zien. Een academie kan het nog steeds bewust toekennen in de autorisatiematrix; een update verwijdert alleen de standaardrijen, nooit een rij die een academie zelf heeft ingesteld.
 

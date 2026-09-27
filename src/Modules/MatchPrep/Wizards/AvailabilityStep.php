@@ -3,11 +3,13 @@ namespace TT\Modules\MatchPrep\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\MatchPrepState;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -63,6 +65,18 @@ final class AvailabilityStep implements WizardStepInterface {
         $absent_name = self::absentStatusName( $statuses );
         $not_planned_reason = __( 'Not in planned roster', 'talenttrack' );
 
+        // #4103 — a recorded suspension that covers this match pre-marks the
+        // player Suspended, with which match of the ban it is. Only when the
+        // vocabulary carries the status (an academy may have renamed or
+        // removed it), and never over the operator's own saved choice.
+        $suspended_name = self::statusNamed( $statuses, AttendanceStatus::SUSPENDED );
+        $suspended      = $suspended_name !== null
+            ? MatchPrepState::suspendedByPlayer(
+                $activity_id,
+                array_map( static fn( $pl ): int => (int) ( ( (array) $pl )['id'] ?? 0 ), $players )
+            )
+            : [];
+
         // #1474 — dense, mobile-first rows + segmented status control;
         // the reason field reveals inline only for non-Present rows (CSS
         // :has(), with an @supports fallback that keeps it visible).
@@ -89,6 +103,11 @@ final class AvailabilityStep implements WizardStepInterface {
             if ( isset( $existing[ $pid ] ) ) {
                 // Operator's in-flight / saved choice always wins.
                 $row = $existing[ $pid ];
+            } elseif ( $suspended_name !== null && isset( $suspended[ $pid ] ) ) {
+                $row = [
+                    'status' => $suspended_name,
+                    'reason' => $suspended[ $pid ]['reason'],
+                ];
             } elseif ( $has_plan && ! isset( $planned[ $pid ] ) && $absent_name !== null ) {
                 // On the team but left out of the plan → planned absent.
                 $row = [ 'status' => $absent_name, 'reason' => $not_planned_reason ];
@@ -222,9 +241,20 @@ final class AvailabilityStep implements WizardStepInterface {
      * so they fall back to Present rather than an invalid status.
      */
     private static function absentStatusName( array $statuses ): ?string {
+        return self::statusNamed( $statuses, 'absent' );
+    }
+
+    /**
+     * The install's stored name for a status (exact case), or null when the
+     * prep vocabulary does not offer it.
+     *
+     * @param array<int, object> $statuses
+     */
+    private static function statusNamed( array $statuses, string $name ): ?string {
         foreach ( $statuses as $opt ) {
-            if ( strcasecmp( (string) ( $opt->name ?? '' ), 'absent' ) === 0 ) {
-                return (string) $opt->name;
+            $stored = (string) ( ( (array) $opt )['name'] ?? '' );
+            if ( strcasecmp( $stored, $name ) === 0 ) {
+                return $stored;
             }
         }
         return null;

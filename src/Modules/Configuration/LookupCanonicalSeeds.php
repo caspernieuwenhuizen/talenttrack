@@ -100,6 +100,9 @@ final class LookupCanonicalSeeds {
                 'First aid', 'GDPR awareness', 'Child safeguarding',
             ],
 
+            // 0295 — why a player is suspended (#4103)
+            'suspension_reason' => [ 'Yellow card accumulation', 'Red card', 'Club decision' ],
+
             // 0042 — behaviour rating labels (#1377 growth-framed rewording)
             'behaviour_rating_label' => [
                 'Needs support', 'Developing', 'Meeting expectations',

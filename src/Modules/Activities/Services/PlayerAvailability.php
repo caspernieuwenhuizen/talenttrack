@@ -106,6 +106,39 @@ final class PlayerAvailability {
     }
 
     /**
+     * #4103 — the subset of `$player_ids` who cannot play in this activity:
+     * injured on its date, or covered by a suspension.
+     *
+     * A suspension is a question about the activity, not the day. It
+     * covers matches only (never a training), counts the team's matches in
+     * order, and ends when the last of them is completed — so it needs the
+     * activity itself, and `unavailableSet()`'s date is not enough.
+     *
+     * Decision 3 of #4005 still holds: the answer is the one state, with no
+     * word on whether the cause is an injury or a suspension. A planning
+     * surface shows one *Unavailable* label either way.
+     *
+     * @param array<int, int> $player_ids
+     * @param string|null     $on The activity's date when the caller has it,
+     *                            saving a query; read from the activity
+     *                            otherwise.
+     * @return array<int, true>
+     */
+    public static function unavailableForActivity( array $player_ids, int $activity_id, ?string $on = null ): array {
+        if ( $activity_id <= 0 ) return self::unavailableSet( array_values( $player_ids ), $on );
+
+        if ( $on === null || trim( $on ) === '' ) {
+            $on = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityDate( $activity_id );
+        }
+
+        $out = self::unavailableSet( array_values( $player_ids ), $on );
+        foreach ( array_keys( \TT\Infrastructure\Journey\SuspensionService::coveredSet( $player_ids, $activity_id ) ) as $pid ) {
+            $out[ $pid ] = true;
+        }
+        return $out;
+    }
+
+    /**
      * The flag for one player, as it appears in a payload or beside a name.
      *
      * @param array<int, true> $unavailable A set from `unavailableSet()`.

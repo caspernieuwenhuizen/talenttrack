@@ -126,6 +126,12 @@ Suspended reach the rest of the app as themselves: a suspended player
 does not count against their attendance score, and the minutes audit
 shows them as unavailable rather than as missing minutes.
 
+A player with a recorded [suspension](suspensions.md) that covers this
+match starts on **Suspended**, with a reason such as "Suspended, match 2
+of 3" — in the availability step when you start the prep, and in the
+drawer for a player you have not marked yet. You can still change the
+mark; your choice is what is stored.
+
 When the match activity has a **planned roster** (the expected players
 you picked when creating it), the availability step starts from that
 plan instead of marking everyone Present: planned players default to

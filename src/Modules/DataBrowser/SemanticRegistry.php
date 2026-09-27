@@ -25,6 +25,9 @@ class SemanticRegistry {
      */
     private const SENSITIVE = [
         'tt_player_injuries' => true,
+        // #4103 — disciplinary records on minors. The family reads their
+        // own; browsing them across the academy is logged.
+        'tt_player_suspensions' => true,
         'tt_player_parents'  => true,
         'tt_player_notes'    => true,
         'tt_safeguarding'    => true,
@@ -136,6 +139,15 @@ class SemanticRegistry {
                 'columns'     => [
                     'player_id'   => [ 'label' => __( 'Player', 'talenttrack' ),      'description' => __( 'The injured player.', 'talenttrack' ) ],
                     'injury_type' => [ 'label' => __( 'Injury type', 'talenttrack' ),  'description' => __( 'Nature of the injury.', 'talenttrack' ) ],
+                ],
+            ],
+            'tt_player_suspensions' => [
+                'label'       => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
+                'description' => __( 'Suspensions per player: how many matches, counted from when, and whether they have been served.', 'talenttrack' ),
+                'columns'     => [
+                    'player_id'   => [ 'label' => __( 'Player', 'talenttrack' ),            'description' => __( 'The suspended player.', 'talenttrack' ) ],
+                    'match_count' => [ 'label' => __( 'Number of matches', 'talenttrack' ), 'description' => __( 'How many of the team\'s matches the suspension lasts.', 'talenttrack' ) ],
+                    'served_on'   => [ 'label' => __( 'Served on', 'talenttrack' ),         'description' => __( 'The date of the last match it covered, once that match was completed.', 'talenttrack' ) ],
                 ],
             ],
             'tt_lookups' => [

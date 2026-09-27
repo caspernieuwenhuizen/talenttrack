@@ -295,6 +295,11 @@ final class LegacyCapMapper {
         // per-player check was doing all the work. This gives the write
         // routes a capability that means what they do.
         'tt_edit_player_medical'         => [ 'player_injuries',       'change' ],
+        // #4103 — the suspension record. Manage bridges to `change`, which
+        // is what recording and editing one take; archiving asks the
+        // entity for `create_delete` per player.
+        'tt_view_suspensions'            => [ 'player_suspensions',    'read' ],
+        'tt_manage_suspensions'          => [ 'player_suspensions',    'change' ],
         'tt_view_player_safeguarding'    => [ 'safeguarding_notes',    'read' ],
         'tt_manage_trials'               => [ 'trial_cases',           'create_delete' ],
         'tt_submit_trial_input'          => [ 'trial_inputs',          'change' ],

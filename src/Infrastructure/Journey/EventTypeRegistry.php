@@ -75,6 +75,17 @@ final class EventTypeRegistry {
         'released' => [
             'context' => 'string',
         ],
+        // #4103 — `reason` is the translated reason label at the time the
+        // suspension was recorded; empty when none was given.
+        'suspension_started' => [
+            'suspension_id' => 'int',
+            'match_count'   => 'int',
+            'reason'        => 'string',
+        ],
+        'suspension_ended' => [
+            'suspension_id' => 'int',
+            'match_count'   => 'int',
+        ],
     ];
 
     public static function clearCache(): void {

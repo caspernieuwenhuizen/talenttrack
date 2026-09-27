@@ -2324,7 +2324,7 @@ final class ActivitiesRepository {
         $date = (string) ( $row->session_date ?? '' );
         if ( $date === '' || $date > current_time( 'Y-m-d' ) ) return false;
 
-        return $wpdb->update(
+        $ok = $wpdb->update(
             "{$p}tt_activities",
             [
                 'activity_status_key' => ActivityStatusKey::COMPLETED,
@@ -2332,6 +2332,19 @@ final class ActivitiesRepository {
             ],
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         ) !== false;
+
+        if ( $ok ) {
+            /**
+             * #4103 — an activity moved to completed on a path that writes
+             * the status directly, without `update()` and its
+             * `tt_activity_saved`. A suspension is served on the moment its
+             * last match completes, so this is the moment to say so.
+             *
+             * @param int $activity_id
+             */
+            do_action( 'tt_activity_marked_completed', $activity_id );
+        }
+        return $ok;
     }
 
     /**

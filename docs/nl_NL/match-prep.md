@@ -135,6 +135,13 @@ app terecht: een geschorste speler verliest er niets mee op zijn
 aanwezigheidsscore, en de minutencontrole toont hem als niet beschikbaar
 in plaats van als ontbrekende minuten.
 
+Een speler met een vastgelegde [schorsing](suspensions.md) die voor deze
+wedstrijd geldt, staat al op **Geschorst**, met een reden zoals
+"Geschorst, wedstrijd 2 van 3" — in de beschikbaarheidsstap als je de
+voorbereiding begint, en in de drawer voor een speler die je nog niet hebt
+gemarkeerd. Je kunt de markering nog wijzigen; jouw keuze wordt
+opgeslagen.
+
 Heeft de wedstrijdactiviteit een **geplande selectie** (de verwachte
 spelers die je bij het aanmaken koos), dan begint de
 beschikbaarheidsstap vanuit dat plan in plaats van iedereen op

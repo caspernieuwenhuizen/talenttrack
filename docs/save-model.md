@@ -101,6 +101,9 @@ first in tab order and Save on the right where the thumb finds it.
 - The **Follow-up** card on an admitted trial case's [Overview tab](trials.md):
   each tick, and each "who does this", is its own one-field form. The button
   is the whole commit, so there is nothing half-done for a Cancel to undo.
+- Recording and editing a [suspension](suspensions.md) on its one-page form.
+  It reaches a family's journey the moment it is saved, so a half-typed
+  number of matches must never get there.
 - Configuration screens and lookup lists.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.
@@ -145,7 +148,7 @@ behind everyone who opened it and thought better of it.
 final step.
 
 **Where.** Every wizard — new player, new evaluation, new goal, new match
-analysis, new team announcement, install and import.
+analysis, new suspension, new team announcement, install and import.
 
 **Why.** A wizard already keeps its own draft between steps, so nothing is
 lost if you stop halfway and come back. What it does not do is write into the

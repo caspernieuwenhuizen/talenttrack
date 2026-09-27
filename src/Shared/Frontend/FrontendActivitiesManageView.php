@@ -2046,10 +2046,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // injury access can plan around it. #4100 — asked for the
         // activity's own date, so a current injury does not rewrite a match
         // the player was fit for.
-        $unavailable = PlayerAvailability::unavailableSet( array_map(
+        // #4103 — and a suspension covering this match, as the same flag.
+        $unavailable = PlayerAvailability::unavailableForActivity( array_map(
             static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
             $roster
-        ), (string) ( $session->session_date ?? '' ) );
+        ), $activity_id, (string) ( $session->session_date ?? '' ) );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
@@ -4122,8 +4123,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // domain service the REST route uses; it never changes the
             // stored plan, and it carries no medical detail. #4100 — on the
             // activity's date, the same day the REST route asks about.
-            $plan_unavailable = PlayerAvailability::unavailableSet(
+            // #4103 — suspensions covering this match count too; a new
+            // activity (no id yet) falls back to the date alone.
+            $plan_unavailable = PlayerAvailability::unavailableForActivity(
                 array_map( 'intval', array_keys( $planned_rows ) ),
+                $activity_id_for_plan,
                 $session ? (string) ( $session->session_date ?? '' ) : null
             );
             ?>
