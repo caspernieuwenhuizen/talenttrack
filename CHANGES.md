@@ -1,3 +1,47 @@
+# TalentTrack v4.138.0 — Minutes audit and minutes share: a quarters match is a whole match (#4087)
+
+The minutes audit and the minutes share multiplied the match prep's period
+length by two, while the minutes report multiplied it by the number of periods
+played. A match in four quarters of 15 minutes read 60 available minutes in the
+minutes report and 30 in the other two. All three now count the periods the
+same way, from the match's line-ups and substitutions, so they agree on a
+quarters match. The four match-prep, match-execution and match-analysis
+screens that kept their own 35-minute half default now read the one shared
+default, so there is a single number to change.
+
+# TalentTrack v4.138.0 — Minutes audit: players marked unavailable are not recording gaps (#4101)
+
+A player marked absent, excused or injured in match prep, or on the attendance
+register, was still counted as a squad player with missing minutes, so a fully
+recorded match could never reach *Complete*. The audit now leaves a player out
+of the squad for a game when they are marked anything other than Present, and
+shows their cell hatched and labelled *Unavailable* instead of a red gap. The
+reason is never shown. Recorded minutes always win: a player marked unavailable
+who did play stays on the squad with their minutes. Tournament roll-ups follow
+the same rule, and the report's REST payload gains an `unavailable` map per
+game.
+
+# TalentTrack v4.138.0 — Suspended as an attendance status (#4102)
+
+A coach can now record that a player was unavailable because of a
+suspension. *Suspended* (Dutch *Geschorst*) joins Present, Absent, Late,
+Injured and Excused as an attendance status: it can be picked in the match
+prep availability drawer, the match prep wizard, the attendance register and
+grid (cell letter *S*, Dutch *G*), and the evaluation wizard's attendance
+step. Like Injured, a suspension is set aside from the player status
+attendance score, so eight present and two suspended reads 100%, not 80%;
+every other attendance percentage keeps dividing by the full total. The
+player and team attendance reports gain a Suspended column. The match prep
+drawer now stores the chip that was picked (Injured, Suspended) as the real
+status rather than folding it into the reason text, so the same chip is
+selected after a reload and the minutes audit shows the player as
+unavailable. Existing installs get the new value from a migration, with its
+Dutch, French, German and Spanish labels.
+
+# TalentTrack v4.138.0 — Suspensions: record one for a number of matches, and every planning screen flags the player (#4103)
+
+A player's suspension is now a record of its own. A coach of the team (head or assistant), the head of development or the academy admin records it once — the reason, how many matches, and the day it counts from — through the new-suspension wizard on the player's Suspensions tab or the Suspensions tile, with a one-page form as the fallback. It covers the team's next matches from that day (league, cup and friendly alike; each tournament fixture is one match, the tournament day is not; never a training), and it is served the moment the last of them is completed. Match prep pre-marks the player Suspended ("Suspended, match 2 of 3"), and the planned squad shows them as Unavailable, the same word as for an injury. The journey gets Suspension started and Suspension served entries, which the player and their parents see, reason included; a coach of another team sees nothing. New REST routes: `GET/POST /players/{id}/suspensions`, `GET/PATCH/DELETE /suspensions/{id}`. Migration 0295 adds the table, the suspension-reason list and the permissions; the feature can be switched off under Modules.
+
 # TalentTrack v4.137.0 — Attendance counts the activities the coach marked completed, on every surface (#4086)
 
 After #4041 every attendance percentage used the same formula, but not the

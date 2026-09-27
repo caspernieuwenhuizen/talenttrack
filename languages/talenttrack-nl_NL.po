@@ -67121,6 +67121,388 @@ msgstr "Het rapport hieronder is de afdruk zelf: dezelfde secties, pagina's en d
 msgid "Landscape prints it as columns of the player-by-player table"
 msgstr "Het liggende overzicht drukt dit af als kolommen van de tabel per speler"
 
+#: src/Infrastructure/Query/LabelTranslator.php
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Suspended"
+msgstr "Geschorst"
+
+#: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php
+msgctxt "attendance status abbreviation: suspended"
+msgid "S"
+msgstr "G"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Suspended %"
+msgstr "Geschorst %"
+
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php
+msgid "⛔ SUSPENDED"
+msgstr "⛔ GESCHORST"
+
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php
+msgid "⛔ Suspended"
+msgstr "⛔ Geschorst"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many missed activities (absent, excused, injured or suspended) flag a "
+"player as at risk. Used by the player attendance report, the attendance "
+"leaderboard, and the daily attendance-flag notification — they all read this "
+"one number. Default 3."
+msgstr ""
+"Hoeveel gemiste activiteiten (afwezig, afgemeld, geblesseerd of geschorst) "
+"een speler als risico markeren. Wordt gebruikt door het aanwezigheidsrapport "
+"per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding — "
+"ze lezen allemaal dit ene getal. Standaard 3."
+
+#: src/Core/FeatureRegistry.php
+#: src/Modules/DataBrowser/SemanticRegistry.php
+#: src/Modules/DemoData/DemoCoverage.php
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+#: src/Modules/Journey/JourneyModule.php
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgctxt "disciplinary record"
+msgid "Suspensions"
+msgstr "Schorsingen"
+
+#: src/Infrastructure/RecycleBin/RecycleBinEntities.php
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Frontend/SuspensionCards.php
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgctxt "disciplinary record"
+msgid "Suspension"
+msgstr "Schorsing"
+
+#: src/Core/FeatureRegistry.php
+msgid ""
+"Record a suspension for a number of matches, so match prep and the planned "
+"squad flag the player for exactly those matches and the journey shows it. "
+"The Suspended attendance status stays available when this is off."
+msgstr ""
+"Leg een schorsing vast voor een aantal wedstrijden, zodat de "
+"wedstrijdvoorbereiding en de geplande selectie de speler voor precies die "
+"wedstrijden markeren en de tijdlijn haar toont. De presentiestatus Geschorst "
+"blijft beschikbaar als dit uit staat."
+
+#: src/Infrastructure/Journey/SuspensionRepository.php
+msgid "Suspension served"
+msgstr "Schorsing uitgezeten"
+
+#: src/Infrastructure/Journey/SuspensionRepository.php
+msgid "Suspended for %1$d match: %2$s"
+msgid_plural "Suspended for %1$d matches: %2$s"
+msgstr[0] "Geschorst voor %1$d wedstrijd: %2$s"
+msgstr[1] "Geschorst voor %1$d wedstrijden: %2$s"
+
+#: src/Infrastructure/Journey/SuspensionRepository.php
+msgid "Suspended for %d match"
+msgid_plural "Suspended for %d matches"
+msgstr[0] "Geschorst voor %d wedstrijd"
+msgstr[1] "Geschorst voor %d wedstrijden"
+
+#: src/Infrastructure/Journey/SuspensionService.php
+msgid "Suspended, match %1$d of %2$d"
+msgstr "Geschorst, wedstrijd %1$d van %2$d"
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "Suspension not found."
+msgstr "Schorsing niet gevonden."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+msgid "You cannot record a suspension for this player."
+msgstr "Je kunt voor deze speler geen schorsing vastleggen."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+msgid "Could not record the suspension."
+msgstr "De schorsing kon niet worden vastgelegd."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "You cannot edit suspensions for this player."
+msgstr "Je kunt de schorsingen van deze speler niet bewerken."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid ""
+"This suspension has been served. Its start date and number of matches can no "
+"longer change."
+msgstr ""
+"Deze schorsing is uitgezeten. De startdatum en het aantal wedstrijden kunnen "
+"niet meer veranderen."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "Could not update the suspension."
+msgstr "De schorsing kon niet worden bijgewerkt."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "You cannot remove suspensions for this player."
+msgstr "Je kunt de schorsingen van deze speler niet verwijderen."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "Enter the start date as YYYY-MM-DD."
+msgstr "Vul de startdatum in als JJJJ-MM-DD."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "A suspension lasts between 1 and %d matches."
+msgstr "Een schorsing duurt tussen 1 en %d wedstrijden."
+
+#: src/Infrastructure/REST/SuspensionsRestController.php
+msgid "That is not a suspension reason."
+msgstr "Dat is geen reden voor een schorsing."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Player suspensions"
+msgstr "Schorsingen van spelers"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid ""
+"Suspensions per player: how many matches, counted from when, and whether "
+"they have been served."
+msgstr ""
+"Schorsingen per speler: hoeveel wedstrijden, vanaf wanneer ze tellen, en of "
+"ze zijn uitgezeten."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The suspended player."
+msgstr "De geschorste speler."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "Number of matches"
+msgstr "Aantal wedstrijden"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "How many of the team's matches the suspension lasts."
+msgstr "Voor hoeveel wedstrijden van het team de schorsing geldt."
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Served on"
+msgstr "Uitgezeten op"
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "The date of the last match it covered, once that match was completed."
+msgstr ""
+"De datum van de laatste wedstrijd waarvoor ze gold, zodra die wedstrijd is "
+"afgerond."
+
+#: src/Modules/DemoData/DemoCoverage.php
+msgid ""
+"A few suspensions per team, some already served and one still running, with "
+"the journey events they raise."
+msgstr ""
+"Een paar schorsingen per team, sommige al uitgezeten en één die nog loopt, "
+"met de tijdlijnregels die ze opleveren."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Suspensions are switched off for this academy."
+msgstr "Schorsingen staan uit voor deze academie."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+#: src/Modules/Journey/Wizards/NewSuspensionWizard.php
+msgid "Record suspension"
+msgstr "Schorsing vastleggen"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid ""
+"No teams are available to you. A player and their parents see their own "
+"suspensions on the player's profile and journey."
+msgstr ""
+"Er zijn geen teams voor jou beschikbaar. Een speler en de ouders zien de "
+"eigen schorsingen op het profiel en de tijdlijn van de speler."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Nobody is suspended"
+msgstr "Niemand is geschorst"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid ""
+"Recording a suspension marks the player unavailable for exactly the matches "
+"it covers, so match prep and the planned squad flag them for you."
+msgstr ""
+"Een vastgelegde schorsing maakt de speler onbeschikbaar voor precies de "
+"wedstrijden waarvoor ze geldt, zodat de wedstrijdvoorbereiding en de geplande "
+"selectie hem voor je markeren."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "No suspensions match your filters."
+msgstr "Geen schorsingen die aan je filters voldoen."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Still to serve"
+msgstr "Nog uit te zitten"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgctxt "suspension filter"
+msgid "Served"
+msgstr "Uitgezeten"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgctxt "suspension filter"
+msgid "All"
+msgstr "Alle"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "That suspension was not found."
+msgstr "Die schorsing is niet gevonden."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Suspension — %s"
+msgstr "Schorsing — %s"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Matches it covers"
+msgstr "Wedstrijden waarvoor ze geldt"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+msgid ""
+"No matches are on the calendar from that day yet. The suspension will cover "
+"the next ones that are added."
+msgstr ""
+"Er staan vanaf die dag nog geen wedstrijden in de kalender. De schorsing "
+"geldt voor de eerstvolgende die worden toegevoegd."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgctxt "a match that has been completed"
+msgid "played"
+msgstr "gespeeld"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+msgid "The rest will be the next matches added to the calendar."
+msgstr "De rest zijn de eerstvolgende wedstrijden die aan de kalender worden toegevoegd."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Wizards/SuspensionPlayerStep.php
+msgid ""
+"There are no teams you can record a suspension for. Ask an administrator to "
+"assign you to a team."
+msgstr ""
+"Er zijn geen teams waarvoor je een schorsing kunt vastleggen. Vraag een "
+"beheerder je aan een team toe te wijzen."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+#: src/Modules/Journey/Wizards/SuspensionPlayerStep.php
+msgid "Which player is suspended?"
+msgstr "Welke speler is geschorst?"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Edit suspension"
+msgstr "Schorsing bewerken"
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "You cannot edit this suspension."
+msgstr "Je kunt deze schorsing niet bewerken."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Served on %s."
+msgstr "Uitgezeten op %s."
+
+#: src/Modules/Journey/Frontend/FrontendSuspensionsView.php
+msgid "Save suspension"
+msgstr "Schorsing opslaan"
+
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+msgid "Suspensions are not in your scope"
+msgstr "Schorsingen vallen buiten jouw bereik"
+
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+msgid ""
+"A player's suspensions are kept with the coaches of their team. Talk to your "
+"academy admin if you should have access."
+msgstr ""
+"De schorsingen van een speler liggen bij de trainers van zijn team. Neem "
+"contact op met je academiebeheerder als je toegang zou moeten hebben."
+
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+msgid "No suspensions recorded"
+msgstr "Geen schorsingen vastgelegd"
+
+#: src/Modules/Journey/Frontend/PlayerSuspensionsTab.php
+msgid ""
+"A suspension recorded here marks the player unavailable for exactly the "
+"matches it covers, and shows on their journey."
+msgstr ""
+"Een schorsing die je hier vastlegt, maakt de speler onbeschikbaar voor "
+"precies de wedstrijden waarvoor ze geldt, en staat op de tijdlijn van de "
+"speler."
+
+#: src/Modules/Journey/Frontend/SuspensionCards.php
+msgid "counts from %s"
+msgstr "telt vanaf %s"
+
+#: src/Modules/Journey/Frontend/SuspensionCards.php
+msgid "Served on %s"
+msgstr "Uitgezeten op %s"
+
+#: src/Modules/Journey/Frontend/SuspensionCards.php
+msgctxt "suspension state"
+msgid "Served"
+msgstr "Uitgezeten"
+
+#: src/Modules/Journey/Frontend/SuspensionCards.php
+msgid "%1$d of %2$d served"
+msgstr "%1$d van %2$d uitgezeten"
+
+#: src/Modules/Journey/JourneyModule.php
+msgid "Who is suspended, for which matches, and when they can play again."
+msgstr "Wie geschorst is, voor welke wedstrijden, en wanneer ze weer kunnen spelen."
+
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "Counts from"
+msgstr "Telt vanaf"
+
+#: src/Modules/Journey/Wizards/SuspensionConfirmStep.php
+msgid "The player will be unavailable for these matches:"
+msgstr "De speler is voor deze wedstrijden niet beschikbaar:"
+
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid ""
+"Every match of the team counts: league, cup and friendly. Trainings never do."
+msgstr ""
+"Elke wedstrijd van het team telt: competitie, beker en oefenwedstrijd. "
+"Trainingen nooit."
+
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid ""
+"This suspension has been served, so its start date and number of matches are "
+"fixed."
+msgstr ""
+"Deze schorsing is uitgezeten, dus de startdatum en het aantal wedstrijden "
+"liggen vast."
+
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "The first day a match counts towards the suspension."
+msgstr "De eerste dag waarop een wedstrijd meetelt voor de schorsing."
+
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "The player and their parents can read this, along with the reason."
+msgstr "De speler en de ouders kunnen dit lezen, samen met de reden."
+
+#: src/Modules/Journey/Wizards/SuspensionDetailsStep.php
+msgid "Enter the day the suspension starts counting from."
+msgstr "Vul de dag in vanaf wanneer de schorsing telt."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Suspension reasons"
+msgstr "Redenen voor schorsing"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Yellow-card accumulation, red card, club decision. The player and their "
+"parents see the reason on the journey."
+msgstr ""
+"Te veel gele kaarten, rode kaart, besluit van de club. De speler en de "
+"ouders zien de reden op de tijdlijn."
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
