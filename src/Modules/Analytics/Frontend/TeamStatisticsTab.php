@@ -390,7 +390,7 @@ final class TeamStatisticsTab {
         $url = RecordLink::detailUrlForWithBack( 'player', $player_id );
         if ( $url === '' ) return esc_html( $name );
 
-        return '<a href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
+        return '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a>';
     }
 
     private static function sectionOpen( string $title ): void {

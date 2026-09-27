@@ -89,6 +89,33 @@ final class FilterBarPeriodChipTest extends WP_UnitTestCase {
         );
     }
 
+    /* ---- #4075: one "Custom range" in the menu ------------------------ */
+
+    /**
+     * The generic empty-key preset duplicated the custom branch and did the
+     * opposite of what its label said. The branch is the only one left.
+     */
+    public function test_the_generic_custom_range_preset_is_dropped(): void {
+        $group = ReportFilters::periodGroup( $this->options( '' ), '', '2026-08-01', '2026-09-15' );
+
+        $values = array_map( static fn( $o ) => (string) ( $o['value'] ?? '' ), $group['options'] );
+        $this->assertNotContains( '', $values );
+        $this->assertSame( '/dash/?tt_view=minutes-report-team', $group['default_url'] );
+
+        $html = $this->render( [ $group ] );
+        $this->assertStringNotContainsString( 'tt-perdrop__opt--on', $html, 'No preset is active, so none is highlighted.' );
+    }
+
+    /** A surface that gave the empty key a label of its own keeps that row. */
+    public function test_a_relabelled_default_preset_is_kept(): void {
+        $options = $this->options( '' );
+        $options[0]['label'] = 'Last 30 days';
+
+        $group  = ReportFilters::periodGroup( $options, '', '2026-08-01', '2026-09-15' );
+        $values = array_map( static fn( $o ) => (string) ( $o['value'] ?? '' ), $group['options'] );
+        $this->assertContains( '', $values );
+    }
+
     /* ---- step 2: a seeded window is not a filter ---------------------- */
 
     public function test_the_shared_period_group_declares_its_default_window(): void {
