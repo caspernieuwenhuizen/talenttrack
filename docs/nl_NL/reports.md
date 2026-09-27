@@ -249,7 +249,7 @@ Deze twee rapporten antwoorden in absolute getallen, en één ding kunnen ze nie
 zeggen: welk deel van wat er werkelijk te vergeven was, elke speler kreeg.
 **Team · Minutenaandeel** doet dat wel: de eigen duur van elke gespeelde
 wedstrijd opgeteld tot een noemer, de vastgelegde minuten per speler daarover,
-en een instelbare norm — standaard 30% — die iedereen daaronder markeert. Zie
+en een instelbare norm — standaard 50% — die iedereen daaronder markeert. Zie
 [Minutenaandeel](minutes-share.md) voor het volledige verhaal.
 
 Gebruik het rapport **Minutencontrole** (hieronder) om te zien welke spelers bij

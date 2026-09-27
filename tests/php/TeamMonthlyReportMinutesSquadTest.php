@@ -15,7 +15,7 @@ use TT\Modules\Analytics\Reports\MinutesShareQuery;
  * players who got on the pitch, so a squad player who was available and
  * never played (the player the block exists to flag) was missing, and the
  * median was worked out without them. Its target was a hardcoded 50 while
- * the minutes-share report read the configured 30.
+ * the minutes-share report read the configured target.
  */
 final class TeamMonthlyReportMinutesSquadTest extends WP_UnitTestCase {
 

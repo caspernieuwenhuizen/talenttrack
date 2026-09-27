@@ -184,10 +184,16 @@ class PlayersRestController {
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_player' ],
                 'permission_callback' => function ( \WP_REST_Request $r ) {
-                    // Delete is strictly a manage_players capability since
-                    // it's destructive. Team-scoped editors (coaches) should
-                    // not be able to delete players they merely coach.
-                    return current_user_can( 'tt_edit_players' );
+                    // `tt_edit_players` is held club-wide by everyone who can
+                    // edit one player, so on its own it let a team-scoped
+                    // editor archive any player in the academy. Ask what
+                    // wp-admin's `PlayersPage::handle_delete()` asks since
+                    // #4003: the capability AND the edit right on this record.
+                    return current_user_can( 'tt_edit_players' )
+                        && AuthorizationService::canEditPlayer(
+                            get_current_user_id(),
+                            (int) $r['id']
+                        );
                 },
             ],
         ]);

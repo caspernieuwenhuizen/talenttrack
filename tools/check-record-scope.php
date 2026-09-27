@@ -20,7 +20,9 @@
  *   1. REST — `register_rest_route()` whose route carries a record-id
  *      parameter. The `callback` and `permission_callback` are resolved
  *      together and judged as ONE unit: they are two halves of one decision
- *      and the check may sit in either.
+ *      and the check may sit in either. A route registering several methods
+ *      is one unit per method, so a checked GET is not reported because its
+ *      DELETE sibling is not.
  *   2. Views — a method under `src/**\/Frontend/` that reads an id out of the
  *      request and loads a record with it.
  *   3. Handlers — `admin_post_*`, `wp_ajax_*` and `template_redirect` targets
