@@ -72,7 +72,8 @@ final class PdpReadySend {
                     RecordLink::dashboardUrl()
                 ),
             ],
-            ( new RecipientResolver() )->forPlayer( $player_id ),
+            // #4089 — development content: a trialist's family is not told.
+            ( new RecipientResolver() )->forPlayer( $player_id, true ),
             [
                 'message_type'      => MessageType::PDP_READY,
                 'sender_user_id'    => 0,

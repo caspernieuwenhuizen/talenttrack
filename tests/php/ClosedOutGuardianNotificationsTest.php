@@ -50,8 +50,10 @@ final class ClosedOutGuardianNotificationsTest extends WP_UnitTestCase {
     /** @return array<string,array{0:array<string,mixed>}> */
     public static function closedOutStates(): array {
         return [
-            'released' => [ [ 'status' => 'released' ] ],
-            'archived' => [ [ 'archived_at' => '2026-09-01 10:00:00' ] ],
+            'released'  => [ [ 'status' => 'released' ] ],
+            // #4089 — graduation closes a child out for messages too.
+            'graduated' => [ [ 'status' => 'graduated' ] ],
+            'archived'  => [ [ 'archived_at' => '2026-09-01 10:00:00' ] ],
             'binned'   => [ [ 'trashed_at' => '2026-09-01 10:00:00' ] ],
         ];
     }

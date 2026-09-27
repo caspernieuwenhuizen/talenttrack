@@ -165,10 +165,17 @@ final class AlertAudience {
         self::$audienceCache = [];
     }
 
-    /** @return list<int> */
+    /**
+     * #4089 — the children a parent is *sent* alerts about: active ones
+     * only. Every family alert is about development data (evaluations,
+     * goals, the PDP), which a trialist's family does not read, and a
+     * graduated child is closed out for messages.
+     *
+     * @return list<int>
+     */
     private static function childIds( int $userId ): array {
         if ( ! isset( self::$childCache[ $userId ] ) ) {
-            self::$childCache[ $userId ] = ParentChildResolver::childIds( $userId );
+            self::$childCache[ $userId ] = ParentChildResolver::childIds( $userId, ParentChildResolver::NEED_FULL );
         }
         return self::$childCache[ $userId ];
     }

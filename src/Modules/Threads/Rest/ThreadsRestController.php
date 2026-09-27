@@ -151,11 +151,30 @@ final class ThreadsRestController {
         return $adapter->canRead( get_current_user_id(), (int) $req->get_param( 'id' ) );
     }
 
-    public static function guardPost( WP_REST_Request $req ): bool {
+    /**
+     * #4089 — a reader who may not write gets told so. The guardian of a
+     * graduated player reads their child's conversations and no longer
+     * posts in them; a bare 403 on a thread they can see reads as a fault.
+     *
+     * @return bool|WP_Error
+     */
+    public static function guardPost( WP_REST_Request $req ) {
         if ( ! is_user_logged_in() ) return false;
         $adapter = ThreadTypeRegistry::get( (string) $req->get_param( 'type' ) );
         if ( ! $adapter ) return false;
-        return $adapter->canPost( get_current_user_id(), (int) $req->get_param( 'id' ) );
+
+        $user_id   = get_current_user_id();
+        $thread_id = (int) $req->get_param( 'id' );
+        if ( $adapter->canPost( $user_id, $thread_id ) ) return true;
+
+        if ( $adapter->canRead( $user_id, $thread_id ) ) {
+            return new WP_Error(
+                'thread_read_only',
+                __( 'You can read this conversation, but you cannot reply to it.', 'talenttrack' ),
+                [ 'status' => 403 ]
+            );
+        }
+        return false;
     }
 
     /**

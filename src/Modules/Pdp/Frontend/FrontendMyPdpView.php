@@ -72,7 +72,13 @@ class FrontendMyPdpView extends FrontendViewBase {
         // conversation. The voice tells the three readers apart.
         $voice     = \TT\Shared\Frontend\Components\SubjectVoice::forPlayer( $player );
         $is_self   = $voice->isSelf();
-        $is_parent = $voice->isParent();
+        // #4089 — only a parent who may still write is offered the
+        // acknowledgement: a graduated child's family reads the plan as it
+        // stood, and the route refuses their signature.
+        $is_parent = $voice->isParent()
+            && \TT\Infrastructure\Players\ParentChildResolver::isParentOf(
+                get_current_user_id(), (int) $player->id, \TT\Infrastructure\Players\ParentChildResolver::NEED_FULL
+            );
         $title     = $voice->pick(
             __( 'My development plan', 'talenttrack' ),
             sprintf(

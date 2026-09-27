@@ -92,13 +92,20 @@ final class ParentDashboardTiles {
      * alongside the canonical `icon` / `color` from the registry tile. Tiles
      * keep their registry order (the same order a player sees).
      *
+     * #4089 — narrowed to the child being shown. The registry answers for
+     * the parent across all their children, so a parent of one active child
+     * and one on trial holds every tile; the trialist's rail keeps only the
+     * schedule, which is all their family reads during the trial.
+     *
      * @param int $parent_user_id The parent persona's user id; gating is
      *                            resolved against their capabilities.
+     * @param int $child_id       The child the rail is for; 0 for no narrowing.
      * @return list<array{view_slug:string,child_noun:string,icon:string,color:string}>
      */
-    public static function tiles( int $parent_user_id ): array {
+    public static function tiles( int $parent_user_id, int $child_id = 0 ): array {
         $nouns  = self::childNouns();
         $groups = TileRegistry::tilesForUserGrouped( $parent_user_id );
+        $access = $child_id > 0 ? ParentChildResolver::accessFor( $parent_user_id, $child_id ) : '';
 
         $tiles = [];
         foreach ( $groups as $group ) {
@@ -108,6 +115,9 @@ final class ParentDashboardTiles {
                     // Not a mirrored development surface (setup / account /
                     // people / performance tile) — parents only mirror the
                     // Me-group development tiles + my-tasks.
+                    continue;
+                }
+                if ( $access !== '' && ! ParentChildResolver::accessAllowsViewSlug( $access, $slug ) ) {
                     continue;
                 }
                 $tiles[] = [

@@ -3,6 +3,7 @@ namespace TT\Modules\Activities;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
@@ -62,7 +63,29 @@ final class ActivityAccess {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
         $repo = new ActivitiesRepository();
         if ( $repo->linkedPlayerIdForUser( $user_id ) === $player_id ) return true;
-        return $repo->userIsParentOfPlayer( $user_id, $player_id );
+        return self::isScheduleGuardian( $user_id, $player_id );
+    }
+
+    /**
+     * #4089 — may this reader see the coach's free-text note on the child's
+     * attendance row? Everybody who reads the row, except a guardian who
+     * reaches the child only because the child is on trial: the note is a
+     * staff remark ("left early, knee"), and a trialist's family reads the
+     * schedule and whether the child was there, not the staff's remarks.
+     */
+    public static function canReadAttendanceNotes( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        if ( ! ParentChildResolver::isTrialFor( $user_id, $player_id ) ) return true;
+        return AuthorizationService::canViewPlayer( $user_id, $player_id );
+    }
+
+    /**
+     * #4089 — a guardian reads their child's schedule and attendance on
+     * every access level but none: a trialist's family too, which reads
+     * nothing else of the child's.
+     */
+    private static function isScheduleGuardian( int $user_id, int $player_id ): bool {
+        return ParentChildResolver::isParentOf( $user_id, $player_id, ParentChildResolver::NEED_SCHEDULE );
     }
 
     /**
@@ -95,7 +118,7 @@ final class ActivityAccess {
         $own = $repo->linkedPlayerIdForUser( $user_id );
         if ( $own > 0 ) return $own;
 
-        if ( $requested_player_id > 0 && $repo->userIsParentOfPlayer( $user_id, $requested_player_id ) ) {
+        if ( $requested_player_id > 0 && self::isScheduleGuardian( $user_id, $requested_player_id ) ) {
             return $requested_player_id;
         }
         return 0;
@@ -103,7 +126,8 @@ final class ActivityAccess {
 
     /**
      * Every player whose activities this user may read as that player or as
-     * their parent: their own linked player plus their active children.
+     * their parent: their own linked player plus the children whose
+     * schedule they read (#4089: a trialist included).
      *
      * @return list<int>
      */
@@ -112,7 +136,7 @@ final class ActivityAccess {
         $ids = [];
         $own = ( new ActivitiesRepository() )->linkedPlayerIdForUser( $user_id );
         if ( $own > 0 ) $ids[] = $own;
-        foreach ( \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ) as $child_id ) {
+        foreach ( ParentChildResolver::childIds( $user_id, ParentChildResolver::NEED_SCHEDULE ) as $child_id ) {
             if ( ! in_array( $child_id, $ids, true ) ) $ids[] = $child_id;
         }
         return $ids;

@@ -29,7 +29,7 @@ final class AccountPlayerLinks {
     /**
      * @return array{
      *     player: array{id:int, name:string, team_id:int, status:string}|null,
-     *     children: list<array{id:int, name:string, team_id:int, status:string}>,
+     *     children: list<array{id:int, name:string, team_id:int, status:string, access:string}>,
      *     reason: string|null
      * }
      */
@@ -43,8 +43,13 @@ final class AccountPlayerLinks {
                 $player = self::summary( $own );
             }
 
+            // #4089 — a child on trial or graduated is listed too, each with
+            // the access level their guardian holds, so a client knows up
+            // front which per-player routes will answer.
             foreach ( ParentChildResolver::children( $user_id ) as $child ) {
-                if ( self::isLive( $child ) ) $children[] = self::summary( $child );
+                if ( self::isLive( $child ) ) {
+                    $children[] = self::summary( $child ) + [ 'access' => ParentChildResolver::accessOf( $child ) ];
+                }
             }
         }
 

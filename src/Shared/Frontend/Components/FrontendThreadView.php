@@ -103,6 +103,11 @@ final class FrontendThreadView {
             echo '<button type="submit" class="tt-thread-send">' . esc_html__( 'Send', 'talenttrack' ) . '</button>';
             echo '</div>';
             echo '</form>';
+        } else {
+            // #4089 — say why there is no reply box, rather than leave a
+            // reader (a graduated player's family, a read-only staff reader)
+            // wondering where it went.
+            echo '<p class="tt-thread-readonly">' . esc_html__( 'You can read this conversation, but you cannot reply to it.', 'talenttrack' ) . '</p>';
         }
 
         echo '<script type="application/json" data-tt-thread-bootstrap>' . wp_json_encode( $bootstrap ) . '</script>';

@@ -1246,13 +1246,13 @@ The player records the logged-in account is linked to: the player it *is*, and t
 
 ```json
 { "player": { "id": 577, "name": "Bas Willems", "team_id": 52, "status": "active" },
-  "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active" } ],
+  "children": [ { "id": 590, "name": "Sem Willems", "team_id": 52, "status": "active", "access": "full" } ],
   "phone": "+31612345678",
   "reason": null }
 ```
 
 - `player` comes from the account's own link (`tt_players.wp_user_id`), in this club, active and not archived; otherwise `null`.
-- `children` are the account's active, non-archived children through the guardian link, most recently linked first.
+- `children` are the account's non-archived children through the guardian link whose status still gives the guardian any access (active, trial or graduated), most recently linked first. `access` (#4089) says what the guardian may do with that child: `full` (active), `trial` (on trial: the schedule and attendance through `GET /activities` and the activity peek, and every other per-player route answers 403) or `read_only` (graduated: the reads that were open before, and every write answers 403). A released, inactive, archived or binned child is not listed.
 - `phone` (#3684) is the caller's **own** account phone, E.164, or `""` when none is on file. It is only ever the caller's; no route hands one account another's number, and the staff collections do not carry it.
 - An account linked to nothing gets **200**, not 403, with `player: null`, `children: []` and `reason: "no_linked_player"`, so the client can say the account isn't linked yet.
 

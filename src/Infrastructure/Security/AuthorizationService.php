@@ -439,6 +439,17 @@ class AuthorizationService {
         $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id );
         if ( ! in_array( $user_id, $parents, true ) ) return true; // staff / other — governed elsewhere.
 
+        // #4089 — the child's status comes before the child's choice. A
+        // trialist's guardian sees no development section at all, a
+        // graduated child's sees what they saw before, and a guardian whose
+        // access has ended (released, archived, binned) sees none. A coach
+        // whose own child plays on their team reads that child as staff.
+        $resolver = \TT\Infrastructure\Players\ParentChildResolver::class;
+        if ( ! $resolver::accessAllowsSection( $resolver::accessFor( $user_id, $player_id ), $section )
+            && ! self::isStaffForPlayer( $user_id, $player_id ) ) {
+            return false;
+        }
+
         return ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->isVisible( $player_id, $section );
     }
 
@@ -935,6 +946,9 @@ class AuthorizationService {
         // #3476 — this query was already club-scoped and active-only, i.e.
         // already right; it is routed through the resolver so there is one
         // implementation to keep right rather than two that happen to agree.
+        // #4089 — the record need: an active or graduated child (the parent
+        // role is read-only), never a trialist, whose family reads the
+        // schedule and attendance through the matrix and nothing else.
         $children_player_ids = \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id );
         if ( ! empty( $children_player_ids ) ) {
             $perms_parent = self::getPermissionsForRoleKey( 'parent' );

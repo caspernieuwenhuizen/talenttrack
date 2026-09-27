@@ -103,6 +103,12 @@ class PdpConversationsRestController {
 
         $allowed = self::allowedFieldsFor( $file );
         if ( ! $allowed ) {
+            // #4089 — a graduated player's family reads the plan as it stood
+            // and signs nothing more; say so rather than answer a bare 403.
+            if ( \TT\Infrastructure\Players\ParentChildResolver::isReadOnlyFor( get_current_user_id(), (int) $file->player_id ) ) {
+                return RestResponse::error( 'record_read_only',
+                    __( 'This player has graduated. You can still read their record, but you can no longer change or acknowledge anything on it.', 'talenttrack' ), 403 );
+            }
             return RestResponse::error( 'forbidden',
                 __( 'You do not have permission to update this conversation.', 'talenttrack' ), 403 );
         }
@@ -337,8 +343,13 @@ class PdpConversationsRestController {
      * #3476 — delegates to the canonical resolver. This used to be its own
      * pivot query with no club scope and no status filter, one of four such
      * copies that had drifted apart on what a released child means.
+     *
+     * #4089 — the acknowledgement is a write, so the full need: a graduated
+     * child's family no longer signs, a trialist's never had the plan.
      */
     private static function isParentOfPlayer( int $user_id, int $player_id ): bool {
-        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $player_id );
+        return \TT\Infrastructure\Players\ParentChildResolver::isParentOf(
+            $user_id, $player_id, \TT\Infrastructure\Players\ParentChildResolver::NEED_FULL
+        );
     }
 }

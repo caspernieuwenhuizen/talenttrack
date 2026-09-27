@@ -833,6 +833,21 @@ class DashboardShortcode {
         // teammate id, not the subject.
         $target = self::resolveMePlayer( $user_id, $player );
 
+        // #4089 — while the child is on trial, their guardian reads the
+        // schedule and attendance and nothing else. Every other child view
+        // says so, instead of the generic refusal or a "kept private" state
+        // that would suggest the child chose it. A coach who is also the
+        // trialist's parent reads the record as staff and passes.
+        if ( $target !== null
+            && $view !== 'teammate'
+            && self::trialGuardianOnly( $user_id, (int) ( ( (array) $target )['id'] ?? 0 ) )
+            && ! \TT\Infrastructure\Players\ParentChildResolver::accessAllowsViewSlug(
+                \TT\Infrastructure\Players\ParentChildResolver::ACCESS_TRIAL, $view
+            ) ) {
+            self::renderTrialNotice( $target );
+            return true;
+        }
+
         // #1867 — a player can hide development sections from a linked
         // parent. The gate only ever restricts a parent (self + staff
         // pass through); when a section is hidden, show the dignified
@@ -887,7 +902,9 @@ class DashboardShortcode {
                 FrontendMyEvaluationsView::render( $target );
                 return true;
             case 'my-activities':
-                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                // #4089 — the schedule surface: a trialist's guardian opens
+                // it too, through the same rule `GET /activities` applies.
+                if ( ! self::requireScheduleOrDeny( $target ) ) return true;
                 FrontendMyActivitiesView::render( $target );
                 return true;
             case 'my-goals':
@@ -989,7 +1006,15 @@ class DashboardShortcode {
             // child's rows under a heading that named nobody, and reasonably
             // concluded they had just read another family's record. The API
             // refuses the same subject with a 403; the view now agrees.
-            if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $pid ) ) {
+            //
+            // #4089 — a trialist's guardian may not open the record, and
+            // still resolves the child as the subject: the dispatcher then
+            // opens the schedule and answers every other view with the trial
+            // notice rather than a bare refusal.
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $pid )
+                && ! \TT\Infrastructure\Players\ParentChildResolver::isParentOf(
+                    $user_id, $pid, \TT\Infrastructure\Players\ParentChildResolver::NEED_SCHEDULE
+                ) ) {
                 return null;
             }
             $child = QueryHelpers::get_player( $pid );
@@ -1045,6 +1070,39 @@ class DashboardShortcode {
         FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
         echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
         return false;
+    }
+
+    /**
+     * #4089 — the schedule form of `requirePlayerOrDeny()`: whoever may open
+     * the record, plus the guardian of a child on trial, who may open this
+     * and nothing else.
+     */
+    private static function requireScheduleOrDeny( ?object $player ): bool {
+        if ( $player
+            && \TT\Modules\Activities\ActivityAccess::canReadAsPlayerOrParent( get_current_user_id(), (int) ( ( (array) $player )['id'] ?? 0 ) ) ) {
+            return true;
+        }
+        return self::requirePlayerOrDeny( $player );
+    }
+
+    /**
+     * #4089 — does this user reach this player only as the guardian of a
+     * child on trial? Staff who may open the record answer false.
+     */
+    private static function trialGuardianOnly( int $user_id, int $player_id ): bool {
+        return \TT\Infrastructure\Players\ParentChildResolver::isTrialFor( $user_id, $player_id )
+            && ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_id );
+    }
+
+    /** #4089 — what a trialist's guardian meets on any view but the schedule. */
+    private static function renderTrialNotice( object $player ): void {
+        FrontendBreadcrumbs::fromDashboard( __( 'During the trial', 'talenttrack' ) );
+        $name = trim( (string) QueryHelpers::player_display_name( $player ) );
+        echo '<p class="tt-notice">' . esc_html( sprintf(
+            /* translators: %s: the child's name. */
+            __( '%s is on trial. During the trial you can see their trainings, matches and attendance. The rest of their record opens once they have signed with the academy.', 'talenttrack' ),
+            $name !== '' ? $name : __( 'Your child', 'talenttrack' )
+        ) ) . '</p>';
     }
 
     /**

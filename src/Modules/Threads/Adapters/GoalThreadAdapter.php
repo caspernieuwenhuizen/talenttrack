@@ -84,8 +84,10 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         if ( ! $goal ) return false;
 
         // Participants write in their own conversation regardless of
-        // the academy-wide grant.
-        if ( $this->isParticipant( $user_id, $goal ) ) return true;
+        // the academy-wide grant. #4089 — a guardian writes only while the
+        // child is active; a graduated child's family reads and no longer
+        // posts.
+        if ( $this->isParticipant( $user_id, $goal, ParentChildResolver::NEED_FULL ) ) return true;
 
         // #3720 — an academy-wide goals *reader* follows the
         // conversation read-only; writing in it needs the change right.
@@ -97,7 +99,7 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
      * The goal's own people: the coach owning the player, the goal's
      * author, the player themselves and their linked parents.
      */
-    private function isParticipant( int $user_id, object $goal ): bool {
+    private function isParticipant( int $user_id, object $goal, string $guardian_need = ParentChildResolver::NEED_RECORD ): bool {
         // Coach owning the player.
         if ( QueryHelpers::coach_owns_player( $user_id, (int) $goal->player_id ) ) return true;
 
@@ -111,7 +113,9 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
         // #3947 — a guardian, asked of the resolver every other surface
         // asks. A guardian of a released, archived or binned child is no
         // longer a participant: they neither read nor post.
-        return ParentChildResolver::isParentOf( $user_id, (int) $goal->player_id );
+        // #4089 — a trialist's guardian reads no goals, so is never one; a
+        // graduated child's reads (the record need) and does not post.
+        return ParentChildResolver::isParentOf( $user_id, (int) $goal->player_id, $guardian_need );
     }
 
     /**
@@ -127,7 +131,10 @@ final class GoalThreadAdapter implements ThreadTypeAdapter {
     private function guardiansOf( int $player_id ): array {
         $out = [];
         foreach ( ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id ) as $parent_uid ) {
-            if ( $parent_uid > 0 && ParentChildResolver::isParentOf( $parent_uid, $player_id ) ) {
+            // #4089 — notified only while the child is active: graduation
+            // closes the child out for messages, and a trialist's family
+            // is sent nothing about goals.
+            if ( $parent_uid > 0 && ParentChildResolver::isParentOf( $parent_uid, $player_id, ParentChildResolver::NEED_FULL ) ) {
                 $out[] = $parent_uid;
             }
         }

@@ -52,6 +52,14 @@ Je dashboard spiegelt precies wat je kind ziet: dezelfde ontwikkeltegels, in dez
 
 Eén ouderaccount kan aan meerdere kinderen gekoppeld zijn. Elk kind heeft een eigen profiel onder "Mijn kinderen"; wisselen kost één tik. Je hebt maar één TalentTrack-installatie en één set notificaties nodig — pushes noemen het juiste kind in de body, dus je weet altijd over wie een bericht gaat.
 
+## Terwijl je kind op stage is, en nadat het is doorgestroomd
+
+Wat je ziet hangt af van waar je kind in de academie staat:
+
+- **Op stage** — je ziet de trainingen en wedstrijden van de stage, en of je kind aanwezig was. Evaluaties, doelen, het ontwikkelplan en de andere notities van de trainers gaan open zodra je kind bij de academie getekend heeft. Tot die tijd zeggen die schermen dat, in plaats van ze te tonen.
+- **Doorgestroomd** — je kunt nog lezen wat je eerder kon zien, zoals het was toen je kind doorstroomde. Je kunt niet meer reageren in gesprekken of iets bevestigen, en de academie stuurt je geen berichten meer over je kind.
+- **Vertrokken** — je toegang tot het dossier van je kind stopt. Heb je een kopie nodig, vraag het dan aan de academie.
+
 ## Wanneer je kind 11 of 12 wordt
 
 De contactstrategie verschuift. Vanaf U11 kan je kind zijn eigen telefoonaccount hebben en pushes direct ontvangen. Jij blijft als ouder gekoppeld en blijft alles zien, maar de coach kan de speler ook rechtstreeks op de telefoon bereiken.

@@ -292,7 +292,9 @@ final class CommsScheduledCron {
 
         $resolver = new RecipientResolver();
         foreach ( $rows as $row ) {
-            $recipients = $resolver->forPlayer( (int) $row->player_id );
+            // #4089 — the goal's title is development content: a trialist's
+            // family is not sent it.
+            $recipients = $resolver->forPlayer( (int) $row->player_id, true );
             if ( $recipients === [] ) continue;
             do_action(
                 CommsDispatcher::ACTION_HOOK,
@@ -431,6 +433,15 @@ final class CommsScheduledCron {
             $parent_user_id = (int) $row->parent_user_id;
             $u = get_userdata( $parent_user_id );
             if ( ! $u ) continue;
+            // #4089 — the nudge carries the child's evaluation and goal
+            // counts, so it goes only to a guardian of an active child. The
+            // query reads the raw pivot, which also lists the families of
+            // released, graduated, archived and trialist children.
+            if ( ! \TT\Infrastructure\Players\ParentChildResolver::isParentOf(
+                $parent_user_id, (int) $row->player_id, \TT\Infrastructure\Players\ParentChildResolver::NEED_FULL
+            ) ) {
+                continue;
+            }
             do_action(
                 CommsDispatcher::ACTION_HOOK,
                 'onboarding_nudge_inactive',

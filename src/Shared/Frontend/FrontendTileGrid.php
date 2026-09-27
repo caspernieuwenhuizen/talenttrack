@@ -707,7 +707,7 @@ class FrontendTileGrid {
         }
 
         $base  = self::shortcodeBaseUrl();
-        $tiles = \TT\Infrastructure\Players\ParentDashboardTiles::tiles( $user_id );
+        $tiles = \TT\Infrastructure\Players\ParentDashboardTiles::tiles( $user_id, $child_id );
 
         echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
         echo '<div class="tt-parent-dash">';
@@ -725,6 +725,17 @@ class FrontendTileGrid {
         echo '<h2 class="tt-parent-dash-name">' . esc_html( $child_name !== '' ? $child_name : __( 'Player', 'talenttrack' ) ) . '</h2>';
         echo '</div>';
         echo '</div>';
+
+        // #4089 — during a trial the rail holds only the schedule; say why,
+        // so the family is not left wondering where the rest went.
+        if ( \TT\Infrastructure\Players\ParentChildResolver::accessOf( $active )
+            === \TT\Infrastructure\Players\ParentChildResolver::ACCESS_TRIAL ) {
+            echo '<p class="tt-notice">' . esc_html( sprintf(
+                /* translators: %s: the child's name. */
+                __( '%s is on trial. During the trial you can see their trainings, matches and attendance. The rest of their record opens once they have signed with the academy.', 'talenttrack' ),
+                $child_name !== '' ? $child_name : __( 'Your child', 'talenttrack' )
+            ) ) . '</p>';
+        }
 
         // Child switcher (only when >1 linked child).
         \TT\Shared\Frontend\Components\ParentChildSwitcher::renderInlineSwitcher( $children, $child_id, $base );

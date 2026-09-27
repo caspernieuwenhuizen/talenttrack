@@ -30,14 +30,175 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class ParentChildResolver {
 
     /**
-     * Active player records linked to this parent, most-recently-linked
-     * first. The order is the multi-child default rule (#1991 / #1992):
-     * the first entry is the child auto-selected when no explicit
-     * `?player_id` is supplied.
+     * #4089 — what a guardian may do with one linked child, decided by the
+     * child's status. One rule, owned here; every parent surface asks it.
      *
-     * Filters to `status = 'active'`, to the current club, and — since
-     * #3937 — to the `active` lifecycle: a child who has been archived or
-     * moved to the recycle bin is not a child any guardian surface offers.
+     *   - `active`    → full: the whole family view, reads and writes.
+     *   - `trial`     → trial: the trial's schedule and attendance, nothing
+     *                   else — no evaluations, goals, PDP, potential or any
+     *                   other staff judgement until the child is signed.
+     *   - `graduated` → read_only: what the family could read before
+     *                   graduation, and no writes. No messages either:
+     *                   graduation closes the child out for notifications.
+     *   - `released`, `inactive`, archived, binned → none.
+     */
+    public const ACCESS_FULL      = 'full';
+    public const ACCESS_TRIAL     = 'trial';
+    public const ACCESS_READ_ONLY = 'read_only';
+    public const ACCESS_NONE      = 'none';
+
+    /**
+     * What a caller needs from the guardian link.
+     *
+     *   - `record`   — read the child's development record (evaluations,
+     *                  goals, PDP, journey …). Full and read-only access.
+     *                  The default everywhere, so a caller that does not say
+     *                  what it needs never reaches a trialist.
+     *   - `schedule` — read the child's schedule and attendance. Every
+     *                  access level but none, the trial one included.
+     *   - `full`     — write on the child's behalf (a thread reply, an
+     *                  acknowledgement), or be sent something about their
+     *                  development. Full access only.
+     */
+    public const NEED_RECORD   = 'record';
+    public const NEED_SCHEDULE = 'schedule';
+    public const NEED_FULL     = 'full';
+
+    /**
+     * The matrix entities a trialist's guardian reads: the schedule and the
+     * attendance on it. Read only. Anything not listed is refused, so an
+     * entity added later reaches a trial family only by being named here.
+     */
+    public const TRIAL_ENTITIES = [ 'activities', 'my_activities', 'attendance' ];
+
+    /**
+     * The Me-view slugs that carry schedule + attendance, the only child
+     * surfaces a trialist's guardian opens.
+     */
+    public const TRIAL_VIEW_SLUGS = [ 'my-activities' ];
+
+    /** The statuses a guardian keeps any access on. */
+    private const LINKED_STATUSES = [ PlayerStatus::ACTIVE, PlayerStatus::TRIAL, PlayerStatus::GRADUATED ];
+
+    /**
+     * #4089 — the access level a child's status gives their guardian. Pure,
+     * so the rule is testable without a database.
+     */
+    public static function accessForStatus( string $status ): string {
+        switch ( $status ) {
+            case PlayerStatus::ACTIVE:    return self::ACCESS_FULL;
+            case PlayerStatus::TRIAL:     return self::ACCESS_TRIAL;
+            case PlayerStatus::GRADUATED: return self::ACCESS_READ_ONLY;
+            default:                      return self::ACCESS_NONE;
+        }
+    }
+
+    /** Does this access level meet this need? Pure. */
+    public static function accessMeets( string $access, string $need ): bool {
+        switch ( $need ) {
+            case self::NEED_FULL:
+                return $access === self::ACCESS_FULL;
+            case self::NEED_SCHEDULE:
+                return in_array( $access, [ self::ACCESS_FULL, self::ACCESS_READ_ONLY, self::ACCESS_TRIAL ], true );
+            case self::NEED_RECORD:
+            default:
+                return in_array( $access, [ self::ACCESS_FULL, self::ACCESS_READ_ONLY ], true );
+        }
+    }
+
+    /**
+     * May a guardian with this access level take this matrix activity on
+     * this entity? Pure. The matrix row still has to grant it; this only
+     * narrows. `read` is the only activity a read-only or trial guardian
+     * holds.
+     */
+    public static function accessAllowsEntity( string $access, string $entity, string $activity ): bool {
+        switch ( $access ) {
+            case self::ACCESS_FULL:
+                return true;
+            case self::ACCESS_READ_ONLY:
+                return $activity === 'read';
+            case self::ACCESS_TRIAL:
+                return $activity === 'read' && in_array( $entity, self::TRIAL_ENTITIES, true );
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * May a guardian with this access level see this player-controlled
+     * section (`PlayerParentVisibilityRepository::SECTIONS`, plus the
+     * `activities` key the match-analysis tab uses)? Pure. Every one of them
+     * is development data, so a trialist's guardian sees none.
+     */
+    public static function accessAllowsSection( string $access, string $section ): bool {
+        return $section !== '' && self::accessMeets( $access, self::NEED_RECORD );
+    }
+
+    /** May a guardian with this access level open this child-scoped view? Pure. */
+    public static function accessAllowsViewSlug( string $access, string $view_slug ): bool {
+        if ( $access === self::ACCESS_TRIAL ) {
+            return in_array( $view_slug, self::TRIAL_VIEW_SLUGS, true );
+        }
+        return self::accessMeets( $access, self::NEED_RECORD );
+    }
+
+    /** The access level a `children()` row carries. */
+    public static function accessOf( object $child ): string {
+        $row = (array) $child;
+        return self::accessForStatus( (string) ( $row['status'] ?? '' ) );
+    }
+
+    /**
+     * #4089 — this guardian's access to this child. `none` when they are not
+     * linked in this club, or the child is archived, binned, released or
+     * inactive.
+     */
+    public static function accessFor( int $parent_user_id, int $player_id ): string {
+        if ( $parent_user_id <= 0 || $player_id <= 0 ) return self::ACCESS_NONE;
+
+        foreach ( self::children( $parent_user_id ) as $child ) {
+            if ( (int) ( ( (array) $child )['id'] ?? 0 ) === $player_id ) {
+                return self::accessOf( $child );
+            }
+        }
+        return self::ACCESS_NONE;
+    }
+
+    /**
+     * #4089 — may this guardian take this matrix activity on this entity for
+     * this child? The guardian half of the matrix `player` scope.
+     */
+    public static function guardianAllows( int $parent_user_id, int $player_id, string $entity, string $activity ): bool {
+        return self::accessAllowsEntity( self::accessFor( $parent_user_id, $player_id ), $entity, $activity );
+    }
+
+    /**
+     * #4089 — does this guardian have at least one child on whom they may
+     * take this matrix activity on this entity? The "any scope" form.
+     */
+    public static function guardianAllowsAny( int $parent_user_id, string $entity, string $activity ): bool {
+        foreach ( self::children( $parent_user_id ) as $child ) {
+            if ( self::accessAllowsEntity( self::accessOf( $child ), $entity, $activity ) ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * The player records linked to this parent that they keep any access
+     * on, most-recently-linked first. The order is the multi-child default
+     * rule (#1991 / #1992): the first entry is the child auto-selected when
+     * no explicit `?player_id` is supplied.
+     *
+     * #4089 — since then a child on trial or graduated is listed too, next
+     * to an active one; each row's access level is `accessOf( $row )`. This
+     * is the list a parent is *shown* (the switcher, the dashboard anchor).
+     * What they may *read* is `childIds()` / `isParentOf()` with a need,
+     * which default to the development record and so leave a trialist out.
+     *
+     * Filters to the current club and — since #3937 — to the `active`
+     * lifecycle: a child who has been archived or moved to the recycle bin
+     * is not a child any guardian surface offers.
      * Reads the pivot only — a parent linked solely via the legacy
      * guardian_email column will not surface until re-linked (the accepted
      * #1993 trade-off: no backfill).
@@ -85,27 +246,29 @@ final class ParentChildResolver {
                INNER JOIN {$players} p ON p.id = pp.player_id
               WHERE pp.parent_user_id = %d
                 AND pp.club_id = %d
-                AND p.status = 'active'
+                AND p.status IN ( %s, %s, %s )
                 AND {$lifecycle}
               ORDER BY pp.created_at DESC, pp.player_id DESC",
-            $parent_user_id, CurrentClub::id()
+            $parent_user_id, CurrentClub::id(),
+            self::LINKED_STATUSES[0], self::LINKED_STATUSES[1], self::LINKED_STATUSES[2]
         ) );
         return is_array( $rows ) ? $rows : [];
     }
 
     /**
      * The default child subject for a parent who supplied no explicit
-     * `?player_id` — the most-recently linked active child, or null when
+     * `?player_id` — the most-recently linked child, or null when
      * the parent has no linked child. Single-child parents resolve to
      * that child; multi-child parents resolve to their most-recent and
-     * the caller offers a switcher to change it.
+     * the caller offers a switcher to change it. The caller still asks
+     * what the parent may open on that child.
      */
     public static function defaultChild( int $parent_user_id ): ?object {
         $children = self::children( $parent_user_id );
         return $children[0] ?? null;
     }
 
-    /** Number of active children linked to this parent. */
+    /** Number of children linked to this parent that they keep any access on. */
     public static function childCount( int $parent_user_id ): int {
         return count( self::children( $parent_user_id ) );
     }
@@ -171,15 +334,21 @@ final class ParentChildResolver {
      * lifecycle filter for the same reason: the scope question and the
      * display question must not be able to disagree about a binned child.
      *
+     * #4089 — filtered by what the caller needs. The default is the
+     * development record, which an active or graduated child's guardian
+     * reads and a trialist's does not; every caller written before the
+     * trial rule therefore still leaves a trialist out. Ask for
+     * `NEED_SCHEDULE` to include one, `NEED_FULL` for writes and messages.
+     *
      * @return list<int>
      */
-    public static function childIds( int $parent_user_id ): array {
+    public static function childIds( int $parent_user_id, string $need = self::NEED_RECORD ): array {
         if ( $parent_user_id <= 0 ) return [];
 
         $ids = [];
         foreach ( self::children( $parent_user_id ) as $child ) {
             $id = (int) ( $child->id ?? 0 );
-            if ( $id > 0 ) $ids[] = $id;
+            if ( $id > 0 && self::accessMeets( self::accessOf( $child ), $need ) ) $ids[] = $id;
         }
         return $ids;
     }
@@ -219,18 +388,45 @@ final class ParentChildResolver {
      * archived or trashed child answers false here as well. A record in the
      * bin is one the academy has decided to destroy; continuing to serve it
      * to the family is outside the contract the bin rests on.
+     *
+     * ## Trial and graduation (#4089)
+     *
+     * The answer depends on what the caller needs. By default it is "may
+     * this guardian read the child's development record": yes for an active
+     * or graduated child, no for a trialist. `NEED_SCHEDULE` admits a
+     * trialist for their schedule and attendance; `NEED_FULL` is the write
+     * and messaging question, and a graduated child answers no.
      */
-    public static function isParentOf( int $parent_user_id, int $player_id ): bool {
+    public static function isParentOf( int $parent_user_id, int $player_id, string $need = self::NEED_RECORD ): bool {
         if ( $parent_user_id <= 0 || $player_id <= 0 ) return false;
-        return in_array( $player_id, self::childIds( $parent_user_id ), true );
+        return in_array( $player_id, self::childIds( $parent_user_id, $need ), true );
+    }
+
+    /**
+     * #4089 — true when this user is the child's guardian with read-only
+     * access (a graduated child), so a refused write can say why rather
+     * than answer a bare 403.
+     */
+    public static function isReadOnlyFor( int $parent_user_id, int $player_id ): bool {
+        return self::accessFor( $parent_user_id, $player_id ) === self::ACCESS_READ_ONLY;
+    }
+
+    /**
+     * #4089 — true when this user is the child's guardian while the child is
+     * on trial, so a refused surface can say what is still open to them.
+     */
+    public static function isTrialFor( int $parent_user_id, int $player_id ): bool {
+        return self::accessFor( $parent_user_id, $player_id ) === self::ACCESS_TRIAL;
     }
 
     /**
      * #3979 — who is *sent* something about this player: the guardians a
      * notification path may reach, asked from the child's side.
      *
-     * Nobody, once the child is closed out — released, archived or in the
-     * recycle bin — the same three #3937 and #3947 end guardian access on.
+     * Nobody, once the child is closed out — released, graduated, archived
+     * or in the recycle bin. The first and the last two are what #3937 and
+     * #3947 end guardian access on; graduated joined them in #4089, which
+     * keeps a graduated child's family reading and stops sending to them.
      * There is no exception list: close-out letters (a release letter, a
      * data export, a subject-access response) are sent by staff outside the
      * notification paths.
@@ -241,15 +437,24 @@ final class ParentChildResolver {
      * `active` players. A notification path also sends about a trialist —
      * the trial welcome goes to the family of a child whose status is
      * `trial` by construction — so the send-side rule names the closed-out
-     * states instead of the one open one. A child who is on trial,
-     * inactive or has graduated still has guardians here.
+     * states instead of the one open one. A child who is on trial or
+     * inactive still has guardians here.
+     *
+     * ## Development messages (#4089)
+     *
+     * A trialist's family is sent the trial's messages — the welcome, a
+     * cancelled training — and nothing about the child's development, which
+     * they may not read. A send whose content is development data (a goal
+     * nudge, a plan being ready) passes `$development = true`, and then only
+     * an active child has guardians here.
      *
      * Primary guardian first, then by when they were linked.
      *
      * @return list<int> parent WP user ids
      */
-    public static function guardiansOf( int $player_id ): array {
+    public static function guardiansOf( int $player_id, bool $development = false ): array {
         if ( self::isClosedOut( $player_id ) ) return [];
+        if ( $development && ! self::isDevelopmentOpen( $player_id ) ) return [];
 
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_parents';
@@ -276,13 +481,42 @@ final class ParentChildResolver {
      * #3979 — has the academy finished with this child, as far as their
      * family is concerned?
      *
-     * True when the player is released, archived or in the recycle bin, and
-     * when there is no such player in this club. A notification path asks
-     * this before any fallback it keeps, so a legacy contact column cannot
-     * reach a family the pivot is no longer allowed to.
+     * True when the player is released, graduated, archived or in the
+     * recycle bin, and when there is no such player in this club. A
+     * notification path asks this before any fallback it keeps, so a legacy
+     * contact column cannot reach a family the pivot is no longer allowed to.
+     *
+     * #4089 — graduated counts as closed out for sending: the family keeps
+     * reading what they could read before, and nobody — the player's own
+     * account included — is sent anything more about the child.
      */
     public static function isClosedOut( int $player_id ): bool {
-        if ( $player_id <= 0 ) return true;
+        $row = self::statusRow( $player_id );
+        if ( $row === null ) return true;
+
+        return self::isClosedOutStatus( (string) ( $row['status'] ?? '' ) )
+            || ! empty( $row['archived_at'] )
+            || ! empty( $row['trashed_at'] );
+    }
+
+    /** The statuses that close a child out for notifications. Pure. */
+    public static function isClosedOutStatus( string $status ): bool {
+        return $status === PlayerStatus::RELEASED || $status === PlayerStatus::GRADUATED;
+    }
+
+    /**
+     * #4089 — may the family be sent something about this child's
+     * development? Only while the child is active.
+     */
+    public static function isDevelopmentOpen( int $player_id ): bool {
+        $row = self::statusRow( $player_id );
+        return $row !== null
+            && self::accessMeets( self::accessForStatus( (string) ( $row['status'] ?? '' ) ), self::NEED_FULL );
+    }
+
+    /** @return array<string,mixed>|null */
+    private static function statusRow( int $player_id ): ?array {
+        if ( $player_id <= 0 ) return null;
 
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
@@ -290,10 +524,6 @@ final class ParentChildResolver {
               WHERE id = %d AND club_id = %d LIMIT 1",
             $player_id, CurrentClub::id()
         ), ARRAY_A );
-        if ( ! is_array( $row ) ) return true;
-
-        return (string) ( $row['status'] ?? '' ) === PlayerStatus::RELEASED
-            || ! empty( $row['archived_at'] )
-            || ! empty( $row['trashed_at'] );
+        return is_array( $row ) ? $row : null;
     }
 }

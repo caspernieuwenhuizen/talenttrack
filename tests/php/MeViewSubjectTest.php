@@ -61,12 +61,20 @@ final class MeViewSubjectTest extends WP_UnitTestCase {
     public function test_an_unauthorised_player_id_is_refused_not_swapped(): void {
         $source = $this->read( 'src/Shared/Frontend/DashboardShortcode.php' );
 
+        // #4089 — the one other way through is a guardian of a child on
+        // trial, who resolves the child for the schedule alone; the
+        // dispatcher then refuses every other view with the trial notice.
         $this->assertMatchesRegularExpression(
-            '/if\s*\(\s*!\s*\\\\?TT\\\\Infrastructure\\\\Security\\\\AuthorizationService::canViewPlayer\([^)]*\)\s*\)\s*\{\s*return null;/s',
+            '/if\s*\(\s*!\s*\\\\?TT\\\\Infrastructure\\\\Security\\\\AuthorizationService::canViewPlayer\([^)]*\)[^{]*\)\s*\{\s*return null;/s',
             $source,
             'resolveMePlayer() must return null for a player_id the viewer may not see, so '
             . 'requirePlayerOrDeny() can emit its notice. Falling through to the viewer\'s own '
             . 'subject is what let a parent believe they had read another child\'s record.'
+        );
+        $this->assertMatchesRegularExpression(
+            '/canViewPlayer\( \$user_id, \$pid \)\s*&&\s*!\s*\\\\TT\\\\Infrastructure\\\\Players\\\\ParentChildResolver::isParentOf\(\s*\$user_id, \$pid, \\\\TT\\\\Infrastructure\\\\Players\\\\ParentChildResolver::NEED_SCHEDULE/s',
+            $source,
+            'the only other subject a refused player_id may resolve to is a trialist, for the schedule need'
         );
     }
 

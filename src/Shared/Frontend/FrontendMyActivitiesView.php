@@ -337,7 +337,10 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $location     = (string) ( $row->location ?? '' );
         $team_name    = (string) ( $row->team_name ?? '' );
         $att_status   = $att ? (string) ( $att->status ?? '' ) : '';
-        $att_notes    = $att && ! empty( $att->notes ) ? (string) $att->notes : '';
+        $att_notes    = $att && ! empty( $att->notes )
+            && \TT\Modules\Activities\ActivityAccess::canReadAttendanceNotes( get_current_user_id(), (int) ( ( (array) $player )['id'] ?? 0 ) )
+            ? (string) $att->notes
+            : '';
         $type_key     = (string) ( $row->activity_type_key ?? '' );
 
         // #3771 — the times. `findForPlayer()` selects `a.*`, so they were

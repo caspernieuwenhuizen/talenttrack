@@ -46,7 +46,7 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $children = self::fetchChildren( $ctx->user_id );
         $since    = self::lastVisited( $ctx->user_id );
-        $recap    = self::recap( $children, $since );
+        $recap    = self::recap( self::evaluationReaders( $ctx->user_id, $children ), $since );
 
         $pills = '';
         if ( empty( $children ) ) {
@@ -65,8 +65,14 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
             foreach ( $children as $child ) {
                 $pid = (int) $child->id;
                 if ( $pid <= 0 ) continue;
+                // #4089 — a child on trial opens on their schedule, the one
+                // thing their family reads during the trial.
+                $landing = \TT\Infrastructure\Players\ParentChildResolver::accessOf( $child )
+                    === \TT\Infrastructure\Players\ParentChildResolver::ACCESS_TRIAL
+                    ? 'my-activities'
+                    : 'overview';
                 $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-                    [ 'tt_view' => 'overview', 'player_id' => $pid ],
+                    [ 'tt_view' => $landing, 'player_id' => $pid ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                 ) );
                 $pills .= '<a class="tt-pd-child-pill" data-tt-pd-child="' . esc_attr( (string) $pid ) . '" href="' . esc_url( $url ) . '">'
@@ -126,6 +132,27 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
         }
         if ( ! is_string( $raw ) || $raw === '' ) return null;
         return $raw;
+    }
+
+    /**
+     * #4089 — the children whose evaluations this parent reads: not a
+     * trialist, and not a child who has kept their evaluations private
+     * (#1867). The recap is a count of evaluations, and a count is still
+     * the child's evaluation data.
+     *
+     * @param list<object> $children
+     * @return list<object>
+     */
+    private static function evaluationReaders( int $user_id, array $children ): array {
+        $out = [];
+        foreach ( $children as $child ) {
+            $pid = (int) ( ( (array) $child )['id'] ?? 0 );
+            if ( $pid <= 0 ) continue;
+            if ( ! \TT\Infrastructure\Players\ParentChildResolver::isParentOf( $user_id, $pid ) ) continue;
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( $user_id, $pid, 'evaluations' ) ) continue;
+            $out[] = $child;
+        }
+        return $out;
     }
 
     /**
