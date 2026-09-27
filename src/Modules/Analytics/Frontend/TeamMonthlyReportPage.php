@@ -349,7 +349,7 @@ final class TeamMonthlyReportPage {
             $action = strtok( $action, '?' );
         }
 
-        echo '<form class="tt-mr-panel" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
+        echo '<form class="tt-mr-panel tt-mr-panel--split" method="get" action="' . esc_url( (string) $action ) . '" autocomplete="off" data-tt-mr-panel>';
         foreach ( $hidden as $name => $value ) {
             echo '<input type="hidden" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '">';
         }
@@ -372,9 +372,9 @@ final class TeamMonthlyReportPage {
         echo '</fieldset>';
 
         // Blocks.
-        echo '<fieldset class="tt-mr-panel__group">';
+        echo '<fieldset class="tt-mr-panel__group tt-mr-panel__group--sections">';
         echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Sections', 'team monthly report panel', 'talenttrack' ) . '</legend>';
-        echo '<div class="tt-mr-blocks">';
+        echo '<div class="tt-mr-blocks tt-mr-blocks--sections">';
         foreach ( TeamMonthlyReportBlock::ALL as $key ) {
             $id     = 'tt-mr-blk-' . $key;
             $locked = $key === TeamMonthlyReportBlock::LETTERHEAD;
@@ -399,8 +399,13 @@ final class TeamMonthlyReportPage {
         echo '</div>';
         echo '</fieldset>';
 
+        // #4062 — the section options stack in a sidebar on desktop. The
+        // wrapper keeps that stack explicit instead of leaving it to grid
+        // auto-placement; below 1024px it simply follows Sections.
+        echo '<div class="tt-mr-panel__side">';
         self::renderMatchesOptions( $selected, $options );
         self::renderTestsOptions( $team_id, $window, $selected, $options );
+        echo '</div>';
 
         self::renderFitMeter( $fit );
 
@@ -558,6 +563,13 @@ final class TeamMonthlyReportPage {
                 ? __( 'Does not fit on one page. Drop a section, or switch to the three-page pack.', 'talenttrack' )
                 : __( 'A page overflows. Drop a section to keep the pack to three pages.', 'talenttrack' );
             echo '<p class="tt-mr-fit__msg is-over">' . esc_html( $msg ) . '</p>';
+        } elseif ( in_array( TeamMonthlyReportLayout::TESTS_SUMMARY, $fit['degraded'], true ) ) {
+            // #4069 — the pack's third page drops the tables of readings
+            // before it overflows, and says so.
+            $msg = in_array( TeamMonthlyReportLayout::TRIM_ATTENTION, $fit['degraded'], true )
+                ? __( 'Fits by shortening: each test prints its summary without the table of readings, and the agenda keeps its two most urgent players.', 'talenttrack' )
+                : __( 'Fits by shortening: each test prints its summary without the table of readings.', 'talenttrack' );
+            echo '<p class="tt-mr-fit__msg is-tight">' . esc_html( $msg ) . '</p>';
         } elseif ( $fit['degraded'] !== [] ) {
             echo '<p class="tt-mr-fit__msg is-tight">' . esc_html__( 'Fits by shortening: long player lists keep their top and bottom, and the agenda keeps its two most urgent players.', 'talenttrack' ) . '</p>';
         } else {
@@ -1254,7 +1266,7 @@ final class TeamMonthlyReportPage {
         foreach ( $available as $definition ) {
             $def_id = (int) $definition['definition_id'];
             $id     = 'tt-mr-test-' . $def_id;
-            echo '<label class="tt-mr-block" for="' . esc_attr( $id ) . '">';
+            echo '<label class="tt-mr-block tt-mr-block--test" for="' . esc_attr( $id ) . '">';
             echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_tests_def[]" value="' . esc_attr( (string) $def_id ) . '"'
                 . checked( in_array( $def_id, $chosen, true ), true, false ) . ' data-tt-mr-block>';
             echo '<span class="tt-mr-block__t">' . esc_html( (string) $definition['name'] ) . '</span>';
@@ -1280,7 +1292,7 @@ final class TeamMonthlyReportPage {
     }
 
     /**
-     * One test's readings per player, in shirt order (#3515).
+     * One test's readings per player (#3515), in the composer's order: best to worst on a test with a direction (#4063).
      *
      * @param array<string,mixed> $round
      */
@@ -1291,7 +1303,7 @@ final class TeamMonthlyReportPage {
             return;
         }
 
-        $unit   = (string) ( $round['unit'] ?? '' );
+        $unit   = (string) ( $round['unit_label'] ?? $round['unit'] ?? '' );
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
@@ -1316,8 +1328,7 @@ final class TeamMonthlyReportPage {
             echo '<tr>';
             echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             if ( $values ) {
-                $value = $row['value'] ?? null;
-                echo '<td class="num">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+                echo '<td class="num">' . esc_html( self::testValue( $row ) ) . '</td>';
             }
             if ( $trend ) {
                 echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'
@@ -1329,7 +1340,20 @@ final class TeamMonthlyReportPage {
     }
 
     /**
-     * A reading's change since the player's previous one.
+     * A reading as the composer spelled it (#4063). A snapshot frozen before
+     * the composer spelled it falls back to the raw value.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testValue( array $row ): string {
+        if ( isset( $row['value_display'] ) && is_string( $row['value_display'] ) ) return $row['value_display'];
+        $value = $row['value'] ?? null;
+        return is_scalar( $value ) ? (string) $value : '—';
+    }
+
+    /**
+     * A reading's change since the player's previous one, as the composer
+     * spelled it (#4063).
      *
      * A first reading has nothing to compare with, which is not the same as no
      * change — it gets a dash, like every other "no comparison" in this report.
@@ -1338,13 +1362,12 @@ final class TeamMonthlyReportPage {
      */
     private static function testDelta( array $row ): string {
         if ( ! empty( $row['first'] ) ) return '—';
+        if ( isset( $row['delta_display'] ) && is_string( $row['delta_display'] ) ) return $row['delta_display'];
 
         $delta = (float) ( $row['delta'] ?? 0 );
         if ( abs( $delta ) < 0.0001 ) return '0';
 
-        $formatted = number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
-
-        return ( $delta > 0 ? '+' : '−' ) . $formatted;
+        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
     }
 
     /** @param array<string,mixed> $r */

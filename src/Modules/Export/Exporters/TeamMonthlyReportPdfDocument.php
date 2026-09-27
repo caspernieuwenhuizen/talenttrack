@@ -3,10 +3,12 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Shared\Dates\TTDate;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
+use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
 
 /**
  * TeamMonthlyReportPdfDocument (#3460, epic #3457) — the team monthly report as
@@ -41,6 +43,13 @@ final class TeamMonthlyReportPdfDocument {
     private static array $notes = [];
 
     /**
+     * The layout being printed (#4069). The tests section prints its stat
+     * strip only on the one-pager, which renders its sections with the same
+     * full-width helpers as the pack.
+     */
+    private static string $layout = TeamMonthlyReportLayout::DEFAULT;
+
+    /**
      * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
      *        already degraded by `TeamMonthlyReportLayout::degrade()`.
      * @param array<string,array{body:string, author:int, updated_at:string}> $notes
@@ -56,7 +65,8 @@ final class TeamMonthlyReportPdfDocument {
         // being printed, and every one of those methods would otherwise grow
         // a parameter it does not use. Reset on every call so one export
         // cannot leak a note into the next.
-        self::$notes = $notes;
+        self::$notes  = $notes;
+        self::$layout = $layout;
 
         $head  = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
         $empty = (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
@@ -415,36 +425,36 @@ final class TeamMonthlyReportPdfDocument {
             return $out . self::tournamentNote( $m ) . '</div>';
         }
 
-        if ( ! empty( $shows['record'] ) ) {
-            $out .= '<div><b>' . esc_html( self::recordLine( $record ) ) . '</b></div>';
-            if ( (int) ( $record['without_score'] ?? 0 ) > 0 ) {
-                $out .= '<div class="muted">' . esc_html( sprintf(
-                    /* translators: %d: number of matches with no score recorded */
-                    _n(
-                        '%d match has no score recorded and is not counted in the record.',
-                        '%d matches have no score recorded and are not counted in the record.',
-                        (int) $record['without_score'],
-                        'talenttrack'
-                    ),
-                    (int) $record['without_score']
-                ) ) . '</div>';
+        // #4069 — the portrait layouts get the record as tiles and results
+        // beside the ranked scorers. The landscape strip is a third of the
+        // page wide, so it keeps the lines.
+        if ( ! $compact ) {
+            if ( ! empty( $shows['record'] ) ) {
+                $out .= self::recordTiles( $record ) . self::withoutScoreNote( $record );
             }
+            $results = self::resultsTable( $fixtures, ! empty( $shows['squads'] ), ! empty( $shows['scorers'] ) );
+            if ( ! empty( $shows['scorers'] ) ) {
+                $out .= '<table class="cols2"><tr>'
+                    . '<td class="left">' . $results . '</td>'
+                    . '<td class="right">' . self::scorersTable( $m ) . '</td>'
+                    . '</tr></table>';
+            } else {
+                $out .= $results;
+            }
+            return $out . self::tournamentNote( $m ) . '</div>';
         }
 
+        if ( ! empty( $shows['record'] ) ) {
+            $out .= '<div><b>' . esc_html( self::recordLine( $record ) ) . '</b></div>';
+            $out .= self::withoutScoreNote( $record );
+        }
+
+        // The strip drops the squads whatever was asked for: they are the
+        // longest thing this section prints and would overflow the footer.
         $out .= '<table class="list">';
         foreach ( $fixtures as $f ) {
             if ( ! is_array( $f ) ) continue;
-            $out .= '<tr><td>' . esc_html( self::cut( self::fixtureLine( $f ), $compact ? 60 : 110 ) ) . '</td></tr>';
-
-            $squad = is_array( $f['squad'] ?? null ) ? $f['squad'] : [];
-            if ( $compact || empty( $shows['squads'] ) || $squad === [] ) continue;
-
-            $names = [];
-            foreach ( $squad as $player ) {
-                if ( ! is_array( $player ) ) continue;
-                $names[] = (string) ( $player['name'] ?? '' ) . ' ' . (int) ( $player['minutes'] ?? 0 ) . "'";
-            }
-            $out .= '<tr><td class="muted">' . esc_html( implode( ' · ', $names ) ) . '</td></tr>';
+            $out .= '<tr><td>' . esc_html( self::cut( self::fixtureLine( $f ), 60 ) ) . '</td></tr>';
         }
         $out .= '</table>';
 
@@ -454,6 +464,172 @@ final class TeamMonthlyReportPdfDocument {
         }
 
         return $out . self::tournamentNote( $m ) . '</div>';
+    }
+
+    /** @param array<string,mixed> $record */
+    private static function withoutScoreNote( array $record ): string {
+        $gaps = (int) ( $record['without_score'] ?? 0 );
+        if ( $gaps <= 0 ) return '';
+
+        return '<div class="muted">' . esc_html( sprintf(
+            /* translators: %d: number of matches with no score recorded */
+            _n(
+                '%d match has no score recorded and is not counted in the record.',
+                '%d matches have no score recorded and are not counted in the record.',
+                $gaps,
+                'talenttrack'
+            ),
+            $gaps
+        ) ) . '</div>';
+    }
+
+    /**
+     * The record as a row of tiles, like the KPI strip (#4069). Won, lost and
+     * the goal difference carry the outcome colour; the number says it too.
+     *
+     * @param array<string,mixed> $record
+     */
+    private static function recordTiles( array $record ): string {
+        $gd    = (int) ( $record['goal_difference'] ?? 0 );
+        $tiles = [
+            [ (int) ( $record['played'] ?? 0 ), _x( 'Played', 'monthly report match record', 'talenttrack' ), '', '' ],
+            [ (int) ( $record['won'] ?? 0 ), _x( 'Won', 'monthly report match record', 'talenttrack' ), 't-w', '' ],
+            [ (int) ( $record['drawn'] ?? 0 ), _x( 'Drawn', 'monthly report match record', 'talenttrack' ), 't-d', '' ],
+            [ (int) ( $record['lost'] ?? 0 ), _x( 'Lost', 'monthly report match record', 'talenttrack' ), 't-l', '' ],
+            [ (int) ( $record['goals_for'] ?? 0 ), _x( 'Goals for', 'monthly report match record', 'talenttrack' ), '', '' ],
+            [ (int) ( $record['goals_against'] ?? 0 ), _x( 'Goals against', 'monthly report match record', 'talenttrack' ), '', '' ],
+            [ $gd, _x( 'Difference', 'monthly report match record', 'talenttrack' ), 't-gd', $gd > 0 ? 'pos' : ( $gd < 0 ? 'neg' : '' ) ],
+        ];
+
+        $out = '<table class="mrec"><tr>';
+        foreach ( $tiles as [ $n, $label, $class, $tone ] ) {
+            $text = $class === 't-gd' ? self::signed( $n ) : (string) $n;
+            $out .= '<td' . ( $class !== '' ? ' class="' . $class . '"' : '' ) . '>'
+                . '<div class="n' . ( $tone !== '' ? ' ' . $tone : '' ) . '">' . esc_html( $text ) . '</div>'
+                . '<div class="l">' . esc_html( self::cut( $label, 14 ) ) . '</div></td>';
+        }
+        return $out . '</tr></table>';
+    }
+
+    /**
+     * Date, home or away, opponent and the score coloured by outcome (#4069).
+     * With squads on, the squad wraps under its match.
+     *
+     * @param array<int|string,mixed> $fixtures
+     */
+    private static function resultsTable( array $fixtures, bool $with_squads, bool $beside ): string {
+        $home = _x( 'H', 'home match, one letter', 'talenttrack' );
+        $away = _x( 'A', 'away match, one letter', 'talenttrack' );
+
+        $out = '<div class="sub">' . esc_html__( 'Results', 'talenttrack' ) . '</div><table class="res">';
+        foreach ( $fixtures as $f ) {
+            if ( ! is_array( $f ) ) continue;
+
+            $squad = $with_squads && is_array( $f['squad'] ?? null ) ? $f['squad'] : [];
+            $where = (string) ( $f['home_away'] ?? '' );
+            $chip  = $where === 'away' ? $away : ( $where !== '' ? $home : '' );
+            $who   = (string) ( $f['opponent'] ?? '' );
+            if ( $who === '' ) $who = __( 'Unknown opponent', 'talenttrack' );
+
+            if ( ( $f['team_score'] ?? null ) === null || ( $f['opp_score'] ?? null ) === null ) {
+                $score = '<span class="score s-none">' . esc_html__( 'no score recorded', 'talenttrack' ) . '</span>';
+            } else {
+                $outcome = strtolower( (string) ( $f['outcome'] ?? '' ) );
+                $score   = '<span class="score s-' . esc_attr( in_array( $outcome, [ 'w', 'd', 'l' ], true ) ? $outcome : 'd' ) . '">'
+                    . esc_html( (int) $f['team_score'] . '–' . (int) $f['opp_score'] ) . '</span>';
+            }
+
+            $out .= '<tr' . ( $squad !== [] ? ' class="has-sq"' : '' ) . '>'
+                . '<td class="dt">' . esc_html( self::shortDate( (string) ( $f['date'] ?? '' ) ) ) . '</td>'
+                . '<td class="ha">' . ( $chip !== '' ? '<div class="ha-chip">' . esc_html( $chip ) . '</div>' : '' ) . '</td>'
+                . '<td>' . esc_html( self::cut( $who, $beside ? 30 : 70 ) ) . '</td>'
+                . '<td class="sc">' . $score . '</td>'
+                . '</tr>';
+
+            if ( $squad !== [] ) {
+                $names = [];
+                foreach ( $squad as $player ) {
+                    if ( ! is_array( $player ) ) continue;
+                    $names[] = sprintf(
+                        /* translators: 1: player name, 2: minutes played */
+                        _x( '%1$s %2$d′', 'player and minutes in a match squad', 'talenttrack' ),
+                        (string) ( $player['name'] ?? '' ),
+                        (int) ( $player['minutes'] ?? 0 )
+                    );
+                }
+                $out .= '<tr class="sq"><td colspan="4">' . esc_html( implode( ' · ', $names ) ) . '</td></tr>';
+            }
+        }
+        $out .= '</table>';
+
+        /* translators: 1: the letter for a home match, 2: the letter for an away match */
+        return $out . '<div class="muted recon">' . esc_html( sprintf( __( '%1$s = home · %2$s = away', 'talenttrack' ), $home, $away ) ) . '</div>';
+    }
+
+    /**
+     * Goals and assists, ranked (#4069): rank, player, goals with a bar,
+     * assists with a bar. The top scorer is highlighted, and the totals row is
+     * reconciled against the goals in the record.
+     *
+     * @param array<string,mixed> $m
+     */
+    private static function scorersTable( array $m ): string {
+        $scorers = is_array( $m['scorers'] ?? null ) ? $m['scorers'] : [];
+        $title   = MatchesBlockOptions::labels()[ MatchesBlockOptions::SCORERS ];
+        $out     = '<div class="sub">' . esc_html( $title ) . '</div>';
+        if ( $scorers === [] ) {
+            return $out . '<div class="muted">' . esc_html__( 'No goals or assists recorded this period.', 'talenttrack' ) . '</div>';
+        }
+
+        $max_g = 0;
+        $max_a = 0;
+        $sum_g = 0;
+        $sum_a = 0;
+        foreach ( $scorers as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $max_g  = max( $max_g, (int) ( $row['goals'] ?? 0 ) );
+            $max_a  = max( $max_a, (int) ( $row['assists'] ?? 0 ) );
+            $sum_g += (int) ( $row['goals'] ?? 0 );
+            $sum_a += (int) ( $row['assists'] ?? 0 );
+        }
+
+        $out .= '<table class="scr"><tr><th class="rk"></th><th class="nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html_x( 'G', 'goals, one-letter column heading', 'talenttrack' ) . '</th><th class="bar"></th>'
+            . '<th class="num">' . esc_html_x( 'A', 'assists, one-letter column heading', 'talenttrack' ) . '</th><th class="bar"></th></tr>';
+        foreach ( $scorers as $row ) {
+            if ( ! is_array( $row ) ) continue;
+            $g    = (int) ( $row['goals'] ?? 0 );
+            $a    = (int) ( $row['assists'] ?? 0 );
+            $rank = $row['rank'] ?? null;
+            $out .= '<tr' . ( $rank === 1 ? ' class="top"' : '' ) . '>'
+                . '<td class="rk">' . esc_html( is_int( $rank ) ? (string) $rank : '–' ) . '</td>'
+                . '<td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), 24 ) ) . '</td>'
+                . '<td class="num g">' . $g . '</td>'
+                . '<td class="bar">' . self::gauge( 'gbar', $max_g > 0 ? $g / $max_g * 100 : 0.0 ) . '</td>'
+                . '<td class="num">' . $a . '</td>'
+                . '<td class="bar">' . self::gauge( 'gbar abar', $max_a > 0 ? $a / $max_a * 100 : 0.0 ) . '</td>'
+                . '</tr>';
+        }
+        $out .= '<tr class="tot"><td class="rk"></td><td>' . esc_html__( 'Total', 'talenttrack' ) . '</td>'
+            . '<td class="num">' . $sum_g . '</td><td></td><td class="num">' . $sum_a . '</td><td></td></tr></table>';
+
+        $totals = is_array( $m['scorer_totals'] ?? null ) ? $m['scorer_totals'] : null;
+        if ( $totals !== null ) {
+            $for  = (int) ( $totals['goals_for'] ?? 0 );
+            $out .= '<div class="muted recon">' . esc_html( sprintf(
+                /* translators: 1: goals with a scorer entered, 2: goals scored in the record */
+                _n( '%1$d of %2$d goal attributed.', '%1$d of %2$d goals attributed.', $for, 'talenttrack' ),
+                (int) ( $totals['goals'] ?? $sum_g ),
+                $for
+            ) ) . '</div>';
+        }
+        return $out;
+    }
+
+    /** A bar in a cell: a fixed-height track with a percentage-width fill. */
+    private static function gauge( string $class, float $pct ): string {
+        $w = max( 0, min( 100, (int) round( $pct ) ) );
+        return '<div class="' . esc_attr( $class ) . '"><div style="width:' . $w . '%"></div></div>'; /* tt-inline-ok */
     }
 
     /**
@@ -558,8 +734,34 @@ final class TeamMonthlyReportPdfDocument {
         $show = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
         if ( $compact ) $show = TestsBlockOptions::SHOW_SUMMARY;
 
-        $out .= '<table class="list">';
-        foreach ( array_slice( $rounds, 0, $compact ? 3 : count( $rounds ) ) as $s ) {
+        // #4069 — a test is a card: header, stat strip, and on the full
+        // layouts the ranked readings. The one-pager prints the strip only;
+        // the landscape strip, a third of the page wide, keeps its lines. A
+        // snapshot frozen before the strip existed has no figures for it and
+        // prints the lines too.
+        if ( ! $compact ) {
+            $strip_only = self::$layout === TeamMonthlyReportLayout::ONE_PAGER;
+            foreach ( $rounds as $s ) {
+                if ( ! is_array( $s ) ) continue;
+                $out .= is_array( $s['average'] ?? null ) || ! empty( $s['empty'] )
+                    ? self::testCard( $s, $show, $strip_only )
+                    : self::testLines( [ $s ], $strip_only ? TestsBlockOptions::SHOW_SUMMARY : $show, false );
+            }
+            return $out . '</div>';
+        }
+
+        return $out . self::testLines( array_slice( $rounds, 0, 3 ), $show, true ) . '</div>';
+    }
+
+    /**
+     * Test rounds as lines: the landscape strip, and snapshots frozen before
+     * the stat strip existed.
+     *
+     * @param array<int|string,mixed> $rounds
+     */
+    private static function testLines( array $rounds, string $show, bool $compact ): string {
+        $out = '<table class="list">';
+        foreach ( $rounds as $s ) {
             if ( ! is_array( $s ) ) continue;
 
             if ( ! empty( $s['empty'] ) ) {
@@ -591,11 +793,250 @@ final class TeamMonthlyReportPdfDocument {
             );
             $out .= '<tr><td class="muted">' . esc_html( $moves ) . '</td></tr>';
         }
-        return $out . '</table></div>';
+        return $out . '</table>';
     }
 
     /**
-     * One test's readings per player, in shirt order (#3515).
+     * One test as the approved card (#4069): name, which way is better, date
+     * and how many were tested; the stat strip; and, when readings were asked
+     * for on a full layout, the ranked table.
+     *
+     * @param array<string,mixed> $s
+     */
+    private static function testCard( array $s, string $show, bool $strip_only ): string {
+        $name = (string) ( $s['name'] ?? '' );
+        if ( ! empty( $s['empty'] ) ) {
+            return '<div class="tcard"><table class="thead"><tr><td><span class="tname">' . esc_html( self::cut( $name, 70 ) ) . '</span></td></tr></table>'
+                . '<div class="muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</div></div>';
+        }
+
+        $direction = (string) ( $s['direction'] ?? '' );
+        $chip      = $direction === 'lower' ? __( 'Lower is better', 'talenttrack' ) : ( $direction === 'higher' ? __( 'Higher is better', 'talenttrack' ) : '' );
+        $meta      = self::shortDate( (string) ( $s['date'] ?? '' ) ) . ' · ' . sprintf(
+            /* translators: 1: players tested, 2: squad size */
+            __( '%1$d of %2$d tested', 'talenttrack' ),
+            (int) ( $s['tested'] ?? 0 ),
+            (int) ( $s['squad'] ?? 0 )
+        );
+
+        $with_table = ! $strip_only && TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
+
+        return '<div class="tcard"><table class="thead"><tr>'
+            . '<td><span class="tname">' . esc_html( self::cut( $name, 60 ) ) . '</span>'
+            . ( $chip !== '' ? '<span class="dirchip">' . esc_html( $chip ) . '</span>' : '' ) . '</td>'
+            . '<td class="tmeta">' . esc_html( $meta ) . '</td>'
+            . '</tr></table>'
+            . self::testStrip( $s, $with_table )
+            . ( $with_table ? self::testRanked( $s, $show ) : '' )
+            . '</div>';
+    }
+
+    /**
+     * The stat strip (#4069): squad average and its change, the best
+     * reading, who moved which way, how many are on target, and either the
+     * average over the last rounds (next to a table) or the worst reading
+     * (when the strip stands alone).
+     *
+     * @param array<string,mixed> $s
+     */
+    private static function testStrip( array $s, bool $with_history ): string {
+        $direction = (string) ( $s['direction'] ?? '' );
+        $avg       = is_array( $s['average'] ?? null ) ? $s['average'] : [];
+        $cells     = [];
+
+        $change = '';
+        if ( (string) ( $avg['delta_display'] ?? '—' ) !== '—' ) {
+            $change = sprintf(
+                /* translators: 1: change of the squad average, e.g. "−4 s", 2: month of the previous test round */
+                _x( '%1$s vs %2$s', 'squad average against the previous test round', 'talenttrack' ),
+                (string) $avg['delta_display'],
+                self::shortMonth( (string) ( $s['previous_date'] ?? '' ) )
+            );
+        }
+        $cells[] = self::statCell(
+            esc_html( (string) ( $avg['display'] ?? '—' ) ),
+            __( 'Squad average', 'talenttrack' ),
+            $change,
+            self::moveClass( (string) ( $avg['trend'] ?? '' ) )
+        );
+
+        $best    = is_array( $s['best'] ?? null ) ? $s['best'] : [];
+        $cells[] = self::statCell(
+            esc_html( (string) ( $best['value_display'] ?? '—' ) ),
+            $direction !== '' ? _x( 'Best', 'best test reading', 'talenttrack' ) : _x( 'Highest', 'highest test reading', 'talenttrack' ),
+            self::cut( (string) ( $best['name'] ?? '' ), 22 ),
+            ''
+        );
+
+        $moves  = is_array( $s['moves'] ?? null ) ? $s['moves'] : [];
+        $flat   = (int) ( $moves['flat'] ?? 0 );
+        $number = '<span class="up">' . (int) ( $moves['up'] ?? 0 ) . '</span> · <span class="dn">' . (int) ( $moves['down'] ?? 0 ) . '</span>'
+            . ( $flat > 0 ? ' · <span class="eq">' . $flat . '</span>' : '' )
+            . ' · <span class="eq">' . (int) ( $moves['first'] ?? 0 ) . '</span>';
+        if ( $direction !== '' ) {
+            $label = $flat > 0
+                ? _x( 'Better · worse · same · first', 'test round moves, in that order', 'talenttrack' )
+                : _x( 'Better · worse · first', 'test round moves, in that order', 'talenttrack' );
+        } else {
+            $label = $flat > 0
+                ? _x( 'Rose · fell · same · first', 'test round moves, in that order', 'talenttrack' )
+                : _x( 'Rose · fell · first', 'test round moves, in that order', 'talenttrack' );
+        }
+        $cells[] = self::statCell( $number, $label, __( 'against their own previous reading', 'talenttrack' ), 'eq' );
+
+        $bands = is_array( $s['bands'] ?? null ) ? $s['bands'] : null;
+        if ( $bands !== null ) {
+            $of   = max( 1, (int) ( $bands['of'] ?? 0 ) );
+            $band = '';
+            if ( $with_history ) {
+                $band = '<table class="bandrow"><tr>';
+                foreach ( [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ] as $flag => $class ) {
+                    $n = (int) ( $bands[ $flag ] ?? 0 );
+                    if ( $n > 0 ) $band .= '<td class="' . $class . '" style="width:' . round( $n / $of * 100, 1 ) . '%">' . $n . '</td>'; /* tt-inline-ok */
+                }
+                $band .= '</tr></table>';
+            }
+            $cells[] = '<td><div class="n">' . (int) ( $bands['ok'] ?? 0 ) . ' / ' . (int) ( $bands['of'] ?? 0 ) . '</div>'
+                . '<div class="l">' . esc_html( self::cut( sprintf(
+                    /* translators: %s: age group, e.g. "U14" */
+                    __( 'On target (%s)', 'talenttrack' ),
+                    (string) ( $bands['age_group'] ?? '' )
+                ), 24 ) ) . '</div>' . $band . '</td>';
+        }
+
+        $history = is_array( $s['history'] ?? null ) ? $s['history'] : [];
+        if ( $with_history && count( $history ) > 1 ) {
+            $bars   = '';
+            $labels = '';
+            foreach ( $history as $i => $point ) {
+                if ( ! is_array( $point ) ) continue;
+                $h       = max( 0.4, round( (float) ( $point['pct'] ?? 0 ) / 100 * 9, 1 ) );
+                $now     = $i === count( $history ) - 1;
+                $bars   .= '<td><div class="col' . ( $now ? ' now' : '' ) . '" style="height:' . $h . 'mm"></div></td>'; /* tt-inline-ok */
+                $labels .= '<td class="hl">' . esc_html( self::shortMonth( (string) ( $point['date'] ?? '' ) ) ) . '</td>';
+            }
+            $cells[] = '<td><div class="l">' . esc_html__( 'Squad average per round', 'talenttrack' ) . '</div>'
+                . '<table class="hist"><tr class="hb">' . $bars . '</tr><tr>' . $labels . '</tr></table></td>';
+        } else {
+            $worst = is_array( $s['worst'] ?? null ) ? $s['worst'] : [];
+            if ( $direction === 'lower' ) {
+                $label = ! empty( $s['is_duration'] ) ? _x( 'Slowest', 'worst reading on a timed test', 'talenttrack' ) : _x( 'Highest', 'highest test reading', 'talenttrack' );
+            } else {
+                $label = _x( 'Lowest', 'lowest test reading', 'talenttrack' );
+            }
+            $cells[] = self::statCell( esc_html( (string) ( $worst['value_display'] ?? '—' ) ), $label, self::cut( (string) ( $worst['name'] ?? '' ), 22 ), '' );
+        }
+
+        return '<table class="tstat"><tr>' . implode( '', $cells ) . '</tr></table>';
+    }
+
+    /** @param string $number already escaped */
+    private static function statCell( string $number, string $label, string $detail, string $class ): string {
+        return '<td><div class="n">' . $number . '</div><div class="l">' . esc_html( $label ) . '</div>'
+            . ( $detail !== '' ? '<div class="d' . ( $class !== '' ? ' ' . $class : '' ) . '">' . esc_html( $detail ) . '</div>' : '' )
+            . '</td>';
+    }
+
+    /**
+     * The ranked readings (#4069): rank, player with a PB tag, reading, a bar
+     * in its target-band colour, previous reading, change coloured by whether
+     * it is an improvement, and the distance to the squad average. A dashed
+     * rule marks where the squad average falls.
+     *
+     * @param array<string,mixed> $s
+     */
+    private static function testRanked( array $s, string $show ): string {
+        $rows   = is_array( $s['readings'] ?? null ) ? $s['readings'] : [];
+        $values = TestsBlockOptions::showsValues( $show );
+        $trend  = TestsBlockOptions::showsTrend( $show );
+        $unit   = (string) ( $s['unit_label'] ?? '' );
+        $ranked = (string) ( $s['direction'] ?? '' ) !== '';
+
+        $head = '<tr><th class="rk">#</th><th class="nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        $cols = 2;
+        if ( $values ) {
+            $head .= '<th class="v">' . esc_html(
+                $unit !== ''
+                    /* translators: %s: unit of measurement, e.g. "s" or "cm" */
+                    ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
+                    : _x( 'Result', 'monthly report tests column', 'talenttrack' )
+            ) . '</th><th class="bb"></th>';
+            $cols += 2;
+        }
+        if ( $trend ) {
+            $head .= '<th class="pv">' . esc_html__( 'Previous', 'talenttrack' ) . '</th>'
+                . '<th class="ch">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
+            $cols += 2;
+        }
+        if ( $values ) {
+            $head .= '<th class="av">' . esc_html_x( 'vs avg.', 'monthly report tests column: difference to the squad average', 'talenttrack' ) . '</th>';
+            $cols++;
+        }
+        $head .= '</tr>';
+
+        $body    = '';
+        $line    = false;
+        $any_pb  = false;
+        $any_flag = false;
+        foreach ( $rows as $i => $row ) {
+            if ( ! is_array( $row ) ) continue;
+            if ( $ranked && ! $line && $i > 0 && ! empty( $row['worse_than_avg'] ) ) {
+                $body .= '<tr class="avgline"><td colspan="' . $cols . '"></td></tr>';
+                $line  = true;
+            }
+            $flag     = (string) ( $row['flag'] ?? '' );
+            $any_flag  = $any_flag || $flag !== '';
+            $pb       = ! empty( $row['pb'] );
+            $any_pb   = $any_pb || $pb;
+            $rank     = $row['rank'] ?? null;
+            $body    .= '<tr><td class="rk">' . esc_html( is_int( $rank ) ? (string) $rank : '' ) . '</td>'
+                . '<td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), $pb ? 22 : 26 ) )
+                . ( $pb ? '<span class="pb">' . esc_html_x( 'PB', 'personal best, short tag', 'talenttrack' ) . '</span>' : '' ) . '</td>';
+            if ( $values ) {
+                $fill  = [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ][ $flag ] ?? 'fn';
+                $body .= '<td class="v">' . esc_html( self::testValue( $row ) ) . '</td>'
+                    . '<td class="bb">' . self::gauge( 'tb ' . $fill, (float) ( $row['bar_pct'] ?? 0 ) ) . '</td>';
+            }
+            if ( $trend ) {
+                $first = ! empty( $row['first'] );
+                $body .= '<td class="pv">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
+                    . '<td class="ch ' . ( $first ? 'eq' : self::moveClass( (string) ( $row['trend'] ?? '' ) ) ) . '">'
+                    . esc_html( $first ? _x( 'first', 'a first test reading, nothing to compare with', 'talenttrack' ) : self::testDelta( $row ) ) . '</td>';
+            }
+            if ( $values ) {
+                $body .= '<td class="av">' . esc_html( (string) ( $row['vs_avg_display'] ?? '—' ) ) . '</td>';
+            }
+            $body .= '</tr>';
+        }
+
+        $legend = [];
+        if ( $any_flag && $values ) {
+            foreach ( [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ] as $flag => $class ) {
+                $legend[] = '<span class="dot ' . $class . '"></span>' . esc_html( MeasurementTargetsRepository::flagLabel( $flag ) );
+            }
+        }
+        if ( $any_pb ) $legend[] = esc_html__( 'PB = personal best', 'talenttrack' );
+        if ( $line )   $legend[] = esc_html__( 'Dashed line = squad average', 'talenttrack' );
+
+        return '<table class="rd">' . $head . $body . '</table>'
+            . ( $legend !== [] ? '<div class="muted recon">' . implode( ' &nbsp;·&nbsp; ', $legend ) . '</div>' : '' );
+    }
+
+    /** Green for an improvement, red for a decline, muted otherwise. */
+    private static function moveClass( string $trend ): string {
+        if ( $trend === 'up' ) return 'up';
+        if ( $trend === 'down' ) return 'dn';
+        return 'eq';
+    }
+
+    /** "Sep" — a test round's month, in the site's language. */
+    private static function shortMonth( string $ymd ): string {
+        $ts = strtotime( $ymd . ' 12:00:00' );
+        return $ts === false || $ymd === '' ? '' : (string) wp_date( 'M', $ts );
+    }
+
+    /**
+     * One test's readings per player (#3515), in the composer's order: best to worst on a test with a direction (#4063).
      *
      * @param array<string,mixed> $round
      */
@@ -605,7 +1046,7 @@ final class TeamMonthlyReportPdfDocument {
             return '<span class="muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</span>';
         }
 
-        $unit   = (string) ( $round['unit'] ?? '' );
+        $unit   = (string) ( $round['unit_label'] ?? $round['unit'] ?? '' );
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
@@ -627,8 +1068,7 @@ final class TeamMonthlyReportPdfDocument {
             if ( ! is_array( $row ) ) continue;
             $out .= '<tr><td>' . esc_html( self::cut( (string) ( $row['name'] ?? '' ), 28 ) ) . '</td>';
             if ( $values ) {
-                $value = $row['value'] ?? null;
-                $out  .= '<td class="r">' . esc_html( is_scalar( $value ) ? (string) $value : '—' ) . '</td>';
+                $out .= '<td class="r">' . esc_html( self::testValue( $row ) ) . '</td>';
             }
             if ( $trend ) {
                 $out .= '<td class="r">' . esc_html( self::testDelta( $row ) ) . '</td>';
@@ -640,14 +1080,28 @@ final class TeamMonthlyReportPdfDocument {
     }
 
     /**
-     * A reading's change since the player's previous one. A first reading has
-     * nothing to compare with and gets a dash, as everywhere else in this
-     * report.
+     * A reading as the composer spelled it (#4063): m:ss for a duration, a
+     * locale number otherwise. A snapshot frozen before the composer spelled
+     * it falls back to the raw value.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function testValue( array $row ): string {
+        if ( isset( $row['value_display'] ) && is_string( $row['value_display'] ) ) return $row['value_display'];
+        $value = $row['value'] ?? null;
+        return is_scalar( $value ) ? (string) $value : '—';
+    }
+
+    /**
+     * A reading's change since the player's previous one, as the composer
+     * spelled it (#4063). A first reading has nothing to compare with and gets
+     * a dash, as everywhere else in this report.
      *
      * @param array<string,mixed> $row
      */
     private static function testDelta( array $row ): string {
         if ( ! empty( $row['first'] ) ) return '—';
+        if ( isset( $row['delta_display'] ) && is_string( $row['delta_display'] ) ) return $row['delta_display'];
 
         $delta = (float) ( $row['delta'] ?? 0 );
         if ( abs( $delta ) < 0.0001 ) return '0';
@@ -902,6 +1356,63 @@ final class TeamMonthlyReportPdfDocument {
             . '.tbl th{height:5mm;font-size:7pt;text-align:left;border-bottom:1px solid ' . $ink . '}'
             . '.tbl td{height:' . $roster_mm . 'mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';white-space:nowrap;overflow:hidden;vertical-align:middle}'
             . '.tbl .r{text-align:right;padding-right:3mm}.tbl .c{text-align:center}.tbl td.bar{padding-right:4mm}'
+            // #4069 — matches: record tiles, results beside ranked scorers.
+            . '.mrec{margin:1.5mm 0 3mm;border-spacing:0}'
+            . '.mrec td{width:14.28%;height:9mm;border:1px solid ' . $line . ';border-top:2px solid ' . $line . ';padding:1.2mm 1.5mm;vertical-align:top;text-align:center}'
+            . '.mrec .n{font-size:13pt;font-weight:bold;line-height:1.15}'
+            . '.mrec .l{font-size:6.2pt;text-transform:uppercase;color:' . $muted . ';white-space:nowrap;overflow:hidden}'
+            . '.mrec td.t-w{border-top-color:#1f7a4a}.mrec .t-w .n{color:#1f7a4a}'
+            . '.mrec td.t-d{border-top-color:#8a8f96}'
+            . '.mrec td.t-l{border-top-color:#b3261e}.mrec .t-l .n{color:#b3261e}'
+            . '.mrec .n.pos{color:#1f7a4a}.mrec .n.neg{color:#b3261e}'
+            . '.cols2{border-spacing:0}.cols2 td.left{width:52%;padding-right:4mm;vertical-align:top}.cols2 td.right{width:48%;vertical-align:top}'
+            . '.sub{height:4.5mm;font-size:7pt;font-weight:bold;text-transform:uppercase;color:' . $muted . ';border-bottom:1px solid ' . $ink . '}'
+            . '.res td{height:5.2mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            . '.res .dt{width:11mm;color:' . $muted . '}.res .ha{width:5mm;text-align:center}.res .sc{width:16mm;text-align:right;padding-right:0}'
+            . '.ha-chip{width:3.4mm;margin:0 auto;padding:0.3mm 0;border:1px solid #8a8f96;color:' . $muted . ';font-size:6pt;line-height:1;font-weight:bold;text-align:center}'
+            . '.score{display:inline-block;min-width:10mm;padding:0.4mm 1mm;line-height:1.1;text-align:center;font-weight:bold;color:#fff;font-size:7.5pt;vertical-align:middle}'
+            . '.s-w{background:#1f7a4a}.s-d{background:#8a8f96}.s-l{background:#b3261e}'
+            . '.s-none{background:#fff;color:' . $muted . ';font-weight:normal;font-style:italic;font-size:6.5pt}'
+            . '.res tr.sq td{height:auto;padding:0 1mm 0.8mm 17mm;white-space:normal;font-size:6.5pt;color:' . $muted . '}'
+            . '.res tr.has-sq td{border-bottom:0}'
+            . '.scr th{height:4.5mm;font-size:6.5pt;text-transform:uppercase;color:' . $muted . ';font-weight:bold;text-align:right;border-bottom:1px solid ' . $ink . ';padding:0 1mm}'
+            . '.scr th.nm{text-align:left}'
+            . '.scr td{height:5.2mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden}'
+            . '.scr .rk{width:4mm;color:' . $muted . ';text-align:right;padding-right:1.5mm}.scr .num{width:7mm;text-align:right}.scr .g{font-weight:bold}.scr .bar{width:15mm;padding-left:2mm}'
+            . '.gbar{height:2.4mm;background:#eceee9}.gbar div{height:2.4mm;background:#1f7a4a}.abar div{background:#7fb596}'
+            . '.scr tr.top td{background:#f1f7f3}'
+            . '.scr tr.tot td{border-bottom:0;border-top:1px solid ' . $ink . ';font-weight:bold;height:5mm}'
+            . '.recon{margin-top:1mm}'
+            // #4069 — tests: a card per test with a stat strip and the ranked readings.
+            . '.tcard{margin-bottom:3mm}'
+            . '.thead td{vertical-align:bottom;padding:0 0 1mm;white-space:nowrap}'
+            . '.tname{font-size:9.5pt;font-weight:bold}'
+            . '.tmeta{text-align:right;color:' . $muted . ';font-size:7.5pt}'
+            . '.dirchip{display:inline-block;border:1px solid #8a8f96;padding:0 1.2mm;font-size:6.3pt;color:' . $muted . ';margin-left:1.5mm}'
+            . '.tstat{border-spacing:0}.rd{margin-top:2mm}'
+            . '.tstat td{height:11mm;border:1px solid ' . $line . ';padding:1.2mm 1.5mm;vertical-align:top;width:20%}'
+            . '.tstat .n{font-size:11.5pt;font-weight:bold;line-height:1.15;white-space:nowrap}'
+            . '.tstat .l{font-size:6.2pt;text-transform:uppercase;color:' . $muted . ';white-space:nowrap;overflow:hidden}'
+            . '.tstat .d{font-size:6.5pt;white-space:nowrap;overflow:hidden}'
+            . '.up{color:#1f7a4a}.dn{color:#b3261e}.eq{color:' . $muted . '}'
+            . '.bandrow{height:3.2mm;margin-top:1mm}.tstat .bandrow td{height:3.2mm;padding:0;border:0;font-size:6pt;color:#fff;text-align:center;font-weight:bold}'
+            . '.bandrow td.fg{background:#1f7a4a}.bandrow td.fa{background:#c88a12}.bandrow td.fr{background:#b3261e}'
+            . '.hist{border-spacing:0;margin-top:0.6mm}'
+            . '.tstat .hist td{height:auto;border:0;padding:0 0.8mm;width:25%;vertical-align:bottom}'
+            . '.tstat .hist tr.hb td{height:9mm}'
+            . '.hist .col{background:#b9cfc2}.hist .col.now{background:#1f7a4a}'
+            . '.tstat .hist td.hl{font-size:5.8pt;color:' . $muted . ';text-align:center;padding-top:0.4mm}'
+            . '.rd th{height:4.5mm;font-size:6.5pt;text-transform:uppercase;color:' . $muted . ';font-weight:bold;text-align:right;border-bottom:1px solid ' . $ink . ';padding:0 1mm;white-space:nowrap}'
+            . '.rd th.nm{text-align:left}'
+            . '.rd td{height:4.6mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden;font-size:7.5pt}'
+            . '.rd .rk{width:5mm;text-align:right;color:' . $muted . ';padding-right:1.5mm}'
+            . '.rd .v{width:21mm;text-align:right;font-weight:bold}.rd .pv{width:15mm;text-align:right;color:' . $muted . '}'
+            . '.rd .ch{width:14mm;text-align:right}.rd .av{width:15mm;text-align:right;color:' . $muted . '}.rd .bb{width:34mm;padding-left:2mm}'
+            . '.pb{display:inline-block;font-size:5.8pt;line-height:1.1;font-weight:bold;color:#1f7a4a;border:1px solid #1f7a4a;padding:0.2mm 0.8mm;margin-left:1mm;vertical-align:middle}'
+            . '.tb{height:2.6mm;background:#eceee9}.tb div{height:2.6mm}'
+            . '.tb.fg div{background:#1f7a4a}.tb.fa div{background:#c88a12}.tb.fr div{background:#b3261e}.tb.fn div{background:#8a8f96}'
+            . '.dot{display:inline-block;width:2mm;height:2mm;margin-right:1mm}.dot.fg{background:#1f7a4a}.dot.fa{background:#c88a12}.dot.fr{background:#b3261e}'
+            . '.rd tr.avgline td{height:0;padding:0;border-bottom:1px dashed ' . $ink . '}'
             . self::columnWidths( $landscape )
             . '.lines td.rule{height:7mm;border-bottom:1px solid ' . $line . '}'
             . '.cols{border-spacing:0}.cols td.strip{width:33.3%;vertical-align:top;padding-right:4mm}';

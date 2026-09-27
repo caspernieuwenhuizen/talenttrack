@@ -108,10 +108,17 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'one-pager, long text'     => [ 'A', [ 'coverage', 'kpi', 'status', 'attention', 'changes', 'quality' ], true ],
             'pack, long text'          => [ 'B', null, true ],
             'matrix, long text'        => [ 'C', [ 'kpi', 'attention', 'changes', 'tests', 'notes', 'quality' ], true ],
+            // #4069 — the richer matches and tests sections, 18 players and
+            // three tests: the pack degrades its third page before counting.
+            'pack, matches and 1 test' => [ 'B', null, false, 1 ],
+            'pack, matches and 3 tests' => [ 'B', null, false, 3 ],
+            'pack, no roster, 3 tests' => [ 'B', [ 'coverage', 'kpi', 'status', 'attendance', 'minutes', 'matches', 'tests' ], false, 3 ],
+            'one-pager, matches, tests' => [ 'A', [ 'kpi', 'matches', 'tests' ], false, 3 ],
         ];
         foreach ( $cases as $label => $case ) {
             [ $layout, $blocks ] = $case;
-            $report  = $blocks === null ? $this->report( 20 ) : $this->only( $this->report( 20 ), $blocks );
+            $base    = ! empty( $case[3] ) ? $this->withMatchesAndTests( $this->report( 18 ), (int) $case[3] ) : $this->report( 20 );
+            $report  = $blocks === null ? $base : $this->only( $base, $blocks );
             if ( ! empty( $case[2] ) ) $report = $this->withLongText( $report );
             $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
             $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
@@ -168,6 +175,108 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
                 'quality'    => [ 'activities_without_register' => [ 1 ], 'matches_without_minutes' => 0, 'players_not_evaluated' => [], 'players_with_incomplete_status' => [] ],
             ],
         ];
+    }
+
+    /** #4069 — matches print as record tiles, results beside ranked scorers. */
+    public function test_matches_print_tiles_results_and_ranked_scorers(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'matches' ] );
+        $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+
+        $this->assertStringContainsString( 'class="mrec"', $html );
+        $this->assertStringContainsString( 'class="res"', $html );
+        $this->assertStringContainsString( 'class="scr"', $html );
+        $this->assertStringContainsString( '8 of 8 goals attributed.', $html );
+    }
+
+    /**
+     * #4069 — a test is a card with a stat strip; the pack adds the ranked
+     * table, the one-pager prints the strip only.
+     */
+    public function test_tests_print_a_stat_strip_and_the_ranked_readings(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
+
+        $pack = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'class="tstat"', $pack );
+        $this->assertStringContainsString( 'class="rd"', $pack );
+        $this->assertStringContainsString( '12:54', $pack );
+        $this->assertStringContainsString( 'class="avgline"', $pack );
+
+        $one = TeamMonthlyReportPdfExporter::payload( $report, 'A', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'class="tstat"', $one );
+        $this->assertStringNotContainsString( 'class="rd"', $one, 'The one-pager prints the strip only.' );
+        $this->assertStringContainsString( '16:04', $one, 'With the worst reading in place of the history.' );
+    }
+
+    /** #4069 — a test with no target band for the age group has no band cell. */
+    public function test_a_test_without_bands_prints_no_band_cell(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
+        $report['data']['tests']['rounds'][0]['bands'] = null;
+
+        $html = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringNotContainsString( 'class="bandrow"', $html );
+        $this->assertStringNotContainsString( 'On target (', $html );
+    }
+
+    /**
+     * #4069 — the matches block with four results and six scorers, and
+     * `$tests` test rounds of readings for every player, shaped like the
+     * composer's payload.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @return array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}
+     */
+    private function withMatchesAndTests( array $report, int $tests ): array {
+        $fixtures = [];
+        for ( $i = 0; $i < 4; $i++ ) {
+            $fixtures[] = [
+                'activity_id' => $i + 1, 'date' => sprintf( '2026-08-%02d', 5 + $i * 7 ), 'title' => 'Match',
+                'opponent' => "Blauw Geel '38 JO14-1", 'home_away' => $i % 2 ? 'home' : 'away',
+                'team_score' => 3, 'opp_score' => 1, 'outcome' => 'W', 'squad' => [],
+            ];
+        }
+        $scorers = [];
+        for ( $i = 1; $i <= 6; $i++ ) {
+            $scorers[] = [ 'player_id' => $i, 'name' => 'Player ' . $i, 'goals' => max( 0, 4 - $i ), 'assists' => $i % 3, 'rank' => $i < 4 ? $i : null ];
+        }
+        $report['data']['matches'] = [
+            'tournaments_excluded' => 0,
+            'shows'                => [ 'record' => true, 'scorers' => true, 'squads' => false ],
+            'record'               => [ 'played' => 4, 'won' => 2, 'drawn' => 1, 'lost' => 1, 'goals_for' => 8, 'goals_against' => 5, 'goal_difference' => 3, 'without_score' => 0 ],
+            'fixtures'             => $fixtures,
+            'scorers'              => $scorers,
+            'scorer_totals'        => [ 'goals' => 8, 'assists' => 4, 'goals_for' => 8 ],
+        ];
+
+        $players  = (int) $report['data']['letterhead']['squad_size'];
+        $readings = [];
+        for ( $i = 1; $i <= $players; $i++ ) {
+            $readings[] = [
+                'player_id' => $i, 'name' => 'Player ' . $i, 'value' => 11.0 + $i / 10, 'value_display' => '11:' . str_pad( (string) ( $i * 3 ), 2, '0', STR_PAD_LEFT ),
+                'previous_display' => '12:10', 'delta_display' => '−9 s', 'trend' => 'up', 'first' => $i === 3, 'pb' => $i % 4 === 0,
+                'flag' => [ 'ok', 'warn', 'bad' ][ $i % 3 ], 'rank' => $i, 'bar_pct' => 50 + $i * 2,
+                'vs_avg_display' => '−0:40', 'worse_than_avg' => $i > $players / 2,
+            ];
+        }
+        $round = [
+            'definition_id' => 1, 'name' => '9 laps', 'unit' => 'min', 'unit_label' => 'mm:ss', 'is_duration' => true, 'direction' => 'lower',
+            'date' => '2026-08-12', 'previous_date' => '2026-06-10', 'tested' => $players, 'squad' => $players,
+            'improved' => [], 'declined' => [],
+            'average'  => [ 'value' => 12.9, 'display' => '12:54', 'previous' => 13.0, 'previous_display' => '12:58', 'delta_display' => '−4 s', 'trend' => 'up' ],
+            'best'     => [ 'player_id' => 1, 'name' => 'Player 1', 'value_display' => '11:18' ],
+            'worst'    => [ 'player_id' => 2, 'name' => 'Player 2', 'value_display' => '16:04' ],
+            'moves'    => [ 'up' => 9, 'down' => 5, 'flat' => 0, 'first' => 1 ],
+            'bands'    => [ 'age_group' => 'U13', 'ok' => 8, 'warn' => 5, 'bad' => 5, 'of' => $players ],
+            'history'  => [
+                [ 'date' => '2026-02-10', 'value' => 13.4, 'display' => '13:24', 'pct' => 100.0 ],
+                [ 'date' => '2026-04-10', 'value' => 13.2, 'display' => '13:12', 'pct' => 98.5 ],
+                [ 'date' => '2026-06-10', 'value' => 13.0, 'display' => '12:58', 'pct' => 97.0 ],
+                [ 'date' => '2026-08-12', 'value' => 12.9, 'display' => '12:54', 'pct' => 96.3 ],
+            ],
+            'readings' => $readings,
+        ];
+        $report['data']['tests'] = [ 'rounds' => array_fill( 0, $tests, $round ), 'show' => 'values_trend' ];
+
+        return $report;
     }
 
     /** #3970 — on paper a sentence cut off with an ellipsis cannot be finished. */

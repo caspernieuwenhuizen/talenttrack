@@ -18,6 +18,9 @@ use TT\Modules\Analytics\EvalCoverageService;
 use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
+use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Units\DurationFormat;
+use TT\Modules\Measurements\Units\UnitContext;
 
 /**
  * TeamMonthlyReport (#3458, epic #3457) — the document a monthly staff meeting
@@ -98,8 +101,8 @@ final class TeamMonthlyReport {
     /** @var array<string,list<object>> window key => scheduled (uncancelled) activities */
     private array $scheduled = [];
 
-    /** @var list<AttendanceRow>|null */
-    private ?array $attendance = null;
+    /** @var array<string,list<AttendanceRow>> window key => rows */
+    private array $attendance = [];
 
     /** @var array<string,list<MinutesRow>> window key => rows */
     private array $minutes = [];
@@ -148,7 +151,7 @@ final class TeamMonthlyReport {
         $this->team_row       = null;
         $this->players        = null;
         $this->activities     = [];
-        $this->attendance     = null;
+        $this->attendance     = [];
         $this->minutes        = [];
         $this->verdicts       = [];
         $this->options        = $options;
@@ -403,8 +406,10 @@ final class TeamMonthlyReport {
         $prev_n   = count( $this->scheduledIn( $previous['from'], $previous['to'] ) );
         $has_prev = $prev_n > 0;
 
-        $att_now  = $kpis->avgAttendanceBetween( $this->team_id, $this->from, $this->to );
-        $att_prev = $has_prev ? $kpis->avgAttendanceBetween( $this->team_id, $previous['from'], $previous['to'] ) : null;
+        // #4068 — the attendance section's own squad average, so the tile and
+        // the table under it cannot disagree. Both windows the same way.
+        $att_now  = self::squadAttendancePct( $this->attendanceRowsIn( $this->from, $this->to ) );
+        $att_prev = $has_prev ? self::squadAttendancePct( $this->attendanceRowsIn( $previous['from'], $previous['to'] ) ) : null;
 
         $min_now  = self::medianShare( $this->minutesIn( $this->from, $this->to ) );
         $min_prev = $has_prev ? self::medianShare( $this->minutesIn( $previous['from'], $previous['to'] ) ) : null;
@@ -459,13 +464,7 @@ final class TeamMonthlyReport {
     /** @return array<string,mixed> */
     private function attendanceBlock(): array {
         $rows = [];
-        $sum  = 0.0;
-        $n    = 0;
         foreach ( $this->attendanceRows() as $r ) {
-            if ( $r['present_pct'] !== null ) {
-                $sum += $r['present_pct'];
-                $n++;
-            }
             $rows[] = [
                 'player_id'   => $r['player_id'],
                 'name'        => trim( $r['first_name'] . ' ' . $r['last_name'] ),
@@ -486,7 +485,7 @@ final class TeamMonthlyReport {
         $rows = PlayerOrder::sort( $rows, PlayerOrder::jerseys( $this->players() ) );
 
         return [
-            'team_avg_pct' => $n > 0 ? round( $sum / $n, 1 ) : null,
+            'team_avg_pct' => self::squadAttendancePct( $this->attendanceRows() ),
             'amber_below'  => self::ATTENDANCE_AMBER_BELOW,
             'red_below'    => self::ATTENDANCE_RED_BELOW,
             'rows'         => $rows,
@@ -618,8 +617,9 @@ final class TeamMonthlyReport {
                 'squads'  => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SQUADS ),
             ],
             'record'   => self::matchRecord( $activities ),
-            'fixtures' => [],
-            'scorers'  => [],
+            'fixtures'      => [],
+            'scorers'       => [],
+            'scorer_totals' => null,
         ];
 
         $jerseys = PlayerOrder::jerseys( $this->players() );
@@ -644,7 +644,14 @@ final class TeamMonthlyReport {
                     'assists'   => $assists,
                 ];
             }
-            $out['scorers'] = PlayerOrder::sort( $rows, $jerseys );
+            $out['scorers']       = self::rankScorers( PlayerOrder::sort( $rows, $jerseys ) );
+            $out['scorer_totals'] = [
+                'goals'     => array_sum( array_column( $rows, 'goals' ) ),
+                'assists'   => array_sum( array_column( $rows, 'assists' ) ),
+                // Reconciled against the record, like the minutes grid footer:
+                // "7 of 8 goals attributed" says a scorer was not entered.
+                'goals_for' => $out['record']['goals_for'],
+            ];
         }
 
         foreach ( $activities as $a ) {
@@ -666,6 +673,36 @@ final class TeamMonthlyReport {
             $out['fixtures'][] = $fixture;
         }
 
+        return $out;
+    }
+
+    /**
+     * Scorers ranked by goals, then assists, then shirt order (#4069) — the
+     * order a coach reads a scorers table in, on the page, the PDF and REST
+     * alike. It replaces the shirt order #3518 gave this list. The rank is
+     * shared on a tie and left out for a player without a goal, who is on
+     * the list for assists only.
+     *
+     * @param list<array<string,mixed>> $rows in shirt order
+     * @return list<array<string,mixed>>
+     */
+    private static function rankScorers( array $rows ): array {
+        $sorted = self::stableSort(
+            $rows,
+            static fn( array $a, array $b ): int => [ (int) $b['goals'], (int) $b['assists'] ] <=> [ (int) $a['goals'], (int) $a['assists'] ]
+        );
+
+        $out  = [];
+        $rank = 0;
+        $last = null;
+        foreach ( $sorted as $i => $row ) {
+            $key = [ (int) $row['goals'], (int) $row['assists'] ];
+            if ( $key !== $last ) $rank = $i + 1;
+            $last = $key;
+
+            $row['rank'] = (int) $row['goals'] > 0 ? $rank : null;
+            $out[]       = $row;
+        }
         return $out;
     }
 
@@ -754,9 +791,12 @@ final class TeamMonthlyReport {
      * @return array<int,array<string,mixed>>
      */
     private function testRoundsInWindow( array $wanted, string $show ): array {
-        $trends  = new TestTrendsQuery();
-        $squad   = count( $this->players() );
-        $jerseys = PlayerOrder::jerseys( $this->players() );
+        $trends    = new TestTrendsQuery();
+        $targets   = new MeasurementTargetsRepository();
+        $squad     = count( $this->players() );
+        $jerseys   = PlayerOrder::jerseys( $this->players() );
+        $team      = $this->team();
+        $age_group = $team !== null ? (string) ( $team->age_group ?? '' ) : '';
 
         $out = [];
         foreach ( ( new MeasurementSessionsRepository() )->listForTeam( $this->team_id ) as $s ) {
@@ -768,6 +808,13 @@ final class TeamMonthlyReport {
 
             $trend = $trends->forDefinition( $def_id, [ 'team_id' => $this->team_id, 'date_to' => $this->to ] );
 
+            // #4063 — the trend values are in the test's entry unit; the unit
+            // context says how a person reads them (mm:ss for a duration).
+            $units         = UnitContext::forDefinition( ( new MeasurementDefinitionsRepository() )->find( $def_id ) );
+            $definition    = $trend['definition'];
+            $raw_direction = is_array( $definition ) ? (string) ( $definition['direction'] ?? '' ) : '';
+            $direction     = $trend['has_direction'] ? $raw_direction : '';
+
             $in_window = [];
             foreach ( $trend['dates'] as $d ) {
                 if ( $d >= $this->from && $d <= $this->to ) $in_window[] = $d;
@@ -775,10 +822,17 @@ final class TeamMonthlyReport {
             if ( $in_window === [] ) continue;
             $date = $in_window[ count( $in_window ) - 1 ];
 
+            // The round before this one, the squad's and each player's
+            // comparison point (#4069). The same pair the step is taken over.
+            $dates     = array_values( $trend['dates'] );
+            $at        = array_search( $date, $dates, true );
+            $prev_date = is_int( $at ) && $at > 0 ? $dates[ $at - 1 ] : null;
+            $target    = $age_group !== '' ? $targets->forDefinitionAndAge( $def_id, $age_group ) : null;
+
             $tested   = 0;
             $improved = [];
             $declined = [];
-            $readings = [];
+            $all      = [];
             foreach ( $trend['players'] as $p ) {
                 $values = $p['values'] ?? null;
                 if ( ! is_array( $values ) || ! array_key_exists( $date, $values ) ) continue;
@@ -793,16 +847,25 @@ final class TeamMonthlyReport {
                     'delta'     => is_array( $step ) ? (float) ( $step['delta'] ?? 0 ) : 0.0,
                 ];
 
-                if ( TestsBlockOptions::showsPlayers( $show ) ) {
-                    // A player tested for the first time has a reading but no
-                    // step: null reads as "nothing to compare with", which is
-                    // not the same as no change.
-                    $readings[] = $entry + [
-                        'value' => $values[ $date ],
-                        'trend' => is_array( $step ) ? (string) ( $step['trend'] ?? '' ) : '',
-                        'first' => ! is_array( $step ),
-                    ];
-                }
+                // A player tested for the first time has a reading but no
+                // step: "nothing to compare with", which is not the same as
+                // no change.
+                $value    = (float) $values[ $date ];
+                $previous = $prev_date !== null && isset( $values[ $prev_date ] ) ? (float) $values[ $prev_date ] : null;
+                $all[]    = $entry + [
+                    'value'            => $value,
+                    'value_display'    => self::testValueDisplay( $units, $value ),
+                    'previous'         => $previous,
+                    'previous_display' => $previous !== null ? self::testValueDisplay( $units, $previous ) : '—',
+                    'delta_display'    => is_array( $step ) ? self::testDeltaDisplay( $units, $entry['delta'] ) : '—',
+                    'trend'            => is_array( $step ) ? (string) ( $step['trend'] ?? '' ) : '',
+                    'first'            => ! is_array( $step ),
+                    // #4069 — the player's best reading ever, and where it
+                    // sits against the age group's target band. Bands hold
+                    // canonical values, the trend the entry unit.
+                    'pb'               => self::isPersonalBest( $values, $date, $direction ),
+                    'flag'             => $targets->flagFor( $units->toBase( $value ), $target, $raw_direction !== '' ? $raw_direction : 'neutral' ),
+                ];
 
                 if ( ! is_array( $step ) ) continue;
                 $trend_key = (string) ( $step['trend'] ?? '' );
@@ -810,23 +873,259 @@ final class TeamMonthlyReport {
                 if ( $trend_key === 'down' ) $declined[] = $entry;
             }
 
-            $definition = $trend['definition'];
+            $average = isset( $trend['average'][ $date ] ) ? (float) $trend['average'][ $date ] : null;
+            // #4063 — a result table reads best to worst on a test with a
+            // direction, shirt order otherwise.
+            $ranked = self::withSquadComparison(
+                self::rankReadings( PlayerOrder::sort( $all, $jerseys ), $direction ),
+                $units,
+                $direction,
+                $average
+            );
+
             $out[ $def_id ] = [
                 'definition_id' => $def_id,
                 'name'          => is_array( $definition ) ? (string) ( $definition['name'] ?? '' ) : (string) ( $s->definition_name ?? '' ),
                 'unit'          => is_array( $definition ) ? (string) ( $definition['unit'] ?? '' ) : '',
+                'unit_label'    => self::testUnitLabel( $units ),
+                'is_duration'   => $units->isDuration(),
+                'direction'     => $direction,
                 'date'          => $date,
+                'previous_date' => $prev_date,
                 'tested'        => $tested,
                 'squad'         => $squad,
                 // #3518 — these are player lists, so they read in shirt order
                 // like every other player list in the report.
                 'improved'      => PlayerOrder::sort( $improved, $jerseys ),
                 'declined'      => PlayerOrder::sort( $declined, $jerseys ),
-                'readings'      => PlayerOrder::sort( $readings, $jerseys ),
+                // #4069 — the round at a glance, for the stat strip.
+                'average'       => self::testAverage( $units, $trend['average'], $date, $prev_date, $raw_direction, $trend['has_direction'] ),
+                'best'          => self::testExtreme( $ranked, $direction, true ),
+                'worst'         => self::testExtreme( $ranked, $direction, false ),
+                'moves'         => self::testMoves( $ranked ),
+                'bands'         => self::testBands( $ranked, $target !== null ? $age_group : '', $tested ),
+                'history'       => self::testHistory( $units, $trend['average'], $dates, is_int( $at ) ? $at : count( $dates ) - 1 ),
+                'readings'      => TestsBlockOptions::showsPlayers( $show ) ? $ranked : [],
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * Is this the player's best reading ever? Only on a test with a direction,
+     * and only once there is an earlier reading to beat — a first reading is a
+     * first reading, not a record.
+     *
+     * @param array<array-key,mixed> $values date => reading, entry unit
+     */
+    private static function isPersonalBest( array $values, string $date, string $direction ): bool {
+        if ( $direction !== 'lower' && $direction !== 'higher' ) return false;
+
+        $now     = (float) $values[ $date ];
+        $earlier = [];
+        foreach ( $values as $d => $v ) {
+            if ( (string) $d < $date && ( is_int( $v ) || is_float( $v ) ) ) $earlier[] = (float) $v;
+        }
+        if ( $earlier === [] ) return false;
+
+        return $direction === 'lower' ? $now < min( $earlier ) : $now > max( $earlier );
+    }
+
+    /**
+     * Rank, bar length and distance to the squad average per reading (#4069).
+     *
+     * The rank is shared on a tie, and only exists on a test with a direction:
+     * without better or worse there is nothing to rank. `worse_than_avg` marks
+     * where the squad-average line falls in a best-to-worst table.
+     *
+     * @param list<array<string,mixed>> $rows ranked
+     * @return list<array<string,mixed>>
+     */
+    private static function withSquadComparison( array $rows, UnitContext $units, string $direction, ?float $average ): array {
+        $ranked = $direction === 'lower' || $direction === 'higher';
+        $max    = 0.0;
+        foreach ( $rows as $r ) $max = max( $max, (float) $r['value'] );
+
+        $out  = [];
+        $rank = 0;
+        $last = null;
+        foreach ( $rows as $i => $r ) {
+            $value = (float) $r['value'];
+            if ( $last === null || $value !== $last ) $rank = $i + 1;
+            $last = $value;
+
+            $vs = $average !== null ? $value - $average : null;
+
+            $r['rank']           = $ranked ? $rank : null;
+            $r['bar_pct']        = $max > 0 ? round( $value / $max * 100, 1 ) : 0.0;
+            $r['vs_avg']         = $vs;
+            $r['vs_avg_display'] = $vs !== null ? self::testGapDisplay( $units, $vs ) : '—';
+            $r['worse_than_avg'] = $vs !== null && ( ( $direction === 'lower' && $vs > 0 ) || ( $direction === 'higher' && $vs < 0 ) );
+            $out[] = $r;
+        }
+        return $out;
+    }
+
+    /**
+     * The squad average this round and the round before, with the move
+     * between them judged the way a single reading is (#4069).
+     *
+     * @param array<string,float> $averages date => squad average, entry unit
+     * @return array{value:?float, display:string, previous:?float, previous_display:string, delta_display:string, trend:string}
+     */
+    private static function testAverage( UnitContext $units, array $averages, string $date, ?string $prev_date, string $direction, bool $has_direction ): array {
+        $now  = isset( $averages[ $date ] ) ? (float) $averages[ $date ] : null;
+        $then = $prev_date !== null && isset( $averages[ $prev_date ] ) ? (float) $averages[ $prev_date ] : null;
+
+        $delta_display = '—';
+        $trend         = '';
+        if ( $now !== null && $then !== null ) {
+            $delta_display = self::testDeltaDisplay( $units, $now - $then );
+            $trend         = TestTrendsQuery::stateFor( $now - $then, $then, $direction, $has_direction )['trend'];
+        }
+
+        return [
+            'value'            => $now,
+            'display'          => $now !== null ? self::testAverageDisplay( $units, $now ) : '—',
+            'previous'         => $then,
+            'previous_display' => $then !== null ? self::testAverageDisplay( $units, $then ) : '—',
+            'delta_display'    => $delta_display,
+            'trend'            => $trend,
+        ];
+    }
+
+    /**
+     * The best or the worst reading of the round: the ends of the ranking on
+     * a test with a direction, the highest and lowest value without one.
+     *
+     * @param list<array<string,mixed>> $rows
+     * @return array{player_id:int, name:string, value_display:string}|null
+     */
+    private static function testExtreme( array $rows, string $direction, bool $best ): ?array {
+        if ( $rows === [] ) return null;
+
+        if ( $direction === 'lower' || $direction === 'higher' ) {
+            $row = $best ? $rows[0] : $rows[ count( $rows ) - 1 ];
+        } else {
+            $row = $rows[0];
+            foreach ( $rows as $r ) {
+                $higher = (float) $r['value'] > (float) $row['value'];
+                $lower  = (float) $r['value'] < (float) $row['value'];
+                if ( ( $best && $higher ) || ( ! $best && $lower ) ) $row = $r;
+            }
+        }
+
+        return [
+            'player_id'     => (int) ( $row['player_id'] ?? 0 ),
+            'name'          => (string) ( $row['name'] ?? '' ),
+            'value_display' => (string) ( $row['value_display'] ?? '' ),
+        ];
+    }
+
+    /**
+     * How many moved each way since their previous reading, and how many had
+     * none. A neutral test's rose / fell count as up / down.
+     *
+     * @param list<array<string,mixed>> $rows
+     * @return array{up:int, down:int, flat:int, first:int}
+     */
+    private static function testMoves( array $rows ): array {
+        $moves = [ 'up' => 0, 'down' => 0, 'flat' => 0, 'first' => 0 ];
+        foreach ( $rows as $r ) {
+            if ( ! empty( $r['first'] ) ) {
+                $moves['first']++;
+                continue;
+            }
+            $t = (string) ( $r['trend'] ?? '' );
+            if ( $t === 'up' || $t === 'rose' ) {
+                $moves['up']++;
+            } elseif ( $t === 'down' || $t === 'fell' ) {
+                $moves['down']++;
+            } else {
+                $moves['flat']++;
+            }
+        }
+        return $moves;
+    }
+
+    /**
+     * Readings per target band — green, amber, red — against the team's age
+     * group. Null when the test has no band for it, so the strip leaves the
+     * cell out rather than printing "0 of 15 on target".
+     *
+     * @param list<array<string,mixed>> $rows
+     * @return array{age_group:string, ok:int, warn:int, bad:int, of:int}|null
+     */
+    private static function testBands( array $rows, string $age_group, int $tested ): ?array {
+        if ( $age_group === '' ) return null;
+
+        $counts = [ 'ok' => 0, 'warn' => 0, 'bad' => 0 ];
+        foreach ( $rows as $r ) {
+            $flag = (string) ( $r['flag'] ?? '' );
+            if ( isset( $counts[ $flag ] ) ) $counts[ $flag ]++;
+        }
+        if ( array_sum( $counts ) === 0 ) return null;
+
+        return [ 'age_group' => $age_group, 'ok' => $counts['ok'], 'warn' => $counts['warn'], 'bad' => $counts['bad'], 'of' => $tested ];
+    }
+
+    /**
+     * The squad average over the last four rounds up to this one, oldest
+     * first, each as a share of the highest so a strip can draw it.
+     *
+     * @param array<string,float> $averages
+     * @param list<string>        $dates
+     * @return list<array{date:string, value:float, display:string, pct:float}>
+     */
+    private static function testHistory( UnitContext $units, array $averages, array $dates, int $at ): array {
+        $points = [];
+        foreach ( array_slice( $dates, 0, $at + 1 ) as $d ) {
+            if ( isset( $averages[ $d ] ) ) $points[] = [ 'date' => $d, 'value' => (float) $averages[ $d ] ];
+        }
+        $points = array_slice( $points, -4 );
+
+        $max = 0.0;
+        foreach ( $points as $pt ) $max = max( $max, $pt['value'] );
+
+        $out = [];
+        foreach ( $points as $pt ) {
+            $out[] = [
+                'date'    => $pt['date'],
+                'value'   => $pt['value'],
+                'display' => self::testAverageDisplay( $units, $pt['value'] ),
+                'pct'     => $max > 0 ? round( $pt['value'] / $max * 100, 1 ) : 0.0,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * A squad average as a person reads it. An average is not a reading, so
+     * it does not get a reading's precision: whole seconds on a timed test of
+     * a minute or more, two decimals otherwise.
+     */
+    private static function testAverageDisplay( UnitContext $units, float $value ): string {
+        if ( $units->isDuration() ) {
+            $seconds = $units->toBase( $value );
+            return DurationFormat::format( round( $seconds, abs( $seconds ) >= 60 ? 0 : 2 ) );
+        }
+        return UnitContext::localeNumber( round( $value, 2 ) );
+    }
+
+    /**
+     * A reading's distance to the squad average, signed: "−1:36" on a timed
+     * test, "+0,45" otherwise.
+     */
+    private static function testGapDisplay( UnitContext $units, float $gap ): string {
+        if ( $units->isDuration() ) {
+            $seconds = $units->toBase( $gap );
+            $seconds = round( $seconds, abs( $seconds ) >= 60 ? 0 : 1 );
+            if ( abs( $seconds ) < 0.05 ) return '0:00';
+            return ( $seconds > 0 ? '+' : '−' ) . DurationFormat::format( abs( $seconds ) );
+        }
+        if ( abs( $gap ) < 0.0001 ) return '0';
+        return ( $gap > 0 ? '+' : '−' ) . number_format_i18n( abs( $gap ), abs( $gap ) < 10 ? 2 : 1 );
     }
 
     /**
@@ -839,11 +1138,23 @@ final class TeamMonthlyReport {
         $definition = ( new MeasurementDefinitionsRepository() )->find( $definition_id );
         if ( ! $definition ) return null;
 
+        $units = UnitContext::forDefinition( $definition );
+
         return [
             'definition_id' => $definition_id,
             'name'          => (string) ( $definition->name ?? '' ),
             'unit'          => (string) ( $definition->unit ?? '' ),
+            'unit_label'    => self::testUnitLabel( $units ),
+            'is_duration'   => $units->isDuration(),
+            'direction'     => '',
             'date'          => '',
+            'previous_date' => null,
+            'average'       => null,
+            'best'          => null,
+            'worst'         => null,
+            'moves'         => null,
+            'bands'         => null,
+            'history'       => [],
             'tested'        => 0,
             'squad'         => count( $this->players() ),
             'improved'      => [],
@@ -851,6 +1162,93 @@ final class TeamMonthlyReport {
             'readings'      => [],
             'empty'         => true,
         ];
+    }
+
+    /**
+     * What a test's result column is headed with: `mm:ss` for a duration,
+     * the unit's symbol otherwise.
+     */
+    private static function testUnitLabel( UnitContext $units ): string {
+        return $units->isDuration() ? 'mm:ss' : $units->symbol();
+    }
+
+    /**
+     * One reading as a person reads it (#4063). Trend values arrive in the
+     * entry unit; a duration goes back to seconds and prints as m:ss, rounded
+     * to the hundredth first so float noise from the unit conversion cannot
+     * turn 16:04 into 16:03.99.
+     */
+    private static function testValueDisplay( UnitContext $units, float $value ): string {
+        if ( $units->isDuration() ) {
+            return DurationFormat::format( round( $units->toBase( $value ), 2 ) );
+        }
+        return UnitContext::localeNumber( $value );
+    }
+
+    /**
+     * A change between two readings (#4063). A duration's change is spoken in
+     * seconds ("−7 s"), whatever unit the test is entered in; anything else
+     * keeps the entry unit, which the column header names.
+     */
+    private static function testDeltaDisplay( UnitContext $units, float $delta ): string {
+        if ( $units->isDuration() ) {
+            $seconds = round( $units->deltaFromBase( $units->toBase( $delta ) ), 1 );
+            if ( abs( $seconds ) < 0.05 ) return '0 ' . $units->deltaSymbol();
+            return ( $seconds > 0 ? '+' : '−' ) . UnitContext::localeNumber( abs( $seconds ) ) . ' ' . $units->deltaSymbol();
+        }
+        if ( abs( $delta ) < 0.0001 ) return '0';
+        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
+    }
+
+    /**
+     * Readings best to worst on a test with a direction (#4063): ascending on
+     * `lower`, descending on `higher`. Without a direction there is no better
+     * or worse, so the shirt order they arrive in stands. Ties keep that shirt
+     * order too.
+     *
+     * @param list<array<string,mixed>> $readings in shirt order
+     * @return list<array<string,mixed>>
+     */
+    private static function rankReadings( array $readings, string $direction ): array {
+        if ( $direction !== 'lower' && $direction !== 'higher' ) return $readings;
+
+        $sign = $direction === 'lower' ? 1 : -1;
+        return self::stableSort(
+            $readings,
+            static fn( array $a, array $b ): int => $sign * ( (float) ( $a['value'] ?? 0 ) <=> (float) ( $b['value'] ?? 0 ) )
+        );
+    }
+
+    /**
+     * `usort` with ties left in the order the rows arrived — PHP 7.4's sort
+     * is not stable, and every ranking here falls back to shirt order.
+     *
+     * @param list<array<string,mixed>> $rows
+     * @param callable(array<string,mixed>, array<string,mixed>): int $cmp
+     * @return list<array<string,mixed>>
+     */
+    private static function stableSort( array $rows, callable $cmp ): array {
+        $indexed = [];
+        foreach ( $rows as $i => $row ) {
+            $indexed[] = [ $i, $row ];
+        }
+        usort(
+            $indexed,
+            /**
+             * @param array{int, array<string,mixed>} $a
+             * @param array{int, array<string,mixed>} $b
+             */
+            static function ( array $a, array $b ) use ( $cmp ): int {
+                $c = $cmp( $a[1], $b[1] );
+                return $c !== 0 ? $c : $a[0] <=> $b[0];
+            }
+        );
+
+        $out = [];
+        foreach ( $indexed as $pair ) {
+            $out[] = $pair[1];
+        }
+        return $out;
     }
 
     /**
@@ -1051,10 +1449,47 @@ final class TeamMonthlyReport {
 
     /** @return list<AttendanceRow> */
     private function attendanceRows(): array {
-        if ( $this->attendance === null ) {
-            $this->attendance = ( new AttendanceRankingQuery() )->rows( $this->from, $this->to, $this->team_id );
+        return $this->attendanceRowsIn( $this->from, $this->to );
+    }
+
+    /**
+     * Per-player attendance over a window, from the shared ranking query.
+     *
+     * @return list<AttendanceRow>
+     */
+    private function attendanceRowsIn( string $from, string $to ): array {
+        $key = $from . '|' . $to;
+        if ( ! isset( $this->attendance[ $key ] ) ) {
+            $this->attendance[ $key ] = ( new AttendanceRankingQuery() )->rows( $from, $to, $this->team_id );
         }
-        return $this->attendance;
+        return $this->attendance[ $key ];
+    }
+
+    /**
+     * The squad's attendance: the mean of the per-player percentages, one
+     * decimal (#4068). The attendance section prints it above its table and
+     * the headline tile prints the same number, so the two cannot disagree —
+     * the tile used to pool every register row, count only "present" and
+     * round to a whole percent, and read 100% above a player at 93.8%.
+     *
+     * Late counts as attended, as it does in every row (#4013). A value below
+     * 100 is capped at 99.9, so 100% means everybody attended everything.
+     * Null when nobody has a register row, so a quiet month reads "—".
+     *
+     * @param list<AttendanceRow> $rows
+     */
+    private static function squadAttendancePct( array $rows ): ?float {
+        $sum = 0.0;
+        $n   = 0;
+        foreach ( $rows as $r ) {
+            if ( $r['present_pct'] === null ) continue;
+            $sum += $r['present_pct'];
+            $n++;
+        }
+        if ( $n === 0 ) return null;
+
+        $mean = $sum / $n;
+        return $mean < 100.0 ? min( round( $mean, 1 ), 99.9 ) : 100.0;
     }
 
     /**

@@ -1,0 +1,129 @@
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "home match, one letter"
+msgid "H"
+msgstr "T"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "away match, one letter"
+msgid "A"
+msgstr "U"
+
+#. translators: 1: the letter for a home match, 2: the letter for an away match
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$s = home · %2$s = away"
+msgstr "%1$s = thuis · %2$s = uit"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "goals, one-letter column heading"
+msgid "G"
+msgstr "G"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "assists, one-letter column heading"
+msgid "A"
+msgstr "A"
+
+#. translators: 1: goals with a scorer entered, 2: goals scored in the record
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "%1$d of %2$d goal attributed."
+msgid_plural "%1$d of %2$d goals attributed."
+msgstr[0] "%1$d van %2$d doelpunt toegeschreven."
+msgstr[1] "%1$d van %2$d doelpunten toegeschreven."
+
+#. translators: 1: change of the squad average, e.g. "−4 s", 2: month of the previous test round
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "squad average against the previous test round"
+msgid "%1$s vs %2$s"
+msgstr "%1$s t.o.v. %2$s"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "best test reading"
+msgid "Best"
+msgstr "Beste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "highest test reading"
+msgid "Highest"
+msgstr "Hoogste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "lowest test reading"
+msgid "Lowest"
+msgstr "Laagste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "worst reading on a timed test"
+msgid "Slowest"
+msgstr "Langzaamste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Better · worse · same · first"
+msgstr "Beter · slechter · gelijk · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Better · worse · first"
+msgstr "Beter · slechter · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Rose · fell · same · first"
+msgstr "Hoger · lager · gelijk · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "test round moves, in that order"
+msgid "Rose · fell · first"
+msgstr "Hoger · lager · eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "against their own previous reading"
+msgstr "t.o.v. eigen vorige meting"
+
+#. translators: %s: age group, e.g. "U14"
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "On target (%s)"
+msgstr "Op niveau (%s)"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Squad average per round"
+msgstr "Teamgemiddelde per ronde"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "monthly report tests column: difference to the squad average"
+msgid "vs avg."
+msgstr "t.o.v. gem."
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "personal best, short tag"
+msgid "PB"
+msgstr "PR"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgctxt "a first test reading, nothing to compare with"
+msgid "first"
+msgstr "eerste"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "PB = personal best"
+msgstr "PR = persoonlijk record"
+
+#: src/Modules/Export/Exporters/TeamMonthlyReportPdfDocument.php
+msgid "Dashed line = squad average"
+msgstr "Stippellijn = teamgemiddelde"
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid ""
+"Fits by shortening: each test prints its summary without the table of "
+"readings, and the agenda keeps its two most urgent players."
+msgstr ""
+"Past door in te korten: elke test drukt alleen zijn samenvatting af, zonder "
+"de tabel met uitslagen, en de agenda houdt de twee dringendste spelers."
+
+#: src/Modules/Analytics/Frontend/TeamMonthlyReportPage.php
+msgid ""
+"Fits by shortening: each test prints its summary without the table of "
+"readings."
+msgstr ""
+"Past door in te korten: elke test drukt alleen zijn samenvatting af, zonder "
+"de tabel met uitslagen."

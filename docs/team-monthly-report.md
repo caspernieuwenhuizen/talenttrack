@@ -48,7 +48,8 @@ sessions are left out.
 
 Some sections can be told more than whether to appear. When you tick a section
 that has settings and press **Update report**, its controls appear under the
-section list.
+section list — or, on a wide screen, in a column to the right of it, with the
+printed size and the buttons under the sections.
 
 **Tests** has two. **Which tests** lists the tests your squad actually took in
 this period — tick the ones the meeting is about, or leave them all unticked to
@@ -61,6 +62,11 @@ decides what each test prints:
 - **Change since last time** — how much each player moved since their previous
   result.
 - **Readings and change** — both columns.
+
+A timed test reads as minutes and seconds (`16:04`), the way it was entered,
+and its change is in seconds (`−7 s`). A test where lower or higher is better
+lists its players from best to worst; a test without a direction, such as
+height, lists them in squad-number order.
 
 If you save the report and a test you picked has no readings next month, its
 section still appears and says so. A section that quietly vanished would read
@@ -105,6 +111,27 @@ What was written prints in full, over as many lines as it needs: what changed,
 why a player needs a conversation, and the names of the players without an
 evaluation. The page count on the meter includes those lines.
 
+On paper, **Matches** opens with the record as a row of tiles — played, won,
+drawn, lost, goals for and against, and the difference, with the result in its
+colour. Under it the results (date, **H** or **A**, opponent, the score in the
+colour of the result) sit beside the scorers, ranked by goals and then assists,
+each with a bar. A totals row and a line such as *"7 of 8 goals attributed"*
+show whether every goal has a scorer entered.
+
+Each test on paper gets a card: its name, which way is better, the date and how
+many were tested, then a strip of figures — the squad average and how it moved
+since the previous round, the best reading, how many got better or worse, how
+many are on target for the age group (when the test has target bands), and the
+squad average over the last four rounds. With **Readings** or **Readings and
+change** chosen, a table follows, best to worst: each player's reading with a
+bar in the colour of their target band, their previous reading, the change
+(green when it is an improvement, so a faster time is green), the gap to the
+squad average, and **PB** on a personal best. A dashed line marks where the
+squad average falls. The one-pager prints the strip only, with the worst
+reading in place of the history. On the three-page pack, when the third page
+would overflow, the tests print their strip only first, and then the agenda
+keeps its two most urgent players; the meter says which.
+
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.
 
@@ -141,7 +168,9 @@ Scheduled reports are part of the Standard plan and above.
 - **Headline numbers** — activities, attendance, median minutes share,
   evaluation coverage, squad rating and the number of players needing attention,
   each compared with the period before. Where there is nothing to compare with,
-  you see a dash, not a zero.
+  you see a dash, not a zero. Attendance is the squad average the attendance
+  section shows above its table, so the two always agree: late counts as
+  attended, and it reads 100% only when every player attended everything.
 - **Squad status** — how many players are on track, to watch, needing action, or
   without a read yet, and how that looked last period.
 - **Attendance** and **Minutes share** — per player, with links to the full
@@ -169,9 +198,10 @@ from.
 
 Player tables read in **squad-number order**, so a player sits in the same place
 on every page and in the printed copy. Players without a number come last,
-alphabetically. Two tables are deliberately left alone: **Minutes share** is
-ordered by share played and **Needs a conversation** by urgency — there the
-order is itself the finding.
+alphabetically. Four tables are deliberately left alone: **Minutes share** is
+ordered by share played, **Needs a conversation** by urgency, **scorers** by
+goals and then assists, and a test's readings from best to worst when lower or
+higher is better — there the order is itself the finding.
 
 **Each section names the order its rows are in**, above the table. Attendance
 reads *"Team average 93%. In shirt-number order."* — it used to say "lowest
@@ -224,7 +254,8 @@ It has three parts, each with its own tick box in the panel:
 
 - **Record** — played, won, drawn, lost, goals for and against, and the
   difference. On by default.
-- **Scorers and assists** — per player over the period. On by default.
+- **Scorers and assists** — per player over the period, most goals first, then
+  most assists. On by default.
 - **Squad and minutes per match** — who played in each match and for how long.
   **Off** by default: it is the longest part, and it repeats what the minutes
   section already shows.

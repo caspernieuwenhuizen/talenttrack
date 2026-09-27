@@ -55,11 +55,11 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function present( int $activity_id, int $player_id ): void {
+    private function present( int $activity_id, int $player_id, string $status = 'Present' ): void {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
             'club_id' => 1, 'activity_id' => $activity_id, 'player_id' => $player_id,
-            'status' => 'Present', 'record_type' => 'actual', 'is_guest' => 0,
+            'status' => $status, 'record_type' => 'actual', 'is_guest' => 0,
         ] );
     }
 
@@ -209,6 +209,68 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
         $this->assertSame( 1, $coverage['scheduled'] );
         $this->assertSame( [], $coverage['missing'] );
         $this->assertSame( [], $coverage['never_closed'] );
+    }
+
+    /**
+     * #4068 — the attendance tile is the attendance section's own squad
+     * average: late counts as attended, as in the table, and one decimal.
+     */
+    public function test_the_attendance_tile_is_the_attendance_sections_squad_average(): void {
+        $always = $this->player( 'Always' );
+        $late   = $this->player( 'Late' );
+        $absent = $this->player( 'Absent' );
+        $tue    = $this->training( '2020-03-03', 'Tuesday' );
+        $thu    = $this->training( '2020-03-05', 'Thursday' );
+
+        $this->present( $tue, $always );
+        $this->present( $thu, $always );
+        $this->present( $tue, $late, 'Late' );
+        $this->present( $thu, $late );
+        $this->present( $tue, $absent, 'Absent' );
+        $this->present( $thu, $absent );
+
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ] );
+
+        $this->assertSame( 83.3, $report['data']['attendance']['team_avg_pct'], 'Mean of 100, 100 and 50 — late attended.' );
+        $this->assertSame( $report['data']['attendance']['team_avg_pct'], $report['data']['kpi']['attendance_pct']['value'] );
+    }
+
+    /** #4068 — 100% means everybody attended everything, never a rounded 99.96. */
+    public function test_the_attendance_average_never_rounds_up_to_one_hundred(): void {
+        $players = [];
+        for ( $i = 1; $i <= 30; $i++ ) $players[] = $this->player( 'P' . $i );
+        $sessions = [];
+        for ( $d = 1; $d <= 30; $d++ ) $sessions[] = $this->training( sprintf( '2020-03-%02d', $d ), 'Session ' . $d );
+
+        foreach ( $players as $i => $pid ) {
+            foreach ( $sessions as $j => $aid ) {
+                $this->present( $aid, $pid, $i === 0 && $j === 0 ? 'Absent' : 'Present' );
+            }
+        }
+
+        $report = ( new TeamMonthlyReport() )->forTeam( $this->team_id, '2020-03-01', '2020-03-31', [ 'kpi', 'attendance' ] );
+
+        $this->assertSame( 99.9, $report['data']['kpi']['attendance_pct']['value'], 'One absence in 900 is not 100%.' );
+    }
+
+    /**
+     * #4069 — scorers read goals first, then assists, then shirt order (the
+     * order they arrive in). A tie shares its rank; assists only has none.
+     */
+    public function test_scorers_are_ranked_by_goals_then_assists(): void {
+        $rank = new \ReflectionMethod( TeamMonthlyReport::class, 'rankScorers' );
+        $rank->setAccessible( true );
+
+        $ranked = $rank->invoke( null, [
+            [ 'player_id' => 1, 'name' => 'Shirt 1', 'goals' => 1, 'assists' => 1 ],
+            [ 'player_id' => 2, 'name' => 'Shirt 2', 'goals' => 0, 'assists' => 2 ],
+            [ 'player_id' => 3, 'name' => 'Shirt 3', 'goals' => 4, 'assists' => 0 ],
+            [ 'player_id' => 4, 'name' => 'Shirt 4', 'goals' => 1, 'assists' => 1 ],
+            [ 'player_id' => 5, 'name' => 'Shirt 5', 'goals' => 1, 'assists' => 3 ],
+        ] );
+
+        $this->assertSame( [ 'Shirt 3', 'Shirt 5', 'Shirt 1', 'Shirt 4', 'Shirt 2' ], array_column( $ranked, 'name' ) );
+        $this->assertSame( [ 1, 2, 3, 3, null ], array_map( static fn( array $r ) => $r['rank'], $ranked ) );
     }
 
     public function test_the_rest_route_refuses_a_caller_without_reports_read(): void {
