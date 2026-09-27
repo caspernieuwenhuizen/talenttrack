@@ -25,8 +25,19 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * Plus the retention boundary (a freshly-trashed row is NOT purged) and the
  * daily throttle (a second same-day sweep is a no-op).
+ *
+ * #4054 — every case whose sweep actually purges something reads the rows back
+ * afterwards, so none of them can read through `preview()`. The cascade's own
+ * COMMIT ends the suite's per-test transaction, so those cases clean up after
+ * themselves and commit that too. The two `tt_config` keys the sweep writes are
+ * pinned as well: they are written *after* the cascade committed, so the
+ * cleanup's own COMMIT would otherwise be what persists them — and a leaked
+ * `tt_recycle_bin_last_purge_date` tells every later sweep in the run that
+ * today's has already happened. See `CommitsAfterCascade`.
  */
 final class AutoPurgeCronTest extends WP_UnitTestCase {
+
+    use CommitsAfterCascade;
 
     private string $p;
     private ArchiveRepository $repo;
@@ -36,6 +47,13 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         parent::set_up();
         global $wpdb;
         $this->p      = $wpdb->prefix;
+        // Before a single fixture row exists, so the cleanup knows what this
+        // test added — the actor below included.
+        $this->markFixtureFloor();
+        $this->markConfigKeys(
+            AutoPurgeCron::LAST_RUN_CONFIG_KEY,
+            AutoPurgeCron::BLOCKED_COUNT_CONFIG_KEY
+        );
         $this->repo   = new ArchiveRepository();
         $this->config = new ConfigService();
         // Default to an admin so the seed helpers (which call the lifecycle
@@ -58,6 +76,9 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         // the purge ran through GenericCascadeDeleter, not a bare row DELETE.
         $this->assertNotNull( $this->row( 'tt_players', $player_id ), 'the player survives the team purge' );
         $this->assertSame( 0, (int) $this->col( 'tt_players', 'team_id', $player_id ), 'player team_id reset to 0 by the cascade' );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
     }
 
     public function test_a_freshly_trashed_row_is_not_purged(): void {
@@ -132,6 +153,9 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
             $this->countSystemPurges(),
             'the purged audit row carries the system actor (user_id = 0)'
         );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures — or its audit trail — to the rest of the suite' );
     }
 
     // ---- daily throttle -------------------------------------------------
@@ -151,6 +175,49 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         $this->assertNotNull(
             $this->row( 'tt_teams', $second ),
             'a second same-day maybeRun() is a no-op (daily throttle)'
+        );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
+        $this->assertSame(
+            '',
+            ( new ConfigService() )->get( AutoPurgeCron::LAST_RUN_CONFIG_KEY, '' ),
+            'the daily stamp is not left behind to suppress every later sweep in the run'
+        );
+    }
+
+    // ---- #4054 fixture containment --------------------------------------
+
+    /**
+     * The guard on every case above whose sweep purged something. This runs in
+     * its own transaction, so anything they committed is visible here. Before
+     * the fix it saw four teams, a player and the day's purge stamp.
+     */
+    public function test_the_purge_cases_left_nothing_for_the_rest_of_the_suite(): void {
+        global $wpdb;
+
+        $teams = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_teams WHERE name IN (
+                'Expired team', 'Recent team', 'Club 2 expired', 'Audited expired',
+                'First expired', 'Second expired'
+             )"
+        );
+        $this->assertSame( 0, $teams, 'no fixture team outlived the sweep that reached it' );
+
+        $players = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_players WHERE first_name = 'Stays' AND last_name = 'Player'"
+        );
+        $this->assertSame( 0, $players, 'the player the cascade re-homed is not handed to the next test' );
+
+        $tracks = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$this->p}tt_trial_tracks WHERE name = 'Blocked template'"
+        );
+        $this->assertSame( 0, $tracks );
+
+        $this->assertSame(
+            '',
+            $this->config->get( AutoPurgeCron::LAST_RUN_CONFIG_KEY, '' ),
+            'no case left the daily stamp standing'
         );
     }
 
