@@ -7,16 +7,14 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\ReportBrandColour;
-use TT\Modules\Export\Exporters\TeamMonthlyReportPdfDocument;
-use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
-use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -25,10 +23,16 @@ use TT\Shared\Frontend\Components\RecordLink;
  *
  * Chrome lives in `FrontendStandardReportsView` (picker, scope guard, window,
  * period bar, breadcrumbs), the same split the learning reports use; the panel
- * and the body live here so that 1,900-line file does not grow another six
- * hundred. Nothing here computes a figure: every number comes from
- * `TeamMonthlyReport`, and the fit meter from `TeamMonthlyReportLayout`, the
- * same estimate the PDF exporter (#3460) reads.
+ * lives here. Nothing here computes a figure: every number comes from
+ * `TeamMonthlyReport`, and the fit meter from `TeamMonthlyReportLayout`.
+ *
+ * ## What you see is what prints (#4097)
+ *
+ * The report body is not rendered here. `TeamMonthlyReportDocument` builds
+ * the document the PDF prints, and this page shows that same markup: A4
+ * sheets on a desktop, stacked cards with a "page N in the PDF" tag on a
+ * phone. The fit meter reads the estimate the sheets were laid out from, so
+ * the panel, the screen and the paper cannot disagree.
  *
  * ## The panel
  *
@@ -47,17 +51,6 @@ final class TeamMonthlyReportPage {
     public const SLUG = 'team-monthly';
 
     /**
-     * #4096 — each shown section's number in print order, and the data its
-     * header's meta line is read from. Set once per render.
-     *
-     * @var array<string,int>
-     */
-    private static array $numbers = [];
-
-    /** @var array<string,array<string,mixed>> */
-    private static array $data = [];
-
-    /**
      * @param object                                          $team   tt_teams row.
      * @param array{from:string,to:string,period:string}      $window the resolved window.
      */
@@ -69,86 +62,81 @@ final class TeamMonthlyReportPage {
         $blocks  = self::requestedBlocks();
         $options = self::requestedOptions( $blocks );
 
-        $report = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id(), $options );
-        $fit    = TeamMonthlyReportLayout::fit( $report, $layout );
-        $data   = $report['data'];
+        $report   = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id(), $options );
+        $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
 
-        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $fit, $options );
+        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $prepared['fit'], $options );
 
-        echo '<div class="' . esc_attr( self::wrapperClass() ) . '" data-tt-monthly-report>';
-        self::renderBlocks( $report, $team, $window, $layout );
-        echo '</div>';
+        self::renderDocument(
+            $prepared,
+            $layout,
+            (string) ( $team->name ?? '' ),
+            [],
+            self::sourceLinks( $team_id, $window ),
+            self::pdfUrl( $team_id, $window, $layout, $report['blocks'], $options )
+        );
 
         TeamMonthlyReportSnapshotPage::renderTakeAndList( $team_id, $window, $layout, $report['blocks'], $options );
     }
 
     /**
-     * The report body: the letterhead, then every selected section in print
-     * order, then the confidentiality line.
+     * #4097 — the document the PDF prints, shown on screen. Shared with the
+     * snapshot view (#3517), which renders its stored payload through the
+     * same renderer, notes included.
      *
-     * Shared with the snapshot view (#3517), which renders the same blocks from
-     * stored data rather than a live query — that is the whole point of a
-     * snapshot, and two copies of this loop would be two places for the frozen
-     * document to drift from the live one.
-     *
-     * @param array{blocks:list<string>, data:array<string,array<string,mixed>>, from:string, to:string} $report
-     * @param array{from:string,to:string,period:string}                                                $window
-     * @param array<string,array{body:string, author:int, updated_at:string}>                           $notes
-     * @param string                                                                                    $snapshot uuid, '' on the live report
+     * @param array{report:array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}, fit:array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}} $prepared
+     *        from `TeamMonthlyReportDocument::prepare()`.
+     * @param array<string,array{body:string, author:int, updated_at:string}> $notes
+     * @param (callable(string):string)|null $after_section screen-only markup under a section.
      */
-    public static function renderBlocks( array $report, ?object $team, array $window, string $layout = TeamMonthlyReportLayout::DEFAULT, array $notes = [], string $snapshot = '' ): void {
-        $data    = $report['data'];
-        $team_id = (int) ( $team->id ?? 0 );
-        $head    = $data['letterhead'] ?? [];
+    public static function renderDocument( array $prepared, string $layout, string $team_name, array $notes = [], ?callable $after_section = null, string $pdf_url = '' ): void {
+        // The sheets wear the PDF's own stylesheet, scoped to the report and
+        // applied from the desktop breakpoint: one source of the paper's
+        // colours and sizes, not a copy of it in a static file.
+        wp_add_inline_style( 'tt-frontend-team-monthly-report', TeamMonthlyReportDocument::screenCss( $layout ) );
 
-        self::renderLetterhead( $team, $head, $window );
+        echo '<div class="' . esc_attr( self::wrapperClass() ) . '" data-tt-monthly-report>';
+        echo TeamMonthlyReportDocument::screen( $prepared['report'], $layout, $team_name, $prepared['fit'], $notes, $after_section, $pdf_url ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the document escapes its own output.
+        echo '</div>';
+    }
 
-        if ( (int) ( $head['activity_count'] ?? 0 ) === 0 ) {
-            echo '<div class="tt-rep-section"><p class="tt-mr-empty">'
-                . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet. Pick another period above.', 'talenttrack' )
-                . '</p></div>';
-            self::renderConfidential();
-            return;
-        }
-
-        // #4096 — sections in the order the chosen layout prints them, each
-        // numbered as on paper. A section the layout leaves off the page (the
-        // landscape matrix folds attendance and minutes into its roster) is
-        // still shown here, after the rest and without a number.
-        self::$numbers = TeamMonthlyReportLayout::sectionNumbers( $report['blocks'], $layout );
-        self::$data    = $data;
-        $order         = TeamMonthlyReportLayout::printOrder( $layout );
-        foreach ( $report['blocks'] as $block ) {
-            if ( $block !== TeamMonthlyReportBlock::LETTERHEAD && ! in_array( $block, $order, true ) ) $order[] = $block;
-        }
-
-        foreach ( $order as $block ) {
-            if ( ! in_array( $block, $report['blocks'], true ) ) continue;
-            $block_data = $data[ $block ] ?? [];
-            switch ( $block ) {
-                case TeamMonthlyReportBlock::COVERAGE:   self::renderCoverage( $block_data ); break;
-                case TeamMonthlyReportBlock::KPI:        self::renderKpis( $block_data ); break;
-                case TeamMonthlyReportBlock::STATUS:     self::renderStatus( $block_data ); break;
-                case TeamMonthlyReportBlock::ATTENDANCE: self::renderAttendance( $block_data, $team_id, $window ); break;
-                case TeamMonthlyReportBlock::MINUTES:    self::renderMinutes( $block_data, $team_id, $window ); break;
-                case TeamMonthlyReportBlock::MATCHES:    self::renderMatches( $block_data ); break;
-                case TeamMonthlyReportBlock::ATTENTION:  self::renderAttention( $block_data ); break;
-                case TeamMonthlyReportBlock::CHANGES:    self::renderChanges( $block_data ); break;
-                case TeamMonthlyReportBlock::TESTS:      self::renderTests( $block_data ); break;
-                case TeamMonthlyReportBlock::ROSTER:     self::renderRoster( $block_data ); break;
-                case TeamMonthlyReportBlock::NOTES:      self::renderNotes(); break;
-                case TeamMonthlyReportBlock::QUALITY:    self::renderQuality( $block_data ); break;
+    /**
+     * The link from a section to the full report it summarises, under the
+     * section on screen only. Gated: a reader who cannot open the report
+     * gets no link to it.
+     *
+     * @param array{from:string,to:string,period:string} $window
+     * @return callable(string):string
+     */
+    private static function sourceLinks( int $team_id, array $window ): callable {
+        return static function ( string $block ) use ( $team_id, $window ): string {
+            if ( $block === TeamMonthlyReportBlock::ATTENDANCE ) {
+                $slug  = 'attendance-report-team';
+                $label = __( 'Open the attendance report', 'talenttrack' );
+                $args  = [
+                    'tt_view' => 'attendance-report-team', /* tt-xview-ok */ // gated by CrossViewLink::allows() below
+                    'team_id' => $team_id,
+                    'from'    => $window['from'],
+                    'to'      => $window['to'],
+                ];
+            } elseif ( $block === TeamMonthlyReportBlock::MINUTES ) {
+                $slug  = 'standard-report';
+                $label = __( 'Open the minutes share report', 'talenttrack' );
+                $args  = [
+                    'tt_view' => 'standard-report', /* tt-xview-ok */ // gated by CrossViewLink::allows() below
+                    'slug'    => 'minutes-share',
+                    'team_id' => $team_id,
+                    'from'    => $window['from'],
+                    'to'      => $window['to'],
+                ];
+            } else {
+                return '';
             }
+            if ( ! CrossViewLink::allows( $slug ) ) return '';
 
-            // Notes exist only on a snapshot. The live report is a view of
-            // current data, and commentary on a moving number has nothing to
-            // attach to (#3517).
-            if ( $snapshot !== '' ) {
-                TeamMonthlyReportSnapshotPage::renderNote( $block, $notes, $snapshot );
-            }
-        }
-
-        self::renderConfidential();
+            $url = BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
+            return '<p class="tt-mr-doc__source"><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></p>';
+        };
     }
 
     /** The report's own styles, for a surface that is not the live report. */
@@ -410,7 +398,7 @@ final class TeamMonthlyReportPage {
             echo '</label>';
         }
         echo '</div>';
-        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The type shapes the printed copy. Online, every selected block is shown in full.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-mr-panel__hint">' . esc_html__( 'The report below is the printed copy: the same sections, pages and detail as the PDF.', 'talenttrack' ) . '</p>';
         echo '</fieldset>';
 
         // Blocks.
@@ -421,9 +409,14 @@ final class TeamMonthlyReportPage {
             $id     = 'tt-mr-blk-' . $key;
             $locked = $key === TeamMonthlyReportBlock::LETTERHEAD;
             $on     = in_array( $key, $selected, true );
-            $note   = TeamMonthlyReportLayout::availability( $layout, $key ) === 'compressed'
-                ? __( 'Narrower on the one-pager', 'talenttrack' )
-                : $block_labels[ $key ]['note'];
+            $availability = TeamMonthlyReportLayout::availability( $layout, $key );
+            if ( $availability === 'compressed' ) {
+                $note = __( 'Narrower on the one-pager', 'talenttrack' );
+            } elseif ( $availability === 'in_roster' ) {
+                $note = __( 'Landscape prints it as columns of the player-by-player table', 'talenttrack' );
+            } else {
+                $note = $block_labels[ $key ]['note'];
+            }
 
             echo '<label class="tt-mr-block' . ( $locked ? ' is-locked' : '' ) . '" for="' . esc_attr( $id ) . '">';
             echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="blk[]" value="' . esc_attr( $key ) . '"'
@@ -636,417 +629,6 @@ final class TeamMonthlyReportPage {
         ];
     }
 
-    /* ---------------------------------------------------------------
-     * Body
-     * ------------------------------------------------------------- */
-
-    /**
-     * Nullable team: a snapshot outlives the team it was taken for, and the
-     * meeting's record must still open after that team is archived away.
-     *
-     * @param array<string,mixed>                     $head
-     * @param array{from:string,to:string,period:string} $window
-     */
-    private static function renderLetterhead( ?object $team, array $head, array $window ): void {
-        $bits = [
-            sprintf(
-                /* translators: 1: window start date, 2: window end date */
-                __( '%1$s – %2$s', 'talenttrack' ),
-                TTDate::date( $window['from'] ),
-                TTDate::date( $window['to'] )
-            ),
-        ];
-        $coach = (string) ( $head['head_coach'] ?? '' );
-        if ( $coach !== '' ) {
-            /* translators: %s: head coach's name */
-            $bits[] = sprintf( __( 'Head coach %s', 'talenttrack' ), $coach );
-        }
-        $squad = (int) ( $head['squad_size'] ?? 0 );
-        /* translators: %d: players in the squad */
-        $bits[] = sprintf( _n( '%d player', '%d players', $squad, 'talenttrack' ), $squad );
-        $acts = (int) ( $head['activity_count'] ?? 0 );
-        /* translators: %d: trainings and matches on the team's calendar for the window */
-        $bits[] = sprintf( _n( '%d activity', '%d activities', $acts, 'talenttrack' ), $acts );
-
-        echo '<header class="tt-rep-page-head tt-mr-head">';
-        echo '<h1>' . esc_html( sprintf(
-            /* translators: %s: team name */
-            __( 'Monthly report — %s', 'talenttrack' ),
-            (string) ( $team->name ?? '' )
-        ) ) . '</h1>';
-        echo '<p class="tt-rep-page-head__sub">' . esc_html( implode( ' · ', $bits ) ) . '</p>';
-        echo '</header>';
-    }
-
-    /** @param array<string,mixed> $c */
-    private static function renderCoverage( array $c ): void {
-        $state        = (string) ( $c['state'] ?? 'empty' );
-        $completed    = (int) ( $c['completed'] ?? 0 );
-        $with         = (int) ( $c['with_register'] ?? 0 );
-        $missing      = is_array( $c['missing'] ?? null ) ? $c['missing'] : [];
-        $never_closed = is_array( $c['never_closed'] ?? null ) ? $c['never_closed'] : [];
-
-        // "Complete" is rendered, not left out: the absence of a warning has
-        // to read as evidence, or a reader cannot tell "all recorded" from
-        // "the check did not run".
-        echo '<section class="tt-mr-coverage is-' . esc_attr( $state ) . '" aria-label="' . esc_attr_x( 'Data coverage', 'team monthly report section', 'talenttrack' ) . '">';
-        if ( $state === 'empty' ) {
-            echo '<p>' . esc_html__( 'No trainings or matches in this window.', 'talenttrack' ) . '</p>';
-            echo '</section>';
-            return;
-        }
-
-        if ( $missing !== [] ) {
-            echo '<p><strong>' . esc_html__( 'Read the numbers with this in mind:', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
-                /* translators: 1: activities with a register, 2: completed activities */
-                __( 'the figures below are based on %1$d of %2$d completed activities. These have no attendance register:', 'talenttrack' ),
-                $with,
-                $completed
-            ) ) . '</p>';
-            self::renderCoverageList( $missing );
-        } elseif ( $completed > 0 ) {
-            echo '<p><strong>' . esc_html__( 'Complete.', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
-                /* translators: %d: completed activities */
-                _n( 'The one completed activity has an attendance register.', 'All %d completed activities have an attendance register.', $completed, 'talenttrack' ),
-                $completed
-            ) ) . '</p>';
-        }
-
-        // A session nobody closed is a different failure from one closed
-        // without a register, and it sends the coach to a different screen.
-        if ( $never_closed !== [] ) {
-            echo '<p><strong>' . esc_html__( 'Never closed.', 'talenttrack' ) . '</strong> ' . esc_html( sprintf(
-                /* translators: %d: activities whose date has passed and that were never marked completed */
-                _n(
-                    '%d activity in this window has passed and was never marked completed, so nothing it produced counts towards the figures below:',
-                    '%d activities in this window have passed and were never marked completed, so nothing they produced counts towards the figures below:',
-                    count( $never_closed ),
-                    'talenttrack'
-                ),
-                count( $never_closed )
-            ) ) . '</p>';
-            self::renderCoverageList( $never_closed );
-        }
-
-        if ( $completed === 0 && $never_closed === [] ) {
-            echo '<p>' . esc_html__( 'Nothing in this window has taken place yet.', 'talenttrack' ) . '</p>';
-        }
-        echo '</section>';
-    }
-
-    /**
-     * The named activities under a coverage sentence, each a link where the
-     * reader may open it.
-     *
-     * @param array<array-key,mixed> $rows
-     */
-    private static function renderCoverageList( array $rows ): void {
-        echo '<ul class="tt-mr-coverage__list">';
-        foreach ( $rows as $m ) {
-            if ( ! is_array( $m ) ) continue;
-            $url   = RecordLink::detailUrlForWithBack( 'activities', (int) ( $m['activity_id'] ?? 0 ) );
-            $label = sprintf(
-                /* translators: 1: activity title, 2: activity date */
-                __( '%1$s, %2$s', 'talenttrack' ),
-                (string) ( $m['title'] ?? '' ),
-                TTDate::date( (string) ( $m['date'] ?? '' ) )
-            );
-            echo '<li>' . self::link( 'activities', $url, $label ) . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-        }
-        echo '</ul>';
-    }
-
-    /** @param array<string,mixed> $k */
-    private static function renderKpis( array $k ): void {
-        echo '<div class="tt-report-kpis tt-mr-kpis">';
-
-        $activities = self::measureOf( $k, 'activities' );
-        echo FrontendAppChrome::kpiTile( self::tile( __( 'Activities', 'talenttrack' ), self::num( $activities['value'] ), $activities['delta'], '', 1 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- kpiTile escapes.
-
-        $att = self::measureOf( $k, 'attendance_pct' );
-        echo FrontendAppChrome::kpiTile( self::tile( __( 'Attendance', 'talenttrack' ), self::pct( $att['value'] ), $att['delta'], _x( 'pts', 'percentage points', 'talenttrack' ), 1 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-        $min = self::measureOf( $k, 'minutes_share_median_pct' );
-        echo FrontendAppChrome::kpiTile( self::tile( __( 'Median minutes share', 'talenttrack' ), self::pct( $min['value'] ), $min['delta'], _x( 'pts', 'percentage points', 'talenttrack' ), 1 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-        $eval  = is_array( $k['evaluated'] ?? null ) ? $k['evaluated'] : [];
-        $of    = (int) ( $eval['of'] ?? 0 );
-        $value = $of > 0 ? sprintf( '%d/%d', (int) ( $eval['value'] ?? 0 ), $of ) : '—';
-        echo FrontendAppChrome::kpiTile( self::tile( __( 'Evaluated', 'talenttrack' ), $value, $eval['delta'] ?? null, _x( 'pts', 'percentage points', 'talenttrack' ), 1 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-        $rating = self::measureOf( $k, 'squad_rating' );
-        echo FrontendAppChrome::kpiTile( self::tile( __( 'Squad rating', 'talenttrack' ), $rating['value'] !== null ? number_format_i18n( (float) $rating['value'], 1 ) : '—', $rating['delta'], '', 1 ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-        $attn = self::measureOf( $k, 'needs_attention' );
-        $tile = self::tile( __( 'Need attention', 'talenttrack' ), self::num( $attn['value'] ), $attn['delta'], '', -1 );
-        if ( (int) ( $attn['value'] ?? 0 ) > 0 ) $tile['flag'] = 'red';
-        echo FrontendAppChrome::kpiTile( $tile ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-        echo '</div>';
-    }
-
-    /** @param array<string,mixed> $s */
-    private static function renderStatus( array $s ): void {
-        $counts   = is_array( $s['counts'] ?? null ) ? $s['counts'] : [];
-        $previous = is_array( $s['previous'] ?? null ) ? $s['previous'] : null;
-        $total    = array_sum( array_map( 'intval', $counts ) );
-
-        self::sectionOpen( TeamMonthlyReportBlock::STATUS );
-        if ( $total > 0 ) {
-            echo '<div class="tt-mr-band" role="img" aria-label="' . esc_attr( self::statusSentence( $counts ) ) . '">';
-            foreach ( [ 'green', 'amber', 'red', 'unknown' ] as $color ) {
-                $n = (int) ( $counts[ $color ] ?? 0 );
-                if ( $n === 0 ) continue;
-                $w = round( $n / $total * 100, 1 );
-                echo '<span class="tt-mr-band__seg is-' . esc_attr( $color ) . '" style="width:' . esc_attr( (string) $w ) . '%;">' . (int) $n . '</span>'; /* tt-inline-ok */
-            }
-            echo '</div>';
-        }
-        echo '<p class="tt-mr-muted">' . esc_html( self::statusSentence( $counts ) . '.' );
-        if ( $previous !== null ) {
-            echo ' ' . esc_html( sprintf(
-                /* translators: %s: last period's status split, e.g. "10 on track, 3 to watch, 1 needing action" */
-                __( 'Last period: %s.', 'talenttrack' ),
-                self::statusSentence( $previous )
-            ) );
-        }
-        echo '</p>';
-        self::sectionClose();
-    }
-
-    /**
-     * @param array<string,mixed>                     $a
-     * @param array{from:string,to:string,period:string} $window
-     */
-    private static function renderAttendance( array $a, int $team_id, array $window ): void {
-        $rows = is_array( $a['rows'] ?? null ) ? $a['rows'] : [];
-
-        // Gated where it is rendered: link() only emits the anchor when
-        // CrossViewLink::allows() says the reader can open the target.
-        $source = BackLink::appendTo( add_query_arg( [
-            'tt_view' => 'attendance-report-team', /* tt-xview-ok */
-            'team_id' => $team_id,
-            'from'    => $window['from'],
-            'to'      => $window['to'],
-        ], RecordLink::dashboardUrl() ) );
-
-        self::sectionOpen(
-            TeamMonthlyReportBlock::ATTENDANCE,
-            self::link( 'attendance-report-team', $source, __( 'Open the attendance report', 'talenttrack' ) )
-        );
-        if ( $rows !== [] ) {
-            // #3518 — shirt order, set by the report's attendance block. The
-            // subtitle above says so: it claimed "lowest first" for three
-            // releases after the order changed, and a coach reading the top
-            // rows as the at-risk players was reading shirt numbers (#4035).
-            // Players below the amber / red line are still named in words and
-            // colour by renderBars(), wherever they sit.
-            self::renderBars( $rows, 'present_pct', null );
-        }
-        self::sectionClose();
-    }
-
-    /**
-     * @param array<string,mixed>                     $m
-     * @param array{from:string,to:string,period:string} $window
-     */
-    private static function renderMinutes( array $m, int $team_id, array $window ): void {
-        $rows   = is_array( $m['rows'] ?? null ) ? $m['rows'] : [];
-        $target = (int) ( $m['target_pct'] ?? 50 );
-
-        // Gated where it is rendered, as above.
-        $source = BackLink::appendTo( add_query_arg( [
-            'tt_view' => 'standard-report', /* tt-xview-ok */
-            'slug'    => 'minutes-share',
-            'team_id' => $team_id,
-            'from'    => $window['from'],
-            'to'      => $window['to'],
-        ], RecordLink::dashboardUrl() ) );
-
-        self::sectionOpen(
-            TeamMonthlyReportBlock::MINUTES,
-            self::link( 'standard-report', $source, __( 'Open the minutes share report', 'talenttrack' ) )
-        );
-        if ( $rows === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No minutes recorded in this window.', 'talenttrack' ) . '</p>';
-        } else {
-            self::renderBars( $rows, 'share_pct', $target );
-        }
-        self::sectionClose();
-    }
-
-    /**
-     * Ranked bars. Colour never carries the meaning alone: every row prints
-     * its value, and a row below the line says so in words.
-     *
-     * @param array<mixed> $rows
-     */
-    private static function renderBars( array $rows, string $value_key, ?int $target ): void {
-        echo '<div class="tt-table-wrap"><table class="tt-mr-bars">';
-        foreach ( $rows as $r ) {
-            if ( ! is_array( $r ) ) continue;
-            $v    = $r[ $value_key ] ?? null;
-            $pct  = $v !== null ? (float) $v : null;
-            $band = (string) ( $r['band'] ?? '' );
-            if ( $band === '' && $pct !== null && $target !== null ) {
-                $band = $pct < $target ? 'amber' : 'green';
-            }
-            $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $r['player_id'] ?? 0 ) );
-            echo '<tr class="is-' . esc_attr( $band !== '' ? $band : 'none' ) . '">';
-            echo '<th scope="row"><span class="tt-mr-bars__name">' . self::link( 'players', $url, (string) ( $r['name'] ?? '' ) ) . '</span></th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-            echo '<td class="tt-mr-bars__track"><span class="tt-mr-track">';
-            if ( $pct !== null ) {
-                echo '<i style="width:' . (int) max( 0, min( 100, round( $pct ) ) ) . '%;"></i>'; /* tt-inline-ok */
-            }
-            if ( $target !== null ) {
-                echo '<b style="left:' . (int) $target . '%;" aria-hidden="true"></b>'; /* tt-inline-ok */
-            }
-            echo '</span></td>';
-            echo '<td class="num">' . esc_html( self::pct( $pct ) );
-            if ( in_array( $band, [ 'amber', 'red' ], true ) ) {
-                echo ' <span class="tt-mr-flag">' . esc_html( $band === 'red'
-                    ? _x( 'low', 'a player well below the attendance or minutes line', 'talenttrack' )
-                    : _x( 'watch', 'a player just below the attendance or minutes line', 'talenttrack' )
-                ) . '</span>';
-            }
-            echo '</td></tr>';
-        }
-        echo '</table></div>';
-    }
-
-    /** @param array<string,mixed> $a */
-    private static function renderAttention( array $a ): void {
-        $items = is_array( $a['items'] ?? null ) ? $a['items'] : [];
-
-        self::sectionOpen( TeamMonthlyReportBlock::ATTENTION );
-        if ( $items === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'Nobody is flagged this period.', 'talenttrack' ) . '</p>';
-            self::sectionClose();
-            return;
-        }
-        echo '<ul class="tt-mr-attention">';
-        foreach ( $items as $item ) {
-            if ( ! is_array( $item ) ) continue;
-            $color = (string) ( $item['color'] ?? '' );
-            $url   = RecordLink::detailUrlForWithBack( 'players', (int) ( $item['player_id'] ?? 0 ) );
-            echo '<li class="tt-mr-attention__item is-' . esc_attr( $color ) . '">';
-            echo '<p class="tt-mr-attention__name">' . self::link( 'players', $url, (string) ( $item['name'] ?? '' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-                . ' <span class="tt-mr-pill is-' . esc_attr( $color ) . '">' . esc_html( self::statusLabel( $color ) ) . '</span></p>';
-
-            $facts   = [];
-            $att_pct = $item['attendance_pct'] ?? null;
-            if ( $att_pct !== null ) {
-                /* translators: %s: attendance percentage */
-                $facts[] = sprintf( __( 'Attendance %s', 'talenttrack' ), self::pct( (float) $att_pct ) );
-            }
-            foreach ( is_array( $item['reasons'] ?? null ) ? $item['reasons'] : [] as $reason ) {
-                $facts[] = (string) $reason;
-            }
-            if ( $facts !== [] ) {
-                echo '<p class="tt-mr-attention__facts">' . esc_html( implode( ' · ', $facts ) ) . '</p>';
-            }
-            $missing = is_array( $item['missing_inputs'] ?? null ) ? $item['missing_inputs'] : [];
-            if ( $missing !== [] ) {
-                $labels = array_map( static fn( $k ): string => \TT\Infrastructure\PlayerStatus\StatusVerdict::inputLabel( (string) $k ), $missing );
-                echo '<p class="tt-mr-muted">' . esc_html( sprintf(
-                    /* translators: %s: comma-separated list of missing inputs */
-                    __( 'Computed without %s.', 'talenttrack' ),
-                    implode( ', ', $labels )
-                ) ) . '</p>';
-            }
-            echo '</li>';
-        }
-        echo '</ul>';
-        self::sectionClose();
-    }
-
-    /** @param array<string,mixed> $c */
-    private static function renderChanges( array $c ): void {
-        $events = is_array( $c['events'] ?? null ) ? $c['events'] : [];
-
-        self::sectionOpen( TeamMonthlyReportBlock::CHANGES );
-        if ( $events === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No injuries, moves or other changes recorded this period.', 'talenttrack' ) . '</p>';
-        } else {
-            echo '<ul class="tt-mr-changes">';
-            foreach ( $events as $e ) {
-                if ( ! is_array( $e ) ) continue;
-                $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $e['player_id'] ?? 0 ) );
-                echo '<li><span class="tt-mr-changes__date">' . esc_html( TTDate::date( (string) ( $e['date'] ?? '' ) ) ) . '</span> '
-                    . self::link( 'players', $url, (string) ( $e['name'] ?? '' ) ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-                    . ' — ' . esc_html( (string) ( $e['summary'] ?? '' ) ) . '</li>';
-            }
-            echo '</ul>';
-        }
-        self::sectionClose();
-    }
-
-    /** @param array<string,mixed> $t */
-    private static function renderTests( array $t ): void {
-        $rounds = is_array( $t['rounds'] ?? null ) ? $t['rounds'] : [];
-        $show   = TestsBlockOptions::show( [ 'show' => $t['show'] ?? null ] );
-
-        self::sectionOpen( TeamMonthlyReportBlock::TESTS );
-        if ( $rounds === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No tests taken this period.', 'talenttrack' ) . '</p>';
-            self::sectionClose();
-            return;
-        }
-        foreach ( $rounds as $s ) {
-            if ( ! is_array( $s ) ) continue;
-            echo '<div class="tt-mr-test">';
-
-            // A test that was asked for but not taken this window says so,
-            // rather than quietly not appearing (#3515).
-            if ( ! empty( $s['empty'] ) ) {
-                echo '<p class="tt-mr-test__name"><strong>' . esc_html( (string) ( $s['name'] ?? '' ) ) . '</strong></p>';
-                echo '<p class="tt-mr-muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</p>';
-                echo '</div>';
-                continue;
-            }
-
-            echo '<p class="tt-mr-test__name"><strong>' . esc_html( (string) ( $s['name'] ?? '' ) ) . '</strong> · '
-                . esc_html( TTDate::date( (string) ( $s['date'] ?? '' ) ) ) . ' · '
-                . esc_html( sprintf(
-                    /* translators: 1: players tested, 2: squad size */
-                    __( '%1$d of %2$d tested', 'talenttrack' ),
-                    (int) ( $s['tested'] ?? 0 ),
-                    (int) ( $s['squad'] ?? 0 )
-                ) ) . '</p>';
-
-            // #4093 — the target the readings are judged against.
-            $target = TeamMonthlyReport::testTargetLabel( $s );
-            if ( $target !== '' ) {
-                echo '<p class="tt-mr-test__target">' . esc_html( $target ) . '</p>';
-            }
-
-            if ( TestsBlockOptions::showsPlayers( $show ) ) {
-                self::renderTestReadings( $s, $show );
-                echo '</div>';
-                continue;
-            }
-
-            foreach ( [
-                'improved' => __( 'Improved: %s', 'talenttrack' ),
-                'declined' => __( 'Declined: %s', 'talenttrack' ),
-            ] as $key => $template ) {
-                $names = [];
-                foreach ( is_array( $s[ $key ] ?? null ) ? $s[ $key ] : [] as $p ) {
-                    if ( is_array( $p ) ) $names[] = (string) ( $p['name'] ?? '' );
-                }
-                if ( $names === [] ) continue;
-                /* translators: %s: comma-separated player names */
-                echo '<p class="tt-mr-muted">' . esc_html( sprintf( $template, implode( ', ', $names ) ) ) . '</p>';
-            }
-            echo '</div>';
-        }
-        // #4093 — once per section, as on the player profile.
-        if ( TeamMonthlyReport::testsHaveTargetlessRound( $t ) ) {
-            echo '<p class="tt-meas-note">' . esc_html__( '"No target" means the test has no better or worse — the reading is recorded, not judged.', 'talenttrack' ) . '</p>';
-        }
-        self::sectionClose();
-    }
-
     /**
      * The match section's own switches (#3516).
      *
@@ -1080,193 +662,6 @@ final class TeamMonthlyReportPage {
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Squads and minutes per match are the longest part, and repeat the minutes section.', 'talenttrack' ) . '</p>';
         echo '</fieldset>';
     }
-
-    /**
-     * Results and match statistics (#3516).
-     *
-     * @param array<string,mixed> $m
-     */
-    private static function renderMatches( array $m ): void {
-        $shows    = is_array( $m['shows'] ?? null ) ? $m['shows'] : [];
-        $fixtures = is_array( $m['fixtures'] ?? null ) ? $m['fixtures'] : [];
-        $record   = is_array( $m['record'] ?? null ) ? $m['record'] : [];
-
-        self::sectionOpen( TeamMonthlyReportBlock::MATCHES );
-
-        if ( $fixtures === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No matches played this period.', 'talenttrack' ) . '</p>';
-            self::renderTournamentNote( $m );
-            self::sectionClose();
-            return;
-        }
-
-        if ( ! empty( $shows['record'] ) ) {
-            echo '<dl class="tt-mr-record">';
-            foreach ( [
-                'played'          => _x( 'Played', 'monthly report match record', 'talenttrack' ),
-                'won'             => _x( 'Won', 'monthly report match record', 'talenttrack' ),
-                'drawn'           => _x( 'Drawn', 'monthly report match record', 'talenttrack' ),
-                'lost'            => _x( 'Lost', 'monthly report match record', 'talenttrack' ),
-                'goals_for'       => _x( 'Goals for', 'monthly report match record', 'talenttrack' ),
-                'goals_against'   => _x( 'Goals against', 'monthly report match record', 'talenttrack' ),
-                'goal_difference' => _x( 'Difference', 'monthly report match record', 'talenttrack' ),
-            ] as $key => $label ) {
-                $value = (int) ( $record[ $key ] ?? 0 );
-                echo '<div class="tt-mr-record__cell">';
-                echo '<dt>' . esc_html( $label ) . '</dt>';
-                echo '<dd>' . esc_html( $key === 'goal_difference' && $value > 0 ? '+' . $value : (string) $value ) . '</dd>';
-                echo '</div>';
-            }
-            echo '</dl>';
-
-            $gaps = (int) ( $record['without_score'] ?? 0 );
-            if ( $gaps > 0 ) {
-                echo '<p class="tt-mr-muted">' . esc_html( sprintf(
-                    /* translators: %d: number of matches with no score recorded */
-                    _n(
-                        '%d match has no score recorded and is not counted in the record.',
-                        '%d matches have no score recorded and are not counted in the record.',
-                        $gaps,
-                        'talenttrack'
-                    ),
-                    $gaps
-                ) ) . '</p>';
-            }
-        }
-
-        if ( ! empty( $shows['scorers'] ) ) {
-            self::renderScorers( is_array( $m['scorers'] ?? null ) ? $m['scorers'] : [] );
-        }
-
-        foreach ( $fixtures as $fixture ) {
-            if ( is_array( $fixture ) ) self::renderFixture( $fixture, ! empty( $shows['squads'] ) );
-        }
-
-        self::renderTournamentNote( $m );
-        self::sectionClose();
-    }
-
-    /**
-     * Tournaments are left out of the record on purpose — a tournament is a
-     * multi-game day (#2686) and one score line cannot describe one. Saying so
-     * beats a record that quietly disagrees with what the coach remembers.
-     *
-     * @param array<string,mixed> $m
-     */
-    private static function renderTournamentNote( array $m ): void {
-        $count = (int) ( $m['tournaments_excluded'] ?? 0 );
-        if ( $count <= 0 ) return;
-
-        echo '<p class="tt-mr-muted">' . esc_html( sprintf(
-            /* translators: %d: number of tournaments in the period */
-            _n(
-                '%d tournament this period is not included — a tournament is a multi-game day.',
-                '%d tournaments this period are not included — a tournament is a multi-game day.',
-                $count,
-                'talenttrack'
-            ),
-            $count
-        ) . self::tournamentScorersNote( $m ) ) . '</p>';
-    }
-
-    /**
-     * #4079 — the scorers table is a leaderboard and keeps tournament goals;
-     * the record does not. The tournament note says which is which.
-     *
-     * @param array<string,mixed> $m
-     */
-    private static function tournamentScorersNote( array $m ): string {
-        $shows = is_array( $m['shows'] ?? null ) ? $m['shows'] : [];
-        if ( empty( $shows['scorers'] ) ) return '';
-        return ' ' . __( 'Goals scored at a tournament still count in the scorers table, but not against the record.', 'talenttrack' );
-    }
-
-    /** @param list<array<string,mixed>>|array<int,mixed> $scorers */
-    private static function renderScorers( array $scorers ): void {
-        if ( $scorers === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No goals or assists recorded this period.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-scorers">';
-        echo '<thead><tr>'
-            . '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html_x( 'Goals', 'monthly report matches column', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html_x( 'Assists', 'monthly report matches column', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
-        foreach ( $scorers as $row ) {
-            if ( ! is_array( $row ) ) continue;
-            $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $row['player_id'] ?? 0 ) );
-            echo '<tr>';
-            echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-            echo '<td class="num">' . esc_html( number_format_i18n( (int) ( $row['goals'] ?? 0 ) ) ) . '</td>';
-            echo '<td class="num">' . esc_html( number_format_i18n( (int) ( $row['assists'] ?? 0 ) ) ) . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table></div>';
-    }
-
-    /**
-     * One match: date, opponent, home or away and score, with the squad under
-     * it when asked for. The heading carries the result, which is why the
-     * section has no separate results list to repeat it.
-     *
-     * @param array<string,mixed> $fixture
-     */
-    private static function renderFixture( array $fixture, bool $with_squad ): void {
-        $outcome = (string) ( $fixture['outcome'] ?? '' );
-
-        echo '<div class="tt-mr-fixture">';
-        echo '<p class="tt-mr-fixture__head">';
-        echo '<span class="tt-mr-fixture__date">' . esc_html( TTDate::date( (string) ( $fixture['date'] ?? '' ) ) ) . '</span> ';
-        echo '<strong>' . esc_html( self::fixtureOpponent( $fixture ) ) . '</strong> ';
-        if ( $fixture['team_score'] === null || $fixture['opp_score'] === null ) {
-            echo '<span class="tt-mr-muted">' . esc_html__( 'no score recorded', 'talenttrack' ) . '</span>';
-        } else {
-            echo '<span class="tt-mr-score is-' . esc_attr( $outcome !== '' ? strtolower( $outcome ) : 'none' ) . '">'
-                . esc_html( (int) $fixture['team_score'] . '–' . (int) $fixture['opp_score'] ) . '</span>';
-        }
-        echo '</p>';
-
-        $squad = is_array( $fixture['squad'] ?? null ) ? $fixture['squad'] : [];
-        if ( $with_squad && $squad !== [] ) {
-            $parts = [];
-            foreach ( $squad as $player ) {
-                if ( ! is_array( $player ) ) continue;
-                $parts[] = sprintf(
-                    /* translators: 1: player name, 2: minutes played */
-                    _x( '%1$s %2$d′', 'player and minutes in a match squad', 'talenttrack' ),
-                    (string) ( $player['name'] ?? '' ),
-                    (int) ( $player['minutes'] ?? 0 )
-                );
-            }
-            echo '<p class="tt-mr-muted">' . esc_html( implode( ' · ', $parts ) ) . '</p>';
-        } elseif ( $with_squad ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No minutes recorded for this match.', 'talenttrack' ) . '</p>';
-        }
-        echo '</div>';
-    }
-
-    /** @param array<string,mixed> $fixture */
-    private static function fixtureOpponent( array $fixture ): string {
-        $who = (string) ( $fixture['opponent'] ?? '' );
-        if ( $who === '' ) $who = __( 'Unknown opponent', 'talenttrack' );
-
-        $where = (string) ( $fixture['home_away'] ?? '' );
-        if ( $where === 'away' ) {
-            /* translators: %s: opponent name */
-            return sprintf( __( 'away to %s', 'talenttrack' ), $who );
-        }
-        if ( $where !== '' ) {
-            /* translators: %s: opponent name */
-            return sprintf( __( 'home to %s', 'talenttrack' ), $who );
-        }
-
-        // No home/away recorded: show the opponent without guessing which way
-        // round the score goes.
-        return $who;
-    }
-
     /**
      * The tests section's own controls: which tests, and how much of each
      * (#3515).
@@ -1363,323 +758,5 @@ final class TeamMonthlyReportPage {
         }
 
         echo '</fieldset>';
-    }
-
-    /**
-     * One test's readings per player (#3515), in the composer's order: best to worst on a test with a direction (#4063).
-     *
-     * @param array<string,mixed> $round
-     */
-    private static function renderTestReadings( array $round, string $show ): void {
-        $rows = is_array( $round['readings'] ?? null ) ? $round['readings'] : [];
-        if ( $rows === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'No readings this period.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        $unit   = (string) ( $round['unit_label'] ?? $round['unit'] ?? '' );
-        $values = TestsBlockOptions::showsValues( $show );
-        $trend  = TestsBlockOptions::showsTrend( $show );
-
-        // #4093 — the standing column appears where there is a standing to
-        // show: a test with a target for this age group.
-        $standing = false;
-        foreach ( $rows as $row ) {
-            if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
-        }
-
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-test-readings">';
-        echo '<thead><tr><th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        if ( $values ) {
-            echo '<th scope="col" class="num">' . esc_html(
-                $unit !== ''
-                    /* translators: %s: unit of measurement, e.g. "s" or "cm" */
-                    ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
-                    : _x( 'Result', 'monthly report tests column', 'talenttrack' )
-            ) . '</th>';
-        }
-        if ( $standing ) {
-            echo '<th scope="col">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
-        }
-        if ( $trend ) {
-            echo '<th scope="col" class="num">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
-        }
-        echo '</tr></thead><tbody>';
-
-        foreach ( $rows as $row ) {
-            if ( ! is_array( $row ) ) continue;
-            $url = RecordLink::detailUrlForWithBack( 'players', (int) ( $row['player_id'] ?? 0 ) );
-            echo '<tr>';
-            echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-            if ( $values ) {
-                echo '<td class="num">' . esc_html( self::testValue( $row ) ) . '</td>';
-            }
-            if ( $standing ) {
-                $label = (string) ( $row['verdict_label'] ?? '' );
-                echo '<td>' . ( $label !== ''
-                    ? '<span class="tt-meas-chip ' . esc_attr( TestVerdict::chipClass( (string) ( $row['verdict_tone'] ?? '' ) ) ) . '">' . esc_html( $label ) . '</span>'
-                    : '' ) . '</td>';
-            }
-            if ( $trend ) {
-                echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'
-                    . esc_html( self::testDelta( $row ) ) . '</td>';
-            }
-            echo '</tr>';
-        }
-        echo '</tbody></table></div>';
-    }
-
-    /**
-     * A reading as the composer spelled it (#4063). A snapshot frozen before
-     * the composer spelled it falls back to the raw value.
-     *
-     * @param array<string,mixed> $row
-     */
-    private static function testValue( array $row ): string {
-        if ( isset( $row['value_display'] ) && is_string( $row['value_display'] ) ) return $row['value_display'];
-        $value = $row['value'] ?? null;
-        return is_scalar( $value ) ? (string) $value : '—';
-    }
-
-    /**
-     * A reading's change since the player's previous one, as the composer
-     * spelled it (#4063).
-     *
-     * A first reading has nothing to compare with, which is not the same as no
-     * change — it gets a dash, like every other "no comparison" in this report.
-     *
-     * @param array<string,mixed> $row
-     */
-    private static function testDelta( array $row ): string {
-        if ( ! empty( $row['first'] ) ) return '—';
-        if ( isset( $row['delta_display'] ) && is_string( $row['delta_display'] ) ) return $row['delta_display'];
-
-        $delta = (float) ( $row['delta'] ?? 0 );
-        if ( abs( $delta ) < 0.0001 ) return '0';
-
-        return ( $delta > 0 ? '+' : '−' ) . number_format_i18n( abs( $delta ), abs( $delta ) < 10 ? 2 : 1 );
-    }
-
-    /** @param array<string,mixed> $r */
-    private static function renderRoster( array $r ): void {
-        $rows = is_array( $r['rows'] ?? null ) ? $r['rows'] : [];
-
-        self::sectionOpen( TeamMonthlyReportBlock::ROSTER );
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-roster">';
-        echo '<thead><tr>'
-            . '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html_x( 'Status', 'team monthly report column', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html__( 'Attendance', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html__( 'Minutes', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html_x( 'Share', 'minutes share column', 'talenttrack' ) . '</th>'
-            . '<th scope="col" class="num">' . esc_html__( 'Open goals', 'talenttrack' ) . '</th>'
-            . '<th scope="col">' . esc_html_x( 'Injured', 'team monthly report column', 'talenttrack' ) . '</th>'
-            . '</tr></thead><tbody>';
-        foreach ( $rows as $row ) {
-            if ( ! is_array( $row ) ) continue;
-            $status = (string) ( $row['status'] ?? 'unknown' );
-            $url    = RecordLink::detailUrlForWithBack( 'players', (int) ( $row['player_id'] ?? 0 ) );
-            $jersey = $row['jersey_number'] ?? null;
-            $name   = (string) ( $row['name'] ?? '' );
-            if ( $jersey !== null ) {
-                /* translators: 1: jersey number, 2: player name */
-                $name = sprintf( __( '#%1$d %2$s', 'talenttrack' ), (int) $jersey, $name );
-            }
-            $minutes = $row['minutes'] ?? null;
-            echo '<tr>';
-            echo '<th scope="row">' . self::link( 'players', $url, $name ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
-            echo '<td><span class="tt-mr-pill is-' . esc_attr( $status ) . '">' . esc_html( self::statusLabel( $status ) ) . '</span></td>';
-            echo '<td class="num">' . esc_html( self::pct( $row['attendance_pct'] ?? null ) ) . '</td>';
-            echo '<td class="num">' . esc_html( $minutes !== null ? number_format_i18n( (int) $minutes ) : '—' ) . '</td>';
-            echo '<td class="num">' . esc_html( self::pct( $row['share_pct'] ?? null ) ) . '</td>';
-            echo '<td class="num">' . esc_html( number_format_i18n( (int) ( $row['open_goals'] ?? 0 ) ) ) . '</td>';
-            echo '<td>' . esc_html( ! empty( $row['injured'] ) ? __( 'Yes', 'talenttrack' ) : '' ) . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table></div>';
-        self::sectionClose();
-    }
-
-    private static function renderNotes(): void {
-        self::sectionOpen( TeamMonthlyReportBlock::NOTES );
-        echo '<div class="tt-mr-lines" aria-hidden="true">';
-        for ( $i = 0; $i < 4; $i++ ) echo '<span></span>';
-        echo '</div>';
-        self::sectionClose();
-    }
-
-    /** @param array<string,mixed> $q */
-    private static function renderQuality( array $q ): void {
-        $no_register   = is_array( $q['activities_without_register'] ?? null ) ? $q['activities_without_register'] : [];
-        $never_closed  = is_array( $q['activities_never_closed'] ?? null ) ? $q['activities_never_closed'] : [];
-        $no_minutes    = (int) ( $q['matches_without_minutes'] ?? 0 );
-        $no_opponent   = is_array( $q['matches_without_opponent'] ?? null ) ? $q['matches_without_opponent'] : [];
-        $not_evaluated = is_array( $q['players_not_evaluated'] ?? null ) ? $q['players_not_evaluated'] : [];
-        $incomplete    = is_array( $q['players_with_incomplete_status'] ?? null ) ? $q['players_with_incomplete_status'] : [];
-
-        self::sectionOpen( TeamMonthlyReportBlock::QUALITY );
-        $lines = [];
-        if ( $no_register !== [] ) {
-            /* translators: %d: activities without an attendance register */
-            $lines[] = sprintf( _n( '%d completed activity has no attendance register.', '%d completed activities have no attendance register.', count( $no_register ), 'talenttrack' ), count( $no_register ) );
-        }
-        if ( $never_closed !== [] ) {
-            /* translators: %d: activities whose date has passed and that were never marked completed */
-            $lines[] = sprintf( _n( '%d activity has passed without being marked completed.', '%d activities have passed without being marked completed.', count( $never_closed ), 'talenttrack' ), count( $never_closed ) );
-        }
-        if ( $no_minutes > 0 ) {
-            /* translators: %d: matches played without minutes recorded */
-            $lines[] = sprintf( _n( '%d match played has no minutes recorded.', '%d matches played have no minutes recorded.', $no_minutes, 'talenttrack' ), $no_minutes );
-        }
-        if ( $no_opponent !== [] ) {
-            // #3860 — named, not counted: "3 matches have no opponent" tells
-            // a coach nothing they can act on, and the title usually says
-            // who it was against. The opponent screen is where they fix it.
-            $fixtures = [];
-            foreach ( $no_opponent as $match ) {
-                if ( ! is_array( $match ) ) continue;
-                $title = trim( (string) ( $match['title'] ?? '' ) );
-                $fixtures[] = trim( TTDate::date( (string) ( $match['date'] ?? '' ) ) . ' ' . $title );
-            }
-            /* translators: 1: number of matches, 2: their dates and titles */
-            $lines[] = sprintf(
-                _n(
-                    '%1$d match has no opponent stored, so it reads as "Unknown opponent" above: %2$s.',
-                    '%1$d matches have no opponent stored, so they read as "Unknown opponent" above: %2$s.',
-                    count( $fixtures ),
-                    'talenttrack'
-                ),
-                count( $fixtures ),
-                implode( '; ', $fixtures )
-            );
-        }
-        if ( $not_evaluated !== [] ) {
-            $names = array_map( static fn( $p ): string => is_array( $p ) ? (string) ( $p['name'] ?? '' ) : '', $not_evaluated );
-            /* translators: 1: number of players, 2: their names */
-            $lines[] = sprintf( _n( '%1$d player has no evaluation this period: %2$s.', '%1$d players have no evaluation this period: %2$s.', count( $names ), 'talenttrack' ), count( $names ), implode( ', ', $names ) );
-        }
-        if ( $incomplete !== [] ) {
-            /* translators: %d: players whose status was computed on incomplete evidence */
-            $lines[] = sprintf( _n( '%d player\'s status was computed on incomplete evidence.', '%d players\' statuses were computed on incomplete evidence.', count( $incomplete ), 'talenttrack' ), count( $incomplete ) );
-        }
-
-        if ( $lines === [] ) {
-            echo '<p class="tt-mr-muted">' . esc_html__( 'Nothing missing. Every register, minute and evaluation this report looks for is in.', 'talenttrack' ) . '</p>';
-        } else {
-            echo '<ul class="tt-mr-quality">';
-            foreach ( $lines as $line ) echo '<li>' . esc_html( $line ) . '</li>';
-            echo '</ul>';
-        }
-        self::sectionClose();
-    }
-
-    private static function renderConfidential(): void {
-        echo '<p class="tt-mr-confidential">' . esc_html__( 'Confidential — staff only. This report names minors and describes their development. Do not share it with players, parents or anyone outside the coaching staff.', 'talenttrack' ) . '</p>';
-    }
-
-    /* ---------------------------------------------------------------
-     * Helpers
-     * ------------------------------------------------------------- */
-
-    /**
-     * #4096 — a section opens with the header the PDF prints: its number in
-     * print order, its title, and the line saying what it holds, from the
-     * same component and the same data.
-     */
-    private static function sectionOpen( string $block, string $action_html = '' ): void {
-        echo '<section class="tt-rep-section tt-mr-section" id="' . esc_attr( 'tt-mr-sec-' . $block ) . '">';
-        echo TeamMonthlyReportPdfDocument::sectionHeader( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes.
-            self::$numbers[ $block ] ?? 0,
-            TeamMonthlyReportBlock::title( $block ),
-            TeamMonthlyReport::sectionMeta( $block, self::$data[ $block ] ?? [] )
-        );
-        if ( $action_html !== '' ) echo '<p class="tt-mr-section__source">' . $action_html . '</p>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built by link().
-    }
-
-    private static function sectionClose(): void {
-        echo '</section>';
-    }
-
-    /**
-     * A link where the reader may follow it, the plain text where they may
-     * not — never a link to a door that will not open.
-     */
-    private static function link( string $slug, string $url, string $label ): string {
-        if ( $url === '' || ! CrossViewLink::allows( $slug ) ) {
-            return esc_html( $label );
-        }
-        return '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
-    }
-
-    /**
-     * @param array<string,mixed> $k
-     * @return array{value:int|float|null, delta:int|float|null}
-     */
-    private static function measureOf( array $k, string $key ): array {
-        $m = is_array( $k[ $key ] ?? null ) ? $k[ $key ] : [];
-        $v = $m['value'] ?? null;
-        $d = $m['delta'] ?? null;
-        return [
-            'value' => is_int( $v ) || is_float( $v ) ? $v : null,
-            'delta' => is_int( $d ) || is_float( $d ) ? $d : null,
-        ];
-    }
-
-    /**
-     * A KPI tile. `$better` is +1 when a rise is good news, -1 when a rise is
-     * bad news (more players needing attention), so the arrow's colour follows
-     * the meaning rather than the sign.
-     *
-     * @param mixed $delta
-     * @return array{label:string, value:string, delta:string, trend:string}
-     */
-    private static function tile( string $label, string $value, $delta, string $unit, int $better ): array {
-        if ( ! is_int( $delta ) && ! is_float( $delta ) ) {
-            // No preceding period: say so with a dash, never a zero.
-            return [ 'label' => $label, 'value' => $value, 'delta' => '—', 'trend' => 'flat' ];
-        }
-        $sign  = $delta > 0 ? '+' : ( $delta < 0 ? '−' : '' );
-        $text  = $sign . number_format_i18n( abs( (float) $delta ), is_float( $delta ) ? 1 : 0 );
-        if ( $unit !== '' ) $text .= ' ' . $unit;
-        $good  = $delta * $better;
-        return [
-            'label' => $label,
-            'value' => $value,
-            /* translators: %s: signed change against the previous period, e.g. "+3 pts" */
-            'delta' => sprintf( __( '%s vs last period', 'talenttrack' ), $text ),
-            'trend' => $good > 0 ? 'up' : ( $good < 0 ? 'down' : 'flat' ),
-        ];
-    }
-
-    /** @param mixed $v */
-    private static function num( $v ): string {
-        return is_int( $v ) || is_float( $v ) ? number_format_i18n( (float) $v ) : '—';
-    }
-
-    /** @param mixed $v */
-    private static function pct( $v ): string {
-        if ( ! is_int( $v ) && ! is_float( $v ) ) return '—';
-        return number_format_i18n( (float) $v, is_float( $v ) && floor( $v ) != $v ? 1 : 0 ) . '%';
-    }
-
-    private static function statusLabel( string $color ): string {
-        switch ( $color ) {
-            case 'green': return _x( 'On track', 'player status, staff report', 'talenttrack' );
-            case 'amber': return _x( 'Watch', 'player status, staff report', 'talenttrack' );
-            case 'red':   return _x( 'Needs action', 'player status, staff report', 'talenttrack' );
-            default:      return _x( 'No read yet', 'player status, staff report', 'talenttrack' );
-        }
-    }
-
-    /** @param array<mixed> $counts */
-    private static function statusSentence( array $counts ): string {
-        return sprintf(
-            /* translators: 1: on track, 2: to watch, 3: needing action, 4: without a read yet */
-            __( '%1$d on track, %2$d to watch, %3$d needing action, %4$d without a read yet', 'talenttrack' ),
-            (int) ( $counts['green'] ?? 0 ),
-            (int) ( $counts['amber'] ?? 0 ),
-            (int) ( $counts['red'] ?? 0 ),
-            (int) ( $counts['unknown'] ?? 0 )
-        );
     }
 }

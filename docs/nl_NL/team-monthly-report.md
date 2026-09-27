@@ -39,8 +39,17 @@ Boven het rapport staat een paneel met twee keuzes.
 - **Liggend overzicht** — één liggende pagina met elke speler op één regel, de
   hele selectie in één oogopslag vergelijkbaar.
 
-Op het scherm zie je elke gekozen sectie altijd volledig, welke soort je ook
-kiest.
+**Het scherm toont wat er wordt afgedrukt.** Het rapport onder het paneel is de
+afdruk zelf, geen aparte webversie. Op een computer zie je de A4-pagina's die de
+pdf krijgt, elk gemarkeerd met *"Pagina 3 van 4"*, met paginaknoppen erboven om
+tussen pagina's te springen en **PDF downloaden** ernaast. Het liggende overzicht
+toont één liggende pagina. Op een telefoon staan dezelfde secties als kaarten
+onder elkaar, in dezelfde volgorde, en elke groep kaarten zegt waar die op papier
+terechtkomt, zoals *"Pagina 4 van 4 in de pdf"*; brede tabellen worden één regel
+per speler, met nog steeds elke speler en elke testuitslag. Wat je op het scherm
+kunt lezen, krijgt het overleg dus op papier, en andersom. Op het liggende
+overzicht zijn aanwezigheid en minutenaandeel kolommen van de tabel per speler in
+plaats van eigen secties, en de sectielijst in het paneel zegt dat.
 
 **Secties** zijn de onderdelen van het rapport. Vink aan wat je wilt zien, kies
 de soort en druk dan op **Rapport bijwerken** om alles in één keer toe te passen.
@@ -239,8 +248,9 @@ mee.
 - **Datakwaliteit** — wat ontbreekt en de moeite waard is om vóór volgende maand
   aan te vullen.
 
-Spelersnamen linken naar hun profiel, en elk cijfer linkt naar het rapport
-waar het vandaan komt.
+Op het scherm linken spelersnamen naar hun profiel, en aanwezigheid en
+minutenaandeel naar het volledige rapport waar ze vandaan komen. De pdf drukt de
+namen af als gewone tekst.
 
 Spelerstabellen staan op **rugnummer**, zodat een speler op elke pagina en op de
 afdruk op dezelfde plek staat. Spelers zonder rugnummer staan onderaan, op

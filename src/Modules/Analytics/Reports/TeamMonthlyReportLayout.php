@@ -60,7 +60,7 @@ final class TeamMonthlyReportLayout {
     /**
      * Block heights, mm. `row` is per row / item; `section_base` covers a
      * section's heading and spacing. Measured on DomPDF's output of
-     * `TeamMonthlyReportPdfDocument` (smallest paper that still renders one
+     * `TeamMonthlyReportDocument` (smallest paper that still renders one
      * page, block by block, at 10 and 20 players); a table row is its CSS
      * height plus its bottom border.
      */
@@ -286,6 +286,10 @@ final class TeamMonthlyReportLayout {
      */
     public static function availability( string $layout, string $block ): string {
         if ( $layout === self::ONE_PAGER && $block === TeamMonthlyReportBlock::ROSTER ) return 'compressed';
+        // #4097 — the landscape matrix prints attendance and minutes share as
+        // columns of its roster, not as sections. Now that the screen shows
+        // what prints, the panel has to say so.
+        if ( $layout === self::MATRIX && in_array( $block, [ TeamMonthlyReportBlock::ATTENDANCE, TeamMonthlyReportBlock::MINUTES ], true ) ) return 'in_roster';
         return 'full';
     }
 
@@ -295,10 +299,11 @@ final class TeamMonthlyReportLayout {
      * `groups` (#4092) is the sections each printed page group holds, in
      * print order: one group on the single-sheet layouts, up to four on the
      * pack. The PDF lays its pages out from it, so the estimate and the paper
-     * cannot split the report differently.
+     * cannot split the report differently. `group_pages` (#4097) is how many
+     * sheets each group prints on, so the screen can say where it lands.
      *
      * @param array{data:array<string,array<string,mixed>>} $report a `TeamMonthlyReport::forTeam()` payload.
-     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>}
+     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}
      */
     public static function fit( array $report, string $layout ): array {
         $layout = self::isValid( $layout ) ? $layout : self::DEFAULT;
@@ -325,20 +330,22 @@ final class TeamMonthlyReportLayout {
             $height     = self::singleSheetHeight( $data, $layout, $degraded );
         }
 
-        $fill = (int) round( $height / $capacity * 100 );
+        $fill  = (int) round( $height / $capacity * 100 );
+        $pages = $height > $capacity ? (int) ceil( $height / $capacity ) : 1;
         return [
-            'pages'     => $height > $capacity ? (int) ceil( $height / $capacity ) : 1,
-            'max_pages' => 1,
-            'fits'      => $height <= $capacity,
-            'fill'      => [ $fill ],
-            'degraded'  => $degraded,
-            'groups'    => self::singleSheetGroups( $data, $layout ),
+            'pages'       => $pages,
+            'max_pages'   => 1,
+            'fits'        => $height <= $capacity,
+            'fill'        => [ $fill ],
+            'degraded'    => $degraded,
+            'groups'      => self::singleSheetGroups( $data, $layout ),
+            'group_pages' => [ $pages ],
         ];
     }
 
     /**
      * @param array<string,array<string,mixed>> $data
-     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>}
+     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}
      */
     private static function fitPack( array $data ): array {
         $none = [];
@@ -366,26 +373,30 @@ final class TeamMonthlyReportLayout {
             $groups[] = $closing;
         }
 
-        $fill    = [];
-        $fits    = true;
-        $pages   = 0;
-        $printed = [];
+        $fill        = [];
+        $fits        = true;
+        $pages       = 0;
+        $printed     = [];
+        $group_pages = [];
         foreach ( $groups as $group ) {
             $mm = self::sum( $data, $group, self::PACK, $none );
             if ( $mm <= 0.0 ) continue; // a page with nothing selected on it is not printed
-            $pages    += (int) max( 1, ceil( $mm / self::PORTRAIT_MM ) );
-            $fill[]    = (int) round( $mm / self::PORTRAIT_MM * 100 );
-            $printed[] = array_values( array_filter( $group, static fn( string $b ): bool => isset( $data[ $b ] ) ) );
+            $sheets        = (int) max( 1, ceil( $mm / self::PORTRAIT_MM ) );
+            $pages        += $sheets;
+            $group_pages[] = $sheets;
+            $fill[]        = (int) round( $mm / self::PORTRAIT_MM * 100 );
+            $printed[]     = array_values( array_filter( $group, static fn( string $b ): bool => isset( $data[ $b ] ) ) );
             if ( $mm > self::PORTRAIT_MM ) $fits = false;
         }
 
         return [
-            'pages'     => max( 1, $pages ),
-            'max_pages' => self::maxPages( self::PACK ),
-            'fits'      => $fits,
-            'fill'      => $fill,
-            'degraded'  => [],
-            'groups'    => $printed,
+            'pages'       => max( 1, $pages ),
+            'max_pages'   => self::maxPages( self::PACK ),
+            'fits'        => $fits,
+            'fill'        => $fill,
+            'degraded'    => [],
+            'groups'      => $printed,
+            'group_pages' => $group_pages !== [] ? $group_pages : [ 1 ],
         ];
     }
 

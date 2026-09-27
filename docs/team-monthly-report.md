@@ -38,7 +38,18 @@ Above the report is a panel with two choices.
 - **Landscape matrix** — one landscape page with every player in a single row,
   the whole squad comparable at a glance.
 
-On screen, every section you pick is always shown in full, whatever the type.
+**The screen shows what prints.** The report under the panel is the printed
+copy itself, not a separate web version. On a computer you see the A4 pages
+the PDF will have, each marked *"Page 3 of 4"*, with page buttons above them
+to jump between pages and **Download PDF** beside them. The landscape matrix
+shows one landscape page. On a phone the same sections stack as cards, in the
+same order, and each group of cards says where it lands on paper, such as
+*"Page 4 of 4 in the PDF"*; wide tables become one row per player, with every
+player and every test reading still there. So whatever you can read on screen
+is what the meeting gets on paper, and the other way round. On the landscape
+matrix, attendance and minutes share are columns of the player-by-player
+table rather than sections of their own, and the section list in the panel
+says so.
 
 **Sections** are the parts of the report. Tick the ones you want, pick the type,
 then press **Update report** to apply them all at once. Until you press it, the
@@ -224,8 +235,8 @@ move with it.
   meeting agrees.
 - **Data quality** — what is missing and worth fixing before next month.
 
-Player names link to their profile, and each figure links to the report it came
-from.
+On screen, player names link to their profile, and attendance and minutes share
+link to the full report they come from. The PDF prints the names as plain text.
 
 Player tables read in **squad-number order**, so a player sits in the same place
 on every page and in the printed copy. Players without a number come last,

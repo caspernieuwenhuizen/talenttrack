@@ -12,7 +12,7 @@ use TT\Shared\Dates\TTDate;
  * PlayerReportPdfDocument (#3874, epic #3871) — the player report as printable
  * HTML for DomPDF.
  *
- * The rules `TeamMonthlyReportPdfDocument` settled, for the same reasons:
+ * The rules `TeamMonthlyReportDocument` settled, for the same reasons:
  *
  * - **Tables only.** DomPDF implements CSS 2.1; flexbox and grid print as one
  *   collapsed column. A test greps the output for both.
