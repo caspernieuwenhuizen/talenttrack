@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Players\ParentChildResolver;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Comms\Domain\Recipient;
 
@@ -40,7 +41,10 @@ use TT\Modules\Comms\Domain\Recipient;
  *
  * Guardians are whoever `ParentChildResolver::guardiansOf()` says they
  * are (#3979): a released, archived or binned child's family is sent
- * nothing about them.
+ * nothing about them. The same rule holds for the player's own account
+ * (#4088): a closed-out player resolves to nobody at all. The player is
+ * loaded within the current club, so an id from another club resolves
+ * to nobody too.
  *
  * Stateless.
  */
@@ -54,9 +58,10 @@ final class RecipientResolver {
     public function forPlayer( int $playerId ): array {
         if ( $playerId <= 0 ) return [];
 
-        $tier   = AgeTier::forPlayer( $playerId );
         $player = self::loadPlayer( $playerId );
         if ( $player === null ) return [];
+
+        $tier = AgeTier::forPlayer( $playerId );
 
         switch ( $tier ) {
             case AgeTier::U8_U10:
@@ -117,9 +122,10 @@ final class RecipientResolver {
         // #3979 — the guardians come from `ParentChildResolver`, not the raw
         // pivot, so a released, archived or binned child's family is sent
         // nothing about them. The legacy guardian fields follow the same
-        // rule: they are consulted only for a child who is not closed out,
-        // or an empty guardian list would reach the family through them.
-        if ( ParentChildResolver::isClosedOut( $playerId ) ) return [];
+        // rule: `loadPlayer()` already returned null for a closed-out
+        // child, so they are only ever consulted for one who is not —
+        // otherwise an empty guardian list would reach the family through
+        // them.
 
         $uids = ParentChildResolver::guardiansOf( $playerId );
         if ( $uids === [] ) {
@@ -155,16 +161,23 @@ final class RecipientResolver {
     }
 
     /**
+     * The player as a message subject, or null when there is nobody to
+     * send to: an id outside the current club, or a released, archived or
+     * binned player (#4088) — neither the player nor their family is
+     * messaged about a player who has left.
+     *
      * @return array<string,mixed>|null
      */
     private static function loadPlayer( int $playerId ): ?array {
+        if ( ParentChildResolver::isClosedOut( $playerId ) ) return null;
+
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT id, wp_user_id, guardian_email, guardian_phone
                 FROM {$wpdb->prefix}tt_players
-                WHERE id = %d
+                WHERE id = %d AND club_id = %d
                 LIMIT 1",
-            $playerId
+            $playerId, CurrentClub::id()
         ), ARRAY_A );
         return is_array( $row ) ? $row : null;
     }

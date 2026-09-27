@@ -127,7 +127,7 @@ Eight personas ship in the seed:
 - `assistant_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 0` for at least one team.
 - `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another. The head coach holds `players [rc, team]` — they can correct a player record on a team they run (position, jersey, preferred foot) without going through an admin. `create_delete` is deliberately withheld: adding or removing a player is a registration act with squad-size, billing and safeguarding consequences, so it stays with `academy_admin`. `assistant_coach` keeps `players [r, team]`, and since both personas share the `tt_coach` WP role, the matrix is the only layer that separates them — which is why the grant lives here and not on the role.
 - `head_of_development` — `tt_head_dev` WP role; oversees the whole academy.
-- `scout` — `tt_scout` WP role; reads players cross-team. Evaluation reads are scoped to assigned players, and PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
+- `scout` — `tt_scout` WP role; reads at `player` scope — only the players they are linked to through a trial or prospect assignment. That covers the player record, evaluations, media, goals and the activities those players took part in; the academy-wide squad comparison runs through the scout card instead, which carries no family contact details. Teams, reports, rate cards and methodology stay readable academy-wide. PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
 - `team_manager` — new in #0033 Sprint 7; `tt_team_manager` WP role. Logistics for a team (sessions, attendance, invitations) without coaching authority.
 - `academy_admin` — `administrator` or `tt_club_admin` WP role.
 
@@ -455,7 +455,7 @@ Because the rendered views and the REST permission callbacks now resolve from th
 Effect on personas (from the shipped seed):
 
 - **Head of Development and Academy Admin keep the club-wide view** on every surface — they hold global read on `reports`, `activities` and `evaluations`.
-- **Scouts gain the club-wide reports and analytics lens.** The seed already grants scouts global read on `reports` and `activities` (a scout reads cross-team by design), but the phantom cap denied them the wide lens; the matrix check now lets them through. Scouts do **not** gain the evaluations audit override — they have only player-scoped read on `evaluations`.
+- **Scouts gain the club-wide reports and analytics lens.** The seed already grants scouts global read on `reports`, but the phantom cap denied them the wide lens; the matrix check now lets them through. Scouts do **not** gain the evaluations audit override — they have only player-scoped read on `evaluations`.
 - **Team-scoped coaches (head / assistant) stay narrowed to their own teams**, exactly as before — they hold `reports` / `activities` only at team scope.
 
 The WordPress settings-admin / administrator path is preserved as a fallback on the rendered surfaces, so an operator running the WP install never loses access while a club's matrix is still dormant. No matrix entity, seed, or migration changed — this is a call-site refactor onto the existing grants.

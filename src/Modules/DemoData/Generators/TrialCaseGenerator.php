@@ -262,8 +262,10 @@ class TrialCaseGenerator implements DependentGeneratorInterface {
             if ( ! $is_open ) {
                 // Closed with an admit decision — that is what makes the
                 // player's journey start at a trial rather than nowhere.
+                // `recordDecision()` announces `tt_trial_decision_recorded`
+                // itself; announcing it again here ran every subscriber
+                // twice per admit.
                 $cases->recordDecision( $case_id, 'admit', $hjo, $copy['decision'] );
-                do_action( 'tt_trial_decision_recorded', $case_id, $player_id, 'admit', gmdate( 'Y-m-d H:i:s', $end_ts ) );
 
                 // #4008 — the admit created its follow-up checklist off the
                 // decision hook; tag the rows so the wipe reaches them.
