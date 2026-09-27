@@ -82,13 +82,22 @@ class TeamKpisRepository {
      * window, for the team monthly report's squad-rating KPI. The squad is the
      * team's live roster, exactly as above. Null when nobody was rated in the
      * window.
+     *
+     * #4134 — `$type_ids` narrows it to those evaluation types, for the
+     * monthly report's Evaluations section, whose squad average is this
+     * method's answer so the section and the tile cannot disagree. Empty
+     * means every type.
+     *
+     * @param list<int> $type_ids
      */
-    public function avgSquadRatingBetween( int $team_id, string $from, string $to ): ?float {
+    public function avgSquadRatingBetween( int $team_id, string $from, string $to, array $type_ids = [] ): ?float {
         if ( $team_id <= 0 ) return null;
         global $wpdb;
         $p           = $wpdb->prefix;
         $eval_live   = ArchiveRepository::filterClause( 'active', 'e' );
         $player_live = ArchiveRepository::filterClause( 'active', 'pl' );
+        $type_ids    = array_values( array_filter( array_map( 'intval', $type_ids ), static fn( int $id ): bool => $id > 0 ) );
+        $types       = $type_ids !== [] ? ' AND e.eval_type_id IN (' . implode( ',', array_fill( 0, count( $type_ids ), '%d' ) ) . ')' : '';
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT AVG(r.rating) AS avg_r, COUNT(*) AS n
                FROM {$p}tt_eval_ratings r
@@ -98,8 +107,8 @@ class TeamKpisRepository {
                 AND {$player_live}
                 AND pl.club_id = %d
                 AND {$eval_live}
-                AND e.eval_date BETWEEN %s AND %s",
-            $team_id, CurrentClub::id(), $from, $to
+                AND e.eval_date BETWEEN %s AND %s{$types}",
+            ...array_merge( [ $team_id, CurrentClub::id(), $from, $to ], $type_ids )
         ) );
         if ( ! $row || (int) $row->n <= 0 ) return null;
         return (float) $row->avg_r;

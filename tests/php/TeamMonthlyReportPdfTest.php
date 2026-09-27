@@ -121,6 +121,14 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             // and past it onto further sheets rather than dropping anything.
             'pack, four pages'         => [ 'B', null, false, 3, 5 ],
             'pack, page 4 runs over'   => [ 'B', null, false, 2, 15 ],
+            // #4132 — the landscape matrix past one page: its footer strip
+            // moves whole to the next sheet, and the player table repeats its
+            // header there.
+            'matrix, the squad runs over'  => [ 'C', null, false, 1, 24 ],
+            'matrix, a long squad'         => [ 'C', [ 'kpi', 'roster', 'changes', 'tests', 'notes' ], false, 1, 30 ],
+            // #4132 — the one-pager just under full, and just over.
+            'one-pager, just under full'   => [ 'A', [ 'kpi', 'roster', 'changes', 'tests', 'notes' ], false, 1, 20 ],
+            'one-pager, just over full'    => [ 'A', [ 'kpi', 'roster', 'changes', 'tests', 'notes' ], false, 1, 22 ],
         ];
         foreach ( $cases as $label => $case ) {
             [ $layout, $blocks ] = $case;
@@ -141,6 +149,97 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
 
             $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$label}: the panel and the paper disagree." );
         }
+    }
+
+    /**
+     * #4133, #4134 — the meter counts the level each section prints: the
+     * Evaluations section at Summary and at Details (with subcategories), and
+     * attendance and minutes share at Summary, on every layout.
+     */
+    public function test_the_page_count_holds_at_both_levels(): void {
+        if ( ! class_exists( \Dompdf\Dompdf::class ) ) {
+            $this->markTestSkipped( 'DomPDF not installed.' );
+        }
+        $cases = [
+            [ 'B', 'summary', false, false ], [ 'B', 'details', false, false ], [ 'B', 'details', true, false ],
+            [ 'B', 'details', false, true ], [ 'A', 'details', false, true ], [ 'C', 'details', false, false ],
+        ];
+        foreach ( $cases as [ $layout, $level, $subs, $summaries ] ) {
+            $report = $this->withEvaluations( $this->withMatchesAndTests( $this->report( 18 ), 1 ), $level, $subs );
+            if ( $summaries ) {
+                $report['data']['attendance']['level'] = 'summary';
+                $report['data']['minutes']['level']    = 'summary';
+            }
+            $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
+            $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U13' );
+
+            $options = new \Dompdf\Options();
+            $options->set( 'defaultFont', 'DejaVu Sans' );
+            $options->set( 'isHtml5ParserEnabled', true );
+            $dompdf = new \Dompdf\Dompdf( $options );
+            $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+            $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+            $dompdf->render();
+
+            $label = "{$layout} {$level}" . ( $subs ? ' + subcategories' : '' ) . ( $summaries ? ' + summaries' : '' );
+            $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$label}: the panel and the paper disagree." );
+            if ( $summaries ) {
+                $this->assertStringContainsString( 'class="tstat lsum"', $payload['html'], "{$label}: attendance prints its summary" );
+            }
+        }
+    }
+
+    /**
+     * #4133 — a payload without a level, as a snapshot taken before the choice
+     * existed, prints attendance and minutes as bars, as it always did.
+     */
+    public function test_a_payload_without_a_level_prints_the_bars(): void {
+        $report = $this->only( $this->report( 12 ), [ 'attendance', 'minutes' ] );
+        $html   = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+
+        $this->assertSame( 2, substr_count( $html, 'class="bars"' ) );
+        $this->assertStringNotContainsString( 'class="tstat lsum"', $html );
+    }
+
+    /**
+     * #4134 — an Evaluations section shaped like the composer's payload.
+     *
+     * @param array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string} $report
+     * @return array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}
+     */
+    private function withEvaluations( array $report, string $level, bool $subs ): array {
+        $players    = (int) $report['data']['letterhead']['squad_size'];
+        $categories = [];
+        foreach ( [ 'Technisch', 'Tactisch', 'Fysiek', 'Mentaal', 'Inzicht' ] as $c => $label ) {
+            $row = [ 'category_id' => $c + 1, 'label' => $label, 'avg' => 7.2, 'delta' => 0.3, 'min' => 6.0, 'max' => 9.0, 'band_from_pct' => 25.0, 'band_to_pct' => 100.0, 'avg_pct' => 55.0, 'wide' => $c === 3 ];
+            if ( $subs ) {
+                $row['subcategories'] = [
+                    [ 'category_id' => 100 + $c, 'label' => 'Aanname', 'avg' => 7.0, 'delta' => null, 'min' => 6.0, 'max' => 8.0, 'band_from_pct' => 25.0, 'band_to_pct' => 75.0, 'avg_pct' => 50.0, 'wide' => false ],
+                    [ 'category_id' => 200 + $c, 'label' => 'Passing', 'avg' => 7.5, 'delta' => 0.5, 'min' => 6.0, 'max' => 9.0, 'band_from_pct' => 25.0, 'band_to_pct' => 100.0, 'avg_pct' => 62.0, 'wide' => false ],
+                ];
+            }
+            $categories[] = $row;
+        }
+        $movers = static fn( int $sign ): array => array_map( static fn( int $i ): array => [ 'player_id' => $i, 'name' => 'Player ' . $i, 'from' => 6.4, 'to' => 6.4 + $sign * 0.8, 'delta' => $sign * 0.8 ], [ 1, 2, 3 ] );
+        $e      = [
+            'level' => $level, 'scale' => [ 'min' => 5.0, 'max' => 9.0, 'step' => 1.0 ], 'types' => [], 'types_counted' => [],
+            'squad_avg' => 7.2, 'squad_avg_delta' => 0.2, 'evaluated' => $players - 2, 'squad' => $players,
+            'missing' => [ [ 'player_id' => 1, 'name' => 'Player 1' ], [ 'player_id' => 2, 'name' => 'Player 2' ] ],
+            'evaluations' => 23, 'coaches' => 3, 'by_type' => [ [ 'type_id' => 1, 'label' => 'Training', 'count' => 14 ], [ 'type_id' => 2, 'label' => 'Match', 'count' => 9 ] ],
+            'rising_count' => 6, 'falling_count' => 3, 'rising' => $movers( 1 ), 'falling' => $movers( -1 ),
+            'categories' => $categories, 'has_subcategories' => $subs, 'sub' => $subs,
+        ];
+        if ( $level === 'details' ) {
+            $rows = [];
+            for ( $i = 1; $i <= $players; $i++ ) {
+                $cells = [];
+                foreach ( $categories as $cat ) $cells[] = [ 'category_id' => $cat['category_id'], 'value' => $i <= 2 ? null : 7.0, 'tone' => 4, 'trend' => [ 'up', 'down', 'flat', '' ][ $i % 4 ] ];
+                $rows[] = [ 'player_id' => $i, 'name' => 'Player ' . $i, 'jersey_number' => $i, 'evaluated' => $i > 2, 'cells' => $cells, 'avg' => $i > 2 ? 7.1 : null, 'count' => $i > 2 ? 2 : 0, 'last' => $i > 2 ? '2026-08-24' : null ];
+            }
+            $e['grid'] = [ 'rows' => $rows ];
+        }
+        $report['data']['evaluations'] = $e;
+        return $report;
     }
 
     /**

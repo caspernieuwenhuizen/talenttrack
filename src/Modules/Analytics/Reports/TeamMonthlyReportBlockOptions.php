@@ -23,8 +23,12 @@ final class TeamMonthlyReportBlockOptions {
      */
     private static function map(): array {
         return [
-            TeamMonthlyReportBlock::TESTS   => TestsBlockOptions::class,
-            TeamMonthlyReportBlock::MATCHES => MatchesBlockOptions::class,
+            TeamMonthlyReportBlock::TESTS       => TestsBlockOptions::class,
+            TeamMonthlyReportBlock::MATCHES     => MatchesBlockOptions::class,
+            // #4133 — the Summary / Details choice; #4134 the new section.
+            TeamMonthlyReportBlock::ATTENDANCE  => LevelBlockOptions::class,
+            TeamMonthlyReportBlock::MINUTES     => LevelBlockOptions::class,
+            TeamMonthlyReportBlock::EVALUATIONS => EvaluationsBlockOptions::class,
         ];
     }
 

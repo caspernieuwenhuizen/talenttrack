@@ -67,25 +67,49 @@ that has settings and press **Update report**, its controls appear under the
 section list — or, on a wide screen, in a column to the right of it, with the
 printed size and the buttons under the sections.
 
-**Tests** has two. **Which tests** lists the tests your squad actually took in
-this period — tick the ones the meeting is about, or leave them all unticked to
-show every test, which is what the report did before. **How much to show**
-decides what each test prints:
+**Summary or Details.** Every section with two levels of detail offers the
+same choice, **Summary** or **Details**, so you learn it once:
 
-- **Summary only** — how many were tested, and who improved or declined. The
-  default.
-- **Readings** — each player's result, with its unit.
-- **Change since last time** — how much each player moved since their previous
-  result.
-- **Readings and change** — both columns.
+| Section | Summary | Details |
+| --- | --- | --- |
+| Evaluations | category averages, coverage, movers, spread | adds the player-by-category grid |
+| Tests | the strip of figures per test | adds each player's result, best to worst |
+| Attendance | squad average, who is below 70%, absences by kind | one bar per player |
+| Minutes share | median, the target, who is under it | one bar per player |
+| Matches | the record and the results | adds scorers and assists, and optionally squads per match |
 
-The three options with a player table need the pack. On the one-pager and the
-landscape matrix they are greyed out, with the reason under them, and the
-printed copy shows the summary. Switch the report type and the options follow.
-A saved view or a link that asks for readings on a layout that cannot print
-them opens with the summary, and the panel says why. The landscape matrix
-prints up to three tests. With more selected, the panel warns you, and the
-printed copy names the tests it left out.
+Attendance, minutes share and matches start on **Details**, tests and
+evaluations on **Summary**: that is what each section printed before the
+choice existed, so a report you saved earlier prints as it did. The options
+that only apply to Details appear under the choice once you pick Details.
+Squad status, Needs a conversation, What changed, Decisions and Data quality
+are already summaries and have no choice.
+
+Some layouts cannot print a section's Details. Tests and evaluations need the
+pack for their player tables, and on the landscape matrix attendance and
+minutes share are columns of the player-by-player table. There, **Details**
+is greyed out with the reason under it, and the printed copy shows the
+summary. Switch the report type and the choice follows. A saved view or a link
+that asks for Details on a layout that cannot print it opens with the summary,
+and the panel says why.
+
+**Tests** also has **Which tests**: the tests your squad actually took in this
+period. Tick the ones the meeting is about, or leave them all unticked to show
+every test. Under **Details**, **With change since the previous reading** adds
+how much each player moved; it is on unless you untick it. The landscape
+matrix prints up to three tests. With more selected, the panel warns you, and
+the printed copy names the tests it left out.
+
+**Matches** under **Details** has two tick boxes: **Scorers and assists** (on
+by default) and **Squad and minutes per match** (off by default, see *The
+match section*).
+
+**Evaluations** has **Which evaluations**: the types from your academy's
+evaluation-type list, all ticked by default. Untick a type to leave its
+evaluations out of every figure in the section; the section's header then
+names the types it counts. Under **Details**, **With subcategories** adds
+each subcategory under its main category. It is only offered when something
+in the period was rated at subcategory level.
 
 A timed test reads as minutes and seconds (`16:04`), the way it was entered,
 and its change is in seconds (`−7 s`). A test where lower or higher is better
@@ -154,8 +178,8 @@ Each test on paper gets a card: its name, which way is better, the date and how
 many were tested, then a strip of figures — the squad average and how it moved
 since the previous round, the best reading, how many got better or worse, how
 many are on target for the age group (when the test has target bands), and the
-squad average over the last four rounds. With **Readings** or **Readings and
-change** chosen, a table follows, best to worst: each player's reading with a
+squad average over the last four rounds. With **Details** chosen, a table
+follows, best to worst: each player's reading with a
 bar in the colour of their target band, their previous reading, the change
 (green when it is an improvement, so a faster time is green), the gap to the
 squad average, and **PB** on a personal best. A dashed line marks where the
@@ -173,10 +197,10 @@ forwarded link.
 PDF on the 1st of every month. Each one covers the month that just ended, so
 the one sent on 1 October is about September. You give the schedule a name and
 its recipients; the team, report type and sections are the ones you composed,
-and so are the choices for **Matches** and **Tests**: which tests, and how much
-of each. The form lists those choices before you save. When the report type
-cannot print a choice, such as test readings on the one-pager, the form says
-so, and the PDF prints the summary instead. The report names players, so send
+and so are the choices you made per section: Summary or Details, which tests,
+which evaluation types. The form lists those choices before you save. When the
+report type cannot print a choice, such as test readings on the one-pager, the
+form says so, and the PDF prints the summary instead. The report names players, so send
 it to staff only.
 
 The schedule keeps **its own copy** of the report. Changing or deleting one of
@@ -218,6 +242,8 @@ move with it.
   attended, and it reads 100% only when every player attended everything.
 - **Squad status** — how many players are on track, to watch, needing action, or
   without a read yet, and how that looked last period.
+- **Evaluations** — the explanation behind the *Evaluated* and *Squad rating*
+  tiles. See *The evaluations section* below.
 - **Attendance** and **Minutes share** — per player, with links to the full
   attendance and minutes reports. Minutes share lists the **whole squad**: a
   player who was available but never got on the pitch shows 0 minutes and
@@ -294,16 +320,50 @@ expiry.
 
 For staff who do not log in, download the PDF and hand it over yourself.
 
+## The evaluations section
+
+**Evaluations** follows the squad status: where each player stands this month,
+per area of the game, and who moved.
+
+**Summary** has four parts:
+
+- **Squad average** and its change against the previous month. It is the same
+  number as the *Squad rating* tile when every type is counted, because both
+  are worked out from the same ratings.
+- **Evaluated**: how many of the squad were evaluated, and the names of those
+  who were not; how many evaluations, by how many coaches, and how many of
+  each type.
+- **Per category**: each main category's squad average with its change, and a
+  bar from the lowest to the highest player on the rating scale, with a line
+  at the squad average. When the players span the whole scale the range reads
+  *wide*.
+- **Biggest risers and fallers**: the three players who went up most and the
+  three who went down most, measured against their own previous evaluation,
+  such as *6,4 → 7,2*.
+
+**Details** adds a table with a row per player in shirt-number order and a
+column per main category: the player's average this month in that category,
+coloured along the rating scale, with ▲ or ▼ against the previous month. The
+last columns are the player's overall average, how many evaluations they had
+and the date of the last one. A player without an evaluation this month has a
+greyed row saying so, and a squad row closes the table. The colours and the
+scale follow your academy's rating scale.
+
+On the pack the section sits on page 1 when it fits there, otherwise on
+page 2 with the player-by-player table, or on a page of its own. Nothing is
+cut. On a phone each player is one row with a chip per category.
+
 ## The match section
 
 The report used to say a great deal about development and nothing about
 results, so the score got read off someone's phone. **Matches** puts them in
 the document, from what is already recorded.
 
-It has three parts, each with its own tick box in the panel:
+It has three parts. The record prints at both levels; the other two are tick
+boxes under **Details**:
 
 - **Record** — played, won, drawn, lost, goals for and against, and the
-  difference. On by default.
+  difference.
 - **Scorers and assists** — per player over the period, most goals first, then
   most assists. On by default.
 - **Squad and minutes per match** — who played in each match and for how long.

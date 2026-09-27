@@ -1,0 +1,108 @@
+msgctxt "team monthly report section"
+msgid "Evaluations"
+msgstr "Evaluaties"
+
+msgid "Per area of the game, and who moved"
+msgstr "Per onderdeel van het spel, en wie er bewoog"
+
+msgid "Which evaluations"
+msgstr "Welke evaluaties"
+
+msgid "Types from your evaluation-type list. Tick them all, or none, to count every type."
+msgstr "Soorten uit je lijst met evaluatiesoorten. Vink ze allemaal aan, of geen, om elke soort mee te tellen."
+
+msgid "Nothing was rated at subcategory level this period, so there are no subcategories to add."
+msgstr "Er is deze periode niets op subcategorie beoordeeld, dus er zijn geen subcategorieën om toe te voegen."
+
+msgctxt "monthly report evaluations option"
+msgid "With subcategories"
+msgstr "Met subcategorieën"
+
+msgctxt "evaluation without a type"
+msgid "Other"
+msgstr "Overig"
+
+msgid "No evaluations this period."
+msgstr "Geen evaluaties deze periode."
+
+#. translators: %d: number of evaluations
+msgid "%d evaluation"
+msgid_plural "%d evaluations"
+msgstr[0] "%d evaluatie"
+msgstr[1] "%d evaluaties"
+
+#. translators: 1: players evaluated, 2: players in the squad
+msgid "%1$d of %2$d players"
+msgstr "%1$d van %2$d spelers"
+
+msgid "all types"
+msgstr "alle soorten"
+
+msgid "Per category: average, change, spread"
+msgstr "Per categorie: gemiddelde, verschil, spreiding"
+
+#. translators: 1: lowest rating on the scale, 2: highest
+msgid "Bar: lowest to highest player; line: squad average; scale %1$s–%2$s. \"Wide\" when the players span the whole scale."
+msgstr "Balk: laagste tot hoogste speler; streep: selectiegemiddelde; schaal %1$s–%2$s. \"Breed\" wanneer de spelers de hele schaal beslaan."
+
+msgid "Biggest risers"
+msgstr "Grootste stijgers"
+
+msgid "Biggest fallers"
+msgstr "Grootste dalers"
+
+#. translators: %s: change of the squad average, e.g. "▲ 0,2"
+msgctxt "monthly report evaluations: squad average change"
+msgid "%s vs previous month"
+msgstr "%s t.o.v. vorige maand"
+
+#. translators: %s: names of the players without an evaluation
+msgid "Missing: %s"
+msgstr "Ontbreekt: %s"
+
+msgid "Everyone"
+msgstr "Iedereen"
+
+#. translators: %d: number of coaches
+msgid "by %d coach"
+msgid_plural "by %d coaches"
+msgstr[0] "door %d trainer"
+msgstr[1] "door %d trainers"
+
+msgctxt "monthly report evaluations: players up and down"
+msgid "Rose · fell"
+msgstr "Gestegen · gedaald"
+
+msgid "against their own previous evaluation"
+msgstr "t.o.v. eigen vorige evaluatie"
+
+msgctxt "monthly report evaluations: spread covers the whole scale"
+msgid "wide"
+msgstr "breed"
+
+msgid "Nobody this period."
+msgstr "Niemand deze periode."
+
+msgctxt "monthly report evaluations column: average"
+msgid "Avg."
+msgstr "Gem."
+
+msgctxt "monthly report evaluations column: number of evaluations"
+msgid "Evals"
+msgstr "Evals"
+
+msgctxt "monthly report evaluations column: date of the last evaluation"
+msgid "Last"
+msgstr "Laatste"
+
+msgctxt "monthly report evaluations: a player without an evaluation this month"
+msgid "not evaluated"
+msgstr "niet geëvalueerd"
+
+msgctxt "monthly report evaluations: the squad average row"
+msgid "Squad"
+msgstr "Selectie"
+
+#. translators: 1: lowest rating on the scale, 2: highest
+msgid "Cell: the player's average this month in that category; ▲/▼ against the previous month. The colour follows the scale, %1$s low to %2$s high. In shirt-number order."
+msgstr "Cel: het gemiddelde van de speler deze maand in die categorie; ▲/▼ t.o.v. de vorige maand. De kleur volgt de schaal, %1$s laag tot %2$s hoog. Op rugnummer."

@@ -8,8 +8,12 @@ use TT\Infrastructure\Filters\SavedViewsRegistry;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
+use TT\Modules\Analytics\Reports\EvaluationsBlockOptions;
+use TT\Modules\Analytics\Reports\LevelBlockOptions;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\ReportBrandColour;
+use TT\Modules\Analytics\Reports\SectionLevel;
+use TT\Modules\Analytics\Reports\TeamMonthlyEvaluations;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
@@ -65,7 +69,11 @@ final class TeamMonthlyReportPage {
         $report   = ( new TeamMonthlyReport() )->forTeam( $team_id, $window['from'], $window['to'], $blocks, get_current_user_id(), $options );
         $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
 
-        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $prepared['fit'], $options );
+        // #4134 — the subcategories switch is only offered when something in
+        // the window was rated at that level; the composed section knows.
+        $has_subs = ! empty( $report['data'][ TeamMonthlyReportBlock::EVALUATIONS ]['has_subcategories'] );
+
+        self::renderPanel( $team_id, $window, $layout, $report['blocks'], $prepared['fit'], $options, $has_subs );
 
         self::renderDocument(
             $prepared,
@@ -206,13 +214,22 @@ final class TeamMonthlyReportPage {
         // no-script submit has to work and a GET form cannot post JSON. They
         // win over the JSON bag: the JSON is what the page arrived with, the
         // fields are what the reader just asked for.
-        $tests = self::requestedTestsOptions();
-        if ( $tests !== null ) $bags[ TeamMonthlyReportBlock::TESTS ] = $tests;
+        $from_panel = [
+            TeamMonthlyReportBlock::TESTS       => self::requestedTestsOptions(),
+            TeamMonthlyReportBlock::MATCHES     => self::requestedMatchesOptions(),
+            // #4133, #4134 — the Summary / Details choice, and the new section.
+            TeamMonthlyReportBlock::ATTENDANCE  => self::requestedLevelOptions( TeamMonthlyReportBlock::ATTENDANCE ),
+            TeamMonthlyReportBlock::MINUTES     => self::requestedLevelOptions( TeamMonthlyReportBlock::MINUTES ),
+            TeamMonthlyReportBlock::EVALUATIONS => self::requestedEvaluationsOptions(),
+        ];
+        $submitted = false;
+        foreach ( $from_panel as $block => $bag ) {
+            if ( $bag === null ) continue;
+            $bags[ $block ] = $bag;
+            $submitted      = true;
+        }
 
-        $matches = self::requestedMatchesOptions();
-        if ( $matches !== null ) $bags[ TeamMonthlyReportBlock::MATCHES ] = $matches;
-
-        if ( $tests !== null || $matches !== null ) {
+        if ( $submitted ) {
             $bags = TeamMonthlyReportComposition::normalise( [
                 'blocks'  => $blocks,
                 'options' => $bags,
@@ -234,18 +251,68 @@ final class TeamMonthlyReportPage {
     private static function requestedMatchesOptions(): ?array {
         if ( ! isset( $_GET['opt_matches'] ) ) return null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
 
-        $on = [];
-        if ( isset( $_GET['opt_matches_show'] ) && is_array( $_GET['opt_matches_show'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
-            foreach ( wp_unslash( $_GET['opt_matches_show'] ) as $part ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized below.
-                if ( is_scalar( $part ) ) $on[] = sanitize_key( (string) $part );
-            }
-        }
+        $on = self::requestedList( 'opt_matches_show' );
 
-        $out = [];
+        $out = [ SectionLevel::KEY => self::requestedLevel( TeamMonthlyReportBlock::MATCHES ) ];
         foreach ( array_keys( MatchesBlockOptions::DEFAULTS ) as $part ) {
             $out[ $part ] = in_array( $part, $on, true );
         }
 
+        return $out;
+    }
+
+    /**
+     * #4133 — a section whose only option is the level, as the panel
+     * submitted it, or null when the panel was not the source.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function requestedLevelOptions( string $block ): ?array {
+        if ( ! isset( $_GET[ 'opt_' . $block ] ) ) return null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        return [ SectionLevel::KEY => self::requestedLevel( $block ) ];
+    }
+
+    /**
+     * #4134 — the Evaluations section's controls: level, which types, and
+     * the subcategories switch. Every type ticked is recorded as none, the
+     * default, so a type the academy adds later is counted too.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function requestedEvaluationsOptions(): ?array {
+        if ( ! isset( $_GET['opt_evaluations'] ) ) return null; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+
+        $types = array_values( array_filter( array_map( 'intval', self::requestedList( 'opt_evaluations_types' ) ) ) );
+        $all   = array_keys( TeamMonthlyEvaluations::typeLabels() );
+        sort( $types );
+        sort( $all );
+        if ( $types === $all ) $types = [];
+
+        return [
+            SectionLevel::KEY             => self::requestedLevel( TeamMonthlyReportBlock::EVALUATIONS ),
+            EvaluationsBlockOptions::TYPES => $types,
+            EvaluationsBlockOptions::SUB   => isset( $_GET['opt_evaluations_sub'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        ];
+    }
+
+    /** The level radio a section's panel group submitted; empty when none was. */
+    private static function requestedLevel( string $block ): string {
+        $key = 'opt_' . $block . '_level';
+        return isset( $_GET[ $key ] ) ? sanitize_key( wp_unslash( (string) $_GET[ $key ] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+    }
+
+    /**
+     * A `name[]` field's values, sanitised as keys.
+     *
+     * @return list<string>
+     */
+    private static function requestedList( string $name ): array {
+        $out = [];
+        if ( isset( $_GET[ $name ] ) && is_array( $_GET[ $name ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+            foreach ( wp_unslash( $_GET[ $name ] ) as $value ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidationSanitization.InputNotSanitized -- sanitized below.
+                if ( is_scalar( $value ) ) $out[] = sanitize_key( (string) $value );
+            }
+        }
         return $out;
     }
 
@@ -270,9 +337,12 @@ final class TeamMonthlyReportPage {
             }
         }
 
-        $show = isset( $_GET['opt_tests_show'] ) ? sanitize_key( wp_unslash( (string) $_GET['opt_tests_show'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
-
-        return [ 'definitions' => $definitions, 'show' => $show ];
+        // #4133 — Summary / Details, and under Details the change switch.
+        return [
+            'definitions'             => $definitions,
+            SectionLevel::KEY         => self::requestedLevel( TeamMonthlyReportBlock::TESTS ),
+            TestsBlockOptions::CHANGE => isset( $_GET['opt_tests_change'] ), // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only view state.
+        ];
     }
 
     /**
@@ -334,7 +404,7 @@ final class TeamMonthlyReportPage {
      * @param array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>} $fit
      * @param array<string,array<string,mixed>>                                               $options #3514 per-block options
      */
-    private static function renderPanel( int $team_id, array $window, string $layout, array $selected, array $fit, array $options = [] ): void {
+    private static function renderPanel( int $team_id, array $window, string $layout, array $selected, array $fit, array $options = [], bool $has_subs = false ): void {
         $hidden = [
             'tt_view' => 'standard-report', /* tt-xview-ok */ // the form re-opens this same view
             'slug'    => self::SLUG,
@@ -345,7 +415,9 @@ final class TeamMonthlyReportPage {
         // their controls are the source, and carrying the JSON as well would
         // submit the old value alongside the new one (#3515).
         $carried = $options;
-        unset( $carried[ TeamMonthlyReportBlock::TESTS ], $carried[ TeamMonthlyReportBlock::MATCHES ] );
+        foreach ( SectionLevel::BLOCKS as $with_controls ) {
+            if ( in_array( $with_controls, $selected, true ) ) unset( $carried[ $with_controls ] );
+        }
         if ( $carried !== [] ) {
             $hidden['options'] = (string) wp_json_encode( $carried );
         }
@@ -438,7 +510,12 @@ final class TeamMonthlyReportPage {
         // wrapper keeps that stack explicit instead of leaving it to grid
         // auto-placement; below 1024px it simply follows Sections.
         echo '<div class="tt-mr-panel__side">';
-        self::renderMatchesOptions( $selected, $options );
+        // #4133 — every section with two levels offers the same choice, in
+        // print order; sections that are already a summary offer none.
+        self::renderEvaluationsOptions( $layout, $selected, $options, $has_subs );
+        self::renderLevelOptions( TeamMonthlyReportBlock::ATTENDANCE, $layout, $selected, $options );
+        self::renderLevelOptions( TeamMonthlyReportBlock::MINUTES, $layout, $selected, $options );
+        self::renderMatchesOptions( $layout, $selected, $options );
         self::renderTestsOptions( $team_id, $window, $layout, $selected, $options );
         echo '</div>';
 
@@ -617,6 +694,7 @@ final class TeamMonthlyReportPage {
             'coverage'   => [ 'title' => _x( 'Data coverage', 'team monthly report section', 'talenttrack' ),        'note' => __( 'What the report could not see', 'talenttrack' ) ],
             'kpi'        => [ 'title' => _x( 'Headline numbers', 'team monthly report section', 'talenttrack' ),     'note' => __( 'Six figures against last period', 'talenttrack' ) ],
             'status'     => [ 'title' => _x( 'Squad status', 'team monthly report section', 'talenttrack' ),         'note' => __( 'How many players are on track', 'talenttrack' ) ],
+            'evaluations' => [ 'title' => _x( 'Evaluations', 'team monthly report section', 'talenttrack' ),        'note' => __( 'Per area of the game, and who moved', 'talenttrack' ) ],
             'attendance' => [ 'title' => _x( 'Attendance', 'team monthly report section', 'talenttrack' ),           'note' => __( 'Per player, in shirt-number order', 'talenttrack' ) ],
             'minutes'    => [ 'title' => _x( 'Minutes share', 'team monthly report section', 'talenttrack' ),        'note' => __( 'Per player, against the target', 'talenttrack' ) ],
             'matches'    => [ 'title' => _x( 'Matches', 'team monthly report section', 'talenttrack' ),               'note' => __( 'Results, scorers and squads', 'talenttrack' ) ],
@@ -630,36 +708,172 @@ final class TeamMonthlyReportPage {
     }
 
     /**
-     * The match section's own switches (#3516).
+     * #4133 — the Summary / Details choice: two radios drawn as one 48px
+     * segmented control, keyboard-operable as a native radio group. Details
+     * stands disabled, with the reason under it, where the chosen layout
+     * cannot print it (#4095); each option carries its reason for every
+     * layout, so the panel script re-evaluates them without a rule of its own.
+     *
+     * A saved view, a shared link or a schedule that asked for Details on a
+     * layout that prints the summary says so here, not on the coach's printer.
+     */
+    private static function renderLevelControl( string $block, string $layout, string $level ): void {
+        $name    = 'opt_' . $block . '_level';
+        $printed = TeamMonthlyReportLayout::levelFor( $layout, $block, $level );
+        $label   = 'tt-mr-' . $block . '-level';
+
+        echo '<div class="tt-mr-opts__row">';
+        echo '<span class="tt-mr-opts__label" id="' . esc_attr( $label ) . '">' . esc_html__( 'How much to show', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-mr-seg" role="radiogroup" aria-labelledby="' . esc_attr( $label ) . '">';
+        foreach ( SectionLevel::labels() as $value => $text ) {
+            $id     = 'tt-mr-' . $block . '-level-' . $value;
+            $reason = $value === SectionLevel::DETAILS ? TeamMonthlyReportLayout::detailsReason( $layout, $block ) : '';
+            $whys   = '';
+            foreach ( TeamMonthlyReportLayout::ALL as $key ) {
+                $why   = $value === SectionLevel::DETAILS ? TeamMonthlyReportLayout::detailsReason( $key, $block ) : '';
+                $whys .= ' data-tt-mr-why-' . strtolower( $key ) . '="' . esc_attr( $why ) . '"';
+            }
+            echo '<label class="tt-mr-seg__opt' . ( $reason !== '' ? ' is-unavailable' : '' ) . '" for="' . esc_attr( $id ) . '" data-tt-mr-show-option' . $whys . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $whys is escaped above.
+            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '" value="' . esc_attr( $value ) . '"'
+                . checked( $printed, $value, false ) . disabled( $reason !== '', true, false ) . ' data-tt-mr-level data-tt-mr-block>';
+            echo '<span class="tt-mr-seg__t">' . esc_html( $text ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '<span class="tt-mr-block__why" data-tt-mr-level-why="' . esc_attr( $name ) . '">' . esc_html( TeamMonthlyReportLayout::detailsReason( $layout, $block ) ) . '</span>';
+        if ( $printed !== $level && ! in_array( $block, [ TeamMonthlyReportBlock::ATTENDANCE, TeamMonthlyReportBlock::MINUTES ], true ) ) {
+            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn">' . esc_html( sprintf(
+                /* translators: %s: the level that was asked for, "Details" */
+                __( 'This report asked for “%s”, which this layout cannot print. It prints the summary; choose the pack to print the tables.', 'talenttrack' ),
+                SectionLevel::label( $level )
+            ) ) . '</p>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * Opens a section's options group, with the marker field that tells
+     * "submitted with nothing ticked" from "not submitted", and its level.
+     */
+    private static function openOptions( string $block, string $layout, string $level ): void {
+        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
+        echo '<legend class="tt-mr-panel__legend">' . esc_html( TeamMonthlyReportBlock::title( $block ) ) . '</legend>';
+        echo '<input type="hidden" name="opt_' . esc_attr( $block ) . '" value="1">';
+        self::renderLevelControl( $block, $layout, $level );
+    }
+
+    /**
+     * The options only Details has. Hidden while Summary is chosen; the panel
+     * script shows them as soon as Details is, and without script the page
+     * does on "Update report".
+     */
+    private static function openDetailsOnly( string $block, string $layout, string $level ): void {
+        $shown = TeamMonthlyReportLayout::levelFor( $layout, $block, $level ) === SectionLevel::DETAILS;
+        echo '<div class="tt-mr-opts__details" data-tt-mr-details-for="opt_' . esc_attr( $block ) . '_level"' . ( $shown ? '' : ' hidden' ) . '>';
+    }
+
+    /**
+     * #4133 — attendance and minutes share: the level and nothing else.
+     *
+     * @param list<string>                      $selected
+     * @param array<string,array<string,mixed>> $options
+     */
+    private static function renderLevelOptions( string $block, string $layout, array $selected, array $options ): void {
+        if ( ! in_array( $block, $selected, true ) ) return;
+
+        self::openOptions( $block, $layout, LevelBlockOptions::level( $options[ $block ] ?? [] ) );
+        echo '</fieldset>';
+    }
+
+    /**
+     * #4134 — the Evaluations section: the level, which evaluation types
+     * count (the academy's own list, all ticked by default), and under
+     * Details the subcategories, when anything was rated at that level.
+     *
+     * @param list<string>                      $selected
+     * @param array<string,array<string,mixed>> $options
+     */
+    private static function renderEvaluationsOptions( string $layout, array $selected, array $options, bool $has_subs ): void {
+        if ( ! in_array( TeamMonthlyReportBlock::EVALUATIONS, $selected, true ) ) return;
+
+        $bag    = $options[ TeamMonthlyReportBlock::EVALUATIONS ] ?? [];
+        $level  = EvaluationsBlockOptions::level( $bag );
+        $chosen = EvaluationsBlockOptions::typeIds( $bag );
+
+        self::openOptions( TeamMonthlyReportBlock::EVALUATIONS, $layout, $level );
+
+        $types = TeamMonthlyEvaluations::typeLabels();
+        if ( $types !== [] ) {
+            echo '<div class="tt-mr-opts__row">';
+            echo '<span class="tt-mr-opts__label" id="tt-mr-evaluations-types">' . esc_html__( 'Which evaluations', 'talenttrack' ) . '</span>';
+            echo '<div class="tt-mr-blocks" role="group" aria-labelledby="tt-mr-evaluations-types">';
+            foreach ( $types as $type_id => $label ) {
+                $id = 'tt-mr-evaluations-type-' . $type_id;
+                echo '<label class="tt-mr-block tt-mr-block--test" for="' . esc_attr( $id ) . '">';
+                echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_evaluations_types[]" value="' . esc_attr( (string) $type_id ) . '"'
+                    . checked( $chosen === [] || in_array( (int) $type_id, $chosen, true ), true, false ) . ' data-tt-mr-block>';
+                echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
+                echo '</label>';
+            }
+            echo '</div>';
+            echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Types from your evaluation-type list. Tick them all, or none, to count every type.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+        }
+
+        self::openDetailsOnly( TeamMonthlyReportBlock::EVALUATIONS, $layout, $level );
+        if ( $has_subs ) {
+            echo '<div class="tt-mr-blocks">';
+            echo '<label class="tt-mr-block" for="tt-mr-evaluations-sub">';
+            echo '<input type="checkbox" id="tt-mr-evaluations-sub" name="opt_evaluations_sub" value="1"'
+                . checked( EvaluationsBlockOptions::withSubcategories( $bag ), true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( EvaluationsBlockOptions::subLabel() ) . '</span>';
+            echo '</label>';
+            echo '</div>';
+        } else {
+            echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Nothing was rated at subcategory level this period, so there are no subcategories to add.', 'talenttrack' ) . '</p>';
+        }
+        echo '</div>';
+
+        echo '</fieldset>';
+    }
+
+    /**
+     * The match section (#3516): the level, and under Details the parts it
+     * adds (#4133).
      *
      * Squads default off: it is the longest part and it overlaps the minutes
      * section, so a full report would otherwise print the same numbers twice.
+     * The record is part of both levels; a composition that switched it off
+     * before #4133 keeps it off.
      *
      * @param list<string>                     $selected
      * @param array<string,array<string,mixed>> $options
      */
-    private static function renderMatchesOptions( array $selected, array $options ): void {
+    private static function renderMatchesOptions( string $layout, array $selected, array $options ): void {
         if ( ! in_array( TeamMonthlyReportBlock::MATCHES, $selected, true ) ) return;
 
-        $bag = $options[ TeamMonthlyReportBlock::MATCHES ] ?? [];
+        $bag   = $options[ TeamMonthlyReportBlock::MATCHES ] ?? [];
+        $level = MatchesBlockOptions::level( $bag );
 
-        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
-        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Matches', 'team monthly report panel', 'talenttrack' ) . '</legend>';
+        self::openOptions( TeamMonthlyReportBlock::MATCHES, $layout, $level );
 
-        // Marker: tells "submitted with nothing ticked" from "not submitted".
-        echo '<input type="hidden" name="opt_matches" value="1">';
+        if ( MatchesBlockOptions::part( $bag, MatchesBlockOptions::RECORD ) ) {
+            echo '<input type="hidden" name="opt_matches_show[]" value="' . esc_attr( MatchesBlockOptions::RECORD ) . '">';
+        }
 
+        self::openDetailsOnly( TeamMonthlyReportBlock::MATCHES, $layout, $level );
         echo '<div class="tt-mr-blocks">';
-        foreach ( MatchesBlockOptions::labels() as $part => $label ) {
+        foreach ( MatchesBlockOptions::DETAIL_PARTS as $part ) {
             $id = 'tt-mr-matches-' . $part;
             echo '<label class="tt-mr-block" for="' . esc_attr( $id ) . '">';
             echo '<input type="checkbox" id="' . esc_attr( $id ) . '" name="opt_matches_show[]" value="' . esc_attr( $part ) . '"'
-                . checked( MatchesBlockOptions::shows( $bag, $part ), true, false ) . ' data-tt-mr-block>';
-            echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
+                . checked( MatchesBlockOptions::part( $bag, $part ), true, false ) . ' data-tt-mr-block>';
+            echo '<span class="tt-mr-block__t">' . esc_html( MatchesBlockOptions::labels()[ $part ] ) . '</span>';
             echo '</label>';
         }
         echo '</div>';
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Squads and minutes per match are the longest part, and repeat the minutes section.', 'talenttrack' ) . '</p>';
+        echo '</div>';
         echo '</fieldset>';
     }
     /**
@@ -683,13 +897,21 @@ final class TeamMonthlyReportPage {
 
         $bag    = $options[ TeamMonthlyReportBlock::TESTS ] ?? [];
         $chosen = TestsBlockOptions::definitionIds( $bag );
-        $show   = TestsBlockOptions::show( $bag );
+        $level  = TestsBlockOptions::level( $bag );
 
-        echo '<fieldset class="tt-mr-panel__group tt-mr-opts">';
-        echo '<legend class="tt-mr-panel__legend">' . esc_html_x( 'Tests', 'team monthly report panel', 'talenttrack' ) . '</legend>';
+        // #4133 — Summary / Details in place of the four-way "how much";
+        // Details can leave out the change since the previous reading.
+        self::openOptions( TeamMonthlyReportBlock::TESTS, $layout, $level );
 
-        // Marker: tells "submitted with nothing ticked" from "not submitted".
-        echo '<input type="hidden" name="opt_tests" value="1">';
+        self::openDetailsOnly( TeamMonthlyReportBlock::TESTS, $layout, $level );
+        echo '<div class="tt-mr-blocks">';
+        echo '<label class="tt-mr-block" for="tt-mr-tests-change">';
+        echo '<input type="checkbox" id="tt-mr-tests-change" name="opt_tests_change" value="1"'
+            . checked( TestsBlockOptions::withChange( $bag ), true, false ) . ' data-tt-mr-block>';
+        echo '<span class="tt-mr-block__t">' . esc_html( TestsBlockOptions::changeLabel() ) . '</span>';
+        echo '</label>';
+        echo '</div>';
+        echo '</div>';
 
         echo '<div class="tt-mr-opts__row">';
         echo '<span class="tt-mr-opts__label" id="tt-mr-tests-which">' . esc_html__( 'Which tests', 'talenttrack' ) . '</span>';
@@ -706,41 +928,6 @@ final class TeamMonthlyReportPage {
         }
         echo '</div>';
         echo '<p class="tt-mr-panel__hint">' . esc_html__( 'Tick none to show every test taken this period.', 'talenttrack' ) . '</p>';
-        echo '</div>';
-
-        // #4095 — radios rather than a select, so an option the chosen
-        // layout cannot print can stand disabled with its reason under it.
-        // The panel script re-evaluates them when the layout changes; without
-        // script the page does it on "Update report".
-        $printed = TeamMonthlyReportLayout::testsShowFor( $layout, $show );
-        echo '<div class="tt-mr-opts__row">';
-        echo '<span class="tt-mr-opts__label" id="tt-mr-tests-show">' . esc_html__( 'How much to show', 'talenttrack' ) . '</span>';
-        echo '<div class="tt-mr-blocks" role="radiogroup" aria-labelledby="tt-mr-tests-show">';
-        foreach ( TestsBlockOptions::showLabels() as $value => $label ) {
-            $id     = 'tt-mr-tests-show-' . $value;
-            $reason = TeamMonthlyReportLayout::testsShowReason( $layout, $value );
-            $whys   = '';
-            foreach ( TeamMonthlyReportLayout::ALL as $key ) {
-                $whys .= ' data-tt-mr-why-' . strtolower( $key ) . '="' . esc_attr( TeamMonthlyReportLayout::testsShowReason( $key, $value ) ) . '"';
-            }
-            echo '<label class="tt-mr-block tt-mr-block--opt' . ( $reason !== '' ? ' is-unavailable' : '' ) . '" for="' . esc_attr( $id ) . '" data-tt-mr-show-option' . $whys . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $whys is escaped above.
-            echo '<input type="radio" id="' . esc_attr( $id ) . '" name="opt_tests_show" value="' . esc_attr( $value ) . '"'
-                . checked( $printed, $value, false ) . disabled( $reason !== '', true, false ) . ' data-tt-mr-block>';
-            echo '<span class="tt-mr-block__t">' . esc_html( $label ) . '</span>';
-            echo '<span class="tt-mr-block__why" data-tt-mr-why>' . esc_html( $reason ) . '</span>';
-            echo '</label>';
-        }
-        echo '</div>';
-        if ( $printed !== $show ) {
-            // A saved view, a shared link or a schedule asked for more than
-            // this layout prints. It renders the summary, and says so here
-            // rather than on the coach's printer.
-            echo '<p class="tt-mr-panel__hint tt-mr-panel__hint--warn">' . esc_html( sprintf(
-                /* translators: %s: the tests option that was asked for, e.g. "Readings" */
-                __( 'This report asked for “%s”, which this layout cannot print. It prints the summary; choose the pack to print the tables.', 'talenttrack' ),
-                TestsBlockOptions::showLabels()[ $show ] ?? $show
-            ) ) . '</p>';
-        }
         echo '</div>';
 
         // #4095 — the landscape strip holds three tests; say so before the

@@ -158,6 +158,71 @@
 
 .tt-mr-panel__hint[hidden] { display: none; }
 
+/* #4133 — the Summary / Details choice every section with two levels
+   shares: two radios drawn as one segmented control, each half a 48px
+   target. The radios stay real radios (arrow keys move between them); the
+   dot is hidden and the chosen half is filled instead. */
+.tt-mr-seg {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 22rem;
+    overflow: hidden;
+    border: 1px solid var(--tt-primary);
+    border-radius: var(--tt-radius);
+}
+
+.tt-mr-seg__opt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3);
+    background: var(--tt-paper);
+    color: var(--tt-primary);
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-mr-seg__opt + .tt-mr-seg__opt { border-left: 1px solid var(--tt-primary); }
+
+.tt-mr-seg__opt input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+}
+
+.tt-mr-seg__opt:has(input:checked) {
+    background: var(--tt-primary);
+    color: var(--tt-paper);
+}
+
+.tt-mr-seg__opt:active { background: var(--tt-bg-soft); }
+
+.tt-mr-seg__opt:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+    z-index: 1;
+}
+
+.tt-mr-seg__opt.is-unavailable {
+    cursor: not-allowed;
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+}
+
+.tt-mr-opts__details {
+    display: grid;
+    gap: var(--tt-sp-2);
+}
+
+.tt-mr-opts__details[hidden] { display: none; }
+
 .tt-mr-panel__actions {
     display: flex;
     flex-wrap: wrap;
@@ -674,18 +739,20 @@
     .tt-mr-doc .tt-d-dn { color: var(--tt-danger-ink); }
     .tt-mr-doc .tt-d-eq { color: var(--tt-muted); }
 
-    /* Player by player: each player a row, the figures labelled. */
+    /* Player by player: each player a row, the figures labelled. Seven
+       figures sit four and three (#4131), so none is left on a row of its
+       own; a long label breaks rather than widening the card. */
     .tt-mr-doc .tt-d-tbl thead { display: none; }
     .tt-mr-doc .tt-d-tbl,
     .tt-mr-doc .tt-d-tbl tbody { display: block; }
     .tt-mr-doc .tt-d-tbl tr {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 2px var(--tt-sp-2);
         padding: var(--tt-sp-2) 0;
         border-bottom: 1px solid var(--tt-line-soft);
     }
-    .tt-mr-doc .tt-d-tbl td { display: block; padding: 0; border: 0; font-size: var(--tt-fs-sm); }
+    .tt-mr-doc .tt-d-tbl td { display: block; min-width: 0; padding: 0; border: 0; font-size: var(--tt-fs-sm); }
     .tt-mr-doc .tt-d-tbl .tt-d-nm { grid-column: 1 / -1; min-height: 1.75rem; font-weight: 700; font-size: 1rem; }
     .tt-mr-doc .tt-d-tbl .tt-d-bar { display: none; }
     .tt-mr-doc .tt-d-tbl td[data-label]::before {
@@ -693,8 +760,81 @@
         display: block;
         font-size: 0.7rem;
         text-transform: uppercase;
+        overflow-wrap: anywhere;
         color: var(--tt-muted);
     }
+
+    /* #4134 — evaluations. The category lines: name, average and change,
+       then the spread on the scale under them. */
+    .tt-mr-doc .tt-d-ecat,
+    .tt-mr-doc .tt-d-ecat > tbody { display: block; }
+    .tt-mr-doc .tt-d-ecat > tbody > tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-areas:
+            "nm v c"
+            "sp sp rl";
+        column-gap: var(--tt-sp-2);
+        row-gap: var(--tt-sp-1);
+        align-items: center;
+        padding: var(--tt-sp-2) 0;
+        border-bottom: 1px solid var(--tt-line-soft);
+    }
+    .tt-mr-doc .tt-d-ecat > tbody > tr > td { display: block; padding: 0; border: 0; font-size: var(--tt-fs-sm); }
+    .tt-mr-doc .tt-d-ecat .tt-d-nm { grid-area: nm; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tt-mr-doc .tt-d-ecat .tt-d-v { grid-area: v; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .tt-mr-doc .tt-d-ecat .tt-d-c { grid-area: c; font-variant-numeric: tabular-nums; }
+    .tt-mr-doc .tt-d-ecat .tt-d-sp { grid-area: sp; }
+    .tt-mr-doc .tt-d-ecat .tt-d-rl { grid-area: rl; color: var(--tt-muted); white-space: nowrap; }
+    .tt-mr-doc .tt-d-ecat .tt-d-rl.tt-d-wide { color: var(--tt-warning-ink); font-weight: 700; }
+    .tt-mr-doc .tt-d-ecat .tt-d-esub .tt-d-nm { padding-left: var(--tt-sp-3); font-weight: 400; }
+    .tt-mr-doc .tt-d-rng { width: 100%; height: 10px; border-collapse: collapse; }
+    .tt-mr-doc .tt-d-rng td { height: 10px; padding: 0; }
+    .tt-mr-doc .tt-d-rng .tt-d-gap  { background: var(--tt-line-soft); }
+    .tt-mr-doc .tt-d-rng .tt-d-band { background: var(--tt-success-subtle); }
+    .tt-mr-doc .tt-d-rng .tt-d-mk   { background: var(--tt-ink); }
+
+    .tt-mr-doc .tt-d-mv td { padding: var(--tt-sp-1) 0; font-size: var(--tt-fs-sm); }
+    .tt-mr-doc .tt-d-mv .tt-d-c,
+    .tt-mr-doc .tt-d-mv .tt-d-ft { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* The grid on a phone: a row per player, the category figures as chips
+       under the name, the overall average beside it. */
+    .tt-mr-doc .tt-d-egrid thead { display: none; }
+    .tt-mr-doc .tt-d-egrid,
+    .tt-mr-doc .tt-d-egrid tbody { display: block; }
+    .tt-mr-doc .tt-d-egrid tr {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+        padding: var(--tt-sp-2) 0;
+        border-bottom: 1px solid var(--tt-line-soft);
+    }
+    .tt-mr-doc .tt-d-egrid td { display: block; min-width: 0; padding: 0; border: 0; font-size: var(--tt-fs-sm); text-align: center; }
+    .tt-mr-doc .tt-d-egrid .tt-d-jn { display: none; }
+    .tt-mr-doc .tt-d-egrid .tt-d-nm { grid-column: 1 / 4; text-align: left; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tt-mr-doc .tt-d-egrid .tt-d-oa { grid-column: 4; grid-row: 1; text-align: right; font-weight: 800; }
+    .tt-mr-doc .tt-d-egrid .tt-d-cat { padding: 4px 0; border-radius: 8px; background: var(--tt-bg-soft); }
+    .tt-mr-doc .tt-d-egrid td[data-label]::before {
+        content: attr(data-label);
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.7rem;
+        color: var(--tt-muted);
+    }
+    .tt-mr-doc .tt-d-egrid .tt-d-oa::before { display: none; }
+    .tt-mr-doc .tt-d-egrid .tt-d-last { grid-column: 1 / -1; text-align: left; font-size: 0.8rem; color: var(--tt-muted); }
+    .tt-mr-doc .tt-d-egrid .tt-d-none td { color: var(--tt-muted); }
+    .tt-mr-doc .tt-d-egrid .tt-d-tot td { font-weight: 700; }
+    .tt-mr-doc .tt-d-r { display: inline-block; min-width: 2rem; padding: 0 4px; border-radius: 6px; font-weight: 800; font-size: 1rem; }
+    .tt-mr-doc .tt-d-t1 { background: var(--tt-danger-subtle); color: var(--tt-danger-ink); }
+    .tt-mr-doc .tt-d-t2 { background: var(--tt-warning-subtle); color: var(--tt-warning-ink); }
+    .tt-mr-doc .tt-d-t3 { background: var(--tt-paper); color: var(--tt-ink); }
+    .tt-mr-doc .tt-d-t4 { background: var(--tt-success-subtle); color: var(--tt-success-ink); }
+    .tt-mr-doc .tt-d-t5 { background: var(--tt-success); color: var(--tt-paper); }
+    .tt-mr-doc .tt-d-ar { margin-left: 2px; font-size: 0.75rem; }
 
     .tt-mr-doc .tt-d-lines td { height: 28px; border-bottom: 1px solid var(--tt-line); }
 }
@@ -702,6 +842,8 @@
 @media (max-width: 1023.98px) and (min-width: 480px) {
     .tt-mr-doc .tt-d-kpi tr { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .tt-mr-doc .tt-d-tstat > tbody > tr { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    /* The evaluations strip has four figures: two and two. */
+    .tt-mr-doc .tt-d-tstat.tt-d-ekpi > tbody > tr { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .tt-mr-doc .tt-mr-sh tr { grid-template-columns: auto minmax(0, 1fr) auto; }
     .tt-mr-doc .tt-mr-sh__meta { grid-column: auto; text-align: right; }
     .tt-mr-doc .tt-d-mrec tr { grid-template-columns: repeat(7, minmax(0, 1fr)); }

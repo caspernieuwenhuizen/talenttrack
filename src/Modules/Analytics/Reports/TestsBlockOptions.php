@@ -12,12 +12,23 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * the sprint test got the jump test and the Yo-Yo alongside it, and never the
  * readings that would make any of them mean something.
  *
- * Two options:
+ * Three options:
  *
  * - `definitions` — which tests. Empty means every test in the window, which
  *   is what the section did before this existed and stays the default.
- * - `show` — how much per test: the summary, the readings, the change since
- *   each player's previous reading, or readings and change together.
+ * - `level` (#4133) — the Summary / Details choice every section shares
+ *   (`SectionLevel`). Summary is the stat strip per test, and the default;
+ *   Details adds each player's reading, ranked.
+ * - `change` (#4133) — under Details, whether the ranked table also shows the
+ *   change since each player's previous reading. On by default.
+ *
+ * #4133 folds the older four-way `show` into those two: `summary` is Summary;
+ * `values`, `trend` and `values_trend` are Details, with the change on for
+ * `trend` and `values_trend`. A saved view, a snapshot's composition or a
+ * schedule that stored `show` is mapped on read, and REST still accepts it
+ * for one release. What the report prints is still spelled as a `show` value
+ * in its payload (`show()`), so a snapshot frozen before the choice existed
+ * renders as it did.
  *
  * **An unknown value falls back; it does not fail.** A definition deleted since
  * the composition was saved, or a `show` value from a later version of the
@@ -41,6 +52,11 @@ final class TestsBlockOptions implements BlockOptionsInterface {
 
     public const DEFAULT_SHOW = self::SHOW_SUMMARY;
 
+    public const LEVEL  = SectionLevel::KEY;
+    public const CHANGE = 'change';
+
+    public const DEFAULT_LEVEL = SectionLevel::SUMMARY;
+
     /**
      * How many tests one composition may name.
      *
@@ -60,14 +76,15 @@ final class TestsBlockOptions implements BlockOptionsInterface {
         $definitions = self::definitions( $raw['definitions'] ?? null );
         if ( $definitions !== [] ) $out['definitions'] = $definitions;
 
-        $show = is_scalar( $raw['show'] ?? null ) ? sanitize_key( (string) $raw['show'] ) : '';
-        if ( in_array( $show, self::SHOW, true ) && $show !== self::DEFAULT_SHOW ) {
-            $out['show'] = $show;
+        [ $level, $change ] = self::levelAndChange( $raw );
+        if ( $level === SectionLevel::DETAILS ) {
+            $out[ self::LEVEL ] = $level;
+            if ( ! $change ) $out[ self::CHANGE ] = false;
         }
 
         // Defaults are recorded as absence, so two compositions that render the
         // same report compare equal — `TeamMonthlyReportComposition::same()`
-        // hashes the bag, and `['show' => 'summary']` would otherwise read as
+        // hashes the bag, and `['level' => 'summary']` would otherwise read as
         // a different report from `[]`.
         return $out;
     }
@@ -77,12 +94,35 @@ final class TestsBlockOptions implements BlockOptionsInterface {
      * @return list<string>
      */
     public static function unknownKeys( array $raw ): array {
-        $known = [ 'definitions', 'show' ];
+        // `show` is the deprecated spelling (#4133), still accepted.
+        $known = [ 'definitions', self::LEVEL, self::CHANGE, 'show' ];
 
         return array_values( array_filter(
             array_map( 'strval', array_keys( $raw ) ),
             static fn( string $key ): bool => ! in_array( $key, $known, true )
         ) );
+    }
+
+    /**
+     * The level and the change switch a raw bag asks for. `level` and
+     * `change` win; a bag that has only the old `show` is mapped from it.
+     *
+     * @param array<string,mixed> $raw
+     * @return array{0:string, 1:bool}
+     */
+    private static function levelAndChange( array $raw ): array {
+        $level  = SectionLevel::parse( $raw[ self::LEVEL ] ?? null );
+        $change = SectionLevel::boolish( $raw[ self::CHANGE ] ?? null );
+
+        if ( $level === null ) {
+            $show = is_scalar( $raw['show'] ?? null ) ? sanitize_key( (string) $raw['show'] ) : '';
+            if ( in_array( $show, self::SHOW, true ) && $show !== self::SHOW_SUMMARY ) {
+                $level  = SectionLevel::DETAILS;
+                $change = $change ?? ( $show !== self::SHOW_VALUES );
+            }
+        }
+
+        return [ $level ?? self::DEFAULT_LEVEL, $change ?? true ];
     }
 
     /**
@@ -114,18 +154,57 @@ final class TestsBlockOptions implements BlockOptionsInterface {
     }
 
     /**
-     * The `show` value a composition asked for, defaulted.
+     * The level a composition asked for, defaulted.
      *
-     * The report asks through here rather than reading the key itself, so the
-     * fallback lives in one place — an option bag saved before `show` existed
-     * and one naming a value this version does not know are the same case.
+     * @param array<string,mixed> $options
+     */
+    public static function level( array $options ): string {
+        return self::levelAndChange( $options )[0];
+    }
+
+    /**
+     * Under Details, is the change since the previous reading shown?
+     *
+     * @param array<string,mixed> $options
+     */
+    public static function withChange( array $options ): bool {
+        return self::levelAndChange( $options )[1];
+    }
+
+    /**
+     * What the section prints, as the `show` value the report's payload and
+     * renderer read: the summary, the readings, or the readings and change.
+     *
+     * The report asks through here rather than reading the keys itself, so
+     * the fallback lives in one place — an option bag saved before the level
+     * existed, one that still says `show`, and one naming a value this version
+     * does not know all land here.
      *
      * @param array<string,mixed> $options
      */
     public static function show( array $options ): string {
-        $show = is_scalar( $options['show'] ?? null ) ? (string) $options['show'] : '';
+        [ $level, $change ] = self::levelAndChange( $options );
+        if ( $level !== SectionLevel::DETAILS ) return self::SHOW_SUMMARY;
+        return $change ? self::SHOW_VALUES_TREND : self::SHOW_VALUES;
+    }
 
-        return in_array( $show, self::SHOW, true ) ? $show : self::DEFAULT_SHOW;
+    /**
+     * A payload's `show` value as it was stored, or the summary when it is not
+     * one. The payload is read as it stands rather than mapped like an option
+     * bag, so a snapshot frozen with `trend` still prints the change alone.
+     *
+     * @param mixed $show
+     */
+    public static function storedShow( $show ): string {
+        return is_string( $show ) && in_array( $show, self::SHOW, true ) ? $show : self::SHOW_SUMMARY;
+    }
+
+    /**
+     * The level a `show` value prints at, for a payload — a snapshot's, too —
+     * that spells what it prints the old way.
+     */
+    public static function levelOfShow( string $show ): string {
+        return self::showsPlayers( $show ) ? SectionLevel::DETAILS : SectionLevel::SUMMARY;
     }
 
     /**
@@ -151,20 +230,11 @@ final class TestsBlockOptions implements BlockOptionsInterface {
 
     /** Does this `show` value put a player table on the page at all? */
     public static function showsPlayers( string $show ): bool {
-        return $show !== self::SHOW_SUMMARY;
+        return in_array( $show, self::SHOW, true ) && $show !== self::SHOW_SUMMARY;
     }
 
-    /**
-     * The labels for the `show` picker, in the order it offers them.
-     *
-     * @return array<string,string>
-     */
-    public static function showLabels(): array {
-        return [
-            self::SHOW_SUMMARY      => _x( 'Summary only', 'monthly report tests option', 'talenttrack' ),
-            self::SHOW_VALUES       => _x( 'Readings', 'monthly report tests option', 'talenttrack' ),
-            self::SHOW_TREND        => _x( 'Change since last time', 'monthly report tests option', 'talenttrack' ),
-            self::SHOW_VALUES_TREND => _x( 'Readings and change', 'monthly report tests option', 'talenttrack' ),
-        ];
+    /** The label of the "with change" switch the panel shows under Details. */
+    public static function changeLabel(): string {
+        return _x( 'With change since the previous reading', 'monthly report tests option', 'talenttrack' );
     }
 }

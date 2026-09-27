@@ -1005,8 +1005,8 @@ mailing all render this payload and compute nothing themselves.
 
 **Blocks.** `blocks` is comma-separated; empty means every block. The fixed
 vocabulary, in print order: `letterhead` (always included), `coverage`, `kpi`,
-`status`, `attendance`, `minutes`, `attention`, `changes`, `tests`, `roster`,
-`notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
+`status`, `evaluations`, `attendance`, `minutes`, `matches`, `attention`,
+`changes`, `tests`, `roster`, `notes`, `quality`. **An unknown key is `400`**, never silently dropped. A block
 not asked for is absent from `data` **and is not queried**.
 
 **Permission.** A `reports` read at global scope, or at team scope on this team
@@ -1091,6 +1091,53 @@ worst on a test with a direction, shirt order otherwise, and each carries
 `rank`, `pb`, `flag` (`ok` / `warn` / `bad` / `""`), `bar_pct`,
 `vs_avg_display` and `worse_than_avg`. `improved` and `declined` stay in shirt
 order.
+
+**Options (#3514, #4133).** `options` is JSON keyed by block. Every block with
+two levels of detail takes `level`: `summary` or `details`. The default is
+recorded as absence: `details` for `attendance`, `minutes` and `matches`,
+`summary` for `tests` and `evaluations`.
+
+- `tests`: `level`, `definitions` (definition ids; empty is every test) and
+  `change` (under `details`, whether the change since the previous reading
+  prints; default `true`).
+- `matches`: `level`, `scorers` (default `true`), `squads` (default `false`)
+  and `record` (default `true`). Under `summary` the scorers and squads do not
+  print; `details` with both off is stored as `summary`.
+- `attendance`, `minutes`: `level` only.
+- `evaluations`: `level`, `types` (`eval_type` lookup ids; empty is every
+  type) and `sub` (under `details`, list subcategories; default `false`).
+
+**Deprecated:** `tests.show` (`summary`, `values`, `trend`, `values_trend`) is
+still accepted for one release and mapped on read: `summary` is `summary`, the
+other three `details`, with `change` on for `trend` and `values_trend`. A
+payload keeps spelling what the tests section prints as `tests.show`, so a
+stored snapshot reads as before; `tests.level` is added beside it.
+
+Attendance and minutes share carry their summary figures at both levels:
+`attendance.level`, `attendance.below` (`player_id`, `name`, `pct`, below the
+amber line, lowest first) and `attendance.absences` (`absent`, `excused`,
+`injured`, `suspended`); `minutes.level` and `minutes.under` (under
+`target_pct`, lowest first). `matches.level` says which level the section
+prints at. A payload without a `level` prints at `details`.
+
+**Evaluations (#4134).** The section behind the *Evaluated* and *Squad
+rating* tiles, from the same rows as `kpi.squad_rating`: `squad_avg` equals
+that tile for the same types. It carries `level`, `scale` (`min`, `max`,
+`step`, from configuration), `types` and `types_counted` (the labels of the
+types counted; empty when every type counts), `squad_avg`,
+`squad_avg_delta`, `evaluated`, `squad`, `missing` (`player_id`, `name`),
+`evaluations`, `coaches`, `by_type` (`type_id`, `label`, `count`),
+`rising_count`, `falling_count`, `rising` and `falling` (up to three each:
+`player_id`, `name`, `from`, `to`, `delta`, against the player's own previous
+evaluation), `categories` (per active main category: `category_id`, `label`,
+`avg`, `delta`, `min`, `max`, `band_from_pct`, `band_to_pct`, `avg_pct`,
+`wide`, and with `sub` their `subcategories`), `has_subcategories` and `sub`.
+At `details` it adds `grid.rows`, one per squad player in shirt order:
+`player_id`, `name`, `jersey_number`, `evaluated`, `cells` (`category_id`,
+`value`, `tone` 1–5 across the scale, `trend` `up` / `down` / `flat` / `""`
+against the previous window), `avg`, `count` and `last`. A category's value
+per evaluation is its effective rating: the direct rating, or the mean of its
+subcategories.
 
 ## A player's evaluations, player-facing (#3478)
 

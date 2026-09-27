@@ -68,28 +68,55 @@
 		if ( ! layout ) return;
 		var key = layout.value.toLowerCase();
 
+		var groups = [];
 		Array.prototype.forEach.call( form.querySelectorAll( '[data-tt-mr-show-option]' ), function ( option ) {
 			var why   = option.getAttribute( 'data-tt-mr-why-' + key ) || '';
 			var input = option.querySelector( 'input' );
 			var text  = option.querySelector( '[data-tt-mr-why]' );
-			if ( input ) input.disabled = why !== '';
+			if ( input ) {
+				input.disabled = why !== '';
+				if ( groups.indexOf( input.name ) === -1 ) groups.push( input.name );
+				// #4133 — a level group says why under the whole control.
+				if ( input.value === 'details' ) {
+					var note = form.querySelector( '[data-tt-mr-level-why="' + input.name + '"]' );
+					if ( note ) note.textContent = why;
+				}
+			}
 			if ( text ) text.textContent = why;
 			option.classList.toggle( 'is-unavailable', why !== '' );
 		} );
 
-		var current = form.querySelector( 'input[name="opt_tests_show"]:checked' );
-		if ( current && current.disabled ) {
-			var fallback = form.querySelector( 'input[name="opt_tests_show"]:not(:disabled)' );
-			if ( fallback ) fallback.checked = true;
-		}
+		// A choice the layout cannot print falls back to the first it can.
+		groups.forEach( function ( name ) {
+			var current = form.querySelector( 'input[name="' + name + '"]:checked' );
+			if ( current && current.disabled ) {
+				var fallback = form.querySelector( 'input[name="' + name + '"]:not(:disabled)' );
+				if ( fallback ) fallback.checked = true;
+			}
+		} );
 
 		Array.prototype.forEach.call( form.querySelectorAll( '[data-tt-mr-when-layout]' ), function ( el ) {
 			el.hidden = el.getAttribute( 'data-tt-mr-when-layout' ) !== layout.value;
 		} );
+
+		applyLevels();
+	}
+
+	/*
+	 * #4133 — the options only Details has show while Details is chosen.
+	 */
+	function applyLevels() {
+		Array.prototype.forEach.call( form.querySelectorAll( '[data-tt-mr-details-for]' ), function ( el ) {
+			var name    = el.getAttribute( 'data-tt-mr-details-for' );
+			var checked = form.querySelector( 'input[name="' + name + '"]:checked' );
+			el.hidden = ! checked || checked.value !== 'details';
+		} );
 	}
 
 	form.addEventListener( 'change', function ( e ) {
-		if ( e.target && e.target.name === 'layout' ) applyLayout();
+		if ( ! e.target ) return;
+		if ( e.target.name === 'layout' ) applyLayout();
+		if ( e.target.hasAttribute( 'data-tt-mr-level' ) ) applyLevels();
 	} );
 	form.addEventListener( 'change', refresh );
 	form.addEventListener( 'tt-mr-panel-change', refresh );

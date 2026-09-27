@@ -240,7 +240,7 @@ Drie caps sluiten erop aan, in plaats van het gebruikelijke view/edit-paar. Uplo
 
 Geseede rechten:
 
-| Persona | Handelingen | Scope |
+| Persona | Toegang | Scope |
 | - | - | - |
 | player | r | self |
 | parent | r | player |

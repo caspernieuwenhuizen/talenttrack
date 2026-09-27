@@ -68,25 +68,52 @@ aan en druk je op **Rapport bijwerken**, dan verschijnen de instellingen eronder
 — of, op een breed scherm, in een kolom rechts ervan, met het afdrukformaat en
 de knoppen onder de secties.
 
-**Testen** heeft er twee. **Welke testen** toont de testen die je selectie deze
-periode daadwerkelijk heeft gedaan — vink aan waar het overleg over gaat, of laat
-alles uit om elke test te tonen, zoals het rapport het eerder deed. **Hoeveel
-tonen** bepaalt wat er per test op papier komt:
+**Samengevat of Details.** Elke sectie met twee niveaus van detail biedt
+dezelfde keuze, **Samengevat** of **Details**, zodat je die één keer leert:
 
-- **Alleen samenvatting** — hoeveel spelers getest zijn en wie vooruit of
-  achteruit ging. De standaard.
-- **Uitslagen** — de meting van elke speler, met eenheid.
-- **Verschil met vorige keer** — hoeveel elke speler veranderde sinds de vorige
-  meting.
-- **Uitslagen en verschil** — beide kolommen.
+| Sectie | Samengevat | Details |
+| --- | --- | --- |
+| Evaluaties | gemiddelde per categorie, dekking, stijgers en dalers, spreiding | plus de tabel speler × categorie |
+| Testen | de strook cijfers per test | plus de uitslag van elke speler, van beste naar slechtste |
+| Aanwezigheid | selectiegemiddelde, wie onder 70% zit, afwezigheid per soort | een balk per speler |
+| Minutenaandeel | mediaan, het doel, wie eronder zit | een balk per speler |
+| Wedstrijden | de stand en de uitslagen | plus doelpuntenmakers en assists, en eventueel de opstelling per wedstrijd |
 
-De drie keuzes met een spelerstabel hebben het pakket nodig. Op de versie van
-één pagina en op het liggende overzicht staan ze grijs, met de reden eronder, en
-de afdruk toont de samenvatting. Kies je een andere rapportsoort, dan passen de
-keuzes zich aan. Een opgeslagen weergave of een link die uitslagen vraagt op een
-soort die ze niet kan afdrukken, opent met de samenvatting, en het paneel zegt
-waarom. Het liggende overzicht drukt maximaal drie testen af. Kies je er meer,
-dan waarschuwt het paneel, en de afdruk noemt de testen die zijn weggelaten.
+Aanwezigheid, minutenaandeel en wedstrijden beginnen op **Details**, testen en
+evaluaties op **Samengevat**: zo drukte elke sectie af voordat de keuze
+bestond, dus een rapport dat je eerder opsloeg komt er hetzelfde uit. De
+keuzes die alleen bij Details horen, verschijnen onder de keuze zodra je
+Details kiest. Status selectie, Gesprek nodig, Wat veranderde, Besluiten en
+Datakwaliteit zijn al een samenvatting en hebben geen keuze.
+
+Sommige soorten kunnen de Details van een sectie niet afdrukken. Testen en
+evaluaties hebben het pakket nodig voor hun spelerstabellen, en op het
+liggende overzicht zijn aanwezigheid en minutenaandeel kolommen van de tabel
+per speler. Daar staat **Details** grijs, met de reden eronder, en toont de
+afdruk de samenvatting. Kies je een andere rapportsoort, dan past de keuze
+zich aan. Een opgeslagen weergave of een link die Details vraagt op een soort
+die ze niet kan afdrukken, opent met de samenvatting, en het paneel zegt
+waarom.
+
+**Testen** heeft daarnaast **Welke testen**: de testen die je selectie deze
+periode daadwerkelijk heeft gedaan. Vink aan waar het overleg over gaat, of
+laat alles uit om elke test te tonen. Onder **Details** voegt **Met verschil
+sinds de vorige meting** toe hoeveel elke speler veranderde; dat staat aan
+tenzij je het uitvinkt. Het liggende overzicht drukt maximaal drie testen af.
+Kies je er meer, dan waarschuwt het paneel, en de afdruk noemt de testen die
+zijn weggelaten.
+
+**Wedstrijden** heeft onder **Details** twee vinkjes: **Doelpunten en
+assists** (standaard aan) en **Selectie en minuten per wedstrijd**
+(standaard uit, zie *De sectie Wedstrijden*).
+
+**Evaluaties** heeft **Welke evaluaties**: de soorten uit de lijst met
+evaluatiesoorten van je academie, standaard allemaal aangevinkt. Vink een
+soort uit om de evaluaties van die soort uit elk cijfer van de sectie te
+halen; de kop van de sectie noemt dan de soorten die meetellen. Onder
+**Details** zet **Met subcategorieën** elke subcategorie onder haar
+hoofdcategorie. Die keuze verschijnt alleen als er deze periode iets op
+subcategorie is beoordeeld.
 
 Een test op tijd leest in minuten en seconden (`16:04`), zoals hij is ingevoerd,
 en het verschil in seconden (`−7 s`). Een test waarbij lager of hoger beter is,
@@ -161,7 +188,7 @@ hoeveel spelers getest zijn, dan een strook cijfers — het selectiegemiddelde e
 hoe dat veranderde sinds de vorige ronde, de beste meting, hoeveel spelers beter
 of slechter werden, hoeveel er binnen de norm voor de leeftijdsgroep zitten (als
 de test normen heeft) en het selectiegemiddelde over de laatste vier rondes. Met
-**Uitslagen** of **Uitslagen en verschil** volgt een tabel, van beste naar
+**Details** volgt een tabel, van beste naar
 slechtste: de meting van elke speler met een balk in de kleur van zijn norm, de
 vorige meting, het verschil (groen als het een verbetering is, dus een snellere
 tijd is groen), het verschil met het selectiegemiddelde, en **PR** bij een
@@ -180,8 +207,8 @@ Met **Maandelijks inplannen** onder het paneel komt het rapport elke 1e van de
 maand als pdf per e-mail binnen. Elk rapport gaat over de maand die net voorbij
 is, dus het rapport van 1 oktober gaat over september. Je geeft de planning een
 naam en ontvangers; het team, de rapportsoort en de secties zijn die je hebt
-samengesteld, en dat geldt ook voor wat je bij **Wedstrijden** en **Testen**
-koos: welke testen, en hoeveel van elke test. Het formulier zet die keuzes op
+samengesteld, en dat geldt ook voor wat je per sectie koos: samengevat of
+details, welke testen, welke evaluatiesoorten. Het formulier zet die keuzes op
 een rij voordat je opslaat. Kan de rapportsoort een keuze niet afdrukken, zoals
 metingen op de versie van één pagina, dan zegt het formulier dat, en drukt de
 pdf de samenvatting af. Het rapport noemt spelers bij naam, dus stuur het
@@ -229,6 +256,8 @@ mee.
 - **Status selectie** — hoeveel spelers op koers liggen, in de gaten gehouden
   moeten worden, actie nodig hebben of nog geen beeld hebben, en hoe dat er de
   vorige periode uitzag.
+- **Evaluaties** — de uitleg achter de tegels *Geëvalueerd* en
+  *Selectiebeoordeling*. Zie *De sectie Evaluaties* hieronder.
 - **Aanwezigheid** en **Minutenaandeel** — per speler, met links naar de
   volledige rapporten over aanwezigheid en minuten. Minutenaandeel toont de
   **hele selectie**: een speler die beschikbaar was maar niet in het veld kwam,
@@ -312,16 +341,50 @@ ook geldig is.
 
 Voor stafleden die niet inloggen: download de PDF en geef die zelf door.
 
+## De sectie Evaluaties
+
+**Evaluaties** volgt op de status van de selectie: waar elke speler deze maand
+staat, per onderdeel van het spel, en wie er vooruit of achteruit ging.
+
+**Samengevat** heeft vier delen:
+
+- **Selectiegemiddelde** en hoe dat veranderde ten opzichte van de vorige
+  maand. Tellen alle soorten mee, dan is het hetzelfde getal als de tegel
+  *Selectiebeoordeling*, omdat beide uit dezelfde beoordelingen komen.
+- **Geëvalueerd**: hoeveel spelers van de selectie een evaluatie hadden, en de
+  namen van wie niet; hoeveel evaluaties, door hoeveel trainers, en hoeveel van
+  elke soort.
+- **Per categorie**: het selectiegemiddelde per hoofdcategorie met het
+  verschil, en een balk van de laagste tot de hoogste speler op de
+  beoordelingsschaal, met een streep op het selectiegemiddelde. Beslaan de
+  spelers de hele schaal, dan staat er *breed* bij.
+- **Grootste stijgers en dalers**: de drie spelers die het meest vooruit en de
+  drie die het meest achteruit gingen, gemeten tegen hun eigen vorige
+  evaluatie, zoals *6,4 → 7,2*.
+
+**Details** voegt een tabel toe met een rij per speler op rugnummer en een
+kolom per hoofdcategorie: het gemiddelde van de speler deze maand in die
+categorie, gekleurd langs de beoordelingsschaal, met ▲ of ▼ ten opzichte van de
+vorige maand. De laatste kolommen zijn het totaalgemiddelde van de speler, het
+aantal evaluaties en de datum van de laatste. Een speler zonder evaluatie deze
+maand heeft een grijze rij die dat zegt, en een rij voor de selectie sluit de
+tabel af. De kleuren en de schaal volgen de beoordelingsschaal van je academie.
+
+In het pakket staat de sectie op pagina 1 als ze daar past, anders op pagina 2
+bij de tabel per speler, of op een eigen pagina. Er wordt niets afgekapt. Op
+een telefoon is elke speler één rij met een blokje per categorie.
+
 ## De sectie Wedstrijden
 
 Het rapport zei veel over ontwikkeling en niets over uitslagen, dus werd de
 stand van iemands telefoon gelezen. **Wedstrijden** zet ze in het document, uit
 wat al is vastgelegd.
 
-De sectie heeft drie onderdelen, elk met een eigen vinkje in het paneel:
+De sectie heeft drie onderdelen. De stand staat er op beide niveaus; de andere
+twee zijn vinkjes onder **Details**:
 
 - **Standen** — gespeeld, gewonnen, gelijk, verloren, doelpunten voor en tegen,
-  en het saldo. Standaard aan.
+  en het saldo.
 - **Doelpunten en assists** — per speler over de periode, de meeste doelpunten
   eerst, dan de meeste assists. Standaard aan.
 - **Selectie en minuten per wedstrijd** — wie speelde er en hoe lang.

@@ -238,6 +238,12 @@ final class TeamMonthlyReport {
 
             case TeamMonthlyReportBlock::ATTENDANCE:
                 $avg = $d['team_avg_pct'] ?? null;
+                if ( ( $d['level'] ?? '' ) === SectionLevel::SUMMARY ) {
+                    return is_int( $avg ) || is_float( $avg )
+                        /* translators: %s: team average attendance percentage */
+                        ? sprintf( __( 'Team average %s.', 'talenttrack' ), self::metaPct( (float) $avg ) )
+                        : __( 'No attendance recorded.', 'talenttrack' );
+                }
                 return is_int( $avg ) || is_float( $avg )
                     /* translators: %s: team average attendance percentage */
                     ? sprintf( __( 'Team average %s. In shirt-number order.', 'talenttrack' ), self::metaPct( (float) $avg ) )
@@ -286,10 +292,27 @@ final class TeamMonthlyReport {
             case TeamMonthlyReportBlock::TESTS:
                 $rounds = count( $list( 'rounds' ) ) + count( $list( 'omitted' ) );
                 if ( $rounds === 0 ) return __( 'No tests taken this period.', 'talenttrack' );
-                $show = TestsBlockOptions::show( [ 'show' => $d['show'] ?? null ] );
+                $show = TestsBlockOptions::storedShow( $d['show'] ?? null );
                 /* translators: %d: number of tests */
                 return sprintf( _n( '%d test', '%d tests', $rounds, 'talenttrack' ), $rounds )
-                    . ' · ' . ( TestsBlockOptions::showLabels()[ $show ] ?? '' );
+                    . ' · ' . SectionLevel::label( TestsBlockOptions::levelOfShow( $show ) );
+
+            case TeamMonthlyReportBlock::EVALUATIONS:
+                $n = (int) ( $d['evaluations'] ?? 0 );
+                if ( $n === 0 ) return __( 'No evaluations this period.', 'talenttrack' );
+                $meta = sprintf(
+                    /* translators: %d: number of evaluations */
+                    _n( '%d evaluation', '%d evaluations', $n, 'talenttrack' ),
+                    $n
+                ) . ' · ' . sprintf(
+                    /* translators: 1: players evaluated, 2: players in the squad */
+                    __( '%1$d of %2$d players', 'talenttrack' ),
+                    (int) ( $d['evaluated'] ?? 0 ),
+                    (int) ( $d['squad'] ?? 0 )
+                );
+                // #4134 — a section that counts some types says which.
+                $types = array_map( 'strval', $list( 'types_counted' ) );
+                return $meta . ' · ' . ( $types !== [] ? implode( ', ', $types ) : __( 'all types', 'talenttrack' ) );
 
             case TeamMonthlyReportBlock::ROSTER:
                 $n = count( $list( 'rows' ) );
@@ -381,8 +404,10 @@ final class TeamMonthlyReport {
             case TeamMonthlyReportBlock::COVERAGE:   return $this->coverage();
             case TeamMonthlyReportBlock::KPI:        return $this->kpi( $previous );
             case TeamMonthlyReportBlock::STATUS:     return $this->status( $previous );
-            case TeamMonthlyReportBlock::ATTENDANCE: return $this->attendanceBlock();
-            case TeamMonthlyReportBlock::MINUTES:    return $this->minutesBlock();
+            case TeamMonthlyReportBlock::EVALUATIONS:
+                return TeamMonthlyEvaluations::compose( $this->team_id, $this->from, $this->to, $previous, $this->players(), $this->optionsFor( TeamMonthlyReportBlock::EVALUATIONS ) );
+            case TeamMonthlyReportBlock::ATTENDANCE: return $this->attendanceBlock( LevelBlockOptions::level( $this->optionsFor( TeamMonthlyReportBlock::ATTENDANCE ) ) );
+            case TeamMonthlyReportBlock::MINUTES:    return $this->minutesBlock( LevelBlockOptions::level( $this->optionsFor( TeamMonthlyReportBlock::MINUTES ) ) );
             case TeamMonthlyReportBlock::MATCHES:    return $this->matches( $this->optionsFor( TeamMonthlyReportBlock::MATCHES ) );
             case TeamMonthlyReportBlock::ATTENTION:  return $this->attention();
             case TeamMonthlyReportBlock::CHANGES:    return $this->changes();
@@ -602,8 +627,14 @@ final class TeamMonthlyReport {
         ];
     }
 
-    /** @return array<string,mixed> */
-    private function attendanceBlock(): array {
+    /**
+     * #4133 — the rows are there at both levels; `level` says which the
+     * section prints, and the summary's figures are carried beside them:
+     * who is below the amber line, lowest first, and the absences by kind.
+     *
+     * @return array<string,mixed>
+     */
+    private function attendanceBlock( string $level = SectionLevel::DETAILS ): array {
         $rows = [];
         foreach ( $this->attendanceRows() as $r ) {
             $rows[] = [
@@ -626,16 +657,35 @@ final class TeamMonthlyReport {
         // the report sorts its own copy rather than changing that query.
         $rows = PlayerOrder::sort( $rows, PlayerOrder::jerseys( $this->players() ) );
 
+        $below    = [];
+        $absences = [ 'absent' => 0, 'excused' => 0, 'injured' => 0, 'suspended' => 0 ];
+        foreach ( $rows as $r ) {
+            foreach ( array_keys( $absences ) as $kind ) $absences[ $kind ] += (int) $r[ $kind ];
+            if ( $r['present_pct'] !== null && $r['present_pct'] < self::ATTENDANCE_AMBER_BELOW ) {
+                $below[] = [ 'player_id' => $r['player_id'], 'name' => $r['name'], 'pct' => $r['present_pct'] ];
+            }
+        }
+        usort( $below, static fn( array $a, array $b ): int => $a['pct'] <=> $b['pct'] ?: strcmp( $a['name'], $b['name'] ) );
+
         return [
+            'level'        => $level,
             'team_avg_pct' => self::squadAttendancePct( $this->attendanceRows() ),
             'amber_below'  => self::ATTENDANCE_AMBER_BELOW,
             'red_below'    => self::ATTENDANCE_RED_BELOW,
+            'below'        => $below,
+            'absences'     => $absences,
             'rows'         => $rows,
         ];
     }
 
-    /** @return array<string,mixed> */
-    private function minutesBlock(): array {
+    /**
+     * #4133 — like attendance: the rows at both levels, `level` saying which
+     * the section prints, and the summary's figure beside them — who is under
+     * the academy's target, lowest first.
+     *
+     * @return array<string,mixed>
+     */
+    private function minutesBlock( string $level = SectionLevel::DETAILS ): array {
         $counts = ( new MinutesQuery() )->matchCountsForTeam( $this->team_id, $this->from, $this->to );
         $source = $this->minutesIn( $this->from, $this->to );
 
@@ -653,13 +703,23 @@ final class TeamMonthlyReport {
         }
         usort( $rows, static fn( array $a, array $b ): int => ( $b['share_pct'] ?? -1.0 ) <=> ( $a['share_pct'] ?? -1.0 ) );
 
+        // #3589 — the academy's one target, the one the minutes-share report
+        // reads, not a second number of this report's own.
+        $target = MinutesShareQuery::targetPct();
+        $under  = [];
+        foreach ( array_reverse( $rows ) as $r ) {
+            if ( $r['share_pct'] !== null && $r['share_pct'] < $target ) {
+                $under[] = [ 'player_id' => $r['player_id'], 'name' => $r['name'], 'pct' => $r['share_pct'] ];
+            }
+        }
+
         return [
+            'level'            => $level,
             'matches_recorded' => $counts['recorded'],
             'matches_played'   => $counts['played'],
-            // #3589 — the academy's one target, the one the minutes-share
-            // report reads, not a second number of this report's own.
-            'target_pct'       => MinutesShareQuery::targetPct(),
+            'target_pct'       => $target,
             'median_share_pct' => self::medianShare( $source ),
+            'under'            => $under,
             'rows'             => $rows,
         ];
     }
@@ -753,6 +813,8 @@ final class TeamMonthlyReport {
             // quietly disagrees with what the coach remembers is worse than
             // one that explains itself.
             'tournaments_excluded' => ( new ActivitiesRepository() )->tournamentCountInWindow( $this->team_id, $this->from, $this->to ),
+            // #4133 — the Summary / Details choice; the parts below follow it.
+            'level'                => MatchesBlockOptions::level( $options ),
             'shows'                => [
                 'record'  => MatchesBlockOptions::shows( $options, MatchesBlockOptions::RECORD ),
                 'scorers' => MatchesBlockOptions::shows( $options, MatchesBlockOptions::SCORERS ),
@@ -910,7 +972,7 @@ final class TeamMonthlyReport {
         $held = $this->testRoundsInWindow( $wanted, $show );
 
         if ( $wanted === [] ) {
-            return [ 'rounds' => array_values( $held ), 'show' => $show ];
+            return [ 'rounds' => array_values( $held ), 'show' => $show, 'level' => TestsBlockOptions::level( $options ) ];
         }
 
         // A named test the squad did not take this window still gets a section,
@@ -929,7 +991,7 @@ final class TeamMonthlyReport {
             if ( $empty !== null ) $out[] = $empty;
         }
 
-        return [ 'rounds' => $out, 'show' => $show ];
+        return [ 'rounds' => $out, 'show' => $show, 'level' => TestsBlockOptions::level( $options ) ];
     }
 
     /**
