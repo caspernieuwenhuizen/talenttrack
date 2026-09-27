@@ -82,10 +82,6 @@ final class MinutesQuery {
         $exec_repo = new MatchExecutionRepository();
         $prep_repo = new MatchPrepRepository();
 
-        // #4053 — the rotation-plan fallback for completed tournament fixtures
-        // whose register was never written, read once for the whole window.
-        $planned = self::plannedTournamentMinutes( $activities );
-
         // Aggregators keyed by player_id.
         $totals      = []; // total minutes
         $matches     = []; // distinct matches the player got on for
@@ -105,7 +101,7 @@ final class MinutesQuery {
             // tt_attendance but no match-prep; it must still appear. The
             // recorded minutes — not the presence of a prep line-up — are
             // what qualify a match to count (see the #2252 gate below).
-            $minutes_map = self::persistedMinutes( $aid, $club_id, $planned[ $aid ] ?? [] );
+            $minutes_map = self::minutesFor( $aid, $club_id );
 
             $prep = $prep_repo->findByActivity( $aid );
 
@@ -257,21 +253,9 @@ final class MinutesQuery {
      * matching attendance row for the same activity is counted once, not
      * fanned out.
      *
-     * #4053 — one documented fallback, and only for a **completed tournament
-     * fixture whose register carries no minutes at all**: those predate the
-     * confirm step (v4.135.0), so every minutes surface read the whole squad
-     * as nil. `$planned` is `TournamentMinutesResolver::plannedByActivity()`'s
-     * answer for this activity, read once for the window by the caller, and
-     * `arbitrate()` is the single copy of the register-beats-plan rule. A
-     * register figure always wins, a confirmed `0` included — which is why the
-     * query below no longer filters NULL and zero away before the
-     * arbitration: it has to be able to tell "the coach said he did not get
-     * on" from "nobody ever said".
-     *
-     * @param array<int,int> $planned player id => the rotation plan's figure.
      * @return array<int,int> player_id => minutes
      */
-    private static function persistedMinutes( int $activity_id, int $club_id, array $planned = [] ): array {
+    private static function persistedMinutes( int $activity_id, int $club_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;
         // Effective minutes = COALESCE(minutes_override, minutes_played) so
@@ -284,25 +268,47 @@ final class MinutesQuery {
                 AND club_id = %d
                 AND record_type = 'actual'
                 AND is_guest = 0
-                AND player_id > 0
+                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
+                AND COALESCE(minutes_override, minutes_played) > 0
               GROUP BY player_id",
             $activity_id, $club_id
         ) );
-
-        /** @var array<int, int|null> $register */
-        $register = [];
+        $map = [];
         foreach ( (array) $rows as $r ) {
             $pid = (int) $r->player_id;
-            if ( $pid > 0 ) {
-                $register[ $pid ] = $r->minutes_played !== null ? (int) $r->minutes_played : null;
-            }
+            if ( $pid > 0 ) $map[ $pid ] = (int) $r->minutes_played;
         }
+        return $map;
+    }
+
+    /**
+     * #4053 — one activity's minutes, with the single documented fallback.
+     *
+     * For everything but a tournament fixture this is `persistedMinutes()`
+     * unchanged: the #2193 single source of truth, and nothing is derived.
+     *
+     * A **completed tournament fixture whose register carries no minutes at
+     * all** is the exception. Those predate the confirm step (v4.135.0), which
+     * wrote the register without minutes, so every minutes surface read the
+     * whole squad as nil for them. `TournamentMinutesResolver` answers for
+     * those — register first, rotation plan only where the register holds no
+     * figure — and it is the same class the player's Tournaments tab and the
+     * coach's ticker read, so the three cannot disagree about one child's
+     * afternoon. A confirmed `0` is a real figure and never falls back.
+     *
+     * Only players who got on the pitch, which is what `persistedMinutes()`
+     * has always answered: a nil is a fact about the register, not an
+     * appearance to count.
+     *
+     * @return array<int,int> player_id => minutes
+     */
+    private static function minutesFor( int $activity_id, int $club_id ): array {
+        $resolved = TournamentMinutesResolver::effectiveForActivity( $activity_id );
+        if ( $resolved === [] ) return self::persistedMinutes( $activity_id, $club_id );
 
         $map = [];
-        foreach ( TournamentMinutesResolver::arbitrate( $register, $planned ) as $pid => $answer ) {
-            // Only players who actually got on the pitch, as before: a nil is
-            // a fact about the register, not an appearance to count.
-            if ( $answer['minutes'] > 0 ) $map[ $pid ] = $answer['minutes'];
+        foreach ( $resolved as $player_id => $minutes ) {
+            if ( $minutes > 0 ) $map[ $player_id ] = $minutes;
         }
         return $map;
     }
@@ -522,30 +528,7 @@ final class MinutesQuery {
     public static function squadForActivity( int $activity_id ): array {
         if ( $activity_id <= 0 ) return [];
 
-        return self::persistedMinutes(
-            $activity_id,
-            (int) CurrentClub::id(),
-            TournamentMinutesResolver::plannedByActivity( [ $activity_id ] )[ $activity_id ] ?? []
-        );
-    }
-
-    /**
-     * #4053 — the rotation-plan figures for whichever of these activities are
-     * completed tournament fixtures, keyed by activity id. Empty for every
-     * other kind, and empty for a fixture that carries a real register, which
-     * is what makes it a fallback rather than a second source.
-     *
-     * @param array<int, object> $activities Rows carrying at least `id`.
-     * @return array<int, array<int, int>>
-     */
-    private static function plannedTournamentMinutes( array $activities ): array {
-        $ids = [];
-        foreach ( $activities as $a ) {
-            $id = (int) ( $a->id ?? 0 );
-            if ( $id > 0 ) $ids[] = $id;
-        }
-
-        return TournamentMinutesResolver::plannedByActivity( $ids );
+        return self::minutesFor( $activity_id, (int) CurrentClub::id() );
     }
 
     /**
@@ -584,8 +567,6 @@ final class MinutesQuery {
         ) );
         if ( empty( $activities ) ) return [];
 
-        $planned = self::plannedTournamentMinutes( $activities );
-
         $out = [];
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
@@ -594,7 +575,7 @@ final class MinutesQuery {
             // `record_type = 'actual'` minutes ONLY. Minutes are never
             // recomputed from a lineup at report time; a planned-but-never-
             // recorded match contributes no breakdown row.
-            $minutes_map = self::persistedMinutes( $aid, $club_id, $planned[ $aid ] ?? [] );
+            $minutes_map = self::minutesFor( $aid, $club_id );
             $record_type = 'actual';
 
             if ( ! isset( $minutes_map[ $player_id ] ) ) continue;

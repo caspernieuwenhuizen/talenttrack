@@ -110,10 +110,10 @@ final class SquadStep implements WizardStepInterface {
         // #4057 — who cannot be planned for, from the service the
         // planned-attendance surfaces use. One query for the whole roster, and
         // the state only: no injury detail reaches this screen.
-        $unavailable = PlayerAvailability::unavailableSet( array_map(
+        $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
             static fn( $player ): int => (int) ( $player->id ?? 0 ),
             $players
-        ) );
+        ) ) );
 
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';

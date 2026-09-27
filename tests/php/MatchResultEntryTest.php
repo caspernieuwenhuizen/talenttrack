@@ -215,7 +215,20 @@ final class MatchResultEntryTest extends WP_UnitTestCase {
         $id = $this->createFixture( 'A tournament day', 'tournament' );
 
         $this->assertNull( ( new MatchResultQuery() )->forActivity( $id ) );
-        $this->assertSame( 404, $this->putResult( $id, [ 'home_score' => 1 ] )->get_status() );
+
+        // #4055 — 400, not the 404 this used to answer. The day exists and is
+        // a read-only roll-up of its fixtures (#3857), so the refusal names
+        // where a tournament result IS changed rather than reading as a
+        // missing record. `TournamentActivityScoreRefusalTest` covers the
+        // fixture activity and the details payload.
+        $response = $this->putResult( $id, [ 'home_score' => 1 ] );
+        $this->assertSame( 400, $response->get_status() );
+
+        $data = json_decode( (string) wp_json_encode( $response->get_data() ), true );
+        $this->assertSame(
+            'score_owned_by_fixture',
+            is_array( $data ) ? ( $data['errors'][0]['code'] ?? null ) : null
+        );
     }
 
     public function test_execution_owned_match_refuses_a_typed_score(): void {

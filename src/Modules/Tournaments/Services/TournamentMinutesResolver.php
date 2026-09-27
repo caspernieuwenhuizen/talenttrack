@@ -202,6 +202,47 @@ final class TournamentMinutesResolver {
     }
 
     /**
+     * One activity's effective minutes, register first, for a surface keyed on
+     * the activity rather than on the fixture.
+     *
+     * `[]` for anything that is not a **completed** tournament fixture — an
+     * ordinary match, a training, the tournament day, or a fixture still to
+     * come — so a caller can tell "this is not mine to answer" from "nobody
+     * played". Those surfaces report what was played, and handing them an
+     * uncompleted fixture's plan would make planned minutes read as played
+     * (#3713).
+     *
+     * A confirmed `0` is present and is `0`; a player in neither the register
+     * nor the plan is absent.
+     *
+     * @return array<int, int> player id => minutes
+     */
+    public static function effectiveForActivity( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        $fixtures = self::fixtures( 'm.activity_id', [ $activity_id ], true );
+        if ( $fixtures === [] ) return [];
+
+        $plan     = self::planRows( array_keys( $fixtures ), null );
+        $register = self::registerRows( [ $activity_id ], null )[ $activity_id ] ?? [];
+
+        $planned = [];
+        foreach ( $fixtures as $match_id => $fixture ) {
+            foreach ( $plan[ $match_id ] ?? [] as $pid => $assignments ) {
+                $row = TournamentMinutesCalculator::forPlayer( $fixture['shape'], $assignments );
+                $planned[ $pid ] = (int) ( $planned[ $pid ] ?? 0 ) + (int) $row['minutes'];
+            }
+        }
+
+        $out = [];
+        foreach ( self::arbitrate( $register, $planned ) as $pid => $answer ) {
+            $out[ $pid ] = $answer['minutes'];
+        }
+
+        return $out;
+    }
+
+    /**
      * How the fixture reads on the child's record, once the register has had
      * its say.
      *
