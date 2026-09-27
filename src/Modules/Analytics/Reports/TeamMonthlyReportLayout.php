@@ -593,6 +593,8 @@ final class TeamMonthlyReportLayout {
                 $mm += self::MM['test_card'];
             }
         }
+        // #4093 — the "no target" explanation, once per section.
+        if ( TeamMonthlyReport::testsHaveTargetlessRound( $block_data ) ) $mm += self::MM['match_note'];
         return $mm;
     }
 

@@ -139,6 +139,14 @@ gerangschikt op doelpunten en daarna assists, elk met een balk. Een totaalregel
 en een zin als *"7 van 8 doelpunten toegeschreven"* laten zien of bij elk
 doelpunt een maker is ingevuld.
 
+Elke test toont zijn **doel** voor de leeftijdsgroep van het team, zoals
+*"Doel O14: ≤ 12:30"*, en elke meting haar **stand** ten opzichte daarvan: *op
+doel*, *net boven doel* of *ver boven doel* (*onder* bij een test waarbij hoger
+beter is), met dezelfde woorden en kleuren als het testoverzicht op het profiel
+van de speler zelf. Een test zonder beter of slechter toont *geen doel*, en de
+sectie legt één keer uit wat dat betekent. Een test zonder doel voor de
+leeftijdsgroep toont geen van beide.
+
 Elke test krijgt op papier een kaart: de naam, welke kant beter is, de datum en
 hoeveel spelers getest zijn, dan een strook cijfers — het selectiegemiddelde en
 hoe dat veranderde sinds de vorige ronde, de beste meting, hoeveel spelers beter

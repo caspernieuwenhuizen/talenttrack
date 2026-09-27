@@ -10,6 +10,7 @@ use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
 use TT\Modules\Analytics\Reports\MatchesBlockOptions;
 use TT\Modules\Analytics\Reports\ReportBrandColour;
 use TT\Modules\Export\Exporters\TeamMonthlyReportPdfDocument;
+use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Shared\Dates\TTDate;
@@ -316,6 +317,14 @@ final class TeamMonthlyReportPage {
             'tt-frontend-team-monthly-report',
             TT_PLUGIN_URL . 'assets/css/frontend-team-monthly-report.css',
             [ 'tt-frontend-standard-reports' ],
+            TT_VERSION
+        );
+        // #4093 — the test standing chip is the player profile's, from its
+        // own stylesheet, so the two cannot drift apart in colour.
+        wp_enqueue_style(
+            'tt-frontend-measurements',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurements.css',
+            [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
         wp_enqueue_script(
@@ -1005,6 +1014,12 @@ final class TeamMonthlyReportPage {
                     (int) ( $s['squad'] ?? 0 )
                 ) ) . '</p>';
 
+            // #4093 — the target the readings are judged against.
+            $target = TeamMonthlyReport::testTargetLabel( $s );
+            if ( $target !== '' ) {
+                echo '<p class="tt-mr-test__target">' . esc_html( $target ) . '</p>';
+            }
+
             if ( TestsBlockOptions::showsPlayers( $show ) ) {
                 self::renderTestReadings( $s, $show );
                 echo '</div>';
@@ -1024,6 +1039,10 @@ final class TeamMonthlyReportPage {
                 echo '<p class="tt-mr-muted">' . esc_html( sprintf( $template, implode( ', ', $names ) ) ) . '</p>';
             }
             echo '</div>';
+        }
+        // #4093 — once per section, as on the player profile.
+        if ( TeamMonthlyReport::testsHaveTargetlessRound( $t ) ) {
+            echo '<p class="tt-meas-note">' . esc_html__( '"No target" means the test has no better or worse — the reading is recorded, not judged.', 'talenttrack' ) . '</p>';
         }
         self::sectionClose();
     }
@@ -1362,6 +1381,13 @@ final class TeamMonthlyReportPage {
         $values = TestsBlockOptions::showsValues( $show );
         $trend  = TestsBlockOptions::showsTrend( $show );
 
+        // #4093 — the standing column appears where there is a standing to
+        // show: a test with a target for this age group.
+        $standing = false;
+        foreach ( $rows as $row ) {
+            if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
+        }
+
         echo '<div class="tt-table-wrap"><table class="tt-table tt-mr-test-readings">';
         echo '<thead><tr><th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         if ( $values ) {
@@ -1371,6 +1397,9 @@ final class TeamMonthlyReportPage {
                     ? sprintf( _x( 'Result (%s)', 'monthly report tests column', 'talenttrack' ), $unit )
                     : _x( 'Result', 'monthly report tests column', 'talenttrack' )
             ) . '</th>';
+        }
+        if ( $standing ) {
+            echo '<th scope="col">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
         }
         if ( $trend ) {
             echo '<th scope="col" class="num">' . esc_html_x( 'Change', 'monthly report tests column', 'talenttrack' ) . '</th>';
@@ -1384,6 +1413,12 @@ final class TeamMonthlyReportPage {
             echo '<th scope="row">' . self::link( 'players', $url, (string) ( $row['name'] ?? '' ) ) . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- link() escapes.
             if ( $values ) {
                 echo '<td class="num">' . esc_html( self::testValue( $row ) ) . '</td>';
+            }
+            if ( $standing ) {
+                $label = (string) ( $row['verdict_label'] ?? '' );
+                echo '<td>' . ( $label !== ''
+                    ? '<span class="tt-meas-chip ' . esc_attr( TestVerdict::chipClass( (string) ( $row['verdict_tone'] ?? '' ) ) ) . '">' . esc_html( $label ) . '</span>'
+                    : '' ) . '</td>';
             }
             if ( $trend ) {
                 echo '<td class="num ' . esc_attr( 'is-' . ( (string) ( $row['trend'] ?? '' ) !== '' ? (string) $row['trend'] : 'flat' ) ) . '">'

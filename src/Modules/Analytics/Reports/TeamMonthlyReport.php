@@ -19,6 +19,7 @@ use TT\Modules\Measurements\Reports\TestTrendsQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementSessionsRepository;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Services\TestVerdict;
 use TT\Modules\Measurements\Units\DurationFormat;
 use TT\Modules\Measurements\Units\UnitContext;
 
@@ -309,6 +310,42 @@ final class TeamMonthlyReport {
                 return sprintf( _n( '%d thing to fix', '%d things to fix', $gaps, 'talenttrack' ), $gaps );
         }
         return '';
+    }
+
+    /**
+     * #4093 — a test round's target as its header prints it: "Target O14:
+     * ≤ 12:30", or "no target" on a test without a better or worse. Empty
+     * when the round has no target for the age group, which also covers a
+     * snapshot frozen before rounds carried one.
+     *
+     * @param array<string,mixed> $round
+     */
+    public static function testTargetLabel( array $round ): string {
+        if ( ! empty( $round['target_absent'] ) ) {
+            return _x( 'no target', 'a test with no better or worse value', 'talenttrack' );
+        }
+        $target = is_string( $round['target'] ?? null ) ? $round['target'] : '';
+        if ( $target === '' ) return '';
+
+        $age_group = is_string( $round['target_age_group'] ?? null ) ? $round['target_age_group'] : '';
+        return $age_group !== ''
+            /* translators: 1: age group, e.g. "O14", 2: the target, e.g. "≤ 12:30" */
+            ? sprintf( _x( 'Target %1$s: %2$s', 'a test target for an age group', 'talenttrack' ), $age_group, $target )
+            /* translators: %s: the target, e.g. "≤ 12:30" */
+            : sprintf( _x( 'Target: %s', 'a test target', 'talenttrack' ), $target );
+    }
+
+    /**
+     * #4093 — does any round in this tests block have no target because the
+     * test has no better or worse? Surfaces print the explanation once.
+     *
+     * @param array<string,mixed> $tests
+     */
+    public static function testsHaveTargetlessRound( array $tests ): bool {
+        foreach ( is_array( $tests['rounds'] ?? null ) ? $tests['rounds'] : [] as $round ) {
+            if ( is_array( $round ) && ! empty( $round['target_absent'] ) ) return true;
+        }
+        return false;
     }
 
     /** A percentage as the report prints one: a decimal only when there is one. */
@@ -941,6 +978,12 @@ final class TeamMonthlyReport {
             $prev_date = is_int( $at ) && $at > 0 ? $dates[ $at - 1 ] : null;
             $target    = $age_group !== '' ? $targets->forDefinitionAndAge( $def_id, $age_group ) : null;
 
+            // #4093 — the target and each reading's standing, worded by the
+            // helper the player profile's register uses, so a reading reads
+            // the same on the report as on the player's own page.
+            $value_type  = is_array( $definition ) ? (string) ( $definition['value_type'] ?? '' ) : '';
+            $target_cell = TestVerdict::target( $value_type, $raw_direction, $target, $units );
+
             $tested   = 0;
             $improved = [];
             $declined = [];
@@ -964,6 +1007,8 @@ final class TeamMonthlyReport {
                 // no change.
                 $value    = (float) $values[ $date ];
                 $previous = $prev_date !== null && isset( $values[ $prev_date ] ) ? (float) $values[ $prev_date ] : null;
+                $flag     = $targets->flagFor( $units->toBase( $value ), $target, $raw_direction !== '' ? $raw_direction : 'neutral' );
+                $verdict  = TestVerdict::verdict( $value_type, $raw_direction, $flag );
                 $all[]    = $entry + [
                     'value'            => $value,
                     'value_display'    => self::testValueDisplay( $units, $value ),
@@ -976,7 +1021,9 @@ final class TeamMonthlyReport {
                     // sits against the age group's target band. Bands hold
                     // canonical values, the trend the entry unit.
                     'pb'               => self::isPersonalBest( $values, $date, $direction ),
-                    'flag'             => $targets->flagFor( $units->toBase( $value ), $target, $raw_direction !== '' ? $raw_direction : 'neutral' ),
+                    'flag'             => $flag,
+                    'verdict_label'    => $verdict['label'],
+                    'verdict_tone'     => $verdict['tone'],
                 ];
 
                 if ( ! is_array( $step ) ) continue;
@@ -1016,6 +1063,12 @@ final class TeamMonthlyReport {
                 'worst'         => self::testExtreme( $ranked, $direction, false ),
                 'moves'         => self::testMoves( $ranked ),
                 'bands'         => self::testBands( $ranked, $target !== null ? $age_group : '', $tested ),
+                // #4093 — the target as printed, `≤ 12:30`, or null when the
+                // age group has no band; `target_absent` when the test has no
+                // better or worse and so cannot have one.
+                'target'           => $target_cell['text'] !== '' && ! $target_cell['absent'] ? $target_cell['text'] : null,
+                'target_age_group' => $age_group,
+                'target_absent'    => $target_cell['absent'],
                 'history'       => self::testHistory( $units, $trend['average'], $dates, is_int( $at ) ? $at : count( $dates ) - 1 ),
                 'readings'      => TestsBlockOptions::showsPlayers( $show ) ? $ranked : [],
             ];
@@ -1266,6 +1319,9 @@ final class TeamMonthlyReport {
             'worst'         => null,
             'moves'         => null,
             'bands'         => null,
+            'target'           => null,
+            'target_age_group' => '',
+            'target_absent'    => false,
             'history'       => [],
             'tested'        => 0,
             'squad'         => count( $this->players() ),

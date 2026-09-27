@@ -186,6 +186,17 @@ final class TeamMonthlyReportTestRoundsTest extends WP_UnitTestCase {
         $this->assertSame( 1, $by_name['Squad Fast']['rank'] );
         $this->assertTrue( $by_name['Squad Slow']['worse_than_avg'] );
         $this->assertFalse( $by_name['Squad Fast']['worse_than_avg'] );
+
+        // #4093 — the target as the profile prints it, and each reading's
+        // standing in the profile's words.
+        $this->assertSame( '≤ 12:30', $round['target'] );
+        $this->assertSame( 'U14', $round['target_age_group'] );
+        $this->assertFalse( $round['target_absent'] );
+        $this->assertSame( 'Target U14: ≤ 12:30', \TT\Modules\Analytics\Reports\TeamMonthlyReport::testTargetLabel( $round ) );
+        $this->assertSame( 'on target', $by_name['Squad Fast']['verdict_label'] );
+        $this->assertSame( 'just over target', $by_name['Squad New']['verdict_label'] );
+        $this->assertSame( 'well over target', $by_name['Squad Slow']['verdict_label'] );
+        $this->assertSame( 'bad', $by_name['Squad Slow']['verdict_tone'] );
     }
 
     /** #4069 — no band for the team's age group is no band cell, not "0 on target". */

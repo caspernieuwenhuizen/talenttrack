@@ -252,6 +252,31 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
         $this->assertSame( [ 'attention', 'changes', 'tests', 'notes', 'quality' ], $fit['groups'][2], 'The tests stay on page 3 under the agenda.' );
     }
 
+    /**
+     * #4093 — the test header carries the target, each reading its standing
+     * in the profile's words; the summary keeps the target in its header.
+     */
+    public function test_tests_print_the_target_and_each_readings_standing(): void {
+        $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
+
+        $pack = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'Target U13: ≤ 12:30', $pack );
+        $this->assertStringContainsString( '<span class="vc vc-warn">just over target</span>', $pack );
+        $this->assertStringContainsString( '<span class="vc vc-bad">well over target</span>', $pack );
+
+        $one = TeamMonthlyReportPdfExporter::payload( $report, 'A', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'Target U13: ≤ 12:30', $one, 'the summary keeps the target' );
+        $this->assertStringNotContainsString( 'class="vc ', $one );
+
+        // A test without a direction: "no target", and the reason once.
+        $report['data']['tests']['rounds'][0]['target']        = null;
+        $report['data']['tests']['rounds'][0]['target_absent'] = true;
+        $report['data']['tests']['rounds'][1]                  = $report['data']['tests']['rounds'][0];
+        $none = TeamMonthlyReportPdfExporter::payload( $report, 'B', 'Pdf U13' )['html'];
+        $this->assertStringContainsString( 'no target', $none );
+        $this->assertSame( 1, substr_count( $none, 'the reading is recorded, not judged' ) );
+    }
+
     /** #4069 — a test with no target band for the age group has no band cell. */
     public function test_a_test_without_bands_prints_no_band_cell(): void {
         $report = $this->only( $this->withMatchesAndTests( $this->report( 18 ), 1 ), [ 'tests' ] );
@@ -299,6 +324,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
                 'player_id' => $i, 'name' => 'Player ' . $i, 'value' => 11.0 + $i / 10, 'value_display' => '11:' . str_pad( (string) ( $i * 3 ), 2, '0', STR_PAD_LEFT ),
                 'previous_display' => '12:10', 'delta_display' => '−9 s', 'trend' => 'up', 'first' => $i === 3, 'pb' => $i % 4 === 0,
                 'flag' => [ 'ok', 'warn', 'bad' ][ $i % 3 ], 'rank' => $i, 'bar_pct' => 50 + $i * 2,
+                'verdict_label' => [ 'on target', 'just over target', 'well over target' ][ $i % 3 ], 'verdict_tone' => [ 'ok', 'warn', 'bad' ][ $i % 3 ],
                 'vs_avg_display' => '−0:40', 'worse_than_avg' => $i > $players / 2,
             ];
         }
@@ -311,6 +337,7 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             'worst'    => [ 'player_id' => 2, 'name' => 'Player 2', 'value_display' => '16:04' ],
             'moves'    => [ 'up' => 9, 'down' => 5, 'flat' => 0, 'first' => 1 ],
             'bands'    => [ 'age_group' => 'U13', 'ok' => 8, 'warn' => 5, 'bad' => 5, 'of' => $players ],
+            'target'   => '≤ 12:30', 'target_age_group' => 'U13', 'target_absent' => false,
             'history'  => [
                 [ 'date' => '2026-02-10', 'value' => 13.4, 'display' => '13:24', 'pct' => 100.0 ],
                 [ 'date' => '2026-04-10', 'value' => 13.2, 'display' => '13:12', 'pct' => 98.5 ],

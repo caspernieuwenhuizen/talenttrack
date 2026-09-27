@@ -493,6 +493,13 @@
 
 .tt-mr-test__name { margin: 0 0 var(--tt-sp-1); }
 
+/* #4093 — the target the readings are judged against. */
+.tt-mr-test__target {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+}
+
 /* Snapshots (#3517). The bar says plainly that this is frozen, and why it
    cannot be shared by link. */
 .tt-mr-snapshot-bar {

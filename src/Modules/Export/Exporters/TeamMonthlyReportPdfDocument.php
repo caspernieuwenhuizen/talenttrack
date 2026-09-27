@@ -11,6 +11,7 @@ use TT\Shared\Dates\TTDate;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TestsBlockOptions;
 use TT\Modules\Measurements\Repositories\MeasurementTargetsRepository;
+use TT\Modules\Measurements\Services\TestVerdict;
 
 /**
  * TeamMonthlyReportPdfDocument (#3460, epic #3457) — the team monthly report as
@@ -808,6 +809,10 @@ final class TeamMonthlyReportPdfDocument {
                     ? self::testCard( $s, $show )
                     : self::testLines( [ $s ], $show, false );
             }
+            // #4093 — once per section, as on the player profile.
+            if ( TeamMonthlyReport::testsHaveTargetlessRound( $t ) ) {
+                $out .= '<div class="muted">' . esc_html__( '"No target" means the test has no better or worse — the reading is recorded, not judged.', 'talenttrack' ) . '</div>';
+            }
             return $out . '</div>';
         }
 
@@ -857,6 +862,8 @@ final class TeamMonthlyReportPdfDocument {
                 (int) ( $s['tested'] ?? 0 ),
                 (int) ( $s['squad'] ?? 0 )
             );
+            $target = TeamMonthlyReport::testTargetLabel( $s );
+            if ( $target !== '' ) $head .= ' · ' . $target;
             $out .= '<tr><td><b>' . esc_html( self::cut( $head, $compact ? 60 : 110 ) ) . '</b></td></tr>';
 
             if ( TestsBlockOptions::showsPlayers( $show ) ) {
@@ -899,10 +906,14 @@ final class TeamMonthlyReportPdfDocument {
         );
 
         $with_table = TestsBlockOptions::showsPlayers( $show ) && is_array( $s['readings'] ?? null ) && $s['readings'] !== [];
+        // #4093 — the target the readings are judged against, on every
+        // layout, the summary included.
+        $target = TeamMonthlyReport::testTargetLabel( $s );
 
         return '<div class="tcard"><table class="thead"><tr>'
-            . '<td><span class="tname">' . esc_html( self::cut( $name, 60 ) ) . '</span>'
-            . ( $chip !== '' ? '<span class="dirchip">' . esc_html( $chip ) . '</span>' : '' ) . '</td>'
+            . '<td><span class="tname">' . esc_html( self::cut( $name, $target !== '' ? 40 : 60 ) ) . '</span>'
+            . ( $chip !== '' ? '<span class="dirchip">' . esc_html( $chip ) . '</span>' : '' )
+            . ( $target !== '' ? '<span class="tgt' . ( ! empty( $s['target_absent'] ) ? ' tgt-none' : '' ) . '">' . esc_html( $target ) . '</span>' : '' ) . '</td>'
             . '<td class="tmeta">' . esc_html( $meta ) . '</td>'
             . '</tr></table>'
             . self::testStrip( $s, $with_table )
@@ -1031,6 +1042,13 @@ final class TeamMonthlyReportPdfDocument {
         $unit   = (string) ( $s['unit_label'] ?? '' );
         $ranked = (string) ( $s['direction'] ?? '' ) !== '';
 
+        // #4093 — each reading's standing against the target, in words, as
+        // on the player's profile. Only where a target exists.
+        $standing = false;
+        foreach ( $rows as $row ) {
+            if ( is_array( $row ) && (string) ( $row['verdict_label'] ?? '' ) !== '' ) $standing = true;
+        }
+
         $head = '<tr><th class="rk">#</th><th class="nm">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         $cols = 2;
         if ( $values ) {
@@ -1041,6 +1059,10 @@ final class TeamMonthlyReportPdfDocument {
                     : _x( 'Result', 'monthly report tests column', 'talenttrack' )
             ) . '</th><th class="bb"></th>';
             $cols += 2;
+        }
+        if ( $standing ) {
+            $head .= '<th class="st">' . esc_html_x( 'Standing', 'monthly report tests column: a reading against its target', 'talenttrack' ) . '</th>';
+            $cols++;
         }
         if ( $trend ) {
             $head .= '<th class="pv">' . esc_html__( 'Previous', 'talenttrack' ) . '</th>'
@@ -1076,6 +1098,13 @@ final class TeamMonthlyReportPdfDocument {
                 $body .= '<td class="v">' . esc_html( self::testValue( $row ) ) . '</td>'
                     . '<td class="bb">' . self::gauge( 'tb ' . $fill, (float) ( $row['bar_pct'] ?? 0 ) ) . '</td>';
             }
+            if ( $standing ) {
+                $label = (string) ( $row['verdict_label'] ?? '' );
+                $tone  = (string) ( $row['verdict_tone'] ?? '' );
+                $body .= '<td class="st">' . ( $label !== ''
+                    ? '<span class="vc vc-' . esc_attr( in_array( $tone, [ 'ok', 'warn', 'bad' ], true ) ? $tone : 'none' ) . '">' . esc_html( self::cut( $label, 20 ) ) . '</span>'
+                    : '' ) . '</td>';
+            }
             if ( $trend ) {
                 $first = ! empty( $row['first'] );
                 $body .= '<td class="pv">' . esc_html( (string) ( $row['previous_display'] ?? '—' ) ) . '</td>'
@@ -1091,7 +1120,11 @@ final class TeamMonthlyReportPdfDocument {
         $legend = [];
         if ( $any_flag && $values ) {
             foreach ( [ 'ok' => 'fg', 'warn' => 'fa', 'bad' => 'fr' ] as $flag => $class ) {
-                $legend[] = '<span class="dot ' . $class . '"></span>' . esc_html( MeasurementTargetsRepository::flagLabel( $flag ) );
+                // #4093 — the key names the colours in the standing's own
+                // words, so "just over target" on a timed test is not keyed
+                // as "below target".
+                $word     = TestVerdict::verdict( 'numeric', (string) ( $s['direction'] ?? '' ), $flag )['label'];
+                $legend[] = '<span class="dot ' . $class . '"></span>' . esc_html( $word !== '' ? $word : MeasurementTargetsRepository::flagLabel( $flag ) );
             }
         }
         if ( $any_pb ) $legend[] = esc_html__( 'PB = personal best', 'talenttrack' );
@@ -1493,7 +1526,16 @@ final class TeamMonthlyReportPdfDocument {
             . '.rd td{height:4.6mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';vertical-align:middle;white-space:nowrap;overflow:hidden;font-size:7.5pt}'
             . '.rd .rk{width:5mm;text-align:right;color:' . $muted . ';padding-right:1.5mm}'
             . '.rd .v{width:21mm;text-align:right;font-weight:bold}.rd .pv{width:15mm;text-align:right;color:' . $muted . '}'
-            . '.rd .ch{width:14mm;text-align:right}.rd .av{width:15mm;text-align:right;color:' . $muted . '}.rd .bb{width:34mm;padding-left:2mm}'
+            . '.rd .ch{width:14mm;text-align:right}.rd .av{width:15mm;text-align:right;color:' . $muted . '}.rd .bb{width:28mm;padding-left:2mm}'
+            // #4093 — the target in the test's header, and each reading's
+            // standing against it in the profile's words and colours.
+            . '.tgt{display:inline-block;margin-left:1.5mm;padding:0.3mm 1.6mm;font-size:7pt;font-weight:bold;color:#fff;background:'
+            . ( ReportBrandColour::contrast( self::$primary, '#ffffff' ) >= 4.5 ? self::$primary : ReportBrandColour::INK ) . '}'
+            . '.tgt-none{color:' . $muted . ';background:#fff;border:1px solid #8a8f96;font-weight:normal}'
+            . '.rd th.st,.rd td.st{width:24mm;text-align:left;padding-left:2mm}'
+            . '.vc{display:inline-block;padding:0.2mm 1mm;border:1px solid;font-size:6.2pt;line-height:1.1;font-weight:bold}'
+            . '.vc-ok{color:#1f6d41;border-color:#1f6d41;background:#dff5e1}.vc-warn{color:#8a5300;border-color:#c88a12;background:#fdf3d8}'
+            . '.vc-bad{color:#a32b22;border-color:#b3261e;background:#fde2e2}.vc-none{color:' . $muted . ';border-color:#8a8f96;background:#f4f6f3}'
             . '.pb{display:inline-block;font-size:5.8pt;line-height:1.1;font-weight:bold;color:#1f7a4a;border:1px solid #1f7a4a;padding:0.2mm 0.8mm;margin-left:1mm;vertical-align:middle}'
             . '.tb{height:2.6mm;background:#eceee9}.tb div{height:2.6mm}'
             . '.tb.fg div{background:#1f7a4a}.tb.fa div{background:#c88a12}.tb.fr div{background:#b3261e}.tb.fn div{background:#8a8f96}'

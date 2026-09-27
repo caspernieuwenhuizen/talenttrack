@@ -131,6 +131,14 @@ colour of the result) sit beside the scorers, ranked by goals and then assists,
 each with a bar. A totals row and a line such as *"7 of 8 goals attributed"*
 show whether every goal has a scorer entered.
 
+Each test shows its **target** for the team's age group, such as *"Target
+O14: ≤ 12:30"*, and every reading its **standing** against it: *on target*,
+*just over target* or *well over target* (*under* on a test where higher is
+better), in the same words and colours as the test register on the player's
+own profile. A test without a better or worse reads *no target*, and the
+section says once what that means. A test with no target for the age group
+shows neither.
+
 Each test on paper gets a card: its name, which way is better, the date and how
 many were tested, then a strip of figures — the squad average and how it moved
 since the previous round, the best reading, how many got better or worse, how

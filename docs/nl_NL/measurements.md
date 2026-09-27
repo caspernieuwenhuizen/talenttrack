@@ -193,9 +193,13 @@ kleurenblinde coach:
 
 De kolom **Doel** is wat het oordeel controleerbaar maakt: hij toont
 dezelfde drempel waartegen het vlaggetje wordt berekend (`≥ 3.400 m`,
-`≤ 12,4 s`). Een **statustest** heeft meerdere niveaudrempels en geen
+`≤ 12,4 s`). Het doel van een test op tijd leest in minuten en seconden,
+net als de metingen (`≤ 12:30`), en niet als decimale minuten. Een
+**statustest** heeft meerdere niveaudrempels en geen
 enkele cel kan die dragen, dus daar staat `—` en draagt de naam van het
-niveau de stand.
+niveau de stand. Het maandrapport van het team drukt hetzelfde doel en
+dezelfde woorden voor de stand af bij elke meting, zodat een uitslag daar
+hetzelfde leest als op het profiel van de speler.
 
 Het **verschil** naast de trendlijn benoemt zijn eigen richting in plaats
 van die aan de helling over te laten: `−47 s · vooruit` bij een test waar

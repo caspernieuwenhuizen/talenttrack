@@ -184,8 +184,12 @@ colour-blind coach:
 
 The **Target** column is what makes the verdict checkable: it shows the
 same threshold the flag is computed against (`≥ 3.400 m`, `≤ 12,4 s`). A
+timed test's target reads in minutes and seconds like its readings do
+(`≤ 12:30`), not as decimal minutes. A
 **status** test has several level thresholds and no single cell can hold
-them, so it shows `—` and the level's own name carries the standing.
+them, so it shows `—` and the level's own name carries the standing. The
+team monthly report prints the same target and the same standing words for
+each reading, so a result reads the same there as on the player's profile.
 
 The **change** beside the trend line names its own direction rather than
 leaving it to the slope: `−47 s · forward` on a test where lower is
