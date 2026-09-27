@@ -1,0 +1,19 @@
+#: src/Infrastructure/REST/StaffRestController.php
+msgid "Type at least two characters of the name."
+msgstr "Typ minstens twee tekens van de naam."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "This person has no account, so they couldn't give an input."
+msgstr "Deze persoon heeft geen account en kan dus geen input geven."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "That person is not a staff member of this club."
+msgstr "Die persoon is geen staflid van deze club."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "person_id and user_id name different people. Send person_id only."
+msgstr "person_id en user_id wijzen verschillende mensen aan. Stuur alleen person_id."
+
+#: src/Modules/Trials/Rest/TrialsRestController.php
+msgid "Say who to put on the panel: person_id is required."
+msgstr "Geef aan wie in het panel moet: person_id is verplicht."

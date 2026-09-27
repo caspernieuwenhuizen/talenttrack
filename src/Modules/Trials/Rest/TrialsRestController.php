@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
+use TT\Infrastructure\People\StaffDirectory;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
@@ -361,17 +362,18 @@ class TrialsRestController {
      */
     private static function assignStaffArgs(): array {
         return [
+            // #4043 — the person record is the portable identity (CLAUDE.md
+            // §4), so the panel is assigned by person and the account is
+            // resolved here. GET staff?search= hands the id back.
+            'person_id' => [
+                'type'        => 'integer',
+                'description' => 'The staff member to put on the panel. Find them with GET staff?search=. Required unless user_id is sent.',
+            ],
             'user_id' => [
                 'type'        => 'integer',
-                'required'    => true,
                 // #4028 — an id arg names where its id comes from, the way
-                // `ParentAccountRestController`'s `wp_user_id` does. A
-                // caller had no route to consult and nothing in the
-                // description saying so, so assigning a panel meant
-                // guessing an account id. There is no assignable-staff
-                // lookup yet; until there is, the panel read is the one
-                // route that hands these ids back.
-                'description' => 'The account id of the staff member to put on the panel. Read it from user_id on a row of GET trial-cases/{id}/staff, or from the club\'s staff list in People. No lookup of assignable staff exists yet.',
+                // `ParentAccountRestController`'s `wp_user_id` does.
+                'description' => 'Deprecated: send person_id. The account id of the staff member, as user_id on a row of GET trial-cases/{id}/staff or GET staff?search=. Still accepted for one release.',
             ],
             'role_label' => [
                 'type'        => [ 'string', 'null' ],
@@ -1056,11 +1058,57 @@ class TrialsRestController {
         if ( $refused ) return $refused;
 
         $payload = (array) $r->get_json_params();
-        $u = absint( $payload['user_id'] ?? 0 );
-        if ( $u <= 0 ) return RestResponse::error( 'bad_request', __( 'Invalid user id.', 'talenttrack' ), 400 );
+        if ( ! $payload ) $payload = (array) $r->get_body_params();
+        $person_id = absint( $payload['person_id'] ?? 0 );
+        $u         = absint( $payload['user_id'] ?? 0 );
+
+        // #4043 — a person is resolved to their account here. A person with
+        // no login is refused rather than seated: they could never give an
+        // input, so the panel would carry a name that stays missing.
+        if ( $person_id > 0 ) {
+            $resolved = ( new StaffDirectory() )->accountForPerson( $person_id );
+            if ( $resolved['status'] === 'no_account' ) {
+                return RestResponse::error(
+                    'no_account',
+                    __( 'This person has no account, so they couldn\'t give an input.', 'talenttrack' ),
+                    422,
+                    [ 'field' => 'person_id' ]
+                );
+            }
+            if ( $resolved['status'] !== 'ok' ) {
+                return RestResponse::error(
+                    'not_staff',
+                    __( 'That person is not a staff member of this club.', 'talenttrack' ),
+                    422,
+                    [ 'field' => 'person_id' ]
+                );
+            }
+            if ( $u > 0 && $u !== $resolved['user_id'] ) {
+                return RestResponse::error(
+                    'conflicting_ids',
+                    __( 'person_id and user_id name different people. Send person_id only.', 'talenttrack' ),
+                    422,
+                    [ 'fields' => [ 'person_id', 'user_id' ] ]
+                );
+            }
+            $u = $resolved['user_id'];
+        }
+
+        if ( $u <= 0 ) {
+            return RestResponse::error(
+                'bad_request',
+                __( 'Say who to put on the panel: person_id is required.', 'talenttrack' ),
+                400,
+                [ 'field' => 'person_id' ]
+            );
+        }
         $label = isset( $payload['role_label'] ) ? sanitize_text_field( (string) $payload['role_label'] ) : null;
         ( new TrialCaseStaffRepository() )->assign( $id, $u, $label ?: null );
-        return RestResponse::success( [ 'assigned' => true ] );
+        return RestResponse::success( [
+            'assigned'  => true,
+            'user_id'   => $u,
+            'person_id' => $person_id > 0 ? $person_id : null,
+        ] );
     }
 
     /**

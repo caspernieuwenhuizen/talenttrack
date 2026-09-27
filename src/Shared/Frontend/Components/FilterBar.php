@@ -73,7 +73,8 @@ use TT\Infrastructure\Filters\FilterParam;
  *         filter the reader set and so raises no chip (#3346).
  *         A `period` group may also own the custom From/To (#3331) via
  *         'custom' => ['from' => [name, value], 'to' => [...], 'label'?] plus
- *         'custom_active'; declare 'default_from' / 'default_to' alongside
+ *         'custom_active', and 'default_url' — the URL back to the default
+ *         when that option is not among the visible presets (#4075); declare 'default_from' / 'default_to' alongside
  *         them — the window the surface SEEDS — so a range raises a chip only
  *         when it differs from that (#3346). Without the declaration the bar
  *         chips no range at all, because a chip on a seeded window would be
@@ -394,6 +395,11 @@ final class FilterBar {
 							$clear = (string) ( $opt['url'] ?? '' );
 							break;
 						}
+					}
+					// #4075 — a period group may leave its default out of the
+					// visible presets and hand the URL over on its own.
+					if ( $clear === '' ) {
+						$clear = (string) ( $group['default_url'] ?? '' );
 					}
 
 					if ( $active !== null && (string) ( $active['value'] ?? '' ) !== $default ) {

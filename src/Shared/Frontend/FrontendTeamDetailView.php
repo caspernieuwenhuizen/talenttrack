@@ -270,7 +270,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      * from `TeamMatchStatsQuery`.
      */
     private static function renderStatisticsTab( int $team_id ): void {
-        echo '<div class="tt-player-detail__main">';
+        echo '<div class="tt-player-detail__main tt-team-detail__stats">';
         \TT\Modules\Analytics\Frontend\TeamStatisticsTab::render( $team_id );
         echo '</div>';
     }

@@ -277,6 +277,23 @@
 	gap: var(--tt-sp-2, 8px);
 	padding: 8px 12px 4px;
 }
+/* #4075 — the dates inside the inline menu. The shared `.tt-fildate` has a
+   zero basis and zero min-width, so in a 180px menu the two inputs shrank
+   to nothing while Apply kept its width. A real basis makes the row wrap
+   instead, and Apply takes its own full-width row under the dates. The
+   filter sheet and the standalone date-range group keep the shared rule. */
+.tt-dashboard .tt-percustom__body .tt-fildate {
+	flex: 1 1 8.5rem;
+}
+.tt-dashboard .tt-percustom__body .tt-fildate__apply {
+	flex: 1 1 100%;
+}
+/* Wide enough for the two dates side by side once the range is open, and
+   never wider than the viewport at 360px. Without `:has()` the dates stack
+   one per row, which is still usable. */
+.tt-dashboard .tt-perdrop__menu:has(.tt-percustom[open]) {
+	min-width: min(20rem, calc(100vw - 32px));
+}
 /* The pill says a custom window is what the query ran on, so the reader
    can see it without opening the menu. */
 .tt-dashboard .tt-perdrop--custom {
