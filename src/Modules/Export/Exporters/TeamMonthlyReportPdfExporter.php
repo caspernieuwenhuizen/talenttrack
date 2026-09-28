@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Analytics\Reports\TeamMonthlyReport;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportBlock;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportComposition;
+use TT\Modules\Analytics\Reports\TeamMonthlyReportDelivery;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportDocument;
 use TT\Modules\Analytics\Reports\TeamMonthlyReportLayout;
 use TT\Modules\Analytics\Reports\TeamReportAccess;
@@ -151,14 +152,24 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
             $options
         );
 
-        return self::payload( $report, $layout, (string) ( $team->name ?? '' ) );
+        $team_name = (string) ( $team->name ?? '' );
+        $payload   = self::payload( $report, $layout, $team_name );
+        // #4141 — named like the scheduled e-mail's attachment, not after the
+        // exporter key and today's date.
+        $payload['filename'] = TeamMonthlyReportDelivery::filename(
+            $team_name,
+            $team_id,
+            (string) $request->filters['from'],
+            (string) $request->filters['to']
+        );
+        return $payload;
     }
 
     /**
      * A frozen report on paper (#3517). No recompute: the stored payload is
      * laid out with the layout the snapshot was composed with.
      *
-     * @return array{html:string, options:array{paper:string, orientation:string}}
+     * @return array{html:string, options:array{paper:string, orientation:string}, filename:string}
      */
     private function collectSnapshot( string $uuid, ExportRequest $request ): array {
         $repo = new \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository();
@@ -169,14 +180,23 @@ final class TeamMonthlyReportPdfExporter implements ExporterInterface, ScopeGate
         }
 
         $team        = QueryHelpers::get_team( (int) $row->team_id );
+        $team_name   = (string) ( $team->name ?? '' );
         $composition = \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::compositionOf( $row );
 
-        return self::payload(
+        $payload = self::payload(
             \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::reportOf( $row ),
             (string) $composition['layout'],
-            (string) ( $team->name ?? '' ),
+            $team_name,
             \TT\Modules\Analytics\Reports\TeamReportSnapshotRepository::notesOf( $row )
         );
+        $payload['filename'] = TeamMonthlyReportDelivery::filename(
+            $team_name,
+            (int) $row->team_id,
+            (string) $row->period_from,
+            (string) $row->period_to,
+            (string) $row->created_at
+        );
+        return $payload;
     }
 
     /**
