@@ -235,10 +235,9 @@ onbruikbaar.
 ### BMI op het tabblad
 
 **BMI naar leeftijd** staat als gewone rij in de categorie van de metingen
-waaruit hij is afgeleid, gemarkeerd als *afgeleid*, met het percentiel in
-de kolom Doel — of *geen percentiel* waar de groeireferentie de leeftijd
-en het geslacht van de speler niet dekt. Het is geen aparte kaart boven
-het tabblad meer.
+waaruit hij is afgeleid, gemarkeerd als *afgeleid*. BMI heeft geen doel,
+dus de kolom Doel blijft leeg. Het is geen aparte kaart boven het tabblad
+meer.
 
 Hij blijft verborgen voor de speler en diens gezin, precies zoals
 voorheen: een screeningsgetal over het lichaam van een kind bereikt een
@@ -623,20 +622,38 @@ kwam.
 ## BMI naar leeftijd
 
 **Speler · BMI naar leeftijd** gebruikt de lengte en het gewicht die je al
-vastlegt en zet die af tegen een gepubliceerde groeicurve. Je vindt het onder
-**Rapporten**.
+vastlegt, maakt daar een BMI van en laat zien hoe die BMI van meting tot meting
+verschuift. Je vindt het onder **Rapporten**.
 
-De meest recente waarde staat ook bovenaan het tabblad **Metingen** van een
-speler: alleen het getal en het percentiel. Alles wat een BMI toelicht — tegen
-welke curve hij is afgezet, hoeveel dagen er tussen beide metingen zaten en hoe
-de waarde is verschoven — staat in de rapportage, het scherm dat je opent als
-BMI is waarvoor je komt. Het tabblad is een blik in het voorbijgaan.
+De meest recente waarde staat ook als rij op het tabblad **Metingen** van een
+speler: alleen het getal. Alles wat een BMI toelicht — hoeveel dagen er tussen
+beide metingen zaten en hoe de waarde is verschoven — staat in de rapportage,
+het scherm dat je opent als BMI is waarvoor je komt. Het tabblad is een blik in
+het voorbijgaan.
 
-Een BMI op zichzelf zegt weinig over een jeugdspeler. Dezelfde waarde die bij
-een zestienjarige niets bijzonders is, kan bij een elfjarige hoog zijn. Daarom
-wordt elk getal hier getoond als **percentiel** voor de leeftijd en het geslacht
-van die speler, en niet als losse waarde. Een percentiel beantwoordt de enige
-vraag die ertoe doet: waar staat deze speler ten opzichte van leeftijdsgenoten?
+Een BMI op zichzelf zegt weinig over een jeugdspeler: dezelfde waarde is bij een
+zestienjarige niets bijzonders en bij een elfjarige hoog. Daarom draait de
+rapportage om **verandering in de tijd** bij dezelfde speler, niet om één losse
+meting.
+
+### Het overzicht lezen
+
+Het overzicht heeft één regel per speler: **Speler**, **Team** (alleen als je
+alle teams in je bereik bekijkt — met één team geselecteerd zou die op elke regel
+hetzelfde zijn), **BMI**, **Wijziging** en **Gemeten**.
+
+- **Wijziging** is de BMI-verandering sinds de vorige meting van die speler,
+  met daaronder de datum waartegen is vergeleken — bijvoorbeeld *+0,4, sinds
+  23-06-2026*. Een speler met maar één meting toont *Eerste meting*.
+- **Gemeten** is de datum van de laatste waarde. Zijn lengte en gewicht niet op
+  dezelfde dag vastgelegd, dan staat het verschil in kleine letters eronder.
+- Tik op de naam van een speler om diens **BMI-verloop** te openen: elke meting
+  door de tijd, met lengte, gewicht, BMI, de verandering sinds het punt ervoor en
+  het verschil tussen beide metingen. De naam van de speler bovenaan het verloop
+  opent het spelersprofiel.
+
+Op een telefoon schuift de tabel binnen zijn eigen kader opzij; de pagina zelf
+niet.
 
 Groeigegevens horen bij het persoonlijkste dat het systeem over een kind
 vastlegt, dus beide helften van de rapportage blijven binnen je teambereik: het
@@ -652,18 +669,13 @@ want de rapportage zoekt op de naam van de test, niet op een vast nummer.
 Ontbreekt er één, dan zegt de rapportage dat, in plaats van een leeg raster te
 tonen.
 
-Een speler heeft ook een **geboortedatum** en een **geslacht** nodig. Zonder
-geboortedatum is er geen leeftijd, en zonder geslacht is er geen curve. In die
-gevallen toont de rapportage wel de BMI, maar blijft het percentiel leeg in
-plaats van dat er iets wordt gegokt.
-
 ### Hoe een BMI tot stand komt
 
 Een gewicht wordt gekoppeld aan de dichtstbijzijnde lengte die **binnen 30
 dagen** is vastgelegd. Daarbuiten wordt geen BMI berekend: bij een groeiend kind
 beschrijft een lengte van twee maanden geleden een ander lichaam. In de
-rapportage staat bij elke waarde hoeveel dagen er tussen beide metingen zaten,
-zodat je het zelf kunt beoordelen.
+rapportage staat bij een waarde waarvan beide metingen niet op dezelfde dag zijn
+gedaan hoeveel dagen ertussen zaten, zodat je het zelf kunt beoordelen.
 
 Spelers zonder bruikbaar paar staan wél in de tabel, met de reden erbij. Weten
 van wie je geen gegevens hebt, is meestal het eerste om op te pakken.
@@ -671,22 +683,15 @@ van wie je geen gegevens hebt, is meestal het eerste om op te pakken.
 ### Wat de rapportage niet doet
 
 Ze zegt niet dat een speler te zwaar of te licht is. Geen rode regels, geen
-waarschuwingskleuren, geen grenswaarden. Ze toont een positie op een curve en
-hoe die positie is verschoven sinds de vorige meting — de kolom **Verandering**
-laat de verschuiving in standaarddeviaties zien, en dat is het getal dat over
-een seizoen iets betekent.
+waarschuwingskleuren, geen grenswaarden. Ze toont een waarde en hoe die is
+verschoven sinds de vorige meting.
 
-Een groeicurve klinisch duiden is werk voor iemand die daarvoor gekwalificeerd
-is. Dit zijn kinderen, en een scherm dat er één een etiket opplakt waar
-toevallig iemand meekijkt, hoort niet in dit systeem.
+Ze toont ook geen percentiel op een groeicurve. De gepubliceerde referentie (WHO
+2007, 5–19 jaar) dekte het grootste deel van een jeugdselectie niet naar leeftijd
+en geslacht, waardoor de kolom vooral *valt buiten de referentie* liet zien en
+niets zei. Percentiel en z-score horen nog wel bij de gegevens van de rapportage
+voor koppelingen die die via de API lezen; op het scherm staan ze niet meer.
 
-### De referentie
-
-Percentielen gebruiken de **WHO-groeireferentie 2007 voor 5–19 jaar**, die in de
-rapportage wordt genoemd zodat je altijd weet welke curve je leest. Ze loopt van
-5 tot en met 19 jaar; bij een speler daarbuiten zie je wel een BMI, maar geen
-percentiel — ook op het tabblad van de speler, waar dat er met zoveel woorden bij
-staat in plaats van dat het getal compleet lijkt.
-
-De referentie is verwisselbaar: heeft jullie academie een andere nodig, dan kan
-die worden ingewisseld zonder dat er verder iets aan de rapportage verandert.
+De groei van een kind klinisch duiden is werk voor iemand die daarvoor
+gekwalificeerd is. Dit zijn kinderen, en een scherm dat er één een etiket opplakt
+waar toevallig iemand meekijkt, hoort niet in dit systeem.
