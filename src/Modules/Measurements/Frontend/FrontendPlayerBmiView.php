@@ -9,6 +9,7 @@ use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
 use TT\Modules\Measurements\Reports\BmiQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -221,7 +222,8 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
     private static function renderPlayerTrend( BmiQuery $query, int $player_id, string $player_name ): void {
         // The player anchors the screen, and the profile is one tap away —
         // the roster's name link lands here, so this is the route onward.
-        $profile_url = RecordLink::detailUrlForWithBack( 'players', $player_id );
+        // A viewer who cannot open the profile gets the name as plain text.
+        $profile_url = CrossViewLink::allows( 'players' ) ? RecordLink::detailUrlForWithBack( 'players', $player_id ) : '';
         echo '<p class="tt-bmi-player">';
         if ( $profile_url !== '' ) {
             printf(
