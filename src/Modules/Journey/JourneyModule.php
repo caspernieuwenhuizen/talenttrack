@@ -100,7 +100,7 @@ class JourneyModule implements ModuleInterface {
                 'order'             => 36,
                 'label'             => _x( 'Suspensions', 'disciplinary record', 'talenttrack' ),
                 'description'       => __( 'Who is suspended, for which matches, and when they can play again.', 'talenttrack' ),
-                'icon'              => 'alert',
+                'icon'              => 'card',
                 'color'             => '#8a5300',
                 'hide_for_personas' => [ 'player', 'parent' ],
                 'cap_callback'      => static function ( int $uid ): bool {
