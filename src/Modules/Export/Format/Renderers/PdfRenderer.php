@@ -19,7 +19,9 @@ use TT\Modules\Export\Format\FormatRendererInterface;
  *
  *   1. Plain HTML string — rendered as the document body.
  *   2. `[ 'html' => '<...>', 'options' => [ 'paper' => 'A4' | 'Letter',
- *      'orientation' => 'portrait' | 'landscape' ] ]`.
+ *      'orientation' => 'portrait' | 'landscape' ], 'filename' => '...' ]`.
+ *      `filename` is optional; without it the file is
+ *      `<exporter key>-<today>.pdf`.
  *
  * The renderer wraps the payload's HTML in a minimal `<html><head><style>`
  * shell with the club brand inheriting via the `tt_pdf_render_html`
@@ -59,8 +61,24 @@ final class PdfRenderer implements FormatRendererInterface {
 
         $bytes = (string) $dompdf->output();
 
-        $filename = $request->exporterKey . '-' . gmdate( 'Y-m-d' ) . '.pdf';
-        return ExportResult::fromString( $bytes, 'application/pdf', $filename );
+        return ExportResult::fromString( $bytes, 'application/pdf', self::filename( $request, $payload ) );
+    }
+
+    /**
+     * The download's file name. An exporter that knows a better name than its
+     * key puts it in the payload's `filename`; every other PDF keeps
+     * `<exporter key>-<today>.pdf`.
+     *
+     * @param mixed $payload
+     */
+    public static function filename( ExportRequest $request, $payload ): string {
+        $supplied = is_array( $payload ) && isset( $payload['filename'] ) && is_string( $payload['filename'] )
+            ? sanitize_file_name( $payload['filename'] )
+            : '';
+        if ( $supplied !== '' && $supplied !== '.pdf' ) {
+            return strtolower( substr( $supplied, -4 ) ) === '.pdf' ? $supplied : $supplied . '.pdf';
+        }
+        return $request->exporterKey . '-' . gmdate( 'Y-m-d' ) . '.pdf';
     }
 
     /**

@@ -82,7 +82,7 @@ final class TeamMonthlyReportDelivery {
         $plan['ok']        = true;
         $plan['stop']      = false;
         $plan['team_name'] = $team_name;
-        $plan['filename']  = self::filename( $team_name, $composition['team_id'], $window['from'] );
+        $plan['filename']  = self::filename( $team_name, $composition['team_id'], $window['from'], $window['to'] );
         $plan['label']     = sprintf(
             /* translators: 1: team name, 2: month and year the report covers */
             __( 'Monthly report %1$s, %2$s', 'talenttrack' ),
@@ -219,11 +219,25 @@ final class TeamMonthlyReportDelivery {
 
     /**
      * `JO13-1-2026-09.pdf`: the team and the month, so a folder of them sorts
-     * and reads without opening any.
+     * and reads without opening any. The download names its PDF the same way,
+     * so the attachment and the saved file match.
+     *
+     * A window spanning more than one month names both ends
+     * (`JO13-1-2026-08-2026-09.pdf`); a snapshot adds the day it was taken
+     * (`JO13-1-2026-09-snapshot-2026-10-02.pdf`).
      */
-    public static function filename( string $team_name, int $team_id, string $from ): string {
+    public static function filename( string $team_name, int $team_id, string $from, string $to = '', string $snapshot_date = '' ): string {
         $stem = sanitize_file_name( str_replace( ' ', '-', trim( $team_name ) ) );
         if ( $stem === '' ) $stem = 'team-' . $team_id;
-        return $stem . '-' . substr( $from, 0, 7 ) . '.pdf';
+
+        $from_month = substr( $from, 0, 7 );
+        $to_month   = substr( $to, 0, 7 );
+        $name       = $stem . '-' . $from_month;
+        if ( $to_month !== '' && $to_month !== $from_month ) $name .= '-' . $to_month;
+
+        $snapshot_day = substr( $snapshot_date, 0, 10 );
+        if ( $snapshot_day !== '' ) $name .= '-snapshot-' . $snapshot_day;
+
+        return sanitize_file_name( $name . '.pdf' );
     }
 }

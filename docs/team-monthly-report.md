@@ -188,6 +188,13 @@ reading in place of the history. On the pack, tests that do not fit under the
 agenda move to a fourth page with their tables in full; nothing is left out
 to save paper.
 
+The file is named after the team and the month the report covers, such as
+`Hedel-O14-1-2026-09.pdf`, so a folder of them sorts and reads without opening
+any. A period over more than one month names both ends
+(`Hedel-O14-1-2026-08-2026-09.pdf`), and the PDF of a snapshot adds the day it
+was taken (`Hedel-O14-1-2026-09-snapshot-2026-10-02.pdf`). The monthly e-mail
+attaches its PDF under the same name.
+
 Someone who cannot read a team's reports gets no PDF of that team, even from a
 forwarded link.
 

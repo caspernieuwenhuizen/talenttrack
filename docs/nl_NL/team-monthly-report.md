@@ -198,6 +198,14 @@ plaats van het verloop. Passen de testen in het pakket niet meer onder de
 agenda, dan gaan ze met hun volledige tabellen naar een vierde pagina; er wordt
 niets weggelaten om papier te sparen.
 
+Het bestand heet naar het team en de maand waar het rapport over gaat, zoals
+`Hedel-O14-1-2026-09.pdf`, zodat een map vol rapporten op volgorde staat en
+leesbaar is zonder er een te openen. Een periode van meer dan één maand noemt
+begin en eind (`Hedel-O14-1-2026-08-2026-09.pdf`), en de pdf van een
+momentopname krijgt de dag erbij waarop die is gemaakt
+(`Hedel-O14-1-2026-09-snapshot-2026-10-02.pdf`). De maandelijkse e-mail stuurt
+de pdf onder dezelfde naam mee.
+
 Wie de rapporten van een team niet mag inzien, krijgt geen PDF van dat team,
 ook niet via een doorgestuurde link.
 
