@@ -362,11 +362,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         foreach ( $players as $pl ) {
             $name = QueryHelpers::player_display_name( $pl );
             $entry = $best_by_player[ (int) $pl->id ] ?? [ 'score' => 0.0, 'has_data' => false ];
-            $pos   = '';
-            if ( ! empty( $pl->preferred_positions ) ) {
-                $parts = array_filter( array_map( 'trim', explode( ',', (string) $pl->preferred_positions ) ) );
-                $pos = $parts ? (string) reset( $parts ) : '';
-            }
+            $pos   = \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( (string) ( $pl->preferred_positions ?? '' ) );
             $roster_rows[] = [
                 'id'       => (int) $pl->id,
                 'name'     => $name,

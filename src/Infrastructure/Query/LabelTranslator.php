@@ -332,7 +332,33 @@ class LabelTranslator {
             return __( $longform, 'talenttrack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- delegated dynamic key resolved from positionLongForm()'s static switch below; the canonical English strings still ship as literal __() calls so the extractor sees them.
         }
 
+        // A multi-word key that reached us upper-cased (the player report
+        // folds codes to upper case to match on them) reads the same as its
+        // stored lower-case form, not as `RECHTER MIDDENVELDER`.
+        if ( preg_match( '/[_\- ]/', $code ) === 1 && strtoupper( $code ) === $code ) {
+            $code = strtolower( $code );
+        }
         return self::humanise( $code );
+    }
+
+    /**
+     * The first of a player's stored `preferred_positions`, as its name.
+     *
+     * The column holds a JSON array (`["CB","RB"]`) on modern rows and a
+     * comma-separated string on legacy ones. Splitting the JSON on commas
+     * printed `["CB"` on the exports that show one position per player.
+     * Empty or unparseable input gives an empty string.
+     */
+    public static function primaryPositionLabel( string $stored ): string {
+        $stored = trim( $stored );
+        if ( $stored === '' ) return '';
+        $decoded = json_decode( $stored, true );
+        $codes   = is_array( $decoded ) ? $decoded : explode( ',', $stored );
+        foreach ( $codes as $code ) {
+            $code = is_scalar( $code ) ? trim( (string) $code ) : '';
+            if ( $code !== '' ) return self::positionLabel( $code );
+        }
+        return '';
     }
 
     /**

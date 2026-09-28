@@ -89,7 +89,8 @@ vergelijkingen, alleen voor staf:
 
 - **Zelfde positie** — het gemiddelde aandeel van de teamgenoten met minstens
   één van de profielposities van de speler, de speler zelf niet meegeteld. De
-  regel noemt die posities en hoeveel teamgenoten in de groep zitten. Een speler
+  regel noemt die posities, met de naam die de academie ervoor gebruikt, en
+  hoeveel teamgenoten in de groep zitten. Een speler
   zonder profielpositie, of met posities die niemand anders in het team speelt,
   krijgt geen positieregel.
 - **Teamgemiddelde** — het gemiddelde aandeel van iedereen in de huidige

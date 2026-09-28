@@ -351,10 +351,7 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
     private static function resolvePosition( object $row ): string {
         $override = trim( (string) ( $row->position_played ?? '' ) );
         if ( $override !== '' ) return $override;
-        $preferred = (string) ( $row->preferred_positions ?? '' );
-        if ( $preferred === '' ) return '';
-        $parts = explode( ',', $preferred );
-        return trim( (string) reset( $parts ) );
+        return \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( (string) ( $row->preferred_positions ?? '' ) );
     }
 
     private static function homeAwayLabel( string $value ): string {

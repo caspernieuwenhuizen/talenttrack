@@ -184,7 +184,7 @@ class PlayersPage {
             </tr></thead><tbody>
             <?php if ( empty( $players ) ) : ?><tr><td colspan="9"><?php esc_html_e( 'No players.', 'talenttrack' ); ?></td></tr>
             <?php else : foreach ( $players as $pl ) :
-                $pos = json_decode( (string) $pl->preferred_positions, true ); $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : '';
+                $pos = json_decode( (string) $pl->preferred_positions, true ); $pos_str = is_array( $pos ) ? implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) : '';
                 $is_archived = $pl->archived_at !== null;
                 ?>
                 <tr <?php echo $is_archived ? 'style="opacity:0.6;background:#fafafa;"' : ''; ?>>
@@ -512,7 +512,7 @@ class PlayersPage {
                 <div style="flex:1;min-width:280px;">
                     <table class="form-table">
                         <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><?php echo esc_html( $team ? (string) $team->name : '—' ); ?></td></tr>
-                        <tr><th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><td><?php echo is_array( $pos ) ? esc_html( implode( ', ', $pos ) ) : '—'; ?></td></tr>
+                        <tr><th><?php esc_html_e( 'Position(s)', 'talenttrack' ); ?></th><td><?php echo is_array( $pos ) && $pos !== [] ? esc_html( implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) ) ) : '—'; ?></td></tr>
                         <tr><th><?php esc_html_e( 'Foot', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->preferred_foot ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'DOB', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->date_of_birth ?: '—' ); ?></td></tr>
                         <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><?php echo esc_html( $player->nationality ?: '—' ); ?></td></tr>
