@@ -153,12 +153,15 @@ Players and parents get a **My measurements** tile that opens the
 
 Staff see the same thing **in context** on the player's profile: open a
 player and switch to the **Measurements** tab (beside Evaluations). The
-tab badge counts how many tests the player has results for.
+tab badge counts the tests you can see on the profile that have a result,
+the same number as the **Measurements** signal in the At a glance panel.
 
 ### One register per category
 
 Each category is a single table, with one row shape for every test in it —
-whatever kind of test it is:
+whatever kind of test it is. Its heading says how many of those tests have
+a reading, for example *5 of 7 measured*, so a test that was never measured
+still shows up in the count, just not as measured.
 
 | Column | What it holds |
 | --- | --- |

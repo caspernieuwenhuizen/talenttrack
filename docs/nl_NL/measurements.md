@@ -162,12 +162,16 @@ Spelers en ouders krijgen een tegel **Mijn metingen** die de
 
 Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
 en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
-het tabblad toont voor hoeveel tests de speler resultaten heeft.
+het tabblad telt de tests die jij op het profiel ziet en waarvoor een
+resultaat is, hetzelfde getal als het signaal **Metingen** in het paneel
+In één oogopslag.
 
 ### Eén register per categorie
 
 Elke categorie is één tabel, met dezelfde rijvorm voor elke test erin —
-wat voor soort test het ook is:
+wat voor soort test het ook is. De kop zegt hoeveel van die tests een
+meting hebben, bijvoorbeeld *5 van 7 gemeten*, zodat een test die nog nooit
+gemeten is wel meetelt, alleen niet als gemeten.
 
 | Kolom | Wat erin staat |
 | --- | --- |

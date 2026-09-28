@@ -109,14 +109,14 @@ final class PlayerFileCounts {
             ) );
         }
 
-        // #1892 — measurements badge. Distinct tests this player has a
-        // non-archived result for, club-scoped, so the badge agrees with
-        // the Measurements tab's per-test rows.
-        $measurements = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(DISTINCT definition_id) FROM {$p}tt_measurement_results
-              WHERE player_id = %d AND club_id = %d AND " . ArchiveRepository::filterClause( 'active' ) . "",
-            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) );
+        // #4166 — measurements badge. The same "tracked tests" number the
+        // at-a-glance tile shows: tests visible on this player's profile to
+        // this reader that carry a current value. Counting result rows
+        // directly skipped the definition filters (inactive, archived,
+        // hidden from the profile, above the reader's clearance), so the
+        // badge could count a test the tab never lists.
+        $measurements = ( new \TT\Modules\Measurements\Services\PlayerMeasurementProfile() )
+            ->summaryForPlayer( $player_id )['tracked'];
 
         // #2717 — media badge. Mirrors MediaRepository::listForEntity()'s
         // scope exactly (club on both tables, non-archived) so the badge
