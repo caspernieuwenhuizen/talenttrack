@@ -16,10 +16,11 @@ in one screen — the desktop alternative to the step-by-step attendance wizard.
 It works the way a coach's Excel register does: one row per player, one column
 per activity, a status in every cell.
 
-Open it from **Activities → Attendance grid**, or with the **Attendance grid**
-button on an activity's own page (which opens the grid on that activity). That
-button appears on an activity that has a register to enter — see *Activities
-that haven't happened yet* below. You need permission to edit activities. It's
+Open it from the **⋯** menu on an activity's own page (**Attendance grid**,
+which opens the grid on that activity), or with the **Attendance / Minutes**
+switch at the top of the minutes grid. The menu item appears on an activity
+that has a register to enter — see *Activities that haven't happened yet*
+below. You need permission to edit activities. It's
 built for a desktop or laptop; on a phone the guided wizard is the easier path.
 
 ## What you see

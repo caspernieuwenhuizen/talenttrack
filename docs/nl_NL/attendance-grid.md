@@ -17,10 +17,10 @@ stap-voor-stap aanwezigheidswizard op de desktop. Het werkt zoals het
 Excel-overzicht van een trainer: één rij per speler, één kolom per activiteit,
 in elke cel een status.
 
-Open het via **Activiteiten → Aanwezigheidsraster**, of met de knop
-**Aanwezigheidsraster** op de pagina van een activiteit (die het raster op die
-activiteit opent). Die knop verschijnt bij een activiteit waarvoor er iets
-vast te leggen valt — zie *Activiteiten die nog niet geweest zijn* hieronder.
+Open het via het **⋯**-menu op de pagina van een activiteit
+(**Aanwezigheidsraster**, dat het raster op die activiteit opent), of met de
+schakelaar **Aanwezigheid / Minuten** bovenaan het minutenraster. Dat
+menu-item verschijnt bij een activiteit waarvoor er iets vast te leggen valt — zie *Activiteiten die nog niet geweest zijn* hieronder.
 Je hebt rechten nodig om activiteiten te bewerken. Het is gemaakt voor een
 desktop of laptop; op een telefoon is de begeleide wizard handiger.
 
