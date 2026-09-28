@@ -1397,10 +1397,11 @@ final class FilterBar {
 			}
 			$label = (string) ( $group['label'] ?? '' );
 
+			// No aria-label: the trigger's text is the active status, and the
+			// group label is printed right above it. A "Status: Active" name
+			// would also read as the chip the default must not raise.
 			$out .= '<details class="tt-perdrop-wrap tt-statdrop" data-tt-perdrop>';
-			$out .= '<summary class="tt-perdrop tt-perdrop--status"'
-				. ( $label !== '' ? ' aria-label="' . esc_attr( self::chipLabel( $label, (string) ( $active['label'] ?? '' ) ) ) . '"' : '' )
-				. '>';
+			$out .= '<summary class="tt-perdrop tt-perdrop--status">';
 			if ( $active !== null ) {
 				$out .= '<span class="tt-statdrop__cur" data-k="'
 					. esc_attr( sanitize_key( (string) ( $active['dot'] ?? ( $active['value'] ?? '' ) ) ) ) . '">'
