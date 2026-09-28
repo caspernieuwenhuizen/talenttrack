@@ -1,0 +1,3 @@
+# Shell nav: Injuries, Team development and three more show their icon (#4168)
+
+The sidebar, rail and bottom bar draw each destination with a line icon, and five icons existed only in the duotone set used by dashboard tiles: alert (Injuries), sliders (Team development), note, pdp and trials. Those destinations sat in the nav with no icon. They now have line icons in the same style as the rest of the set, and a new check (`tools/check-tile-icons.php`, run by the Tile icon lint workflow, plus a unit test over the registry) fails any tile whose icon is missing from either set. The Suspension reasons card in Configuration now uses the card icon instead of the injuries first-aid kit.

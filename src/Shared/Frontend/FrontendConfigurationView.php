@@ -202,7 +202,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Goal statuses',      'talenttrack' ), __( 'Open / in progress / done / cancelled. Drives the goals KPI.',     'talenttrack' ), 'goal_statuses',   'goals' ],
             [ __( 'Goal priorities',    'talenttrack' ), __( 'Low / medium / high. Sorts the my-goals list.',                     'talenttrack' ), 'goal_priorities', 'goals' ],
             [ __( 'Attendance statuses', 'talenttrack' ), __( 'Present / absent / excused / late. Drives the attendance KPI.',  'talenttrack' ), 'att_statuses',    'inbox' ],
-            [ __( 'Suspension reasons', 'talenttrack' ), __( 'Yellow-card accumulation, red card, club decision. The player and their parents see the reason on the journey.', 'talenttrack' ), 'suspension_reasons', 'alert' ],
+            [ __( 'Suspension reasons', 'talenttrack' ), __( 'Yellow-card accumulation, red card, club decision. The player and their parents see the reason on the journey.', 'talenttrack' ), 'suspension_reasons', 'card' ],
             // v3.110.163 — surface `player_value` as a first-class lookup
             // tile. The Goal wizard's LinkStep already exposes a "Value"
             // picker that reads this vocabulary; it just had no maintenance
