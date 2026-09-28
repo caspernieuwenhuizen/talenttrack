@@ -115,8 +115,8 @@ final class PlayerFileCounts {
         // directly skipped the definition filters (inactive, archived,
         // hidden from the profile, above the reader's clearance), so the
         // badge could count a test the tab never lists.
-        $measurements = (int) ( ( new \TT\Modules\Measurements\Services\PlayerMeasurementProfile() )
-            ->summaryForPlayer( $player_id )['tracked'] ?? 0 );
+        $measurements = ( new \TT\Modules\Measurements\Services\PlayerMeasurementProfile() )
+            ->summaryForPlayer( $player_id )['tracked'];
 
         // #2717 — media badge. Mirrors MediaRepository::listForEntity()'s
         // scope exactly (club on both tables, non-archived) so the badge
