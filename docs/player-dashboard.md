@@ -87,7 +87,7 @@ Your personal development plan — the long-form version of your active goals, w
 
 ## My settings (top-right username dropdown)
 
-Click your name in the top-right corner of the dashboard to open the user menu. The first item, **My settings**, is a TalentTrack-rendered settings screen — it never bounces you out to the WordPress admin. It contains only what end users actually need:
+Click your name or avatar in the top-right corner of the dashboard to open the user menu. The first item, **My settings**, is a TalentTrack-rendered settings screen — it never bounces you out to the WordPress admin. It contains only what end users actually need:
 
 - First name + last name + display name (how your name shows up to coaches and teammates)
 - Email
