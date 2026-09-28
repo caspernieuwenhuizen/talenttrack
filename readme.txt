@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.140.2
+Stable tag: 4.140.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.140.3 — Filter bars stay on one row, and the goals bar is tidied up (#4147) On a laptop or desktop, a list's filter bar is now either one row or the Filters button with chips; it no longer wraps onto a second line. From 1024 to 1439px, and whenever the full bar would not fit, the controls get narrower and the status pills fold into one dropdown that shows the active status. On the goals list the deadline filter is labelled "Deadline" instead of "DUE" and opens a small panel with From, To and Apply; the "Status: Active" chip and the Clear button no longer appear before you filter anything; and the player picker lines up with the fields next to it. The date filters' Apply button is now the secondary style, so it no longer competes with "+ Add goal". =
+
+= 4.140.3 — Suspensions tile gets its own red-card icon (#4148) The Suspensions tile used the same first-aid kit as the Injuries tile next to it, so the two were hard to tell apart in the People group. Suspensions now shows a tilted card, the football sign for a suspension, on the dashboard tile and in the app navigation. Injuries keeps the first-aid kit. =
+
+= 4.140.3 — Position names instead of position keys on the player report and comparisons (#4149) The player report's "Same position" line printed the stored position keys (`RECHTER_MIDDENVELDER, CAM`). It now names each position the way the rest of the plugin does: the academy's own label first, then the translated long form of a seeded code (CAM reads "Attacking midfielder"), then a readable fallback. The same fix applies to the Position(s) row of the player comparison (front end and wp-admin), the wp-admin players list and player page, and the team's player panel. The activity brief, player one-pager and match-day team sheet PDFs and the team chemistry roster also stop printing a fragment of the stored JSON (`["CB"`) as the player's position. =
+
+= 4.140.3 — Activities list: header keeps only the view toggle and New activity (#4151) The Activities list header no longer carries the Match executions and Attendance grid buttons. They linked to other surfaces rather than acting on the list, and crowded the header on a phone. Both stay reachable in context: match executions from a match's own page and the Matches needing review widget, the attendance grid from an activity's ⋯ menu, the Attendance / Minutes switch on the minutes grid and the missing-register alerts. The routes, feature toggle and help topics are unchanged. =
+
+= 4.140.3 — Activities list: the last 7 days show by default (#4153) Completed and cancelled activities from the past week now appear in their own Last 7 days section on the Activities list, oldest first so it reads straight on into Today, instead of hiding behind the collapsed past-activities toggle. Only older history stays behind the toggle, and its count now covers just those older activities; it disappears when nothing is older than a week. Unclosed past activities still sit in Past — still open at the top, and the cancelled filter applies to the new section as it does to the others. =
+
+= 4.140.3 — App shell: account menu back at desktop width (#4157) The app shell shows the account menu on desktop again. At 1024px and wider it was hidden, which left My settings, My sessions, the persona switcher and Sign out out of reach, so someone who switched to the app shell could not switch back. The menu now sits in the top bar at every width, as a compact avatar button because the sidebar already shows your name. =
 
 = 4.140.2 — Dossier completeness: a who-is-missing-what overview, and check cards that open closed (#4145) The Dossier completeness page listed every player with a gap on every check card, so a full squad was one long scroll of repeated names. It now opens with an overview: one line per player, most gaps first. On a tablet or desktop that is a grid of the six checks with a tick or cross per cell and a gap count; on a phone each player gets chips naming only what is missing. Players with a complete file fold into one line. The check cards below are now collapsible and open closed, with the check that has the most missing first and complete checks at the bottom; "Open all" and "Close all" work on every card at once. The REST route returns the same per-player view (`players`) and a `completion` percentage per check, and orders the checks the same way. =
 
