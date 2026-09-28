@@ -1,3 +1,11 @@
+# TalentTrack v4.140.6 — BMI-for-age shows the BMI and how it changed, without percentiles (#4173)
+
+The percentile and SDS are gone from every BMI screen: the roster report, a player's BMI trend, and the BMI row on the Measurements tab. The growth reference left most of a youth squad uncovered, so the column mostly read "falls outside the reference". The **Change** column now shows the raw BMI change since the previous measurement (for example "+0.4, since 23-06-2026"), on the roster and on the per-player trend. The roster is tidier: **Measured** shows only the date, with the height/weight gap underneath only when there is one; the **Team** column disappears once a single team is selected; numbers are right-aligned. A player's name now opens their BMI trend, and the trend links on to the player profile. The REST payload is unchanged apart from two additive fields on each trend point (`delta_bmi`, `previous_date`).
+
+# TalentTrack v4.140.6 — PDP coverage by team: figures under the right headers, and easier to read (#4176)
+
+On the PDP page, the "PDP coverage by team" table printed its figures one column to the left of their headers, and the team name sat at a different height from the numbers. Every figure now sits right-aligned under its own header, on the same line as the team name, and the row stripe runs across the whole row. "With a plan" and "Talked to" now read as a share of the team (for example 5 / 15) with a thin bar under the figure, zeros are greyed out, and the table sits on a card with equal-width columns on wider screens. The "No team" row is always last and no longer looks like a team to chase.
+
 # TalentTrack v4.140.5 — Shell nav: Injuries, Team development and three more show their icon (#4168)
 
 The sidebar, rail and bottom bar draw each destination with a line icon, and five icons existed only in the duotone set used by dashboard tiles: alert (Injuries), sliders (Team development), note, pdp and trials. Those destinations sat in the nav with no icon. They now have line icons in the same style as the rest of the set, and a new check (`tools/check-tile-icons.php`, run by the Tile icon lint workflow, plus a unit test over the registry) fails any tile whose icon is missing from either set. The Suspension reasons card in Configuration now uses the card icon instead of the injuries first-aid kit.
