@@ -87,7 +87,7 @@ Je persoonlijke ontwikkelingsplan — de lange versie van je actieve doelen, met
 
 ## Mijn instellingen (rechtsboven onder je naam)
 
-Klik rechtsboven op je naam om het gebruikersmenu te openen. Het eerste item, **Mijn instellingen**, is een door TalentTrack gerenderd instellingsscherm — je gaat nooit naar de WordPress-admin. Het bevat alleen wat je als gebruiker echt nodig hebt:
+Klik rechtsboven op je naam of avatar om het gebruikersmenu te openen. Het eerste item, **Mijn instellingen**, is een door TalentTrack gerenderd instellingsscherm — je gaat nooit naar de WordPress-admin. Het bevat alleen wat je als gebruiker echt nodig hebt:
 
 - Voornaam + achternaam + weergavenaam (hoe je naam aan coaches en teamgenoten getoond wordt)
 - E-mailadres

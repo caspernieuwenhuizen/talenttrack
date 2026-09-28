@@ -539,14 +539,31 @@ body.admin-bar .tt-dashboard.tt-shell-app {
     }
 
     /*
-     * The academy name and the account menu now live in the rail (#2530).
-     * Keeping the header's copies would show both twice. Below this
-     * breakpoint the rail is the off-canvas drawer, so the header keeps
-     * them — signing out must not sit behind the hamburger.
+     * The academy name lives in the rail (#2530), so the header's copy
+     * would show it twice. Below this breakpoint the rail is the off-canvas
+     * drawer, so the header keeps it.
+     *
+     * The account menu stays in the header at every width. The rail's user
+     * block is identity only, so hiding the menu here left My settings and
+     * Sign out unreachable on desktop (#4157).
      */
-    .tt-dashboard.tt-shell-app .tt-dash-brand,
-    .tt-dashboard.tt-shell-app .tt-user-menu {
+    .tt-dashboard.tt-shell-app .tt-dash-brand {
         display: none;
+    }
+
+    /*
+     * The rail's foot already shows the name and persona, so the header's
+     * chip shrinks to the avatar. The text stays in the accessibility tree
+     * as the trigger's name, and the compact chip keeps clear of the
+     * centred search field.
+     */
+    .tt-dashboard.tt-shell-app .tt-user-menu .tt-appchrome-who {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
     }
 
     /*
