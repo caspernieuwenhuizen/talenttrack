@@ -350,8 +350,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // to the capability matrix that no WordPress capability expresses.
         $tiles = array_values( array_filter(
             $tiles,
-            static fn( array $t ): bool => empty( $t['can'] )
-                || ( is_callable( $t['can'] ) && (bool) call_user_func( $t['can'], $user_id ) )
+            static fn( array $t ): bool => empty( $t['can'] ) || $t['can']( $user_id )
         ) );
 
         // #2357 — honest empty state. When every tile has been filtered
