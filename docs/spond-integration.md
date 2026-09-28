@@ -43,6 +43,7 @@ That's it. Within an hour, every Spond event for each linked group appears as a 
 
   An event with no recognised keyword in either field falls back to training. If a coach changes the type later, the system preserves that change across future syncs.
 - **Notes** — seeded from the Spond event's description on the **first import only**, then TalentTrack-owned. After that, a coach's notes are never overwritten by a re-sync — and a later edit to the description **in Spond** no longer flows into the activity. (Same "set once, then TalentTrack wins" model as activity type.)
+- **Coach** — a newly imported event gets the team's **head coach**, the same default as an activity created in TalentTrack. A team with no head coach, or with two, gets no coach, and the "no coach assigned" alert flags it. After the first import the coach is TalentTrack-owned: a re-sync never changes it, including a coach you cleared on purpose. Activities imported before this default existed received their team's head coach once, on update.
 - **Attendance, evaluations, linked goals** — TalentTrack-only. Never overwritten.
 
 When an event disappears from Spond (deleted, cancelled), the matching TalentTrack activity is **soft-archived** — never deleted — so any evaluations attached to it survive. If the same Spond event reappears later, the activity is un-archived.
