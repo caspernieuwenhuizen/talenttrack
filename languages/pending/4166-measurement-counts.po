@@ -1,0 +1,4 @@
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:160
+#, php-format
+msgid "%1$d of %2$d measured"
+msgstr "%1$d van %2$d gemeten"

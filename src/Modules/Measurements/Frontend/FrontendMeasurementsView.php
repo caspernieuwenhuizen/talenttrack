@@ -151,10 +151,15 @@ class FrontendMeasurementsView extends FrontendViewBase {
         echo '<div class="tt-meas-cat__head">';
         echo '<h3 class="tt-meas-cat-title">' . esc_html( $category ) . '</h3>';
         echo '<p class="tt-meas-cat__count">';
+        // #4166 — "N tests" counted the never-measured rows too, and sat next
+        // to a badge and a tile that do not. Saying how many carry a reading
+        // explains the gap instead of leaving three numbers to disagree.
+        $total = count( $rows );
         echo esc_html( sprintf(
-            /* translators: %d: number of tests in this category. */
-            _n( '%d test', '%d tests', count( $rows ), 'talenttrack' ),
-            count( $rows )
+            /* translators: 1: tests in this category with a reading, 2: all tests in this category. */
+            __( '%1$d of %2$d measured', 'talenttrack' ),
+            $total - count( $never ),
+            $total
         ) );
         if ( $latest !== '' ) {
             echo ' <span class="tt-meas-cat__sep" aria-hidden="true">·</span> ';
