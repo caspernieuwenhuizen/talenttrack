@@ -452,6 +452,9 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'measurement-tests',     self::M_MEASUREMENTS );
         TileRegistry::registerSlugOwnership( 'measurements-entry',    self::M_MEASUREMENTS );
         TileRegistry::registerSlugOwnership( 'measurements-coverage', self::M_MEASUREMENTS );
+        // #4154 — listed on the Reports page instead of as dashboard tiles.
+        TileRegistry::registerSlugOwnership( 'test-trends',           self::M_MEASUREMENTS );
+        TileRegistry::registerSlugOwnership( 'player-bmi',            self::M_MEASUREMENTS );
 
         TileRegistry::registerSlugOwnership( 'persona-templates', self::M_PERSONA_DASH );
 
@@ -1323,48 +1326,9 @@ final class CoreSurfaceRegistration {
                 return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
             },
         ]);
-        // #2537 — Test trends: the longitudinal companion to Test results.
-        // Same `measurements` read gate and the same hidden personas; the
-        // per-report feature toggle (`report_test_trends`) can hide it
-        // without touching the rest of the module.
-        TileRegistry::register([
-            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
-            'view_slug'         => 'test-trends',
-            'entity'            => 'measurements',
-            'group'             => $analytics_group,
-            'kind'              => 'work',
-            'order'             => 30,
-            'label'             => __( 'Test trends', 'talenttrack' ),
-            'description'       => __( 'One test, every player, over the season: who is developing and who is stalling.', 'talenttrack' ),
-            'icon'              => 'trend-up',
-            'color'             => '#0e7c66',
-            'hide_for_personas' => [ 'player', 'parent' ],
-            'feature'           => 'report_test_trends',
-            'cap_callback'      => static function ( int $uid ): bool {
-                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
-            },
-        ]);
-        // #2895 — BMI-for-age. Same `measurements` read gate and the same
-        // hidden personas as Test trends: this is a screening figure about a
-        // child's body, and a player or parent meeting it without context on
-        // a dashboard tile is not how it should reach them.
-        TileRegistry::register([
-            'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
-            'view_slug'         => 'player-bmi',
-            'entity'            => 'measurements',
-            'group'             => $analytics_group,
-            'kind'              => 'work',
-            'order'             => 31,
-            'label'             => __( 'Player · BMI-for-age', 'talenttrack' ),
-            'description'       => __( 'Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16.', 'talenttrack' ),
-            'icon'              => 'trend-up',
-            'color'             => '#0e7c66',
-            'hide_for_personas' => [ 'player', 'parent' ],
-            'feature'           => 'report_player_bmi',
-            'cap_callback'      => static function ( int $uid ): bool {
-                return \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
-            },
-        ]);
+        // #4154 — Test trends and BMI-for-age moved to the Reports page, next
+        // to the other player reports. Their slugs keep a module owner in
+        // registerSlugOwnerships().
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([

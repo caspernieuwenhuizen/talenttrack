@@ -45,6 +45,7 @@ Klaar. Binnen een uur verschijnt elk Spond-event voor elke gekoppelde groep als 
 
   Staat in geen van beide velden een herkend trefwoord, dan wordt het een training. Past een coach het type later aan, dan blijft die wijziging bewaard.
 - **Notities** — bij de **eerste import** overgenomen uit de beschrijving van het Spond-event, daarna in beheer van TalentTrack. Daarna worden de notities van een coach nooit meer overschreven door een sync — en een latere wijziging van de beschrijving **in Spond** stroomt niet meer mee. (Zelfde model van "eenmalig instellen, daarna wint TalentTrack" als het activiteitstype.)
+- **Trainer** — een nieuw geïmporteerd event krijgt de **hoofdtrainer** van het team, dezelfde standaard als een activiteit die in TalentTrack wordt aangemaakt. Een team zonder hoofdtrainer, of met twee, krijgt geen trainer, en de melding "geen trainer toegewezen" signaleert dat. Na de eerste import is de trainer in beheer van TalentTrack: een sync wijzigt hem nooit, ook niet als je hem bewust hebt leeggemaakt. Activiteiten die vóór deze standaard zijn geïmporteerd, kregen bij de update eenmalig de hoofdtrainer van hun team.
 - **Aanwezigheid, evaluaties, gekoppelde doelen** — alleen TalentTrack. Nooit overschreven.
 
 Verdwijnt een event uit Spond (verwijderd, geannuleerd), dan wordt de bijbehorende TalentTrack-activiteit **soft-gearchiveerd** — nooit verwijderd — zodat eventuele evaluaties bewaard blijven. Komt het Spond-event later weer terug, dan wordt de activiteit gedearchiveerd.

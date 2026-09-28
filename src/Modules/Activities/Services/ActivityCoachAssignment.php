@@ -66,6 +66,50 @@ final class ActivityCoachAssignment {
     }
 
     /**
+     * Give every unassigned Spond-imported activity its team's head coach
+     * (#4163), in every club, past and future alike. Returns the number of
+     * rows written.
+     *
+     * The Spond sync stored `coach_id = 0` on every event until #4163, so a
+     * synced team's schedule showed "no coach" and its register reminders
+     * had nobody to go to. The same rule as `derivedForTeam()`: a team with
+     * exactly one head coach who has an account gets them; a team with none
+     * or two stays unassigned. A coach set in TalentTrack is never touched,
+     * so running it twice writes nothing the second time.
+     */
+    public static function backfillSpondActivities(): int {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $teams = $wpdb->get_results(
+            "SELECT tp.club_id, tp.team_id, COUNT(*) AS heads, MAX(pe.wp_user_id) AS wp_user_id
+               FROM {$p}tt_team_people tp
+         INNER JOIN {$p}tt_functional_roles fr ON fr.id = tp.functional_role_id AND fr.club_id = tp.club_id
+         INNER JOIN {$p}tt_people pe ON pe.id = tp.person_id AND pe.club_id = tp.club_id
+              WHERE fr.role_key = 'head_coach'
+           GROUP BY tp.club_id, tp.team_id"
+        );
+
+        $written = 0;
+        foreach ( is_array( $teams ) ? $teams : [] as $team ) {
+            if ( (int) $team->heads !== 1 || (int) $team->wp_user_id <= 0 ) continue;
+
+            $written += (int) $wpdb->query( $wpdb->prepare(
+                "UPDATE {$p}tt_activities
+                    SET coach_id = %d
+                  WHERE club_id = %d AND team_id = %d
+                    AND activity_source_key = 'spond'
+                    AND ( coach_id IS NULL OR coach_id = 0 )",
+                (int) $team->wp_user_id,
+                (int) $team->club_id,
+                (int) $team->team_id
+            ) );
+        }
+
+        return $written;
+    }
+
+    /**
      * The staff of one team who can be named as its activity coach, as
      * `wp_user_id => display name`.
      *
