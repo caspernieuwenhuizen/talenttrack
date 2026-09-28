@@ -62,6 +62,10 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
 
         $base_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+        $can_read_measurements = static function ( int $uid ): bool {
+            return \TT\Core\ModuleRegistry::isEnabled( 'TT\\Modules\\Measurements\\MeasurementsModule' )
+                && \TT\Modules\Authorization\MatrixGate::canAnyScope( $uid, 'measurements', 'read' );
+        };
         $tiles = [
             [
                 'slug'  => 'team_ratings',
@@ -275,6 +279,25 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-player rating cards with trends.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'rate-cards' ], $base_url ),
             ],
+            // #4154 — folded in from their former dashboard tiles. Both read
+            // measurements, which the capability matrix decides rather than a
+            // WordPress capability, so they carry a `can` check instead of a
+            // `cap`: the same gate the tiles and the views use, plus the
+            // owning module being on.
+            [
+                'slug'  => 'test-trends',
+                'label' => __( 'Test trends', 'talenttrack' ),
+                'desc'  => __( 'One test, every player, over the season: who is developing and who is stalling.', 'talenttrack' ),
+                'can'   => $can_read_measurements,
+                'url'   => add_query_arg( [ 'tt_view' => 'test-trends' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own check (§7) */
+            ],
+            [
+                'slug'  => 'player-bmi',
+                'label' => __( 'Player · BMI-for-age', 'talenttrack' ),
+                'desc'  => __( 'Height and weight read against a published growth curve, so a figure means something at 11 as well as at 16.', 'talenttrack' ),
+                'can'   => $can_read_measurements,
+                'url'   => add_query_arg( [ 'tt_view' => 'player-bmi' ], $base_url ), /* tt-xview-ok — launcher self-gates every tile on tt_view_reports + per-report toggle + the tile's own check (§7) */
+            ],
         ];
 
         echo '<p class="tt-rl-intro">';
@@ -323,6 +346,14 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             static fn( array $t ): bool => empty( $t['cap'] ) || current_user_can( (string) $t['cap'] )
         ) );
 
+        // #4154 — and a `can` callable, for a tile whose gate is a question
+        // to the capability matrix that no WordPress capability expresses.
+        $tiles = array_values( array_filter(
+            $tiles,
+            static fn( array $t ): bool => empty( $t['can'] )
+                || ( is_callable( $t['can'] ) && (bool) call_user_func( $t['can'], $user_id ) )
+        ) );
+
         // #2357 — honest empty state. When every tile has been filtered
         // away — no report is enabled for this academy, or the viewer's
         // scope caps hide them all — render a clear notice instead of a
@@ -347,6 +378,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'team-monthly', 'player-report', 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
+            [ 'label' => __( 'Tests & measurements', 'talenttrack' ),      'slugs' => [ 'test-trends', 'player-bmi' ] ],
             [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-share', 'minutes-report-team', 'minutes-audit' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],

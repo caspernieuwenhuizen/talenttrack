@@ -515,7 +515,7 @@ noemen levert `403` op. Voor integraties en de SaaS-frontend.
 ## Testverloop — één test, elke speler, over het seizoen
 
 *Testresultaten* beantwoordt "hoe staat elke speler er **nu** voor op deze
-test". **Testverloop** (groep Analyse) beantwoordt de andere helft: **wie
+test". **Testverloop**, onder **Rapporten**, beantwoordt de andere helft: **wie
 ontwikkelt zich en wie stagneert**. Het is het tabblad *Trends* uit de
 Excel-export, nu op het scherm.
 
@@ -593,7 +593,7 @@ dezelfde getallen via
 `GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
 
 Een beheerder kan het rapport verbergen via **Instellingen → Functies →
-Testverloop**; staat het uit, dan verdwijnt de tegel en wordt een directe
+Testverloop**; staat het uit, dan verdwijnt het uit Rapporten en wordt een directe
 link geweigerd.
 
 ## Wisselen tussen de schermen
@@ -620,7 +620,7 @@ kwam.
 
 **Speler · BMI naar leeftijd** gebruikt de lengte en het gewicht die je al
 vastlegt en zet die af tegen een gepubliceerde groeicurve. Je vindt het onder
-**Rapportages**.
+**Rapporten**.
 
 De meest recente waarde staat ook bovenaan het tabblad **Metingen** van een
 speler: alleen het getal en het percentiel. Alles wat een BMI toelicht — tegen
