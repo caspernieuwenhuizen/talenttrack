@@ -136,6 +136,9 @@
 	color: var(--tt-ink-soft, #5b6e75);
 }
 .tt-dashboard .tt-fildate__input {
+	/* #4147 — `width: 100%` plus padding ran past the sheet at 360px when
+	   the theme does not set border-box globally. */
+	box-sizing: border-box;
 	font: inherit;
 	font-size: 16px; /* iOS auto-zoom floor */
 	color: var(--tt-ink, #0e1a14);
@@ -177,6 +180,8 @@
 	display: none;
 }
 .tt-dashboard .tt-perdrop {
+	/* #4147 — 48px tall like the selects beside it, not 48 plus borders. */
+	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
 	gap: var(--tt-sp-2, 8px);
@@ -412,6 +417,8 @@
 	display: none;
 }
 .tt-dashboard .tt-ovmenu__btn {
+	/* #4147 — a 48px square, not 48px of content plus padding (74px). */
+	box-sizing: border-box;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -515,6 +522,7 @@
 	flex-wrap: wrap;
 }
 .tt-dashboard .tt-statpill {
+	box-sizing: border-box; /* #4147 — level with the 48px controls */
 	font: inherit;
 	font-size: 0.8125rem; /* 13px */
 	font-weight: 700;
@@ -538,21 +546,26 @@
 	background: var(--tt-line, #e3e6e1);
 	flex-shrink: 0;
 }
-.tt-dashboard .tt-statpill[data-k="active"] .tt-statpill__dot {
+.tt-dashboard .tt-statpill[data-k="active"] .tt-statpill__dot,
+.tt-dashboard .tt-statdrop [data-k="active"] .tt-statpill__dot {
 	background: var(--tt-success, #2f9e5e);
 }
-.tt-dashboard .tt-statpill[data-k="archived"] .tt-statpill__dot {
+.tt-dashboard .tt-statpill[data-k="archived"] .tt-statpill__dot,
+.tt-dashboard .tt-statdrop [data-k="archived"] .tt-statpill__dot {
 	background: var(--tt-muted, #6a6d66);
 }
 /* #2202 — goals status buckets: achieved reads as done (green), missed as
    a terminated/negative state (danger). */
-.tt-dashboard .tt-statpill[data-k="achieved"] .tt-statpill__dot {
+.tt-dashboard .tt-statpill[data-k="achieved"] .tt-statpill__dot,
+.tt-dashboard .tt-statdrop [data-k="achieved"] .tt-statpill__dot {
 	background: var(--tt-success, #2f9e5e);
 }
-.tt-dashboard .tt-statpill[data-k="missed"] .tt-statpill__dot {
+.tt-dashboard .tt-statpill[data-k="missed"] .tt-statpill__dot,
+.tt-dashboard .tt-statdrop [data-k="missed"] .tt-statpill__dot {
 	background: var(--tt-danger, #d8453b);
 }
-.tt-dashboard .tt-statpill[data-k="all"] .tt-statpill__dot {
+.tt-dashboard .tt-statpill[data-k="all"] .tt-statpill__dot,
+.tt-dashboard .tt-statdrop [data-k="all"] .tt-statpill__dot {
 	background: linear-gradient(90deg, var(--tt-success, #2f9e5e) 50%, var(--tt-muted, #6a6d66) 50%);
 }
 .tt-dashboard .tt-statpill--on {
@@ -563,6 +576,44 @@
 .tt-dashboard .tt-statpill:focus-visible {
 	outline: 2px solid var(--tt-primary, #0b3d2e);
 	outline-offset: 2px;
+}
+
+/* #4147 — the same status links behind one trigger, for the inline bar at
+   laptop widths. Hidden until the desktop rules below show it; the sheet
+   never renders it. Reuses the period pill-dropdown, with the status dot in
+   place of the calendar glyph. */
+.tt-dashboard .tt-statdrop {
+	display: none;
+}
+.tt-dashboard .tt-perdrop--status::before {
+	content: none;
+}
+.tt-dashboard .tt-statdrop__cur {
+	display: inline-flex;
+}
+/* The trigger sits at the right end of the bar, so its menu opens leftward. */
+.tt-dashboard .tt-statdrop .tt-perdrop__menu {
+	left: auto;
+	right: 0;
+}
+.tt-dashboard .tt-statdrop .tt-perdrop__opt {
+	gap: var(--tt-sp-2, 8px);
+}
+
+/* #4147 — a compact date range: one pill trigger, the dates and Apply in its
+   popover. Wide enough for the two dates side by side, never wider than a
+   360px viewport. */
+.tt-dashboard .tt-fildrop .tt-perdrop__menu {
+	min-width: min(22rem, calc(100vw - 32px));
+	/* Opens leftward from the trigger's right edge: the trigger sits past
+	   the middle of the bar, and a 22rem panel anchored on its left edge
+	   ran off the right of a laptop screen. */
+	left: auto;
+	right: 0;
+}
+.tt-dashboard .tt-fildrop .tt-fildate__input {
+	min-width: 0;
+	box-sizing: border-box;
 }
 
 /* =============================================================
@@ -666,8 +717,50 @@
 	row-gap: var(--tt-sp-2, 8px);
 }
 .tt-dashboard .tt-filterbar__clear {
+	/* #4147 — 48px in total, level with the controls, not 48px of content
+	   plus the button's padding. */
+	box-sizing: border-box;
 	flex: 0 0 auto;
 	min-height: 48px;
+}
+/* #4147 — Clear waits until there is something to clear; filter-bar.js
+   reveals it on the first change. `.tt-btn` sets a display that would
+   otherwise beat the attribute. */
+.tt-dashboard .tt-filterbar__clear[hidden] {
+	display: none;
+}
+/* A cluster holding only that hidden Clear is empty, and would still cost
+   the bar two gaps. */
+.tt-dashboard .tt-filterbar__utils:not(:has(> :not([hidden]))) {
+	display: none;
+}
+
+/* #4147 — the player picker in the inline row. Its root is a form field
+   (`.tt-field.tt-psp`), which brings a bottom margin and an empty label; on
+   a row aligned to the bottom edge that lifted it above the selects, and its
+   input was shorter than they are. */
+.tt-dashboard .tt-filterbar__row .tt-psp {
+	margin: 0;
+}
+.tt-dashboard .tt-filterbar__row .tt-psp > .tt-field-label {
+	display: none;
+}
+/* Border-box, or the 48px minimum is the content height and the input ends
+   up 70px tall and 26px wider than the picker — which in the sheet ran it
+   past the right edge at 360px. */
+.tt-dashboard .tt-filterbar .tt-psp .tt-psp-search {
+	box-sizing: border-box;
+}
+.tt-dashboard .tt-filterbar__row .tt-psp .tt-psp-search,
+.tt-dashboard .tt-filterbar__row .tt-psp .tt-psp-selected {
+	box-sizing: border-box;
+	min-height: 48px;
+}
+.tt-dashboard .tt-filterbar__row .tt-psp .tt-psp-selected {
+	display: flex;
+	width: 100%;
+	padding: 0 12px;
+	border-radius: var(--tt-radius, 8px);
 }
 .tt-dashboard .tt-filtertrigger {
 	display: flex;
@@ -719,6 +812,7 @@
 	padding: 0;
 }
 .tt-dashboard .tt-chip {
+	box-sizing: border-box; /* #4147 — 48px in total, as #3292 meant */
 	font-size: 0.78125rem; /* 12.5px */
 	font-weight: 600;
 	color: var(--tt-primary, #0b3d2e);
@@ -878,14 +972,45 @@ html.tt-sheet-lock body {
 /* =============================================================
    DESKTOP (>=1024px) — single-line inline bar.
    ============================================================= */
+/* #4147 — the bar is its own size container. With the shell's sidebar open
+   a 1024px laptop leaves the bar about 750px, so the viewport is the wrong
+   measure of whether the controls fit. Inline layout needs a 1024px viewport
+   (a touch tablet keeps the sheet) AND a container of at least 40rem; below
+   that the bar is always the Filters button + chips.
+
+   Whether a particular bar's controls fit in the width it has depends on
+   that bar's controls, which no single breakpoint knows, so filter-bar.js
+   measures once the bar is laid out: a bar that would wrap first takes the
+   tighter controls (`is-tight`), and one that still would falls back to the
+   Filters button (`is-compact`). Never a bar on two lines.
+
+   Layout containment makes the bar a stacking context, so the popovers
+   inside it can no longer out-rank the list below on their own z-index; the
+   bar carries one instead. It stays under the sticky shell header (1100). */
+.tt-dashboard .tt-filterbar {
+	container: tt-filterbar / inline-size;
+	z-index: 5;
+}
+
 @media (min-width: 1024px) {
 	.tt-dashboard .tt-filterbar {
 		padding: 14px;
 	}
-	.tt-dashboard .tt-filterbar__row {
+}
+
+@media (min-width: 1024px) {
+@container tt-filterbar (min-width: 40rem) {
+	/* #4147 — chips, Clear and the bookmark sit level with the controls,
+	   whose labels stand above them, rather than centred on the row. */
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__form {
+		align-items: flex-end;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row {
 		display: flex;
 		align-items: flex-end;
-		gap: 16px;
+		gap: 12px;
+		/* Wrapping stays as the no-JS fallback; with JS a bar that would
+		   wrap is tightened or collapsed before it gets the chance. */
 		flex-wrap: wrap;
 		flex: 1 1 auto;
 		min-width: 0;
@@ -900,7 +1025,7 @@ html.tt-sheet-lock body {
 	   right with it. Previously this margin competed with a second one on
 	   the utility groups inside the row: two auto-margins in two different
 	   flex containers, which put the chips and Clear to the RIGHT of the ⋯. */
-	.tt-dashboard .tt-filterbar__utils {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__utils {
 		flex: 0 0 auto;
 		margin-left: auto;
 	}
@@ -908,23 +1033,23 @@ html.tt-sheet-lock body {
 	   ⋯ is the last thing on the bar. `partitionUtilityGroups()` does the
 	   sorting (status, then menu); this does the layout. Inline-only, like
 	   the filter row — the mobile sheet holds every group. */
-	.tt-dashboard .tt-filterbar__trailing {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__trailing {
 		display: flex;
 		align-items: flex-end;
-		gap: 16px;
+		gap: 12px;
 		flex: 0 0 auto;
 	}
 	/* With no chips and no Clear there is no cluster to carry the gap, so
 	   the trailing block takes it instead. */
-	.tt-dashboard .tt-filterbar__row + .tt-filterbar__trailing,
-	.tt-dashboard .tt-filterbar__mobile + .tt-filterbar__trailing {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row + .tt-filterbar__trailing,
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__mobile + .tt-filterbar__trailing {
 		margin-left: auto;
 	}
-	.tt-dashboard .tt-filterbar__group {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group {
 		flex: 0 0 auto;
 		min-width: 0;
 	}
-	.tt-dashboard .tt-filterbar__div {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__div {
 		align-self: stretch;
 		width: 1px;
 		background: var(--tt-line, #e3e6e1);
@@ -934,22 +1059,93 @@ html.tt-sheet-lock body {
 	   well as the bare one: the rule that makes an open sheet a flex column
 	   is itself written against `[open]`, and would otherwise out-specify a
 	   plain `display: none` here. */
-	.tt-dashboard .tt-filterbar__mobile,
-	.tt-dashboard .tt-filter-sheet,
-	.tt-dashboard dialog.tt-filter-sheet[open] {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__mobile,
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filter-sheet,
+	.tt-dashboard .tt-filterbar:not(.is-compact) dialog.tt-filter-sheet[open] {
 		display: none;
 	}
-	.tt-dashboard .tt-filterbar__group--team .tt-filsel__select {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--team .tt-filsel__select {
 		min-width: 150px;
 	}
-	.tt-dashboard .tt-filterbar__group--type .tt-filsel__select {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--type .tt-filsel__select {
 		min-width: 140px;
 	}
 	/* #2082 — give the search box room to breathe inline. */
-	.tt-dashboard .tt-filterbar__group--search .tt-filtext__input {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--search .tt-filtext__input {
 		min-width: 200px;
 	}
+	/* #4147 — the player picker, as wide as the search box. */
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-psp {
+		width: 12rem;
+	}
+	/* #4147 — a select is as wide as its longest option, so one long team
+	   name took 300px of the row. Capped; the chosen value ellipsises. */
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-filsel__select {
+		max-width: 12rem;
+		text-overflow: ellipsis;
+	}
 }
+}
+
+/* #4147 — the tighter inline bar. Laptop widths (1024–1439px) always get
+   it; a wider screen gets it only when the fit check finds the full bar
+   would wrap (`is-tight`). Same rules twice, because a media query and a
+   class cannot share one selector list.
+
+   Narrower search, picker and selects, no dividers (each cost a line and a
+   gap), and the status pills behind one dropdown that shows the active
+   status. */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+@container tt-filterbar (min-width: 40rem) {
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-filterbar__div {
+		display: none;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--search .tt-filtext__input,
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-psp {
+		min-width: 10rem;
+		width: 10rem;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--team .tt-filsel__select,
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--type .tt-filsel__select {
+		min-width: 8rem;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-filsel__select {
+		max-width: 10rem;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__trailing .tt-statset {
+		display: none;
+	}
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__trailing .tt-statdrop {
+		display: block;
+	}
+}
+}
+@media (min-width: 1024px) {
+@container tt-filterbar (min-width: 40rem) {
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__row .tt-filterbar__div {
+		display: none;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__group--search .tt-filtext__input,
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__row .tt-psp {
+		min-width: 10rem;
+		width: 10rem;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__group--team .tt-filsel__select,
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__group--type .tt-filsel__select {
+		min-width: 8rem;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__row .tt-filsel__select {
+		max-width: 10rem;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__trailing .tt-statset {
+		display: none;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__trailing .tt-statdrop {
+		display: block;
+	}
+}
+}
+
 
 /* Respect reduced-motion. */
 /* -------------------------------------------------------------------

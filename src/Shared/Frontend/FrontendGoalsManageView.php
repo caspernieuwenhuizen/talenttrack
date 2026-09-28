@@ -418,10 +418,16 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 ],
                 'due' => [
                     'type'       => 'date_range',
+                    // #4147 — without a label the bar printed the array key,
+                    // so a Dutch screen read "DUE".
+                    'label'      => __( 'Deadline', 'talenttrack' ),
                     'param_from' => 'due_from',
                     'param_to'   => 'due_to',
-                    'label_from' => __( 'Due from', 'talenttrack' ),
-                    'label_to'   => __( 'Due to',   'talenttrack' ),
+                    'label_from' => __( 'From', 'talenttrack' ),
+                    'label_to'   => __( 'To',   'talenttrack' ),
+                    // One trigger pill on the inline bar, so the goals bar
+                    // fits on one row; the dates open in its popover.
+                    'compact'    => true,
                 ],
                 // #1470 — Active / Archived. Labelled "Archive" to avoid
                 // clashing with the goal-status filter above. #2023 — "All"
