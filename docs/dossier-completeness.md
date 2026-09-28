@@ -22,10 +22,30 @@ state of sixteen files meant opening sixteen records.
 
 ## Opening it
 
-Open the **Dossier completeness** tile and choose a team. You see one card
-per check, each saying how many of the squad are complete and naming the
-players who are not. Every name links to that player's record, and the back
-link brings you straight back to the list you were working through.
+Open the **Dossier completeness** tile and choose a team. The page answers
+"whose file is incomplete" first, and "which check needs the most work"
+second.
+
+**Who is missing what.** At the top is one line per player, the players
+with the most gaps first (then by shirt number). On a tablet or desktop it
+is a grid: the six checks across, a tick or a cross in each cell, and the
+number of gaps at the end. Hover or long-press a column header for the
+check's full name. In the *Unconsented* column a number replaces the cross:
+how many pictures of that player are held with no consent. On a phone each
+player instead gets a short list of what is missing — "No e-mail", "No
+parent account" — so nothing scrolls sideways. Players whose file is
+complete fold into one line, "12 players complete", which you can open to
+see their names.
+
+**Checks.** Below that is one card per check, each saying how many of the
+squad are complete. The cards open **closed**, with the check that has the
+most missing at the top; a check nobody is missing reads **Complete** and
+sits at the bottom. Tap a card (or press Enter or Space on it) to open it
+and see the players it names. **Open all** and **Close all** above the
+cards do every card at once.
+
+Every name links to that player's record, and the back link brings you
+straight back to the list you were working through.
 
 You see the teams you may already read players for. An administrator sees
 every team; a coach sees their own. There is no club-wide version, on
@@ -116,8 +136,10 @@ consent on record.
 The same answer is available at
 `GET /wp-json/talenttrack/v1/teams/{team_id}/dossier-completeness`. It
 returns `player_count`, `family_reachable` and one entry per check with
-`total`, `complete`, `counts` and a `needs` list naming the players — the
-same envelope `GET /teams/{team_id}/measurement-coverage` answers in. It is
+`total`, `complete`, `completion`, `counts` and a `needs` list naming the
+players — the same envelope `GET /teams/{team_id}/measurement-coverage`
+answers in — ordered lowest completion first. A `players` list carries the
+overview: per player, the checks their file fails, most gaps first. It is
 gated on a global or team-scoped player read, and it carries no contact
 values either.
 

@@ -23,8 +23,29 @@ dossiers.
 
 ## Openen
 
-Open de tegel **Compleetheid dossiers** en kies een team. Je ziet één kaart
-per controle, met hoeveel spelers compleet zijn en wie er niet compleet is.
+Open de tegel **Compleetheid dossiers** en kies een team. De pagina
+beantwoordt eerst "wiens dossier is niet compleet", en daarna "welke
+controle heeft het meeste werk".
+
+**Wie mist wat.** Bovenaan staat één regel per speler, de spelers met de
+meeste hiaten eerst (daarna op rugnummer). Op een tablet of desktop is dat
+een raster: de zes controles naast elkaar, een vinkje of een kruisje in elke
+cel, en het aantal hiaten aan het eind. Houd de muis boven een kolomkop (of
+druk er lang op) voor de volledige naam van de controle. In de kolom *Zonder
+toestemming* staat in plaats van een kruisje een getal: hoeveel beelden van
+die speler er zonder toestemming zijn. Op een telefoon krijgt elke speler in
+plaats daarvan een kort lijstje van wat ontbreekt — "Geen e-mail", "Geen
+ouderaccount" — zodat er niets zijwaarts scrolt. Spelers met een compleet
+dossier worden samengevouwen tot één regel, "12 spelers compleet", die je
+kunt openen om hun namen te zien.
+
+**Controles.** Daaronder staat één kaart per controle, met hoeveel spelers
+compleet zijn. De kaarten openen **dichtgeklapt**, met de controle waar het
+meeste ontbreekt bovenaan; een controle waar niemand iets mist leest
+**Compleet** en staat onderaan. Tik op een kaart (of druk er Enter of spatie
+op) om hem te openen en de spelers te zien. **Alles openen** en **Alles
+sluiten** boven de kaarten doen dat voor alle kaarten tegelijk.
+
 Elke naam is een link naar dat spelersdossier, en de terugkoppeling brengt je
 direct terug naar de lijst waar je mee bezig was.
 
@@ -118,8 +139,10 @@ een prima bereikbare ouder hebben en toch geen vastgelegde toestemming.
 Hetzelfde antwoord staat op
 `GET /wp-json/talenttrack/v1/teams/{team_id}/dossier-completeness`. Dat
 geeft `player_count`, `family_reachable` en één blok per controle met `total`, `complete`,
-`counts` en een `needs`-lijst met de namen — dezelfde vorm als
-`GET /teams/{team_id}/measurement-coverage`. Het endpoint vereist een
+`completion`, `counts` en een `needs`-lijst met de namen — dezelfde vorm als
+`GET /teams/{team_id}/measurement-coverage` — met de laagste compleetheid
+eerst. Een `players`-lijst bevat het overzicht: per speler de controles
+waarop het dossier niet compleet is, de meeste hiaten eerst. Het endpoint vereist een
 spelersleesrecht, globaal of op dat team, en bevat evenmin
 contactgegevens.
 

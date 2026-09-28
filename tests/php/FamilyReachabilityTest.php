@@ -127,8 +127,13 @@ final class FamilyReachabilityTest extends WP_UnitTestCase {
     public function test_the_derived_signal_does_not_replace_the_six_checks(): void {
         $report = ( new DossierCompletenessService() )->forTeam( $this->teams['U7'] );
 
-        $keys = array_column( $report['checks'], 'key' );
-        $this->assertSame( DossierCompletenessService::checkKeys(), $keys );
+        // All six, still — in completion order since #4145, so compared as
+        // a set rather than a sequence.
+        $keys     = array_column( $report['checks'], 'key' );
+        $expected = DossierCompletenessService::checkKeys();
+        sort( $keys );
+        sort( $expected );
+        $this->assertSame( $expected, $keys );
 
         $by = [];
         foreach ( $report['checks'] as $check ) $by[ (string) $check['key'] ] = $check;

@@ -86,6 +86,23 @@ final class DossierCompletenessService {
     }
 
     /**
+     * The short column header for one check, where the full name does not
+     * fit: the overview grid carries the full name beside it for anybody
+     * who cannot tell "Account" from "Consent" at a glance.
+     */
+    public static function checkShortLabel( string $key ): string {
+        switch ( $key ) {
+            case self::GUARDIAN_NAME:  return _x( 'Name', 'dossier check column', 'talenttrack' );
+            case self::GUARDIAN_EMAIL: return _x( 'E-mail', 'dossier check column', 'talenttrack' );
+            case self::GUARDIAN_PHONE: return _x( 'Phone', 'dossier check column', 'talenttrack' );
+            case self::PARENT_ACCOUNT: return _x( 'Account', 'dossier check column', 'talenttrack' );
+            case self::MEDIA_CONSENT:  return _x( 'Consent', 'dossier check column', 'talenttrack' );
+            case self::MEDIA_WITHOUT_CONSENT: return _x( 'Unconsented', 'dossier check column', 'talenttrack' );
+            default: return $key;
+        }
+    }
+
+    /**
      * What is still missing from this squad's files.
      *
      * `family_reachable` (#4014) is a **derived** reading of the same
@@ -98,29 +115,138 @@ final class DossierCompletenessService {
      * changes nothing about the six checks, which stay separate for the
      * reason `isComplete()` sets out.
      *
-     * @return array{player_count:int, checks:list<array<string,mixed>>, family_reachable:array{total:int,reachable:int,unreachable:int}}
+     * `players` (#4145) is the same answer turned the other way: one entry
+     * per player naming the checks their file fails, most gaps first. It is
+     * what the overview grid reads, so "whose file is incomplete" is one
+     * line per player instead of a name repeated across six cards.
+     *
+     * @return array{player_count:int, players_complete:int, checks:list<array<string,mixed>>, players:list<array<string,mixed>>, family_reachable:array{total:int,reachable:int,unreachable:int}}
      */
     public function forTeam( int $team_id ): array {
-        $empty = [
-            'player_count'     => 0,
-            'checks'           => [],
-            'family_reachable' => [ 'total' => 0, 'reachable' => 0, 'unreachable' => 0 ],
-        ];
-        if ( $team_id <= 0 ) return $empty;
+        if ( $team_id <= 0 ) return self::fromRoster( [] );
 
-        $players = $this->roster( $team_id );
-        if ( $players === [] ) return $empty;
+        return self::fromRoster( $this->roster( $team_id ) );
+    }
+
+    /**
+     * The whole report over a roster already read — the rows `roster()`
+     * returns. Separate from the query so the grouping and the two sorts
+     * can be tested on rows built by hand.
+     *
+     * **Checks are ordered lowest completion first** (#4145): the card the
+     * office has most work on reads first, and a check nobody is missing
+     * goes to the bottom. Ties keep the fixed order of `checkKeys()`, so two
+     * equally-complete checks never swap places between two page loads.
+     *
+     * @param list<array<string,mixed>> $players
+     * @return array{player_count:int, players_complete:int, checks:list<array<string,mixed>>, players:list<array<string,mixed>>, family_reachable:array{total:int,reachable:int,unreachable:int}}
+     */
+    public static function fromRoster( array $players ): array {
+        if ( $players === [] ) {
+            return [
+                'player_count'     => 0,
+                'players_complete' => 0,
+                'checks'           => [],
+                'players'          => [],
+                'family_reachable' => [ 'total' => 0, 'reachable' => 0, 'unreachable' => 0 ],
+            ];
+        }
 
         $checks = [];
         foreach ( self::checkKeys() as $key ) {
-            $checks[] = $this->check( $key, $players );
+            $checks[] = self::check( $key, $players );
+        }
+
+        $per_player = self::perPlayer( $players );
+        $complete   = 0;
+        foreach ( $per_player as $row ) {
+            if ( $row['missing'] === [] ) $complete++;
         }
 
         return [
             'player_count'     => count( $players ),
-            'checks'           => $checks,
+            'players_complete' => $complete,
+            'checks'           => self::sortByCompletion( $checks ),
+            'players'          => $per_player,
             'family_reachable' => self::reachability( $players ),
         ];
+    }
+
+    /**
+     * Lowest completion first; ties in `checkKeys()` order.
+     *
+     * Compared on the exact fraction, not the rounded `completion`
+     * percentage, so 1 of 21 and 1 of 22 never read as a tie. Explicit
+     * index tie-break because `usort()` is not stable before PHP 8.
+     *
+     * @param list<array<string,mixed>> $checks
+     * @return list<array<string,mixed>>
+     */
+    private static function sortByCompletion( array $checks ): array {
+        $order   = array_flip( self::checkKeys() );
+        $indexed = [];
+        foreach ( $checks as $check ) {
+            $indexed[] = $check;
+        }
+        usort( $indexed, static function ( array $a, array $b ) use ( $order ): int {
+            $a_total = max( 1, (int) $a['total'] );
+            $b_total = max( 1, (int) $b['total'] );
+            $cmp     = ( (int) $a['complete'] * $b_total ) <=> ( (int) $b['complete'] * $a_total );
+            if ( $cmp !== 0 ) return $cmp;
+            return ( $order[ (string) $a['key'] ] ?? 99 ) <=> ( $order[ (string) $b['key'] ] ?? 99 );
+        } );
+        return $indexed;
+    }
+
+    /**
+     * One entry per player: the checks their file fails, in `checkKeys()`
+     * order, and how many pictures of them are held with no consent.
+     *
+     * Sorted by most gaps first, then shirt number (players without one
+     * after those with), then the roster's name order. Still no contact
+     * values — `missing` is a list of check keys, never what is in a field.
+     *
+     * @param list<array<string,mixed>> $players
+     * @return list<array{player_id:int, name:string, jersey:?int, missing:list<string>, gap_count:int, media_items:int}>
+     */
+    private static function perPlayer( array $players ): array {
+        $rows = [];
+        foreach ( $players as $index => $player ) {
+            $missing = [];
+            foreach ( self::checkKeys() as $key ) {
+                if ( ! self::isComplete( $key, $player ) ) $missing[] = $key;
+            }
+            $jersey_raw = $player['jersey_number'] ?? null;
+            $jersey     = ( $jersey_raw === null || $jersey_raw === '' ) ? null : (int) $jersey_raw;
+
+            $rows[] = [
+                'player_id'   => (int) ( $player['player_id'] ?? 0 ),
+                'name'        => self::nameOf( $player ),
+                'jersey'      => $jersey,
+                'missing'     => $missing,
+                'gap_count'   => count( $missing ),
+                'media_items' => in_array( self::MEDIA_WITHOUT_CONSENT, $missing, true )
+                    ? (int) ( $player['media_count'] ?? 0 )
+                    : 0,
+                '_index'      => $index,
+            ];
+        }
+
+        usort( $rows, static function ( array $a, array $b ): int {
+            $cmp = $b['gap_count'] <=> $a['gap_count'];
+            if ( $cmp !== 0 ) return $cmp;
+            if ( $a['jersey'] !== $b['jersey'] ) {
+                if ( $a['jersey'] === null ) return 1;
+                if ( $b['jersey'] === null ) return -1;
+                return $a['jersey'] <=> $b['jersey'];
+            }
+            return $a['_index'] <=> $b['_index'];
+        } );
+
+        return array_map( static function ( array $row ): array {
+            unset( $row['_index'] );
+            return $row;
+        }, $rows );
     }
 
     /**
@@ -179,6 +305,7 @@ final class DossierCompletenessService {
             "SELECT p.id AS player_id,
                     p.first_name,
                     p.last_name,
+                    p.jersey_number,
                     p.guardian_name,
                     p.guardian_email,
                     p.guardian_phone,
@@ -214,7 +341,7 @@ final class DossierCompletenessService {
      * @param list<array<string,mixed>> $players
      * @return array<string,mixed>
      */
-    private function check( string $key, array $players ): array {
+    private static function check( string $key, array $players ): array {
         $total    = count( $players );
         $complete = 0;
         $needs    = [];
@@ -222,7 +349,7 @@ final class DossierCompletenessService {
         $items    = 0;
 
         foreach ( $players as $player ) {
-            $ok = $this->isComplete( $key, $player );
+            $ok = self::isComplete( $key, $player );
             if ( $ok ) {
                 $complete++;
                 if ( $key === self::MEDIA_CONSENT ) {
@@ -252,11 +379,13 @@ final class DossierCompletenessService {
         }
 
         $out = [
-            'key'      => $key,
-            'name'     => self::checkLabel( $key ),
-            'total'    => $total,
-            'complete' => $complete,
-            'counts'   => [
+            'key'        => $key,
+            'name'       => self::checkLabel( $key ),
+            'short_name' => self::checkShortLabel( $key ),
+            'total'      => $total,
+            'complete'   => $complete,
+            'completion' => $total > 0 ? (int) floor( $complete / $total * 100 ) : 100,
+            'counts'     => [
                 self::STATUS_COMPLETE => $complete,
                 self::STATUS_MISSING  => $total - $complete,
             ],
@@ -301,7 +430,7 @@ final class DossierCompletenessService {
      * administrator a file was complete when there is still nobody to call.
      */
     /** @param array<string,mixed> $player */
-    private function isComplete( string $key, array $player ): bool {
+    private static function isComplete( string $key, array $player ): bool {
         switch ( $key ) {
             case self::GUARDIAN_NAME:
                 return trim( (string) ( $player['guardian_name'] ?? '' ) ) !== '';

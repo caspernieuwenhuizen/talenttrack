@@ -252,7 +252,121 @@ final class DossierCompletenessTest extends WP_UnitTestCase {
         $this->assertSame( [], (array) $data['checks'] );
     }
 
+    // ── #4145: the per-player view and the two sorts ───────────────────
+
+    public function test_each_player_lists_the_checks_their_file_fails(): void {
+        $report = DossierCompletenessService::fromRoster( [
+            $this->row( 1, 'Anna', [
+                'guardian_name'  => 'X',
+                'guardian_email' => 'x@example.test',
+                'guardian_phone' => '06',
+                'parent_count'   => 1,
+                'media_consent'  => 1,
+            ] ),
+            $this->row( 2, 'Bram', [ 'guardian_phone' => '06', 'media_count' => 4 ] ),
+        ] );
+
+        $by_id = [];
+        foreach ( $report['players'] as $player ) $by_id[ $player['player_id'] ] = $player;
+
+        $this->assertSame( [], $by_id[1]['missing'] );
+        $this->assertSame( 0, $by_id[1]['gap_count'] );
+        $this->assertSame(
+            [
+                DossierCompletenessService::GUARDIAN_NAME,
+                DossierCompletenessService::GUARDIAN_EMAIL,
+                DossierCompletenessService::PARENT_ACCOUNT,
+                DossierCompletenessService::MEDIA_CONSENT,
+                DossierCompletenessService::MEDIA_WITHOUT_CONSENT,
+            ],
+            $by_id[2]['missing']
+        );
+        $this->assertSame( 4, $by_id[2]['media_items'] );
+        $this->assertSame( 1, $report['players_complete'] );
+    }
+
+    public function test_players_sort_by_most_gaps_then_shirt_number(): void {
+        $full = [
+            'guardian_name'  => 'X',
+            'guardian_email' => 'x@example.test',
+            'guardian_phone' => '06',
+            'parent_count'   => 1,
+            'media_consent'  => 1,
+        ];
+        $report = DossierCompletenessService::fromRoster( [
+            $this->row( 10, 'Complete', $full + [ 'jersey_number' => 1 ] ),
+            $this->row( 11, 'NoShirt', [] ),
+            $this->row( 12, 'Shirt9', [ 'jersey_number' => 9 ] ),
+            $this->row( 13, 'Shirt4', [ 'jersey_number' => 4 ] ),
+            $this->row( 14, 'OneGap', array_merge( $full, [ 'guardian_phone' => '' ] ) ),
+        ] );
+
+        $this->assertSame(
+            [ 13, 12, 11, 14, 10 ],
+            array_map( static function ( array $p ): int { return $p['player_id']; }, $report['players'] ),
+            'most gaps first; ties by shirt number, players without one last'
+        );
+    }
+
+    public function test_checks_sort_lowest_completion_first_with_ties_in_fixed_order(): void {
+        // Two players: both have a guardian name and a parent account, one
+        // has a phone number. Everything else is missing for both.
+        $report = DossierCompletenessService::fromRoster( [
+            $this->row( 1, 'A', [ 'guardian_name' => 'X', 'parent_count' => 1, 'guardian_phone' => '06' ] ),
+            $this->row( 2, 'B', [ 'guardian_name' => 'Y', 'parent_count' => 1 ] ),
+        ] );
+
+        $this->assertSame(
+            [
+                DossierCompletenessService::GUARDIAN_EMAIL,
+                DossierCompletenessService::MEDIA_CONSENT,
+                DossierCompletenessService::GUARDIAN_PHONE,
+                DossierCompletenessService::GUARDIAN_NAME,
+                DossierCompletenessService::PARENT_ACCOUNT,
+                DossierCompletenessService::MEDIA_WITHOUT_CONSENT,
+            ],
+            array_map( static function ( array $c ): string { return (string) $c['key']; }, $report['checks'] )
+        );
+        $this->assertSame( 0, $report['checks'][0]['completion'] );
+        $this->assertSame( 50, $report['checks'][2]['completion'] );
+        $this->assertSame( 100, $report['checks'][5]['completion'] );
+    }
+
+    public function test_the_rest_payload_carries_the_per_player_view(): void {
+        $player = $this->makePlayer( 'Listed', [ 'jersey_number' => 7 ] );
+
+        [ $data ] = $this->fetch( $this->team_id );
+
+        $this->assertCount( 1, (array) $data['players'] );
+        $this->assertSame( $player, (int) $data['players'][0]['player_id'] );
+        $this->assertSame( 7, (int) $data['players'][0]['jersey'] );
+        $this->assertContains( DossierCompletenessService::GUARDIAN_PHONE, (array) $data['players'][0]['missing'] );
+        $this->assertSame( 0, (int) $data['players_complete'] );
+    }
+
     // ── helpers ────────────────────────────────────────────────────────
+
+    /**
+     * A roster row as `roster()` returns it.
+     *
+     * @param array<string,mixed> $extra
+     * @return array<string,mixed>
+     */
+    private function row( int $id, string $last_name, array $extra ): array {
+        return array_merge( [
+            'player_id'        => $id,
+            'first_name'       => 'Row',
+            'last_name'        => $last_name,
+            'jersey_number'    => null,
+            'guardian_name'    => '',
+            'guardian_email'   => '',
+            'guardian_phone'   => '',
+            'media_consent'    => 0,
+            'media_consent_at' => null,
+            'parent_count'     => 0,
+            'media_count'      => 0,
+        ], $extra );
+    }
 
     /** @return array{0:array<string,mixed>,1:int} */
     private function fetch( int $team_id ): array {
