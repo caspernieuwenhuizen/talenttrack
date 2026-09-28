@@ -341,7 +341,7 @@ final class SpondRestController {
             $dtend       = (string) ( $event['dtend'] ?? '' );
             $meetup      = (string) ( $event['meetup'] ?? '' );
 
-            $type = SpondTypeResolver::classify( $title, $description );
+            $type = SpondTypeResolver::classify( $title, $description, ! empty( $event['is_match'] ) );
 
             // Local-time conversion mirrors SpondSync::localParts().
             [ , $start_time ] = self::localParts( $dtstart );

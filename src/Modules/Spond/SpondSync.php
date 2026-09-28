@@ -148,7 +148,7 @@ final class SpondSync {
             $seen[] = $uid;
 
             $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, activity_type_key FROM {$p}tt_activities
+                "SELECT id, activity_type_key, opponent, home_away FROM {$p}tt_activities
                   WHERE external_id = %s
                     AND activity_source_key = %s
                     AND club_id = %d
@@ -160,6 +160,7 @@ final class SpondSync {
             $location = (string) ( $event['location'] ?? '' );
             $notes    = trim( (string) ( $event['description'] ?? '' ) );
             $dtstart  = (string) ( $event['dtstart'] ?? '' );
+            $is_match = ! empty( $event['is_match'] );
 
             // Spond timestamps are UTC; the date + the TIME columns are
             // local wall-clock. Convert through the site timezone (this
@@ -179,6 +180,23 @@ final class SpondSync {
                 // coach's edits survive. So `notes` is deliberately absent
                 // from the update array.
                 $type_key = (string) ( $existing->activity_type_key ?? '' );
+
+                // #4164 — the one exception to "TT wins the type": a row
+                // still at `training` that Spond flags as a match was
+                // mis-typed by the old keyword fallback, not by a coach.
+                // Correct it, and fill the opponent columns only where they
+                // are still empty so a coach's entry is never replaced.
+                $correction = [];
+                $corrected  = SpondTypeResolver::correctedType( $type_key, $title, $is_match );
+                if ( $corrected !== null ) {
+                    $type_key   = $corrected;
+                    $correction = [ 'activity_type_key' => $corrected ];
+                    $derived    = self::matchOpponentColumns( $type_key, $event, $title, (string) ( $team->name ?? '' ) );
+                    if ( trim( (string) ( $existing->opponent ?? '' ) ) !== '' ) unset( $derived['opponent'] );
+                    if ( trim( (string) ( $existing->home_away ?? '' ) ) !== '' ) unset( $derived['home_away'] );
+                    $correction += $derived;
+                }
+
                 $update   = [
                     'title'        => $title,
                     'session_date' => $session_date ?: '0000-00-00',
@@ -186,12 +204,12 @@ final class SpondSync {
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time );
                 $wpdb->update(
                     "{$p}tt_activities",
-                    $update + [ 'archived_at' => null ],
+                    $update + $correction + [ 'archived_at' => null ],
                     [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ]
                 );
                 $updated++;
             } else {
-                $type_key = SpondTypeResolver::classify( $title, $notes );
+                $type_key = SpondTypeResolver::classify( $title, $notes, $is_match );
                 // #3860 — Spond carries no opponent field: the club the team
                 // is playing arrives inside the event summary, and until now
                 // it stayed there. Every surface that reads
@@ -202,7 +220,7 @@ final class SpondSync {
                 // says something, and only on INSERT: like `notes`, the
                 // columns stay out of the update array so a coach's
                 // correction survives the next sync.
-                $derived = self::opponentColumns( $type_key, $title, (string) ( $team->name ?? '' ) );
+                $derived = self::matchOpponentColumns( $type_key, $event, $title, (string) ( $team->name ?? '' ) );
                 $wpdb->insert( "{$p}tt_activities", $derived + [
                     'club_id'             => CurrentClub::id(),
                     'team_id'             => $team_id,
@@ -325,6 +343,31 @@ final class SpondSync {
 
         $cols = [ 'opponent' => $derived['opponent'] ];
         if ( $derived['home_away'] !== '' ) $cols['home_away'] = $derived['home_away'];
+        return $cols;
+    }
+
+    /**
+     * #4164 — the opponent columns, from Spond's `matchInfo` when it has
+     * them and from the title otherwise.
+     *
+     * Spond's match record names the opponent and home/away outright, so
+     * it beats parsing the heading. Each column falls back to the title
+     * parse on its own: an event with an opponent but no HOME/AWAY still
+     * gets whatever the title says about the venue. Same type gate as
+     * `opponentColumns()`, so a tournament still gets no single opponent.
+     *
+     * @param array<string,mixed> $event
+     * @return array<string,string>
+     */
+    private static function matchOpponentColumns( string $type_key, array $event, string $title, string $team_name ): array {
+        $cols = self::opponentColumns( $type_key, $title, $team_name );
+        if ( ! in_array( $type_key, [ 'game', 'match', 'friendly' ], true ) ) return $cols;
+
+        $opponent  = trim( (string) ( $event['match_opponent'] ?? '' ) );
+        $home_away = (string) ( $event['match_home_away'] ?? '' );
+        if ( $opponent !== '' )  $cols['opponent']  = $opponent;
+        if ( $home_away !== '' ) $cols['home_away'] = $home_away;
+
         return $cols;
     }
 

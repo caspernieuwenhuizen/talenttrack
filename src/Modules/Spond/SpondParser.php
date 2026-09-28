@@ -23,6 +23,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   description     → description
  *   updated|lastModified → last_modified
  *   cancelled       → drop the row entirely (treat like UID-disappeared)
+ *   matchEvent      → is_match  (Spond's own "this is a match" flag)
+ *   matchInfo.opponentName → match_opponent
+ *   matchInfo.type  → match_home_away  (HOME / AWAY → home / away)
+ *
+ * The match fields matter because a Spond match heading is usually just
+ * the two team names ("VCT JO14-1 - Hedel JO14-1"), which carries none of
+ * the keywords the title classifier looks for. Before #4164 the flag was
+ * dropped here and every such match imported as a training.
  */
 final class SpondParser {
 
@@ -30,7 +38,7 @@ final class SpondParser {
      * Parse the JSON event list returned by `SpondClient::fetchEvents`.
      *
      * @param list<array<string,mixed>> $events
-     * @return list<array{uid:string,summary:string,dtstart:string,dtend:string,meetup:string,location:string,description:string,last_modified:string}>
+     * @return list<array{uid:string,summary:string,dtstart:string,dtend:string,meetup:string,location:string,description:string,last_modified:string,is_match:bool,match_opponent:string,match_home_away:string}>
      */
     public static function parse( array $events ): array {
         $out = [];
@@ -41,6 +49,8 @@ final class SpondParser {
             $uid = (string) ( $event['id'] ?? '' );
             if ( $uid === '' ) continue;
 
+            $info = is_array( $event['matchInfo'] ?? null ) ? $event['matchInfo'] : [];
+
             $out[] = [
                 'uid'           => $uid,
                 'summary'       => trim( (string) ( $event['heading'] ?? '' ) ),
@@ -50,6 +60,9 @@ final class SpondParser {
                 'location'      => self::extractLocation( $event['location'] ?? null ),
                 'description'   => trim( (string) ( $event['description'] ?? '' ) ),
                 'last_modified' => self::iso8601ToMysqlUtc( (string) ( $event['updated'] ?? $event['lastModified'] ?? '' ) ),
+                'is_match'        => ! empty( $event['matchEvent'] ),
+                'match_opponent'  => trim( (string) ( $info['opponentName'] ?? '' ) ),
+                'match_home_away' => self::homeAway( $info['type'] ?? null ),
             ];
         }
         return $out;
@@ -81,6 +94,18 @@ final class SpondParser {
         } catch ( \Exception $e ) {
             return '';
         }
+    }
+
+    /**
+     * Spond's `matchInfo.type` (`HOME` / `AWAY`) as the `home_away` value
+     * `tt_activities` stores. Anything else is an empty string: no guess.
+     *
+     * @param mixed $type
+     */
+    private static function homeAway( $type ): string {
+        if ( ! is_string( $type ) ) return '';
+        $type = strtolower( trim( $type ) );
+        return in_array( $type, [ 'home', 'away' ], true ) ? $type : '';
     }
 
     /** Separator between the venue name and the street address. */
