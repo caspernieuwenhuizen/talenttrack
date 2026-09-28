@@ -18,6 +18,7 @@ An **activity** is anything on the calendar — a training, a game, or any other
 The **Activities** tile opens a date-bucketed card list. The buckets read top to bottom:
 
 - **⚠ Past — still open** — past activities that are still marked Planned. They never got flipped to Completed or Cancelled, so the coach lost track of them. This section renders **by default** at the very top of the list — above the collapsed Past toggle — in its own tinted, orange-accented block so past-but-unclosed activities can't be missed.
+- **Last 7 days** — activities from the past week that are already Completed or Cancelled, oldest first so the list reads straight on into today. They show without a click; only older history sits behind the collapsed Past toggle.
 - **Today** — what's on for today.
 - **This week** — the rest of this calendar week (up to and including Sunday).
 - **Next week** — Monday → Sunday of the upcoming week.
@@ -49,7 +50,7 @@ These are the same three states the [completing-with-nobody-on-the-register](#co
 
 ### Past activities
 
-Past activities (Completed or Cancelled) are pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1`, so a shared link reflects the same view the sender saw.
+Completed and Cancelled activities from the last 7 days stay visible in the **Last 7 days** section. Anything older is pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`, where N counts only those older activities. When nothing is older than a week, the button doesn't appear. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1`, so a shared link reflects the same view the sender saw.
 
 Past **planned** activities (not closed off) are NOT in this collapsed bucket — they appear in the **Past — still open** section at the top of the list (above the Past toggle and Today), shown by default, since they are signals that the coach still needs to act on.
 
