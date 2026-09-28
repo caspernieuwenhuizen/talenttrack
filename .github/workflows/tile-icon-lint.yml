@@ -1,0 +1,42 @@
+name: Tile icon lint
+
+# #4168 — a tile's icon is drawn from two sets: the line icon in the shell
+# nav (sidebar, rail, bottom bar) and the duotone icon on the dashboard tile.
+# IconRenderer::render() returns nothing when the line file is missing, so a
+# tile whose icon exists only as duotone shows up in the nav without an icon.
+# This gate fails a tile that registers an icon missing from either set.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'assets/icons/**'
+      - 'tools/check-tile-icons.php'
+      - '.github/workflows/tile-icon-lint.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'assets/icons/**'
+      - 'tools/check-tile-icons.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Every tile icon exists in both sets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Check tile icons
+        run: php tools/check-tile-icons.php
