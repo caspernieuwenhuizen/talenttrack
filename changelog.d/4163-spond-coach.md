@@ -1,3 +1,0 @@
-# Spond-imported activities get the team's head coach (#4163)
-
-The Spond sync stored every imported event with no coach, so a synced team's trainings opened with "no trainer", the register reminders had nobody to go to, and the "no coach assigned" alert fired for teams that do have a head coach. New Spond events now get the team's head coach, the same default as every other way of creating an activity; a team with no head coach or two stays unassigned. A one-off update gives activities already imported from Spond their team's head coach, past and future alike. A coach set in TalentTrack is never overwritten.

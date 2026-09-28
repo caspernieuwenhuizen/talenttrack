@@ -67794,6 +67794,15 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:381
+msgid "Tests & measurements"
+msgstr "Tests & metingen"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php:160
+#, php-format
+msgid "%1$d of %2$d measured"
+msgstr "%1$d van %2$d gemeten"
+
 # v3.71.3 — issue #16 Reports preset translations
 #~ msgid "Preset name"
 #~ msgstr "Naam preset"

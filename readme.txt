@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.140.3
+Stable tag: 4.140.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.140.4 — Test trends and BMI-for-age move from dashboard tiles into Reports (#4154) Test trends and Player · BMI-for-age no longer have their own tiles in the dashboard's Analyses group. They are listed on the Reports page, in a new Tests & measurements section after Development & performance, which is where both reports already pointed their breadcrumb. The entries keep the tiles' access check: they appear only to someone who may read test results, only while the Measurements module is on, and each disappears when its report is switched off under Features. Test results stays a dashboard tile. =
+
+= 4.140.4 — Dashboard: a Tests & measurements group for recording, coverage and results (#4155) Record measurements, Testing coverage and Test results now sit together in a new Tests & measurements group on the dashboard, after Development, in the order the work happens: record, see who is due, read the results. Record measurements and Testing coverage left Performance and Test results left Analyses; the shell's sidebar, rail and bottom bar follow the same group order. Testing coverage gets its own clock icon so it no longer looks identical to Record measurements, and both descriptions drop the "Tests & measurements:" prefix the group now makes redundant. Manage tests stays under Configuration. Who can see each tile is unchanged. =
+
+= 4.140.4 — Spond-imported activities get the team's head coach (#4163) The Spond sync stored every imported event with no coach, so a synced team's trainings opened with "no trainer", the register reminders had nobody to go to, and the "no coach assigned" alert fired for teams that do have a head coach. New Spond events now get the team's head coach, the same default as every other way of creating an activity; a team with no head coach or two stays unassigned. A one-off update gives activities already imported from Spond their team's head coach, past and future alike. A coach set in TalentTrack is never overwritten. =
+
+= 4.140.4 — Matches from Spond import as matches, not trainings (#4164) The Spond sync decided an event's type from keywords in its title, and a Spond match is usually titled with just the two team names, so most matches arrived in TalentTrack as trainings: no opponent, no kickoff time, no minutes grid, and missing from the team record and the monthly report. The sync now reads Spond's own match flag: an event created as a match in Spond imports as a game (or a tournament when its title says so), with the opponent and home/away taken from Spond's match details. Matches already imported as trainings are corrected on the next sync; a type a coach chose is left alone. =
+
+= 4.140.4 — The measurement counts on a player profile agree (#4166) The Measurements tab badge now counts the same thing as the Measurements tile in the At a glance panel: tests visible on the player's profile to you that have a result. It used to count every test with a result, including ones switched off, archived, hidden from the profile or above your access level, so it could show a test the tab never lists. Each category card on the tab now reads "5 of 7 measured" instead of "7 tests", so it is clear why it lists more rows than the badge counts. =
 
 = 4.140.3 — Filter bars stay on one row, and the goals bar is tidied up (#4147) On a laptop or desktop, a list's filter bar is now either one row or the Filters button with chips; it no longer wraps onto a second line. From 1024 to 1439px, and whenever the full bar would not fit, the controls get narrower and the status pills fold into one dropdown that shows the active status. On the goals list the deadline filter is labelled "Deadline" instead of "DUE" and opens a small panel with From, To and Apply; the "Status: Active" chip and the Clear button no longer appear before you filter anything; and the player picker lines up with the fields next to it. The date filters' Apply button is now the secondary style, so it no longer competes with "+ Add goal". =
 
