@@ -4,6 +4,7 @@ namespace TT\Modules\Analytics\Reports;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
@@ -32,6 +33,11 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  *     nothing.
  *   - Tenant-scoped on `tt_players.club_id` (no-op single-tenant
  *     today; structural for SaaS).
+ *   - Current roster only (#4172): a row counts when its activity belongs
+ *     to the team the player is in now, per {@see TeamRoster}. A team's
+ *     figures are its present squad's; a player who moved is measured on
+ *     the new team's activities. A player's own history is read elsewhere
+ *     (profile, player report) and keeps every team.
  *
  * "Attended", "missed" and the flag thresholds are delegated to
  * AttendanceFlagService so the report badge / panel, this query, and the
@@ -92,6 +98,12 @@ final class AttendanceRankingQuery {
 
         $counts = AttendanceFlagService::statusCountsSql( 'att.status' );
 
+        // #4172 — only the activities of the team the player is in now, and
+        // only while they are on its roster. A player who moved counts for
+        // their new team and drops out of the old one's figures; the team
+        // name beside them is the team every counted row belongs to.
+        $on_roster = TeamRoster::memberOfClause( 'p', 'a.team_id' );
+
         /** @var object[] $raw */
         $raw = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -104,7 +116,7 @@ final class AttendanceRankingQuery {
                 {$counts}
               FROM {$wpdb->prefix}tt_attendance att
               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL AND a.trashed_at IS NULL
-              JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND p.archived_at IS NULL
+              JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND {$on_roster}
               LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id
              WHERE p.club_id = %d
                AND att.is_guest = 0
@@ -184,6 +196,9 @@ final class AttendanceRankingQuery {
             : '';
         $completed = ActivityLifecycle::completedClause( 'a' );
         $counts    = AttendanceFlagService::statusCountsSql( 'att.status' );
+        // #4172 — the team's totals are its current squad's, the same rows
+        // rows() returns for the team.
+        $on_roster = TeamRoster::memberOfClause( 'p', 't.id' );
 
         $raw = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -195,6 +210,7 @@ final class AttendanceRankingQuery {
               FROM {$wpdb->prefix}tt_teams t
               JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL AND a.trashed_at IS NULL
               JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
+              JOIN {$wpdb->prefix}tt_players p ON p.id = att.player_id AND p.club_id = t.club_id AND {$on_roster}
              WHERE t.club_id = %d
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s

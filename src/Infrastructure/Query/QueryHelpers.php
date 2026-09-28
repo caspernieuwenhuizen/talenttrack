@@ -524,9 +524,12 @@ class QueryHelpers {
         $scope     = self::apply_demo_scope( 'p', 'player' );
         $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'p' );
         if ( $team_id ) {
+            // #4172 — the team's roster, one definition shared with the
+            // team-level attendance figures.
+            $roster = \TT\Infrastructure\Teams\TeamRoster::memberOfClause( 'p', '%d' );
             return $wpdb->get_results( $wpdb->prepare(
                 "SELECT p.* FROM {$wpdb->prefix}tt_players p
-                 WHERE p.team_id = %d AND p.status = 'active' AND p.club_id = %d AND {$lifecycle} {$scope}
+                 WHERE {$roster} AND p.club_id = %d {$scope}
                  ORDER BY p.last_name, p.first_name ASC",
                 $team_id, CurrentClub::id()
             ) );
@@ -552,11 +555,11 @@ class QueryHelpers {
         if ( ! $ids ) return [];
         global $wpdb;
         $scope     = self::apply_demo_scope( 'p', 'player' );
-        $lifecycle = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( 'active', 'p' );
+        $live      = \TT\Infrastructure\Teams\TeamRoster::liveClause( 'p' );
         $ph        = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (array) $wpdb->get_results( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
-             WHERE p.team_id IN ($ph) AND p.status = 'active' AND p.club_id = %d AND {$lifecycle} {$scope}
+             WHERE p.team_id IN ($ph) AND {$live} AND p.club_id = %d {$scope}
              ORDER BY p.last_name, p.first_name ASC",
             ...array_merge( $ids, [ CurrentClub::id() ] )
         ) );

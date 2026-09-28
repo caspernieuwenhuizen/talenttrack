@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 
@@ -74,6 +75,10 @@ final class TeamOverviewRepository {
         $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
         // #4086 — "completed" is the status the coach set, not plan_state.
         $completed = ActivityLifecycle::completedClause( 'act' );
+        // #4172 — attendance and the head count are the current squad's:
+        // the roster the team's player list shows, one definition.
+        $att_roster   = TeamRoster::memberOfClause( 'apl', 't.id' );
+        $count_roster = TeamRoster::memberOfClause( 'pl', 't.id' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT t.id AS team_id,
                     t.name AS team_name,
@@ -103,6 +108,7 @@ final class TeamOverviewRepository {
                         SELECT CONCAT( {$attended}, ':', COUNT(*) )
                           FROM {$p}tt_attendance att
                           INNER JOIN {$p}tt_activities act ON act.id = att.activity_id AND act.club_id = att.club_id
+                          INNER JOIN {$p}tt_players apl ON apl.id = att.player_id AND apl.club_id = t.club_id AND {$att_roster}
                          WHERE act.team_id = t.id
                            AND att.club_id = t.club_id
                            AND att.is_guest = 0
@@ -114,7 +120,7 @@ final class TeamOverviewRepository {
                     (
                         SELECT COUNT(*)
                           FROM {$p}tt_players pl
-                         WHERE pl.team_id = t.id AND pl.club_id = t.club_id AND pl.status = 'active'
+                         WHERE {$count_roster} AND pl.club_id = t.club_id
                     ) AS player_count
                FROM {$p}tt_teams t
               WHERE t.club_id = %d
@@ -160,6 +166,9 @@ final class TeamOverviewRepository {
         $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
         // #4086 — "completed" is the status the coach set, not plan_state.
         $completed = ActivityLifecycle::completedClause( 'act' );
+        // #4172 — the current squad, each measured on this team's
+        // activities: the rows the team attendance report shows.
+        $roster    = TeamRoster::memberOfClause( 'pl', '%d' );
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.id AS player_id,
                     pl.first_name, pl.last_name,
@@ -169,6 +178,7 @@ final class TeamOverviewRepository {
                           INNER JOIN {$p}tt_activities act ON act.id = att.activity_id AND act.club_id = att.club_id
                          WHERE att.player_id = pl.id
                            AND att.club_id = pl.club_id
+                           AND act.team_id = pl.team_id
                            AND att.is_guest = 0
                            AND att.record_type = 'actual'
                            AND {$completed}
@@ -186,7 +196,7 @@ final class TeamOverviewRepository {
                            AND e.eval_date <= %s
                     ) AS avg_rating
                FROM {$p}tt_players pl
-              WHERE pl.team_id = %d AND pl.club_id = %d AND pl.status = 'active'
+              WHERE {$roster} AND pl.club_id = %d
               ORDER BY pl.last_name ASC, pl.first_name ASC",
             $from, $to, $from, $to, $team_id, $club_id
         ) );

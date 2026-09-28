@@ -4,6 +4,7 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
@@ -123,10 +124,14 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
         $attended_sum = AttendanceFlagService::attendedSumSql( 'att.status' );
         // #4086 — "completed" is the status the coach set, not plan_state.
         $completed    = ActivityLifecycle::completedClause( 'a' );
+        // #4172 — each player on the activities of the team they are in now,
+        // the academy-wide leaderboard's rule.
+        $on_roster    = TeamRoster::memberOfClause( 'pl', 'a.team_id' );
         $attendance   = $wpdb->get_row( $wpdb->prepare(
             "SELECT COUNT(*) AS total, {$attended_sum} AS attended
                FROM {$p}tt_attendance att
                 INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
+                INNER JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id AND {$on_roster}
                 WHERE att.club_id = %d
                   AND att.record_type = 'actual'
                   AND att.is_guest = 0

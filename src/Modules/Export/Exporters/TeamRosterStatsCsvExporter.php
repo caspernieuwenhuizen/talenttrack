@@ -99,7 +99,8 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
 
         // #4041 — the attendance count is attended (present + late) on the
         // player's own team's activities, the one rule from
-        // AttendanceFlagService; guest appearances are left out.
+        // AttendanceFlagService; guest appearances are left out. #4172 — the
+        // `a.team_id = pl.team_id` line is what makes it the own team's.
         $attended = AttendanceFlagService::attendedStatusClause( 'att.status' );
         // #4086 — "completed" is the status the coach set, not plan_state.
         $completed = ActivityLifecycle::completedClause( 'a' );
@@ -112,6 +113,7 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                        INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
                       WHERE att.player_id = pl.id
                         AND att.club_id  = pl.club_id
+                        AND a.team_id    = pl.team_id
                         AND {$attended}
                         AND att.is_guest = 0
                         AND att.record_type = 'actual'

@@ -11,6 +11,7 @@ use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\PlayerStatus\StatusVerdict;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Teams\TeamKpisRepository;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
@@ -1600,6 +1601,7 @@ final class TeamMonthlyReport {
 
     /**
      * The squad as it stands: active, live players on the team, keyed by id.
+     * The same roster the attendance rows are counted over ({@see TeamRoster}).
      *
      * @return array<int,object>
      */
@@ -1610,10 +1612,8 @@ final class TeamMonthlyReport {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT p.id, p.first_name, p.last_name, p.jersey_number
                    FROM {$wpdb->prefix}tt_players p
-                  WHERE p.team_id = %d
+                  WHERE " . TeamRoster::memberOfClause( 'p', '%d' ) . "
                     AND p.club_id = %d
-                    AND p.status = 'active'
-                    AND " . ArchiveRepository::filterClause( 'active', 'p' ) . "
                   ORDER BY " . PlayerOrder::sqlOrderBy( 'p' ),
                 $this->team_id, CurrentClub::id()
             ) );

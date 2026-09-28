@@ -221,6 +221,10 @@ class TeamRosterTableWidget extends AbstractWidget {
         // Attendance % per player over the window. `present + late`
         // counts as present.
         //
+        // #4172 — on this team's activities only, as the team attendance
+        // report counts them: time a player spent at a previous team is in
+        // their own report, not in this team's table.
+        //
         // v3.110.182 (#781) — demo-mode scope on the activity row so
         // the per-player % is consistent with what the activities list
         // surfaces under the same toggle.
@@ -244,13 +248,14 @@ class TeamRosterTableWidget extends AbstractWidget {
                JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
               WHERE att.club_id = %d
                 AND att.player_id IN ( {$placeholders} )
+                AND a.team_id = %d
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
                 AND {$completed}
                 AND a.session_date >= %s
                 {$act_scope}
               GROUP BY att.player_id",
-            array_merge( [ $club_id ], $ids, [ $start ] )
+            array_merge( [ $club_id ], $ids, [ $team_id, $start ] )
         ) );
         $att_by_player = [];
         foreach ( (array) $att_rows as $r ) {

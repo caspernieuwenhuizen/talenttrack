@@ -47,7 +47,8 @@ class TeamKpisRepository {
      * Average attendance percentage across the team's completed
      * activities in the last $days days. Mirrors
      * ActivitiesRepository::attendanceRateForPlayer but aggregates over
-     * every actual, non-guest attendance row on the team's activities.
+     * every actual, non-guest attendance row on the team's activities of
+     * the players currently on its roster ({@see TeamRoster}).
      * Returns null when there is nothing to measure.
      */
     public function avgAttendance( int $team_id, int $days = 30 ): ?int {
@@ -59,12 +60,15 @@ class TeamKpisRepository {
         $completed = \TT\Infrastructure\Query\ActivityLifecycle::completedClause( 'a' );
         // #4041 — attended is the one rule (present + late), from the service.
         $attended  = AttendanceFlagService::attendedSumSql( 'att.status' );
+        // #4172 — the current squad only, as on the team attendance report.
+        $on_roster = TeamRoster::memberOfClause( 'pl', 'a.team_id' );
         $row  = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 {$attended} AS present_n,
                 COUNT(*) AS total_n
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
+               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = a.club_id AND {$on_roster}
               WHERE a.team_id = %d
                 AND att.is_guest = 0
                 AND att.record_type = 'actual'

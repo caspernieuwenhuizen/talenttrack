@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
@@ -111,12 +112,18 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
         // #4086 — "completed" is the status the coach set, not plan_state.
         $completed = ActivityLifecycle::completedClause( 'act' );
+        // #4172 — academy-wide is every team's figure at once: each player
+        // counted on the activities of the team they are in now, as the
+        // academy-wide leaderboard counts them.
+        $on_roster = TeamRoster::memberOfClause( 'pl', 'act.team_id' );
+        $players   = $wpdb->prefix . 'tt_players';
         $row =$wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
                 {$attended} AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
+              JOIN {$players} pl ON pl.id = a.player_id AND pl.club_id = act.club_id AND {$on_roster}
              WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s
                AND a.record_type = 'actual'
                AND a.is_guest = 0
