@@ -211,7 +211,7 @@ final class DossierCompletenessService {
      */
     private static function perPlayer( array $players ): array {
         $rows = [];
-        foreach ( array_values( $players ) as $index => $player ) {
+        foreach ( $players as $index => $player ) {
             $missing = [];
             foreach ( self::checkKeys() as $key ) {
                 if ( ! self::isComplete( $key, $player ) ) $missing[] = $key;

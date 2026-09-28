@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Players\Services\DossierCompletenessService;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -136,18 +137,15 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
      * @param list<array<string,mixed>> $players
      */
     private static function renderOverview( array $players, int $players_complete ): void {
-        $incomplete = array_values( array_filter(
-            $players,
-            static function ( $row ): bool {
-                return is_array( $row ) && ! empty( $row['missing'] );
+        $incomplete = [];
+        $complete   = [];
+        foreach ( $players as $row ) {
+            if ( empty( $row['missing'] ) ) {
+                $complete[] = $row;
+            } else {
+                $incomplete[] = $row;
             }
-        ) );
-        $complete = array_values( array_filter(
-            $players,
-            static function ( $row ): bool {
-                return is_array( $row ) && empty( $row['missing'] );
-            }
-        ) );
+        }
 
         echo '<section class="tt-dc-card tt-dc-overview" aria-labelledby="tt-dc-overview-title">';
         echo '<h2 class="tt-dc-card__title" id="tt-dc-overview-title">' . esc_html__( 'Who is missing what', 'talenttrack' ) . '</h2>';
@@ -260,15 +258,21 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
         echo '</ul>';
     }
 
-    /** @param array<string,mixed> $row A `players` entry from the service. */
+    /**
+     * A player's name, linked to their record when the viewer can open it.
+     * The link is gated like every other cross-view link: a viewer who
+     * could not reach the player view reads the name as plain text.
+     *
+     * @param array<string,mixed> $row A `players` entry from the service.
+     */
     private static function renderPlayerName( array $row ): void {
         $player_id = (int) ( $row['player_id'] ?? 0 );
         $name      = (string) ( $row['name'] ?? '' );
         $label     = $name !== '' ? $name : '#' . $player_id;
-        if ( $player_id > 0 ) {
+        if ( $player_id > 0 && CrossViewLink::allows( 'players' ) ) {
             echo RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes its own output.
                 $label,
-                RecordLink::detailUrlForWithBack( 'players', $player_id )
+                RecordLink::detailUrlForWithBack( 'players', $player_id ) /* tt-xview-ok — gated by CrossViewLink::allows() above */
             );
             return;
         }
@@ -428,18 +432,9 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
      * spelled out in words beside it.
      */
     private static function renderRow( int $player_id, string $name, string $state, string $chip ): void {
-        $label = $name !== '' ? $name : '#' . $player_id;
-
         echo '<li class="tt-dc-row">';
         echo '<span class="tt-dc-row__name">';
-        if ( $player_id > 0 ) {
-            echo RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes its own output.
-                $label,
-                RecordLink::detailUrlForWithBack( 'players', $player_id )
-            );
-        } else {
-            echo esc_html( $label );
-        }
+        self::renderPlayerName( [ 'player_id' => $player_id, 'name' => $name ] );
         echo '</span>';
         echo '<span class="tt-dc-chip tt-dc-chip--' . esc_attr( $state ) . '">' . esc_html( $chip ) . '</span>';
         echo '</li>';
