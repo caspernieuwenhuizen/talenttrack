@@ -1,0 +1,19 @@
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1906
+msgctxt "team monthly report column: attendance, short"
+msgid "Att."
+msgstr "Aanw."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1907
+msgctxt "team monthly report column: minutes, short"
+msgid "Min."
+msgstr "Min."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1908
+msgctxt "team monthly report column: open goals, short"
+msgid "Goals"
+msgstr "Doelen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1909
+msgctxt "team monthly report column: injured, short"
+msgid "Injury"
+msgstr "Blessure"

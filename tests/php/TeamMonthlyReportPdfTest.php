@@ -255,13 +255,70 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
             $screen   = TeamMonthlyReportDocument::screen( $prepared['report'], $layout, 'Pdf U13', $prepared['fit'] );
 
             foreach ( [ 'paper' => $paper, 'screen' => $screen ] as $out => $html ) {
-                $injured   = strpos( $html, '>Injured</th>' );
+                $injured   = strpos( $html, '<abbr title="Injured">' );
                 $suspended = strpos( $html, '>Suspended</th>' );
                 $this->assertNotFalse( $suspended, "{$layout} {$out}: no Suspended column" );
                 $this->assertGreaterThan( (int) $injured, (int) $suspended, "{$layout} {$out}: Suspended sits after Injured" );
                 $this->assertSame( 1, substr_count( $html, 'data-label="Suspended">2</td>' ), "{$layout} {$out}: the suspended player's count" );
             }
         }
+    }
+
+    /**
+     * #4140 — the roster lines up, on paper and on the screen's sheets: a
+     * header cell for every figure, a width for every column, headers on one
+     * line, and no style meant for another table reaching its cells. The
+     * rating chip was `.r`, the same class as the roster's right-aligned
+     * cells, and made them inline blocks that drifted off their headers.
+     */
+    public function test_the_roster_columns_line_up(): void {
+        // The evaluations grid carries the rating chips.
+        $report = $this->only( $this->withEvaluations( $this->report( 20 ), 'details', false ), [ 'roster', 'evaluations' ] );
+        foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+            $prepared = TeamMonthlyReportDocument::prepare( $report, $layout );
+            $paper    = TeamMonthlyReportDocument::html( $prepared['report'], $layout, 'Pdf U13', [], $prepared['fit']['groups'] );
+            $screen   = TeamMonthlyReportDocument::screen( $prepared['report'], $layout, 'Pdf U13', $prepared['fit'] );
+            $css      = [
+                'paper'  => (string) preg_replace( '/^.*<style>(.*?)<\/style>.*$/s', '$1', $paper ),
+                'screen' => TeamMonthlyReportDocument::screenCss( $layout ),
+            ];
+
+            foreach ( [ 'paper' => $paper, 'screen' => $screen ] as $out => $html ) {
+                $prefix = $out === 'screen' ? 'tt-d-' : '';
+                $this->assertSame( 1, preg_match( '/<table class="' . $prefix . 'tbl"><thead><tr>(.*?)<\/tr><\/thead><tbody>(.*?)<\/tbody>/s', $html, $m ), "{$layout} {$out}: no roster" );
+                $heads = substr_count( $m[1], '<th' );
+                $rows  = array_filter( explode( '</tr>', $m[2] ), static fn( string $r ): bool => strpos( $r, '<tr' ) !== false );
+                $this->assertCount( 20, $rows, "{$layout} {$out}: a row per player" );
+                foreach ( $rows as $row ) {
+                    $this->assertSame( $heads, substr_count( $row, '<td' ), "{$layout} {$out}: a figure without its header, or a header without its figure" );
+                }
+
+                for ( $i = 0; $i < $heads; $i++ ) {
+                    $this->assertStringContainsString( 'class="' . $prefix . 'w' . $i, $m[1], "{$layout} {$out}: column {$i} has no width class" );
+                    $this->assertMatchesRegularExpression( '/\.' . $prefix . 'tbl \.' . $prefix . 'w' . $i . '\{width:\d+mm\}/', $css[ $out ], "{$layout} {$out}: column {$i} has no width" );
+                }
+                $this->assertDoesNotMatchRegularExpression( '/\.' . $prefix . 'tbl \.' . $prefix . 'w' . $heads . '\{/', $css[ $out ], "{$layout} {$out}: a width for a column the roster does not have" );
+
+                $this->assertMatchesRegularExpression( '/\.' . $prefix . 'tbl th\{[^}]*white-space:nowrap/', $css[ $out ], "{$layout} {$out}: a header can wrap" );
+                // A selector that is the class alone reaches every table in
+                // the document, the roster's cells included.
+                $bare = $out === 'screen' ? '\.tt-mr-doc \.tt-d-' : '\.';
+                $this->assertDoesNotMatchRegularExpression( '/(^|[{},])' . $bare . '(r|c|nm|stat|bar)\{/', $css[ $out ], "{$layout} {$out}: a roster cell class is styled for every table" );
+            }
+        }
+    }
+
+    /**
+     * #4140 — on the screen the sheets start from what DomPDF gives a table,
+     * ahead of the document's own rules, so neither the dashboard nor the
+     * theme styles the paper, and the document still wins.
+     */
+    public function test_the_sheets_reset_the_tables_the_page_styles(): void {
+        $css   = TeamMonthlyReportDocument::screenCss( 'B' );
+        $reset = strpos( $css, '.tt-mr-doc .tt-mr-sheet :where(th,td){' );
+        $this->assertNotFalse( $reset, 'the sheet cells are not reset' );
+        $this->assertLessThan( (int) strpos( $css, '.tt-mr-doc .tt-d-tbl td{' ), $reset, 'the reset must come before the document\'s own rules' );
+        $this->assertStringContainsString( '.tt-mr-doc .tt-mr-sheet :where(table){', $css );
     }
 
     /**

@@ -828,7 +828,7 @@
     .tt-mr-doc .tt-d-egrid .tt-d-last { grid-column: 1 / -1; text-align: left; font-size: 0.8rem; color: var(--tt-muted); }
     .tt-mr-doc .tt-d-egrid .tt-d-none td { color: var(--tt-muted); }
     .tt-mr-doc .tt-d-egrid .tt-d-tot td { font-weight: 700; }
-    .tt-mr-doc .tt-d-r { display: inline-block; min-width: 2rem; padding: 0 4px; border-radius: 6px; font-weight: 800; font-size: 1rem; }
+    .tt-mr-doc .tt-d-egrid .tt-d-rt { display: inline-block; min-width: 2rem; padding: 0 4px; border-radius: 6px; font-weight: 800; font-size: 1rem; }
     .tt-mr-doc .tt-d-t1 { background: var(--tt-danger-subtle); color: var(--tt-danger-ink); }
     .tt-mr-doc .tt-d-t2 { background: var(--tt-warning-subtle); color: var(--tt-warning-ink); }
     .tt-mr-doc .tt-d-t3 { background: var(--tt-paper); color: var(--tt-ink); }
