@@ -62,13 +62,42 @@ final class SpondTypeResolver {
      */
     private const WHOLE_WORD_NEEDLES = [ 'kamp', 'uit' ];
 
-    public static function classify( string $summary, string $description = '' ): string {
-        $type = self::firstMatch( $summary );
-        if ( $type === null ) {
-            $type = self::firstMatch( $description );
+    /**
+     * ## Spond's own match flag comes first (#4164)
+     *
+     * An event created as a match in Spond carries `matchEvent: true`, and
+     * its heading is usually just the two team names — no keyword for the
+     * scan below to find, so it fell through to `training`. When Spond says
+     * it is a match, it is a `game`, unless the title names a tournament.
+     * The keyword scan is only for events Spond does not flag.
+     */
+    public static function classify( string $summary, string $description = '', bool $spond_match = false ): string {
+        if ( $spond_match ) {
+            $type = self::firstMatch( $summary ) === 'tournament' ? 'tournament' : 'game';
+        } else {
+            $type = self::firstMatch( $summary );
+            if ( $type === null ) {
+                $type = self::firstMatch( $description );
+            }
         }
 
-        return (string) apply_filters( 'tt_spond_classify_event', $type ?? 'training', $summary, $description );
+        return (string) apply_filters( 'tt_spond_classify_event', $type ?? 'training', $summary, $description, $spond_match );
+    }
+
+    /**
+     * The type an already-imported activity should move to on re-sync, or
+     * null to leave it alone (#4164).
+     *
+     * The type is TalentTrack-owned after the first import, with one
+     * exception: a row still at `training` whose event Spond flags as a
+     * match. That is the classifier's old fallback, not a coach's choice —
+     * nobody turns a match into a training on purpose — so it is corrected.
+     * Any other stored type, including `other` or `meeting`, stays.
+     */
+    public static function correctedType( string $stored_type, string $summary, bool $spond_match ): ?string {
+        if ( ! $spond_match || $stored_type !== 'training' ) return null;
+
+        return self::classify( $summary, '', true );
     }
 
     /**

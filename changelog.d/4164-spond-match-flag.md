@@ -1,0 +1,3 @@
+# Matches from Spond import as matches, not trainings (#4164)
+
+The Spond sync decided an event's type from keywords in its title, and a Spond match is usually titled with just the two team names, so most matches arrived in TalentTrack as trainings: no opponent, no kickoff time, no minutes grid, and missing from the team record and the monthly report. The sync now reads Spond's own match flag: an event created as a match in Spond imports as a game (or a tournament when its title says so), with the opponent and home/away taken from Spond's match details. Matches already imported as trainings are corrected on the next sync; a type a coach chose is left alone.
