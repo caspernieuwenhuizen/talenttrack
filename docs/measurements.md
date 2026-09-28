@@ -488,7 +488,7 @@ returns `403`. For integrations and the SaaS front end.
 ## Test trends — one test, every player, over the season
 
 *Test results* answers "how is each player doing on this test **right
-now**". **Test trends** (Analysis group) answers the other half: **who is
+now**". **Test trends**, under **Reports**, answers the other half: **who is
 developing and who is stalling**. It is the Excel export's *Trends* sheet
 brought on screen.
 
@@ -563,7 +563,7 @@ refused rather than quietly widened. Integrations read the same numbers
 from `GET /wp-json/talenttrack/v1/reports/test-trends?definition_id=…`.
 
 An administrator can hide the report under **Settings → Features → Test
-trends**; with it off, the tile disappears and a direct link is rejected.
+trends**; with it off, it disappears from Reports and a direct link is rejected.
 
 ## Moving between the surfaces
 

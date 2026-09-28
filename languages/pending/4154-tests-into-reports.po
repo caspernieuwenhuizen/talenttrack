@@ -1,0 +1,3 @@
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:381
+msgid "Tests & measurements"
+msgstr "Tests & metingen"
