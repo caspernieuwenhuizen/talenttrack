@@ -111,7 +111,9 @@ naming the code and the codes that are accepted, and nothing is stored. It used
 to be removed in silence: a squad sent as `GK / DF / MF` was stored as `GK`
 alone, and Auto-balance then filled the keeper slot and left everybody else on
 the bench with no minutes. The older `DEF` / `MID` / `FWD` still work and read
-as `CB` / `CM` / `ST`.
+as `CB` / `CM` / `ST`. The codes are what is stored and matched on; the
+wizard's review and a player's Tournaments tab show each one by its name, so
+`DM` reads as *Defensive midfielder* and `AM` as *Attacking midfielder*.
 
 **Formations.** A tournament's default formation and a fixture's own formation
 have to be one the academy actually has under Configuration → Tournament

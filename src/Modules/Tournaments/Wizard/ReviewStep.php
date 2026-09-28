@@ -3,6 +3,7 @@ namespace TT\Modules\Tournaments\Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardEntryPoint;
@@ -258,7 +259,7 @@ final class ReviewStep implements WizardStepInterface {
         }
         $bits = [];
         foreach ( $counts as $code => $n ) {
-            if ( $n > 0 ) $bits[] = $code . ' ' . $n;
+            if ( $n > 0 ) $bits[] = LabelTranslator::positionLabel( (string) $code ) . ' ' . $n;
         }
         return $bits ? implode( ' · ', $bits ) : __( '(no positions set)', 'talenttrack' );
     }
