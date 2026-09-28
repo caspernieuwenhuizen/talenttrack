@@ -213,10 +213,17 @@ class FrontendEvaluationsView extends FrontendViewBase {
             ], $coach_filter, [
                 'date' => [
                     'type'       => 'date_range',
+                    // Without a label the bar printed the array key, so a
+                    // Dutch screen read "DATE".
+                    'label'      => _x( 'Date', 'list date filter', 'talenttrack' ),
                     'param_from' => 'date_from',
                     'param_to'   => 'date_to',
                     'label_from' => __( 'From', 'talenttrack' ),
                     'label_to'   => __( 'To',   'talenttrack' ),
+                    // One trigger pill on the inline bar, so the bar fits on
+                    // one row with the sidebar open; the dates open in its
+                    // popover.
+                    'compact'    => true,
                 ],
                 // #1470 — Active / Archived status filter. #2023 — "All"
                 // dropped: trashed rows live only in the recycle bin.

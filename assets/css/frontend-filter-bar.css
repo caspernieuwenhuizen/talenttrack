@@ -1112,6 +1112,13 @@ html.tt-sheet-lock body {
 	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__row .tt-filsel__select {
 		max-width: 10rem;
 	}
+	/* #4169 — the evaluations list carries seven controls; its type and
+	   coach selects give up the most width so the bar keeps one row with
+	   the sidebar open. The chosen value ellipsises and shows in its chip. */
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--eval_type_id .tt-filsel__select,
+	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__group--coach_id .tt-filsel__select {
+		max-width: 7rem;
+	}
 	.tt-dashboard .tt-filterbar:not(.is-compact) .tt-filterbar__trailing .tt-statset {
 		display: none;
 	}
@@ -1136,6 +1143,10 @@ html.tt-sheet-lock body {
 	}
 	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__row .tt-filsel__select {
 		max-width: 10rem;
+	}
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__group--eval_type_id .tt-filsel__select,
+	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__group--coach_id .tt-filsel__select {
+		max-width: 7rem;
 	}
 	.tt-dashboard .tt-filterbar.is-tight:not(.is-compact) .tt-filterbar__trailing .tt-statset {
 		display: none;
