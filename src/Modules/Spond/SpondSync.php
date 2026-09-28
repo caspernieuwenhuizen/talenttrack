@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\ActivityCoachAssignment;
 
 /**
  * SpondSync (#0031, rewritten via #0062) — upsert loop for Spond → tt_activities.
@@ -139,6 +140,12 @@ final class SpondSync {
             ) );
         }
 
+        // #4163 — a new Spond event gets the team's head coach, the same
+        // default every other create path has used since #3745. Resolved
+        // once per team, not per event. Insert only: the coach is
+        // TalentTrack-owned after the first import, like `notes`.
+        $coach_id = ActivityCoachAssignment::derivedForTeam( $team_id ) ?? 0;
+
         $created = 0;
         $updated = 0;
         $seen    = [];
@@ -214,7 +221,7 @@ final class SpondSync {
                     'activity_status_key' => 'planned',
                     'activity_source_key' => 'spond',
                     'external_id'         => $uid,
-                    'coach_id'            => 0,
+                    'coach_id'            => $coach_id,
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time ) );
                 if ( $wpdb->insert_id ) $created++;
             }
