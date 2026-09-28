@@ -233,7 +233,25 @@ final class TeamMonthlyReportDocument {
             self::css( $layout )
         );
 
-        return '@media (min-width: 1024px){' . $scoped . '}';
+        return '@media (min-width: 1024px){' . self::sheetReset() . $scoped . '}';
+    }
+
+    /**
+     * #4140 — the sheet's tables start from what DomPDF's own stylesheet gives
+     * a table, not from whatever the theme and the dashboard give one: no
+     * margins, borders or backgrounds, a 1px cell padding, headers bold and
+     * centred. `:where()` keeps each rule at the specificity of its wrapper
+     * classes, so every rule of the document's stylesheet, which follows,
+     * still wins, while a theme's `.entry-content td` does not reach in.
+     */
+    private static function sheetReset(): string {
+        $in = '.tt-mr-doc .tt-mr-sheet ';
+        return $in . ':where(table){width:100%;border-collapse:collapse;border-spacing:0;table-layout:auto;margin:0;border:0;background:transparent;font-size:inherit;line-height:inherit;color:inherit}'
+            . $in . ':where(thead,tbody,tfoot,tr){border:0;background:transparent}'
+            . $in . ':where(th,td){width:auto;min-width:0;max-width:none;height:auto;padding:1px;margin:0;border:0;background:transparent;'
+            . 'vertical-align:middle;text-align:inherit;white-space:inherit;font-size:inherit;font-weight:inherit;line-height:inherit;color:inherit;text-transform:inherit;letter-spacing:inherit}'
+            . $in . ':where(th){font-weight:bold;text-align:center}'
+            . $in . ':where(abbr){text-decoration:none;border:0;cursor:help}';
     }
 
     /**
@@ -984,7 +1002,7 @@ final class TeamMonthlyReportDocument {
                 }
                 $trend = (string) ( $cell['trend'] ?? '' );
                 $arrow = $trend === 'up' ? '▲' : ( $trend === 'down' ? '▼' : ( $trend === 'flat' ? '=' : '' ) );
-                $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '"><span class="r t' . (int) ( $cell['tone'] ?? 3 ) . '">' . esc_html( self::rating( (float) $value ) ) . '</span>'
+                $body .= '<td class="cat" data-label="' . esc_attr( $label ) . '"><span class="rt t' . (int) ( $cell['tone'] ?? 3 ) . '">' . esc_html( self::rating( (float) $value ) ) . '</span>'
                     . ( $arrow !== '' ? '<span class="ar ' . self::moveClass( $trend ) . '">' . esc_html( $arrow ) . '</span>' : '' ) . '</td>';
             }
             $avg   = $row['avg'] ?? null;
@@ -1881,21 +1899,34 @@ final class TeamMonthlyReportDocument {
             'injured'    => _x( 'Injured', 'team monthly report column', 'talenttrack' ),
             'suspended'  => _x( 'Suspended', 'team monthly report column', 'talenttrack' ),
         ];
+        // #4140 — the header prints a short label on one line, so a column
+        // is as wide as its figures rather than its name; the full name is
+        // the abbreviation's title, and each figure's `data-label`.
+        $short  = [
+            'attendance' => _x( 'Att.', 'team monthly report column: attendance, short', 'talenttrack' ),
+            'minutes'    => _x( 'Min.', 'team monthly report column: minutes, short', 'talenttrack' ),
+            'goals'      => _x( 'Goals', 'team monthly report column: open goals, short', 'talenttrack' ),
+            'injured'    => _x( 'Injury', 'team monthly report column: injured, short', 'talenttrack' ),
+        ];
+        // [ label, alignment class, full label ].
         $cols   = [];
-        $cols[] = [ __( 'Player', 'talenttrack' ), '' ];
-        $cols[] = [ $labels['status'], '' ];
-        $cols[] = [ $labels['attendance'], 'r' ];
-        if ( $wide ) $cols[] = [ '', '' ];
-        $cols[] = [ $labels['minutes'], 'r' ];
-        $cols[] = [ $labels['share'], 'r' ];
-        if ( $wide ) $cols[] = [ '', '' ];
-        $cols[] = [ $labels['goals'], 'r' ];
-        $cols[] = [ $labels['injured'], 'c' ];
-        $cols[] = [ $labels['suspended'], 'c' ];
+        $cols[] = [ __( 'Player', 'talenttrack' ), '', '' ];
+        $cols[] = [ $labels['status'], '', '' ];
+        $cols[] = [ $short['attendance'], 'r', $labels['attendance'] ];
+        if ( $wide ) $cols[] = [ '', '', '' ];
+        $cols[] = [ $short['minutes'], 'r', $labels['minutes'] ];
+        $cols[] = [ $labels['share'], 'r', '' ];
+        if ( $wide ) $cols[] = [ '', '', '' ];
+        $cols[] = [ $short['goals'], 'r', $labels['goals'] ];
+        $cols[] = [ $short['injured'], 'c', $labels['injured'] ];
+        $cols[] = [ $labels['suspended'], 'c', '' ];
 
         $out .= '<table class="tbl"><thead><tr>';
         foreach ( $cols as $i => $col ) {
-            $out .= '<th class="w' . $i . ( $col[1] !== '' ? ' ' . $col[1] : '' ) . '">' . esc_html( $col[0] ) . '</th>';
+            $text = $col[2] !== '' && $col[2] !== $col[0]
+                ? '<abbr title="' . esc_attr( $col[2] ) . '">' . esc_html( $col[0] ) . '</abbr>'
+                : esc_html( $col[0] );
+            $out .= '<th class="w' . $i . ( $col[1] !== '' ? ' ' . $col[1] : '' ) . '">' . $text . '</th>';
         }
         $out .= '</tr></thead><tbody>';
         foreach ( $rows as $row ) {
@@ -2128,7 +2159,8 @@ final class TeamMonthlyReportDocument {
             // #3970 — written text wraps rather than cuts; the layout estimate
             // counts the lines it wraps to.
             . '.list td.wrap{white-space:normal;vertical-align:top}'
-            . '.tbl th{height:5mm;font-size:7pt;text-align:left;border-bottom:1px solid ' . $ink . '}'
+            . '.tbl th{height:5mm;font-size:7pt;text-align:left;border-bottom:1px solid ' . $ink . ';white-space:nowrap;overflow:hidden}'
+            . '.tbl abbr{text-decoration:none;border:0}'
             . '.tbl td{height:' . $roster_mm . 'mm;padding:0 1mm;border-bottom:1px solid ' . $line . ';white-space:nowrap;overflow:hidden;vertical-align:middle}'
             . '.tbl .r{text-align:right;padding-right:3mm}.tbl .c{text-align:center}.tbl td.bar{padding-right:4mm}'
             // #4069 — matches: record tiles, results beside ranked scorers.
@@ -2219,7 +2251,10 @@ final class TeamMonthlyReportDocument {
             . '.egrid .jn{width:6mm;color:' . $muted . ';text-align:right}.egrid .nm{width:40mm}.egrid .oa{width:11mm;font-weight:bold}.egrid .cnt{width:10mm}.egrid .last{width:17mm;color:' . $muted . '}'
             . '.egrid tr.none td{color:' . $muted . ';font-style:italic}'
             . '.egrid tr.tot td{border-top:1px solid ' . $ink . ';font-weight:bold;background:#f4f6f3}'
-            . '.r{display:inline-block;min-width:7mm;padding:0.2mm 0;font-weight:bold;text-align:center}'
+            // #4140 — the rating chip. Its own class, scoped to the grid: as
+            // `.r` it also matched the roster's right-aligned cells and made
+            // them inline blocks, which pulled the figures off their columns.
+            . '.egrid .rt{display:inline-block;min-width:7mm;padding:0.2mm 0;font-weight:bold;text-align:center}'
             . '.t1{background:#fde2e2;color:#a32b22}.t2{background:#fdf3d8;color:#7a4a00}.t3{background:#eef3ef;color:' . $ink . '}'
             . '.t4{background:#dff5e1;color:#1f6d41}.t5{background:#b9e3c6;color:#174f30}'
             . '.ar{font-size:6.5pt;margin-left:0.6mm}'

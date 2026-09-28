@@ -1,0 +1,3 @@
+# Monthly report: the Per player table lines up again, on screen and on paper (#4140)
+
+The figures in the monthly report's Per player table sit under their headers again, the row lines run edge to edge, and the headers stay on one line. The rating chips in the Evaluations grid shared a style name with the table's number columns, which pulled those figures out of their columns in the PDF and on the desktop sheets alike. The chips have their own style now, the headers use short labels (the full name shows when you hover over one), and the sheets on screen no longer pick up the site's own table styling.
