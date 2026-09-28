@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Teams\TeamRoster;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
@@ -43,7 +44,8 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
      * Scoping:
      *   - club_id via the activities join (canonical filter, same as
      *     the rolling KPI)
-     *   - team_id IN (coach's teams) via the players join
+     *   - team_id IN (coach's teams) on the activity, counting the
+     *     players currently on that team's roster (#4172)
      *   - 28-day window (today − 28 days through today, inclusive)
      *   - completed activities only, through
      *     `ActivityLifecycle::completedClause()` (#4086) — planned and
@@ -92,15 +94,19 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         //
         // #4041 — attended is the one rule (present + late), guests left out.
         $attended = AttendanceFlagService::attendedSumSql( 'a.status' );
+        // #4172 — the coach's teams' activities, counted for the players
+        // currently on each team's roster: the figure the Team attendance
+        // report behind the card adds up to.
+        $on_roster = TeamRoster::memberOfClause( 'pl', 'act.team_id' );
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
                 {$attended} AS present
               FROM {$att} a
               JOIN {$act} act ON act.id = a.activity_id
-              JOIN {$pl}  pl  ON pl.id  = a.player_id
+              JOIN {$pl}  pl  ON pl.id  = a.player_id AND {$on_roster}
              WHERE act.club_id = %d
-               AND pl.team_id IN ({$team_placeholders})
+               AND act.team_id IN ({$team_placeholders})
                AND a.record_type = 'actual'
                AND a.is_guest = 0
                AND act.session_date >= %s
