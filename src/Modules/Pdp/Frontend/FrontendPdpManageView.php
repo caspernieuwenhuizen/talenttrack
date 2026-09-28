@@ -606,33 +606,72 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $row ) {
-            $name = (string) $row['team_name'];
-            if ( $name === '' ) $name = __( 'No team', 'talenttrack' );
+            $team_id = (int) $row['team_id'];
+            $players = (int) $row['players'];
+            $name    = (string) $row['team_name'];
 
-            $cell = $name;
-            if ( (int) $row['team_id'] > 0 ) {
+            if ( $team_id > 0 ) {
                 $url  = add_query_arg(
-                    [ 'tt_view' => 'pdp', 'filter' => [ 'team_id' => (int) $row['team_id'] ] ],
+                    [ 'tt_view' => 'pdp', 'filter' => [ 'team_id' => $team_id ] ],
                     RecordLink::dashboardUrl()
                 );
                 $cell = RecordLink::inline( $name, BackLink::appendTo( $url ) );
+                echo '<tr>';
             } else {
-                $cell = esc_html( $name );
+                // The unplaced bucket: a place to look, not a team to chase.
+                $cell = '<span class="tt-pdp-team-coverage__unplaced">' . esc_html( $name !== '' ? $name : __( 'No team', 'talenttrack' ) ) . '</span>';
+                echo '<tr class="tt-pdp-team-coverage__row--unplaced">';
             }
 
-            echo '<tr>';
             echo '<th scope="row">' . $cell . '</th>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped above.
-            echo '<td>' . esc_html( (string) (int) $row['players'] ) . '</td>';
-            echo '<td>' . esc_html( (string) (int) $row['covered'] ) . '</td>';
-            echo '<td>' . esc_html( (string) (int) $row['conducted'] ) . '</td>';
-            echo '<td>' . esc_html( (string) (int) $row['scheduled_soon'] ) . '</td>';
-            echo '<td>' . esc_html( (string) (int) $row['parent_acked'] ) . '</td>';
+            echo self::coverageCountCell( $players ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageShareCell(
+                (int) $row['covered'],
+                $players,
+                /* translators: 1: players with a development plan, 2: players in the team. */
+                __( '%1$d of %2$d players have a plan', 'talenttrack' )
+            ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageShareCell(
+                (int) $row['conducted'],
+                $players,
+                /* translators: 1: players who have had a development talk, 2: players in the team. */
+                __( '%1$d of %2$d players have been talked to', 'talenttrack' )
+            ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageCountCell( (int) $row['scheduled_soon'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
+            echo self::coverageCountCell( (int) $row['parent_acked'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the helper.
             echo '</tr>';
         }
 
         echo '</tbody></table></div>';
         echo '<p class="tt-field-hint">' . esc_html__( 'Teams with the fewest players talked to come first.', 'talenttrack' ) . '</p>';
         echo '</section>';
+    }
+
+    /**
+     * A plain count cell. A zero is muted so the figures that are there
+     * stand out; it is not a warning colour, because coverage is not a
+     * verdict.
+     */
+    private static function coverageCountCell( int $n ): string {
+        $cls = $n === 0 ? ' class="tt-pdp-team-coverage__zero"' : '';
+        return '<td' . $cls . '>' . esc_html( (string) $n ) . '</td>';
+    }
+
+    /**
+     * "n / players" with a native share bar under it. A <progress> carries
+     * its own value and needs no inline width; a team with no players gets
+     * no bar, since there is no share to show.
+     */
+    private static function coverageShareCell( int $n, int $players, string $label_format ): string {
+        $cls  = $n === 0 ? ' class="tt-pdp-team-coverage__zero"' : '';
+        $html = '<td' . $cls . '><span class="tt-pdp-team-coverage__ratio">'
+            . esc_html( (string) $n )
+            . '<span class="tt-pdp-team-coverage__of"> / ' . esc_html( (string) $players ) . '</span></span>';
+        if ( $players > 0 ) {
+            $html .= '<progress class="tt-pdp-cov__bar" value="' . esc_attr( (string) min( $n, $players ) ) . '" max="' . esc_attr( (string) $players ) . '"'
+                . ' aria-label="' . esc_attr( sprintf( $label_format, $n, $players ) ) . '"></progress>';
+        }
+        return $html . '</td>';
     }
 
     /**

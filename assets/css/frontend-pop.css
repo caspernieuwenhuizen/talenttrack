@@ -953,25 +953,122 @@
     font-size: 1rem;
     margin: 0 0 8px;
 }
-.tt-pdp-team-coverage__table th[scope="row"] {
-    position: sticky;
-    left: 0;
-    background: var(--tt-paper, #fff);
-    text-align: left;
-    font-weight: 600;
+/*
+ * Every table rule is qualified `.tt-table.tt-pdp-team-coverage__table`
+ * so it outranks `.tt-dashboard .tt-table td { text-align: left;
+ * vertical-align: top }` (#4176). Unqualified, the headers went right and
+ * the figures stayed left, so each number read as belonging to the column
+ * to its left.
+ */
+.tt-dashboard .tt-pdp-team-coverage .tt-table-wrap {
+    margin: 0 0 var(--tt-sp-2);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
 }
-.tt-pdp-team-coverage__table td {
+.tt-table.tt-pdp-team-coverage__table {
+    min-width: 40rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.tt-table.tt-pdp-team-coverage__table th,
+.tt-table.tt-pdp-team-coverage__table td {
+    vertical-align: middle;
+    height: 48px;
+    background: var(--tt-paper);
+}
+.tt-table.tt-pdp-team-coverage__table thead th {
+    background: var(--tt-bg-soft);
+}
+.tt-table.tt-pdp-team-coverage__table tbody tr:last-child th,
+.tt-table.tt-pdp-team-coverage__table tbody tr:last-child td {
+    border-bottom: 0;
+}
+/* One stripe across the whole row, the sticky team cell included. */
+.tt-table.tt-pdp-team-coverage__table tbody tr:nth-child(even) th,
+.tt-table.tt-pdp-team-coverage__table tbody tr:nth-child(even) td {
+    background: var(--tt-table-row-alt-bg, var(--tt-paper));
+}
+.tt-table.tt-pdp-team-coverage__table td,
+.tt-table.tt-pdp-team-coverage__table th[scope="col"] + th[scope="col"] {
     text-align: right;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
-.tt-pdp-team-coverage__table th[scope="col"] + th[scope="col"] {
-    text-align: right;
+.tt-table.tt-pdp-team-coverage__table th[scope="row"],
+.tt-table.tt-pdp-team-coverage__table thead th:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    text-align: left;
 }
-.tt-pdp-team-coverage__table a {
+.tt-table.tt-pdp-team-coverage__table th[scope="row"] {
+    font-weight: 600;
+}
+.tt-table.tt-pdp-team-coverage__table th[scope="row"] a {
     display: inline-flex;
     align-items: center;
     min-height: 48px;
     touch-action: manipulation;
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-team-coverage__unplaced {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--tt-muted);
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-team-coverage__zero {
+    color: var(--tt-muted);
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-team-coverage__ratio {
+    display: block;
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-team-coverage__of {
+    color: var(--tt-muted);
+}
+/* Share bar under the ratio: a native <progress>, so no inline width. */
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar {
+    -webkit-appearance: none;
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 4px;
+    margin: var(--tt-sp-1) 0 0;
+    border: 0;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--tt-line-soft);
+    color: var(--tt-success);
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar::-webkit-progress-bar {
+    background: var(--tt-line-soft);
+    border-radius: 2px;
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar::-webkit-progress-value {
+    background: var(--tt-success);
+    border-radius: 2px;
+    transition: width 0.2s ease;
+}
+.tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar::-moz-progress-bar {
+    background: var(--tt-success);
+    border-radius: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+    .tt-table.tt-pdp-team-coverage__table .tt-pdp-cov__bar::-webkit-progress-value {
+        transition: none;
+    }
+}
+/* Equal figure columns once there is room for them. */
+@media (min-width: 768px) {
+    .tt-table.tt-pdp-team-coverage__table {
+        min-width: 0;
+        table-layout: fixed;
+    }
+    .tt-table.tt-pdp-team-coverage__table thead th:first-child {
+        width: 28%;
+    }
+    .tt-table.tt-pdp-team-coverage__table thead th[scope="col"] + th[scope="col"] {
+        white-space: normal;
+    }
 }
 .tt-pdp-team-gate {
     background: var(--tt-paper-soft, #f4f6f3);

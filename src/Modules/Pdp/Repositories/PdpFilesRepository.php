@@ -433,7 +433,8 @@ class PdpFilesRepository {
      *
      * Ordered worst first. The team that needs chasing is the one this
      * list exists to surface, and making the reader sort to find it is how
-     * a report becomes something nobody opens.
+     * a report becomes something nobody opens. The "No team" bucket sorts
+     * last whatever its figures (see compareTeamCoverage()).
      *
      * @param array{ player_ids?: int[]|null, team_id?: int, search?: string,
      *               only_missing?: bool, conducted_none?: bool, archived_view?: string } $filters
@@ -470,14 +471,30 @@ class PdpFilesRepository {
         }
 
         $out = array_values( $by_team );
-        usort( $out, static function ( array $a, array $b ): int {
-            $a_share = $a['players'] > 0 ? $a['conducted'] / $a['players'] : 0.0;
-            $b_share = $b['players'] > 0 ? $b['conducted'] / $b['players'] : 0.0;
-            if ( $a_share !== $b_share ) return $a_share <=> $b_share;
-            return strcasecmp( $a['team_name'], $b['team_name'] );
-        } );
+        usort( $out, [ self::class, 'compareTeamCoverage' ] );
 
         return $out;
+    }
+
+    /**
+     * Order for the per-team coverage rows: worst share of players talked
+     * to first, ties by team name. The "No team" bucket (team_id 0) always
+     * goes last — it holds players nobody has placed yet, not a team a
+     * coach can be asked to chase, so it must not top the list just
+     * because its share happens to be the lowest.
+     *
+     * @param array{ team_id:int, team_name:string, players:int, covered:int, conducted:int, scheduled_soon:int, parent_acked:int } $a
+     * @param array{ team_id:int, team_name:string, players:int, covered:int, conducted:int, scheduled_soon:int, parent_acked:int } $b
+     */
+    public static function compareTeamCoverage( array $a, array $b ): int {
+        $a_unplaced = $a['team_id'] <= 0;
+        $b_unplaced = $b['team_id'] <= 0;
+        if ( $a_unplaced !== $b_unplaced ) return $a_unplaced ? 1 : -1;
+
+        $a_share = $a['players'] > 0 ? $a['conducted'] / $a['players'] : 0.0;
+        $b_share = $b['players'] > 0 ? $b['conducted'] / $b['players'] : 0.0;
+        if ( $a_share !== $b_share ) return $a_share <=> $b_share;
+        return strcasecmp( $a['team_name'], $b['team_name'] );
     }
 
     public function setStatus( int $file_id, string $status ): bool {

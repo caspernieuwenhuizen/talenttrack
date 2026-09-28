@@ -1,0 +1,11 @@
+#. translators: 1: players with a development plan, 2: players in the team.
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$d of %2$d players have a plan"
+msgstr "%1$d van de %2$d spelers hebben een plan"
+
+#. translators: 1: players who have had a development talk, 2: players in the team.
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$d of %2$d players have been talked to"
+msgstr "Met %1$d van de %2$d spelers is gesproken"
