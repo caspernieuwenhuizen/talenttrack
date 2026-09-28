@@ -41,7 +41,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *     ],
  *     'filters' => [
  *       'team_id' => [ 'type' => 'select', 'label' => __('Team', 'talenttrack'), 'options' => $team_options ],
- *       'date'    => [ 'type' => 'date_range', 'label_from' => __('From', 'talenttrack'), 'label_to' => __('To', 'talenttrack'), 'param_from' => 'date_from', 'param_to' => 'date_to' ],
+ *       'date'    => [ 'type' => 'date_range', 'label' => __('Date', 'talenttrack'), 'label_from' => __('From', 'talenttrack'), 'label_to' => __('To', 'talenttrack'), 'param_from' => 'date_from', 'param_to' => 'date_to' ],
  *     ],
  *     'row_actions' => [
  *       'edit'   => [ 'label' => __('Edit',   'talenttrack'), 'href' => '?tt_view=activities&edit={id}' ],

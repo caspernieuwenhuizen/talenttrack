@@ -159,6 +159,8 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             'filters' => [
                 'date' => [
                     'type'       => 'date_range',
+                    // Without a label the bar printed the array key "DATE".
+                    'label'      => _x( 'Date', 'list date filter', 'talenttrack' ),
                     'param_from' => 'date_from',
                     'param_to'   => 'date_to',
                     'label_from' => __( 'From', 'talenttrack' ),
