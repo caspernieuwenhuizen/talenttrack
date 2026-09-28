@@ -1,0 +1,3 @@
+# Filter bars stay on one row, and the goals bar is tidied up (#4147)
+
+On a laptop or desktop, a list's filter bar is now either one row or the Filters button with chips; it no longer wraps onto a second line. From 1024 to 1439px, and whenever the full bar would not fit, the controls get narrower and the status pills fold into one dropdown that shows the active status. On the goals list the deadline filter is labelled "Deadline" instead of "DUE" and opens a small panel with From, To and Apply; the "Status: Active" chip and the Clear button no longer appear before you filter anything; and the player picker lines up with the fields next to it. The date filters' Apply button is now the secondary style, so it no longer competes with "+ Add goal".

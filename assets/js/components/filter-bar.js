@@ -71,6 +71,77 @@
 		} );
 	}
 
+	// #4147 — the inline bar is one row or it is the Filters button, never
+	// two lines. Whether a bar's controls fit depends on the controls, which
+	// no stylesheet breakpoint knows, so it is measured: the full bar first,
+	// then the tighter one (`is-tight`), then the collapsed one
+	// (`is-compact`). Re-measured when the bar's width changes, and only
+	// then — the classes change its height, which must not loop.
+	function wraps( bar ) {
+		// A bar rendered inside its host's form (`form => false`, the
+		// comparison view) has no flex form of its own: its row and cluster
+		// stack by design, which is not a wrap.
+		if ( ! bar.querySelector( '.tt-filterbar__form' ) ) {
+			return false;
+		}
+		var row = bar.querySelector( '.tt-filterbar__row' );
+		if ( ! row || window.getComputedStyle( row ).display === 'none' ) {
+			return false;   // the stylesheet already collapsed it
+		}
+		var items = Array.prototype.slice.call( row.children );
+		Array.prototype.forEach.call(
+			bar.querySelectorAll( '.tt-filterbar__utils, .tt-filterbar__trailing' ),
+			function ( el ) { items.push( el ); }
+		);
+		var first = null;
+		for ( var i = 0; i < items.length; i++ ) {
+			var r = items[ i ].getBoundingClientRect();
+			if ( r.width === 0 && r.height === 0 ) {
+				continue;   // not rendered
+			}
+			if ( first === null ) {
+				first = r;
+				continue;
+			}
+			// On one line the boxes overlap vertically; a box that starts
+			// below the first one's bottom edge went onto a new line.
+			if ( r.top >= first.bottom ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	function fit( bar ) {
+		bar.classList.remove( 'is-tight', 'is-compact' );
+		if ( ! wraps( bar ) ) {
+			return;
+		}
+		bar.classList.add( 'is-tight' );
+		if ( ! wraps( bar ) ) {
+			return;
+		}
+		bar.classList.add( 'is-compact' );
+	}
+
+	function fitInline( bar ) {
+		fit( bar );
+		// Web fonts can land after this runs and widen every label.
+		window.addEventListener( 'load', function () { fit( bar ); } );
+		if ( typeof window.ResizeObserver !== 'function' ) {
+			return;
+		}
+		var lastWidth = bar.getBoundingClientRect().width;
+		new window.ResizeObserver( function () {
+			var width = bar.getBoundingClientRect().width;
+			if ( width === lastWidth ) {
+				return;
+			}
+			lastWidth = width;
+			fit( bar );
+		} ).observe( bar );
+	}
+
 	ready( function () {
 		var bars = document.querySelectorAll( '[data-tt-filterbar]' );
 		Array.prototype.forEach.call( bars, initBar );
@@ -246,6 +317,23 @@
 				} );
 			}
 		);
+
+		// ---- #4147 — reveal Clear once something changes ----
+		// The inline Clear is rendered hidden while nothing is filtered. A
+		// list that filters in place never reloads to re-render it, so the
+		// first change inside the form shows it.
+		var clearBtn = bar.querySelector( '[data-tt-filter-clear][hidden]' );
+		if ( clearBtn ) {
+			var reveal = function () {
+				clearBtn.hidden = false;
+				bar.removeEventListener( 'change', reveal );
+				bar.removeEventListener( 'input', reveal );
+			};
+			bar.addEventListener( 'change', reveal );
+			bar.addEventListener( 'input', reveal );
+		}
+
+		fitInline( bar );
 
 		// #3294 — the document-level Escape listener that used to live here
 		// is gone. <dialog> handles Escape itself and fires `close`, which

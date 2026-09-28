@@ -415,7 +415,10 @@ class FrontendListTable {
                     // #2202 — a status filter can drop the leading "All" pill
                     // (`no_all => true`) when the view wants a mandatory
                     // selection with a seeded default (goals default to Active).
-                    $groups[] = self::statusGroup( $key, $label, $opts, $sel, ! empty( $filter['no_all'] ) );
+                    $groups[] = self::statusGroup(
+                        $key, $label, $opts, $sel, ! empty( $filter['no_all'] ),
+                        (string) ( $filter['default'] ?? '' )
+                    );
                     continue;
                 }
 
@@ -447,6 +450,9 @@ class FrontendListTable {
                     // the reader set; declaring that makes the chip derivable.
                     'default_from' => '',
                     'default_to'   => '',
+                    // #4147 — opt-in: one trigger pill on the inline bar, the
+                    // dates in its popover. The mobile sheet is unchanged.
+                    'compact'      => ! empty( $filter['compact'] ),
                 ];
             } else {
                 // text (default)
@@ -565,7 +571,7 @@ class FrontendListTable {
         ];
     }
 
-    private static function statusGroup( string $key, string $label, array $opts, string $selected, bool $no_all = false ): array {
+    private static function statusGroup( string $key, string $label, array $opts, string $selected, bool $no_all = false, string $default = '' ): array {
         $base = self::currentQueryArgs();
         unset( $base['filter'][ $key ], $base['page'] );
 
@@ -601,6 +607,11 @@ class FrontendListTable {
             'key'     => $key,
             'label'   => $label,
             'options' => $options,
+            // #4147 — the option the list opens on is not a filter the reader
+            // set. Without this the seeded default (goals: Active) raised a
+            // chip on every load, and with no "All" pill there was nowhere for
+            // its ✕ to go. With no declared default, '' is "All", as before.
+            'default_value' => $default,
             // #2449 — status pills are link-based, so the param name exists
             // only inside each option's URL. Declare it so
             // FilterBar::paramNames() can pick it up for saved views; `key`

@@ -71,6 +71,19 @@ Every list surface filters through the shared, mobile-first **FilterBar**
 chrome only — the calling view supplies the options + active state (CLAUDE.md
 §4).
 
+**The inline bar is one row or it is the Filters button, never two lines**
+(#4147). The bar is a size container (`container: tt-filterbar`), because the
+shell's sidebar makes the viewport the wrong measure: inline layout needs a
+1024px viewport *and* a bar at least 40rem wide. Past that, `filter-bar.js`
+measures the laid-out bar: one that would wrap takes `is-tight` (narrower
+search / picker / selects, no dividers, the status pills behind one
+dropdown), and one that still would takes `is-compact` (the Filters button +
+chips). From 1024px to 1439px the tight controls are the default. The inline
+Clear renders only while a filter is applied (hidden, and revealed on the
+first change for a list that filters in place). A `date_range` group can opt
+into `compact => true`: one pill trigger ("All", or the range) with the dates
+and Apply in its popover; the sheet keeps the two inputs.
+
 The sheet is a real `<dialog>` opened with `showModal()` (#3294), like
 `ttConfirm` and the saved-views manage dialog. The focus trap, `::backdrop`,
 Escape-to-close, top-layer stacking and inertness of the page behind are the
@@ -86,9 +99,9 @@ Group `type`s:
 | --- | --- | --- |
 | `select` | chevron box | auto-submits on change (opt out with `auto_submit => false`) |
 | `text` | free-text / search box | on Apply / live-filtered by a hydrator |
-| `date_range` | paired from/to date inputs | on Apply / live-filtered |
+| `date_range` | paired from/to date inputs (or, with `compact => true`, one pill whose popover holds them) | on Apply / live-filtered |
 | `period` | pill-dropdown (inline) → segmented track (sheet), with an optional **Custom range…** branch owning the from/to dates; presets are link-based | navigation for a preset, Apply for a custom window |
-| `status` | one-tap status pills; link-based | navigation |
+| `status` | one-tap status pills; inline at 1024–1439px (or `is-tight`), one pill-dropdown showing the active status; link-based | navigation |
 | `menu` | icon-only `⋯` overflow menu; link-based | navigation (no JS needed) |
 | `toggle` | boolean switch (checkbox) | auto-submits on change |
 | `player` | type-to-filter player picker | auto-submits on change |

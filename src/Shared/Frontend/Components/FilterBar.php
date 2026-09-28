@@ -66,7 +66,10 @@ use TT\Infrastructure\Filters\FilterParam;
  *         'inputmode' (optional, e.g. 'search'),
  *         'autocomplete' (optional).
  * date_range: 'from' => ['name','value'], 'to' => ['name','value'],
- *         'label_from', 'label_to' (per-input labels).
+ *         'label_from', 'label_to' (per-input labels),
+ *         'compact' (bool, opt-in, #4147) — the inline bar shows one pill
+ *         trigger ("All", or the chosen range) whose popover holds the two
+ *         dates and Apply. The sheet keeps the two inputs either way.
  * period/status: 'options' => [ ['value','label','url','active', 'dot'?] ],
  *         'active_label' (text shown on the period pill trigger),
  *         'default_value' — the option the surface opens on, which is not a
@@ -767,7 +770,13 @@ final class FilterBar {
 				$out .= '</ul>';
 			}
 			if ( $reset !== '' ) {
-				$out .= '<a class="tt-btn tt-btn-secondary tt-filterbar__clear" href="' . esc_url( $reset ) . '">'
+				// #4147 — nothing applied, nothing to clear: a Clear on an
+				// unfiltered list is width the one-row bar cannot spare. It
+				// is still rendered, hidden, because a list that filters in
+				// place changes without a reload; filter-bar.js reveals it on
+				// the first change.
+				$out .= '<a class="tt-btn tt-btn-secondary tt-filterbar__clear" href="' . esc_url( $reset ) . '"'
+					. ' data-tt-filter-clear' . ( $derived_chips === [] ? ' hidden' : '' ) . '>'
 					. esc_html__( 'Clear', 'talenttrack' ) . '</a>';
 			}
 			// #3296 — the views zone: chips then the bookmark, immediately
@@ -964,7 +973,7 @@ final class FilterBar {
 				$out .= self::renderPeriod( $group, $in_sheet );
 				break;
 			case 'status':
-				$out .= self::renderStatus( $group );
+				$out .= self::renderStatus( $group, $in_sheet );
 				break;
 			case 'toggle':
 				$out .= self::renderToggle( $group );
@@ -1130,15 +1139,57 @@ final class FilterBar {
 			return $o;
 		};
 
+		// #4147 — Apply is secondary: in the middle of the bar a primary
+		// button competed with the view's own "+ New" action.
+		$apply = '<button type="submit" class="tt-btn tt-btn-secondary tt-fildate__apply">'
+			. esc_html__( 'Apply', 'talenttrack' ) . '</button>';
+
+		// #4147 — `compact`: two date inputs, two sublabels and Apply took
+		// about 450px of a bar that has to fit on one row. Inline, the range
+		// collapses to one pill trigger with the dates in its popover, built
+		// on the same <details> as the `period` group's custom range, so it
+		// stays keyboard-operable and works with JS off.
+		if ( ! $in_sheet && ! empty( $group['compact'] ) ) {
+			$range = self::rangeText(
+				trim( (string) ( $from['value'] ?? '' ) ),
+				trim( (string) ( $to['value'] ?? '' ) )
+			);
+			$is_set = $range !== '';
+
+			$out  = '<details class="tt-perdrop-wrap tt-fildrop" data-tt-perdrop>';
+			$out .= '<summary class="tt-perdrop' . ( $is_set ? ' tt-perdrop--custom' : '' ) . '">'
+				. '<span class="tt-perdrop__label">'
+				. esc_html( $is_set ? $range : __( 'All', 'talenttrack' ) ) . '</span>'
+				. '<span class="tt-perdrop__chev" aria-hidden="true"></span></summary>';
+			$out .= '<div class="tt-perdrop__menu">';
+			$out .= '<div class="tt-percustom__body">';
+			$out .= $field( $from, $label_from );
+			$out .= $field( $to, $label_to );
+			$out .= $apply;
+			$out .= '</div>';
+			$out .= '</div>';
+			$out .= '</details>';
+			return $out;
+		}
+
 		$out  = '<div class="tt-fildaterange">';
 		$out .= $field( $from, $label_from );
 		$out .= $field( $to, $label_to );
 		if ( ! $in_sheet ) {
-			$out .= '<button type="submit" class="tt-btn tt-btn-primary tt-fildate__apply">'
-				. esc_html__( 'Apply', 'talenttrack' ) . '</button>';
+			$out .= $apply;
 		}
 		$out .= '</div>';
 		return $out;
+	}
+
+	/**
+	 * "2026-01-01 – 2026-03-31", or the one bound that is set with the dash
+	 * on its open side, or '' when neither is.
+	 */
+	private static function rangeText( string $from, string $to ): string {
+		if ( $from === '' && $to === '' ) return '';
+		/* translators: 1: window start date, 2: window end date. */
+		return trim( sprintf( __( '%1$s – %2$s', 'talenttrack' ), $from, $to ) );
 	}
 
 	/**
@@ -1248,7 +1299,8 @@ final class FilterBar {
 		$out .= $field( $from, __( 'From', 'talenttrack' ) );
 		$out .= $field( $to, __( 'To', 'talenttrack' ) );
 		if ( ! $in_sheet ) {
-			$out .= '<button type="submit" class="tt-btn tt-btn-primary tt-fildate__apply">'
+			// #4147 — secondary, like the standalone range's Apply.
+			$out .= '<button type="submit" class="tt-btn tt-btn-secondary tt-fildate__apply">'
 				. esc_html__( 'Apply', 'talenttrack' ) . '</button>';
 		}
 		$out .= '</div>';
@@ -1328,10 +1380,51 @@ final class FilterBar {
 	 *
 	 * @param array<string,mixed> $group
 	 */
-	private static function renderStatus( array $group ): string {
+	private static function renderStatus( array $group, bool $in_sheet = false ): string {
 		$options = isset( $group['options'] ) && is_array( $group['options'] ) ? $group['options'] : [];
 
-		$out = '<div class="tt-statset" role="group">';
+		$out = '';
+
+		// #4147 — on a laptop the pills cost ~290px of a bar that has to fit
+		// on one row. The inline bar also carries a one-trigger dropdown with
+		// the same links; CSS shows it from 1024px to 1439px and the pills
+		// from 1440px, so there is no JS in the switch. The sheet has room
+		// and keeps the pills only.
+		if ( ! $in_sheet ) {
+			$active = null;
+			foreach ( $options as $opt ) {
+				if ( is_array( $opt ) && ! empty( $opt['active'] ) ) { $active = $opt; break; }
+			}
+			$label = (string) ( $group['label'] ?? '' );
+
+			$out .= '<details class="tt-perdrop-wrap tt-statdrop" data-tt-perdrop>';
+			$out .= '<summary class="tt-perdrop tt-perdrop--status"'
+				. ( $label !== '' ? ' aria-label="' . esc_attr( self::chipLabel( $label, (string) ( $active['label'] ?? '' ) ) ) . '"' : '' )
+				. '>';
+			if ( $active !== null ) {
+				$out .= '<span class="tt-statdrop__cur" data-k="'
+					. esc_attr( sanitize_key( (string) ( $active['dot'] ?? ( $active['value'] ?? '' ) ) ) ) . '">'
+					. '<span class="tt-statpill__dot" aria-hidden="true"></span></span>';
+			}
+			$out .= '<span class="tt-perdrop__label">' . esc_html( (string) ( $active['label'] ?? $label ) ) . '</span>'
+				. '<span class="tt-perdrop__chev" aria-hidden="true"></span></summary>';
+			$out .= '<div class="tt-perdrop__menu" role="menu">';
+			foreach ( $options as $opt ) {
+				if ( ! is_array( $opt ) ) continue;
+				$is_on = ! empty( $opt['active'] );
+				$dot   = sanitize_key( (string) ( $opt['dot'] ?? ( $opt['value'] ?? '' ) ) );
+				$out  .= '<a class="tt-perdrop__opt' . ( $is_on ? ' tt-perdrop__opt--on' : '' ) . '"'
+					. ' role="menuitem" href="' . esc_url( (string) ( $opt['url'] ?? '' ) ) . '"'
+					. ' data-k="' . esc_attr( $dot ) . '"'
+					. ( $is_on ? ' aria-current="true"' : '' ) . '>'
+					. '<span class="tt-statpill__dot" aria-hidden="true"></span>'
+					. esc_html( (string) ( $opt['label'] ?? '' ) ) . '</a>';
+			}
+			$out .= '</div>';
+			$out .= '</details>';
+		}
+
+		$out .= '<div class="tt-statset" role="group">';
 		foreach ( $options as $opt ) {
 			$url   = (string) ( $opt['url'] ?? '' );
 			$lbl   = (string) ( $opt['label'] ?? '' );
