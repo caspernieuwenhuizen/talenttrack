@@ -2655,6 +2655,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         // ---- EMPTY STATE --------------------------------------------
         $forward_total = $buckets['attention_count']
+            + count( $buckets['recent'] )
             + count( $buckets['today'] )
             + count( $buckets['this_week'] )
             + count( $buckets['next_week'] )
@@ -2746,6 +2747,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // above, as its own explicit block; the forward list holds only
         // today-and-later buckets.
         echo '<ul class="tt-act-list">';
+
+        // Closed activities from the last 7 days show without a click: the
+        // last week is what a coach looks back at before planning the next.
+        // Only older history sits behind the Past toggle above.
+        if ( $buckets['recent'] ) {
+            self::renderBucket(
+                'recent',
+                __( 'Last 7 days', 'talenttrack' ),
+                $buckets['recent'],
+                sprintf(
+                    /* translators: %d: count of activities */
+                    _n( '%d activity', '%d activities', count( $buckets['recent'] ), 'talenttrack' ),
+                    count( $buckets['recent'] )
+                )
+            );
+        }
 
         if ( $buckets['today'] ) {
             // Header: "Today · Wed 28 May" — day-of-week + date.
@@ -2911,7 +2928,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '<span class="tt-act-bucket-head__count">' . esc_html( $count_label ) . '</span>';
         echo '</div></li>';
 
-        $row_mode = $attention ? 'attention' : ( $today ? 'today' : 'future' );
+        // Recent rows are closed history, so they render like the Past block
+        // (status pill, no location) rather than as upcoming cards.
+        if ( $bucket_key === 'recent' ) {
+            $row_mode = 'past';
+        } else {
+            $row_mode = $attention ? 'attention' : ( $today ? 'today' : 'future' );
+        }
         foreach ( $rows as $row ) {
             echo self::renderActivityCard( $row, $row_mode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within helper.
         }
@@ -3373,10 +3396,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * Bucketize a list of activity rows by `session_date` relative to
      * `$today_str`. Past = `plan_state IN ('completed','cancelled')` AND
      * `session_date < today`. Past-planned (still planned) lands in
-     * "attention" instead.
+     * "attention" instead. Closed rows from the last 7 days land in
+     * "recent", which renders by default; only older ones collapse.
      *
      * Buckets:
-     *  - past             — past + completed/cancelled (pinned-top block)
+     *  - past             — closed, older than 7 days (collapsed block)
+     *  - recent           — closed, today-7 days up to yesterday
      *  - attention        — past + planned (Needs attention pseudo-bucket)
      *  - today            — session_date == today
      *  - this_week        — today < session_date <= upcoming Sunday
@@ -3387,6 +3412,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * @param array<int,object> $rows
      * @return array{
      *     past: array<int,object>,
+     *     recent: array<int,object>,
      *     attention: array<int,object>,
      *     attention_count: int,
      *     today: array<int,object>,
@@ -3420,8 +3446,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $next_week_start_y  = $next_week_start->format( 'Y-m-d' );
         $next_week_end_y    = $next_week_end->format( 'Y-m-d' );
         $end_of_month_y     = $end_of_month->format( 'Y-m-d' );
+        $recent_start_y     = $today_dt->modify( '-7 days' )->format( 'Y-m-d' );
 
         $past             = [];
+        $recent           = [];
         $attention        = [];
         $today            = [];
         $this_week        = [];
@@ -3444,7 +3472,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                       || in_array( $status,     [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true );
 
             if ( $sd < $today_ymd ) {
-                if ( $is_closed ) {
+                if ( $is_closed && $sd >= $recent_start_y ) {
+                    $recent[] = $row;
+                } elseif ( $is_closed ) {
                     $past[] = $row;
                 } else {
                     $attention[] = $row;
@@ -3472,7 +3502,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         // Sort each forward bucket ascending so the next-upcoming row
-        // sits at the top. Past sorts descending — most-recent first.
+        // sits at the top. Recent sorts ascending too, so it reads into
+        // Today. Past sorts descending — most-recent first.
         $asc = static function ( $a, $b ) {
             return strcmp( (string) ( $a->session_date ?? '' ), (string) ( $b->session_date ?? '' ) );
         };
@@ -3485,10 +3516,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         usort( $later_this_month, $asc );
         usort( $later,            $asc );
         usort( $attention,        $asc );
+        usort( $recent,           $asc );
         usort( $past,             $desc );
 
         return [
             'past'             => $past,
+            'recent'           => $recent,
             'attention'        => $attention,
             'attention_count'  => count( $attention ),
             'today'            => $today,

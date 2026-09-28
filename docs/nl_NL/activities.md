@@ -18,6 +18,7 @@ Een **activiteit** is alles wat in de agenda staat — een training, een wedstri
 De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groepen lopen van boven naar beneden:
 
 - **⚠ Voorbij — nog open** — voorbije activiteiten die nog op Gepland staan. Ze zijn nooit op Voltooid of Geannuleerd gezet, dus de coach is ze uit het oog verloren. Deze groep verschijnt **standaard** helemaal boven aan de lijst — boven de ingeklapte knop voor voorbije activiteiten — in een eigen oranje-geaccentueerd blok, zodat voorbije maar niet-afgeronde activiteiten niet gemist worden.
+- **Laatste 7 dagen** — activiteiten van de afgelopen week die al op Voltooid of Geannuleerd staan, de oudste eerst zodat de lijst doorloopt naar vandaag. Ze zijn zonder klikken zichtbaar; alleen oudere activiteiten zitten achter de ingeklapte knop voor voorbije activiteiten.
 - **Vandaag** — wat er voor vandaag op de planning staat.
 - **Deze week** — de rest van deze kalenderweek (tot en met zondag).
 - **Volgende week** — maandag → zondag van de week erna.
@@ -49,7 +50,7 @@ Het zijn dezelfde drie toestanden waarop de waarschuwing bij [afronden zonder ie
 
 ### Voorbije activiteiten
 
-Voorbije activiteiten (Voltooid of Geannuleerd) zijn boven aan de lijst vastgepind als één knop — `N voorbije activiteiten verborgen · Toon ▼`. Tik om uit te klappen; tik nogmaals om in te klappen. De stand wordt bewaard in de URL als `?include_past=1`, zodat een gedeelde link dezelfde weergave toont als degene die hem deelde.
+Voltooide en geannuleerde activiteiten van de laatste 7 dagen blijven zichtbaar in de groep **Laatste 7 dagen**. Alles wat ouder is, is boven aan de lijst vastgepind als één knop — `N voorbije activiteiten verborgen · Toon ▼`, waarbij N alleen die oudere activiteiten telt. Is er niets ouder dan een week, dan verschijnt de knop niet. Tik om uit te klappen; tik nogmaals om in te klappen. De stand wordt bewaard in de URL als `?include_past=1`, zodat een gedeelde link dezelfde weergave toont als degene die hem deelde.
 
 Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingeklapte groep — die verschijnen standaard in de groep **Voorbij — nog open** boven aan de lijst (boven de knop voor voorbije activiteiten en boven Vandaag), omdat ze een signaal zijn waarop de coach nog moet handelen.
 
