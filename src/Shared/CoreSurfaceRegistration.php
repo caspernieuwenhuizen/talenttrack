@@ -1305,8 +1305,8 @@ final class CoreSurfaceRegistration {
         ]);
         // #2145 — Test results browser: navigate every measurement result in
         // one place (pick a test → each player's latest value with colour /
-        // trend / flag, clickable to the player). Analytics-group surface, but
-        // gated on the `measurements` matrix entity (read) the view enforces —
+        // trend / flag, clickable to the player). Gated on the `measurements`
+        // matrix entity (read) the view enforces —
         // so the matrix-dispatch gate and the tile agree. Hidden for
         // players/parents (read-only personas reach their own via "My
         // measurements").
@@ -1314,9 +1314,10 @@ final class CoreSurfaceRegistration {
             'module_class'      => 'TT\\Modules\\Measurements\\MeasurementsModule',
             'view_slug'         => 'test-results',
             'entity'            => 'measurements',
-            'group'             => $analytics_group,
+            // #4155 — with recording and coverage, in the order a coach works.
+            'group'             => __( 'Tests & measurements', 'talenttrack' ),
             'kind'              => 'work',
-            'order'             => 29,
+            'order'             => 30,
             'label'             => __( 'Test results', 'talenttrack' ),
             'description'       => __( 'Browse every test result: each player\'s latest value, colour, trend and flag.', 'talenttrack' ),
             'icon'              => 'trend-up',

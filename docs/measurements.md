@@ -276,7 +276,7 @@ the standing never leaks to a role that can't open the underlying tests.
 
 ## Recording results
 
-Staff get a **Record measurements** tile. Pick a team, a test, and a date,
+Staff get a **Record measurements** tile in the **Tests & measurements** group of the dashboard. Pick a team, a test, and a date,
 then enter one value per player and **Save all** — it saves the whole
 roster in one go (blank players are skipped) and ties the values to a
 testing session for that date. Numeric tests show a number field with the
@@ -335,7 +335,7 @@ latest one. See [BMI-for-age](#bmi-for-age).
 
 ## Testing coverage (who's due)
 
-Staff also get a **Testing coverage** tile. Pick a team and the screen
+Staff also get a **Testing coverage** tile, next to it in the **Tests & measurements** group. Pick a team and the screen
 shows, for every test that has a recurrence, how many of the squad are
 **up to date** versus the gap — and names the players who are **overdue**,
 **due soon**, or have **never** been tested. It's player-centric: it starts
@@ -446,7 +446,7 @@ SaaS front end.
 
 ## Browsing results — the Test results surface
 
-The **Test results** tile (in the **Analysis** group of the dashboard)
+The **Test results** tile, in the **Tests & measurements** group,
 opens a browser for reading every recorded result in one place, organised
 per player. It answers "how is each player doing on this test, right now?"
 without opening profiles one by one.

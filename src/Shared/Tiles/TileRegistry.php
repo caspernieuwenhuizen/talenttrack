@@ -95,6 +95,7 @@ final class TileRegistry {
             __( 'People', 'talenttrack' ),
             __( 'Planning & tactics', 'talenttrack' ),
             __( 'Development', 'talenttrack' ),
+            __( 'Tests & measurements', 'talenttrack' ),
             __( 'Reference', 'talenttrack' ),
         ];
     }
