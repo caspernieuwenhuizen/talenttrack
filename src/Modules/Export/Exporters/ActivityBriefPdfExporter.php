@@ -168,7 +168,7 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
             foreach ( $roster as $r ) {
                 $jersey   = $r->jersey_number !== null ? (string) (int) $r->jersey_number : '';
                 $name     = trim( (string) $r->first_name . ' ' . (string) $r->last_name );
-                $position = self::primaryPosition( (string) ( $r->preferred_positions ?? '' ) );
+                $position = \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( (string) ( $r->preferred_positions ?? '' ) );
                 $status   = (string) ( $r->status ?? '' );
                 $att_note = (string) ( $r->att_notes ?? '' );
                 $roster_html .= '<tr>'
@@ -197,11 +197,5 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
             . $roster_html
             . '<p class="footer">' . $generated . '</p>'
             . '</body></html>';
-    }
-
-    private static function primaryPosition( string $positions ): string {
-        if ( $positions === '' ) return '';
-        $parts = explode( ',', $positions );
-        return trim( (string) reset( $parts ) );
     }
 }

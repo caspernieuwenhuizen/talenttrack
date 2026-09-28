@@ -84,7 +84,8 @@ the same period. Two comparisons follow, for staff only:
 
 - **Same position** — the average share of the teammates who share at least
   one of the player's profile positions, not counting the player. The line names
-  those positions and how many teammates are in the group. A player with no
+  those positions, by the name the academy uses for them, and how many
+  teammates are in the group. A player with no
   profile position, or whose positions nobody else on the team plays, gets no
   position line.
 - **Team average** — the average share of everyone on the team's current squad,

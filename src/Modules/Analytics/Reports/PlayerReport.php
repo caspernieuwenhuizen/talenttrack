@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\EvalCoverageService;
@@ -453,18 +454,25 @@ final class PlayerReport {
     }
 
     /**
-     * "Same position · CB, RB · 4 players" — the position group's label.
-     * Shared by screen and PDF.
+     * "Same position · Centre back, Right back · 4 players" — the position
+     * group's label. Shared by screen and PDF.
+     *
+     * The group carries position codes, which stay the matching key in
+     * shareComparison(); each is resolved to the academy's name for it here.
      *
      * @param array<string,mixed> $position a `comparison.position`
      */
     public static function positionGroupLabel( array $position ): string {
         $codes = array_map( 'strval', is_array( $position['positions'] ?? null ) ? $position['positions'] : [] );
+        $names = array_values( array_filter(
+            array_map( [ LabelTranslator::class, 'positionLabel' ], $codes ),
+            static fn( string $name ): bool => $name !== ''
+        ) );
         $count = (int) ( $position['count'] ?? 0 );
         return sprintf(
-            /* translators: 1: position codes, e.g. "CB, RB"; 2: number of teammates in the group */
+            /* translators: 1: position names, e.g. "Centre back, Right back"; 2: number of teammates in the group */
             _n( 'Same position · %1$s · %2$d player', 'Same position · %1$s · %2$d players', $count, 'talenttrack' ),
-            implode( ', ', $codes ),
+            implode( ', ', $names ),
             $count
         );
     }

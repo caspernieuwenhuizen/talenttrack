@@ -87,7 +87,7 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         $photo     = \TT\Modules\Players\Services\PlayerPhoto::dataUri( $player );
         $dob       = ! empty( $player->date_of_birth ) ? (string) $player->date_of_birth : '';
         $age       = self::computeAge( $dob );
-        $position  = self::primaryPosition( (string) ( $player->preferred_positions ?? '' ) );
+        $position  = \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( (string) ( $player->preferred_positions ?? '' ) );
         $foot      = (string) ( $player->preferred_foot ?? '' );
         $jersey    = isset( $player->jersey_number ) && $player->jersey_number !== null
             ? (string) (int) $player->jersey_number
@@ -119,12 +119,6 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
         if ( $ts === false ) return '';
         $years = (int) floor( ( current_time( 'timestamp' ) - $ts ) / 31557600 ); // 365.25d
         return $years > 0 ? (string) $years : '';
-    }
-
-    private static function primaryPosition( string $positions ): string {
-        if ( $positions === '' ) return '';
-        $parts = explode( ',', $positions );
-        return trim( (string) reset( $parts ) );
     }
 
     private static function teamName( int $team_id, int $club_id ): string {

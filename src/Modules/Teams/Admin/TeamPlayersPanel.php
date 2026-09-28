@@ -68,7 +68,7 @@ class TeamPlayersPanel {
                 <tbody>
                     <?php foreach ( $players as $pl ) :
                         $positions = json_decode( (string) ( $pl->preferred_positions ?? '' ), true );
-                        $pos_str = is_array( $positions ) ? implode( ', ', array_map( 'strval', $positions ) ) : '';
+                        $pos_str = is_array( $positions ) ? implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $positions ) ) ) : '';
                         $edit_url = admin_url( 'admin.php?page=tt-players&action=edit&id=' . (int) $pl->id );
                         $foot = (string) ( $pl->preferred_foot ?? '' );
                         $verdict = $status_calc->calculate( (int) $pl->id );

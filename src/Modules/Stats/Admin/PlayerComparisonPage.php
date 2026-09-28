@@ -291,7 +291,9 @@ class PlayerComparisonPage {
                         } ],
                         [ __( 'Position(s)', 'talenttrack' ), function( $pl ) {
                             $pos = json_decode( (string) $pl->preferred_positions, true );
-                            return is_array( $pos ) ? implode( ', ', $pos ) : '—';
+                            return is_array( $pos ) && $pos !== []
+                                ? implode( ', ', array_map( [ \TT\Infrastructure\Query\LabelTranslator::class, 'positionLabel' ], array_map( 'strval', $pos ) ) )
+                                : '—';
                         } ],
                         [ __( 'Foot', 'talenttrack' ), function( $pl ) {
                             return (string) ( $pl->preferred_foot ?: '—' );
