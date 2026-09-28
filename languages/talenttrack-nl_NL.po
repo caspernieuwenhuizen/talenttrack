@@ -67803,6 +67803,10 @@ msgstr "Tests & metingen"
 msgid "%1$d of %2$d measured"
 msgstr "%1$d van %2$d gemeten"
 
+msgctxt "list date filter"
+msgid "Date"
+msgstr "Datum"
+
 # v3.71.3 — issue #16 Reports preset translations
 #~ msgid "Preset name"
 #~ msgstr "Naam preset"

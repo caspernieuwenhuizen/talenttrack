@@ -1,3 +1,0 @@
-msgctxt "list date filter"
-msgid "Date"
-msgstr "Datum"

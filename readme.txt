@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.140.4
+Stable tag: 4.140.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.140.5 — Shell nav: Injuries, Team development and three more show their icon (#4168) The sidebar, rail and bottom bar draw each destination with a line icon, and five icons existed only in the duotone set used by dashboard tiles: alert (Injuries), sliders (Team development), note, pdp and trials. Those destinations sat in the nav with no icon. They now have line icons in the same style as the rest of the set, and a new check (`tools/check-tile-icons.php`, run by the Tile icon lint workflow, plus a unit test over the registry) fails any tile whose icon is missing from either set. The Suspension reasons card in Configuration now uses the card icon instead of the injuries first-aid kit. =
+
+= 4.140.5 — Evaluations list: the date filter reads "Date", not "DATE" (#4169) The evaluations list's date filter showed the raw English key "DATE" on a Dutch screen. It now reads "Datum" and, like the goals list, shows as one compact pill on desktop with From / To in its popover, so the filter bar stays on one row with the sidebar open. The phone filter sheet keeps its two date inputs. The same missing label is fixed on My activities. =
+
+= 4.140.5 — Tournament positions show names instead of codes (#4170) A player's Tournaments tab and the tournament wizard's review now show each position by name, in Dutch too: "Verdedigende middenvelder" instead of "DM", "Aanvallende middenvelder" instead of "AM". The stored codes and squad matching are unchanged. =
+
+= 4.140.5 — Team attendance counts the players currently in the team (#4172) Team-level attendance figures now count only the players currently on the team's roster (assigned to the team, status active, not archived), each on the team's own activities. A player who moved from U12 to U13 shows in U13's figures for their U13 activities only and no longer counts toward U12; a released or archived player leaves the team figures too. Before this, a moved player stayed in the old team's report, labelled with the new team's name. The rule applies to the team and player attendance reports, the leaderboard and at-risk list, the monthly team report's attendance tile, section and roster, the team overview, the team page tile, the dashboard attendance tiles, the team roster and KPI snapshot exports and the REST endpoints behind them. With no team chosen, the leaderboard measures each player on their current team's activities. A player's own profile, player report and status light keep their full history. Team figures, including those for past months, may change for teams whose squad has changed since. "Currently in the team" is defined once, in `TeamRoster`, which the team player list now reads too. =
 
 = 4.140.4 — Test trends and BMI-for-age move from dashboard tiles into Reports (#4154) Test trends and Player · BMI-for-age no longer have their own tiles in the dashboard's Analyses group. They are listed on the Reports page, in a new Tests & measurements section after Development & performance, which is where both reports already pointed their breadcrumb. The entries keep the tiles' access check: they appear only to someone who may read test results, only while the Measurements module is on, and each disappears when its report is switched off under Features. Test results stays a dashboard tile. =
 
