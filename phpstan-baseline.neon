@@ -2647,19 +2647,19 @@ parameters:
 			path: src/Infrastructure/REST/SearchRestController.php
 
 		-
-			message: '#^Offset ''description'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''description'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''dtend'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''dtend'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''dtstart'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''dtstart'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
@@ -2671,25 +2671,25 @@ parameters:
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''location'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''location'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''meetup'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''meetup'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''summary'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''summary'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
 
 		-
-			message: '#^Offset ''uid'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''uid'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Infrastructure/REST/SpondRestController.php
@@ -14797,19 +14797,19 @@ parameters:
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''description'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''description'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''dtend'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''dtend'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''dtstart'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''dtstart'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
@@ -14821,13 +14821,13 @@ parameters:
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''location'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''location'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''meetup'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''meetup'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
@@ -14839,7 +14839,7 @@ parameters:
 			path: src/Modules/Spond/SpondSync.php
 
 		-
-			message: '#^Offset ''summary'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''summary'' on array\{uid\: string, summary\: string, dtstart\: string, dtend\: string, meetup\: string, location\: string, description\: string, last_modified\: string, \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: src/Modules/Spond/SpondSync.php
