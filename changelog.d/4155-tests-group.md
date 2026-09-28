@@ -1,0 +1,3 @@
+# Dashboard: a Tests & measurements group for recording, coverage and results (#4155)
+
+Record measurements, Testing coverage and Test results now sit together in a new Tests & measurements group on the dashboard, after Development, in the order the work happens: record, see who is due, read the results. Record measurements and Testing coverage left Performance and Test results left Analyses; the shell's sidebar, rail and bottom bar follow the same group order. Testing coverage gets its own clock icon so it no longer looks identical to Record measurements, and both descriptions drop the "Tests & measurements:" prefix the group now makes redundant. Manage tests stays under Configuration. Who can see each tile is unchanged.

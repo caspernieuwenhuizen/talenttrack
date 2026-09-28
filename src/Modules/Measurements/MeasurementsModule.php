@@ -83,15 +83,17 @@ class MeasurementsModule implements ModuleInterface {
             // The staff "Record measurements" entry tile — the bulk
             // result-entry grid. Hidden for players/parents (read-only);
             // shown to staff who can change measurements somewhere.
+            // #4155 — first in the Tests & measurements group, which follows
+            // the workflow: record, see who is due, read the results.
             TileRegistry::register( [
                 'module_class'      => self::class,
                 'view_slug'         => 'measurements-entry',
                 'entity'            => 'measurements',
-                'group'             => __( 'Performance', 'talenttrack' ),
+                'group'             => __( 'Tests & measurements', 'talenttrack' ),
                 'kind'              => 'work',
-                'order'             => 46,
+                'order'             => 10,
                 'label'             => __( 'Record measurements', 'talenttrack' ),
-                'description'       => __( 'Tests & measurements: enter test results for a team.', 'talenttrack' ),
+                'description'       => __( 'Enter test results for a team.', 'talenttrack' ),
                 'icon'              => 'track',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [ 'player', 'parent' ],
@@ -109,12 +111,14 @@ class MeasurementsModule implements ModuleInterface {
                 'module_class'      => self::class,
                 'view_slug'         => 'measurements-coverage',
                 'entity'            => 'measurements',
-                'group'             => __( 'Performance', 'talenttrack' ),
+                'group'             => __( 'Tests & measurements', 'talenttrack' ),
                 'kind'              => 'work',
-                'order'             => 47,
+                'order'             => 20,
                 'label'             => __( 'Testing coverage', 'talenttrack' ),
-                'description'       => __( 'Tests & measurements: see who is due or overdue for each test.', 'talenttrack' ),
-                'icon'              => 'track',
+                'description'       => __( 'See who is due or overdue for each test.', 'talenttrack' ),
+                // #4155 — its own icon now that it sits beside Record
+                // measurements: coverage is about who is due or overdue.
+                'icon'              => 'clock',
                 'color'             => '#0e7c66',
                 'hide_for_personas' => [ 'player', 'parent' ],
                 // #2114 — match the coverage view's gate

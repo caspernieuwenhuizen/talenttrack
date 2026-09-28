@@ -290,7 +290,7 @@ zichtbaar wordt voor een rol die de onderliggende tests niet mag openen.
 
 ## Resultaten vastleggen
 
-Staf krijgt een tegel **Metingen vastleggen**. Kies een team, een test en
+Staf krijgt een tegel **Metingen vastleggen** in de groep **Tests & metingen** op het dashboard. Kies een team, een test en
 een datum, voer per speler één waarde in en klik op **Alles opslaan** — de
 hele selectie wordt in één keer opgeslagen (lege spelers worden
 overgeslagen) en gekoppeld aan een testsessie voor die datum. Numerieke
@@ -351,7 +351,7 @@ Zie [BMI naar leeftijd](#bmi-naar-leeftijd).
 
 ## Testdekking (wie is aan de beurt)
 
-Staf krijgt ook een tegel **Testdekking**. Kies een team en het scherm
+Staf krijgt ook een tegel **Testdekking**, ernaast in de groep **Tests & metingen**. Kies een team en het scherm
 toont, voor elke test met een herhaling, hoeveel van de selectie
 **up-to-date** is versus het tekort - en noemt de spelers die **te laat**,
 **binnenkort aan de beurt** of **nooit** getest zijn. Het is spelergericht:
@@ -470,7 +470,7 @@ SaaS-frontend.
 
 ## Resultaten doorbladeren — het scherm Testresultaten
 
-De tegel **Testresultaten** (in de groep **Analyse** op het dashboard) opent
+De tegel **Testresultaten**, in de groep **Tests & metingen**, opent
 een overzicht om alle geregistreerde resultaten op één plek te lezen,
 geordend per speler. Het beantwoordt de vraag "hoe doet elke speler het nu
 op deze test?" zonder dat je de profielen één voor één hoeft te openen.
