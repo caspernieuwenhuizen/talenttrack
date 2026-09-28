@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.140.0
+Stable tag: 4.140.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.140.1 — Monthly report: the Per player table lines up again, on screen and on paper (#4140) The figures in the monthly report's Per player table sit under their headers again, the row lines run edge to edge, and the headers stay on one line. The rating chips in the Evaluations grid shared a style name with the table's number columns, which pulled those figures out of their columns in the PDF and on the desktop sheets alike. The chips have their own style now, the headers use short labels (the full name shows when you hover over one), and the sheets on screen no longer pick up the site's own table styling. =
+
+= 4.140.1 — Monthly report PDF is named after the team and the month (#4141) **Download PDF** on the team monthly report now saves as the team and the month the report covers, for example `Hedel-O14-1-2026-09.pdf`, instead of `team_monthly_report_pdf-<today>.pdf`. A period over more than one month names both ends (`Hedel-O14-1-2026-08-2026-09.pdf`), and a snapshot's PDF adds the day it was taken (`Hedel-O14-1-2026-09-snapshot-2026-10-02.pdf`). The download and the monthly e-mail's attachment now carry the same name. Other PDF exports keep their current names. =
 
 = 4.140.0 — Excel import: imported matches count towards suspensions straight away (#4121) The Excel importer writes its activities as completed without firing any hook, so a suspension whose last match arrived through an import stayed open until that match was next saved. The importer now fires `tt_activity_marked_completed` once for every activity it writes, after its attendance is in, and listeners such as the suspension service settle during the import. =
 

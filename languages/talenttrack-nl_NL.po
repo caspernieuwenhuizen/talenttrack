@@ -67759,6 +67759,26 @@ msgstr "Selectie"
 msgid "Cell: the player's average this month in that category; ▲/▼ against the previous month. The colour follows the scale, %1$s low to %2$s high. In shirt-number order."
 msgstr "Cel: het gemiddelde van de speler deze maand in die categorie; ▲/▼ t.o.v. de vorige maand. De kleur volgt de schaal, %1$s laag tot %2$s hoog. Op rugnummer."
 
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1906
+msgctxt "team monthly report column: attendance, short"
+msgid "Att."
+msgstr "Aanw."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1907
+msgctxt "team monthly report column: minutes, short"
+msgid "Min."
+msgstr "Min."
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1908
+msgctxt "team monthly report column: open goals, short"
+msgid "Goals"
+msgstr "Doelen"
+
+#: src/Modules/Analytics/Reports/TeamMonthlyReportDocument.php:1909
+msgctxt "team monthly report column: injured, short"
+msgid "Injury"
+msgstr "Blessure"
+
 #~ msgid "Passes on a time, date or location change that came in from Spond."
 #~ msgstr ""
 #~ "Geeft een wijziging in tijd, datum of locatie door die uit Spond is "
