@@ -139,6 +139,17 @@ final class BmiReportTest extends WP_UnitTestCase {
         $this->assertSame( '2022-06-01', $series[1]['date'] );
         $this->assertNotNull( $series[0]['sds'] );
         $this->assertNotNull( $series[1]['percentile'] );
+
+        // #4173 — the trend's Change column reads the same per-point delta the
+        // roster computes, from the domain layer rather than the view.
+        $this->assertNull( $series[0]['delta_bmi'], 'the first point has nothing to compare with' );
+        $this->assertNull( $series[0]['previous_date'] );
+        $this->assertSame( '2022-01-01', $series[1]['previous_date'] );
+        $this->assertEqualsWithDelta(
+            $series[1]['bmi'] - $series[0]['bmi'],
+            (float) $series[1]['delta_bmi'],
+            0.01
+        );
     }
 
     /** Reference bands are what a chart draws the player's points against. */

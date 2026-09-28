@@ -421,11 +421,8 @@ class FrontendMeasurementsView extends FrontendViewBase {
         if ( $series === [] ) return null;
 
         // `BmiQuery::playerSeries()` only emits a point once it has a usable
-        // height and weight pair, so `bmi` is a float by the time it is here;
-        // the percentile is the part that can be missing, when the growth
-        // reference does not cover this age and sex.
-        $latest  = $series[ count( $series ) - 1 ];
-        $covered = $latest['sds'] !== null && $latest['percentile'] !== null;
+        // height and weight pair, so `bmi` is a float by the time it is here.
+        $latest = $series[ count( $series ) - 1 ];
 
         return [
             'name'            => __( 'BMI-for-age', 'talenttrack' ),
@@ -434,17 +431,11 @@ class FrontendMeasurementsView extends FrontendViewBase {
             'date'            => $latest['date'],
             'chip_label'      => '',
             'chip_class'      => '',
-            // The percentile is the standing this row can be read against, so
-            // it belongs in the target column. Where the growth reference does
-            // not cover the age and sex, saying so there is the whole content
-            // of what used to be a 2rem figure followed by an apology.
-            'target'          => $covered
-                ? sprintf(
-                    /* translators: %s: an ordinal percentile, e.g. "62nd". */
-                    __( '%s percentile', 'talenttrack' ),
-                    \TT\Modules\Measurements\Frontend\BmiBlock::ordinal( (float) $latest['percentile'] )
-                )
-                : _x( 'no percentile', 'the growth reference does not cover this player', 'talenttrack' ),
+            // #4173 — BMI has no target, and the percentile that used to sit
+            // here is gone from every BMI surface: the growth reference left
+            // most of a youth squad uncovered, so the cell mostly read
+            // "no percentile". The REST payload still carries it.
+            'target'          => '',
             'target_absent'   => false,
             'spark'           => '',
             'delta'           => '',

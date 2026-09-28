@@ -1,0 +1,23 @@
+#. translators: %d: number of days.
+#: src/Modules/Measurements/Frontend/BmiBlock.php:54
+#, php-format
+msgid "A BMI is only shown when a weight and a height were recorded within %d days of each other. Where they were not recorded on the same day, the gap is listed under the date so you can judge it."
+msgstr "Een BMI wordt alleen getoond als gewicht en lengte binnen %d dagen van elkaar zijn gemeten. Zijn ze niet op dezelfde dag gemeten, dan staat het verschil onder de datum, zodat je het zelf kunt beoordelen."
+
+#. translators: %s: date of the previous BMI measurement.
+#: src/Modules/Measurements/Frontend/BmiBlock.php:111
+#, php-format
+msgid "since %s"
+msgstr "sinds %s"
+
+#. translators: %d: number of days between the height and the weight reading.
+#: src/Modules/Measurements/Frontend/BmiBlock.php:131
+#, php-format
+msgid "height %d day apart"
+msgid_plural "height %d days apart"
+msgstr[0] "lengte %d dag verschil"
+msgstr[1] "lengte %d dagen verschil"
+
+#: src/Modules/Measurements/Frontend/FrontendPlayerBmiView.php:239
+msgid "Open player profile"
+msgstr "Spelersprofiel openen"

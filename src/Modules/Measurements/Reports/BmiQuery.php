@@ -17,16 +17,16 @@ use TT\Modules\Measurements\Growth\WhoBmiForAgeReference;
  * never disagree, so the numbers are computed once, here, and the REST
  * endpoint returns this same shape (CLAUDE.md §4).
  *
- * BMI on its own says nothing about a 13-year-old. The same 19.4 is unremarkable
- * at 16 and high at 11, which is why every figure this class returns carries its
- * age-and-sex context: a z-score (SDS) and a percentile against a named growth
- * reference. A screen that shows the raw number alone is the screen that gets
- * misread.
+ * The screens show the BMI and how it has changed since the previous point
+ * (#4173). Every row still carries a z-score (SDS) and a percentile against a
+ * named growth reference, but only the REST payload returns them: the WHO
+ * reference left most of a youth squad uncovered, so on screen the percentile
+ * was mostly an empty cell, and an SDS delta was a figure no coach could read.
  *
  * What this class deliberately does NOT do is judge. There is no "overweight"
- * flag, no threshold, no colour. It reports where a player sits on a published
- * curve and how that has moved. The clinical reading belongs to someone
- * qualified to make it, and these are minors.
+ * flag, no threshold, no colour. It reports a figure and how that figure has
+ * moved. The clinical reading belongs to someone qualified to make it, and
+ * these are minors.
  */
 final class BmiQuery {
 
@@ -151,12 +151,15 @@ final class BmiQuery {
     }
 
     /**
-     * One player's full series, each point carrying its z and percentile.
+     * One player's full series, oldest first. Each point carries the BMI
+     * change since the point before it, which is what the screens show, and
+     * its z and percentile, which only the REST payload still returns.
      *
      * @return list<array{
      *   date:string, bmi:float, height_cm:float, weight_kg:float,
      *   height_date:string, gap_days:int, age_months:int|null,
-     *   sds:float|null, percentile:float|null
+     *   sds:float|null, percentile:float|null,
+     *   delta_bmi:float|null, previous_date:string|null
      * }>
      */
     public function playerSeries( int $player_id ): array {
@@ -175,7 +178,8 @@ final class BmiQuery {
         $sex = (string) ( $player->sex ?? '' );
         $dob = (string) ( $player->date_of_birth ?? '' );
 
-        $out = [];
+        $out  = [];
+        $prev = null;
         foreach ( $this->series->forPlayer( $player_id, $club ) as $point ) {
             $age_months = self::ageInMonths( $dob, (string) $point['date'] );
             $sds        = $age_months === null
@@ -183,10 +187,16 @@ final class BmiQuery {
                 : $this->reference->sds( (float) $point['bmi'], $age_months, $sex );
 
             $out[] = $point + [
-                'age_months' => $age_months,
-                'sds'        => $sds,
-                'percentile' => $sds === null ? null : self::percentileFromZ( $sds ),
+                'age_months'    => $age_months,
+                'sds'           => $sds,
+                'percentile'    => $sds === null ? null : self::percentileFromZ( $sds ),
+                // Same definition as the roster's `delta_bmi`: this point
+                // against the one before it, so the trend table and the
+                // roster row can never report a different change.
+                'delta_bmi'     => $prev === null ? null : round( (float) $point['bmi'] - (float) $prev['bmi'], 2 ),
+                'previous_date' => $prev === null ? null : (string) $prev['date'],
             ];
+            $prev = $point;
         }
 
         return $out;

@@ -8,6 +8,8 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Measurements\Growth\BmiSeriesBuilder;
 use TT\Modules\Measurements\Reports\BmiQuery;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -19,8 +21,8 @@ use TT\Shared\Frontend\FrontendViewBase;
  * the player's Measurements tab. All three render through {@see BmiBlock} and
  * read {@see BmiQuery}, so the figures cannot drift apart.
  *
- * The report deliberately refuses to grade anyone. It shows where a player
- * sits on a published growth curve and how that has moved, and stops there —
+ * The report deliberately refuses to grade anyone. It shows a player's BMI
+ * and how it has changed since the previous measurement, and stops there —
  * see BmiBlock's docblock for why. These are minors, and a screen that labels
  * a child "overweight" in front of whoever is standing behind the laptop is
  * not a screen this product ships.
@@ -100,10 +102,14 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         // one of them, and the attachment question would have re-opened the
         // drilldown #3156 closed.
         $player_team = 0;
+        $player_name = '';
         if ( $player_id > 0 ) {
             $player      = QueryHelpers::get_player( $player_id );
             $player_vars = $player === null ? [] : get_object_vars( $player );
             $player_team = isset( $player_vars['team_id'] ) ? (int) $player_vars['team_id'] : 0;
+            $player_name = trim(
+                (string) ( $player_vars['first_name'] ?? '' ) . ' ' . (string) ( $player_vars['last_name'] ?? '' )
+            );
         }
         if ( $player_id > 0 && ! $see_all
             && ! ( $player_team > 0 && in_array( $player_team, $allowed, true ) )
@@ -118,12 +124,12 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         BmiBlock::renderCaveat( $query );
 
         if ( $player_id > 0 ) {
-            self::renderPlayerTrend( $query, $player_id, $team_id );
+            self::renderPlayerTrend( $query, $player_id, $player_name );
             return;
         }
 
         $rows = $query->rosterRows( $team_id > 0 ? [ $team_id ] : $allowed );
-        self::renderRoster( $query, $rows, $team_id );
+        self::renderRoster( $rows, $team_id );
     }
 
     /**
@@ -131,7 +137,7 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
      *
      * @param list<array<string,mixed>> $rows
      */
-    private static function renderRoster( BmiQuery $query, array $rows, int $team_id ): void {
+    private static function renderRoster( array $rows, int $team_id ): void {
         if ( $rows === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players in this selection.', 'talenttrack' ) . '</p>';
             return;
@@ -151,15 +157,20 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         );
         echo '</p>';
 
+        // #4173 — the Team column only earns its width when the roster mixes
+        // teams; with one team selected it repeats the same value on every row.
+        $show_team = $team_id <= 0;
+
         echo '<div class="tt-table-scroll">';
         echo '<table class="tt-table tt-bmi-table">';
         echo '<thead><tr>';
         echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Percentile', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Measured', 'talenttrack' ) . '</th>';
+        if ( $show_team ) {
+            echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        }
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-date">' . esc_html__( 'Measured', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $row ) {
@@ -167,20 +178,26 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
 
             echo '<tr>';
 
-            $player_url = RecordLink::detailUrlForWithBack( 'players', (int) $row['player_id'] );
-            echo '<td>';
-            if ( $player_url !== '' ) {
-                printf( '<a href="%s">%s</a>', esc_url( $player_url ), esc_html( $name ) );
-            } else {
-                echo esc_html( $name );
+            // The name opens the player's BMI trend — the drilldown this
+            // table exists to reach. The profile is one link further, from
+            // the trend view's header.
+            $trend_url = BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'player-bmi', 'player_id' => (int) $row['player_id'] ],
+                RecordLink::dashboardUrl()
+            ) );
+            printf(
+                '<td class="tt-bmi-cell-player"><a class="tt-bmi-player-link" href="%s">%s</a></td>',
+                esc_url( $trend_url ),
+                esc_html( $name )
+            );
+            if ( $show_team ) {
+                echo '<td>' . esc_html( (string) $row['team_name'] ) . '</td>';
             }
-            echo '</td>';
-            echo '<td>' . esc_html( (string) $row['team_name'] ) . '</td>';
 
             if ( $row['bmi'] === null ) {
                 // One empty cell spanning the figures, with the reason, rather
-                // than four dashes that look like zeroes.
-                echo '<td colspan="4" class="tt-bmi-cell-empty">'
+                // than three dashes that look like zeroes.
+                echo '<td colspan="3" class="tt-bmi-cell-empty">'
                     . esc_html__( 'No height and weight recorded close enough together', 'talenttrack' )
                     . '</td>';
                 echo '</tr>';
@@ -189,22 +206,11 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
 
             echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $row['bmi'], 1 ) ) . '</td>';
 
-            echo '<td class="tt-bmi-cell-num">';
-            if ( ! empty( $row['covered'] ) && $row['percentile'] !== null ) {
-                echo esc_html( BmiBlock::ordinal( (float) $row['percentile'] ) )
-                    . ' <span class="tt-bmi-sds">' . esc_html( BmiBlock::signed( (float) $row['sds'] ) ) . '</span>';
-            } else {
-                echo '<span class="tt-bmi-cell-empty">' . esc_html__( 'Not covered by the reference', 'talenttrack' ) . '</span>';
-            }
-            echo '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
+            echo '<td class="tt-bmi-cell-num">' . BmiBlock::changeCellHtml( $row['delta_bmi'], $row['previous_date'] ) . '</td>';
 
-            echo '<td class="tt-bmi-cell-num">';
-            echo $row['delta_sds'] === null
-                ? '<span class="tt-bmi-cell-empty">' . esc_html__( 'First measurement', 'talenttrack' ) . '</span>'
-                : esc_html( BmiBlock::signed( (float) $row['delta_sds'] ) ) . ' ' . esc_html__( 'SDS', 'talenttrack' );
-            echo '</td>';
-
-            echo '<td>' . esc_html( BmiBlock::provenance( $row ) ) . '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
+            echo '<td class="tt-bmi-cell-date">' . BmiBlock::measuredCellHtml( (string) $row['date'], (int) $row['gap_days'] ) . '</td>';
 
             echo '</tr>';
         }
@@ -213,7 +219,23 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
     }
 
     /** One player's series over time. */
-    private static function renderPlayerTrend( BmiQuery $query, int $player_id, int $team_id ): void {
+    private static function renderPlayerTrend( BmiQuery $query, int $player_id, string $player_name ): void {
+        // The player anchors the screen, and the profile is one tap away —
+        // the roster's name link lands here, so this is the route onward.
+        // A viewer who cannot open the profile gets the name as plain text.
+        $profile_url = CrossViewLink::allows( 'players' ) ? RecordLink::detailUrlForWithBack( 'players', $player_id ) : '';
+        echo '<p class="tt-bmi-player">';
+        if ( $profile_url !== '' ) {
+            printf(
+                '<a class="tt-bmi-player-link" href="%s">%s</a>',
+                esc_url( $profile_url ),
+                esc_html( $player_name !== '' ? $player_name : __( 'Open player profile', 'talenttrack' ) )
+            );
+        } else {
+            echo esc_html( $player_name );
+        }
+        echo '</p>';
+
         $series = $query->playerSeries( $player_id );
 
         if ( $series === [] ) {
@@ -227,26 +249,22 @@ final class FrontendPlayerBmiView extends FrontendViewBase {
         echo '<table class="tt-table tt-bmi-table">';
         echo '<thead><tr>';
         echo '<th scope="col">' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Height', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Weight', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Percentile', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Gap', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Height', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Weight', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'BMI', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Change', 'talenttrack' ) . '</th>';
+        echo '<th scope="col" class="tt-bmi-cell-num">' . esc_html__( 'Gap', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
         foreach ( array_reverse( $series ) as $point ) {
             echo '<tr>';
-            echo '<td>' . esc_html( (string) $point['date'] ) . '</td>';
+            echo '<td class="tt-bmi-cell-date">' . esc_html( BmiBlock::date( (string) $point['date'] ) ) . '</td>';
             echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['height_cm'], 1 ) ) . ' cm</td>';
             echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['weight_kg'], 1 ) ) . ' kg</td>';
             echo '<td class="tt-bmi-cell-num">' . esc_html( number_format_i18n( (float) $point['bmi'], 1 ) ) . '</td>';
 
-            echo '<td class="tt-bmi-cell-num">';
-            echo $point['percentile'] === null
-                ? '<span class="tt-bmi-cell-empty">' . esc_html__( 'Not covered', 'talenttrack' ) . '</span>'
-                : esc_html( BmiBlock::ordinal( (float) $point['percentile'] ) )
-                  . ' <span class="tt-bmi-sds">' . esc_html( BmiBlock::signed( (float) $point['sds'] ) ) . '</span>';
-            echo '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in BmiBlock.
+            echo '<td class="tt-bmi-cell-num">' . BmiBlock::changeCellHtml( $point['delta_bmi'], $point['previous_date'] ) . '</td>';
 
             $gap = (int) $point['gap_days'];
             echo '<td class="tt-bmi-cell-num">' . esc_html(

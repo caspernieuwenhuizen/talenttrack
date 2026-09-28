@@ -7,13 +7,12 @@ use TT\Modules\Measurements\Reports\BmiQuery;
 use TT\Shared\Dates\TTDate;
 
 /**
- * BmiBlock (#2895) — the one renderer every BMI-for-age surface uses.
+ * BmiBlock (#2895) — the one renderer every BMI surface uses.
  *
  * Decision 3 on the issue: the roster table, the per-player trend and the
  * Measurements-tab block are three placements of ONE component, not three
- * implementations that happen to agree today. A number that means "this child
- * is heavy for their age" must not be formatted two different ways on two
- * screens.
+ * implementations that happen to agree today. A figure about a child's body
+ * must not be formatted two different ways on two screens.
  *
  * #3278 scoped the second half of that — "a caveat shown on one must be shown
  * on all of them" — to the surfaces dedicated to BMI. The reasoning behind it
@@ -23,16 +22,17 @@ use TT\Shared\Dates\TTDate;
  * that the full report explains. So the caveat is mandatory wherever BMI is
  * the subject, and the tab carries the figure alone.
  *
- * Presentation rules this component enforces, from the issue:
+ * Presentation rules this component enforces:
  *
  *   - No verdict. No colour-coded overweight/underweight, no red rows, no
- *     threshold styling. The percentile IS the output.
- *   - The reference is named on screen. A Dutch academy reading a WHO curve
- *     should know that is what they are looking at.
+ *     threshold styling. The output is the BMI and how it has changed since
+ *     the previous measurement.
+ *   - No percentile or SDS on screen (#4173). The growth reference left most
+ *     of a youth squad uncovered, so the column read as an apology on nearly
+ *     every row. The REST payload still carries both.
  *   - The pairing tolerance is stated, not implied. A BMI built from a weight
  *     and a height 27 days apart is a tolerance, not a fact, and the report has
  *     to be checkable.
- *   - An uncovered player renders as absent, not as zero.
  */
 final class BmiBlock {
 
@@ -46,14 +46,12 @@ final class BmiBlock {
      * the bare figure and does not call this.
      */
     public static function renderCaveat( BmiQuery $query ): void {
-        $reference = $query->reference()->label();
-        $days      = $query->pairWindowDays();
+        $days = $query->pairWindowDays();
 
         echo '<p class="tt-bmi-caveat">';
         printf(
-            /* translators: 1: growth reference name, 2: number of days. */
-            esc_html__( 'Percentiles are against %1$s. A BMI is only shown when a weight and a height were recorded within %2$d days of each other; the gap for each figure is listed so you can judge it.', 'talenttrack' ),
-            esc_html( $reference ),
+            /* translators: %d: number of days. */
+            esc_html__( 'A BMI is only shown when a weight and a height were recorded within %d days of each other. Where they were not recorded on the same day, the gap is listed under the date so you can judge it.', 'talenttrack' ),
             (int) $days
         );
         echo '</p>';
@@ -63,24 +61,15 @@ final class BmiBlock {
     }
 
     /**
-     * One player's latest standing: the BMI and where it sits on the curve.
+     * One player's latest standing: the BMI, and nothing that explains it.
      *
-     * #3278 — the figure, and nothing that explains it. This renders on the
-     * player's Measurements tab, where the reader arrived to do something
-     * else and wants the standing in one glance; the caveat, the provenance
-     * line and the change-since line all still render on
-     * `Player · BMI-for-age`, which is the surface someone opens *to read
-     * BMI*. That is where the explaining belongs.
+     * #3278 — this is the glance, for a reader who arrived to do something
+     * else; the caveat and the change-since line live on
+     * `Player · BMI-for-age`, the surface someone opens *to read BMI*.
+     * #4173 dropped the percentile line that used to sit under the figure.
      *
-     * The percentile stays because it is a figure, not an explanation: for a
-     * growing child the raw BMI barely means anything without the age-and-sex
-     * reference the percentile carries.
-     *
-     * Two rules from #2895 survive this trim and are not negotiable here:
-     * no verdict — no colour-coding, thresholds or overweight/underweight
-     * styling — and an uncovered player renders as absent rather than as
-     * zero, which is what the "no percentile" line is for. It marks a missing
-     * figure; it does not explain the report.
+     * No verdict — no colour-coding, thresholds or overweight/underweight
+     * styling.
      *
      * @param array<string,mixed> $row a row from BmiQuery::rosterRows()
      */
@@ -95,88 +84,67 @@ final class BmiBlock {
         }
 
         echo '<div class="tt-bmi-standing">';
-
         echo '<p class="tt-bmi-value"><span class="tt-bmi-number">'
             . esc_html( number_format_i18n( (float) $bmi, 1 ) )
             . '</span> <span class="tt-bmi-unit">'
             . esc_html__( 'BMI', 'talenttrack' )
             . '</span></p>';
-
-        if ( empty( $row['covered'] ) || $row['percentile'] === null ) {
-            echo '<p class="tt-bmi-uncovered">'
-                . esc_html__( 'No percentile: the growth reference does not cover this age and sex.', 'talenttrack' )
-                . '</p>';
-        } else {
-            echo '<p class="tt-bmi-percentile">';
-            printf(
-                /* translators: 1: percentile, 2: standard-deviation score. */
-                esc_html__( '%1$s percentile (SDS %2$s)', 'talenttrack' ),
-                '<strong>' . esc_html( self::ordinal( (float) $row['percentile'] ) ) . '</strong>',
-                esc_html( self::signed( (float) $row['sds'] ) )
-            );
-            echo '</p>';
-        }
-
         echo '</div>';
     }
 
     /**
-     * The provenance line — measurement date and how far apart the two
-     * readings were. This is what makes a figure checkable rather than
-     * authoritative-looking.
+     * The Change cell: the signed BMI change and, on a muted second line,
+     * the date it is measured from. "First measurement" when there is no
+     * earlier point to compare with.
      *
-     * @param array<string,mixed> $row
+     * Escaped HTML, ready to echo.
      */
-    public static function provenance( array $row ): string {
-        $date = isset( $row['date'] ) ? self::formatDate( (string) $row['date'] ) : '';
-        $gap  = (int) ( $row['gap_days'] ?? 0 );
-
-        if ( $gap === 0 ) {
-            /* translators: %s = measurement date. */
-            return sprintf( __( 'Measured %s, height and weight the same day.', 'talenttrack' ), $date );
+    public static function changeCellHtml( ?float $delta_bmi, ?string $previous_date ): string {
+        if ( $delta_bmi === null || $previous_date === null || $previous_date === '' ) {
+            return '<span class="tt-bmi-cell-empty">' . esc_html__( 'First measurement', 'talenttrack' ) . '</span>';
         }
 
-        return sprintf(
-            /* translators: 1: measurement date, 2: number of days between the two readings. */
-            _n(
-                'Measured %1$s, height recorded %2$d day apart.',
-                'Measured %1$s, height recorded %2$d days apart.',
-                $gap,
-                'talenttrack'
-            ),
-            $date,
-            $gap
-        );
+        return esc_html( self::signedBmi( $delta_bmi ) )
+            . '<span class="tt-bmi-cell-sub">'
+            . esc_html( sprintf(
+                /* translators: %s: date of the previous BMI measurement. */
+                __( 'since %s', 'talenttrack' ),
+                self::date( $previous_date )
+            ) )
+            . '</span>';
     }
 
     /**
-     * A percentile as an ordinal — "62nd", not "62.0".
+     * The Measured cell: the date alone, plus a muted line with the gap
+     * between the height and weight readings when it is not zero. The
+     * same-day case adds nothing — the caveat already states the rule.
      *
-     * Percentiles are read as positions, and a decimal point invites a
-     * precision the underlying curve does not have.
+     * Escaped HTML, ready to echo.
      */
-    public static function ordinal( float $percentile ): string {
-        $n = (int) round( $percentile );
-        $n = max( 1, min( 99, $n ) );
-
-        // Dutch and most non-English locales do not form ordinals this way, so
-        // the suffix goes through the translation layer rather than being
-        // concatenated in English.
-        return sprintf(
-            /* translators: %d = a percentile position, e.g. 62. Render as an ordinal in your language. */
-            __( '%dth', 'talenttrack' ),
-            $n
-        );
+    public static function measuredCellHtml( string $date, int $gap_days ): string {
+        $out = esc_html( self::date( $date ) );
+        if ( $gap_days > 0 ) {
+            $out .= '<span class="tt-bmi-cell-sub">'
+                . esc_html( sprintf(
+                    /* translators: %d: number of days between the height and the weight reading. */
+                    _n( 'height %d day apart', 'height %d days apart', $gap_days, 'talenttrack' ),
+                    $gap_days
+                ) )
+                . '</span>';
+        }
+        return $out;
     }
 
-    /** A z-score with an explicit sign, so +0.4 and -0.4 read as opposites. */
-    public static function signed( float $value ): string {
-        $formatted = number_format_i18n( abs( $value ), 2 );
-        if ( abs( $value ) < 0.005 ) return $formatted;
+    /** A BMI change with an explicit sign, so +0.4 and -0.4 read as opposites. */
+    public static function signedBmi( float $value ): string {
+        $formatted = number_format_i18n( abs( $value ), 1 );
+        if ( abs( $value ) < 0.05 ) return $formatted;
         return ( $value < 0 ? '−' : '+' ) . $formatted;
     }
 
-    private static function formatDate( string $ymd ): string {
+    /** A stored Y-m-d date in the academy's date format. */
+    public static function date( string $ymd ): string {
+        if ( $ymd === '' ) return '';
         $ts = strtotime( $ymd );
         if ( $ts === false ) return $ymd;
         return TTDate::date( $ts );
