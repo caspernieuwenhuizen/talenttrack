@@ -54,6 +54,13 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        wp_enqueue_script(
+            'tt-dossier-completeness',
+            TT_PLUGIN_URL . 'assets/js/frontend-dossier-completeness.js',
+            [],
+            TT_VERSION,
+            true
+        );
 
         self::renderHeader( $title );
 
@@ -98,10 +105,174 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
         }
 
         self::renderReachability( $report['family_reachable'] );
+        self::renderOverview( $report['players'], (int) $report['players_complete'] );
 
+        echo '<section class="tt-dc-checks" aria-labelledby="tt-dc-checks-title">';
+        echo '<div class="tt-dc-checks__head">';
+        echo '<h2 class="tt-dc-section-title" id="tt-dc-checks-title">' . esc_html_x( 'Checks', 'dossier completeness section heading', 'talenttrack' ) . '</h2>';
+        // The cards work one by one without this; the script only reveals
+        // it, so a page without JavaScript never shows a dead control.
+        echo '<div class="tt-dc-toggle-all" data-tt-dc-toggle-all hidden>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-dc-open-all>' . esc_html__( 'Open all', 'talenttrack' ) . '</button>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-dc-close-all>' . esc_html__( 'Close all', 'talenttrack' ) . '</button>';
+        echo '</div>';
+        echo '</div>';
         foreach ( $report['checks'] as $check ) {
             self::renderCheckCard( $check );
         }
+        echo '</section>';
+    }
+
+    /**
+     * #4145 — the overview: one line per player naming what their file is
+     * missing, most gaps first, as the service ordered them.
+     *
+     * Rendered twice over the same rows — a grid for a screen wide enough
+     * to hold seven columns, a list of chips for a phone — and the
+     * stylesheet shows one. A table squeezed to 360px scrolls sideways,
+     * and a chip list on a desktop wastes the one view that compares
+     * players at a glance.
+     *
+     * @param list<array<string,mixed>> $players
+     */
+    private static function renderOverview( array $players, int $players_complete ): void {
+        $incomplete = array_values( array_filter(
+            $players,
+            static function ( $row ): bool {
+                return is_array( $row ) && ! empty( $row['missing'] );
+            }
+        ) );
+        $complete = array_values( array_filter(
+            $players,
+            static function ( $row ): bool {
+                return is_array( $row ) && empty( $row['missing'] );
+            }
+        ) );
+
+        echo '<section class="tt-dc-card tt-dc-overview" aria-labelledby="tt-dc-overview-title">';
+        echo '<h2 class="tt-dc-card__title" id="tt-dc-overview-title">' . esc_html__( 'Who is missing what', 'talenttrack' ) . '</h2>';
+
+        if ( $incomplete === [] ) {
+            echo '<p class="tt-dc-card__clear">' . esc_html__( 'Every file on this team is complete.', 'talenttrack' ) . '</p>';
+        } else {
+            self::renderGrid( $incomplete );
+            self::renderChipList( $incomplete );
+        }
+
+        if ( $complete !== [] ) {
+            echo '<details class="tt-dc-fold">';
+            echo '<summary class="tt-dc-fold__summary"><span class="tt-dc-chevron" aria-hidden="true"></span>' . esc_html( sprintf(
+                /* translators: %d: number of players whose file has nothing missing. */
+                _n( '%d player complete', '%d players complete', $players_complete, 'talenttrack' ),
+                $players_complete
+            ) ) . '</summary>';
+            echo '<ul class="tt-dc-fold__list">';
+            foreach ( $complete as $row ) {
+                echo '<li>';
+                self::renderPlayerName( $row );
+                echo '</li>';
+            }
+            echo '</ul>';
+            echo '</details>';
+        }
+
+        echo '</section>';
+    }
+
+    /**
+     * The wide-screen grid: players down, the six checks across, a gap
+     * count at the end. Every cell carries its state as words for a
+     * screen reader; the glyph is for the eye and never the only signal.
+     *
+     * @param list<array<string,mixed>> $rows
+     */
+    private static function renderGrid( array $rows ): void {
+        echo '<div class="tt-dc-grid">';
+        echo '<table class="tt-dc-grid__table">';
+        echo '<thead><tr>';
+        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        foreach ( DossierCompletenessService::checkKeys() as $key ) {
+            echo '<th scope="col"><abbr title="' . esc_attr( DossierCompletenessService::checkLabel( $key ) ) . '">'
+                . esc_html( DossierCompletenessService::checkShortLabel( $key ) ) . '</abbr></th>';
+        }
+        echo '<th scope="col">' . esc_html_x( 'Gaps', 'dossier grid column', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ( $rows as $row ) {
+            $missing = is_array( $row['missing'] ?? null ) ? $row['missing'] : [];
+            echo '<tr>';
+            echo '<th scope="row">';
+            self::renderPlayerName( $row );
+            echo '</th>';
+            foreach ( DossierCompletenessService::checkKeys() as $key ) {
+                $label = DossierCompletenessService::checkLabel( $key );
+                if ( ! in_array( $key, $missing, true ) ) {
+                    echo '<td class="tt-dc-cell tt-dc-cell--complete"><span aria-hidden="true">&#10003;</span>'
+                        . '<span class="tt-dc-sr">' . esc_html( sprintf(
+                            /* translators: %s: the name of a dossier check, e.g. "Guardian phone number". */
+                            __( '%s: complete', 'talenttrack' ),
+                            $label
+                        ) ) . '</span></td>';
+                    continue;
+                }
+                if ( $key === DossierCompletenessService::MEDIA_WITHOUT_CONSENT ) {
+                    $items = (int) ( $row['media_items'] ?? 0 );
+                    echo '<td class="tt-dc-cell tt-dc-cell--missing"><span aria-hidden="true">' . (int) $items . '</span>'
+                        . '<span class="tt-dc-sr">' . esc_html( self::overviewChipLabel( $key, $items ) ) . '</span></td>';
+                    continue;
+                }
+                echo '<td class="tt-dc-cell tt-dc-cell--missing"><span aria-hidden="true">&#10007;</span>'
+                    . '<span class="tt-dc-sr">' . esc_html( sprintf(
+                        /* translators: %s: the name of a dossier check, e.g. "Guardian phone number". */
+                        __( '%s: missing', 'talenttrack' ),
+                        $label
+                    ) ) . '</span></td>';
+            }
+            echo '<td class="tt-dc-cell tt-dc-cell--gaps">' . (int) ( $row['gap_count'] ?? 0 ) . '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+        echo '</div>';
+    }
+
+    /**
+     * The phone layout of the same rows: a name, then only what is
+     * missing, one chip per check.
+     *
+     * @param list<array<string,mixed>> $rows
+     */
+    private static function renderChipList( array $rows ): void {
+        echo '<ul class="tt-dc-list tt-dc-overview__list">';
+        foreach ( $rows as $row ) {
+            $missing = is_array( $row['missing'] ?? null ) ? $row['missing'] : [];
+            echo '<li class="tt-dc-row tt-dc-overview__row">';
+            echo '<span class="tt-dc-row__name">';
+            self::renderPlayerName( $row );
+            echo '</span>';
+            echo '<span class="tt-dc-overview__chips">';
+            foreach ( $missing as $key ) {
+                echo '<span class="tt-dc-chip tt-dc-chip--missing">' . esc_html( self::overviewChipLabel( (string) $key, (int) ( $row['media_items'] ?? 0 ) ) ) . '</span>';
+            }
+            echo '</span>';
+            echo '</li>';
+        }
+        echo '</ul>';
+    }
+
+    /** @param array<string,mixed> $row A `players` entry from the service. */
+    private static function renderPlayerName( array $row ): void {
+        $player_id = (int) ( $row['player_id'] ?? 0 );
+        $name      = (string) ( $row['name'] ?? '' );
+        $label     = $name !== '' ? $name : '#' . $player_id;
+        if ( $player_id > 0 ) {
+            echo RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes its own output.
+                $label,
+                RecordLink::detailUrlForWithBack( 'players', $player_id )
+            );
+            return;
+        }
+        echo esc_html( $label );
     }
 
     /**
@@ -163,17 +334,28 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
         <?php
     }
 
-    /** @param array<string,mixed> $check */
+    /**
+     * One check as a native `<details>`, closed on load (#4145): the
+     * summary line carries everything needed to decide whether to open it
+     * — the name, "x of y complete", the bar and the item count — and the
+     * body holds the names. A browser opens and closes it by tap, Enter
+     * or Space with no script at all.
+     *
+     * @param array<string,mixed> $check
+     */
     private static function renderCheckCard( array $check ): void {
         $total    = (int) $check['total'];
         $complete = (int) $check['complete'];
         $needs    = is_array( $check['needs'] ?? null ) ? $check['needs'] : [];
         $recorded = is_array( $check['recorded'] ?? null ) ? $check['recorded'] : [];
-        $pct      = $total > 0 ? (int) round( $complete / $total * 100 ) : 0;
+        $pct      = (int) ( $check['completion'] ?? 0 );
+        $is_clear = $needs === [];
 
-        echo '<section class="tt-dc-card">';
-        echo '<div class="tt-dc-card__head">';
-        echo '<h2 class="tt-dc-card__title">' . esc_html( (string) $check['name'] ) . '</h2>';
+        echo '<details class="tt-dc-card tt-dc-check' . ( $is_clear ? ' tt-dc-check--clear' : '' ) . '" data-tt-dc-check>';
+        echo '<summary class="tt-dc-check__summary">';
+        echo '<span class="tt-dc-card__head">';
+        echo '<span class="tt-dc-chevron" aria-hidden="true"></span>';
+        echo '<h3 class="tt-dc-card__title">' . esc_html( (string) $check['name'] ) . '</h3>';
         if ( isset( $check['item_count'] ) && (int) $check['item_count'] > 0 ) {
             echo '<span class="tt-dc-chip tt-dc-chip--missing">' . esc_html( sprintf(
                 /* translators: %d: number of photos or videos held with no consent recorded. */
@@ -181,16 +363,22 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
                 (int) $check['item_count']
             ) ) . '</span>';
         }
-        echo '</div>';
+        echo '</span>';
 
-        echo '<p class="tt-dc-card__summary">' . esc_html( sprintf(
-            /* translators: 1: number of players whose file is complete on this check, 2: squad size. */
-            __( '%1$d of %2$d complete', 'talenttrack' ),
-            $complete,
-            $total
-        ) ) . '</p>';
+        if ( $is_clear ) {
+            echo '<span class="tt-dc-card__summary"><span class="tt-dc-chip tt-dc-chip--complete">' . esc_html_x( 'Complete', 'dossier check state', 'talenttrack' ) . '</span></span>';
+        } else {
+            echo '<span class="tt-dc-card__summary">' . esc_html( sprintf(
+                /* translators: 1: number of players whose file is complete on this check, 2: squad size. */
+                __( '%1$d of %2$d complete', 'talenttrack' ),
+                $complete,
+                $total
+            ) ) . '</span>';
+        }
 
-        echo '<div class="tt-dc-bar"><i style="width:' . (int) $pct . '%"></i></div>'; /* tt-inline-ok */
+        echo '<span class="tt-dc-bar"><i style="width:' . (int) $pct . '%"></i></span>'; /* tt-inline-ok */
+        echo '</summary>';
+        echo '<div class="tt-dc-check__body">';
 
         if ( $needs === [] ) {
             echo '<p class="tt-dc-card__clear">' . esc_html__( 'Nothing missing on this one.', 'talenttrack' ) . '</p>';
@@ -231,7 +419,8 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
             echo '</ul>';
         }
 
-        echo '</section>';
+        echo '</div>';
+        echo '</details>';
     }
 
     /**
@@ -267,5 +456,26 @@ final class FrontendDossierCompletenessView extends FrontendViewBase {
             );
         }
         return __( 'Missing', 'talenttrack' );
+    }
+
+    /**
+     * What a chip in the overview says: which check is missing, in words,
+     * because there it stands without the card title beside it.
+     */
+    private static function overviewChipLabel( string $key, int $items ): string {
+        switch ( $key ) {
+            case DossierCompletenessService::GUARDIAN_NAME:  return __( 'No guardian name', 'talenttrack' );
+            case DossierCompletenessService::GUARDIAN_EMAIL: return __( 'No e-mail', 'talenttrack' );
+            case DossierCompletenessService::GUARDIAN_PHONE: return __( 'No phone number', 'talenttrack' );
+            case DossierCompletenessService::PARENT_ACCOUNT: return __( 'No parent account', 'talenttrack' );
+            case DossierCompletenessService::MEDIA_CONSENT:  return __( 'No consent', 'talenttrack' );
+            case DossierCompletenessService::MEDIA_WITHOUT_CONSENT:
+                return sprintf(
+                    /* translators: %d: number of photos or videos held for this player with no consent recorded. */
+                    _n( '%d picture without consent', '%d pictures without consent', $items, 'talenttrack' ),
+                    $items
+                );
+            default: return __( 'Missing', 'talenttrack' );
+        }
     }
 }
