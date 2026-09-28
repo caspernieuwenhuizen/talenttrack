@@ -373,9 +373,14 @@ class LabelTranslator {
             case 'CB':  return 'Centre back';
             case 'LB':  return 'Left back';
             case 'RB':  return 'Right back';
-            case 'CDM': return 'Defensive midfielder';
+            // The tournament squad step (SquadStep::positionCodes()) uses
+            // DM / AM for the same roles the seeded vocabulary calls
+            // CDM / CAM. Same role, same name; the codes stay distinct.
+            case 'CDM':
+            case 'DM':  return 'Defensive midfielder';
             case 'CM':  return 'Central midfielder';
-            case 'CAM': return 'Attacking midfielder';
+            case 'CAM':
+            case 'AM':  return 'Attacking midfielder';
             case 'LW':  return 'Left winger';
             case 'RW':  return 'Right winger';
             case 'ST':  return 'Striker';

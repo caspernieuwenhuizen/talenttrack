@@ -117,7 +117,10 @@ opgeslagen. Voorheen verdween zo'n code zonder bericht: een selectie die als
 `GK / DF / MF` werd verstuurd, werd opgeslagen als alleen `GK`, en
 auto-balanceren vulde daarna alleen de keeperplek en zette de rest zonder
 minuten op de bank. De oudere `DEF` / `MID` / `FWD` werken nog en lezen als
-`CB` / `CM` / `ST`.
+`CB` / `CM` / `ST`. De codes zijn wat wordt opgeslagen en waarop wordt
+gematcht; het overzicht van de wizard en het tabblad Toernooien van een speler
+tonen elke code met zijn naam, dus `DM` leest als *Verdedigende middenvelder*
+en `AM` als *Aanvallende middenvelder*.
 
 **Formaties.** De standaardformatie van een toernooi en de eigen formatie van
 een wedstrijd moeten er een zijn die de academie daadwerkelijk heeft bij

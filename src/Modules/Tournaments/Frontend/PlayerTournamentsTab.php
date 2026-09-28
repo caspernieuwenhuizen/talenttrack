@@ -3,6 +3,7 @@ namespace TT\Modules\Tournaments\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Tournaments\PlayerTournamentAccess;
 use TT\Modules\Tournaments\Services\PlayerTournamentHistoryQuery;
@@ -334,8 +335,11 @@ final class PlayerTournamentsTab {
                 . esc_html( _x( 'Planned', 'tournament fixture: these minutes are the rotation plan, not a confirmed figure', 'talenttrack' ) )
                 . '</span>';
         }
-        $positions = (array) ( $fixture['positions'] ?? [] );
-        echo '<span>' . esc_html( $positions !== [] ? implode( ', ', array_map( 'strval', $positions ) ) : '—' ) . '</span>';
+        $positions = array_values( array_filter( array_map(
+            static fn ( $code ): string => LabelTranslator::positionLabel( (string) $code ),
+            (array) ( $fixture['positions'] ?? [] )
+        ), static fn ( string $label ): bool => $label !== '' ) );
+        echo '<span>' . esc_html( $positions !== [] ? implode( ', ', $positions ) : '—' ) . '</span>';
         echo '</span>';
 
         echo '</li>';
