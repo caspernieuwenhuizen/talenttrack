@@ -1,0 +1,3 @@
+# PDP coverage by team: figures under the right headers, and easier to read (#4176)
+
+On the PDP page, the "PDP coverage by team" table printed its figures one column to the left of their headers, and the team name sat at a different height from the numbers. Every figure now sits right-aligned under its own header, on the same line as the team name, and the row stripe runs across the whole row. "With a plan" and "Talked to" now read as a share of the team (for example 5 / 15) with a thin bar under the figure, zeros are greyed out, and the table sits on a card with equal-width columns on wider screens. The "No team" row is always last and no longer looks like a team to chase.
