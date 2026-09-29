@@ -10,7 +10,8 @@ use TT\Modules\Activities\Services\ActivityCoachAssignment;
 /**
  * SpondSync (#0031, rewritten via #0062) — upsert loop for Spond → tt_activities.
  *
- * Fetch + parse + upsert + soft-archive missing UIDs. Spond wins
+ * Fetch + parse + upsert + soft-archive missing UIDs inside the fetched
+ * window (#4182, see `SpondRemovedEvents`). Spond wins
  * schedule fields (date / title / location); TalentTrack wins
  * activity_type (once a coach changed it), attendance, and evaluations.
  *
@@ -26,7 +27,7 @@ final class SpondSync {
     /**
      * Sync every team that has a non-empty `spond_group_id`.
      *
-     * @return array<int,array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}>
+     * @return array<int,array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string}>
      */
     public static function syncAll(): array {
         global $wpdb;
@@ -45,7 +46,7 @@ final class SpondSync {
     }
 
     /**
-     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}
+     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string}
      */
     public static function syncTeam( int $team_id ): array {
         // #3106 — Spond is Pro, and a sync is an authenticated round trip to
@@ -59,7 +60,7 @@ final class SpondSync {
         // summary shape with a reason, so it lands in the sync health
         // record an operator reads rather than vanishing into a cron run.
         if ( ! \TT\Modules\License\LicenseGate::allows( 'spond_integration' ) ) {
-            return self::summary( $team_id, 'failed', 0, 0, 0, 0, sprintf(
+            return self::summary( $team_id, 'failed', 0, 0, 0, 0, 0, sprintf(
                 /* translators: %s: plan name, e.g. "Pro" */
                 __( 'Spond sync is part of the %s plan, which this install is not on. Fixtures already imported are unaffected.', 'talenttrack' ),
                 \TT\Modules\License\FeatureMap::tierLabel(
@@ -79,13 +80,13 @@ final class SpondSync {
             $team_id, CurrentClub::id()
         ) );
         if ( ! $team ) {
-            return self::summary( $team_id, 'failed', 0, 0, 0, 0, __( 'Team not found.', 'talenttrack' ) );
+            return self::summary( $team_id, 'failed', 0, 0, 0, 0, 0, __( 'Team not found.', 'talenttrack' ) );
         }
 
         $group_id = (string) ( $team->spond_group_id ?? '' );
         if ( $group_id === '' ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond group selected for this team.', 'talenttrack' )
+                $team_id, 'disabled', 0, 0, 0, 0, 0, __( 'No Spond group selected for this team.', 'talenttrack' )
             ) );
         }
 
@@ -95,11 +96,13 @@ final class SpondSync {
         $account = CredentialsManager::forTeam( $team_id );
         if ( ! $account->hasCredentials() ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'disabled', 0, 0, 0, 0, __( 'No Spond credentials configured for the club or this team.', 'talenttrack' )
+                $team_id, 'disabled', 0, 0, 0, 0, 0, __( 'No Spond credentials configured for the club or this team.', 'talenttrack' )
             ) );
         }
 
-        $fetch = SpondClient::fetchEvents( $group_id, $account );
+        // #4182 — one window for the fetch and the archive rule below.
+        $window = SpondFetchWindow::around();
+        $fetch  = SpondClient::fetchEvents( $group_id, $account, $window );
         if ( ! $fetch['ok'] ) {
             Logger::error( 'spond.fetch.failed', [
                 'team_id'    => $team_id,
@@ -108,7 +111,7 @@ final class SpondSync {
                 'http_code'  => $fetch['http_code'] ?? 0,
             ] );
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'failed', 0, 0, 0, 0, (string) ( $fetch['error_message'] ?? '' )
+                $team_id, 'failed', 0, 0, 0, 0, 0, (string) ( $fetch['error_message'] ?? '' )
             ) );
         }
 
@@ -136,7 +139,7 @@ final class SpondSync {
         $events = SpondParser::parse( $fetch['events'] );
         if ( empty( $events ) ) {
             return self::persistAndReturn( $team_id, self::summary(
-                $team_id, 'ok', 0, 0, 0, 0, __( 'Spond group contained no upcoming events.', 'talenttrack' )
+                $team_id, 'ok', 0, 0, 0, 0, 0, __( 'Spond group contained no upcoming events.', 'talenttrack' )
             ) );
         }
 
@@ -155,7 +158,7 @@ final class SpondSync {
             $seen[] = $uid;
 
             $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, activity_type_key, opponent, home_away FROM {$p}tt_activities
+                "SELECT id, activity_type_key, opponent, home_away, archived_at, archived_by FROM {$p}tt_activities
                   WHERE external_id = %s
                     AND activity_source_key = %s
                     AND club_id = %d
@@ -209,9 +212,17 @@ final class SpondSync {
                     'session_date' => $session_date ?: '0000-00-00',
                     'location'     => $location,
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time );
+
+                // Back in the feed: undo an archive the sync made. #4182 —
+                // an archive a person made (`archived_by` > 0) is theirs,
+                // and a re-sync no longer reverses it.
+                $unarchive = [];
+                if ( $existing->archived_at !== null && (int) ( $existing->archived_by ?? 0 ) <= 0 ) {
+                    $unarchive = [ 'archived_at' => null, 'archived_by' => null ];
+                }
                 $wpdb->update(
                     "{$p}tt_activities",
-                    $update + $correction + [ 'archived_at' => null ],
+                    $update + $correction + $unarchive,
                     [ 'id' => (int) $existing->id, 'club_id' => CurrentClub::id() ]
                 );
                 $updated++;
@@ -245,29 +256,25 @@ final class SpondSync {
             }
         }
 
-        // Soft-archive Spond-imported rows whose UID is no longer in the feed.
+        // #4182 — soft-archive Spond rows that are no longer in the feed,
+        // but only those the fetch was asked about, and never one that
+        // already carries attendance, minutes, an analysis or evaluations.
+        // Before this, every activity older than the window's 30 days was
+        // archived on the next sync, played matches included.
         $archived = 0;
+        $kept     = 0;
         if ( ! empty( $seen ) ) {
-            $placeholders = implode( ',', array_fill( 0, count( $seen ), '%s' ) );
-            $params       = array_merge( [ $team_id, CurrentClub::id() ], $seen );
-            $archived     = (int) $wpdb->query( $wpdb->prepare(
-                "UPDATE {$p}tt_activities
-                    SET archived_at = NOW()
-                  WHERE team_id = %d
-                    AND club_id = %d
-                    AND activity_source_key = 'spond'
-                    AND archived_at IS NULL
-                    AND external_id NOT IN ({$placeholders})",
-                ...$params
-            ) );
+            $removed  = SpondRemovedEvents::apply( $team_id, $seen, $window );
+            $archived = $removed['archived'];
+            $kept     = $removed['kept'];
         }
 
         return self::persistAndReturn( $team_id, self::summary(
-            $team_id, 'ok', count( $events ), $created, $updated, $archived,
+            $team_id, 'ok', count( $events ), $created, $updated, $archived, $kept,
             sprintf(
-                /* translators: 1: created count, 2: updated count, 3: archived count */
-                __( 'Synced: %1$d new · %2$d updated · %3$d archived.', 'talenttrack' ),
-                $created, $updated, $archived
+                /* translators: 1: created count, 2: updated count, 3: archived count, 4: count of activities removed in Spond but kept because they have recorded data */
+                __( 'Synced: %1$d new · %2$d updated · %3$d archived (removed in Spond) · %4$d kept (removed in Spond, has data).', 'talenttrack' ),
+                $created, $updated, $archived, $kept
             )
         ) );
     }
@@ -392,8 +399,8 @@ final class SpondSync {
     }
 
     /**
-     * @param array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string} $summary
-     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}
+     * @param array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string} $summary
+     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string}
      */
     private static function persistAndReturn( int $team_id, array $summary ): array {
         global $wpdb;
@@ -410,9 +417,9 @@ final class SpondSync {
     }
 
     /**
-     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string}
+     * @return array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string}
      */
-    private static function summary( int $team_id, string $status, int $fetched, int $created, int $updated, int $archived, string $message ): array {
+    private static function summary( int $team_id, string $status, int $fetched, int $created, int $updated, int $archived, int $kept, string $message ): array {
         return [
             'team_id'         => $team_id,
             'status'          => $status,
@@ -420,6 +427,7 @@ final class SpondSync {
             'created_count'   => $created,
             'updated_count'   => $updated,
             'archived_count'  => $archived,
+            'kept_count'      => $kept,
             'last_message'    => $message,
         ];
     }

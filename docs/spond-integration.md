@@ -48,9 +48,15 @@ That's it. Within an hour, every Spond event for each linked group appears as a 
 - **Coach** — a newly imported event gets the team's **head coach**, the same default as an activity created in TalentTrack. A team with no head coach, or with two, gets no coach, and the "no coach assigned" alert flags it. After the first import the coach is TalentTrack-owned: a re-sync never changes it, including a coach you cleared on purpose. Activities imported before this default existed received their team's head coach once, on update.
 - **Attendance, evaluations, linked goals** — TalentTrack-only. Never overwritten.
 
-When an event disappears from Spond (deleted, cancelled), the matching TalentTrack activity is **soft-archived** — never deleted — so any evaluations attached to it survive. If the same Spond event reappears later, the activity is un-archived.
-
 The sync window is **30 days back + 180 days forward** rolling, so historical events outside that window are not re-imported on every tick.
+
+When an event disappears from Spond (deleted, cancelled), the matching TalentTrack activity is **soft-archived** — never deleted. Three rules keep that from touching history:
+
+- **Only events inside the window.** An activity dated more than 30 days ago is not in the feed simply because it is old, so the sync never archives it. Played trainings and matches stay in the reports however old they get.
+- **Never an activity with recorded data.** An activity that is completed, or has a register, minutes, a match analysis, a live match log or evaluations, is kept even when Spond no longer has it. The sync line reports it as *kept (removed in Spond, has data)*, next to the count *archived (removed in Spond)*. Archive it yourself if it really should go.
+- **Your archive is yours.** An activity the sync archived is un-archived when the event reappears in Spond. An activity you archived stays archived.
+
+Earlier versions archived every Spond activity once it was more than 30 days old. Updating restores the activities archived that way, and any archived activity with recorded data; activities someone archived by hand stay archived.
 
 ## Sync schedule
 

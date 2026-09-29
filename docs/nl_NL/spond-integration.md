@@ -48,9 +48,15 @@ Klaar. Binnen een uur verschijnt elk Spond-event voor elke gekoppelde groep als 
 - **Trainer** — een nieuw geïmporteerd event krijgt de **hoofdtrainer** van het team, dezelfde standaard als een activiteit die in TalentTrack wordt aangemaakt. Een team zonder hoofdtrainer, of met twee, krijgt geen trainer, en de melding "geen trainer toegewezen" signaleert dat. Na de eerste import is de trainer in beheer van TalentTrack: een sync wijzigt hem nooit, ook niet als je hem bewust hebt leeggemaakt. Activiteiten die vóór deze standaard zijn geïmporteerd, kregen bij de update eenmalig de hoofdtrainer van hun team.
 - **Aanwezigheid, evaluaties, gekoppelde doelen** — alleen TalentTrack. Nooit overschreven.
 
-Verdwijnt een event uit Spond (verwijderd, geannuleerd), dan wordt de bijbehorende TalentTrack-activiteit **soft-gearchiveerd** — nooit verwijderd — zodat eventuele evaluaties bewaard blijven. Komt het Spond-event later weer terug, dan wordt de activiteit gedearchiveerd.
-
 Het sync-window is **30 dagen terug + 180 dagen vooruit** rollend, dus historische events buiten dat venster worden niet bij elke tick opnieuw geïmporteerd.
+
+Verdwijnt een event uit Spond (verwijderd, geannuleerd), dan wordt de bijbehorende TalentTrack-activiteit **soft-gearchiveerd** — nooit verwijderd. Drie regels zorgen dat dit de geschiedenis niet raakt:
+
+- **Alleen events binnen het venster.** Een activiteit van meer dan 30 dagen geleden staat niet in de feed omdat ze oud is, dus de sync archiveert haar nooit. Gespeelde trainingen en wedstrijden blijven in de rapporten, hoe oud ze ook worden.
+- **Nooit een activiteit met vastgelegde gegevens.** Een activiteit die voltooid is, of een presentielijst, speelminuten, een wedstrijdanalyse, een live wedstrijdverslag of evaluaties heeft, blijft staan, ook als Spond haar niet meer heeft. De sync-regel meldt haar als *behouden (verwijderd in Spond, heeft gegevens)*, naast het aantal *gearchiveerd (verwijderd in Spond)*. Archiveer haar zelf als ze echt weg moet.
+- **Jouw archivering blijft van jou.** Een activiteit die de sync archiveerde, wordt gedearchiveerd als het event weer in Spond verschijnt. Een activiteit die jij archiveerde, blijft gearchiveerd.
+
+Eerdere versies archiveerden elke Spond-activiteit zodra die meer dan 30 dagen oud was. De update zet de activiteiten die zo gearchiveerd zijn terug, en ook elke gearchiveerde activiteit met vastgelegde gegevens; activiteiten die iemand met de hand archiveerde, blijven gearchiveerd.
 
 ## Sync-schema
 
