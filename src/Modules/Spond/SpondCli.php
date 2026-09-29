@@ -35,17 +35,18 @@ final class SpondCli {
     }
 
     /**
-     * @param array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,last_message:string} $r
+     * @param array{team_id:int,status:string,fetched_count:int,created_count:int,updated_count:int,archived_count:int,kept_count:int,last_message:string} $r
      */
     private static function renderResult( array $r ): void {
         \WP_CLI::log( sprintf(
-            'Team %d  %s  fetched=%d created=%d updated=%d archived=%d  %s',
+            'Team %d  %s  fetched=%d created=%d updated=%d archived=%d kept=%d  %s',
             $r['team_id'],
             strtoupper( $r['status'] ),
             $r['fetched_count'],
             $r['created_count'],
             $r['updated_count'],
             $r['archived_count'],
+            $r['kept_count'],
             $r['last_message']
         ) );
     }

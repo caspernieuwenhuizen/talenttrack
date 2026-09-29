@@ -313,7 +313,8 @@ final class SpondRestController {
 
         // #2286 — preview through the team's own Spond account when set,
         // else the club account (same resolution a real sync uses).
-        $fetch = SpondClient::fetchEvents( $group_id, CredentialsManager::forTeam( $team_id ) );
+        $window = \TT\Modules\Spond\SpondFetchWindow::around();
+        $fetch  = SpondClient::fetchEvents( $group_id, CredentialsManager::forTeam( $team_id ), $window );
         if ( empty( $fetch['ok'] ) ) {
             return RestResponse::success( [
                 'ok'            => false,
@@ -389,27 +390,24 @@ final class SpondRestController {
             ];
         }
 
-        // Archive candidates: stored Spond rows for this team, not
-        // archived, whose external_id is no longer in the fetched set.
+        // #4182 — the archive candidates come from the same rule the sync
+        // applies: missing from the feed, dated inside the fetched window,
+        // and without recorded data. Missing rows that carry data are kept
+        // and listed separately.
+        // Like the sync, an empty feed archives nothing.
+        $plan    = $seen
+            ? \TT\Modules\Spond\SpondRemovedEvents::plan( $team_id, array_keys( $seen ), $window )
+            : [ 'archive' => [], 'keep' => [] ];
         $archive = [];
-        $rows    = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, external_id
-               FROM {$p}tt_activities
-              WHERE team_id = %d
-                AND club_id = %d
-                AND activity_source_key = 'spond'
-                AND archived_at IS NULL",
-            $team_id, $club
-        ) );
-        foreach ( (array) $rows as $row ) {
-            $ext = (string) ( $row->external_id ?? '' );
-            if ( $ext !== '' && isset( $seen[ $ext ] ) ) continue;
-            $archive[] = [
-                'activity_id' => (int) $row->id,
-                'title'       => (string) ( $row->title ?? '' ),
-            ];
+        foreach ( $plan['archive'] as $row ) {
+            $archive[] = [ 'activity_id' => $row['activity_id'], 'title' => $row['title'] ];
+        }
+        $kept = [];
+        foreach ( $plan['keep'] as $row ) {
+            $kept[] = [ 'activity_id' => $row['activity_id'], 'title' => $row['title'] ];
         }
         $counts['archive'] = count( $archive );
+        $counts['keep']    = count( $kept );
 
         return RestResponse::success( [
             'ok'            => true,
@@ -418,6 +416,7 @@ final class SpondRestController {
             'counts'        => $counts,
             'events'        => $events,
             'archive'       => $archive,
+            'keep'          => $kept,
         ] );
     }
 

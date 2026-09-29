@@ -67,9 +67,11 @@ final class SpondClient {
      * Window the events query asks Spond for, in days. 30 days back +
      * 180 days forward covers the typical academy planning horizon
      * without dragging in a year of historical noise on every sync.
+     * Defined once in {@see SpondFetchWindow}, which the sync's archive
+     * rule reads too (#4182).
      */
-    public const WINDOW_PAST_DAYS   = 30;
-    public const WINDOW_FUTURE_DAYS = 180;
+    public const WINDOW_PAST_DAYS   = SpondFetchWindow::PAST_DAYS;
+    public const WINDOW_FUTURE_DAYS = SpondFetchWindow::FUTURE_DAYS;
 
     /**
      * Authenticate against `/login`. Bypassed when a cached token is
@@ -200,9 +202,12 @@ final class SpondClient {
     /**
      * Fetch events for a single Spond group inside the rolling window.
      *
+     * #4182 — the sync passes the window it will archive against, so the
+     * fetch and the archive rule cannot disagree about what was asked.
+     *
      * @return array{ok:bool,events:list<array<string,mixed>>,error_code?:string,error_message?:string,http_code?:int}
      */
-    public static function fetchEvents( string $group_id, ?SpondAccount $account = null ): array {
+    public static function fetchEvents( string $group_id, ?SpondAccount $account = null, ?SpondFetchWindow $window = null ): array {
         if ( $group_id === '' ) {
             return [ 'ok' => false, 'events' => [], 'error_code' => 'empty_group_id', 'error_message' => __( 'No Spond group selected for this team.', 'talenttrack' ) ];
         }
@@ -216,9 +221,9 @@ final class SpondClient {
             return [ 'ok' => false, 'events' => [] ] + $token;
         }
 
-        $now           = time();
-        $window_start  = gmdate( 'Y-m-d\TH:i:s.000\Z', $now - ( self::WINDOW_PAST_DAYS   * DAY_IN_SECONDS ) );
-        $window_end    = gmdate( 'Y-m-d\TH:i:s.000\Z', $now + ( self::WINDOW_FUTURE_DAYS * DAY_IN_SECONDS ) );
+        $window        = $window ?? SpondFetchWindow::around();
+        $window_start  = $window->startUtc();
+        $window_end    = $window->endUtc();
 
         // v3.110.123 — cursor-style pagination over Spond's `/sponds/`
         // endpoint. Pre-fix the code issued a single GET with no
