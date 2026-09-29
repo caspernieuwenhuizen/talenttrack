@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Threads\Domain\PlayerAnchoredThread;
 use TT\Modules\Threads\Domain\ThreadTypeAdapter;
 
 /**
@@ -25,7 +26,11 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  *
  * Post = `tt_edit_player_notes`. Same scope semantics.
  */
-final class PlayerThreadAdapter implements ThreadTypeAdapter {
+final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread {
+
+    public function playerIdFor( int $thread_id ): int {
+        return $this->findEntity( $thread_id ) ? $thread_id : 0;
+    }
 
     public function findEntity( int $thread_id ): ?object {
         global $wpdb;

@@ -53,6 +53,8 @@ final class ClosedOutGuardianNotificationsTest extends WP_UnitTestCase {
             'released'  => [ [ 'status' => 'released' ] ],
             // #4089 — graduation closes a child out for messages too.
             'graduated' => [ [ 'status' => 'graduated' ] ],
+            // #4129 — an inactive child's family has no access and no messages.
+            'inactive'  => [ [ 'status' => 'inactive' ] ],
             'archived'  => [ [ 'archived_at' => '2026-09-01 10:00:00' ] ],
             'binned'   => [ [ 'trashed_at' => '2026-09-01 10:00:00' ] ],
         ];
@@ -116,6 +118,22 @@ final class ClosedOutGuardianNotificationsTest extends WP_UnitTestCase {
         $this->assertSame( [ $this->parent_user ], ParentChildResolver::guardiansOf( $this->player_id ) );
         $this->closeOut( [ 'status' => 'released' ] );
         $this->assertSame( [], ParentChildResolver::guardiansOf( $this->player_id ) );
+    }
+
+    /**
+     * #4129 — inactive was the one status whose family had no access and
+     * was still messaged. Now neither the guardian nor the player's own
+     * account is a recipient, while an active child's family still is.
+     */
+    public function test_an_inactive_child_and_their_family_are_sent_nothing(): void {
+        $this->assertNotSame( [], ( new RecipientResolver() )->forPlayerWithParents( $this->player_id ), 'fixture: an active child is reached' );
+
+        $this->closeOut( [ 'status' => 'inactive' ] );
+
+        $this->assertTrue( ParentChildResolver::isClosedOut( $this->player_id ) );
+        $this->assertSame( [], ParentChildResolver::guardiansOf( $this->player_id ) );
+        $this->assertSame( [], ( new RecipientResolver() )->forPlayerWithParents( $this->player_id ), 'nobody, the player\'s own account included' );
+        $this->assertFalse( ( new ParentEmailDispatcher() )->applicableTo( $this->context() ) );
     }
 
     /* ---- helpers ------------------------------------------------------- */

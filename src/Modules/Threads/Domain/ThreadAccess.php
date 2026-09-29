@@ -3,6 +3,7 @@ namespace TT\Modules\Threads\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Threads\ThreadTypeRegistry;
 
@@ -40,6 +41,32 @@ final class ThreadAccess {
         $adapter = ThreadTypeRegistry::get( $thread_type );
         if ( ! $adapter ) return false;
         return $adapter->canRead( $user_id, $thread_id );
+    }
+
+    /**
+     * #4129 — does this user reach the thread only as a read-only guardian?
+     *
+     * True when the thread belongs to a player, the user is that player's
+     * guardian with read-only access (a graduated child), and nothing else
+     * lets them write here. Read-only means read-only: such a guardian
+     * neither posts nor deletes, their own old messages included.
+     *
+     * Asked of the resolver's access level for the thread's player, never of
+     * the thread type, so every player-anchored thread answers the same way.
+     * A user who may still post — a coach who is also the child's parent, an
+     * academy-wide thread admin — is not refused on the guardian link.
+     */
+    public static function isReadOnlyGuardian( string $thread_type, int $thread_id, int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        $adapter = ThreadTypeRegistry::get( $thread_type );
+        if ( ! $adapter instanceof PlayerAnchoredThread ) return false;
+
+        $player_id = $adapter->playerIdFor( $thread_id );
+        if ( $player_id <= 0 ) return false;
+        if ( ! ParentChildResolver::isReadOnlyFor( $user_id, $player_id ) ) return false;
+
+        if ( self::hasGlobalAccess( $user_id, 'change' ) ) return false;
+        return ! $adapter->canPost( $user_id, $thread_id );
     }
 
     /**

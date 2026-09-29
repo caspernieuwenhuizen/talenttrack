@@ -30,6 +30,8 @@ final class ClosedOutPlayerRecipientsTest extends WP_UnitTestCase {
     public static function closedOutStates(): array {
         return [
             'released' => [ [ 'status' => 'released' ] ],
+            // #4129 — nor is an inactive player's own account.
+            'inactive' => [ [ 'status' => 'inactive' ] ],
             'archived' => [ [ 'archived_at' => '2026-09-01 10:00:00' ] ],
             'binned'   => [ [ 'trashed_at' => '2026-09-01 10:00:00' ] ],
         ];

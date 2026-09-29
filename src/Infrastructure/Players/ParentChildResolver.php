@@ -40,7 +40,9 @@ final class ParentChildResolver {
      *   - `graduated` → read_only: what the family could read before
      *                   graduation, and no writes. No messages either:
      *                   graduation closes the child out for notifications.
-     *   - `released`, `inactive`, archived, binned → none.
+     *   - `released`, `inactive`, archived, binned → none, and no messages
+     *                   (#4129 brought `inactive` in line, so access and
+     *                   messaging agree for every status but trial).
      */
     public const ACCESS_FULL      = 'full';
     public const ACCESS_TRIAL     = 'trial';
@@ -423,10 +425,13 @@ final class ParentChildResolver {
      * #3979 — who is *sent* something about this player: the guardians a
      * notification path may reach, asked from the child's side.
      *
-     * Nobody, once the child is closed out — released, graduated, archived
-     * or in the recycle bin. The first and the last two are what #3937 and
-     * #3947 end guardian access on; graduated joined them in #4089, which
-     * keeps a graduated child's family reading and stops sending to them.
+     * Nobody, once the child is closed out — released, graduated, inactive,
+     * archived or in the recycle bin. Released, archived and binned are what
+     * #3937 and #3947 end guardian access on; graduated joined them in
+     * #4089, which keeps a graduated child's family reading and stops
+     * sending to them; inactive joined in #4129, so the one status whose
+     * family had no access but was still messaged now gets neither. Staff
+     * contact an inactive family directly.
      * There is no exception list: close-out letters (a release letter, a
      * data export, a subject-access response) are sent by staff outside the
      * notification paths.
@@ -437,8 +442,8 @@ final class ParentChildResolver {
      * `active` players. A notification path also sends about a trialist —
      * the trial welcome goes to the family of a child whose status is
      * `trial` by construction — so the send-side rule names the closed-out
-     * states instead of the one open one. A child who is on trial or
-     * inactive still has guardians here.
+     * states instead of the one open one. A child who is on trial still
+     * has guardians here.
      *
      * ## Development messages (#4089)
      *
@@ -489,6 +494,10 @@ final class ParentChildResolver {
      * #4089 — graduated counts as closed out for sending: the family keeps
      * reading what they could read before, and nobody — the player's own
      * account included — is sent anything more about the child.
+     *
+     * #4129 — inactive counts too. The family already had no access to an
+     * inactive child; now nobody, the player's own account included, is
+     * sent anything about them either.
      */
     public static function isClosedOut( int $player_id ): bool {
         $row = self::statusRow( $player_id );
@@ -501,7 +510,11 @@ final class ParentChildResolver {
 
     /** The statuses that close a child out for notifications. Pure. */
     public static function isClosedOutStatus( string $status ): bool {
-        return $status === PlayerStatus::RELEASED || $status === PlayerStatus::GRADUATED;
+        return in_array(
+            $status,
+            [ PlayerStatus::RELEASED, PlayerStatus::GRADUATED, PlayerStatus::INACTIVE ],
+            true
+        );
     }
 
     /**
