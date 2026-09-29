@@ -48,7 +48,7 @@ final class JourneyActivityResolver {
             : [];
 
         $out = [];
-        foreach ( array_values( $rows ) as $i => $row ) {
+        foreach ( $rows as $i => $row ) {
             $fields   = (array) $row;
             $activity = isset( $activity_of[ $i ] ) ? ( $activities[ $activity_of[ $i ] ] ?? null ) : null;
             if ( $activity !== null ) {
@@ -72,7 +72,7 @@ final class JourneyActivityResolver {
         $activity   = [];
         $evaluation = [];
         $analysis   = [];
-        foreach ( array_values( $rows ) as $i => $row ) {
+        foreach ( $rows as $i => $row ) {
             $payload = json_decode( (string) ( $row->payload ?? '' ), true );
             $payload = is_array( $payload ) ? $payload : [];
             $type    = (string) ( $row->event_type ?? '' );

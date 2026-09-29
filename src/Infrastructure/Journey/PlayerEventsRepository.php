@@ -127,7 +127,7 @@ final class PlayerEventsRepository {
             $sql,
             ...array_merge( [ $player_id, CurrentClub::id() ], $milestone_keys, $allowed_visibilities )
         ) );
-        return $rows ? JourneyActivityResolver::withActivities( array_values( $rows ), CurrentClub::id() ) : [];
+        return $rows ? JourneyActivityResolver::withActivities( $rows, CurrentClub::id() ) : [];
     }
 
     /**
