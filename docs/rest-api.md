@@ -887,7 +887,7 @@ each block keeps its own gate for the reader.
 | --- | --- |
 | `thread_notes` | `ThreadAccess`, as the Notes tab on the player file; private-to-coach notes stay private. |
 | `injuries` | The medical rung of the journey ladder (`tt_view_player_medical` + the `journey_medical_visibility` feature). Empty otherwise. |
-| `journey` | The reader's journey visibility levels — the rule the player's timeline applies. Each item carries `activity`: `{ id, type, title, opponent, date }` for a match-analysis comment (`match_observed`) and for an evaluation made for an activity, `null` otherwise; `type` is the localised activity type. |
+| `journey` | The reader's journey visibility levels — the rule the player's timeline applies. Each item carries `activity`: `{ id, type, title, opponent, date, analysis_id }` for a match-analysis comment (`match_observed`) and for an evaluation made for an activity, `null` otherwise; `type` is the localised activity type. |
 | `tests` | `PlayerMeasurementProfile` for the reader: tests shown on the profile, at the reader's measurement levels. |
 | `pdp` | `available: false` when the PDP module is off or the reader may not see the player's PDP file. Never carries the coach's preparation. |
 
@@ -1247,6 +1247,20 @@ player, coaching-staff entries only with `tt_edit_evaluations`, medical and
 safeguarding only with their own capabilities. A player sees the public
 entries and a `hidden_count` for the rest — the same cut `My journey`
 renders.
+
+**What an entry was about.** Every event in both responses carries
+`activity`: `{ id, type, title, opponent, date, analysis_id }` for a
+match-analysis observation (`match_observed`, read from its payload) and for
+an evaluation made for a match or training (`evaluation_completed`, read
+from the evaluation row), `null` for every other entry. `type` is the
+localised activity type; `analysis_id` is set on a match observation only,
+`null` otherwise. An activity in the recycle bin resolves to `null`; an
+archived one still resolves. The same resolver
+(`JourneyActivityResolver`) fills the player report's and the PDP evidence
+packet's journey, so every surface names the same match. The screens label
+it as "Match · against X · date" and link a match observation to its match
+analysis, falling back to the activity, and to plain text for a reader who
+may open neither.
 
 ## Suspensions (#4103)
 

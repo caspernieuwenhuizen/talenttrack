@@ -90,7 +90,9 @@ final class PlayerEventsRepository {
         );
 
         return [
-            'events'       => $rows,
+            // #4181 — a match observation or an evaluation says which
+            // activity it was about, on the timeline and in its REST payload.
+            'events'       => JourneyActivityResolver::withActivities( array_values( $rows ), CurrentClub::id() ),
             'hidden_count' => $hidden_count,
             'next_cursor'  => $next_cursor,
         ];
@@ -125,7 +127,7 @@ final class PlayerEventsRepository {
             $sql,
             ...array_merge( [ $player_id, CurrentClub::id() ], $milestone_keys, $allowed_visibilities )
         ) );
-        return $rows ?: [];
+        return $rows ? JourneyActivityResolver::withActivities( $rows, CurrentClub::id() ) : [];
     }
 
     /**

@@ -185,6 +185,17 @@
 
 .tt-evidence__card-body { overflow-wrap: anywhere; }
 
+/* The match or training a journey entry was about; its link is a touch
+   target of its own. */
+.tt-evidence__card-activity { color: var(--tt-ink-soft, #6a6d66); }
+
+.tt-evidence__card-activity a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 3rem;
+    touch-action: manipulation;
+}
+
 .tt-evidence__quote {
     margin: 0;
     padding: var(--tt-sp-3, 12px);

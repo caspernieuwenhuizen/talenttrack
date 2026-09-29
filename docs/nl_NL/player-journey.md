@@ -35,6 +35,7 @@ De meeste regels komen er zonder dat iemand ze invoert. De reis kijkt mee met de
 
 - Een **spelersrecord wordt aangemaakt**, vanuit welk scherm dan ook → *"Bij de academie gekomen"*, met als datum de vastgelegde instroomdatum en anders de dag waarop het record is aangemaakt. Een speler die via de nieuwe-spelerwizard werd aangemaakt, liet voorheen zo'n regel niet achter: zijn verhaal begon pas bij wat hem daarna overkwam — het duidelijkst op de stageroute, waar *"Stage gestart"* verscheen zonder iets ervoor. Bestaande spelers die zo zijn aangemaakt missen de regel totdat die wordt aangevuld.
 - Een **nieuwe evaluatie** op een speler → *"Evaluatie op 12 maart"*. De regel draagt hetzelfde totaalcijfer als de evaluatie zelf toont, en volgt de evaluatie: pas je de categoriescores aan, dan meldt de regel het nieuwe totaal in plaats van het eerste. Een evaluatie waarop niets is beoordeeld draagt helemaal geen cijfer — de reis zegt "niet beoordeeld", nooit een nul.
+- Een **wedstrijdanalyse** die iets over een speler zegt → de observatie van de trainer, bijvoorbeeld *"Viel op — + Hield de bal onder druk"*, met de datum van de wedstrijd.
 - Een **doel** voor een speler → *"Doel gesteld: zwakke voet trainen"*, vanuit welk scherm het ook is gesteld. Doelen die via de doelenwizard werden gesteld, lieten voorheen helemaal geen regel achter. Een doel dat de club niet met de hand heeft getypt zegt dat erbij: de seizoensovergang schrijft *"Doel meegenomen: …"*, met de startdatum van het nieuwe seizoen in plaats van de dag waarop de overgang draaide, en een ontwikkelidee dat een doel opent schrijft *"Doel geopend vanuit een ontwikkelidee: …"*. Zie [doelen](goals.md).
 - Een **POP-eindbeoordeling getekend** → *"POP-eindbeoordeling: doorstroom"*.
 - Een **speler komt in een team of gaat naar een andere leeftijdscategorie** → *"Team: U13 → U14"* of *"Leeftijd: U13 → U14"*.
@@ -44,6 +45,10 @@ De meeste regels komen er zonder dat iemand ze invoert. De reis kijkt mee met de
 - De **status** van een speler wijzigt naar actief, afscheid of doorgestroomd → bijbehorende regels.
 
 Alles is **idempotent**: een evaluatie opnieuw opslaan dupliceert de regel niet. Gebeurtenissen leven naast hun bron — de oorspronkelijke evaluatie, het doel of het POP-bestand blijft de plek om te bewerken; de reis is alleen de overzichtsweergave.
+
+### Over welke wedstrijd of training een regel ging
+
+Een observatie uit een wedstrijdanalyse, en een evaluatie die bij een wedstrijd of training hoort, zegt onder de regel over welke activiteit het ging: *"Wedstrijd · tegen Blauw Geel '38 · 12-09-2026"*. Dezelfde regel staat in het bewijspaneel van het POP en in het spelersrapport. Op het scherm is het een link: een observatie opent de wedstrijdanalyse waar ze vandaan komt, een evaluatie opent de activiteit. Mag je de wedstrijdanalyse niet openen, dan opent de observatie de activiteit; mag je geen van beide openen, zoals spelers en ouders, dan is de regel gewone tekst. Een activiteit in de prullenbak wordt niet meer genoemd; een gearchiveerde wel.
 
 ## Blessures
 
