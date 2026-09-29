@@ -833,8 +833,10 @@ final class ActivitiesRepository {
             $params[] = $team_filter;
         }
         if ( $type_filter !== '' ) {
-            $where[]  = 's.activity_type_key = %s';
-            $params[] = $type_filter;
+            // #4185 — "Match" also matches rows stored under the legacy key.
+            $type_keys = ActivityTypeKey::filterKeys( $type_filter );
+            $where[]   = 's.activity_type_key IN (' . implode( ',', array_fill( 0, count( $type_keys ), '%s' ) ) . ')';
+            foreach ( $type_keys as $type_key ) $params[] = $type_key;
         }
 
         // #2185 — attendance-report drill-down: narrow to activities where
@@ -1956,7 +1958,11 @@ final class ActivitiesRepository {
             $types = [];
             foreach ( is_array( $raw ) ? $raw : explode( ',', (string) $raw ) as $piece ) {
                 $key = sanitize_text_field( trim( (string) $piece ) );
-                if ( $key !== '' && ! in_array( $key, $types, true ) ) $types[] = $key;
+                if ( $key === '' ) continue;
+                // #4185 — same expansion as the rendered list.
+                foreach ( ActivityTypeKey::filterKeys( $key ) as $expanded ) {
+                    if ( ! in_array( $expanded, $types, true ) ) $types[] = $expanded;
+                }
             }
             if ( $types !== [] ) {
                 $placeholders = implode( ',', array_fill( 0, count( $types ), '%s' ) );

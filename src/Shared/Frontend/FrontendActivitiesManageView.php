@@ -759,7 +759,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // the coach was looking at instead of silently resetting it.
             // Same resolver the list uses, so the two can't disagree.
             $cal_window = self::resolveRequestWindow( current_time( 'Y-m-d', true ) );
-            $cal_type   = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
+            $cal_type   = self::requestTypeFilter();
             echo \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::renderReadOnlyCalendar( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- renderReadOnlyCalendar returns escaped HTML.
                 $user_id,
                 $cal_team,
@@ -2371,7 +2371,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     private static function renderList( int $user_id, bool $is_admin ): void {
         // URL-state -> sanitized filters.
         $team_filter = isset( $_GET['team_id'] ) ? absint( (string) $_GET['team_id'] ) : 0;
-        $type_filter = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
+        $type_filter = self::requestTypeFilter();
         $include_past = ! empty( $_GET['include_past'] );
 
         // #2185 — attendance-report drill-down: an optional player_id scopes
@@ -3614,6 +3614,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         return null;
+    }
+
+    /**
+     * #4185 — the `?activity_type_key=` filter, with the legacy `match`
+     * key read as `game`. Old bookmarks and saved views still carry
+     * `match`; it is not an `activity_type` lookup row, so the Type select
+     * could not show it as selected and the chip printed the raw key.
+     */
+    private static function requestTypeFilter(): string {
+        $type = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) wp_unslash( $_GET['activity_type_key'] ) ) : '';
+        return $type === ActivityTypeKey::LEGACY_GAME ? ActivityTypeKey::GAME : $type;
     }
 
     private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0 ): array {

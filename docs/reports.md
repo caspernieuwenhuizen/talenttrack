@@ -233,6 +233,11 @@ recorded* tile, exactly as that player is absent from the squad below it. The
 tile and the rows describe one squad; a count the rows cannot explain is worse
 than a smaller one.
 
+**Tap the tile to see the matches.** It opens the activities list filtered to
+the team and to *Match*, over the report's own window up to today, and the list
+names that window above its rows. Tournament days are a type of their own on the
+list, so a team that played tournaments sees them under *Tournament*.
+
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.
 
@@ -513,7 +518,7 @@ Standard-report **KPIs are now drill-downs** where a filtered list reconciles to
 the count: the Team · Minutes distribution *Players* tile opens the team roster
 and its *Matches* tile opens the activities list filtered to that team's matches;
 the Season summary *Active players / Active teams / Matches* tiles open their
-lists; the Trial funnel *Prospects logged* tile opens the prospects list. Every
+lists, the *Matches* tile over the report's window; the Trial funnel *Prospects logged* tile opens the prospects list. Every
 drill carries a **← Back to …** hint and is hidden when the viewer lacks the
 destination's capability (§7 hide-don't-tease).
 

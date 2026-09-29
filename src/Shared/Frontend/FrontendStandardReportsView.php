@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -1159,12 +1160,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // own cap (§7 hide-don't-tease) so the tile stays static for a viewer
         // who can't reach it.
         $squad_url = RecordLink::detailUrlForWithBack( 'teams', $team_id );
-        // The activities list has no matching period pill; leaving `period`
-        // off keeps the drill honest (a `this_season` pill would under-count
-        // vs. the report's window). The user narrows from there. The tile's
-        // denominator is the fixture count, which is what this list shows.
+        // #4185 — the list opens on the report's own window as an exact
+        // `date_from` / `date_to` drill (the list names it in its drill
+        // context line), not a period pill, which could under-count against
+        // the report's window. `date_to` stops at today because the tile
+        // counts played matches. The type is the canonical `game` key; the
+        // list's filter also matches rows stored under the legacy `match`.
+        $matches_to  = min( $bd_to, current_time( 'Y-m-d' ) );
         $matches_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'activities', 'team_id' => $team_id, 'activity_type_key' => 'match' ],
+            [ 'tt_view' => 'activities', 'team_id' => $team_id, 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $bd_from, 'date_to' => $matches_to ], /* tt-xview-ok — the KPI tile gates itself on tt_view_activities (§7) */
             RecordLink::dashboardUrl()
         ) );
         $window_label = self::windowLabel( $bd_from, $bd_to );
@@ -1490,8 +1494,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         // v4.20.44 (#1222) — added `archived_at IS NULL`. Soft-archived
         // matches were inflating the HoD season-summary KPI. Audit 7. #2345 —
-        // now bounded by the selected window.
-        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN ('match','tournament') AND {$date_col} BETWEEN %s AND %s", $club_id, $from, $to ) );
+        // now bounded by the selected window. #4185 — counts the same rows
+        // its drill lists: the canonical `game` key plus the legacy `match`.
+        // It read `('match','tournament')`, which left out every `game` row.
+        $matches_win   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN (%s,%s) AND {$date_col} BETWEEN %s AND %s", $club_id, ActivityTypeKey::GAME, ActivityTypeKey::LEGACY_GAME, $from, $to ) );
         $evals_win     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date BETWEEN %s AND %s", $club_id, $from, $to ) );
         $prospects_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
         $trial_decisions_win = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at BETWEEN %s AND %s", $club_id, $from, $to . ' 23:59:59' ) );
@@ -1515,7 +1521,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // lists; the windowed activity/eval counts open their lists.
         $players_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         $teams_url    = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
-        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => 'match' ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+        $matches_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [ 'tt_view' => 'activities', 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $from, 'date_to' => $to ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
         self::renderKpiStrip( [
             // #4039 — `slug`, not `cap`: the gate has to be the one the
             // dispatcher applies on arrival, and for `teams` that is not the
