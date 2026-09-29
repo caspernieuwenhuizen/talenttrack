@@ -74,4 +74,22 @@ final class ActivityTypeKey {
     public static function isMatchLike( string $value ): bool {
         return in_array( $value, self::MATCH_LIKE, true );
     }
+
+    /**
+     * The stored keys a type filter of `$key` should match. A filter on
+     * "Match" matches the canonical `game` and the legacy `match` rows
+     * (tournament-created fixtures still write `match`), whichever of the
+     * two was asked for. A tournament stays its own type: it is a
+     * multi-game day, not a fixture. Every other key matches itself.
+     *
+     * One helper so the rendered list and the REST list expand the same way.
+     *
+     * @return list<string>
+     */
+    public static function filterKeys( string $key ): array {
+        if ( $key === self::GAME || $key === self::LEGACY_GAME ) {
+            return [ self::GAME, self::LEGACY_GAME ];
+        }
+        return [ $key ];
+    }
 }

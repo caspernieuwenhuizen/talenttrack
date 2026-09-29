@@ -985,7 +985,9 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // #2400 — optional activity-type narrowing, so the embedded calendar
         // can show the same filtered set as the activities list.
-        $type_sql = $type_key !== '' ? ' AND a.activity_type_key = %s' : '';
+        // #4185 — "Match" also matches legacy `match` rows, as on the list.
+        $type_keys = $type_key !== '' ? \TT\Domain\Vocabularies\Lookups\ActivityTypeKey::filterKeys( $type_key ) : [];
+        $type_sql  = $type_keys !== [] ? ' AND a.activity_type_key IN (' . implode( ',', array_fill( 0, count( $type_keys ), '%s' ) ) . ')' : '';
         $sql = "SELECT a.id, a.team_id, a.title, a.session_date, a.start_time,
                        a.activity_status_key, a.activity_type_key, a.game_subtype_key,
                        a.opponent, a.home_away, t.name AS team_name
@@ -999,7 +1001,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                    {$type_sql}
                  ORDER BY a.session_date ASC, a.start_time ASC, t.name ASC, a.id ASC";
         $params = array_merge( $ids, [ CurrentClub::id(), $from, $to ] );
-        if ( $type_key !== '' ) $params[] = $type_key;
+        foreach ( $type_keys as $key ) $params[] = $key;
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
         return is_array( $rows ) ? $rows : [];

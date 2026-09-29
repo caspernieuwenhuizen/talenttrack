@@ -68,7 +68,7 @@ De balk heeft vijf knoppen, elk onder een eigen label:
 - **Status** — een keuze **Actief · Gearchiveerd · Alle**. **Actief** is de standaard — de tijdlijn die je normaal ziet. **Gearchiveerd** vervangt de tijdlijn door een platte lijst van de activiteiten die je hebt gearchiveerd, elk met een knop **Herstellen** en (voor beheerders) een knop **Definitief verwijderen**. **Alle** toont de actieve tijdlijn met de gearchiveerde lijst eronder.
 - **Geannuleerd** — een schakelaar **Toon**, standaard uit. Geannuleerde activiteiten worden verborgen zodat het schema overzichtelijk blijft; zet hem aan om ze terug te halen, gedimd en doorgestreept met een Geannuleerd-label in welk datumvak ze ook vallen.
 
-Elke keuze blijft bewaard in de URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen, en de knoppen vrij combineren.
+Elke keuze blijft bewaard in de URL (`?team_id=N&activity_type_key=game&period=this_week&archived=archived&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen, en de knoppen vrij combineren. Het type *Wedstrijd* toont ook wedstrijden die onder de oudere sleutel `match` zijn opgeslagen, zoals wedstrijden die vanuit een toernooi zijn aangemaakt, en een oudere link met `activity_type_key=match` opent als *Wedstrijd*. Toernooidagen blijven een eigen type.
 
 ## Lijst- of kalenderweergave (v4.x+)
 

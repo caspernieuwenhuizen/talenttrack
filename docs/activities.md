@@ -68,7 +68,7 @@ The bar holds five controls, each under its own label:
 - **Status** — an **Active · Archived · All** control. **Active** is the default — the timeline you normally see. **Archived** replaces the timeline with a flat list of the activities you've archived, each with a **Restore** button and (for admins) a **Delete permanently** button. **All** shows the active timeline with the archived list appended below it.
 - **Cancelled** — a **Show** switch, off by default. Cancelled activities are hidden so the schedule stays clean; flip it on to bring them back, dimmed and struck through with a Cancelled pill in whichever date bucket they fall.
 
-Every choice survives in the URL (`?team_id=N&activity_type_key=match&period=this_week&archived=archived&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view, and the controls combine freely.
+Every choice survives in the URL (`?team_id=N&activity_type_key=game&period=this_week&archived=archived&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view, and the controls combine freely. The *Match* type also lists matches stored under the older `match` key, such as fixtures created from a tournament, and an older link that says `activity_type_key=match` opens as *Match*. Tournament days stay a type of their own.
 
 ## List or calendar view (v4.x+)
 
