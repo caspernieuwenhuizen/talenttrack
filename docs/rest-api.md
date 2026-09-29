@@ -1488,7 +1488,7 @@ Edits a message's `body` (required) and optionally its `visibility`. Only the au
 
 ### `DELETE /threads/{type}/{id}/messages/{msg_id}`
 
-Soft-deletes a message: the body is blanked and `deleted_at` stamped. The author, or an admin (global `thread_messages` change authority); anyone else gets **403** `tt_thread_delete_denied`. Returns `{ deleted: true }`.
+Soft-deletes a message: the body is blanked and `deleted_at` stamped. The author, or an admin (global `thread_messages` change authority); anyone else gets **403** `tt_thread_delete_denied`. A guardian with read-only access to the thread's player (a graduated child) may not delete, their own earlier messages included, and gets **403** `thread_read_only`, as a reply or an edit does. Returns `{ deleted: true }`.
 
 ### `POST /threads/{type}/{id}/read`
 

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Threads\Domain\PlayerAnchoredThread;
 use TT\Modules\Threads\Domain\ThreadTypeAdapter;
 
 /**
@@ -31,7 +32,12 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  * private_to_coach messages are filtered at the repository level for
  * non-coach viewers.
  */
-final class GoalThreadAdapter implements ThreadTypeAdapter {
+final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread {
+
+    public function playerIdFor( int $thread_id ): int {
+        $goal = $this->findEntity( $thread_id );
+        return $goal ? (int) ( $goal->player_id ?? 0 ) : 0;
+    }
 
     public function findEntity( int $thread_id ): ?object {
         global $wpdb;

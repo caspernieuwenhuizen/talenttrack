@@ -103,7 +103,7 @@ final class ThreadsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ self::class, 'delete' ],
-                'permission_callback' => [ self::class, 'guardRead' ],
+                'permission_callback' => [ self::class, 'guardDelete' ],
                 'args'                => $args + $msg_id_arg,
             ],
         ] );
@@ -175,6 +175,31 @@ final class ThreadsRestController {
             );
         }
         return false;
+    }
+
+    /**
+     * #4129 — deleting is a write. A reader may delete their own message
+     * (the handler checks authorship), except a read-only guardian: the
+     * family of a graduated player reads the conversation and changes
+     * nothing in it, their own old messages included. Asked of the
+     * guardian's access to the thread's player, so it holds for every
+     * player-anchored thread type alike.
+     *
+     * @return bool|WP_Error
+     */
+    public static function guardDelete( WP_REST_Request $req ) {
+        if ( ! self::guardRead( $req ) ) return false;
+
+        $type      = (string) $req->get_param( 'type' );
+        $thread_id = (int) $req->get_param( 'id' );
+        if ( ThreadAccess::isReadOnlyGuardian( $type, $thread_id, get_current_user_id() ) ) {
+            return new WP_Error(
+                'thread_read_only',
+                __( 'You can read this conversation, but you cannot delete messages in it.', 'talenttrack' ),
+                [ 'status' => 403 ]
+            );
+        }
+        return true;
     }
 
     /**

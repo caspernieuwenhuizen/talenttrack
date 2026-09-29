@@ -350,6 +350,38 @@ final class ParentAccessByStatusTest extends WP_UnitTestCase {
         $this->assertSame( 'thread_read_only', (string) ( $data['code'] ?? '' ), 'with a reason a person can read' );
     }
 
+    /**
+     * #4129 — read-only means read-only: the guardian of a graduated child
+     * cannot delete their own old message either, and is told why. The
+     * active sibling's guardian (the same account) still can.
+     */
+    public function test_a_graduated_childs_guardian_deletes_nothing_and_is_told_why(): void {
+        $author    = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        $goal      = $this->goal( $this->graduated, $author );
+        $sibling   = $this->goal( $this->active, $author );
+        $old_msg   = $this->parentMessage( $goal );
+        $other_msg = $this->parentMessage( $sibling );
+
+        $this->assertTrue( \TT\Modules\Threads\Domain\ThreadAccess::isReadOnlyGuardian( 'goal', $goal, $this->parent ) );
+        $this->assertFalse( \TT\Modules\Threads\Domain\ThreadAccess::isReadOnlyGuardian( 'goal', $sibling, $this->parent ) );
+
+        $route = '/talenttrack/v1/threads/(?P<type>[a-z_]+)/(?P<id>\d+)/messages/(?P<msg_id>\d+)';
+        if ( ! isset( rest_get_server()->get_routes()[ $route ] ) ) return;
+
+        wp_set_current_user( $this->parent );
+
+        $res  = rest_do_request( new WP_REST_Request( 'DELETE', "/talenttrack/v1/threads/goal/{$goal}/messages/{$old_msg}" ) );
+        $data = (array) $res->get_data();
+        $this->assertSame( 403, $res->get_status() );
+        $this->assertSame( 'thread_read_only', (string) ( $data['code'] ?? '' ), 'with a reason a person can read' );
+        $kept = ( new \TT\Modules\Threads\ThreadMessagesRepository() )->find( $old_msg );
+        $this->assertNotNull( $kept );
+        $this->assertNull( ( (array) $kept )['deleted_at'] ?? null, 'the message is left as it was' );
+
+        $res = rest_do_request( new WP_REST_Request( 'DELETE', "/talenttrack/v1/threads/goal/{$sibling}/messages/{$other_msg}" ) );
+        $this->assertSame( 200, $res->get_status(), 'the active child\'s guardian still deletes their own message' );
+    }
+
     public function test_graduation_closes_the_child_out_for_messages(): void {
         $this->assertTrue( ParentChildResolver::isClosedOut( $this->graduated ) );
         $this->assertSame( [], ParentChildResolver::guardiansOf( $this->graduated ) );
@@ -389,6 +421,18 @@ final class ParentAccessByStatusTest extends WP_UnitTestCase {
             'created_by' => $author,
         ] );
         $this->assertGreaterThan( 0, $id, 'fixture: the goal was written' );
+        return $id;
+    }
+
+    /** A public message on a goal thread, written by the parent. */
+    private function parentMessage( int $goal ): int {
+        $id = ( new \TT\Modules\Threads\ThreadMessagesRepository() )->insert( [
+            'thread_type'    => 'goal',
+            'thread_id'      => $goal,
+            'author_user_id' => $this->parent,
+            'body'           => 'Thanks, coach.',
+        ] );
+        $this->assertGreaterThan( 0, $id, 'fixture: the message was written' );
         return $id;
     }
 
