@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend\Components;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupTranslator;
+use TT\Infrastructure\Journey\JourneyActivityResolver;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -99,7 +100,7 @@ final class EvidencePanel {
         $out .= self::attendanceAndMinutes( $packet, $linked );
         $out .= self::goals( $packet, $linked );
         $out .= self::selfReflection( $packet );
-        $out .= self::notesInjuriesJourney( $packet );
+        $out .= self::notesInjuriesJourney( $packet, $linked );
         $out .= self::trend( $packet );
         $out .= '</div>';
 
@@ -347,7 +348,7 @@ final class EvidencePanel {
     /**
      * @param array<string,mixed> $packet
      */
-    private static function notesInjuriesJourney( array $packet ): string {
+    private static function notesInjuriesJourney( array $packet, bool $linked ): string {
         $notes    = is_array( $packet['notes'] ?? null ) ? $packet['notes'] : [];
         $injuries = is_array( $packet['injuries'] ?? null ) ? $packet['injuries'] : [];
         $journey  = is_array( $packet['recent_journey'] ?? null ) ? $packet['recent_journey'] : [];
@@ -386,8 +387,15 @@ final class EvidencePanel {
         foreach ( $journey as $event ) {
             $summary = trim( (string) ( $event->summary ?? '' ) );
             if ( $summary === '' ) continue;
+            // What the observation or evaluation was about. A panel printed
+            // without links names the match as plain text.
+            $activity = isset( $event->activity ) && is_array( $event->activity ) ? $event->activity : null;
+            $about    = $activity === null ? '' : ( $linked
+                ? JourneyActivityLink::html( (string) ( $event->event_type ?? '' ), $activity )
+                : esc_html( JourneyActivityResolver::label( $activity ) ) );
             $out .= '<li class="tt-evidence__card">'
                 . '<span class="tt-evidence__card-title">' . esc_html( $summary ) . '</span>'
+                . ( $about !== '' ? '<span class="tt-evidence__card-body tt-evidence__card-activity">' . $about . '</span>' : '' )
                 . '<span class="tt-evidence__card-meta">' . esc_html( TTDate::date( (string) ( $event->event_date ?? '' ) ) ) . '</span>'
                 . '</li>';
         }

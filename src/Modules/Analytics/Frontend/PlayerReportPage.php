@@ -13,6 +13,7 @@ use TT\Modules\Analytics\Reports\RatingsBlockOptions;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\EvidencePanel;
+use TT\Shared\Frontend\Components\JourneyActivityLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -1074,24 +1075,19 @@ final class PlayerReportPage {
             self::sectionClose();
             return;
         }
-        $can_open = CrossViewLink::allows( 'activities' );
         echo '<ul class="tt-mr-changes">';
         foreach ( $items as $e ) {
             if ( ! is_array( $e ) ) continue;
             echo '<li><span class="tt-mr-changes__date">' . esc_html( TTDate::date( (string) ( $e['date'] ?? '' ) ) ) . '</span> '
                 . esc_html( (string) ( $e['summary'] ?? '' ) );
-            // What the comment or evaluation was about.
-            $activity = is_array( $e['activity'] ?? null ) ? $e['activity'] : null;
-            if ( $activity !== null ) {
-                $label = PlayerReport::activityLabel( $activity );
-                $id    = (int) ( $activity['id'] ?? 0 );
-                echo '<span class="tt-pr-journey__activity">';
-                if ( $can_open && $id > 0 ) {
-                    echo '<a href="' . esc_url( RecordLink::detailUrlForWithBack( 'activities', $id ) ) . '">' . esc_html( $label ) . '</a>';
-                } else {
-                    echo esc_html( $label );
-                }
-                echo '</span>';
+            // What the comment or evaluation was about; a match observation
+            // opens its match analysis.
+            $activity = JourneyActivityLink::html(
+                (string) ( $e['event_type'] ?? '' ),
+                is_array( $e['activity'] ?? null ) ? $e['activity'] : null
+            );
+            if ( $activity !== '' ) {
+                echo '<span class="tt-pr-journey__activity">' . $activity . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by JourneyActivityLink
             }
             echo '</li>';
         }

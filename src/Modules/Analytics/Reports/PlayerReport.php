@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Journey\JourneyActivityResolver;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -543,29 +544,8 @@ final class PlayerReport {
         $text     = (string) ( $item['summary'] ?? '' );
         $activity = is_array( $item['activity'] ?? null ) ? $item['activity'] : null;
         if ( $activity === null ) return $text;
-        $label = self::activityLabel( $activity );
+        $label = JourneyActivityResolver::label( $activity );
         return $label === '' ? $text : $text . ' — ' . $label;
-    }
-
-    /**
-     * An activity in one line, the way a coach names it: its type, who it was
-     * against (or its title when there was no opponent), and the day. Shared by
-     * the screen and the PDF so they name the same match the same way.
-     *
-     * @param array<string,mixed> $activity a journey item's `activity`.
-     */
-    public static function activityLabel( array $activity ): string {
-        $opponent = trim( (string) ( $activity['opponent'] ?? '' ) );
-        $what     = $opponent !== ''
-            /* translators: %s: the opponent of a match */
-            ? sprintf( __( 'against %s', 'talenttrack' ), $opponent )
-            : trim( (string) ( $activity['title'] ?? '' ) );
-        $parts = array_filter( [
-            trim( (string) ( $activity['type'] ?? '' ) ),
-            $what,
-            (string) ( $activity['date'] ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::date( (string) $activity['date'] ) : '',
-        ], static fn( string $s ): bool => $s !== '' );
-        return implode( ' · ', $parts );
     }
 
     /**

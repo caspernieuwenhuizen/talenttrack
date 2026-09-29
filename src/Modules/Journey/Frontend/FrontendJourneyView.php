@@ -10,6 +10,7 @@ use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\JourneyActivityLink;
 
 /**
  * FrontendJourneyView — chronological journey for one player.
@@ -339,6 +340,17 @@ class FrontendJourneyView {
                     <?php endif; ?>
                 </p>
                 <p class="tt-journey-card-summary"><?php echo esc_html( (string) $event->summary ); ?></p>
+                <?php
+                // #4181 — the match or training the entry was about, linked
+                // where this reader may open it.
+                $about = JourneyActivityLink::html(
+                    (string) ( $event->event_type ?? '' ),
+                    isset( $event->activity ) && is_array( $event->activity ) ? $event->activity : null
+                );
+                if ( $about !== '' ) :
+                    ?>
+                    <p class="tt-journey-card-activity"><?php echo $about; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped by JourneyActivityLink ?></p>
+                <?php endif; ?>
                 <?php if ( $superseded ) : ?>
                     <p class="tt-journey-card-retracted"><?php esc_html_e( 'Retracted — replaced by a corrected entry.', 'talenttrack' ); ?></p>
                 <?php endif; ?>

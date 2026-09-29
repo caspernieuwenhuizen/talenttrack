@@ -629,6 +629,9 @@ class PlayerJourneyRestController extends BaseController {
             'source_entity_id'    => $event->source_entity_id !== null ? (int) $event->source_entity_id : null,
             'superseded_by'       => $event->superseded_by_event_id !== null ? (int) $event->superseded_by_event_id : null,
             'superseded_at'       => $event->superseded_at ?? null,
+            // #4181 — what a match observation or an evaluation was about,
+            // from JourneyActivityResolver; null for every other entry.
+            'activity'            => isset( $event->activity ) && is_array( $event->activity ) ? $event->activity : null,
         ];
     }
 
