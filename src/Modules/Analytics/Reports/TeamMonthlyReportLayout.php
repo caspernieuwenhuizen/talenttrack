@@ -124,18 +124,23 @@ final class TeamMonthlyReportLayout {
         'roster_row_wide' => 4.9,
         'notes'           => 50.2,
         'quality_row'     => 4.6,
-        'matrix_footer'   => 42.0,
+        // #4144 — the footer table as DomPDF prints it with the notes strip
+        // the tallest: the strip, its section margin and the cell padding.
+        'matrix_footer'   => 42.7,
         // #4133 — attendance and minutes share at the summary level: one
         // strip under the header.
         'level_strip'     => 14.0,
         // #4134 — evaluations: the strip, the category table with its
         // sub-heading and key, the movers side by side, and the grid.
-        'eval_strip'      => 14.3,
+        // #4144 — re-measured piece by piece on every layout: the strip is
+        // 15.8 mm tall and the movers 7.35 mm plus 5.25 mm a row, so a sheet
+        // that breaks between them breaks where DomPDF does.
+        'eval_strip'      => 15.8,
         'eval_cat_base'   => 10.0,
         'eval_cat_row'    => 5.85,
         'eval_sub_row'    => 5.1,
-        'eval_movers'     => 8.7,
-        'eval_mover_row'  => 5.35,
+        'eval_movers'     => 7.35,
+        'eval_mover_row'  => 5.25,
         'eval_grid_base'  => 17.6,
         'eval_grid_head'  => 4.8,
         'eval_grid_row'   => 5.3,
@@ -173,11 +178,20 @@ final class TeamMonthlyReportLayout {
     private const STRIP_CHARS_PER_LINE = [ 1 => 165, 2 => 80, 3 => 48, 4 => 35 ];
 
     /**
-     * The matrix footer's "what changed" strip: its heading and spacing. The
-     * footer is as tall as its tallest strip, and the notes strip sets the
-     * floor (`matrix_footer`).
+     * The matrix footer's "what changed" strip: its heading and spacing, its
+     * section margin and the cell padding (#4144, measured 11.6). The footer
+     * is as tall as its tallest strip, and the notes strip sets the floor
+     * (`matrix_footer`).
      */
-    private const STRIP_BASE_MM = 11.0;
+    private const STRIP_BASE_MM = 11.6;
+
+    /**
+     * #4144 — the margin under the last section above the landscape footer.
+     * The footer table sits below it, so it needs this much more room than
+     * its own height to fit on the sheet: DomPDF moved a 62.2 mm footer to a
+     * third sheet with 62.9 mm left under the data-quality section.
+     */
+    private const FOOTER_GAP_MM = 3.0;
 
     /** Rows the matrix footer's "what changed" strip prints. */
     public const STRIP_CHANGES = 6;
@@ -627,6 +641,7 @@ final class TeamMonthlyReportLayout {
         if ( $layout === self::MATRIX ) {
             $footer = self::matrixFooterHeight( $data, $note_mm );
             if ( $footer > 0.0 ) {
+                $footer  += $pieces === [] ? 0.0 : self::FOOTER_GAP_MM;
                 $pieces[] = [ $footer, 0.0 ];
                 $mm      += $footer;
             }
@@ -797,8 +812,12 @@ final class TeamMonthlyReportLayout {
 
             case 'attention':
                 $list = self::listOf( $block_data, 'items' );
+                // #4144 — nobody flagged still prints a line saying so.
+                if ( $list === [] ) return [ [ $base + self::MM['match_note'], 0.0 ] ];
+                $omitted = (int) ( $block_data['omitted'] ?? 0 );
                 if ( in_array( self::TRIM_ATTENTION, $degraded, true ) ) {
-                    $list = array_slice( $list, 0, self::ATTENTION_KEEP );
+                    $omitted += max( 0, count( $list ) - self::ATTENTION_KEEP );
+                    $list     = array_slice( $list, 0, self::ATTENTION_KEEP );
                 }
                 // The item's fixed height holds two lines of reasons; each
                 // further line adds its own.
@@ -808,10 +827,14 @@ final class TeamMonthlyReportLayout {
                     $more     = is_array( $item ) ? max( 0, self::lines( self::attentionFactsLength( $item ), $cpl ) - 2 ) * self::WRAP_LINE_SMALL_MM : 0.0;
                     $pieces[] = [ self::MM['attention_item'] + $more, 0.0 ];
                 }
+                // #4144 — and "…and N more on the online report" once trimmed.
+                if ( $omitted > 0 ) $pieces[] = [ self::MM['match_note'], 0.0 ];
                 return $pieces;
 
             case 'changes':
                 if ( $layout === self::MATRIX ) return [];
+                // #4144 — so does a month without changes.
+                if ( self::listOf( $block_data, 'events' ) === [] ) return [ [ $base + self::MM['match_note'], 0.0 ] ];
                 $pieces = [ [ $base, 0.0 ] ];
                 foreach ( self::listOf( $block_data, 'events' ) as $event ) {
                     $pieces[] = [ self::lines( self::changeLength( $event ), self::CHARS_PER_LINE['change'] ) * self::MM['change_row'], 0.0 ];

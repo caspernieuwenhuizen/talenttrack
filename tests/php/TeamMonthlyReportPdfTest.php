@@ -190,6 +190,90 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4144 — the landscape matrix with Evaluations selected, on a report
+     * shaped like the demo academy's September: 17 players, four categories,
+     * one riser and one faller, nobody flagged, a data-quality list naming
+     * most of the squad and six changes that wrap in the footer. The footer
+     * does not fit under the data-quality section on sheet 2 and moves to a
+     * third; the estimate used to call it two. Checked at both levels, and
+     * on the portrait layouts too.
+     */
+    public function test_the_landscape_matrix_with_evaluations_prints_the_pages_it_estimates(): void {
+        if ( ! class_exists( \Dompdf\Dompdf::class ) ) {
+            $this->markTestSkipped( 'DomPDF not installed.' );
+        }
+        foreach ( [ 'summary', 'details' ] as $level ) {
+            foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+                $report  = $this->shapedLikeTheDemo( $level );
+                $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
+                $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U7' );
+
+                $options = new \Dompdf\Options();
+                $options->set( 'defaultFont', 'DejaVu Sans' );
+                $options->set( 'isHtml5ParserEnabled', true );
+                $dompdf = new \Dompdf\Dompdf( $options );
+                $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+                $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+                $dompdf->render();
+
+                $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$layout} {$level}: the panel and the paper disagree." );
+                if ( $layout === TeamMonthlyReportLayout::MATRIX ) {
+                    $this->assertSame( 3, $fit['pages'], "{$level}: the footer strip moves to a third sheet." );
+                }
+            }
+        }
+    }
+
+    /**
+     * #4144 — the demo academy's U7 in September 2026, as the composer
+     * returned it, reduced to what decides the landscape page count.
+     *
+     * @return array{data:array<string,array<string,mixed>>, blocks:list<string>, from:string, to:string}
+     */
+    private function shapedLikeTheDemo( string $level ): array {
+        $report  = $this->withMatchesAndTests( $this->report( 17 ), 2 );
+        $names   = [ 'Siem Kuiper', 'Liam Van der Wal', 'Dave Verweij', 'Dave Van der Linden', 'Tjeerd Ter Beek', 'Gijs Van Beek', 'Max Willems', 'Dean Koopman', 'Koen De Wit', 'Willem Dijkstra', 'Reinier Koster', 'Sam Van der Heijden', 'Lex Van der Sluis', 'Milan Ebbers', 'Max Bijlsma', 'Jack Mulder', 'Gijs Wille' ];
+        $players = array_map( static fn( int $i ): array => [ 'player_id' => $i + 1, 'name' => $names[ $i ] ], array_keys( $names ) );
+        foreach ( array_keys( $report['data']['roster']['rows'] ) as $i ) $report['data']['roster']['rows'][ $i ]['name'] = $names[ $i ];
+
+        $report['data']['attention'] = [ 'items' => [] ];
+        $report['data']['status']    = [ 'counts' => [ 'green' => 17, 'amber' => 0, 'red' => 0, 'unknown' => 0 ] ];
+        $report['data']['quality']   = [
+            'activities_without_register'    => [ 1 ],
+            'activities_never_closed'        => [ 1, 2 ],
+            'matches_without_minutes'        => 0,
+            'players_not_evaluated'          => array_slice( $players, 0, 14 ),
+            'players_with_incomplete_status' => $players,
+        ];
+        $events = [ [ 'date' => '2026-09-27', 'player_id' => 15, 'name' => 'Max Bijlsma', 'summary' => 'Injury: ankle' ] ];
+        foreach ( [ 2, 6, 12, 16, 7 ] as $i ) {
+            $events[] = [ 'date' => '2026-09-20', 'player_id' => $i, 'name' => $names[ $i - 1 ], 'summary' => 'Vastgelegd na stage' ];
+        }
+        $report['data']['changes'] = [ 'events' => $events, 'open_injuries' => 4 ];
+
+        $report['data']['matches']['fixtures']      = array_slice( $report['data']['matches']['fixtures'], 0, 1 );
+        $report['data']['matches']['scorers']       = array_slice( $report['data']['matches']['scorers'], 0, 2 );
+        $report['data']['matches']['record']        = [ 'played' => 1, 'won' => 0, 'drawn' => 1, 'lost' => 0, 'goals_for' => 1, 'goals_against' => 1, 'goal_difference' => 0, 'without_score' => 0 ];
+        $report['data']['matches']['scorer_totals'] = [ 'goals' => 1, 'assists' => 1, 'goals_for' => 1 ];
+
+        $report = $this->withEvaluations( $report, $level, false );
+        $e      = &$report['data']['evaluations'];
+        $e['categories'] = array_slice( $e['categories'], 0, 4 );
+        $e['rising']     = array_slice( $e['rising'], 0, 1 );
+        $e['falling']    = array_slice( $e['falling'], 0, 1 );
+        $e['missing']    = array_slice( $players, 0, 14 );
+        $e['evaluated']  = 3;
+        $e['evaluations'] = 3;
+        $e['coaches']    = 1;
+        $e['by_type']    = [ [ 'type_id' => 2, 'label' => 'Wedstrijd', 'count' => 3 ] ];
+        if ( isset( $e['grid'] ) ) {
+            foreach ( array_keys( $e['grid']['rows'] ) as $i ) $e['grid']['rows'][ $i ]['cells'] = array_slice( $e['grid']['rows'][ $i ]['cells'], 0, 4 );
+        }
+        unset( $e );
+        return $report;
+    }
+
+    /**
      * #4133 — a payload without a level, as a snapshot taken before the choice
      * existed, prints attendance and minutes as bars, as it always did.
      */
