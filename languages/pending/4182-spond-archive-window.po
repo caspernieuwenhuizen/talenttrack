@@ -1,4 +1,0 @@
-#: src/Modules/Spond/SpondSync.php:276
-#, php-format
-msgid "Synced: %1$d new · %2$d updated · %3$d archived (removed in Spond) · %4$d kept (removed in Spond, has data)."
-msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd (verwijderd in Spond) · %4$d behouden (verwijderd in Spond, heeft gegevens)."

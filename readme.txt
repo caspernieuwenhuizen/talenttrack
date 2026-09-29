@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.140.6
+Stable tag: 4.140.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.140.7 — Match observations say which match they were about, and open its analysis (#4181) A match-analysis observation on a player, and an evaluation made for a match or a training, now names the activity under the entry ("Match · against Blauw Geel '38 · 12-09-2026") on the player's journey timeline (staff, player and parent views) and in the PDP evidence panel, as the player report already did. On screen the line is a link: an observation opens the match analysis it came from, including on the player report, where it used to open the activity; an evaluation opens the activity. A reader who may not open the match analysis gets the activity instead, and a reader who may open neither, such as a player or a parent, gets plain text. Printed reports keep the plain line. The journey REST payload (`GET /players/{id}/timeline` and `/transitions`) gains `activity` on every event: `{id, type, title, opponent, date, analysis_id}` or `null`. One resolver now serves the timeline, the PDP evidence packet and the player report. =
+
+= 4.140.7 — Spond sync no longer archives past activities, and restores the ones it did (#4182) The Spond sync archived every Spond activity more than 30 days old, because its feed only reaches 30 days back and it treated an event that aged out as one removed in Spond. Played trainings and matches dropped out of the player report, the monthly report, minutes and attendance, with their match analysis hidden. The sync now only archives activities dated inside the window it fetched, never archives an activity that is completed or has a register, minutes, a match analysis, a live match log or evaluations (the sync line reports those as kept), and no longer un-archives an activity a person archived. Past activities archived by the sync are restored on update, together with any sync-archived activity that has recorded data; activities archived by hand stay archived. =
 
 = 4.140.6 — BMI-for-age shows the BMI and how it changed, without percentiles (#4173) The percentile and SDS are gone from every BMI screen: the roster report, a player's BMI trend, and the BMI row on the Measurements tab. The growth reference left most of a youth squad uncovered, so the column mostly read "falls outside the reference". The **Change** column now shows the raw BMI change since the previous measurement (for example "+0.4, since 23-06-2026"), on the roster and on the per-player trend. The roster is tidier: **Measured** shows only the date, with the height/weight gap underneath only when there is one; the **Team** column disappears once a single team is selected; numbers are right-aligned. A player's name now opens their BMI trend, and the trend links on to the player profile. The REST payload is unchanged apart from two additive fields on each trend point (`delta_bmi`, `previous_date`). =
 
