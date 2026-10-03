@@ -29,8 +29,14 @@
   min-height: 48px;
   min-width: 48px;
   padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+  /* The severity colour, set once per variant below and read by the dot
+     and, from 480px, by the accent edge. */
+  --tt-alert-chip-accent: var(--tt-warning, #e8902b);
+  /* #4215 — an even 1px ring at phone width. Below 480px the label is
+     hidden and the chip is a 48px circle; the 4px accent edge on a circle
+     drew a crescent down one side and read as a chip cut off by its
+     container. The dot already carries the severity there. */
   border: 1px solid var(--tt-line, #e3e6e1);
-  border-left: 4px solid var(--tt-warning, #e8902b);
   border-radius: 999px;
   background: var(--tt-paper, #fff);
   color: var(--tt-ink, #0e1a14);
@@ -47,7 +53,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--tt-warning, #e8902b);
+  background: var(--tt-alert-chip-accent);
 }
 
 .tt-alert-chip__count {
@@ -89,27 +95,15 @@
 }
 
 .tt-alert-chip--urgent {
-  border-left-color: var(--tt-danger, #d8453b);
-}
-
-.tt-alert-chip--urgent .tt-alert-chip__dot {
-  background: var(--tt-danger, #d8453b);
+  --tt-alert-chip-accent: var(--tt-danger, #d8453b);
 }
 
 .tt-alert-chip--attention {
-  border-left-color: var(--tt-warning, #e8902b);
-}
-
-.tt-alert-chip--attention .tt-alert-chip__dot {
-  background: var(--tt-warning, #e8902b);
+  --tt-alert-chip-accent: var(--tt-warning, #e8902b);
 }
 
 .tt-alert-chip--info {
-  border-left-color: var(--tt-info, #2d6fb3);
-}
-
-.tt-alert-chip--info .tt-alert-chip__dot {
-  background: var(--tt-info, #2d6fb3);
+  --tt-alert-chip-accent: var(--tt-info, #2d6fb3);
 }
 
 /* The oversight roll-up. A list, not a table: at 360px a two-column table
@@ -183,6 +177,12 @@
      is why the count is never the thing that gets dropped. */
   .tt-alert-chip__label {
     display: inline;
+  }
+
+  /* With the label painted the chip is a pill, long enough for an accent
+     edge to read as an edge. */
+  .tt-alert-chip {
+    border-left: 4px solid var(--tt-alert-chip-accent);
   }
 }
 

@@ -269,7 +269,12 @@
     touch-action: manipulation;
 }
 .tt-breadcrumbs a:hover, .tt-breadcrumbs a:focus { text-decoration: underline; }
-.tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; min-height: 48px; }
+/* #4215 — the current crumb takes whatever is left of the line and wraps
+   inside it. As a fixed-size flex item a long one ("Voetbalacademie De
+   Maasoever U7") dropped to a line of its own and left the chain ending on
+   a bare separator. The min-width is the point below which it is better
+   off on its own line after all. */
+.tt-breadcrumbs li[aria-current="page"] { color: #1a1d21; font-weight: 500; min-height: 48px; flex: 1 1 0; min-width: 6em; }
 /* Keeps adjacent crumbs at least 8px apart now that each anchor is wider. */
 .tt-breadcrumbs__sep { margin: 0 6px; color: var(--tt-line, #d8dcde); }
 

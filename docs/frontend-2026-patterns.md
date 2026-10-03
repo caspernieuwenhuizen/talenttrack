@@ -386,6 +386,8 @@ The menu is a native `<details>` / `<summary>`, so it opens with JavaScript disa
 
 Both the trigger and the menu items already carry the 48px floor from #2830's CSS; do not re-add it per view.
 
+**Record heroes hold the same budget.** The action row under a player or team hero is not built by `pageActionsHtml()` — its controls are popover triggers and gated links, not label/href pairs — so it has its own component, `Components\RecordActionRow`, reading the same `PHONE_ACTION_BUDGET`. Pass it the row actions as callables taking `$in_menu`, most prominent first, plus the items that always live in the `⋯` menu. On a phone the first two that render stay in the row and the rest are re-rendered as menu items; an action that echoes nothing takes no slot. The row does not scroll at any width: a horizontally scrolling row clips its own `⋯` menu.
+
 ## Per-view restyle checklist
 
 1. New `assets/css/<view>.css`, mobile-first, `.tt-` prefixed, enqueued with `[ 'tt-frontend-app-chrome' ]` dep.

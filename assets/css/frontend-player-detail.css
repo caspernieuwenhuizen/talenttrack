@@ -148,6 +148,39 @@
     text-decoration: none;
     font-weight: 500;
 }
+/* #4215 — the hero's team link measured 208x17 on a phone ("Teams" on the
+   team page 37x17). Same floor as `.tt-record-link` in public.css. The
+   negative block margin keeps the 48px band from adding 31px to every
+   hero: the band overlaps the name above and the pills below, neither of
+   which is a tap target. */
+@media (pointer: coarse) {
+    .tt-player-hero__sub a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        min-width: 48px;
+        margin-block: -12px;
+        touch-action: manipulation;
+    }
+}
+/* #4215 — a team name is longer than a player's ("Voetbalacademie De
+   Maasoever U7") and was cut to "Voetbalacademie De …" at 390px. Two lines
+   on a phone; one line with an ellipsis from 768px, as before. */
+.tt-team-hero .tt-player-hero__name {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+@media (min-width: 768px) {
+    .tt-team-hero .tt-player-hero__name {
+        display: block;
+        white-space: nowrap;
+        overflow-wrap: normal;
+    }
+}
 .tt-player-hero__pills {
     margin: 10px 0 0;
     display: flex;
@@ -190,20 +223,39 @@
 
 /* ---------- Action row ---------- */
 
+/*
+ * #4215 — the row used to scroll sideways below 768px with its scrollbar
+ * hidden. Nothing said it scrolled, so the third action was simply cut off
+ * at the right edge, and the ⋯ menu — positioned inside the scroll
+ * container — was clipped by it and unreachable.
+ *
+ * It no longer scrolls anywhere. On a phone `RecordActionRow` keeps two
+ * actions in the row and moves the rest into the menu (`--phone` below);
+ * a narrow window that is not a phone wraps instead.
+ */
 .tt-player-detail__actions {
     padding: var(--tt-gap) var(--tt-gap-lg);
     background: var(--tt-paper);
     border-bottom: 1px solid var(--tt-line-soft);
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
-    overflow-x: auto;
-    scrollbar-width: none;
     border-radius: 0 0 var(--tt-radius) var(--tt-radius);
     margin-top: -8px;
 }
-.tt-player-detail__actions::-webkit-scrollbar { display: none; }
+/* Two actions and the ⋯ on one line. A long label wraps inside its own
+   button rather than pushing the ⋯ onto a second row. */
+.tt-player-detail__actions--phone { flex-wrap: nowrap; }
+.tt-player-detail__actions--phone > .tt-player-action:not(.tt-player-action--more):not(.tt-player-action--edit) {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding-block: 6px;
+    line-height: 1.2;
+    white-space: normal;
+    text-align: center;
+}
 @media (min-width: 768px) {
-    .tt-player-detail__actions { overflow-x: visible; padding: var(--tt-gap) 24px; }
+    .tt-player-detail__actions { flex-wrap: nowrap; padding: var(--tt-gap) 24px; }
 }
 @media (min-width: 1024px) {
     .tt-player-detail__actions {
@@ -278,7 +330,9 @@
     display: none;
     flex-direction: column;
     gap: 2px;
-    z-index: 5;
+    /* Above the pinned identity and tab strips (z-index 10), which follow
+       the action row and otherwise paint over the open menu (#4215). */
+    z-index: 11;
 }
 .tt-player-action--more[aria-expanded="true"] .tt-player-action__menu { display: flex; }
 .tt-player-action__menu .tt-player-action {
@@ -291,6 +345,10 @@
     text-align: left;
 }
 .tt-player-action__menu .tt-player-action:hover { background: var(--tt-mute-soft); }
+/* #4215 — on a phone the menu now carries real actions, not only Archive. */
+@media (pointer: coarse) {
+    .tt-player-action__menu .tt-player-action { min-height: 48px; }
+}
 
 /* ---------- Key facts strip ---------- */
 
@@ -611,6 +669,14 @@
     text-decoration: none;
 }
 .tt-player-tab:active { background: var(--tt-mute-soft); }
+/* #4215 — the tabs measured 38px on a phone. Pointer-gated like the rest
+   of the 48px floor, so a mouse keeps the denser strip. */
+@media (pointer: coarse) {
+    .tt-player-tab {
+        min-height: 48px;
+        touch-action: manipulation;
+    }
+}
 .tt-player-tab--active {
     background: var(--tt-primary, #0b3d2e);
     color: #fff;
@@ -669,6 +735,15 @@
     min-height: 36px;
     display: inline-flex;
     align-items: center;
+}
+/* #4215 — "Gedrag in bulk vastleggen" and "Explorer →" on the team page
+   measured 36px tall. */
+@media (pointer: coarse) {
+    .tt-player-card__cta {
+        min-height: 48px;
+        min-width: 48px;
+        touch-action: manipulation;
+    }
 }
 /* #3393 — these three were inline `style` attributes on the goals-tab
    head, grandfathered under the #1389 gate. They sat in the blast radius
