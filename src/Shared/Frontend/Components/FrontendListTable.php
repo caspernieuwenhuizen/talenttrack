@@ -54,7 +54,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Column render keys (built-in, more can be added later):
  *   'text'    — escape and print (default).
- *   'date'    — `Y-m-d` rendered as locale date.
+ *   'date'    — prints the row's `<key>_display` field, which the REST
+ *               formatter fills via TTDate::date(); falls back to the raw
+ *               value. A new date column needs that field in its formatter.
  *   'percent' — append `%` if non-null, otherwise em-dash.
  *
  * Column `mobile` key — how the column shows on a phone (below 768px,

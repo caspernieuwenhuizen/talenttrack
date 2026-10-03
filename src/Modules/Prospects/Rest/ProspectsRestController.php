@@ -357,6 +357,8 @@ class ProspectsRestController {
                 'birth_year'      => $year,
                 'current_club'    => (string) ( $row->current_club ?? '' ),
                 'discovered_at'   => (string) ( $row->discovered_at ?? '' ),
+                // #4221 — the academy's date format, next to the ISO field.
+                'discovered_at_display' => \TT\Shared\Dates\TTDate::date( (string) ( $row->discovered_at ?? '' ) ),
                 'discovered_by'   => $disc_by_name,
                 'status'          => $status,
                 'status_label'    => $status_label,

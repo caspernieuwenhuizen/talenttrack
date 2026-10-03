@@ -591,6 +591,8 @@ class GoalsRestController {
             'priority'            => $priority_raw,
             'priority_localised'  => \TT\Infrastructure\Query\LabelTranslator::goalPriority( $priority_raw ),
             'due_date'            => $row->due_date,
+            // #4221 — the academy's date format, next to the ISO field.
+            'due_date_display'    => \TT\Shared\Dates\TTDate::date( $row->due_date ),
             'created_at'        => $row->created_at,
             'created_by'        => (int) ( $row->created_by ?? 0 ),
             // v3.110.170 — row-link standard (#758). Same URL the title

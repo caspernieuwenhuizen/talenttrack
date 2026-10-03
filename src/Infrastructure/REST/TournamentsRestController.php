@@ -2754,12 +2754,17 @@ class TournamentsRestController {
      */
     private static function fmtTournamentRow( object $row ): array {
         $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'tournaments', (int) $row->id );
+        $start      = $row->start_date;
+        $end        = $row->end_date;
         return [
             'id'                => (int) $row->id,
             'uuid'              => (string) $row->uuid,
             'name'              => (string) $row->name,
-            'start_date'        => $row->start_date,
-            'end_date'          => $row->end_date,
+            'start_date'        => $start,
+            'end_date'          => $end,
+            // #4221 — the academy's date format, next to the ISO fields.
+            'start_date_display' => \TT\Shared\Dates\TTDate::date( $start ),
+            'end_date_display'   => \TT\Shared\Dates\TTDate::date( $end ),
             'default_formation' => (string) ( $row->default_formation ?? '' ),
             'team_id'           => (int) $row->team_id,
             'team_name'         => (string) ( $row->team_name ?? '' ),

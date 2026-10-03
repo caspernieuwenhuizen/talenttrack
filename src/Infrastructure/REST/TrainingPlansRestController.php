@@ -9,6 +9,7 @@ use TT\Modules\Training\Repositories\TrainingPlansRepository;
 use TT\Modules\Training\Services\PlanCoverageService;
 use TT\Modules\Training\Services\SquadSizeEstimator;
 use TT\Modules\Training\Services\TrainingPlanComposer;
+use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -789,6 +790,10 @@ final class TrainingPlansRestController {
             _n( '%d minute', '%d minutes', $row['total_duration_minutes'], 'talenttrack' ),
             $row['total_duration_minutes']
         );
+
+        // #4221 — the Created column, in the academy's date format. The
+        // `created_at` stamp stays as stored for v1 consumers.
+        $row['created_at_display'] = TTDate::date( $row['created_at'] );
 
         $row['kind_label'] = $row['is_template']
             ? __( 'Template', 'talenttrack' )
