@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.141.2
+Stable tag: 4.141.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.141.3 — Record pages on a phone: 48 px breadcrumb and profile links, and a ⋯ menu that closes (#4231) Three tap-target fixes on the player and team pages. Breadcrumb links were 48 px tall but could be narrower than that ("Teams" measured 40 px wide); they now have a 48 px minimum width as well. On the player's Profile tab the team link and a parent's phone and e-mail links were 40 px tall on a phone and are now 48 px; on a desktop they are unchanged.  The ⋯ menu in the action row under the hero (player page, team page, trial case) is now the same element as the ⋯ menu in page headers. It still opens by tap, Enter and Space, and now closes on Escape, on a tap outside it and when an item is chosen, with focus returning to the ⋯. The page-header menu gains the same close-on-choice behaviour. The menu's items and who can see them are unchanged. =
 
 = 4.141.2 — Player and team pages on a phone: reachable actions, 48px tabs and links (#4215) The player profile and the team page are easier to use on a phone.  - The action row under the hero no longer runs off the right edge. It shows two actions and a `⋯` button; the rest (Edit, Spond connection, Print seizoens-intakes, Customize, Archive) are in the `⋯` menu, which now opens above the tab strip instead of being cut off. - Player tabs, the team link in the hero and the card links on the team page ("Log behaviour in bulk", "Explorer") are 48px tall for a thumb. - The "Needs attention" chip is drawn as a whole circle instead of one with a thick edge down one side. - A long team name wraps to two lines in the hero instead of being cut short, and the last breadcrumb stays on the same line as the rest of the trail.  Desktop is unchanged. =
 
