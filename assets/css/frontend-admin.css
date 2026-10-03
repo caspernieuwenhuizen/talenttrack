@@ -715,7 +715,29 @@
         flex: 0 0 auto;
     }
     .tt-dashboard .tt-list-table-table td[data-label=""]::before { content: none; }
-    .tt-dashboard .tt-list-table-actions { justify-content: flex-end; }
+    /* #4190 — the row cards ARE the boxes on a phone; the table's own
+       border + rounded clip around them was a box in a box. */
+    .tt-dashboard .tt-list-table-table {
+        border: 0;
+        border-radius: 0;
+        overflow: visible;
+        background: none;
+    }
+    .tt-dashboard .tt-list-table-table td {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        text-align: right;
+    }
+    .tt-dashboard .tt-list-table-table .tt-consent-pill { white-space: normal; }
+    /* Same specificity as the `td` rule above (0,2,1 + class), so the
+       actions line groups its buttons at the right instead of spreading
+       them to both edges. */
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions {
+        justify-content: flex-end;
+        gap: var(--tt-sp-2);
+    }
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty,
+    .tt-dashboard .tt-list-table-table td[data-empty] { display: none; }
     .tt-dashboard .tt-list-table-empty td,
     .tt-dashboard .tt-list-table-loading td,
     .tt-dashboard .tt-list-table-error td { display: block; text-align: center; }
@@ -760,10 +782,13 @@
 /* Responsive: below 640px, tighten spacing. */
 @media (max-width: 639px) {
     .tt-dashboard .tt-panel { padding: var(--tt-sp-4); }
-    .tt-dashboard .tt-btn,
-    .tt-dashboard .tt-btn-primary,
-    .tt-dashboard .tt-btn-secondary,
-    .tt-dashboard .tt-btn-danger { width: 100%; }
+    /* #4190 — only form commit rows go full width. Applied to every
+       button, it stacked page-head actions into 100px of full-width
+       buttons above every list. */
+    .tt-dashboard .tt-form-actions .tt-btn,
+    .tt-dashboard .tt-form-actions .tt-btn-primary,
+    .tt-dashboard .tt-form-actions .tt-btn-secondary,
+    .tt-dashboard .tt-form-actions .tt-btn-danger { width: 100%; }
 }
 
 /* TalentTrack typography normalize.

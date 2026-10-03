@@ -129,14 +129,29 @@
         return out;
     }
 
+    /**
+     * #4190 — true when a rendered cell shows nothing. The phone card
+     * layout hides such cells (`td[data-empty]`) instead of printing a
+     * bare label line. Media and form controls count as content.
+     */
+    function isEmptyCell(html) {
+        var s = String(html == null ? '' : html);
+        if (/<(img|svg|select|input|button|textarea|video|picture)\b/i.test(s)) return false;
+        return s.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim() === '';
+    }
+
     function renderRow(config, row) {
         var tds = '';
         Object.keys(config.columns).forEach(function(key) {
             var col = config.columns[key];
-            tds += '<td data-label="' + escapeHtml(col.label) + '">' + renderCell(col, row) + '</td>';
+            var cell = renderCell(col, row);
+            var empty = isEmptyCell(cell) ? ' data-empty="1"' : '';
+            tds += '<td data-label="' + escapeHtml(col.label) + '"' + empty + '>' + cell + '</td>';
         });
         if (Object.keys(config.row_actions).length) {
-            tds += '<td class="tt-list-table-actions" data-label="">' + renderRowActions(config.row_actions, row) + '</td>';
+            var actionsHtml = renderRowActions(config.row_actions, row);
+            var actionsEmpty = actionsHtml === '' ? ' data-empty="1"' : '';
+            tds += '<td class="tt-list-table-actions" data-label=""' + actionsEmpty + '>' + actionsHtml + '</td>';
         }
         // v3.110.169 (#758) — row-link standard. When the preset
         // declares `row_url_key` and the row carries that key, stamp
