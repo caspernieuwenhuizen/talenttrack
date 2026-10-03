@@ -437,7 +437,10 @@ class PeopleRestController {
         $assignments = $repo->getPersonTeams( (int) $row->id );
         $parts = [];
         foreach ( $assignments as $a ) {
-            $label = self::humanRoleLabel( (string) ( $a->functional_role_key ?? $a->role_in_team ?? '' ) );
+            $label = self::humanRoleLabel(
+                (string) ( $a->functional_role_key ?? $a->role_in_team ?? '' ),
+                (int) ( $a->functional_role_id ?? 0 )
+            );
             $parts[] = trim( $label . ' @ ' . (string) ( $a->team_name ?? '' ), ' @' );
         }
 
@@ -488,8 +491,15 @@ class PeopleRestController {
         ] + \TT\Infrastructure\Archive\LifecycleFields::forRow( $row );
     }
 
-    private static function humanRoleLabel( string $key ): string {
+    private static function humanRoleLabel( string $key, int $role_id = 0 ): string {
         if ( $key === '' ) return '';
+        // #4222 — the stored label is the English seed ("Assistant Coach").
+        // Go through the translator first: tt_translations for the row,
+        // then the gettext labels for the seeded keys. Same order the
+        // person detail view uses.
+        $translated = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( $key, $role_id > 0 ? $role_id : null );
+        if ( $translated !== null && $translated !== '' ) return $translated;
+
         // Functional role labels live in tt_functional_roles. Fall back to
         // a humanized key for legacy / orphan rows.
         global $wpdb;
