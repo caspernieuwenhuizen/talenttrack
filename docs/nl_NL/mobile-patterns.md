@@ -179,9 +179,11 @@ Verder geldt op een telefoon:
   48 px hoog, bereikbaar met Tab, te openen met Enter of Spatie, met
   een focusrand). De 48 px-ondergrens op recordlinks in de rij vervalt
   daar, omdat de rij zelf al het doel is.
-- De ingeklapte filterbalk heeft geen kaart eromheen: alleen de knop
-  Filters en eventuele actieve filterchips. Vanaf 768 px komt de kaart
-  terug.
+- De ingeklapte filterbalk heeft geen kaart eromheen. Vanaf 768 px komt
+  de kaart terug. Onder 768 px is de balk hooguit twee regels: de knop
+  Filters met de opgeslagen weergaven ernaast, en daaronder, alleen als
+  er een filter actief is, de filterchips met Wissen als tekstlink aan
+  het eind van dezelfde regel.
 - Een paginakop blijft één regel. Een secundaire actie die bureauwerk is
   (zoals importeren uit CSV) krijgt `'narrow_overflow' => true` in
   `pageActionsHtml()`. Onder 768 px staat die actie dan in het ⋯-menu,

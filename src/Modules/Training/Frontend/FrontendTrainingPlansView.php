@@ -117,6 +117,9 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             $actions[] = [
                 'label' => __( 'Exercises', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'exercises' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
+                // #4225 — the secondary actions fold into ⋯ below 768px,
+                // so a phone's head stays one row: title, +, ⋯.
+                'narrow_overflow' => true,
             ];
         }
 
@@ -127,6 +130,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             $actions[] = [
                 'label' => __( 'Coverage', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'training-coverage' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — gated by CrossViewLink::allows above */
+                'narrow_overflow' => true,
             ];
         }
         // #2502 — the way in to photographing a hand-written plan. Shown
@@ -139,6 +143,7 @@ final class FrontendTrainingPlansView extends FrontendViewBase {
             $actions[] = [
                 'label' => __( 'From a photo', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'training-photo' ], RecordLink::dashboardUrl() ), /* tt-xview-ok — same module, gated above */
+                'narrow_overflow' => true,
             ];
 
             // #2735 — a photo held on this phone is waiting somewhere the

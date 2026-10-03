@@ -171,8 +171,10 @@ Other rules that hold on a phone:
   least 48 px high, reachable with Tab, opened with Enter or Space,
   with a focus ring). The 48 px floor on record links inside the row
   is lifted there, because the row is already the target.
-- The collapsed filter bar has no card around it: just the Filters
-  button and any active filter chips. The card comes back from 768 px.
+- The collapsed filter bar has no card around it. The card comes back
+  from 768 px. Below 768 px it is at most two rows: the Filters button
+  with the saved views beside it, then, only while a filter is applied,
+  the filter chips with Clear as a text link at the end of the same line.
 - A page head stays on one row. A secondary action that is desk work
   (such as importing from CSV) gets `'narrow_overflow' => true` in
   `pageActionsHtml()`. Below 768 px it then sits in the ⋯ menu, and from
