@@ -151,7 +151,14 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         if ( $type_key !== '' ) $scope['activity_type_key'] = $type_key;
         if ( $n > 0 )           $scope['n']                 = $n;
 
+        // #3338 — everything the filters govern lives in the region
+        // filter-refresh.js swaps. The body's early returns end the BODY
+        // rather than the whole render, which keeps the closing tag
+        // guaranteed. #4210 — the list tables inside it re-hydrate on
+        // `tt:filter-refreshed`.
+        printf( '<div data-tt-filter-region data-tt-filter-count="%d">', (int) $board['total'] );
         self::renderBody( $board, $scope );
+        echo '</div>';
     }
 
     /**
@@ -322,10 +329,9 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         FilterBar::render( [
             'hidden'       => $hidden,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
-            // #4194 — no in-place refresh (#3338) here any more: the two
-            // boards are list tables that hydrate on page load, and a
-            // region swapped in later would stay on "Loading…". A filter
-            // change reloads the page.
+            // #3338 — a filter change swaps the region in place; the two
+            // boards' list tables re-hydrate after the swap (#4210).
+            'refresh'      => true,
             // #2448 — personal saved views, rendered by FilterBar above the bar.
             'saved_views'  => [
                 'key'         => 'attendance_leaderboard',

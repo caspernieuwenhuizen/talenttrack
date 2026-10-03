@@ -776,7 +776,29 @@
         });
     }
 
+    // A root is hydrated once. The marker keeps a second pass (the
+    // filter-refresh listener below) from binding a pager, sort header or
+    // filter form twice, which would fire two fetches per click.
+    function hydrateOnce(root) {
+        if (root.getAttribute('data-tt-list-hydrated') === '1') return;
+        root.setAttribute('data-tt-list-hydrated', '1');
+        hydrate(root);
+    }
+
+    function hydrateWithin(scope) {
+        scope.querySelectorAll('[data-tt-list-table="1"]').forEach(hydrateOnce);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.tt-dashboard [data-tt-list-table="1"]').forEach(hydrate);
+        document.querySelectorAll('.tt-dashboard [data-tt-list-table="1"]').forEach(hydrateOnce);
+    });
+
+    // #4210 — filter-refresh.js swaps a surface's filter region in place
+    // and dispatches `tt:filter-refreshed` on it. Scripts do not re-run on
+    // innerHTML, so a list table inside the fresh markup would stay on its
+    // loading row; hydrate whatever arrived.
+    document.addEventListener('tt:filter-refreshed', function(e) {
+        var scope = e.target && e.target.querySelectorAll ? e.target : document;
+        hydrateWithin(scope);
     });
 })();
