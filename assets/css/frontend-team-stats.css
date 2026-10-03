@@ -147,6 +147,11 @@
     margin: 0;
     font-size: inherit;
 }
+/* The header row stays visible, so the stacked layout's column label
+   would only repeat it inside every cell. */
+.tt-table.tt-ts-table[data-tt-labels] td[data-label]::before {
+    content: none;
+}
 
 /* The player is a row header (`<th scope="row">`), and public.css styles
    `tbody td` only — so the name cell used to miss the padding, the border

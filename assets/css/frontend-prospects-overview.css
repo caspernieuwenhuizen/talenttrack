@@ -11,12 +11,13 @@
  * `tt-frontend-app-chrome`.
  */
 
+/* One card level at every width. On a phone the shared list table turns
+   each row into a card, so the view wrapper and the table wrap stay plain
+   there; a card around a bordered box around row cards was three frames
+   for one list. The wrapper becomes the card from 768px, where the rows
+   are table rows again. */
 .tt-dashboard .tt-prospects-overview {
-    background: var(--tt-paper, #ffffff);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    box-shadow: var(--tt-shadow-md);
-    padding: var(--tt-sp-4, 16px);
+    padding: 0;
 }
 
 /* #2082 — the bespoke `.tt-list-table-filters` / `-search` / `-filter`
@@ -27,8 +28,6 @@
 .tt-dashboard .tt-prospects-overview .tt-list-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border: 1px solid var(--tt-line-soft, #eef0ec);
-    border-radius: var(--tt-radius, 8px);
 }
 
 .tt-dashboard .tt-prospects-overview .tt-list-table-table {
@@ -39,9 +38,7 @@
 
 .tt-dashboard .tt-prospects-overview .tt-list-table-table th,
 .tt-dashboard .tt-prospects-overview .tt-list-table-table td {
-    padding: var(--tt-sp-3, 12px);
     text-align: left;
-    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
 }
 
 .tt-dashboard .tt-prospects-overview .tt-list-table-table thead th {
@@ -107,5 +104,16 @@
 
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 768px) {
-    .tt-dashboard .tt-prospects-overview { padding: var(--tt-sp-6, 24px); }
+    .tt-dashboard .tt-prospects-overview {
+        background: var(--tt-paper, #ffffff);
+        border: 1px solid var(--tt-line, #e3e6e1);
+        border-radius: var(--tt-radius-lg, 14px);
+        box-shadow: var(--tt-shadow-md);
+        padding: var(--tt-sp-6, 24px);
+    }
+    .tt-dashboard .tt-prospects-overview .tt-list-table-table th,
+    .tt-dashboard .tt-prospects-overview .tt-list-table-table td {
+        padding: var(--tt-sp-3, 12px);
+        border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    }
 }

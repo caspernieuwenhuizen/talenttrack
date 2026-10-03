@@ -306,8 +306,91 @@
         });
     }
 
+    // #4194 — column labels for the phone layout. Below 480px
+    // frontend-mobile.css stacks every `.tt-table` cell and shows its
+    // `data-label` in front of the value. Most views never wrote one, so
+    // a phone showed "20" or "3–1" with nothing saying what it was. This
+    // copies each header's text onto the body cells beneath it and marks
+    // the table `data-tt-labels="auto"`, which is what the stylesheet
+    // keys on. A table that already wrote its own `data-label`s is left
+    // alone; its view styles them. Cells are mapped by column position
+    // with colspan counted on both sides; a body cell is only labelled
+    // when it lines up with exactly one header, so a full-width
+    // "no rows" cell stays unlabelled.
+    function headerText(th) {
+        var clone = th.cloneNode(true);
+        var drop = clone.querySelectorAll('.tt-sort-indicator, [aria-hidden="true"]');
+        for (var i = 0; i < drop.length; i++) {
+            if (drop[i].parentNode) drop[i].parentNode.removeChild(drop[i]);
+        }
+        return (clone.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    function labelCells(table) {
+        if (!table.tHead || table.tHead.rows.length !== 1) return;
+        if (table.getAttribute('data-tt-labels') !== 'auto') {
+            if (table.querySelector('td[data-label]')) return;
+            table.setAttribute('data-tt-labels', 'auto');
+        }
+        var headCells = table.tHead.rows[0].cells;
+        var columns = {};
+        var col = 0;
+        for (var h = 0; h < headCells.length; h++) {
+            var span = Math.max(1, headCells[h].colSpan || 1);
+            columns[col] = { span: span, text: headerText(headCells[h]) };
+            col += span;
+        }
+        for (var b = 0; b < table.tBodies.length; b++) {
+            var rows = table.tBodies[b].rows;
+            for (var r = 0; r < rows.length; r++) {
+                var cells = rows[r].cells;
+                var at = 0;
+                for (var c = 0; c < cells.length; c++) {
+                    var cell = cells[c];
+                    var cellSpan = Math.max(1, cell.colSpan || 1);
+                    var header = columns[at];
+                    if (cell.tagName === 'TD' && header && header.span === cellSpan &&
+                        header.text !== '' && !cell.hasAttribute('data-label')) {
+                        cell.setAttribute('data-label', header.text);
+                    }
+                    at += cellSpan;
+                }
+            }
+        }
+    }
+
+    function labelTables(root) {
+        var tables = (root || document).querySelectorAll('table.tt-table');
+        for (var i = 0; i < tables.length; i++) labelCells(tables[i]);
+    }
+
+    // Rows and tables a view adds after load (REST-rendered lists,
+    // "load more") get their labels right after the insert.
+    var labelObserverBound = false;
+
+    function observeNewRows() {
+        if (labelObserverBound || typeof MutationObserver === 'undefined' || !document.body) return;
+        labelObserverBound = true;
+        var queued = false;
+        new MutationObserver(function (mutations) {
+            if (queued) return;
+            for (var i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes.length) {
+                    queued = true;
+                    window.setTimeout(function () {
+                        queued = false;
+                        labelTables(document);
+                    }, 0);
+                    return;
+                }
+            }
+        }).observe(document.body, { childList: true, subtree: true });
+    }
+
     function init(root) {
         root = root || document;
+        labelTables(root);
+        observeNewRows();
         var tables = root.querySelectorAll('table.tt-table-sortable');
         for (var i = 0; i < tables.length; i++) {
             var table = tables[i];

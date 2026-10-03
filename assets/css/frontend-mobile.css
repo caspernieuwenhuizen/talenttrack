@@ -46,10 +46,11 @@
  * for evaluations, goals, attendance. On narrow viewports each row
  * becomes a stacked mini-card with labeled cells.
  *
- * The data-label attribute pattern is the idiomatic approach but the
- * existing PHP doesn't emit data-label. We use a fallback: nth-child
- * selectors plus ::before pseudo-elements that supply the labels.
- * Works only for known tables; listed per-table below.
+ * The label is the cell's `data-label`. Most views don't write one, so
+ * tt-table-tools.js copies the column's <th> text onto the body cells of
+ * any table that has none. A table that keeps its table layout on a
+ * phone must switch the label off again (`td::before { content: none }`,
+ * see frontend-team-stats.css).
  */
 @media (max-width: 480px) {
     .tt-table {
@@ -81,13 +82,35 @@
     .tt-table td:empty {
         display: none;
     }
-    /* Display the header label before each cell using data-label attr
-       OR a generic "—" separator. Since PHP doesn't yet emit data-label
-       we just visually separate cells with a thin line. */
+    /* Cells are separated by a thin divider... */
     .tt-table td + td {
-        border-top: 1px dashed #eee !important;
+        border-top: 1px dashed var(--tt-line) !important;
         padding-top: 6px !important;
         margin-top: 4px;
+    }
+    /* ...unless tt-table-tools.js labelled the table (it marks it
+       `data-tt-labels="auto"`): then the column label sits in front of
+       the value and a long value wraps under it. A cell it could not
+       label (a spanning cell) keeps the divider. Tables that wrote their
+       own `data-label`s style them in their own sheet. */
+    .tt-table[data-tt-labels="auto"] td + td[data-label] {
+        border-top: none !important;
+        padding-top: 4px !important;
+        margin-top: 0;
+    }
+    .tt-table[data-tt-labels="auto"] td[data-label]::before {
+        content: attr(data-label);
+        display: inline-block;
+        min-width: 6.5rem;
+        max-width: 45%;
+        margin-right: 0.5rem;
+        vertical-align: top;
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.6;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--tt-muted);
     }
 
     /* Rating pills wrap onto new lines instead of overflowing */
