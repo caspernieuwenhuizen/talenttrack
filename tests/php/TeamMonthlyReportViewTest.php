@@ -51,8 +51,8 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
     }
 
     public function test_the_pack_drops_the_roster_page_when_the_roster_is_not_selected(): void {
-        $with    = TeamMonthlyReportLayout::fit( $this->report( [ 'letterhead' => [], 'kpi' => [], 'roster' => [ 'rows' => $this->rows( 14 ) ], 'notes' => [] ] ), 'B' );
-        $without = TeamMonthlyReportLayout::fit( $this->report( [ 'letterhead' => [], 'kpi' => [], 'notes' => [] ] ), 'B' );
+        $with    = TeamMonthlyReportLayout::fit( $this->report( [ 'letterhead' => [ 'activity_count' => 8 ], 'kpi' => [], 'roster' => [ 'rows' => $this->rows( 14 ) ], 'notes' => [] ] ), 'B' );
+        $without = TeamMonthlyReportLayout::fit( $this->report( [ 'letterhead' => [ 'activity_count' => 8 ], 'kpi' => [], 'notes' => [] ] ), 'B' );
 
         $this->assertSame( 3, $with['pages'] );
         $this->assertSame( 2, $without['pages'] );
@@ -61,7 +61,7 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
     /** The one-pager elides ranked lists first, trims the agenda second, and only then fails. */
     public function test_the_one_pager_degrades_in_the_decided_order(): void {
         $moderate = TeamMonthlyReportLayout::fit( $this->report( [
-            'letterhead' => [], 'coverage' => [], 'kpi' => [], 'status' => [],
+            'letterhead' => [ 'activity_count' => 8 ], 'coverage' => [], 'kpi' => [], 'status' => [],
             'attendance' => [ 'rows' => $this->rows( 20 ) ],
             'minutes'    => [ 'rows' => $this->rows( 20 ) ],
             'attention'  => [ 'items' => $this->rows( 2 ) ],
@@ -70,7 +70,7 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
         $this->assertSame( [ TeamMonthlyReportLayout::ELIDE_RANKED ], $moderate['degraded'] );
 
         $huge = TeamMonthlyReportLayout::fit( $this->report( [
-            'letterhead' => [], 'coverage' => [], 'kpi' => [], 'status' => [],
+            'letterhead' => [ 'activity_count' => 8 ], 'coverage' => [], 'kpi' => [], 'status' => [],
             'attendance' => [ 'rows' => $this->rows( 30 ) ],
             'minutes'    => [ 'rows' => $this->rows( 30 ) ],
             'attention'  => [ 'items' => $this->rows( 12 ) ],
@@ -98,6 +98,32 @@ final class TeamMonthlyReportViewTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'class="tt-d-empty"', $html );
         $this->assertStringNotContainsString( 'class="tt-d-kpi"', $html, 'No page of zeroes.' );
         $this->assertSame( 1, substr_count( $html, '<article class="tt-mr-sheet"' ) );
+        // #4189 — and the meter counts that one sheet, not the full layout.
+        $this->assertStringContainsString( 'Page 1 of 1 in the PDF', $html );
+    }
+
+    /**
+     * #4189 — a month without trainings or matches prints one sheet on every
+     * layout, whatever sections are ticked, and the meter says so.
+     */
+    public function test_an_empty_month_is_one_page_on_every_layout(): void {
+        $data = [
+            'letterhead' => [ 'activity_count' => 0 ],
+            'kpi'        => [],
+            'roster'     => [ 'rows' => $this->rows( 20 ) ],
+            'attendance' => [ 'rows' => $this->rows( 20 ) ],
+            'notes'      => [],
+        ];
+        foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+            $fit = TeamMonthlyReportLayout::fit( $this->report( $data ), $layout );
+            $this->assertSame( 1, $fit['pages'], "{$layout}: one sheet" );
+            $this->assertTrue( $fit['fits'], "{$layout}: it fits" );
+            $this->assertSame( [ [ 'letterhead' ] ], $fit['groups'], "{$layout}: the letterhead alone" );
+            $this->assertSame( [ 1 ], $fit['group_pages'] );
+            $this->assertSame( [], $fit['degraded'] );
+        }
+        $this->assertTrue( TeamMonthlyReportLayout::isEmpty( [ 'letterhead' => [] ] ), 'no count is an empty month' );
+        $this->assertFalse( TeamMonthlyReportLayout::isEmpty( [ 'letterhead' => [ 'activity_count' => 1 ] ] ) );
     }
 
     public function test_a_deselected_section_is_absent_from_the_page(): void {
