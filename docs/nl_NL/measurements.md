@@ -478,11 +478,12 @@ een overzicht om alle geregistreerde resultaten op één plek te lezen,
 geordend per speler. Het beantwoordt de vraag "hoe doet elke speler het nu
 op deze test?" zonder dat je de profielen één voor één hoeft te openen.
 
-1. **Kies een test.** Tot je er een kiest, vraagt het overzicht erom. De
- keuzelijst toont elke test uit de catalogus, gegroepeerd per categorie.
+1. **Kies een test** in de filterbalk. Tot je er een kiest, vraagt de lijst
+ erom. De keuzelijst toont elke test uit de catalogus, met de categorie
+ voor de naam.
 2. **Verfijn eventueel** op **team**, **leeftijdsgroep** en een
- **periode** (van / tot). De filters herladen het overzicht zodra je op
- *Toon* drukt.
+ **periode** (van / tot). De lijst werkt zich bij zodra je een filter
+ wijzigt.
 3. **Lees het overzicht.** Eén rij per speler met een waarde voor de test,
  met de **laatste waarde in de periode**:
  - **Statustests** tonen het **kleurvlakje met label** van het niveau
@@ -494,12 +495,15 @@ op deze test?" zonder dat je de profielen één voor één hoeft te openen.
  niveau*, oranje *onder niveau*, rood *ruim onder niveau* — tegen de band
  van hun leeftijdsgroep.
 
-Het overzicht is **sorteerbaar** (tik op een kolomkop op tablet en desktop)
-en elke **spelersnaam linkt naar het profiel**, met een terug-pil zodat je
-met één klik terugkeert naar het overzicht. Een knop **Exporteren naar
-Excel** downloadt de huidige test (met inachtneming van de team- en
-periodefilters) via dezelfde opgemaakte werkmap als de export bij *Tests
-beheren*.
+De lijst is **sorteerbaar** (tik op een kolomkop op tablet en desktop; de
+kolom Resultaat sorteert op de gemeten waarde, Trend op de grootte van de
+verandering), toont 25 spelers per pagina met een paginakeuze eronder, en
+elke **spelersnaam linkt naar het profiel**, met een terug-pil zodat je met
+één klik terugkeert naar het overzicht. Op een telefoon is elke speler een
+kaart. Een knop **Exporteren naar Excel** downloadt de test die in de
+filters gekozen is (met inachtneming van de team- en periodefilters) via
+dezelfde opgemaakte werkmap als de export bij *Tests beheren*; is er nog
+geen test gekozen, dan vraagt de knop je eerst er een te kiezen.
 
 Teamgebonden staf (coaches met alleen *lees*-rechten op hun eigen teams)
 ziet uitsluitend resultaten van die teams; lezers met academiebreed bereik
@@ -513,7 +517,12 @@ beschikbaar via REST op
 `team_id`, `age_group`, `from`, `to`), afgeschermd met dezelfde
 `measurements`-*lees*-rechten en beperkt tot dezelfde teams als het scherm:
 `team_id` weglaten verbreedt het antwoord niet, en een team buiten je bereik
-noemen levert `403` op. Voor integraties en de SaaS-frontend.
+noemen levert `403` op. Elk filter mag ook genest
+(`filter[definition_id]`, `filter[date_from]`, …). Met `page` of `per_page`
+krijg je in plaats daarvan één gesorteerde pagina in de lijstenvelop
+(`orderby`: `name`, `team_name`, `age_group`, `value`, `trend`,
+`recorded_date`); dat is wat het scherm leest. Voor integraties en de
+SaaS-frontend.
 
 ## Testverloop — één test, elke speler, over het seizoen
 

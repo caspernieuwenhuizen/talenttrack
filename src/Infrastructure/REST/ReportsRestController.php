@@ -98,6 +98,13 @@ final class ReportsRestController extends BaseController {
                 'permission_callback' => self::permCan( 'tt_view_analytics' ),
                 'args'                => $attendance_args + [
                     'n' => [ 'sanitize_callback' => 'absint', 'required' => false ],
+                    // #4194 — one board as a page of list rows. Same as
+                    // filter[board]; filter[n] is taken for `n` too.
+                    'board'    => [ 'type' => 'string', 'description' => 'top or bottom: answer one board as {rows, total, page, per_page}. Same as filter[board].', 'sanitize_callback' => 'sanitize_key', 'required' => false ],
+                    'page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'With board: page number, from 1.', 'required' => false ],
+                    'per_page' => [ 'type' => [ 'integer', 'string' ], 'description' => 'With board: 10, 25 (default), 50 or 100.', 'required' => false ],
+                    'orderby'  => [ 'type' => 'string', 'description' => 'With board: player_name, team_name, activities or present_pct. Without it the board keeps its ranking.', 'required' => false ],
+                    'order'    => [ 'type' => 'string', 'description' => 'With board: asc (default) or desc.', 'required' => false ],
                 ],
             ],
         ] );
@@ -392,16 +399,69 @@ final class ReportsRestController extends BaseController {
         $team_id         = $query['team_id'];
         // #2205 — unset/blank `n` means all players in the window; a
         // supplied positive number narrows each column.
-        $n               = (int) $req->get_param( 'n' );
+        // #4194 — `n` and `board` are also taken nested, the shape the
+        // shared list table sends; a nested value wins.
+        $nested          = is_array( $req->get_param( 'filter' ) ) ? $req->get_param( 'filter' ) : [];
+        $n               = isset( $nested['n'] ) && is_scalar( $nested['n'] ) ? absint( $nested['n'] ) : (int) $req->get_param( 'n' );
         $type_key        = $query['activity_type_key'];
         $allowed         = self::attendanceScope( $team_id );
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
         $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
+
+        $which = isset( $nested['board'] ) && is_scalar( $nested['board'] )
+            ? sanitize_key( (string) $nested['board'] )
+            : sanitize_key( (string) $req->get_param( 'board' ) );
+        if ( $which === 'top' || $which === 'bottom' ) {
+            return RestResponse::success( self::leaderboardPage( $board, $which, $req ) + [ 'from' => $from, 'to' => $to ] );
+        }
+
         // #3717 — `top` / `bottom` / `total` plus the window they describe.
         $board['from'] = $from;
         $board['to']   = $to;
         return RestResponse::success( $board );
+    }
+
+    /**
+     * #4194 — one board of the leaderboard as a page of list rows: the rank
+     * across the whole board, the player's figures, and the cells the shared
+     * list table prints (`render: html`). The rank is fixed by the board's
+     * order; `orderby` (`player_name`, `team_name`, `activities`,
+     * `present_pct`) re-sorts the rows without changing it.
+     *
+     * @param array{bottom: list<array<string, mixed>>, top: list<array<string, mixed>>, total: int} $board
+     * @return array<string, mixed>
+     */
+    private static function leaderboardPage( array $board, string $which, WP_REST_Request $req ): array {
+        $rows = [];
+        foreach ( $board[ $which ] as $i => $r ) {
+            $rows[] = \TT\Modules\Analytics\Frontend\AttendanceLeaderboardCells::row( $r, $i + 1, $which === 'bottom' );
+        }
+
+        $orderby = sanitize_key( (string) $req->get_param( 'orderby' ) );
+        if ( in_array( $orderby, [ 'player_name', 'team_name', 'activities', 'present_pct' ], true ) ) {
+            $desc = strtolower( (string) $req->get_param( 'order' ) ) === 'desc';
+            usort( $rows, static function ( array $a, array $b ) use ( $orderby, $desc ): int {
+                $cmp = in_array( $orderby, [ 'activities', 'present_pct' ], true )
+                    ? ( (float) $a[ $orderby ] <=> (float) $b[ $orderby ] )
+                    : strnatcasecmp( (string) $a[ $orderby ], (string) $b[ $orderby ] );
+                if ( $cmp === 0 ) $cmp = (int) $a['rank'] <=> (int) $b['rank'];
+                return $desc ? -$cmp : $cmp;
+            } );
+        }
+
+        $per_page = absint( $req->get_param( 'per_page' ) );
+        if ( ! in_array( $per_page, [ 10, 25, 50, 100 ], true ) ) $per_page = 25;
+        $page = max( 1, absint( $req->get_param( 'page' ) ) );
+
+        return [
+            'board'          => $which,
+            'rows'           => array_slice( $rows, ( $page - 1 ) * $per_page, $per_page ),
+            'total'          => count( $rows ),
+            'ranked_players' => $board['total'],
+            'page'           => $page,
+            'per_page'       => $per_page,
+        ];
     }
 
     public static function attendanceAtRisk( WP_REST_Request $req ): \WP_REST_Response {

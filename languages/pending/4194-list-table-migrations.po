@@ -1,0 +1,19 @@
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:94
+msgid "Without dates the list shows the last 12 months."
+msgstr "Zonder datums toont de lijst de afgelopen 12 maanden."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:140
+msgid "No results match. Check that a test is chosen, or widen the filters."
+msgstr "Geen resultaten. Controleer of er een test gekozen is, of verruim de filters."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:142
+msgid "Choose a test"
+msgstr "Kies een test"
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:143
+msgid "Choose a test in the filters to see every player's latest result."
+msgstr "Kies een test in de filters om de laatste waarde van elke speler te zien."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:68
+msgid "Choose a test first, then export."
+msgstr "Kies eerst een test en exporteer dan."

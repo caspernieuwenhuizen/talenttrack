@@ -552,11 +552,11 @@ A dedicated league table reachable from the Reports launcher (*Attendance leader
 
 It shares the same filter bar and chrome as the player attendance report: a **team** picker, retrospective **period** pills (last week / month / season and so on), an **activity type** filter, and a manual **date range** that overrides the active period, plus the leaderboard-only *How many* cap. Opening it with no filters defaults to the **current season** window. Above the tables a KPI strip summarises the ranked players — total players, average attendance across them, and how many are at-risk — computed from the same data, so it never triggers an extra query.
 
-On a phone the two tables stack into one column with no horizontal scroll; from tablet width up they sit side-by-side. Every column is sortable on top of the default ranking.
+Each table is the same list as the other lists in the plugin: 25 players per page with a page picker below it, and the Player, Team, Activities and Present % columns sortable. Sorting a column keeps each player's rank number, so you can still see where they stand. Changing a filter reloads the page. On a phone the two tables stack into one column with no horizontal scroll, and each player is a card; from tablet width up they sit side-by-side.
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`. Add `board=bottom` or `board=top` (or `filter[board]`) to get one table as a page of rows instead: `{ board, rows, total, ranked_players, page, per_page, from, to }`, each row carrying its `rank`.
 - `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — flagged players worst-first, each with a `declining` trend marker, plus the active `threshold` and the window: `{ players, threshold, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — the per-player attendance rows for one window (powers the team report's inline drill-down): `{ players, threshold, from, to }`.
 

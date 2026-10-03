@@ -8,10 +8,10 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\ReportFilters;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
+use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -137,21 +137,21 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         self::renderFilterForm( $from, $to, $team_id, $n, $allowed_team_ids, $period, $type_key );
 
         // #3338 — a URL-tamper guard is a result, not an error: a team the
-        // coach may not see yields an empty board, and that empty board has
-        // to live inside the region so a filter change can replace it.
+        // coach may not see yields an empty board.
         $tampered = $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true );
         $board    = $tampered
             ? [ 'total' => 0, 'top' => [], 'bottom' => [] ]
             : ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed_team_ids, $type_key );
 
-        // #3338 — everything the filters govern. The body's early returns
-        // now end the BODY rather than the whole render, which is what keeps
-        // the region's closing tag guaranteed.
-        // No `?? 0`: the board's shape guarantees `total`, and a second dead
-        // null-coalesce here is what the PHPStan baseline counts.
-        printf( '<div data-tt-filter-region data-tt-filter-count="%d">', (int) $board['total'] );
-        self::renderBody( $board );
-        echo '</div>';
+        // #4194 — the two boards are list tables fed by the leaderboard
+        // route, with the window and filters resolved above passed as fixed
+        // filters, so the route reads exactly what the KPI strip describes.
+        $scope = [ 'from' => $from, 'to' => $to ];
+        if ( $team_id > 0 )     $scope['team_id']           = $team_id;
+        if ( $type_key !== '' ) $scope['activity_type_key'] = $type_key;
+        if ( $n > 0 )           $scope['n']                 = $n;
+
+        self::renderBody( $board, $scope );
     }
 
     /**
@@ -163,9 +163,10 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
      * query returns.
      *
      * @param array{bottom: array<int, array<string, mixed>>, top: array<int, array<string, mixed>>, total: int} $board
+     * @param array<string, int|string> $scope the resolved filters both boards are read with
      */
-    private static function renderBody( array $board ): void {
-        if ( ( $board['total'] ?? 0 ) === 0 ) {
+    private static function renderBody( array $board, array $scope ): void {
+        if ( $board['total'] === 0 ) {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window. Try widening the date range or picking another period.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -175,13 +176,11 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         echo '<div class="tt-leaderboard-grid">';
         self::renderTable(
             __( 'Needs attention — lowest attendance', 'talenttrack' ),
-            $board['bottom'],
-            true
+            $scope + [ 'board' => 'bottom' ]
         );
         self::renderTable(
             __( 'Most reliable — highest attendance', 'talenttrack' ),
-            $board['top'],
-            false
+            $scope + [ 'board' => 'top' ]
         );
         echo '</div>';
     }
@@ -218,54 +217,27 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     }
 
     /**
-     * @param list<array<string,mixed>> $rows
+     * One board as a shared list table over
+     * `GET /reports/attendance-leaderboard?filter[board]=…`. The rank is the
+     * board's own order and stays with the player when a column is sorted.
+     *
+     * @param array<string, int|string> $static_filters
      */
-    private static function renderTable( string $heading, array $rows, bool $is_bottom ): void {
+    private static function renderTable( string $heading, array $static_filters ): void {
         echo '<section class="tt-leaderboard-card">';
         echo '<h2 class="tt-leaderboard-title">' . esc_html( $heading ) . '</h2>';
-        if ( $rows === [] ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No players to rank yet.', 'talenttrack' ) . '</p>';
-            echo '</section>';
-            return;
-        }
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" data-tt-table-search="off" style="width:100%;">';
-        echo '<thead><tr>';
-        echo '<th style="text-align:right;width:3rem;" data-tt-sort="off">' . esc_html__( '#', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-
-        $rank = 1;
-        foreach ( $rows as $r ) {
-            $name = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
-            if ( $name === '' ) $name = '#' . (int) $r['player_id'];
-            $player_url = BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'players', 'id' => (int) $r['player_id'] ],
-                RecordLink::dashboardUrl()
-            ) );
-            $team   = (string) $r['team_name'];
-            $present_pct = $r['present_pct'] !== null ? (float) $r['present_pct'] : null;
-            // #2350 — at-risk badge on flagged bottom rows, matching the
-            // player report's inline chip markup for cross-report parity.
-            $badge  = '';
-            if ( $is_bottom && ! empty( $r['flagged'] ) ) {
-                $badge = ' <span class="tt-flag-badge" title="'
-                    . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
-                    . '">⚠ ' . (int) $r['missed'] . '</span>';
-            }
-            echo '<tr' . ( $is_bottom && ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
-            echo '<td style="text-align:right;">' . (int) $rank . '</td>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a>' . $badge . '</td>';
-            echo '<td>' . ( $team !== '' ? esc_html( $team ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['activities'] . '</td>';
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
-            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
-            echo '</tr>';
-            $rank++;
-        }
-        echo '</tbody></table></div>';
+        echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes internally.
+            'rest_path'        => 'reports/attendance-leaderboard',
+            'static_filters'   => $static_filters,
+            'columns'          => [
+                'rank'        => [ 'label' => __( '#', 'talenttrack' ) ],
+                'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html' ],
+                'team_name'   => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_html' ],
+                'activities'  => [ 'label' => __( 'Activities', 'talenttrack' ), 'sortable' => true ],
+                'present_pct' => [ 'label' => __( 'Present %', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'present_html' ],
+            ],
+            'empty_state'      => __( 'No players to rank yet.', 'talenttrack' ),
+        ] );
         echo '</section>';
     }
 
@@ -348,10 +320,10 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         FilterBar::render( [
             'hidden'       => $hidden,
             'reset_url'    => add_query_arg( $reset_args, $dash_url ),
-            // #3338 — filter in place (epic #3335). A report is where
-            // the pending state earns its keep: the server work is the
-            // slow part, not the network hop.
-            'refresh'      => true,
+            // #4194 — no in-place refresh (#3338) here any more: the two
+            // boards are list tables that hydrate on page load, and a
+            // region swapped in later would stay on "Loading…". A filter
+            // change reloads the page.
             // #2448 — personal saved views, rendered by FilterBar above the bar.
             'saved_views'  => [
                 'key'         => 'attendance_leaderboard',
@@ -403,22 +375,5 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     /** @return array{from:string,to:string} */
     private static function defaultWindow(): array {
         return ReportFilters::seasonDefaultWindow();
-    }
-
-    /**
-     * Inline present-% bar — value + a proportional track, red below 70%.
-     * Returns escaped HTML. Shares the .tt-att-bar vocabulary with the
-     * team + player attendance reports (#1688 / #1695).
-     */
-    private static function attendanceBar( ?float $pct ): string {
-        if ( $pct === null ) {
-            return '<span class="tt-att-bar"><span class="v">—</span></span>';
-        }
-        $low = $pct < 70;
-        $w   = max( 0, min( 100, (int) round( $pct ) ) );
-        return '<span class="tt-att-bar' . ( $low ? ' is-low' : '' ) . '">'
-            . '<span class="v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
-            . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
-            . '</span>';
     }
 }

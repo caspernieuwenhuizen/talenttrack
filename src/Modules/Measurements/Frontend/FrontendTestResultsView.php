@@ -5,12 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
-use TT\Modules\Measurements\Levels\MeasurementLevelPalette;
 use TT\Modules\Measurements\Repositories\MeasurementDefinitionsRepository;
-use TT\Modules\Measurements\Services\MeasurementResultsBrowse;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
-use TT\Shared\Frontend\Components\RecordLink;
+use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -25,6 +22,11 @@ use TT\Shared\Frontend\FrontendViewBase;
  * Composition only — the rows, flags, levels and trend come from
  * MeasurementResultsBrowse (§4 — business logic out of the view). Slug:
  * `test-results`.
+ *
+ * #4194 — the rows are drawn by the shared list table from
+ * `GET /measurement-results`, the same route a SaaS front end reads, so the
+ * list gets the shared sort, paging and phone layout. The cell markup lives
+ * in `TestResultCells`.
  */
 final class FrontendTestResultsView extends FrontendViewBase {
 
@@ -51,6 +53,16 @@ final class FrontendTestResultsView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        wp_enqueue_script(
+            'tt-frontend-test-results',
+            TT_PLUGIN_URL . 'assets/js/frontend-test-results.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-frontend-test-results', 'ttTestResultsI18n', [
+            'chooseTest' => __( 'Choose a test first, then export.', 'talenttrack' ),
+        ] );
 
         self::renderHeader( $title );
 
@@ -60,7 +72,9 @@ final class FrontendTestResultsView extends FrontendViewBase {
         // #3433 — that is no longer the same as "the teams you are attached
         // to". Measurement access follows the functional role held on a
         // squad, so a staff member who is the physio of one team and the kit
-        // manager of another is scoped to both and may read one.
+        // manager of another is scoped to both and may read one. The REST
+        // route narrows to the same set, so the list never shows a player
+        // from a team that is not offered here.
         $see_all = $is_admin || MatrixGate::can( $user_id, 'measurements', 'read', 'global' );
         $teams   = QueryHelpers::get_permitted_teams( $user_id, 'measurements', 'read', $see_all );
 
@@ -70,251 +84,89 @@ final class FrontendTestResultsView extends FrontendViewBase {
             return;
         }
 
-        $allowed_ids = array_map( static fn ( $t ) => (int) $t->id, $teams );
-
-        // Selected filters.
-        $definition_id = isset( $_GET['definition_id'] ) ? absint( $_GET['definition_id'] ) : 0;
-        $team_id       = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        $age_group     = isset( $_GET['age_group'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['age_group'] ) ) : '';
-        $date_from     = isset( $_GET['from'] ) ? self::safeDate( (string) $_GET['from'] ) : '';
-        $date_to       = isset( $_GET['to'] ) ? self::safeDate( (string) $_GET['to'] ) : '';
-
-        // A non-global reader may only filter by — and see results from — a
-        // team in their scope. An out-of-scope team_id is rejected.
-        if ( ! $see_all && $team_id > 0 && ! in_array( $team_id, $allowed_ids, true ) ) {
-            echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        $age_groups = self::ageGroupsFrom( $teams );
-
-        self::renderFilters( $definitions, $teams, $age_groups, $definition_id, $team_id, $age_group, $date_from, $date_to );
-
-        if ( $definition_id <= 0 ) {
-            echo '<p class="tt-tr-hint">' . esc_html__( 'Choose a test to see every player\'s latest result.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        // For a non-global reader with no team chosen, constrain the query to
-        // their teams so the grid never leaks out-of-scope players.
-        $filters = [
-            'team_id'   => $team_id,
-            'age_group' => $age_group,
-            'date_from' => $date_from,
-            'date_to'   => $date_to,
-        ];
-        // #3155 — the repository now carries `team_ids`, the same key the
-        // export query has had since #2537, so the reader's scope goes into
-        // the one query instead of being reassembled from one query per
-        // allowed team. The REST route reads the same key, which is the
-        // point: the endpoint behind this view used to answer a wider
-        // question than the view did.
-        if ( ! $see_all ) {
-            $filters['team_ids'] = $allowed_ids;
-        }
-        $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
-
-        self::renderExportLink( $definition_id, $team_id, $date_from, $date_to );
-
-        if ( $rows === [] ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No results match these filters yet.', 'talenttrack' ) . '</p>';
-            return;
-        }
-
-        self::renderGrid( $rows );
-    }
-
-
-    /**
-     * @param array<int, object>      $definitions
-     * @param array<int, object>      $teams
-     * @param array<int, string>      $age_groups
-     */
-    private static function renderFilters(
-        array $definitions, array $teams, array $age_groups,
-        int $definition_id, int $team_id, string $age_group, string $date_from, string $date_to
-    ): void {
-        echo '<form method="get" class="tt-tr-filters">';
-        echo '<input type="hidden" name="tt_view" value="test-results" />';
-
-        echo '<label class="tt-tr-filters__field">';
-        echo '<span class="tt-tr-filters__label">' . esc_html__( 'Test', 'talenttrack' ) . '</span>';
-        echo '<select name="definition_id" class="tt-input">';
-        echo '<option value="0">' . esc_html__( '— Choose a test —', 'talenttrack' ) . '</option>';
+        $definition_options = [];
         foreach ( $definitions as $def ) {
             $label = (string) $def->name;
             if ( ! empty( $def->category_label ) ) {
                 $label = (string) $def->category_label . ' · ' . $label;
             }
-            echo '<option value="' . (int) $def->id . '" ' . selected( $definition_id, (int) $def->id, false ) . '>'
-                . esc_html( $label ) . '</option>';
+            $definition_options[ (string) (int) $def->id ] = $label;
         }
-        echo '</select></label>';
-
-        echo '<label class="tt-tr-filters__field">';
-        echo '<span class="tt-tr-filters__label">' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<select name="team_id" class="tt-input">';
-        echo '<option value="0">' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
+        $team_options = [];
         foreach ( $teams as $t ) {
-            echo '<option value="' . (int) $t->id . '" ' . selected( $team_id, (int) $t->id, false ) . '>'
-                . esc_html( (string) $t->name ) . '</option>';
+            $team_options[ (string) (int) $t->id ] = (string) $t->name;
         }
-        echo '</select></label>';
-
-        echo '<label class="tt-tr-filters__field">';
-        echo '<span class="tt-tr-filters__label">' . esc_html__( 'Age group', 'talenttrack' ) . '</span>';
-        echo '<select name="age_group" class="tt-input">';
-        echo '<option value="">' . esc_html__( 'All age groups', 'talenttrack' ) . '</option>';
-        foreach ( $age_groups as $ag ) {
-            echo '<option value="' . esc_attr( $ag ) . '" ' . selected( $age_group, $ag, false ) . '>'
-                . esc_html( $ag ) . '</option>';
+        $age_options = [];
+        foreach ( self::ageGroupsFrom( $teams ) as $ag ) {
+            $age_options[ $ag ] = $ag;
         }
-        echo '</select></label>';
 
-        echo '<label class="tt-tr-filters__field">';
-        echo '<span class="tt-tr-filters__label">' . esc_html__( 'From', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="from" class="tt-input" inputmode="numeric" value="' . esc_attr( $date_from ) . '" />';
-        echo '</label>';
+        $filters = [
+            'definition_id' => [ 'type' => 'select', 'label' => __( 'Test', 'talenttrack' ), 'options' => $definition_options ],
+            'team_id'       => [ 'type' => 'select', 'label' => __( 'Team', 'talenttrack' ), 'options' => $team_options ],
+            'age_group'     => [ 'type' => 'select', 'label' => __( 'Age group', 'talenttrack' ), 'options' => $age_options ],
+            'date'          => [
+                'type'       => 'date_range',
+                'label'      => _x( 'Date', 'list date filter', 'talenttrack' ),
+                'param_from' => 'date_from',
+                'param_to'   => 'date_to',
+                'label_from' => __( 'From', 'talenttrack' ),
+                'label_to'   => __( 'To', 'talenttrack' ),
+            ],
+        ];
 
-        echo '<label class="tt-tr-filters__field">';
-        echo '<span class="tt-tr-filters__label">' . esc_html__( 'To', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="to" class="tt-input" inputmode="numeric" value="' . esc_attr( $date_to ) . '" />';
-        echo '</label>';
+        // Links written before the list table carry `?definition_id=` and
+        // `?team_id=`; they open with that test and team chosen.
+        foreach ( [ 'definition_id' => $definition_options, 'team_id' => $team_options ] as $key => $options ) {
+            $legacy = isset( $_GET[ $key ] ) ? (string) absint( $_GET[ $key ] ) : '';
+            if ( isset( $options[ $legacy ] ) ) $filters[ $key ]['default'] = $legacy;
+        }
 
-        echo '<div class="tt-tr-filters__actions">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Show', 'talenttrack' ) . '</button>';
+        self::renderExportForm();
+
+        echo '<div class="tt-tr-list">';
+        echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes internally.
+            'rest_path'    => 'measurement-results',
+            'columns'      => [
+                'name'          => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html' ],
+                'team_name'     => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true ],
+                'age_group'     => [ 'label' => __( 'Age group', 'talenttrack' ), 'sortable' => true ],
+                'value'         => [ 'label' => __( 'Result', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'result_html' ],
+                'trend'         => [ 'label' => __( 'Trend', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'trend_html' ],
+                'recorded_date' => [ 'label' => __( 'Date', 'talenttrack' ), 'sortable' => true ],
+            ],
+            'filters'      => $filters,
+            'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
+            'empty_state'  => __( 'No results match. Check that a test is chosen, or widen the filters.', 'talenttrack' ),
+            'empty_state_card' => [
+                'headline'  => __( 'Choose a test', 'talenttrack' ),
+                'explainer' => __( 'Choose a test in the filters to see every player\'s latest result.', 'talenttrack' ),
+            ],
+        ] );
         echo '</div>';
-        echo '</form>';
     }
 
     /**
-     * The export affordance for the current test + filters — a small POST to
-     * admin-post.php (the #2139 measurement_results_xlsx exporter). The
-     * pipeline re-enforces `measurements/read` server-side; this is the
-     * trigger only. Back-aware so a failed export round-trips here.
+     * The export trigger — a small POST to admin-post.php (the #2139
+     * measurement_results_xlsx exporter), which re-enforces
+     * `measurements/read` server-side. The list filters live in the URL and
+     * change without a reload, so frontend-test-results.js copies the
+     * chosen test, team and dates into the hidden fields when the button is
+     * pressed, and asks for a test first when none is chosen.
      */
-    private static function renderExportLink( int $definition_id, int $team_id, string $date_from, string $date_to ): void {
-        if ( $definition_id <= 0 ) return;
-
-        $return_url = BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'test-results', 'definition_id' => $definition_id ],
-            RecordLink::dashboardUrl()
-        ) );
-
-        echo '<form method="POST" class="tt-tr-export" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+    private static function renderExportForm(): void {
+        echo '<form method="POST" class="tt-tr-export" data-tt-tr-export="1" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
         wp_nonce_field( 'tt_export', '_tt_export_nonce' );
         echo '<input type="hidden" name="action" value="tt_export" />';
         echo '<input type="hidden" name="tt_export_key" value="measurement_results_xlsx" />';
         echo '<input type="hidden" name="format" value="xlsx" />';
-        echo '<input type="hidden" name="definition_id" value="' . esc_attr( (string) $definition_id ) . '" />';
-        if ( $team_id > 0 ) {
-            echo '<input type="hidden" name="team_id" value="' . esc_attr( (string) $team_id ) . '" />';
-        }
-        if ( $date_from !== '' ) {
-            echo '<input type="hidden" name="date_from" value="' . esc_attr( $date_from ) . '" />';
-        }
-        if ( $date_to !== '' ) {
-            echo '<input type="hidden" name="date_to" value="' . esc_attr( $date_to ) . '" />';
-        }
-        echo '<input type="hidden" name="tt_export_return_url" value="' . esc_attr( $return_url ) . '" />';
+        echo '<input type="hidden" name="definition_id" value="" />';
+        echo '<input type="hidden" name="team_id" value="" />';
+        echo '<input type="hidden" name="date_from" value="" />';
+        echo '<input type="hidden" name="date_to" value="" />';
+        echo '<input type="hidden" name="tt_export_return_url" value="" />';
         echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Export Excel', 'talenttrack' ) . '</button>';
         echo '</form>';
-    }
-
-    /**
-     * @param array<int, array<string, mixed>> $rows
-     */
-    private static function renderGrid( array $rows ): void {
-        echo '<div class="tt-tr-grid">';
-        echo '<table class="tt-tr-table tt-table-sortable" data-tt-table-search="off">';
-        echo '<thead><tr>';
-        echo '<th scope="col">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Age group', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Result', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Trend', 'talenttrack' ) . '</th>';
-        echo '<th scope="col">' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-
-        foreach ( $rows as $row ) {
-            $player_url = RecordLink::detailUrlForWithBack( 'players', (int) $row['player_id'] );
-            echo '<tr>';
-
-            echo '<td data-label="' . esc_attr__( 'Player', 'talenttrack' ) . '" class="tt-tr-cell--name">';
-            if ( $player_url !== '' ) {
-                echo '<a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( (string) $row['name'] ) . '</a>';
-            } else {
-                echo esc_html( (string) $row['name'] );
-            }
-            echo '</td>';
-
-            echo '<td data-label="' . esc_attr__( 'Team', 'talenttrack' ) . '">' . esc_html( (string) $row['team_name'] ) . '</td>';
-            echo '<td data-label="' . esc_attr__( 'Age group', 'talenttrack' ) . '">' . esc_html( (string) $row['age_group'] ) . '</td>';
-
-            // Result: status chip, or value + flag.
-            echo '<td data-label="' . esc_attr__( 'Result', 'talenttrack' ) . '" class="tt-tr-cell--result" data-tt-sort-value="' . esc_attr( (string) ( $row['value_sort'] ?? '' ) ) . '">';
-            echo self::resultCell( $row ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — resultCell() escapes internally.
-            echo '</td>';
-
-            // #2586 — sort on the raw delta so the column orders by magnitude
-            // rather than by the rendered string ("−0,08 s" would sort as text).
-            $delta = isset( $row['delta'] ) && $row['delta'] !== null ? (float) $row['delta'] : null;
-            echo '<td data-label="' . esc_attr__( 'Trend', 'talenttrack' ) . '"'
-                . ( $delta !== null ? ' data-tt-sort-value="' . esc_attr( (string) $delta ) . '"' : '' )
-                . '>'
-                . self::trendCell( (string) $row['trend'], $delta, (string) ( $row['unit'] ?? '' ) )
-                . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trendCell() escapes internally.
-            echo '<td data-label="' . esc_attr__( 'Date', 'talenttrack' ) . '">' . esc_html( (string) $row['recorded_date'] ) . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table></div>';
-    }
-
-    /** @param array<string, mixed> $row */
-    private static function resultCell( array $row ): string {
-        $value_type = (string) $row['value_type'];
-        if ( $value_type === 'status' ) {
-            $token = (string) $row['level_token'];
-            $label = (string) $row['level_label'];
-            if ( $label === '' ) {
-                return '<span class="tt-tr-empty">—</span>';
-            }
-            return '<span class="tt-tr-level">'
-                . '<span class="tt-mlvl-swatch ' . esc_attr( MeasurementLevelPalette::cssClass( $token ) ) . '" aria-hidden="true"></span>'
-                . '<span class="tt-tr-level__label">' . esc_html( $label ) . '</span></span>';
-        }
-
-        $value = (string) $row['value'];
-        if ( $value === '' ) {
-            return '<span class="tt-tr-empty">—</span>';
-        }
-        $flag = (string) $row['flag'];
-        $out  = '<span class="tt-tr-value">' . esc_html( $value ) . '</span>';
-        if ( $flag !== '' ) {
-            $out .= ' <span class="tt-tr-flag tt-tr-flag--' . esc_attr( sanitize_html_class( $flag ) ) . '" title="'
-                . esc_attr( self::flagLabel( $flag ) ) . '">'
-                . '<span class="tt-tr-sr">' . esc_html( self::flagLabel( $flag ) ) . '</span></span>';
-        }
-        return $out;
-    }
-
-    /**
-     * #2586 — the arrow says whether it got better; the delta says by how
-     * much. Both come from the same current/previous pair (the service derives
-     * them together), so they cannot contradict each other: on a
-     * lower-is-better test `−0,08 s` pairs with ▲.
-     *
-     * `$delta` is null when there is no previous measurement — then the cell
-     * stays the bare em dash rather than showing a fabricated zero.
-     */
-    private static function trendCell( string $trend, ?float $delta = null, string $unit = '' ): string {
-        // #2628 — the indicator moved to a shared component so this report and
-        // Test trends cannot drift apart about the same player's trend.
-        return \TT\Shared\Frontend\Components\TrendGlyph::render( $trend, $delta, $unit );
-    }
-
-    private static function flagLabel( string $flag ): string {
-        return \TT\Modules\Measurements\Repositories\MeasurementTargetsRepository::flagLabel( $flag );
     }
 
     /**
@@ -332,11 +184,5 @@ final class FrontendTestResultsView extends FrontendViewBase {
         $groups = array_keys( $set );
         sort( $groups );
         return $groups;
-    }
-
-    /** Accept only a YYYY-MM-DD date; anything else collapses to ''. */
-    private static function safeDate( string $value ): string {
-        $value = sanitize_text_field( wp_unslash( $value ) );
-        return preg_match( '/^\d{4}-\d{2}-\d{2}$/', $value ) ? $value : '';
     }
 }

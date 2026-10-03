@@ -380,16 +380,34 @@ class MeasurementsRestController {
      * `age_group`, `from`, `to` narrow the cohort.
      */
     public static function browse_results( \WP_REST_Request $r ) {
-        $definition_id = absint( $r['definition_id'] ?? 0 );
+        // #4194 — every filter is also taken nested (`filter[team_id]`), the
+        // shape the shared list table sends; a nested value wins. Asking for
+        // a page (`page` / `per_page`) returns the list envelope instead.
+        $nested = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+        $read   = static function ( string ...$keys ) use ( $nested, $r ): string {
+            foreach ( $keys as $key ) {
+                if ( isset( $nested[ $key ] ) && is_scalar( $nested[ $key ] ) ) return (string) $nested[ $key ];
+            }
+            foreach ( $keys as $key ) {
+                if ( is_scalar( $r[ $key ] ) ) return (string) $r[ $key ];
+            }
+            return '';
+        };
+        $list_mode = $r['page'] !== null || $r['per_page'] !== null;
+
+        $definition_id = absint( $read( 'definition_id' ) );
         if ( $definition_id <= 0 ) {
+            if ( $list_mode ) {
+                return RestResponse::success( [ 'definition_id' => 0, 'rows' => [], 'total' => 0, 'page' => 1, 'per_page' => 25 ] );
+            }
             return new \WP_Error( 'tt_missing_definition', __( 'A test must be chosen.', 'talenttrack' ), [ 'status' => 400 ] );
         }
-        $team_id = absint( $r['team_id'] ?? 0 );
+        $team_id = absint( $read( 'team_id' ) );
         $filters = [
             'team_id'   => $team_id,
-            'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
-            'date_from' => self::safe_date( (string) ( $r['from'] ?? '' ) ),
-            'date_to'   => self::safe_date( (string) ( $r['to'] ?? '' ) ),
+            'age_group' => sanitize_text_field( $read( 'age_group' ) ),
+            'date_from' => self::safe_date( $read( 'date_from', 'from' ) ),
+            'date_to'   => self::safe_date( $read( 'date_to', 'to' ) ),
         ];
 
         // #3155 — `can_browse_results()` is `canAnyScope`, so head_coach,
@@ -417,7 +435,66 @@ class MeasurementsRestController {
         }
 
         $rows = ( new MeasurementResultsBrowse() )->rows( $definition_id, $filters );
-        return new \WP_REST_Response( [ 'definition_id' => $definition_id, 'rows' => $rows ], 200 );
+        if ( ! $list_mode ) {
+            return new \WP_REST_Response( [ 'definition_id' => $definition_id, 'rows' => $rows ], 200 );
+        }
+        return RestResponse::success( self::browsePage( $definition_id, $rows, $r ) );
+    }
+
+    /**
+     * #4194 — one sorted page of browse rows, each with the cell markup the
+     * list table prints next to the raw fields.
+     *
+     * Sort keys: `name` (last name, the default), `team_name`, `age_group`,
+     * `value` (the measured value; a status level by its label), `trend`
+     * (the signed change) and `recorded_date`. Rows without a value sort last
+     * in either direction.
+     *
+     * @param array<int, array<string, mixed>> $rows
+     * @return array<string, mixed>
+     */
+    private static function browsePage( int $definition_id, array $rows, \WP_REST_Request $r ): array {
+        $orderby = sanitize_key( (string) ( $r['orderby'] ?? 'name' ) );
+        $order   = strtolower( (string) ( $r['order'] ?? 'asc' ) ) === 'desc' ? 'desc' : 'asc';
+        $keys    = [ 'name' => null, 'team_name' => 'team_name', 'age_group' => 'age_group', 'value' => 'value_sort', 'trend' => 'delta', 'recorded_date' => 'recorded_date' ];
+        if ( ! array_key_exists( $orderby, $keys ) ) $orderby = 'name';
+
+        $field = $keys[ $orderby ];
+        if ( $field !== null ) {
+            $numeric = $field === 'delta'
+                || ( $field === 'value_sort' && ( $rows[0]['value_type'] ?? '' ) !== 'status' );
+            usort( $rows, static function ( array $a, array $b ) use ( $field, $numeric, $order ): int {
+                $va = $a[ $field ] ?? null;
+                $vb = $b[ $field ] ?? null;
+                $ea = $va === null || $va === '';
+                $eb = $vb === null || $vb === '';
+                if ( $ea || $eb ) return (int) $ea <=> (int) $eb;
+                $cmp = $numeric ? ( (float) $va <=> (float) $vb ) : strnatcasecmp( (string) $va, (string) $vb );
+                return $order === 'desc' ? -$cmp : $cmp;
+            } );
+        } elseif ( $order === 'desc' ) {
+            $rows = array_reverse( $rows );
+        }
+
+        $per_page = absint( $r['per_page'] ?? 25 );
+        if ( ! in_array( $per_page, [ 10, 25, 50, 100 ], true ) ) $per_page = 25;
+        $page = max( 1, absint( $r['page'] ?? 1 ) );
+
+        $out = [];
+        foreach ( array_slice( $rows, ( $page - 1 ) * $per_page, $per_page ) as $row ) {
+            $row['player_html'] = \TT\Modules\Measurements\Frontend\TestResultCells::player( $row );
+            $row['result_html'] = \TT\Modules\Measurements\Frontend\TestResultCells::result( $row );
+            $row['trend_html']  = \TT\Modules\Measurements\Frontend\TestResultCells::trend( $row );
+            $out[] = $row;
+        }
+
+        return [
+            'definition_id' => $definition_id,
+            'rows'          => $out,
+            'total'         => count( $rows ),
+            'page'          => $page,
+            'per_page'      => $per_page,
+        ];
     }
 
     /** Accept only a YYYY-MM-DD date; anything else collapses to ''. */
