@@ -124,6 +124,41 @@ final class RecordActionRowBudgetTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'Row 1', $menu );
     }
 
+    /**
+     * #4231 — the trigger was a `div role="button"` that toggled
+     * `aria-expanded` from inline handlers and nothing else, so Escape and
+     * an outside tap left the menu open. It is the page-actions menu's
+     * element now, and `page-actions-overflow.js` finds it by the same
+     * attribute.
+     */
+    public function test_the_menu_is_the_page_actions_details_element(): void {
+        $this->asPhone();
+
+        $html = $this->html( $this->actions( 3 ) );
+
+        $this->assertMatchesRegularExpression( '/<details[^>]*\sdata-tt-actions-more[\s>]/', $html );
+        $this->assertMatchesRegularExpression( '/<summary[^>]*tt-player-action--more/', $html );
+        $this->assertStringContainsString( 'aria-label="More actions"', $html );
+        $this->assertStringNotContainsString( 'role="button"', $html );
+    }
+
+    public function test_the_row_carries_no_inline_event_handlers(): void {
+        $this->asPhone();
+
+        $html = $this->html(
+            $this->actions( 3 ),
+            [ static function (): void { echo '<button type="button">Archive</button>'; } ]
+        );
+
+        $this->assertDoesNotMatchRegularExpression( '/\son[a-z]+\s*=/i', $html );
+    }
+
+    public function test_an_empty_menu_renders_no_trigger(): void {
+        ob_start();
+        RecordActionRow::renderMenu( '' );
+        $this->assertSame( '', (string) ob_get_clean() );
+    }
+
     public function test_folded_actions_come_before_the_standing_menu_items(): void {
         $this->asPhone();
 

@@ -303,19 +303,42 @@
     flex-shrink: 0;
 }
 
-.tt-player-action--more {
+/*
+ * #4231 — the ⋯ menu is a <details>, the same element as the page-actions
+ * overflow menu, so it opens on tap, Enter and Space without script and
+ * `page-actions-overflow.js` closes it on Escape, an outside tap and an
+ * item choice. The wrapper is the flex item and the menu's anchor; the
+ * <summary> keeps the 48px button look the trigger always had.
+ */
+.tt-player-action__more {
+    position: relative;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+/* Two classes deep so `padding: 0` beats the touch floor's
+   `.tt-dashboard summary { padding-block: 12px }` in public.css, which
+   made the trigger 53px tall and the whole row with it. */
+.tt-player-action__more > .tt-player-action--more {
+    display: flex;
     width: 48px;
+    height: 48px;
     padding: 0;
     justify-content: center;
     font-size: 18px;
-    margin-left: auto;
-    flex-shrink: 0;
-    position: relative;
+    list-style: none;
+}
+/* The disclosure triangle is noise beside the ⋯. WebKit needs its own. */
+.tt-player-action--more::-webkit-details-marker { display: none; }
+.tt-player-action--more::marker { content: ''; }
+.tt-player-action--more:focus-visible {
+    outline: 2px solid var(--tt-accent);
+    outline-offset: 2px;
 }
 
-.tt-player-action--edit + .tt-player-action--more { margin-left: 0; }
+.tt-player-action--edit + .tt-player-action__more { margin-left: 0; }
 .tt-player-action--danger { color: var(--tt-danger); }
 
+/* Shown and hidden by the <details> itself; no display toggle here. */
 .tt-player-action__menu {
     position: absolute;
     top: 100%;
@@ -327,14 +350,13 @@
     border-radius: var(--tt-radius);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     padding: 6px;
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 2px;
     /* Above the pinned identity and tab strips (z-index 10), which follow
        the action row and otherwise paint over the open menu (#4215). */
     z-index: 11;
 }
-.tt-player-action--more[aria-expanded="true"] .tt-player-action__menu { display: flex; }
 .tt-player-action__menu .tt-player-action {
     width: 100%;
     justify-content: flex-start;
@@ -770,6 +792,18 @@
 
 .tt-player-card__body {
     padding: 8px var(--tt-gap-lg) var(--tt-gap-lg);
+}
+/* #4231 — plain links echoed into a card (the team, a parent's phone and
+   e-mail on the Profile tab) measured 40px tall on a phone. Same floor as
+   `.tt-record-link` in public.css. Links that carry a class of their own
+   (buttons, record links, CTAs) already have their size from that class. */
+@media (pointer: coarse) {
+    .tt-player-card__body a:not([class]) {
+        display: inline-flex;
+        align-items: center;
+        min-height: 48px;
+        touch-action: manipulation;
+    }
 }
 
 /* Profile-tab grid: cards stack on mobile, 2-up on tablet/desktop. */

@@ -262,7 +262,10 @@
 .tt-breadcrumbs a {
     display: inline-flex;
     align-items: center;
+    /* #4231 — a short crumb ("Teams") was 48px tall and 40px wide. */
+    justify-content: center;
     min-height: 48px;
+    min-width: 48px;
     padding: 0 2px;
     color: var(--tt-primary, #0b3d2e);
     text-decoration: none;

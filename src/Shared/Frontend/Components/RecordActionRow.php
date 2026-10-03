@@ -67,24 +67,42 @@ final class RecordActionRow {
         // the paper under the hero continues into the action band.
         echo '<div class="' . esc_attr( $class ) . '" aria-label="' . esc_attr__( 'Actions', 'talenttrack' ) . '">';
         echo $row_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each action escapes its own output.
-        if ( $menu_html !== '' ) {
-            ?>
-            <div class="tt-player-action tt-player-action--more"
-                 role="button"
-                 tabindex="0"
-                 aria-haspopup="true"
-                 aria-expanded="false"
-                 aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
-                 onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
-                 onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
-                ⋯
-                <div class="tt-player-action__menu" role="menu">
-                    <?php echo $menu_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each item escapes its own output. ?>
-                </div>
-            </div>
-            <?php
-        }
+        self::renderMenu( $menu_html );
         echo '</div>';
+    }
+
+    /**
+     * The `⋯` menu at the end of the row.
+     *
+     * The same element as the page-actions overflow menu
+     * (`FrontendViewBase::pageActionsOverflowHtml()`): a `<details>` whose
+     * `<summary>` is the trigger, so it opens on tap, Enter and Space with
+     * no script. `data-tt-actions-more` hands it to
+     * `assets/js/page-actions-overflow.js`, which adds what a bare
+     * `<details>` lacks: Escape and an outside tap close it, choosing an
+     * item closes it, and focus goes back to the trigger.
+     *
+     * Public because `FrontendTrialCaseView` builds its own row and ends it
+     * with the same menu.
+     *
+     * @param string $menu_html Menu items, already escaped by their renderers.
+     */
+    public static function renderMenu( string $menu_html ): void {
+        if ( $menu_html === '' ) return;
+
+        $label = __( 'More actions', 'talenttrack' );
+        ?>
+        <details class="tt-player-action__more" data-tt-actions-more>
+            <summary class="tt-player-action tt-player-action--more"
+                     aria-label="<?php echo esc_attr( $label ); ?>"
+                     title="<?php echo esc_attr( $label ); ?>">
+                <span aria-hidden="true">⋯</span>
+            </summary>
+            <div class="tt-player-action__menu" role="menu">
+                <?php echo $menu_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each item escapes its own output. ?>
+            </div>
+        </details>
+        <?php
     }
 
     /**
