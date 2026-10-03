@@ -154,7 +154,7 @@ terechtkomt:
 |---|---|
 | `primary` | Titelregel: vet, links, zonder label. Een tweede `primary` volgt de eerste, gedempt, met het kolomlabel ervoor (`#7`). |
 | `secondary` | Gedempte, kleine subregel onder de titel. Meerdere worden samengevoegd met " · ". |
-| `badge` | Pillen en korte waarden rechtsboven. Ze lopen door naar een nieuwe regel als er geen ruimte is. |
+| `badge` | Pillen en korte waarden rechtsboven. Een lange titel loopt door binnen zijn eigen kolom en duwt de badges niet naar een eigen regel. Een badge die alleen "—" toont, wordt weggelaten. |
 | `detail` | Een regel `LABEL — waarde`. De standaard voor een kolom die niets opgeeft. |
 | `hide` | Niet getoond op een telefoon. Gebruik het voor kolommen die alleen aan een bureau tellen: ID's, aangemaakt door, lange notities. |
 
@@ -179,6 +179,13 @@ Verder geldt op een telefoon:
   48 px hoog, bereikbaar met Tab, te openen met Enter of Spatie, met
   een focusrand). De 48 px-ondergrens op recordlinks in de rij vervalt
   daar, omdat de rij zelf al het doel is.
+- De ingeklapte filterbalk heeft geen kaart eromheen: alleen de knop
+  Filters en eventuele actieve filterchips. Vanaf 768 px komt de kaart
+  terug.
+- Een paginakop blijft één regel. Een secundaire actie die bureauwerk is
+  (zoals importeren uit CSV) krijgt `'narrow_overflow' => true` in
+  `pageActionsHtml()`. Onder 768 px staat die actie dan in het ⋯-menu,
+  vanaf 768 px in de rij.
 
 ## Zie ook
 

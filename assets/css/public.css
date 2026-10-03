@@ -528,6 +528,19 @@
     }
 }
 
+/* #4214 — `narrow_overflow` actions (FrontendViewBase::pageActionsHtml)
+   render twice. Mobile-first: below 768px the row copy is hidden and the
+   copy in the ⋯ menu is the one that shows, so a phone's page head stays
+   one row (title, +, ⋯). From 768px the row copy comes back, and the menu
+   copy goes — with the whole menu when it holds nothing else. Three
+   classes deep so it beats `.tt-dashboard .tt-btn` (0,2,0). */
+.tt-dashboard .tt-page-actions .tt-page-actions__wide-only { display: none; }
+@media (min-width: 768px) {
+    .tt-dashboard .tt-page-actions .tt-page-actions__wide-only { display: inline-flex; }
+    .tt-dashboard .tt-page-actions .tt-page-actions__narrow-only,
+    .tt-dashboard .tt-page-actions .tt-page-actions__more--narrow-only { display: none; }
+}
+
 /* v3.110.53 — destructive button variant for Archive / Delete actions
    on detail pages. Distinct from .tt-btn-secondary so the destructive
    intent is visually obvious. Muted red on white at rest; fills to

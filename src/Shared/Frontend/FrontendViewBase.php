@@ -234,6 +234,11 @@ abstract class FrontendViewBase {
      *                   navigation / submit if the user dismisses.
      *   - 'data_attrs' (optional): map of `data-*` → value pairs for
      *                   client-side hooks (e.g. archive button).
+     *   - 'overflow'   (optional): always inside the ⋯ menu.
+     *   - 'narrow_overflow' (optional): in the row from 768px up, inside
+     *                   the ⋯ menu below it. For desk-only secondary
+     *                   actions (CSV import) that would otherwise wrap a
+     *                   phone's page head onto a second line.
      *
      * @param array<int,array<string,mixed>> $actions
      */
@@ -250,11 +255,14 @@ abstract class FrontendViewBase {
         // with one visible action out of nine would still be handed a menu.
         $primary_row = [];
         $overflow    = [];
+        $narrow      = [];
         foreach ( $actions as $a ) {
             if ( ! is_array( $a ) ) continue;
             if ( ! empty( $a['cap'] ) && ! current_user_can( (string) $a['cap'] ) ) continue;
             if ( ! empty( $a['overflow'] ) ) {
                 $overflow[] = $a;
+            } elseif ( ! empty( $a['narrow_overflow'] ) ) {
+                $narrow[] = $a;
             } else {
                 $primary_row[] = $a;
             }
@@ -276,9 +284,15 @@ abstract class FrontendViewBase {
             $primary_row = array_slice( $ordered, 0, self::PHONE_ACTION_BUDGET );
         }
 
-        $html = self::pageActionButtonsHtml( $primary_row );
-        if ( $overflow !== [] ) {
-            $html .= self::pageActionsOverflowHtml( $overflow );
+        // #4214 — `narrow_overflow` actions render twice: in the row, shown
+        // from 768px up, and in the ⋯ menu, shown below it. The viewport
+        // decides in CSS, so a narrow desktop window folds the same way a
+        // phone does, and they never count towards the phone budget above
+        // because a phone never shows them in the row.
+        $html = self::pageActionButtonsHtml( $narrow, 'tt-page-actions__wide-only' )
+            . self::pageActionButtonsHtml( $primary_row );
+        if ( $overflow !== [] || $narrow !== [] ) {
+            $html .= self::pageActionsOverflowHtml( $overflow, $narrow );
         }
 
         return $html;
@@ -331,8 +345,9 @@ abstract class FrontendViewBase {
      * The buttons themselves, without the overflow split.
      *
      * @param array<int,array<string,mixed>> $actions
+     * @param string $extra_class Added to every button's class list.
      */
-    private static function pageActionButtonsHtml( array $actions ): string {
+    private static function pageActionButtonsHtml( array $actions, string $extra_class = '' ): string {
         if ( empty( $actions ) ) return '';
         $html = '';
         foreach ( $actions as $a ) {
@@ -369,6 +384,7 @@ abstract class FrontendViewBase {
             // icon-only rendering — see persona-dashboard.css's
             // `.tt-page-actions__primary.is-icon`, etc.
             if ( $icon !== '' ) $cls .= ' is-icon';
+            if ( $extra_class !== '' ) $cls .= ' ' . $extra_class;
 
             $attr_html = '';
             if ( ! empty( $a['data_attrs'] ) && is_array( $a['data_attrs'] ) ) {
@@ -438,10 +454,16 @@ abstract class FrontendViewBase {
      * identically wherever it lands. Nothing becomes reachable by being
      * folded away.
      *
+     * #4214 — `$narrow` actions sit in the menu only below 768px (their row
+     * copy takes over from there up). A menu holding nothing else is hidden
+     * from 768px up too, so a desktop never shows a ⋯ that opens empty.
+     *
      * @param array<int,array<string,mixed>> $actions
+     * @param array<int,array<string,mixed>> $narrow
      */
-    private static function pageActionsOverflowHtml( array $actions ): string {
-        $buttons = self::pageActionButtonsHtml( $actions );
+    private static function pageActionsOverflowHtml( array $actions, array $narrow = [] ): string {
+        $always  = self::pageActionButtonsHtml( $actions );
+        $buttons = self::pageActionButtonsHtml( $narrow, 'tt-page-actions__narrow-only' ) . $always;
         // Every folded action was gated out — render nothing rather than an
         // empty menu that opens onto white space.
         if ( $buttons === '' ) return '';
@@ -449,7 +471,9 @@ abstract class FrontendViewBase {
         $label = __( 'More actions', 'talenttrack' );
         $icon  = \TT\Shared\Icons\IconRenderer::render( 'more-horizontal', [ 'width' => 20, 'height' => 20 ] );
 
-        return '<details class="tt-page-actions__more" data-tt-actions-more>'
+        $cls = 'tt-page-actions__more' . ( $always === '' ? ' tt-page-actions__more--narrow-only' : '' );
+
+        return '<details class="' . esc_attr( $cls ) . '" data-tt-actions-more>'
             . '<summary class="tt-btn tt-btn-secondary tt-page-actions__more-trigger"'
             . ' aria-label="' . esc_attr( $label ) . '" title="' . esc_attr( $label ) . '">'
             . '<span class="tt-page-actions__icon" aria-hidden="true">' . $icon . '</span>'

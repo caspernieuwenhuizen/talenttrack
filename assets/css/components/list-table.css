@@ -150,13 +150,24 @@
 }
 .tt-dashboard .tt-list-table-table td[data-mobile]::before { content: none; }
 
+/* #4214 — the title takes the free width of its line and wraps inside it
+   (basis 0, minmax(0,1fr) in grid terms), so a long title can no longer
+   push the badges onto a line of their own; the badges keep their content
+   width (auto) at the top right. Its weight dwarfs the grow spacer's, so
+   the spacer's share of the free width is negligible. With two primaries
+   (the players list's shirt number) only the last grows, so the number
+   still reads as a suffix right after the name. */
 .tt-dashboard .tt-list-table-table td[data-mobile="primary"] {
     display: block;
     order: 0;
+    flex: 1000 1 0;
     text-align: left;
     font-size: var(--tt-fs-body, 1rem);
     font-weight: 600;
     color: var(--tt-ink);
+}
+.tt-dashboard .tt-list-table-table td[data-mobile="primary"]:has(~ td[data-mobile="primary"]:not([data-empty])) {
+    flex: 0 1 auto;
 }
 
 /* A second primary (the players list's shirt number) reads as a quieter
@@ -169,9 +180,11 @@
     content: attr(data-label);
 }
 
+/* #4214 — top right: level with the title's first line when it wraps. */
 .tt-dashboard .tt-list-table-table td[data-mobile="badge"] {
     display: block;
     order: 2;
+    align-self: flex-start;
     max-width: 100%;
     font-size: var(--tt-fs-xs);
     text-align: right;

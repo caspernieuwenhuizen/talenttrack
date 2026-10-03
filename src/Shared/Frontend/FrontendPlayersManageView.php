@@ -115,9 +115,10 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $players_label );
 
-        // v3.110.53 — page-header actions slot. Primary `+ New player`
-        // becomes a FAB bottom-right on mobile via .tt-page-actions__primary;
-        // `Import from CSV` is desktop-only via the secondary class.
+        // Page-header actions. #4214 — CSV import and Player accounts are
+        // desk work (both `desktop_only` in config/mobile_surfaces.php), so
+        // below 768px they fold into the ⋯ menu and the head stays one row:
+        // title, +, ⋯.
         $base_url = remove_query_arg( [ 'action', 'id', 'player_id' ] );
         $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
@@ -126,6 +127,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Import from CSV', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
+                'narrow_overflow' => true,
             ];
         }
         // #1771 — contextual entry to the account-mapping surface (admins).
@@ -133,6 +135,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Player accounts', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'player-accounts' ], $base_url ),
+                'narrow_overflow' => true,
             ];
         }
         if ( ! $at_player_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_players' ) ) {
