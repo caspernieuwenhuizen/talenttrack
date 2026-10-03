@@ -621,7 +621,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ?>
         <section class="tt-player-glance" aria-label="<?php esc_attr_e( 'At a glance', 'talenttrack' ); ?>">
             <p class="tt-player-glance__title"><?php esc_html_e( 'At a glance', 'talenttrack' ); ?></p>
-            <div class="tt-player-glance__grid">
+            <div class="tt-player-glance__grid tt-player-glance__grid--team">
                 <a class="tt-player-kpi" href="<?php echo esc_url( $planner_url ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Upcoming', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num"><?php echo (int) $upcoming; ?></div>
