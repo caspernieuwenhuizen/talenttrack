@@ -318,7 +318,7 @@ final class JourneyBackfillService {
                     (int) $r->player_id,
                     JourneyEventType::TRIAL_ENDED,
                     (string) $r->decision_made_at,
-                    sprintf( __( 'Trial ended: %s', 'talenttrack' ), (string) $r->decision ),
+                    JourneySummaryLocaliser::trialEnded( (string) $r->decision ),
                     [
                         'trial_case_id' => (int) $r->id,
                         'decision'      => (string) $r->decision,

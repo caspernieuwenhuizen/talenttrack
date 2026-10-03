@@ -374,7 +374,7 @@ final class JourneyEventSubscriber {
             $player_id,
             JourneyEventType::TRIAL_ENDED,
             $decided_at !== '' ? $decided_at : current_time( 'mysql' ),
-            sprintf( __( 'Trial ended: %s', 'talenttrack' ), $decision ),
+            JourneySummaryLocaliser::trialEnded( $decision ),
             [
                 'trial_case_id' => $case_id,
                 'decision'      => $decision,

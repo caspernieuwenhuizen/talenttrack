@@ -1310,9 +1310,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $days_text = sprintf( _n( '%d day in academy', '%d days in academy', $days, 'talenttrack' ), $days );
         }
 
-        /* translators: %s: ISO date the player joined */
+        /* translators: %s: date the player joined */
         $joined_text = $joined_raw !== ''
-            ? sprintf( __( 'Joined %s', 'talenttrack' ), gmdate( 'Y-m-d', $ts ) )
+            ? sprintf( __( 'Joined %s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( gmdate( 'Y-m-d', $ts ) ) )
             : '';
 
         return [ 'days' => $days_text, 'joined' => $joined_text ];
@@ -1336,7 +1336,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( $iso === '' || $iso === '0000-00-00' ) return '—';
         $ts = strtotime( $iso );
         if ( $ts === false ) return $iso;
-        return gmdate( "j M ’y", $ts );
+        // wp_date, not gmdate: the month abbreviation follows the site
+        // language ("18 dec ’19" in Dutch). UTC keeps the day the same as
+        // the stored date, which strtotime() read as UTC midnight.
+        return (string) wp_date( "j M ’y", $ts, new \DateTimeZone( 'UTC' ) );
     }
 
     private static function ageHint( string $dob_iso ): string {
@@ -2996,7 +2999,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $cls      = $due_soon ? 'tt-player-row__date--due-soon' : '';
         return [
             'm'     => __( 'Due', 'talenttrack' ),
-            'd'     => esc_html( gmdate( 'j', $ts ) ) . '<small>' . esc_html( gmdate( 'M', $ts ) ) . '</small>',
+            'd'     => esc_html( gmdate( 'j', $ts ) ) . '<small>' . esc_html( (string) wp_date( 'M', $ts, new \DateTimeZone( 'UTC' ) ) ) . '</small>',
             'class' => $cls,
         ];
     }
