@@ -42,6 +42,23 @@ const path = require( 'path' );
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
 
+/**
+ * How many surfaces may render no `.tt-dashboard` before the run counts as
+ * blind rather than clean (#4195). For months every surface skipped this
+ * way — `/?tt_view=` rendered the blog index because the dashboard page was
+ * not the front page — and the gate stayed green because a skipped surface
+ * cannot regress. A handful of slugs legitimately render outside the shell
+ * for an admin; more than that means the routing broke again.
+ */
+const MAX_UNRENDERED = 5;
+
+/**
+ * The share of phone-reachable surfaces the walk must actually measure.
+ * Capability gaps, switched-off modules and HTTP errors are all legitimate
+ * skips, but if they add up to most of the list the run proves nothing.
+ */
+const MIN_MEASURED_SHARE = 0.6;
+
 test.use( { storageState: 'tests/e2e/.auth/admin.json' } );
 
 /**
@@ -205,6 +222,9 @@ test.describe( 'mobile viewport at 390x844', () => {
 		const regressions = [];
 		/** @type {string[]} */
 		const skipped = [];
+		/** @type {string[]} */
+		const unrendered = [];
+		let measured = 0;
 
 		for ( const { slug, cls } of SURFACES ) {
 			const response = await page.goto( `/?tt_view=${ slug }`, {
@@ -226,12 +246,14 @@ test.describe( 'mobile viewport at 390x844', () => {
 			}
 			if ( ( await page.locator( '.tt-dashboard' ).count() ) === 0 ) {
 				skipped.push( `${ slug } (no .tt-dashboard rendered)` );
+				unrendered.push( slug );
 				continue;
 			}
 
 			await hideAdminBar( page );
 
 			const findings = await measure( page, cls );
+			measured++;
 			if ( ! findings.length ) continue;
 
 			found[ slug ] = findings;
@@ -276,6 +298,20 @@ test.describe( 'mobile viewport at 390x844', () => {
 		console.log(
 			`\nCurrent offenders, in mobile-baseline.json shape:\n${ JSON.stringify( { surfaces: shape }, null, 2 ) }`
 		);
+
+		console.log( `\nMeasured ${ measured } of ${ SURFACES.length } phone-reachable surface(s).` );
+
+		// Blindness first: a run that measured almost nothing has no
+		// regressions to report, and passing on that is how this gate sat
+		// green for months while measuring nothing (#4195).
+		expect(
+			unrendered.length,
+			`${ unrendered.length } surface(s) rendered no .tt-dashboard — /?tt_view= is not reaching the dashboard; check that the dashboard page is the static front page (tests/e2e/setup/dashboard-front-page.php). Unrendered: ${ unrendered.join( ', ' ) }`
+		).toBeLessThanOrEqual( MAX_UNRENDERED );
+		expect(
+			measured,
+			`measured only ${ measured } of ${ SURFACES.length } surfaces — the walk is mostly skipping, which is a broken run, not a clean one`
+		).toBeGreaterThanOrEqual( Math.ceil( SURFACES.length * MIN_MEASURED_SHARE ) );
 
 		expect(
 			regressions,

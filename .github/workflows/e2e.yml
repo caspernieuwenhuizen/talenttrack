@@ -116,6 +116,11 @@ jobs:
           npx wp-env run tests-cli wp option update permalink_structure '/%postname%/'
           npx wp-env run tests-cli wp rewrite flush --hard
           npx wp-env run tests-cli wp db query "INSERT INTO wp_tt_config (club_id, config_key, config_value) VALUES (1, 'mfa_required_personas', '[]') ON DUPLICATE KEY UPDATE config_value='[]'"
+          # #4195 — every frontend spec loads `/?tt_view=<slug>`, which only
+          # renders the dashboard when the dashboard page is the static
+          # front page. Without this the blog index rendered instead and
+          # every frontend spec (and 89 mobile-gate surfaces) skipped.
+          npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack wp eval-file tests/e2e/setup/dashboard-front-page.php
 
       - name: Run E2E tests
         run: npm run test:e2e
