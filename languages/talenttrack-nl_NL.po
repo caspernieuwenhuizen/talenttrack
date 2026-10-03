@@ -67848,6 +67848,37 @@ msgstr "Met %1$d van de %2$d spelers is gesproken"
 msgid "Synced: %1$d new · %2$d updated · %3$d archived (removed in Spond) · %4$d kept (removed in Spond, has data)."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd (verwijderd in Spond) · %4$d behouden (verwijderd in Spond, heeft gegevens)."
 
+#: src/Modules/Threads/Rest/ThreadsRestController.php:198
+msgid "You can read this conversation, but you cannot delete messages in it."
+msgstr "Je kunt dit gesprek lezen, maar je kunt er geen berichten in verwijderen."
+
+#. translators: %d: number of open alerts about a child's safety
+#: src/Modules/Alerts/Frontend/AlertBanner.php:136
+msgid "%d safety alert"
+msgid_plural "%d safety alerts"
+msgstr[0] "%d veiligheidsmelding"
+msgstr[1] "%d veiligheidsmeldingen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:94
+msgid "Without dates the list shows the last 12 months."
+msgstr "Zonder datums toont de lijst de afgelopen 12 maanden."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:140
+msgid "No results match. Check that a test is chosen, or widen the filters."
+msgstr "Geen resultaten. Controleer of er een test gekozen is, of verruim de filters."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:142
+msgid "Choose a test"
+msgstr "Kies een test"
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:143
+msgid "Choose a test in the filters to see every player's latest result."
+msgstr "Kies een test in de filters om de laatste waarde van elke speler te zien."
+
+#: src/Modules/Measurements/Frontend/FrontendTestResultsView.php:68
+msgid "Choose a test first, then export."
+msgstr "Kies eerst een test en exporteer dan."
+
 # v3.71.3 — issue #16 Reports preset translations
 #~ msgid "Preset name"
 #~ msgstr "Naam preset"

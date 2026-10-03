@@ -1,6 +1,0 @@
-#. translators: %d: number of open alerts about a child's safety
-#: src/Modules/Alerts/Frontend/AlertBanner.php:136
-msgid "%d safety alert"
-msgid_plural "%d safety alerts"
-msgstr[0] "%d veiligheidsmelding"
-msgstr[1] "%d veiligheidsmeldingen"

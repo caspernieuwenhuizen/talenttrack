@@ -66,6 +66,7 @@ Correctness, privacy and compliance items that epic audits found in passing. Mos
 | Design-token pass on the match-executions list stylesheet. | #2292 | `frontend-match-executions.css` |
 | Demo-install toggle description still uses the old "training" wording. | #2493 | `FeatureToggleService` |
 | Four browser-test flows still missing: activity, evaluation, persona dashboard editor, PDP capture. | `specs/0076` | Ship one per CI-stable batch |
+| **Legacy desktop-first stylesheets (#0056 track).** `public.css`, `frontend-admin.css` and `frontend-mobile.css` still restyle down with `max-width` blocks (639 / 480 px, off the 480/768/1024 set). The shared list table left them for the mobile-first `components/list-table.css`; migrate one view per release until no legacy sheet remains (CLAUDE.md §2). | #0056, #4197 | `docs/architecture-mobile-first.md` recipe; pilot `frontend-activities-manage.css` |
 | Process: an epic stays open after its last child merges (#2447, #3519, #3529 all did). | #2447 | Close the tracker in the PR that merges its last child |
 
 ## Waiting on a trigger

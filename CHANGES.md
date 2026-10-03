@@ -1,3 +1,88 @@
+# TalentTrack v4.141.0 — Guardian access: inactive players get no messages, graduated parents cannot delete (#4129)
+
+An inactive player's family already had no parent access, but was still
+sent messages about the child. Inactive now closes a player out for
+notifications the same way released and graduated do: no push e-mails,
+Comms sends, announcements or broadcasts reach the guardians, the legacy
+guardian fields, or the player's own account. Staff contact an inactive
+family directly.
+
+The guardian of a graduated player reads their child's conversations and
+could still delete their own earlier messages in them. Read-only now means
+read-only: deleting a thread message is refused with a readable 403
+(`thread_read_only`), as a reply already was. The check asks the guardian's
+access to the thread's player, so it holds for every thread type; a coach
+who is also the child's parent keeps their staff rights.
+
+The access-control guide now records that the coach's note on a trialist's
+attendance row stays hidden from the family by design.
+
+# TalentTrack v4.141.0 — Team monthly report: the landscape page count matches the PDF (#4144)
+
+The landscape matrix with Evaluations selected could print one page more
+than the composition panel promised: three pages where the panel said two.
+The Evaluations section was measured correctly. The estimate missed three
+other things: the line a section prints when it is empty ("Nobody is
+flagged this period."), the margin above the footer strip, and part of that
+strip's own height. Evaluations pushed the footer to the bottom of the
+second sheet, where those few millimetres decided the page. The estimate
+now counts all three, plus the "…and N more" line under a shortened
+attention list. The Evaluations pieces were re-measured on every layout so
+a sheet breaks where DomPDF breaks it. A parity test renders a report
+shaped like the demo academy's September with DomPDF, at Summary and
+Details, on all three layouts.
+
+# TalentTrack v4.141.0 — Matches tiles open the matches behind them (#4185)
+
+The *Matches recorded* tile on Team · Minutes distribution and the *Matches* tile on the Season summary now open the activities list with Type = Match selected and the report's window applied, instead of an empty list with a raw `Type: match` chip. The Match type filter (on the list, the calendar and `GET /activities`) also includes matches stored under the older `match` key, such as fixtures created from a tournament, and an old link carrying `activity_type_key=match` opens as Match. The Season summary *Matches* count now counts games; it had been counting only tournaments and legacy rows.
+
+# TalentTrack v4.141.0 — Team monthly report: an empty month counts as one page (#4189)
+
+A team with no trainings or matches in the chosen month prints a single
+sheet: the letterhead and "nothing to report yet". The composition panel's
+page meter did not know about that case and predicted the full layout, for
+example three pages on the pack and two on landscape with Evaluations. The
+meter now says one page on every layout for an empty month. The estimate
+and the printed document decide "empty" with the same check, so they cannot
+drift apart again. A DomPDF parity test covers the empty month on all three
+layouts.
+
+# TalentTrack v4.141.0 — Tidier list cards on phones (#4190)
+
+On a phone, the shared list views (players, people, evaluations, goals, PDP and the rest) no longer draw a bordered box around the row cards, so each card gets the full width. Edit and Archive sit together at the right of the card instead of at opposite edges, and a card no longer shows a bare label for an empty value or a blank line where a row has no actions. Long values and pills wrap instead of being cut off. Buttons in a page header stay on one row instead of each stretching to full width; Save and Cancel at the bottom of a form still go full width. The gap above the dashboard on a phone is smaller. Tablet and desktop are unchanged.
+
+# TalentTrack v4.141.0 — On a phone, the alert banner stays on the dashboard (#4191)
+
+On a phone, the alerts banner no longer sits above every list and record. It cost about 440 px on a small screen and pushed the first player in a list below the bottom of the screen. It still shows on the dashboard itself, and the bell and the alerts inbox carry every alert as before. Alerts about a child's safety are the exception: on a list or record page they keep one line, such as "1 safety alert", which opens the alerts inbox. Tablets and desktops show the banner on every page, as before.
+
+# TalentTrack v4.141.0 — Compact list rows on phones: title, subtitle and badges (#4192)
+
+On a phone, rows in the shared list views are now compact: a bold title line, a muted subtitle line underneath, and pills or short values at the top right, with a label/value line only for the remaining columns. The whole row stays one tap target of at least 48 px and can be reached and opened from the keyboard. The players list is the first to use it: a row reads "Name #7" with the foot pill at the right and the team underneath, so far more players fit on the first screen. Every other list gets the same layout using its first column as the title and its second as the subtitle, until it declares its own. View authors choose per column with a new `mobile` key (`primary`, `secondary`, `badge`, `detail`, `hide`). The table on tablet and desktop is unchanged.
+
+# TalentTrack v4.141.0 — Compact phone rows for people, evaluations, goals, PDP and more (#4193)
+
+The compact phone rows from the players list now cover the people, evaluations, goals, PDP, exercises, my activities, tournaments and holidays lists, each with its own choice of title, subtitle and badges. Evaluations lead with the player, with date and team underneath and the average at the right; goals lead with the goal, with the player underneath and status and due date at the right; people show the name with current roles underneath and the type at the right. Columns that only matter at a desk, such as evaluation notes, exercise visibility, tournament formation and holiday notes, are left off on a phone. The tables on tablet and desktop are unchanged.
+
+# TalentTrack v4.141.0 — Match executions, test results and the attendance leaderboard use the shared list (#4194)
+
+*Match executions*, *Test results* and both tables of the *Attendance leaderboard* now use the same list as players, goals and evaluations: sortable columns, 25 rows per page with a page picker, and one compact row per item on a phone (the name or opponent first, the figures at the right). Match executions and test results filter as you change a filter, without reloading; the leaderboard reloads the page when a filter changes and keeps each player's rank when you sort a column. *Test results* asks you to choose a test before exporting. New `GET /match-executions` route; `GET /measurement-results` answers one sorted page when asked for `page` / `per_page`, and `GET /reports/attendance-leaderboard` answers one board as a page with `board=top|bottom`. Callers that send neither keep the response they had.
+
+# TalentTrack v4.141.0 — Tables on a phone say what each value is; prospects lose two card frames (#4194)
+
+Below 480px, tables that stack into one card per row now show each column's name in front of its value, so a "20" or a "3–1" on a phone reads as *Minutes 20* or *Result 3–1*. The labels come from the table's own column headers, so every list that stacks this way gets them, including rows added after the page loads. A cell with no matching header keeps the thin divider it had. The prospects list on a phone is now one level of cards (one per prospect) instead of a card inside a bordered box inside a card; from 768px it keeps its card look.
+
+# TalentTrack v4.141.0 — Media consent leaves the players list (#4196)
+
+The players list no longer has a Media consent column or a Media consent filter, on desktop or on a phone. Consent is read on the player's profile, on the identity card and above the Media tab. For a whole squad, use the Dossier completeness page and the *Pictures on file with no consent* alert. A saved view that used the Media consent filter still opens, with that filter left out. `GET /players` is unchanged: it still returns the consent fields and still accepts `filter[media_consent]`.
+
+# TalentTrack v4.141.0 — Header crest is a full-size tap target on phones (#4204)
+
+On a phone the crest in the app header, which takes you back to the dashboard, was a 34px-wide target, under the 48px minimum for a reliable tap. Its tap area is now 48 x 48 px on every screen, with the crest unchanged in size and centred in it.
+
+# TalentTrack v4.141.0 — Attendance leaderboard filters update in place again (#4210)
+
+Changing a filter on the *Attendance leaderboard* updates both tables in place again, without reloading the page. The shared list table now picks up tables that arrive through an in-place filter refresh, and hydrates each table only once, so re-applying filters never doubles up paging or sorting.
+
 # TalentTrack v4.140.7 — Match observations say which match they were about, and open its analysis (#4181)
 
 A match-analysis observation on a player, and an evaluation made for a match or a training, now names the activity under the entry ("Match · against Blauw Geel '38 · 12-09-2026") on the player's journey timeline (staff, player and parent views) and in the PDP evidence panel, as the player report already did. On screen the line is a link: an observation opens the match analysis it came from, including on the player report, where it used to open the activity; an evaluation opens the activity. A reader who may not open the match analysis gets the activity instead, and a reader who may open neither, such as a player or a parent, gets plain text. Printed reports keep the plain line. The journey REST payload (`GET /players/{id}/timeline` and `/transitions`) gains `activity` on every event: `{id, type, title, opponent, date, analysis_id}` or `null`. One resolver now serves the timeline, the PDP evidence packet and the player report.
