@@ -315,6 +315,9 @@ final class HolidaysRestController {
             'name'       => (string) $row->name,
             'start_date' => $start,
             'end_date'   => $end,
+            // #4221 — the academy's date format, next to the ISO fields.
+            'start_date_display' => \TT\Shared\Dates\TTDate::date( $start ),
+            'end_date_display'   => \TT\Shared\Dates\TTDate::date( $end ),
             // #1997 — inclusive day span; computed in the repository so
             // the REST payload and the PHP detail view stay in lockstep.
             'day_count'  => HolidaysRepository::dayCount( $start, $end ),

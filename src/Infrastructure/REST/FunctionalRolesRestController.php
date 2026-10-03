@@ -630,6 +630,9 @@ class FunctionalRolesRestController {
             'role'                => (string) ( $r->role_label ?? $r->role_in_team ?? '' ),
             'start_date'          => $r->start_date,
             'end_date'            => $r->end_date,
+            // #4221 — the academy's date format, next to the ISO fields.
+            'start_date_display'  => \TT\Shared\Dates\TTDate::date( $r->start_date ),
+            'end_date_display'    => \TT\Shared\Dates\TTDate::date( $r->end_date ),
         ];
     }
 }

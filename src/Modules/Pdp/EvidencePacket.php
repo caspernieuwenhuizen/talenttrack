@@ -10,6 +10,7 @@ use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\JourneyActivityResolver;
+use TT\Infrastructure\Journey\JourneySummaryLocaliser;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
@@ -591,8 +592,12 @@ final class EvidencePacket {
               LIMIT 30",
             $player_id, $club_id, $from, $to
         ) );
+        if ( ! is_array( $rows ) ) return [];
 
-        return is_array( $rows ) ? self::withActivities( array_values( $rows ), $club_id ) : [];
+        // #4221 — read straight from the table, so the stored "Trial
+        // ended: <key>" summaries are rebuilt here as the repository does.
+        JourneySummaryLocaliser::localise( $rows );
+        return self::withActivities( array_values( $rows ), $club_id );
     }
 
     /**
@@ -624,8 +629,10 @@ final class EvidencePacket {
               LIMIT 30",
             ...array_merge( [ $player_id, $club_id, $from, $to . ' 23:59:59' ], $allowed )
         ) );
+        if ( ! is_array( $rows ) ) return [];
 
-        return is_array( $rows ) ? self::withActivities( array_values( $rows ), $club_id ) : [];
+        JourneySummaryLocaliser::localise( $rows );
+        return self::withActivities( array_values( $rows ), $club_id );
     }
 
     /**

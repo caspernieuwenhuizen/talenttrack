@@ -56,13 +56,24 @@
     function renderCell(col, row) {
         var v = row[col.value_key];
         if (col.render === 'percent') return v == null ? '—' : (v + '%');
-        if (col.render === 'date')    return v == null ? '—' : escapeHtml(v);
+        if (col.render === 'date')    return renderDate(row, col.value_key, v);
         if (col.render === 'inline_select') return renderInlineSelect(col, row, v);
         // 'html' — emit a server-rendered HTML fragment verbatim. The
         // server is responsible for escaping; this mode bypasses the
         // per-cell escapeHtml() so things like coloured pills render.
         if (col.render === 'html') return v == null ? '' : String(v);
         return escapeHtml(v == null ? '' : v);
+    }
+
+    /**
+     * #4221 — a date cell prints the server's `<key>_display` field, which
+     * the REST formatter fills in the academy's date format. The ISO value
+     * is the fallback for an endpoint that does not send one yet.
+     */
+    function renderDate(row, key, iso) {
+        var shown = row[key + '_display'];
+        if (shown != null && String(shown) !== '') return escapeHtml(shown);
+        return iso == null ? '—' : escapeHtml(iso);
     }
 
     /**

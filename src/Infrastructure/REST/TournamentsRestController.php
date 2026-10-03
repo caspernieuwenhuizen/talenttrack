@@ -2760,6 +2760,9 @@ class TournamentsRestController {
             'name'              => (string) $row->name,
             'start_date'        => $row->start_date,
             'end_date'          => $row->end_date,
+            // #4221 — the academy's date format, next to the ISO fields.
+            'start_date_display' => \TT\Shared\Dates\TTDate::date( $row->start_date ),
+            'end_date_display'   => \TT\Shared\Dates\TTDate::date( $row->end_date ),
             'default_formation' => (string) ( $row->default_formation ?? '' ),
             'team_id'           => (int) $row->team_id,
             'team_name'         => (string) ( $row->team_name ?? '' ),

@@ -385,6 +385,16 @@ goals it selects the Active / Achieved / Missed bucket. Those two are
 unaffected by the rename and are covered by regression tests in
 `tests/php/ArchiveFilterParamTest.php`.
 
+**Dates come twice on list rows (#4221).** A date a list shows keeps its
+stored ISO value (`due_date: "2026-09-12"`) and gains a `<field>_display`
+sibling in the academy's date format (`due_date_display: "12-09-2026"`),
+resolved through `TTDate::date()`; it is `""` when the date is empty. The
+`'date'` column renderer prints the display field. Rows carrying it today:
+goals (`due_date`), holidays and tournaments (`start_date`, `end_date`),
+functional-role assignments (`start_date`, `end_date`), prospects
+(`discovered_at`) and training plans (`created_at`). Sort and filter on the
+ISO field; never parse the display one.
+
 Coach-scoping for non-admins (`! current_user_can('tt_edit_settings')`) usually limits list reads to teams returned by `QueryHelpers::get_teams_for_coach( get_current_user_id() )`.
 
 ### Capabilities
