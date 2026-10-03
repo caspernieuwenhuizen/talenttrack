@@ -62,7 +62,7 @@ final class MatchExecutionListQuery {
         $out = [];
         foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
             if ( ! empty( $t->archived_at ) ) continue;
-            $out[] = (object) [ 'id' => (int) $t->id, 'name' => (string) $t->name ];
+            $out[] = (object) [ 'id' => (int) ( $t->id ?? 0 ), 'name' => (string) ( $t->name ?? '' ) ];
         }
         return $out;
     }

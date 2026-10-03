@@ -434,7 +434,7 @@ final class ReportsRestController extends BaseController {
      */
     private static function leaderboardPage( array $board, string $which, WP_REST_Request $req ): array {
         $rows = [];
-        foreach ( $board[ $which ] as $i => $r ) {
+        foreach ( ( $which === 'top' ? $board['top'] : $board['bottom'] ) as $i => $r ) {
             $rows[] = \TT\Modules\Analytics\Frontend\AttendanceLeaderboardCells::row( $r, $i + 1, $which === 'bottom' );
         }
 
