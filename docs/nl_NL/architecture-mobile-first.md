@@ -71,6 +71,8 @@ Wanneer je een frontend-view aanpast die nog van een `max-width: …`-blok in de
 
 De pilot doet dit voor het Activiteiten-scherm. Goals, Players, Trial cases en PDP-cycli zijn voor de hand liggende volgende migraties; elk wordt een eigen kleine PR.
 
+De gedeelde lijsttabel (`FrontendListTable`) is op dezelfde manier gemigreerd. De telefoonrijen zijn de basis van `assets/css/components/list-table.css` en de tabel komt terug bij `min-width: 768px`; `DashboardShortcode` laadt de stylesheet op elke view, omdat elke view een lijst kan tonen. Zie [Mobiele patronen](mobile-patterns.md) voor de `mobile`-kolomrollen.
+
 ## Wat is nog desktop-first
 
 `public.css`, `frontend-admin.css`, `frontend-mobile.css` en `admin.css` zijn van vóór de regel. Ze blijven staan voor views die nog niet gemigreerd zijn. De weg naar "geen oude desktop-first stylesheets meer" is één gemigreerde view per release, bijgehouden in [`SEQUENCE.md`](../../SEQUENCE.md) onder #0056.

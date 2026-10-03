@@ -577,31 +577,9 @@
 }
 .tt-dashboard .tt-list-table-error .tt-btn { margin-left: var(--tt-sp-2); touch-action: manipulation; }
 
-.tt-dashboard .tt-list-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-.tt-dashboard .tt-list-table-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--tt-fs-sm);
-    background: #fff;
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-r-md);
-    overflow: hidden;
-}
-.tt-dashboard .tt-list-table-table th,
-.tt-dashboard .tt-list-table-table td {
-    padding: var(--tt-sp-2) var(--tt-sp-3);
-    text-align: left;
-    border-bottom: 1px solid var(--tt-line);
-    vertical-align: middle;
-}
-.tt-dashboard .tt-list-table-table thead th {
-    font-weight: 600;
-    background: var(--tt-bg-soft);
-    color: var(--tt-muted);
-    text-transform: uppercase;
-    font-size: var(--tt-fs-xs);
-    letter-spacing: 0.04em;
-}
+/* #4192 — the table / phone-row layout of the shared list table lives in
+   assets/css/components/list-table.css (mobile-first, #0056 track). The
+   rules below are the parts that do not change with the viewport. */
 .tt-dashboard .tt-list-table-sortable a { color: inherit; text-decoration: none; }
 .tt-dashboard .tt-list-table-sortable.is-active { color: var(--tt-primary); }
 .tt-dashboard .tt-list-table-empty td {
@@ -610,7 +588,6 @@
     padding: var(--tt-sp-5);
     font-style: italic;
 }
-.tt-dashboard .tt-list-table-table tbody tr:hover { background: var(--tt-bg-soft); }
 
 /* v3.110.169 (#758) — row-link standard. When a list preset declares
    `row_url_key`, the JS hydrator stamps each <tr> with `.is-row-link`
@@ -665,8 +642,8 @@
 .tt-dashboard .tt-list-table-pager { display: flex; align-items: center; gap: 6px; }
 .tt-dashboard .tt-list-table-pager .tt-btn { padding: 4px 10px; min-width: 36px; }
 
-/* #2800 — the shared list table reflows into stacked cards below 640px
-   (see the block further down) and then hands the reader 26px pagination.
+/* #2800 — the shared list table reflows into phone rows below 768px
+   (assets/css/components/list-table.css) and then hands the reader 26px pagination.
    Its own controls never met the tap-target floor: the row action measured
    75x28, the per-page select 55x26, and the pager buttons were capped at
    36px wide. Used by 37 views. Scoped to coarse pointers so desktop
@@ -681,70 +658,6 @@
     .tt-dashboard .tt-list-table-pager .tt-btn { min-width: 48px; }
 }
 .tt-dashboard .tt-list-table-page-label { font-size: var(--tt-fs-xs); }
-
-/* Mobile reflow: stacked cards. Each row becomes a card; <td>
-   data-label values stand in for the <th> headers (which are
-   visually hidden below 640px). CSS-only — no JS branching. */
-@media (max-width: 639px) {
-    .tt-dashboard .tt-list-table-table thead { display: none; }
-    .tt-dashboard .tt-list-table-table,
-    .tt-dashboard .tt-list-table-table tbody,
-    .tt-dashboard .tt-list-table-table tr,
-    .tt-dashboard .tt-list-table-table td { display: block; width: 100%; }
-    .tt-dashboard .tt-list-table-table tr {
-        border: 1px solid var(--tt-line);
-        border-radius: var(--tt-r-md);
-        background: #fff;
-        margin-bottom: var(--tt-sp-3);
-        padding: var(--tt-sp-3);
-    }
-    .tt-dashboard .tt-list-table-table td {
-        border-bottom: none;
-        padding: 4px 0;
-        display: flex;
-        justify-content: space-between;
-        gap: var(--tt-sp-3);
-    }
-    .tt-dashboard .tt-list-table-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        font-size: var(--tt-fs-xs);
-        color: var(--tt-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        flex: 0 0 auto;
-    }
-    .tt-dashboard .tt-list-table-table td[data-label=""]::before { content: none; }
-    /* #4190 — the row cards ARE the boxes on a phone; the table's own
-       border + rounded clip around them was a box in a box. */
-    .tt-dashboard .tt-list-table-table {
-        border: 0;
-        border-radius: 0;
-        overflow: visible;
-        background: none;
-    }
-    .tt-dashboard .tt-list-table-table td {
-        min-width: 0;
-        overflow-wrap: anywhere;
-        text-align: right;
-    }
-    .tt-dashboard .tt-list-table-table .tt-consent-pill { white-space: normal; }
-    /* Same specificity as the `td` rule above (0,2,1 + class), so the
-       actions line groups its buttons at the right instead of spreading
-       them to both edges. */
-    .tt-dashboard .tt-list-table-table td.tt-list-table-actions {
-        justify-content: flex-end;
-        gap: var(--tt-sp-2);
-    }
-    .tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty,
-    .tt-dashboard .tt-list-table-table td[data-empty] { display: none; }
-    .tt-dashboard .tt-list-table-empty td,
-    .tt-dashboard .tt-list-table-loading td,
-    .tt-dashboard .tt-list-table-error td { display: block; text-align: center; }
-    .tt-dashboard .tt-list-table-empty td::before,
-    .tt-dashboard .tt-list-table-loading td::before,
-    .tt-dashboard .tt-list-table-error td::before { content: none; }
-}
 
 /*  Attendance (session create/edit form) 
    Sprint 2 session 2.3. The bulk-present button is sticky

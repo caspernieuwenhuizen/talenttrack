@@ -57,6 +57,15 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   'date'    — `Y-m-d` rendered as locale date.
  *   'percent' — append `%` if non-null, otherwise em-dash.
  *
+ * Column `mobile` key — how the column shows on a phone (below 768px,
+ * assets/css/components/list-table.css). See docs/mobile-patterns.md.
+ *   'primary'   — title line, bold, no label.
+ *   'secondary' — muted subtitle under the title, joined with " · ".
+ *   'badge'     — short value or pill at the top right.
+ *   'detail'    — label/value line (the default for undeclared columns).
+ *   'hide'      — not shown on a phone.
+ * Declaring none gives first column `primary`, second `secondary`.
+ *
  * Filter `type` values supported:
  *   'select'     — single-select dropdown. Requires `options` (value=>label).
  *   'date_range' — two date inputs; param_from / param_to override the
@@ -67,6 +76,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * coexist on the same view.
  */
 class FrontendListTable {
+
+    /** Phone roles a column may declare under its `mobile` key. */
+    public const MOBILE_ROLES  = [ 'primary', 'secondary', 'badge', 'detail', 'hide' ];
+    public const MOBILE_DETAIL = 'detail';
 
     /**
      * @param array<string, mixed> $config
@@ -716,6 +729,7 @@ class FrontendListTable {
      * @return array<string,array<string,mixed>>
      */
     private static function columnsForJs( array $columns ): array {
+        $roles = self::mobileRoles( $columns );
         $out = [];
         foreach ( $columns as $key => $col ) {
             $entry = [
@@ -723,6 +737,7 @@ class FrontendListTable {
                 'sortable'  => ! empty( $col['sortable'] ),
                 'render'    => (string) ( $col['render']    ?? 'text' ),
                 'value_key' => (string) ( $col['value_key'] ?? $key ),
+                'mobile'    => $roles[ (string) $key ] ?? self::MOBILE_DETAIL,
             ];
             // #0019 Sprint 2 session 2.4 — inline_select renders an
             // editable dropdown in the cell. The hydrator binds change
@@ -738,6 +753,40 @@ class FrontendListTable {
             $out[ (string) $key ] = $entry;
         }
         return $out;
+    }
+
+    /**
+     * Resolve each column's phone role (`mobile` column key).
+     *
+     * A view that declares no role on any column gets the default: first
+     * column `primary`, second `secondary`, the rest `detail`. Once any
+     * column declares a role, undeclared columns are `detail`. An unknown
+     * value is treated as `detail`.
+     *
+     * @param array<string,array<string,mixed>> $columns
+     * @return array<string,string>
+     */
+    public static function mobileRoles( array $columns ): array {
+        $declared = false;
+        foreach ( $columns as $col ) {
+            if ( isset( $col['mobile'] ) ) {
+                $declared = true;
+                break;
+            }
+        }
+
+        $roles = [];
+        $i     = 0;
+        foreach ( $columns as $key => $col ) {
+            if ( $declared ) {
+                $role = (string) ( $col['mobile'] ?? self::MOBILE_DETAIL );
+                $roles[ (string) $key ] = in_array( $role, self::MOBILE_ROLES, true ) ? $role : self::MOBILE_DETAIL;
+            } else {
+                $roles[ (string) $key ] = $i === 0 ? 'primary' : ( $i === 1 ? 'secondary' : self::MOBILE_DETAIL );
+            }
+            $i++;
+        }
+        return $roles;
     }
 
     /**
