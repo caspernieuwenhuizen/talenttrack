@@ -64,6 +64,7 @@
 .tt-dashboard .tt-list-table-table td {
     display: flex;
     justify-content: space-between;
+    align-items: baseline;
     gap: var(--tt-sp-3);
     min-width: 0;
     padding: 4px 0;

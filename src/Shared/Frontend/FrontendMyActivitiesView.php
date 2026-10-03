@@ -141,11 +141,12 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             // player isn't authorised for). All player-allowed information is
             // surfaced inline instead, so there's nothing to click through to.
             'columns' => [
-                'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
-                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true ],
-                'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
-                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true ],
-                'location'            => [ 'label' => __( 'Location', 'talenttrack' ), 'sortable' => false ],
+                // `mobile` — phone row roles (docs/mobile-patterns.md).
+                'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true, 'mobile' => 'secondary' ],
+                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'mobile' => 'primary' ],
+                'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html', 'mobile' => 'badge' ],
+                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'mobile' => 'secondary' ],
+                'location'            => [ 'label' => __( 'Location', 'talenttrack' ), 'sortable' => false, 'mobile' => 'detail' ],
                 'your_attendance_status' => [
                     'label'     => $voice->pick(
                         __( 'Your status', 'talenttrack' ),

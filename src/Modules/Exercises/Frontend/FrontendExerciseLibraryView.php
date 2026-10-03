@@ -195,11 +195,12 @@ final class FrontendExerciseLibraryView extends FrontendViewBase {
             'static_filters' => [ 'browse' => 1 ],
             'row_url_key'    => 'detail_url',
             'columns'        => [
-                'name'             => [ 'label' => __( 'Exercise', 'talenttrack' ),  'sortable' => true ],
-                'origin_label'     => [ 'label' => __( 'Origin', 'talenttrack' ) ],
-                'visibility_label' => [ 'label' => __( 'Visible to', 'talenttrack' ) ],
-                'duration_minutes' => [ 'label' => __( 'Minutes', 'talenttrack' ),   'sortable' => true ],
-                'players_label'    => [ 'label' => __( 'Group size', 'talenttrack' ) ],
+                // `mobile` — phone row roles (docs/mobile-patterns.md).
+                'name'             => [ 'label' => __( 'Exercise', 'talenttrack' ),  'sortable' => true, 'mobile' => 'primary' ],
+                'origin_label'     => [ 'label' => __( 'Origin', 'talenttrack' ), 'mobile' => 'secondary' ],
+                'visibility_label' => [ 'label' => __( 'Visible to', 'talenttrack' ), 'mobile' => 'hide' ],
+                'duration_minutes' => [ 'label' => __( 'Minutes', 'talenttrack' ),   'sortable' => true, 'mobile' => 'detail' ],
+                'players_label'    => [ 'label' => __( 'Group size', 'talenttrack' ), 'mobile' => 'detail' ],
             ],
             'filters' => [
                 // #2625 — canonical archive-state param; `status` is reserved

@@ -266,11 +266,12 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             // #2449 — personal saved views for this list.
             'saved_views' => [ 'key' => 'tournaments-list' ],
             'columns' => [
-                'name'       => [ 'label' => __( 'Name', 'talenttrack' ),       'sortable' => true ],
-                'team_name'  => [ 'label' => __( 'Team', 'talenttrack' ) ],
-                'start_date' => [ 'label' => __( 'Start', 'talenttrack' ),      'sortable' => true, 'render' => 'date' ],
-                'end_date'   => [ 'label' => __( 'End', 'talenttrack' ),        'render' => 'date' ],
-                'default_formation' => [ 'label' => __( 'Formation', 'talenttrack' ) ],
+                // `mobile` — phone row roles (docs/mobile-patterns.md).
+                'name'       => [ 'label' => __( 'Name', 'talenttrack' ),       'sortable' => true, 'mobile' => 'primary' ],
+                'team_name'  => [ 'label' => __( 'Team', 'talenttrack' ), 'mobile' => 'secondary' ],
+                'start_date' => [ 'label' => __( 'Start', 'talenttrack' ),      'sortable' => true, 'render' => 'date', 'mobile' => 'secondary' ],
+                'end_date'   => [ 'label' => __( 'End', 'talenttrack' ),        'render' => 'date', 'mobile' => 'secondary' ],
+                'default_formation' => [ 'label' => __( 'Formation', 'talenttrack' ), 'mobile' => 'hide' ],
             ],
             'filters' => [
                 'team_id' => [
