@@ -1,0 +1,21 @@
+#. translators: %s: number of urgent open alerts, e.g. "3" or "20+"
+#: src/Modules/Alerts/Frontend/AlertBanner.php
+msgid "%s urgent alert"
+msgid_plural "%s urgent alerts"
+msgstr[0] "%s urgente melding"
+msgstr[1] "%s urgente meldingen"
+
+#. translators: %s: number of further, less urgent open alerts, e.g. "5" or "20+"
+#: src/Modules/Alerts/Frontend/AlertBanner.php
+msgctxt "alerts summary line"
+msgid "%s more"
+msgid_plural "%s more"
+msgstr[0] "%s meer"
+msgstr[1] "%s meer"
+
+#. translators: %s: number of open alerts, e.g. "5" or "20+"
+#: src/Modules/Alerts/Frontend/AlertBanner.php
+msgid "%s open alert"
+msgid_plural "%s open alerts"
+msgstr[0] "%s open melding"
+msgstr[1] "%s open meldingen"

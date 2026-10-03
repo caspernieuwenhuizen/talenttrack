@@ -164,13 +164,71 @@
   }
 }
 
-/* #4191 — phones see the full banner on the dashboard root only. On a view
-   the server emits it with `--view`, hidden here below the tablet
-   breakpoint, and adds the one-line strip below for operational (child
-   safety) alerts. A confirmed phone user agent gets no banner markup at
-   all and an unmodified strip, so nothing here can hide that strip. */
-.tt-alert-bar--view {
+/* #4191 / #4216 — phones never see the alert cards. On a view the server
+   emits the banner with `--view`, on the dashboard root with `--wide-only`;
+   both are hidden here below the tablet breakpoint. Below it a one-line
+   strip carries operational (child safety) alerts, and on the root a
+   summary line carries the rest. A confirmed phone user agent gets no
+   banner markup at all and unmodified lines, so nothing here can hide
+   them. */
+.tt-alert-bar--view,
+.tt-alert-bar--wide-only {
   display: none;
+}
+
+/* #4216 — on a phone's dashboard root the cards give way to one summary
+   line, so "Welcome" and the first tiles stay on the first screen. Same
+   shape as the safety strip below, with a calmer border unless something
+   urgent is open. One link, 48px tall. */
+.tt-alert-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 48px;
+  margin: 0 0 1rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.75rem;
+  border-radius: var(--tt-radius-md, 8px);
+  border-left: 4px solid var(--tt-color-warning, #dba617);
+  background: var(--tt-color-surface-alt, #f5f7f8);
+  color: var(--tt-color-text, #1d2327);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.3;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.tt-alert-summary--urgent {
+  border-left-color: var(--tt-color-danger, #b32d2e);
+}
+
+.tt-alert-summary__text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tt-alert-summary__cta {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 0.75rem;
+  border-radius: var(--tt-radius-sm, 6px);
+  color: var(--tt-color-primary, #2271b1);
+}
+
+.tt-alert-summary:hover,
+.tt-alert-summary:active {
+  background: var(--tt-color-surface, #fff);
+  color: var(--tt-color-text, #1d2327);
+}
+
+.tt-alert-summary:focus-visible {
+  outline: 2px solid var(--tt-color-focus, #2271b1);
+  outline-offset: 2px;
 }
 
 .tt-alert-strip {
@@ -221,11 +279,13 @@
 }
 
 @media (min-width: 768px) {
-  .tt-alert-bar--view {
+  .tt-alert-bar--view,
+  .tt-alert-bar--wide-only {
     display: flex;
   }
 
-  .tt-alert-strip--narrow-only {
+  .tt-alert-strip--narrow-only,
+  .tt-alert-summary--narrow-only {
     display: none;
   }
 }
