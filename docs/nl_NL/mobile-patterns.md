@@ -178,7 +178,11 @@ Verder geldt op een telefoon:
 - Als de lijst `row_url_key` zet, is de hele rij de link (minstens
   48 px hoog, bereikbaar met Tab, te openen met Enter of Spatie, met
   een focusrand). De 48 px-ondergrens op recordlinks in de rij vervalt
-  daar, omdat de rij zelf al het doel is.
+  daar, omdat de rij zelf al het doel is. Een link in de titelregel
+  vangt de tik op een telefoon niet op: wie erop tikt, opent de rij.
+  Zo kan een lijst met de speler beginnen (de doelenlijst) en toch het
+  doel openen. De link blijft bereikbaar met Tab en werkt weer in de
+  tabel vanaf 768 px.
 - De ingeklapte filterbalk heeft geen kaart eromheen. Vanaf 768 px komt
   de kaart terug. Onder 768 px is de balk hooguit twee regels: de knop
   Filters met de opgeslagen weergaven ernaast, en daaronder, alleen als
