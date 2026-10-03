@@ -32,6 +32,9 @@ use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
  * the condition is still true. Operational alerts — the ones about a
  * child's safety — get no control, matching
  * `AlertPolicyResolver::lockReason()`.
+ *
+ * #4191 — on a phone the banner shows on the dashboard root only. Views get
+ * a one-line strip for operational alerts instead, linking to the inbox.
  */
 final class AlertBanner {
 
@@ -72,10 +75,94 @@ final class AlertBanner {
         }
         if ( empty( $eligible ) ) return;
 
+        // #4191 — on a phone the full banner belongs to the dashboard root
+        // only. Above a list or a record it cost ~440px and pushed the first
+        // row below the fold; the bell and the inbox still carry every alert.
+        // Root vs. view is known here, so the root renders as it always has.
+        if ( self::onDashboardRoot() ) {
+            self::renderBar( $eligible, '' );
+            return;
+        }
+
+        // On a view the viewport decides, and the server cannot see it. A
+        // confirmed phone user agent gets no banner markup at all — no cards,
+        // no snooze buttons sitting in the DOM unseen. Everyone else gets the
+        // banner with a modifier that the sheet hides below 768px, which also
+        // covers a narrow desktop window and a phone the detector misses.
+        $phone = self::isPhone();
+        if ( ! $phone ) {
+            self::renderBar( $eligible, 'tt-alert-bar--view' );
+        }
+
+        self::renderSafetyStrip( $eligible, $phone );
+    }
+
+    /** True on the dashboard landing, where no `tt_view` is requested. */
+    private static function onDashboardRoot(): bool {
+        $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) wp_unslash( $_GET['tt_view'] ) ) : '';
+        return $view === '';
+    }
+
+    private static function isPhone(): bool {
+        return class_exists( '\\TT\\Shared\\MobileDetector' ) && \TT\Shared\MobileDetector::isPhone();
+    }
+
+    /**
+     * The compact strip for operational alerts on a phone view (#4191).
+     *
+     * Operational alerts concern a child's safety. Hiding the banner on a
+     * phone is fine for everything else, because "it was on the bell" is
+     * good enough for a missing evaluation; it is not good enough for a
+     * safeguarding concern. So those keep one line, one tap to the inbox.
+     *
+     * When the full banner was also emitted (no phone user agent), the strip
+     * carries a modifier the sheet hides from 768px up, so a desktop never
+     * shows the same alert twice.
+     *
+     * @param list<object> $eligible
+     */
+    private static function renderSafetyStrip( array $eligible, bool $phone ): void {
+        $count = 0;
+        foreach ( $eligible as $row ) {
+            $definition = AlertRegistry::find( (string) ( $row->alert_key ?? '' ) );
+            if ( $definition !== null && $definition->isOperational() ) {
+                $count++;
+            }
+        }
+        if ( $count === 0 ) return;
+
+        $label = sprintf(
+            /* translators: %d: number of open alerts about a child's safety */
+            _n( '%d safety alert', '%d safety alerts', $count, 'talenttrack' ),
+            $count
+        );
+
+        printf(
+            '<a class="%1$s" href="%2$s">'
+                . '<span class="tt-alert-strip__text">%3$s</span>'
+                . '<span class="tt-alert-strip__cta">%4$s</span>'
+            . '</a>',
+            esc_attr( $phone ? 'tt-alert-strip' : 'tt-alert-strip tt-alert-strip--narrow-only' ),
+            esc_url( (string) add_query_arg( 'tt_view', 'alerts', self::dashboardBase() ) ), /* tt-xview-ok */
+            esc_html( $label ),
+            esc_html__( 'Open', 'talenttrack' )
+        );
+    }
+
+    private static function dashboardBase(): string {
+        if ( class_exists( '\\TT\\Shared\\Wizards\\WizardEntryPoint' ) ) {
+            return \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+        }
+        return home_url( '/' );
+    }
+
+    /** @param list<object> $eligible */
+    private static function renderBar( array $eligible, string $modifier ): void {
         $visible   = array_slice( $eligible, 0, self::MAX_VISIBLE );
         $remaining = max( 0, count( $eligible ) - count( $visible ) );
 
-        echo '<div class="tt-alert-bar" role="region" aria-label="' . esc_attr__( 'Alerts', 'talenttrack' ) . '">';
+        $class = trim( 'tt-alert-bar ' . $modifier );
+        echo '<div class="' . esc_attr( $class ) . '" role="region" aria-label="' . esc_attr__( 'Alerts', 'talenttrack' ) . '">';
 
         foreach ( $visible as $row ) {
             self::renderOne( $row );
