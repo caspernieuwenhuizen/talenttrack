@@ -20,6 +20,11 @@
  *   4. No data row taller than 120px.
  *   5. The first data row starts within the top 400px of the page.
  *
+ * All five read the page after its lists have loaded their rows (#4232).
+ * "Visible" in check 2 means visible to a person: an element hidden by an
+ * ancestor (the items of a closed menu) or clipped to a pixel (a visually
+ * hidden file input) is not a tap target and is not measured.
+ *
  * WHICH SURFACES
  *
  * The slug list is read from `config/mobile_surfaces.php`, which #2812's
@@ -63,7 +68,8 @@ const MAX_FIRST_ROW_TOP = 400;
 
 /**
  * How long a list may take to swap its loading row for real ones before the
- * density check gives up on it. The rows arrive over REST after first paint.
+ * walk measures the surface without them. The rows arrive over REST after
+ * first paint.
  */
 const LIST_HYDRATION_TIMEOUT = 5000;
 
@@ -137,7 +143,40 @@ async function hideAdminBar( page ) {
 }
 
 /**
- * Measure one rendered surface.
+ * Wait for every `FrontendListTable` on the page to finish loading (#4232).
+ *
+ * The list fills its body over REST after first paint. Measuring before
+ * that made the tap-target and overflow findings depend on how fast the
+ * REST call came back: a row's links and buttons were counted on a quick
+ * run and missed on a slow one. Every check reads the page after this.
+ *
+ * Bounded by LIST_HYDRATION_TIMEOUT. A list still loading when the wait
+ * runs out is measured as it stands — its loading row has no targets and
+ * no data rows.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<boolean>} whether the page has a list at all
+ */
+async function waitForListHydration( page ) {
+	if ( ( await page.locator( '.tt-dashboard [data-tt-list-table="1"]' ).count() ) === 0 ) {
+		return false;
+	}
+
+	try {
+		await page.waitForFunction(
+			() => document.querySelectorAll( '.tt-dashboard [data-tt-list-table="1"] [data-tt-list-loading="1"]' ).length === 0,
+			null,
+			{ timeout: LIST_HYDRATION_TIMEOUT }
+		);
+	} catch ( e ) {
+		// Still loading. Whatever the page shows now is what gets measured.
+	}
+
+	return true;
+}
+
+/**
+ * Measure one rendered surface. The caller waits for list hydration first.
  *
  * @param {import('@playwright/test').Page} page
  * @param {string} cls
@@ -183,11 +222,16 @@ async function measure( page, cls ) {
 		interactive.forEach( ( el ) => {
 			const r = el.getBoundingClientRect();
 			// Invisible or collapsed elements are not tap targets. A zero
-			// box is a closed accordion's contents, not a 0px button.
-			if ( r.width === 0 || r.height === 0 ) return;
-			const style = window.getComputedStyle( el );
-			if ( style.visibility === 'hidden' || style.display === 'none' ) return;
-			if ( parseFloat( style.opacity || '1' ) === 0 ) return;
+			// box is a `display: none` element, not a 0px button. A box of
+			// 1px or less is the visually-hidden pattern: an input clipped
+			// to a pixel and driven by a visible button (#4232).
+			if ( r.width <= 1 || r.height <= 1 ) return;
+			// Asks about the element and its ancestors. Reading the
+			// element's own computed style missed content hidden from
+			// above — the items of a closed <details> menu keep a box and
+			// their own `display`, and were reported as tap targets nobody
+			// can tap (#4232).
+			if ( ! el.checkVisibility( { opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true } ) ) return;
 
 			if ( r.width < minTap || r.height < minTap ) {
 				const label = ( el.textContent || el.getAttribute( 'aria-label' ) || el.tagName ).trim().slice( 0, 40 );
@@ -235,28 +279,18 @@ async function measure( page, cls ) {
  * fold by filters and chrome. Neither shows up in `measure()`.
  *
  * `FrontendListTable` fills its body over REST after first paint, so this
- * waits for the server-rendered loading row to go before reading anything.
- * A list that is still loading when the wait runs out, or that came back
- * empty or errored, has no data rows and is not measured — an empty list
- * has no density to judge.
+ * waits for the server-rendered loading row to go before reading anything
+ * (`waitForListHydration()`, the same wait the caller ran before
+ * `measure()`; here it returns at once). A list that is still loading when
+ * the wait runs out, or that came back empty or errored, has no data rows
+ * and is not measured — an empty list has no density to judge.
  *
  * @param {import('@playwright/test').Page} page
  * @returns {Promise<{ rows: number, findings: { kind: string, detail: string }[] }>}
  */
 async function measureDensity( page ) {
-	if ( ( await page.locator( '.tt-dashboard [data-tt-list-table="1"]' ).count() ) === 0 ) {
+	if ( ! ( await waitForListHydration( page ) ) ) {
 		return { rows: 0, findings: [] };
-	}
-
-	try {
-		await page.waitForFunction(
-			() => document.querySelectorAll( '.tt-dashboard [data-tt-list-table="1"] [data-tt-list-loading="1"]' ).length === 0,
-			null,
-			{ timeout: LIST_HYDRATION_TIMEOUT }
-		);
-	} catch ( e ) {
-		// Still loading. Whatever rows other lists on the page have are
-		// measured below; the stuck one contributes none.
 	}
 
 	return page.evaluate( ( { maxRow, maxFirstTop } ) => {
@@ -326,8 +360,8 @@ const baseline = loadBaseline();
 
 test.describe( 'mobile viewport at 390x844', () => {
 	// 78-odd page loads. Generous but bounded; the issue's budget is five
-	// minutes and a cold wp-env first paint is the slow part. The density
-	// check adds a wait per native list surface, bounded by
+	// minutes and a cold wp-env first paint is the slow part. Every surface
+	// with a list adds a wait for its rows, bounded by
 	// LIST_HYDRATION_TIMEOUT, so the ceiling sits above the worst case.
 	test.setTimeout( 8 * 60 * 1000 );
 
@@ -375,11 +409,14 @@ test.describe( 'mobile viewport at 390x844', () => {
 
 			await hideAdminBar( page );
 
+			// Every check reads the same settled page: a list's rows carry
+			// links and buttons of their own, and whether they had arrived
+			// used to decide what the tap-target check saw (#4232).
+			await waitForListHydration( page );
+
 			const findings = await measure( page, cls );
 			measured++;
 
-			// Density runs after the three checks above so that waiting for
-			// the list to load cannot change what they see.
 			if ( cls === 'native' ) {
 				const density = await measureDensity( page );
 				if ( density.rows ) {
