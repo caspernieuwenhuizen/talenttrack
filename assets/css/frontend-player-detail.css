@@ -405,6 +405,20 @@
 }
 .tt-player-kpi__trend--up   { color: var(--tt-success); }
 .tt-player-kpi__trend--down { color: var(--tt-danger); }
+
+/* Team page variant. It shows three tiles, so on a phone they never wrapped
+ * the way the player page's four do, and a bare 1fr track has a min-content
+ * floor: one unbreakable label ("SELECTIEBEOORDELING") widened its column
+ * past the viewport. Two minmax(0, 1fr) columns on phones, three from
+ * 480px, and long single-word labels break inside the tile. */
+.tt-player-glance__grid--team { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.tt-player-glance__grid--team .tt-player-kpi__label {
+    overflow-wrap: anywhere;
+    hyphens: auto;
+}
+@media (min-width: 480px) {
+    .tt-player-glance__grid--team { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (min-width: 1024px) {
     .tt-player-glance {
         border-bottom: none;
@@ -412,6 +426,7 @@
         margin-top: 0;
     }
     .tt-player-glance__grid { grid-template-columns: 1fr; }
+    .tt-player-glance__grid--team { grid-template-columns: minmax(0, 1fr); }
     .tt-player-kpi { padding: 12px; }
     .tt-player-kpi__num { font-size: 24px; }
 }
