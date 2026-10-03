@@ -533,7 +533,9 @@ tegenstander, stand en status (*Live*, *Wacht op controle*, *Afgerond*).
 Tik op een rij om die wedstrijd te openen. Filter op **team**, **status** en
 een **periode**; zonder datums toont de lijst de afgelopen 12 maanden.
 Kolommen sorteer je door op de kop te tikken, er staan 25 wedstrijden per
-pagina, en op een telefoon is elke wedstrijd een kaart. Coaches zien hun
+pagina, en op een telefoon is elke wedstrijd één compacte regel: de
+tegenstander, met datum en team eronder en de stand en status rechts.
+Coaches zien hun
 eigen teams; academiebrede rollen zien de hele club. Het dashboardblok
 *Wedstrijden die nog beoordeeld moeten worden* opent deze lijst met *Wacht
 op controle* gekozen.

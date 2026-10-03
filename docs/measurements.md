@@ -472,7 +472,9 @@ The list is **sortable** (tap a column header on tablet and desktop; the
 Result column sorts on the measured value, Trend on the size of the
 change), shows 25 players per page with a page picker below it, and every
 **player name links to their profile**, arriving with a back-pill so one
-click returns you to the browser. On a phone each player is a card. An
+click returns you to the browser. On a phone each player is one compact
+row: the name, with team and age group underneath and the result and
+trend at the right. An
 **Export Excel** button downloads the test chosen in the filters (honouring
 the team and date filters) through the same formatted workbook the *Manage
 tests* export produces; with no test chosen it asks you to pick one first.

@@ -499,8 +499,9 @@ De lijst is **sorteerbaar** (tik op een kolomkop op tablet en desktop; de
 kolom Resultaat sorteert op de gemeten waarde, Trend op de grootte van de
 verandering), toont 25 spelers per pagina met een paginakeuze eronder, en
 elke **spelersnaam linkt naar het profiel**, met een terug-pil zodat je met
-één klik terugkeert naar het overzicht. Op een telefoon is elke speler een
-kaart. Een knop **Exporteren naar Excel** downloadt de test die in de
+één klik terugkeert naar het overzicht. Op een telefoon is elke speler één
+compacte regel: de naam, met team en leeftijdsgroep eronder en het
+resultaat en de trend rechts. Een knop **Exporteren naar Excel** downloadt de test die in de
 filters gekozen is (met inachtneming van de team- en periodefilters) via
 dezelfde opgemaakte werkmap als de export bij *Tests beheren*; is er nog
 geen test gekozen, dan vraagt de knop je eerst er een te kiezen.

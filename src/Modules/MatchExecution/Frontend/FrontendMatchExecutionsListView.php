@@ -95,12 +95,15 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
 
         echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes internally.
             'rest_path'    => 'match-executions',
+            // `mobile` roles (#4192): on a phone a row reads as the opponent,
+            // with the date and team under it and the score and state at
+            // the right.
             'columns'      => [
-                'session_date' => [ 'label' => __( 'Date', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html' ],
-                'team_name'    => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true ],
-                'opponent'     => [ 'label' => __( 'Opponent', 'talenttrack' ), 'sortable' => true, 'value_key' => 'opponent_display' ],
-                'score'        => [ 'label' => __( 'Score', 'talenttrack' ) ],
-                'state'        => [ 'label' => __( 'State', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'state_pill_html' ],
+                'session_date' => [ 'label' => __( 'Date', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html', 'mobile' => 'secondary' ],
+                'team_name'    => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'mobile' => 'secondary' ],
+                'opponent'     => [ 'label' => __( 'Opponent', 'talenttrack' ), 'sortable' => true, 'value_key' => 'opponent_display', 'mobile' => 'primary' ],
+                'score'        => [ 'label' => __( 'Score', 'talenttrack' ), 'mobile' => 'badge' ],
+                'state'        => [ 'label' => __( 'State', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'state_pill_html', 'mobile' => 'badge' ],
             ],
             'filters'      => $filters,
             'row_url_key'  => 'detail_url',

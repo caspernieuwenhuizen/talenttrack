@@ -229,12 +229,14 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes internally.
             'rest_path'        => 'reports/attendance-leaderboard',
             'static_filters'   => $static_filters,
+            // `mobile` roles (#4192): on a phone a row reads as the player
+            // with the team under the name and the present % at the right.
             'columns'          => [
-                'rank'        => [ 'label' => __( '#', 'talenttrack' ) ],
-                'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html' ],
-                'team_name'   => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_html' ],
-                'activities'  => [ 'label' => __( 'Activities', 'talenttrack' ), 'sortable' => true ],
-                'present_pct' => [ 'label' => __( 'Present %', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'present_html' ],
+                'rank'        => [ 'label' => __( '#', 'talenttrack' ), 'mobile' => 'detail' ],
+                'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html', 'mobile' => 'primary' ],
+                'team_name'   => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_html', 'mobile' => 'secondary' ],
+                'activities'  => [ 'label' => __( 'Activities', 'talenttrack' ), 'sortable' => true, 'mobile' => 'detail' ],
+                'present_pct' => [ 'label' => __( 'Present %', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'present_html', 'mobile' => 'badge' ],
             ],
             'empty_state'      => __( 'No players to rank yet.', 'talenttrack' ),
         ] );

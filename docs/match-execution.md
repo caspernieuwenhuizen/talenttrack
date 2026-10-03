@@ -483,7 +483,9 @@ the match-execution screen, newest first: date, team, opponent, score and
 state (*Live*, *Pending review*, *Finalized*). Tap a row to open that
 match. Filter by **team**, **state** and a **date range**; without dates
 the list shows the last 12 months. Columns sort by tapping their header,
-25 matches show per page, and on a phone each match is a card. Coaches see
+25 matches show per page, and on a phone each match is one compact row:
+the opponent, with date and team underneath and the score and state at the
+right. Coaches see
 their own teams; academy-wide roles see the club. The *Matches needing
 review* dashboard block opens this list with *Pending review* chosen.
 

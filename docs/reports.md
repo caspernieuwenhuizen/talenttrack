@@ -552,7 +552,7 @@ A dedicated league table reachable from the Reports launcher (*Attendance leader
 
 It shares the same filter bar and chrome as the player attendance report: a **team** picker, retrospective **period** pills (last week / month / season and so on), an **activity type** filter, and a manual **date range** that overrides the active period, plus the leaderboard-only *How many* cap. Opening it with no filters defaults to the **current season** window. Above the tables a KPI strip summarises the ranked players — total players, average attendance across them, and how many are at-risk — computed from the same data, so it never triggers an extra query.
 
-Each table is the same list as the other lists in the plugin: 25 players per page with a page picker below it, and the Player, Team, Activities and Present % columns sortable. Sorting a column keeps each player's rank number, so you can still see where they stand. Changing a filter reloads the page. On a phone the two tables stack into one column with no horizontal scroll, and each player is a card; from tablet width up they sit side-by-side.
+Each table is the same list as the other lists in the plugin: 25 players per page with a page picker below it, and the Player, Team, Activities and Present % columns sortable. Sorting a column keeps each player's rank number, so you can still see where they stand. Changing a filter reloads the page. On a phone the two tables stack into one column with no horizontal scroll, and each player is one compact row (name, team underneath, present % at the right); from tablet width up they sit side-by-side.
 
 Integrations can read the same data — with the same `tt_view_analytics` gate and team-scope narrowing — from:
 

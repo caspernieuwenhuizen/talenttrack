@@ -127,13 +127,16 @@ final class FrontendTestResultsView extends FrontendViewBase {
         echo '<div class="tt-tr-list">';
         echo FrontendListTable::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- the component escapes internally.
             'rest_path'    => 'measurement-results',
+            // `mobile` roles (#4192): on a phone a row reads as the player,
+            // with team and age group under the name and the result and
+            // trend at the right.
             'columns'      => [
-                'name'          => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html' ],
-                'team_name'     => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true ],
-                'age_group'     => [ 'label' => __( 'Age group', 'talenttrack' ), 'sortable' => true ],
-                'value'         => [ 'label' => __( 'Result', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'result_html' ],
-                'trend'         => [ 'label' => __( 'Trend', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'trend_html' ],
-                'recorded_date' => [ 'label' => __( 'Date', 'talenttrack' ), 'sortable' => true ],
+                'name'          => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_html', 'mobile' => 'primary' ],
+                'team_name'     => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'mobile' => 'secondary' ],
+                'age_group'     => [ 'label' => __( 'Age group', 'talenttrack' ), 'sortable' => true, 'mobile' => 'secondary' ],
+                'value'         => [ 'label' => __( 'Result', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'result_html', 'mobile' => 'badge' ],
+                'trend'         => [ 'label' => __( 'Trend', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'trend_html', 'mobile' => 'badge' ],
+                'recorded_date' => [ 'label' => __( 'Date', 'talenttrack' ), 'sortable' => true, 'mobile' => 'detail' ],
             ],
             'filters'      => $filters,
             'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
