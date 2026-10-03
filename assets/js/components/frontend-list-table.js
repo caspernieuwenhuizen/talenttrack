@@ -146,7 +146,12 @@
             var col = config.columns[key];
             var cell = renderCell(col, row);
             var empty = isEmptyCell(cell) ? ' data-empty="1"' : '';
-            tds += '<td data-label="' + escapeHtml(col.label) + '"' + empty + '>' + cell + '</td>';
+            // #4192 — the column's phone role (primary / secondary /
+            // badge / detail / hide), resolved server-side in
+            // FrontendListTable::columnsForJs(). list-table.css lays the
+            // row out from it below 768px.
+            var mobile = ' data-mobile="' + escapeHtml(col.mobile || 'detail') + '"';
+            tds += '<td data-label="' + escapeHtml(col.label) + '"' + mobile + empty + '>' + cell + '</td>';
         });
         if (Object.keys(config.row_actions).length) {
             var actionsHtml = renderRowActions(config.row_actions, row);

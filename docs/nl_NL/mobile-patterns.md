@@ -138,6 +138,48 @@ De `*-leading`-slot is voor een avatar / icoon / initialen-cirkel; de
 `*-trailing`-slot is voor de chevron / statusindicator. Beide
 optioneel.
 
+## Gedeelde lijsttabel op een telefoon
+
+Lijsten die op `FrontendListTable` gebouwd zijn hebben het lijstitem
+hierboven niet nodig. Onder 768 px wordt de tabel vanzelf compacte
+rijen: een vette titelregel, een gedempte subregel, badges rechtsboven
+en een label/waarde-regel voor de rest. Vanaf 768 px is het weer een
+gewone tabel. De opmaak staat in `assets/css/components/list-table.css`,
+die `DashboardShortcode::render()` op elke view laadt.
+
+Elke kolom geeft met een `mobile`-sleutel aan waar hij op een telefoon
+terechtkomt:
+
+| Rol | Op een telefoon |
+|---|---|
+| `primary` | Titelregel: vet, links, zonder label. Een tweede `primary` volgt de eerste, gedempt, met het kolomlabel ervoor (`#7`). |
+| `secondary` | Gedempte, kleine subregel onder de titel. Meerdere worden samengevoegd met " · ". |
+| `badge` | Pillen en korte waarden rechtsboven. Ze lopen door naar een nieuwe regel als er geen ruimte is. |
+| `detail` | Een regel `LABEL — waarde`. De standaard voor een kolom die niets opgeeft. |
+| `hide` | Niet getoond op een telefoon. Gebruik het voor kolommen die alleen aan een bureau tellen: ID's, aangemaakt door, lange notities. |
+
+```php
+'columns' => [
+    'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
+    'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+    'jersey_number'  => [ 'label' => __( '#', 'talenttrack' ), 'mobile' => 'primary' ],
+    'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html', 'mobile' => 'badge' ],
+],
+```
+
+Geeft een view op geen enkele kolom een rol op, dan is de eerste kolom
+`primary`, de tweede `secondary` en de rest `detail`. Zodra één kolom
+een rol opgeeft, is elke kolom zonder rol `detail`.
+
+Verder geldt op een telefoon:
+
+- Een cel zonder inhoud neemt geen regel in, net als een lege cel met
+  rijacties. Rijacties staan samen rechts.
+- Als de lijst `row_url_key` zet, is de hele rij de link (minstens
+  48 px hoog, bereikbaar met Tab, te openen met Enter of Spatie, met
+  een focusrand). De 48 px-ondergrens op recordlinks in de rij vervalt
+  daar, omdat de rij zelf al het doel is.
+
 ## Zie ook
 
 - `docs/architecture-mobile-first.md` — de onderliggende conventies

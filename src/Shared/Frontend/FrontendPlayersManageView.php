@@ -261,15 +261,18 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 // (parent name + role + relationship), so duplicating
                 // it as a single-name truncated cell in the list was
                 // noise.
-                'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
-                'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-                'jersey_number'  => [ 'label' => __( '#',    'talenttrack' ), 'sortable' => true ],
-                'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html' ],
+                // #4192 — `mobile` roles: on a phone the row reads as
+                // "Name #7" with the foot pill at the right and the team
+                // underneath.
+                'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
+                'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+                'jersey_number'  => [ 'label' => __( '#',    'talenttrack' ), 'sortable' => true, 'mobile' => 'primary' ],
+                'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html', 'mobile' => 'badge' ],
                 // #3804 — media consent, on the list rather than sixteen
                 // visits to sixteen player files. The cell says which of
                 // the three states a child is in; a child with pictures
                 // and no consent says how many pictures.
-                'media_consent'  => [ 'label' => __( 'Media consent', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'media_consent_pill_html' ],
+                'media_consent'  => [ 'label' => __( 'Media consent', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'media_consent_pill_html', 'mobile' => 'hide' ],
             ],
             'filters' => [
                 'team_id' => [

@@ -1,0 +1,267 @@
+/*
+ * list-table.css — layout of the shared list table (FrontendListTable).
+ *
+ * Mobile-first (CLAUDE.md § 2, #0056 track). The base is the phone layout:
+ * each row is a compact card with a title line, a muted subtitle line,
+ * badges at the top right and, below them, label/value lines for anything
+ * else. The table comes back from the 768px tablet breakpoint up.
+ *
+ * Which line a cell lands on is the column's `mobile` role, written to the
+ * cell as `data-mobile` by assets/js/components/frontend-list-table.js:
+ *
+ *   primary    title line, bold, no label
+ *   secondary  muted subtitle; several are joined with " · "
+ *   badge      pills and short values, top right, allowed to wrap
+ *   detail     LABEL — value line (default for undeclared columns)
+ *   hide       not shown on a phone
+ *
+ * The row is a flex container. `order` puts the cells in place whatever
+ * their column order: primaries (0), a grow spacer (tr::before, 1),
+ * badges (2), a line break (tr::after, 3), secondaries (4), details (5),
+ * row actions (6).
+ *
+ * The parts of the list table that do not change with the viewport (row
+ * actions, pager, footer, row-link cursor and focus ring, loading and
+ * error rows) stay in frontend-admin.css.
+ */
+
+/* ---- Phone (base) -------------------------------------------------- */
+
+.tt-dashboard .tt-list-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tt-dashboard .tt-list-table-table {
+    display: block;
+    width: 100%;
+    font-size: var(--tt-fs-sm);
+    border: 0;
+    background: none;
+}
+
+.tt-dashboard .tt-list-table-table thead { display: none; }
+
+.tt-dashboard .tt-list-table-table tbody { display: block; }
+
+.tt-dashboard .tt-list-table-table tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--tt-sp-2);
+    row-gap: 2px;
+    box-sizing: border-box;
+    min-height: 48px;
+    margin-bottom: var(--tt-sp-2);
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
+}
+
+/* Grow spacer: pushes the badges to the right edge of the title line. */
+.tt-dashboard .tt-list-table-table tbody tr::before {
+    content: "";
+    order: 1;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+/* Line break between the title line and the subtitle line. */
+.tt-dashboard .tt-list-table-table tbody tr::after {
+    content: "";
+    order: 3;
+    flex-basis: 100%;
+    height: 0;
+}
+
+.tt-dashboard .tt-list-table-table td {
+    display: block;
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-list-table-table td[data-mobile="primary"] {
+    order: 0;
+    font-size: var(--tt-fs-body, 1rem);
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+
+/* A second primary (the players list's shirt number) reads as a quieter
+   suffix to the first, prefixed with its own column label ("#7"). */
+.tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"] {
+    font-weight: 400;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"]::before {
+    content: attr(data-label);
+}
+
+.tt-dashboard .tt-list-table-table td[data-mobile="badge"] {
+    order: 2;
+    max-width: 100%;
+    font-size: var(--tt-fs-xs);
+    text-align: right;
+}
+
+.tt-dashboard .tt-list-table-table td[data-mobile="secondary"] {
+    order: 4;
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-list-table-table td[data-mobile="secondary"] ~ td[data-mobile="secondary"]::before {
+    content: "\00b7";
+    margin-right: var(--tt-sp-2);
+}
+
+.tt-dashboard .tt-list-table-table td[data-mobile="detail"] {
+    order: 5;
+    flex-basis: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--tt-sp-3);
+    text-align: right;
+}
+.tt-dashboard .tt-list-table-table td[data-mobile="detail"]::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 50%;
+    text-align: left;
+    font-weight: 600;
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-list-table-table td[data-mobile="detail"][data-label=""]::before { content: none; }
+
+/* #4190 — the actions line groups its buttons at the right. */
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions {
+    order: 6;
+    flex-basis: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--tt-sp-2);
+    white-space: normal;
+}
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions .tt-list-table-action { margin-left: 0; }
+
+/* #4190 — a cell with nothing in it, or a row with no actions, takes no
+   line. */
+.tt-dashboard .tt-list-table-table td[data-mobile="hide"],
+.tt-dashboard .tt-list-table-table td[data-empty],
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty { display: none; }
+
+/* Pills wrap instead of being clipped at the card edge. */
+.tt-dashboard .tt-list-table-table .tt-consent-pill,
+.tt-dashboard .tt-list-table-table .tt-pill { white-space: normal; }
+
+/* The whole row is the tap target (tr.is-row-link, 48px floor above), so
+   the per-cell record-link floor (#2800) would only make every linked line
+   48px tall. Rows that are not row links keep the floor. */
+.tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link {
+    display: inline;
+    min-height: 0;
+    min-width: 0;
+}
+
+/* Empty, loading and error rows are one centred line. */
+.tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-error > td {
+    flex-basis: 100%;
+    text-align: center;
+}
+
+.tt-dashboard .tt-list-table-table tbody tr:hover { background: var(--tt-bg-soft); }
+
+/* ---- Tablet and up: the table -------------------------------------- */
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-list-table-table {
+        display: table;
+        border-collapse: collapse;
+        background: var(--tt-paper, #fff);
+        border: 1px solid var(--tt-line);
+        border-radius: var(--tt-r-md);
+        overflow: hidden;
+    }
+    .tt-dashboard .tt-list-table-table thead { display: table-header-group; }
+    .tt-dashboard .tt-list-table-table tbody { display: table-row-group; }
+    .tt-dashboard .tt-list-table-table tr {
+        display: table-row;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: 0;
+        border-radius: 0;
+    }
+    .tt-dashboard .tt-list-table-table tbody tr::before,
+    .tt-dashboard .tt-list-table-table tbody tr::after { content: none; }
+
+    .tt-dashboard .tt-list-table-table th,
+    .tt-dashboard .tt-list-table-table td,
+    .tt-dashboard .tt-list-table-table td[data-mobile],
+    .tt-dashboard .tt-list-table-table td[data-empty],
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions,
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty {
+        display: table-cell;
+        padding: var(--tt-sp-2) var(--tt-sp-3);
+        text-align: left;
+        border-bottom: 1px solid var(--tt-line);
+        vertical-align: middle;
+    }
+    .tt-dashboard .tt-list-table-table td[data-mobile="primary"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="secondary"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="badge"] {
+        font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
+    }
+    .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"] {
+        font-weight: inherit;
+        color: inherit;
+    }
+    .tt-dashboard .tt-list-table-table td[data-mobile]::before,
+    .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"]::before,
+    .tt-dashboard .tt-list-table-table td[data-mobile="secondary"] ~ td[data-mobile="secondary"]::before { content: none; }
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions {
+        white-space: nowrap;
+        text-align: right;
+    }
+    .tt-dashboard .tt-list-table-table td.tt-list-table-actions .tt-list-table-action { margin-left: 4px; }
+    .tt-dashboard .tt-list-table-table thead th {
+        font-weight: 600;
+        background: var(--tt-bg-soft);
+        color: var(--tt-muted);
+        text-transform: uppercase;
+        font-size: var(--tt-fs-xs);
+        letter-spacing: 0.04em;
+    }
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td {
+        text-align: center;
+        color: var(--tt-muted);
+        padding: var(--tt-sp-5);
+    }
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td,
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td {
+        text-align: center;
+        padding: var(--tt-sp-4);
+    }
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td { color: var(--tt-muted); }
+    .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td { color: var(--tt-danger); }
+    .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link { display: inline-block; }
+}
+/* The #2800 record-link floor returns with the table on touch tablets. */
+@media (min-width: 768px) and (pointer: coarse) {
+    .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link {
+        min-height: 48px;
+        min-width: 48px;
+    }
+}

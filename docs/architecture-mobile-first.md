@@ -71,6 +71,8 @@ When you touch a frontend view that still depends on a `max-width: …` block in
 
 The pilot does this for the Activities surface. Goals, Players, Trial cases, and PDP cycles are obvious next migrations; each one is its own small PR.
 
+The shared list table (`FrontendListTable`) has been migrated the same way. Its phone rows are the base of `assets/css/components/list-table.css` and its table returns at `min-width: 768px`; `DashboardShortcode` loads the sheet on every view, because any view can render a list. See [Mobile patterns](mobile-patterns.md) for the `mobile` column roles.
+
 ## What's still desktop-first
 
 `public.css`, `frontend-admin.css`, `frontend-mobile.css`, and `admin.css` were authored before the rule. They're left in place for views that haven't been migrated yet. The path to "zero legacy desktop-first sheets" is one migrated view per release, tracked in [`SEQUENCE.md`](../SEQUENCE.md) under #0056.

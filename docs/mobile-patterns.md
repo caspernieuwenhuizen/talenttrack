@@ -131,6 +131,47 @@ The `*-leading` slot is for an avatar / icon / initials disc; the
 `*-trailing` slot is for the chevron / status indicator. Both are
 optional.
 
+## Shared list table on a phone
+
+Lists built on `FrontendListTable` don't need the list item above.
+Below 768 px the table turns into compact rows on its own: a bold
+title line, a muted subtitle line, badges at the top right, and a
+label/value line for anything else. From 768 px up it is a normal
+table again. The layout lives in `assets/css/components/list-table.css`,
+which `DashboardShortcode::render()` loads on every view.
+
+Each column says where it goes on a phone with a `mobile` key:
+
+| Role | On a phone |
+|---|---|
+| `primary` | Title line: bold, left, no label. A second `primary` follows the first, muted, with its column label in front (`#7`). |
+| `secondary` | Muted, small subtitle under the title. Several are joined with " · ". |
+| `badge` | Pills and short values at the top right. They wrap to a new line when there is no room. |
+| `detail` | A `LABEL — value` line. The default for a column that declares nothing. |
+| `hide` | Not shown on a phone. Use it for columns that only matter at a desk: IDs, created-by, long notes. |
+
+```php
+'columns' => [
+    'last_name'      => [ 'label' => __( 'Name', 'talenttrack' ), 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
+    'team_name'      => [ 'label' => __( 'Team', 'talenttrack' ), 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+    'jersey_number'  => [ 'label' => __( '#', 'talenttrack' ), 'mobile' => 'primary' ],
+    'preferred_foot' => [ 'label' => __( 'Foot', 'talenttrack' ), 'render' => 'html', 'value_key' => 'preferred_foot_pill_html', 'mobile' => 'badge' ],
+],
+```
+
+When a view declares no role on any column, the first column is
+`primary`, the second `secondary` and the rest `detail`. Once one
+column declares a role, every undeclared column is `detail`.
+
+Other rules that hold on a phone:
+
+- A cell with nothing in it takes no line, and neither does an empty
+  row-actions cell. Row actions sit together at the right.
+- When the list sets `row_url_key`, the whole row is the link (at
+  least 48 px high, reachable with Tab, opened with Enter or Space,
+  with a focus ring). The 48 px floor on record links inside the row
+  is lifted there, because the row is already the target.
+
 ## See also
 
 - `docs/architecture-mobile-first.md` — the underlying conventions
