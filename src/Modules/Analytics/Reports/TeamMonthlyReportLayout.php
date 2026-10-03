@@ -79,6 +79,9 @@ final class TeamMonthlyReportLayout {
      */
     private const SHEET_MARGIN_MM = 1.5;
 
+    /** The empty state's sentence: its 8 mm top margin and one 10 pt line. */
+    private const EMPTY_MM = 12.6;
+
     /**
      * Block heights, mm. `row` is per row / item; `section_base` covers a
      * section's heading and spacing. Measured on DomPDF's output of
@@ -481,6 +484,9 @@ final class TeamMonthlyReportLayout {
      */
     public static function fit( array $report, string $layout, array $notes = [] ): array {
         $layout  = self::isValid( $layout ) ? $layout : self::DEFAULT;
+        if ( self::isEmpty( $report['data'] ) ) {
+            return self::fitEmpty( $layout );
+        }
         // #4095, #4133 — measure what this layout prints, not what was asked for.
         $data    = self::forLayout( $report['data'], $layout );
         $note_mm = self::noteHeights( $notes, $data, $layout );
@@ -510,6 +516,36 @@ final class TeamMonthlyReportLayout {
             'degraded'    => $degraded,
             'groups'      => self::singleSheetGroups( $data, $layout ),
             'group_pages' => [ $sheet['pages'] ],
+        ];
+    }
+
+    /**
+     * A window with no trainings or matches prints the letterhead and one
+     * sentence, on one sheet, whatever the layout and the sections ticked.
+     * The estimate and the document both read this one predicate, so the
+     * meter and the paper cannot disagree about the empty state.
+     *
+     * @param array<string,array<string,mixed>> $data a report payload's `data`.
+     */
+    public static function isEmpty( array $data ): bool {
+        return (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0;
+    }
+
+    /**
+     * The empty-state sheet: the letterhead and its one sentence.
+     *
+     * @return array{pages:int, max_pages:int, fits:bool, fill:list<int>, degraded:list<string>, groups:list<list<string>>, group_pages:list<int>}
+     */
+    private static function fitEmpty( string $layout ): array {
+        $capacity = $layout === self::MATRIX ? self::LANDSCAPE_MM : self::PORTRAIT_MM;
+        return [
+            'pages'       => 1,
+            'max_pages'   => $layout === self::PACK ? self::maxPages( self::PACK ) : 1,
+            'fits'        => true,
+            'fill'        => [ (int) round( ( self::MM['letterhead'] + self::EMPTY_MM ) / $capacity * 100 ) ],
+            'degraded'    => [],
+            'groups'      => [ [ 'letterhead' ] ],
+            'group_pages' => [ 1 ],
         ];
     }
 

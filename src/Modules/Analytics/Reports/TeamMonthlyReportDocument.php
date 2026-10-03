@@ -337,7 +337,7 @@ final class TeamMonthlyReportDocument {
         $blocks = self::printedBlocks( $report );
         $head   = self::letterhead( $data['letterhead'] ?? [], $team_name, $report['from'], $report['to'] );
 
-        if ( (int) ( ( $data['letterhead'] ?? [] )['activity_count'] ?? 0 ) === 0 ) {
+        if ( TeamMonthlyReportLayout::isEmpty( $data ) ) {
             return [ [
                 'blocks' => [ TeamMonthlyReportBlock::LETTERHEAD ],
                 'html'   => $head . '<p class="empty">' . esc_html__( 'This team has no trainings or matches in this window, so there is nothing to report yet.', 'talenttrack' ) . '</p>',

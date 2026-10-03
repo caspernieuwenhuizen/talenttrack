@@ -274,6 +274,37 @@ final class TeamMonthlyReportPdfTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4189 — a month without trainings or matches prints the letterhead and
+     * one sentence on one sheet, and the meter says one page on every layout,
+     * with every section ticked and the evaluations selected. It used to
+     * predict the full layout: three pages on the pack, two on landscape.
+     */
+    public function test_an_empty_month_prints_the_one_sheet_it_estimates(): void {
+        if ( ! class_exists( \Dompdf\Dompdf::class ) ) {
+            $this->markTestSkipped( 'DomPDF not installed.' );
+        }
+        $report = $this->withEvaluations( $this->withMatchesAndTests( $this->report( 18 ), 2 ), 'details', false );
+        $report['data']['letterhead']['activity_count'] = 0;
+
+        foreach ( TeamMonthlyReportLayout::ALL as $layout ) {
+            $fit     = TeamMonthlyReportLayout::fit( $report, $layout );
+            $payload = TeamMonthlyReportPdfExporter::payload( $report, $layout, 'Pdf U9' );
+            $this->assertSame( 1, $fit['pages'], "{$layout}: the meter says one page" );
+            $this->assertStringContainsString( 'class="empty"', $payload['html'], "{$layout}: the one sentence prints" );
+
+            $options = new \Dompdf\Options();
+            $options->set( 'defaultFont', 'DejaVu Sans' );
+            $options->set( 'isHtml5ParserEnabled', true );
+            $dompdf = new \Dompdf\Dompdf( $options );
+            $dompdf->loadHtml( $payload['html'], 'UTF-8' );
+            $dompdf->setPaper( 'A4', $payload['options']['orientation'] );
+            $dompdf->render();
+
+            $this->assertSame( $fit['pages'], $dompdf->getCanvas()->get_page_count(), "{$layout}: the panel and the paper disagree." );
+        }
+    }
+
+    /**
      * #4133 — a payload without a level, as a snapshot taken before the choice
      * existed, prints attendance and minutes as bars, as it always did.
      */
