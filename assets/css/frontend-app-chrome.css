@@ -126,6 +126,17 @@
        ellipsis, so the crest keeps identifying the club either way. */
     .tt-dashboard .tt-dash-header {
         flex-wrap: nowrap;
+        /* The home link below gains 14px of hit area; taking 4px back out
+           of the brand-to-actions gap keeps the bar inside a 360px screen. */
+        gap: 0.5rem;
+    }
+
+    /* #4204 — with the academy name hidden the link shrank to the 34px
+       crest, under the 48px tap floor on every surface. The crest keeps its
+       size and sits centred in the wider hit area. */
+    .tt-dashboard .tt-dash-home {
+        min-width: 48px;
+        justify-content: center;
     }
 
     /* Same reasoning one level down: the cluster is five 48px controls and
