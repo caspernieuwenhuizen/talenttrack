@@ -92,7 +92,8 @@ A list with no data rows — empty, errored, or still loading after five
 seconds — has no density to judge and is not measured. The run prints which
 surfaces had rows and how many, so "no density findings" can be told apart
 from "nothing was looked at". wp-env's data decides that, and it is thin:
-a list that is empty in CI is not covered by these two checks.
+when the checks were added only `players` and `teams` had rows. A list that
+is empty in CI is not covered by these two checks.
 
 Two settings in `playwright.config.js` are load-bearing rather than
 cosmetic, and both are spelled out instead of spread from

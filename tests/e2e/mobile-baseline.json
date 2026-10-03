@@ -58,6 +58,9 @@
     "team-behaviour-capture": [
       "tap-target"
     ],
+    "teams": [
+      "row-height"
+    ],
     "training-photo": [
       "tap-target"
     ],
