@@ -15,6 +15,11 @@
  *   2. No visible interactive element under 48px in either dimension.
  *   3. No table wider than the viewport on a `native` surface.
  *
+ * and, on `native` surfaces whose list has rows, two density checks (#4200):
+ *
+ *   4. No data row taller than 120px.
+ *   5. The first data row starts within the top 400px of the page.
+ *
  * WHICH SURFACES
  *
  * The slug list is read from `config/mobile_surfaces.php`, which #2812's
@@ -41,6 +46,26 @@ const path = require( 'path' );
 
 const BASELINE_FILE = path.join( __dirname, 'mobile-baseline.json' );
 const MIN_TAP = 48;
+
+/**
+ * List density on `native` surfaces (#4200). A data row taller than this is
+ * a row a coach scrolls past one at a time; at 844px of viewport it leaves
+ * fewer than seven on a screen before any chrome is counted.
+ */
+const MAX_ROW_HEIGHT = 120;
+
+/**
+ * How far down the page the first data row may start. Past this, filters
+ * and page chrome have taken half the first screen and the list — the
+ * reason the coach opened the page — begins at the fold.
+ */
+const MAX_FIRST_ROW_TOP = 400;
+
+/**
+ * How long a list may take to swap its loading row for real ones before the
+ * density check gives up on it. The rows arrive over REST after first paint.
+ */
+const LIST_HYDRATION_TIMEOUT = 5000;
 
 /**
  * How many surfaces may render no `.tt-dashboard` before the run counts as
@@ -202,13 +227,109 @@ async function measure( page, cls ) {
 	}, { minTap: MIN_TAP, cls } );
 }
 
+/**
+ * Measure list density on one rendered `native` surface (#4200).
+ *
+ * A list can fit the viewport, clear the 48px floor and still be unusable
+ * on a phone: rows several screens tall, or the first row pushed under the
+ * fold by filters and chrome. Neither shows up in `measure()`.
+ *
+ * `FrontendListTable` fills its body over REST after first paint, so this
+ * waits for the server-rendered loading row to go before reading anything.
+ * A list that is still loading when the wait runs out, or that came back
+ * empty or errored, has no data rows and is not measured — an empty list
+ * has no density to judge.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {Promise<{ rows: number, findings: { kind: string, detail: string }[] }>}
+ */
+async function measureDensity( page ) {
+	if ( ( await page.locator( '.tt-dashboard [data-tt-list-table="1"]' ).count() ) === 0 ) {
+		return { rows: 0, findings: [] };
+	}
+
+	try {
+		await page.waitForFunction(
+			() => document.querySelectorAll( '.tt-dashboard [data-tt-list-table="1"] [data-tt-list-loading="1"]' ).length === 0,
+			null,
+			{ timeout: LIST_HYDRATION_TIMEOUT }
+		);
+	} catch ( e ) {
+		// Still loading. Whatever rows other lists on the page have are
+		// measured below; the stuck one contributes none.
+	}
+
+	return page.evaluate( ( { maxRow, maxFirstTop } ) => {
+		/** @type {{ kind: string, detail: string }[]} */
+		const findings = [];
+		/** @type {string[]} */
+		const tall = [];
+		/** @type {string[]} */
+		const low = [];
+		let rows = 0;
+
+		document.querySelectorAll( '.tt-dashboard [data-tt-list-table="1"]' ).forEach( ( list, index ) => {
+			const body = list.querySelector( '[data-tt-list-body="1"]' );
+			if ( ! body ) return;
+
+			// Table rows and card-grid cards alike are direct children of
+			// the body; the loading, empty and error placeholders are too,
+			// and are not data.
+			const data = Array.from( body.children ).filter( ( el ) => {
+				if ( el.matches( '.tt-list-table-loading, .tt-list-table-empty, .tt-list-table-error' ) ) return false;
+				const r = el.getBoundingClientRect();
+				return r.width > 0 && r.height > 0;
+			} );
+			if ( ! data.length ) return;
+			rows += data.length;
+
+			const name = list.id ? `#${ list.id }` : `list ${ index + 1 }`;
+
+			let tallest = 0;
+			let over = 0;
+			data.forEach( ( el ) => {
+				const h = el.getBoundingClientRect().height;
+				if ( h > maxRow ) over++;
+				if ( h > tallest ) tallest = h;
+			} );
+			if ( over ) {
+				tall.push( `${ name }: ${ over } of ${ data.length } row(s), tallest ${ Math.round( tallest ) }px` );
+			}
+
+			// Document position, not viewport position: the answer must
+			// not depend on whether something scrolled the page first.
+			const top = data[ 0 ].getBoundingClientRect().top + window.scrollY;
+			if ( top > maxFirstTop ) {
+				low.push( `${ name }: first row starts at ${ Math.round( top ) }px` );
+			}
+		} );
+
+		if ( tall.length ) {
+			findings.push( {
+				kind: 'row-height',
+				detail: `row(s) taller than ${ maxRow }px — ${ tall.join( '; ' ) }`,
+			} );
+		}
+		if ( low.length ) {
+			findings.push( {
+				kind: 'first-row-low',
+				detail: `first data row below ${ maxFirstTop }px — ${ low.join( '; ' ) }`,
+			} );
+		}
+
+		return { rows, findings };
+	}, { maxRow: MAX_ROW_HEIGHT, maxFirstTop: MAX_FIRST_ROW_TOP } );
+}
+
 const SURFACES = phoneReachableSurfaces();
 const baseline = loadBaseline();
 
 test.describe( 'mobile viewport at 390x844', () => {
 	// 78-odd page loads. Generous but bounded; the issue's budget is five
-	// minutes and a cold wp-env first paint is the slow part.
-	test.setTimeout( 6 * 60 * 1000 );
+	// minutes and a cold wp-env first paint is the slow part. The density
+	// check adds a wait per native list surface, bounded by
+	// LIST_HYDRATION_TIMEOUT, so the ceiling sits above the worst case.
+	test.setTimeout( 8 * 60 * 1000 );
 
 	test( 'no surface regresses beyond the recorded baseline', async ( { page } ) => {
 		expect(
@@ -224,6 +345,8 @@ test.describe( 'mobile viewport at 390x844', () => {
 		const skipped = [];
 		/** @type {string[]} */
 		const unrendered = [];
+		/** @type {string[]} */
+		const withRows = [];
 		let measured = 0;
 
 		for ( const { slug, cls } of SURFACES ) {
@@ -254,6 +377,17 @@ test.describe( 'mobile viewport at 390x844', () => {
 
 			const findings = await measure( page, cls );
 			measured++;
+
+			// Density runs after the three checks above so that waiting for
+			// the list to load cannot change what they see.
+			if ( cls === 'native' ) {
+				const density = await measureDensity( page );
+				if ( density.rows ) {
+					withRows.push( `${ slug } (${ density.rows })` );
+				}
+				findings.push( ...density.findings );
+			}
+
 			if ( ! findings.length ) continue;
 
 			found[ slug ] = findings;
@@ -300,6 +434,13 @@ test.describe( 'mobile viewport at 390x844', () => {
 		);
 
 		console.log( `\nMeasured ${ measured } of ${ SURFACES.length } phone-reachable surface(s).` );
+
+		// Density can only be judged where a list actually has rows. Saying
+		// which surfaces those were keeps "no density findings" honest: on
+		// an install with no data it means nothing was looked at.
+		console.log(
+			`\nList density measured on ${ withRows.length } native surface(s) with data rows (row count):${ withRows.length ? `\n  ${ withRows.join( '\n  ' ) }` : ' none' }`
+		);
 
 		// Blindness first: a run that measured almost nothing has no
 		// regressions to report, and passing on that is how this gate sat

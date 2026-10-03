@@ -1,8 +1,13 @@
 {
   "_comment": [
     "Known mobile viewport offenders (#2813). Each entry allows specific finding",
-    "kinds on one surface: 'overflow', 'tap-target', 'wide-table'. Anything not",
-    "listed here fails the spec.",
+    "kinds on one surface: 'overflow', 'tap-target', 'wide-table', and on native",
+    "list surfaces 'row-height' and 'first-row-low'. Anything not listed here",
+    "fails the spec.",
+    "",
+    "'row-height' (#4200): a data row of a list taller than 120px.",
+    "'first-row-low' (#4200): the first data row starts more than 400px down the",
+    "page. Both are measured only where the list has rows in CI's wp-env data.",
     "",
     "Seeded from the first CI run that actually reached the dashboard (#4195) -",
     "before that every surface skipped and the gate measured nothing. The spec",
