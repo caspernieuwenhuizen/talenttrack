@@ -1424,6 +1424,99 @@ html.tt-sheet-lock body {
 }
 
 /* =============================================================
+   PHONE (<768px) — the collapsed bar in two compact rows (#4225)
+
+   Row 1: the Filters button, then the saved views (chip + bookmark).
+   Row 2, only while a filter is applied: the chips, wrapping, with Clear
+   as a text control at the end of the same line.
+
+   It used to stack into four 48px rows (216px on a 390px phone): the
+   cluster wrapped under the Filters button, and frontend-mobile.css gives
+   every `.tt-btn` `width: 100%` at 480px and below, so Clear took a row of
+   its own and pushed the saved views onto a fourth.
+   ============================================================= */
+/* frontend-mobile.css's `.tt-btn { width: 100% }` (0,1,0) is for form
+   commit rows; neither of these is one. A no-op from 481px up, where that
+   rule does not apply. */
+.tt-dashboard .tt-filterbtn,
+.tt-dashboard .tt-filterbar__clear {
+	width: auto;
+}
+
+/* A max-width query on purpose: this re-flows the existing cluster for a
+   phone only, and the tablet and desktop bars stay exactly as they were.
+   Written mobile-first, every rule here would need an undo above 768px,
+   including Clear's secondary-button skin. */
+@media (max-width: 767.98px) {
+	/* The cluster's children join the form's own flex line, so the saved
+	   views can sit beside the Filters button and the chips can start the
+	   second row. Only inside the bar's own form: a `form => false` bar has
+	   no flex line to join. */
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__utils {
+		display: contents;
+	}
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__mobile {
+		order: 1;
+	}
+	/* A zero flex basis: it never wraps under the Filters button, it takes
+	   the rest of row 1 and a long view name shortens with an ellipsis
+	   instead. Right-aligned, so its menu opens back over the row. */
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__utils > .tt-savedviews {
+		order: 2;
+		flex: 1 1 0;
+		min-width: 0;
+		justify-content: flex-end;
+	}
+	.tt-dashboard .tt-filterbar__utils > .tt-savedviews .tt-viewchip {
+		flex: 0 1 auto;
+		min-width: 0;
+	}
+	.tt-dashboard .tt-filterbar__utils > .tt-savedviews .tt-viewchip__apply {
+		max-width: 100%;
+	}
+	/* The line break before the chips. Only when there are chips, so an
+	   unfiltered list stays a single 48px row. */
+	.tt-dashboard .tt-filterbar__form:has(> .tt-filterbar__utils > .tt-chips)::after {
+		content: "";
+		order: 3;
+		flex: 0 0 100%;
+		height: 0;
+	}
+	/* Chips wrap on a phone rather than scroll sideways: two or three
+	   applied filters are worth seeing at once. */
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__utils > .tt-chips {
+		order: 4;
+		flex: 1 1 0;
+		flex-wrap: wrap;
+		overflow: visible;
+	}
+	.tt-dashboard .tt-filterbar__utils > .tt-chips .tt-chip {
+		flex-shrink: 1;
+		min-width: 0;
+		max-width: 100%;
+	}
+	.tt-dashboard .tt-filterbar__utils > .tt-chips .tt-chip__label {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	/* Clear as a text control beside the last chip: still 48px tall, as
+	   wide as its word. */
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__utils > .tt-filterbar__clear {
+		order: 5;
+		align-self: flex-end;
+		padding: 0 12px;
+		background: none;
+		border-color: transparent;
+		text-decoration: underline;
+		text-underline-offset: 3px;
+	}
+	.tt-dashboard .tt-filterbar__form > .tt-filterbar__utils > .tt-filterbar__clear:active {
+		background: var(--tt-bg-soft, #f6f7f9);
+	}
+}
+
+/* =============================================================
    SAVED VIEWS — the runtime <dialog> (moved from frontend-saved-views.css)
 
    `saved-views.js` builds this markup for the manage / confirm flows

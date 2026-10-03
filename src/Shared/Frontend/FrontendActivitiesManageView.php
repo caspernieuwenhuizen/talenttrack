@@ -733,6 +733,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $page_actions[] = [
             'label' => $toggle_label,
             'href'  => add_query_arg( 'view_mode', $toggle_to, remove_query_arg( 'view_mode', $list_base_url ) ),
+            // #4225 — a phone keeps the head to one row (title, +, ⋯);
+            // the display switch folds into ⋯ below 768px.
+            'narrow_overflow' => true,
         ];
         // Match executions and the attendance grid are reached in context
         // (a match's detail page, the review widget, an activity's menu, the
