@@ -196,12 +196,11 @@ The record used to be visible only on the form that wrote it. It is now shown ev
 | --- | --- |
 | The player's identity card | *On record, 12 March 2026 by Anna de Vries*, or *Not recorded*. |
 | The player's Media tab | A line above the pictures saying the same thing in a sentence, and — when there is no consent — a marker on every item. |
-| The players list | A **Media consent** column, sortable, and a **Media consent** filter. |
 | The printed PDP file | A line under the header, so the statement travels with the document when it is printed or emailed on. |
 
-The filter's first option, **Has media, no consent**, is the one worth knowing about. "No consent recorded" on its own returns mostly children
-nobody has ever photographed, which is an administrative gap rather than something to act on this week. *Has media, no consent* returns the
-children the academy is actually holding pictures of without a recorded answer — the list to work through before a matchday.
+The players list does not show consent. To see where a whole squad stands, open **Dossier completeness** and choose the team. The
+**Pictures on file with no consent** alert names the children the academy is holding pictures of without a recorded answer, which is the
+list to work through before a matchday. It clears itself once consent is recorded.
 
 **Marking is not hiding.** No image is withheld from anyone on account of consent, on any of those surfaces, including the printed file. A coach
 who cannot see a picture cannot judge whether they may use it, and a file whose images silently disappear reads as a broken export rather than as

@@ -207,12 +207,11 @@ Het record was alleen zichtbaar op het formulier dat het schreef. Het staat nu o
 | --- | --- |
 | De identiteitskaart van de speler | *Vastgelegd op 12 maart 2026 door Anna de Vries*, of *Niet geregistreerd*. |
 | Het tabblad Media van de speler | Een regel boven de beelden met hetzelfde in een zin, en — als er geen toestemming is — een markering op elk item. |
-| De spelerslijst | Een kolom **Mediatoestemming**, sorteerbaar, en een filter **Mediatoestemming**. |
 | Het geprinte POP-dossier | Een regel onder de kop, zodat de mededeling meereist als het document geprint of doorgestuurd wordt. |
 
-De eerste filteroptie, **Heeft media, geen toestemming**, is de belangrijkste. "Geen toestemming vastgelegd" levert vooral kinderen op die nooit
-gefotografeerd zijn — een administratieve leemte, geen werk voor deze week. *Heeft media, geen toestemming* levert de kinderen op van wie de
-academie daadwerkelijk beeld bewaart zonder vastgelegd antwoord: de lijst om vóór een wedstrijddag door te lopen.
+De spelerslijst toont geen toestemming. Wil je zien hoe een hele selectie ervoor staat, open dan **Compleetheid dossiers** en kies het team.
+De melding **Beeld in dossier zonder toestemming** noemt de kinderen van wie de academie beeld bewaart zonder vastgelegd antwoord: de lijst om
+vóór een wedstrijddag door te lopen. Ze verdwijnt vanzelf zodra de toestemming is vastgelegd.
 
 **Markeren is niet verbergen.** Geen enkel beeld wordt op grond van toestemming voor iemand achtergehouden, op geen van die schermen, ook niet in
 het geprinte dossier. Een trainer die de foto niet kan zien, kan niet beoordelen of hij hem mag gebruiken, en een dossier waaruit beelden stilletjes
