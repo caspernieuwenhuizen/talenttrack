@@ -351,28 +351,19 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
             <?php if ( $can_delete ) :
                 $delete_redirect = add_query_arg( [ 'tt_view' => 'trials' ], $trials_url );
+                ob_start();
                 ?>
-                <div class="tt-player-action tt-player-action--more"
-                     role="button"
-                     tabindex="0"
-                     aria-haspopup="true"
-                     aria-expanded="false"
-                     aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
-                     onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
-                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
-                    ⋯
-                    <div class="tt-player-action__menu" role="menu">
-                        <button type="button"
-                                class="tt-player-action tt-player-action--danger"
-                                role="menuitem"
-                                data-tt-archive-rest-path="<?php echo esc_attr( 'trial-cases/' . (int) $case->id . '/permanent' ); ?>"
-                                data-tt-archive-confirm="<?php echo esc_attr__( 'Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone.', 'talenttrack' ); ?>"
-                                data-tt-archive-redirect="<?php echo esc_attr( $delete_redirect ); ?>">
-                            <?php esc_html_e( 'Delete permanently', 'talenttrack' ); ?>
-                        </button>
-                    </div>
-                </div>
-            <?php endif; ?>
+                <button type="button"
+                        class="tt-player-action tt-player-action--danger"
+                        role="menuitem"
+                        data-tt-archive-rest-path="<?php echo esc_attr( 'trial-cases/' . (int) $case->id . '/permanent' ); ?>"
+                        data-tt-archive-confirm="<?php echo esc_attr__( 'Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone.', 'talenttrack' ); ?>"
+                        data-tt-archive-redirect="<?php echo esc_attr( $delete_redirect ); ?>">
+                    <?php esc_html_e( 'Delete permanently', 'talenttrack' ); ?>
+                </button>
+                <?php
+                \TT\Shared\Frontend\Components\RecordActionRow::renderMenu( trim( (string) ob_get_clean() ) );
+            endif; ?>
         </div>
         <?php
     }

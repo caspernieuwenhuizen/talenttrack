@@ -10,6 +10,10 @@
  *   - opening moves focus to the first item, so a keyboard user is not left
  *     tabbing through the page to reach what they just opened
  *   - clicking outside closes it, rather than leaving menus open behind you
+ *   - choosing an item closes it
+ *
+ * Any `<details data-tt-actions-more>` gets this: the page-actions menu and
+ * the record action row's menu (`RecordActionRow::renderMenu()`).
  *
  * Everything here is additive. Remove this file and the menu still opens,
  * still closes, and still lists every action — which is the property that
@@ -20,10 +24,13 @@
 
 	var SELECTOR = '[data-tt-actions-more]';
 
+	// The record action row's menu (#4231) uses the same <details> with its
+	// own classes, so items are found by element, not by menu class. The
+	// trigger is a <summary> and matches neither.
+	var ITEM = 'a[href], button';
+
 	function itemsIn( details ) {
-		return details.querySelectorAll(
-			'.tt-page-actions__more-menu a[href], .tt-page-actions__more-menu button'
-		);
+		return details.querySelectorAll( ITEM );
 	}
 
 	function close( details, refocus ) {
@@ -66,6 +73,22 @@
 		} );
 	}
 
+	// Choosing an item closes the menu. A link navigates anyway; a button
+	// (Archive, Customize) opens something on this page, and the menu must
+	// not stay open behind it.
+	//
+	// Capture phase, so this runs before the item's own handler. The archive
+	// button opens a modal <dialog>, which hands focus back to whatever had
+	// it when it opened: closing first puts that on the trigger, not on an
+	// item that is hidden by the time the dialog closes.
+	function onItemChoice( e ) {
+		var item = e.target.closest ? e.target.closest( ITEM ) : null;
+		if ( ! item ) return;
+
+		var details = item.closest( SELECTOR + '[open]' );
+		if ( details ) close( details, true );
+	}
+
 	function init() {
 		document.querySelectorAll( SELECTOR ).forEach( function ( details ) {
 			details.addEventListener( 'toggle', onToggle );
@@ -73,6 +96,7 @@
 
 		document.addEventListener( 'keydown', onKeydown );
 		document.addEventListener( 'click', onDocumentClick );
+		document.addEventListener( 'click', onItemChoice, true );
 	}
 
 	if ( document.readyState === 'loading' ) {
