@@ -79,9 +79,23 @@ per surface, plus two more on `native` list surfaces:
 3. No table wider than the viewport, on `native` surfaces only. Elsewhere a
    table scrolling inside its own container is the intended compromise.
 
+**When it measures.** `FrontendListTable` fills its body over REST after
+first paint. On a surface with a list the spec waits for the loading row to
+go (up to five seconds, `waitForListHydration()`) before any check runs, so
+a row's links and buttons are always part of what is measured rather than
+depending on how fast the REST call returned.
+
+**What counts as visible** in check 2: the element has a box larger than
+1px in both dimensions and `checkVisibility()` says a person can see it.
+That leaves out three things that are not tap targets: `display: none`
+elements, visually hidden inputs clipped to a pixel and driven by a visible
+button (`.tt-media-file-input`), and anything hidden by an ancestor — the
+items of a closed `<details>` menu keep a box and their own `display`, and
+used to be reported.
+
 On `native` surfaces it also checks list density, because a list can pass
 all three and still be unusable on a phone. Both findings are reported per
-`FrontendListTable` on the page, once its rows have loaded over REST:
+`FrontendListTable` on the page:
 
 4. `row-height` — a data row (or card) taller than 120px
    (`MAX_ROW_HEIGHT`).

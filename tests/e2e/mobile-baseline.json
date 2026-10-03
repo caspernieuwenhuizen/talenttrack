@@ -18,6 +18,13 @@
     "The 71 entries caused by the 34px header home link were removed when #4204",
     "widened it to 48px. The entries left here each have their own offender.",
     "",
+    "Reseeded for #4232. Every check now runs after a list's rows have loaded",
+    "over REST, and a tap target is an element a person can see: content hidden",
+    "by an ancestor (the items of a closed menu) and boxes of 1px or less",
+    "(visually hidden inputs) are not measured. That removed five entries and",
+    "added two that the wait exposed: 'goals' and 'people', for the links inside",
+    "their list rows, which had not arrived when the old gate measured.",
+    "",
     "The job is non-blocking (continue-on-error in e2e.yml) until the list is",
     "empty; then drop continue-on-error.",
     "",
@@ -31,19 +38,19 @@
     "docs": [
       "tap-target"
     ],
-    "ideas-refine": [
+    "goals": [
       "tap-target"
     ],
     "lost-password": [
-      "tap-target"
-    ],
-    "mfa-prompt": [
       "tap-target"
     ],
     "my-settings": [
       "tap-target"
     ],
     "my-tasks": [
+      "tap-target"
+    ],
+    "people": [
       "tap-target"
     ],
     "players": [
@@ -55,19 +62,10 @@
     "reset-password": [
       "tap-target"
     ],
-    "team-behaviour-capture": [
-      "tap-target"
-    ],
     "teams": [
       "row-height"
     ],
     "training-photo": [
-      "tap-target"
-    ],
-    "trial-case": [
-      "tap-target"
-    ],
-    "trial-parent-meeting": [
       "tap-target"
     ],
     "usage-stats": [
