@@ -525,6 +525,26 @@ Het corrigeren van minuten vereist de capability `tt_edit_activities`,
 dezelfde rechten die ook de rest van het wedstrijduitvoeringsscherm
 afschermen.
 
+## Een wedstrijd later terugvinden — de lijst wedstrijduitvoeringen
+
+**Activiteiten → Wedstrijduitvoeringen** toont elke wedstrijd die op het
+wedstrijduitvoeringsscherm is gespeeld, de nieuwste eerst: datum, team,
+tegenstander, stand en status (*Live*, *Wacht op controle*, *Afgerond*).
+Tik op een rij om die wedstrijd te openen. Filter op **team**, **status** en
+een **periode**; zonder datums toont de lijst de afgelopen 12 maanden.
+Kolommen sorteer je door op de kop te tikken, er staan 25 wedstrijden per
+pagina, en op een telefoon is elke wedstrijd één compacte regel: de
+tegenstander, met datum en team eronder en de stand en status rechts.
+Coaches zien hun
+eigen teams; academiebrede rollen zien de hele club. Het dashboardblok
+*Wedstrijden die nog beoordeeld moeten worden* opent deze lijst met *Wacht
+op controle* gekozen.
+
+Dezelfde lijst is via REST beschikbaar op
+`GET /wp-json/talenttrack/v1/match-executions` (`filter[team_id]`,
+`filter[state]`, `filter[date_from]`, `filter[date_to]`, `orderby`,
+`order`, `page`, `per_page`), afgeschermd met `tt_view_activities`.
+
 ## Waar de gegevens vandaan komen
 
 Beide onderdelen lezen uit de gegevens die de wedstrijd al vastlegt — de

@@ -589,11 +589,11 @@ Een aparte ranglijst die je opent vanuit de Rapporten-startpagina (*Aanwezigheid
 
 Hij deelt dezelfde filterbalk en chrome als het spelersaanwezigheidsrapport: een **team**-keuze, retrospectieve **periode**-pillen (afgelopen week / maand / seizoen enzovoort), een **activiteittype**-filter en een handmatig **datumbereik** dat de actieve periode overschrijft, plus de ranglijst-specifieke *Hoeveel*-limiet. Open je hem zonder filters, dan valt hij terug op het huidige **seizoen**. Boven de tabellen vat een KPI-strip de gerangschikte spelers samen — aantal spelers, gemiddelde aanwezigheid en hoeveel er risico lopen — berekend uit dezelfde gegevens, dus zonder extra query.
 
-Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scrollen; vanaf tabletbreedte staan ze naast elkaar. Bovenop de standaardrangschikking is elke kolom sorteerbaar.
+Elke tabel is dezelfde lijst als de andere lijsten in de plugin: 25 spelers per pagina met een paginakeuze eronder, en de kolommen Speler, Team, Activiteiten en Aanwezig % zijn sorteerbaar. Sorteer je op een kolom, dan houdt elke speler zijn rangnummer, zodat je blijft zien waar hij staat. Een filter wijzigen laadt de pagina opnieuw. Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scrollen en is elke speler één compacte regel (naam, team eronder, aanwezig % rechts); vanaf tabletbreedte staan ze naast elkaar.
 
 Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:
 
-- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…&activity_type_key=…` — `{ top, bottom, total, from, to }`. Voeg `board=bottom` of `board=top` toe (of `filter[board]`) om één tabel als een pagina rijen te krijgen: `{ board, rows, total, ranked_players, page, per_page, from, to }`, met bij elke rij zijn `rank`.
 - `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…&activity_type_key=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold` en de periode: `{ players, threshold, from, to }`.
 - `GET /wp-json/talenttrack/v1/reports/attendance?from=…&to=…&team_id=…&activity_type_key=…` — de aanwezigheidsrijen per speler voor één periode (voedt het inzoomen in het teamrapport): `{ players, threshold, from, to }`.
 

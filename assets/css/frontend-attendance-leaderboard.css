@@ -1,7 +1,7 @@
 /*
  * frontend-attendance-leaderboard.css (#1695) — 2026 green/gold look for the
- * attendance leaderboard. Two league-table cards (needs-attention + most
- * reliable), each wrapping a sortable table with an inline present-% bar.
+ * attendance leaderboard. Two league tables (needs-attention + most
+ * reliable), each a shared list table with an inline present-% bar.
  * Mobile-first per CLAUDE.md §2; tokens only (see assets/css/tokens.css).
  * Scoped under .tt-dashboard.
  */
@@ -13,37 +13,20 @@
     margin-top: var(--tt-sp-3);
 }
 
+/* #4194 — each board is a shared list table. On a phone its rows are
+   cards already, so the board itself stays a plain section with a heading;
+   from 768px, where the rows are table rows, it becomes the card. */
 .tt-dashboard .tt-leaderboard-card {
     min-width: 0;
-    background: var(--tt-paper);
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius-lg);
-    box-shadow: var(--tt-shadow-md);
-    overflow: hidden;
 }
 
 .tt-dashboard .tt-leaderboard-title {
-    margin: 0;
-    padding: var(--tt-sp-3) var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-2);
     font-size: var(--tt-fs-sm);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--tt-ink-soft);
-    border-bottom: 1px solid var(--tt-line-soft);
-}
-
-.tt-dashboard .tt-leaderboard-card .tt-table-wrap {
-    margin: 0;
-    overflow-x: auto;
-}
-.tt-dashboard .tt-leaderboard-card .tt-table {
-    margin: 0;
-    width: 100%;
-}
-
-.tt-dashboard .tt-leaderboard-card tr.is-flagged {
-    background: var(--tt-danger-subtle);
 }
 
 .tt-dashboard .tt-flag-badge {
@@ -95,5 +78,17 @@
 @media (min-width: 768px) {
     .tt-dashboard .tt-leaderboard-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .tt-dashboard .tt-leaderboard-card {
+        background: var(--tt-paper);
+        border: 1px solid var(--tt-line);
+        border-radius: var(--tt-radius-lg);
+        box-shadow: var(--tt-shadow-md);
+        padding: var(--tt-sp-3) var(--tt-sp-4);
+    }
+    .tt-dashboard .tt-leaderboard-title {
+        margin: 0 calc(-1 * var(--tt-sp-4)) var(--tt-sp-3);
+        padding: 0 var(--tt-sp-4) var(--tt-sp-3);
+        border-bottom: 1px solid var(--tt-line-soft);
     }
 }

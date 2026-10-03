@@ -2,9 +2,14 @@
  * frontend-test-results.css (#2145) — the "Test results" analysis browser.
  * Mobile-first, scoped under .tt-dashboard, design tokens only (no raw hex).
  *
- * Base (~360px): the result grid reflows to stacked cards via each <td>'s
- * data-label legend. At 768px+ it becomes a real sortable row table.
+ * The results list itself is the shared list table (#4194), which owns the
+ * table, sorting and the phone layout; this sheet styles the cells' own
+ * content (levels, flags, trend) and the filter bar Test trends still uses.
  */
+
+.tt-dashboard .tt-tr-list .tt-record-link {
+    font-weight: 600;
+}
 
 /* ===== Filter bar ===== */
 
@@ -61,55 +66,10 @@
 .tt-dashboard .tt-tr-export .tt-btn {
     min-height: 48px;
 }
-
-/* ===== Result grid — stacked cards (mobile-first) ===== */
-
-.tt-dashboard .tt-tr-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tt-dashboard .tt-tr-table thead {
-    display: none;               /* header hidden in card mode */
-}
-
-.tt-dashboard .tt-tr-table,
-.tt-dashboard .tt-tr-table tbody,
-.tt-dashboard .tt-tr-table tr,
-.tt-dashboard .tt-tr-table td {
-    display: block;
-    width: 100%;
-}
-
-.tt-dashboard .tt-tr-table tr {
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius, 8px);
-    background: #fff;
-    margin-bottom: 0.75rem;
-    padding: 0.75rem;
-}
-
-.tt-dashboard .tt-tr-table td {
-    border-bottom: none;
-    padding: 0.25rem 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 48px;
-}
-
-.tt-dashboard .tt-tr-table td::before {
-    content: attr(data-label);
-    font-weight: 600;
-    font-size: 0.72rem;
-    color: var(--tt-muted, #6a6d66);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    flex: 0 0 6rem;
-}
-
-.tt-dashboard .tt-tr-cell--name a {
-    font-weight: 600;
+.tt-dashboard .tt-tr-export__note:not(:empty) {
+    margin: 0.5rem 0 0;
+    color: var(--tt-danger, #d8453b);
+    font-size: var(--tt-fs-sm, 0.85rem);
 }
 
 /* #2586 — the signed change beside the trend arrow. Tabular figures so a
@@ -188,85 +148,11 @@
     }
 }
 
-/* ===== Tablet (768px+) — real sortable row table ===== */
+/* ===== Tablet (768px+) — filters on one row ===== */
 
 @media (min-width: 768px) {
     .tt-dashboard .tt-tr-filters__field {
         flex: 1 1 auto;
         min-width: 10rem;
-    }
-
-    .tt-dashboard .tt-tr-table thead {
-        display: table-header-group;
-    }
-    .tt-dashboard .tt-tr-table {
-        display: table;
-    }
-    .tt-dashboard .tt-tr-table tbody {
-        display: table-row-group;
-    }
-    .tt-dashboard .tt-tr-table tr {
-        display: table-row;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        margin: 0;
-        padding: 0;
-        border-bottom: 1px solid var(--tt-line, #e3e6e1);
-    }
-    .tt-dashboard .tt-tr-table td {
-        display: table-cell;
-        padding: 0.6rem 0.75rem;
-        min-height: 0;
-        vertical-align: middle;
-    }
-    .tt-dashboard .tt-tr-table td::before {
-        content: none;
-    }
-    .tt-dashboard .tt-tr-table thead th {
-        text-align: left;
-        padding: 0.6rem 0.75rem;
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        color: var(--tt-muted, #6a6d66);
-        border-bottom: 2px solid var(--tt-line, #e3e6e1);
-        cursor: pointer;
-        white-space: nowrap;
-    }
-    .tt-dashboard .tt-tr-table thead th[data-tt-sort="off"] {
-        cursor: default;
-    }
-
-    /* #2585 — column behaviour. Without this the table is `table-layout:
-       auto` with no width guidance, so the browser hands the surplus to the
-       first column: the player name took ~45% of the row for "Kai Bosch"
-       while "Voetbalacademie De Maasoever U9" wrapped to three lines and the
-       date wrapped to two. The short, predictable columns are pinned to
-       their content and the name column takes what is left. */
-    .tt-dashboard .tt-tr-table th:nth-child(3),
-    .tt-dashboard .tt-tr-table td:nth-child(3),   /* age group */
-    .tt-dashboard .tt-tr-table th:nth-child(4),
-    .tt-dashboard .tt-tr-table td:nth-child(4),   /* result */
-    .tt-dashboard .tt-tr-table th:nth-child(5),
-    .tt-dashboard .tt-tr-table td:nth-child(5),   /* trend */
-    .tt-dashboard .tt-tr-table th:nth-child(6),
-    .tt-dashboard .tt-tr-table td:nth-child(6) {  /* date */
-        width: 1%;
-        white-space: nowrap;
-    }
-    /* Team is the one that wrapped worst; give it room but stop it growing. */
-    .tt-dashboard .tt-tr-table th:nth-child(2),
-    .tt-dashboard .tt-tr-table td:nth-child(2) {
-        width: 1%;
-        white-space: nowrap;
-    }
-}
-
-/* ===== Desktop (1024px+) — tighten cells ===== */
-
-@media (min-width: 1024px) {
-    .tt-dashboard .tt-tr-table td {
-        padding: 0.5rem 0.75rem;
     }
 }

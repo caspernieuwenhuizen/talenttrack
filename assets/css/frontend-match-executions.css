@@ -1,85 +1,18 @@
 /*
- * frontend-match-executions.css — match executions list restyled to the
- * 2026 pitch look (B1). Filter row sits in a soft toolbar card; the
- * results table gets the 2026 header treatment and state chips per row.
+ * frontend-match-executions.css — the state chips on the match
+ * executions list. The filters, table and phone layout come from the
+ * shared list table (#4194); this sheet only styles what is particular
+ * to match executions.
  *
- * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
- * queries scale up (480 / 768 only). Scoped under .tt-dashboard. Tokens
+ * Mobile-first per CLAUDE.md §2. Scoped under .tt-dashboard. Tokens
  * come from tokens.css / public.css.
  */
 
-.tt-dashboard .tt-mex-filter {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--tt-sp-3, 12px);
-    align-items: flex-end;
-    margin: 0 0 var(--tt-sp-4, 16px);
-    padding: var(--tt-sp-3, 12px);
-    background: var(--tt-bg-soft, #f4f6f3);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-}
-
-.tt-dashboard .tt-mex-filter label {
-    display: flex;
-    flex-direction: column;
-    gap: var(--tt-sp-1, 4px);
-    flex: 1 1 8rem;
-}
-
-.tt-dashboard .tt-mex-filter label > span {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.tt-dashboard .tt-mex-window-hint {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);
 }
-
-.tt-dashboard .tt-mex-filter select,
-.tt-dashboard .tt-mex-filter input {
-    width: 100%;
-    min-height: 48px;
-    box-sizing: border-box;
-    font-size: 1rem;
-}
-
-.tt-dashboard .tt-mex-filter .tt-btn {
-    min-height: 48px;
-    flex: 0 0 auto;
-    touch-action: manipulation;
-}
-
-/* ---- Results table --------------------------------------------------- */
-.tt-dashboard .tt-mex-table-wrap {
-    overflow-x: auto;
-}
-
-.tt-dashboard .tt-mex-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tt-dashboard .tt-mex-table th {
-    text-align: left;
-    padding: var(--tt-sp-2, 8px);
-    border-bottom: 1px solid var(--tt-line, #e3e6e1);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--tt-muted, #6a6d66);
-}
-
-.tt-dashboard .tt-mex-table td {
-    padding: var(--tt-sp-3, 12px) var(--tt-sp-2, 8px);
-    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
-}
-
-.tt-dashboard .tt-mex-table tr.is-row-link { cursor: pointer; }
-.tt-dashboard .tt-mex-table tr.is-row-link:hover { background: var(--tt-bg-soft, #f4f6f3); }
-
-.tt-dashboard .tt-mex-score { text-align: right; font-variant-numeric: tabular-nums; }
-.tt-dashboard .tt-mex-table th.tt-mex-score { text-align: right; }
 
 /* ---- State chips ----------------------------------------------------- */
 .tt-dashboard .tt-mex-chip {
@@ -121,6 +54,3 @@
     color: var(--tt-paper, #fff);
 }
 
-@media (min-width: 768px) {
-    .tt-dashboard .tt-mex-filter label { flex: 0 1 12rem; }
-}

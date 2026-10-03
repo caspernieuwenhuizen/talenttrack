@@ -453,10 +453,11 @@ opens a browser for reading every recorded result in one place, organised
 per player. It answers "how is each player doing on this test, right now?"
 without opening profiles one by one.
 
-1. **Pick a test.** Until you choose one, the grid prompts you to. The
- picker lists every test in the catalogue, grouped by category.
+1. **Pick a test** in the filter bar. Until you choose one, the list prompts
+ you to. The picker lists every test in the catalogue, each with its
+ category in front of its name.
 2. **Optionally narrow** by **team**, **age group**, and a **date range**
- (from / to). The filters re-run the grid when you press *Show*.
+ (from / to). The list updates as soon as you change a filter.
 3. **Read the grid.** One row per player who has a value for the test,
  showing their **latest value in the window**:
  - **Status tests** show the level's **colour chip and label** (e.g. a
@@ -467,11 +468,16 @@ without opening profiles one by one.
  *below target*, red *well below target* — against their age-group
  band.
 
-The grid is **sortable** (tap a column header on tablet and desktop) and
-every **player name links to their profile**, arriving with a back-pill so
-one click returns you to the browser. An **Export Excel** button
-downloads the current test (honouring the team and date filters) through
-the same formatted workbook the *Manage tests* export produces.
+The list is **sortable** (tap a column header on tablet and desktop; the
+Result column sorts on the measured value, Trend on the size of the
+change), shows 25 players per page with a page picker below it, and every
+**player name links to their profile**, arriving with a back-pill so one
+click returns you to the browser. On a phone each player is one compact
+row: the name, with team and age group underneath and the result and
+trend at the right. An
+**Export Excel** button downloads the test chosen in the filters (honouring
+the team and date filters) through the same formatted workbook the *Manage
+tests* export produces; with no test chosen it asks you to pick one first.
 
 Team-scoped staff (coaches who hold *read* on their own teams only) see
 results for their teams only; academy-wide readers see everyone. A coach
@@ -485,7 +491,11 @@ are available over REST at
 `team_id`, `age_group`, `from`, `to`), gated on the same `measurements`
 *read* permission and narrowed to the same teams as the screen — omitting
 `team_id` does not widen the answer, and naming a team outside your scope
-returns `403`. For integrations and the SaaS front end.
+returns `403`. Every filter is also taken nested (`filter[definition_id]`,
+`filter[date_from]`, …). Sending `page` or `per_page` returns one sorted
+page in the list envelope instead (`orderby`: `name`, `team_name`,
+`age_group`, `value`, `trend`, `recorded_date`), which is what the screen
+reads. For integrations and the SaaS front end.
 
 ## Test trends — one test, every player, over the season
 

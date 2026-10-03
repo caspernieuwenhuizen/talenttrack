@@ -222,6 +222,142 @@ class MatchExecutionRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+
+        // #4194 — the list behind `?tt_view=match-executions`. Read-only, so
+        // the plan gate lets it through for a club that ran matches before.
+        register_rest_route( self::NS, '/match-executions', [
+            [
+                'methods'             => 'GET',
+                'callback'            => self::gate( [ __CLASS__, 'route_list' ] ),
+                'permission_callback' => [ __CLASS__, 'can_list' ],
+                'args'                => self::listArgs(),
+            ],
+        ] );
+    }
+
+    /**
+     * The list reads executions on the teams the caller may see; the team
+     * narrowing happens inside the query, so the capability is the gate.
+     */
+    public static function can_list(): bool {
+        return current_user_can( 'tt_view_activities' );
+    }
+
+    /** @return array<string, array<string, mixed>> */
+    private static function listArgs(): array {
+        return [
+            'filter'   => [ 'type' => 'object', 'description' => 'team_id, state (all, live, pending_review, finalized), date_from, date_to (YYYY-MM-DD). Without dates: the last 365 days.' ],
+            'orderby'  => [ 'type' => 'string', 'description' => 'session_date (default), team_name, opponent or state.' ],
+            'order'    => [ 'type' => 'string', 'description' => 'asc or desc (default).' ],
+            'page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+            'per_page' => [ 'type' => [ 'integer', 'string' ], 'description' => '10, 25 (default), 50 or 100.' ],
+        ];
+    }
+
+    /**
+     * GET /match-executions — one page of match executions on the caller's
+     * teams, newest first. A team outside the caller's scope is refused
+     * rather than read as an empty list.
+     */
+    public static function route_list( \WP_REST_Request $r ): \WP_REST_Response {
+        $filter = is_array( $r['filter'] ?? null ) ? $r['filter'] : [];
+
+        $user_id = get_current_user_id();
+        $teams   = \TT\Modules\MatchExecution\Services\MatchExecutionListQuery::teamsForUser(
+            $user_id,
+            current_user_can( 'tt_edit_settings' )
+        );
+        $allowed = array_map( static fn ( $t ): int => (int) $t->id, $teams );
+
+        $team_id = absint( $filter['team_id'] ?? 0 );
+        if ( $team_id > 0 && ! in_array( $team_id, $allowed, true ) ) {
+            return RestResponse::error( 'forbidden_team', __( 'You do not have access to this team.', 'talenttrack' ), 403 );
+        }
+
+        $state = sanitize_key( (string) ( $filter['state'] ?? 'all' ) );
+        if ( ! in_array( $state, \TT\Modules\MatchExecution\Services\MatchExecutionListQuery::STATE_FILTERS, true ) ) {
+            $state = 'all';
+        }
+
+        $window = \TT\Modules\MatchExecution\Services\MatchExecutionListQuery::defaultWindow();
+        $from   = (string) ( $filter['date_from'] ?? '' );
+        $to     = (string) ( $filter['date_to'] ?? '' );
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $window['from'];
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $window['to'];
+
+        $orderby = sanitize_key( (string) ( $r['orderby'] ?? 'session_date' ) );
+        if ( ! isset( \TT\Modules\MatchExecution\Services\MatchExecutionListQuery::ORDERBY[ $orderby ] ) ) {
+            $orderby = 'session_date';
+        }
+        $order    = strtolower( (string) ( $r['order'] ?? 'desc' ) ) === 'asc' ? 'asc' : 'desc';
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = absint( $r['per_page'] ?? 25 );
+        if ( ! in_array( $per_page, [ 10, 25, 50, 100 ], true ) ) $per_page = 25;
+
+        $result = \TT\Modules\MatchExecution\Services\MatchExecutionListQuery::page(
+            $team_id > 0 ? [ $team_id ] : $allowed,
+            $from, $to, $state, $orderby, $order, $page, $per_page
+        );
+
+        return RestResponse::success( [
+            'rows'      => array_map( [ __CLASS__, 'listRow' ], $result['rows'] ),
+            'total'     => $result['total'],
+            'page'      => $page,
+            'per_page'  => $per_page,
+            'date_from' => $from,
+            'date_to'   => $to,
+        ] );
+    }
+
+    /**
+     * One list row: the raw fields plus the pre-rendered cells the shared
+     * list table prints (`render: html`).
+     *
+     * @return array<string, mixed>
+     */
+    private static function listRow( \stdClass $row ): array {
+        $state       = (string) ( $row->state ?? '' );
+        $activity_id = (int) $row->activity_id;
+        $detail_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'match-execution', 'activity_id' => $activity_id ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        ) );
+        $opponent = trim( (string) ( $row->opponent ?? '' ) );
+        $date     = (string) $row->session_date;
+
+        return [
+            'execution_id' => (int) $row->execution_id,
+            'activity_id'  => $activity_id,
+            'session_date' => $date,
+            'team_id'      => (int) $row->team_id,
+            'team_name'    => (string) ( $row->team_name ?? '' ),
+            'opponent'     => $opponent,
+            'home_score'   => (int) $row->home_score,
+            'away_score'   => (int) $row->away_score,
+            'score'        => sprintf( '%d–%d', (int) $row->home_score, (int) $row->away_score ),
+            'state'        => $state,
+            'state_label'  => self::listStateLabel( $state ),
+            'detail_url'   => $detail_url,
+            'date_link_html' => '<a class="tt-record-link" href="' . esc_url( $detail_url ) . '">'
+                . esc_html( \TT\Shared\Dates\TTDate::dateWithDay( $date ) ) . '</a>',
+            'opponent_display' => $opponent !== '' ? $opponent : '—',
+            'state_pill_html'  => '<span class="tt-mex-chip' . self::listStateModifier( $state ) . '">'
+                . esc_html( self::listStateLabel( $state ) ) . '</span>',
+        ];
+    }
+
+    private static function listStateLabel( string $state ): string {
+        if ( MatchExecutionState::isLive( $state ) )           return __( 'Live', 'talenttrack' );
+        if ( $state === MatchExecutionState::PENDING_REVIEW ) return __( 'Pending review', 'talenttrack' );
+        if ( $state === MatchExecutionState::FINALIZED )      return __( 'Finalized', 'talenttrack' );
+        return __( 'Not started', 'talenttrack' );
+    }
+
+    private static function listStateModifier( string $state ): string {
+        if ( MatchExecutionState::isLive( $state ) )           return ' tt-mex-chip--live';
+        if ( $state === MatchExecutionState::PENDING_REVIEW ) return ' tt-mex-chip--review';
+        if ( $state === MatchExecutionState::FINALIZED )      return ' tt-mex-chip--done';
+        return '';
     }
 
     /**

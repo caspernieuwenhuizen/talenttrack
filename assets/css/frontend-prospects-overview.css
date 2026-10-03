@@ -36,11 +36,6 @@
     font-size: var(--tt-fs-sm, 0.85rem);
 }
 
-.tt-dashboard .tt-prospects-overview .tt-list-table-table th,
-.tt-dashboard .tt-prospects-overview .tt-list-table-table td {
-    text-align: left;
-}
-
 .tt-dashboard .tt-prospects-overview .tt-list-table-table thead th {
     background: var(--tt-bg-soft, #f4f6f3);
     color: var(--tt-muted, #6a6d66);
@@ -114,6 +109,7 @@
     .tt-dashboard .tt-prospects-overview .tt-list-table-table th,
     .tt-dashboard .tt-prospects-overview .tt-list-table-table td {
         padding: var(--tt-sp-3, 12px);
+        text-align: left;
         border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
     }
 }

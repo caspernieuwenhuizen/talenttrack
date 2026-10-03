@@ -476,6 +476,24 @@ instead and the minutes recompute correctly.
 Correcting minutes needs the `tt_edit_activities` capability, the same
 permission that gates the rest of the match-execution screen.
 
+## Finding a match afterwards — the match executions list
+
+**Activities → Match executions** lists every match that has been run on
+the match-execution screen, newest first: date, team, opponent, score and
+state (*Live*, *Pending review*, *Finalized*). Tap a row to open that
+match. Filter by **team**, **state** and a **date range**; without dates
+the list shows the last 12 months. Columns sort by tapping their header,
+25 matches show per page, and on a phone each match is one compact row:
+the opponent, with date and team underneath and the score and state at the
+right. Coaches see
+their own teams; academy-wide roles see the club. The *Matches needing
+review* dashboard block opens this list with *Pending review* chosen.
+
+The same list is available over REST at
+`GET /wp-json/talenttrack/v1/match-executions` (`filter[team_id]`,
+`filter[state]`, `filter[date_from]`, `filter[date_to]`, `orderby`,
+`order`, `page`, `per_page`), gated on `tt_view_activities`.
+
 ## Where the data comes from
 
 Both surfaces read from the data the live match already captures — the
