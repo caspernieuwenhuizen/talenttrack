@@ -32,6 +32,8 @@ A task is "write the post-match evaluation for Daan". An alert is "this activity
 - **The bell**, top right. Its number now counts both your open tasks and your open alerts.
 - **A banner** at the top of the dashboard, showing the ones that need attention most.
 
+On a phone the banner shows on the dashboard itself, not above every list and record, so the page you opened starts at the top of the screen. Alerts about a child's safety are the exception: on those pages they keep one line, such as "1 safety alert", that opens your alerts. On a tablet or a computer the banner shows on every page.
+
 Each alert links straight to the record it is about, so fixing it is one click away.
 
 ## What TalentTrack currently alerts on

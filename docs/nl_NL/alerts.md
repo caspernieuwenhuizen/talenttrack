@@ -32,6 +32,8 @@ Een taak is "schrijf de wedstrijdevaluatie voor Daan". Een melding is "deze acti
 - **De bel**, rechtsboven. Het getal telt nu zowel je open taken als je open meldingen.
 - **Een balk** bovenaan het dashboard met de meldingen die het meest aandacht vragen.
 
+Op een telefoon staat die balk alleen op het dashboard zelf, niet boven elke lijst en elk record, zodat de pagina die je opent bovenaan het scherm begint. Meldingen over de veiligheid van een kind zijn de uitzondering: op die pagina's houden ze één regel, zoals "1 veiligheidsmelding", die je meldingen opent. Op een tablet of computer staat de balk op elke pagina.
+
 Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen is één klik.
 
 ## Waar TalentTrack nu op meldt
