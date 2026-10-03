@@ -4,8 +4,7 @@ namespace TT\Modules\Alerts\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Alerts\Domain\Surface;
-use TT\Modules\Alerts\Policy\AlertPolicyResolver;
-use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
+use TT\Modules\Alerts\Services\AlertCounter;
 use TT\Shared\Icons\IconRenderer;
 
 /**
@@ -50,11 +49,15 @@ final class AlertBell {
     /**
      * Total waiting for this user, and where it came from.
      *
-     * @return array{total:int,alerts:int,tasks:int}
+     * `capped` (#4222) is true when the alert half hit `AlertCounter::CEILING`,
+     * so the total is a floor and the bell reads "50+", not "50".
+     *
+     * @return array{total:int,alerts:int,tasks:int,capped:bool}
      */
     public static function tally( int $user_id ): array {
-        $alerts = self::alertCount( $user_id );
-        $total  = \TT\Modules\Workflow\Frontend\NotificationBell::countFor( $user_id );
+        $counted = AlertCounter::forUser( $user_id, Surface::BADGE );
+        $alerts  = $counted['count'];
+        $total   = \TT\Modules\Workflow\Frontend\NotificationBell::countFor( $user_id );
 
         // The workflow class's filter already added the alert count, so the
         // task share is the remainder. Deriving it rather than querying
@@ -65,6 +68,7 @@ final class AlertBell {
             'total'  => $total,
             'alerts' => $alerts,
             'tasks'  => max( 0, $total - $alerts ),
+            'capped' => $counted['capped'],
         ];
     }
 
@@ -75,7 +79,7 @@ final class AlertBell {
         if ( $tally['total'] <= 0 && ! self::onAnInbox() ) return $html;
 
         $count = $tally['total'];
-        $label = self::ariaLabel( $count );
+        $label = self::ariaLabel( $count, $tally['capped'] );
 
         $bell = sprintf(
             '<a href="%1$s" class="tt-bell%2$s" aria-label="%3$s" title="%3$s">'
@@ -87,7 +91,7 @@ final class AlertBell {
             esc_attr( $label ),
             IconRenderer::render( 'bell', [ 'width' => 13, 'height' => 13 ] ),
             $count > 0
-                ? '<span class="tt-bell__count">' . esc_html( (string) $count ) . '</span>'
+                ? '<span class="tt-bell__count">' . esc_html( AlertCounter::display( $count, $tally['capped'] ) ) . '</span>'
                 : ''
         );
 
@@ -104,14 +108,14 @@ final class AlertBell {
         $title  = '<span class="ab-icon tt-bell__icon" aria-hidden="true">'
             . IconRenderer::render( 'bell', [ 'width' => 15, 'height' => 15 ] )
             . '</span>';
-        $title .= '<span class="ab-label tt-bell__count">' . esc_html( (string) $tally['total'] ) . '</span>';
+        $title .= '<span class="ab-label tt-bell__count">' . esc_html( AlertCounter::display( $tally['total'], $tally['capped'] ) ) . '</span>';
 
         $wp_admin_bar->add_node( [
             'id'    => 'tt-notification-bell',
             'title' => $title,
             'href'  => self::destinationFor( $tally ),
             'meta'  => [
-                'title' => self::ariaLabel( $tally['total'] ),
+                'title' => self::ariaLabel( $tally['total'], $tally['capped'] ),
                 'class' => 'tt-admin-bar-bell',
             ],
         ] );
@@ -126,15 +130,22 @@ final class AlertBell {
      * filters that can show the whole picture, whereas the task list cannot
      * show an alert at all.
      *
-     * @param array{total:int,alerts:int,tasks:int} $tally
+     * @param array{total:int,alerts:int,tasks:int,capped:bool} $tally
      */
     private static function destinationFor( array $tally ): string {
         $slug = $tally['tasks'] > $tally['alerts'] ? 'my-tasks' : 'alerts';
         return (string) add_query_arg( 'tt_view', $slug, self::dashboardBase() ); /* tt-xview-ok */
     }
 
-    private static function ariaLabel( int $count ): string {
+    private static function ariaLabel( int $count, bool $capped = false ): string {
         if ( $count <= 0 ) return __( 'Nothing needs your attention', 'talenttrack' );
+        if ( $capped ) {
+            return sprintf(
+                /* translators: %d: lower bound of the number of items waiting for the user, e.g. 50 */
+                __( '%d or more items need your attention', 'talenttrack' ),
+                $count
+            );
+        }
         return sprintf(
             /* translators: %d: number of items waiting for the user */
             _n( '%d item needs your attention', '%d items need your attention', $count, 'talenttrack' ),
@@ -146,20 +157,6 @@ final class AlertBell {
     private static function onAnInbox(): bool {
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
         return $view === 'my-tasks' || $view === 'alerts';
-    }
-
-    private static function alertCount( int $user_id ): int {
-        $repo = new AlertOccurrencesRepository();
-        if ( ! $repo->tableExists() ) return 0;
-
-        $policy = new AlertPolicyResolver();
-        $count  = 0;
-        foreach ( $repo->openForUser( $user_id, 50 ) as $row ) {
-            if ( $policy->allows( $user_id, (string) ( $row->alert_key ?? '' ), Surface::BADGE ) ) {
-                $count++;
-            }
-        }
-        return $count;
     }
 
     private static function dashboardBase(): string {

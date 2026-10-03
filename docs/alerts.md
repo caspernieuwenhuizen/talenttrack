@@ -29,10 +29,10 @@ A task is "write the post-match evaluation for Daan". An alert is "this activity
 
 ## Where alerts appear
 
-- **The bell**, top right. Its number now counts both your open tasks and your open alerts.
+- **The bell**, top right. Its number now counts both your open tasks and your open alerts. It counts up to 50 alerts; past that it shows "50+".
 - **A banner** at the top of the dashboard, showing the ones that need attention most.
 
-On a phone the banner becomes a single line. On the dashboard you see one summary, such as "3 urgent alerts · 20 more", and tapping it opens your alerts; your tiles stay on the first screen. When you have more open alerts than the dashboard reads in one go, the number shows as "20+" rather than a count that is too low. Above lists and records there is no alert line at all, so the page you opened starts at the top of the screen. Alerts about a child's safety are the exception: they keep their own line everywhere, such as "1 safety alert", that opens your alerts. On a tablet or a computer the full banner shows on every page, the dashboard included.
+On a phone the banner becomes a single line. On the dashboard you see one summary, such as "12 open alerts · 3 urgent", and tapping it opens your alerts; your tiles stay on the first screen. The summary counts the same alerts as the bell, so the two agree. Past 50 alerts both show "50+" rather than a count that is too low. Above lists and records there is no alert line at all, so the page you opened starts at the top of the screen. Alerts about a child's safety are the exception: they keep their own line everywhere, such as "1 safety alert", that opens your alerts. On a tablet or a computer the full banner shows on every page, the dashboard included.
 
 Each alert links straight to the record it is about, so fixing it is one click away.
 

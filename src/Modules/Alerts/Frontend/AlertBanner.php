@@ -8,6 +8,7 @@ use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\Alerts\Domain\Surface;
 use TT\Modules\Alerts\Policy\AlertPolicyResolver;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
+use TT\Modules\Alerts\Services\AlertCounter;
 
 /**
  * AlertBanner (#2631, epic #2629) — the `banner` surface.
@@ -37,8 +38,9 @@ use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
  * a one-line strip for operational alerts instead, linking to the inbox.
  *
  * #4216 — on the root a phone gets one summary line instead of the cards
- * ("2 urgent alerts · 20+ more"), plus that same safety strip. Tablets and
- * desktops keep the full banner there.
+ * ("50+ open alerts · 3 urgent"), plus that same safety strip. Tablets and
+ * desktops keep the full banner there. The line's numbers come from
+ * `AlertCounter`, the same helper as the bell (#4222).
  */
 final class AlertBanner {
 
@@ -101,7 +103,7 @@ final class AlertBanner {
                 self::renderBar( $eligible, 'tt-alert-bar--wide-only' );
             }
             self::renderSafetyStrip( $eligible, $phone );
-            self::renderSummary( $eligible, $rows, $phone );
+            self::renderSummary( $user_id, $phone );
             return;
         }
 
@@ -115,53 +117,30 @@ final class AlertBanner {
     /**
      * The one-line summary on a phone's dashboard root (#4216).
      *
-     * Counts come from the rows already read, so there is no second query.
-     * A COUNT would not be more honest: it cannot apply the per-user surface
-     * policy, which runs in PHP. The read is capped at FETCH_LIMIT, so when
-     * the cap was hit the line says "20+" rather than a number that is only
-     * the cap. Rows arrive loudest first, so the urgent count is exact unless
-     * the cap fell inside the urgent rows — then it carries the "+" and the
-     * "more" part is dropped, because nothing below it was read.
+     * #4222 — counts come from `AlertCounter`, the helper the bell uses, with
+     * the bell's surface and ceiling. The line used to count its own 23-row
+     * read and said "23+" while the bell above it said "50". Both now read
+     * "50+" at the cap. Counts only: no card markup is built for this line.
      *
      * The line is one link to the inbox, at least 48px tall.
-     *
-     * @param list<object> $eligible
-     * @param list<object> $rows     Everything read, before the policy filter.
      */
-    private static function renderSummary( array $eligible, array $rows, bool $phone ): void {
-        $capped = count( $rows ) >= self::FETCH_LIMIT;
-        $total  = count( $eligible );
-        $urgent = 0;
-        foreach ( $eligible as $row ) {
-            if ( Severity::normalise( (string) ( $row->severity ?? '' ) ) === Severity::URGENT ) {
-                $urgent++;
-            }
-        }
-        $rest = $total - $urgent;
+    private static function renderSummary( int $user_id, bool $phone ): void {
+        $counted = AlertCounter::forUser( $user_id, Surface::BADGE );
+        $total   = $counted['count'];
+        $urgent  = $counted['urgent'];
+        if ( $total <= 0 ) return;
 
-        $last          = $capped ? end( $rows ) : false;
-        $urgent_capped = is_object( $last )
-            && Severity::normalise( (string) ( $last->severity ?? '' ) ) === Severity::URGENT;
-
-        $parts = [];
+        $parts   = [];
+        $parts[] = sprintf(
+            /* translators: %s: number of open alerts, e.g. "5" or "50+" */
+            _n( '%s open alert', '%s open alerts', $total, 'talenttrack' ),
+            AlertCounter::display( $total, $counted['capped'] )
+        );
         if ( $urgent > 0 ) {
             $parts[] = sprintf(
-                /* translators: %s: number of urgent open alerts, e.g. "3" or "20+" */
-                _n( '%s urgent alert', '%s urgent alerts', $urgent, 'talenttrack' ),
-                $urgent . ( $urgent_capped ? '+' : '' )
-            );
-            if ( ! $urgent_capped && $rest > 0 ) {
-                $parts[] = sprintf(
-                    /* translators: %s: number of further, less urgent open alerts, e.g. "5" or "20+" */
-                    _nx( '%s more', '%s more', $rest, 'alerts summary line', 'talenttrack' ),
-                    $rest . ( $capped ? '+' : '' )
-                );
-            }
-        } else {
-            $parts[] = sprintf(
-                /* translators: %s: number of open alerts, e.g. "5" or "20+" */
-                _n( '%s open alert', '%s open alerts', $total, 'talenttrack' ),
-                $total . ( $capped ? '+' : '' )
+                /* translators: %s: how many of the open alerts are urgent, e.g. "3" or "50+" */
+                _nx( '%s urgent', '%s urgent', $urgent, 'alerts summary line', 'talenttrack' ),
+                AlertCounter::display( $urgent, $counted['urgent_capped'] )
             );
         }
 
