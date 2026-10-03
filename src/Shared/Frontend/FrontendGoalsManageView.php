@@ -363,10 +363,12 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 // colour pill (display-only) instead of an inline-select.
                 // Inline edit lives on the goal form; the table reads.
                 // `mobile` — phone row roles (docs/mobile-patterns.md): the
-                // goal is the title, the player the subtitle, status and
-                // due date the badges.
-                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'secondary' ],
-                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html', 'mobile' => 'primary' ],
+                // player is the title (#4224, CLAUDE.md §1), the goal the
+                // subtitle, which wraps rather than truncates; status and
+                // due date the badges. The row opens the goal: list-table.css
+                // makes the title line's player link inert on a phone.
+                'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'primary' ],
+                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html', 'mobile' => 'secondary' ],
                 'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true, 'value_key' => 'priority_localised', 'mobile' => 'detail' ],
                 'status'      => [
                     'label'       => __( 'Status', 'talenttrack' ),

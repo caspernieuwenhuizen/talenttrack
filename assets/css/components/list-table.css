@@ -226,6 +226,16 @@
     min-width: 0;
 }
 
+/* #4224 — the title line is most of a phone row, so a link inside it would
+   catch most taps. Where it links somewhere other than the row (the goals
+   list leads with the player's profile link) the tap must still open the
+   row's record: the link lets clicks fall through to the row handler.
+   Keyboard users keep both — the row is focusable with Enter, the link
+   with Tab. The table from 768px restores the link. */
+.tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a {
+    pointer-events: none;
+}
+
 /* ---- Tablet and up: the table -------------------------------------- */
 
 @media (min-width: 768px) {
@@ -309,6 +319,7 @@
     .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td { color: var(--tt-muted); }
     .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td { color: var(--tt-danger); }
     .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link { display: inline-block; }
+    .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a { pointer-events: auto; }
 }
 /* The #2800 record-link floor returns with the table on touch tablets. */
 @media (min-width: 768px) and (pointer: coarse) {

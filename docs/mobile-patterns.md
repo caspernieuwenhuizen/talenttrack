@@ -170,7 +170,11 @@ Other rules that hold on a phone:
 - When the list sets `row_url_key`, the whole row is the link (at
   least 48 px high, reachable with Tab, opened with Enter or Space,
   with a focus ring). The 48 px floor on record links inside the row
-  is lifted there, because the row is already the target.
+  is lifted there, because the row is already the target. A link in the
+  title line does not catch the tap on a phone: tapping it opens the
+  row. That lets a list lead with the player (the goals list) and still
+  open the goal. The link stays reachable with Tab, and works again in
+  the table from 768 px.
 - The collapsed filter bar has no card around it. The card comes back
   from 768 px. Below 768 px it is at most two rows: the Filters button
   with the saved views beside it, then, only while a filter is applied,
