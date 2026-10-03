@@ -98,3 +98,88 @@ test.describe( 'List table body states (Players)', () => {
         expect( calls ).toBeGreaterThan( callsBefore );
     } );
 } );
+
+/**
+ * A list table that arrives through filter-refresh.js (#4210).
+ *
+ * filter-refresh.js swaps a surface's `[data-tt-filter-region]` in place
+ * and fires `tt:filter-refreshed`; a list table inside the fresh markup
+ * has to hydrate then, or it stays on its loading row. The attendance
+ * leaderboard is the surface that combines the two, but the CI baseline
+ * records no attendance, so its region holds only the empty notice. The
+ * test therefore answers the in-place refetch with a region carrying the
+ * real Players list table: what is under test is the hydrator picking up
+ * swapped-in markup, once, not the leaderboard's data.
+ */
+test.describe( 'List table inside a filter-refreshed region', () => {
+
+    test( 'hydrates after the swap, and only once', async ( { page } ) => {
+        const playersHtml = await ( await page.request.get( FRONTEND_PLAYERS ) ).text();
+
+        await page.goto( '/?tt_view=attendance-leaderboard' );
+        const form = page.locator( 'form[data-tt-filter-refresh]' ).first();
+        if ( await form.count() === 0 || await page.locator( '[data-tt-filter-region]' ).count() === 0 ) {
+            test.skip( true, 'Attendance leaderboard with in-place refresh not present on this install.' );
+            return;
+        }
+
+        const listHtml = await page.evaluate( ( html ) => {
+            const doc = new DOMParser().parseFromString( html, 'text/html' );
+            const el  = doc.querySelector( '[data-tt-list-table="1"]' );
+            return el ? el.outerHTML : '';
+        }, playersHtml );
+        if ( listHtml === '' ) {
+            test.skip( true, 'Frontend players list not present on this install.' );
+            return;
+        }
+
+        // The in-place refetch is a same-URL document fetch sent with
+        // X-Requested-With; a normal navigation does not carry it.
+        await page.route(
+            ( url ) => url.href.indexOf( 'attendance-leaderboard' ) !== -1,
+            async ( route ) => {
+                const headers = route.request().headers();
+                if ( headers[ 'x-requested-with' ] !== 'XMLHttpRequest' ) {
+                    await route.continue();
+                    return;
+                }
+                await route.fulfill( {
+                    status: 200,
+                    contentType: 'text/html',
+                    body: '<!doctype html><html><body><div data-tt-filter-region data-tt-filter-count="1">'
+                        + listHtml + '</div></body></html>',
+                } );
+            }
+        );
+
+        let listFetches = 0;
+        page.on( 'request', ( req ) => {
+            if ( isPlayersListFetch( new URL( req.url() ) ) ) listFetches++;
+        } );
+
+        // Commit a filter value: `change` on a named control is what
+        // filter-refresh.js refreshes on.
+        await form.evaluate( ( f ) => {
+            const ctrl = f.querySelector( 'select[name="activity_type_key"], select[name="team_id"]' );
+            if ( ctrl ) ctrl.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+        } );
+
+        const list = page.locator( '[data-tt-filter-region] [data-tt-list-table="1"]' );
+        await expect( list ).toHaveCount( 1, { timeout: 15000 } );
+        await expect( list ).toHaveAttribute( 'data-tt-list-hydrated', '1' );
+
+        const body = list.locator( '[data-tt-list-body="1"]' );
+        await expect( body.locator( '[data-tt-list-loading="1"]' ) ).toHaveCount( 0, { timeout: 15000 } );
+        await expect( body.locator( 'tr' ).first() ).toBeVisible();
+        expect( listFetches ).toBe( 1 );
+
+        // A second refreshed event over the same markup must not hydrate
+        // the table again (which would bind the pager twice and fetch twice).
+        await page.evaluate( () => {
+            const region = document.querySelector( '[data-tt-filter-region]' );
+            if ( region ) region.dispatchEvent( new CustomEvent( 'tt:filter-refreshed', { bubbles: true } ) );
+        } );
+        await page.waitForTimeout( 500 );
+        expect( listFetches ).toBe( 1 );
+    } );
+} );
