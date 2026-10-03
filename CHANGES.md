@@ -1,3 +1,30 @@
+# TalentTrack v4.141.2 — Player and team pages on a phone: reachable actions, 48px tabs and links (#4215)
+
+The player profile and the team page are easier to use on a phone.
+
+- The action row under the hero no longer runs off the right edge. It shows two actions and a `⋯` button; the rest (Edit, Spond connection, Print seizoens-intakes, Customize, Archive) are in the `⋯` menu, which now opens above the tab strip instead of being cut off.
+- Player tabs, the team link in the hero and the card links on the team page ("Log behaviour in bulk", "Explorer") are 48px tall for a thumb.
+- The "Needs attention" chip is drawn as a whole circle instead of one with a thick edge down one side.
+- A long team name wraps to two lines in the hero instead of being cut short, and the last breadcrumb stays on the same line as the rest of the trail.
+
+Desktop is unchanged.
+
+# TalentTrack v4.141.2 — List dates follow the academy's date format; the evidence packet translates "Trial ended" (#4221)
+
+Date columns in the goals (Due), holidays, tournaments, functional roles, prospects and training plans lists print the academy's date format instead of `2026-09-12`. Their REST rows gain a `<field>_display` sibling next to the unchanged ISO field, so a front end outside WordPress gets the same answer. The PDP evidence packet now shows "Trial ended" with the decision's translated label, as the player's journey already did.
+
+# TalentTrack v4.141.2 — The dashboard alert summary and the bell show the same number; role names on the people list in Dutch (#4222)
+
+On a phone, the dashboard's alert summary and the bell above it could show two different numbers for the same alerts, such as "23+" next to "50". Both now count the same alerts and stop at the same ceiling, so past 50 alerts both read "50+". The summary reads like "50+ open alerts · 3 urgent". The bell no longer shows a plain "50" when there are more. On the people list, the functional role under a person's name (for example "Assistant Coach @ U23") now shows in the site language.
+
+# TalentTrack v4.141.2 — Goals list on a phone leads with the player (#4224)
+
+On a phone the goals list puts the player's name on the first line and the goal underneath, which wraps instead of being cut off. Tapping anywhere on a row opens the goal: in any list whose whole row is a link, a link on the title line no longer catches the tap on a phone. The desktop table is unchanged.
+
+# TalentTrack v4.141.2 — Less chrome above the activities list on phones: one-row head, two-row filter bar (#4225)
+
+On a phone, the Activities page head stays on one row: Calendar view moves into the ⋯ menu below 768 px, next to the + button. Training plans does the same with Exercises, Coverage and From a photo. The collapsed filter bar on every list is now at most two rows below 768 px: the Filters button with the saved views beside it, and, only while a filter is applied, the filter chips with Clear as a compact text link on the same line. Before, it stacked into four full rows. The "past activities hidden · Show" line is a quiet text link instead of a full-width band. The tablet and desktop page heads and filter bars are unchanged.
+
 # TalentTrack v4.141.1 — Lists and the player profile no longer show raw or English values (#4212)
 
 The evaluations list prints its dates in the academy's date format instead of `2026-09-12`. The goals list shows the priority as the same translated label the goal form and the goal page use (Laag / Gemiddeld / Hoog), instead of the stored `medium` / `Medium`. The people list shows the type as a translated label instead of `scout` or `staff`; the form, the filter and the list now share one set of labels. A player's journey shows "Trial ended" with the decision's label instead of its key, for existing entries as well: the label is filled in when the journey is read, so it follows the reader's language and any label the academy edited. The Born and Joined facts on the player profile use the site language for the month (18 dec ’19 in Dutch). `GET /people` rows gain `role_type_localised`; existing fields are unchanged.

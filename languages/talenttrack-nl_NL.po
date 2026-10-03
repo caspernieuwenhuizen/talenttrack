@@ -67901,6 +67901,20 @@ msgid_plural "%s open alerts"
 msgstr[0] "%s open melding"
 msgstr[1] "%s open meldingen"
 
+#. translators: %s: how many of the open alerts are urgent, e.g. "3" or "50+"
+#: src/Modules/Alerts/Frontend/AlertBanner.php
+msgctxt "alerts summary line"
+msgid "%s urgent"
+msgid_plural "%s urgent"
+msgstr[0] "%s urgent"
+msgstr[1] "%s urgent"
+
+#. translators: %d: lower bound of the number of items waiting for the user, e.g. 50
+#: src/Modules/Alerts/Frontend/AlertBell.php
+#, php-format
+msgid "%d or more items need your attention"
+msgstr "%d of meer items vragen je aandacht"
+
 # v3.71.3 — issue #16 Reports preset translations
 #~ msgid "Preset name"
 #~ msgstr "Naam preset"
