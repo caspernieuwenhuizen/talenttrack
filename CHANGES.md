@@ -1,3 +1,19 @@
+# TalentTrack v4.141.1 — Lists and the player profile no longer show raw or English values (#4212)
+
+The evaluations list prints its dates in the academy's date format instead of `2026-09-12`. The goals list shows the priority as the same translated label the goal form and the goal page use (Laag / Gemiddeld / Hoog), instead of the stored `medium` / `Medium`. The people list shows the type as a translated label instead of `scout` or `staff`; the form, the filter and the list now share one set of labels. A player's journey shows "Trial ended" with the decision's label instead of its key, for existing entries as well: the label is filled in when the journey is read, so it follows the reader's language and any label the academy edited. The Born and Joined facts on the player profile use the site language for the month (18 dec ’19 in Dutch). `GET /people` rows gain `role_type_localised`; existing fields are unchanged.
+
+# TalentTrack v4.141.1 — Team page "At a glance" tiles fit on a phone (#4213)
+
+On the team page, the *At a glance* tiles no longer push the page 20 px wider than the screen on a phone. The three tiles now sit two to a row below 480 px and three to a row above that, and a long one-word label such as the Dutch *Selectiebeoordeling* breaks inside its tile instead of widening it. The player page tiles and the desktop layout are unchanged.
+
+# TalentTrack v4.141.1 — Tighter list pages on phones: one-row page head, no filter card, steady goal badges (#4214)
+
+On a phone, the Players and Teams page heads stay on one row: Import from CSV (and Player accounts, for admins) move into the ⋯ menu below 768 px, next to the + button. The collapsed filter bar on list pages no longer sits in its own card around a single Filters button, so it takes the height of the button. In list rows, a long title wraps beside the badges instead of pushing them onto a line of their own, the badges stay at the top right, and a badge with nothing to show (a goal without a due date) is left out instead of printing "—". Tablet and desktop are unchanged.
+
+# TalentTrack v4.141.1 — On a phone the dashboard shows one alert line instead of the alert cards (#4216)
+
+On a phone, the dashboard no longer opens with three alert cards and a "20 more" line filling the first screen. It shows one summary line instead, such as "3 urgent alerts · 20 more", which opens your alerts. When there are more open alerts than the dashboard reads, the count shows as "20+" rather than a number that is too low. Alerts about a child's safety keep their own line above it. Tablets and computers still show the full banner on the dashboard.
+
 # TalentTrack v4.141.0 — Guardian access: inactive players get no messages, graduated parents cannot delete (#4129)
 
 An inactive player's family already had no parent access, but was still
