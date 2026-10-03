@@ -1,37 +1,44 @@
 /*
- * list-table.css — layout of the shared list table (FrontendListTable).
+ * list-table.css — layout of the `.tt-list-table-table` lists.
  *
- * Mobile-first (CLAUDE.md § 2, #0056 track). The base is the phone layout:
- * each row is a compact card with a title line, a muted subtitle line,
- * badges at the top right and, below them, label/value lines for anything
- * else. The table comes back from the 768px tablet breakpoint up.
+ * Mobile-first (CLAUDE.md § 2, #0056 track). The base is the phone layout;
+ * the table comes back from the 768px tablet breakpoint up.
  *
- * Which line a cell lands on is the column's `mobile` role, written to the
- * cell as `data-mobile` by assets/js/components/frontend-list-table.js:
+ * Two phone layouts live here:
  *
- *   primary    title line, bold, no label
- *   secondary  muted subtitle; several are joined with " · "
- *   badge      pills and short values, top right, allowed to wrap
- *   detail     LABEL — value line (default for undeclared columns)
- *   hide       not shown on a phone
+ * 1. Any `.tt-list-table-table` (including the hand-rolled ones on the PDP,
+ *    CSV import, media retention and evidence surfaces): each row is a card
+ *    with one LABEL — value line per cell, the label taken from the cell's
+ *    `data-label`.
  *
- * The row is a flex container. `order` puts the cells in place whatever
- * their column order: primaries (0), a grow spacer (tr::before, 1),
- * badges (2), a line break (tr::after, 3), secondaries (4), details (5),
- * row actions (6).
+ * 2. Rows rendered by FrontendListTable (`tr[data-row-id]`, written by
+ *    assets/js/components/frontend-list-table.js) lay out from each cell's
+ *    `data-mobile` role, the column's `mobile` key:
+ *
+ *      primary    title line, bold, no label
+ *      secondary  muted subtitle; several are joined with " · "
+ *      badge      pills and short values, top right, allowed to wrap
+ *      detail     LABEL — value line (default for undeclared columns)
+ *      hide       not shown on a phone
+ *
+ *    The row is a flex container. `order` puts the cells in place whatever
+ *    their column order: primaries (0), a grow spacer (tr::before, 1),
+ *    badges (2), a line break (tr::after, 3), secondaries (4), details (5),
+ *    row actions (6).
  *
  * The parts of the list table that do not change with the viewport (row
  * actions, pager, footer, row-link cursor and focus ring, loading and
  * error rows) stay in frontend-admin.css.
  */
 
-/* ---- Phone (base) -------------------------------------------------- */
+/* ---- Phone (base): every list table -------------------------------- */
 
 .tt-dashboard .tt-list-table-wrap {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
 
+/* #4190 — the row cards are the boxes on a phone; the table draws none. */
 .tt-dashboard .tt-list-table-table {
     display: block;
     width: 100%;
@@ -45,22 +52,83 @@
 .tt-dashboard .tt-list-table-table tbody { display: block; }
 
 .tt-dashboard .tt-list-table-table tr {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: var(--tt-sp-2);
-    row-gap: 2px;
+    display: block;
     box-sizing: border-box;
-    min-height: 48px;
     margin-bottom: var(--tt-sp-2);
-    padding: var(--tt-sp-2) var(--tt-sp-3);
+    padding: var(--tt-sp-3);
     background: var(--tt-paper, #fff);
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-r-md);
 }
 
+.tt-dashboard .tt-list-table-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--tt-sp-3);
+    min-width: 0;
+    padding: 4px 0;
+    border: 0;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-list-table-table td::before {
+    content: attr(data-label);
+    flex: 0 0 auto;
+    max-width: 50%;
+    text-align: left;
+    font-weight: 600;
+    font-size: var(--tt-fs-xs);
+    color: var(--tt-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-list-table-table td[data-label=""]::before { content: none; }
+
+/* #4190 — the actions line groups its buttons at the right. */
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--tt-sp-2);
+    white-space: normal;
+}
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions .tt-list-table-action { margin-left: 0; }
+
+/* #4190 — a cell with nothing in it, or a row with no actions, takes no
+   line. */
+.tt-dashboard .tt-list-table-table td[data-empty],
+.tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty { display: none; }
+
+/* Pills wrap instead of being clipped at the card edge. */
+.tt-dashboard .tt-list-table-table .tt-consent-pill,
+.tt-dashboard .tt-list-table-table .tt-pill { white-space: normal; }
+
+/* Empty, loading and error rows are one centred line. */
+.tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-error > td {
+    display: block;
+    text-align: center;
+}
+.tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td::before,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td::before,
+.tt-dashboard .tt-list-table-table tr.tt-list-table-error > td::before { content: none; }
+
+.tt-dashboard .tt-list-table-table tbody tr:hover { background: var(--tt-bg-soft); }
+
+/* ---- Phone (base): FrontendListTable rows, by column role ---------- */
+
+.tt-dashboard .tt-list-table-table tr[data-row-id] {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--tt-sp-2);
+    row-gap: 2px;
+    min-height: 48px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+}
+
 /* Grow spacer: pushes the badges to the right edge of the title line. */
-.tt-dashboard .tt-list-table-table tbody tr::before {
+.tt-dashboard .tt-list-table-table tr[data-row-id]::before {
     content: "";
     order: 1;
     flex: 1 1 0;
@@ -68,24 +136,23 @@
 }
 
 /* Line break between the title line and the subtitle line. */
-.tt-dashboard .tt-list-table-table tbody tr::after {
+.tt-dashboard .tt-list-table-table tr[data-row-id]::after {
     content: "";
     order: 3;
     flex-basis: 100%;
     height: 0;
 }
 
-.tt-dashboard .tt-list-table-table td {
-    display: block;
+.tt-dashboard .tt-list-table-table td[data-mobile] {
     flex: 0 1 auto;
-    min-width: 0;
     padding: 0;
-    border: 0;
-    overflow-wrap: anywhere;
 }
+.tt-dashboard .tt-list-table-table td[data-mobile]::before { content: none; }
 
 .tt-dashboard .tt-list-table-table td[data-mobile="primary"] {
+    display: block;
     order: 0;
+    text-align: left;
     font-size: var(--tt-fs-body, 1rem);
     font-weight: 600;
     color: var(--tt-ink);
@@ -102,6 +169,7 @@
 }
 
 .tt-dashboard .tt-list-table-table td[data-mobile="badge"] {
+    display: block;
     order: 2;
     max-width: 100%;
     font-size: var(--tt-fs-xs);
@@ -109,7 +177,9 @@
 }
 
 .tt-dashboard .tt-list-table-table td[data-mobile="secondary"] {
+    display: block;
     order: 4;
+    text-align: left;
     font-size: var(--tt-fs-xs);
     color: var(--tt-muted);
 }
@@ -121,45 +191,17 @@
 .tt-dashboard .tt-list-table-table td[data-mobile="detail"] {
     order: 5;
     flex-basis: 100%;
-    display: flex;
-    justify-content: space-between;
-    gap: var(--tt-sp-3);
-    text-align: right;
 }
-.tt-dashboard .tt-list-table-table td[data-mobile="detail"]::before {
-    content: attr(data-label);
-    flex: 0 0 auto;
-    max-width: 50%;
-    text-align: left;
-    font-weight: 600;
-    font-size: var(--tt-fs-xs);
-    color: var(--tt-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
+.tt-dashboard .tt-list-table-table td[data-mobile="detail"]::before { content: attr(data-label); }
 .tt-dashboard .tt-list-table-table td[data-mobile="detail"][data-label=""]::before { content: none; }
 
-/* #4190 — the actions line groups its buttons at the right. */
-.tt-dashboard .tt-list-table-table td.tt-list-table-actions {
+.tt-dashboard .tt-list-table-table tr[data-row-id] > td.tt-list-table-actions {
     order: 6;
     flex-basis: 100%;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--tt-sp-2);
-    white-space: normal;
 }
-.tt-dashboard .tt-list-table-table td.tt-list-table-actions .tt-list-table-action { margin-left: 0; }
 
-/* #4190 — a cell with nothing in it, or a row with no actions, takes no
-   line. */
 .tt-dashboard .tt-list-table-table td[data-mobile="hide"],
-.tt-dashboard .tt-list-table-table td[data-empty],
-.tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty { display: none; }
-
-/* Pills wrap instead of being clipped at the card edge. */
-.tt-dashboard .tt-list-table-table .tt-consent-pill,
-.tt-dashboard .tt-list-table-table .tt-pill { white-space: normal; }
+.tt-dashboard .tt-list-table-table td[data-mobile][data-empty] { display: none; }
 
 /* The whole row is the tap target (tr.is-row-link, 48px floor above), so
    the per-cell record-link floor (#2800) would only make every linked line
@@ -169,16 +211,6 @@
     min-height: 0;
     min-width: 0;
 }
-
-/* Empty, loading and error rows are one centred line. */
-.tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td,
-.tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td,
-.tt-dashboard .tt-list-table-table tr.tt-list-table-error > td {
-    flex-basis: 100%;
-    text-align: center;
-}
-
-.tt-dashboard .tt-list-table-table tbody tr:hover { background: var(--tt-bg-soft); }
 
 /* ---- Tablet and up: the table -------------------------------------- */
 
@@ -193,7 +225,8 @@
     }
     .tt-dashboard .tt-list-table-table thead { display: table-header-group; }
     .tt-dashboard .tt-list-table-table tbody { display: table-row-group; }
-    .tt-dashboard .tt-list-table-table tr {
+    .tt-dashboard .tt-list-table-table tr,
+    .tt-dashboard .tt-list-table-table tr[data-row-id] {
         display: table-row;
         min-height: 0;
         margin: 0;
@@ -202,13 +235,18 @@
         border: 0;
         border-radius: 0;
     }
-    .tt-dashboard .tt-list-table-table tbody tr::before,
-    .tt-dashboard .tt-list-table-table tbody tr::after { content: none; }
+    .tt-dashboard .tt-list-table-table tr[data-row-id]::before,
+    .tt-dashboard .tt-list-table-table tr[data-row-id]::after { content: none; }
 
     .tt-dashboard .tt-list-table-table th,
     .tt-dashboard .tt-list-table-table td,
     .tt-dashboard .tt-list-table-table td[data-mobile],
+    .tt-dashboard .tt-list-table-table td[data-mobile="primary"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="secondary"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="badge"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="hide"],
     .tt-dashboard .tt-list-table-table td[data-empty],
+    .tt-dashboard .tt-list-table-table td[data-mobile][data-empty],
     .tt-dashboard .tt-list-table-table td.tt-list-table-actions,
     .tt-dashboard .tt-list-table-table td.tt-list-table-actions:empty {
         display: table-cell;
@@ -218,17 +256,15 @@
         vertical-align: middle;
     }
     .tt-dashboard .tt-list-table-table td[data-mobile="primary"],
+    .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"],
     .tt-dashboard .tt-list-table-table td[data-mobile="secondary"],
     .tt-dashboard .tt-list-table-table td[data-mobile="badge"] {
         font-size: inherit;
         font-weight: inherit;
         color: inherit;
     }
-    .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"] {
-        font-weight: inherit;
-        color: inherit;
-    }
-    .tt-dashboard .tt-list-table-table td[data-mobile]::before,
+    .tt-dashboard .tt-list-table-table td::before,
+    .tt-dashboard .tt-list-table-table td[data-mobile="detail"]::before,
     .tt-dashboard .tt-list-table-table td[data-mobile="primary"] ~ td[data-mobile="primary"]::before,
     .tt-dashboard .tt-list-table-table td[data-mobile="secondary"] ~ td[data-mobile="secondary"]::before { content: none; }
     .tt-dashboard .tt-list-table-table td.tt-list-table-actions {
@@ -245,12 +281,14 @@
         letter-spacing: 0.04em;
     }
     .tt-dashboard .tt-list-table-table tr.tt-list-table-empty > td {
+        display: table-cell;
         text-align: center;
         color: var(--tt-muted);
         padding: var(--tt-sp-5);
     }
     .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td,
     .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td {
+        display: table-cell;
         text-align: center;
         padding: var(--tt-sp-4);
     }
