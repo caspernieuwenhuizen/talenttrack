@@ -617,6 +617,8 @@ class FunctionalRolesRestController {
     private static function fmtAssignment( object $r ): array {
         $first = (string) ( $r->first_name ?? '' );
         $last  = (string) ( $r->last_name ?? '' );
+        $start = $r->start_date;
+        $end   = $r->end_date;
         return [
             'id'                  => (int) $r->assignment_id,
             'team_id'             => (int) $r->team_id,
@@ -628,11 +630,11 @@ class FunctionalRolesRestController {
             'functional_role_id'  => $r->functional_role_id !== null ? (int) $r->functional_role_id : null,
             'functional_role_key' => (string) ( $r->role_key ?? $r->role_in_team ?? '' ),
             'role'                => (string) ( $r->role_label ?? $r->role_in_team ?? '' ),
-            'start_date'          => $r->start_date,
-            'end_date'            => $r->end_date,
+            'start_date'          => $start,
+            'end_date'            => $end,
             // #4221 — the academy's date format, next to the ISO fields.
-            'start_date_display'  => \TT\Shared\Dates\TTDate::date( $r->start_date ),
-            'end_date_display'    => \TT\Shared\Dates\TTDate::date( $r->end_date ),
+            'start_date_display'  => \TT\Shared\Dates\TTDate::date( $start ),
+            'end_date_display'    => \TT\Shared\Dates\TTDate::date( $end ),
         ];
     }
 }
