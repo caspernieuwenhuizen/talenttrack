@@ -410,8 +410,12 @@ class EvaluationsRestController {
         );
 
         // Pre-rendered link HTML so FrontendListTable can render cells via render: html.
+        // The label follows the academy date format; `eval_date` stays ISO.
+        $raw_date        = (string) $row->eval_date;
+        $date_display    = \TT\Shared\Dates\TTDate::date( $raw_date );
+        if ( $date_display === '' ) $date_display = $raw_date;
         $date_link_html = '<a class="tt-record-link" href="' . esc_url( $eval_url ) . '">'
-                        . esc_html( (string) $row->eval_date ) . '</a>';
+                        . esc_html( $date_display ) . '</a>';
 
         $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $player_name,

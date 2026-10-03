@@ -80,6 +80,7 @@ final class PlayerEventsRepository {
             $tail = end( $rows );
             $next_cursor = $tail ? (int) $tail->id : null;
         }
+        JourneySummaryLocaliser::localise( $rows );
 
         // Hidden count — same WHERE but visibility NOT IN allowed.
         $hidden_sql = "SELECT COUNT(*) FROM {$this->table}
@@ -127,7 +128,9 @@ final class PlayerEventsRepository {
             $sql,
             ...array_merge( [ $player_id, CurrentClub::id() ], $milestone_keys, $allowed_visibilities )
         ) );
-        return $rows ? JourneyActivityResolver::withActivities( $rows, CurrentClub::id() ) : [];
+        if ( ! $rows ) return [];
+        JourneySummaryLocaliser::localise( $rows );
+        return JourneyActivityResolver::withActivities( $rows, CurrentClub::id() );
     }
 
     /**
@@ -171,7 +174,9 @@ final class PlayerEventsRepository {
 
         /** @var list<object> $rows */
         $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$params ) );
-        return $rows ?: [];
+        if ( ! $rows ) return [];
+        JourneySummaryLocaliser::localise( $rows );
+        return $rows;
     }
 
     /**
@@ -224,7 +229,9 @@ final class PlayerEventsRepository {
               LIMIT 200",
             $team_id, CurrentClub::id(), $types, $from, $to, $vis
         ) );
-        return $rows ?: [];
+        if ( ! $rows ) return [];
+        JourneySummaryLocaliser::localise( $rows );
+        return $rows;
     }
 
     public function find( int $id ): ?object {

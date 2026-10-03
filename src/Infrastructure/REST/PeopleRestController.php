@@ -477,6 +477,7 @@ class PeopleRestController {
             'email_link_html' => $email_link_html,
             'phone'           => (string) ( $row->phone ?? '' ),
             'role_type'       => (string) ( $row->role_type ?? 'other' ),
+            'role_type_localised' => \TT\Infrastructure\Query\LabelTranslator::roleType( (string) ( $row->role_type ?? 'other' ) ),
             'wp_user_id'      => $row->wp_user_id !== null ? (int) $row->wp_user_id : null,
             'status'          => (string) ( $row->status ?? 'active' ),
             'team_count'      => isset( $row->team_count ) ? (int) $row->team_count : count( $assignments ),

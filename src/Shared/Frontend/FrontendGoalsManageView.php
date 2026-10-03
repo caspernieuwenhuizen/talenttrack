@@ -367,7 +367,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 // due date the badges.
                 'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'secondary' ],
                 'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html', 'mobile' => 'primary' ],
-                'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true, 'mobile' => 'detail' ],
+                'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true, 'value_key' => 'priority_localised', 'mobile' => 'detail' ],
                 'status'      => [
                     'label'       => __( 'Status', 'talenttrack' ),
                     'sortable'    => true,

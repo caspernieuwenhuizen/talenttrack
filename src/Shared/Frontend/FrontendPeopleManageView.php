@@ -116,7 +116,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
                 // `mobile` — phone row roles (docs/mobile-patterns.md).
                 'last_name'     => [ 'label' => __( 'Name',          'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
                 'email'         => [ 'label' => __( 'Email',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'email_link_html', 'mobile' => 'detail' ],
-                'role_type'     => [ 'label' => __( 'Type',          'talenttrack' ), 'sortable' => true, 'mobile' => 'badge' ],
+                'role_type'     => [ 'label' => __( 'Type',          'talenttrack' ), 'sortable' => true, 'value_key' => 'role_type_localised', 'mobile' => 'badge' ],
                 'current_roles' => [ 'label' => __( 'Current roles', 'talenttrack' ), 'mobile' => 'secondary' ],
             ],
             'filters' => [
@@ -287,18 +287,11 @@ class FrontendPeopleManageView extends FrontendViewBase {
         echo '</section>';
     }
 
+    /**
+     * One source for the type label: the form, the filter and the list
+     * badge (`role_type_localised` on the REST row) all read it.
+     */
     private static function humanRoleTypeLabel( string $key ): string {
-        $map = [
-            'coach'               => __( 'Coach',           'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach', 'talenttrack' ),
-            'manager'             => __( 'Manager',         'talenttrack' ),
-            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
-            'staff'               => __( 'Staff',           'talenttrack' ),
-            'physio'              => __( 'Physio',          'talenttrack' ),
-            'scout'               => __( 'Scout',           'talenttrack' ),
-            'parent'              => __( 'Parent',          'talenttrack' ),
-            'other'               => __( 'Other',           'talenttrack' ),
-        ];
-        return $map[ $key ] ?? ucwords( str_replace( '_', ' ', $key ) );
+        return \TT\Infrastructure\Query\LabelTranslator::roleType( $key );
     }
 }
