@@ -384,64 +384,73 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         $team_id   = (int) $team->id;
         $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() );
         $can_edit  = current_user_can( 'tt_edit_teams' );
-        ?>
-        <div class="tt-player-detail__actions" aria-label="<?php esc_attr_e( 'Actions', 'talenttrack' ); ?>">
-            <?php if ( current_user_can( 'tt_edit_activities' ) ) :
+
+        // #4215 — on a phone the row holds two of these and the rest join
+        // the ⋯ menu (`RecordActionRow`). Each action renders either as a
+        // row control or, with `$in_menu`, as a menu item. Declared order
+        // is prominence order: New activity and Planner are the two a coach
+        // reaches for at the pitch.
+        $actions = [
+            static function ( bool $in_menu ) use ( $team_id ): void {
+                if ( ! current_user_can( 'tt_edit_activities' ) ) return;
                 $new_activity_url = add_query_arg(
                     [ 'tt_view' => 'activities', 'action' => 'new', 'team_id' => $team_id ],
                     RecordLink::dashboardUrl()
                 );
                 ?>
-                <a class="tt-player-action tt-player-action--primary" href="<?php echo esc_url( $new_activity_url ); ?>">
+                <a class="tt-player-action<?php echo $in_menu ? '' : ' tt-player-action--primary'; ?>"
+                   <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?>
+                   href="<?php echo esc_url( $new_activity_url ); ?>">
                     + <?php esc_html_e( 'New activity', 'talenttrack' ); ?>
                 </a>
-            <?php endif; ?>
-
-            <?php
-            // §7 (#2304) — the team planner is gated on tt_view_plan,
-            // independently of the tt_view_teams access that reaches this
-            // detail page. The `team-planner` gate mirrors that guard.
-            \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-planner', static function () use ( $team_id ): void {
-                $planner_url = add_query_arg(
-                    [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
-                    RecordLink::dashboardUrl()
-                );
-                ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $planner_url ); ?>">
-                    <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
-                </a>
                 <?php
-            } );
-            ?>
-
-            <?php
-            // #2388 — head coach (or admin) may connect this team's own
-            // Spond account. Hidden unless the user holds spond_integration
-            // change authority for THIS team — the same gate the connect
-            // view and its REST endpoints enforce (§7).
-            if ( \TT\Modules\Spond\TeamSpondAccess::currentUserCanManage( $team_id ) ) :
+            },
+            static function ( bool $in_menu ) use ( $team_id ): void {
+                // §7 (#2304) — the team planner is gated on tt_view_plan,
+                // independently of the tt_view_teams access that reaches this
+                // detail page. The `team-planner` gate mirrors that guard.
+                \TT\Shared\Frontend\Components\CrossViewLink::render( 'team-planner', static function () use ( $team_id, $in_menu ): void {
+                    $planner_url = add_query_arg(
+                        [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
+                        RecordLink::dashboardUrl()
+                    );
+                    ?>
+                    <a class="tt-player-action" <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?> href="<?php echo esc_url( $planner_url ); ?>">
+                        <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
+                    </a>
+                    <?php
+                } );
+            },
+            static function ( bool $in_menu ) use ( $team_id ): void {
+                // #2388 — head coach (or admin) may connect this team's own
+                // Spond account. Hidden unless the user holds spond_integration
+                // change authority for THIS team — the same gate the connect
+                // view and its REST endpoints enforce (§7).
+                if ( ! \TT\Modules\Spond\TeamSpondAccess::currentUserCanManage( $team_id ) ) return;
                 $spond_url = add_query_arg(
                     [ 'tt_view' => 'team-spond', 'id' => $team_id ],
                     RecordLink::dashboardUrl()
                 );
                 ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $spond_url ); ?>">
+                <a class="tt-player-action" <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?> href="<?php echo esc_url( $spond_url ); ?>">
                     <?php esc_html_e( 'Spond connection', 'talenttrack' ); ?>
                 </a>
-            <?php endif; ?>
-
-            <?php if ( $can_edit ) :
+                <?php
+            },
+            static function ( bool $in_menu ) use ( $team_id, $can_edit ): void {
+                if ( ! $can_edit ) return;
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'teams', 'id' => $team_id, 'action' => 'edit' ],
                     RecordLink::dashboardUrl()
                 );
                 ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $edit_url ); ?>">
+                <a class="tt-player-action" <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?> href="<?php echo esc_url( $edit_url ); ?>">
                     <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
                 </a>
-            <?php endif; ?>
-
-            <?php if ( current_user_can( 'tt_edit_goals' ) ) :
+                <?php
+            },
+            static function ( bool $in_menu ) use ( $team_id ): void {
+                if ( ! current_user_can( 'tt_edit_goals' ) ) return;
                 // #1064 — team-batch print: one 3-page intake per active
                 // roster player, concatenated into a single PDF.
                 $intake_batch_url = add_query_arg(
@@ -449,63 +458,58 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                     home_url( '/' )
                 );
                 ?>
-                <a class="tt-player-action" href="<?php echo esc_url( $intake_batch_url ); ?>" target="_blank" rel="noopener">
+                <a class="tt-player-action" <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?> href="<?php echo esc_url( $intake_batch_url ); ?>" target="_blank" rel="noopener">
                     <?php esc_html_e( 'Print seizoens-intakes', 'talenttrack' ); ?>
                 </a>
-            <?php endif; ?>
-
-            <?php if ( $can_customize ) : ?>
-                <button type="button" class="tt-player-action tt-team-customize-trigger" data-tt-team-customize-trigger="1" aria-expanded="false" aria-controls="tt-team-customize-panel">
+                <?php
+            },
+            static function ( bool $in_menu ) use ( $can_customize ): void {
+                if ( ! $can_customize ) return;
+                ?>
+                <button type="button" class="tt-player-action tt-team-customize-trigger" <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?> data-tt-team-customize-trigger="1" aria-expanded="false" aria-controls="tt-team-customize-panel">
                     <?php esc_html_e( 'Customize', 'talenttrack' ); ?>
                 </button>
-            <?php endif; ?>
+                <?php
+            },
+        ];
 
-            <?php if ( $can_edit ) : ?>
-                <div class="tt-player-action tt-player-action--more"
-                     role="button"
-                     tabindex="0"
-                     aria-haspopup="true"
-                     aria-expanded="false"
-                     aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
-                     onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
-                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
-                    ⋯
-                    <div class="tt-player-action__menu" role="menu">
-                        <?php
-                        // #2411 — offer to take the team's still-active
-                        // activities into the archive with it, defaulted on.
-                        // The count comes from the same activeDependentsFor()
-                        // the trash cascade preview uses, so the two agree.
-                        $active_deps    = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
-                            ->activeDependentsFor( 'team', $team_id );
-                        $dep_activities = (int) ( $active_deps['activities'] ?? 0 );
-                        ?>
-                        <button type="button"
-                                class="tt-player-action tt-player-action--danger"
-                                role="menuitem"
-                                data-tt-archive-rest-path="<?php echo esc_attr( 'teams/' . $team_id ); ?>"
-                                data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ); ?>"
-                                <?php if ( $dep_activities > 0 ) : ?>
-                                    data-tt-archive-option-key="cascade_activities"
-                                    data-tt-archive-option-label="<?php echo esc_attr( sprintf(
-                                        /* translators: %d: number of the team's still-active activities. */
-                                        _n(
-                                            'Also archive this team\'s %d activity',
-                                            'Also archive this team\'s %d activities',
-                                            $dep_activities,
-                                            'talenttrack'
-                                        ),
-                                        $dep_activities
-                                    ) ); ?>"
-                                <?php endif; ?>
-                                data-tt-archive-redirect="<?php echo esc_attr( $teams_url ); ?>">
-                            <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
-                        </button>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-        <?php
+        $menu = [];
+        if ( $can_edit ) {
+            $menu[] = static function () use ( $team_id, $teams_url ): void {
+                // #2411 — offer to take the team's still-active
+                // activities into the archive with it, defaulted on.
+                // The count comes from the same activeDependentsFor()
+                // the trash cascade preview uses, so the two agree.
+                $active_deps    = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+                    ->activeDependentsFor( 'team', $team_id );
+                $dep_activities = (int) ( $active_deps['activities'] ?? 0 );
+                ?>
+                <button type="button"
+                        class="tt-player-action tt-player-action--danger"
+                        role="menuitem"
+                        data-tt-archive-rest-path="<?php echo esc_attr( 'teams/' . $team_id ); ?>"
+                        data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ); ?>"
+                        <?php if ( $dep_activities > 0 ) : ?>
+                            data-tt-archive-option-key="cascade_activities"
+                            data-tt-archive-option-label="<?php echo esc_attr( sprintf(
+                                /* translators: %d: number of the team's still-active activities. */
+                                _n(
+                                    'Also archive this team\'s %d activity',
+                                    'Also archive this team\'s %d activities',
+                                    $dep_activities,
+                                    'talenttrack'
+                                ),
+                                $dep_activities
+                            ) ); ?>"
+                        <?php endif; ?>
+                        data-tt-archive-redirect="<?php echo esc_attr( $teams_url ); ?>">
+                    <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
+                </button>
+                <?php
+            };
+        }
+
+        \TT\Shared\Frontend\Components\RecordActionRow::render( $actions, $menu );
     }
 
     /**

@@ -28,8 +28,11 @@ abstract class FrontendViewBase {
      * that wraps at 360px. The audit's worst case was nine full-width
      * buttons stacked above any content on activity detail — the overflow
      * was fixed by #2789, the density was not.
+     *
+     * Public so the record-hero action row (`RecordActionRow`) holds the
+     * same number rather than a second copy of it.
      */
-    private const PHONE_ACTION_BUDGET = 2;
+    public const PHONE_ACTION_BUDGET = 2;
 
     private static bool $assets_enqueued = false;
 

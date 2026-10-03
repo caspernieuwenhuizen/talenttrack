@@ -862,21 +862,34 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             RecordLink::dashboardUrl()
         ) . '#tt-player-assign-team';
 
-        $has_overflow = $can_edit; // overflow holds Archive + optional Assign.
-        ?>
-        <div class="tt-player-detail__actions" aria-label="<?php esc_attr_e( 'Actions', 'talenttrack' ); ?>">
-            <?php if ( $can_log_behaviour ) : ?>
-                <button type="button" class="tt-player-action tt-player-action--primary" data-tt-popover-trigger="behaviour">
+        // #4215 — on a phone the row holds two of these and the rest join
+        // the ⋯ menu (`RecordActionRow`). Each action therefore renders
+        // either as a row control or, with `$in_menu`, as a menu item.
+        $actions = [
+            static function ( bool $in_menu ) use ( $can_log_behaviour ): void {
+                if ( ! $can_log_behaviour ) return;
+                ?>
+                <button type="button"
+                        class="tt-player-action<?php echo $in_menu ? '' : ' tt-player-action--primary'; ?>"
+                        <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?>
+                        data-tt-popover-trigger="behaviour">
                     + <?php esc_html_e( 'Log behaviour', 'talenttrack' ); ?>
                 </button>
-            <?php endif; ?>
-            <?php if ( $can_set_potential ) : ?>
-                <button type="button" class="tt-player-action" data-tt-popover-trigger="potential">
+                <?php
+            },
+            static function ( bool $in_menu ) use ( $can_set_potential ): void {
+                if ( ! $can_set_potential ) return;
+                ?>
+                <button type="button"
+                        class="tt-player-action"
+                        <?php if ( $in_menu ) : ?>role="menuitem"<?php endif; ?>
+                        data-tt-popover-trigger="potential">
                     <?php esc_html_e( 'Set potential', 'talenttrack' ); ?>
                 </button>
-            <?php endif; ?>
-            <?php if ( $can_edit ) : ?>
                 <?php
+            },
+            static function ( bool $in_menu ) use ( $can_edit, $edit_url ): void {
+                if ( ! $can_edit ) return;
                 // #2871 — Edit is a pencil beside the ⋯ rather than a text
                 // button at the far left. It is the one action taken on the
                 // record itself, and a full-width label bought it a row of
@@ -884,6 +897,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // phone. The label survives as both the accessible name and
                 // the hover title, so the msgid does not change.
                 $edit_label = __( 'Edit', 'talenttrack' );
+                if ( $in_menu ) {
+                    // A menu is a list of words; a lone pencil in it would
+                    // be the one item nobody can read.
+                    ?>
+                    <a class="tt-player-action" href="<?php echo esc_url( $edit_url ); ?>" role="menuitem">
+                        <?php echo esc_html( $edit_label ); ?>
+                    </a>
+                    <?php
+                    return;
+                }
                 ?>
                 <a class="tt-player-action tt-player-action--edit"
                    href="<?php echo esc_url( $edit_url ); ?>"
@@ -894,82 +917,81 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                     ?>
                 </a>
-            <?php endif; ?>
-            <?php if ( $has_overflow ) : ?>
-                <div class="tt-player-action tt-player-action--more"
-                     role="button"
-                     tabindex="0"
-                     aria-haspopup="true"
-                     aria-expanded="false"
-                     aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
-                     onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
-                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
-                    ⋯
-                    <div class="tt-player-action__menu" role="menu">
-                        <?php if ( empty( $player->team_id ) ) : ?>
-                            <a class="tt-player-action" href="<?php echo esc_url( $assign_url ); ?>" role="menuitem">
-                                <?php esc_html_e( 'Assign to team', 'talenttrack' ); ?>
-                            </a>
-                        <?php endif; ?>
-                        <?php
-                        // #1017 Phase 7 — chemistry-attribute entry for staff
-                        // who can rate players. §7 (#2304) — gated via the
-                        // `player-attributes` registry gate, which tightens
-                        // this to the per-player canEvaluatePlayer check the
-                        // target view enforces (was a flat tt_edit_evaluations
-                        // cap here).
-                        \TT\Shared\Frontend\Components\CrossViewLink::render(
-                            'player-attributes',
-                            static function () use ( $player_id ): void {
-                                $attr_url = add_query_arg(
-                                    [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
-                                    RecordLink::dashboardUrl()
-                                );
-                                ?>
-                                <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
-                                    <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
-                                </a>
-                                <?php
-                            },
-                            [ 'ctx' => [ 'player_id' => $player_id ] ]
-                        );
-                        // #2606 (epic #2600) — "what has this family been
-                        // told?", asked from the player rather than from a
-                        // global log somebody then narrows (§1). Carries
-                        // `tt_back` so the message log renders the pill back
-                        // to this record. Gated through the registry, which
-                        // resolves to the log's own read capability.
-                        \TT\Shared\Frontend\Components\CrossViewLink::render(
-                            'messages',
-                            static function () use ( $player_id ): void {
-                                $messages_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
-                                    add_query_arg(
-                                        [ 'tt_view' => 'messages', 'player_id' => $player_id ],
-                                        RecordLink::dashboardUrl()
-                                    )
-                                );
-                                ?>
-                                <a class="tt-player-action" href="<?php echo esc_url( $messages_url ); ?>" role="menuitem">
-                                    <?php esc_html_e( 'Messages sent', 'talenttrack' ); ?>
-                                </a>
-                                <?php
-                            },
-                            [ 'ctx' => [ 'player_id' => $player_id ] ]
+                <?php
+            },
+        ];
+
+        // The standing menu — Assign, Chemistry, Messages, Archive — is for
+        // readers who can edit the player, as it was before the row moved
+        // into the shared component.
+        $menu = [];
+        if ( $can_edit ) {
+            $menu[] = static function () use ( $player, $player_id, $assign_url, $players_url ): void {
+                if ( empty( $player->team_id ) ) :
+                    ?>
+                    <a class="tt-player-action" href="<?php echo esc_url( $assign_url ); ?>" role="menuitem">
+                        <?php esc_html_e( 'Assign to team', 'talenttrack' ); ?>
+                    </a>
+                    <?php
+                endif;
+                // #1017 Phase 7 — chemistry-attribute entry for staff
+                // who can rate players. §7 (#2304) — gated via the
+                // `player-attributes` registry gate, which tightens
+                // this to the per-player canEvaluatePlayer check the
+                // target view enforces (was a flat tt_edit_evaluations
+                // cap here).
+                \TT\Shared\Frontend\Components\CrossViewLink::render(
+                    'player-attributes',
+                    static function () use ( $player_id ): void {
+                        $attr_url = add_query_arg(
+                            [ 'tt_view' => 'player-attributes', 'player_id' => $player_id ],
+                            RecordLink::dashboardUrl()
                         );
                         ?>
-                        <button type="button"
-                                class="tt-player-action tt-player-action--danger"
-                                role="menuitem"
-                                data-tt-archive-rest-path="<?php echo esc_attr( 'players/' . $player_id ); ?>"
-                                data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this player? They can be restored later by a site admin.', 'talenttrack' ); ?>"
-                                data-tt-archive-redirect="<?php echo esc_attr( $players_url ); ?>">
-                            <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
-                        </button>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-        <?php
+                        <a class="tt-player-action" href="<?php echo esc_url( $attr_url ); ?>" role="menuitem">
+                            <?php esc_html_e( 'Chemistry attributes', 'talenttrack' ); ?>
+                        </a>
+                        <?php
+                    },
+                    [ 'ctx' => [ 'player_id' => $player_id ] ]
+                );
+                // #2606 (epic #2600) — "what has this family been
+                // told?", asked from the player rather than from a
+                // global log somebody then narrows (§1). Carries
+                // `tt_back` so the message log renders the pill back
+                // to this record. Gated through the registry, which
+                // resolves to the log's own read capability.
+                \TT\Shared\Frontend\Components\CrossViewLink::render(
+                    'messages',
+                    static function () use ( $player_id ): void {
+                        $messages_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                            add_query_arg(
+                                [ 'tt_view' => 'messages', 'player_id' => $player_id ],
+                                RecordLink::dashboardUrl()
+                            )
+                        );
+                        ?>
+                        <a class="tt-player-action" href="<?php echo esc_url( $messages_url ); ?>" role="menuitem">
+                            <?php esc_html_e( 'Messages sent', 'talenttrack' ); ?>
+                        </a>
+                        <?php
+                    },
+                    [ 'ctx' => [ 'player_id' => $player_id ] ]
+                );
+                ?>
+                <button type="button"
+                        class="tt-player-action tt-player-action--danger"
+                        role="menuitem"
+                        data-tt-archive-rest-path="<?php echo esc_attr( 'players/' . $player_id ); ?>"
+                        data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this player? They can be restored later by a site admin.', 'talenttrack' ); ?>"
+                        data-tt-archive-redirect="<?php echo esc_attr( $players_url ); ?>">
+                    <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
+                </button>
+                <?php
+            };
+        }
+
+        \TT\Shared\Frontend\Components\RecordActionRow::render( $actions, $menu );
     }
 
     /**
