@@ -146,7 +146,7 @@ Each column says where it goes on a phone with a `mobile` key:
 |---|---|
 | `primary` | Title line: bold, left, no label. A second `primary` follows the first, muted, with its column label in front (`#7`). |
 | `secondary` | Muted, small subtitle under the title. Several are joined with " · ". |
-| `badge` | Pills and short values at the top right. They wrap to a new line when there is no room. |
+| `badge` | Pills and short values at the top right. A long title wraps inside its own column instead of pushing the badges onto a line of their own. A badge that only shows "—" is left out. |
 | `detail` | A `LABEL — value` line. The default for a column that declares nothing. |
 | `hide` | Not shown on a phone. Use it for columns that only matter at a desk: IDs, created-by, long notes. |
 
@@ -171,6 +171,12 @@ Other rules that hold on a phone:
   least 48 px high, reachable with Tab, opened with Enter or Space,
   with a focus ring). The 48 px floor on record links inside the row
   is lifted there, because the row is already the target.
+- The collapsed filter bar has no card around it: just the Filters
+  button and any active filter chips. The card comes back from 768 px.
+- A page head stays on one row. A secondary action that is desk work
+  (such as importing from CSV) gets `'narrow_overflow' => true` in
+  `pageActionsHtml()`. Below 768 px it then sits in the ⋯ menu, and from
+  768 px up in the row.
 
 ## See also
 

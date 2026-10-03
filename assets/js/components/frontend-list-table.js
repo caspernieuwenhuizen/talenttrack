@@ -140,12 +140,20 @@
         return s.replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim() === '';
     }
 
+    /** True when a rendered cell's only text is a dash placeholder. */
+    function isDashCell(html) {
+        var s = String(html == null ? '' : html).replace(/<[^>]*>/g, '').replace(/&nbsp;|&#160;/g, ' ').trim();
+        return s === '—' || s === '&mdash;' || s === '-';
+    }
+
     function renderRow(config, row) {
         var tds = '';
         Object.keys(config.columns).forEach(function(key) {
             var col = config.columns[key];
             var cell = renderCell(col, row);
-            var empty = isEmptyCell(cell) ? ' data-empty="1"' : '';
+            // #4214 — a badge that only says "—" (a goal with no due date)
+            // is empty too on a phone; the table keeps the dash from 768px.
+            var empty = (isEmptyCell(cell) || (col.mobile === 'badge' && isDashCell(cell))) ? ' data-empty="1"' : '';
             // #4192 — the column's phone role (primary / secondary /
             // badge / detail / hide), resolved server-side in
             // FrontendListTable::columnsForJs(). list-table.css lays the

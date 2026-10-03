@@ -121,6 +121,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Import players from CSV', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
+                // #4214 — desk work; folds into ⋯ below 768px.
+                'narrow_overflow' => true,
             ];
         }
         if ( ! $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {

@@ -150,6 +150,55 @@ final class PageActionBudgetTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Visible two', $html );
     }
 
+    // ── #4214: narrow_overflow ─────────────────────────────────────────
+
+    public function test_a_narrow_overflow_action_renders_in_the_row_and_the_menu(): void {
+        $this->asDesktop();
+
+        $html = FrontendViewBase::pageActionsHtml( [
+            [ 'label' => 'Import from CSV', 'href' => 'https://example.test/i', 'narrow_overflow' => true ],
+            [ 'label' => 'New player', 'href' => 'https://example.test/n', 'primary' => true, 'icon' => '+' ],
+        ] );
+
+        // Both copies are in the markup; CSS picks one by viewport.
+        $this->assertStringContainsString( 'tt-page-actions__wide-only', $html );
+        $this->assertStringContainsString( 'tt-page-actions__narrow-only', $html );
+        $this->assertSame( 2, substr_count( $html, 'Import from CSV</span>' ) );
+        // The menu holds nothing else, so it hides from 768px up.
+        $this->assertStringContainsString( 'tt-page-actions__more--narrow-only', $html );
+        $this->assertSame( 1, substr_count( $html, 'New player</span>' ) );
+    }
+
+    public function test_a_menu_with_other_actions_is_not_narrow_only(): void {
+        $this->asDesktop();
+
+        $html = FrontendViewBase::pageActionsHtml( [
+            [ 'label' => 'Import from CSV', 'href' => 'https://example.test/i', 'narrow_overflow' => true ],
+            [ 'label' => 'Archive', 'href' => 'https://example.test/a', 'overflow' => true ],
+        ] );
+
+        $this->assertStringContainsString( 'data-tt-actions-more', $html );
+        $this->assertStringNotContainsString( 'tt-page-actions__more--narrow-only', $html );
+    }
+
+    public function test_narrow_overflow_actions_do_not_consume_the_phone_budget(): void {
+        $this->asPhone();
+
+        $html = FrontendViewBase::pageActionsHtml( [
+            [ 'label' => 'Import from CSV', 'href' => 'https://example.test/i', 'narrow_overflow' => true ],
+            [ 'label' => 'Player accounts', 'href' => 'https://example.test/p', 'narrow_overflow' => true ],
+            [ 'label' => 'Action 1', 'href' => 'https://example.test/1' ],
+            [ 'label' => 'New player', 'href' => 'https://example.test/n', 'primary' => true ],
+        ] );
+
+        // Two budgeted actions: at budget, so neither folds. The menu that
+        // exists is the narrow-only one.
+        $before_menu = substr( $html, 0, (int) strpos( $html, 'data-tt-actions-more' ) );
+        $this->assertStringContainsString( 'Action 1', $before_menu );
+        $this->assertStringContainsString( 'New player', $before_menu );
+        $this->assertStringContainsString( 'tt-page-actions__more--narrow-only', $html );
+    }
+
     public function test_an_empty_action_list_renders_nothing(): void {
         $this->asPhone();
 
