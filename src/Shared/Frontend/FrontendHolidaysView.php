@@ -79,10 +79,11 @@ final class FrontendHolidaysView extends FrontendViewBase {
             // with the manage cap), so read-only viewers get inert rows.
             'row_url_key' => 'detail_url',
             'columns'   => [
-                'name'       => [ 'label' => __( 'Name', 'talenttrack' ),  'sortable' => true ],
-                'start_date' => [ 'label' => __( 'Start', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
-                'end_date'   => [ 'label' => __( 'End', 'talenttrack' ),   'sortable' => true, 'render' => 'date' ],
-                'note'       => [ 'label' => __( 'Note', 'talenttrack' ) ],
+                // `mobile` — phone row roles (docs/mobile-patterns.md).
+                'name'       => [ 'label' => __( 'Name', 'talenttrack' ),  'sortable' => true, 'mobile' => 'primary' ],
+                'start_date' => [ 'label' => __( 'Start', 'talenttrack' ), 'sortable' => true, 'render' => 'date', 'mobile' => 'secondary' ],
+                'end_date'   => [ 'label' => __( 'End', 'talenttrack' ),   'sortable' => true, 'render' => 'date', 'mobile' => 'secondary' ],
+                'note'       => [ 'label' => __( 'Note', 'talenttrack' ), 'mobile' => 'hide' ],
             ],
             // #1784 — Active / Archived tab so the Restore + Delete-
             // permanently actions (below) have somewhere to surface.

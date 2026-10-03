@@ -69,16 +69,9 @@
     background: var(--tt-bg-soft, #f4f6f3);
 }
 
-@media (max-width: 639px) {
-    .tt-dashboard .tt-myact-list .tt-list-table-table tbody tr {
-        background: #fff;
-        border: 1px solid #e3e6e1;
-        border-radius: 12px;
-        box-shadow: var(--tt-shadow-md);
-        margin-bottom: 0.6rem;
-        padding: 0.35rem 0.2rem;
-    }
-}
+/* Phone rows come from the shared list table (components/list-table.css),
+   laid out by the columns' `mobile` roles. The per-view card override that
+   sat here squeezed the title and badge lines into 0.2rem of padding. */
 
 /* ---- Coming up (#3390) ---------------------------------------------
    The forward-looking block above the history list. Mobile-first: one

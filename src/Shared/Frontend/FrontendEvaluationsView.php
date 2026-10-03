@@ -185,12 +185,15 @@ class FrontendEvaluationsView extends FrontendViewBase {
             // #2449 — personal saved views for this list.
             'saved_views' => [ 'key' => 'evaluations-list' ],
             'columns'   => [
-                'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html' ],
-                'player_name'=> [ 'label' => __( 'Player',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
-                'team_name'  => [ 'label' => __( 'Team',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-                'coach_name' => [ 'label' => __( 'Coach',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'coach_link_html' ],
-                'avg_rating' => [ 'label' => __( 'Average', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html' ],
-                'notes'      => [ 'label' => __( 'Notes',   'talenttrack' ),                       'render' => 'text', 'value_key' => 'notes_excerpt' ],
+                // `mobile` — phone row roles (docs/mobile-patterns.md): the
+                // player is the title, date and team the subtitle, the
+                // average a badge. Notes stay a desk column.
+                'eval_date'  => [ 'label' => __( 'Date',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'date_link_html', 'mobile' => 'secondary' ],
+                'player_name'=> [ 'label' => __( 'Player',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'primary' ],
+                'team_name'  => [ 'label' => __( 'Team',    'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html', 'mobile' => 'secondary' ],
+                'coach_name' => [ 'label' => __( 'Coach',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'coach_link_html', 'mobile' => 'detail' ],
+                'avg_rating' => [ 'label' => __( 'Average', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'avg_link_html', 'mobile' => 'badge' ],
+                'notes'      => [ 'label' => __( 'Notes',   'talenttrack' ),                       'render' => 'text', 'value_key' => 'notes_excerpt', 'mobile' => 'hide' ],
             ],
             'filters' => array_merge( [
                 'team_id' => [
