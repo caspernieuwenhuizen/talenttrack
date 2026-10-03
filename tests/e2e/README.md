@@ -23,6 +23,16 @@ The `tests` instance at `localhost:8889` auto-creates an `admin /
 password` account and activates the plugin from the working tree.
 Source changes are live — no rebuild between runs.
 
+Every frontend spec loads `/?tt_view=<slug>`, which only renders the
+dashboard when the dashboard page is the site's static front page. A fresh
+wp-env site has no such page, so run this once after `wp-env:start` (CI does
+it in `e2e.yml`); without it the frontend specs skip themselves and the
+mobile gate fails as blind:
+
+```bash
+npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack wp eval-file tests/e2e/setup/dashboard-front-page.php
+```
+
 When you're done:
 ```bash
 npm run wp-env:stop           # keep the database
@@ -86,11 +96,15 @@ would otherwise fake ~210px of overflow on every surface in every run.
 
 **Baseline.** The audit found 2,213 defect rows; a gate that fails on all of
 them is a gate somebody turns off. `mobile-baseline.json` lists allowed
-finding kinds per surface — anything not listed fails. It ships **empty**,
-because the audit measured a seeded local install rather than wp-env, and
-transcribing those rows would grant exemptions nobody verified against what
-CI sees. The first run prints the real offender list in that file's exact
-shape; paste it in and the gate is calibrated.
+finding kinds per surface — anything not listed fails. It is seeded from
+CI's own output, not from the audit (which measured a seeded local install
+rather than wp-env). Every run prints the current offender list in that
+file's exact shape; paste it in to recalibrate.
+
+**Blindness check.** The spec fails when more than a handful of surfaces
+render no `.tt-dashboard`, or when it measures less than 60% of the
+phone-reachable list. Both mean the walk is skipping rather than measuring —
+which is how the gate once stayed green for months while measuring nothing.
 
 Until the baseline is empty the step is `continue-on-error` in `e2e.yml`.
 Flip it to blocking when the last allowance goes. The spec also reports any

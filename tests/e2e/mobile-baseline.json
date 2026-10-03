@@ -4,20 +4,279 @@
     "kinds on one surface: 'overflow', 'tap-target', 'wide-table'. Anything not",
     "listed here fails the spec.",
     "",
-    "This starts empty on purpose. The audit's 2,213 rows were measured against a",
-    "seeded local install, not against wp-env's baseline data, so transcribing them",
-    "here would encode offenders this suite may not even reproduce and would grant",
-    "blanket exemptions nobody verified. The first CI run prints the real list in",
-    "this file's exact shape - paste it in, and the gate is calibrated to what CI",
-    "actually sees.",
+    "Seeded from the first CI run that actually reached the dashboard (#4195) -",
+    "before that every surface skipped and the gate measured nothing. The spec",
+    "prints the current offenders in this file's exact shape at the end of every",
+    "run; paste that in to recalibrate after a wave of fixes. Do not transcribe",
+    "from a seeded local install: CI's wp-env data is what the gate measures.",
     "",
-    "Until then the job is non-blocking (continue-on-error in e2e.yml), so an",
-    "un-calibrated baseline reports rather than blocks. Flip both - empty the",
-    "allowances as waves land, then drop continue-on-error - when the list reaches",
-    "zero.",
+    "Most 'tap-target' entries share one cause: the header home link is 34px wide",
+    "on phones (#4204). When that lands, most of these lines go stale.",
+    "",
+    "The job is non-blocking (continue-on-error in e2e.yml) until the list is",
+    "empty; then drop continue-on-error.",
     "",
     "Removing an entry is the goal. The spec reports any entry that no longer",
     "offends, because a stale allowance is where the next real regression hides."
   ],
-  "surfaces": {}
+  "surfaces": {
+    "activities": [
+      "tap-target"
+    ],
+    "alerts": [
+      "tap-target"
+    ],
+    "analytics": [
+      "tap-target"
+    ],
+    "attendance-leaderboard": [
+      "tap-target"
+    ],
+    "attendance-report-player": [
+      "tap-target"
+    ],
+    "attendance-report-team": [
+      "tap-target"
+    ],
+    "courses": [
+      "tap-target"
+    ],
+    "docs": [
+      "tap-target"
+    ],
+    "dossier-completeness": [
+      "tap-target"
+    ],
+    "evaluations": [
+      "tap-target"
+    ],
+    "exercises": [
+      "tap-target"
+    ],
+    "goals": [
+      "tap-target"
+    ],
+    "holidays": [
+      "tap-target"
+    ],
+    "ideas-approval": [
+      "tap-target"
+    ],
+    "ideas-board": [
+      "tap-target"
+    ],
+    "ideas-refine": [
+      "tap-target"
+    ],
+    "lost-password": [
+      "tap-target"
+    ],
+    "mail-compose": [
+      "tap-target"
+    ],
+    "match-execution": [
+      "tap-target"
+    ],
+    "match-executions": [
+      "tap-target"
+    ],
+    "measurements": [
+      "tap-target"
+    ],
+    "measurements-entry": [
+      "tap-target"
+    ],
+    "messages": [
+      "tap-target"
+    ],
+    "mfa-prompt": [
+      "tap-target"
+    ],
+    "minutes-report-team": [
+      "tap-target"
+    ],
+    "my-activities": [
+      "tap-target"
+    ],
+    "my-development": [
+      "tap-target"
+    ],
+    "my-evaluations": [
+      "tap-target"
+    ],
+    "my-goals": [
+      "tap-target"
+    ],
+    "my-journey": [
+      "tap-target"
+    ],
+    "my-learning": [
+      "tap-target"
+    ],
+    "my-messages": [
+      "tap-target"
+    ],
+    "my-pdp": [
+      "tap-target"
+    ],
+    "my-sessions": [
+      "tap-target"
+    ],
+    "my-settings": [
+      "tap-target"
+    ],
+    "my-staff-certifications": [
+      "tap-target"
+    ],
+    "my-staff-evaluations": [
+      "tap-target"
+    ],
+    "my-staff-goals": [
+      "tap-target"
+    ],
+    "my-staff-pdp": [
+      "tap-target"
+    ],
+    "my-tasks": [
+      "tap-target"
+    ],
+    "my-team": [
+      "tap-target"
+    ],
+    "onboarding-pipeline": [
+      "tap-target"
+    ],
+    "overview": [
+      "tap-target"
+    ],
+    "pdp": [
+      "tap-target"
+    ],
+    "people": [
+      "tap-target"
+    ],
+    "plan": [
+      "tap-target"
+    ],
+    "player-attributes": [
+      "tap-target"
+    ],
+    "player-bmi": [
+      "tap-target"
+    ],
+    "player-journey": [
+      "tap-target"
+    ],
+    "player-status-capture": [
+      "tap-target"
+    ],
+    "players": [
+      "tap-target"
+    ],
+    "podium": [
+      "tap-target"
+    ],
+    "potential-overview": [
+      "tap-target"
+    ],
+    "profile": [
+      "tap-target"
+    ],
+    "prospect-edit": [
+      "tap-target"
+    ],
+    "prospects-overview": [
+      "tap-target"
+    ],
+    "reports": [
+      "tap-target"
+    ],
+    "reset-password": [
+      "tap-target"
+    ],
+    "safeguarding-broadcast": [
+      "tap-target"
+    ],
+    "scout-history": [
+      "tap-target"
+    ],
+    "scout-my-players": [
+      "tap-target"
+    ],
+    "scout-player-card": [
+      "tap-target"
+    ],
+    "scouting-visit": [
+      "tap-target"
+    ],
+    "scouting-visits": [
+      "tap-target"
+    ],
+    "search": [
+      "tap-target"
+    ],
+    "staff-overview": [
+      "tap-target"
+    ],
+    "standard-report": [
+      "tap-target"
+    ],
+    "strava": [
+      "tap-target"
+    ],
+    "submission-review": [
+      "tap-target"
+    ],
+    "submit-idea": [
+      "tap-target"
+    ],
+    "suspensions": [
+      "tap-target"
+    ],
+    "team-behaviour-capture": [
+      "tap-target"
+    ],
+    "team-blueprint-share": [
+      "tap-target"
+    ],
+    "teammate": [
+      "tap-target"
+    ],
+    "teams": [
+      "tap-target"
+    ],
+    "test-trends": [
+      "tap-target"
+    ],
+    "tournament-match": [
+      "tap-target"
+    ],
+    "tournaments": [
+      "tap-target"
+    ],
+    "training-photo": [
+      "tap-target"
+    ],
+    "training-run": [
+      "tap-target"
+    ],
+    "trial-case": [
+      "tap-target"
+    ],
+    "trial-parent-meeting": [
+      "tap-target"
+    ],
+    "trials": [
+      "tap-target"
+    ],
+    "two-factor": [
+      "tap-target"
+    ],
+    "usage-stats": [
+      "tap-target"
+    ],
+    "wizard": [
+      "tap-target"
+    ]
+  }
 }
