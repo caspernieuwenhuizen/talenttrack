@@ -35,11 +35,18 @@ use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
  *
  * #4191 — on a phone the banner shows on the dashboard root only. Views get
  * a one-line strip for operational alerts instead, linking to the inbox.
+ *
+ * #4216 — on the root a phone gets one summary line instead of the cards
+ * ("2 urgent alerts · 20+ more"), plus that same safety strip. Tablets and
+ * desktops keep the full banner there.
  */
 final class AlertBanner {
 
     /** Most occurrences rendered inline before collapsing to a count. */
     private const MAX_VISIBLE = 3;
+
+    /** Rows read per render: enough to fill the cards after the policy filter. */
+    private const FETCH_LIMIT = self::MAX_VISIBLE + 20;
 
     public static function init(): void {
         // Priority 20 puts alerts below the flash queue: "your evaluation
@@ -65,7 +72,7 @@ final class AlertBanner {
         // exactly MAX_VISIBLE would show fewer than that whenever the top
         // rows happen to be badge-only.
         $policy = new AlertPolicyResolver();
-        $rows   = $repo->openForUser( $user_id, self::MAX_VISIBLE + 20 );
+        $rows   = $repo->openForUser( $user_id, self::FETCH_LIMIT );
 
         $eligible = [];
         foreach ( $rows as $row ) {
@@ -78,23 +85,104 @@ final class AlertBanner {
         // #4191 — on a phone the full banner belongs to the dashboard root
         // only. Above a list or a record it cost ~440px and pushed the first
         // row below the fold; the bell and the inbox still carry every alert.
-        // Root vs. view is known here, so the root renders as it always has.
+        //
+        // The viewport decides, and the server cannot see it. A confirmed
+        // phone user agent gets no banner markup at all — no cards, no snooze
+        // buttons sitting in the DOM unseen. Everyone else gets the banner
+        // with a modifier that the sheet hides below 768px, which also covers
+        // a narrow desktop window and a phone the detector misses.
+        $phone = self::isPhone();
+
         if ( self::onDashboardRoot() ) {
-            self::renderBar( $eligible, '' );
+            // #4216 — even on the root, three cards plus a "20 more" line
+            // filled a phone's first screen before "Welcome" and the tiles.
+            // A phone gets one summary line there; the cards stay desktop.
+            if ( ! $phone ) {
+                self::renderBar( $eligible, 'tt-alert-bar--wide-only' );
+            }
+            self::renderSafetyStrip( $eligible, $phone );
+            self::renderSummary( $eligible, $rows, $phone );
             return;
         }
 
-        // On a view the viewport decides, and the server cannot see it. A
-        // confirmed phone user agent gets no banner markup at all — no cards,
-        // no snooze buttons sitting in the DOM unseen. Everyone else gets the
-        // banner with a modifier that the sheet hides below 768px, which also
-        // covers a narrow desktop window and a phone the detector misses.
-        $phone = self::isPhone();
         if ( ! $phone ) {
             self::renderBar( $eligible, 'tt-alert-bar--view' );
         }
 
         self::renderSafetyStrip( $eligible, $phone );
+    }
+
+    /**
+     * The one-line summary on a phone's dashboard root (#4216).
+     *
+     * Counts come from the rows already read, so there is no second query.
+     * A COUNT would not be more honest: it cannot apply the per-user surface
+     * policy, which runs in PHP. The read is capped at FETCH_LIMIT, so when
+     * the cap was hit the line says "20+" rather than a number that is only
+     * the cap. Rows arrive loudest first, so the urgent count is exact unless
+     * the cap fell inside the urgent rows — then it carries the "+" and the
+     * "more" part is dropped, because nothing below it was read.
+     *
+     * The line is one link to the inbox, at least 48px tall.
+     *
+     * @param list<object> $eligible
+     * @param list<object> $rows     Everything read, before the policy filter.
+     */
+    private static function renderSummary( array $eligible, array $rows, bool $phone ): void {
+        $capped = count( $rows ) >= self::FETCH_LIMIT;
+        $total  = count( $eligible );
+        $urgent = 0;
+        foreach ( $eligible as $row ) {
+            if ( Severity::normalise( (string) ( $row->severity ?? '' ) ) === Severity::URGENT ) {
+                $urgent++;
+            }
+        }
+        $rest = $total - $urgent;
+
+        $last          = $capped ? end( $rows ) : false;
+        $urgent_capped = is_object( $last )
+            && Severity::normalise( (string) ( $last->severity ?? '' ) ) === Severity::URGENT;
+
+        $parts = [];
+        if ( $urgent > 0 ) {
+            $parts[] = sprintf(
+                /* translators: %s: number of urgent open alerts, e.g. "3" or "20+" */
+                _n( '%s urgent alert', '%s urgent alerts', $urgent, 'talenttrack' ),
+                $urgent . ( $urgent_capped ? '+' : '' )
+            );
+            if ( ! $urgent_capped && $rest > 0 ) {
+                $parts[] = sprintf(
+                    /* translators: %s: number of further, less urgent open alerts, e.g. "5" or "20+" */
+                    _nx( '%s more', '%s more', $rest, 'alerts summary line', 'talenttrack' ),
+                    $rest . ( $capped ? '+' : '' )
+                );
+            }
+        } else {
+            $parts[] = sprintf(
+                /* translators: %s: number of open alerts, e.g. "5" or "20+" */
+                _n( '%s open alert', '%s open alerts', $total, 'talenttrack' ),
+                $total . ( $capped ? '+' : '' )
+            );
+        }
+
+        $class = 'tt-alert-summary';
+        if ( $urgent > 0 ) {
+            $class .= ' tt-alert-summary--urgent';
+        }
+        if ( ! $phone ) {
+            $class .= ' tt-alert-summary--narrow-only';
+        }
+
+        printf(
+            '<a class="%1$s" href="%2$s">'
+                . '<span class="tt-alert-summary__text">%3$s</span>'
+                . '<span class="tt-alert-summary__cta">%4$s</span>'
+            . '</a>',
+            esc_attr( $class ),
+            esc_url( (string) add_query_arg( 'tt_view', 'alerts', self::dashboardBase() ) ), /* tt-xview-ok */
+            esc_html( implode( ' · ', $parts ) ),
+            esc_html__( 'Open', 'talenttrack' )
+        );
     }
 
     /** True on the dashboard landing, where no `tt_view` is requested. */
