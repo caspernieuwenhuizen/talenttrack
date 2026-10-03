@@ -72,12 +72,28 @@ for the viewport gate.
 `mobile-viewport.spec.js` walks every surface a phone can actually reach —
 read from `config/mobile_surfaces.php`, skipping `desktop_only`, since a
 phone visitor is intercepted before those render — and asserts three things
-per surface:
+per surface, plus two more on `native` list surfaces:
 
 1. No horizontal overflow (`scrollWidth <= clientWidth`).
 2. No visible interactive element under 48px in either dimension.
 3. No table wider than the viewport, on `native` surfaces only. Elsewhere a
    table scrolling inside its own container is the intended compromise.
+
+On `native` surfaces it also checks list density, because a list can pass
+all three and still be unusable on a phone. Both findings are reported per
+`FrontendListTable` on the page, once its rows have loaded over REST:
+
+4. `row-height` — a data row (or card) taller than 120px
+   (`MAX_ROW_HEIGHT`).
+5. `first-row-low` — the first data row starts more than 400px down the
+   page (`MAX_FIRST_ROW_TOP`), pushed there by filters and chrome.
+
+A list with no data rows — empty, errored, or still loading after five
+seconds — has no density to judge and is not measured. The run prints which
+surfaces had rows and how many, so "no density findings" can be told apart
+from "nothing was looked at". wp-env's data decides that, and it is thin:
+when the checks were added only `players` and `teams` had rows. A list that
+is empty in CI is not covered by these two checks.
 
 Two settings in `playwright.config.js` are load-bearing rather than
 cosmetic, and both are spelled out instead of spread from

@@ -130,7 +130,8 @@ jobs:
       # #2813 — the mobile viewport gate, at 390x844 with touch enabled.
       # Walks every phone-reachable surface asserting no horizontal
       # overflow, no sub-48px tap target and no over-wide table on a
-      # `native` surface.
+      # `native` surface. On `native` list surfaces it also reports rows
+      # taller than 120px and a first row starting below 400px (#4200).
       #
       # Reporting, not blocking, on purpose. The audit found 2,213 defect
       # rows and a gate that fails on all of them is a gate somebody turns
