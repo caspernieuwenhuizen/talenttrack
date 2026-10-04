@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.141.4
+Stable tag: 4.141.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.141.5 — Goals list on a phone: the goal title is text, the row opens the goal (#4241) On a phone each row of the goals list showed the goal title as a link 18px high inside a row that is already a link to the same goal. Below 768px the title now reads as plain text and a tap on it opens the goal through the row, the same treatment the people list gives the e-mail address. From 768px up the title is a link as before. The list's data is unchanged. =
 
 = 4.141.4 — Phone: a tap on a player's name no longer opens the team; the e-mail in the people list is text (#4235) On a phone the team link under a player's name had a tap area that reached 12 px up into the name, so a tap on the lower half of the name opened the team page. The tap area now starts at the link's own line and extends downward only, over the status pills, which are not tappable. The link is still 48 px high and the header keeps its height. The same holds for the "Teams" link on a team page.  In the people list, the e-mail address in each row was a small link to the mail composer inside a row that opens the person. Below 768 px it is now plain text, so a tap anywhere on the row opens the person; mail is composed from the person's page. From 768 px up the address is a link as before. =
 
