@@ -342,9 +342,11 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 $archive_label   = __( 'Archive case', 'talenttrack' );
                 $archive_confirm = __( 'Archive this case?', 'talenttrack' );
                 ?>
+                <?php // #4236 — frontend-archive-button.js asks in the app modal, then submits the hidden form. ?>
                 <button type="button"
                         class="tt-player-action"
-                        onclick="if(confirm(<?php echo esc_attr( wp_json_encode( $archive_confirm ) ); ?>)){document.getElementById('tt-trial-archive-form').requestSubmit();}return false;">
+                        data-tt-archive-form="tt-trial-archive-form"
+                        data-tt-archive-confirm="<?php echo esc_attr( $archive_confirm ); ?>">
                     <?php echo esc_html( $archive_label ); ?>
                 </button>
             <?php endif; ?>

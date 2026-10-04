@@ -51,10 +51,12 @@ abstract class FrontendViewBase {
             TT_VERSION
         );
 
-        // #2809 — keyboard behaviour for the page-actions overflow menu.
-        // The menu is a native <details> and works without this; the file
-        // adds Escape-to-close, focus-into-the-menu on open, and
-        // close-on-outside-click. No-op on pages with no menu.
+        // #2809 — keyboard behaviour for the page-actions overflow menu and
+        // the record action row's menu. The menu is a native <details> and
+        // works without this; the file adds Escape-to-close,
+        // focus-into-the-menu on open, close-on-outside-click and
+        // close-on-item-choice. No-op on pages with no menu. It is the one
+        // script for `[data-tt-actions-more]` (#4236).
         wp_enqueue_script(
             'tt-page-actions-overflow',
             TT_PLUGIN_URL . 'assets/js/page-actions-overflow.js',
@@ -160,18 +162,6 @@ abstract class FrontendViewBase {
             TT_PLUGIN_URL . 'assets/css/frontend-scout-reports.css',
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
-        );
-
-        // #2830 — Escape + outside-click for the page-header overflow menu.
-        // The menu is a <details>, so it opens and closes without this; the
-        // script only adds what HTML has no answer for. Deferred, ~1KB, and
-        // a no-op on a page with no menu.
-        wp_enqueue_script(
-            'tt-frontend-page-actions',
-            TT_PLUGIN_URL . 'assets/js/frontend-page-actions.js',
-            [],
-            TT_VERSION,
-            true
         );
 
         self::$assets_enqueued = true;

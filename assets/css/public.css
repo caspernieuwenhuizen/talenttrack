@@ -1214,9 +1214,16 @@ input[type="checkbox"], input[type="radio"] {
        nine surfaces, the dashboard's own tile-group headers among them.
        Height comes from padding rather than `display: flex` so the
        browser keeps rendering the disclosure triangle — changing `display`
-       away from `list-item` drops the marker. */
+       away from `list-item` drops the marker.
+       #4236 — the padding is for a bare disclosure summary. A summary
+       styled as a button sizes itself, and the extra 24px made the record
+       action row's ⋯ 53px tall. `:where()` keeps the rule's specificity
+       what it was, so a sheet that sets its own summary padding still
+       wins. */
     .tt-dashboard summary {
         min-height: 48px;
+    }
+    .tt-dashboard summary:where(:not(.tt-btn):not(.tt-page-actions__more-trigger):not(.tt-player-action)) {
         padding-block: 12px;
     }
 

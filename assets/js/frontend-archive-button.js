@@ -41,6 +41,12 @@
  * Restore (POST .../restore) and permanent-delete (DELETE .../permanent)
  * on the activities archived list ride on these; existing archive
  * buttons keep the DELETE / danger defaults and are untouched.
+ *
+ * #4236 — an action that is a nonce-bearing form post rather than a REST
+ * call names the form instead of a REST path:
+ *   data-tt-archive-form="tt-trial-archive-form"   — id of the <form>
+ * The same modal asks, and a confirm submits that form. The confirm
+ * attributes above apply; the REST ones do not.
  */
 (function () {
     'use strict';
@@ -182,7 +188,7 @@
             confirm: i18n.confirm || 'Archive'
         };
 
-        var buttons = document.querySelectorAll('[data-tt-archive-rest-path]');
+        var buttons = document.querySelectorAll('[data-tt-archive-rest-path], [data-tt-archive-form]');
         Array.prototype.forEach.call(buttons, function (btn) {
             btn.addEventListener('click', function (ev) {
                 ev.preventDefault();
@@ -213,6 +219,22 @@
                 // team archive.
                 promptArchive( confirm_text, modal_i18n, function ( ok, optionChecked ) {
                     if ( ! ok ) return;
+
+                    // #4236 — a form-post action: submit the named form.
+                    // `requestSubmit` runs the form's own validation and
+                    // submit handlers, as a click on its button would.
+                    var formId = btn.getAttribute('data-tt-archive-form') || '';
+                    if ( formId ) {
+                        var form = document.getElementById( formId );
+                        if ( ! form ) return;
+                        btn.disabled = true;
+                        if ( typeof form.requestSubmit === 'function' ) {
+                            form.requestSubmit();
+                        } else {
+                            form.submit();
+                        }
+                        return;
+                    }
 
                     var path     = btn.getAttribute('data-tt-archive-rest-path') || '';
                     var redirect = btn.getAttribute('data-tt-archive-redirect') || '';
