@@ -275,7 +275,7 @@
             // suppress the guided empty-state card on a genuinely empty list.
             var defaults = config.default_filters || {};
             var userFiltered = Object.keys(state.filter || {}).some(function (k) {
-                return String(state.filter[k]) !== String(defaults[k] == null ? ' ' : defaults[k]);
+                return String(state.filter[k]) !== String(defaults[k] == null ? '\u0000' : defaults[k]);
             });
             var hasQuery = !!state.search || userFiltered;
             var emptyContent = (!hasQuery && config.empty_html)
