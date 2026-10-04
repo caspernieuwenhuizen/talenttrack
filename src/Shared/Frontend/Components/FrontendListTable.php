@@ -68,6 +68,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   'hide'      — not shown on a phone.
  * Declaring none gives first column `primary`, second `secondary`.
  *
+ * Column `mobile_plain` key — true shows a link in the cell as plain text
+ * on a phone when the row itself is the link (`row_url_key`), so a tap on
+ * it opens the row. The table from 768px keeps the link.
+ *
  * Filter `type` values supported:
  *   'select'     — single-select dropdown. Requires `options` (value=>label).
  *   'date_range' — two date inputs; param_from / param_to override the
@@ -751,6 +755,11 @@ class FrontendListTable {
                 $entry['options']     = is_array( $col['options'] ?? null ) ? $col['options'] : [];
                 $entry['patch_path']  = (string) ( $col['patch_path']  ?? '' );
                 $entry['patch_field'] = (string) ( $col['patch_field'] ?? $key );
+            }
+            // #4235 — a link in this cell is plain text on a phone, so the
+            // tap opens the row. The table from 768px keeps the link.
+            if ( ! empty( $col['mobile_plain'] ) ) {
+                $entry['mobile_plain'] = true;
             }
             $out[ (string) $key ] = $entry;
         }

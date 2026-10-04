@@ -231,9 +231,23 @@
    list leads with the player's profile link) the tap must still open the
    row's record: the link lets clicks fall through to the row handler.
    Keyboard users keep both — the row is focusable with Enter, the link
-   with Tab. The table from 768px restores the link. */
-.tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a {
+   with Tab. The table from 768px restores the link.
+   #4235 — a column outside the title line opts in with `mobile_plain`
+   (the people list's e-mail, a 25px-high link to the mail composer): on a
+   phone it also reads as text, not as a link. */
+.tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a,
+.tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile-plain] a {
     pointer-events: none;
+}
+/* A max-width block on purpose: the link's own colour comes from
+   `.tt-record-link` in public.css and cannot be restored from here without
+   repeating it. */
+@media (max-width: 767.98px) {
+    .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile-plain] a {
+        color: inherit;
+        text-decoration: none;
+        font-weight: inherit;
+    }
 }
 
 /* ---- Tablet and up: the table -------------------------------------- */
@@ -319,7 +333,8 @@
     .tt-dashboard .tt-list-table-table tr.tt-list-table-loading > td { color: var(--tt-muted); }
     .tt-dashboard .tt-list-table-table tr.tt-list-table-error > td { color: var(--tt-danger); }
     .tt-dashboard .tt-list-table-table tr.is-row-link .tt-record-link { display: inline-block; }
-    .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a { pointer-events: auto; }
+    .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile="primary"] a,
+    .tt-dashboard .tt-list-table-table tr.is-row-link td[data-mobile-plain] a { pointer-events: auto; }
 }
 /* The #2800 record-link floor returns with the table on touch tablets. */
 @media (min-width: 768px) and (pointer: coarse) {

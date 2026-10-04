@@ -170,6 +170,8 @@
             // FrontendListTable::columnsForJs(). list-table.css lays the
             // row out from it below 768px.
             var mobile = ' data-mobile="' + escapeHtml(col.mobile || 'detail') + '"';
+            // #4235 — a link in this cell is plain text on a phone.
+            if (col.mobile_plain) mobile += ' data-mobile-plain="1"';
             tds += '<td data-label="' + escapeHtml(col.label) + '"' + mobile + empty + '>' + cell + '</td>';
         });
         if (Object.keys(config.row_actions).length) {

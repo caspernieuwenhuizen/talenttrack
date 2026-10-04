@@ -182,7 +182,10 @@ Verder geldt op een telefoon:
   vangt de tik op een telefoon niet op: wie erop tikt, opent de rij.
   Zo kan een lijst met de speler beginnen (de doelenlijst) en toch het
   doel openen. De link blijft bereikbaar met Tab en werkt weer in de
-  tabel vanaf 768 px.
+  tabel vanaf 768 px. Een kolom buiten de titelregel krijgt hetzelfde
+  gedrag met `'mobile_plain' => true` en ziet er op een telefoon dan
+  ook uit als tekst: de personenlijst doet dit voor het e-mailadres,
+  dat vanaf 768 px een link naar het e-mailvenster is.
 - De ingeklapte filterbalk heeft geen kaart eromheen. Vanaf 768 px komt
   de kaart terug. Onder 768 px is de balk hooguit twee regels: de knop
   Filters met de opgeslagen weergaven ernaast, en daaronder, alleen als

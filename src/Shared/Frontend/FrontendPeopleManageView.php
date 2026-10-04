@@ -114,8 +114,10 @@ class FrontendPeopleManageView extends FrontendViewBase {
                 // #0070 — name links to the person detail; email links to
                 // the in-product mail composer so the send is audited.
                 // `mobile` — phone row roles (docs/mobile-patterns.md).
+                // #4235 — on a phone the e-mail is text, so a tap on it
+                // opens the person; mail is composed from the person page.
                 'last_name'     => [ 'label' => __( 'Name',          'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html', 'mobile' => 'primary' ],
-                'email'         => [ 'label' => __( 'Email',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'email_link_html', 'mobile' => 'detail' ],
+                'email'         => [ 'label' => __( 'Email',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'email_link_html', 'mobile' => 'detail', 'mobile_plain' => true ],
                 'role_type'     => [ 'label' => __( 'Type',          'talenttrack' ), 'sortable' => true, 'value_key' => 'role_type_localised', 'mobile' => 'badge' ],
                 'current_roles' => [ 'label' => __( 'Current roles', 'talenttrack' ), 'mobile' => 'secondary' ],
             ],
