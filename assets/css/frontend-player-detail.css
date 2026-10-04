@@ -324,10 +324,7 @@
     margin-left: auto;
     flex-shrink: 0;
 }
-/* Two classes deep so `padding: 0` beats the touch floor's
-   `.tt-dashboard summary { padding-block: 12px }` in public.css, which
-   made the trigger 53px tall and the whole row with it. */
-.tt-player-action__more > .tt-player-action--more {
+.tt-player-action--more {
     display: flex;
     width: 48px;
     height: 48px;

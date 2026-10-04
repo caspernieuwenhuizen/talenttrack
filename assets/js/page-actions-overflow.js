@@ -18,6 +18,10 @@
  * Everything here is additive. Remove this file and the menu still opens,
  * still closes, and still lists every action — which is the property that
  * let the markup ship before the behaviour did.
+ *
+ * Every listener sits on the document, so a menu rendered after load (by a
+ * REST refresh, say) needs no re-binding. This is the only script that
+ * drives these menus (#4236).
  */
 ( function () {
 	'use strict';
@@ -43,6 +47,7 @@
 
 	function onToggle( e ) {
 		var details = e.target;
+		if ( ! details || ! details.matches || ! details.matches( SELECTOR ) ) return;
 		if ( ! details.open ) return;
 
 		// Close any other open menu — two open at once is never intended,
@@ -89,19 +94,10 @@
 		if ( details ) close( details, true );
 	}
 
-	function init() {
-		document.querySelectorAll( SELECTOR ).forEach( function ( details ) {
-			details.addEventListener( 'toggle', onToggle );
-		} );
-
-		document.addEventListener( 'keydown', onKeydown );
-		document.addEventListener( 'click', onDocumentClick );
-		document.addEventListener( 'click', onItemChoice, true );
-	}
-
-	if ( document.readyState === 'loading' ) {
-		document.addEventListener( 'DOMContentLoaded', init );
-	} else {
-		init();
-	}
+	// `toggle` does not bubble, so it is captured on the document rather
+	// than bound to each menu.
+	document.addEventListener( 'toggle', onToggle, true );
+	document.addEventListener( 'keydown', onKeydown );
+	document.addEventListener( 'click', onDocumentClick );
+	document.addEventListener( 'click', onItemChoice, true );
 } )();
