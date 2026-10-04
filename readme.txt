@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.141.3
+Stable tag: 4.141.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.141.4 — Phone: a tap on a player's name no longer opens the team; the e-mail in the people list is text (#4235) On a phone the team link under a player's name had a tap area that reached 12 px up into the name, so a tap on the lower half of the name opened the team page. The tap area now starts at the link's own line and extends downward only, over the status pills, which are not tappable. The link is still 48 px high and the header keeps its height. The same holds for the "Teams" link on a team page.  In the people list, the e-mail address in each row was a small link to the mail composer inside a row that opens the person. Below 768 px it is now plain text, so a tap anywhere on the row opens the person; mail is composed from the person's page. From 768 px up the address is a link as before. =
+
+= 4.141.4 — Trial case: "Archive case" asks in the app's own dialog (#4236) "Archive case" on a trial case asked for confirmation in a browser pop-up. It now uses the same dialog as every other archive button, with Cancel focused first. The question and the result are unchanged.  Behind it, clean-up with no visible effect: one script instead of two handles the ⋯ menus, and the 48 px touch padding for disclosure headers no longer applies to a header that is styled as a button. =
 
 = 4.141.3 — Record pages on a phone: 48 px breadcrumb and profile links, and a ⋯ menu that closes (#4231) Three tap-target fixes on the player and team pages. Breadcrumb links were 48 px tall but could be narrower than that ("Teams" measured 40 px wide); they now have a 48 px minimum width as well. On the player's Profile tab the team link and a parent's phone and e-mail links were 40 px tall on a phone and are now 48 px; on a desktop they are unchanged.  The ⋯ menu in the action row under the hero (player page, team page, trial case) is now the same element as the ⋯ menu in page headers. It still opens by tap, Enter and Space, and now closes on Escape, on a tap outside it and when an item is chosen, with focus returning to the ⋯. The page-header menu gains the same close-on-choice behaviour. The menu's items and who can see them are unchanged. =
 
