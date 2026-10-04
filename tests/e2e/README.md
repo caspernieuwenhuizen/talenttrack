@@ -148,8 +148,8 @@ render no `.tt-dashboard`, or when it measures less than 60% of the
 phone-reachable list. Both mean the walk is skipping rather than measuring —
 which is how the gate once stayed green for months while measuring nothing.
 
-Until the baseline is empty the step is `continue-on-error` in `e2e.yml`.
-Flip it to blocking when the last allowance goes. The spec also reports any
+Until only the accepted entry is left the step is `continue-on-error` in
+`e2e.yml`. Flip it to blocking when the last real allowance goes. The spec also reports any
 baseline entry that has *stopped* offending — that is the line to delete,
 and a stale allowance is where the next real regression hides.
 
