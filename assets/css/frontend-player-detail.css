@@ -151,15 +151,24 @@
 /* #4215 — the hero's team link measured 208x17 on a phone ("Teams" on the
    team page 37x17). Same floor as `.tt-record-link` in public.css. The
    negative block margin keeps the 48px band from adding 31px to every
-   hero: the band overlaps the name above and the pills below, neither of
-   which is a tap target. */
+   hero.
+   #4235 — the band starts at the subtitle line and overlaps downward
+   only, over the pills, which are not tap targets. Centred on the line it
+   reached 12px into the name, so a tap on the lower part of the name
+   opened the team. The bottom padding keeps the text centred in the top
+   24px, where it was; the stacking order puts the band above the pills,
+   which come later in the markup and would otherwise take the tap. */
 @media (pointer: coarse) {
     .tt-player-hero__sub a {
         display: inline-flex;
         align-items: center;
+        box-sizing: border-box;
         min-height: 48px;
         min-width: 48px;
-        margin-block: -12px;
+        padding-bottom: 24px;
+        margin-block: 0 -24px;
+        position: relative;
+        z-index: 1;
         touch-action: manipulation;
     }
 }

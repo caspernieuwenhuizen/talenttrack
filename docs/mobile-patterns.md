@@ -174,7 +174,10 @@ Other rules that hold on a phone:
   title line does not catch the tap on a phone: tapping it opens the
   row. That lets a list lead with the player (the goals list) and still
   open the goal. The link stays reachable with Tab, and works again in
-  the table from 768 px.
+  the table from 768 px. A column outside the title line gets the same
+  treatment with `'mobile_plain' => true`, and then also looks like
+  text on a phone: the people list does this for the e-mail address,
+  which is a link to the mail composer from 768 px up.
 - The collapsed filter bar has no card around it. The card comes back
   from 768 px. Below 768 px it is at most two rows: the Filters button
   with the saved views beside it, then, only while a filter is applied,
