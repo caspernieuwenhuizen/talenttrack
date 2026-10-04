@@ -366,9 +366,11 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 // player is the title (#4224, CLAUDE.md §1), the goal the
                 // subtitle, which wraps rather than truncates; status and
                 // due date the badges. The row opens the goal: list-table.css
-                // makes the title line's player link inert on a phone.
+                // makes the title line's player link inert on a phone, and
+                // `mobile_plain` does the same for the goal title under it,
+                // which would otherwise be an 18px link inside the row link.
                 'player_name' => [ 'label' => __( 'Player',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html', 'mobile' => 'primary' ],
-                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html', 'mobile' => 'secondary' ],
+                'title'       => [ 'label' => __( 'Goal',     'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html', 'mobile' => 'secondary', 'mobile_plain' => true ],
                 'priority'    => [ 'label' => __( 'Priority', 'talenttrack' ), 'sortable' => true, 'value_key' => 'priority_localised', 'mobile' => 'detail' ],
                 'status'      => [
                     'label'       => __( 'Status', 'talenttrack' ),

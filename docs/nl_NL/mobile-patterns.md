@@ -185,7 +185,8 @@ Verder geldt op een telefoon:
   tabel vanaf 768 px. Een kolom buiten de titelregel krijgt hetzelfde
   gedrag met `'mobile_plain' => true` en ziet er op een telefoon dan
   ook uit als tekst: de personenlijst doet dit voor het e-mailadres,
-  dat vanaf 768 px een link naar het e-mailvenster is.
+  dat vanaf 768 px een link naar het e-mailvenster is, en de
+  doelenlijst voor de titel van het doel onder de naam van de speler.
 - De ingeklapte filterbalk heeft geen kaart eromheen. Vanaf 768 px komt
   de kaart terug. Onder 768 px is de balk hooguit twee regels: de knop
   Filters met de opgeslagen weergaven ernaast, en daaronder, alleen als
