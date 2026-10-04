@@ -93,6 +93,12 @@ button (`.tt-media-file-input`), and anything hidden by an ancestor — the
 items of a closed `<details>` menu keep a box and their own `display`, and
 used to be reported.
 
+An element whose computed `pointer-events` is `none` is left out as well: a
+tap passes through it to whatever is underneath. In a list whose rows are
+links, a link on the row's title line is made inert that way below 768px so
+the tap opens the row, and the people list does the same for the e-mail
+address. Those links are text on a phone, not targets.
+
 On `native` surfaces it also checks list density, because a list can pass
 all three and still be unusable on a phone. Both findings are reported per
 `FrontendListTable` on the page:
@@ -129,7 +135,13 @@ them is a gate somebody turns off. `mobile-baseline.json` lists allowed
 finding kinds per surface — anything not listed fails. It is seeded from
 CI's own output, not from the audit (which measured a seeded local install
 rather than wp-env). Every run prints the current offender list in that
-file's exact shape; paste it in to recalibrate.
+file's exact shape; paste it in to recalibrate. Below it the run prints each
+finding in detail, so an entry can be traced to the element that earns it.
+
+**One entry is not a to-do.** `teams: row-height` is accepted by design: the
+teams list shows cards, not table rows, and a team card of about 171px is
+the intended size. The 120px limit is a limit for rows. Keep the entry; do
+not shrink the cards to clear it.
 
 **Blindness check.** The spec fails when more than a handful of surfaces
 render no `.tt-dashboard`, or when it measures less than 60% of the
