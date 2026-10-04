@@ -23,7 +23,9 @@
  * All five read the page after its lists have loaded their rows (#4232).
  * "Visible" in check 2 means visible to a person: an element hidden by an
  * ancestor (the items of a closed menu) or clipped to a pixel (a visually
- * hidden file input) is not a tap target and is not measured.
+ * hidden file input) is not a tap target and is not measured. Neither is an
+ * element with `pointer-events: none`, which a tap passes straight through
+ * (#4237).
  *
  * WHICH SURFACES
  *
@@ -232,6 +234,12 @@ async function measure( page, cls ) {
 			// their own `display`, and were reported as tap targets nobody
 			// can tap (#4232).
 			if ( ! el.checkVisibility( { opacityProperty: true, visibilityProperty: true, contentVisibilityAuto: true } ) ) return;
+			// An element that cannot receive a tap is not a tap target. In a
+			// row-link list the row is the target and a link on its title
+			// line lets the tap fall through to it (#4224); the gate counted
+			// those links all the same (#4237). `pointer-events` inherits,
+			// so the computed value also covers an inert ancestor.
+			if ( getComputedStyle( el ).pointerEvents === 'none' ) return;
 
 			if ( r.width < minTap || r.height < minTap ) {
 				const label = ( el.textContent || el.getAttribute( 'aria-label' ) || el.tagName ).trim().slice( 0, 40 );
@@ -469,6 +477,21 @@ test.describe( 'mobile viewport at 390x844', () => {
 		console.log(
 			`\nCurrent offenders, in mobile-baseline.json shape:\n${ JSON.stringify( { surfaces: shape }, null, 2 ) }`
 		);
+
+		// What each finding is, baselined or not. A baseline entry only
+		// says a kind is allowed on a surface; this says which element
+		// earns it, so an entry can be argued with rather than inherited
+		// (#4237).
+		/** @type {string[]} */
+		const details = [];
+		for ( const [ slug, findings ] of Object.entries( found ) ) {
+			for ( const f of findings ) {
+				details.push( `${ slug } ${ f.kind }: ${ f.detail }` );
+			}
+		}
+		if ( details.length ) {
+			console.log( `\nFindings in detail:\n  ${ details.join( '\n  ' ) }` );
+		}
 
 		console.log( `\nMeasured ${ measured } of ${ SURFACES.length } phone-reachable surface(s).` );
 

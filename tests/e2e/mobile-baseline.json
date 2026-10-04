@@ -25,8 +25,19 @@
     "added two that the wait exposed: 'goals' and 'people', for the links inside",
     "their list rows, which had not arrived when the old gate measured.",
     "",
-    "The job is non-blocking (continue-on-error in e2e.yml) until the list is",
-    "empty; then drop continue-on-error.",
+    "Reseeded for #4237. An element with pointer-events: none is not a tap",
+    "target: in a row-link list the row takes the tap and a link on its title",
+    "line (#4224) or a cell marked mobile_plain (#4235) is text on a phone. That",
+    "removed 'people' and 'players' and added nothing. 'goals' stays: the goal",
+    "title on the subtitle line of each row is still a live link, 18px high.",
+    "",
+    "'teams: row-height' is accepted by design, not a to-do. The teams list",
+    "shows cards, not table rows, and a team card of about 171px is the intended",
+    "size (owner decision, 2026-10-04). Keep the entry; do not shrink the cards",
+    "to clear it.",
+    "",
+    "The job is non-blocking (continue-on-error in e2e.yml) until every entry",
+    "but the accepted one is gone; then drop continue-on-error.",
     "",
     "Removing an entry is the goal. The spec reports any entry that no longer",
     "offends, because a stale allowance is where the next real regression hides."
@@ -48,12 +59,6 @@
       "tap-target"
     ],
     "my-tasks": [
-      "tap-target"
-    ],
-    "people": [
-      "tap-target"
-    ],
-    "players": [
       "tap-target"
     ],
     "potential-overview": [
