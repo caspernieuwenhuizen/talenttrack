@@ -1,0 +1,36 @@
+name: NUL byte lint
+
+# #4242 — `assets/js/components/frontend-list-table.js` carried one raw
+# NUL byte inside a string literal. The script ran, but the byte made the
+# file binary to ripgrep, `git grep` and `git diff`, so search and review
+# skipped the shared list component's script.
+#
+# Unfiltered on purpose, like the conflict-marker lint: the scan takes
+# about a second, and a path filter is one more thing to keep in step
+# with the directories the script reads.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No NUL bytes in scripts and stylesheets
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Scan assets/js and assets/css for NUL bytes
+        run: php tools/check-nul-bytes.php
