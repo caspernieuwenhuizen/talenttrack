@@ -31,6 +31,9 @@
     "removed 'people' and 'players' and added nothing. 'goals' stays: the goal",
     "title on the subtitle line of each row is still a live link, 18px high.",
     "",
+    "'goals' removed for #4241: the goal title column is mobile_plain, and the",
+    "gate reported the entry as no longer offending.",
+    "",
     "'teams: row-height' is accepted by design, not a to-do. The teams list",
     "shows cards, not table rows, and a team card of about 171px is the intended",
     "size (owner decision, 2026-10-04). Keep the entry; do not shrink the cards",
@@ -47,9 +50,6 @@
       "tap-target"
     ],
     "docs": [
-      "tap-target"
-    ],
-    "goals": [
       "tap-target"
     ],
     "lost-password": [

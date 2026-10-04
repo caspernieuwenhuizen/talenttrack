@@ -97,7 +97,8 @@ An element whose computed `pointer-events` is `none` is left out as well: a
 tap passes through it to whatever is underneath. In a list whose rows are
 links, a link on the row's title line is made inert that way below 768px so
 the tap opens the row, and the people list does the same for the e-mail
-address. Those links are text on a phone, not targets.
+address, the goals list for the goal title. Those links are text on a
+phone, not targets.
 
 On `native` surfaces it also checks list density, because a list can pass
 all three and still be unusable on a phone. Both findings are reported per
