@@ -17,12 +17,32 @@ the cost of a wrong assumption on a live install is a pilot's trust.
 
 | Rule | Who uses it | What it covers | What it does not cover |
 | --- | --- | --- | --- |
-| Daily drain to merged | Developer | Taking the oldest `ready-for-dev` issue, building it in a worktree, opening the PR, merging it when every check-run has completed without failure (`CLAUDE.md` §7, drain semantics) | Releasing; touching an issue that is not `ready-for-dev`; editing the main checkout while the queue runs |
+| Daily drain to merged | Developer | Taking the `ready-for-dev` issues the lead has named, oldest first, building each in a worktree, opening the PR, merging it when every check-run has completed without failure (`CLAUDE.md` §7, drain semantics) | Releasing; touching an issue that is not `ready-for-dev`; draining "until the queue is empty"; editing the main checkout while the queue runs |
 | Daily Academy HQ run | QA | Running the persona simulation against the local install and triaging findings into `from-hq` issues | Running the HQ against sto or jg4it |
 | Verification walks | QA | Driving the local install, sto and jg4it headlessly as demo or read-only accounts to check a release | Any write on sto or jg4it beyond what the walked feature itself does as that persona |
 | Shaping and queueing bugs | Product owner | Marking a bug `ready-for-dev` when its cause is located (file and line), the fix is single-path and acceptance criteria are listed (`CLAUDE.md` §7) | Queueing an enhancement, anything with options, or anything needing a wizard exemption; those go to the decision inbox |
 | Filing issues and board cards | Every seat | Filing what it finds, searching the queue first so parallel seats do not duplicate | Closing someone else's issue without a merged `Closes #N` |
 | Reading the live installs | Every seat | `GET` calls with the read-only credentials the owner provided | Any `POST`, `PUT`, `PATCH`, `DELETE` |
+
+## Budget guard (2026-10-26)
+
+The owner, 2026-10-26: *"one important thing you need to guard is that the
+TTHQ sessions are not consuming all budget by running freely."* The lead
+enforces it as team health. Every seat follows these rules:
+
+1. **No unattended loops.** No `/loop`, no self-scheduled wakeups, no polling
+   cadence unless the owner asked for that loop. Waiting for CI is one
+   bounded wait, not a cadence. The control-room refresh is such a loop; the
+   owner asked for it.
+2. **Idle when unassigned.** A seat with nothing assigned stays idle. A drain
+   is the issue numbers the lead names, never "until the queue is empty".
+   When they are done the seat reports and stops.
+3. **One bounded Academy HQ run at a time.** Every HQ run sets a budget
+   (`--pause-at` or a per-session budget) before it starts, and QA tells the
+   lead the budget it set.
+4. **Plan-window threshold.** The lead reports plan-window usage in the
+   headline and pauses new assignments at a threshold the owner sets,
+   resuming after the window resets. The threshold is decision D-14.
 
 ## Approvals that never leave the owner's hands
 
