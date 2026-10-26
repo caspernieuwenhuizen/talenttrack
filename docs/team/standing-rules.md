@@ -41,8 +41,8 @@ enforces it as team health. Every seat follows these rules:
    (`--pause-at` or a per-session budget) before it starts, and QA tells the
    lead the budget it set.
 4. **Plan-window threshold.** The lead reports plan-window usage in the
-   headline and pauses new assignments at a threshold the owner sets,
-   resuming after the window resets. The threshold is decision D-14.
+   headline and pauses new assignments at **80 %** of the 5-hour window,
+   resuming after the window resets (owner, 2026-10-26, D-14).
 
 ## Approvals that never leave the owner's hands
 
