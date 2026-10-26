@@ -2054,7 +2054,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         $mode = isset( $_GET['mode'] ) ? sanitize_key( (string) $_GET['mode'] ) : 'progress';
         if ( ! in_array( $mode, [ 'progress', 'comparison', 'team_avg' ], true ) ) $mode = 'progress';
-        $selected_ids = array_map( 'absint', (array) ( $_GET['f_players'] ?? [] ) );
+        $selected_ids = array_values( array_map( 'absint', (array) ( $_GET['f_players'] ?? [] ) ) );
         $run          = isset( $_GET['run'] );
 
         // Scope-filter the picker (and the selection) for non-admins.

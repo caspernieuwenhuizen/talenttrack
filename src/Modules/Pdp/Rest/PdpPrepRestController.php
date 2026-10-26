@@ -271,7 +271,7 @@ class PdpPrepRestController {
         }
 
         $repo = new PdpPrepQuestionsRepository();
-        $repo->reorder( $template, array_map( 'absint', $ids ) );
+        $repo->reorder( $template, array_values( array_map( 'absint', $ids ) ) );
         return RestResponse::success( [ 'questions' => $repo->listForTemplate( $template ) ] );
     }
 
