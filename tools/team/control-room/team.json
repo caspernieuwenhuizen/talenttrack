@@ -1,0 +1,18 @@
+{
+  "headline": "CI is red for every PR since PHPStan 2.3.2 shipped; fix PR #4278 is in CI, the team foundation PR #4275 merges after it. All three installs are on 4.141.5.",
+  "seats": [
+    { "seat": "Team lead", "name": "Joris", "title": "TT-Lead", "state": "live", "now": "Taking over the control room; merging #4278 then #4275" },
+    { "seat": "Product owner", "name": "Mirte", "title": "TT-PO", "state": "live", "now": "17 unshaped from-hq issues wait for shaping" },
+    { "seat": "Architect & standards", "name": "Hidde", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "Injuries epic (#4255, #4245, #4246, #4270) needs a fit review" },
+    { "seat": "Senior developer", "name": "Teun", "title": "TT-Developer", "state": "live", "now": "12 ready from-hq bugs in the queue" },
+    { "seat": "QA & Academy HQ", "name": "Fenna", "title": "TT-QA", "state": "live", "now": "Local install on 4.141.5; first HQ run of the team pending" },
+    { "seat": "Release manager", "name": "Sjoerd", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "All three environments on 4.141.5; nothing unreleased" }
+  ],
+  "decisions": [
+    { "id": "D-1", "state": "answered", "asked": "2026-10-26", "question": "Six standing seats, or fewer to spare the plan budget?", "answer": "Six." },
+    { "id": "D-2", "state": "answered", "asked": "2026-10-26", "question": "Standing yes for releases from the start, or every release approved?", "answer": "Every release approved until the owner is confident; no fixed bar." },
+    { "id": "D-3", "state": "answered", "asked": "2026-10-26", "question": "Which installs are in the release manager's scope?", "answer": "Local = test bench, sto = Leon Hutten pilot, jg4it = main live." },
+    { "id": "D-5", "state": "answered", "asked": "2026-10-26", "question": "The plugin declares Requires PHP 7.4 but the code needs 8.1 (#4277). Correct the declaration as a patch, or treat it as a major bump?", "answer": "Patch. #4277 queued." },
+    { "id": "D-4", "state": "answered", "asked": "2026-10-26", "question": "Open the six seats now as separate VS Code conversations, or let the lead run the seats as subagents until the first weekly report?", "answer": "Three sessions now: Product owner, Developer, QA. Architect and Release manager run as subagents from the lead until the first release train." }
+  ]
+}
