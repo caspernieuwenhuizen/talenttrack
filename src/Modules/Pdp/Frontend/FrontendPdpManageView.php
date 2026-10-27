@@ -854,9 +854,10 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * Same coach-scope rules as `eligiblePlayers()` but returns the raw
-     * player objects (so PlayerSearchPickerComponent can derive labels
-     * + team metadata for its team-filter dropdown).
+     * Players the user may open a PDP file for. A global PDP change holder
+     * sees every active player; a coach sees the players on their teams.
+     * Returns the raw player objects so the picker can derive labels and
+     * team metadata for its team-filter dropdown.
      *
      * @return array<int, object>
      */
@@ -2101,30 +2102,6 @@ class FrontendPdpManageView extends FrontendViewBase {
             ];
         }
         return null;
-    }
-
-    /**
-     * Players the user is allowed to open files for. Global PDP change
-     * holder → all active. Coach → players on their teams.
-     *
-     * @return array<int, string> player_id => display name
-     */
-    private static function eligiblePlayers( int $user_id, bool $is_admin ): array {
-        unset( $is_admin );
-        $out = [];
-        if ( PdpAccess::hasGlobalPdpAccess( $user_id, MatrixGate::CHANGE ) ) {
-            foreach ( QueryHelpers::get_players() as $pl ) {
-                $out[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
-            }
-        } else {
-            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
-                    $out[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
-                }
-            }
-        }
-        asort( $out );
-        return $out;
     }
 
     private static function canSeeFile( object $file, int $user_id, bool $is_admin ): bool {
