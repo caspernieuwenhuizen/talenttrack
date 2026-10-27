@@ -14,7 +14,7 @@ tracker issue, with the value an academy gets from it. An epic moves to
 "shipped" when every child has shipped; a line that has been "later" for two
 cycles is either moved up or removed.
 
-Last reviewed: 2026-10-26.
+Last reviewed: 2026-10-27.
 
 ## Direction
 
@@ -27,16 +27,16 @@ finds what escaped before a coach does.
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| Academy HQ findings, round of October 2026 (`from-hq` queue, 12 ready, 17 unshaped) | Every persona's daily routes answer correctly; the HQ stops re-finding the same defect | Draining |
+| Academy HQ findings, round of October 2026 (`from-hq` queue, 31 ready, none unshaped) | Every persona's daily routes answer correctly; the HQ stops re-finding the same defect | Draining; the HQ is re-triaging its older findings, so new intake is expected |
+| Injuries: one medical record, one availability answer ([#4282](https://github.com/caspernieuwenhuizen/talenttrack/issues/4282)) | A coach records a return, match prep and attendance know who is fit, and medical detail stays with the roles that may see it | Shaped; twelve children ready in four lanes, no migration |
+| PDP planning follows the current season and the active roster ([#4248](https://github.com/caspernieuwenhuizen/talenttrack/issues/4248), [#4258](https://github.com/caspernieuwenhuizen/talenttrack/issues/4258), [#4266](https://github.com/caspernieuwenhuizen/talenttrack/issues/4266), [#4293](https://github.com/caspernieuwenhuizen/talenttrack/issues/4293)) | A head of development opens the right file for the right season without counting released players | In progress; [#4244](https://github.com/caspernieuwenhuizen/talenttrack/issues/4244) shipped, one lane |
 | Mobile list views fit a phone ([#4197](https://github.com/caspernieuwenhuizen/talenttrack/issues/4197)) | A coach on a phone sees whole rows and reaches every action | Children shipped; follow-ups filed |
-| Injuries are editable and feed availability ([#4255](https://github.com/caspernieuwenhuizen/talenttrack/issues/4255), [#4245](https://github.com/caspernieuwenhuizen/talenttrack/issues/4245), [#4246](https://github.com/caspernieuwenhuizen/talenttrack/issues/4246), [#4270](https://github.com/caspernieuwenhuizen/talenttrack/issues/4270)) | A coach records a return and match prep knows who is fit | Unshaped; needs a fit review |
 
 ## Next
 
 | Epic | Value to the academy | State |
 | --- | --- | --- |
-| PDP planning follows the current season and the active roster ([#4258](https://github.com/caspernieuwenhuizen/talenttrack/issues/4258), [#4248](https://github.com/caspernieuwenhuizen/talenttrack/issues/4248), [#4244](https://github.com/caspernieuwenhuizen/talenttrack/issues/4244), [#4266](https://github.com/caspernieuwenhuizen/talenttrack/issues/4266)) | A head of development opens the right file for the right season without counting released players | Three children ready |
-| Prospect and consent pipeline ([#4268](https://github.com/caspernieuwenhuizen/talenttrack/issues/4268), [#4267](https://github.com/caspernieuwenhuizen/talenttrack/issues/4267), [#4257](https://github.com/caspernieuwenhuizen/talenttrack/issues/4257), [#4251](https://github.com/caspernieuwenhuizen/talenttrack/issues/4251), [#4250](https://github.com/caspernieuwenhuizen/talenttrack/issues/4250)) | A family's consent and a prospect's state are always visible and correct | Mixed; needs shaping |
+| Prospect and consent pipeline ([#4268](https://github.com/caspernieuwenhuizen/talenttrack/issues/4268), [#4267](https://github.com/caspernieuwenhuizen/talenttrack/issues/4267), [#4257](https://github.com/caspernieuwenhuizen/talenttrack/issues/4257), [#4251](https://github.com/caspernieuwenhuizen/talenttrack/issues/4251), [#4250](https://github.com/caspernieuwenhuizen/talenttrack/issues/4250)) | A family's consent and a prospect's state are always visible and correct | All five children ready |
 
 ## Later
 
