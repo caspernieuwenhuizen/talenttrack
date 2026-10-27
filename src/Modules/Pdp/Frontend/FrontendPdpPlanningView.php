@@ -584,8 +584,9 @@ final class FrontendPdpPlanningView {
         // #4258 - the season the admin flagged current wins, as it does
         // everywhere else in the PDP module. The date lookups below only
         // apply when no season is flagged.
-        $current = ( new SeasonsRepository() )->current();
-        if ( $current ) return (int) $current->id;
+        $current    = ( new SeasonsRepository() )->current();
+        $current_id = $current ? (int) ( ( (array) $current )['id'] ?? 0 ) : 0;
+        if ( $current_id > 0 ) return $current_id;
 
         global $wpdb;
         $today = gmdate( 'Y-m-d' );
