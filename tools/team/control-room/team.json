@@ -1,16 +1,20 @@
 {
-  "headline": "CI is red for every PR: PHPStan reports three findings once it analyses the code as PHP 8.1. The fix is going onto #4278; the team foundation PR #4275 merges after it, then development starts. All three installs are on 4.141.5.",
+  "headline": "CI is green again (#4278 merged). Teun is on #4244, the first issue of the drain. All decisions D-1 to D-14 are answered. Local reads as the Free tier (expired entitlement), so the HQ isn't testing Pro surfaces. All three installs are on 4.141.5.",
   "seats": [
-    { "seat": "Team lead", "name": "Joris", "title": "TT-Lead", "state": "live", "now": "Getting CI green: #4278, then #4275; then the go for Teun and Fenna" },
-    { "seat": "Product owner", "name": "Mirte", "title": "TT-PO", "state": "live", "now": "All 17 from-hq items shaped; injuries epic #4282 filed" },
-    { "seat": "Architect & standards", "name": "Hidde", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "Fit review of injuries epic #4282 (six questions) before #4281, #4246, #4269, #4245 are shaped further; owner questions D-10 to D-13 follow from it" },
-    { "seat": "Senior developer", "name": "Teun", "title": "TT-Developer", "state": "live", "now": "Waiting for green CI; ready queue is from-hq bugs plus #4277 and #4279" },
-    { "seat": "QA & Academy HQ", "name": "Fenna", "title": "TT-QA", "state": "live", "now": "Local install on 4.141.5; first HQ run of the team pending" },
+    { "seat": "Team lead", "name": "Joris", "title": "TT-Lead", "state": "live", "now": "Merging the foundation PR #4275; then the control room on main" },
+    { "seat": "Product owner", "name": "Mirte", "title": "TT-PO", "state": "live", "now": "Re-shaping the injuries epic #4282 to the architect's review and D-10 to D-13" },
+    { "seat": "Architect & standards", "name": "Hidde", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "Fit review of #4282 done: it fits, with no migration and no new capability" },
+    { "seat": "Senior developer", "name": "Teun", "title": "TT-Developer", "state": "live", "now": "#4244 (HoD gets 'No players available' on the PDP create form)" },
+    { "seat": "QA & Academy HQ", "name": "Fenna", "title": "TT-QA", "state": "live", "now": "HQ run 1 done (~1% of the window): #4284, #4285, #4286 filed; idle" },
     { "seat": "Release manager", "name": "Sjoerd", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "All three environments on 4.141.5; nothing unreleased" }
   ],
   "decisions": [
     { "id": "D-6", "state": "answered", "asked": "2026-10-26", "question": "#4247: keep the 'Not in squad' rule and explain it, or count the match-prep line-up as the squad?", "answer": "Keep the rule; one notice per column that links to the attendance step." },
     { "id": "D-7", "state": "answered", "asked": "2026-10-26", "question": "#4259: may a team manager read their own team's minutes share?", "answer": "\"Yes it is fine but arrange it via the matrix.\" A matrix grant, no gate in code." },
+    { "id": "D-10", "state": "answered", "asked": "2026-10-26", "question": "#4245: pre-mark Injured in match prep, or a neutral Unavailable only?", "answer": "Settled by the architect's review without needing the owner: neutral Unavailable only, because a stored match-prep status reaches the printout and the logged-out share link." },
+    { "id": "D-11", "state": "answered", "asked": "2026-10-27", "question": "#4246: an overdue injury in planning, and who is reminded?", "answer": "Available with a neutral 'Check availability' marker; the reminder goes to the team physio and the head coach (the head coach alone if there's no physio)." },
+    { "id": "D-12", "state": "answered", "asked": "2026-10-27", "question": "#4253: a family-contact block on the Injuries tab, and messages to guardians?", "answer": "Neither. Staff keep using the Profile card; only the audit-log fix on guardian contact reads ships." },
+    { "id": "D-13", "state": "answered", "asked": "2026-10-27", "question": "#4269: an injury without a return date: optional fields, threshold, planning after it?", "answer": "Fields stay optional; 'Incomplete' after 14 days (adjustable per academy); after that, the same neutral 'Check availability' marker as D-11." },
     { "id": "D-14", "state": "answered", "asked": "2026-10-26", "question": "Budget guard: at what share of the 5-hour plan window does the lead stop handing out new work?", "answer": "80%, resuming after the window resets." },
     { "id": "D-8", "state": "answered", "asked": "2026-10-26", "question": "#4251: how should a trial decision show on the player list?", "answer": "As proposed: Joined / Not admitted (new) / In trial. #4251 queued." },
     { "id": "D-9", "state": "answered", "asked": "2026-10-26", "question": "#4257: does a prospect get its own record page, and is logging a consent request wizard-exempt?", "answer": "Its own read-only prospect record page; the consent-request entry is built as a wizard. #4257 queued after #4267 and #4250." },
