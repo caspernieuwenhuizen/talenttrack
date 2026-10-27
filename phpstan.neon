@@ -13,6 +13,11 @@ includes:
 
 parameters:
     level: 8
+    # Pins the PHP version PHPStan analyses for. PHPStan 2.3 otherwise derives
+    # it from composer.json's `php: ">=7.4"` and reports every readonly
+    # property and promoted constructor argument in src as an error; the code
+    # already requires 8.1 (#4277 tracks the stale declared minimum).
+    phpVersion: 80100
     paths:
         - src
     # #2831 — the plugin constants nearly every enqueue in `src` reads.

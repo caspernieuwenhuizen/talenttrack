@@ -43,15 +43,15 @@ class InvitationService {
      *
      * @param array{
      *   kind:string,
-     *   target_player_id?:int,
-     *   target_person_id?:int,
-     *   target_team_id?:int,
-     *   target_functional_role_key?:string,
-     *   prefill_first_name?:string,
-     *   prefill_last_name?:string,
-     *   prefill_email?:string,
+     *   target_player_id?:?int,
+     *   target_person_id?:?int,
+     *   target_team_id?:?int,
+     *   target_functional_role_key?:?string,
+     *   prefill_first_name?:?string,
+     *   prefill_last_name?:?string,
+     *   prefill_email?:?string,
      *   override_cap?:bool,
-     *   override_reason?:string,
+     *   override_reason?:?string,
      *   defer_send?:bool
      * } $args
      * @return array{ok:bool, id:?int, token:?string, error:?string, cap_exceeded:?bool, deferred?:bool}
