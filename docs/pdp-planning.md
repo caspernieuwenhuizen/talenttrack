@@ -19,6 +19,7 @@ Each PDP cycle block (start / mid / end, depending on the cycle size) carries a 
 
 Coaches plan a conversation date inside its window from the file detail. The HoD's planning dashboard at **PDP planning** (`?tt_view=pdp-planning`) shows the matrix:
 
+- **Season** — the screen opens on the season marked as current in the season settings. Only when no season is marked does it pick the season whose dates include today, and failing that the most recent one. The season picker overrides the default.
 - **Rows** = teams in the selected season.
 - **Columns** = block index (1, 2, 3 …). The number of columns follows the **configured** block count for the season (Configuration → PDP blocks), not whatever block sequences happen to exist in stored conversations. If a legacy or seed conversation carries a higher block number than the current configuration, it no longer widens the grid — only the configured blocks are shown. (When a season has no blocks configured, the grid falls back to the highest block seen in the data.)
 - **Cells** = `<planned-in-window>/<roster-size> · <conducted>/<planned>` once the window has passed.
