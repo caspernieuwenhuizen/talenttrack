@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\PdpStatus;
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Pdp\PdpAccess;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
@@ -729,7 +730,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
 
         // Resolve the player roster, scoped to the coach's teams
-        // (admins see every player). Used to populate the player
+        // (global PDP change holders see every player). Used to populate the player
         // dropdown that filters client-side on team change.
         $players = self::eligiblePlayerObjects( $user_id, $is_admin );
         if ( empty( $players ) ) {
@@ -860,8 +861,13 @@ class FrontendPdpManageView extends FrontendViewBase {
      * @return array<int, object>
      */
     private static function eligiblePlayerObjects( int $user_id, bool $is_admin ): array {
+        // #4244 - the roster follows the same ladder as `POST pdp-files`:
+        // a global PDP change holder (HoD, academy admin) may open a file
+        // for any player, team assignment or not. $is_admin only meant
+        // tt_edit_settings, which the HoD does not hold.
+        unset( $is_admin );
         $out = [];
-        if ( $is_admin ) {
+        if ( PdpAccess::hasGlobalPdpAccess( $user_id, MatrixGate::CHANGE ) ) {
             foreach ( QueryHelpers::get_players() as $pl ) {
                 $out[ (int) $pl->id ] = $pl;
             }
@@ -2098,14 +2104,15 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * Players the user is allowed to open files for. Admin → all active.
-     * Coach → players on their teams.
+     * Players the user is allowed to open files for. Global PDP change
+     * holder → all active. Coach → players on their teams.
      *
      * @return array<int, string> player_id => display name
      */
     private static function eligiblePlayers( int $user_id, bool $is_admin ): array {
+        unset( $is_admin );
         $out = [];
-        if ( $is_admin ) {
+        if ( PdpAccess::hasGlobalPdpAccess( $user_id, MatrixGate::CHANGE ) ) {
             foreach ( QueryHelpers::get_players() as $pl ) {
                 $out[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
             }
