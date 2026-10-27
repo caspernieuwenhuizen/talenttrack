@@ -806,6 +806,7 @@ duplicate their content here.
 | Frontend nav / new view         | `docs/back-navigation.md` (two-affordance contract, `tt_back` mechanism, label resolver) |
 | Button label / UI copy          | `docs/ui-copy.md` (sentence case, one verb per action, length limit, English msgids) |
 | Any form that commits work      | `docs/save-model.md` (the three save models, which surfaces are in each, how to choose for a new one) |
+| Working as a seat in the team   | `docs/team/README.md` (seats, flow, lanes, environments, how a seat starts), your brief in `docs/team/roles/`, `docs/team/standing-rules.md` (approvals that are never relayed), the review gates in `docs/review/` |
 
 If a doc you'd expect doesn't exist, **say so before writing code** — don't
 guess at conventions. The lead developer would rather add a doc than have
