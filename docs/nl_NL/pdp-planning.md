@@ -22,6 +22,7 @@ Coaches plannen een gespreksdatum binnen het venster vanuit het dossierdetail. H
 - **Rijen** = teams in het geselecteerde seizoen.
 - **Kolommen** = blokindex (1, 2, 3 …). Het aantal kolommen volgt het **geconfigureerde** aantal blokken voor het seizoen (Configuratie → POP-blokken), niet de bloknummers die toevallig in opgeslagen gesprekken voorkomen. Draagt een oud of seed-gesprek een hoger bloknummer dan de huidige configuratie, dan verbreedt dat de matrix niet langer — alleen de geconfigureerde blokken worden getoond. (Heeft een seizoen geen blokken geconfigureerd, dan valt de matrix terug op het hoogste blok dat in de data voorkomt.)
 - **Cellen** = `<gepland-in-venster>/<selectiegrootte> · <uitgevoerd>/<gepland>` zodra het venster verstreken is.
+- **Wie telt mee** — elk getal in een cel, en elke lijst in het blokdetail, telt alleen de actieve spelers van het team. Een speler die vertrokken of gearchiveerd is, valt overal buiten, ook als die nog een POP-dossier voor het seizoen heeft.
 - **Kleur** — groen als planning binnen het venster overeenkomt met de selectie; oranje bij gedeeltelijk; rood als het venster gesloten is zonder voldoende uitgevoerde gesprekken.
 
 Klik op een cel om door te klikken naar de onderliggende POP-dossiers, gefilterd op team + blok.

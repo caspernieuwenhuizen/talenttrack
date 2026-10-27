@@ -223,6 +223,8 @@ final class FrontendPdpPlanningView {
               JOIN {$p}tt_teams    t  ON t.id  = pl.team_id   AND t.club_id  = pl.club_id
              WHERE c.club_id = %d
                AND f.season_id = %d{$team_clause}
+               AND pl.status = 'active'
+               AND pl.archived_at IS NULL
              GROUP BY t.id, c.sequence
              ORDER BY t.name ASC, c.sequence ASC",
             CurrentClub::id(), $season_id, ...$team_params
@@ -252,7 +254,9 @@ final class FrontendPdpPlanningView {
             ];
         }
 
-        // Roster size per team (active players only).
+        // Roster size per team (active players only). #4248 - planned,
+        // conducted, expected and the block's missing list all count the
+        // same population: active, not archived.
         if ( ! empty( $teams ) ) {
             $ids = array_keys( $teams );
             $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
@@ -263,6 +267,7 @@ final class FrontendPdpPlanningView {
                   WHERE team_id IN ({$placeholders})
                     AND club_id = %d
                     AND status = 'active'
+                    AND archived_at IS NULL
                   GROUP BY team_id",
                 ...$params
             ) );
@@ -495,6 +500,8 @@ final class FrontendPdpPlanningView {
                 AND f.season_id = %d
                 AND pl.team_id = %d
                 AND c.sequence = %d
+                AND pl.status = 'active'
+                AND pl.archived_at IS NULL
               ORDER BY pl.last_name ASC",
             CurrentClub::id(), $season_id, $team_id, $block
         ) );
