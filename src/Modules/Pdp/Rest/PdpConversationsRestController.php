@@ -281,7 +281,9 @@ class PdpConversationsRestController {
         $conv_id = (int) ( $row['id'] ?? 0 );
         $file_id = (int) ( $row['pdp_file_id'] ?? 0 );
 
-        if ( ! rest_sanitize_boolean( $params['not_held'] ) ) {
+        $raw_flag = $params['not_held'];
+        $mark     = is_bool( $raw_flag ) ? $raw_flag : rest_sanitize_boolean( is_scalar( $raw_flag ) ? (string) $raw_flag : '' );
+        if ( ! $mark ) {
             if ( empty( $row['not_held_at'] ) ) {
                 return RestResponse::success( [ 'id' => $conv_id, 'unchanged' => true ] );
             }
