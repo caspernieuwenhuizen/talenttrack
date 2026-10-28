@@ -47,18 +47,29 @@ final class PlayerReportSnapshots {
 
     /**
      * Compose the report as the reader sees it now and freeze it. Returns the
-     * snapshot's uuid, or '' when the reader may not read this player's
-     * report or the write failed.
+     * snapshot's uuid, or '' when the reader may not generate this player's
+     * reports or the write failed. Each snapshot taken is audit-logged.
      *
      * @param array<string,mixed> $raw the composition, as the panel or a client sends it
      */
     public static function take( int $player_id, array $raw, int $user_id, string $title = '' ): string {
-        return self::freeze( $player_id, $raw, $user_id, $title, PlayerReportAudience::INTERNAL );
+        $uuid = self::freeze( $player_id, $raw, $user_id, $title, PlayerReportAudience::INTERNAL );
+
+        if ( $uuid !== '' ) {
+            ( new \TT\Infrastructure\Audit\AuditService() )->record(
+                'player_report.snapshot_taken',
+                'player',
+                $player_id,
+                [ 'snapshot' => $uuid ]
+            );
+        }
+        return $uuid;
     }
 
     /**
      * Share the report with the player and their parents: a snapshot for the
-     * family audience. Who may share is who may read the report; the sections
+     * family audience. Who may share is who may generate the player's reports
+     * (`PlayerReportAccess::canCreate()`); the sections
      * the coach ticked are narrowed to the family allowlist and never widened.
      * Returns the snapshot's uuid, or ''.
      *
@@ -80,7 +91,9 @@ final class PlayerReportSnapshots {
 
     /** @param array<string,mixed> $raw */
     private static function freeze( int $player_id, array $raw, int $user_id, string $title, string $audience ): string {
-        if ( ! PlayerReportAccess::canRead( $user_id, $player_id ) ) return '';
+        // Freezing a snapshot, for staff or the family, is making a record,
+        // not reading one.
+        if ( ! PlayerReportAccess::canCreate( $user_id, $player_id ) ) return '';
 
         $composition = PlayerReportComposition::normalise( [ 'player_id' => $player_id ] + $raw );
         $window      = PlayerReportComposition::window( $composition, gmdate( 'Y-m-d' ) );
@@ -141,17 +154,31 @@ final class PlayerReportSnapshots {
      */
     public static function note( string $uuid, string $section, string $body, int $user_id ): bool {
         if ( ! self::canNote( $uuid, $user_id ) ) return false;
-        return ( new PlayerReportSnapshotRepository() )->putNote( $uuid, $section, $body, $user_id );
+
+        $ok = ( new PlayerReportSnapshotRepository() )->putNote( $uuid, $section, $body, $user_id );
+        if ( $ok ) {
+            $row = ( new PlayerReportSnapshotRepository() )->find( $uuid );
+            ( new \TT\Infrastructure\Audit\AuditService() )->record(
+                'player_report.snapshot_noted',
+                'player',
+                $row !== null ? (int) ( $row->player_id ?? 0 ) : 0,
+                [ 'snapshot' => $uuid, 'section' => $section, 'cleared' => trim( $body ) === '' ]
+            );
+        }
+        return $ok;
     }
 
-    /** May this reader write notes on this snapshot? Staff, on a staff snapshot. */
+    /**
+     * May this reader write notes on this snapshot? Staff who may generate
+     * this player's reports, on a staff snapshot.
+     */
     public static function canNote( string $uuid, int $user_id ): bool {
         $row = ( new PlayerReportSnapshotRepository() )->find( $uuid );
 
         // The player comes from the snapshot, never from the request.
         return $row !== null
             && PlayerReportSnapshotRepository::audienceOf( $row ) !== PlayerReportAudience::FAMILY
-            && PlayerReportAccess::canRead( $user_id, (int) ( $row->player_id ?? 0 ) );
+            && PlayerReportAccess::canCreate( $user_id, (int) ( $row->player_id ?? 0 ) );
     }
 
     /**

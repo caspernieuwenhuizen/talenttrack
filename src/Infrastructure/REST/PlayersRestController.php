@@ -125,7 +125,7 @@ class PlayersRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_report_snapshot' ],
                 'permission_callback' => static function ( \WP_REST_Request $r ): bool {
-                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canRead( get_current_user_id(), (int) $r['id'] );
+                    return \TT\Modules\Analytics\Reports\PlayerReportAccess::canCreate( get_current_user_id(), (int) $r['id'] );
                 },
                 'args'                => [
                     'period' => [ 'type' => 'string', 'description' => 'last_week, last_month, this_month or this_season. Omit for the season so far.' ],

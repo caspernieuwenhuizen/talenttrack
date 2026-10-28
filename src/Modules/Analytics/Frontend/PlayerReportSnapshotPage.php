@@ -246,6 +246,13 @@ final class PlayerReportSnapshotPage {
             ) ) . '</p>';
         }
 
+        // Reading a note is reading the report; writing one is making a
+        // record, so the editor is only offered to who may save it.
+        if ( ! PlayerReportSnapshots::canNote( $uuid, get_current_user_id() ) ) {
+            echo '</div>';
+            return;
+        }
+
         $field = $id . '-field';
         echo '<details class="tt-mr-note__edit">';
         echo '<summary>' . esc_html( $note === null ? __( 'Add a note', 'talenttrack' ) : __( 'Edit this note', 'talenttrack' ) ) . '</summary>';
@@ -275,24 +282,17 @@ final class PlayerReportSnapshotPage {
      * @param array<string,array<string,mixed>>          $options #3989 per-section options
      */
     public static function renderTakeAndList( int $player_id, array $window, string $layout, array $blocks, array $options = [] ): void {
-        if ( ! PlayerReportAccess::canRead( get_current_user_id(), $player_id ) ) return;
+        $user_id = get_current_user_id();
+        if ( ! PlayerReportAccess::canRead( $user_id, $player_id ) ) return;
 
         echo '<div class="tt-mr-snapshots">';
 
-        echo '<form method="post" class="tt-mr-snapshots__take">';
-        wp_nonce_field( self::ACTION_CREATE );
-        echo '<input type="hidden" name="tt_action" value="' . esc_attr( self::ACTION_CREATE ) . '">';
-        echo '<input type="hidden" name="player_id" value="' . esc_attr( (string) $player_id ) . '">';
-        echo '<input type="hidden" name="from" value="' . esc_attr( $window['from'] ) . '">';
-        echo '<input type="hidden" name="to" value="' . esc_attr( $window['to'] ) . '">';
-        echo '<input type="hidden" name="layout" value="' . esc_attr( $layout ) . '">';
-        echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $blocks ) ) . '">';
-        self::optionsField( $options );
-        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save snapshot of this conversation', 'talenttrack' ) . '</button>';
-        echo '<span class="tt-mr-panel__hint">' . esc_html__( 'Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section.', 'talenttrack' ) . '</span>';
-        echo '</form>';
-
-        self::renderShare( $player_id, $window, $layout, $blocks, $options );
+        // A reader who may not generate reports still sees the earlier
+        // snapshots, but is offered neither the save nor the share.
+        if ( PlayerReportAccess::canCreate( $user_id, $player_id ) ) {
+            self::renderTake( $player_id, $window, $layout, $blocks, $options );
+            self::renderShare( $player_id, $window, $layout, $blocks, $options );
+        }
 
         $rows = ( new PlayerReportSnapshotRepository() )->listForPlayer( $player_id, 10 );
         if ( $rows !== [] ) {
@@ -310,6 +310,26 @@ final class PlayerReportSnapshotPage {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * @param array{from:string,to:string,period:string} $window
+     * @param list<string>                               $blocks
+     * @param array<string,array<string,mixed>>          $options
+     */
+    private static function renderTake( int $player_id, array $window, string $layout, array $blocks, array $options ): void {
+        echo '<form method="post" class="tt-mr-snapshots__take">';
+        wp_nonce_field( self::ACTION_CREATE );
+        echo '<input type="hidden" name="tt_action" value="' . esc_attr( self::ACTION_CREATE ) . '">';
+        echo '<input type="hidden" name="player_id" value="' . esc_attr( (string) $player_id ) . '">';
+        echo '<input type="hidden" name="from" value="' . esc_attr( $window['from'] ) . '">';
+        echo '<input type="hidden" name="to" value="' . esc_attr( $window['to'] ) . '">';
+        echo '<input type="hidden" name="layout" value="' . esc_attr( $layout ) . '">';
+        echo '<input type="hidden" name="blocks" value="' . esc_attr( implode( ',', $blocks ) ) . '">';
+        self::optionsField( $options );
+        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save snapshot of this conversation', 'talenttrack' ) . '</button>';
+        echo '<span class="tt-mr-panel__hint">' . esc_html__( 'Freezes these numbers as a record of what the conversation was based on, and lets you add notes per section.', 'talenttrack' ) . '</span>';
+        echo '</form>';
     }
 
     /**
