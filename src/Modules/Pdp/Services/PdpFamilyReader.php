@@ -141,6 +141,8 @@ final class PdpFamilyReader {
                 'state'                  => self::stateOf( $row, $next_id ),
                 'scheduled_at'           => self::nullableString( $row['scheduled_at'] ?? null ),
                 'conducted_at'           => self::nullableString( $row['conducted_at'] ?? null ),
+                'not_held_at'            => self::nullableString( $row['not_held_at'] ?? null ),
+                'not_held_reason'        => self::nullableString( $row['not_held_reason'] ?? null ),
                 'coach_signoff_at'       => $signed,
                 'player_ack_at'          => self::nullableString( $row['player_ack_at'] ?? null ),
                 'parent_ack_at'          => self::nullableString( $row['parent_ack_at'] ?? null ),
@@ -175,6 +177,8 @@ final class PdpFamilyReader {
      */
     public static function stateOf( array $row, int $next_id, ?int $now_ts = null ): string {
         if ( ! empty( $row['conducted_at'] ) || ! empty( $row['coach_signoff_at'] ) ) return 'done';
+        // #4298 — a talk that did not take place is neither done nor overdue.
+        if ( ! empty( $row['not_held_at'] ) ) return 'not_held';
         if ( PdpCycleState::isOverdue( (object) $row, $now_ts ) ) return 'overdue';
         if ( $next_id > 0 && (int) ( $row['id'] ?? 0 ) === $next_id ) return 'next';
         return 'future';

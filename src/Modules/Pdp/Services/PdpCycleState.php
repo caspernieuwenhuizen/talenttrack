@@ -94,6 +94,8 @@ class PdpCycleState {
         $next = null;
         foreach ( $convs as $c ) {
             if ( ! empty( $c->conducted_at ) ) continue;
+            // #4298 — a talk that did not take place is not the next one.
+            if ( self::isNotHeld( $c ) ) continue;
             $next = $c;
             break;
         }
@@ -127,9 +129,21 @@ class PdpCycleState {
         foreach ( $convs as $c ) {
             if ( ! empty( $c->conducted_at ) ) continue;
             if ( ! empty( $c->coach_signoff_at ) ) continue;
+            if ( self::isNotHeld( $c ) ) continue;
             return $c;
         }
         return null;
+    }
+
+    /**
+     * #4298 — was this talk marked as not having taken place?
+     *
+     * A not-held talk stays on the file with its date and reason, but it is
+     * never the next talk, never overdue and never takes a reflection: the
+     * cycle has moved past it.
+     */
+    public static function isNotHeld( object $conv ): bool {
+        return ! empty( ( (array) $conv )['not_held_at'] );
     }
 
     /**
@@ -173,6 +187,7 @@ class PdpCycleState {
         $row = (array) $conv;
         if ( ! empty( $row['conducted_at'] ) ) return false;
         if ( ! empty( $row['coach_signoff_at'] ) ) return false;
+        if ( ! empty( $row['not_held_at'] ) ) return false;
 
         $scheduled = self::dateOf( $row['scheduled_at'] ?? null );
         if ( $scheduled === null ) return false;

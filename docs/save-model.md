@@ -72,16 +72,20 @@ server-side snapshots, no per-field history, and no restoring to a date.
 
 ### Publishing is not saving
 
-Two screens have one deliberate button left, and neither of them is a Save:
+Two screens keep deliberate buttons, and none of them is a Save:
 
 - **Mark as final** on a match analysis. Until you press it the staff share
   link says the analysis is not finished yet; after it, the link shows the
   document. Editing a final analysis afterwards leaves it final.
 - **Sign off** on a PDP conversation. Everything above it is already saved;
   signing off closes the conversation for editing, for everyone.
+- **Mark as not held** on a PDP conversation, for a talk that will never take
+  place. It moves the cycle on to the next talk, so it sits beside Sign off,
+  behind its own confirm, with a required reason. It can be undone only until
+  a later talk moves on.
 
-Both are irreversible in practice, which is why neither is a checkbox on a
-screen that saves itself.
+They are irreversible in practice, which is why none of them is a checkbox on
+a screen that saves itself.
 
 ## 2. Save, with a real Cancel
 

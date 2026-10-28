@@ -144,7 +144,8 @@ final class FrontendPdpPlanningView {
                     if ( ! $window_open ) {
                         echo '<span class="tt-pdp-cell-empty">' . esc_html__( 'window not yet open', 'talenttrack' ) . '</span>';
                     } else {
-                        $chip = self::cellChipClass( $cell, $today );
+                        $not_held = (int) ( $cell['not_held'] ?? 0 );
+                        $chip  = self::cellChipClass( $cell, $today, $not_held );
                         $label = sprintf(
                             /* translators: 1: planned count, 2: roster size, 3: conducted count, 4: planned count */
                             __( '%1$d/%2$d planned · %3$d/%4$d conducted', 'talenttrack' ),
@@ -153,6 +154,13 @@ final class FrontendPdpPlanningView {
                             (int) $cell['conducted'],
                             (int) $cell['planned']
                         );
+                        if ( $not_held > 0 ) {
+                            $label .= ' · ' . sprintf(
+                                /* translators: %d: number of PDP talks that did not take place */
+                                _n( '%d not held', '%d not held', $not_held, 'talenttrack' ),
+                                $not_held
+                            );
+                        }
                         echo '<a href="' . esc_url( $cell_url ) . '" class="tt-pdp-chip ' . esc_attr( $chip ) . '">'
                             . esc_html( $label ) . '</a>';
                     }
@@ -208,6 +216,8 @@ final class FrontendPdpPlanningView {
         //   expected   = roster (computed once below)
         //   planned    = files where the conversation has scheduled_at set
         //   conducted  = files where conducted_at IS NOT NULL
+        //   not_held   = #4298, talks marked as not having taken place;
+        //                neither planned nor conducted
         //   window_*   = the block's window dates (constant across team)
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -216,8 +226,9 @@ final class FrontendPdpPlanningView {
                 c.sequence,
                 MIN(c.planning_window_start) AS window_start,
                 MAX(c.planning_window_end)   AS window_end,
-                SUM(CASE WHEN c.scheduled_at IS NOT NULL THEN 1 ELSE 0 END)  AS planned,
-                SUM(CASE WHEN c.conducted_at IS NOT NULL THEN 1 ELSE 0 END)  AS conducted
+                SUM(CASE WHEN c.scheduled_at IS NOT NULL AND c.not_held_at IS NULL THEN 1 ELSE 0 END)  AS planned,
+                SUM(CASE WHEN c.conducted_at IS NOT NULL THEN 1 ELSE 0 END)  AS conducted,
+                SUM(CASE WHEN c.conducted_at IS NULL AND c.not_held_at IS NOT NULL THEN 1 ELSE 0 END) AS not_held
               FROM {$p}tt_pdp_conversations c
               JOIN {$p}tt_pdp_files f ON f.id = c.pdp_file_id AND f.club_id = c.club_id
               JOIN {$p}tt_players  pl ON pl.id = f.player_id  AND pl.club_id = f.club_id
@@ -250,6 +261,7 @@ final class FrontendPdpPlanningView {
                 'expected'     => 0,
                 'planned'      => (int) $row->planned,
                 'conducted'    => (int) $row->conducted,
+                'not_held'     => (int) $row->not_held,
                 'window_start' => (string) $row->window_start,
                 'window_end'   => (string) $row->window_end,
             ];
@@ -312,9 +324,11 @@ final class FrontendPdpPlanningView {
      *
      * @param array{expected:int,planned:int,conducted:int,window_start:string,window_end:string} $cell
      */
-    private static function cellChipClass( array $cell, string $today ): string {
+    private static function cellChipClass( array $cell, string $today, int $not_held = 0 ): string {
         $expected = $cell['expected'];
-        $planned  = $cell['planned'];
+        // #4298 — a talk marked not held is settled: it is neither waiting
+        // to be planned nor overdue, so it counts towards both thresholds.
+        $planned  = $cell['planned'] + $not_held;
         $window_closed = $cell['window_end'] !== '' && $cell['window_end'] < $today;
 
         if ( $expected === 0 ) return '';
@@ -322,9 +336,9 @@ final class FrontendPdpPlanningView {
             return $planned >= $expected ? 'tt-pdp-chip--ok' : 'tt-pdp-chip--warn';
         }
         // Window closed: emphasise conducted ratio.
-        $conducted = $cell['conducted'];
-        if ( $conducted >= $expected ) return 'tt-pdp-chip--ok';
-        if ( $planned   >= $expected ) return 'tt-pdp-chip--warn';
+        $settled = $cell['conducted'] + $not_held;
+        if ( $settled >= $expected ) return 'tt-pdp-chip--ok';
+        if ( $planned >= $expected ) return 'tt-pdp-chip--warn';
         return 'tt-pdp-chip--alert';
     }
 
@@ -412,6 +426,12 @@ final class FrontendPdpPlanningView {
                 'help'     => __( 'Conversation is on the calendar (scheduled_at set) but no conducted_at yet.', 'talenttrack' ),
             ],
             [
+                'key'      => 'not_held',
+                'label'    => _x( 'Not held', 'PDP talk status: the talk did not take place', 'talenttrack' ),
+                'modifier' => 'tt-pdp-block-col--muted',
+                'help'     => __( 'The coach marked the talk as not having taken place, with a reason. The cycle has moved on to the next talk.', 'talenttrack' ),
+            ],
+            [
                 'key'      => 'missing',
                 'label'    => __( 'Missing', 'talenttrack' ),
                 'modifier' => 'tt-pdp-block-col--alert',
@@ -421,7 +441,7 @@ final class FrontendPdpPlanningView {
 
         echo '<div class="tt-pdp-block-grid">';
         foreach ( $columns as $col ) {
-            $bucket = $detail[ $col['key'] ] ?? [];
+            $bucket = $detail[ $col['key'] ];
             echo '<div class="tt-pdp-block-col ' . esc_attr( $col['modifier'] ) . '">';
             echo '<h3 class="tt-pdp-block-col__head">' .
                  esc_html( $col['label'] ) .
@@ -447,6 +467,10 @@ final class FrontendPdpPlanningView {
                             __( ' · conducted %s', 'talenttrack' ),
                             esc_html( substr( (string) $row['conducted_at'], 0, 10 ) )
                         );
+                    } elseif ( $col['key'] === 'not_held' && ! empty( $row['not_held_at'] ) ) {
+                        $reason = trim( (string) ( $row['not_held_reason'] ?? '' ) );
+                        $meta   = ' · ' . esc_html( substr( (string) $row['not_held_at'], 0, 10 ) )
+                            . ( $reason !== '' ? ' · ' . esc_html( $reason ) : '' );
                     } elseif ( $col['key'] === 'planned' && ! empty( $row['scheduled_at'] ) ) {
                         $meta = sprintf(
                             /* translators: %s: ISO date string */
@@ -475,6 +499,7 @@ final class FrontendPdpPlanningView {
      *   window_end:string,
      *   conducted: list<array<string,mixed>>,
      *   planned:   list<array<string,mixed>>,
+     *   not_held:  list<array<string,mixed>>,
      *   missing:   list<array<string,mixed>>,
      * }
      */
@@ -489,6 +514,8 @@ final class FrontendPdpPlanningView {
                     c.pdp_file_id,
                     c.scheduled_at,
                     c.conducted_at,
+                    c.not_held_at,
+                    c.not_held_reason,
                     c.planning_window_start AS window_start,
                     c.planning_window_end   AS window_end,
                     pl.id            AS player_id,
@@ -509,6 +536,7 @@ final class FrontendPdpPlanningView {
 
         $conducted = [];
         $planned   = [];
+        $not_held  = [];
         $covered_player_ids = [];
         $window_start = '';
         $window_end   = '';
@@ -524,9 +552,14 @@ final class FrontendPdpPlanningView {
                 'last_name'       => (string) $r->last_name,
                 'scheduled_at'    => (string) ( $r->scheduled_at ?: '' ),
                 'conducted_at'    => (string) ( $r->conducted_at ?: '' ),
+                'not_held_at'     => (string) ( $r->not_held_at ?: '' ),
+                'not_held_reason' => (string) ( $r->not_held_reason ?: '' ),
             ];
             if ( ! empty( $r->conducted_at ) ) {
                 $conducted[] = $row;
+            } elseif ( ! empty( $r->not_held_at ) ) {
+                // #4298 — counted as not held, never as conducted or planned.
+                $not_held[] = $row;
             } else {
                 $planned[] = $row;
             }
@@ -567,6 +600,7 @@ final class FrontendPdpPlanningView {
             'window_end'   => $window_end,
             'conducted'    => $conducted,
             'planned'      => $planned,
+            'not_held'     => $not_held,
             'missing'      => $missing,
         ];
     }

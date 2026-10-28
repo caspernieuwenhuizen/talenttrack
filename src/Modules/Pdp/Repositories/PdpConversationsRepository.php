@@ -79,6 +79,7 @@ class PdpConversationsRepository {
                JOIN {$files} f ON f.id = c.pdp_file_id
               WHERE c.club_id = %d
                 AND c.conducted_at IS NULL
+                AND c.not_held_at IS NULL
                 AND c.scheduled_at IS NOT NULL
                 AND c.planning_window_start IS NOT NULL
                 AND c.planning_window_start <= %s
@@ -99,11 +100,38 @@ class PdpConversationsRepository {
      */
     public function activeConversationId( int $file_id ): int {
         foreach ( $this->listForFile( $file_id ) as $c ) {
+            // #4298 — a talk marked not held is behind the cycle, like a
+            // signed one: the next talk becomes the active one.
+            if ( ! empty( $c->not_held_at ) ) continue;
             if ( empty( $c->coach_signoff_at ) ) {
                 return (int) $c->id;
             }
         }
         return 0;
+    }
+
+    /**
+     * #4298 — may the not-held mark on $conv be taken off again?
+     *
+     * Only while the cycle has not moved on from it: no later talk in the
+     * file has been held, signed, acknowledged or itself marked not held.
+     * Taking the mark off then makes $conv the active talk again, which is
+     * what it was when the mark was set. Once a later talk has progressed,
+     * the order of #2041 would break, so the mark stays.
+     */
+    public function canClearNotHeld( object $conv ): bool {
+        $row = (array) $conv;
+        if ( empty( $row['not_held_at'] ) ) return false;
+
+        $sequence = (int) ( $row['sequence'] ?? 0 );
+        foreach ( $this->listForFile( (int) ( $row['pdp_file_id'] ?? 0 ) ) as $c ) {
+            $later = (array) $c;
+            if ( (int) ( $later['sequence'] ?? 0 ) <= $sequence ) continue;
+            if ( ! empty( $later['conducted_at'] ) || ! empty( $later['not_held_at'] ) || self::isLocked( $c ) ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** @return object[] */
@@ -271,6 +299,7 @@ class PdpConversationsRepository {
             'agreed_actions', 'player_reflection',
             'coach_signoff_at', 'parent_ack_at', 'player_ack_at',
             'planning_window_start', 'planning_window_end',
+            'not_held_at', 'not_held_reason',
         ];
         $clean = [];
         foreach ( $patch as $k => $v ) {

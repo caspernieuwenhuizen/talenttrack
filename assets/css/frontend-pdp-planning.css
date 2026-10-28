@@ -146,6 +146,8 @@
 .tt-dashboard .tt-pdp-block-col--ok    { border-top-color: var(--tt-success, #2f9e5e); }
 .tt-dashboard .tt-pdp-block-col--warn  { border-top-color: var(--tt-warning, #e8902b); }
 .tt-dashboard .tt-pdp-block-col--alert { border-top-color: var(--tt-danger, #d8453b); }
+/* #4298 — talks that did not take place: recorded, neither done nor overdue. */
+.tt-dashboard .tt-pdp-block-col--muted { border-top-color: var(--tt-line, #e3e6e1); }
 
 .tt-dashboard .tt-pdp-block-col__head {
     display: flex;

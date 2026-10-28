@@ -262,6 +262,9 @@ final class EvidencePacket {
     /**
      * The date the previous conversation in the cycle happened (or was
      * planned for). Null for the first conversation.
+     *
+     * #4298 — a talk marked not held never happened, so it is skipped: the
+     * evidence reaches back to the last talk that did, or was planned to.
      */
     private static function previousConversationDate( \stdClass $conv ): ?string {
         if ( (int) ( $conv->sequence ?? 0 ) <= 1 ) return null;
@@ -271,8 +274,10 @@ final class EvidencePacket {
 
         $prev = $wpdb->get_var( $wpdb->prepare(
             "SELECT COALESCE(conducted_at, scheduled_at) FROM {$p}tt_pdp_conversations
-              WHERE pdp_file_id = %d AND sequence = %d AND club_id = %d",
-            (int) $conv->pdp_file_id, (int) $conv->sequence - 1, CurrentClub::id()
+              WHERE pdp_file_id = %d AND sequence < %d AND club_id = %d AND not_held_at IS NULL
+              ORDER BY sequence DESC
+              LIMIT 1",
+            (int) $conv->pdp_file_id, (int) $conv->sequence, CurrentClub::id()
         ) );
 
         return $prev ? substr( (string) $prev, 0, 10 ) : null;
@@ -799,6 +804,7 @@ final class EvidencePacket {
                 'scheduled_at' => (string) ( $c->scheduled_at ?? '' ),
                 'conducted_at' => $conducted,
                 'signed_off'   => ! empty( $c->coach_signoff_at ),
+                'not_held'     => ! empty( $c->not_held_at ),
             ];
             if ( $conducted !== '' && trim( (string) ( $c->agreed_actions ?? '' ) ) !== '' ) {
                 $last_actions = (string) ( $c->agreed_actions ?? '' );

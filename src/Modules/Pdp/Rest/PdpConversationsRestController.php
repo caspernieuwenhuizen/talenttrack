@@ -66,8 +66,13 @@ class PdpConversationsRestController {
             'player_ack_at'           => [ 'type' => 'string', 'description' => 'When the player acknowledged the talk.' ],
             'linked_goal_ids'         => [ 'type' => 'array', 'description' => 'The goals this talk was about, as goal ids. Only read when linked_goal_ids_present says so.' ],
             'linked_goal_ids_present' => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'Says the body speaks for the goal links, so an empty list clears them instead of reading as "not sent".' ],
+            'not_held'                => [ 'type' => [ 'boolean', 'integer', 'string' ], 'description' => 'true marks the active talk as not having taken place, so the next talk becomes the active one; needs not_held_reason. false takes the mark off again while no later talk has moved on. Sent on its own.' ],
+            'not_held_reason'         => [ 'type' => 'string', 'description' => 'Why the talk did not take place, 1 to 255 characters. Required with not_held: true.' ],
         ];
     }
+
+    /** The longest reason a not-held talk can carry, the column's width. */
+    private const NOT_HELD_REASON_MAX = 255;
 
     public static function can_view(): bool {
         // #1923 - the authoritative per-row gate is allowedFieldsFor()
@@ -111,6 +116,12 @@ class PdpConversationsRestController {
             }
             return RestResponse::error( 'forbidden',
                 __( 'You do not have permission to update this conversation.', 'talenttrack' ), 403 );
+        }
+
+        // #4298 — marking a talk not held is its own act, with its own
+        // checks, never a field mixed into an autosaved content write.
+        if ( array_key_exists( 'not_held', (array) $r->get_params() ) ) {
+            return self::patchNotHeld( $r, $repo, $conv, $file, $allowed );
         }
 
         // #2041 — a conversation that isn't the active one (earliest by
@@ -201,6 +212,17 @@ class PdpConversationsRestController {
         // (or already passed). Coach + admin paths bypass this gate;
         // they need to be able to edit the field at any time
         // (e.g. backfilling a player quote on behalf of the player).
+        // #4298 — a talk that did not take place takes no reflection: the
+        // cycle has moved on to the next one.
+        if ( array_key_exists( 'player_reflection', $patch )
+             && \TT\Modules\Pdp\Services\PdpCycleState::isNotHeld( $conv ) ) {
+            return RestResponse::error(
+                'conversation_not_held',
+                __( 'This talk did not take place, so it takes no reflection. Write it for the next talk instead.', 'talenttrack' ),
+                409
+            );
+        }
+
         if ( array_key_exists( 'player_reflection', $patch )
              && self::isLinkedPlayer( get_current_user_id(), (int) $file->player_id )
              && ! self::selfReflectionWindowOpen( $conv ) ) {
@@ -223,6 +245,90 @@ class PdpConversationsRestController {
         \TT\Modules\Pdp\Workflow\PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $patch );
 
         return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    /**
+     * #4298 — mark the active talk as not held, or take the mark off.
+     *
+     * The same people who sign a talk off may do it: the file's coach and a
+     * global PDP change holder (`allowedFieldsFor()` includes
+     * `coach_signoff_at` for exactly them). Marking is allowed only on the
+     * active talk, so a talk is skipped in order, never out of order
+     * (#2041). A talk that was held or carries a signature cannot be marked.
+     * Taking the mark off is allowed while no later talk has moved on
+     * (`PdpConversationsRepository::canClearNotHeld()`).
+     *
+     * @param list<string> $allowed
+     */
+    private static function patchNotHeld( \WP_REST_Request $r, PdpConversationsRepository $repo, object $conv, object $file, array $allowed ): \WP_REST_Response {
+        if ( ! in_array( 'coach_signoff_at', $allowed, true ) ) {
+            return RestResponse::error( 'forbidden',
+                __( 'Only the coach of this PDP file or the head of development can mark a talk as not held.', 'talenttrack' ), 403 );
+        }
+
+        $params = (array) $r->get_params();
+        $others = array_diff(
+            array_keys( array_intersect_key( $params, self::patchArgs() ) ),
+            [ 'id', 'not_held', 'not_held_reason' ]
+        );
+        if ( $others !== [] ) {
+            return RestResponse::error( 'not_held_alone',
+                __( 'Mark a talk as not held on its own, without other changes in the same request.', 'talenttrack' ),
+                400, [ 'fields' => array_values( $others ) ] );
+        }
+
+        $row     = (array) $conv;
+        $conv_id = (int) ( $row['id'] ?? 0 );
+        $file_id = (int) ( $row['pdp_file_id'] ?? 0 );
+
+        $raw_flag = $params['not_held'];
+        $mark     = is_bool( $raw_flag ) ? $raw_flag : rest_sanitize_boolean( is_scalar( $raw_flag ) ? (string) $raw_flag : '' );
+        if ( ! $mark ) {
+            if ( empty( $row['not_held_at'] ) ) {
+                return RestResponse::success( [ 'id' => $conv_id, 'unchanged' => true ] );
+            }
+            if ( ! $repo->canClearNotHeld( $conv ) ) {
+                return RestResponse::error( 'conversation_not_active',
+                    __( 'A later talk has already moved on, so this talk stays marked as not held.', 'talenttrack' ), 409 );
+            }
+            if ( ! $repo->update( $conv_id, [ 'not_held_at' => null, 'not_held_reason' => null ] ) ) {
+                return RestResponse::error( 'db_error', __( 'The conversation could not be updated.', 'talenttrack' ), 500 );
+            }
+            return RestResponse::success( [ 'id' => $conv_id ] );
+        }
+
+        if ( ! empty( $row['conducted_at'] ) || PdpConversationsRepository::isLocked( $conv ) ) {
+            return RestResponse::error( 'conversation_already_held',
+                __( 'This talk took place or has been signed, so it cannot be marked as not held.', 'talenttrack' ), 409 );
+        }
+        if ( $conv_id !== $repo->activeConversationId( $file_id ) ) {
+            return RestResponse::error( 'conversation_not_active',
+                __( 'Only the current talk can be marked as not held. Earlier talks come first.', 'talenttrack' ), 409 );
+        }
+
+        $reason = trim( sanitize_text_field( (string) ( $params['not_held_reason'] ?? '' ) ) );
+        if ( $reason === '' ) {
+            return RestResponse::error( 'missing_fields',
+                __( 'Say why the talk did not take place.', 'talenttrack' ),
+                400, [ 'fields' => [ 'not_held_reason' ] ] );
+        }
+        if ( mb_strlen( $reason ) > self::NOT_HELD_REASON_MAX ) {
+            return RestResponse::error( 'invalid_field',
+                /* translators: %d: the maximum number of characters */
+                sprintf( __( 'Keep the reason to %d characters.', 'talenttrack' ), self::NOT_HELD_REASON_MAX ),
+                400, [ 'field' => 'not_held_reason', 'max_length' => self::NOT_HELD_REASON_MAX ] );
+        }
+
+        $patch = [ 'not_held_at' => current_time( 'mysql', true ), 'not_held_reason' => $reason ];
+        if ( ! $repo->update( $conv_id, $patch ) ) {
+            Logger::error( 'pdp.conversation.not_held.failed', [ 'id' => $conv_id ] );
+            return RestResponse::error( 'db_error', __( 'The conversation could not be updated.', 'talenttrack' ), 500 );
+        }
+
+        // The player's self-review nudge for this talk has nothing left to prepare.
+        \TT\Modules\Pdp\Workflow\PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $patch );
+
+        return RestResponse::success( [ 'id' => $conv_id ] );
     }
 
     /**

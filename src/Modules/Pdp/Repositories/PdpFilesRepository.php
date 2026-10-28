@@ -291,7 +291,8 @@ class PdpFilesRepository {
      * } $filters
      * @return object[] one row per player: player_id, first_name,
      *   last_name, team_id, team_name, pdp_file_id, file_status,
-     *   conv_total, conv_conducted, conv_scheduled_soon, conv_parent_acked.
+     *   conv_total, conv_conducted, conv_not_held, conv_scheduled_soon,
+     *   conv_parent_acked.
      */
     public function coverageForSeason( int $season_id, array $filters = [] ): array {
         if ( $season_id <= 0 ) return [];
@@ -342,9 +343,11 @@ class PdpFilesRepository {
                        f.id AS pdp_file_id, f.status AS file_status, f.archived_at,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id) AS conv_total,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NOT NULL) AS conv_conducted,
+                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NULL AND c.not_held_at IS NOT NULL) AS conv_not_held,
                        (SELECT COUNT(*) FROM {$conv} c
                          WHERE c.pdp_file_id = f.id
                            AND c.conducted_at IS NULL
+                           AND c.not_held_at IS NULL
                            AND c.scheduled_at IS NOT NULL
                            AND c.scheduled_at BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL 28 DAY)) AS conv_scheduled_soon,
                        (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.parent_ack_at IS NOT NULL) AS conv_parent_acked

@@ -675,6 +675,19 @@
     background: var(--tt-line-soft, #eef0ec);
     color: var(--tt-muted, #6a6d66);
 }
+/* #4298 — a talk that did not take place. Recorded, not pending: muted,
+   with a solid border so it does not read as a future talk. */
+.tt-dashboard .tt-pdp-marker.not_held .tt-pdp-dot {
+    background: var(--tt-line-soft, #eef0ec);
+    border-color: var(--tt-muted, #6a6d66);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-chip.not_held {
+    background: transparent;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-pdp-panel__not-held { margin: 0.5rem 0; }
 
 /* inline conversation detail panels (revealed on marker tap) */
 .tt-dashboard .tt-pdp-panels { margin-top: 1rem; }
@@ -875,6 +888,47 @@
     color: var(--tt-ink, #1f2a2e);
 }
 .tt-pdp-conv-future strong { color: var(--tt-primary, #0b3d2e); }
+
+/*
+ * #4298 — a talk that did not take place. Neutral, like the planned-date
+ * notice: nothing is wrong, the cycle moved past it. The badge reads as a
+ * recorded state, neither the green of done nor the amber of overdue.
+ */
+.tt-status-badge.tt-status-not-held {
+    background: transparent;
+    color: var(--tt-ink, #1f2a2e);
+    border: 1px solid var(--tt-line, #e5e7ea);
+}
+.tt-pdp-not-held-detail {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--tt-muted, #5b6e75);
+    font-size: 0.875rem;
+}
+.tt-pdp-conv-not-held {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: var(--tt-radius, 6px);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    color: var(--tt-ink, #1f2a2e);
+}
+.tt-pdp-not-held,
+.tt-pdp-not-held__undo {
+    margin-top: 1rem;
+}
+.tt-pdp-not-held > summary {
+    list-style: none;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-pdp-not-held > summary::-webkit-details-marker { display: none; }
+.tt-pdp-not-held__form {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+.tt-pdp-not-held__form .tt-input { font-size: 1rem; }
 
 /*
  * #2042 — proxy-acknowledgement block on the coach conversation form.
