@@ -12,11 +12,17 @@ use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 use TT\Modules\Trials\TrialsModule;
 
 /**
- * `GET trial-cases` lists the cases the caller can open, and only a trial
- * manager lists them all. `tt_view_trial_synthesis` is held by every coach;
- * it says what they may read on a case they sit on, not which cases exist,
- * so a coach on one panel no longer receives every trialist's name and
- * decision in the club.
+ * `GET trial-cases` lists the cases the caller has a reason to see, and only
+ * a trial manager lists them all. `tt_view_trial_synthesis` is held by every
+ * coach; it says what they may read on a case they sit on, not which cases
+ * exist, so a coach on one panel no longer receives every trialist's name
+ * and decision in the club.
+ *
+ * The reasons are a panel seat, a scout's linked player, and the team-scoped
+ * read a head coach holds on their own team (#2005). The last one lists
+ * cases the head coach may not open, as the `?tt_view=trials` screen always
+ * did, so "listed" is deliberately not a subset of "openable" here. What it
+ * never does is reach another team.
  */
 final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
 
@@ -94,14 +100,114 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
         $this->assertContains( $this->caseB, $ids );
     }
 
-    private function player( string $last ): int {
+    public function test_a_head_coach_lists_their_own_teams_cases_and_no_other(): void {
+        [ $own_team, $own_case, $other_case ] = $this->twoTeamsWithACaseEach();
+        $coach = $this->teamCoach( $own_team, true );
+
+        $this->assertSame( [ $own_case ], $this->listIds( $coach ) );
+        $this->assertNotContains( $other_case, $this->listIds( $coach ) );
+        $this->assertNotContains( $this->caseA, $this->listIds( $coach ) );
+    }
+
+    public function test_a_head_coachs_panel_seat_adds_to_their_team(): void {
+        [ $own_team, $own_case ] = $this->twoTeamsWithACaseEach();
+        $coach = $this->teamCoach( $own_team, true );
+        $this->seat( $this->caseB, $coach );
+
+        $expected = [ $own_case, $this->caseB ];
+        sort( $expected );
+        $this->assertSame( $expected, $this->listIds( $coach ) );
+    }
+
+    public function test_an_assistant_coach_holds_no_team_read_on_trial_cases(): void {
+        [ $own_team ] = $this->twoTeamsWithACaseEach();
+        $assistant = $this->teamCoach( $own_team, false );
+
+        $this->assertSame( [], $this->listIds( $assistant ) );
+    }
+
+    public function test_the_screen_lists_what_the_api_lists(): void {
+        [ $own_team ] = $this->twoTeamsWithACaseEach();
+        $coach = $this->teamCoach( $own_team, true );
+        wp_set_current_user( $coach );
+
+        $method = new \ReflectionMethod( \TT\Shared\Frontend\FrontendTrialsManageView::class, 'renderList' );
+        $method->setAccessible( true );
+        ob_start();
+        $method->invoke( null, $coach, false, false );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'OwnTeam', $html );
+        $this->assertStringNotContainsString( 'OtherTeam', $html );
+        $this->assertStringNotContainsString( 'Elsewhere', $html );
+    }
+
+    /**
+     * Two teams with one trialist and one open case each.
+     *
+     * @return array{0:int,1:int,2:int} [own team, own case, other team's case]
+     */
+    private function twoTeamsWithACaseEach(): array {
         global $wpdb;
-        $wpdb->insert( "{$wpdb->prefix}tt_players", [
+        $club = (int) CurrentClub::id();
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Trials O13-1' ] );
+        $own = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Trials O15-1' ] );
+        $other = (int) $wpdb->insert_id;
+
+        $own_case   = $this->trialCase( $this->player( 'OwnTeam', $own ) );
+        $other_case = $this->trialCase( $this->player( 'OtherTeam', $other ) );
+        return [ $own, $own_case, $other_case ];
+    }
+
+    private function teamCoach( int $team_id, bool $head ): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id'    => (int) CurrentClub::id(),
+            'first_name' => $head ? 'Hoofd' : 'Assistent',
+            'last_name'  => 'Trainer',
+            'role_type'  => $head ? 'head_coach' : 'assistant_coach',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+
+        $wpdb->insert( "{$p}tt_team_people", [
+            'team_id'       => $team_id,
+            'person_id'     => $person_id,
+            'role_in_team'  => $head ? 'head_coach' : 'assistant_coach',
+            'is_head_coach' => $head ? 1 : 0,
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'club_id'    => (int) CurrentClub::id(),
+            'person_id'  => $person_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => $team_id,
+        ] );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        return $uid;
+    }
+
+    private function player( string $last, int $team_id = 0 ): int {
+        global $wpdb;
+        $row = [
             'club_id'    => (int) CurrentClub::id(),
             'first_name' => 'Trialist',
             'last_name'  => $last,
             'status'     => 'trial',
-        ] );
+        ];
+        // A player on a team roster: the roster helper (#2005) reads active
+        // players only, so a team's trial case here is an active player's.
+        if ( $team_id > 0 ) {
+            $row['team_id'] = $team_id;
+            $row['status']  = 'active';
+        }
+        $wpdb->insert( "{$wpdb->prefix}tt_players", $row );
         return (int) $wpdb->insert_id;
     }
 

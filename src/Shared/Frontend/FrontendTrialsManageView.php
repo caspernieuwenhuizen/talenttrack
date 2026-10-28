@@ -205,23 +205,15 @@ class FrontendTrialsManageView extends FrontendViewBase {
             'include_archived' => ! empty( $_GET['include_archived'] ),
         ];
 
-        // #2005 — read-only coaches see only cases for players on their
-        // own teams. The matrix grants head_coach `trial_cases [rc]` at
-        // TEAM scope, so the list must honour that boundary (matching the
-        // team-scoping in FrontendEvaluationsView).
-        // Managers (`tt_manage_trials` → academy-wide create_delete) and
-        // admins keep the unscoped, full view they had before. An empty
-        // allow-list yields zero rows — a coach with no team sees nothing.
+        // #2005 — a head coach sees the cases on their own teams' players,
+        // because the matrix grants them `trial_cases [rc]` at team scope.
+        // The rule lives in TrialCaseAccessPolicy::visibleCaseFilter(), which
+        // GET trial-cases uses too, so the screen and the API list the same
+        // cases: own team (where the grant holds), assigned, scout-linked.
+        // Managers and admins keep the unscoped view. An empty allow-list
+        // yields zero rows.
         if ( ! $is_admin && ! $can_manage ) {
-            $team_ids = array_map(
-                static fn( $t ) => (int) $t->id,
-                QueryHelpers::get_teams_for_coach( $user_id )
-            );
-            $player_ids = array_map(
-                static fn( $p ) => (int) $p->id,
-                QueryHelpers::get_players_for_teams( $team_ids )
-            );
-            $filters['player_ids'] = $player_ids;
+            $filters['case_ids'] = \TT\Modules\Trials\Security\TrialCaseAccessPolicy::visibleCaseFilter( $user_id ) ?? [];
         }
 
         $rows   = $cases_repo->search( $filters );

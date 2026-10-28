@@ -65,15 +65,26 @@ final class TrialCaseAccessPolicy {
     /**
      * Which cases may this user see in a list?
      *
-     * Null for a trial manager: every case. Otherwise the ids of the cases
-     * they can open, assigned with a reason to be there, as `canOpenCase()`
-     * decides one case at a time, plus the cases on the players a scout is
-     * linked to. A coarse capability such as `tt_view_trial_synthesis` is
-     * not a reason on its own: it is held by every coach and says what they
-     * may read on a case they sit on, not which cases exist.
+     * Null for a trial manager: every case. Otherwise the union of three
+     * reasons to see a case:
      *
-     * Feed the result to `TrialCasesRepository::search()` as `case_ids`, so
-     * the list and the single-case read cannot drift apart.
+     *   - assigned to it, with an entitlement to be there (the cases
+     *     `canOpenCase()` lets them open);
+     *   - it is on a player a scout is linked to;
+     *   - it is on a player of a team they coach, where the matrix grants
+     *     them `trial_cases` read on that team (#2005: head coaches hold
+     *     `trial_cases [rc, team]`). Only that team, never another.
+     *
+     * A coarse capability such as `tt_view_trial_synthesis` is not a reason
+     * on its own: it is held by every coach and says what they may read on a
+     * case they sit on, not which cases exist.
+     *
+     * The team-scoped read lists cases a head coach may not open, which is
+     * the screen's behaviour since #2005: they see their own squad's trials.
+     * Opening one is still decided per case.
+     *
+     * Feed the result to `TrialCasesRepository::search()` as `case_ids`. The
+     * REST list and the `?tt_view=trials` screen both do, so they agree.
      *
      * @return list<int>|null
      */
@@ -92,9 +103,30 @@ final class TrialCaseAccessPolicy {
             }
         }
 
-        $linked = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id );
-        if ( $linked !== [] ) {
-            $cases = ( new TrialCasesRepository() )->search( [ 'player_ids' => $linked, 'include_archived' => true ] );
+        $player_ids = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id );
+
+        $team_ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $team_id > 0 && \TT\Modules\Authorization\MatrixGate::can(
+                $user_id,
+                'trial_cases',
+                \TT\Modules\Authorization\MatrixGate::READ,
+                \TT\Modules\Authorization\MatrixGate::SCOPE_TEAM,
+                $team_id
+            ) ) {
+                $team_ids[] = $team_id;
+            }
+        }
+        if ( $team_ids !== [] ) {
+            foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players_for_teams( $team_ids ) as $player ) {
+                $player_id = (int) ( ( (array) $player )['id'] ?? 0 );
+                if ( $player_id > 0 ) $player_ids[] = $player_id;
+            }
+        }
+
+        if ( $player_ids !== [] ) {
+            $cases = ( new TrialCasesRepository() )->search( [ 'player_ids' => $player_ids, 'include_archived' => true ] );
             foreach ( $cases as $case ) {
                 $case_id = (int) ( ( (array) $case )['id'] ?? 0 );
                 if ( $case_id > 0 ) $ids[ $case_id ] = $case_id;

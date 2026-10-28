@@ -52,7 +52,7 @@ class TrialCaseStaffRepository {
              WHERE user_id = %d AND club_id = %d AND unassigned_at IS NULL",
             $user_id, CurrentClub::id()
         ) );
-        return array_values( array_map( 'intval', (array) $ids ) );
+        return array_map( 'intval', (array) $ids );
     }
 
     public function assign( int $case_id, int $user_id, ?string $role_label = null ): int {
