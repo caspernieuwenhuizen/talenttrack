@@ -3,7 +3,9 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Core\Kernel;
 use TT\Domain\Vocabularies\Lookups\PlayerSex;
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Logging\Logger;
@@ -1433,10 +1435,36 @@ class PlayersRestController {
 
     private static function fmt( ?object $pl ): array {
         if ( ! $pl ) return [];
-        $custom = ( new CustomValuesRepository() )->getByEntityKeyed(
+        $out = self::fmtBase( $pl );
+
+        // Guardian contact and the club's own fields are family data of a
+        // minor. The route gate admits more than staff (linked parent, the
+        // player, a linked scout), so the fields ride along only for staff
+        // of this player, the same rule the profile's guardians card uses.
+        // Each disclosure is audit-logged.
+        $player_id = (int) $pl->id;
+        if ( ! AuthorizationService::isStaffForPlayer( get_current_user_id(), $player_id ) ) {
+            return $out;
+        }
+
+        $out['guardian_name']  = $pl->guardian_name ?: null;
+        $out['guardian_email'] = $pl->guardian_email ?: null;
+        $out['guardian_phone'] = $pl->guardian_phone ?: null;
+        $out['custom_fields']  = (object) ( new CustomValuesRepository() )->getByEntityKeyed(
             CustomFieldsRepository::ENTITY_PLAYER,
-            (int) $pl->id
+            $player_id
         );
+
+        $audit = Kernel::instance()->container()->get( 'audit' );
+        if ( $audit instanceof AuditService ) {
+            $audit->record( 'player.guardian_contact.read', 'player', $player_id );
+        }
+
+        return $out;
+    }
+
+    /** @return array<string, mixed> */
+    private static function fmtBase( object $pl ): array {
         return [
             'id'                  => (int) $pl->id,
             'first_name'          => (string) $pl->first_name,
@@ -1459,13 +1487,9 @@ class PlayersRestController {
             'team_id'             => (int) $pl->team_id,
             'date_joined'         => PlayerDates::forOutput( $pl->date_joined ),
             'photo_url'           => \TT\Modules\Players\Services\PlayerPhoto::url( $pl ) ?: null,
-            'guardian_name'       => $pl->guardian_name ?: null,
-            'guardian_email'      => $pl->guardian_email ?: null,
-            'guardian_phone'      => $pl->guardian_phone ?: null,
             // #3590 — NULL is "no account" since #1772; 0 read as an id.
             'wp_user_id'          => ( (int) $pl->wp_user_id ) ?: null,
             'status'              => (string) $pl->status,
-            'custom_fields'       => (object) $custom,
         ];
     }
 }

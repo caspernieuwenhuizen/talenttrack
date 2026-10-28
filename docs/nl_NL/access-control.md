@@ -384,7 +384,7 @@ Er zijn twee dingen veranderd.
 
 **En verder niets.** Bewust niet op de kaart, en een reviewer hoort een wijziging te weigeren die er een van toevoegt: naam, e-mail of telefoon van de ouder; maatwerkvelden in welke vorm dan ook; evaluaties; metingen; blessures of iets medisch; gedragsbeoordelingen; POP-inhoud; veiligheidsnotities.
 
-De kaart is precies daarom een aparte route en geen verruiming van `GET /players/{id}`. Het volledige spelersdossier bevat de contactgegevens van de ouders en élk maatwerkveld dat een academie heeft ingericht, zonder filter per veld — wat een club daar ook in heeft gezet, inclusief medische of veiligheidsnotities, gaat mee naar buiten. Een scout komt nog steeds niet bij die route, en voor iedereen anders verandert er niets.
+De kaart is precies daarom een aparte route en geen verruiming van `GET /players/{id}`. Het volledige spelersdossier kan de contactgegevens van de ouders en élk maatwerkveld dat een academie heeft ingericht bevatten, en wat een club daar ook in heeft gezet, inclusief medische of veiligheidsnotities, zou mee naar buiten gaan. Daarom geeft `GET /players/{id}` `guardian_name`, `guardian_email`, `guardian_phone` en `custom_fields` alleen terug aan staf van die speler (`AuthorizationService::isStaffForPlayer()`, dezelfde regel die op het profiel de oudersblok toont), en schrijft het elke keer een auditregel `player.guardian_contact.read`. Een gekoppelde scout, een gekoppelde ouder en de speler zelf mogen het dossier lezen, maar krijgen het zonder die vier velden.
 
 Wie een kaart mag lezen: iedereen die het volledige spelersdossier al mag lezen (de kaart is een deelverzameling daarvan), of een scout die via de twee links hierboven aan die speler **gekoppeld** is.
 
