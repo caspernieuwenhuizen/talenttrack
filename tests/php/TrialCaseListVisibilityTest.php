@@ -53,7 +53,12 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
     }
 
     public function test_a_coach_lists_only_the_case_they_sit_on(): void {
-        $coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        // A head coach holds `trial_synthesis` (team scope in the seed), so
+        // the coarse capability is really there. Their team has no cases, so
+        // the team-scoped read adds nothing and the seat is the only reason.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => (int) CurrentClub::id(), 'name' => 'Trials O11-1' ] );
+        $coach = $this->teamCoach( (int) $wpdb->insert_id, true );
         $this->seat( $this->caseA, $coach );
         $this->assertTrue( user_can( $coach, 'tt_view_trial_synthesis' ), 'precondition: the coach holds the coarse capability' );
 
