@@ -299,11 +299,12 @@ class PdpFilesRestController {
         $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
 
         return RestResponse::success( [
-            'rows'      => array_map( [ __CLASS__, 'format_list_row' ], $rows ?: [] ),
-            'total'     => $total,
-            'page'      => $page,
-            'per_page'  => $per_page,
-            'season_id' => $season_id,
+            'rows'        => array_map( [ __CLASS__, 'format_list_row' ], $rows ?: [] ),
+            'total'       => $total,
+            'page'        => $page,
+            'per_page'    => $per_page,
+            'season_id'   => $season_id,
+            'season_name' => self::seasonName( $season_id ),
         ] );
     }
 
@@ -324,10 +325,18 @@ class PdpFilesRestController {
      * read.
      */
     public static function coverage( \WP_REST_Request $r ): \WP_REST_Response {
-        $season_id = absint( $r['season_id'] ?? 0 );
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+        // #3668 — same gap as the list: a plain `?team_id=` returned every
+        // team's players. The coach roster restriction below still applies.
+        // #4266 — `season_id` folds the same way, so the list table's
+        // `filter[season_id]` and a plain `?season_id=` pick the same season.
+        $filter = self::foldFilterAliases( $r, $filter, self::COVERAGE_FILTER_ALIASES );
+
+        $season_id = absint( $filter['season_id'] ?? 0 );
+        $current   = ( new SeasonsRepository() )->current();
+        $current_id = $current ? (int) ( ( (array) $current )['id'] ?? 0 ) : 0;
         if ( $season_id <= 0 ) {
-            $current   = ( new SeasonsRepository() )->current();
-            $season_id = $current ? (int) $current->id : 0;
+            $season_id = $current_id;
         }
         if ( $season_id <= 0 ) {
             return RestResponse::success( [
@@ -335,11 +344,9 @@ class PdpFilesRestController {
                 'summary' => [ 'total' => 0, 'covered' => 0 ],
             ] );
         }
-
-        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
-        // #3668 — same gap as the list: a plain `?team_id=` returned every
-        // team's players. The coach roster restriction below still applies.
-        $filter = self::foldFilterAliases( $r, $filter, self::COVERAGE_FILTER_ALIASES );
+        // A file can only be opened in the current season (POST pdp-files
+        // defaults to it), so another season's rows offer no create action.
+        $is_current_season = $season_id === $current_id;
 
         $coverage_filters = [];
         // Coach scope — global readers see every player; coaches are
@@ -390,14 +397,38 @@ class PdpFilesRestController {
         $total    = count( $rows );
         $paged    = array_slice( $rows, ( $page - 1 ) * $per_page, $per_page );
 
+        $season_name = self::seasonName( $season_id );
+
         return RestResponse::success( [
-            'rows'      => array_map( [ __CLASS__, 'format_coverage_row' ], $paged ),
-            'total'     => $total,
-            'page'      => $page,
-            'per_page'  => $per_page,
-            'season_id' => $season_id,
-            'summary'   => $summary,
+            'rows'              => array_map(
+                static function ( $row ) use ( $is_current_season, $season_id, $season_name ): array {
+                    return self::format_coverage_row( $row, $is_current_season )
+                        + [ 'season_id' => $season_id, 'season_name' => $season_name ];
+                },
+                $paged
+            ),
+            'total'             => $total,
+            'page'              => $page,
+            'per_page'          => $per_page,
+            'season_id'         => $season_id,
+            'season_name'       => $season_name,
+            'is_current_season' => $is_current_season,
+            'summary'           => $summary,
         ] );
+    }
+
+    /**
+     * #4266 — the season's display name, or '' when the id is not a season
+     * of this club. Cached per request: a list asks for one season per row.
+     */
+    private static function seasonName( int $season_id ): string {
+        static $names = [];
+        if ( $season_id <= 0 ) return '';
+        if ( ! array_key_exists( $season_id, $names ) ) {
+            $season = ( new SeasonsRepository() )->find( $season_id );
+            $names[ $season_id ] = $season ? (string) ( ( (array) $season )['name'] ?? '' ) : '';
+        }
+        return $names[ $season_id ];
     }
 
     /**
@@ -426,9 +457,10 @@ class PdpFilesRestController {
      * click target is the file when covered, else the create flow.
      *
      * @param object $row coverageForSeason() result
+     * @param bool   $can_create false outside the current season (#4266)
      * @return array<string,mixed>
      */
-    private static function format_coverage_row( $row ): array {
+    private static function format_coverage_row( $row, bool $can_create = true ): array {
         $player_id = (int) $row->player_id;
         $team_id   = (int) ( $row->team_id ?? 0 );
         $first     = (string) ( $row->first_name ?? '' );
@@ -506,11 +538,12 @@ class PdpFilesRestController {
             ) );
             $coverage_html = '<span class="tt-status-badge tt-status-to-be-planned" style="display:inline-flex;align-items:center;min-height:28px;">'
                 . esc_html__( 'Not started', 'talenttrack' ) . '</span>';
-            $action_html = current_user_can( 'tt_edit_pdp' )
+            $can_add     = $can_create && current_user_can( 'tt_edit_pdp' );
+            $action_html = $can_add
                 ? '<a class="tt-btn tt-btn-primary tt-btn-sm" href="' . esc_url( $create_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
                     . esc_html__( 'Add PDP', 'talenttrack' ) . '</a>'
                 : '';
-            $row_url = current_user_can( 'tt_edit_pdp' ) ? $create_url : '';
+            $row_url = $can_add ? $create_url : '';
         }
 
         return [
@@ -537,7 +570,7 @@ class PdpFilesRestController {
     private const LIST_FILTER_ALIASES = [ 'team_id', 'player_id', 'status' ];
 
     /** @var list<string> coverage filters that are also taken as plain params (#3668) */
-    private const COVERAGE_FILTER_ALIASES = [ 'team_id' ];
+    private const COVERAGE_FILTER_ALIASES = [ 'team_id', 'season_id' ];
 
     /**
      * #3668 — fold the plain filter names into `filter[...]`, the form the
@@ -591,12 +624,12 @@ class PdpFilesRestController {
      */
     private static function coverageArgs(): array {
         return [
-            'season_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Season id. Defaults to the current season.' ],
+            'season_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'Season id. Defaults to the current season. Same as filter[season_id].' ],
             'team_id'      => [ 'type' => [ 'integer', 'string' ], 'description' => 'Only players on this team. Same as filter[team_id].' ],
             'only_missing' => [ 'description' => '1 to list only players without a PDP file. Same as filter[only_missing].' ],
             'conducted'    => [ 'type' => [ 'integer', 'string' ], 'description' => '0 to list only players who have not had a conversation yet. No other value is accepted; anything else leaves the list unfiltered. Same as filter[conducted].' ],
             'archived'     => [ 'type' => 'string', 'description' => 'active (default) or archived. The archived view needs tt_unarchive_pdp or tt_delete_pdp. Same as filter[archived].' ],
-            'filter'       => [ 'description' => 'Nested filters: team_id, only_missing, conducted, archived. A nested value wins over the plain parameter of the same name.' ],
+            'filter'       => [ 'description' => 'Nested filters: season_id, team_id, only_missing, conducted, archived. A nested value wins over the plain parameter of the same name.' ],
             'search'       => [ 'type' => 'string', 'description' => 'Matches the player\'s first or last name.' ],
             'page'         => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
             'per_page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'One of 10, 25, 50 or 100; any other value is treated as 25. The response echoes the value used.' ],
@@ -666,8 +699,12 @@ class PdpFilesRestController {
         $is_archived  = ! empty( $row->archived_at );
         $actions_html = self::row_actions_html( $file_id, $player_name, $is_archived );
 
+        $season_id = (int) ( ( (array) $row )['season_id'] ?? 0 );
+
         return [
             'id'               => $file_id,
+            'season_id'        => $season_id,
+            'season_name'      => self::seasonName( $season_id ),
             'player_id'        => $player_id,
             'player_name'      => $player_name,
             'player_link_html' => $player_link_html,
@@ -1054,10 +1091,12 @@ class PdpFilesRestController {
 
     /** @return array<string,mixed> */
     private static function format_file( object $row ): array {
+        $season_id = (int) $row->season_id;
         return [
             'id'             => (int) $row->id,
             'player_id'      => (int) $row->player_id,
-            'season_id'      => (int) $row->season_id,
+            'season_id'      => $season_id,
+            'season_name'    => self::seasonName( $season_id ),
             'owner_coach_id' => $row->owner_coach_id !== null ? (int) $row->owner_coach_id : null,
             'cycle_size'     => $row->cycle_size !== null ? (int) $row->cycle_size : null,
             'status'         => (string) $row->status,
