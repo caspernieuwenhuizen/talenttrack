@@ -441,14 +441,26 @@ class FrontendPdpManageView extends FrontendViewBase {
      * FrontendListTable; the summary line is computed server-side from
      * the repository for the initial scope. Business logic lives in
      * PdpFilesRepository::coverageForSeason() per CLAUDE.md §4.
+     *
+     * #4266 — `$season` is the season the list shows, the current one
+     * unless the reader picked another. A file only opens in the current
+     * season, so the create action is offered there alone.
+     *
+     * @param array<int,object> $all_seasons
      */
-    private static function renderCoverageList( int $user_id, bool $is_admin, object $current ): void {
+    private static function renderCoverageList( int $user_id, bool $is_admin, object $current, ?object $season = null, array $all_seasons = [] ): void {
+        $season      = $season ?? $current;
+        $current_id  = (int) ( ( (array) $current )['id'] ?? 0 );
+        $season_id   = (int) ( ( (array) $season )['id'] ?? 0 );
+        $season_name = (string) ( ( (array) $season )['name'] ?? '' );
+        $is_current  = $season_id === $current_id;
+
         $new_url = add_query_arg(
             [ 'tt_view' => 'pdp', 'action' => 'new' ],
             remove_query_arg( [ 'action', 'id', 'conv', 'player_id' ] )
         );
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_pdp' ) ) {
+        if ( $is_current && current_user_can( 'tt_edit_pdp' ) ) {
             $page_actions[] = [
                 'label'   => __( 'Open new PDP file', 'talenttrack' ),
                 'href'    => $new_url,
@@ -472,13 +484,16 @@ class FrontendPdpManageView extends FrontendViewBase {
             // choice, and each row is the choice.
             $scope_player_ids = PdpAccess::coverageScopePlayerIds( $user_id );
             $by_team = ( new PdpFilesRepository() )->coverageByTeamForSeason(
-                (int) $current->id,
+                $season_id,
                 $scope_player_ids !== null ? [ 'player_ids' => $scope_player_ids ] : []
             );
-            self::renderTeamCoverage( $by_team );
-            self::renderTeamGate( $team_options );
+            self::renderSeasonSummary( $is_current, $season_name );
+            self::renderTeamCoverage( $by_team, $is_current ? 0 : $season_id );
+            self::renderTeamGate( $team_options, self::seasonOptions( $all_seasons ), $season_id );
             return;
         }
+
+        self::renderSeasonSummary( $is_current, $season_name );
 
         // #2040 — Active / Archived record-state view, for operators who can
         // act on archived files. The state control is the FilterBar status
@@ -502,13 +517,17 @@ class FrontendPdpManageView extends FrontendViewBase {
             if ( $scope_player_ids !== null ) {
                 $summary_filters['player_ids'] = $scope_player_ids;
             }
-            $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( (int) $current->id, $summary_filters );
-            echo '<p class="tt-pdp-coverage-summary">' . esc_html( sprintf(
+            $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( $season_id, $summary_filters );
+            $summary_format = $is_current
                 /* translators: 1: covered player count, 2: total player count, 3: season name */
-                __( '%1$d of %2$d players have a PDP for the current season (%3$s).', 'talenttrack' ),
+                ? __( '%1$d of %2$d players have a PDP for the current season (%3$s).', 'talenttrack' )
+                /* translators: 1: covered player count, 2: total player count, 3: season name, e.g. 2024/2025 */
+                : __( '%1$d of %2$d players have a PDP for season %3$s.', 'talenttrack' );
+            echo '<p class="tt-pdp-coverage-summary">' . esc_html( sprintf(
+                $summary_format,
                 (int) $summary['covered'],
                 (int) $summary['total'],
-                (string) $current->name
+                $season_name
             ) ) . '</p>';
 
             // "Only missing" quick filter (active view only).
@@ -526,12 +545,25 @@ class FrontendPdpManageView extends FrontendViewBase {
             'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html', 'mobile' => 'detail' ],
         ];
 
-        $filters = [
-            'team_id' => [
+        $filters = [];
+        // #4266 — the season pills reload the page, so the summary line above
+        // follows the season along with the rows. The current season is the
+        // default, and there is no "All": coverage counts one season.
+        $season_options = self::seasonOptions( $all_seasons );
+        if ( count( $season_options ) > 1 ) {
+            $filters['season_id'] = [
                 'type'    => 'select',
-                'label'   => __( 'Team', 'talenttrack' ),
-                'options' => $team_options,
-            ],
+                'render'  => 'status',
+                'label'   => __( 'Season', 'talenttrack' ),
+                'options' => $season_options,
+                'no_all'  => true,
+                'default' => (string) $current_id,
+            ];
+        }
+        $filters['team_id'] = [
+            'type'    => 'select',
+            'label'   => __( 'Team', 'talenttrack' ),
+            'options' => $team_options,
         ];
         // #2083 — Active / Archived record-state pills, surfaced only to
         // operators who can act on archived files. Replaces the bespoke
@@ -591,8 +623,9 @@ class FrontendPdpManageView extends FrontendViewBase {
      *
      * @param list<array{ team_id:int, team_name:string, players:int, covered:int,
      *                    conducted:int, scheduled_soon:int, parent_acked:int }> $rows
+     * @param int $season_id carried on each team link when not the current season (#4266)
      */
-    private static function renderTeamCoverage( array $rows ): void {
+    private static function renderTeamCoverage( array $rows, int $season_id = 0 ): void {
         if ( empty( $rows ) ) return;
 
         echo '<section class="tt-pdp-team-coverage">';
@@ -613,8 +646,12 @@ class FrontendPdpManageView extends FrontendViewBase {
             $name    = (string) $row['team_name'];
 
             if ( $team_id > 0 ) {
+                $link_filter = [ 'team_id' => $team_id ];
+                if ( $season_id > 0 ) {
+                    $link_filter['season_id'] = $season_id;
+                }
                 $url  = add_query_arg(
-                    [ 'tt_view' => 'pdp', 'filter' => [ 'team_id' => $team_id ] ],
+                    [ 'tt_view' => 'pdp', 'filter' => $link_filter ],
                     RecordLink::dashboardUrl()
                 );
                 $cell = RecordLink::inline( $name, BackLink::appendTo( $url ) );
@@ -682,9 +719,14 @@ class FrontendPdpManageView extends FrontendViewBase {
      * loads. The select submits `filter[team_id]`, which both this gate and
      * FrontendListTable read, so the list lands scoped on submit.
      *
-     * @param array<int,string> $team_options id => name
+     * #4266 — with more than one season, the gate also carries the season
+     * select, so a reader who spans every team can look at an earlier season
+     * without first choosing a team.
+     *
+     * @param array<int,string> $team_options   id => name
+     * @param array<int,string> $season_options id => name
      */
-    private static function renderTeamGate( array $team_options ): void {
+    private static function renderTeamGate( array $team_options, array $season_options = [], int $season_id = 0 ): void {
         $action = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'only_missing', 'archived' ] );
         echo '<div class="tt-pdp-team-gate">';
         echo '<p class="tt-pdp-team-gate__hint">' . esc_html__( 'Select a team to see its players.', 'talenttrack' ) . '</p>';
@@ -693,6 +735,14 @@ class FrontendPdpManageView extends FrontendViewBase {
         $back = isset( $_GET['tt_back'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['tt_back'] ) ) : '';
         if ( $back !== '' ) {
             echo '<input type="hidden" name="tt_back" value="' . esc_attr( $back ) . '" />';
+        }
+        if ( count( $season_options ) > 1 ) {
+            echo '<label class="tt-field-label" for="tt-pdp-gate-season">' . esc_html__( 'Season', 'talenttrack' ) . '</label>';
+            echo '<select id="tt-pdp-gate-season" name="filter[season_id]" class="tt-input">';
+            foreach ( $season_options as $sid => $sname ) {
+                echo '<option value="' . esc_attr( (string) (int) $sid ) . '"' . selected( (int) $sid, $season_id, false ) . '>' . esc_html( (string) $sname ) . '</option>';
+            }
+            echo '</select>';
         }
         echo '<label class="tt-field-label" for="tt-pdp-gate-team">' . esc_html__( 'Team', 'talenttrack' ) . '</label>';
         echo '<select id="tt-pdp-gate-team" name="filter[team_id]" class="tt-input">';
@@ -706,6 +756,38 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '</div>';
     }
 
+    /**
+     * #4266 — id => name for the season control, newest first (the order
+     * SeasonsRepository::all() returns).
+     *
+     * @param array<int,object> $seasons
+     * @return array<int,string>
+     */
+    private static function seasonOptions( array $seasons ): array {
+        $options = [];
+        foreach ( $seasons as $season ) {
+            $row = (array) $season;
+            $id  = (int) ( $row['id'] ?? 0 );
+            if ( $id > 0 ) {
+                $options[ $id ] = (string) ( $row['name'] ?? '' );
+            }
+        }
+        return $options;
+    }
+
+    /**
+     * #4266 — a line that says which season is on screen when it is not the
+     * current one, and why there is nothing to create.
+     */
+    private static function renderSeasonSummary( bool $is_current, string $season_name ): void {
+        if ( $is_current ) return;
+        echo '<p class="tt-notice tt-pdp-season-note">' . esc_html( sprintf(
+            /* translators: %s: season name, e.g. 2024/2025 */
+            __( 'You are looking at season %s. New PDP files open in the current season.', 'talenttrack' ),
+            $season_name
+        ) ) . '</p>';
+    }
+
     private static function renderList( int $user_id, bool $is_admin ): void {
         $current = ( new SeasonsRepository() )->current();
         if ( ! $current ) {
@@ -717,7 +799,14 @@ class FrontendPdpManageView extends FrontendViewBase {
         // #2040 — single player-centric list. The old Coverage / Files tab
         // split is gone; archived files are reached via the Active / Archived
         // state pills inside the coverage list itself, not a separate tab.
-        self::renderCoverageList( $user_id, $is_admin, $current );
+        // #4266 — `filter[season_id]` picks an earlier (or later) season; an
+        // id that is not one of this club's seasons falls back to the current.
+        $seasons  = new SeasonsRepository();
+        $selected = null;
+        if ( isset( $_GET['filter'] ) && is_array( $_GET['filter'] ) && isset( $_GET['filter']['season_id'] ) ) {
+            $selected = $seasons->find( absint( wp_unslash( (string) $_GET['filter']['season_id'] ) ) );
+        }
+        self::renderCoverageList( $user_id, $is_admin, $current, $selected ?? $current, $seasons->all() );
     }
 
     private static function renderCreateForm( int $user_id, bool $is_admin ): void {
@@ -973,6 +1062,13 @@ class FrontendPdpManageView extends FrontendViewBase {
         // what fixed it was adding `views:` to the doc's front matter, not
         // this button. Nothing regresses by removing it.
         echo '</p>';
+        // #4266 — a file is one season's plan; without the season, last
+        // year's plan and this year's look the same.
+        $file_season = ( new SeasonsRepository() )->find( (int) ( ( (array) $file )['season_id'] ?? 0 ) );
+        if ( $file_season ) {
+            echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Season', 'talenttrack' ) . '</span> '
+                . esc_html( (string) ( ( (array) $file_season )['name'] ?? '' ) ) . '</p>';
+        }
         echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Cycle size', 'talenttrack' ) . '</span> '
             . (int) $cycle_size;
         if ( $cycle_size > 0 ) {
