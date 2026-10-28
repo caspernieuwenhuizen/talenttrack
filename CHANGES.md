@@ -1,3 +1,15 @@
+# TalentTrack v4.141.6 — Head of Development can open a new PDP file from the planning screen (#4244)
+
+The "Open new PDP file" form now lists every player for anyone who may change any PDP file, such as the Head of Development, instead of only for settings admins. Before, a Head of Development who coaches no team followed a "Missing" link on PDP planning and saw "No players available", although the API would have created the file. Coaches still see only the players on their own teams.
+
+# TalentTrack v4.141.6 — PDP planning no longer counts released players' conversations (#4248)
+
+The PDP planning matrix and its block detail now count only players who are active and not archived, the same players the expected figure counts. Before, a released player who was still linked to the team added to the planned and conducted figures, so a team could read "20/17" and its block list showed players who had left the academy.
+
+# TalentTrack v4.141.6 — PDP planning opens on the season marked as current (#4258)
+
+PDP planning now opens on the season an admin marked as current, like the rest of the PDP module. Before, it picked the season whose dates included today, so after a switch of the current season the planning screen and its block links stayed on the other season. When no season is marked current, the screen still falls back to the season covering today, then to the most recent one.
+
 # TalentTrack v4.141.5 — Goals list on a phone: the goal title is text, the row opens the goal (#4241)
 
 On a phone each row of the goals list showed the goal title as a link 18px
