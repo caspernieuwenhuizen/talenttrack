@@ -19,6 +19,7 @@ Elk blok van de POP-cyclus (start / midden / eind, afhankelijk van de cyclusgroo
 
 Coaches plannen een gespreksdatum binnen het venster vanuit het dossierdetail. Het planningsdashboard van de HO bij **POP-planning** (`?tt_view=pdp-planning`) toont de matrix:
 
+- **Seizoen** — het scherm opent op het seizoen dat in de seizoensinstellingen als huidig is gemarkeerd. Alleen als er geen seizoen is gemarkeerd, kiest het het seizoen waarvan de datums vandaag omvatten, en anders het meest recente. De seizoenskeuze overschrijft de standaard.
 - **Rijen** = teams in het geselecteerde seizoen.
 - **Kolommen** = blokindex (1, 2, 3 …). Het aantal kolommen volgt het **geconfigureerde** aantal blokken voor het seizoen (Configuratie → POP-blokken), niet de bloknummers die toevallig in opgeslagen gesprekken voorkomen. Draagt een oud of seed-gesprek een hoger bloknummer dan de huidige configuratie, dan verbreedt dat de matrix niet langer — alleen de geconfigureerde blokken worden getoond. (Heeft een seizoen geen blokken geconfigureerd, dan valt de matrix terug op het hoogste blok dat in de data voorkomt.)
 - **Cellen** = `<gepland-in-venster>/<selectiegrootte> · <uitgevoerd>/<gepland>` zodra het venster verstreken is.

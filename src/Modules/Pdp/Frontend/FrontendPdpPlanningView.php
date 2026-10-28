@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Pdp\Repositories\SeasonsRepository;
 
 /**
  * FrontendPdpPlanningView (#0054) — HoD-facing planning matrix.
@@ -580,6 +581,13 @@ final class FrontendPdpPlanningView {
     }
 
     private static function resolveCurrentSeason(): int {
+        // #4258 - the season the admin flagged current wins, as it does
+        // everywhere else in the PDP module. The date lookups below only
+        // apply when no season is flagged.
+        $current    = ( new SeasonsRepository() )->current();
+        $current_id = $current ? (int) ( ( (array) $current )['id'] ?? 0 ) : 0;
+        if ( $current_id > 0 ) return $current_id;
+
         global $wpdb;
         $today = gmdate( 'Y-m-d' );
         $id    = (int) $wpdb->get_var( $wpdb->prepare(
