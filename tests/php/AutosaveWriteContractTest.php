@@ -270,6 +270,28 @@ final class AutosaveWriteContractTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4298 — a content write never touches the not-held mark. It has its
+     * own control and its own request; a debounced save of the planned date
+     * must leave the date and reason it carries alone.
+     */
+    public function test_a_conversation_write_leaves_the_not_held_mark_alone(): void {
+        [ , $conv_id ] = $this->makeConversation( [
+            'not_held_at'     => '2026-09-02 09:00:00',
+            'not_held_reason' => 'Ill that week.',
+        ] );
+
+        [ , $status ] = $this->send( 'PATCH', 'pdp-conversations/' . $conv_id, [
+            'scheduled_at' => '2026-09-08 10:00:00',
+        ] );
+        $this->assertSame( 200, $status );
+
+        $row = $this->row( 'tt_pdp_conversations', $conv_id );
+        $this->assertNotNull( $row );
+        $this->assertSame( '2026-09-02 09:00:00', (string) $row['not_held_at'] );
+        $this->assertSame( 'Ill that week.', (string) $row['not_held_reason'] );
+    }
+
+    /**
      * Autosave stops at sign-off — and it stops in the endpoint, not only in
      * the view. A signed conversation is a signed document; a debounce that
      * arrived a second late must not be able to edit it.

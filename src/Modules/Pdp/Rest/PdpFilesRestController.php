@@ -524,6 +524,9 @@ class PdpFilesRestController {
             'pdp_file_id'      => $file_id ?: null,
             'conv_total'       => $total,
             'conv_conducted'   => $conducted,
+            // #4298 — talks marked as not having taken place: in conv_total,
+            // never in conv_conducted.
+            'conv_not_held'    => (int) ( $row->conv_not_held ?? 0 ),
             'coverage_html'    => $coverage_html,
             'actions_html'     => $action_html,
             'detail_url'       => $row_url,
@@ -1088,6 +1091,9 @@ class PdpFilesRestController {
             'coach_signoff_at'  => $row->coach_signoff_at,
             'parent_ack_at'     => $row->parent_ack_at,
             'player_ack_at'     => $row->player_ack_at,
+            // #4298 — a talk that did not take place: when it was marked and why.
+            'not_held_at'       => ( (array) $row )['not_held_at'] ?? null,
+            'not_held_reason'   => ( (array) $row )['not_held_reason'] ?? null,
         ];
     }
 }

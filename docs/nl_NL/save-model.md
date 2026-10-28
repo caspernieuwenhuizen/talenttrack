@@ -75,15 +75,20 @@ naar een datum.
 
 ### Publiceren is geen opslaan
 
-Twee schermen houden één bewuste knop over, en geen van beide is een Opslaan:
+Twee schermen houden bewuste knoppen over, en geen ervan is een Opslaan:
 
 - **Markeren als definitief** op een wedstrijdanalyse. Tot je erop drukt meldt
   de stafdeellink dat de analyse nog niet af is; daarna toont de link het
   document. Een definitieve analyse daarna bewerken laat hem definitief.
 - **Ondertekenen** op een POP-gesprek. Alles daarboven is al opgeslagen;
   ondertekenen sluit het gesprek voor bewerken, voor iedereen.
+- **Markeren als niet doorgegaan** op een POP-gesprek, voor een gesprek dat
+  nooit zal plaatsvinden. Het zet de cyclus door naar het volgende gesprek,
+  dus het staat naast Ondertekenen, met een eigen bevestiging en een
+  verplichte reden. Het is alleen ongedaan te maken tot een later gesprek
+  verder is.
 
-Beide zijn in de praktijk onomkeerbaar, en dat is precies waarom geen van beide
+Ze zijn in de praktijk onomkeerbaar, en dat is precies waarom geen van hen
 een vinkje is op een scherm dat zichzelf opslaat.
 
 ## 2. Opslaan, met een echte Annuleren

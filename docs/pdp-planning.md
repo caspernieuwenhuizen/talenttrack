@@ -24,6 +24,7 @@ Coaches plan a conversation date inside its window from the file detail. The HoD
 - **Columns** = block index (1, 2, 3 …). The number of columns follows the **configured** block count for the season (Configuration → PDP blocks), not whatever block sequences happen to exist in stored conversations. If a legacy or seed conversation carries a higher block number than the current configuration, it no longer widens the grid — only the configured blocks are shown. (When a season has no blocks configured, the grid falls back to the highest block seen in the data.)
 - **Cells** = `<planned-in-window>/<roster-size> · <conducted>/<planned>` once the window has passed.
 - **Who counts** — every figure in a cell, and every list in the block detail, counts the team's active players only. A player who has been released or archived drops out of all of them, even if they still have a PDP file for the season.
+- **Not held** — a talk the coach marked as not having taken place counts as **not held**: never as planned or conducted, and never as missing. The cell adds "· N not held" when there are any, and a closed window where every remaining talk was held or marked not held reads as done. The block detail lists these players in their own **Not held** column, with the date and the reason.
 - **Colour** — green when in-window planning matches the roster; amber when partial; red when the window has closed without enough conducted conversations.
 
 Click any cell to drill into the underlying PDP files filtered by team + block.

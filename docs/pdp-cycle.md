@@ -90,6 +90,17 @@ Every record links through to its own page, so an evaluation worth reading in fu
 
 The conversations run in order: only the **active** conversation — the earliest one not yet signed off — is fully editable. Later conversations in the cycle are read-only except for their **planned date**, so a coach can schedule the whole season ahead without filling in a talk out of turn. A later conversation opens for full editing once the one before it is signed off.
 
+#### A talk that did not take place
+
+Sometimes a talk never happens: the player was ill, a week was cancelled, the coach changed. On the active conversation, below **Sign off**, open **This talk did not take place…**, say why, and press **Mark as not held**. After a confirm, the talk is recorded as **Not held**, with the date and your reason, and the next talk in the cycle becomes the active one. The rest of the cycle, the end-of-season talk included, then runs as usual.
+
+- The file's coach and the head of development can do this: the same people who sign a talk off.
+- Only the active talk can be marked, so talks are still dealt with in order. A talk that was held or signed cannot be marked.
+- A reason is required.
+- The talk stays on the file. The conversations list shows **Not held** with the reason, and the player and their parents see the same on *My PDP*. It is never shown as overdue, and the player is not asked for a reflection on it.
+- Marked by mistake? **Undo not held** on that talk takes the mark off, as long as no later talk has been held, signed or marked since.
+- For the verdict, a not-held talk counts as closed, like a signed-off one.
+
 The player can fill in their self-reflection any time before the coach signs off. Once the coach signs off, the field locks.
 
 ### The conversation form saves itself
@@ -112,7 +123,7 @@ When the talk happens in person, the coach can also record those acknowledgement
 
 *My PDP* is the player's **preparation and self-review** space, built around the season as a timeline.
 
-- **Season timeline on top.** The season's development conversations sit on a horizontal rail as markers, each in one of four states: **completed** (a green ✓), **overdue** (red — the planned date has passed and the talk has not been held), **planned** (the gold next-up talk), and **later** (muted). A talk counts as overdue from the day after its planned date, so a talk due later today still reads *planned*; it stops being overdue the moment it is conducted or signed off. It is the one marker on the rail that needs somebody to act — the coach reschedules it or records that it happened. A progress fill runs along the rail up to the most recent completed talk. Tapping a marker **expands that conversation's detail in place** — notes, agreed actions, the goals discussed, any saved reflection, and the acknowledgement button — so there is no long scroll. The markers are keyboard-operable (Tab to focus, Enter/Space to open, Escape to close).
+- **Season timeline on top.** The season's development conversations sit on a horizontal rail as markers, each in one of five states: **completed** (a green ✓), **not held** (the talk did not take place; opening it shows the coach's reason), **overdue** (red — the planned date has passed and the talk has not been held), **planned** (the gold next-up talk), and **later** (muted). A talk counts as overdue from the day after its planned date, so a talk due later today still reads *planned*; it stops being overdue the moment it is conducted or signed off. It is the one marker on the rail that needs somebody to act — the coach reschedules it or records that it happened. A progress fill runs along the rail up to the most recent completed talk. Tapping a marker **expands that conversation's detail in place** — notes, agreed actions, the goals discussed, any saved reflection, and the acknowledgement button — so there is no long scroll. The markers are keyboard-operable (Tab to focus, Enter/Space to open, Escape to close).
 - **Active goals below the timeline.** The player's current focus goals (not the full archive), each with its goal-specific status label (e.g. *In ontwikkeling*) and target date.
 - **One self-reflection input.** Only the **single next-planned** conversation can take a reflection — past and future talks never show an input. The input appears once its 2-week pre-talk window opens; before that, a guard line explains when it will appear. Any previously-saved reflection shows **to the right** of the input on wider screens and **stacked below** it on mobile. The self-review is helpful, never required — nothing is blocked if the player skips it.
 - **End-of-season verdict** closes the page once recorded.
@@ -125,7 +136,7 @@ When the cycle's last conversation is signed off, the head of academy (or head c
 
 The verdict screen carries **Evidence for this season** above the decision — collapsed, one tap away — showing the whole season through the same panel the coach reads on a conversation. The numbers on it come from one assembly, so what the head of academy defends a verdict with is visibly what the coach saw.
 
-The *Record verdict* button sits with the conversation list, below the cycle. It stays **disabled until every conversation in the cycle is signed off**, showing the progress on the button itself — e.g. *Record verdict (3/5 conversations closed)* — so it's clear why it isn't available yet rather than missing.
+The *Record verdict* button sits with the conversation list, below the cycle. It stays **disabled until every conversation in the cycle is signed off or marked as not held**, showing the progress on the button itself — e.g. *Record verdict (3/5 conversations closed)* — so it's clear why it isn't available yet rather than missing.
 
 ## Carryover
 

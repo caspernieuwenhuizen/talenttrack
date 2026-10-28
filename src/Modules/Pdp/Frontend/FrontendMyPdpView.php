@@ -254,6 +254,13 @@ class FrontendMyPdpView extends FrontendViewBase {
             echo '<p class="tt-pdp-panel__meta">' . esc_html( implode( ' · ', $meta ) ) . '</p>';
         }
 
+        // #4298 — a talk that did not take place, and why. Read-only here.
+        if ( ( $conv['not_held_at'] ?? null ) !== null ) {
+            echo '<p class="tt-pdp-panel__not-held"><strong>'
+                . esc_html_x( 'Not held', 'PDP talk status: the talk did not take place', 'talenttrack' ) . ':</strong> '
+                . esc_html( (string) ( $conv['not_held_reason'] ?? '' ) ) . '</p>';
+        }
+
         // The reader has already withheld both until the coach signs the
         // talk off, so there is nothing left for the view to decide.
         if ( $conv['notes'] !== null ) {
@@ -569,6 +576,8 @@ class FrontendMyPdpView extends FrontendViewBase {
             // "Overdue" translates as easily to a late payment as to a talk
             // that never happened.
             case 'overdue': return _x( 'Overdue', 'pdp talk state', 'talenttrack' );
+            // #4298 — the talk did not take place; the cycle moved past it.
+            case 'not_held': return _x( 'Not held', 'PDP talk status: the talk did not take place', 'talenttrack' );
         }
         return __( 'Later', 'talenttrack' );
     }

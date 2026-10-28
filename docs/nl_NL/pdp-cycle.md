@@ -90,6 +90,17 @@ Elk record linkt door naar zijn eigen pagina, dus een evaluatie die je helemaal 
 
 De gesprekken verlopen op volgorde: alleen het **actieve** gesprek — het eerste dat nog niet is afgetekend — is volledig bewerkbaar. Latere gesprekken in de cyclus zijn alleen-lezen, behalve hun **geplande datum**, zodat een coach het hele seizoen vooruit kan plannen zonder een gesprek buiten de beurt in te vullen. Een later gesprek komt vrij voor volledige bewerking zodra het voorgaande gesprek is afgetekend.
 
+#### Een gesprek dat niet is doorgegaan
+
+Soms gaat een gesprek niet door: de speler was ziek, een week viel uit, de coach wisselde. Open bij het actieve gesprek, onder **Ondertekenen**, **Dit gesprek is niet doorgegaan…**, vul in waarom en druk op **Markeren als niet doorgegaan**. Na een bevestiging staat het gesprek als **Niet doorgegaan** vastgelegd, met de datum en je reden, en wordt het volgende gesprek in de cyclus het actieve. De rest van de cyclus, het eindgesprek van het seizoen inbegrepen, verloopt daarna gewoon.
+
+- De coach van het dossier en het hoofd opleiding kunnen dit doen: dezelfde mensen die een gesprek aftekenen.
+- Alleen het actieve gesprek kan worden gemarkeerd, dus gesprekken worden nog steeds op volgorde afgehandeld. Een gesprek dat is gevoerd of afgetekend kan niet worden gemarkeerd.
+- Een reden is verplicht.
+- Het gesprek blijft in het dossier staan. De gesprekkenlijst toont **Niet doorgegaan** met de reden, en de speler en de ouders zien hetzelfde op *Mijn POP*. Het staat nooit op *te laat*, en de speler wordt er niet om een reflectie gevraagd.
+- Per ongeluk gemarkeerd? **Niet doorgegaan ongedaan maken** bij dat gesprek haalt de markering weg, zolang er sindsdien geen later gesprek is gevoerd, afgetekend of gemarkeerd.
+- Voor het eindoordeel telt een niet doorgegaan gesprek als afgerond, net als een afgetekend gesprek.
+
 De speler kan op elk moment vóór ondertekening zijn zelfreflectie invullen. Zodra de coach ondertekent, wordt het veld vergrendeld.
 
 ### Het gespreksformulier slaat zichzelf op
@@ -112,7 +123,7 @@ Als het gesprek persoonlijk plaatsvindt, kan de coach die bevestigingen ook op h
 
 *Mijn POP* is de **voorbereidings- en zelfreflectieruimte** van de speler, opgebouwd rond het seizoen als een tijdlijn.
 
-- **Seizoenstijdlijn bovenaan.** De ontwikkelgesprekken van het seizoen staan als markers op een horizontale rail, elk in een van vier toestanden: **afgerond** (een groene ✓), **te laat** (rood - de geplande datum is verstreken en het gesprek is niet gevoerd), **gepland** (het gouden eerstvolgende gesprek) en **later** (gedempt). Een gesprek staat op *te laat* vanaf de dag ná de geplande datum, dus een gesprek dat later vandaag staat leest nog steeds *gepland*; het label verdwijnt zodra het gesprek is gevoerd of afgetekend. Het is de enige marker op de rail waar iemand iets mee moet - de coach verzet het of legt vast dat het is gevoerd. Een voortgangsvulling loopt langs de rail tot aan het laatst afgeronde gesprek. Op een marker tikken **vouwt het gespreksdetail ter plekke uit** - notities, afgesproken acties, de besproken doelen, een eventueel opgeslagen reflectie en de bevestigingsknop - zodat lang scrollen niet nodig is. De markers zijn bedienbaar met het toetsenbord (Tab om te focussen, Enter/Spatie om te openen, Escape om te sluiten).
+- **Seizoenstijdlijn bovenaan.** De ontwikkelgesprekken van het seizoen staan als markers op een horizontale rail, elk in een van vijf toestanden: **afgerond** (een groene ✓), **niet doorgegaan** (het gesprek heeft niet plaatsgevonden; openen toont de reden van de coach), **te laat** (rood - de geplande datum is verstreken en het gesprek is niet gevoerd), **gepland** (het gouden eerstvolgende gesprek) en **later** (gedempt). Een gesprek staat op *te laat* vanaf de dag ná de geplande datum, dus een gesprek dat later vandaag staat leest nog steeds *gepland*; het label verdwijnt zodra het gesprek is gevoerd of afgetekend. Het is de enige marker op de rail waar iemand iets mee moet - de coach verzet het of legt vast dat het is gevoerd. Een voortgangsvulling loopt langs de rail tot aan het laatst afgeronde gesprek. Op een marker tikken **vouwt het gespreksdetail ter plekke uit** - notities, afgesproken acties, de besproken doelen, een eventueel opgeslagen reflectie en de bevestigingsknop - zodat lang scrollen niet nodig is. De markers zijn bedienbaar met het toetsenbord (Tab om te focussen, Enter/Spatie om te openen, Escape om te sluiten).
 - **Actieve doelen onder de tijdlijn.** De huidige focusdoelen van de speler (niet het volledige archief), elk met het doelspecifieke statuslabel (bijv. *In ontwikkeling*) en de streefdatum.
 - **Eén zelfreflectie-invoer.** Alleen het **ene eerstvolgende geplande** gesprek kan een reflectie krijgen - eerdere en latere gesprekken tonen nooit een invoerveld. Het veld verschijnt zodra het reflectievenster van 2 weken vóór het gesprek opent; daarvóór legt een melding uit wanneer het verschijnt. Een eerder opgeslagen reflectie staat **rechts** van de invoer op bredere schermen en **eronder gestapeld** op mobiel. De zelfreflectie is bedoeld als hulp, nooit verplicht - er wordt niets geblokkeerd als de speler het overslaat.
 - **Eindeseizoensoordeel** sluit de pagina af zodra het is vastgelegd.
@@ -125,7 +136,7 @@ Wanneer het laatste gesprek van de cyclus is ondertekend, legt het hoofd academi
 
 Boven de beslissing staat **Bewijs van dit seizoen** — ingeklapt, één tik weg — met het hele seizoen in hetzelfde paneel dat de trainer bij een gesprek leest. De cijfers komen uit één verzameling, dus waar het hoofd opleiding het eindoordeel op baseert, is zichtbaar hetzelfde als wat de trainer zag.
 
-De knop *Eindoordeel vastleggen* staat bij de gesprekkenlijst, onder de cyclus. De knop blijft **uitgeschakeld totdat elk gesprek in de cyclus is afgetekend**, met de voortgang op de knop zelf — bijv. *Eindoordeel vastleggen (3/5 gesprekken afgerond)* — zodat duidelijk is waarom hij nog niet beschikbaar is in plaats van dat hij ontbreekt.
+De knop *Eindoordeel vastleggen* staat bij de gesprekkenlijst, onder de cyclus. De knop blijft **uitgeschakeld totdat elk gesprek in de cyclus is afgetekend of als niet doorgegaan is gemarkeerd**, met de voortgang op de knop zelf — bijv. *Eindoordeel vastleggen (3/5 gesprekken afgerond)* — zodat duidelijk is waarom hij nog niet beschikbaar is in plaats van dat hij ontbreekt.
 
 ## Carryover
 

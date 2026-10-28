@@ -944,8 +944,13 @@ class FrontendPdpManageView extends FrontendViewBase {
         // operator sees progress at a glance instead of counting rows.
         $cycle_size = (int) ( $file->cycle_size ?? 0 );
         $signed_count = 0;
+        // #4298 — closed = signed off, or marked as not having taken place.
+        // A not-held talk will never be signed, so it must not keep the
+        // verdict shut.
+        $closed_count = 0;
         foreach ( $convs as $c ) {
             if ( ! empty( $c->coach_signoff_at ) ) $signed_count++;
+            if ( ! empty( $c->coach_signoff_at ) || ! empty( $c->not_held_at ) ) $closed_count++;
         }
 
         // #1686 — summary panel restyled to the 2026 chrome card.
@@ -1013,6 +1018,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'scheduled'     => 'tt-status-scheduled',
                 'held'          => 'tt-status-in-progress',
                 'signed_off'    => 'tt-status-completed',
+                'not_held'      => 'tt-status-not-held',
                 'future'        => 'tt-status-future',
             ];
             $badge_class = $badge_class_map[ $derived ] ?? 'tt-status-future';
@@ -1021,6 +1027,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'scheduled'     => __( 'Scheduled', 'talenttrack' ),
                 'held'          => __( 'Held', 'talenttrack' ),
                 'signed_off'    => __( 'Signed off', 'talenttrack' ),
+                'not_held'      => _x( 'Not held', 'PDP talk status: the talk did not take place', 'talenttrack' ),
                 /* translators: state label for a PDP meeting that's further out in the cycle and not yet actionable */
                 'future'        => __( '—', 'talenttrack' ),
             ];
@@ -1049,7 +1056,9 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<td data-label="' . esc_attr__( 'Scheduled', 'talenttrack' ) . '">'
                 . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td data-label="' . esc_attr__( 'Status', 'talenttrack' ) . '">'
-                . '<span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
+                . '<span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span>'
+                . ( $derived === 'not_held' ? self::notHeldDetail( $c ) : '' )
+                . '</td>';
             // #1852 — self-review visibility. Done once the player has a
             // reflection; "Not yet" while the talk is still upcoming; a
             // muted dash once the talk is conducted with none (no nagging
@@ -1058,7 +1067,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             if ( $has_reflection ) {
                 $sr_class = 'tt-pdp-selfreview--done';
                 $sr_label = __( 'Done', 'talenttrack' );
-            } elseif ( empty( $c->conducted_at ) ) {
+            } elseif ( empty( $c->conducted_at ) && empty( $c->not_held_at ) ) {
                 $sr_class = 'tt-pdp-selfreview--pending';
                 $sr_label = __( 'Not yet', 'talenttrack' );
             } else {
@@ -1116,7 +1125,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         // is signed off; until then it renders disabled with the reason
         // (X/N closed) so the operator sees why it isn't available.
         if ( $can_verdict && $verdict === null ) {
-            $all_closed = ( $cycle_size > 0 && $signed_count >= $cycle_size );
+            $all_closed = ( $cycle_size > 0 && $closed_count >= $cycle_size );
             echo '<div class="tt-pdp-verdict-cta">';
             if ( $all_closed ) {
                 $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
@@ -1127,11 +1136,11 @@ class FrontendPdpManageView extends FrontendViewBase {
                     . esc_html( sprintf(
                         /* translators: 1: signed-off conversation count, 2: cycle size */
                         __( 'Record verdict (%1$d/%2$d conversations closed)', 'talenttrack' ),
-                        (int) $signed_count,
+                        (int) $closed_count,
                         (int) $cycle_size
                     ) ) . '</button>';
                 echo '<p class="tt-pdp-verdict-cta__hint">'
-                    . esc_html__( 'The verdict opens once every conversation in the cycle is signed off.', 'talenttrack' )
+                    . esc_html__( 'The verdict opens once every conversation in the cycle is signed off or marked as not held.', 'talenttrack' )
                     . '</p>';
             }
             echo '</div>';
@@ -1306,7 +1315,26 @@ class FrontendPdpManageView extends FrontendViewBase {
         // #2041 — content-locked (a later conversation in the cycle): only
         // the planned date is editable until the active conversation ahead
         // of it is signed off. Distinct from the signature lock above.
-        if ( $content_locked ) {
+        // #4298 — a talk marked not held says so, with its reason, instead
+        // of the planned-date notice: the cycle has moved past it, not
+        // stopped before it.
+        $conv_row    = (array) $conv;
+        $is_not_held = ! empty( $conv_row['not_held_at'] );
+        $can_edit    = PdpAccess::canEditFile( $user_id, (int) ( ( (array) $file )['player_id'] ?? 0 ) );
+        if ( $is_not_held ) {
+            echo '<div class="tt-notice tt-pdp-conv-not-held" role="status">';
+            echo '<strong>' . esc_html_x( 'Not held', 'PDP talk status: the talk did not take place', 'talenttrack' ) . ':</strong> ';
+            echo esc_html( (string) ( $conv_row['not_held_reason'] ?? '' ) );
+            echo ' <span class="tt-pdp-not-held-detail">' . esc_html( sprintf(
+                /* translators: %s: the date the talk was marked as not held */
+                __( 'Marked on %s.', 'talenttrack' ),
+                \TT\Shared\Dates\TTDate::date( substr( (string) $conv_row['not_held_at'], 0, 10 ) )
+            ) ) . '</span>';
+            echo '</div>';
+            if ( $can_edit && $convs_repo->canClearNotHeld( $conv ) ) {
+                self::renderNotHeldUndo( $rest_path, $back_to_file_url );
+            }
+        } elseif ( $content_locked ) {
             echo '<div class="tt-notice tt-pdp-conv-future" role="status">';
             echo '<strong>' . esc_html__( 'Planned date only.', 'talenttrack' ) . '</strong> ';
             echo esc_html__( 'Until the previous conversation is signed off, only the planned date can be changed here.', 'talenttrack' );
@@ -1445,6 +1473,12 @@ class FrontendPdpManageView extends FrontendViewBase {
             </form>
             <?php
         endif;
+        // #4298 — the way out when this talk will never take place. Its own
+        // form and its own confirm, outside the autosaving conversation form
+        // (CLAUDE.md §6): marking a talk not held moves the cycle on.
+        if ( $can_edit && ! $is_signed && ! $is_locked && ! $content_locked && empty( $conv_row['conducted_at'] ) ) {
+            self::renderNotHeldForm( $rest_path, $back_to_file_url );
+        }
         // #2042 — proxy acknowledgement. A coach who ran the talk in person
         // can record the player's / parent's acknowledgement on their behalf,
         // each behind a confirm dialog. Plain proxy: it writes the same
@@ -2152,6 +2186,57 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
+     * #4298 — "This talk did not take place", behind a disclosure so it is
+     * a deliberate second step, with a required reason and a confirm.
+     */
+    private static function renderNotHeldForm( string $rest_path, string $back_to_file_url ): void {
+        $field = 'tt-pdp-not-held-reason';
+        echo '<details class="tt-pdp-not-held">';
+        echo '<summary class="tt-btn tt-btn-secondary">' . esc_html__( 'This talk did not take place…', 'talenttrack' ) . '</summary>';
+        echo '<form class="tt-ajax-form tt-pdp-not-held__form"'
+            . ' data-rest-path="' . esc_attr( $rest_path ) . '"'
+            . ' data-rest-method="PATCH"'
+            . ' data-confirm-msg="' . esc_attr__( 'Mark this talk as not held? The next talk in the cycle becomes the current one.', 'talenttrack' ) . '"'
+            . ' data-redirect-after-save-url="' . esc_attr( $back_to_file_url ) . '">';
+        echo '<input type="hidden" name="not_held" value="1" />';
+        echo '<label class="tt-field-label" for="' . esc_attr( $field ) . '">' . esc_html__( 'Why did the talk not take place?', 'talenttrack' ) . '</label>';
+        echo '<input type="text" class="tt-input" id="' . esc_attr( $field ) . '" name="not_held_reason" required maxlength="255" autocomplete="off" />';
+        echo '<p class="tt-help-text">' . esc_html__( 'The talk stays on the file as not held, with this reason. The player and their parents see it too.', 'talenttrack' ) . '</p>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Mark as not held', 'talenttrack' ) . '</button>';
+        echo '<div class="tt-form-msg"></div>';
+        echo '</form>';
+        echo '</details>';
+    }
+
+    /**
+     * #4298 — take the not-held mark off, while no later talk has moved on.
+     */
+    private static function renderNotHeldUndo( string $rest_path, string $back_to_file_url ): void {
+        echo '<form class="tt-ajax-form tt-pdp-not-held__undo"'
+            . ' data-rest-path="' . esc_attr( $rest_path ) . '"'
+            . ' data-rest-method="PATCH"'
+            . ' data-confirm-msg="' . esc_attr__( 'Take the not-held mark off? This talk becomes the current one again.', 'talenttrack' ) . '"'
+            . ' data-redirect-after-save-url="' . esc_attr( $back_to_file_url ) . '">';
+        echo '<input type="hidden" name="not_held" value="0" />';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Undo not held', 'talenttrack' ) . '</button>';
+        echo '<div class="tt-form-msg"></div>';
+        echo '</form>';
+    }
+
+    /**
+     * #4298 — the reason and the date a talk was marked not held, for the
+     * conversations list beside its "Not held" badge.
+     */
+    private static function notHeldDetail( object $conv ): string {
+        $row    = (array) $conv;
+        $reason = trim( (string) ( $row['not_held_reason'] ?? '' ) );
+        $date   = \TT\Shared\Dates\TTDate::date( substr( (string) ( $row['not_held_at'] ?? '' ), 0, 10 ) );
+        return ' <span class="tt-pdp-not-held-detail">'
+            . esc_html( $reason !== '' ? $reason . ' · ' . $date : $date )
+            . '</span>';
+    }
+
+    /**
      * v3.110.191 — derive a per-conversation status WITH CONTEXT (the
      * file's full conversation list + today's date). Previously
      * (#0077 M9) status was a row-local function returning 'scheduled'
@@ -2181,6 +2266,8 @@ class FrontendPdpManageView extends FrontendViewBase {
     private static function derivedConvStatus( object $conv, array $all_convs, string $today ): string {
         if ( ! empty( $conv->coach_signoff_at ) ) return 'signed_off';
         if ( ! empty( $conv->conducted_at ) )     return 'held';
+        // #4298 — marked as not having taken place.
+        if ( ! empty( $conv->not_held_at ) )      return 'not_held';
         if ( ! empty( $conv->scheduled_at ) )     return 'scheduled';
 
         $current_seq = (int) $conv->sequence;

@@ -43,8 +43,11 @@ class PdpSelfReviewTasks {
         $tasks  = new TasksRepository();
         $active = [ TaskStatus::OPEN, TaskStatus::IN_PROGRESS, TaskStatus::OVERDUE ];
 
-        // Talk conducted → auto-resolve, no penalty, even if empty.
-        if ( array_key_exists( 'conducted_at', $patch ) && ! empty( $patch['conducted_at'] ) ) {
+        // Talk conducted, or marked not held (#4298) → auto-resolve, no
+        // penalty, even if empty.
+        $resolved = ( array_key_exists( 'conducted_at', $patch ) && ! empty( $patch['conducted_at'] ) )
+            || ( array_key_exists( 'not_held_at', $patch ) && ! empty( $patch['not_held_at'] ) );
+        if ( $resolved ) {
             $task = $tasks->findByNaturalKey( PdpSelfReviewTemplate::KEY, $uid, $player_id, $due_at, $active );
             if ( $task !== null ) {
                 $tasks->skip( (int) $task['id'] );
