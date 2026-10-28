@@ -981,13 +981,20 @@ caller may not read are the same `403`, so a uuid cannot be probed.
   the player and their parents (below); omitted, it is a staff snapshot. `201`
   with the snapshot. Staff only: families read shared reports and never make
   one, so a parent or player is `403` here, as on `GET /players/{id}/report`.
+  Taking or sharing one needs `PlayerReportAccess::canCreate()`: the report
+  read **plus** `reports` create_delete at global scope or on the player's team.
+  A seat holding the read alone (read-only observer, scout) is `403`. A staff
+  snapshot is audit-logged as `player_report.snapshot_taken`, a family share as
+  `player_report.shared_with_family`.
 - `GET /player-report-snapshots/{uuid}` — `uuid`, `player_id`, `title`,
   `audience`, `created_by`, `created_at`, `composition` (with the dates, never a
   moving period), `report` (the frozen payload) and `notes` keyed by section:
   `{ body, author, updated_at }`.
 - `PUT /player-report-snapshots/{uuid}/notes/{section}` — body `body`; an empty
   body removes the note. A section that is not a block is `400 unknown_section`.
-  A family snapshot takes no notes (`403`).
+  A family snapshot takes no notes (`403`). Writing a note needs the same
+  `canCreate()` as taking a snapshot, so a read-only seat is `403`; each write is
+  audit-logged as `player_report.snapshot_noted`.
 
 `GET /exports/player_report_pdf?format=pdf&snapshot={uuid}` prints the frozen
 report with its notes.
