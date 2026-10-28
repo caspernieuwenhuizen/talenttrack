@@ -62,6 +62,48 @@ final class TrialCaseAccessPolicy {
             || self::isInputAuthor( $user_id, $case_id );
     }
 
+    /**
+     * Which cases may this user see in a list?
+     *
+     * Null for a trial manager: every case. Otherwise the ids of the cases
+     * they can open, assigned with a reason to be there, as `canOpenCase()`
+     * decides one case at a time, plus the cases on the players a scout is
+     * linked to. A coarse capability such as `tt_view_trial_synthesis` is
+     * not a reason on its own: it is held by every coach and says what they
+     * may read on a case they sit on, not which cases exist.
+     *
+     * Feed the result to `TrialCasesRepository::search()` as `case_ids`, so
+     * the list and the single-case read cannot drift apart.
+     *
+     * @return list<int>|null
+     */
+    public static function visibleCaseFilter( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' ) ) {
+            return null;
+        }
+
+        $ids = [];
+
+        $entitled = user_can( $user_id, 'tt_view_trial_synthesis' ) || self::mayWriteInputs( $user_id );
+        if ( $entitled ) {
+            foreach ( ( new TrialCaseStaffRepository() )->caseIdsForUser( $user_id ) as $case_id ) {
+                $ids[ $case_id ] = $case_id;
+            }
+        }
+
+        $linked = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id );
+        if ( $linked !== [] ) {
+            $cases = ( new TrialCasesRepository() )->search( [ 'player_ids' => $linked, 'include_archived' => true ] );
+            foreach ( $cases as $case ) {
+                $case_id = (int) ( ( (array) $case )['id'] ?? 0 );
+                if ( $case_id > 0 ) $ids[ $case_id ] = $case_id;
+            }
+        }
+
+        return array_values( $ids );
+    }
+
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {
         if ( self::isManager( $user_id ) ) return true;
         if ( ! user_can( $user_id, 'tt_view_trial_synthesis' ) ) return false;
@@ -82,19 +124,23 @@ final class TrialCaseAccessPolicy {
         // in the matrix and the cap in no role, so they were refused here
         // before their panel assignment was ever looked at — the whole
         // reason a scout on a panel could not submit their input.
-        $entitled = \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_submit_trial_input' )
-            || \TT\Modules\Authorization\MatrixGate::canAnyScope(
-                $user_id,
-                'trial_inputs',
-                \TT\Modules\Authorization\MatrixGate::CHANGE
-            );
-        if ( ! $entitled ) return false;
+        if ( ! self::mayWriteInputs( $user_id ) ) return false;
 
         if ( self::isManager( $user_id ) ) return true;
 
         // Assignment still decides WHICH case. Entitlement says they may
         // write an input somewhere; this says it is this one.
         return ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id );
+    }
+
+    /** Does this user hold the right to write trial inputs at all? */
+    private static function mayWriteInputs( int $user_id ): bool {
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_submit_trial_input' )
+            || \TT\Modules\Authorization\MatrixGate::canAnyScope(
+                $user_id,
+                'trial_inputs',
+                \TT\Modules\Authorization\MatrixGate::CHANGE
+            );
     }
 
     public static function canSubmitInput( int $user_id, int $case_id ): bool {

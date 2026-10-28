@@ -40,6 +40,21 @@ class TrialCaseStaffRepository {
         return ! empty( $row );
     }
 
+    /**
+     * The cases this user currently sits on.
+     *
+     * @return list<int>
+     */
+    public function caseIdsForUser( int $user_id ): array {
+        if ( $user_id <= 0 ) return [];
+        $ids = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT DISTINCT case_id FROM {$this->table}
+             WHERE user_id = %d AND club_id = %d AND unassigned_at IS NULL",
+            $user_id, CurrentClub::id()
+        ) );
+        return array_values( array_map( 'intval', (array) $ids ) );
+    }
+
     public function assign( int $case_id, int $user_id, ?string $role_label = null ): int {
         if ( $case_id <= 0 || $user_id <= 0 ) return 0;
         $existing = $this->wpdb->get_row( $this->wpdb->prepare(
