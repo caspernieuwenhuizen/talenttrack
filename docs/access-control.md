@@ -478,6 +478,11 @@ The rules the right enforces:
   nothing is stored. The text stays in the box.
 - **Hiding and revealing are the same decision.** Editing a note *to*
   staff-only and editing it *away from* staff-only both need the right.
+- **A team grant counts on that team's conversations.** The right held at
+  team scope applies to a conversation about a player on that team, or to a
+  team record such as a blueprint for that team. A coach who reaches
+  another team's conversation some other way is not staff on it. A
+  conversation with no team answers only to the global grant.
 - **The control is not offered to somebody who cannot use it** — the
   checkbox is not rendered without the right.
 

@@ -427,6 +427,11 @@ De regels die het recht afdwingt:
 - **Verbergen en onthullen zijn dezelfde beslissing.** Een notitie *naar*
   staf-only bewerken en *weg van* staf-only bewerken vragen allebei het
   recht.
+- **Een teamtoekenning telt op de gesprekken van dat team.** Het recht op
+  teamniveau geldt voor een gesprek over een speler van dat team, of voor
+  een teamrecord zoals een blauwdruk van dat team. Een coach die langs een
+  andere weg bij het gesprek van een ander team komt, is daar geen staf. Een
+  gesprek zonder team valt alleen onder de globale toekenning.
 - **De knop wordt niet aangeboden aan wie hem niet kan gebruiken** — het
   vinkje wordt zonder het recht niet getoond.
 
