@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
@@ -192,6 +193,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 $available_ids[] = $pid;
             }
         }
+
+        // #4245 — the same derived set `GET match-prep/{id}` returns as
+        // `unavailable`, flagged beside a name even when the prep says Present.
+        $unavailable_set = MatchPrepState::unavailableByPlayer( $activity_id, array_map( 'intval', array_keys( $players_by_id ) ) );
 
         $lineup_by_half = MatchPrepState::lineupByHalf( $lineup_rows );
 
@@ -462,7 +467,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                                 <tr data-pid="<?php echo (int) $pid; ?>"
                                     class="tt-mp-roster-row <?php echo ( $on1 || $on2 ) ? 'tt-mp-assigned' : 'tt-mp-unassigned'; ?>"
                                     draggable="true">
-                                    <td class="tt-mp-col-name" data-tt-mp-name><?php echo esc_html( $name ); ?></td>
+                                    <td class="tt-mp-col-name" data-tt-mp-name><?php echo esc_html( $name ); ?><?php if ( isset( $unavailable_set[ $pid ] ) ) : ?> <span class="tt-mp-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span><?php endif; ?></td>
                                     <td class="tt-mp-col-min <?php echo $on1 ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="1"><?php echo (int) $min1; ?></td>
                                     <td class="tt-mp-col-min <?php echo $on2 ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="2"><?php echo (int) $min2; ?></td>
                                     <td class="tt-mp-col-tot <?php echo ( $on1 || $on2 ) ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="tot"><?php echo (int) ( $min1 + $min2 ); ?></td>
@@ -801,6 +806,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
             // with the reason the drawer pre-marks them Suspended with. The
             // drawer applies it only to a player with no saved choice.
             'suspended'      => (object) self::suspendedReasons( (int) $activity_id, $roster_list ),
+            // #4245 — who cannot play in this match; a flag beside the name,
+            // never written into `availability`.
+            'unavailable'    => (object) $unavailable_set,
             'lineup'         => [
                 '1' => (object) $lineup_by_half[1],
                 '2' => (object) $lineup_by_half[2],
@@ -871,7 +879,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'absent'          => _x( 'Absent', 'availability chip', 'talenttrack' ),
                 'absent_injured'  => __( 'Injured', 'talenttrack' ),
                 'suspended'       => __( 'Suspended', 'talenttrack' ),
-                'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
+                'unavailable'     => PlayerAvailability::label(),
+                'reason'        => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),
                 /* translators: 1: full match length in minutes from the activity, 2: half length in minutes from the match prep. */

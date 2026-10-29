@@ -145,6 +145,17 @@ voorbereiding begint, en in de drawer voor een speler die je nog niet hebt
 gemarkeerd. Je kunt de markering nog wijzigen; jouw keuze wordt
 opgeslagen.
 
+Een speler die deze wedstrijd niet kan spelen — door een blessure die de
+wedstrijddatum dekt, of door een schorsing — krijgt het label **Niet
+beschikbaar** naast zijn naam: in de beschikbaarheidsstap, in de drawer,
+in de selectielijst en op het veld. Het is hetzelfde label dat de geplande
+aanwezigheid toont, en het zegt niets over de reden. Het label is een
+waarschuwing, geen keuze die voor je wordt gemaakt: de status van de
+speler blijft wat jij instelt, en je kunt hem nog steeds opstellen. Het
+wordt bepaald als het scherm opent en nooit in de voorbereiding
+opgeslagen, dus het staat niet op het afgedrukte blad, in de PDF-export
+of in een gedeelde link.
+
 Heeft de wedstrijdactiviteit een **geplande selectie** (de verwachte
 spelers die je bij het aanmaken koos), dan begint de
 beschikbaarheidsstap vanuit dat plan in plaats van iedereen op

@@ -135,6 +135,15 @@ of 3" — in the availability step when you start the prep, and in the
 drawer for a player you have not marked yet. You can still change the
 mark; your choice is what is stored.
 
+A player who cannot play in this match — an injury that covers the match
+date, or a suspension — carries an **Unavailable** label beside their
+name: in the availability step, in the drawer, in the selection list and
+on the pitch. It is the same label planned attendance shows, and it says
+nothing about why. The label is a warning, not a choice made for you:
+the player's status stays whatever you set, and you can still pick them.
+It is worked out when the screen opens, never saved into the prep, so it
+does not appear on the printed sheet, the PDF export or a shared link.
+
 When the match activity has a **planned roster** (the expected players
 you picked when creating it), the availability step starts from that
 plan instead of marking everyone Present: planned players default to

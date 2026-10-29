@@ -344,6 +344,36 @@
     color: #fff;
 }
 
+/* #4245 — the neutral "Unavailable" flag beside a name (selection, pitch,
+   drawer). Derived per request, never stored; it is a screen warning for
+   the coach, so it stays off paper and out of the image-capture PDF. */
+.tt-match-prep .tt-mp-unavailable {
+    display: inline-block;
+    margin-left: 0.25rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 999px;
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger-ink, #a32b22);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+.tt-mp-slot .tt-mp-unavailable { margin-left: 0; }
+.tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name {
+    border-color: var(--tt-danger-ink, #a32b22);
+}
+.tt-image-pdf-capture .tt-mp-unavailable {
+    display: none !important;
+}
+.tt-image-pdf-capture .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name {
+    border-color: rgba(0,0,0,0.1) !important;
+}
+@media print {
+    .tt-match-prep .tt-mp-unavailable { display: none !important; }
+}
+
 /* -------------------------------------------------------------------
  * PDF capture mode (#2112) — tt-image-pdf.js adds .tt-image-pdf-capture
  * to the cloned node during html2canvas.

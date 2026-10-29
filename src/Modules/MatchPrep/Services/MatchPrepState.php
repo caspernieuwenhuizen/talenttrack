@@ -70,8 +70,24 @@ final class MatchPrepState {
             if ( $pid > 0 ) $roster_ids[] = $pid;
         }
         $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
+        // #4245 — who cannot play in this match (injured on its date, or
+        // suspended), as the one neutral state planned attendance shows.
+        // Derived and never stored: the coach's `availability` stays theirs.
+        $state['unavailable'] = (object) self::unavailableByPlayer( $activity_id, $roster_ids );
 
         return $state;
+    }
+
+    /**
+     * #4245 — the players in `$player_ids` who cannot play in this match,
+     * from `PlayerAvailability`. The state only: no cause, no injury detail
+     * (#4005 decision 3), so it is safe for every role that opens the prep.
+     *
+     * @param array<int, int> $player_ids
+     * @return array<int, true>
+     */
+    public static function unavailableByPlayer( int $activity_id, array $player_ids ): array {
+        return \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity( $player_ids, $activity_id );
     }
 
     /**
