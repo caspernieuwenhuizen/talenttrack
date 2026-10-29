@@ -22,6 +22,8 @@ final class MatchPrepState {
 
     public const GOAL_FIELDS = [ 'goals_general', 'goals_attack', 'goals_defend', 'goals_attack_setpiece', 'goals_defend_setpiece' ];
 
+    public const FALLBACK_STARTER_TARGET = 11;
+
     /**
      * @return array<string,mixed>|null null when no prep exists for the activity.
      */
@@ -41,6 +43,7 @@ final class MatchPrepState {
             'activity_id'           => $activity_id,
             'formation_template_id' => $template_id > 0 ? $template_id : null,
             'formation_shape'       => FormationLayoutResolver::shapeFor( $template_id, $team_id ),
+            'starter_target'        => self::starterTarget( $template_id, $team_id ),
             'half_length_minutes'   => $half_length,
         ];
         // #3682 — what the activity says the match lasts, and whether the
@@ -69,6 +72,26 @@ final class MatchPrepState {
         $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
 
         return $state;
+    }
+
+    /**
+     * #4280 — how many starters the line-up holds: the slot count of the
+     * resolved layout, so a 3-2-1 six-a-side prep needs six, not eleven.
+     */
+    public static function starterTarget( int $formation_template_id, int $team_id ): int {
+        $slots = count( FormationLayoutResolver::layoutFor( $formation_template_id, $team_id ) );
+        return $slots > 0 ? $slots : self::FALLBACK_STARTER_TARGET;
+    }
+
+    /**
+     * The starter target for an activity's prep: the prep's bound template
+     * when one exists, else the team's football-form default.
+     */
+    public static function starterTargetForActivity( int $activity_id ): int {
+        $prep        = ( new MatchPrepRepository() )->findByActivity( $activity_id );
+        $template_id = $prep ? (int) ( ( (array) $prep )['formation_template_id'] ?? 0 ) : 0;
+        $team_id     = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id );
+        return self::starterTarget( $template_id, $team_id );
     }
 
     /**

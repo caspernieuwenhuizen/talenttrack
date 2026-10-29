@@ -158,6 +158,12 @@ no keeper, because 6-a-side is played without one. The prep screen, the
 printed prep, the team sheet and the live match sheet always draw the same
 shape for the same match.
 
+The number of positions is also the number of starters the prep counts
+against. The **1st-half starters** tile reads "4/6" on a 3-2-1 and "9/11"
+on a 4-3-3, and turns green once every position is filled. The
+availability step asks for at least that many players on **Present**, so
+a 6-a-side team can save its prep with six players.
+
 The descriptive name reads in your language (the shape numbers stay the
 same in every language) — e.g. **Neutraal 4-3-3**, **Balbezit 4-3-3**.
 An **Aanvallend 3-4-3 (ruit)** option (a 3-4-3 with a midfield diamond:
@@ -312,7 +318,7 @@ appears; fall back to your browser's own print dialog (**Ctrl/Cmd+P →
 Save as PDF**), which prints the page directly.
 
 The **Print team sheet** button next to it opens the pitch-side team
-sheet (Starting XI / Bench / Squad with signature lines) on a clean
+sheet (starting line-up / bench / squad with signature lines) on a clean
 print page in a new tab, with its own **Export as PDF (A4 landscape)** /
 **Print** choice. The central `?tt_view=exports` page still carries a
 server-side match-prep / team-sheet PDF exporter as a fallback for
