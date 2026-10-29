@@ -210,6 +210,11 @@ class FrontendMatchPrepView extends FrontendViewBase {
             (int) ( $prep->formation_template_id ?? 0 ),
             (int) ( $activity->team_id ?? 0 )
         );
+        // #4280 — the starter target `GET match-prep/{id}` reports too.
+        $starter_target = MatchPrepState::starterTarget(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            (int) ( $activity->team_id ?? 0 )
+        );
 
         $title = sprintf(
             /* translators: 1: activity title, 2: session date */
@@ -279,10 +284,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     'flag'  => $summary['unavailable'] > 0 ? 'red' : '',
                 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
-                    /* translators: 1st-half starters assigned out of 11. */
+                    /* translators: 1st-half starters assigned out of the line-up's positions. */
                     'label' => __( '1st-half starters', 'talenttrack' ),
-                    'value' => sprintf( '%d/11', $summary['starters'] ),
-                    'flag'  => $summary['starters'] >= 11 ? 'green' : '',
+                    'value' => sprintf( '%d/%d', $summary['starters'], $starter_target ),
+                    'flag'  => $summary['starters'] >= $starter_target ? 'green' : '',
                 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
                     'label' => __( 'Formation', 'talenttrack' ),

@@ -160,11 +160,15 @@ final class AvailabilityStep implements WizardStepInterface {
             if ( strcasecmp( $status, 'Present' ) === 0 ) $available_count++;
         }
 
-        if ( $available_count < 11 ) {
+        // #4280 — the minimum follows the formation's slot count, so a
+        // six-a-side team can save a prep with six players.
+        $starter_target = MatchPrepState::starterTargetForActivity( $activity_id );
+        if ( $available_count < $starter_target ) {
             return new \WP_Error( 'too_few_available', sprintf(
-                /* translators: %d = number of Present players */
-                __( 'Only %d players are marked Present. You need at least 11 to field a starting XI.', 'talenttrack' ),
-                $available_count
+                /* translators: 1: number of Present players, 2: number of positions in the line-up */
+                __( 'Only %1$d players are marked Present. You need at least %2$d to fill the starting line-up.', 'talenttrack' ),
+                $available_count,
+                $starter_target
             ) );
         }
 

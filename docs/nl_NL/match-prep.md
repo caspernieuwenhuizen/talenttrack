@@ -171,6 +171,13 @@ voorbereidingsscherm, de afgedrukte voorbereiding, het wedstrijdformulier en
 het live wedstrijdscherm tekenen voor dezelfde wedstrijd altijd dezelfde
 vorm.
 
+Het aantal posities is ook het aantal basisspelers waartegen de
+voorbereiding telt. De tegel **Basisspelers 1e helft** toont "4/6" bij een
+3-2-1 en "9/11" bij een 4-3-3, en wordt groen zodra elke positie bezet is.
+De beschikbaarheidsstap vraagt om minstens zoveel spelers op **Aanwezig**,
+zodat een team dat 6 tegen 6 speelt zijn voorbereiding met zes spelers kan
+opslaan.
+
 De beschrijvende naam staat in je eigen taal (de cijfers van de vorm
 blijven in elke taal gelijk) — bijv. **Neutraal 4-3-3**, **Balbezit
 4-3-3**. Naast de standaard 3-4-3 is er nu ook een **Aanvallend 3-4-3
@@ -336,7 +343,7 @@ van de browser (**Ctrl/Cmd+P → Opslaan als PDF**), die de pagina
 rechtstreeks afdrukt.
 
 De knop **Wedstrijdformulier afdrukken** ernaast opent het teamblad
-voor langs de lijn (basiself / bank / selectie met handtekeningregels)
+voor langs de lijn (basisopstelling / bank / selectie met handtekeningregels)
 op een schone afdrukpagina in een nieuw tabblad, met een eigen keuze
 **Exporteren als PDF (A4 liggend)** / **Afdrukken**. De centrale
 `?tt_view=exports`-pagina heeft nog steeds een server-side match-prep /

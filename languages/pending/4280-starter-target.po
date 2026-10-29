@@ -1,0 +1,4 @@
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:171
+#, php-format
+msgid "Only %1$d players are marked Present. You need at least %2$d to fill the starting line-up."
+msgstr "Er staan maar %1$d spelers op Aanwezig. Je hebt er minstens %2$d nodig om de basisopstelling te vullen."

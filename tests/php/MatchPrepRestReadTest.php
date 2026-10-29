@@ -168,6 +168,31 @@ final class MatchPrepRestReadTest extends WP_UnitTestCase {
         $this->assertSame( 404, $this->send( 'GET', $this->mine )[1], 'a refused PUT starts no prep' );
     }
 
+    /**
+     * #4280 — the read says how many starters the line-up holds, from the
+     * bound formation's slots: six for a 3-2-1, eleven when nothing is bound
+     * on an eleven-a-side team.
+     */
+    public function test_the_read_reports_the_starter_target_of_the_formation(): void {
+        [ $a ] = $this->players;
+        $this->send( 'PUT', $this->mine, [ 'availability' => [ $a => [ 'status' => 'Present', 'reason' => '' ] ] ] );
+
+        [ $got ] = $this->send( 'GET', $this->mine );
+        $this->assertSame( 11, $got['data']['starter_target'] ?? null );
+
+        global $wpdb;
+        $six = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_formation_templates WHERE formation_shape = %s AND is_seeded = 1 ORDER BY id LIMIT 1",
+            '3-2-1'
+        ) );
+        $this->assertGreaterThan( 0, $six, 'migration 0243 seeds a 3-2-1 template' );
+        [ $put ] = $this->send( 'PUT', $this->mine, [ 'formation_template_id' => $six ] );
+        $this->assertSame( 6, $put['data']['starter_target'] ?? null, 'the PUT answers with it too' );
+
+        [ $got ] = $this->send( 'GET', $this->mine );
+        $this->assertSame( 6, $got['data']['starter_target'] ?? null );
+    }
+
     public function test_a_coach_of_another_team_cannot_read_the_prep(): void {
         $this->assertSame( 403, $this->send( 'GET', $this->theirs )[1] );
     }
