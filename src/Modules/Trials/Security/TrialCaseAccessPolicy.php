@@ -154,7 +154,7 @@ final class TrialCaseAccessPolicy {
              WHERE p.team_id IN ($ph) AND {$roster} AND p.club_id = %d {$scope}",
             ...array_merge( $team_ids, [ \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
         ) );
-        return array_map( 'intval', (array) $ids );
+        return array_values( array_map( 'intval', (array) $ids ) );
     }
 
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {
