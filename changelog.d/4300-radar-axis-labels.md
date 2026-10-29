@@ -1,0 +1,3 @@
+# Player progress radar names its axes in the academy's language (#4300)
+
+The player progress radar labelled its axes with the stored category names, so a Dutch install read Technical, Tactical, Mental and Physical while the evaluation form showed the Dutch names. In comparison and team-averages mode, and in the radar's REST dataset, the axes now use the same names as the evaluation form: the academy's own translation of a category when it has one, otherwise the standard translation of a seeded name. Progress mode already translated seeded names, and now uses the academy's own translations too. An English install is unchanged.
