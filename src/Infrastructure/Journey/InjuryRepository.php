@@ -68,10 +68,7 @@ final class InjuryRepository {
         // The trigger row seeded by migration 0037 wires this to the
         // injury_recovery_due template. A future SaaS scheduler can
         // replace the engine without disturbing this hook.
-        $team_id = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
-            (int) $row['player_id'], CurrentClub::id()
-        ) );
+        $team_id = $this->teamIdOf( (int) $row['player_id'] );
         do_action( 'tt_journey_injury_logged', [
             'player_id' => (int) $row['player_id'],
             'team_id'   => $team_id > 0 ? $team_id : null,
@@ -122,11 +119,8 @@ final class InjuryRepository {
         // listener that follows an injury (the recovery reminder) hears
         // about a changed expected return the same way it heard about
         // the record being created.
-        $player_id = (int) $existing->player_id;
-        $team_id   = (int) $this->wpdb->get_var( $this->wpdb->prepare(
-            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
-            $player_id, CurrentClub::id()
-        ) );
+        $player_id = (int) ( $existing->player_id ?? 0 );
+        $team_id   = $this->teamIdOf( $player_id );
         do_action( 'tt_journey_injury_updated', [
             'player_id' => $player_id,
             'team_id'   => $team_id > 0 ? $team_id : null,
@@ -137,6 +131,14 @@ final class InjuryRepository {
         ] );
 
         return true;
+    }
+
+    /** The player's team, for the workflow hooks' payload. */
+    private function teamIdOf( int $player_id ): int {
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
+        ) );
     }
 
     /**
@@ -260,7 +262,8 @@ final class InjuryRepository {
             (int) $row['player_id'],
             JourneyEventType::INJURY_STARTED,
             (string) $row['started_on'] . ' 00:00:00',
-            $body_part !== '' ? sprintf( 'Injury: %s', $body_part ) : 'Injury started',
+            /* translators: %s: body part */
+            $body_part !== '' ? sprintf( __( 'Injury: %s', 'talenttrack' ), $body_part ) : __( 'Injury started', 'talenttrack' ),
             [
                 'injury_id'          => $injury_id,
                 'expected_weeks_out' => $expected_weeks,

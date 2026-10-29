@@ -147,7 +147,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
         self::renderHeader( $title );
 
         $row       = ( new InjuryRepository() )->find( $id );
-        $player_id = $row ? (int) $row->player_id : 0;
+        $player_id = $row ? (int) ( $row->player_id ?? 0 ) : 0;
         if ( ! $row || ! AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::CHANGE ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You cannot edit this injury.', 'talenttrack' ) . '</p>';
             return;
@@ -249,7 +249,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
         // no empty column and no action.
         $can_edit = [];
         foreach ( $rows as $row ) {
-            $pid = (int) $row->player_id;
+            $pid = (int) ( $row->player_id ?? 0 );
             if ( ! isset( $can_edit[ $pid ] ) ) {
                 $can_edit[ $pid ] = AuthorizationService::canRecordInjury( $user_id, $pid, MatrixGate::CHANGE );
             }
@@ -318,7 +318,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
                 echo '<td>';
                 if ( ! empty( $can_edit[ $player_id ] ) ) {
                     $edit_url = BackLink::appendTo( add_query_arg(
-                        [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) $row->id ],
+                        [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) ( $row->id ?? 0 ) ],
                         RecordLink::dashboardUrl()
                     ) );
                     echo '<a class="tt-btn tt-btn-secondary tt-btn-small" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a>';

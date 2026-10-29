@@ -2903,7 +2903,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         </div>
                         <?php if ( $can_write ) :
                             $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-                                [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) $row->id ],
+                                [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) ( $row->id ?? 0 ) ],
                                 RecordLink::dashboardUrl()
                             ) );
                             ?>
