@@ -1,0 +1,3 @@
+# A PDP talk marked as not held refuses notes for the right reason, and undoing the mark brings back the player's preparation (#4308, #4309)
+
+Writing notes, agreed actions, a conducted date or a sign-off to a talk marked as not held is now refused with "This talk did not take place, so it takes no notes. Record the next talk instead." Before, it got the message about the previous talk still waiting to be signed off, which was not the reason. The planned date can still be moved. When the coach takes the not-held mark off again, the player's "Prepare for your development talk" task for that talk opens again. Before, it stayed skipped, so the player was never asked to prepare. A task the player had already completed stays completed.

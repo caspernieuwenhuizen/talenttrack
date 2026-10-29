@@ -16,6 +16,7 @@ use TT\Modules\Workflow\TaskStatus;
  *   - Player saves a (non-empty) reflection → the nudge is **completed**.
  *   - The talk is conducted → the nudge **auto-resolves with no penalty**
  *     (skipped), even if the reflection was never filled in.
+ *   - The talk's not-held mark comes off → a skipped nudge **opens** again.
  *
  * Never blocks: if there's no matching active task (window not open yet,
  * no linked account, already resolved), these are no-ops.
@@ -51,6 +52,17 @@ class PdpSelfReviewTasks {
             $task = $tasks->findByNaturalKey( PdpSelfReviewTemplate::KEY, $uid, $player_id, $due_at, $active );
             if ( $task !== null ) {
                 $tasks->skip( (int) $task['id'] );
+            }
+            return;
+        }
+
+        // Not-held mark taken off (#4309) → the skipped nudge opens again.
+        // The overdue sweep re-derives `overdue` when the date has passed.
+        // A completed nudge stays completed.
+        if ( array_key_exists( 'not_held_at', $patch ) && $patch['not_held_at'] === null ) {
+            $task = $tasks->findByNaturalKey( PdpSelfReviewTemplate::KEY, $uid, $player_id, $due_at, [ TaskStatus::SKIPPED ] );
+            if ( $task !== null ) {
+                $tasks->update( (int) $task['id'], [ 'status' => TaskStatus::OPEN, 'completed_at' => null ] );
             }
             return;
         }

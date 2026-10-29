@@ -196,6 +196,7 @@ Het is een **duwtje, geen poort**:
 
 - Het opslaan van de reflectie **voltooit** de taak.
 - Het voeren van het gesprek **lost de taak automatisch op** zonder gevolgen, ook als de reflectie nooit is ingevuld.
+- Het gesprek markeren als niet doorgegaan lost de taak op dezelfde manier op. De markering ongedaan maken **opent** de taak weer, tenzij de speler die al had voltooid.
 - Er wordt nooit iets geblokkeerd als de speler het negeert.
 
 Aan de coachkant krijgt de gesprekslijst een kolom **Zelfreflectie** met **Klaar / Nog niet** per komend gesprek - alleen ter info, nooit een poort voor het voeren of ondertekenen.

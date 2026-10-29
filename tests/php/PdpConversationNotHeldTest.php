@@ -9,6 +9,10 @@ use TT\Modules\Pdp\Frontend\FrontendPdpPlanningView;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Modules\Pdp\Services\PdpFamilyReader;
+use TT\Modules\Pdp\Workflow\PdpSelfReviewTasks;
+use TT\Modules\Pdp\Workflow\PdpSelfReviewTemplate;
+use TT\Modules\Workflow\Repositories\TasksRepository;
+use TT\Modules\Workflow\TaskStatus;
 
 /**
  * #4298 — a PDP talk that never took place no longer blocks the cycle.
@@ -232,6 +236,99 @@ final class PdpConversationNotHeldTest extends WP_UnitTestCase {
         $this->assertSame( 1, $cell['not_held'] );
         $this->assertSame( 0, $cell['conducted'] );
         $this->assertSame( 0, $cell['planned'] );
+    }
+
+    public function test_a_content_write_on_a_not_held_talk_says_it_did_not_take_place(): void {
+        $this->patch( 1, [ 'not_held' => true, 'not_held_reason' => 'Ill.' ] );
+
+        foreach ( [ 'notes' => 'Late notes.', 'agreed_actions' => 'Work on it.', 'conducted_at' => '2026-10-15 10:00:00' ] as $field => $value ) {
+            [ $data, $status ] = $this->patch( 1, [ $field => $value ] );
+            $this->assertSame( 409, $status, $field );
+            $this->assertSame( 'conversation_not_held', $data['errors'][0]['code'] ?? null, $field );
+        }
+
+        [ , $status ] = $this->patch( 1, [ 'scheduled_at' => '2026-10-22 10:00:00' ] );
+        $this->assertSame( 200, $status, 'the planned date still moves' );
+    }
+
+    public function test_a_talk_that_is_merely_not_active_keeps_the_sequence_refusal(): void {
+        [ $data, $status ] = $this->patch( 2, [ 'notes' => 'Too early.' ] );
+        $this->assertSame( 409, $status );
+        $this->assertSame( 'conversation_not_active', $data['errors'][0]['code'] ?? null );
+    }
+
+    public function test_taking_the_mark_off_reopens_the_players_self_review(): void {
+        $task = $this->selfReviewTask( TaskStatus::OPEN );
+
+        $this->patch( 1, [ 'not_held' => true, 'not_held_reason' => 'Ill.' ] );
+        $this->assertSame( TaskStatus::SKIPPED, $this->taskStatus( $task ) );
+
+        [ , $status ] = $this->patch( 1, [ 'not_held' => false ] );
+        $this->assertSame( 200, $status );
+        $this->assertSame( TaskStatus::OPEN, $this->taskStatus( $task ) );
+    }
+
+    public function test_taking_the_mark_off_leaves_a_completed_self_review_completed(): void {
+        $task = $this->selfReviewTask( TaskStatus::COMPLETED );
+
+        $this->patch( 1, [ 'not_held' => true, 'not_held_reason' => 'Ill.' ] );
+        $this->patch( 1, [ 'not_held' => false ] );
+
+        $this->assertSame( TaskStatus::COMPLETED, $this->taskStatus( $task ) );
+    }
+
+    public function test_taking_the_mark_off_without_a_player_account_is_a_no_op(): void {
+        $this->patch( 1, [ 'not_held' => true, 'not_held_reason' => 'Ill.' ] );
+
+        [ , $status ] = $this->patch( 1, [ 'not_held' => false ] );
+        $this->assertSame( 200, $status );
+        $this->assertEmpty( $this->row( 1 )['not_held_at'] );
+    }
+
+    public function test_sync_after_patch_reopens_only_a_skipped_nudge(): void {
+        $skipped = $this->selfReviewTask( TaskStatus::SKIPPED );
+        $conv    = ( new PdpConversationsRepository() )->find( $this->talks[1] );
+        $file    = (object) [ 'player_id' => $this->playerId() ];
+        $this->assertNotNull( $conv );
+
+        PdpSelfReviewTasks::syncAfterPatch( $conv, $file, [ 'not_held_at' => null, 'not_held_reason' => null ] );
+        $this->assertSame( TaskStatus::OPEN, $this->taskStatus( $skipped ) );
+
+        // A second undo finds nothing skipped and changes nothing.
+        ( new TasksRepository() )->complete( $skipped, [] );
+        PdpSelfReviewTasks::syncAfterPatch( $conv, $file, [ 'not_held_at' => null ] );
+        $this->assertSame( TaskStatus::COMPLETED, $this->taskStatus( $skipped ) );
+    }
+
+    /**
+     * Give the file's player an account and a self-review task on the first
+     * talk, in the given status.
+     */
+    private function selfReviewTask( string $status ): int {
+        global $wpdb;
+        $player_id = $this->playerId();
+        $uid       = (int) self::factory()->user->create( [ 'role' => 'subscriber' ] );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'wp_user_id' => $uid ], [ 'id' => $player_id ] );
+
+        return ( new TasksRepository() )->create( [
+            'template_key'     => PdpSelfReviewTemplate::KEY,
+            'assignee_user_id' => $uid,
+            'player_id'        => $player_id,
+            'due_at'           => (string) $this->row( 1 )['scheduled_at'],
+            'status'           => $status,
+        ] );
+    }
+
+    private function taskStatus( int $task_id ): string {
+        return (string) ( ( (array) ( new TasksRepository() )->find( $task_id ) )['status'] ?? '' );
+    }
+
+    private function playerId(): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT player_id FROM {$wpdb->prefix}tt_pdp_files WHERE id = %d",
+            $this->file
+        ) );
     }
 
     /**
