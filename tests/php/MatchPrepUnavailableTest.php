@@ -13,6 +13,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Modules\Journey\JourneyModule;
 use TT\Modules\MatchPrep\Services\MatchPrepState;
+use TT\Modules\MatchPrep\Wizards\AvailabilityStep;
 
 /**
  * #4245 — match prep says who cannot play, the way planned attendance does.
@@ -116,6 +117,25 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( $this->players['suspended'], (array) $state['unavailable'] );
     }
 
+    /**
+     * The availability step: no Suspended pre-mark for a viewer without
+     * injury access, or "unavailable minus suspended" could still be read
+     * off the screen. The head coach keeps it.
+     */
+    public function test_the_step_pre_marks_suspended_only_for_injury_access(): void {
+        $pid     = $this->players['suspended'];
+        $checked = 'name="availability[' . $pid . '][status]" value="Suspended" checked';
+
+        wp_set_current_user( $this->makeCoach( false ) );
+        $assistant_html = $this->renderStep();
+        $this->assertStringNotContainsString( $checked, $assistant_html, 'assistant coach: no Suspended pre-mark' );
+        $this->assertStringNotContainsString( 'Suspended, match', $assistant_html, 'assistant coach: no suspension reason' );
+        $this->assertStringContainsString( 'tt-mp-unavailable', $assistant_html, 'the neutral flag still shows' );
+
+        wp_set_current_user( $this->makeCoach( true ) );
+        $this->assertStringContainsString( $checked, $this->renderStep(), 'head coach: the Suspended pre-mark stays' );
+    }
+
     public function test_no_viewer_gets_no_suspension_list(): void {
         $this->savePrep();
         $this->assertArrayNotHasKey( 'suspended', (array) MatchPrepState::forActivity( $this->activity ) );
@@ -206,6 +226,12 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
             'actual_return'   => null,
             'notes'           => 'ankle',
         ] );
+    }
+
+    private function renderStep(): string {
+        ob_start();
+        ( new AvailabilityStep() )->render( [ 'activity_id' => $this->activity ] );
+        return (string) ob_get_clean();
     }
 
     private function suspend( string $key ): void {
