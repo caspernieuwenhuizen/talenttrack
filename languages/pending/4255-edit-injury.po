@@ -1,0 +1,16 @@
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Edit injury"
+msgstr "Blessure bewerken"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "You cannot edit this injury."
+msgstr "Je kunt deze blessure niet bewerken."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Save injury"
+msgstr "Blessure opslaan"
+
+#. translators: %s is a date.
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Date of injury: %s"
+msgstr "Datum van de blessure: %s"

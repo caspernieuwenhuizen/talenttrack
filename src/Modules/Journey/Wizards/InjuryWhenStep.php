@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -26,21 +27,46 @@ final class InjuryWhenStep implements WizardStepInterface {
     public function label(): string { return __( 'When', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        echo DateInputComponent::render( [
-            'name'     => 'started_on',
-            'label'    => __( 'Date of injury', 'talenttrack' ),
-            'required' => true,
-            'value'    => (string) ( $state['started_on'] ?? current_time( 'Y-m-d' ) ),
+        self::renderFields( [
+            'started_on'      => (string) ( $state['started_on'] ?? current_time( 'Y-m-d' ) ),
+            'expected_return' => (string) ( $state['expected_return'] ?? '' ),
+            'notes'           => (string) ( $state['notes'] ?? '' ),
         ] );
+    }
 
-        echo DateInputComponent::render( [
+    /**
+     * The date and note fields, shared by this step and the edit form on
+     * `?tt_view=injuries&action=edit`. An edit does not move the day the
+     * injury happened (the PUT route leaves `started_on` out on purpose),
+     * so with `$start_editable` false it is shown, not asked.
+     *
+     * @param array{started_on:string, expected_return:string, notes:string} $values
+     */
+    public static function renderFields( array $values, bool $start_editable = true ): void {
+        if ( $start_editable ) {
+            echo DateInputComponent::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
+                'name'     => 'started_on',
+                'label'    => __( 'Date of injury', 'talenttrack' ),
+                'required' => true,
+                'value'    => $values['started_on'],
+            ] );
+        } elseif ( $values['started_on'] !== '' ) {
+            /* translators: %s is a date. */
+            echo '<p class="tt-field-hint">' . esc_html( sprintf( __( 'Date of injury: %s', 'talenttrack' ), TTDate::date( $values['started_on'] ) ) ) . '</p>';
+        }
+
+        $expected_args = [
             'name'  => 'expected_return',
             'label' => __( 'Expected back', 'talenttrack' ),
-            'value' => (string) ( $state['expected_return'] ?? '' ),
+            'value' => $values['expected_return'],
             'hint'  => __( 'Leave empty if you do not know yet. Setting it lets the squad overview flag the injury when the date passes.', 'talenttrack' ),
-        ] );
+        ];
+        if ( ! $start_editable && $values['started_on'] !== '' ) {
+            $expected_args['min'] = $values['started_on'];
+        }
+        echo DateInputComponent::render( $expected_args ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
 
-        $notes = (string) ( $state['notes'] ?? '' );
+        $notes = $values['notes'];
         echo '<div class="tt-field">';
         echo '<label class="tt-field-label" for="tt-injury-notes">' . esc_html__( 'Note', 'talenttrack' ) . '</label>';
         echo '<textarea id="tt-injury-notes" class="tt-input" name="notes" rows="3" maxlength="1000">' . esc_textarea( $notes ) . '</textarea>';
@@ -56,7 +82,7 @@ final class InjuryWhenStep implements WizardStepInterface {
         if ( $started === '' ) {
             return new \WP_Error( 'started_on', __( 'A date of injury is required.', 'talenttrack' ) );
         }
-        if ( $expected !== '' && strtotime( $expected ) < strtotime( $started ) ) {
+        if ( InjuryRepository::expectedReturnBeforeStart( $started, $expected ) ) {
             return new \WP_Error( 'expected_return', __( 'The expected return cannot be before the date of injury.', 'talenttrack' ) );
         }
 

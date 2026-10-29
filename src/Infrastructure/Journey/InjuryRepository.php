@@ -117,7 +117,39 @@ final class InjuryRepository {
             $row = (array) $this->find( $id );
             $this->emitEndedEvent( $id, $row );
         }
+
+        // The edit's counterpart of `tt_journey_injury_logged`, so a
+        // listener that follows an injury (the recovery reminder) hears
+        // about a changed expected return the same way it heard about
+        // the record being created.
+        $player_id = (int) $existing->player_id;
+        $team_id   = (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
+        ) );
+        do_action( 'tt_journey_injury_updated', [
+            'player_id' => $player_id,
+            'team_id'   => $team_id > 0 ? $team_id : null,
+            'extras'    => [
+                'injury_id' => $id,
+                'fields'    => array_keys( $update ),
+            ],
+        ] );
+
         return true;
+    }
+
+    /**
+     * The one date rule an injury has: nobody is expected back before
+     * the day they got hurt. Both ways in ask it here, the wizard and the
+     * edit through REST, so the two cannot disagree.
+     */
+    public static function expectedReturnBeforeStart( string $started_on, ?string $expected_return ): bool {
+        if ( $expected_return === null || $expected_return === '' || $started_on === '' ) return false;
+        $start  = strtotime( $started_on );
+        $expect = strtotime( $expected_return );
+        if ( $start === false || $expect === false ) return false;
+        return $expect < $start;
     }
 
     public function archive( int $id, int $user_id ): bool {

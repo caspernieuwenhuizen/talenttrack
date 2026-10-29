@@ -108,6 +108,9 @@ first in tab order and Save on the right where the thumb finds it.
 - Recording and editing a [suspension](suspensions.md) on its one-page form.
   It reaches a family's journey the moment it is saved, so a half-typed
   number of matches must never get there.
+- Editing an [injury](injuries.md) on its one-page form. A short record with a
+  known set of fields, and medical data: one commit point, and Cancel means
+  nothing was written.
 - Configuration screens and lookup lists.
 - The [VCT cycle calendar](configuration-vct.md), where weeks are set to
   neutral or made to run anyway.

@@ -522,18 +522,28 @@ class PlayerJourneyRestController extends BaseController {
         // through array_intersect_key untouched.
         $payload = (array) $r->get_json_params();
         $patch   = [];
+        // An emptied date and a "Not recorded" picker (0) both mean "not
+        // known", which the column holds as NULL — the edit form posts
+        // every field, so an empty one must clear rather than store ''.
         foreach ( [ 'expected_return', 'actual_return' ] as $key ) {
             if ( array_key_exists( $key, $payload ) ) {
-                $patch[ $key ] = $payload[ $key ] === null ? null : sanitize_text_field( (string) $payload[ $key ] );
+                $value         = $payload[ $key ] === null ? '' : sanitize_text_field( (string) $payload[ $key ] );
+                $patch[ $key ] = $value === '' ? null : $value;
             }
         }
         foreach ( [ 'injury_type_lookup_id', 'body_part_lookup_id', 'severity_lookup_id' ] as $key ) {
             if ( array_key_exists( $key, $payload ) ) {
-                $patch[ $key ] = $payload[ $key ] === null ? null : (int) $payload[ $key ];
+                $value         = $payload[ $key ] === null ? 0 : (int) $payload[ $key ];
+                $patch[ $key ] = $value > 0 ? $value : null;
             }
         }
         if ( array_key_exists( 'notes', $payload ) ) {
             $patch['notes'] = sanitize_textarea_field( (string) $payload['notes'] );
+        }
+
+        $expected = isset( $patch['expected_return'] ) ? (string) $patch['expected_return'] : '';
+        if ( InjuryRepository::expectedReturnBeforeStart( (string) ( $row->started_on ?? '' ), $expected ) ) {
+            return RestResponse::error( 'expected_return', __( 'The expected return cannot be before the date of injury.', 'talenttrack' ), 400 );
         }
 
         $ok = $repo->update( $id, $patch );

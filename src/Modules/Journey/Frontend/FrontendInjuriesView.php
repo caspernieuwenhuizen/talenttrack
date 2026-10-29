@@ -7,9 +7,14 @@ use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Journey\Wizards\InjuryDetailsStep;
+use TT\Modules\Journey\Wizards\InjuryWhenStep;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\EmptyStateCard;
+use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
@@ -30,6 +35,16 @@ use TT\Shared\Dates\TTDate;
 final class FrontendInjuriesView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only view routing.
+        $action = isset( $_GET['action'] ) ? sanitize_key( (string) wp_unslash( $_GET['action'] ) ) : '';
+        $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        // phpcs:enable
+        if ( $action === 'edit' && $id > 0 ) {
+            self::enqueueAssets();
+            self::renderEdit( $user_id, $id );
+            return;
+        }
+
         $title = __( 'Injuries', 'talenttrack' );
         FrontendBreadcrumbs::fromDashboard( $title );
 
@@ -112,7 +127,62 @@ final class FrontendInjuriesView extends FrontendViewBase {
         }
 
         self::renderFilters( $teams, $team_id, $status );
-        self::renderTable( $rows, $status, $add_url );
+        self::renderTable( $rows, $status, $add_url, $user_id );
+    }
+
+    /**
+     * `?tt_view=injuries&action=edit&id=N` — complete or correct an
+     * injury after the touchline entry. Explicit Save + Cancel (save
+     * model B): a short record whose fields are a known set. It posts to
+     * the existing `PUT /player-injuries/{id}`, which owns the gate, the
+     * date rule and the audit row; this only composes the form.
+     *
+     * The gate is the same one the PUT and "Record return" ask, for the
+     * injury's own player, so a hand-built URL reaches nothing the
+     * buttons would not have offered.
+     */
+    private static function renderEdit( int $user_id, int $id ): void {
+        $title = __( 'Edit injury', 'talenttrack' );
+        FrontendBreadcrumbs::fromDashboard( $title, [ FrontendBreadcrumbs::viewCrumb( 'injuries', __( 'Injuries', 'talenttrack' ) ) ] );
+        self::renderHeader( $title );
+
+        $row       = ( new InjuryRepository() )->find( $id );
+        $player_id = $row ? (int) $row->player_id : 0;
+        if ( ! $row || ! AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::CHANGE ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You cannot edit this injury.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $player = QueryHelpers::get_player( $player_id );
+        $name   = $player ? QueryHelpers::player_display_name( $player ) : '';
+
+        // The injury has no page of its own; it is read on the player's
+        // Injuries tab, so that is the record this form returns to.
+        $record = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id, 'tab' => 'injuries' ], RecordLink::dashboardUrl() ); /* tt-xview-ok — only reached past the per-player change gate */
+        $back   = BackLink::resolve();
+
+        echo '<form class="tt-ajax-form tt-injury-form" data-rest-path="' . esc_attr( 'player-injuries/' . $id ) . '" data-rest-method="PUT" data-redirect-after-save-url="' . esc_url( $back !== null ? $back['url'] : $record ) . '">';
+        if ( $name !== '' ) {
+            /* translators: %s: player name */
+            echo '<p class="tt-field-hint">' . esc_html( sprintf( __( 'Player: %s', 'talenttrack' ), $name ) ) . '</p>';
+        }
+        InjuryDetailsStep::renderFields( [
+            'body_part_lookup_id'   => (int) ( $row->body_part_lookup_id ?? 0 ),
+            'injury_type_lookup_id' => (int) ( $row->injury_type_lookup_id ?? 0 ),
+            'severity_lookup_id'    => (int) ( $row->severity_lookup_id ?? 0 ),
+        ] );
+        InjuryWhenStep::renderFields( [
+            'started_on'      => (string) ( $row->started_on ?? '' ),
+            'expected_return' => (string) ( $row->expected_return ?? '' ),
+            'notes'           => (string) ( $row->notes ?? '' ),
+        ], false );
+        // CLAUDE.md §6 — edit mode cancels to the record, `tt_back` first.
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — the component escapes
+            'label'      => __( 'Save injury', 'talenttrack' ),
+            'cancel_url' => $record,
+        ] );
+        echo '<div class="tt-form-msg"></div>';
+        echo '</form>';
     }
 
     /** @param array<int, object> $teams */
@@ -153,7 +223,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
     }
 
     /** @param list<object> $rows */
-    private static function renderTable( array $rows, string $status, string $add_url = '' ): void {
+    private static function renderTable( array $rows, string $status, string $add_url = '', int $user_id = 0 ): void {
         if ( empty( $rows ) ) {
             // An empty "currently out" list is a real answer, so it keeps
             // its framing and carries the same way in as the header. A
@@ -174,6 +244,18 @@ final class FrontendInjuriesView extends FrontendViewBase {
 
         $today = current_time( 'Y-m-d' );
 
+        // Ask the write gate once per player, and only show the column
+        // when at least one row can be edited, so a read-only viewer gets
+        // no empty column and no action.
+        $can_edit = [];
+        foreach ( $rows as $row ) {
+            $pid = (int) $row->player_id;
+            if ( ! isset( $can_edit[ $pid ] ) ) {
+                $can_edit[ $pid ] = AuthorizationService::canRecordInjury( $user_id, $pid, MatrixGate::CHANGE );
+            }
+        }
+        $any_edit = in_array( true, $can_edit, true );
+
         echo '<table class="tt-table tt-injuries-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
@@ -182,6 +264,9 @@ final class FrontendInjuriesView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Since', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Expected back', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Days out', 'talenttrack' ) . '</th>';
+        if ( $any_edit ) {
+            echo '<th><span class="screen-reader-text">' . esc_html__( 'Actions', 'talenttrack' ) . '</span></th>';
+        }
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $row ) {
@@ -229,6 +314,17 @@ final class FrontendInjuriesView extends FrontendViewBase {
             }
             echo '</td>';
             echo '<td>' . (int) $days_out . '</td>';
+            if ( $any_edit ) {
+                echo '<td>';
+                if ( ! empty( $can_edit[ $player_id ] ) ) {
+                    $edit_url = BackLink::appendTo( add_query_arg(
+                        [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) $row->id ],
+                        RecordLink::dashboardUrl()
+                    ) );
+                    echo '<a class="tt-btn tt-btn-secondary tt-btn-small" href="' . esc_url( $edit_url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a>';
+                }
+                echo '</td>';
+            }
             echo '</tr>';
         }
 

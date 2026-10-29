@@ -26,27 +26,42 @@ final class InjuryDetailsStep implements WizardStepInterface {
     public function label(): string { return __( 'What happened', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        $this->picker(
+        self::renderFields( [
+            'body_part_lookup_id'   => (int) ( $state['body_part_lookup_id'] ?? 0 ),
+            'injury_type_lookup_id' => (int) ( $state['injury_type_lookup_id'] ?? 0 ),
+            'severity_lookup_id'    => (int) ( $state['severity_lookup_id'] ?? 0 ),
+        ] );
+    }
+
+    /**
+     * The three pickers, shared by this step and the edit form on
+     * `?tt_view=injuries&action=edit`, so both ask the same questions in
+     * the same words.
+     *
+     * @param array{body_part_lookup_id:int, injury_type_lookup_id:int, severity_lookup_id:int} $values
+     */
+    public static function renderFields( array $values ): void {
+        self::picker(
             'body_part_lookup_id',
             __( 'Body part', 'talenttrack' ),
             'body_part',
-            (int) ( $state['body_part_lookup_id'] ?? 0 )
+            $values['body_part_lookup_id']
         );
-        $this->picker(
+        self::picker(
             'injury_type_lookup_id',
             __( 'Type of injury', 'talenttrack' ),
             'injury_type',
-            (int) ( $state['injury_type_lookup_id'] ?? 0 )
+            $values['injury_type_lookup_id']
         );
-        $this->picker(
+        self::picker(
             'severity_lookup_id',
             __( 'Severity', 'talenttrack' ),
             'injury_severity',
-            (int) ( $state['severity_lookup_id'] ?? 0 )
+            $values['severity_lookup_id']
         );
     }
 
-    private function picker( string $name, string $label, string $lookup_type, int $current ): void {
+    private static function picker( string $name, string $label, string $lookup_type, int $current ): void {
         $rows = QueryHelpers::get_lookups( $lookup_type );
 
         echo '<div class="tt-field">';
