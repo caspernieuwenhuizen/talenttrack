@@ -143,10 +143,12 @@ class FrontendTeamsManageView extends FrontendViewBase {
 
         // v3.85.5 — surface the upgrade nudge above the list when at
         // the free-tier 1-team cap. The `+ New team` action in the
-        // header is suppressed by the same check in render().
+        // header is suppressed by the same check in render(). #4286 — only
+        // for a viewer who could otherwise add a team: to a coach without
+        // that right the nudge reads as a data error, not a reason.
         $at_team_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' );
-        if ( $at_team_cap ) {
+        if ( $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'teams' );
         }
 
