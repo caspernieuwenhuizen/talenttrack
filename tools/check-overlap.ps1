@@ -20,13 +20,18 @@
 .EXAMPLE
   pwsh tools/check-overlap.ps1 fix/1729-presence fix/1730-week-badge
   pwsh tools/check-overlap.ps1 fix/a fix/b fix/c -Base main
+  powershell -File tools/check-overlap.ps1 fix/a fix/b   # Windows PowerShell 5.1
 #>
 param(
-    [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)][string[]]$Branches,
+    [Parameter(Mandatory = $true, Position = 0, ValueFromRemainingArguments = $true)][string[]]$Branches,
     [string]$Base = 'main'
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Windows PowerShell 5.1 binds remaining positional arguments as one nested
+# list; flatten so the count and the loop see one entry per branch.
+$Branches = @($Branches | ForEach-Object { $_ })
 
 if (@($Branches).Count -lt 2) {
     throw "Pass at least two branch names: tools/check-overlap.ps1 <branchA> <branchB> [...]"
