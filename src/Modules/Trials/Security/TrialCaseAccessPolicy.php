@@ -71,7 +71,8 @@ final class TrialCaseAccessPolicy {
      *   - assigned to it, with an entitlement to be there (the cases
      *     `canOpenCase()` lets them open);
      *   - it is on a player a scout is linked to;
-     *   - it is on a player of a team they coach, where the matrix grants
+     *   - it is on a player of a team they coach (an active player or a
+     *     trialist placed on the team), where the matrix grants
      *     them `trial_cases` read on that team (#2005: head coaches hold
      *     `trial_cases [rc, team]`). Only that team, never another.
      *
@@ -118,11 +119,8 @@ final class TrialCaseAccessPolicy {
                 $team_ids[] = $team_id;
             }
         }
-        if ( $team_ids !== [] ) {
-            foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players_for_teams( $team_ids ) as $player ) {
-                $player_id = (int) ( ( (array) $player )['id'] ?? 0 );
-                if ( $player_id > 0 ) $player_ids[] = $player_id;
-            }
+        foreach ( self::trialRosterPlayerIds( $team_ids ) as $player_id ) {
+            $player_ids[] = $player_id;
         }
 
         if ( $player_ids !== [] ) {
@@ -134,6 +132,29 @@ final class TrialCaseAccessPolicy {
         }
 
         return array_values( $ids );
+    }
+
+    /**
+     * The players on these teams as trial cases read the roster: active
+     * players and trialists (`TeamRoster::trialClause()`). The squad helper
+     * `get_players_for_teams()` reads active players only, which would hide
+     * the very players a team's trial cases are about.
+     *
+     * @param list<int> $team_ids
+     * @return list<int>
+     */
+    private static function trialRosterPlayerIds( array $team_ids ): array {
+        if ( $team_ids === [] ) return [];
+        global $wpdb;
+        $scope  = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'p', 'player' );
+        $roster = \TT\Infrastructure\Teams\TeamRoster::trialClause( 'p' );
+        $ph     = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $ids    = $wpdb->get_col( $wpdb->prepare(
+            "SELECT p.id FROM {$wpdb->prefix}tt_players p
+             WHERE p.team_id IN ($ph) AND {$roster} AND p.club_id = %d {$scope}",
+            ...array_merge( $team_ids, [ \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
+        ) );
+        return array_map( 'intval', (array) $ids );
     }
 
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {

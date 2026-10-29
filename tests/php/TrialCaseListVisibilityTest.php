@@ -147,12 +147,35 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'Elsewhere', $html );
     }
 
+    public function test_a_head_coach_lists_an_open_trial_on_their_own_team_and_not_another(): void {
+        [ $own_team, $own_case, $other_case ] = $this->twoTeamsWithACaseEach( 'trial' );
+        $coach = $this->teamCoach( $own_team, true );
+
+        $this->assertSame( [ $own_case ], $this->listIds( $coach ) );
+        $this->assertNotContains( $other_case, $this->listIds( $coach ) );
+    }
+
+    public function test_the_screen_lists_an_open_trial_on_their_own_team_and_not_another(): void {
+        [ $own_team ] = $this->twoTeamsWithACaseEach( 'trial' );
+        $coach = $this->teamCoach( $own_team, true );
+        wp_set_current_user( $coach );
+
+        $method = new \ReflectionMethod( \TT\Shared\Frontend\FrontendTrialsManageView::class, 'renderList' );
+        $method->setAccessible( true );
+        ob_start();
+        $method->invoke( null, $coach, false, false );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'OwnTeam', $html );
+        $this->assertStringNotContainsString( 'OtherTeam', $html );
+    }
+
     /**
-     * Two teams with one trialist and one open case each.
+     * Two teams with one player and one open case each.
      *
      * @return array{0:int,1:int,2:int} [own team, own case, other team's case]
      */
-    private function twoTeamsWithACaseEach(): array {
+    private function twoTeamsWithACaseEach( string $status = 'active' ): array {
         global $wpdb;
         $club = (int) CurrentClub::id();
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Trials O13-1' ] );
@@ -160,8 +183,8 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => $club, 'name' => 'Trials O15-1' ] );
         $other = (int) $wpdb->insert_id;
 
-        $own_case   = $this->trialCase( $this->player( 'OwnTeam', $own ) );
-        $other_case = $this->trialCase( $this->player( 'OtherTeam', $other ) );
+        $own_case   = $this->trialCase( $this->player( 'OwnTeam', $own, $status ) );
+        $other_case = $this->trialCase( $this->player( 'OtherTeam', $other, $status ) );
         return [ $own, $own_case, $other_case ];
     }
 
@@ -198,7 +221,7 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
         return $uid;
     }
 
-    private function player( string $last, int $team_id = 0 ): int {
+    private function player( string $last, int $team_id = 0, string $status = 'active' ): int {
         global $wpdb;
         $row = [
             'club_id'    => (int) CurrentClub::id(),
@@ -206,11 +229,9 @@ final class TrialCaseListVisibilityTest extends WP_UnitTestCase {
             'last_name'  => $last,
             'status'     => 'trial',
         ];
-        // A player on a team roster: the roster helper (#2005) reads active
-        // players only, so a team's trial case here is an active player's.
         if ( $team_id > 0 ) {
             $row['team_id'] = $team_id;
-            $row['status']  = 'active';
+            $row['status']  = $status;
         }
         $wpdb->insert( "{$wpdb->prefix}tt_players", $row );
         return (int) $wpdb->insert_id;
