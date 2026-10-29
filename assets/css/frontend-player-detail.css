@@ -964,11 +964,31 @@
    actions as buttons) must not look tappable. */
 .tt-player-row--static { cursor: default; }
 .tt-player-row--static:active { background: none; }
+/* An injury row has no date badge, so the shared three-track grid put its
+   text in the narrow badge track and stacked the buttons. Phone first: one
+   column, the text, then the actions side by side underneath. */
+.tt-player-row.tt-player-row--injury {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+}
 .tt-player-row__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    justify-content: flex-end;
+}
+.tt-player-row--injury .tt-player-row__actions .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+@media (min-width: 768px) {
+    .tt-player-row.tt-player-row--injury {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+    }
+    .tt-player-row--injury .tt-player-row__actions {
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+    }
 }
 .tt-player-row__date {
     text-align: center;

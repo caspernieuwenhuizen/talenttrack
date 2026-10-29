@@ -2871,7 +2871,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     $severity = self::injuryLookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' );
                     ?>
                     <?php // #4255 — the row itself is not a link; its actions are the buttons, so it never takes the pointer. ?>
-                    <div class="tt-player-row tt-player-row--static">
+                    <div class="tt-player-row tt-player-row--static tt-player-row--injury">
                         <div class="tt-player-row__main">
                             <strong><?php echo esc_html( $body !== '—' ? $body : __( 'Injury', 'talenttrack' ) ); ?></strong>
                             <?php if ( $severity !== '—' ) : ?>
