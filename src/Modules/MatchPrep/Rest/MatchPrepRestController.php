@@ -216,7 +216,7 @@ class MatchPrepRestController {
      */
     public static function get( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
-        $state       = MatchPrepState::forActivity( $activity_id );
+        $state       = MatchPrepState::forActivity( $activity_id, get_current_user_id() );
         if ( $state === null ) {
             return RestResponse::notFound( 'match_prep_not_found', __( 'No match preparation has been started for this match yet.', 'talenttrack' ) );
         }
@@ -335,7 +335,7 @@ class MatchPrepRestController {
 
         // #3587 — answer with what was saved, the GET payload, so a client
         // can see the result rather than only the ids.
-        return RestResponse::success( MatchPrepState::forActivity( $activity_id ) ?? [ 'prep_id' => $prep_id, 'activity_id' => $activity_id ] );
+        return RestResponse::success( MatchPrepState::forActivity( $activity_id, get_current_user_id() ) ?? [ 'prep_id' => $prep_id, 'activity_id' => $activity_id ] );
     }
 
     /**

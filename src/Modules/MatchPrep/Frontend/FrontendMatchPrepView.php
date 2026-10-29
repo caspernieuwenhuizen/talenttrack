@@ -805,7 +805,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
             // #4103 — players a recorded suspension covers for this match,
             // with the reason the drawer pre-marks them Suspended with. The
             // drawer applies it only to a player with no saved choice.
-            'suspended'      => (object) self::suspendedReasons( (int) $activity_id, $roster_list ),
+            'suspended'      => (object) self::suspendedReasons( (int) $activity_id, $roster_list, $user_id ),
             // #4245 — who cannot play in this match; a flag beside the name,
             // never written into `availability`.
             'unavailable'    => (object) $unavailable_set,
@@ -1109,19 +1109,19 @@ class FrontendMatchPrepView extends FrontendViewBase {
      * #4103 — player id => "Suspended, match 2 of 3" for each player a
      * recorded suspension covers in this match. `MatchPrepState` decides,
      * the same answer `GET match-prep/{id}` gives; this only keys it for
-     * the drawer.
+     * the drawer. Empty for a viewer without injury access (#4245).
      *
      * @param array<int, object> $roster
      * @return array<int, string>
      */
-    private static function suspendedReasons( int $activity_id, array $roster ): array {
+    private static function suspendedReasons( int $activity_id, array $roster, int $viewer_id ): array {
         $ids = [];
         foreach ( $roster as $p ) {
             $pid = (int) ( ( (array) $p )['id'] ?? 0 );
             if ( $pid > 0 ) $ids[] = $pid;
         }
         $out = [];
-        foreach ( MatchPrepState::suspendedByPlayer( $activity_id, $ids ) as $pid => $cover ) {
+        foreach ( MatchPrepState::suspendedForViewer( $activity_id, $ids, $viewer_id ) as $pid => $cover ) {
             $out[ $pid ] = $cover['reason'];
         }
         return $out;

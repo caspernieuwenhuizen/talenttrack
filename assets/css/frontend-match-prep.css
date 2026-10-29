@@ -360,18 +360,28 @@
     letter-spacing: 0.03em;
     white-space: nowrap;
 }
-.tt-mp-slot .tt-mp-unavailable { margin-left: 0; }
+/* On a pitch slot the text would cover the neighbouring slots on a phone,
+   so below 768px the slot carries only the red border; the slot's
+   aria-label names the player and the flag. The label returns at 768px. */
+.tt-mp-slot .tt-mp-unavailable {
+    display: none;
+    margin-left: 0;
+}
 .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name {
-    border-color: var(--tt-danger-ink, #a32b22);
+    border: 2px solid var(--tt-danger-ink, #a32b22);
+}
+@media (min-width: 768px) {
+    .tt-match-prep .tt-mp-slot .tt-mp-unavailable { display: inline-block; }
 }
 .tt-image-pdf-capture .tt-mp-unavailable {
     display: none !important;
 }
 .tt-image-pdf-capture .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name {
-    border-color: rgba(0,0,0,0.1) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
 }
 @media print {
     .tt-match-prep .tt-mp-unavailable { display: none !important; }
+    .tt-match-prep .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name { border: 1px solid rgba(0,0,0,0.1) !important; }
 }
 
 /* -------------------------------------------------------------------

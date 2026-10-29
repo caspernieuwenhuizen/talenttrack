@@ -513,7 +513,13 @@
                 btn.setAttribute('data-slot', String(pos.num));
                 btn.style.left = pos.x + '%';
                 btn.style.top = pos.y + '%';
-                btn.setAttribute('aria-label', format(i18n('slot_label', 'Slot %1$s — %2$s half'), [pos.num, half === 1 ? i18n('half_1', '1st') : i18n('half_2', '2nd')]));
+                var slotLabel = format(i18n('slot_label', 'Slot %1$s — %2$s half'), [pos.num, half === 1 ? i18n('half_1', '1st') : i18n('half_2', '2nd')]);
+                // #4245 — below 768px the slot shows only a red border, so the
+                // accessible name carries the player and the flag.
+                if (p && isFlaggedUnavailable(p.id)) {
+                    slotLabel += ', ' + p.name + ', ' + i18n('unavailable', 'Unavailable');
+                }
+                btn.setAttribute('aria-label', slotLabel);
                 btn.innerHTML =
                     '<span class="tt-mp-slot-num">' + pos.num + '</span>' +
                     '<span class="tt-mp-slot-name">' + (p ? escapeHtml(p.name) : '–') + '</span>' +

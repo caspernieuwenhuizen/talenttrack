@@ -25,9 +25,11 @@ final class MatchPrepState {
     public const FALLBACK_STARTER_TARGET = 11;
 
     /**
+     * @param int $viewer_id The user the prep is read for; decides whether the
+     *                       suspension list is included (#4245).
      * @return array<string,mixed>|null null when no prep exists for the activity.
      */
-    public static function forActivity( int $activity_id ): ?array {
+    public static function forActivity( int $activity_id, int $viewer_id = 0 ): ?array {
         $repo = new MatchPrepRepository();
         $prep = $repo->findByActivity( $activity_id );
         if ( ! $prep ) return null;
@@ -62,20 +64,54 @@ final class MatchPrepState {
         $state['player_goals'] = (object) self::playerGoalsByPlayer( $repo->listPlayerGoals( $prep_id ) );
         $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
 
-        // #4103 — who a recorded suspension covers in this match, so a
-        // client can pre-mark them Suspended the way the drawer does.
         $roster_ids = [];
         foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id ) as $player ) {
             $pid = (int) ( ( (array) $player )['id'] ?? 0 );
             if ( $pid > 0 ) $roster_ids[] = $pid;
         }
-        $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
+        // #4103 — who a recorded suspension covers in this match, so a
+        // client can pre-mark them Suspended the way the drawer does. Only
+        // for a viewer who may read these players' injuries (#4245).
+        if ( self::viewerSeesInjuries( $viewer_id, $roster_ids ) ) {
+            $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
+        }
         // #4245 — who cannot play in this match (injured on its date, or
         // suspended), as the one neutral state planned attendance shows.
         // Derived and never stored: the coach's `availability` stays theirs.
         $state['unavailable'] = (object) self::unavailableByPlayer( $activity_id, $roster_ids );
 
         return $state;
+    }
+
+    /**
+     * #4245 — may this viewer read the injuries of every player in the set?
+     *
+     * A viewer who may not gets one combined `unavailable` set and no
+     * separate suspension list: with both, "unavailable but not suspended"
+     * would name the injured players. The same check the injury screens use.
+     *
+     * @param array<int, int> $player_ids
+     */
+    public static function viewerSeesInjuries( int $viewer_id, array $player_ids ): bool {
+        if ( $viewer_id <= 0 || $player_ids === [] ) return false;
+        foreach ( $player_ids as $pid ) {
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $viewer_id, (int) $pid, \TT\Modules\Authorization\MatrixGate::READ ) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * #4245 — the suspension list a viewer may see: `suspendedByPlayer()` for
+     * a viewer with injury access, empty for anyone else.
+     *
+     * @param array<int, int> $player_ids
+     * @return array<int, array{match:int, of:int, reason:string}>
+     */
+    public static function suspendedForViewer( int $activity_id, array $player_ids, int $viewer_id ): array {
+        if ( ! self::viewerSeesInjuries( $viewer_id, $player_ids ) ) return [];
+        return self::suspendedByPlayer( $activity_id, $player_ids );
     }
 
     /**
