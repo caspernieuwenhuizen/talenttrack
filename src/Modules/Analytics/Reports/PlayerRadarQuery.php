@@ -46,7 +46,7 @@ final class PlayerRadarQuery {
         global $wpdb;
         $p          = $wpdb->prefix;
         $categories = QueryHelpers::get_categories();
-        $labels     = wp_list_pluck( $categories, 'name' );
+        $labels     = QueryHelpers::radar_axis_labels( $categories );
         $cat_ids    = wp_list_pluck( $categories, 'id' );
 
         $datasets = [];
@@ -79,7 +79,7 @@ final class PlayerRadarQuery {
         global $wpdb;
         $p          = $wpdb->prefix;
         $categories = QueryHelpers::get_categories();
-        $labels     = wp_list_pluck( $categories, 'name' );
+        $labels     = QueryHelpers::radar_axis_labels( $categories );
         $cat_ids    = wp_list_pluck( $categories, 'id' );
 
         $teams = QueryHelpers::get_teams();

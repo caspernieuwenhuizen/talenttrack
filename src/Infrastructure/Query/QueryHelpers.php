@@ -985,6 +985,28 @@ class QueryHelpers {
     }
 
     /**
+     * Radar axis labels for the main categories, in the reader's language:
+     * the academy's own translation of a category when it has one, else the
+     * catalogue's for a seeded name (`EvalCategoriesRepository::displayLabel()`).
+     * Every radar builds its axes here, so they read as the evaluation form
+     * does (#4300).
+     *
+     * @param array<int, object> $categories rows from `get_categories()`
+     * @return list<string>
+     */
+    public static function radar_axis_labels( array $categories ): array {
+        $labels = [];
+        foreach ( $categories as $cat ) {
+            $row      = (array) $cat;
+            $labels[] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel(
+                (string) ( $row['name'] ?? '' ),
+                (int) ( $row['id'] ?? 0 )
+            );
+        }
+        return $labels;
+    }
+
+    /**
      * @return array{labels: string[], datasets: array<int, array{label:string, values:array<int,float|int>}>}
      */
     public static function player_radar_datasets( int $player_id, int $limit = 3 ): array {
@@ -995,13 +1017,7 @@ class QueryHelpers {
         ));
         $evals = array_reverse( $evals );
         $categories = self::get_categories();
-        // v2.12.2: translate seeded category labels through __() so radar
-        // chart legends show in the admin's locale. Untranslated labels
-        // (admin-added mains) pass through unchanged.
-        $labels = [];
-        foreach ( $categories as $cat ) {
-            $labels[] = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name );
-        }
+        $labels  = self::radar_axis_labels( $categories );
         $cat_ids = wp_list_pluck( $categories, 'id' );
         $datasets = [];
         foreach ( $evals as $ev ) {
