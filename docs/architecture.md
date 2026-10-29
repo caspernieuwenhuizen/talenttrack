@@ -258,13 +258,13 @@ Five `wp_schedule_event()` callsites today (audit frozen as of v3.52.x):
 
 ## Testing surface
 
-There's no PHPUnit harness checked in (yet). The CI workflow runs:
+The PHP tests live in `tests/php`. CI runs them with PHPUnit inside wp-env's `tests-cli` container (`.github/workflows/php-tests.yml`), alongside:
 
 - `php -l` syntax lint over every PHP file.
 - `phpstan analyse` at level 8.
 - `msgfmt --check` over every `.po`.
 
-Manual test plans live in each PR's body. As the codebase grows, an integration harness for the REST controllers is the most likely next addition.
+Without wp-env, the same suite runs against a local MySQL or MariaDB: see [Running PHPUnit locally](local-phpunit.md). Manual test plans live in each PR's body.
 
 ## Where to look when…
 

@@ -63,9 +63,10 @@ how, what was not, adjacent bugs.
 
 - A hook blocks any Bash command containing `>` (including `2>&1`). Create
   files with the Write tool; hand long text to `gh` by `--body-file`.
-- No `jq`, `msgfmt` or Docker locally; `gh --jq` and `node` work. PHPUnit,
-  PHPStan and the E2E suite run in CI only: expect one fix round-trip and
-  wait for it.
+- No `jq`, `msgfmt` or Docker locally; `gh --jq` and `node` work. PHPStan
+  and the E2E suite run in CI only: expect one fix round-trip and wait for
+  it. PHPUnit also runs locally against the XAMPP MariaDB, on a separate
+  test database: see `docs/local-phpunit.md`. CI still decides.
 - Never write repo PHP with PowerShell `Set-Content` (it adds a BOM).
 - Stage explicit paths; never `git add -A`. Use `git -C <worktree>` in
   multi-worktree work.
