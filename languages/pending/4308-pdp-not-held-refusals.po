@@ -1,0 +1,3 @@
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This talk did not take place, so it takes no notes. Record the next talk instead."
+msgstr "Dit gesprek is niet doorgegaan, dus er horen geen notities bij. Leg het volgende gesprek vast."

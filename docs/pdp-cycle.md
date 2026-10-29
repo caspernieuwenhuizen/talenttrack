@@ -197,6 +197,7 @@ It is a **nudge, not a gate**:
 
 - Saving the reflection **completes** the task.
 - Conducting the talk **auto-resolves** the task with no penalty, even if the reflection was never filled in.
+- Marking the talk as not held resolves the task the same way. Undoing the mark **reopens** it, unless the player had already completed it.
 - Nothing is ever blocked if the player ignores it.
 
 On the coach side, the conversation list gains a **Self-review** column showing **Done / Not yet** per upcoming talk — visibility only, never a gate on conducting or signing off.

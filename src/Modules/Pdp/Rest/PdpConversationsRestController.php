@@ -193,6 +193,16 @@ class PdpConversationsRestController {
             $blocked = [ 'conducted_at', 'notes', 'agreed_actions', 'coach_signoff_at' ];
             foreach ( array_keys( $patch ) as $field ) {
                 if ( in_array( $field, $blocked, true ) ) {
+                    // #4308 — a not-held talk is never the active one, but
+                    // the reason is that it did not take place, not that an
+                    // earlier talk is still open.
+                    if ( \TT\Modules\Pdp\Services\PdpCycleState::isNotHeld( $conv ) ) {
+                        return RestResponse::error(
+                            'conversation_not_held',
+                            __( 'This talk did not take place, so it takes no notes. Record the next talk instead.', 'talenttrack' ),
+                            409
+                        );
+                    }
                     return RestResponse::error(
                         'conversation_not_active',
                         __( 'Only the planned date can be changed until the previous conversation is signed off.', 'talenttrack' ),
@@ -291,9 +301,12 @@ class PdpConversationsRestController {
                 return RestResponse::error( 'conversation_not_active',
                     __( 'A later talk has already moved on, so this talk stays marked as not held.', 'talenttrack' ), 409 );
             }
-            if ( ! $repo->update( $conv_id, [ 'not_held_at' => null, 'not_held_reason' => null ] ) ) {
+            $cleared = [ 'not_held_at' => null, 'not_held_reason' => null ];
+            if ( ! $repo->update( $conv_id, $cleared ) ) {
                 return RestResponse::error( 'db_error', __( 'The conversation could not be updated.', 'talenttrack' ), 500 );
             }
+            // #4309 — the talk is back on, so is the player's preparation.
+            \TT\Modules\Pdp\Workflow\PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $cleared );
             return RestResponse::success( [ 'id' => $conv_id ] );
         }
 
