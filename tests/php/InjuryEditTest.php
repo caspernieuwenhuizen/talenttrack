@@ -133,6 +133,66 @@ final class InjuryEditTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'You cannot edit this injury.', $refused );
     }
 
+    public function test_opening_the_edit_form_writes_exactly_one_read_audit_row(): void {
+        $id = $this->injury( 'Hamstring' );
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $id;
+
+        global $wpdb;
+        $count_sql = $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log
+              WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d",
+            $this->playerId
+        );
+        $before = (int) $wpdb->get_var( $count_sql );
+
+        ob_start();
+        FrontendInjuriesView::render( $this->admin, true );
+        ob_end_clean();
+
+        $this->assertSame( $before + 1, (int) $wpdb->get_var( $count_sql ), 'opening the form is one audited read' );
+
+        $payload = json_decode( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log
+              WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d
+              ORDER BY id DESC LIMIT 1",
+            $this->playerId
+        ) ), true );
+        $this->assertIsArray( $payload );
+        $this->assertSame( 'injury_edit_form', $payload['surface'] );
+        $this->assertSame( $id, $payload['injury_id'] );
+    }
+
+    public function test_an_archived_injury_is_refused_like_a_missing_one(): void {
+        $id = $this->injury( 'Binned on purpose' );
+        $this->assertTrue( ( new InjuryRepository() )->archive( $id, $this->admin ) );
+        $_GET['action'] = 'edit';
+        $_GET['id']     = (string) $id;
+
+        global $wpdb;
+        $count_sql = $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log
+              WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d",
+            $this->playerId
+        );
+        $before = (int) $wpdb->get_var( $count_sql );
+
+        ob_start();
+        FrontendInjuriesView::render( $this->admin, true );
+        $html = (string) ob_get_clean();
+
+        $this->assertStringContainsString( 'You cannot edit this injury.', $html );
+        $this->assertStringNotContainsString( 'player-injuries/', $html );
+        $this->assertStringNotContainsString( 'Binned on purpose', $html, 'no medical field of a binned record is printed' );
+        $this->assertSame( $before, (int) $wpdb->get_var( $count_sql ), 'a refusal reads nothing, so it logs no read' );
+
+        $_GET['id'] = (string) ( $id + 99999 );
+        ob_start();
+        FrontendInjuriesView::render( $this->admin, true );
+        $missing = (string) ob_get_clean();
+        $this->assertStringContainsString( 'You cannot edit this injury.', $missing, 'same answer as a missing injury' );
+    }
+
     public function test_the_overview_row_links_the_edit_form_for_a_writer(): void {
         $id = $this->injury( '' );
 

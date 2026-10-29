@@ -148,10 +148,22 @@ final class FrontendInjuriesView extends FrontendViewBase {
 
         $row       = ( new InjuryRepository() )->find( $id );
         $player_id = $row ? (int) ( $row->player_id ?? 0 ) : 0;
-        if ( ! $row || ! AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::CHANGE ) ) {
+        // An archived injury is in the recycle bin: it is restored there,
+        // not edited, so a hand-built URL gets the same answer as a
+        // missing one.
+        $archived  = $row && ! empty( $row->archived_at );
+        if ( ! $row || $archived || ! AuthorizationService::canRecordInjury( $user_id, $player_id, MatrixGate::CHANGE ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You cannot edit this injury.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        // The form prints medical fields, so opening it is a read and is
+        // audit-logged like the tab, the overview and the REST list.
+        ( new AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+            'surface'   => 'injury_edit_form',
+            'count'     => 1,
+            'injury_id' => $id,
+        ] );
 
         $player = QueryHelpers::get_player( $player_id );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : '';
