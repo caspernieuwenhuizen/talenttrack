@@ -9,6 +9,7 @@ use TT\Infrastructure\Journey\InjuryStatus;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Journey\JourneyModule;
@@ -54,7 +55,9 @@ final class InjuriesCollectionRestTest extends WP_UnitTestCase {
         $this->other_player = $this->insertPlayer( $this->other_team );
 
         $repo = new InjuryRepository();
-        $repo->create( [ 'player_id' => $this->player, 'started_on' => '2026-10-01' ] );
+        // Started today, so it stays `open` whatever day the suite runs on
+        // (a dated one turns `incomplete` after 14 days).
+        $repo->create( [ 'player_id' => $this->player, 'started_on' => AttendanceDateRule::today() ] );
         $repo->create( [ 'player_id' => $this->player, 'started_on' => '2026-08-01', 'actual_return' => '2026-08-20' ] );
         $repo->create( [ 'player_id' => $this->other_player, 'started_on' => '2026-10-02' ] );
     }
