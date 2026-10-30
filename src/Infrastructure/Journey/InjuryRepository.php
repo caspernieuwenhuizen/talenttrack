@@ -220,40 +220,35 @@ final class InjuryRepository {
      * @return list<int>
      */
     public function playersWithCheckDue( string $day ): array {
-        $due = InjuryStatus::checkDueSql();
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
-        $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT DISTINCT player_id
-               FROM {$this->table}
-              WHERE club_id = %d
-                AND {$due}",
-            array_merge( [ (int) CurrentClub::id() ], InjuryStatus::checkDueParams( $day ) )
-        ) );
-        return array_values( array_filter( array_map( 'intval', (array) $rows ), static fn ( int $id ): bool => $id > 0 ) );
+        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql(), InjuryStatus::checkDueParams( $day ) ) );
     }
 
     /**
-     * @param list<int>    $player_ids
-     * @param list<string> $params     Values for the predicate's placeholders.
+     * The player ids, among `$player_ids` (every player in the club when
+     * null), with a record matching `$predicate`.
+     *
+     * @param list<int>|null $player_ids
+     * @param list<string>   $params     Values for the predicate's placeholders.
      * @return array<int, true>
      */
-    private function playerSet( array $player_ids, string $predicate, array $params ): array {
+    private function playerSet( ?array $player_ids, string $predicate, array $params ): array {
         $ids = [];
-        foreach ( $player_ids as $pid ) {
+        foreach ( $player_ids ?? [] as $pid ) {
             $pid = (int) $pid;
             if ( $pid > 0 ) $ids[ $pid ] = true;
         }
-        if ( $ids === [] ) return [];
+        if ( $player_ids !== null && $ids === [] ) return [];
 
-        $ids = array_keys( $ids );
-        $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $ids   = array_keys( $ids );
+        $where = $player_ids === null
+            ? ''
+            : 'player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
             "SELECT DISTINCT player_id
                FROM {$this->table}
-              WHERE player_id IN ($in)
-                AND club_id = %d
+              WHERE {$where} club_id = %d
                 AND {$predicate}",
             array_merge( $ids, [ (int) CurrentClub::id() ], $params )
         ) );
