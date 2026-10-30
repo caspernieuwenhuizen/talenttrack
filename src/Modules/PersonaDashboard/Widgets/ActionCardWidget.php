@@ -119,7 +119,8 @@ class ActionCardWidget extends AbstractWidget {
         $id = $slot->data_source;
         if ( ! isset( self::ACTIONS[ $id ] ) ) return '';
         $action = self::ACTIONS[ $id ];
-        if ( ! empty( $action['cap'] ) && ! current_user_can( (string) $action['cap'] ) ) return '';
+        // Every action declares its cap, so there is no cap-less case.
+        if ( ! current_user_can( $action['cap'] ) ) return '';
 
         $label = $slot->persona_label !== ''
             ? $slot->persona_label
