@@ -221,7 +221,11 @@ the team roster pages.
 
 When two players on the same team share a first name, both render
 as `<firstName> <lastInitial>` (`Daan P`, `Daan A`) so the coach can
-tell them apart at a glance. The disambiguation triggers per team —
+tell them apart at a glance. When the initial is shared as well, those
+two players get more letters of the surname until they differ
+(`Dex Vr`, `Dex Va`); when the surnames are identical too, the shirt
+number is added (`Dex V #7`, `Dex V #14`). Only the players that would
+otherwise read the same get a longer name. The disambiguation triggers per team —
 a third `Daan` on a different team has no effect on this team's
 labels. The same player's short form is identical across every
 sub-surface of the match-prep page.

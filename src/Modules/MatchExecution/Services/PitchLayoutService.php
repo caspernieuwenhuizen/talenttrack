@@ -4,6 +4,7 @@ namespace TT\Modules\MatchExecution\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
+use TT\Shared\Util\PlayerShortName;
 
 /**
  * PitchLayoutService (#1713) — maps a match-prep lineup to positioned
@@ -25,7 +26,7 @@ final class PitchLayoutService {
      *
      * @param int                                          $formation_template_id The prep's bound formation template (0 = none).
      * @param array<int,int>                               $slot_to_player        slot_number => player_id for half 1.
-     * @param array<int, array{name:string, jersey:?int}>  $player_meta           player_id => display data.
+     * @param array<int, array{name:string, jersey:?int, first_name?:string, last_name?:string}> $player_meta player_id => display data.
      * @param int                                          $team_id               The fixture's team, for its football form when nothing is bound.
      *
      * @return list<array{
@@ -45,6 +46,10 @@ final class PitchLayoutService {
         // then 4-3-3. An 8v8 team is no longer drawn on eleven slots.
         $layout = FormationLayoutResolver::layoutFor( $formation_template_id, $team_id );
 
+        // #4372 — short names are resolved over the players on this pitch
+        // together, so two who would read the same get distinct labels.
+        $short = PlayerShortName::resolve( self::shortNameInput( $layout, $slot_to_player, $player_meta ) );
+
         $out = [];
         foreach ( $layout as $slot ) {
             $num  = (int) ( $slot['num'] ?? 0 );
@@ -60,7 +65,7 @@ final class PitchLayoutService {
                 'player_name' => $name,
                 // #3554 — the label the pitch prints, so a client redrawing
                 // it after a substitution prints exactly what the server did.
-                'short_name'  => self::shortName( $name ),
+                'short_name'  => $name !== '' ? (string) ( $short[ $pid ] ?? $name ) : '',
                 'jersey'      => ( $pid > 0 && $meta !== null ) ? $meta['jersey'] : null,
             ];
         }
@@ -125,30 +130,36 @@ final class PitchLayoutService {
     }
 
     /**
-     * #2223 — the pitch labels a player by first name + last initial
-     * ("Daan P."), the way a coach names them from the sideline. A
-     * single-word name is shown as-is; empty stays empty.
+     * #4372 — the players on the pitch in the shape `PlayerShortName`
+     * reads. Meta without separate name parts falls back to the display
+     * name split at its first space.
+     *
+     * @param array<int, array<string, mixed>> $layout
+     * @param array<int,int>                   $slot_to_player
+     * @param array<int, array<string, mixed>> $player_meta
+     * @return list<array{id:int, first_name:string, last_name:string, jersey_number:?int}>
      */
-    public static function shortName( string $name ): string {
-        $name = trim( $name );
-        if ( $name === '' ) {
-            return '';
+    private static function shortNameInput( array $layout, array $slot_to_player, array $player_meta ): array {
+        $players = [];
+        foreach ( $layout as $slot ) {
+            $pid  = (int) ( $slot_to_player[ (int) ( $slot['num'] ?? 0 ) ] ?? 0 );
+            $meta = $player_meta[ $pid ] ?? null;
+            if ( $pid <= 0 || $meta === null ) continue;
+            if ( isset( $meta['first_name'] ) || isset( $meta['last_name'] ) ) {
+                $first = (string) ( $meta['first_name'] ?? '' );
+                $last  = (string) ( $meta['last_name'] ?? '' );
+            } else {
+                $parts = explode( ' ', trim( (string) ( $meta['name'] ?? '' ) ), 2 );
+                $first = $parts[0];
+                $last  = $parts[1] ?? '';
+            }
+            $players[] = [
+                'id'            => $pid,
+                'first_name'    => $first,
+                'last_name'     => $last,
+                'jersey_number' => isset( $meta['jersey'] ) ? (int) $meta['jersey'] : null,
+            ];
         }
-        $parts = preg_split( '/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY );
-        if ( ! is_array( $parts ) ) {
-            return $name;
-        }
-        $first = (string) $parts[0];
-        if ( count( $parts ) === 1 ) {
-            return $first;
-        }
-        $last    = (string) $parts[ count( $parts ) - 1 ];
-        $initial = function_exists( 'mb_substr' )
-            ? mb_strtoupper( mb_substr( $last, 0, 1, 'UTF-8' ), 'UTF-8' )
-            : strtoupper( substr( $last, 0, 1 ) );
-        if ( $initial === '' ) {
-            return $first;
-        }
-        return $first . ' ' . $initial . '.';
+        return $players;
     }
 }

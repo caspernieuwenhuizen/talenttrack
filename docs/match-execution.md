@@ -425,9 +425,13 @@ the bound formation's shape (4-3-3, 4-2-3-1, 4-4-2, and the other
 supported shapes).
 
 - A filled spot shows the player's shirt number (or position label when no
- number is set) and a short name. The short name is the player's **first
- name plus last initial** (e.g. "Daan P."), the way a coach names a player
- from the sideline; a player with a single-word name shows it as-is.
+ number is set) and a short name, shortened the same way as in match
+ prep: the player's **first name** (e.g. "Daan") when nobody else on the
+ pitch shares it; the first name plus the surname initial ("Daan P") when
+ someone does; more surname letters ("Dex Vr", "Dex Va") when the initial
+ is shared too; and the shirt number ("Dex V #7") when the surnames are
+ identical. The match's Line-up card on the activity page shortens names
+ the same way, over its starters and bench together.
 - An empty spot — a slot with no player assigned in the prep — shows a
  dashed marker with the position label.
 

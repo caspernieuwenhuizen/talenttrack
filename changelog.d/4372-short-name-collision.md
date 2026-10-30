@@ -1,0 +1,3 @@
+# Two players never share a short name on the pitch or the Line-up card (#4372)
+
+Two players in one squad could both show as "Dex V" in match prep, and the live match pitch and the activity's Line-up card never told players apart at all. One resolver now shortens names everywhere, over the players the surface shows: the first name alone when it is unique, the surname initial when first names collide, more surname letters when the initial is shared too ("Dex Vr", "Dex Va"), and the shirt number when the surnames are identical ("Dex V #7"). The live pitch and the Line-up card now use the same rule as match prep, so a player whose first name is unique there reads "Daan" instead of "Daan P.".
