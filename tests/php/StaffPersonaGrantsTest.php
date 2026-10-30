@@ -105,6 +105,12 @@ final class StaffPersonaGrantsTest extends WP_UnitTestCase {
         $this->assertNotSame( [], $scopes, 'the staff persona must still be seeded something' );
 
         foreach ( $scopes as $entity => $scope_kind ) {
+            // #4296 (D-15) — the one global row: reading the club's lookup
+            // lists, which hold no player data.
+            if ( $entity === 'lookups' ) {
+                $this->assertSame( 'global', $scope_kind );
+                continue;
+            }
             $this->assertContains(
                 $scope_kind,
                 [ 'team', 'self' ],

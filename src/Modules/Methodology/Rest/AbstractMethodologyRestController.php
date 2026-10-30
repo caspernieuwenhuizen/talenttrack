@@ -79,6 +79,21 @@ abstract class AbstractMethodologyRestController {
         return current_user_can( static::CAP );
     }
 
+    /**
+     * #4296 — the read gate for a controller whose content the coaches
+     * read: `tt_view_methodology` (`methodology: read`), asked through the
+     * matrix. Pins `methodology_id` the same way `can_edit()` does.
+     */
+    public static function can_view( ?\WP_REST_Request $request = null ): bool {
+        if ( $request instanceof \WP_REST_Request ) {
+            $mid = (int) $request->get_param( 'methodology_id' );
+            if ( $mid > 0 ) {
+                MethodologyScope::set( $mid );
+            }
+        }
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_methodology' );
+    }
+
     // ── body contract (#3819) ────────────────────────────────────────
 
     /**

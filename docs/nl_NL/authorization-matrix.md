@@ -598,6 +598,22 @@ Standaard hebben **Hoofd opleiding** en **Academiebeheerder** lezen en wijzigen,
 
 Bestaande installaties krijgen het wijzigrecht voor hoofd opleiding en academiebeheerder met de update die het invoerde (migratie `0272_authorization_seed_topup_analytics_change`), en het leesrecht van de teammanager met `0277_authorization_seed_topup_manager_analytics`. Beide voegen hun regels toe met `INSERT IGNORE` en laten elke rij die een beheerder heeft aangepast ongemoeid.
 
+## Matrix-entiteit `lookups` — de woordenlijsten van de club (#4296)
+
+De lookups zijn de lijsten van de club: soorten blessures, lichaamsdelen, ernst, posities, aanwezigheidsstatussen en de rest. Een vastlegging bewaart een lookup-id, dus wie een vastlegging maakt, heeft de lijst nodig om uit te kiezen. `GET /lookups` en `GET /lookups/{type}` vragen `tt_view_lookups`, dat koppelt naar `lookups: read`.
+
+| Persona | Recht |
+|---|---|
+| `head_coach`, `assistant_coach`, `staff`, `scout` | `read`, global |
+| `head_of_development` | `read`, global |
+| `academy_admin` | `read` + `change` + `create_delete`, global |
+
+**Alleen stafpersona's (D-15).** Een lookup bevat geen spelersgegevens, maar ouders en spelers hebben de route niet nodig: zij lezen het label in de vastlegging die ze mogen zien. Een teammanager of waarnemer die geen vastleggingen met deze lijsten maakt, krijgt evenmin een recht. Een lookup schrijven blijft bij `tt_edit_settings`.
+
+Bestaande installaties krijgen de vier stafrijen met migratie `0300_authorization_seed_staff_read_lookups`, die ze met `INSERT IGNORE` toevoegt en elke rij die een beheerder heeft aangepast met rust laat.
+
+De principes van de methodologie volgen hetzelfde idee zonder wijziging in de seed. `GET /methodology/principles[/{id}]` vraagt nu `tt_view_methodology` (`methodology: read`, dat beide trainerspersona's en de scout al hebben) in plaats van het bewerkrecht, en schrijven blijft bij `tt_edit_methodology`.
+
 ## De functionele-rol-as (#3257, #3433)
 
 De matrix sleutelt op `(persona, entiteit, activiteit, scope_kind)`. Een fysio en een materiaalman houden dezelfde WordPress-rol `tt_staff`, komen dus uit op dezelfde persona — `staff` — en **geen enkele cel in dit raster kan die twee uit elkaar houden**. Dat is geen gat in de seed; dat is de vorm van de sleutel. De grant `player_injuries [rc, team]` uit #3232 bereikte daardoor elk Staf-account, ook accounts die om volstrekt niet-medische redenen waren uitgedeeld.
