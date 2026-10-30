@@ -1800,7 +1800,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         };
 
         echo '<div class="tt-act-lineup">';
-        $render_group( __( 'Starting XI', 'talenttrack' ), $lineup->starting, count( $lineup->starting ) );
+        $render_group( __( 'Starting line-up', 'talenttrack' ), $lineup->starting, count( $lineup->starting ) );
         $render_group( __( 'Bench', 'talenttrack' ), $lineup->bench, count( $lineup->bench ) );
         echo '</div>';
 

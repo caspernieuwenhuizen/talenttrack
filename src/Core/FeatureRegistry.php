@@ -534,7 +534,7 @@ class FeatureRegistry {
             // reads as enabled.
             'export_match_day_team_sheet' => [
                 'label'           => __( 'Match day team sheet', 'talenttrack' ),
-                'description'     => __( 'The referee/opposition team sheet (Starting XI, Bench, Squad + signature lines). Switch off if match forms are filed digitally. The coach\'s own match-prep PDF is a separate setting.', 'talenttrack' ),
+                'description'     => __( 'The referee/opposition team sheet (Starting line-up, Bench, Squad + signature lines). Switch off if match forms are filed digitally. The coach\'s own match-prep PDF is a separate setting.', 'talenttrack' ),
                 'module_class'    => 'TT\\Modules\\MatchPrep\\MatchPrepModule',
                 'default_enabled' => true,
                 'view_slugs'      => [],
