@@ -889,6 +889,14 @@ class DashboardShortcode {
                 FrontendMyTeamView::render( $target );
                 return true;
             case 'teammate':
+                // #4271 — with no own player row (a parent, or staff) there
+                // is no squad to be a teammate in. The generic refusal told
+                // a parent they were "not linked to a player"; they are.
+                if ( ! $player ) {
+                    FrontendBreadcrumbs::fromDashboard( __( 'Teammate', 'talenttrack' ) );
+                    echo '<p class="tt-notice">' . esc_html__( 'Teammate profiles are visible to players only.', 'talenttrack' ) . '</p>';
+                    return true;
+                }
                 if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 $teammate_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 FrontendTeammateView::render( $player, $teammate_id );
