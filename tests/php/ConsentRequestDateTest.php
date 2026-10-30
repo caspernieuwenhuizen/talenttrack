@@ -70,7 +70,7 @@ final class ConsentRequestDateTest extends WP_UnitTestCase {
         $response = $this->post( $this->shift( 1 ) );
 
         $this->assertSame( 400, $response->get_status() );
-        $this->assertSame( 'invalid_asked_at', $response->get_data()['code'] ?? ( $response->get_data()['error']['code'] ?? null ) );
+        $this->assertSame( 'invalid_asked_at', $response->get_data()['errors'][0]['code'] ?? null );
         $this->assertSame( 0, $this->stored() );
     }
 
