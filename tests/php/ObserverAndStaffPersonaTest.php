@@ -202,6 +202,13 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
                 $this->assertSame( 'self', $row['scope_kind'] );
                 continue;
             }
+            // #4296 (D-15) — the one global row, and a read: the club's
+            // lookup lists (injury type, body part …). Vocabulary, no
+            // player data; the staff member needs it to fill in a record.
+            if ( $row['entity'] === 'lookups' ) {
+                $this->assertSame( [ 'global', 'read' ], [ $row['scope_kind'], $row['activity'] ] );
+                continue;
+            }
             $this->assertSame(
                 'team',
                 $row['scope_kind'],
@@ -238,7 +245,8 @@ final class ObserverAndStaffPersonaTest extends WP_UnitTestCase {
         sort( $entities );
 
         $this->assertSame(
-            [ 'my_person', 'people', 'player_notes', 'players', 'team' ],
+            // #4296 (D-15) added `lookups`: read-only club vocabulary.
+            [ 'lookups', 'my_person', 'people', 'player_notes', 'players', 'team' ],
             array_values( $entities )
         );
     }
