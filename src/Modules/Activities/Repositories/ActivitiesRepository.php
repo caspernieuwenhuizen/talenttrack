@@ -1482,6 +1482,89 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #4379 — every activity of several teams dated within `[$from, $to]`
+     * (inclusive, `Y-m-d`), past days included, for the coach's "This
+     * week" panel. One query for the whole window. Cancelled activities
+     * are left out: there is nothing left for them to need.
+     *
+     * @param list<int> $team_ids
+     * @return list<object> rows with id, team_id, title, session_date,
+     *                      start_time, end_time, time_of_presence, location,
+     *                      opponent, home_away, activity_type_key,
+     *                      activity_status_key
+     */
+    public function listForTeamsInWindow( array $team_ids, string $from, string $to ): array {
+        $team_ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ) ) ) );
+        if ( $team_ids === [] ) return [];
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $params       = array_merge( $team_ids, [ CurrentClub::id(), $from, $to ] );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.team_id, a.title, a.session_date, a.start_time, a.end_time,
+                    a.time_of_presence, a.location, a.opponent, a.home_away,
+                    a.activity_type_key, a.activity_status_key
+               FROM {$p}tt_activities a
+              WHERE a.team_id IN ({$placeholders})
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.session_date >= %s
+                AND a.session_date <= %s
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
+                {$scope}
+           ORDER BY a.session_date ASC, a.start_time IS NULL, a.start_time ASC, a.id ASC",
+            ...$params
+        ) );
+
+        return is_array( $rows ) ? array_values( $rows ) : [];
+    }
+
+    /**
+     * #4379 — the planned-squad statuses of several activities in one
+     * query: activity id => stored status => count, over the non-guest
+     * `record_type = 'expected'` rows. The caller reads the statuses as
+     * plan states (Present = expected, Absent = not coming, Excused =
+     * maybe), as `GET /activities/{id}/planned-attendance` does.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, array<string, int>>
+     */
+    public function plannedStatusCounts( array $activity_ids ): array {
+        $activity_ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ) ) ) );
+        if ( $activity_ids === [] ) return [];
+
+        global $wpdb;
+        $p            = $wpdb->prefix;
+        $placeholders = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT activity_id, status, COUNT(*) AS n
+               FROM {$p}tt_attendance
+              WHERE club_id = %d
+                AND activity_id IN ({$placeholders})
+                AND record_type = 'expected'
+                AND is_guest = 0
+           GROUP BY activity_id, status",
+            ...array_merge( [ CurrentClub::id() ], $activity_ids )
+        ) );
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $fields = (array) $row;
+            $aid    = (int) ( $fields['activity_id'] ?? 0 );
+            $status = (string) ( $fields['status'] ?? '' );
+            $out[ $aid ][ $status ] = ( $out[ $aid ][ $status ] ?? 0 ) + (int) ( $fields['n'] ?? 0 );
+        }
+        return $out;
+    }
+
+    /**
      * #1614 — upcoming-activity counts per team for the teams-list cards.
      *
      * Counts non-archived, non-completed/cancelled activities whose

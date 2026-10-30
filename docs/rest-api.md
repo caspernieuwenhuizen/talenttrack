@@ -1379,6 +1379,45 @@ Read-only. The correction path — a family filling in their own guardian contac
 
 **Permission:** logged in. Like the rest of this controller the route takes no id in any form; it answers for `get_current_user_id()`.
 
+## The coach's week (#4379)
+
+### `GET /me/week`
+
+The caller's week, Monday to Sunday in site time: every activity on the teams they coach (`QueryHelpers::get_teams_for_coach()`), in date and start-time order, with what each one still needs. The tile landing's **This week** panel renders exactly these rows; both read `Modules\Activities\Services\CoachWeek::forUser()`.
+
+```json
+{ "visible": true, "week_start": "2026-11-02", "week_end": "2026-11-08", "today": "2026-11-04",
+  "multiple_teams": false, "has_match": true,
+  "rows": [
+    { "activity_id": 812, "team_id": 52, "team_name": "JO13-1", "date": "2026-11-03", "when": "past",
+      "type_key": "training", "type_label": "Training", "is_match": false, "title": "Training JO13-1",
+      "opponent": "", "home_away": "", "start_time": "18:30", "end_time": "", "meet_time": "",
+      "location": "Sportpark De Wending", "attendance_recorded": false, "planned": null,
+      "training_plan": null, "availability": null, "lineup": null, "actions": ["mark_attendance"] },
+    { "activity_id": 815, "team_id": 52, "team_name": "JO13-1", "date": "2026-11-07", "when": "upcoming",
+      "type_key": "game", "type_label": "Match", "is_match": true, "title": "Away",
+      "opponent": "VV Zwaluwen JO13-2", "home_away": "away", "start_time": "10:00", "end_time": "",
+      "meet_time": "09:15", "location": "Wijchen", "attendance_recorded": null, "planned": null,
+      "training_plan": null, "availability": { "available": 15, "unavailable": 2 },
+      "lineup": { "placed": 9, "target": 11 }, "actions": ["match_prep", "open_activity"] } ] }
+```
+
+- `when` is `past`, `today` or `upcoming`, against `today` (site time).
+- `attendance_recorded` is set on a **past** activity that carries a register (not a meeting or `other`): `true` when at least one recorded (`record_type = 'actual'`) non-guest row with a status exists. `null` otherwise.
+- `planned` is set on a non-match activity today or later when a planned squad was captured: `expected` counts the non-guest planned rows that are not *not coming* or *maybe*, `roster` is the team's current roster size. `null` when no plan was captured.
+- `training_plan` is set on a training today or later: whether a training-plan run is attached. `null` for other types, or when the Training module is off.
+- `availability` is set on a match today or later: counts over the team's current roster from `PlayerAvailability::unavailableForActivity()` (injured on the match date, or covered by a suspension). **Counts only**: no player id, no cause, no injury detail (#4005 decision 3).
+- `lineup` is set on a match today or later that has a match prep: first-half starters placed against the formation's `starter_target`. `null` when no prep exists or the Match prep module is off.
+- `actions` are keys, not URLs, so each client builds its own links: `mark_attendance` (a past activity whose register is not recorded, or a non-match activity today), `match_prep` (a match today or later), `start_match` (instead of `match_prep` on match day once a prep exists and Match execution is on), `open_activity` (on every match row today or later). Every action except `open_activity` needs `tt_edit_activities`.
+- Cancelled and archived activities are left out.
+- `visible: false` with `rows: []` — not a 403 — when the caller's active persona (the persona switcher's choice, else the first persona they hold) is not in the academy's `coach_week.personas` list, or the caller coaches no team. A client hides the panel the same way the landing does.
+
+**The persona list** is the `tt_config` key `coach_week.personas`, a JSON list of persona keys, default `["head_coach","assistant_coach"]` when unset. It is read and written through `GET/POST /config` (gated like the `persona_dashboard.*` keys, on the `feature_toggles` area). A write is normalised to the known staff personas (`academy_admin`, `head_of_development`, `head_coach`, `assistant_coach`, `team_manager`, `scout`, `readonly_observer`); `player`, `parent` and unknown keys are dropped.
+
+**Permission:** `tt_view_activities` or `tt_edit_activities` through `AuthorizationService::userCanOrMatrix()` (`ActivityAccess::isStaffReader()`); 403 otherwise. The route takes no id; the caller is the scope. Registered by the Activities module, so it is absent when that module is off.
+
+**Performance:** one query each for the week's activities, the register counts, the planned squads, the rosters and the training-plan runs, whatever the number of rows. Availability and line-up progress are read per match row.
+
 ## Parent accounts (#1815, #3571)
 
 Linking a parent's login to a player — the `tt_player_parents` link that decides what a parent can see. Every route is gated on `tt_manage_parent_accounts`.

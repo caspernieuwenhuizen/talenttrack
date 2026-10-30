@@ -64,6 +64,31 @@ final class TrainingPlanRunsRepository {
     }
 
     /**
+     * #4379 — which of these activities have a run attached, in one query,
+     * for a surface that asks about a week of activities at once.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, true> activity id => true, for those with a run
+     */
+    public function activityIdsWithRun( array $activity_ids ): array {
+        $activity_ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ) ) ) );
+        if ( $activity_ids === [] ) return [];
+        global $wpdb;
+        $placeholders = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT activity_id FROM {$this->table()}
+              WHERE club_id = %d AND activity_id IN ({$placeholders})",
+            ...array_merge( [ CurrentClub::id() ], $activity_ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $ids ) ? $ids : [] as $id ) {
+            $out[ (int) $id ] = true;
+        }
+        return $out;
+    }
+
+    /**
      * Runs of a plan, newest first. This is the plan detail's
      * "Uitvoeringen" tab.
      *
