@@ -36,6 +36,8 @@ Op een telefoon wordt die balk één regel. Op het dashboard zie je één samenv
 
 Elke melding linkt rechtstreeks naar het record waar het over gaat, dus oplossen is één klik.
 
+Meldingen staan in de taal van de site, welke taal je eigen profiel ook heeft. Dezelfde melding leest hetzelfde in de bel, de balk, de meldingenlijst en de e-mailsamenvatting. Op een Nederlandstalige site ziet een gebruiker met een Engels profiel de meldingen dus ook in het Nederlands.
+
 ## Waar TalentTrack nu op meldt
 
 ### Activiteiten

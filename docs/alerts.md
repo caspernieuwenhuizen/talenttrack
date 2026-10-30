@@ -36,6 +36,8 @@ On a phone the banner becomes a single line. On the dashboard you see one summar
 
 Each alert links straight to the record it is about, so fixing it is one click away.
 
+Alerts are written in the site's language, whatever language your own profile is set to. The same alert reads the same in the bell, the banner, the alerts list and the email digest. On a Dutch site, a user with an English profile still sees the alerts in Dutch.
+
 ## What TalentTrack currently alerts on
 
 ### Activities

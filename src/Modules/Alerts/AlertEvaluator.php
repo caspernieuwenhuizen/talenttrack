@@ -83,7 +83,9 @@ final class AlertEvaluator {
             return $stat;
         }
 
-        $occurrences = $alert->evaluate( $context );
+        $occurrences = $this->inSiteLocale( static function () use ( $alert, $context ) {
+            return $alert->evaluate( $context );
+        } );
         if ( ! is_array( $occurrences ) ) $occurrences = [];
 
         if ( count( $occurrences ) > self::OCCURRENCE_CEILING ) {
@@ -156,6 +158,15 @@ final class AlertEvaluator {
      * @return array<string,array{created:int,bumped:int,resolved:int,skipped:int,truncated:bool,ms:int}>
      */
     public function runAll( AlertContext $context ): array {
+        return $this->inSiteLocale( function () use ( $context ): array {
+            return $this->runAllInCurrentLocale( $context );
+        } );
+    }
+
+    /**
+     * @return array<string,array{created:int,bumped:int,resolved:int,skipped:int,truncated:bool,ms:int}>
+     */
+    private function runAllInCurrentLocale( AlertContext $context ): array {
         $out = [];
         foreach ( AlertRegistry::all() as $key => $alert ) {
             $started = microtime( true );
@@ -196,6 +207,15 @@ final class AlertEvaluator {
     public function runForSubject( AlertContext $context ): array {
         if ( $context->isFullSweep() ) return [];
 
+        return $this->inSiteLocale( function () use ( $context ): array {
+            return $this->runForSubjectInCurrentLocale( $context );
+        } );
+    }
+
+    /**
+     * @return array<string,array{created:int,bumped:int,resolved:int,skipped:int,truncated:bool,ms:int}>
+     */
+    private function runForSubjectInCurrentLocale( AlertContext $context ): array {
         $out = [];
         foreach ( AlertRegistry::all() as $key => $alert ) {
             if ( $alert->subjectType() !== $context->subjectType ) continue;
@@ -215,6 +235,29 @@ final class AlertEvaluator {
             $out[ $key ] = $stat;
         }
         return $out;
+    }
+
+    /**
+     * Run `$fn` in the site language (#4265).
+     *
+     * Titles are written into the stored payload, so they must not depend on
+     * who triggered the run: the cron sweep runs in the site locale, but the
+     * request-time drain runs in the requesting user's. `runAll()` and
+     * `runForSubject()` switch once for the whole batch; the switch inside
+     * `run()` is then a no-op, and only costs anything when `run()` is called
+     * on its own.
+     *
+     * @template T
+     * @param callable():T $fn
+     * @return T
+     */
+    private function inSiteLocale( callable $fn ) {
+        $switched = function_exists( 'switch_to_locale' ) && switch_to_locale( get_locale() );
+        try {
+            return $fn();
+        } finally {
+            if ( $switched ) restore_previous_locale();
+        }
     }
 
     /**
