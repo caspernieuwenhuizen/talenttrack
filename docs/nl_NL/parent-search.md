@@ -35,6 +35,8 @@ Alleen de dossiers van je eigen kinderen. De zoekfunctie komt nooit bij een ande
 
 Het laat je ook nooit iets zien dat je niet al via de pagina's van je eigen kind kunt openen. Het maakt bereikbaar waar je recht op hebt; het breidt dat niet uit.
 
+Trainers en andere stafleden die deze pagina openen, krijgen er ook geen resultaten. Zij worden doorgestuurd naar de zoekfunctie die spelers doorzoekt: het zoekveld bovenaan het scherm, of de spelerslijst als dat veld er niet is.
+
 ## Als je meer dan één kind hebt
 
 De pagina vertelt wiens dossiers doorzocht worden, en doorzoekt ze allemaal tegelijk. Elk resultaat opent bij het juiste kind.

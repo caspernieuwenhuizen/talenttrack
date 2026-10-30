@@ -1,0 +1,3 @@
+# Search page points staff to the player search instead of asking them to link a child (#4252)
+
+The search page (`?tt_view=search`) is the parent search, and it only covers a parent's own children. A coach or team manager who opened it by URL was told "No child is linked to your account yet … Ask the academy to link you", followed by "Nothing found". Staff now get a short explanation and one control instead. In the app shell, a "Search players" button puts the cursor in the search field at the top of the screen. In the classic shell, a "Players" button opens the players list, shown only when the user may open it. A parent without a linked child still gets the existing notice, and what the parent search finds is unchanged.

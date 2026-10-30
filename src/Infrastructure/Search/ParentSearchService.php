@@ -167,6 +167,21 @@ final class ParentSearchService {
     }
 
     /**
+     * #4252 — is this caller someone the parent search is for?
+     *
+     * A linked child, or the parent persona without one yet (that parent is
+     * told to ask the academy for the link). Anyone else reached the page by
+     * URL and gets pointed at the search that covers them instead.
+     */
+    public static function isParentCaller( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( ParentChildResolver::childCount( $user_id ) > 0 ) return true;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) return false;
+
+        return in_array( 'parent', \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id ), true );
+    }
+
+    /**
      * A date the reader typed, as `Y-m-d`, or '' when the query is not one.
      *
      * "3 nov" and "2026-11-03" both name a day; "training" does not, and

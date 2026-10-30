@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Search\ParentSearchService;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\CrossViewLink;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
  * FrontendParentSearchView (#3806) — `?tt_view=search`.
@@ -47,6 +49,14 @@ class FrontendParentSearchView extends FrontendViewBase {
         $query   = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['q'] ) ) : '';
 
         $found = ( new ParentSearchService() )->search( $user_id, $query );
+
+        // #4252 — staff reach this page only by URL. It searches nothing
+        // for them, so point at the search that does instead of telling
+        // them to get a child linked.
+        if ( $found['children'] === [] && ! ParentSearchService::isParentCaller( $user_id ) ) {
+            self::renderStaffPointer( $user_id );
+            return;
+        }
 
         self::renderForm( $query, $found['children'] );
 
@@ -96,6 +106,35 @@ class FrontendParentSearchView extends FrontendViewBase {
                 implode( ', ', $names )
             ) ) . '</p>';
         }
+    }
+
+    /**
+     * The staff empty state. In the app shell the search in the header
+     * covers players, so the control puts the cursor there; the classic
+     * shell has no such field, so it links to the players list when the
+     * caller may open it.
+     */
+    private static function renderStaffPointer( int $user_id ): void {
+        echo '<div class="tt-parent-search__staff">';
+
+        if ( ShellPreference::isApp( $user_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'This search covers a parent\'s own children. To find a player, use the search at the top.', 'talenttrack' ) . '</p>';
+            echo '<button type="button" class="tt-btn tt-btn-secondary tt-parent-search__pointer" data-tt-spotlight-focus>'
+                . esc_html__( 'Search players', 'talenttrack' ) . '</button>';
+            echo '</div>';
+            return;
+        }
+
+        if ( CrossViewLink::allows( 'players' ) ) {
+            $players_url = add_query_arg( [ 'tt_view' => 'players' ], RecordLink::dashboardUrl() ); // gated: CrossViewLink::allows above
+            echo '<p class="tt-notice">' . esc_html__( 'This search covers a parent\'s own children. To find a player, open the players list.', 'talenttrack' ) . '</p>';
+            echo '<a class="tt-btn tt-btn-secondary tt-parent-search__pointer" href="' . esc_url( $players_url ) . '">'
+                . esc_html__( 'Players', 'talenttrack' ) . '</a>';
+        } else {
+            echo '<p class="tt-notice">' . esc_html__( 'This search covers a parent\'s own children.', 'talenttrack' ) . '</p>';
+        }
+
+        echo '</div>';
     }
 
     /**

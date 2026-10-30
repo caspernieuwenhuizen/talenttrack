@@ -1,0 +1,19 @@
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid ""
+"This search covers a parent's own children. To find a player, use the search "
+"at the top."
+msgstr ""
+"Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder. Gebruik "
+"het zoekveld bovenaan om een speler te vinden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid ""
+"This search covers a parent's own children. To find a player, open the "
+"players list."
+msgstr ""
+"Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder. Open de "
+"spelerslijst om een speler te vinden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "This search covers a parent's own children."
+msgstr "Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder."
