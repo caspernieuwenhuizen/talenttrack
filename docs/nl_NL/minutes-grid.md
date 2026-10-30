@@ -37,6 +37,13 @@ een desktop of laptop.
  had gepland — een speler die je wel had opgesteld maar nooit aanwezig hebt
  gemeld, blijft gearceerd. Leg eerst zijn aanwezigheid vast als dat niet
  klopt.
+- **"Aanwezigheid nog niet vastgelegd"** over een hele kolom betekent dat voor
+ die wedstrijd van niemand de aanwezigheid is vastgelegd, dus er zit nog
+ niemand in de selectie, ook als je in de wedstrijdvoorbereiding een
+ opstelling hebt opgeslagen. Tik in die kolom op **Aanwezigheid registreren**
+ om de presentielijst in te vullen en kom daarna terug om de minuten in te
+ voeren. Een toernooiwedstrijd krijgt zijn presentielijst als je hem afsluit
+ in de toernooiplanner, dus die kolom heeft geen knop.
 - Een **"live"**-label op een kolom betekent dat die minuten uit een via het
  wedstrijdformulier gespeelde wedstrijd komen. Je mag hier toch een waarde
  corrigeren — je invoer wordt bewaard als correctie die een herberekening

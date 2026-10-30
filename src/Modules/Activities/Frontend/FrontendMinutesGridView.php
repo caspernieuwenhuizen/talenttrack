@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
+use TT\Modules\Activities\Services\ActivityCompletionResolver;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -272,6 +274,17 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '</tr>';
         echo '</thead><tbody>';
 
+        // #4247 — a match with no recorded register has nobody in its squad,
+        // so instead of a dash per player the column carries one notice that
+        // says why and leads to where the register is taken.
+        $no_register = [];
+        foreach ( $activities as $a ) {
+            if ( ( $a['register_recorded'] ?? true ) === false ) {
+                $no_register[ (int) $a['activity_id'] ] = self::noRegisterNotice( $a, count( $players ) );
+            }
+        }
+        $first_row = true;
+
         foreach ( $players as $pl ) {
             $pid    = (int) $pl['player_id'];
             $jersey = $pl['jersey_number'] !== null ? (int) $pl['jersey_number'] : null;
@@ -292,6 +305,14 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 $aid  = (int) $a['activity_id'];
                 $cell = $cells[ $pid ][ $aid ] ?? null;
                 $when = $a['session_date'] !== '' ? date_i18n( 'j M', strtotime( (string) $a['session_date'] ) ) : '';
+
+                if ( isset( $no_register[ $aid ] ) ) {
+                    // A goal logged live still counts towards the totals.
+                    $goals   += (int) ( $cell['goals'] ?? 0 );
+                    $assists += (int) ( $cell['assists'] ?? 0 );
+                    if ( $first_row ) echo $no_register[ $aid ]; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in noRegisterNotice().
+                    continue;
+                }
 
                 if ( $cell === null ) {
                     // Not in this match's squad — informational, not editable.
@@ -331,6 +352,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             echo '<td class="tt-agrid__rate tt-agrid-stat" data-stat="goals">' . esc_html( (string) number_format_i18n( $goals ) ) . '</td>';
             echo '<td class="tt-agrid__rate tt-agrid-stat" data-stat="assists">' . esc_html( (string) number_format_i18n( $assists ) ) . '</td>';
             echo '</tr>';
+            $first_row = false;
         }
 
         echo '</tbody>';
@@ -351,6 +373,54 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         echo '</div>';
 
         echo '</div>'; // .tt-agrid-card
+    }
+
+    /**
+     * #4247 — the one cell a column without a recorded register shows, spanning
+     * every player row. It links to the activity's attendance step when the
+     * reader can reach it; a tournament fixture or day takes its register from
+     * the tournament planner, so it gets the explanation without the link.
+     *
+     * @param array<string,mixed> $a A column from `MinutesGridQuery::matrix()`.
+     */
+    private static function noRegisterNotice( array $a, int $rows ): string {
+        $aid = (int) $a['activity_id'];
+
+        $html  = '<td class="tt-agrid-cell tt-agrid-cell--noreg tt-agrid-cell--sep" colspan="3" rowspan="' . esc_attr( (string) max( 1, $rows ) ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
+        $html .= '<span class="tt-agrid-noreg__text">' . esc_html__( 'Attendance not recorded yet', 'talenttrack' ) . '</span>';
+
+        $url = empty( $a['is_neutral'] ) ? self::recordAttendanceUrl( $aid, get_current_user_id() ) : '';
+        if ( $url !== '' ) {
+            $html .= '<a class="tt-btn tt-btn-secondary tt-agrid-noreg__link" href="' . esc_url( $url ) . '">' . esc_html__( 'Record attendance', 'talenttrack' ) . '</a>';
+        }
+
+        return $html . '</td>';
+    }
+
+    /**
+     * Where "Record attendance" leads for a column without a register.
+     *
+     * A match finalized on the live sheet goes straight to the attendance
+     * grid for that match, the same target as the live sheet's own notice:
+     * the completion URL would open the finished sheet, where the way to the
+     * register sits at the bottom of the page. Every other match keeps the
+     * completion URL, which for a paper match is the wizard's attendance step.
+     */
+    private static function recordAttendanceUrl( int $activity_id, int $user_id ): string {
+        $exec  = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( $activity_id );
+        $state = $exec !== null ? (string) ( $exec->state ?? '' ) : '';
+        $finalized = in_array( $state, [
+            \TT\Domain\Vocabularies\Enums\MatchExecutionState::FINALIZED,
+            \TT\Domain\Vocabularies\Enums\MatchExecutionState::FINISHED,
+        ], true );
+
+        if ( $finalized ) {
+            if ( ! ActivityGridLink::canUseAttendance( $activity_id, $user_id ) ) return '';
+            return ActivityGridLink::attendanceUrl( $activity_id, true );
+        }
+
+        if ( ! ActivityCompletionResolver::canComplete( $activity_id, 'match', $user_id ) ) return '';
+        return ActivityCompletionResolver::completionUrl( $activity_id, 'match', home_url( add_query_arg( [] ) ) );
     }
 
     /**

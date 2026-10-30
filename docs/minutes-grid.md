@@ -35,6 +35,12 @@ it's built for a desktop or laptop.
  no minutes to record. The squad here is the attendance you **recorded**, not
  the one you planned — a player you selected for the match but never marked
  present stays hatched. Mark their attendance first if that's wrong.
+- **"Attendance not recorded yet"** across a whole column means nobody's
+ attendance was recorded for that match, so nobody is in its squad yet, even
+ if you saved a line-up in match prep. Tap **Record attendance** in that
+ column to take the register, then come back to enter the minutes. A
+ tournament match takes its register when you complete it in the tournament
+ planner, so its column has no button.
 - A **"live"** badge on a column means those minutes come from a match run
  through the match sheet. You can still correct a figure here — your entry is
  kept as a correction that survives a recount.
