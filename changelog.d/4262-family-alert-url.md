@@ -1,0 +1,3 @@
+# Family alerts open the child's profile instead of a "Not authorized" page (#4262)
+
+The "Open" link on a parent's alert about their child (a goal past its target date, an evaluation without feedback, and the other family alerts) now goes to the child's profile on the dashboard (`?tt_view=overview&player_id=<child>`). It used to go to the staff Players view, which refuses parents. The link is built on the dashboard page rather than the current request, so alerts written by the hourly sweep do not point at the cron endpoint. Staff copies of the same alerts keep their own destinations. Open alerts pick up the new link on the next sweep.

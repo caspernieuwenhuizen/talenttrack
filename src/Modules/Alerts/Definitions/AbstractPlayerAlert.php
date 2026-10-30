@@ -175,9 +175,17 @@ abstract class AbstractPlayerAlert implements AlertInterface {
      * lives — an evaluation form, a PDP file — and a parent has no business
      * on those screens. The child's own record is a surface they can already
      * open, so the alert changes *when* they look, never *what* they may see.
+     *
+     * A family reaches that record through the Me-slug `overview`, gated by
+     * `canViewPlayer`; the `players` slug is staff-only and refuses them.
+     * Built on `dashboardUrl()`, not `meUrl()`: the sweep runs in cron, where
+     * the current request is `/wp-cron.php`.
      */
     protected function familyUrlFor( object $row ): string {
-        return RecordLink::detailUrlFor( 'players', $this->playerIdFor( $row ) );
+        return add_query_arg(
+            [ 'tt_view' => 'overview', 'player_id' => $this->playerIdFor( $row ) ],
+            RecordLink::dashboardUrl()
+        );
     }
 
     /**
