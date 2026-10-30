@@ -23,12 +23,21 @@ final class TileEntitySeedTest extends WP_UnitTestCase {
     /** @var string */
     private $matrix_was = '';
 
+    /** @var list<array<string,mixed>> */
+    private $tiles_were = [];
+
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->installRoles();
-        // The tile registry is populated during boot; a test process has not
-        // necessarily been through it.
+
+        // The tile registry is populated during boot, and earlier tests may
+        // have cleared it. Fill it for this test and put it back afterwards,
+        // so what this test registers does not leak into later tests.
+        $this->tiles_were = TileRegistry::allRegistered();
         \TT\Shared\CoreSurfaceRegistration::register();
+        if ( TileRegistry::entityForViewSlug( 'tournaments' ) === null ) {
+            ( new \TT\Modules\Tournaments\TournamentsModule() )->boot( new \TT\Core\Container() );
+        }
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
 
@@ -41,6 +50,10 @@ final class TileEntitySeedTest extends WP_UnitTestCase {
     public function tear_down(): void {
         ( new ConfigService() )->set( 'tt_authorization_active', $this->matrix_was );
         $this->resetMatrixActiveCache();
+        TileRegistry::clear();
+        foreach ( $this->tiles_were as $tile ) {
+            TileRegistry::register( $tile );
+        }
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
         wp_set_current_user( 0 );
