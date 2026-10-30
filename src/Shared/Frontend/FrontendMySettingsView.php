@@ -185,7 +185,14 @@ class FrontendMySettingsView extends FrontendViewBase {
             ?>
             <?php self::renderThemeCard( $user_id ); ?>
 
-            <?php self::renderMessagePreferencesCard( $user_id ); ?>
+            <?php
+            // #4272 — the hints below were written for a parent and showed
+            // to every account; staff read about "your child" they don't have.
+            self::renderMessagePreferencesCard(
+                $user_id,
+                \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 0
+            );
+            ?>
 
             <?php self::renderParentVisibilityCard( $user_id ); ?>
 
@@ -229,11 +236,16 @@ class FrontendMySettingsView extends FrontendViewBase {
             'guardian_email' => __( 'Email', 'talenttrack' ),
             'guardian_phone' => __( 'Phone', 'talenttrack' ),
         ];
+        $has_children = ! empty( $held['children'] );
         ?>
         <section class="tt-msettings-card tt-msettings-held">
             <h3><?php esc_html_e( 'What the academy holds about you', 'talenttrack' ); ?></h3>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'Your contact details are kept in more than one place, and they can disagree. This is everything the academy holds about you, and where each detail is kept. Only details that are yours are shown — anyone else named on your child\'s file stays private to them.', 'talenttrack' ); ?>
+                <?php if ( $has_children ) : ?>
+                    <?php esc_html_e( 'Your contact details are kept in more than one place, and they can disagree. This is everything the academy holds about you, and where each detail is kept. Only details that are yours are shown — anyone else named on your child\'s file stays private to them.', 'talenttrack' ); ?>
+                <?php else : ?>
+                    <?php esc_html_e( 'Your contact details are kept in more than one place, and they can disagree. This is everything the academy holds about you, and where each detail is kept.', 'talenttrack' ); ?>
+                <?php endif; ?>
             </p>
 
             <?php if ( ! empty( $account_rows ) ) : ?>
@@ -272,7 +284,11 @@ class FrontendMySettingsView extends FrontendViewBase {
             <?php endforeach; ?>
 
             <p class="tt-field-hint">
-                <?php esc_html_e( 'Something wrong or out of date? Your account details are yours to change above. Anything recorded on your child\'s file is changed by the academy — ask them and they will correct it.', 'talenttrack' ); ?>
+                <?php if ( $has_children ) : ?>
+                    <?php esc_html_e( 'Something wrong or out of date? Your account details are yours to change above. Anything recorded on your child\'s file is changed by the academy — ask them and they will correct it.', 'talenttrack' ); ?>
+                <?php else : ?>
+                    <?php esc_html_e( 'Your account details are yours to change above.', 'talenttrack' ); ?>
+                <?php endif; ?>
             </p>
         </section>
         <?php
@@ -306,7 +322,7 @@ class FrontendMySettingsView extends FrontendViewBase {
      * hidden — a preferences screen that quietly omits the messages you
      * cannot refuse is the same silent behaviour #2602 set out to remove.
      */
-    private static function renderMessagePreferencesCard( int $user_id ): void {
+    private static function renderMessagePreferencesCard( int $user_id, bool $has_children ): void {
         $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
         $labels = self::visibleMessageTypeLabels( $user_id );
         ?>
@@ -316,7 +332,11 @@ class FrontendMySettingsView extends FrontendViewBase {
 
             <h3><?php esc_html_e( 'Messages you receive', 'talenttrack' ); ?></h3>
             <p class="tt-field-hint">
-                <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child.', 'talenttrack' ); ?>
+                <?php if ( $has_children ) : ?>
+                    <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child.', 'talenttrack' ); ?>
+                <?php else : ?>
+                    <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or the players you work with.', 'talenttrack' ); ?>
+                <?php endif; ?>
             </p>
 
             <?php foreach ( $labels as $type => $label ) :
