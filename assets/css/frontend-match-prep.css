@@ -255,9 +255,14 @@
         gap: 0.25rem;
     }
 }
+/* #4352 — below 480px the stacked pitch is taller (68:90 rather than
+   68:75), so positions 11% apart vertically (the 8-a-side keeper and
+   centre-back) are a full 48px target apart. Slot positions are
+   percentages, so every layout keeps its shape; the drawn lines stretch
+   with it. */
 .tt-mp-pitch {
     position: relative;
-    aspect-ratio: 68 / 75;
+    aspect-ratio: 68 / 90;
     border-radius: var(--tt-mp-radius);
     border: 1px solid var(--tt-mp-line);
     overflow: hidden;
@@ -325,33 +330,51 @@
     min-width: 1.375rem;
     text-align: center;
 }
+/* #4352 — at phone width the name pill is wider than its 48px slot, so
+   "Dani D" and "Dani K" stay apart, and it takes no taps: the slot's own
+   box is the target, and the overflow cannot take a neighbour's tap. It
+   is capped at 16% of the pitch (the pitch is a size container below
+   480px), so the pills of a 3-4-3 line, 16% apart, touch rather than
+   cover each other; the 3-5-2 midfield, 14% apart, is staggered by more
+   than a pill's height, which is why the pill is a single tight line. */
 .tt-mp-slot .tt-mp-slot-name {
-    font-size: 0.71875rem;
+    font-size: 0.75rem;
+    line-height: 1.2;
     font-weight: 600;
     color: var(--tt-mp-ink);
     text-align: center;
     background: rgba(255,255,255,0.92);
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 4px;
-    padding: 0.125rem 0.375rem;
-    /* #4352 — inside the phone slot, padding and border included, so a
-       long name cannot spill over the neighbouring slot's target. */
+    padding: 0.125rem 0.25rem;
     min-width: 0;
-    max-width: calc(100% - 0.75rem - 2px);
-    min-height: 1.5rem;
+    max-width: 4.25rem;
+    max-width: min(4.25rem, 16cqw);
+    min-height: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    pointer-events: none;
 }
+.tt-mp-pitch { container-type: inline-size; }
 @media (min-width: 480px) {
+    .tt-mp-pitch {
+        aspect-ratio: 68 / 75;
+        container-type: normal;
+    }
     .tt-mp-slot {
         width: 4rem;
         min-height: 0;
     }
     .tt-mp-slot .tt-mp-slot-name {
+        font-size: 0.71875rem;
+        line-height: inherit;
+        padding: 0.125rem 0.375rem;
         min-width: 3rem;
         max-width: 6rem;
+        min-height: 1.5rem;
+        pointer-events: auto;
     }
 }
 /* D-18 — a 48px tall target wherever the pointer is a finger. */
@@ -468,9 +491,14 @@
     min-height: 0;
 }
 .tt-image-pdf-capture .tt-mp-slot .tt-mp-slot-name {
+    font-size: 0.71875rem;
+    line-height: inherit;
+    padding: 0.125rem 0.375rem;
     min-width: 3rem;
     max-width: 6rem;
+    min-height: 1.5rem;
 }
+.tt-image-pdf-capture .tt-mp-pitch { container-type: normal; }
 
 /* #2198 — the image-capture export paints exactly what's on screen, so an
    unassigned set-piece role would land in the PDF as a literal
@@ -1127,6 +1155,7 @@
        the number nor the name gets stripped. */
     .tt-mp-pitch {
         aspect-ratio: 68 / 75;
+        container-type: normal;
     }
     .tt-mp-slot {
         display: flex !important;
@@ -1153,6 +1182,7 @@
         min-width: 8mm;
         padding: 0.25mm 1mm;
         min-height: 0;
+        line-height: inherit;
         border: 1px solid rgba(0,0,0,0.25);
         white-space: nowrap;
         overflow: hidden;

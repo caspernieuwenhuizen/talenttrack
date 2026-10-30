@@ -1,6 +1,6 @@
 // @ts-check
 const { test, expect } = require( '@playwright/test' );
-const { seedMatchPrep, archiveSeeded } = require( './helpers/match-prep' );
+const { rest, seedMatchPrep, archiveSeeded } = require( './helpers/match-prep' );
 
 /**
  * Match prep pitch at phone width (#4352).
@@ -17,7 +17,7 @@ const { seedMatchPrep, archiveSeeded } = require( './helpers/match-prep' );
 
 test.use( { storageState: 'tests/e2e/.auth/admin.json', hasTouch: true } );
 
-const SHAPES = [ '4-3-3', '4-4-2', '3-5-2', '3-4-3' ];
+const SHAPES = [ '4-3-3', '4-4-2', '3-5-2', '3-4-3', '3-3-1', '3-2-2' ];
 
 /**
  * Pick the first formation template of `shape` in the prep's select.
@@ -42,11 +42,28 @@ async function pickShape( page, shape ) {
  */
 function measureSlots( page ) {
 	return page.evaluate( () => {
-		const out = { covered: [], short: [], overlaps: [], count: 0 };
+		const out = { covered: [], short: [], overlaps: [], pillOverlaps: [], narrowNames: [], count: 0 };
+		/**
+		 * @param {Array<{i:number,left:number,right:number,top:number,bottom:number}>} list
+		 * @param {Array<string>} into
+		 * @param {string} half
+		 */
+		const overlapsIn = ( list, into, half ) => {
+			list.forEach( ( a ) => {
+				list.forEach( ( b ) => {
+					if ( a.i >= b.i ) return;
+					const xOverlap = Math.min( a.right, b.right ) - Math.max( a.left, b.left );
+					const yOverlap = Math.min( a.bottom, b.bottom ) - Math.max( a.top, b.top );
+					// Touching edges (the 14% lines) are allowed; overlap is not.
+					if ( xOverlap > 0.5 && yOverlap > 0.5 ) into.push( half + ':' + a.i + '/' + b.i );
+				} );
+			} );
+		};
 		document.querySelectorAll( '.tt-mp-pitch' ).forEach( ( pitch ) => {
 			pitch.scrollIntoView( { block: 'center' } );
-			const half = pitch.getAttribute( 'data-half' );
+			const half = pitch.getAttribute( 'data-half' ) || '';
 			const boxes = [];
+			const pills = [];
 			pitch.querySelectorAll( '.tt-mp-slot' ).forEach( ( slot, i ) => {
 				const r = slot.getBoundingClientRect();
 				const hit = document.elementFromPoint( r.left + r.width / 2, r.top + r.height / 2 );
@@ -54,17 +71,21 @@ function measureSlots( page ) {
 				if ( owner !== slot ) out.covered.push( half + ':' + i );
 				if ( r.height < 47.5 ) out.short.push( half + ':' + i + '=' + Math.round( r.height ) );
 				boxes.push( { i, left: r.left, right: r.right, top: r.top, bottom: r.bottom } );
+
+				// The name pill may be wider than the slot, but it must show
+				// more than an initial and must not cover another pill.
+				const pill = slot.querySelector( '.tt-mp-slot-name' );
+				if ( pill ) {
+					const p = pill.getBoundingClientRect();
+					pills.push( { i, left: p.left, right: p.right, top: p.top, bottom: p.bottom } );
+					if ( ! slot.classList.contains( 'tt-mp-slot-empty' ) && p.width < 40 ) {
+						out.narrowNames.push( half + ':' + i + '=' + Math.round( p.width ) );
+					}
+				}
 				out.count++;
 			} );
-			boxes.forEach( ( a ) => {
-				boxes.forEach( ( b ) => {
-					if ( a.i >= b.i ) return;
-					const xOverlap = Math.min( a.right, b.right ) - Math.max( a.left, b.left );
-					const yOverlap = Math.min( a.bottom, b.bottom ) - Math.max( a.top, b.top );
-					// Touching edges (the 14% lines) are allowed; overlap is not.
-					if ( xOverlap > 0.5 && yOverlap > 0.5 ) out.overlaps.push( half + ':' + a.i + '/' + b.i );
-				} );
-			} );
+			overlapsIn( boxes, out.overlaps, half );
+			overlapsIn( pills, out.pillOverlaps, half );
 		} );
 		return out;
 	} );
@@ -78,6 +99,9 @@ test.describe( 'Match prep pitch at phone width (#4352)', () => {
 	let prepUrl = '';
 	/** @type {string} */
 	let skipWhy = '';
+	let activityId = 0;
+	/** @type {Array<number>} */
+	let playerIds = [];
 
 	test.beforeEach( async ( { page } ) => {
 		const seeded = await seedMatchPrep( page, created, 11 );
@@ -86,6 +110,8 @@ test.describe( 'Match prep pitch at phone width (#4352)', () => {
 			return;
 		}
 		skipWhy = '';
+		activityId = seeded.activityId;
+		playerIds = seeded.playerIds;
 		prepUrl = '/?tt_view=match-prep&activity_id=' + seeded.activityId;
 	} );
 
@@ -96,6 +122,12 @@ test.describe( 'Match prep pitch at phone width (#4352)', () => {
 	for ( const width of [ 360, 414 ] ) {
 		test( `every slot takes a tap at its own centre at ${ width }px`, async ( { page } ) => {
 			test.skip( skipWhy !== '', skipWhy );
+			// A full line-up in both halves, so every pill carries a name.
+			const lineup = {};
+			playerIds.forEach( ( id, i ) => { lineup[ String( i + 1 ) ] = id; } );
+			const filled = await rest( page, 'PUT', 'match-prep/' + activityId, { lineup: { 1: lineup, 2: lineup } } );
+			expect( filled.status ).toBe( 200 );
+
 			await page.setViewportSize( { width, height: 800 } );
 			await page.goto( prepUrl );
 			await page.waitForLoadState( 'load', { timeout: 30000 } );
@@ -110,6 +142,8 @@ test.describe( 'Match prep pitch at phone width (#4352)', () => {
 				expect( m.covered, shape + ': a neighbour covers these slot centres' ).toEqual( [] );
 				expect( m.short, shape + ': slots under 48px tall' ).toEqual( [] );
 				expect( m.overlaps, shape + ': overlapping slots' ).toEqual( [] );
+				expect( m.pillOverlaps, shape + ': name pills covering each other' ).toEqual( [] );
+				expect( m.narrowNames, shape + ': names cut to an initial' ).toEqual( [] );
 			}
 
 			// A real tap on a slot opens that slot's picker.
