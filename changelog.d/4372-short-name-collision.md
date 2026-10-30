@@ -1,3 +1,5 @@
 # Two players never share a short name on the pitch or the Line-up card (#4372)
 
 Two players in one squad could both show as "Dex V" in match prep, and the live match pitch and the activity's Line-up card never told players apart at all. One resolver now shortens names everywhere, over the players the surface shows: the first name alone when it is unique, then the initial of the surname itself when first names collide, skipping prefix words such as "van", "de" or "van der" ("Dex L" / "Dex W" for Dex Van der Laan and Dex Van Wijk), more letters of that surname when the initial is shared too ("Dex Wi" / "Dex We"), and the shirt number instead of the surname when the names are identical ("Dex #23" / "Dex #30"). The labels stay short enough for a pitch slot on a phone. The live pitch and the Line-up card now use the same rule as match prep, so a player whose first name is unique there reads "Daan" instead of "Daan P.".
+
+Surname prefixes are now skipped wherever a surname initial is shown, so the short name also changes for players whose labels never collided: with two players called Dani, "Dani De Wit" now reads "Dani W" where it used to read "Dani D".
