@@ -1,0 +1,10 @@
+# Match prep on a phone: the two halves stack and every position takes a tap (#4352)
+
+On a 360 px phone the two half-pitches sat side by side, each about 145 px
+wide, and neighbouring positions covered each other, so a tap aimed at one
+player opened the position next to it. Below 480 px the halves now sit one
+above the other at full width, with the copy button between them, and each
+position is a 48 px tall target that no longer overlaps its neighbour. In
+the player picker the rows and the Clear control are 48 px tall under a
+finger, and Clear is a real button that the keyboard reaches. Tablets,
+desktops, the printout and the PDF look as before.

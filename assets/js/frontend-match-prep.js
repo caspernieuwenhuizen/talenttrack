@@ -781,7 +781,8 @@
             '<div class="tt-mp-picker-head">' + escapeHtml(title) + '</div>' +
             '<input type="text" class="tt-mp-picker-search" placeholder="' + escapeHtml(i18n('search', 'Search player…')) + '">' +
             '<div class="tt-mp-picker-list"></div>' +
-            (currentPid ? '<div class="tt-mp-picker-foot" data-tt-mp-picker-clear>' + escapeHtml(i18n('clear', 'Clear')) + '</div>' : '');
+            // #4352 — a real button, so Tab reaches Clear and Enter / Space press it.
+            (currentPid ? '<button type="button" class="tt-mp-picker-foot" data-tt-mp-picker-clear>' + escapeHtml(i18n('clear', 'Clear')) + '</button>' : '');
 
         renderPickerList('');
         var searchInp = picker.querySelector('.tt-mp-picker-search');
