@@ -155,6 +155,15 @@ the player's status stays whatever you set, and you can still pick them.
 It is worked out when the screen opens, never saved into the prep, so it
 does not appear on the printed sheet, the PDF export or a shared link.
 
+The status you choose and its reason are different: they are saved into
+the prep, so everyone who opens it sees them, and the printed sheet, the
+PDF and a shared link list them as "name · status (reason)". A shared
+link opens without logging in. **Keep medical details out of the
+reason** if the prep may be shared: "Injured" is enough, the injury
+itself belongs in the player's injury record. See
+[Access control](access-control.md) for what the Unavailable label does
+and does not tell someone.
+
 When the match activity has a **planned roster** (the expected players
 you picked when creating it), the availability step starts from that
 plan instead of marking everyone Present: planned players default to
