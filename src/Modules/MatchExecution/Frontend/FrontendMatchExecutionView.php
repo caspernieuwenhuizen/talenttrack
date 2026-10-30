@@ -357,8 +357,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         $pitch_meta = [];
         foreach ( $players_by_id as $ppid => $ppl ) {
             $pitch_meta[ (int) $ppid ] = [
-                'name'   => (string) QueryHelpers::player_display_name( $ppl ),
-                'jersey' => $ppl->jersey_number !== null ? (int) $ppl->jersey_number : null,
+                'name'       => (string) QueryHelpers::player_display_name( $ppl ),
+                'jersey'     => $ppl->jersey_number !== null ? (int) $ppl->jersey_number : null,
+                'first_name' => (string) ( $ppl->first_name ?? '' ),
+                'last_name'  => (string) ( $ppl->last_name ?? '' ),
             ];
         }
         // #3554 — the pitch, the bench and the page's on-pitch list show the
@@ -659,9 +661,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                         $name   = (string) $slot['player_name'];
                         $jersey = $slot['jersey'];
                         $filled = (int) $slot['player_id'] > 0 && $name !== '';
-                        // #2223 — first name + last initial keeps the slot
-                        // legible at 360px and reads how coaches speak.
-                        $short  = $name !== '' ? self::pitchShortName( $name ) : '';
+                        // #4372 — the service resolves the label over the
+                        // whole pitch, the same one the REST redraw prints.
+                        $short  = (string) $slot['short_name'];
                         ?>
                         <div class="tt-mxp-slot<?php echo $filled ? '' : ' tt-mxp-slot-empty'; ?>"
                              style="left:<?php echo esc_attr( (string) (float) $slot['x'] ); ?>%; top:<?php echo esc_attr( (string) (float) $slot['y'] ); ?>%;"<?php /* tt-inline-ok */ ?>>
@@ -1975,19 +1977,5 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         $intervals = MatchStints::intervals( $subs, $starting_half1, $starting_half2, $half_length, $half_length );
 
         return [ 'intervals' => $intervals, 'minutes' => MatchStints::minutes( $intervals ) ];
-    }
-
-    /**
-     * #2223 — compact pitch label for a player: first name + last initial
-     * (e.g. "Daan Portzgen" → "Daan P."). Coaches recognise players by
-     * first name on the sideline; the last initial disambiguates two
-     * players who share one. Single-token names render as-is (no stray
-     * dot). Kept short enough for the 360px pitch slot. Display-only
-     * formatting, no business logic.
-     */
-    private static function pitchShortName( string $name ): string {
-        // #3554 — moved to the service so the REST pitch-lineup response
-        // carries the same label the server render prints.
-        return PitchLayoutService::shortName( $name );
     }
 }

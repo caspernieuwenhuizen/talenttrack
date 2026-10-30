@@ -19929,7 +19929,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property object\:\:\$bench\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 4
 			path: src/Shared/Frontend/FrontendActivitiesManageView.php
 
 		-
@@ -20019,7 +20019,7 @@ parameters:
 		-
 			message: '#^Access to an undefined property object\:\:\$starting\.$#'
 			identifier: property.notFound
-			count: 3
+			count: 4
 			path: src/Shared/Frontend/FrontendActivitiesManageView.php
 
 		-

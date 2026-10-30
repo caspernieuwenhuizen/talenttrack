@@ -1348,10 +1348,14 @@ final class ActivitiesRepository {
             }
 
             $entry = (object) [
-                'player_id' => $pid,
-                'name'      => $name,
-                'jersey'    => (string) ( $r->jersey_number ?? '' ),
-                'position'  => $position,
+                'player_id'  => $pid,
+                'name'       => $name,
+                // #4372 — the name parts, so the card can shorten names
+                // over all its players at once.
+                'first_name' => (string) ( $r->first_name ?? '' ),
+                'last_name'  => (string) ( $r->last_name ?? '' ),
+                'jersey'     => (string) ( $r->jersey_number ?? '' ),
+                'position'   => $position,
             ];
             if ( (string) $r->lineup_role === 'start' ) {
                 $out->starting[] = $entry;

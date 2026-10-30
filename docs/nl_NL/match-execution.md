@@ -471,10 +471,16 @@ verwijst, op basis van de gekozen formatie (4-3-3, 4-2-3-1, 4-4-2 en de
 andere ondersteunde formaties).
 
 - Een gevulde plek toont het rugnummer van de speler (of het positielabel
- als er geen nummer is ingesteld) en een korte naam. De korte naam is de
- **voornaam plus de eerste letter van de achternaam** (bijv. "Daan P."),
- zoals een trainer een speler langs de lijn noemt; een speler met een naam
- van één woord wordt ongewijzigd getoond.
+ als er geen nummer is ingesteld) en een korte naam, op dezelfde manier
+ ingekort als in de wedstrijdvoorbereiding: de **voornaam** (bijv. "Daan")
+ als niemand anders op het veld die deelt; voornaam plus de eerste letter
+ van de achternaam ("Daan P") als iemand dat wel doet, zonder tussenvoegsel
+ zoals *van* of *de* ("Dex L" voor Dex Van der Laan); meer letters van de
+ achternaam ("Dex Wi", "Dex We") als ook die letter gelijk is; en het
+ rugnummer in plaats van de achternaam ("Dex #23") als de achternamen
+ gelijk zijn. De Opstelling-kaart
+ van de wedstrijd op de activiteitpagina kort namen op dezelfde manier in,
+ over basisspelers en wisselspelers samen.
 - Een lege plek — een slot zonder speler in de voorbereiding — toont een
  gestippelde markering met het positielabel.
 

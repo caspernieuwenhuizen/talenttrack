@@ -249,6 +249,14 @@ teampagina.
 Hebben twee spelers in hetzelfde team dezelfde voornaam, dan worden
 beiden weergegeven als `<voornaam> <achternaaminitiaal>` (`Daan P`,
 `Daan A`) zodat de coach ze in één oogopslag uit elkaar kan houden.
+De initiaal is die van de achternaam zelf, zonder tussenvoegsel zoals
+*van*, *de* of *van der*: "Dex Van der Laan" en "Dex Van Wijk" worden
+`Dex L` en `Dex W`. Is ook die letter gelijk, dan krijgen die twee
+spelers meer letters van de achternaam tot ze verschillen (`Dex Wi`,
+`Dex We`); zijn de achternamen ook gelijk, dan komt het rugnummer in
+plaats van de achternaam (`Dex #23`, `Dex #30`), zodat de naam op een
+telefoon nog op een positie past. Alleen de spelers die anders
+hetzelfde zouden heten krijgen een langere naam.
 Een derde `Daan` in een ander team heeft geen invloed op de labels
 van dit team. Dezelfde speler verschijnt overal op het match-prep
 scherm met dezelfde korte vorm.
