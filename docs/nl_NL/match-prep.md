@@ -169,6 +169,15 @@ wordt bepaald als het scherm opent en nooit in de voorbereiding
 opgeslagen, dus het staat niet op het afgedrukte blad, in de PDF-export
 of in een gedeelde link.
 
+De status die je kiest en de reden daarbij zijn iets anders: die worden
+in de voorbereiding opgeslagen, dus iedereen die haar opent ziet ze, en
+het afgedrukte blad, de PDF en een gedeelde link tonen ze als
+"naam · status (reden)". Een gedeelde link opent zonder inloggen. **Zet
+geen medische details in de reden** als de voorbereiding gedeeld kan
+worden: "Geblesseerd" is genoeg, de blessure zelf hoort in het
+blessuredossier van de speler. Zie [Toegangsbeheer](access-control.md)
+voor wat het label Niet beschikbaar wel en niet over een speler zegt.
+
 Heeft de wedstrijdactiviteit een **geplande selectie** (de verwachte
 spelers die je bij het aanmaken koos), dan begint de
 beschikbaarheidsstap vanuit dat plan in plaats van iedereen op
