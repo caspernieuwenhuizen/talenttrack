@@ -135,6 +135,41 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $now[0]['due_at'] );
     }
 
+    /** #4358 — a date moved away and back gets its reminder again. */
+    public function test_a_date_moved_away_and_back_reminds_again(): void {
+        $repo = new InjuryRepository();
+        $id   = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $repo->update( $id, [ 'expected_return' => $this->day( -1 ) ] );
+        $repo->update( $id, [ 'expected_return' => $this->day( -2 ) ] );
+
+        $now = $this->active();
+        $this->assertCount( 1, $now );
+        $this->assertSame( $this->day( -2 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
+    /** #4358 — an answered reminder stays answered through edits and the sweep. */
+    public function test_a_completed_reminder_is_not_recreated(): void {
+        $repo = new InjuryRepository();
+        $id   = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+        ( new \TT\Modules\Workflow\Repositories\TasksRepository() )->complete( (int) $task['id'], [] );
+
+        $repo->update( $id, [ 'notes' => 'Seen by the physio.' ] );
+        ( new ConfigService() )->set( InjuryRecoveryTasks::LAST_SWEEP_KEY, '' );
+        InjuryRecoveryTasks::sweep();
+
+        $this->assertSame( [], $this->active() );
+        $this->assertCount( 1, $this->all() );
+    }
+
     public function test_an_edit_that_keeps_the_date_creates_no_second_task(): void {
         $repo = new InjuryRepository();
         $id   = $repo->create( [

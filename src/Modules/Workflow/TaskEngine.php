@@ -20,6 +20,17 @@ use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
  */
 class TaskEngine {
 
+    /**
+     * The statuses that hold a natural key for idempotent dispatch: every one
+     * but skipped and cancelled.
+     */
+    private const DEDUPE_STATUSES = [
+        TaskStatus::OPEN,
+        TaskStatus::IN_PROGRESS,
+        TaskStatus::OVERDUE,
+        TaskStatus::COMPLETED,
+    ];
+
     public function __construct(
         private readonly TemplateRegistry $registry,
         private readonly TasksRepository $tasks,
@@ -88,8 +99,11 @@ class TaskEngine {
                 continue;
             }
             foreach ( $user_ids as $user_id ) {
+                // #4358 — a skipped or cancelled task frees its key, so a date
+                // moved away and back gets its reminder again; a completed one
+                // keeps blocking, so an answered reminder stays answered.
                 if ( $idempotent && $player_id > 0
-                    && $this->tasks->findByNaturalKey( $template_key, (int) $user_id, $player_id, $due_at ) !== null
+                    && $this->tasks->findByNaturalKey( $template_key, (int) $user_id, $player_id, $due_at, self::DEDUPE_STATUSES ) !== null
                 ) {
                     continue;
                 }
