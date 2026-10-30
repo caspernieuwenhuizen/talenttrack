@@ -35,7 +35,7 @@ class ProspectConsentRequestsRepository {
         $asked_of = trim( $asked_of );
         if ( $asked_of === '' ) return 0;
         if ( ! ConsentOutcome::isValid( $outcome ) ) return 0;
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $asked_at ) ) return 0;
+        if ( ! \TT\Modules\Prospects\Domain\ConsentRequestDate::isValid( $asked_at ) ) return 0;
 
         $ok = $wpdb->insert( $wpdb->prefix . self::TABLE, [
             'uuid'        => wp_generate_uuid4(),
