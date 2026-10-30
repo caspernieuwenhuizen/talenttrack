@@ -31,7 +31,9 @@ spreadsheet:
  derive from `half_length × (on pitch ? 1 : 0)`; editing the
  **Half length** input at the top updates every row live.
 - **Middle** — two half-pitches side by side with a `→` copy button
- between. Below them, the **Principles** panel (see below), and under
+ between. On a narrow phone screen the two pitches sit one above the
+ other at full width, with the copy button (pointing down) between them,
+ so every position is big enough to tap. Below them, the **Principles** panel (see below), and under
  that the **Match goals** panel — one full-width
  *General* box on top, then a 2×2 grid of *Attacking / Defending* and
  *Set pieces (attack) / Set pieces (defend)*. Each box has four short

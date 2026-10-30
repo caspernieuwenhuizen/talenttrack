@@ -32,7 +32,9 @@ volgen:
  automatisch berekend uit `helftduur × (op veld ? 1 : 0)`; pas je
  **Helftduur** boven aan, dan loopt iedere rij live mee.
 - **Midden** — twee halve velden naast elkaar met een `→`-kopieerknop
- ertussen. Daaronder het **Principes**-paneel (zie hieronder), en
+ ertussen. Op een smal telefoonscherm staan de twee velden onder elkaar
+ over de volle breedte, met de kopieerknop (naar beneden wijzend)
+ ertussen, zodat elke positie groot genoeg is om aan te tikken. Daaronder het **Principes**-paneel (zie hieronder), en
  daaronder het **Wedstrijddoelen**-paneel — bovenaan één
  volledige *Algemeen*-box, daarna een 2×2 grid van *Aanvallen /
  Verdedigen* en *Spelhervattingen / Spelhervattingen*. Iedere box
