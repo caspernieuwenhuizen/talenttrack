@@ -1268,9 +1268,12 @@ class MatchExecutionRestController {
     /**
      * #2856 — every player the match prep knows about: everyone with an
      * availability row (whatever their status) plus anyone named in the
-     * lineup. Deliberately wider than the pitch — a goal can be scored by
-     * a player who came on, and an assist credited to one who has since
-     * gone off.
+     * line-up on the positions the current formation draws (#4353).
+     * Deliberately wider than the pitch through the availability rows: the
+     * bench is in them, so a goal can be scored by a player who came on, and
+     * an assist credited to one who has since gone off. A player left on a
+     * position the formation no longer draws is on the bench that way when
+     * Present, and does not belong in the squad when not.
      *
      * @return array<int,int>
      */

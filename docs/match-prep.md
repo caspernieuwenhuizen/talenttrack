@@ -193,7 +193,10 @@ on a 4-3-3, and turns green once every position is filled. It follows
 the pitch as you work: placing or removing a first-half player, or
 picking another formation, changes it straight away. Only players on a
 position the current formation draws count: a full 4-3-3 switched to a
-3-2-1 reads "6/6", and the other players return when you switch back. The
+3-2-1 reads "6/6", and the other players return when you switch back.
+Until then they are not starters anywhere: their minutes, the live match,
+the activity's line-up, the team sheet, the printout and the evaluation
+wizard count only the players on the positions the formation draws. The
 availability step asks for at least that many players on **Present**, so
 a 6-a-side team can save its prep with six players.
 

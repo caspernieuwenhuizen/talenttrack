@@ -135,7 +135,9 @@ final class MinutesQuery {
             // quarters match carries four of them rather than two halves.
             $lineups = [];
             if ( $prep ) {
-                foreach ( $prep_repo->listLineup( (int) $prep->id ) as $l ) {
+                // #4353 — the drawn positions only; the prep row is already
+                // in hand, so it is not read a second time per match.
+                foreach ( $prep_repo->listLineupForPrep( $prep ) as $l ) {
                     $period = (int) $l->half;
                     $pid    = (int) $l->player_id;
                     if ( $period > 0 && $pid > 0 ) $lineups[ $period ][] = $pid;

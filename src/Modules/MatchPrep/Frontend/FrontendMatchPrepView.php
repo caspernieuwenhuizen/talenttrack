@@ -163,7 +163,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
 
         $prep_id     = (int) $prep->id;
         $availability = $repo->listAvailability( $prep_id );
-        $lineup_rows  = $repo->listLineup( $prep_id );
+        // #4353 — the pitch keeps every stored slot so a switch back restores
+        // them; the counts below filter by the current layout.
+        $lineup_rows  = $repo->listLineupAll( $prep_id );
         $player_goals = $repo->listPlayerGoals( $prep_id );
         $roles        = $repo->listRoles( $prep_id );
 
@@ -1151,7 +1153,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
      * eligibility decision), so this stays SaaS-portable (CLAUDE.md §4)
      * and the strip is render-only polish.
      *
-     * @param array<int,array{status:string,reason:string}> $availability_by_pid
      * Starters count only the half-1 entries on a slot the current layout
      * draws: a player kept on slot 9 of a 4-3-3 stays stored when the coach
      * switches to 3-2-1, and comes back with the 4-3-3, but is not a starter

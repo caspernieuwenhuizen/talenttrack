@@ -4,6 +4,8 @@ namespace TT\Modules\MatchPrep\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
@@ -227,8 +229,54 @@ class MatchPrepRepository {
     // Lineup
     // -----------------------------------------------------------------
 
-    /** @return object[] */
+    /**
+     * The line-up on the positions the prep's current layout draws: the
+     * bound template's own slots (#2099), else its shape, else the team's
+     * football form. A formation switch keeps the rows of the slots the new
+     * layout lacks so switching back restores them (#4353); they are not
+     * starters, so minutes, the live match, attendance, the team sheet and
+     * the printout read this.
+     *
+     * The layout is resolved once per call, not per row.
+     *
+     * @return object[]
+     */
     public function listLineup( int $prep_id ): array {
+        $prep = $this->find( $prep_id );
+        return $prep ? $this->listLineupForPrep( $prep ) : [];
+    }
+
+    /**
+     * `listLineup()` for a caller that already holds the prep row, such as
+     * the minutes report's per-match loop, so the row is not read twice.
+     *
+     * @return object[]
+     */
+    public function listLineupForPrep( object $prep ): array {
+        $prep = (array) $prep;
+        $rows = $this->listLineupAll( (int) ( $prep['id'] ?? 0 ) );
+        if ( $rows === [] ) return [];
+
+        $team_id = ( new ActivitiesRepository() )->activityTeamId( (int) ( $prep['activity_id'] ?? 0 ) );
+        $drawn   = [];
+        foreach ( FormationLayoutResolver::layoutFor( (int) ( $prep['formation_template_id'] ?? 0 ), $team_id ) as $slot ) {
+            $drawn[ (int) $slot['num'] ] = true;
+        }
+        $out = [];
+        foreach ( $rows as $row ) {
+            if ( isset( $drawn[ (int) ( $row->slot_number ?? 0 ) ] ) ) $out[] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * Every stored line-up row, including slots the current layout does not
+     * draw. Only for the editor, which needs them to restore a line-up when
+     * the coach switches back to the bigger formation (#4353).
+     *
+     * @return object[]
+     */
+    public function listLineupAll( int $prep_id ): array {
         if ( $prep_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->t_lineup}

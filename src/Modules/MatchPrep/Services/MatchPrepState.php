@@ -58,7 +58,9 @@ final class MatchPrepState {
             $state[ $field ] = (string) ( $prep[ $field ] ?? '' );
         }
 
-        $lineup = self::lineupByHalf( $repo->listLineup( $prep_id ) );
+        // #4353 — every stored slot, so the editor can restore a line-up when
+        // the coach switches back to a bigger formation.
+        $lineup = self::lineupByHalf( $repo->listLineupAll( $prep_id ) );
 
         $roster_ids = [];
         foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id ) as $player ) {

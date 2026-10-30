@@ -211,7 +211,10 @@ De tegel volgt het veld terwijl je werkt: een speler in de eerste helft
 plaatsen of weghalen, of een andere formatie kiezen, past hem meteen aan.
 Alleen spelers op een positie van de huidige formatie tellen mee: een volle
 4-3-3 die je naar 3-2-1 omzet toont "6/6", en de andere spelers komen terug
-als je teruggaat naar de 4-3-3.
+als je teruggaat naar de 4-3-3. Tot dan zijn ze nergens basisspeler: hun
+speelminuten, de live wedstrijd, de opstelling bij de activiteit, het
+wedstrijdformulier, de afdruk en de evaluatiewizard tellen alleen de
+spelers op de posities die de formatie tekent.
 De beschikbaarheidsstap vraagt om minstens zoveel spelers op **Aanwezig**,
 zodat een team dat 6 tegen 6 speelt zijn voorbereiding met zes spelers kan
 opslaan.
