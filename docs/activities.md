@@ -89,7 +89,7 @@ Tapping a card opens the activity's detail page. The whole detail body sits insi
  - **Result** (match day) — see [Recording the result](#recording-the-result) below.
  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
  - **Notes** — the activity's free-text notes.
- - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
+ - **Line-up** (match day) — the starting line-up and the bench, each player shown with jersey number and the position played (falling back to their preferred position).
  - **Expected attendance** — the planned roster (see below).
  - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured / Suspended (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. Under the bar, a muted line reads **Register last saved by <name> on <date>**. A note warns when roster players still have no attendance row. A collapsible **Show roster** list underneath names each registered player with their status pill (guests tagged), so you can see who had which status without opening the edit form.
 

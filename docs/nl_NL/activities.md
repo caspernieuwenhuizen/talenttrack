@@ -89,7 +89,7 @@ Door op een kaart te tikken open je de detailpagina van de activiteit. De hele d
  - **Uitslag** (wedstrijddag) — zie [De uitslag vastleggen](#de-uitslag-vastleggen) hieronder.
  - **Gekoppelde spelprincipes** — de geoefende principes als kleurgecodeerde O/A/V-pillen, elk met een link naar de methodiekverkenner.
  - **Notities** — de vrije tekstnotities van de activiteit.
- - **Opstelling** (wedstrijddag) — de basiself en de bank, elke speler met rugnummer en de gespeelde positie (met terugval op de voorkeurspositie).
+ - **Opstelling** (wedstrijddag) — de basisopstelling en de bank, elke speler met rugnummer en de gespeelde positie (met terugval op de voorkeurspositie).
  - **Verwachte opkomst** — de geplande selectie (zie hieronder).
  - **Opkomst** (afgeronde activiteiten) — een verdeelbalk met legenda over Aanwezig / Afwezig / Te laat / Met kennisgeving / Geblesseerd / Geschorst (plus eventuele eigen statussen), met de kop `X / Y aanwezig (Z%)` die linkt naar het opkomstformulier. Onder de balk staat in gedempte tekst **Presentielijst laatst opgeslagen door <naam> op <datum>**. Een melding waarschuwt wanneer selectiespelers nog geen opkomstregel hebben. Daaronder toont een inklapbare lijst **Toon aanwezigheid** elke geregistreerde speler met zijn statuslabel (gasten getagd), zodat je ziet wie welke status had zonder het bewerkformulier te openen.
 

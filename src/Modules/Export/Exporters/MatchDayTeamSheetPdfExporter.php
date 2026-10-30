@@ -289,7 +289,7 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
 
         $sections_html = '';
         if ( $starting !== [] ) {
-            $sections_html .= self::lineupTable( __( 'Starting XI', 'talenttrack' ), $starting );
+            $sections_html .= self::lineupTable( __( 'Starting line-up', 'talenttrack' ), $starting );
         }
         if ( $bench !== [] ) {
             $sections_html .= self::lineupTable( __( 'Bench', 'talenttrack' ), $bench );

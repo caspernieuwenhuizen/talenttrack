@@ -437,7 +437,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         ?>
         <section class="tt-tc-pitch-card" aria-label="<?php esc_attr_e( 'Pitch', 'talenttrack' ); ?>">
             <header class="tt-tc-pitch-head">
-                <h2><?php esc_html_e( 'Starting XI', 'talenttrack' ); ?></h2>
+                <h2><?php esc_html_e( 'Starting line-up', 'talenttrack' ); ?></h2>
                 <div class="tt-tc-legend" aria-hidden="true">
                     <span><span class="tt-tc-swatch is-strong"></span><?php esc_html_e( 'Strong', 'talenttrack' ); ?></span>
                     <span><span class="tt-tc-swatch is-workable"></span><?php esc_html_e( 'Workable', 'talenttrack' ); ?></span>
