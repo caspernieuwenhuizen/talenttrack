@@ -23,8 +23,21 @@ final class RowActionPlaceholderTest extends WP_UnitTestCase {
 
     private const SCRIPT = 'assets/js/components/frontend-list-table.js';
 
+    /** @var string|null */
+    private $request_uri = null;
+
+    public function set_up(): void {
+        parent::set_up();
+        $this->request_uri = isset( $_SERVER['REQUEST_URI'] ) ? (string) $_SERVER['REQUEST_URI'] : null;
+    }
+
     public function tear_down(): void {
-        unset( $_SERVER['REQUEST_URI'] );
+        // Put it back as it was: later tests read it without a guard.
+        if ( $this->request_uri === null ) {
+            unset( $_SERVER['REQUEST_URI'] );
+        } else {
+            $_SERVER['REQUEST_URI'] = $this->request_uri;
+        }
         parent::tear_down();
     }
 
