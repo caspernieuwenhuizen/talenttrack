@@ -51,10 +51,10 @@ class PlayersRestController {
                 'callback'            => [ __CLASS__, 'create_player' ],
                 'args'                => self::writeArgs(),
                 'permission_callback' => function () {
-                    // Creating a new player is reserved for users with the
-                    // manage_players capability. AuthorizationService has no
-                    // per-entity check for creation (no target entity yet).
-                    return current_user_can( 'tt_edit_players' );
+                    // #4292 — creating a player is the create right
+                    // (`players: create_delete`), which a head coach does
+                    // not hold. There is no record to scope against yet.
+                    return AuthorizationService::canCreatePlayer( get_current_user_id() );
                 },
             ],
         ]);
@@ -62,7 +62,7 @@ class PlayersRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'import_players' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
+                'permission_callback' => function () { return AuthorizationService::canCreatePlayer( get_current_user_id() ); },
                 'args'                => self::importArgs(),
             ],
         ]);

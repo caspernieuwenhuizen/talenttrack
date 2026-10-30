@@ -87,6 +87,12 @@ class FrontendPlayersManageView extends FrontendViewBase {
         if ( $action === 'new' ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'New player', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'New player', 'talenttrack' ) );
+            // #4292 — the create form asks the create right, the same one
+            // `POST /players` asks, so it never opens for a refused save.
+            if ( ! AuthorizationService::canCreatePlayer( $user_id ) ) {
+                echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to add players.', 'talenttrack' ) . '</p>';
+                return;
+            }
             self::renderForm( $user_id, $is_admin, null );
             return;
         }
@@ -123,7 +129,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_players' ) ) {
+        // #4292 — importing creates players, so it asks the create right.
+        if ( AuthorizationService::canCreatePlayer( $user_id ) ) {
             $page_actions[] = [
                 'label' => __( 'Import from CSV', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
@@ -138,7 +145,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'narrow_overflow' => true,
             ];
         }
-        if ( ! $at_player_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_players' ) ) {
+        if ( ! $at_player_cap && AuthorizationService::canCreatePlayer( $user_id ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
             $page_actions[] = [
                 'label'   => __( 'New player', 'talenttrack' ),
@@ -191,10 +198,11 @@ class FrontendPlayersManageView extends FrontendViewBase {
 
         // v3.85.5 — surface the upgrade nudge above the list when at
         // the free-tier 25-player cap. The `+ New player` action in
-        // the header is suppressed by the same check in render().
+        // the header is suppressed by the same check in render(). #4292 —
+        // only for a viewer who could otherwise add a player.
         $at_player_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'players' );
-        if ( $at_player_cap ) {
+        if ( $at_player_cap && AuthorizationService::canCreatePlayer( $user_id ) ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'players' );
         }
 
@@ -334,7 +342,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'new-player',
                     add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
                 ),
-                'cta_cap'   => 'tt_edit_players',
+                'cta_cap'   => AuthorizationService::CREATE_PLAYER_CAP,
             ],
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',

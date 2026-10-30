@@ -128,7 +128,7 @@ class PlayersPage {
         if ( $ft ) $base_url = add_query_arg( 'team_id', $ft, $base_url );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Players', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_players' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
+            <h1><?php esc_html_e( 'Players', 'talenttrack' ); ?><?php if ( AuthorizationService::canCreatePlayer( get_current_user_id() ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-players&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
             <form method="get" style="margin:10px 0"><input type="hidden" name="page" value="tt-players"/>
@@ -541,7 +541,8 @@ class PlayersPage {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         } else {
-            if ( ! current_user_can( 'tt_edit_players' ) ) {
+            // #4292 — creating asks the create right, not the edit right.
+            if ( ! AuthorizationService::canCreatePlayer( get_current_user_id() ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
             // #0011 — free-tier cap. Block creation past the player cap.

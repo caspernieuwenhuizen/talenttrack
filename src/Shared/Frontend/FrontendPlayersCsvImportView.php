@@ -30,7 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class FrontendPlayersCsvImportView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_edit_players' ) ) {
+        // #4292 — importing creates players, so it asks the create right.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canCreatePlayer( $user_id ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to import players.', 'talenttrack' ) . '</p>';
             return;
