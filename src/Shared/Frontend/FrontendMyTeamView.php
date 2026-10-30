@@ -223,16 +223,23 @@ class FrontendMyTeamView extends FrontendViewBase {
                                 mb_substr( (string) ( $mate->first_name ?? '' ), 0, 1 )
                                 . mb_substr( (string) ( $mate->last_name ?? '' ), 0, 1 )
                             );
-                            // #3395 — carry the back-target so the teammate
-                            // view renders a "← Back to My team" pill (§5a).
-                            $mate_url = esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo(
-                                add_query_arg( [
-                                    'tt_view'   => 'teammate',
-                                    'player_id' => (int) $mate->id,
-                                ], $teammate_base )
-                            ) );
+                            // #4271 — the teammate card shows another child's
+                            // height, weight and foot; families get the
+                            // roster, not the card. Same markup, no link.
+                            $mate_tag  = $voice->isSelf() ? 'a' : 'span';
+                            $mate_href = '';
+                            if ( $voice->isSelf() ) {
+                                // #3395 — carry the back-target so the teammate
+                                // view renders a "← Back to My team" pill (§5a).
+                                $mate_href = ' href="' . esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo(
+                                    add_query_arg( [
+                                        'tt_view'   => 'teammate',
+                                        'player_id' => (int) $mate->id,
+                                    ], $teammate_base )
+                                ) ) . '"';
+                            }
                             ?>
-                            <a href="<?php echo $mate_url; ?>" class="tt-mt-mate">
+                            <<?php echo $mate_tag . $mate_href; ?> class="tt-mt-mate">
                                 <span class="tt-mt-mate__avatar">
                                     <?php if ( $photo_url ) : ?>
                                         <img src="<?php echo esc_url( $photo_url ); ?>" alt="" />
@@ -243,7 +250,7 @@ class FrontendMyTeamView extends FrontendViewBase {
                                 <span class="tt-mt-mate__name">
                                     <?php echo esc_html( QueryHelpers::player_display_name( $mate ) ); ?>
                                 </span>
-                            </a>
+                            </<?php echo $mate_tag; ?>>
                         <?php endforeach; ?>
                     </div>
                 </div>

@@ -165,8 +165,10 @@
     color: inherit;
     touch-action: manipulation;
 }
-.tt-dashboard .tt-mt-mate:hover,
-.tt-dashboard .tt-mt-mate:focus-visible {
+/* #4271 — only the link form gives tap feedback; a family's roster is
+   names without links. */
+.tt-dashboard a.tt-mt-mate:hover,
+.tt-dashboard a.tt-mt-mate:focus-visible {
     background: #f3f5f1;
 }
 .tt-dashboard .tt-mt-mate__avatar {
