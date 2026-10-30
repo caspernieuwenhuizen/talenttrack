@@ -2953,7 +2953,35 @@ class ActivitiesRestController {
         $repo = self::repo();
         if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
+        // The roster names a squad, with notes and availability, so it is
+        // read on the same terms as the activity it belongs to. Staff read
+        // it for the teams they cover (global read: every team); a player,
+        // a parent or a linked scout reads only the rows of the players
+        // they are entitled to; anyone else is refused.
+        $activity = $repo->findByIdIncludingArchived( $id );
+        $uid      = get_current_user_id();
+        $team_id  = (int) ( $activity->team_id ?? 0 );
+        $full     = ActivityAccess::hasGlobalRead( $uid )
+            || ( ActivityAccess::isStaffReader( $uid )
+                 && ( $team_id <= 0 || in_array( $team_id, ActivityAccess::coachedTeamIds( $uid ), true ) ) );
+        $own_rows = [];
+        if ( ! $full ) {
+            if ( $activity === null || ! ActivityAccess::canRead( $uid, $activity ) ) {
+                return RestResponse::error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+            }
+            $own_rows = array_values( array_unique( array_merge(
+                ActivityAccess::readablePlayerIds( $uid ),
+                AuthorizationService::scoutLinkedReadablePlayerIds( $uid, 'activities' )
+            ) ) );
+        }
+
         $roster = $repo->plannedRosterForActivity( $id );
+        if ( ! $full ) {
+            $roster = array_values( array_filter(
+                $roster,
+                static fn( $row ): bool => in_array( (int) ( $row->player_id ?? 0 ), $own_rows, true )
+            ) );
+        }
         // #4100 — on the activity's date, the same day the detail page asks
         // about, so the two answers cannot differ for one activity. #4103 —
         // and a suspension that covers this match, still as the one state.
