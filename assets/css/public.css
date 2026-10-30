@@ -1181,6 +1181,9 @@ input[type="checkbox"], input[type="radio"] {
     .tt-btn-sm { min-height: 48px; padding-inline: 14px; }
     .tt-pager-link { min-width: 48px; min-height: 48px; }
     .tt-list-row-action { min-height: 48px; min-width: 48px; }
+    /* #4335 — the "← Back to …" pill is the first tap back to the
+       player a coach came from; 44px stays the fine-pointer height. */
+    .tt-back-link { min-height: 48px; }
 
     /* #2800 — the record link is how you open a player, team or activity
        from any list in the product, and it was the most-missed target in
