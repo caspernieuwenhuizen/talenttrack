@@ -28,8 +28,9 @@ final class GuardianContacts {
         if ( $player_id <= 0 ) return [];
 
         $out = [];
-        foreach ( ( new PlayerParentsRepository() )->linksForPlayer( $player_id ) as $link ) {
-            $user = get_userdata( (int) $link->parent_user_id );
+        foreach ( ( new PlayerParentsRepository() )->linksForPlayer( $player_id ) as $row ) {
+            $link = (array) $row;
+            $user = get_userdata( (int) ( $link['parent_user_id'] ?? 0 ) );
             if ( ! $user ) continue;
             $out[] = [
                 'user_id'    => (int) $user->ID,
@@ -37,7 +38,7 @@ final class GuardianContacts {
                 'email'      => (string) $user->user_email,
                 // Person row first, then the account's `tt_phone` meta (#3684).
                 'phone'      => trim( (string) ContactResolver::phoneForUser( (int) $user->ID ) ),
-                'is_primary' => ! empty( $link->is_primary ),
+                'is_primary' => ! empty( $link['is_primary'] ),
             ];
         }
         return $out;
