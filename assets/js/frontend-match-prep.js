@@ -171,6 +171,16 @@
         return found;
     }
 
+    // #4346 — whether the player holds a slot the current layout draws. A
+    // bigger formation's extra slots stay stored for switching back, but a
+    // player there plays no minutes on this pitch; the server's roster rows
+    // apply the same rule, so live and reload agree.
+    function isOnLayout(half, pid) {
+        var map = state.lineup[String(half)];
+        if (!map) return false;
+        return currentSlotLayout().some(function (pos) { return map.get(pos.num) === pid; });
+    }
+
     function placedCount(pid) {
         var n = 0;
         if (isOnPitch(1, pid)) n++;
@@ -456,8 +466,8 @@
         }
 
         tbody.innerHTML = avail.map(function (p) {
-            var on1 = isOnPitch(1, p.id);
-            var on2 = isOnPitch(2, p.id);
+            var on1 = isOnLayout(1, p.id);
+            var on2 = isOnLayout(2, p.id);
             var min1 = on1 ? state.halfLength : 0;
             var min2 = on2 ? state.halfLength : 0;
             var tot = min1 + min2;
@@ -545,6 +555,28 @@
                 pitch.appendChild(btn);
             });
         });
+        renderStartersKpi();
+    }
+
+    // #4319 — the "1st-half starters" tile: half-1 players placed out of the
+    // positions the current layout holds, the same count and target the
+    // server renders (MatchPrepState::starterTarget()). Called from
+    // renderPitches(), which every line-up and formation change goes through.
+    // Only players on a slot the current layout draws count: a 4-3-3 switched
+    // to 3-2-1 keeps slots 7-11 in the line-up (switching back restores them),
+    // but they are not starters on this pitch, matching summaryCounts().
+    function renderStartersKpi() {
+        var tile = document.querySelector('[data-tt-mp-starters-kpi]');
+        if (!tile) return;
+        var layout = currentSlotLayout();
+        var placed = 0;
+        layout.forEach(function (pos) {
+            if ((state.lineup['1'].get(pos.num) || 0) > 0) placed++;
+        });
+        var target = layout.length;
+        var val = tile.querySelector('.tt-kpi__val');
+        if (val) val.textContent = placed + '/' + target;
+        tile.classList.toggle('tt-kpi--flag-green', target > 0 && placed >= target);
     }
 
     function renderDps() {
@@ -672,10 +704,20 @@
     }
 
     function renderFoot() {
-        var c1 = state.lineup['1'].size;
-        var c2 = state.lineup['2'].size;
-        setFoot('count1', c1 + ' / 11');
-        setFoot('count2', c2 + ' / 11');
+        // #4346 — out of the positions the current layout holds, as the
+        // starters tile, not a fixed eleven. Only players on a slot the
+        // layout draws count, in the number and in the minutes: slots a
+        // bigger formation left behind stay stored for switching back.
+        var layout = currentSlotLayout();
+        var slots = layout.length;
+        var c1 = 0;
+        var c2 = 0;
+        layout.forEach(function (pos) {
+            if ((state.lineup['1'].get(pos.num) || 0) > 0) c1++;
+            if ((state.lineup['2'].get(pos.num) || 0) > 0) c2++;
+        });
+        setFoot('count1', c1 + ' / ' + slots);
+        setFoot('count2', c2 + ' / ' + slots);
         var m1 = c1 * state.halfLength;
         var m2 = c2 * state.halfLength;
         setFoot('min1', m1);
@@ -917,6 +959,10 @@
                 var kpiVal = document.querySelector('[data-tt-mp-formation-kpi] .tt-kpi__val');
                 if (kpiVal) kpiVal.textContent = shape;
                 renderPitches();
+                // #4346 — the footer's "n / positions" and the roster's
+                // minutes follow the formation.
+                renderRoster();
+                renderFoot();
             }
             markDirty();
             saveAll();
