@@ -3,11 +3,11 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Identity\GuardianContacts;
 use TT\Infrastructure\Players\ParentAccountService;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Invitations\PlayerParentsRepository;
 
 /**
  * ParentAccountRestController (#1815) —
@@ -123,7 +123,8 @@ class ParentAccountRestController {
 
     /**
      * GET /players/{id}/parents (#3571) — the parent accounts linked to a
-     * player, primary first.
+     * player, primary first. A read that returns any writes one
+     * `player.guardian_contacts_viewed` audit row.
      */
     public static function list_parents( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = absint( $r['id'] );
@@ -132,16 +133,20 @@ class ParentAccountRestController {
             return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
         }
 
-        $parents = [];
-        foreach ( ( new PlayerParentsRepository() )->linksForPlayer( $player_id ) as $link ) {
-            $uid  = (int) ( ( (array) $link )['parent_user_id'] ?? 0 );
-            $user = $uid > 0 ? get_userdata( $uid ) : false;
+        // #4361 — the same read as the profile's Parents · Guardians card,
+        // through the same service, so it leaves the same audit row.
+        $contacts = GuardianContacts::forPlayer( $player_id );
+        $parents  = [];
+        foreach ( $contacts as $contact ) {
             $parents[] = [
-                'wp_user_id'   => $uid,
-                'display_name' => $user ? (string) $user->display_name : '',
-                'email'        => $user ? (string) $user->user_email : '',
-                'is_primary'   => (bool) ( ( (array) $link )['is_primary'] ?? false ),
+                'wp_user_id'   => $contact['user_id'],
+                'display_name' => $contact['name'],
+                'email'        => $contact['email'],
+                'is_primary'   => $contact['is_primary'],
             ];
+        }
+        if ( $contacts ) {
+            GuardianContacts::recordRead( $player_id, 'rest_players_parents', count( $contacts ) );
         }
 
         return RestResponse::success( [ 'player_id' => $player_id, 'parents' => $parents ] );
