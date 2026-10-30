@@ -4,6 +4,9 @@ namespace TT\Modules\Export\Exporters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Authorization\AllTeamsScope;
+use TT\Modules\Export\ScopeGatedExporter;
 use TT\Infrastructure\Teams\TeamRoster;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
@@ -50,9 +53,14 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  *     `date_from` (Y-m-d, default first day of current month)
  *     `date_to`   (Y-m-d, default today)
  *
- * Cap: `tt_view_reports`.
+ * Gate: `tt_view_reports` AND all-teams reports (`reports` read at global
+ * scope). Every figure here is academy-wide, so a reader whose reports are
+ * narrowed to their own teams has no snapshot to take. The per-player
+ * potential sheet, and the two potential counts, additionally need a
+ * global `player_potential` read: the band is a staff judgement about a
+ * minor, and the reports grant alone does not carry it.
  */
-final class KpiSnapshotXlsxExporter implements ExporterInterface {
+final class KpiSnapshotXlsxExporter implements ExporterInterface, ScopeGatedExporter {
 
     public function key(): string { return 'kpi_snapshot'; }
 
@@ -61,6 +69,17 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
     public function supportedFormats(): array { return [ 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_reports'; }
+
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ( AllTeamsScope::canSeeAllTeamsReports( $user_id )
+                 || QueryHelpers::user_has_global_entity_read( $user_id, 'reports' ) );
+    }
+
+    /** May this reader see each active player's potential band? */
+    public static function mayReadPotential( int $user_id ): bool {
+        return QueryHelpers::user_has_global_entity_read( $user_id, 'player_potential' );
+    }
 
     /**
      * Metric × value rows — toggling either column makes no sense,
@@ -156,7 +175,15 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
             $club_id
         ) );
 
-        $potential = $this->potentialRows( $club_id );
+        // collect() is the authoritative gate, so it asks again: the
+        // coarse gate in front of it is one caller, not the only one.
+        $requester = (int) $request->requesterUserId;
+        if ( ! $this->isAvailableFor( $requester ) ) {
+            return [ 'sheets' => [] ];
+        }
+        $with_potential = self::mayReadPotential( $requester );
+
+        $potential = $with_potential ? $this->potentialRows( $club_id ) : [];
         $with_band = 0;
         foreach ( $potential as $player_row ) {
             if ( $player_row[2] !== '' ) $with_band++;
@@ -182,24 +209,26 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
             [ __( 'Goals — total',      'talenttrack' ), $goals_total ],
             [ __( 'Goals — active',     'talenttrack' ), $goals_active ],
             [ __( 'Goals — completed',  'talenttrack' ), $goals_completed ],
-            [ __( 'Potential — band recorded', 'talenttrack' ), $with_band ],
-            [ __( 'Potential — no band recorded', 'talenttrack' ), count( $potential ) - $with_band ],
         ];
+        if ( $with_potential ) {
+            $rows[] = [ __( 'Potential — band recorded', 'talenttrack' ), $with_band ];
+            $rows[] = [ __( 'Potential — no band recorded', 'talenttrack' ), count( $potential ) - $with_band ];
+        }
 
-        return [
-            'sheets' => [
-                __( 'KPI snapshot', 'talenttrack' ) => [ $headers, $rows ],
-                self::potentialSheetName()          => [
-                    [
-                        __( 'Player', 'talenttrack' ),
-                        __( 'Team', 'talenttrack' ),
-                        __( 'Potential band', 'talenttrack' ),
-                        __( 'Recorded on', 'talenttrack' ),
-                    ],
-                    $potential,
+        $sheets = [ __( 'KPI snapshot', 'talenttrack' ) => [ $headers, $rows ] ];
+        if ( $with_potential ) {
+            $sheets[ self::potentialSheetName() ] = [
+                [
+                    __( 'Player', 'talenttrack' ),
+                    __( 'Team', 'talenttrack' ),
+                    __( 'Potential band', 'talenttrack' ),
+                    __( 'Recorded on', 'talenttrack' ),
                 ],
-            ],
-        ];
+                $potential,
+            ];
+        }
+
+        return [ 'sheets' => $sheets ];
     }
 
     /**

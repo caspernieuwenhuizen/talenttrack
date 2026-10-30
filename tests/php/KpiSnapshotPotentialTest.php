@@ -117,7 +117,9 @@ final class KpiSnapshotPotentialTest extends WP_UnitTestCase {
             'kpi_snapshot',
             'xlsx',
             $this->club,
-            0,
+            // The full snapshot, potential sheet included, is for an
+            // all-teams reader with potential read; an administrator is one.
+            self::factory()->user->create( [ 'role' => 'administrator' ] ),
             null,
             [ 'date_from' => '2026-01-01', 'date_to' => '2026-12-31' ]
         ) );

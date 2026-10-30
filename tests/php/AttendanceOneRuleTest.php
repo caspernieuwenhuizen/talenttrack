@@ -188,7 +188,9 @@ final class AttendanceOneRuleTest extends WP_UnitTestCase {
 
     private function snapshotPct() {
         $payload = ( new KpiSnapshotXlsxExporter() )->collect( new ExportRequest(
-            'kpi_snapshot', 'xlsx', self::CLUB, 0, null,
+            'kpi_snapshot', 'xlsx', self::CLUB,
+            // The snapshot is for an all-teams reader; an administrator is one.
+            self::factory()->user->create( [ 'role' => 'administrator' ] ), null,
             [ 'date_from' => self::FROM, 'date_to' => self::TO ]
         ) );
         $sheet = (array) ( ( (array) $payload['sheets'] )[ __( 'KPI snapshot', 'talenttrack' ) ] ?? [] );
