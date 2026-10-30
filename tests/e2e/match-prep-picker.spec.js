@@ -43,9 +43,10 @@ function rest( page, method, path, body ) {
 
 /**
  * @param {import('@playwright/test').Page} page
+ * @param {Array<string>} created REST paths of the records made, archived afterwards
  * @returns {Promise<{activityId:number, playerId:number}|string>} ids, or why it skipped
  */
-async function seedMatch( page ) {
+async function seedMatch( page, created ) {
 	await page.goto( '/?tt_view=activities' );
 	await page.waitForLoadState( 'load', { timeout: 30000 } );
 	const hasConfig = await page.evaluate( () => !! ( window.TT && window.TT.rest_url && window.TT.rest_nonce ) );
@@ -54,6 +55,7 @@ async function seedMatch( page ) {
 	const team = await rest( page, 'POST', 'teams', { name: uniqueName( 'E2E picker team' ) } );
 	const teamId = team.json && team.json.data ? Number( team.json.data.id ) : 0;
 	if ( ! teamId ) return 'Team create refused: ' + team.status;
+	created.push( 'teams/' + teamId );
 
 	const player = await rest( page, 'POST', 'players', {
 		first_name: 'Picker',
@@ -63,6 +65,7 @@ async function seedMatch( page ) {
 	} );
 	const playerId = player.json && player.json.data ? Number( player.json.data.id ) : 0;
 	if ( ! playerId ) return 'Player create refused: ' + player.status;
+	created.push( 'players/' + playerId );
 
 	const activity = await rest( page, 'POST', 'activities', {
 		title: uniqueName( 'E2E picker match' ),
@@ -72,6 +75,7 @@ async function seedMatch( page ) {
 	} );
 	const activityId = activity.json && activity.json.data ? Number( activity.json.data.id ) : 0;
 	if ( ! activityId ) return 'Activity create refused: ' + activity.status;
+	created.push( 'activities/' + activityId );
 
 	const availability = {};
 	availability[ playerId ] = { status: 'Present', reason: '' };
@@ -84,9 +88,21 @@ async function seedMatch( page ) {
 
 test.describe( 'Match prep player picker (#4263)', () => {
 
+	/** @type {Array<string>} */
+	let created = [];
+
+	// The seeded team and player would otherwise show up in the lists later
+	// specs and the mobile gate walk; archive them, newest first.
+	test.afterEach( async ( { page } ) => {
+		for ( const path of created.reverse() ) {
+			await rest( page, 'DELETE', path, {} );
+		}
+		created = [];
+	} );
+
 	test( 'opens inside the viewport on a scrolled page and saves the role', async ( { page } ) => {
 		await page.setViewportSize( { width: 1366, height: 768 } );
-		const seeded = await seedMatch( page );
+		const seeded = await seedMatch( page, created );
 		if ( typeof seeded === 'string' ) {
 			test.skip( true, seeded );
 			return;
