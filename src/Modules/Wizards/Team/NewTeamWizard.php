@@ -18,7 +18,8 @@ final class NewTeamWizard implements WizardInterface {
 
     public function slug(): string { return 'new-team'; }
     public function label(): string { return __( 'New team', 'talenttrack' ); }
-    public function requiredCap(): string { return 'tt_edit_teams'; }
+    // #4286 — the create right, not the edit right a head coach holds.
+    public function requiredCap(): string { return \TT\Infrastructure\Security\AuthorizationService::CREATE_TEAM_CAP; }
     public function firstStepSlug(): string { return 'basics'; }
 
     /** @return array<int, \TT\Shared\Wizards\WizardStepInterface> */

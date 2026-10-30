@@ -53,7 +53,7 @@ class TeamsPage {
         $base_url = admin_url( 'admin.php?page=tt-teams' );
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Teams', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_teams' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-teams&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
+            <h1><?php esc_html_e( 'Teams', 'talenttrack' ); ?><?php if ( AuthorizationService::canCreateTeam( get_current_user_id() ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-teams&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'teams-players' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
 
@@ -287,13 +287,13 @@ class TeamsPage {
 
         // v2.8.0: entity-scoped auth when editing existing team. Head coach /
         // manager of THIS team can edit it; admins can edit any. Creating a
-        // new team requires the base capability.
+        // new team requires the create right (#4286).
         if ( $id > 0 ) {
             if ( ! AuthorizationService::canManageTeam( get_current_user_id(), $id ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
         } else {
-            if ( ! current_user_can( 'tt_edit_teams' ) ) {
+            if ( ! AuthorizationService::canCreateTeam( get_current_user_id() ) ) {
                 wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
             }
             // #0011 — free-tier cap. Block creation past the team cap.

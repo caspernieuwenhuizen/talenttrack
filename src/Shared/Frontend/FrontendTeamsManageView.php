@@ -125,7 +125,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 'narrow_overflow' => true,
             ];
         }
-        if ( ! $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {
+        if ( ! $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::canCreateTeam( $user_id ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url );
             $page_actions[] = [
                 'label'   => __( 'New team', 'talenttrack' ),
@@ -145,10 +145,10 @@ class FrontendTeamsManageView extends FrontendViewBase {
         // the free-tier 1-team cap. The `+ New team` action in the
         // header is suppressed by the same check in render(). #4286 — only
         // for a viewer who could otherwise add a team: to a coach without
-        // that right the nudge reads as a data error, not a reason.
+        // the create right the nudge reads as a data error, not a reason.
         $at_team_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' );
-        if ( $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' ) ) {
+        if ( $at_team_cap && \TT\Infrastructure\Security\AuthorizationService::canCreateTeam( $user_id ) ) {
             echo \TT\Modules\License\Admin\UpgradeNudge::capHit( 'teams' );
         }
 
@@ -267,7 +267,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     'new-team',
                     add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url ) /* tt-xview-ok — same view, its own create action; the CTA is gated by cta_cap below */
                 ),
-                'cta_cap'   => 'tt_edit_teams',
+                'cta_cap'   => \TT\Infrastructure\Security\AuthorizationService::CREATE_TEAM_CAP,
             ]
         );
     }
@@ -282,6 +282,13 @@ class FrontendTeamsManageView extends FrontendViewBase {
              && ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_teams' )
         ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to edit teams.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        // #4286 — the create form asks the create right, the same one
+        // `POST /teams` asks, so the form never opens for a save that
+        // would be refused.
+        if ( $team === null && ! \TT\Infrastructure\Security\AuthorizationService::canCreateTeam( $user_id ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to add teams.', 'talenttrack' ) . '</p>';
             return;
         }
 

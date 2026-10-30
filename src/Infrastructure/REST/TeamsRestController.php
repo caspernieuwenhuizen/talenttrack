@@ -56,6 +56,11 @@ class TeamsRestController {
         $can_edit = static function (): bool {
             return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_teams' );
         };
+        // #4286 — creating a team is the create right, which a head coach
+        // does not hold; editing their own team stays with `canManageTeam()`.
+        $can_create = static function (): bool {
+            return AuthorizationService::canCreateTeam( get_current_user_id() );
+        };
         // #3152 — `$can_view` answers "may you look at teams". `GET /teams`
         // then narrows per row; `GET /teams/{id}` did not, so the row the
         // list omits was still readable one id at a time. This is the same
@@ -78,7 +83,7 @@ class TeamsRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_team' ],
                 'args'                => self::writeArgs(),
-                'permission_callback' => $can_edit,
+                'permission_callback' => $can_create,
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)', [

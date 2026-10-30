@@ -483,6 +483,20 @@ class AuthorizationService {
         } );
     }
 
+    /**
+     * #4286 — creating a team is the matrix's create right (`team:
+     * create_delete`, bridged from `tt_manage_teams`), held by the head
+     * of development and the academy admin. A head coach holds `team
+     * [rc, team]`: they edit their own teams, they do not add teams.
+     * Every create path asks this: the New team action, the cap nudge,
+     * `POST /teams`, the new-team wizard and the wp-admin save.
+     */
+    public static function canCreateTeam( int $user_id ): bool {
+        return self::userCanOrMatrix( $user_id, self::CREATE_TEAM_CAP );
+    }
+
+    public const CREATE_TEAM_CAP = 'tt_manage_teams';
+
     public static function canAssignStaff( int $user_id, int $team_id ): bool {
         return self::decide( 'assign_staff', $user_id, 'team', $team_id, function () use ( $user_id ) {
             // Assigning staff is a club-level authority. Requires a GLOBAL
