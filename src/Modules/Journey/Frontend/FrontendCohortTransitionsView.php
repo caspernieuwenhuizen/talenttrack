@@ -100,7 +100,7 @@ class FrontendCohortTransitionsView {
                         <option value=""><?php esc_html_e( '— Select an event type —', 'talenttrack' ); ?></option>
                         <?php foreach ( EventTypeRegistry::all() as $def ) : ?>
                             <option value="<?php echo esc_attr( $def->key ); ?>" <?php selected( $event_type, $def->key ); ?>>
-                                <?php echo esc_html( $def->label ); ?>
+                                <?php echo esc_html( EventTypeRegistry::label( $def ) ); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -115,7 +115,14 @@ class FrontendCohortTransitionsView {
                 </label>
                 <label class="tt-field">
                     <span class="tt-field-label"><?php esc_html_e( 'Team (optional)', 'talenttrack' ); ?></span>
-                    <input class="tt-input" type="number" name="team_id" value="<?php echo esc_attr( $team_id > 0 ? (string) $team_id : '' ); ?>" inputmode="numeric" min="0" />
+                    <select class="tt-input" name="team_id">
+                        <option value="0"><?php esc_html_e( 'All teams', 'talenttrack' ); ?></option>
+                        <?php foreach ( self::teamOptions( $user_id, $team_id ) as $tid => $team_name ) : ?>
+                            <option value="<?php echo esc_attr( (string) $tid ); ?>" <?php selected( $team_id, $tid ); ?>>
+                                <?php echo esc_html( $team_name ); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </label>
                 <button type="submit" class="tt-btn tt-btn-primary">
                     <?php esc_html_e( 'Run query', 'talenttrack' ); ?>
@@ -173,5 +180,30 @@ class FrontendCohortTransitionsView {
             <?php endif; ?>
         </section>
         <?php
+    }
+
+    /**
+     * #4273 — the team filter's options: the teams this user may read for
+     * `cohort_transitions`, by name, through the same `canReadTeamFor()`
+     * clamp the query applies. A team already in the URL (an archived
+     * one, from an older link) stays selectable so the form shows what
+     * the results were filtered on.
+     *
+     * @return array<int, string> team id => name
+     */
+    private static function teamOptions( int $user_id, int $current_team_id ): array {
+        $out = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams() as $team ) {
+            $tid = (int) ( $team->id ?? 0 );
+            if ( $tid <= 0 ) continue;
+            if ( ! \TT\Modules\Authorization\AllTeamsScope::canReadTeamFor( $user_id, $tid, 'cohort_transitions' ) ) continue;
+            $out[ $tid ] = (string) ( $team->name ?? '' );
+        }
+        if ( $current_team_id > 0 && ! isset( $out[ $current_team_id ] )
+            && \TT\Modules\Authorization\AllTeamsScope::canReadTeamFor( $user_id, $current_team_id, 'cohort_transitions' ) ) {
+            $team = \TT\Infrastructure\Query\QueryHelpers::get_team( $current_team_id );
+            if ( $team ) $out[ $current_team_id ] = (string) ( $team->name ?? '' );
+        }
+        return $out;
     }
 }

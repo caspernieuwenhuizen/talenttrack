@@ -124,6 +124,18 @@ final class EventTypeRegistry {
         return $out;
     }
 
+    /**
+     * The event type's label in the reader's language (#4273, from #1818's
+     * journey view): the lookup's `description` resolved through
+     * `tt_translations`, falling back to the stored English description
+     * when no translation exists. One answer for the journey view, the
+     * cohort query and `GET journey/event-types`.
+     */
+    public static function label( EventTypeDefinition $def ): string {
+        $tx = \TT\Infrastructure\Query\LookupTranslator::descriptionByTypeAndName( 'journey_event_type', $def->key );
+        return $tx !== '' ? $tx : $def->label;
+    }
+
     public static function find( string $key ): ?EventTypeDefinition {
         $all = self::all();
         return $all[ $key ] ?? null;
