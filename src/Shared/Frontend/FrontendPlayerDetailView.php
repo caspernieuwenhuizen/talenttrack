@@ -2870,7 +2870,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     $body     = self::injuryLookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' );
                     $severity = self::injuryLookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' );
                     ?>
-                    <div class="tt-player-row">
+                    <?php // #4255 — the row itself is not a link; its actions are the buttons, so it never takes the pointer. ?>
+                    <div class="tt-player-row tt-player-row--static tt-player-row--injury">
                         <div class="tt-player-row__main">
                             <strong><?php echo esc_html( $body !== '—' ? $body : __( 'Injury', 'talenttrack' ) ); ?></strong>
                             <?php if ( $severity !== '—' ) : ?>
@@ -2900,13 +2901,23 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                 <div class="tt-player-row__meta"><?php echo esc_html( (string) $row->notes ); ?></div>
                             <?php endif; ?>
                         </div>
-                        <?php if ( $can_write && $actual === '' ) : ?>
-                            <div class="tt-player-row__side">
-                                <button type="button"
-                                        class="tt-btn tt-btn-secondary tt-btn-small"
-                                        data-tt-injury-recover="<?php echo (int) $row->id; ?>">
-                                    <?php esc_html_e( 'Record return', 'talenttrack' ); ?>
-                                </button>
+                        <?php if ( $can_write ) :
+                            $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                                [ 'tt_view' => 'injuries', 'action' => 'edit', 'id' => (int) ( $row->id ?? 0 ) ],
+                                RecordLink::dashboardUrl()
+                            ) );
+                            ?>
+                            <div class="tt-player-row__side tt-player-row__actions">
+                                <a class="tt-btn tt-btn-secondary tt-btn-small" href="<?php echo esc_url( $edit_url ); ?>">
+                                    <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
+                                </a>
+                                <?php if ( $actual === '' ) : ?>
+                                    <button type="button"
+                                            class="tt-btn tt-btn-secondary tt-btn-small"
+                                            data-tt-injury-recover="<?php echo (int) $row->id; ?>">
+                                        <?php esc_html_e( 'Record return', 'talenttrack' ); ?>
+                                    </button>
+                                <?php endif; ?>
                             </div>
                         <?php endif; ?>
                     </div>

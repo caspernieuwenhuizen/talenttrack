@@ -41,6 +41,14 @@ Eén uitzondering, en die is tijdelijk: een Staf-account zonder functionele rol 
 
 Opslaan zet automatisch een regel *Blessure ingetreden* op de reis van de speler.
 
+## Een blessure bewerken
+
+Een blessure die haastig langs het veld is vastgelegd, is vaak niet meer dan een datum en een notitie. Vul haar aan zodra je meer weet: kies **Bewerken** op het tabblad **Blessures** van de speler, of bij een regel in het overzicht **Blessures**. Je kunt het lichaamsdeel, het type, de ernst, de verwachte terugkeer en de notitie wijzigen. De datum van de blessure blijft zoals hij is vastgelegd.
+
+De verwachte terugkeer kan niet vóór de datum van de blessure liggen. Een veld leegmaken wist het. **Annuleren** brengt je terug naar waar je vandaan kwam zonder iets op te slaan, en elke opgeslagen wijziging komt in het auditlogboek.
+
+De knop **Bewerken** verschijnt alleen bij mensen die voor die speler blessures mogen vastleggen; voor de rest is de blessure alleen-lezen.
+
 ## De terugkeer vastleggen
 
 Dit is de helft die er het meest toe doet, en de helft die vergeten wordt.

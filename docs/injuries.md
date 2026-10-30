@@ -41,6 +41,14 @@ One exception, and it is temporary: a Staff account that holds **no** functional
 
 Saving puts an *Injury started* entry on the player's journey automatically.
 
+## Editing an injury
+
+An injury recorded in a hurry on the pitch is often just a date and a note. Complete it once you know more: on the player's **Injuries** tab, or on a row of the **Injuries** overview, choose **Edit**. You can change the body part, the type, the severity, the expected return and the note. The date of injury stays as it was recorded.
+
+The expected return cannot be before the date of injury. Emptying a field clears it. **Cancel** takes you back to where you came from without saving anything, and every saved edit is written to the audit log.
+
+The **Edit** button only appears for people who may record injuries for that player; everyone else sees the injury read-only.
+
 ## Recording the return
 
 This is the half that matters most, and the one that gets forgotten.

@@ -114,6 +114,9 @@ eerst in de tabvolgorde en Opslaan rechts, waar de duim hem vindt.
 - Een [schorsing](suspensions.md) vastleggen en bewerken op het formulier van
   één pagina. Ze staat direct na opslaan op de tijdlijn die het gezin leest,
   dus een half ingetikt aantal wedstrijden mag daar nooit terechtkomen.
+- Een [blessure](injuries.md) bewerken op het formulier van één pagina. Een
+  korte regel met een vaste set velden, en medische gegevens: één moment van
+  vastleggen, en Annuleren betekent dat er niets is weggeschreven.
 - Configuratieschermen en keuzelijsten.
 - De [VCT-cycluskalender](configuration-vct.md), waar weken op neutraal
   worden gezet of juist gewoon doorlopen.
