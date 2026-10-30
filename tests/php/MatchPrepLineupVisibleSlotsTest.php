@@ -94,6 +94,35 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
         $this->assertSame( [ 'start' => 11 ], $this->attendanceRoles() );
     }
 
+    /**
+     * A player on a hidden slot who is not Present is projected as not
+     * starting, whether the availability marks them Absent or carries no
+     * row for them at all; neither keeps the `start` of the 4-3-3 save.
+     */
+    public function test_a_hidden_slot_player_who_is_not_present_is_not_projected_as_starting(): void {
+        $this->fillElevenIn( $this->seededTemplate( '4-3-3' ) );
+        $this->assertSame( [ 'start' => 11 ], $this->attendanceRoles() );
+
+        // Slots 9 and 10 are not on a 3-2-1. One is marked Absent, the other
+        // has no availability row any more.
+        $absent  = $this->players[8];
+        $no_row  = $this->players[9];
+        $availability = [];
+        foreach ( $this->players as $pid ) {
+            if ( $pid === $no_row ) continue;
+            $availability[ $pid ] = [ 'status' => $pid === $absent ? 'Absent' : 'Present', 'reason' => '' ];
+        }
+        [ , $status ] = $this->send( 'PUT', [
+            'formation_template_id' => $this->seededTemplate( '3-2-1' ),
+            'availability'          => $availability,
+        ] );
+        $this->assertSame( 200, $status );
+
+        $this->assertNotSame( 'start', $this->attendanceRoleOf( $absent ), 'the Absent slot-9 player is not starting' );
+        $this->assertNotSame( 'start', $this->attendanceRoleOf( $no_row ), 'nor the slot-10 player without an availability row' );
+        $this->assertSame( 6, $this->attendanceRoles()['start'] ?? 0 );
+    }
+
     public function test_a_template_with_its_own_slots_is_filtered_by_its_own_slot_numbers(): void {
         global $wpdb;
         $slots = [];
@@ -138,6 +167,9 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
         foreach ( $readers as $file ) {
             $src = (string) file_get_contents( TT_PLUGIN_DIR . $file );
             $this->assertStringContainsString( '->listLineup(', $src, $file );
+            // The attendance projection also reads every row, only to know
+            // whom to project as not starting (tested above).
+            if ( $file === 'src/Modules/MatchPrep/Rest/MatchPrepRestController.php' ) continue;
             $this->assertStringNotContainsString( 'listLineupAll(', $src, $file );
         }
 
@@ -194,6 +226,17 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
             $out[ (string) $row->lineup_role ] = (int) $row->n;
         }
         return $out;
+    }
+
+    private function attendanceRoleOf( int $player_id ): ?string {
+        global $wpdb;
+        $role = $wpdb->get_var( $wpdb->prepare(
+            "SELECT lineup_role FROM {$wpdb->prefix}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND lineup_role IS NOT NULL
+              LIMIT 1",
+            $this->activity, $player_id
+        ) );
+        return $role === null ? null : (string) $role;
     }
 
     private function seededTemplate( string $shape ): int {
