@@ -372,7 +372,7 @@ final class InjuryRepository {
             (int) $row['player_id'],
             JourneyEventType::INJURY_ENDED,
             (string) $row['actual_return'] . ' 00:00:00',
-            'Injury recovered',
+            __( 'Injury recovered', 'talenttrack' ),
             [
                 'injury_id'     => $injury_id,
                 'days_out'      => $days_out,
