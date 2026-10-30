@@ -36,3 +36,4 @@ ctemp*
 # Scratch catalogues the duplicate-gate self-check builds and removes (#2765).
 # Ignored so a crashed run cannot leave one behind to be committed.
 /languages/.selfcheck/
+tools/team/control-room/control-room.html
