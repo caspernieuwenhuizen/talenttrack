@@ -783,7 +783,7 @@ final class RateActorsStep implements WizardStepInterface {
         // slot a formation switch removed did not play.
         $on_pitch = [];
         foreach ( $prep_repo->listLineup( $prep_id ) as $r ) {
-            $pid = (int) $r->player_id;
+            $pid = (int) ( ( (array) $r )['player_id'] ?? 0 );
             if ( $pid > 0 ) $on_pitch[ $pid ] = true;
         }
         if ( $exec_id > 0 ) {
