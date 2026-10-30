@@ -82,7 +82,7 @@
      * once at hydration time (see bindInlineSelects below).
      */
     function renderInlineSelect(col, row, current) {
-        var path = (col.patch_path || '').replace(/\{([a-zA-Z0-9_]+)\}/g, function(_m, k) { return row[k] == null ? '' : encodeURIComponent(String(row[k])); });
+        var path = (col.patch_path || '').replace(placeholderPattern(), function(_m, k) { return row[k] == null ? '' : encodeURIComponent(String(row[k])); });
         var opts = col.options || {};
         var html = '<select class="tt-list-inline-select"'
                  + ' data-tt-list-inline-select="1"'
@@ -97,12 +97,23 @@
     }
 
     /**
+     * A {placeholder} in a row-action template, literal or URL-encoded.
+     * #4250 — a template that passed through `add_query_arg()` twice on
+     * the PHP side (e.g. `BackLink::appendTo()` appending `tt_back`)
+     * arrives as `%7Bid%7D`, which the literal pattern left in the link.
+     * Built per call so the `g` flag's lastIndex never leaks between uses.
+     */
+    function placeholderPattern() {
+        return /(?:\{|%7B)([a-zA-Z0-9_]+)(?:\}|%7D)/gi;
+    }
+
+    /**
      * Substitute {placeholders} from a row into a string. Supports any
      * row property; callers only need to use names that match the
      * REST payload keys.
      */
     function fillTemplate(tpl, row) {
-        return String(tpl).replace(/\{([a-zA-Z0-9_]+)\}/g, function(_m, key) {
+        return String(tpl).replace(placeholderPattern(), function(_m, key) {
             var v = row[key];
             return v == null ? '' : encodeURIComponent(String(v));
         });
@@ -119,7 +130,7 @@
             var label = escapeHtml(a.label);
             if (a.href) {
                 // The href template uses raw substitution (not URL-encoded twice for known-safe placeholders like {id}).
-                var href = String(a.href).replace(/\{([a-zA-Z0-9_]+)\}/g, function(_m, k) { return row[k] == null ? '' : String(row[k]); });
+                var href = String(a.href).replace(placeholderPattern(), function(_m, k) { return row[k] == null ? '' : String(row[k]); });
                 out += '<a class="tt-list-table-action" href="' + escapeHtml(href) + '" data-action="' + escapeHtml(key) + '">' + label + '</a>';
             } else if (a.rest_path) {
                 var dataAttrs = ' data-action="' + escapeHtml(key) + '"' +
