@@ -1391,7 +1391,7 @@ Accounts that could be linked as a parent: any account that is not a player or a
 
 The parent accounts linked to a player, primary first: `{ player_id, parents: [ { wp_user_id, display_name, email, is_primary } ] }`. `404` for a player outside this club.
 
-The read is audited, the same way as the profile's Parents · Guardians card: a response with at least one parent writes one `player.guardian_contacts_viewed` row naming the reader and the player, with the payload `{ surface: "rest_players_parents", count }` and no name or e-mail address. A refused (`403`) or empty read writes none. The list comes from `GuardianContacts::forPlayer()`, so a link whose account no longer exists is left out, and `display_name` falls back to the e-mail address when the account has no display name.
+The read is audited, the same way as the profile's Parents · Guardians card: every read writes one `player.guardian_contacts_viewed` row naming the reader and the player, with the payload `{ surface: "rest_players_parents", count }` and no name or e-mail address. An empty list is logged with `count` 0, as on the card; a refused (`403`) or not-found (`404`) read writes none. The list comes from `GuardianContacts::forPlayer()`, so a link whose account no longer exists is left out, and `display_name` falls back to the e-mail address when the account has no display name.
 
 ### `POST /players/{id}/parents`
 

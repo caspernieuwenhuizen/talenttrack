@@ -129,7 +129,7 @@ final class GuardianContactsAuditTest extends WP_UnitTestCase {
         $this->assertSame( $before, $this->auditCount() );
     }
 
-    public function test_an_empty_rest_read_writes_no_row(): void {
+    public function test_an_empty_rest_read_writes_a_row_with_count_zero(): void {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
             'club_id'    => $this->club,
@@ -145,11 +145,48 @@ final class GuardianContactsAuditTest extends WP_UnitTestCase {
 
         $this->assertSame( 200, $status );
         $this->assertSame( [], $data['data']['parents'] );
-        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log
+
+        // One rule for both surfaces: every read is logged, an empty one too.
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT user_id, payload FROM {$wpdb->prefix}tt_audit_log
               WHERE action = 'player.guardian_contacts_viewed' AND entity_type = 'player' AND entity_id = %d",
             $orphan
-        ) ) );
+        ) );
+        $this->assertCount( 1, $rows, 'an empty read writes one row' );
+        $this->assertSame( $admin, (int) $rows[0]->user_id );
+        $payload = json_decode( (string) $rows[0]->payload, true );
+        $this->assertSame( 'rest_players_parents', $payload['surface'] );
+        $this->assertSame( 0, $payload['count'] );
+    }
+
+    public function test_an_empty_card_read_writes_a_row_with_count_zero(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [
+            'club_id'    => $this->club,
+            'team_id'    => $this->team,
+            'first_name' => 'Card',
+            'last_name'  => 'NoGuardian',
+            'status'     => 'active',
+        ] );
+        $orphan = (int) $wpdb->insert_id;
+        $coach  = $this->makeHeadCoach( $this->team );
+
+        wp_set_current_user( $coach );
+        $_GET['tab'] = 'profile';
+        ob_start();
+        FrontendPlayerDetailView::render( $orphan, $coach, false );
+        ob_end_clean();
+
+        $payload = $wpdb->get_var( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log
+              WHERE action = 'player.guardian_contacts_viewed' AND entity_type = 'player' AND entity_id = %d
+              ORDER BY id DESC LIMIT 1",
+            $orphan
+        ) );
+        $this->assertNotNull( $payload, 'the card logs an empty read too' );
+        $decoded = json_decode( (string) $payload, true );
+        $this->assertSame( 'player_profile_parents_card', $decoded['surface'] );
+        $this->assertSame( 0, $decoded['count'] );
     }
 
     public function test_a_parent_sees_no_card_and_writes_no_row(): void {

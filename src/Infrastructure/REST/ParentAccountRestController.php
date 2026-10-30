@@ -123,8 +123,8 @@ class ParentAccountRestController {
 
     /**
      * GET /players/{id}/parents (#3571) — the parent accounts linked to a
-     * player, primary first. A read that returns any writes one
-     * `player.guardian_contacts_viewed` audit row.
+     * player, primary first. Every read writes one
+     * `player.guardian_contacts_viewed` audit row, an empty one included.
      */
     public static function list_parents( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = absint( $r['id'] );
@@ -145,9 +145,8 @@ class ParentAccountRestController {
                 'is_primary'   => $contact['is_primary'],
             ];
         }
-        if ( $contacts ) {
-            GuardianContacts::recordRead( $player_id, 'rest_players_parents', count( $contacts ) );
-        }
+        // Every read is logged, an empty one with count 0, like the card.
+        GuardianContacts::recordRead( $player_id, 'rest_players_parents', count( $contacts ) );
 
         return RestResponse::success( [ 'player_id' => $player_id, 'parents' => $parents ] );
     }
