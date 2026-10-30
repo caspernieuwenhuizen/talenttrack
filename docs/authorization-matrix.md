@@ -599,6 +599,22 @@ By default **Head of development** and **Academy admin** hold read and change, g
 
 Existing installs get the change right for head of development and academy admin with the update that introduced it (migration `0272_authorization_seed_topup_analytics_change`), and the team manager's read with `0277_authorization_seed_topup_manager_analytics`. Both add their tuples with `INSERT IGNORE` and leave every row an admin has edited alone.
 
+## Matrix entity `lookups` — the club vocabulary (#4296)
+
+The lookups are the club's lists: injury types, body parts, severities, positions, attendance statuses and the rest. Records store a lookup id, so whoever writes a record needs the list to choose from. `GET /lookups` and `GET /lookups/{type}` gate on `tt_view_lookups`, which bridges to `lookups: read`.
+
+| Persona | Grant |
+|---|---|
+| `head_coach`, `assistant_coach`, `staff`, `scout` | `read`, global |
+| `head_of_development` | `read`, global |
+| `academy_admin` | `read` + `change` + `create_delete`, global |
+
+**Staff personas only (D-15).** A lookup holds no player data, but parents and players do not need the route: they read the label inside the record they may see. A team manager or an observer who writes no records against these lists has no grant either. Writing a lookup stays on `tt_edit_settings`.
+
+Existing installs gain the four staff rows with migration `0300_authorization_seed_staff_read_lookups`, which adds them with `INSERT IGNORE` and leaves every row an admin has edited alone.
+
+Methodology principles follow the same idea without a seed change. `GET /methodology/principles[/{id}]` now asks `tt_view_methodology` (`methodology: read`, already held by both coach personas and the scout) instead of the edit right, and writes keep `tt_edit_methodology`.
+
 ## The functional-role axis (#3257, #3433)
 
 The matrix keys on `(persona, entity, activity, scope_kind)`. A physio and a kit manager hold the same `tt_staff` WordPress role, so they resolve to the same persona — `staff` — and **no cell on this grid can tell them apart**. That is not a gap in the seed; it is the shape of the key. #3232's `player_injuries [rc, team]` grant therefore reached every Staff account, including ones issued for entirely non-clinical reasons.

@@ -32,14 +32,17 @@ final class PrinciplesRestController extends AbstractMethodologyRestController {
 
     public static function register(): void {
         $gate = [ self::class, 'can_edit' ];
+        // #4296 — reading the principles is `tt_view_methodology`, which
+        // the coaches who plan against them hold; writing stays on edit.
+        $read = [ self::class, 'can_view' ];
 
         register_rest_route( self::NS, '/methodology/principles', [
-            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $gate ],
+            [ 'methods' => 'GET',  'callback' => [ self::class, 'list_items' ],    'permission_callback' => $read ],
             [ 'methods' => 'POST', 'callback' => [ self::class, 'handle_create' ], 'permission_callback' => $gate, 'args' => self::createArgs() ],
         ] );
 
         register_rest_route( self::NS, '/methodology/principles/(?P<id>\d+)', [
-            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $gate ],
+            [ 'methods' => 'GET',    'callback' => [ self::class, 'get_item' ],      'permission_callback' => $read ],
             [ 'methods' => 'PUT',    'callback' => [ self::class, 'handle_update' ], 'permission_callback' => $gate, 'args' => self::itemWriteArgs() ],
             [ 'methods' => 'DELETE', 'callback' => [ self::class, 'delete_item' ],   'permission_callback' => $gate ],
         ] );

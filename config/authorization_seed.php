@@ -286,6 +286,11 @@ return array_merge(
         'media'                      => [ 'rcd', 'team',   $mod_media ],
         'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
+        // #4296 (D-15) — the club vocabulary the records this persona
+        // writes point at (injury type, body part, severity …), read over
+        // REST. No player data; parents and players get the labels inside
+        // their own records instead.
+        'lookups'                    => [ 'r',   'global', $mod_configuration ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         // #1946 — `rd` (read + create_delete). The `tt_generate_report`
         // act-cap (report generation) is held by tt_coach today and bridges
@@ -449,6 +454,8 @@ return array_merge(
         'goals'                      => [ 'rcd', 'team',   $mod_goals ],
         'attendance'                 => [ 'rcd', 'team',   $mod_activities ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
+        // #4296 (D-15) — see assistant_coach.
+        'lookups'                    => [ 'r',   'global', $mod_configuration ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'player_status_methodology'  => [ 'r',   'global', $mod_methodology ],
         // #1946 — `rd` (read + create_delete). `tt_generate_report` bridges
@@ -712,6 +719,8 @@ return array_merge(
         'rate_cards'                 => [ 'r',   'global', $mod_stats ],
         'compare'                    => [ 'r',   'global', $mod_stats ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
+        // #4296 (D-15) — see assistant_coach.
+        'lookups'                    => [ 'r',   'global', $mod_configuration ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'trial_cases'                => [ 'rc',  'player', $mod_trials ],
         'trial_inputs'               => [ 'c',   'player', $mod_trials ],
@@ -1241,6 +1250,8 @@ return array_merge(
         // Strictly narrower than the `people` grant above, and the same
         // row every other staff-side persona carries.
         'my_person'    => [ 'rc', 'self', $mod_people ],
+        // #4296 (D-15) — see assistant_coach.
+        'lookups'      => [ 'r',  'global', $mod_configuration ],
         // #3433 — `measurements [rc, team]` used to sit here, and does
         // not any more.
         //

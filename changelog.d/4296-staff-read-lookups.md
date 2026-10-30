@@ -1,0 +1,3 @@
+# Coaches, staff and scouts can read the club's lookup lists and the methodology principles over REST (#4296)
+
+The REST API refused the reference data that coaches' records point at. A head coach who records an injury got 403 on the injury types and body parts, and coaches got 403 on the methodology principles they plan trainings against. The rendered screens were unaffected. Head coaches, assistant coaches, staff and scouts can now read the lookup lists, and both coach personas and scouts can read the principles. Parents and players still read the labels inside their own records, and writing a lookup or a principle keeps its existing permission. Existing installs get the new access rights when they update.

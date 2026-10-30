@@ -17,8 +17,9 @@ use WP_REST_Request;
  *   PUT    /lookups/{type}/{id}         update name / description / sort_order / meta
  *   DELETE /lookups/{type}/{id}         hard-delete
  *
- * Reads are open to logged-in users (`tt_view_settings`) so admin pickers
- * can pre-populate; writes require `tt_edit_settings`. The PHP-side
+ * Reads gate on `tt_view_lookups` (`lookups: read`), which the staff
+ * personas that write records against this vocabulary hold (#4296, D-15);
+ * writes require `tt_edit_settings`. The PHP-side
  * `QueryHelpers::get_lookups()` stays the canonical reader for the
  * plugin's own surfaces — this controller exists for future SaaS clients.
  */
@@ -33,7 +34,7 @@ final class LookupsRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'listTypes' ],
-                'permission_callback' => self::permCan( 'tt_view_settings' ),
+                'permission_callback' => [ self::class, 'can_read' ],
             ],
         ] );
 
@@ -41,7 +42,7 @@ final class LookupsRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'listValues' ],
-                'permission_callback' => self::permCan( 'tt_view_settings' ),
+                'permission_callback' => [ self::class, 'can_read' ],
                 'args'                => self::typeArg(),
             ],
             [
@@ -162,6 +163,17 @@ final class LookupsRestController extends BaseController {
             $out[] = $loc;
         }
         return array_values( array_unique( $out ) );
+    }
+
+    /**
+     * #4296 — reading the club's vocabulary. `tt_view_settings` is the
+     * settings-screen roll-up, which no coach or staff persona holds, so
+     * the coach who records an injury could not read `injury_type` over
+     * REST. `lookups: read` is seeded to the staff personas (D-15);
+     * parents and players read the labels inside their own records.
+     */
+    public static function can_read(): bool {
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_lookups' );
     }
 
     /** @return array<string,array<string,mixed>> */
