@@ -37,34 +37,42 @@ use TT\Shared\Frontend\Components\RecordLink;
  */
 final class FrontendStandardReportsView extends FrontendViewBase {
 
-    /** @var array<string,string> slug => label */
-    private const REPORTS = [
-        'player-minutes-played'        => 'Player · Minutes played',
-        'team-minutes-distribution'    => 'Team · Minutes distribution',
-        // #2835 — the relative figure the minutes family was missing: what
-        // share of the minutes the team actually played did each player get.
-        'minutes-share'                => 'Team · Minutes share',
-        // #3459 (epic #3457) — the document a monthly staff meeting runs on.
-        'team-monthly'                 => 'Team · Monthly report',
-        // #3873 (epic #3871) — the document a coach brings to a conversation.
-        'player-report'                => 'Player · Report',
-        'team-squad-evaluation-summary' => 'Team · Squad evaluation summary',
-        // #2725 — a season of match analyses read as a per-phase trend.
-        'match-analysis-trends'        => 'Team · Match analysis trends',
-        'season-summary'               => 'Season · Summary',
-        'season-trial-funnel'          => 'Season · Trial funnel',
-        'scout-report-card'            => 'Scout · Report card',
-        // #1367 — HoD coach-quality lens (scope-admin only).
-        'coach-evaluation-quality'     => 'Coach · Evaluation quality',
-        // #1369 — wp-admin "Player Progress & Radar" ported native.
-        'player-progress-radar'        => 'Player · Progress & radar',
-        // #2650 — knowledge-library completion. Three lenses on one dataset;
-        // the aggregation is LearningStatisticsService's, the tables are
-        // Knowledge\Frontend\LearningReports'.
-        'learning-courses'             => 'Learning · Course completion',
-        'learning-people'              => 'Learning · Per person',
-        'learning-teams'               => 'Learning · Staff coverage per team',
-    ];
+    /**
+     * The standard reports, slug => title in the reader's language. The
+     * keys are also the set of valid slugs. A method rather than a const,
+     * because a const cannot translate (#4299).
+     *
+     * @return array<string,string>
+     */
+    private static function reports(): array {
+        return [
+            'player-minutes-played'         => __( 'Player · Minutes played', 'talenttrack' ),
+            'team-minutes-distribution'     => __( 'Team · Minutes distribution', 'talenttrack' ),
+            // #2835 — the relative figure the minutes family was missing: what
+            // share of the minutes the team actually played did each player get.
+            'minutes-share'                 => __( 'Team · Minutes share', 'talenttrack' ),
+            // #3459 (epic #3457) — the document a monthly staff meeting runs on.
+            'team-monthly'                  => __( 'Team · Monthly report', 'talenttrack' ),
+            // #3873 (epic #3871) — the document a coach brings to a conversation.
+            'player-report'                 => __( 'Player · Report', 'talenttrack' ),
+            'team-squad-evaluation-summary' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
+            // #2725 — a season of match analyses read as a per-phase trend.
+            'match-analysis-trends'         => __( 'Team · Match analysis trends', 'talenttrack' ),
+            'season-summary'                => __( 'Season · Summary', 'talenttrack' ),
+            'season-trial-funnel'           => __( 'Season · Trial funnel', 'talenttrack' ),
+            'scout-report-card'             => __( 'Scout · Report card', 'talenttrack' ),
+            // #1367 — HoD coach-quality lens (scope-admin only).
+            'coach-evaluation-quality'      => __( 'Coach · Evaluation quality', 'talenttrack' ),
+            // #1369 — wp-admin "Player Progress & Radar" ported native.
+            'player-progress-radar'         => __( 'Player · Progress & radar', 'talenttrack' ),
+            // #2650 — knowledge-library completion. Three lenses on one dataset;
+            // the aggregation is LearningStatisticsService's, the tables are
+            // Knowledge\Frontend\LearningReports'.
+            'learning-courses'              => __( 'Learning · Course completion', 'talenttrack' ),
+            'learning-people'               => __( 'Learning · Per person', 'talenttrack' ),
+            'learning-teams'                => __( 'Learning · Staff coverage per team', 'talenttrack' ),
+        ];
+    }
 
     /**
      * v4.20.29 (#1187) — scope helper. `tt_view_reports` is a surface
@@ -124,7 +132,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         // #1995 — a report switched off for the academy is rejected here,
         // before the CSV stream or any render, even via a direct link.
-        if ( array_key_exists( $slug, self::REPORTS )
+        if ( array_key_exists( $slug, self::reports() )
              && ! \TT\Core\FeatureRegistry::isEnabled( 'report_' . str_replace( '-', '_', $slug ) ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Standard report', 'talenttrack' ),
@@ -140,7 +148,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( $slug === 'learning-courses' && $action === 'export_csv' ) {
             self::streamLearningCoursesCsv();
         }
-        if ( ! array_key_exists( $slug, self::REPORTS ) ) {
+        if ( ! array_key_exists( $slug, self::reports() ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Standard report', 'talenttrack' ),
                 [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
@@ -151,7 +159,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         self::enqueueAssets();
         FrontendBreadcrumbs::fromDashboard(
-            self::REPORTS[ $slug ],
+            self::reports()[ $slug ],
             [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
         );
         switch ( $slug ) {
