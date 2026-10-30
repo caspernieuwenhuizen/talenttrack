@@ -4,6 +4,8 @@ namespace TT\Modules\Journey\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Journey\InjuryStatus;
+use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Audit\AuditService;
@@ -254,7 +256,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
             return;
         }
 
-        $today = current_time( 'Y-m-d' );
+        $today = AttendanceDateRule::today();
 
         // Ask the write gate once per player, and only show the column
         // when at least one row can be edited, so a read-only viewer gets
@@ -288,17 +290,13 @@ final class FrontendInjuriesView extends FrontendViewBase {
 
             $started  = (string) ( $row->started_on ?? '' );
             $expected = (string) ( $row->expected_return ?? '' );
-            $actual   = (string) ( $row->actual_return ?? '' );
 
-            $end      = $actual !== '' ? $actual : $today;
-            $days_out = $started !== ''
-                ? max( 0, (int) floor( ( strtotime( $end ) - strtotime( $started ) ) / DAY_IN_SECONDS ) )
-                : 0;
-
-            // Overdue: an expected return that has passed with nobody
-            // recording an actual one. This is the row that needs a
+            // The state and the days out come from `InjuryStatus`; this
+            // view only shows them. Overdue is the row that needs a
             // decision, so it is the only thing the table shouts about.
-            $overdue = $actual === '' && $expected !== '' && strtotime( $expected ) < strtotime( $today );
+            $state    = InjuryStatus::status( $row, $today );
+            $days_out = InjuryStatus::daysOut( $row, $today );
+            $overdue  = $state === InjuryStatus::OVERDUE;
 
             echo '<tr' . ( $overdue ? ' class="tt-injury-row--overdue"' : '' ) . '>';
             $player_url = RecordLink::detailUrlForWithBack( 'players', $player_id );
@@ -314,7 +312,7 @@ final class FrontendInjuriesView extends FrontendViewBase {
             echo '<td>' . esc_html( self::lookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' ) ) . '</td>';
             echo '<td>' . esc_html( $started !== '' ? TTDate::date( $started ) : '—' ) . '</td>';
             echo '<td>';
-            if ( $actual !== '' ) {
+            if ( $state === InjuryStatus::CLOSED ) {
                 echo '<span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span>';
             } elseif ( $expected !== '' ) {
                 echo esc_html( TTDate::date( $expected ) );
