@@ -7,6 +7,7 @@ use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Journey\EventEmitter;
 use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Journey\InjuryStatus;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
 use TT\Infrastructure\Security\AuthorizationService;
 
@@ -468,7 +469,11 @@ class PlayerJourneyRestController extends BaseController {
         ( new AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
             'count' => count( $rows ),
         ] );
-        return RestResponse::success( [ 'injuries' => array_map( static fn( $row ) => (array) $row, $rows ) ] );
+        // `status` is derived on read by `InjuryStatus`, never stored.
+        return RestResponse::success( [ 'injuries' => array_map(
+            static fn( $row ) => (array) $row + [ 'status' => InjuryStatus::status( $row ) ],
+            $rows
+        ) ] );
     }
 
     public static function create_injury( \WP_REST_Request $r ): \WP_REST_Response {

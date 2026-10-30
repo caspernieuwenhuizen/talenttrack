@@ -188,6 +188,46 @@ final class InjuryRepository {
     }
 
     /**
+     * The subset of `$player_ids` with an injury that covers `$day` (Y-m-d),
+     * as a set keyed by player id: one query for a whole roster. The rule
+     * is `InjuryStatus::coversDaySql()`; nothing about the injury but the
+     * player id leaves this method.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, true>
+     */
+    public function coveredSet( array $player_ids, string $day ): array {
+        $ids = [];
+        foreach ( $player_ids as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $ids[ $pid ] = true;
+        }
+        if ( $ids === [] ) return [];
+
+        $ids    = array_keys( $ids );
+        $in     = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $params = array_merge( $ids, [ (int) CurrentClub::id(), $day, $day, $day ] );
+        $covers = InjuryStatus::coversDaySql();
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
+        $rows = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT DISTINCT player_id
+               FROM {$this->table}
+              WHERE player_id IN ($in)
+                AND club_id = %d
+                AND {$covers}",
+            $params
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $out[ $pid ] = true;
+        }
+        return $out;
+    }
+
+    /**
      * #2609 — injuries across a set of teams, for the squad overview.
      *
      * Answers "who is out right now" rather than "what happened to this
@@ -214,9 +254,9 @@ final class InjuryRepository {
         }
 
         if ( $status === 'open' ) {
-            $where[] = 'i.actual_return IS NULL';
+            $where[] = InjuryStatus::openSql( 'i' );
         } elseif ( $status === 'recovered' ) {
-            $where[] = 'i.actual_return IS NOT NULL';
+            $where[] = 'NOT ( ' . InjuryStatus::openSql( 'i' ) . ' )';
         }
 
         if ( ! empty( $filters['severity_id'] ) ) {

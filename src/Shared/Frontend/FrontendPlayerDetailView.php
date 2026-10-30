@@ -2850,7 +2850,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
-        $today = current_time( 'Y-m-d' );
+        $today = \TT\Modules\Activities\Services\AttendanceDateRule::today();
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">
@@ -2866,7 +2866,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     $started  = (string) ( $row->started_on ?? '' );
                     $expected = (string) ( $row->expected_return ?? '' );
                     $actual   = (string) ( $row->actual_return ?? '' );
-                    $overdue  = $actual === '' && $expected !== '' && strtotime( $expected ) < strtotime( $today );
+                    $state    = \TT\Infrastructure\Journey\InjuryStatus::status( $row, $today );
+                    $overdue  = $state === \TT\Infrastructure\Journey\InjuryStatus::OVERDUE;
                     $body     = self::injuryLookupLabel( (int) ( $row->body_part_lookup_id ?? 0 ), 'body_part' );
                     $severity = self::injuryLookupLabel( (int) ( $row->severity_lookup_id ?? 0 ), 'injury_severity' );
                     ?>
@@ -2883,7 +2884,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                     /* translators: %s is a date. */
                                     echo esc_html( sprintf( __( 'Since %s', 'talenttrack' ), TTDate::date( $started ) ) );
                                 }
-                                if ( $actual !== '' ) {
+                                if ( $state === \TT\Infrastructure\Journey\InjuryStatus::CLOSED ) {
                                     echo ' · <span class="tt-chip tt-chip--ok">' . esc_html__( 'Recovered', 'talenttrack' ) . '</span> ';
                                     echo esc_html( TTDate::date( $actual ) );
                                 } elseif ( $expected !== '' ) {

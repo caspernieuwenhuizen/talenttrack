@@ -3,7 +3,7 @@ namespace TT\Modules\Activities\Services;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Journey\InjuryRepository;
 
 /**
  * PlayerAvailability (#4005) — can this player be planned for, or are they
@@ -67,42 +67,10 @@ final class PlayerAvailability {
      * @return array<int, true>
      */
     public static function unavailableSet( array $player_ids, ?string $on = null ): array {
-        $ids = [];
-        foreach ( $player_ids as $pid ) {
-            $pid = (int) $pid;
-            if ( $pid > 0 ) $ids[ $pid ] = true;
-        }
-        if ( $ids === [] ) return [];
-
-        global $wpdb;
-        $ids    = array_keys( $ids );
-        $in     = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $day    = self::day( $on );
-        $params = array_merge( $ids, [ (int) CurrentClub::id(), $day, $day, $day ] );
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_col( $wpdb->prepare(
-            "SELECT DISTINCT player_id
-               FROM {$wpdb->prefix}tt_player_injuries
-              WHERE player_id IN ($in)
-                AND club_id = %d
-                AND archived_at IS NULL
-                AND trashed_at IS NULL
-                AND started_on <= %s
-                AND (
-                      ( actual_return IS NOT NULL AND actual_return > %s )
-                   OR ( actual_return IS NULL
-                        AND ( expected_return IS NULL OR expected_return >= %s ) )
-                )",
-            $params
-        ) );
-
-        $out = [];
-        foreach ( (array) $rows as $pid ) {
-            $pid = (int) $pid;
-            if ( $pid > 0 ) $out[ $pid ] = true;
-        }
-        return $out;
+        // The rule lives in `InjuryStatus`; the roster query in the
+        // repository. This class only picks the day and keeps the answer
+        // to the one state.
+        return ( new InjuryRepository() )->coveredSet( $player_ids, self::day( $on ) );
     }
 
     /**
