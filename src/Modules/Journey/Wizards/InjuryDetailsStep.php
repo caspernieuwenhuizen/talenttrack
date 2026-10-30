@@ -26,6 +26,17 @@ final class InjuryDetailsStep implements WizardStepInterface {
     public function label(): string { return __( 'What happened', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        // #4270 — say who the injury is for; entered from a player's file
+        // the player step is skipped, so this is the only place it shows.
+        $player = QueryHelpers::get_player( (int) ( $state['player_id'] ?? 0 ) );
+        if ( $player ) {
+            echo '<p class="tt-injury-wizard-player">' . sprintf(
+                /* translators: %s: player name */
+                esc_html__( 'Injury for %s', 'talenttrack' ),
+                '<strong>' . esc_html( QueryHelpers::player_display_name( $player ) ) . '</strong>'
+            ) . '</p>';
+        }
+
         self::renderFields( [
             'body_part_lookup_id'   => (int) ( $state['body_part_lookup_id'] ?? 0 ),
             'injury_type_lookup_id' => (int) ( $state['injury_type_lookup_id'] ?? 0 ),

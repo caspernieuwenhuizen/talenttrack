@@ -3,6 +3,7 @@ namespace TT\Modules\Journey\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardInterface;
 
 /**
@@ -41,5 +42,28 @@ final class NewInjuryWizard implements WizardInterface {
             new InjuryDetailsStep(),
             new InjuryWhenStep(),
         ];
+    }
+
+    /**
+     * Seed `player_id` from the entry URL (#4270), but only a player on a
+     * team this user may pick from in step 1 — a hand-edited URL does not
+     * skip the step for somebody else's squad.
+     *
+     * @param array<string, mixed> $get
+     * @return array<string, mixed>
+     */
+    public function initialState( array $get ): array {
+        $player_id = isset( $get['player_id'] ) ? absint( $get['player_id'] ) : 0;
+        if ( $player_id <= 0 ) return [];
+
+        $player  = (array) ( QueryHelpers::get_player( $player_id ) ?? [] );
+        $team_id = (int) ( $player['team_id'] ?? 0 );
+        if ( $team_id <= 0 ) return [];
+
+        $teams = QueryHelpers::get_teams_in_scope( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+        foreach ( $teams as $team ) {
+            if ( (int) $team->id === $team_id ) return [ 'player_id' => $player_id ];
+        }
+        return [];
     }
 }

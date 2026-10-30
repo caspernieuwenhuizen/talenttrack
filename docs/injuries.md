@@ -34,7 +34,7 @@ One exception, and it is temporary: a Staff account that holds **no** functional
 
 ## Recording an injury
 
-1. Open the player and go to the **Injuries** tab, then choose **Record injury**. (Or open the **Injuries** tile and start from there, which asks for the player first.)
+1. Open the player and go to the **Injuries** tab, then choose **Record injury**. The wizard already knows the player, so it opens on **What happened** with the player's name at the top. (Or open the **Injuries** tile and start from there, which asks for the player first.)
 2. **What happened** — body part, type and severity. All three are optional: at the side of a pitch you know "hamstring" long before you know the grade, and an injury with just a date is worth more than one nobody recorded.
 3. **When** — the date of injury is the only required field. Add an expected return if you have a sense of it; leave it empty if you don't.
 4. Add a note. Write it as if the family will read it, because under a subject-access request they can.

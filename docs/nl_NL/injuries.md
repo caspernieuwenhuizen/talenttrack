@@ -34,7 +34,7 @@ Eén uitzondering, en die is tijdelijk: een Staf-account zonder functionele rol 
 
 ## Een blessure vastleggen
 
-1. Open de speler, ga naar het tabblad **Blessures** en kies **Blessure vastleggen**. (Of open de tegel **Blessures** en begin daar; die vraagt eerst om de speler.)
+1. Open de speler, ga naar het tabblad **Blessures** en kies **Blessure vastleggen**. De wizard kent de speler dan al, dus hij opent op **Wat er gebeurde**, met de naam van de speler bovenaan. (Of open de tegel **Blessures** en begin daar; die vraagt eerst om de speler.)
 2. **Wat er gebeurde** — lichaamsdeel, type en ernst. Alle drie optioneel: langs het veld weet je "hamstring" veel eerder dan de graad, en een blessure met alleen een datum is meer waard dan een die niemand heeft vastgelegd.
 3. **Wanneer** — de datum van de blessure is het enige verplichte veld. Vul een verwachte terugkeer in als je er een gevoel bij hebt; laat hem leeg als dat niet zo is.
 4. Voeg een notitie toe. Schrijf die alsof het gezin meeleest, want bij een inzageverzoek is dat ook zo.
