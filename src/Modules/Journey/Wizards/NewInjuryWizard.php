@@ -62,7 +62,7 @@ final class NewInjuryWizard implements WizardInterface {
 
         $teams = QueryHelpers::get_teams_in_scope( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
         foreach ( $teams as $team ) {
-            if ( (int) $team->id === $team_id ) return [ 'player_id' => $player_id ];
+            if ( (int) ( $team->id ?? 0 ) === $team_id ) return [ 'player_id' => $player_id ];
         }
         return [];
     }
