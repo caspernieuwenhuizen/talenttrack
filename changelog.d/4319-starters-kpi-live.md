@@ -10,5 +10,6 @@ value the page shows after a reload. Only players on a position the current
 formation draws count: switching a full 4-3-3 to 3-2-1 reads 6/6, not 11/6,
 and the players on the other positions come back when you switch back.
 The minutes table footer also counts out of the formation's positions
-("6 / 6" on a 3-2-1) instead of always "/ 11", and follows a formation
+("6 / 6" on a 3-2-1) instead of always "/ 11", counts only the players and
+minutes on those positions, and follows a formation
 change (#4346).

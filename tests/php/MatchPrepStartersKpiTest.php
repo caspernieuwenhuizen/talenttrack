@@ -121,7 +121,16 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
         $start = (int) strpos( $js, 'function renderFoot()' );
         $foot  = substr( $js, $start, (int) strpos( $js, 'function setFoot(' ) - $start );
         $this->assertStringNotContainsString( "' / 11'", $foot );
-        $this->assertStringContainsString( 'currentSlotLayout().length', $foot );
+        $this->assertStringContainsString( 'currentSlotLayout()', $foot );
+        $this->assertStringContainsString( 'layout.length', $foot );
+
+        // The numerator and the minutes count only slots the layout draws,
+        // not every stored entry, so a 4-3-3 switched to 3-2-1 reads 6 / 6.
+        $this->assertStringNotContainsString( '.size', $foot );
+        $this->assertStringContainsString( "state.lineup['1'].get(pos.num)", $foot );
+        $this->assertStringContainsString( "state.lineup['2'].get(pos.num)", $foot );
+        $this->assertStringContainsString( 'var m1 = c1 * state.halfLength;', $foot );
+        $this->assertStringContainsString( 'var m2 = c2 * state.halfLength;', $foot );
 
         $change = (int) strpos( $js, "formationSel.addEventListener('change'" );
         $this->assertGreaterThan( 0, $change );

@@ -694,11 +694,18 @@
     }
 
     function renderFoot() {
-        var c1 = state.lineup['1'].size;
-        var c2 = state.lineup['2'].size;
         // #4346 — out of the positions the current layout holds, as the
-        // starters tile, not a fixed eleven.
-        var slots = currentSlotLayout().length;
+        // starters tile, not a fixed eleven. Only players on a slot the
+        // layout draws count, in the number and in the minutes: slots a
+        // bigger formation left behind stay stored for switching back.
+        var layout = currentSlotLayout();
+        var slots = layout.length;
+        var c1 = 0;
+        var c2 = 0;
+        layout.forEach(function (pos) {
+            if ((state.lineup['1'].get(pos.num) || 0) > 0) c1++;
+            if ((state.lineup['2'].get(pos.num) || 0) > 0) c2++;
+        });
         setFoot('count1', c1 + ' / ' + slots);
         setFoot('count2', c2 + ' / ' + slots);
         var m1 = c1 * state.halfLength;
