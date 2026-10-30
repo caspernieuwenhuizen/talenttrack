@@ -17,6 +17,7 @@ const ROOT = join(here, '..', '..', '..');
 const ROUND_SINCE = '2026-09-27';
 const PILOT_SINCE = '2026-09-22';
 const CONTROL_ROOM = 'https://claude.ai/artifact/W3kyHMsDXBECvyCpKKcvJN';
+const VISION = 'https://claude.ai/artifact/Cxsoph6YKpZwdUAJVyCtAk';
 
 const sh = (cmd) => execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 1 << 26 });
 const gh = (args) => JSON.parse(sh(`gh ${args}`));
@@ -216,7 +217,7 @@ main .inner{padding-block:1.6rem 3rem;display:grid;gap:2rem}
   <div class="inner">
     <div class="top">
       <div><div class="eyebrow">TalentTrack · product roadmap</div><h1>Roadmap</h1></div>
-      <nav class="links" aria-label="Related pages"><a href="${CONTROL_ROOM}">Control room</a><a href="https://github.com/${REPO}/blob/main/docs/roadmap.md">Source on GitHub</a></nav>
+      <nav class="links" aria-label="Related pages"><a href="${VISION}">Vision</a><a href="${CONTROL_ROOM}">Control room</a><a href="https://github.com/${REPO}/blob/main/docs/roadmap.md">Source on GitHub</a></nav>
     </div>
     <p class="direction">${inline(direction)}</p>
     <ul class="facts">
