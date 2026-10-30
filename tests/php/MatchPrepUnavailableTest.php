@@ -92,7 +92,7 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
         $this->savePrep();
         $assistant = $this->makeCoach( false );
 
-        $this->assertFalse( MatchPrepState::viewerSeesInjuries( $assistant, array_values( $this->players ) ) );
+        $this->assertFalse( MatchPrepState::viewerSeesInjuries( $assistant, $this->team ) );
         $state = (array) MatchPrepState::forActivity( $this->activity, $assistant );
 
         $this->assertArrayNotHasKey( 'suspended', $state );
@@ -108,13 +108,42 @@ final class MatchPrepUnavailableTest extends WP_UnitTestCase {
         $this->savePrep();
         $head = $this->makeCoach( true );
 
-        $this->assertTrue( MatchPrepState::viewerSeesInjuries( $head, array_values( $this->players ) ) );
+        $this->assertTrue( MatchPrepState::viewerSeesInjuries( $head, $this->team ) );
         $state = (array) MatchPrepState::forActivity( $this->activity, $head );
 
         $this->assertArrayHasKey( 'suspended', $state );
         $this->assertSame( [ $this->players['suspended'] ], array_map( 'intval', array_keys( (array) $state['suspended'] ) ) );
         $this->assertArrayHasKey( $this->players['injured'], (array) $state['unavailable'] );
         $this->assertArrayHasKey( $this->players['suspended'], (array) $state['unavailable'] );
+    }
+
+    /**
+     * The team-level check gives every staff role the answer the per-player
+     * check (`canRecordInjury` read for each roster player) gave.
+     */
+    public function test_the_team_check_matches_the_per_player_check(): void {
+        $viewers = [
+            'head coach'           => $this->makeCoach( true ),
+            'assistant coach'      => $this->makeCoach( false ),
+            'head of development'  => self::factory()->user->create( [ 'role' => 'tt_head_dev' ] ),
+            'administrator'        => self::factory()->user->create( [ 'role' => 'administrator' ] ),
+        ];
+        // The two coach answers are fixed by the seed; the global roles must
+        // simply agree with the per-player check, whatever the matrix grants.
+        $expected = [ 'head coach' => true, 'assistant coach' => false ];
+        AuthorizationService::flushCache();
+
+        foreach ( $viewers as $label => $uid ) {
+            $per_player = true;
+            foreach ( $this->players as $pid ) {
+                $per_player = $per_player
+                    && AuthorizationService::canRecordInjury( $uid, $pid, \TT\Modules\Authorization\MatrixGate::READ );
+            }
+            $this->assertSame( $per_player, MatchPrepState::viewerSeesInjuries( $uid, $this->team ), $label . ': same answer as per player' );
+            if ( isset( $expected[ $label ] ) ) {
+                $this->assertSame( $expected[ $label ], MatchPrepState::viewerSeesInjuries( $uid, $this->team ), $label );
+            }
+        }
     }
 
     /**

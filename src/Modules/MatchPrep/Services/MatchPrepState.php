@@ -3,6 +3,7 @@ namespace TT\Modules\MatchPrep\Services;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
@@ -59,20 +60,24 @@ final class MatchPrepState {
 
         $lineup = self::lineupByHalf( $repo->listLineup( $prep_id ) );
 
-        $state['availability'] = (object) self::availabilityByPlayer( $repo->listAvailability( $prep_id ) );
-        $state['lineup']       = [ '1' => (object) $lineup[1], '2' => (object) $lineup[2] ];
-        $state['player_goals'] = (object) self::playerGoalsByPlayer( $repo->listPlayerGoals( $prep_id ) );
-        $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
-
         $roster_ids = [];
         foreach ( \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id ) as $player ) {
             $pid = (int) ( ( (array) $player )['id'] ?? 0 );
             if ( $pid > 0 ) $roster_ids[] = $pid;
         }
+
+        // #4285 — only players on the team's current roster, the same squad
+        // the prep screen lists. The saved rows of a player who left stay in
+        // the table; they are just not part of this squad any more.
+        $state['availability'] = (object) self::availabilityByPlayer( $repo->listAvailability( $prep_id ), $roster_ids );
+        $state['lineup']       = [ '1' => (object) $lineup[1], '2' => (object) $lineup[2] ];
+        $state['player_goals'] = (object) self::playerGoalsByPlayer( $repo->listPlayerGoals( $prep_id ) );
+        $state['roles']        = (object) self::rolesByKey( $repo->listRoles( $prep_id ) );
+
         // #4103 — who a recorded suspension covers in this match, so a
         // client can pre-mark them Suspended the way the drawer does. Only
-        // for a viewer who may read these players' injuries (#4245).
-        if ( self::viewerSeesInjuries( $viewer_id, $roster_ids ) ) {
+        // for a viewer who may read this team's injuries (#4245).
+        if ( self::viewerSeesInjuries( $viewer_id, $team_id ) ) {
             $state['suspended'] = (object) self::suspendedByPlayer( $activity_id, $roster_ids );
         }
         // #4245 — who cannot play in this match (injured on its date, or
@@ -84,33 +89,31 @@ final class MatchPrepState {
     }
 
     /**
-     * #4245 — may this viewer read the injuries of every player in the set?
+     * #4245 — may this viewer read the injuries of this team's players?
      *
      * A viewer who may not gets one combined `unavailable` set and no
      * separate suspension list: with both, "unavailable but not suspended"
-     * would name the injured players. The same check the injury screens use.
-     *
-     * @param array<int, int> $player_ids
+     * would name the injured players. The staff scopes of
+     * `AuthorizationService::canRecordInjury()` (global, then the team), asked
+     * once for the team rather than once per player, as the injury overview
+     * asks them.
      */
-    public static function viewerSeesInjuries( int $viewer_id, array $player_ids ): bool {
-        if ( $viewer_id <= 0 || $player_ids === [] ) return false;
-        foreach ( $player_ids as $pid ) {
-            if ( ! \TT\Infrastructure\Security\AuthorizationService::canRecordInjury( $viewer_id, (int) $pid, \TT\Modules\Authorization\MatrixGate::READ ) ) {
-                return false;
-            }
-        }
-        return true;
+    public static function viewerSeesInjuries( int $viewer_id, int $team_id ): bool {
+        if ( $viewer_id <= 0 || $team_id <= 0 ) return false;
+        if ( MatrixGate::can( $viewer_id, 'player_injuries', MatrixGate::READ, 'global' ) ) return true;
+        return MatrixGate::can( $viewer_id, 'player_injuries', MatrixGate::READ, MatrixGate::SCOPE_TEAM, $team_id );
     }
 
     /**
      * #4245 — the suspension list a viewer may see: `suspendedByPlayer()` for
-     * a viewer with injury access, empty for anyone else.
+     * a viewer with injury access to the activity's team, empty otherwise.
      *
      * @param array<int, int> $player_ids
      * @return array<int, array{match:int, of:int, reason:string}>
      */
     public static function suspendedForViewer( int $activity_id, array $player_ids, int $viewer_id ): array {
-        if ( ! self::viewerSeesInjuries( $viewer_id, $player_ids ) ) return [];
+        $team_id = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id );
+        if ( ! self::viewerSeesInjuries( $viewer_id, $team_id ) ) return [];
         return self::suspendedByPlayer( $activity_id, $player_ids );
     }
 
@@ -195,14 +198,20 @@ final class MatchPrepState {
     }
 
     /**
-     * @param array<int,object> $rows
+     * @param array<int,object>    $rows
+     * @param array<int, int>|null $roster_ids #4285 — when given, only rows for
+     *                                         these players: a player who left
+     *                                         the team is not in its squad.
      * @return array<int,array{status:string,reason:string}>
      */
-    public static function availabilityByPlayer( array $rows ): array {
-        $out = [];
+    public static function availabilityByPlayer( array $rows, ?array $roster_ids = null ): array {
+        $on_roster = $roster_ids === null ? null : array_flip( array_map( 'intval', $roster_ids ) );
+        $out       = [];
         foreach ( $rows as $row ) {
             $row = (array) $row;
-            $out[ (int) ( $row['player_id'] ?? 0 ) ] = [
+            $pid = (int) ( $row['player_id'] ?? 0 );
+            if ( $on_roster !== null && ! isset( $on_roster[ $pid ] ) ) continue;
+            $out[ $pid ] = [
                 'status' => (string) ( $row['status'] ?? 'Present' ),
                 'reason' => (string) ( $row['reason'] ?? '' ),
             ];
