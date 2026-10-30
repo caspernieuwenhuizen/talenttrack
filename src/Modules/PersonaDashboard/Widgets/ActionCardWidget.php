@@ -49,7 +49,8 @@ class ActionCardWidget extends AbstractWidget {
         'new_evaluation' => [ 'label_key' => 'Add evaluation',   'view' => 'evaluations',  'cap' => 'tt_edit_evaluations', 'wizard' => 'new-evaluation' ],
         'new_goal'       => [ 'label_key' => 'Add goal',         'view' => 'goals',        'cap' => 'tt_edit_goals',       'wizard' => 'new-goal' ],
         'new_activity'   => [ 'label_key' => 'Add activity',     'view' => 'activities',   'cap' => 'tt_edit_activities',  'wizard' => 'new-activity' ],
-        'new_player'     => [ 'label_key' => 'Add player',       'view' => 'players',      'cap' => 'tt_edit_players',     'wizard' => 'new-player' ],
+        // #4292 — adding a player is the create right, not the edit right.
+        'new_player'     => [ 'label_key' => 'Add player',       'view' => 'players',      'cap' => 'tt_manage_players',   'wizard' => 'new-player' ],
         // #4286 — creating a team is the create right, not the edit right.
         'new_team'       => [ 'label_key' => 'Add team',         'view' => 'teams',        'cap' => 'tt_manage_teams',     'wizard' => 'new-team' ],
         // scout_report + new_trial keep the flat path — no wizard
