@@ -85,7 +85,12 @@ final class MatchPrepState {
         // #4245 — who cannot play in this match (injured on its date, or
         // suspended), as the one neutral state planned attendance shows.
         // Derived and never stored: the coach's `availability` stays theirs.
-        $state['unavailable'] = (object) self::unavailableByPlayer( $activity_id, $roster_ids );
+        $unavailable          = self::unavailableByPlayer( $activity_id, $roster_ids );
+        $state['unavailable'] = (object) $unavailable;
+        // #4246 / #4269 — available, but an injury record is overdue or
+        // incomplete on the match date: a neutral marker, separate from
+        // `unavailable`, derived and never stored.
+        $state['availability_check'] = (object) self::checkByPlayer( $activity_id, $roster_ids, $unavailable );
 
         return $state;
     }
@@ -129,6 +134,20 @@ final class MatchPrepState {
      */
     public static function unavailableByPlayer( int $activity_id, array $player_ids ): array {
         return \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity( $player_ids, $activity_id );
+    }
+
+    /**
+     * #4246 / #4269 — the players in `$player_ids` the coach should check for
+     * this match: available, with an injury record that is overdue or
+     * incomplete on its date. The marker only, safe for every role that opens
+     * the prep, like `unavailableByPlayer()`.
+     *
+     * @param array<int, int>       $player_ids
+     * @param array<int, true>|null $unavailable From `unavailableByPlayer()` when the caller has it.
+     * @return array<int, true>
+     */
+    public static function checkByPlayer( int $activity_id, array $player_ids, ?array $unavailable = null ): array {
+        return \TT\Modules\Activities\Services\PlayerAvailability::checkForActivity( $player_ids, $activity_id, null, $unavailable );
     }
 
     /**

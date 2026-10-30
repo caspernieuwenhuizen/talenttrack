@@ -81,6 +81,8 @@ final class AvailabilityStep implements WizardStepInterface {
         // the neutral label. Never a pre-marked status: a stored status reaches
         // the printout and the share link, and the cause is medical.
         $unavailable = MatchPrepState::unavailableByPlayer( $activity_id, $player_ids );
+        // #4246 / #4269 — the neutral "Check availability" marker, same rule.
+        $check = MatchPrepState::checkByPlayer( $activity_id, $player_ids, $unavailable );
 
         // #1474 — dense, mobile-first rows + segmented status control;
         // the reason field reveals inline only for non-Present rows (CSS
@@ -126,6 +128,8 @@ final class AvailabilityStep implements WizardStepInterface {
             echo '<div class="tt-avail-name">' . esc_html( $name );
             if ( isset( $unavailable[ $pid ] ) ) {
                 echo ' <span class="tt-mp-unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
+            } elseif ( isset( $check[ $pid ] ) ) {
+                echo ' <span class="tt-mp-check">' . esc_html( PlayerAvailability::checkLabel() ) . '</span>';
             }
             echo '</div>';
             echo '<div class="tt-avail-seg" role="radiogroup" aria-label="'

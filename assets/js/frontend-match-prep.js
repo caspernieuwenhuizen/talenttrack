@@ -66,6 +66,9 @@
         // #4245 — who cannot play in this match (injured on its date, or
         // suspended). Derived on the server, shown beside a name, never saved.
         unavailable:    bootstrap.unavailable || {},
+        // #4246 / #4269 — available, but an injury record needs a decision.
+        // A neutral marker beside the name; never saved.
+        availabilityCheck: bootstrap.availability_check || {},
         lineup:        { '1': new Map(), '2': new Map() },
         attention:      {},
         specific:       {},
@@ -139,10 +142,16 @@
         return !!state.unavailable[String(pid)];
     }
 
-    // The neutral "Unavailable" flag beside a name; empty for anyone else.
+    // The neutral "Unavailable" flag beside a name, or the "Check
+    // availability" marker for an available player; empty for anyone else.
     function unavailableFlag(pid) {
-        if (!isFlaggedUnavailable(pid)) return '';
-        return ' <span class="tt-mp-unavailable">' + escapeHtml(i18n('unavailable', 'Unavailable')) + '</span>';
+        if (isFlaggedUnavailable(pid)) {
+            return ' <span class="tt-mp-unavailable">' + escapeHtml(i18n('unavailable', 'Unavailable')) + '</span>';
+        }
+        if (state.availabilityCheck[String(pid)]) {
+            return ' <span class="tt-mp-check">' + escapeHtml(i18n('availability_check', 'Check availability')) + '</span>';
+        }
+        return '';
     }
 
     function $(sel, ctx) { return (ctx || root).querySelector(sel); }

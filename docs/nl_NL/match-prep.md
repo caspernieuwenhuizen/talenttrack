@@ -171,6 +171,13 @@ wordt bepaald als het scherm opent en nooit in de voorbereiding
 opgeslagen, dus het staat niet op het afgedrukte blad, in de PDF-export
 of in een gedeelde link.
 
+Een speler van wie het blessuredossier een beslissing nodig heeft — de
+verwachte terugkeer is verstreken zonder vastgelegde terugkeer, of het
+dossier staat 14 dagen open zonder verwachte terugkeer — krijgt niet het
+label Niet beschikbaar. Op dezelfde plekken staat dan een neutraal label
+**Beschikbaarheid controleren**, en hij telt als beschikbaar. Daarvoor
+gelden dezelfde regels: geen oorzaak, nooit opgeslagen, nooit afgedrukt.
+
 De status die je kiest en de reden daarbij zijn iets anders: die worden
 in de voorbereiding opgeslagen, dus iedereen die haar opent ziet ze, en
 het afgedrukte blad, de PDF en een gedeelde link tonen ze als

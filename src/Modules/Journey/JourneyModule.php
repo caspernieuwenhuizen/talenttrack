@@ -13,6 +13,7 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Journey\Wizards\NewInjuryWizard;
 use TT\Modules\Journey\Wizards\NewSuspensionWizard;
 use TT\Modules\Journey\Workflow\InjuryRecoveryDueTemplate;
+use TT\Modules\Journey\Workflow\InjuryRecoveryTasks;
 use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -54,6 +55,9 @@ class JourneyModule implements ModuleInterface {
         // Same priority (init:5) as WorkflowModule::registerShippedTemplates
         // so the EventDispatcher (init:20) sees this template too.
         add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
+        // #4246 / #4269 — the recovery reminder follows every injury write,
+        // plus a daily sweep on the workflow tick for dates that arrive alone.
+        InjuryRecoveryTasks::init();
 
         // #2609 — the injury capture surfaces. Until now `tt_player_injuries`
         // was written only by the REST API and the demo generator; there was

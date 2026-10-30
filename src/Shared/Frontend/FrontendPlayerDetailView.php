@@ -2889,6 +2889,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                     }
                                 } else {
                                     echo ' · ' . esc_html__( 'Return date not set', 'talenttrack' );
+                                    // #4269 — open too long without a return date.
+                                    if ( $state === \TT\Infrastructure\Journey\InjuryStatus::INCOMPLETE ) {
+                                        echo ' <span class="tt-chip tt-chip--warn">' . esc_html_x( 'Incomplete', 'injury record', 'talenttrack' ) . '</span>';
+                                    }
                                 }
                                 ?>
                             </div>

@@ -67,6 +67,18 @@ De tegel **Blessures** opent het squad-overzicht: één regel per lopende blessu
 
 Een regel krijgt het label **Verlopen** wanneer de verwachte terugkeer voorbij is en er geen werkelijke terugkeer is vastgelegd. Dat is geen oordeel over de speler — het betekent dat de regel een beslissing nodig heeft: óf hij is terug en niemand heeft het gezegd, óf de verwachting is veranderd.
 
+Een regel krijgt het label **Onvolledig** wanneer hij 14 dagen openstaat zonder verwachte terugkeer. Lichaamsdeel, soort en ernst mogen leeg blijven — een EHBO'er langs de lijn weet die vaak nog niet — maar tegen die tijd hoort iemand te zeggen wanneer de speler terug wordt verwacht. Een academie kan het aantal dagen aanpassen (configuratiesleutel `injury_incomplete_after_days`); het tabblad **Blessures** van de speler toont hetzelfde label.
+
+## Plannen rond een verlopen of onvolledige blessure
+
+Een verlopen of onvolledige blessure houdt de speler niet buiten de planning. De geplande aanwezigheid en de wedstrijdvoorbereiding tonen de speler als beschikbaar, met een neutraal label **Beschikbaarheid controleren** naast de naam, zodat de trainer bevestigt in plaats van gokt. Het label noemt geen oorzaak, dus het is veilig voor elke rol die de selectie plant, en het wordt nooit afgedrukt of opgeslagen in de wedstrijdvoorbereiding. Een blessure die nog binnen de verwachte terugkeer valt, of korter dan 14 dagen openstaat, blijft de speler als **Niet beschikbaar** tonen.
+
+## De herstelherinnering
+
+Wanneer een blessure om een beslissing vraagt — op de verwachte terugkeerdatum, of op de dag dat hij onvolledig wordt — krijgen de fysio en de hoofdtrainer van het team elk een taak **Controle herstel blessure**, met die dag als deadline. Een team zonder fysio stuurt hem alleen naar de hoofdtrainer, en alleen wie de blessures van de speler mag inzien, krijgt hem. Noch de taak, noch de e-mail bevat details over de blessure: de e-mail noemt de naam van de taak en de deadline, en de taak opent bij de speler.
+
+Er is per speler één herinnering tegelijk. Wie de verwachte terugkeer verschuift, sluit de oude taak af en krijgt een nieuwe op de nieuwe datum; het vastleggen van de terugkeer sluit hem ook af. Iets anders bewerken laat de taak zoals hij is.
+
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 
 Dezelfde lijst is voor andere apps beschikbaar via de API als `GET /wp-json/talenttrack/v1/player-injuries`, met dezelfde filters op team en status, per pagina. Daarvoor gelden dezelfde regels als voor deze pagina: je krijgt alleen de teams waarvan je hier de blessures mag zien, en elke keer dat de lijst wordt opgevraagd, komt dat in het auditlogboek.

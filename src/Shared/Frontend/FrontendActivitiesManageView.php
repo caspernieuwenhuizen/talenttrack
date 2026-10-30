@@ -2027,10 +2027,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // activity's own date, so a current injury does not rewrite a match
         // the player was fit for.
         // #4103 — and a suspension covering this match, as the same flag.
-        $unavailable = PlayerAvailability::unavailableForActivity( array_map(
+        $roster_ids  = array_map(
             static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
             $roster
-        ), $activity_id, (string) ( $session->session_date ?? '' ) );
+        );
+        $unavailable = PlayerAvailability::unavailableForActivity( $roster_ids, $activity_id, (string) ( $session->session_date ?? '' ) );
+        // #4246 / #4269 — an overdue or incomplete injury record does not keep
+        // the player out; the coach gets a neutral marker to check instead.
+        $check = PlayerAvailability::checkForActivity( $roster_ids, $activity_id, (string) ( $session->session_date ?? '' ), $unavailable );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
@@ -2049,6 +2053,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
             if ( isset( $unavailable[ (int) ( $row->player_id ?? 0 ) ] ) ) {
                 echo ' <span class="tt-act-rp__unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
+            } elseif ( isset( $check[ (int) ( $row->player_id ?? 0 ) ] ) ) {
+                echo ' <span class="tt-act-rp__check">' . esc_html( PlayerAvailability::checkLabel() ) . '</span>';
             }
             echo '</span>';
         }
@@ -4154,6 +4160,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $activity_id_for_plan,
                 $session ? (string) ( $session->session_date ?? '' ) : null
             );
+            // #4246 / #4269 — the neutral marker for an overdue or incomplete record.
+            $plan_check = PlayerAvailability::checkForActivity(
+                array_map( 'intval', array_keys( $planned_rows ) ),
+                $activity_id_for_plan,
+                $session ? (string) ( $session->session_date ?? '' ) : null,
+                $plan_unavailable
+            );
             ?>
             <?php
             // #2245 + #2248 — planned attendance renders only while the
@@ -4196,6 +4209,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                     <?php endif; ?>
                                     <?php if ( isset( $plan_unavailable[ $pid ] ) ) : ?>
                                         <span class="tt-planned-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span>
+                                    <?php elseif ( isset( $plan_check[ $pid ] ) ) : ?>
+                                        <span class="tt-planned-check"><?php echo esc_html( PlayerAvailability::checkLabel() ); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">
