@@ -531,6 +531,9 @@
                 // accessible name carries the player and the flag.
                 if (p && isFlaggedUnavailable(p.id)) {
                     slotLabel += ', ' + p.name + ', ' + i18n('unavailable', 'Unavailable');
+                } else if (p && state.availabilityCheck[String(p.id)]) {
+                    // The marker is cut short on the pitch; the name keeps the words.
+                    slotLabel += ', ' + p.name + ', ' + i18n('availability_check', 'Check availability');
                 }
                 btn.setAttribute('aria-label', slotLabel);
                 btn.innerHTML =

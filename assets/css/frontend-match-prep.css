@@ -446,8 +446,20 @@
     display: none;
     margin-left: 0;
 }
+/* On the pitch the marker stays inside its own slot: one line, cut with an
+   ellipsis at the slot's width, and never a tap target, so a tap on it opens
+   this slot's picker and not a neighbour's. The slot's aria-label carries the
+   full words. */
 @media (min-width: 768px) {
-    .tt-match-prep .tt-mp-slot .tt-mp-check { display: inline-block; }
+    .tt-match-prep .tt-mp-slot .tt-mp-check {
+        display: block;
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        pointer-events: none;
+    }
 }
 .tt-image-pdf-capture .tt-mp-unavailable,
 .tt-image-pdf-capture .tt-mp-check {
