@@ -2990,21 +2990,26 @@ class ActivitiesRestController {
         // the plan: start, bench or out; null when there is no prep or the
         // prep has no row for the player. Staff only (D-22): match prep
         // autosaves mid-composition, so a family would learn "bench" or "out"
-        // before the coach has decided. Staff is `isStaffForPlayer()`, the
-        // check for what a family must not see; `isStaffReader()` says yes to
-        // a parent, who reads activities too. Computed over `$out`, the rows
-        // this route already returns, never over the whole prep.
-        $uid   = get_current_user_id();
-        $squad = \TT\Modules\MatchPrep\Services\MatchPrepState::matchSquadForActivity(
-            $id,
-            array_map( static fn( array $row ): int => (int) $row['player_id'], $out )
-        );
+        // before the coach has decided. Staff for the player is the check for
+        // what a family must not see, asked for the whole roster at once.
+        // Computed over `$out`, the rows this route already returns, never
+        // over the whole prep.
+        $team_by_player = [];
+        foreach ( $roster as $row ) {
+            $team_by_player[ (int) ( $row->player_id ?? 0 ) ] = (int) ( $row->team_id ?? 0 );
+        }
+        $staff = AuthorizationService::staffForPlayers( get_current_user_id(), $team_by_player );
+        $squad = in_array( true, $staff, true )
+            ? \TT\Modules\MatchPrep\Services\MatchPrepState::matchSquadForActivity(
+                $id,
+                array_map( static fn( array $row ): int => (int) $row['player_id'], $out )
+            )
+            : null;
         foreach ( $out as $i => $row ) {
-            $value = $squad === null ? null : ( $squad[ $row['player_id'] ] ?? null );
-            if ( $value !== null && ! AuthorizationService::isStaffForPlayer( $uid, (int) $row['player_id'] ) ) {
-                $value = null;
-            }
-            $out[ $i ]['match_squad'] = $value;
+            $pid = (int) $row['player_id'];
+            $out[ $i ]['match_squad'] = ( $squad !== null && ( $staff[ $pid ] ?? false ) )
+                ? ( $squad[ $pid ] ?? null )
+                : null;
         }
 
         return RestResponse::success( [

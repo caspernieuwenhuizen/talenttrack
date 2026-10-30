@@ -174,6 +174,35 @@ final class PlannedAttendanceMatchSquadTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * Performance: who is staff is asked for the roster at once, so the
+     * route's query count does not grow with the squad (5 rows vs 20).
+     */
+    public function test_the_query_count_does_not_grow_with_the_roster(): void {
+        global $wpdb;
+        $this->plannedPlayer( 'extra_1' );
+        $this->plannedPlayer( 'extra_2' );
+        $this->savePrep( $this->squadPayload() );
+        wp_set_current_user( $this->makeCoach() );
+
+        $small = $this->queriesForOneRead();
+        for ( $n = 3; $n <= 17; $n++ ) {
+            $this->plannedPlayer( 'extra_' . $n );
+        }
+        $large = $this->queriesForOneRead();
+
+        $this->assertCount( 20, $this->roster() );
+        $this->assertSame( $small, $large, 'queries for 5 rows vs 20 rows' );
+    }
+
+    private function queriesForOneRead(): int {
+        global $wpdb;
+        $this->roster(); // warm the per-request caches
+        $before = (int) $wpdb->num_queries;
+        $this->roster();
+        return (int) $wpdb->num_queries - $before;
+    }
+
     /** @return array<string, mixed> */
     private function squadPayload(): array {
         return [
