@@ -66,8 +66,9 @@ class TasksRepository {
      * Used for idempotent per-(player, conversation) creation and for
      * resolving a task when its conversation moves on. Pass `$statuses`
      * to restrict (e.g. only the still-actionable trio); omit for "any
-     * status" (the idempotency check, which must not re-create after a
-     * task was completed or skipped).
+     * status". The engine's idempotency check passes every status but
+     * skipped and cancelled, so a completed task is not re-created and a
+     * superseded one does not block its key (#4358).
      *
      * @param list<string>|null $statuses
      * @return array<string,mixed>|null
