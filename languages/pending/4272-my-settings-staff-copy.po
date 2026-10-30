@@ -1,0 +1,23 @@
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Your contact details are kept in more than one place, and they can disagree. "
+"This is everything the academy holds about you, and where each detail is "
+"kept."
+msgstr ""
+"Je contactgegevens staan op meer dan één plek, en die kunnen van elkaar "
+"afwijken. Dit is alles wat de academie van jou heeft, en waar elk gegeven "
+"wordt bewaard."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Your account details are yours to change above."
+msgstr "Je accountgegevens pas je hierboven zelf aan."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Choose which messages the academy may send you. Unticking one stops it on "
+"every channel. You will only ever receive messages that concern you or the "
+"players you work with."
+msgstr ""
+"Kies welke berichten de academie je mag sturen. Vink je er een uit, dan "
+"stopt het via elk kanaal. Je ontvangt alleen berichten die over jou of over "
+"de spelers met wie je werkt gaan."
