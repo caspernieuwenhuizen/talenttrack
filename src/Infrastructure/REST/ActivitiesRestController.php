@@ -2940,8 +2940,10 @@ class ActivitiesRestController {
      *
      * #4260 — `match_squad` is `start` / `bench` / `out` from the match prep
      * (`MatchPrepState::matchSquadForActivity()`), or null when the activity
-     * has no prep. Read-only and beside `plan_status`, like `availability`;
-     * never the prep's status or reason, which can name a medical cause.
+     * has no prep, the prep has no row for the player, or the caller is not
+     * staff for the player (D-22). Read-only and beside `plan_status`, like
+     * `availability`; never the prep's status or reason, which can name a
+     * medical cause.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2985,13 +2987,24 @@ class ActivitiesRestController {
         }, $roster );
 
         // #4260 — the match-day squad the coach picked in match prep, beside
-        // the plan: start, bench or out; null when there is no prep.
+        // the plan: start, bench or out; null when there is no prep or the
+        // prep has no row for the player. Staff only (D-22): match prep
+        // autosaves mid-composition, so a family would learn "bench" or "out"
+        // before the coach has decided. Staff is `isStaffForPlayer()`, the
+        // check for what a family must not see; `isStaffReader()` says yes to
+        // a parent, who reads activities too. Computed over `$out`, the rows
+        // this route already returns, never over the whole prep.
+        $uid   = get_current_user_id();
         $squad = \TT\Modules\MatchPrep\Services\MatchPrepState::matchSquadForActivity(
             $id,
             array_map( static fn( array $row ): int => (int) $row['player_id'], $out )
         );
         foreach ( $out as $i => $row ) {
-            $out[ $i ]['match_squad'] = $squad === null ? null : ( $squad[ $row['player_id'] ] ?? 'out' );
+            $value = $squad === null ? null : ( $squad[ $row['player_id'] ] ?? null );
+            if ( $value !== null && ! AuthorizationService::isStaffForPlayer( $uid, (int) $row['player_id'] ) ) {
+                $value = null;
+            }
+            $out[ $i ]['match_squad'] = $value;
         }
 
         return RestResponse::success( [

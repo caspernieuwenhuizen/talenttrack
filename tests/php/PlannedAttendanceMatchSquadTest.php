@@ -4,8 +4,10 @@ namespace TT\Tests\Php;
 use WP_REST_Request;
 use WP_REST_Server;
 use WP_UnitTestCase;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
  * #4260 — planned attendance carries the match-day squad the coach picked in
@@ -49,7 +51,11 @@ final class PlannedAttendanceMatchSquadTest extends WP_UnitTestCase {
         ] );
         $this->activity = (int) $wpdb->insert_id;
 
-        ( new RolesService() )->ensureCapabilities();
+        $roles = new RolesService();
+        $roles->installRoles();
+        $roles->ensureCapabilities();
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
 
         foreach ( [ 'starter', 'sub', 'absent' ] as $key ) {
             $this->plannedPlayer( $key );
@@ -114,6 +120,133 @@ final class PlannedAttendanceMatchSquadTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'Ankle', $body );
     }
 
+    /** A player added to the plan after the prep was saved was never left out. */
+    public function test_a_player_the_prep_has_no_row_for_gets_null(): void {
+        $this->savePrep( $this->squadPayload() );
+        $this->plannedPlayer( 'late' );
+
+        $this->assertNull( $this->rowFor( $this->players['late'] )['match_squad'] );
+        $this->assertSame( 'start', $this->rowFor( $this->players['starter'] )['match_squad'] );
+    }
+
+    /**
+     * D-22 — staff readers get the squad position. The precondition is
+     * asserted, so a fixture that is not a staff reader cannot pass this for
+     * the wrong reason.
+     */
+    public function test_a_coach_and_a_team_manager_get_the_squad_position(): void {
+        $this->savePrep( $this->squadPayload() );
+
+        foreach ( [ 'coach' => $this->makeCoach(), 'team manager' => $this->makeTeamManager() ] as $label => $uid ) {
+            $this->assertTrue( AuthorizationService::isStaffForPlayer( $uid, $this->players['starter'] ), $label . ' must be staff for the player' );
+            wp_set_current_user( $uid );
+            $this->assertSame( 'start', $this->rowFor( $this->players['starter'] )['match_squad'], $label );
+            $this->assertSame( 'out', $this->rowFor( $this->players['absent'] )['match_squad'], $label );
+        }
+    }
+
+    /**
+     * D-22 — match prep saves as the coach composes it, so a family must not
+     * learn "bench" or "out" from it: a parent and a player reading their own
+     * row get null.
+     */
+    public function test_a_parent_and_a_player_get_null_on_their_own_row(): void {
+        global $wpdb;
+        $this->savePrep( $this->squadPayload() );
+
+        $player_user = self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'wp_user_id' => $player_user ], [ 'id' => $this->players['starter'] ] );
+
+        $parent = self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_player_parents", [
+            'club_id'        => $this->club,
+            'player_id'      => $this->players['starter'],
+            'parent_user_id' => $parent,
+        ] );
+        AuthorizationService::flushCache();
+
+        foreach ( [ 'player' => $player_user, 'parent' => $parent ] as $label => $uid ) {
+            $this->assertFalse( AuthorizationService::isStaffForPlayer( $uid, $this->players['starter'] ), $label . ' must not be staff for the player' );
+            wp_set_current_user( $uid );
+            $row = $this->rowFor( $this->players['starter'], [ 'player_id' => $this->players['starter'] ] );
+            $this->assertArrayHasKey( 'match_squad', $row, $label );
+            $this->assertNull( $row['match_squad'], $label );
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function squadPayload(): array {
+        return [
+            'availability' => [
+                $this->players['starter'] => [ 'status' => 'Present', 'reason' => '' ],
+                $this->players['sub']     => [ 'status' => 'Present', 'reason' => '' ],
+                $this->players['absent']  => [ 'status' => 'Absent', 'reason' => '' ],
+            ],
+            'lineup' => [ '1' => [ '1' => $this->players['starter'] ] ],
+        ];
+    }
+
+    private function makeCoach(): int {
+        global $wpdb;
+        $uid = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => $this->club,
+            'first_name' => 'Hoofd',
+            'last_name'  => 'Trainer',
+            'role_type'  => 'head_coach',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $this->scopeToTeam( (int) $wpdb->insert_id );
+        AuthorizationService::flushCache();
+        return $uid;
+    }
+
+    /**
+     * The `team_manager` persona. The role is added by a migration rather
+     * than by `RolesService`, so it is created here when absent.
+     */
+    private function makeTeamManager(): int {
+        global $wpdb;
+        if ( get_role( 'tt_team_manager' ) === null ) {
+            add_role( 'tt_team_manager', 'Team Manager', [ 'read' => true ] );
+        }
+        $uid = self::factory()->user->create( [ 'role' => 'tt_team_manager' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => $this->club,
+            'first_name' => 'Kees',
+            'last_name'  => 'Teammanager',
+            'role_type'  => 'team_manager',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $this->scopeToTeam( (int) $wpdb->insert_id );
+        AuthorizationService::flushCache();
+        return $uid;
+    }
+
+    private function scopeToTeam( int $person_id ): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'club_id'    => $this->club,
+            'person_id'  => $person_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => $this->team,
+        ] );
+    }
+
+    /**
+     * @param array<string, mixed> $params
+     * @return array<string, mixed>
+     */
+    private function rowFor( int $player_id, array $params = [] ): array {
+        foreach ( $this->roster( $params ) as $row ) {
+            if ( (int) $row['player_id'] === $player_id ) return $row;
+        }
+        $this->fail( 'no planned row for player ' . $player_id );
+    }
+
     /** @param array<string, mixed> $payload */
     private function savePrep( array $payload ): void {
         $request = new WP_REST_Request( 'PUT', '/talenttrack/v1/match-prep/' . $this->activity );
@@ -144,9 +277,16 @@ final class PlannedAttendanceMatchSquadTest extends WP_UnitTestCase {
         ] );
     }
 
-    /** @return list<array<string, mixed>> */
-    private function roster(): array {
-        $response = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/activities/' . $this->activity . '/planned-attendance' ) );
+    /**
+     * @param array<string, mixed> $params
+     * @return list<array<string, mixed>>
+     */
+    private function roster( array $params = [] ): array {
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/activities/' . $this->activity . '/planned-attendance' );
+        foreach ( $params as $key => $value ) {
+            $request->set_param( $key, $value );
+        }
+        $response = rest_do_request( $request );
         $this->assertSame( 200, $response->get_status() );
         $data = json_decode( (string) wp_json_encode( $response->get_data() ), true );
         return array_values( array_map(

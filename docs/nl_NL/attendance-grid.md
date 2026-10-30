@@ -90,11 +90,6 @@ op staat, zodat je die kunt zien en wissen. Een komende training waarop nog
 niets is vastgelegd verschijnt nog niet. Wie er komt plan je in de geplande
 selectie op de activiteit zelf.
 
-Bij een wedstrijd met een [wedstrijdvoorbereiding](match-prep.md) zegt de
-geplande selectie ook waar elke speler staat in de selectie die de coach
-daar koos: basis, wissel of niet in de selectie. Dat staat naast het plan,
-verandert het nooit, en zegt niets over waarom een speler er niet bij is.
-
 Dezelfde regel geldt als je aanwezigheid vastlegt op het formulier van de
 activiteit zelf. "Vandaag" is de datum van de academie, niet die van de
 server.
