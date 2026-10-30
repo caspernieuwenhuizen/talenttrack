@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
 use TT\Modules\Activities\Services\ActivityCompletionResolver;
+use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -388,15 +389,38 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $html  = '<td class="tt-agrid-cell tt-agrid-cell--noreg tt-agrid-cell--sep" colspan="3" rowspan="' . esc_attr( (string) max( 1, $rows ) ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
         $html .= '<span class="tt-agrid-noreg__text">' . esc_html__( 'Attendance not recorded yet', 'talenttrack' ) . '</span>';
 
-        $user_id = get_current_user_id();
-        if ( empty( $a['is_neutral'] ) && ActivityCompletionResolver::canComplete( $aid, 'match', $user_id ) ) {
-            $url = ActivityCompletionResolver::completionUrl( $aid, 'match', home_url( add_query_arg( [] ) ) );
-            if ( $url !== '' ) {
-                $html .= '<a class="tt-btn tt-btn-secondary tt-agrid-noreg__link" href="' . esc_url( $url ) . '">' . esc_html__( 'Record attendance', 'talenttrack' ) . '</a>';
-            }
+        $url = empty( $a['is_neutral'] ) ? self::recordAttendanceUrl( $aid, get_current_user_id() ) : '';
+        if ( $url !== '' ) {
+            $html .= '<a class="tt-btn tt-btn-secondary tt-agrid-noreg__link" href="' . esc_url( $url ) . '">' . esc_html__( 'Record attendance', 'talenttrack' ) . '</a>';
         }
 
         return $html . '</td>';
+    }
+
+    /**
+     * Where "Record attendance" leads for a column without a register.
+     *
+     * A match finalized on the live sheet goes straight to the attendance
+     * grid for that match, the same target as the live sheet's own notice:
+     * the completion URL would open the finished sheet, where the way to the
+     * register sits at the bottom of the page. Every other match keeps the
+     * completion URL, which for a paper match is the wizard's attendance step.
+     */
+    private static function recordAttendanceUrl( int $activity_id, int $user_id ): string {
+        $exec  = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( $activity_id );
+        $state = $exec !== null ? (string) ( $exec->state ?? '' ) : '';
+        $finalized = in_array( $state, [
+            \TT\Domain\Vocabularies\Enums\MatchExecutionState::FINALIZED,
+            \TT\Domain\Vocabularies\Enums\MatchExecutionState::FINISHED,
+        ], true );
+
+        if ( $finalized ) {
+            if ( ! ActivityGridLink::canUseAttendance( $activity_id, $user_id ) ) return '';
+            return ActivityGridLink::attendanceUrl( $activity_id, true );
+        }
+
+        if ( ! ActivityCompletionResolver::canComplete( $activity_id, 'match', $user_id ) ) return '';
+        return ActivityCompletionResolver::completionUrl( $activity_id, 'match', home_url( add_query_arg( [] ) ) );
     }
 
     /**

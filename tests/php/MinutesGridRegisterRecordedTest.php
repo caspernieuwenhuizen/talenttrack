@@ -106,7 +106,60 @@ final class MinutesGridRegisterRecordedTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tt-agrid-cell--na', $html );
     }
 
+    /**
+     * A match finalized on the live sheet goes straight to the attendance
+     * grid; the completion URL would land on the finished sheet instead.
+     */
+    public function test_a_finalized_live_match_links_to_the_attendance_grid(): void {
+        global $wpdb;
+        $match = $this->seedMatch( '2026-03-25' );
+        $wpdb->insert( "{$this->p}tt_match_execution", [
+            'uuid'          => wp_generate_uuid4(),
+            'club_id'       => 1,
+            'activity_id'   => $match,
+            'match_prep_id' => 0,
+            'state'         => 'finalized',
+        ] );
+
+        $href = $this->recordLinkFor( $match );
+
+        $this->assertStringContainsString( 'tt_view=attendance-grid', $href );
+        $this->assertSame(
+            remove_query_arg( 'tt_back', \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( $match, false ) ),
+            remove_query_arg( 'tt_back', $href )
+        );
+    }
+
+    /** A paper match keeps the completion URL: the wizard's attendance step. */
+    public function test_a_paper_match_links_to_the_completion_flow(): void {
+        $match = $this->seedMatch( '2026-03-26' );
+
+        $href = $this->recordLinkFor( $match );
+
+        $this->assertStringNotContainsString( 'tt_view=match-execution', $href );
+        $this->assertSame(
+            remove_query_arg( 'tt_back', \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl( $match, 'match' ) ),
+            remove_query_arg( 'tt_back', $href )
+        );
+    }
+
     // ---- fixtures ----
+
+    /** The decoded href of the column's "Record attendance" link. */
+    private function recordLinkFor( int $activity_id ): string {
+        global $wpdb;
+        $date   = (string) $wpdb->get_var( $wpdb->prepare( "SELECT session_date FROM {$this->p}tt_activities WHERE id = %d", $activity_id ) );
+        $matrix = ( new MinutesGridQuery() )->matrix( self::TEAM_ID, $date, $date );
+
+        $render = new \ReflectionMethod( FrontendMinutesGridView::class, 'renderGrid' );
+        $render->setAccessible( true );
+        ob_start();
+        $render->invoke( null, $matrix );
+        $html = (string) ob_get_clean();
+
+        $this->assertSame( 1, preg_match( '#class="tt-btn tt-btn-secondary tt-agrid-noreg__link" href="([^"]+)"#', $html, $m ), 'no Record attendance link rendered' );
+        return html_entity_decode( $m[1], ENT_QUOTES );
+    }
 
     /** @return array<string,mixed> */
     private function minutesFor( int $activity_id ): array {
