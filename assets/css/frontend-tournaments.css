@@ -131,6 +131,15 @@
 }
 
 /* ---- Status chips -------------------------------------------------- */
+/* #4264 — status and opponent level are two chips; on a narrow card they
+   wrap under each other instead of squeezing the title. */
+.tt-dashboard .tt-tour-match__chips {
+    flex: 0 1 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.3rem;
+}
 .tt-dashboard .tt-tour-chip {
     flex: 0 0 auto;
     display: inline-flex;
@@ -162,6 +171,13 @@
     background: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
     color: #fff;
+}
+/* #4264 — a score is entered but nobody completed the fixture, so its
+   minutes are not booked. */
+.tt-dashboard .tt-tour-chip--open {
+    background: var(--tt-warning-subtle);
+    border-color: var(--tt-warning);
+    color: var(--tt-warning-ink);
 }
 /* #3559 — the level's own colour when the lookup row carries one, with an
    ink the view derived from it. The literals are the fallback for a level

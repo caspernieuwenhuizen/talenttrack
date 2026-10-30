@@ -169,6 +169,22 @@ niets opnieuw te laten lopen.
 
 Je kunt **Afsluiten** zonder eerst expliciet aftrap te geven — het systeem doet de aftrap automatisch.
 
+### Waar elke wedstrijd staat
+
+Elke wedstrijd in het programma heeft een statuslabel, met het niveau van de
+tegenstander in een eigen label ernaast:
+
+- **Gepland** — nog geen aftrap, geen uitslag ingevuld.
+- **In uitvoering** — aftrap gegeven, nog niet afgesloten.
+- **Niet afgesloten** — beide scores zijn ingevuld, maar niemand heeft op
+  **Wedstrijd afsluiten** getikt. De minuten worden pas geboekt als je dat
+  doet, dus tik op **Wedstrijd afsluiten** op die kaart.
+- **Voltooid** — minuten geboekt.
+
+Een score invullen sluit een wedstrijd niet af. Zolang een wedstrijd in uitvoering of
+niet afgesloten is, meldt de minutenbalk hoeveel wedstrijden dat zijn, omdat
+hun minuten nog niet in de totalen zitten.
+
 ### De afsluitstap
 
 Op **Wedstrijd afsluiten** tikken legt niet meer meteen alles vast. Er komt een
