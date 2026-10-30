@@ -52,14 +52,35 @@ class UsageTracker {
         return wp_date( 'Y-m-d H:i:s', time() - $seconds_ago );
     }
 
-    /** Midnight, site-local, N days back — the first day of an N-day window. */
-    public static function dayStart( int $days_ago ): string {
-        return wp_date( 'Y-m-d 00:00:00', time() - $days_ago * DAY_IN_SECONDS );
+    /**
+     * Midnight, site-local, N days back — the first day of an N-day window.
+     *
+     * @param int|null $now Unix time to count from; defaults to now.
+     */
+    public static function dayStart( int $days_ago, ?int $now = null ): string {
+        return self::localToday( $now )->modify( sprintf( '%+d days', -$days_ago ) )->format( 'Y-m-d 00:00:00' );
     }
 
-    /** A site-local `Y-m-d` calendar day, offset by N days from today. */
-    public static function day( int $days_offset = 0 ): string {
-        return wp_date( 'Y-m-d', time() + $days_offset * DAY_IN_SECONDS );
+    /**
+     * A site-local `Y-m-d` calendar day, offset by N days from today.
+     *
+     * @param int|null $now Unix time to count from; defaults to now.
+     */
+    public static function day( int $days_offset = 0, ?int $now = null ): string {
+        return self::localToday( $now )->modify( sprintf( '%+d days', $days_offset ) )->format( 'Y-m-d' );
+    }
+
+    /**
+     * #4283 — today's local midnight, the base both helpers step from in
+     * calendar days. They used to step in blocks of DAY_IN_SECONDS, and a
+     * day across a daylight-saving change is 23 or 25 hours long: in the
+     * last hour of the local day after the change, two offsets landed on
+     * the same date and the daily series came out one day short.
+     */
+    private static function localToday( ?int $now ): \DateTimeImmutable {
+        return ( new \DateTimeImmutable( '@' . ( $now ?? time() ) ) )
+            ->setTimezone( wp_timezone() )
+            ->setTime( 0, 0 );
     }
 
     // Registration
