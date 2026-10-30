@@ -117,7 +117,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $at_team_cap = class_exists( '\\TT\\Modules\\License\\LicenseGate' )
             && \TT\Modules\License\LicenseGate::capsExceeded( 'teams' );
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_players' ) ) {
+        // #4292 — importing creates players, so it asks the create right.
+        if ( \TT\Infrastructure\Security\AuthorizationService::canCreatePlayer( $user_id ) ) {
             $page_actions[] = [
                 'label' => __( 'Import players from CSV', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),

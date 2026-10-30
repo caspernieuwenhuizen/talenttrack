@@ -18,7 +18,8 @@ final class NewPlayerWizard implements WizardInterface {
 
     public function slug(): string { return 'new-player'; }
     public function label(): string { return __( 'New player', 'talenttrack' ); }
-    public function requiredCap(): string { return 'tt_edit_players'; }
+    // #4292 — the create right, not the edit right a head coach holds.
+    public function requiredCap(): string { return \TT\Infrastructure\Security\AuthorizationService::CREATE_PLAYER_CAP; }
     public function firstStepSlug(): string { return 'path'; }
 
     /** @return array<int, \TT\Shared\Wizards\WizardStepInterface> */

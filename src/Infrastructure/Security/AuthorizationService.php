@@ -497,6 +497,22 @@ class AuthorizationService {
 
     public const CREATE_TEAM_CAP = 'tt_manage_teams';
 
+    /**
+     * #4292 — adding a player is the matrix's create right (`players:
+     * create_delete`, bridged from `tt_manage_players`), held by the head
+     * of development and the academy admin. A head coach holds `players
+     * [rc, team]`: they correct their squad's records, they do not
+     * register players. Every create path asks this: New player, the CSV
+     * import, the cap nudge, `POST /players`, `POST /players/import`, the
+     * new-player wizard and the wp-admin save. A trialist still comes in
+     * through the prospect pipeline, which this does not touch.
+     */
+    public static function canCreatePlayer( int $user_id ): bool {
+        return self::userCanOrMatrix( $user_id, self::CREATE_PLAYER_CAP );
+    }
+
+    public const CREATE_PLAYER_CAP = 'tt_manage_players';
+
     public static function canAssignStaff( int $user_id, int $team_id ): bool {
         return self::decide( 'assign_staff', $user_id, 'team', $team_id, function () use ( $user_id ) {
             // Assigning staff is a club-level authority. Requires a GLOBAL

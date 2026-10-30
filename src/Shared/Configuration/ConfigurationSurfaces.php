@@ -249,7 +249,7 @@ final class ConfigurationSurfaces {
             'url'   => $sub( 'profile-cards' ),
             'icon'  => 'players',
         ] ];
-        if ( current_user_can( 'tt_edit_players' ) ) {
+        if ( \TT\Infrastructure\Security\AuthorizationService::canCreatePlayer( get_current_user_id() ) ) {
             $out[] = [ 'TT\\Modules\\Players\\PlayersModule', [
                 'title' => __( 'Players CSV import', 'talenttrack' ),
                 'desc'  => __( 'Bulk-import players from a spreadsheet. Map columns, choose duplicate-handling, preview before commit.', 'talenttrack' ),

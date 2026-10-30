@@ -50,7 +50,7 @@ The wizard is the canonical "+ New prospect" entry point. Clicking the button op
 ## Permissions
 
 - **`tt_view_prospects`** — required to open the pipeline. Granted by default to Academy Admin, Head of Development, Scout and Head Coach.
-- **`tt_edit_prospects`** — required to launch the New prospect wizard. Granted to Academy Admin, Head of Development and Scout — a head coach reads the funnel, they do not add to it.
+- **`tt_edit_prospects`** — required to launch the New prospect wizard. Granted to Academy Admin, Head of Development and Scout — a head coach reads the funnel, they do not add to it. This pipeline is also the head coach's way in for a new player: they cannot add a player directly, so they follow the prospect on their board and open a trial, and the academy registers the player at the end of it.
 - **`tt_invite_prospects`** — required to complete the *Invite to test training*
   and *Confirm test-training attendance* tasks, and to arrange a test training
   from the pipeline. Granted to Academy Admin and Head of Development only.

@@ -98,6 +98,8 @@ Een **speler** is een individuele voetballer. Elke speler heeft:
 
 Maak spelers aan op de beheerpagina **Spelers**. Gebruik de knop **+ Nieuwe toevoegen**.
 
+Een speler toevoegen, met de hand, via de wizard voor een nieuwe speler of via een CSV-import, is voor het Hoofd opleiding en de Clubbeheerder. Een hoofdtrainer corrigeert de gegevens van de eigen selectie, maar voegt geen spelers toe, en ziet dus geen **Nieuwe speler** of **Importeer uit CSV**. Voor een hoofdtrainer loopt de weg van een nieuwe speler via de [onboardingpijplijn](onboarding-pipeline.md): een scout of het Hoofd opleiding legt de prospect vast, de hoofdtrainer volgt die op het eigen bord en kan een stage openen, en de academie registreert de speler zodra over de stage is besloten.
+
 ## Speler koppelen aan WordPress-gebruiker
 
 Als een speler een `wp_user_id` heeft, wordt die gebruiker na inloggen doorgestuurd naar zijn eigen dashboardweergave op de frontend-shortcode. Zonder deze koppeling bestaat de speler alleen als record dat je kunt evalueren.
