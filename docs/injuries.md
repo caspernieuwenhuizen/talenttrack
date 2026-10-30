@@ -77,7 +77,7 @@ An overdue or incomplete record does not keep the player out of planning. Planne
 
 When a record asks for a decision — on the expected return date, or on the day it becomes incomplete — the team's physio and head coach each get an **Injury recovery check** task, due that day. A team without a physio sends it to the head coach alone, and only people who may read the player's injuries receive it. Neither the task nor its e-mail carries any injury detail: the e-mail gives the task's name and deadline, and the task opens on the player.
 
-There is one reminder per player at a time. Moving the expected return retires the old task, and a new one arrives on the new date; recording the return retires it too. Editing anything else leaves it as it is.
+There is one reminder per player at a time. Moving the expected return retires the old task, and a new one arrives on the new date; recording the return or archiving the record retires it too. Editing anything else leaves it as it is.
 
 Filter by team, and switch between **Currently out**, **Recovered** and **All**.
 

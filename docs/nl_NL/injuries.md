@@ -77,7 +77,7 @@ Een verlopen of onvolledige blessure houdt de speler niet buiten de planning. De
 
 Wanneer een blessure om een beslissing vraagt — op de verwachte terugkeerdatum, of op de dag dat hij onvolledig wordt — krijgen de fysio en de hoofdtrainer van het team elk een taak **Controle herstel blessure**, met die dag als deadline. Een team zonder fysio stuurt hem alleen naar de hoofdtrainer, en alleen wie de blessures van de speler mag inzien, krijgt hem. Noch de taak, noch de e-mail bevat details over de blessure: de e-mail noemt de naam van de taak en de deadline, en de taak opent bij de speler.
 
-Er is per speler één herinnering tegelijk. Wie de verwachte terugkeer verschuift, sluit de oude taak af en krijgt een nieuwe op de nieuwe datum; het vastleggen van de terugkeer sluit hem ook af. Iets anders bewerken laat de taak zoals hij is.
+Er is per speler één herinnering tegelijk. Wie de verwachte terugkeer verschuift, sluit de oude taak af en krijgt een nieuwe op de nieuwe datum; het vastleggen van de terugkeer of het archiveren van het dossier sluit hem ook af. Iets anders bewerken laat de taak zoals hij is.
 
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 

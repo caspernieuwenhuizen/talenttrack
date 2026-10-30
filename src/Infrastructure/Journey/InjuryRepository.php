@@ -156,10 +156,28 @@ final class InjuryRepository {
 
     public function archive( int $id, int $user_id ): bool {
         if ( $id <= 0 ) return false;
+        $existing = $this->find( $id );
+        if ( ! $existing ) return false;
+
         $ok = $this->wpdb->update( $this->table, [
             'archived_at' => current_time( 'mysql' ),
         ], [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        return $ok !== false;
+        if ( $ok === false ) return false;
+
+        // #4357 — the same event an edit fires, so the listener that follows
+        // an injury (the recovery reminder) retires the archived record's task.
+        $player_id = (int) ( $existing->player_id ?? 0 );
+        $team_id   = $this->teamIdOf( $player_id );
+        do_action( 'tt_journey_injury_updated', [
+            'player_id' => $player_id,
+            'team_id'   => $team_id > 0 ? $team_id : null,
+            'extras'    => [
+                'injury_id' => $id,
+                'fields'    => [ 'archived_at' ],
+            ],
+        ] );
+
+        return true;
     }
 
     public function find( int $id ): ?object {
