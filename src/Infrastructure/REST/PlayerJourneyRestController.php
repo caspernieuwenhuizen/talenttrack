@@ -547,18 +547,7 @@ class PlayerJourneyRestController extends BaseController {
             'offset' => ( $page - 1 ) * $per_page,
         ] );
 
-        if ( $rows !== [] ) {
-            $player_ids = [];
-            foreach ( $rows as $row ) {
-                $pid = (int) ( ( (array) $row )['player_id'] ?? 0 );
-                if ( $pid > 0 ) $player_ids[ $pid ] = $pid;
-            }
-            ( new AuditService() )->record( 'player.injuries_viewed', 'club', 0, [
-                'surface'    => 'rest_injuries_collection',
-                'count'      => count( $rows ),
-                'player_ids' => array_values( $player_ids ),
-            ] );
-        }
+        InjuryOverviewScope::recordRead( 'rest_injuries_collection', $rows );
 
         return RestResponse::success( [
             // `status` and `days_out` are derived on read by `InjuryStatus`, never stored.

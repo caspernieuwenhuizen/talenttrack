@@ -106,12 +106,9 @@ final class FrontendInjuriesView extends FrontendViewBase {
 
         $rows = ( new InjuryRepository() )->listForTeams( $scope, [ 'status' => $status ] );
 
-        if ( ! empty( $rows ) ) {
-            ( new AuditService() )->record( 'player.injuries_viewed', 'club', 0, [
-                'surface' => 'injuries_overview',
-                'count'   => count( $rows ),
-            ] );
-        }
+        // One audit row for the read, naming every player whose injuries
+        // are on the page (the rows shown, after the team and status filter).
+        InjuryOverviewScope::recordRead( 'injuries_overview', $rows );
 
         self::renderFilters( $teams, $team_id, $status );
         self::renderTable( $rows, $status, $add_url, $user_id );
