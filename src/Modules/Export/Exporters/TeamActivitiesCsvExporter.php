@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
+use TT\Modules\Export\ScopeGatedExporter;
 
 /**
  * TeamActivitiesCsvExporter (#865) — one row per activity for a team,
@@ -24,7 +26,13 @@ use TT\Modules\Export\ExporterInterface;
  *
  * Cap: `tt_view_activities`.
  */
-final class TeamActivitiesCsvExporter implements ExporterInterface {
+final class TeamActivitiesCsvExporter implements ExporterInterface, ScopeGatedExporter {
+
+    /** A team's schedule and attendance counts — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'activities' );
+    }
 
     public function key(): string { return 'team_activities'; }
 
@@ -83,6 +91,12 @@ final class TeamActivitiesCsvExporter implements ExporterInterface {
         if ( $team_id > 0 ) {
             $where[]  = 'a.team_id = %d';
             $params[] = $team_id;
+        }
+        // The teams this caller may export; null for an all-teams reader.
+        // A requested team outside them, or no team at all, is refused.
+        $team_ids = ExportScope::teamIdsFor( (int) $request->requesterUserId, 'activities', $team_id );
+        if ( $team_ids !== null ) {
+            $where[] = ExportScope::inClause( 'a.team_id', $team_ids );
         }
 
         // #4041 — attended (present + late) from the team's own players,
