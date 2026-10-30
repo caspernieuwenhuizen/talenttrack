@@ -42,7 +42,7 @@ final class EntitlementCliCommand {
      * Reports the stored record, its age against the TTL and grace
      * window, and the tier `LicenseGate` actually returns — which can
      * differ from the stored one when commercial mode is off (always
-     * Pro) or a developer override is live.
+     * Pro), a tier is pinned or a developer override is live.
      *
      * ## EXAMPLES
      *
@@ -68,6 +68,9 @@ final class EntitlementCliCommand {
             \WP_CLI::line( '  past TTL:         ' . ( $stale ? 'yes — wants refreshing' : 'no' ) );
             \WP_CLI::line( '  still honoured:   ' . ( $expired ? 'no — past TTL + grace, reads as unentitled' : 'yes' ) );
         }
+
+        $pinned = DevOverride::pinnedTier();
+        \WP_CLI::line( 'Pinned tier (TT_DEV_TIER): ' . ( $pinned ?? 'not set' ) );
 
         $override = DevOverride::active();
         \WP_CLI::line( 'Developer override: ' . ( $override === null ? 'not active' : $override['tier'] . ' (expires ' . human_time_diff( time(), $override['set_at'] + DevOverride::TRANSIENT_TTL ) . ' from now)' ) );

@@ -11,10 +11,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   LicenseGate::capsExceeded( 'players' )  → bool
  *
  * Resolution order for tier():
- *   1. Dev override (if TT_DEV_OVERRIDE_SECRET defined + active transient)
- *   2. Entitlement                   → what the control plane says
+ *   1. Pinned tier  (TT_DEV_TIER, only where TT_DEV_OVERRIDE_SECRET
+ *                    is defined)  → a developer bench with no
+ *                                    control plane behind it
+ *   2. Dev override (if TT_DEV_OVERRIDE_SECRET defined + active transient)
+ *   3. Entitlement                   → what the control plane says
  *                                       this install bought
- *   3. Free                          → fallback
+ *   4. Free                          → fallback
  *
  * The control plane owns entitlement; the install caches it. See
  * `CachedEntitlement` for the TTL and grace-window semantics that
@@ -35,19 +38,37 @@ class LicenseGate {
             return FeatureMap::TIER_PRO;
         }
 
-        // 1. Developer override
+        return self::commercialTier( DevOverride::pinnedTier() );
+    }
+
+    /**
+     * The tier of a commercial install, given its pinned tier. Split
+     * from tier() so the order can be tested: commercial mode and the
+     * pin are constants, and a constant defined in one test cannot be
+     * undefined for the rest of the run.
+     *
+     * @internal
+     */
+    public static function commercialTier( ?string $pinned ): string {
+        // 1. Pinned tier — never expires, unlike the stored entitlement,
+        //    which a bench without a control plane cannot refresh.
+        if ( $pinned !== null ) {
+            return $pinned;
+        }
+
+        // 2. Developer override
         $override = DevOverride::active();
         if ( $override !== null ) {
             return FeatureMap::normalizeTier( $override['tier'] );
         }
 
-        // 2. Entitlement, as last answered by the control plane
+        // 3. Entitlement, as last answered by the control plane
         $entitled = Entitlement::tier();
         if ( $entitled !== null ) {
             return FeatureMap::normalizeTier( $entitled );
         }
 
-        // 3. Free fallback — no entitlement recorded, or the recorded
+        // 4. Free fallback — no entitlement recorded, or the recorded
         //    one aged past its grace window.
         return FeatureMap::TIER_FREE;
     }

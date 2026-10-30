@@ -35,12 +35,38 @@ class DevOverride {
     public const TRANSIENT      = 'tt_license_dev_override';
     public const TRANSIENT_TTL  = DAY_IN_SECONDS;
     public const SECRET_CONST   = 'TT_DEV_OVERRIDE_SECRET';
+    public const PIN_CONST      = 'TT_DEV_TIER';
 
     /**
      * Whether the override mechanism is even available on this install.
      */
     public static function isAvailable(): bool {
         return defined( self::SECRET_CONST ) && (string) constant( self::SECRET_CONST ) !== '';
+    }
+
+    /**
+     * The tier pinned by `define( 'TT_DEV_TIER', 'pro' )`, or null.
+     *
+     * For a developer bench that runs unattended for weeks: the stored
+     * entitlement lapses to free after TTL + grace because no control
+     * plane refreshes it, and the 24-hour override expires daily. The
+     * pin is honoured only where the override is available, so a stray
+     * constant on a customer install, which never defines the secret,
+     * changes nothing.
+     */
+    public static function pinnedTier(): ?string {
+        $raw = defined( self::PIN_CONST ) ? constant( self::PIN_CONST ) : null;
+        return self::resolvePin( $raw, self::isAvailable() );
+    }
+
+    /**
+     * @param mixed $raw The constant's value, null when undefined.
+     * @internal Split from pinnedTier() so it can be tested without
+     *           defining constants.
+     */
+    public static function resolvePin( $raw, bool $available ): ?string {
+        if ( ! $available || ! is_string( $raw ) ) return null;
+        return in_array( $raw, FeatureMap::tiers(), true ) ? $raw : null;
     }
 
     /**

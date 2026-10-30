@@ -18,9 +18,10 @@ Je TalentTrack-operator legt het pakket vast bij het inrichten. De installatie b
 
 Volgorde waarin de tier wordt bepaald, de eerste treffer wint:
 
-1. **Ontwikkelaars-override** — alleen op installaties waar de eigenaar `TT_DEV_OVERRIDE_SECRET` heeft ingesteld. Zie onderaan.
-2. **Het vastgelegde pakket.**
-3. **Niet geactiveerd** — als er geen pakket is vastgelegd, of het vastgelegde pakket zo lang niet is ververst dat het niet meer wordt vertrouwd.
+1. **Vastgezette tier** — alleen op installaties waar de eigenaar `TT_DEV_OVERRIDE_SECRET` heeft ingesteld. Zie onderaan.
+2. **Ontwikkelaars-override** — onder dezelfde voorwaarde. Zie onderaan.
+3. **Het vastgelegde pakket.**
+4. **Niet geactiveerd** — als er geen pakket is vastgelegd, of het vastgelegde pakket zo lang niet is ververst dat het niet meer wordt vertrouwd.
 
 Staat er op de Accountpagina dat er geen pakket is vastgelegd en klopt dat niet? Neem contact op met je operator. Aan hun kant is het één regel werk en aan je gegevens verandert niets.
 
@@ -289,3 +290,13 @@ Voor demo's en lokaal testen zonder een echt pakket in te richten.
 De override wordt 24 uur bewaard als transient. In de bovenbalk van wp-admin verschijnt een "🔓 DEV: Pro"-label zodat je niet vergeet dat hij aanstaat. Ga opnieuw naar de URL om hem eerder te wissen.
 
 **Klantinstallaties komen hier nooit langs** — zonder de constante geeft de beheerpagina een 404 en negeert de gate de override volledig.
+
+### De tier vastzetten op een testomgeving
+
+Een testomgeving die wekenlang zonder controlepaneel draait, verliest haar vastgelegde pakket zodra die vastlegging ouder is dan de verversingstermijn plus de coulanceperiode, en de override van 24 uur verloopt elke dag. Zet op zo'n omgeving de tier vast in `wp-config.php`, naast het geheim:
+
+```php
+define( 'TT_DEV_TIER', 'pro' );
+```
+
+De waarde is `free`, `standard` of `pro`; al het andere wordt genegeerd. De vastgezette tier verloopt nooit en gaat voor de override en het vastgelegde pakket. Hij telt alleen waar `TT_DEV_OVERRIDE_SECRET` is gedefinieerd, dus de constante alleen doet op een klantinstallatie niets. `wp tt entitlement show` toont `Pinned tier (TT_DEV_TIER): pro` (of `not set`) boven de regel van de override, zodat de effectieve tier te verklaren is.
