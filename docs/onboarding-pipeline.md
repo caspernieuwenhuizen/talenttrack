@@ -103,6 +103,22 @@ Each prospect belongs to **exactly one** column. The classifier runs in this ord
 
 Rule 6 sits below the invite rules on purpose: a prospect who has been invited has plainly got past consent, whatever a stale consent task still says.
 
+A child whose trial ended in a decline is not **Joined**. Declining sets the player record to released or inactive, and such a prospect leaves the funnel instead of moving to the Joined column.
+
+### The status on the prospects list
+
+The prospects list, its **Status** filter, the scouting-visit pages and the scout's dashboard table show one status per prospect, worked out the same way everywhere:
+
+| Status | When |
+|---|---|
+| **Archived** | The prospect was archived. |
+| **In trial** | The prospect has a trial case with no decision yet, or the decision is to continue in the trial group. |
+| **Joined** | The trial case decided *admit* or *offered team position*, or the prospect became a player without a trial. |
+| **Not admitted** | The trial case decided *deny*, *deny with encouragement*, or the family *declined the offered position*. |
+| **Active** | None of the above. |
+
+The trial case's decision is what counts. A prospect admitted last week no longer shows as **In trial**.
+
 The dashboard widget uses the same classifier for its compact count strip, so the numbers on the dashboard match the columns on the standalone page. A prospect counts once, in one column, however many tasks are open against them.
 
 ## Asking the family, and recording that you asked
