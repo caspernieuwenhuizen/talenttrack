@@ -339,6 +339,10 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
             ];
         }
+
+        // #4261 — the header sits inside the wrapper so the desktop sidebar
+        // ticker's reserved padding keeps it clear of "Add match" and "Edit".
+        echo '<div class="tt-tournament-detail">';
         self::renderHeader( (string) $tournament->name, self::pageActionsHtml( $page_actions ) );
 
         global $wpdb; $p = $wpdb->prefix;
@@ -376,13 +380,11 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             (int) $tournament->id, CurrentClub::id()
         ) ) ?: [];
 
-        // Tournament facts strip + KPI summary. Wrapping div lets the
-        // desktop sidebar ticker reserve right-edge padding via CSS.
+        // Tournament facts strip + KPI summary.
         // #1685 — 2026 restyle: facts card, KPI tiles from the real
         // squad/match counts, card-wrapped programme + squad sections.
         $kpi = '\\TT\\Shared\\Frontend\\Components\\FrontendAppChrome';
         ?>
-        <div class="tt-tournament-detail">
 
         <div class="tt-tour-kpis">
             <?php
