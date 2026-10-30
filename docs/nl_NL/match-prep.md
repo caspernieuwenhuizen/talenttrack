@@ -198,6 +198,8 @@ vorm.
 Het aantal posities is ook het aantal basisspelers waartegen de
 voorbereiding telt. De tegel **Basisspelers 1e helft** toont "4/6" bij een
 3-2-1 en "9/11" bij een 4-3-3, en wordt groen zodra elke positie bezet is.
+De tegel volgt het veld terwijl je werkt: een speler in de eerste helft
+plaatsen of weghalen, of een andere formatie kiezen, past hem meteen aan.
 De beschikbaarheidsstap vraagt om minstens zoveel spelers op **Aanwezig**,
 zodat een team dat 6 tegen 6 speelt zijn voorbereiding met zes spelers kan
 opslaan.

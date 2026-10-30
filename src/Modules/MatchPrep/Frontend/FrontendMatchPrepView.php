@@ -295,6 +295,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     'label' => __( '1st-half starters', 'talenttrack' ),
                     'value' => sprintf( '%d/%d', $summary['starters'], $starter_target ),
                     'flag'  => $summary['starters'] >= $starter_target ? 'green' : '',
+                    // #4319 — JS hook so the tile follows the pitch and the
+                    // formation without a reload, as the Formation tile does.
+                    'data'  => [ 'tt-mp-starters-kpi' => '1' ],
                 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
                 echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
                     'label' => __( 'Formation', 'talenttrack' ),

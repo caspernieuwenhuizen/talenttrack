@@ -545,6 +545,22 @@
                 pitch.appendChild(btn);
             });
         });
+        renderStartersKpi();
+    }
+
+    // #4319 — the "1st-half starters" tile: half-1 players placed out of the
+    // positions the current layout holds, the same count and target the
+    // server renders (MatchPrepState::starterTarget()). Called from
+    // renderPitches(), which every line-up and formation change goes through.
+    function renderStartersKpi() {
+        var tile = document.querySelector('[data-tt-mp-starters-kpi]');
+        if (!tile) return;
+        var placed = 0;
+        state.lineup['1'].forEach(function (pid) { if (pid > 0) placed++; });
+        var target = currentSlotLayout().length;
+        var val = tile.querySelector('.tt-kpi__val');
+        if (val) val.textContent = placed + '/' + target;
+        tile.classList.toggle('tt-kpi--flag-green', target > 0 && placed >= target);
     }
 
     function renderDps() {
