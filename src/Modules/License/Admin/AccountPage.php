@@ -413,11 +413,10 @@ class AccountPage {
 
         // Underlying paid tier — what this install is actually
         // entitled to, ignoring any dev override on top. Used to
-        // decide which upgrade affordance to show. DevOverride counts
-        // as the underlying tier for testing.
-        $paid_tier = $override !== null
-            ? FeatureMap::normalizeTier( $override['tier'] )
-            : ( $entitled !== null ? FeatureMap::normalizeTier( $entitled ) : FeatureMap::TIER_FREE );
+        // decide which upgrade affordance to show. A pinned tier and
+        // DevOverride count as the underlying tier for testing.
+        $paid_tier    = LicenseGate::underlyingTier();
+        $pinned       = DevOverride::pinnedTier();
         $teams_used   = FreeTierCaps::currentCount( FreeTierCaps::CAP_TEAMS );
         $players_used = FreeTierCaps::currentCount( FreeTierCaps::CAP_PLAYERS );
         $teams_cap    = FreeTierCaps::teamCap();
@@ -429,6 +428,21 @@ class AccountPage {
                     echo UpgradeNudge::capHit( $msg === 'cap_teams' ? 'teams' : 'players' );
                 endif;
             endif; ?>
+
+            <?php if ( $pinned !== null ) : ?>
+                <div class="notice notice-warning">
+                    <p><strong><?php esc_html_e( 'Tier pinned.', 'talenttrack' ); ?></strong>
+                       <?php
+                       printf(
+                           /* translators: 1: tier label, 2: the wp-config constant name */
+                           esc_html__( 'Tier fixed at %1$s by %2$s in wp-config.php. It does not expire; remove the constant to end it.', 'talenttrack' ),
+                           '<code>' . esc_html( FeatureMap::tierLabel( $pinned ) ) . '</code>',
+                           '<code>' . esc_html( DevOverride::PIN_CONST ) . '</code>'
+                       );
+                       ?>
+                    </p>
+                </div>
+            <?php endif; ?>
 
             <?php if ( $override !== null ) : ?>
                 <div class="notice notice-warning">
@@ -598,9 +612,7 @@ class AccountPage {
         // distinguish this from LicenseGate::tier().
         $override    = DevOverride::active();
         $entitled    = Entitlement::tier();
-        $paid_tier   = $override !== null
-            ? FeatureMap::normalizeTier( $override['tier'] )
-            : ( $entitled !== null ? FeatureMap::normalizeTier( $entitled ) : FeatureMap::TIER_FREE );
+        $paid_tier   = LicenseGate::underlyingTier();
 
         echo '<p>' . esc_html__( "Everything that's locked or limited on your install, in one place. Caps come from the Free-tier policy; features come from the plan you're on.", 'talenttrack' ) . '</p>';
 

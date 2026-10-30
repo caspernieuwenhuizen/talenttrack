@@ -77,7 +77,7 @@ final class EntitlementCliCommand {
 
         \WP_CLI::line( 'Effective tier:     ' . LicenseGate::tier() );
 
-        if ( $commercial && $record === null && $override === null ) {
+        if ( $commercial && $record === null && $override === null && $pinned === null ) {
             \WP_CLI::warning( __( 'Commercial mode is on with no entitlement recorded, so this install resolves to the unentitled state and free-tier caps apply. Record one with: wp tt entitlement set --tier=standard', 'talenttrack' ) );
         }
     }

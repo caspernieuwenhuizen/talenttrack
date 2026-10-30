@@ -143,15 +143,29 @@ class DevOverridePage {
     }
 
     public static function addAdminBarPill( \WP_Admin_Bar $bar ): void {
+        // A pinned tier outranks the override and never expires, so it
+        // shows here too, labelled as pinned.
+        $pinned = DevOverride::pinnedTier();
         $active = DevOverride::active();
-        if ( $active === null ) return;
-        $tier_label = FeatureMap::tierLabel( $active['tier'] );
+        if ( $pinned !== null ) {
+            $tier_label = sprintf(
+                /* translators: %s: tier label */
+                __( '%s (pinned)', 'talenttrack' ),
+                FeatureMap::tierLabel( $pinned )
+            );
+        } elseif ( $active !== null ) {
+            $tier_label = FeatureMap::tierLabel( $active['tier'] );
+        } else {
+            return;
+        }
         $bar->add_node( [
             'id'     => 'tt-dev-override',
             'parent' => 'top-secondary',
             'title'  => '<span style="background:#7c3a9e;color:#fff;padding:1px 7px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.05em;line-height:1.6;">🔓 DEV: ' . esc_html( $tier_label ) . '</span>',
             'href'   => admin_url( 'admin.php?page=' . self::SLUG ),
-            'meta'   => [ 'title' => __( 'Developer license override is active. Click to manage.', 'talenttrack' ) ],
+            'meta'   => [ 'title' => $pinned !== null
+                ? __( 'Tier pinned by TT_DEV_TIER in wp-config.php.', 'talenttrack' )
+                : __( 'Developer license override is active. Click to manage.', 'talenttrack' ) ],
         ] );
     }
 }

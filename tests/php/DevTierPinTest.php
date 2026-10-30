@@ -81,6 +81,16 @@ final class DevTierPinTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_the_underlying_tier_follows_the_entitlement_without_a_pin(): void {
+        // underlyingTier() ignores commercial mode, so it can be asked
+        // here; the Account page and the plan summary read it.
+        CachedEntitlement::store( FeatureMap::TIER_STANDARD );
+        $this->assertSame( FeatureMap::TIER_STANDARD, LicenseGate::underlyingTier() );
+
+        $this->storeLapsedEntitlement();
+        $this->assertSame( FeatureMap::TIER_FREE, LicenseGate::underlyingTier() );
+    }
+
     public function test_an_unset_pin_reads_as_not_set_here(): void {
         $this->assertNull(
             DevOverride::pinnedTier(),

@@ -294,4 +294,4 @@ A test bench that runs for weeks without a control plane loses its recorded plan
 define( 'TT_DEV_TIER', 'pro' );
 ```
 
-The value is `free`, `standard` or `pro`; anything else is ignored. The pin never expires and wins over the override and the recorded plan. It is honoured only where `TT_DEV_OVERRIDE_SECRET` is defined, so the constant on its own does nothing on a customer install. `wp tt entitlement show` prints `Pinned tier (TT_DEV_TIER): pro` (or `not set`) above the override line, so the effective tier is explained.
+The value is `free`, `standard` or `pro`; anything else is ignored. The pin never expires and wins over the override and the recorded plan. It is honoured only where `TT_DEV_OVERRIDE_SECRET` is defined, so the constant on its own does nothing on a customer install. `wp tt entitlement show` prints `Pinned tier (TT_DEV_TIER): pro` (or `not set`) above the override line, so the effective tier is explained. In wp-admin the pin shows as a "DEV: Pro (pinned)" pill in the top bar and as a "Tier pinned" notice on the Account page, and the Account page offers upgrades from the pinned tier.

@@ -42,6 +42,16 @@ class LicenseGate {
     }
 
     /**
+     * The tier this install is on, whether or not commercial mode is
+     * on: pin, override, entitlement, free. The Account page and the
+     * plan summary use it to decide which upgrade affordance makes
+     * sense, so a pinned or overridden bench looks like the real thing.
+     */
+    public static function underlyingTier(): string {
+        return self::commercialTier( DevOverride::pinnedTier() );
+    }
+
+    /**
      * The tier of a commercial install, given its pinned tier. Split
      * from tier() so the order can be tested: commercial mode and the
      * pin are constants, and a constant defined in one test cannot be
