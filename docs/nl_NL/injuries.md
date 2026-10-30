@@ -69,6 +69,8 @@ Een regel krijgt het label **Verlopen** wanneer de verwachte terugkeer voorbij i
 
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 
+Dezelfde lijst is voor andere apps beschikbaar via de API als `GET /wp-json/talenttrack/v1/player-injuries`, met dezelfde filters op team en status, per pagina. Daarvoor gelden dezelfde regels als voor deze pagina: je krijgt alleen de teams waarvan je hier de blessures mag zien, en elke keer dat de lijst wordt opgevraagd, komt dat in het auditlogboek.
+
 **Blessure vastleggen** staat bovenaan de pagina, zodat je er een kunt vastleggen zonder eerst het dossier van een speler te openen — de wizard vraagt als eerste stap om het team en de speler. De knop verschijnt alleen bij rollen die een blessure mogen vastleggen; voor de rest is het overzicht alleen-lezen.
 
 ## Privacy
