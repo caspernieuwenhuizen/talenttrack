@@ -193,6 +193,53 @@ final class MatchPrepRestReadTest extends WP_UnitTestCase {
         $this->assertSame( 6, $got['data']['starter_target'] ?? null );
     }
 
+    /**
+     * #4285 — a player who left the team after availability was captured is
+     * not in its squad any more: the read leaves them out, as the prep
+     * screen's tiles and lists do. Their saved row stays in the table.
+     */
+    public function test_a_player_who_left_the_team_is_not_in_the_read(): void {
+        [ $a, $b, $c ] = $this->players;
+        $this->send( 'PUT', $this->mine, [
+            'availability' => [
+                $a => [ 'status' => 'Present', 'reason' => '' ],
+                $b => [ 'status' => 'Present', 'reason' => '' ],
+                $c => [ 'status' => 'Absent', 'reason' => '' ],
+            ],
+        ] );
+
+        global $wpdb;
+        $other_team = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$wpdb->prefix}tt_activities WHERE id = %d",
+            $this->theirs
+        ) );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'team_id' => $other_team ], [ 'id' => $b ] );
+
+        [ $got, $status ] = $this->send( 'GET', $this->mine );
+        $this->assertSame( 200, $status );
+        $this->assertEqualsCanonicalizing( [ $a, $c ], array_map( 'intval', array_keys( (array) $got['data']['availability'] ) ) );
+
+        $stored = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_match_prep_availability WHERE match_prep_id = %d AND player_id = %d",
+            (int) $got['data']['prep_id'],
+            $b
+        ) );
+        $this->assertSame( 1, $stored, 'the saved row is kept' );
+    }
+
+    public function test_availability_by_player_keeps_only_the_roster(): void {
+        $rows = [
+            (object) [ 'player_id' => 1, 'status' => 'Present', 'reason' => '' ],
+            (object) [ 'player_id' => 2, 'status' => 'Present', 'reason' => '' ],
+            (object) [ 'player_id' => 3, 'status' => 'Injured', 'reason' => '' ],
+        ];
+        $state = \TT\Modules\MatchPrep\Services\MatchPrepState::class;
+
+        $this->assertSame( [ 1, 3 ], array_keys( $state::availabilityByPlayer( $rows, [ 1, 3 ] ) ) );
+        $this->assertSame( [ 1, 2, 3 ], array_keys( $state::availabilityByPlayer( $rows ) ), 'no roster given, nothing dropped' );
+        $this->assertSame( [], $state::availabilityByPlayer( $rows, [] ), 'an empty roster has no squad' );
+    }
+
     public function test_a_coach_of_another_team_cannot_read_the_prep(): void {
         $this->assertSame( 403, $this->send( 'GET', $this->theirs )[1] );
     }

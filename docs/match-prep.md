@@ -129,6 +129,12 @@ offers when you start the prep. A suspended player does not count
 against their attendance score, and the minutes audit shows them as
 unavailable rather than as missing minutes.
 
+The prep follows the team as it is now. A player who moved to another
+team, or was archived, after you captured availability drops out of the
+**Available** and **Unavailable** tiles and the selection lists, so the
+numbers always match the players you can pick. Their earlier mark is
+kept; it simply no longer counts for this squad.
+
 A player with a recorded [suspension](suspensions.md) that covers this
 match starts on **Suspended**, with a reason such as "Suspended, match 2
 of 3" — in the availability step when you start the prep, and in the

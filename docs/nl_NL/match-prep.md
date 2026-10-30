@@ -138,6 +138,13 @@ voorbereiding begint. Een geschorste speler verliest er niets mee op zijn
 aanwezigheidsscore, en de minutencontrole toont hem als niet beschikbaar
 in plaats van als ontbrekende minuten.
 
+De voorbereiding volgt het team zoals het nu is. Een speler die na het
+vastleggen van de beschikbaarheid naar een ander team ging, of werd
+gearchiveerd, valt weg uit de tegels **Beschikbaar** en **Niet
+beschikbaar** en uit de selectielijsten, zodat de aantallen altijd
+kloppen met de spelers die je kunt kiezen. Zijn eerdere markering blijft
+bewaard; die telt alleen niet meer mee voor deze selectie.
+
 Een speler met een vastgelegde [schorsing](suspensions.md) die voor deze
 wedstrijd geldt, staat al op **Geschorst**, met een reden zoals
 "Geschorst, wedstrijd 2 van 3" — in de beschikbaarheidsstap als je de

@@ -186,7 +186,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
 
         // #3587 — the same maps `GET match-prep/{id}` returns, so the screen
         // and the API read a prep identically.
-        $availability_by_pid = MatchPrepState::availabilityByPlayer( $availability );
+        // #4285 — scoped to the current roster, so the tiles count the same
+        // players the selection lists show.
+        $availability_by_pid = MatchPrepState::availabilityByPlayer( $availability, array_map( 'intval', array_keys( $players_by_id ) ) );
         $available_ids       = [];
         foreach ( $availability_by_pid as $pid => $a ) {
             if ( strcasecmp( $a['status'], 'Present' ) === 0 ) {
