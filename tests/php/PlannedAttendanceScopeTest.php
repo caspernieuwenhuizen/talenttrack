@@ -124,6 +124,41 @@ final class PlannedAttendanceScopeTest extends WP_UnitTestCase {
         $this->assertSame( 403, $this->get( $this->activityB, $this->child )->get_status() );
     }
 
+    public function test_a_player_reads_only_their_own_row(): void {
+        global $wpdb;
+        $player_user = self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        $wpdb->update( "{$wpdb->prefix}tt_players", [ 'wp_user_id' => $player_user ], [ 'id' => $this->child ] );
+        wp_set_current_user( $player_user );
+
+        $this->assertSame( [ $this->child ], $this->rosterIds( $this->activityA, $this->child ) );
+        $this->assertSame( 403, $this->get( $this->activityB, $this->child )->get_status() );
+    }
+
+    public function test_a_team_less_activity_gives_a_parent_no_more_than_their_own_childs_row(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id'             => $this->club,
+            'team_id'             => 0,
+            'title'               => 'Academy day',
+            'session_date'        => gmdate( 'Y-m-d', strtotime( '+5 days' ) ),
+            'activity_type_key'   => 'training',
+            'activity_status_key' => 'planned',
+            'plan_state'          => 'scheduled',
+        ] );
+        $academy_day = (int) $wpdb->insert_id;
+        $this->plan( $academy_day, $this->child );
+        $this->plan( $academy_day, $this->otherPlayer );
+
+        wp_set_current_user( $this->parent );
+        $res = $this->get( $academy_day, $this->child );
+
+        if ( $res->get_status() === 200 ) {
+            $this->assertSame( [ $this->child ], $this->rosterIds( $academy_day, $this->child ) );
+        } else {
+            $this->assertSame( 403, $res->get_status() );
+        }
+    }
+
     public function test_an_administrator_reads_every_roster(): void {
         wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
 
