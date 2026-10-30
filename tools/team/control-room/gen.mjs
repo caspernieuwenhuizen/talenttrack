@@ -43,7 +43,9 @@ const has = (i, l) => i.labels.includes(l);
 const ready = issues.filter((i) => has(i, 'ready-for-dev') && !has(i, 'epic'));
 const inProgress = ready.filter((i) => has(i, 'in-progress'));
 const unclaimed = ready.filter((i) => !has(i, 'in-progress'));
-const unshaped = issues.filter((i) => !has(i, 'ready-for-dev') && !has(i, 'epic') && !has(i, 'in-progress'));
+const backlog = issues.filter((i) => has(i, 'backlog') && !has(i, 'ready-for-dev') && !has(i, 'epic'));
+const unshaped = issues.filter((i) => !has(i, 'ready-for-dev') && !has(i, 'epic') && !has(i, 'in-progress') && !has(i, 'backlog'));
+const ROADMAP_URL = 'https://claude.ai/artifact/Rf5wtJuk8yXkWMJknaXRLc';
 const epics = issues.filter((i) => has(i, 'epic'));
 const lastThree = releases.slice(0, 3).map((r) => r.publishedAt).sort()[0];
 const escaped = issues.filter((i) => has(i, 'bug') && has(i, 'from-hq') && i.createdAt > lastThree).length;
@@ -85,7 +87,7 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}.tbl{overflow-x:auto}
 .foot{margin-top:2rem;font-size:.85rem;color:var(--muted)}
 </style>
 <div class="wrap">
-  <div class="head"><div><div class="eyebrow">TalentTrack · delivery team</div><h1>Control room</h1></div><div class="mono">generated ${esc(stamp)} · refreshed by the lead</div></div>
+  <div class="head"><div><div class="eyebrow">TalentTrack · delivery team</div><h1>Control room</h1></div><div class="mono">generated ${esc(stamp)} · refreshed by the lead · <a href="${ROADMAP_URL}">Roadmap</a></div></div>
   <p class="headline">${esc(team.headline)}</p>
   <div class="grid">
     <section class="panel you p-dec"><h2>Decisions for you · ${openDecisions.length} open</h2>
@@ -98,14 +100,14 @@ table{width:100%;border-collapse:collapse;font-size:.92rem}.tbl{overflow-x:auto}
       <div class="kpis"><div class="kpi"><div class="n">${escaped}</div><div class="l">HQ bugs since the last 3 releases</div></div><div class="kpi"><div class="n">${baselineCount}</div><div class="l">mobile gate baseline entries</div></div><div class="kpi"><div class="n">${phpstanCount}</div><div class="l">PHPStan baseline entries</div></div><div class="kpi"><div class="n">–</div><div class="l">re-failed fixes (first HQ run pending)</div></div></div></section>
     <section class="panel p-team"><h2>Team</h2><div class="seats">${team.seats.map((s) => `<div class="seat"><div class="who">${esc(s.name)}<small>${esc(s.seat)}</small></div><div class="now"><span class="pill ${s.state === 'live' ? 'live' : 'open'}">${esc(s.state)}</span> ${esc(s.now)}</div></div>`).join('')}</div></section>
     <section class="panel p-queue"><h2>Queue · ${ready.length} ready</h2>
-      <div class="kpis"><div class="kpi"><div class="n">${unclaimed.length}</div><div class="l">ready, unclaimed</div></div><div class="kpi"><div class="n">${inProgress.length}</div><div class="l">in progress</div></div><div class="kpi"><div class="n">${unshaped.length}</div><div class="l">waiting for shaping</div></div><div class="kpi"><div class="n">${epics.length}</div><div class="l">open epics</div></div></div>
+      <div class="kpis"><div class="kpi"><div class="n">${unclaimed.length}</div><div class="l">ready, unclaimed</div></div><div class="kpi"><div class="n">${inProgress.length}</div><div class="l">in progress</div></div><div class="kpi"><div class="n">${unshaped.length}</div><div class="l">waiting for shaping</div></div><div class="kpi"><div class="n">${backlog.length}</div><div class="l">in the backlog</div></div><div class="kpi"><div class="n">${epics.length}</div><div class="l">open epics</div></div></div>
       <div class="tbl"><table><thead><tr><th>Issue</th><th>Lane</th><th>Title</th><th></th><th>Age</th></tr></thead><tbody>${[...inProgress, ...unclaimed].sort((a, b) => a.createdAt < b.createdAt ? -1 : 1).map(row).join('')}</tbody></table></div></section>
     <section class="panel p-pr"><h2>Pull requests · ${prs.length} open</h2>
       <div class="tbl"><table><thead><tr><th>PR</th><th>Title</th><th>CI</th><th>Merge</th></tr></thead><tbody>${prs.map((p) => `<tr><td class="n"><a href="https://github.com/${REPO}/pull/${p.number}">#${p.number}</a></td><td class="t">${esc(p.title)}${p.isDraft ? ' <span class="pill">draft</span>' : ''}</td><td class="mono">${esc(p.ci)}</td><td class="mono">${esc(p.mergeStateStatus.toLowerCase())}</td></tr>`).join('') || '<tr><td colspan="4">None.</td></tr>'}</tbody></table></div></section>
     <section class="panel p-unshaped"><h2>Waiting for shaping · ${unshaped.length}</h2>
       <div class="tbl"><table><thead><tr><th>Issue</th><th>Lane</th><th>Title</th><th></th><th>Age</th></tr></thead><tbody>${unshaped.sort((a, b) => a.createdAt < b.createdAt ? -1 : 1).map(row).join('') || '<tr><td colspan="5">Nothing.</td></tr>'}</tbody></table></div></section>
   </div>
-  <p class="foot">Everything above is read from GitHub, the three installs and the lead's team.json. The roadmap is <a href="https://github.com/${REPO}/blob/main/docs/roadmap.md">docs/roadmap.md</a>; the charter is <a href="https://github.com/${REPO}/blob/main/docs/team/README.md">docs/team/README.md</a>.</p>
+  <p class="foot">Everything above is read from GitHub, the three installs and the lead's team.json. The roadmap is <a href="${ROADMAP_URL}">the roadmap page</a> (source: <a href="https://github.com/${REPO}/blob/main/docs/roadmap.md">docs/roadmap.md</a>); the charter is <a href="https://github.com/${REPO}/blob/main/docs/team/README.md">docs/team/README.md</a>.</p>
 </div>`;
 writeFileSync(join(here, 'control-room.html'), html);
 console.log(`control-room.html written: ${issues.length} issues, ${prs.length} PRs, envs ${envs.map((e) => e.v).join('/')}`);
