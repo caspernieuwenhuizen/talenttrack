@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
 
@@ -52,6 +53,30 @@ final class InjuryOverviewScope {
                     && MatrixGate::can( $user_id, 'player_injuries', 'read', MatrixGate::SCOPE_TEAM, $team_id );
             }
         ) );
+    }
+
+    /**
+     * Audit one read of the overview, by the screen or the REST route: one
+     * row per read carrying the ids of every player whose injuries were in
+     * the returned rows, so a subject-access request for one child can be
+     * answered from the log. Nothing is written for an empty read.
+     *
+     * @param list<object> $rows Rows from `InjuryRepository::listForTeams()`.
+     */
+    public static function recordRead( string $surface, array $rows ): void {
+        if ( $rows === [] ) return;
+
+        $player_ids = [];
+        foreach ( $rows as $row ) {
+            $pid = (int) ( ( (array) $row )['player_id'] ?? 0 );
+            if ( $pid > 0 ) $player_ids[ $pid ] = $pid;
+        }
+
+        ( new AuditService() )->record( 'player.injuries_viewed', 'club', 0, [
+            'surface'    => $surface,
+            'count'      => count( $rows ),
+            'player_ids' => array_values( $player_ids ),
+        ] );
     }
 
     /**
