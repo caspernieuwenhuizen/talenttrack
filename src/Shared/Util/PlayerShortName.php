@@ -169,8 +169,7 @@ class PlayerShortName {
         $id     = isset( $data['id'] ) ? (int) $data['id'] : 0;
         $first  = isset( $data['first_name'] ) ? trim( (string) $data['first_name'] ) : '';
         $last   = isset( $data['last_name'] )  ? trim( (string) $data['last_name'] )  : '';
-        $jersey = $data['jersey_number'] ?? ( $data['jersey'] ?? '' );
-        $jersey = $jersey === null ? '' : trim( (string) $jersey );
+        $jersey = trim( (string) ( $data['jersey_number'] ?? ( $data['jersey'] ?? '' ) ) );
         return [ 'id' => $id, 'first' => $first, 'last' => $last, 'jersey' => $jersey ];
     }
 
