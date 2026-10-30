@@ -1929,22 +1929,16 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // not see co-guardians; a player must not see it either.
         if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
 
-        // #1358 — link rows come from PlayerParentsRepository (which
-        // also owns the table-exists guard for pre-migration installs).
-        $rows  = [];
-        $links = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->linksForPlayer( $player_id );
-        foreach ( $links as $link ) {
-            $user = get_userdata( (int) $link->parent_user_id );
-            if ( ! $user ) continue;
-            $name  = $user->display_name !== '' ? (string) $user->display_name : (string) $user->user_email;
-            $email = (string) $user->user_email;
-            // #3684 — resolve through ContactResolver (person row, then the
-            // `tt_phone` account meta PhoneMeta owns). The old read was the
-            // bare `phone` user meta key, which nothing in the product ever
-            // writes, so a guardian's number never reached this card.
-            $phone = trim( (string) \TT\Infrastructure\Identity\ContactResolver::phoneForUser( (int) $user->ID ) );
+        $contacts = \TT\Infrastructure\Identity\GuardianContacts::forPlayer( $player_id );
+        \TT\Infrastructure\Identity\GuardianContacts::recordRead( $player_id, 'player_profile_parents_card', count( $contacts ) );
+
+        $rows = [];
+        foreach ( $contacts as $contact ) {
+            $name  = $contact['name'];
+            $email = $contact['email'];
+            $phone = $contact['phone'];
             $bits  = [];
-            if ( ! empty( $link->is_primary ) ) {
+            if ( $contact['is_primary'] ) {
                 $bits[] = '<em>' . esc_html__( 'primary', 'talenttrack' ) . '</em>';
             }
             if ( $phone !== '' ) {

@@ -20,7 +20,7 @@ Settings are stored per club in `tt_config`, so a future multi-tenant install ke
 | --- | --- | --- |
 | **Identity** | The player's date of birth, position(s), preferred foot, jersey number, and status. | No — always shown. It anchors who the player is. |
 | **Academy** | The player's team, age tier, and date joined. | Yes |
-| **Parents · Guardians** | Linked parent / guardian contacts. Staff-only. | Yes |
+| **Parents · Guardians** | Linked parent / guardian contacts. Staff-only. Every time a staff member opens it, the [audit log](audit-log.md) records who, when and for which player. | Yes |
 | **Discovery** | How the player was discovered — the scout, discovery event, club, and date — for players who came in through the Prospects scouting funnel. Staff-only. | Yes |
 
 The **Load restriction** panel is not listed here: it is governed by the VCT module toggle, so turning the VCT module off already removes it.
