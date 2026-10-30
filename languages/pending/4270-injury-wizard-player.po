@@ -1,0 +1,4 @@
+#. translators: %s: player name
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "Injury for %s"
+msgstr "Blessure van %s"

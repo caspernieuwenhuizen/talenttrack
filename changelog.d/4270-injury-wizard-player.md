@@ -1,0 +1,3 @@
+# Record injury from a player's file skips straight to what happened (#4270)
+
+The "Record injury" button on a player's Injuries tab passed the player to the injury wizard, but the wizard ignored it: step 1 opened empty and the coach had to find the team and the player again, which also made it possible to record the injury on the wrong child. The wizard now takes the player from the link when that player is on a team the user may record for, skips the player step and opens on "What happened" with the player's name at the top. A player outside the user's teams is ignored and step 1 opens as before; starting from the Injuries tile still asks for the player first.

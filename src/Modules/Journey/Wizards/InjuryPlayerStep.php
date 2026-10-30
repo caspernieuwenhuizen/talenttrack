@@ -23,6 +23,17 @@ final class InjuryPlayerStep implements WizardStepInterface {
     public function slug(): string  { return 'player'; }
     public function label(): string { return __( 'Player', 'talenttrack' ); }
 
+    /**
+     * Skipped when the wizard was opened from a player's file (#4270):
+     * `NewInjuryWizard::initialState()` seeds `player_id` only for a
+     * player in scope. The details step then names the player instead.
+     *
+     * @param array<string, mixed> $state
+     */
+    public function notApplicableFor( array $state ): bool {
+        return (int) ( $state['player_id'] ?? 0 ) > 0;
+    }
+
     public function render( array $state ): void {
         $user_id  = get_current_user_id();
         $is_admin = current_user_can( 'tt_edit_settings' );
