@@ -75,6 +75,29 @@
   color: #b3b8b2;
 }
 
+/* #4247 — a column with no recorded register: one notice spanning every
+   player row instead of a dash per player. Top-aligned so the text and the
+   link sit next to the first rows a coach reads. */
+.tt-agrid-cell--noreg {
+  vertical-align: top;
+  padding: var(--tt-sp-2, 8px);
+  background: var(--tt-warning-subtle);
+  color: var(--tt-warning-ink);
+  text-align: center;
+  white-space: normal;
+  min-width: 8rem;
+}
+.tt-agrid-noreg__text {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-bottom: var(--tt-sp-2, 8px);
+}
+.tt-agrid-noreg__link {
+  min-height: 48px;
+  touch-action: manipulation;
+}
+
 /* "live" badge on a column whose minutes are owned by a match-execution */
 .tt-agrid__act-owned {
   display: block;
