@@ -429,5 +429,9 @@ naam en beschrijft hun ontwikkeling, en is daarom op scherm en op papier gemarke
 als **vertrouwelijk — alleen voor staf**. Het is niet bedoeld voor spelers of
 ouders.
 
+Dat geldt ook voor de **teammanager**, voor de teams die hij beheert en geen
+andere, of hij nu de rol teammanager heeft of een stafaccount met de rol
+Manager op het team. Hetzelfde recht opent het rapport minutenaandeel.
+
 Academiebeheerders kunnen het rapport uitzetten onder **Functies**; het verdwijnt
 dan van de rapportenpagina en is ook via een link niet meer te openen.

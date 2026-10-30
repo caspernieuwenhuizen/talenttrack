@@ -19,6 +19,11 @@ Open het via **Rapporten → Speeltijd → Team · Minutenaandeel**, kies een te
 en je krijgt één rij per speler: gespeelde minuten, beschikbare minuten, en het
 aandeel daartussen, met een signaal bij iedereen onder de norm van de academie.
 
+Stafleden die de rapporten van een team mogen inzien, kunnen het voor dat team
+openen. Dat geldt ook voor de **teammanager**, voor de teams die hij beheert en
+geen andere, of hij nu de rol teammanager heeft of een stafaccount met de rol
+Manager op het team.
+
 ## Hoe de beschikbare minuten worden bepaald
 
 Elke wedstrijd die het team in de periode **gespeeld** heeft, met de eigen duur

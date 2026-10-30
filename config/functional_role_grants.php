@@ -71,6 +71,8 @@ $mod_training      = class_exists( '\TT\Modules\Training\TrainingModule' )
 // which `MatrixGate` reads as "unknown module, treat as enabled" — a
 // silently wider grant than intended, and one `php -l` cannot see.
 $mod_threads       = TT\Modules\Threads\ThreadsModule::class;
+// #4259 — declared here for the same reason as `$mod_threads`.
+$mod_reports       = TT\Modules\Reports\ReportsModule::class;
 
 return [
 
@@ -275,6 +277,11 @@ return [
             'player_status'           => [ 'r',  $mod_players ],
             'holidays'                => [ 'r',  $mod_holidays ],
             'analytics'               => [ 'r',  $mod_analytics ],
+            // #4259 (D-7) — the team reports (minutes share, monthly team
+            // report and its PDF) for the squads the role is held on. The
+            // `team_manager` PERSONA gets the same row in
+            // `authorization_seed.php`, for the reason given above.
+            'reports'                 => [ 'r',  $mod_reports ],
             // #3808 — the same two reads the `team_manager` persona gains,
             // because the comment above says a team manager on this install
             // may be either shape and the answer must not depend on which.

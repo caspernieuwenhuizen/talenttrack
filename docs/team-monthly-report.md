@@ -402,5 +402,9 @@ Staff who can read reports for that team. The report names children and
 describes their development, so it is marked **confidential — staff only** on
 screen and on paper. It is not meant for players or parents.
 
+That includes the **team manager**, for the teams they manage and no others,
+whether they hold the team manager role or a staff account with the Manager
+role on the team. The same right opens the minutes share report.
+
 Academy administrators can switch the report off under **Features**; it then
 disappears from the Reports page and cannot be opened from a link.
