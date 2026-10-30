@@ -750,15 +750,17 @@
         picker.hidden = false;
         backdrop.hidden = false;
 
-        // Position near the anchor with viewport clamping.
+        // Position near the anchor with viewport clamping. The picker is
+        // `position: fixed`, so left/top are viewport coordinates: adding the
+        // scroll offset (#4263) pushed it below the fold on a scrolled page.
         var r = anchorEl.getBoundingClientRect();
         var pr = picker.getBoundingClientRect();
-        var left = r.right + window.scrollX + 8;
-        var top = r.top + window.scrollY;
-        if (left + pr.width > window.innerWidth - 8) left = r.left + window.scrollX - pr.width - 8;
+        var left = r.right + 8;
+        var top = r.top;
+        if (left + pr.width > window.innerWidth - 8) left = r.left - pr.width - 8;
         if (left < 8) left = 8;
-        if (top + pr.height > window.innerHeight + window.scrollY - 8) top = window.innerHeight + window.scrollY - pr.height - 8;
-        if (top < window.scrollY + 8) top = window.scrollY + 8;
+        if (top + pr.height > window.innerHeight - 8) top = window.innerHeight - pr.height - 8;
+        if (top < 8) top = 8;
         picker.style.left = left + 'px';
         picker.style.top = top + 'px';
 
