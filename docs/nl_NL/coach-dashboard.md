@@ -16,7 +16,7 @@ Op een breed scherm (1024px en breder) splitst de sectie **Werk van vandaag** zi
 
 ## Deze week
 
-Bovenaan **Werk van vandaag** staat het paneel **Deze week**: elke activiteit van de lopende week, maandag tot en met zondag, van de teams die je coacht, op datum. Voorbije dagen blijven in de lijst staan, zodat wat nog moet gebeuren op woensdag niet verdwijnt. Coach je meer dan één team, dan staat bij elke rij ook het team. Op een breed scherm (1024px en breder) staat het paneel bovenaan de rechterkolom, boven **Mijn werk**; op een telefoon of tablet komt het als eerste, vóór de tegelgroepen.
+Bovenaan **Werk van vandaag** staat het paneel **Deze week**: elke activiteit van de lopende week van de teams die je coacht, op datum. De week begint op de eerste dag van de week die je academie in de Algemene instellingen heeft gekozen (maandag, tenzij daar zondag staat), dezelfde week die de teamplanner toont. Voorbije dagen blijven in de lijst staan, zodat wat nog moet gebeuren op woensdag niet verdwijnt. Coach je meer dan één team, dan staat bij elke rij ook het team. Op een breed scherm (1024px en breder) staat het paneel bovenaan de rechterkolom, boven **Mijn werk**; op een telefoon of tablet komt het als eerste, vóór de tegelgroepen.
 
 Elke rij toont de dag, het type, de activiteit met tijd en plaats, en daaronder wat er nog nodig is:
 

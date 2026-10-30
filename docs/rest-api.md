@@ -1383,7 +1383,7 @@ Read-only. The correction path — a family filling in their own guardian contac
 
 ### `GET /me/week`
 
-The caller's week, Monday to Sunday in site time: every activity on the teams they coach (`QueryHelpers::get_teams_for_coach()`), in date and start-time order, with what each one still needs. The tile landing's **This week** panel renders exactly these rows; both read `Modules\Activities\Services\CoachWeek::forUser()`.
+The caller's week in site time, starting on the academy's first day of the week (`TTDate::weekStartsMonday()`, the `tt_week_start` setting: Monday by default, Sunday when set), the same snap the team planner uses: every activity on the teams they coach (`QueryHelpers::get_teams_for_coach()`), in date and start-time order, with what each one still needs. The tile landing's **This week** panel renders exactly these rows; both read `Modules\Activities\Services\CoachWeek::forUser()`. The object below is the `data` of the standard `{ success, data, errors }` envelope.
 
 ```json
 { "visible": true, "week_start": "2026-11-02", "week_end": "2026-11-08", "today": "2026-11-04",
@@ -1406,7 +1406,7 @@ The caller's week, Monday to Sunday in site time: every activity on the teams th
 - `attendance_recorded` is set on a **past** activity that carries a register (not a meeting or `other`): `true` when at least one recorded (`record_type = 'actual'`) non-guest row with a status exists. `null` otherwise.
 - `planned` is set on a non-match activity today or later when a planned squad was captured: `expected` counts the non-guest planned rows that are not *not coming* or *maybe*, `roster` is the team's current roster size. `null` when no plan was captured.
 - `training_plan` is set on a training today or later: whether a training-plan run is attached. `null` for other types, or when the Training module is off.
-- `availability` is set on a match today or later: counts over the team's current roster from `PlayerAvailability::unavailableForActivity()` (injured on the match date, or covered by a suspension). **Counts only**: no player id, no cause, no injury detail (#4005 decision 3).
+- `availability` is set on a match today or later: counts over the team's current roster from `PlayerAvailability::unavailableForActivities()`, the batch form of `unavailableForActivity()` with the same rule (injured on the match date, or covered by a suspension). **Counts only**: no player id, no cause, no injury detail (#4005 decision 3).
 - `lineup` is set on a match today or later that has a match prep: first-half starters placed against the formation's `starter_target`. `null` when no prep exists or the Match prep module is off.
 - `actions` are keys, not URLs, so each client builds its own links: `mark_attendance` (a past activity whose register is not recorded, or a non-match activity today), `match_prep` (a match today or later), `start_match` (instead of `match_prep` on match day once a prep exists and Match execution is on), `open_activity` (on every match row today or later). Every action except `open_activity` needs `tt_edit_activities`.
 - Cancelled and archived activities are left out.
@@ -1416,7 +1416,7 @@ The caller's week, Monday to Sunday in site time: every activity on the teams th
 
 **Permission:** `tt_view_activities` or `tt_edit_activities` through `AuthorizationService::userCanOrMatrix()` (`ActivityAccess::isStaffReader()`); 403 otherwise. The route takes no id; the caller is the scope. Registered by the Activities module, so it is absent when that module is off.
 
-**Performance:** one query each for the week's activities, the register counts, the planned squads, the rosters and the training-plan runs, whatever the number of rows. Availability and line-up progress are read per match row.
+**Performance:** one query per source for the whole week, whatever the number of rows or matches: the activities, the register counts, the planned squads, the rosters, the training-plan runs, the injuries (`InjuryRepository::coveredSetByDay()`, one read over every match date, decided per day by `InjuryStatus::coversDay()`), the open suspensions (`SuspensionService::coveredSetForActivities()`, with each team's fixture sequence read once), the match preps and their line-ups (`MatchPrepRepository::findByActivities()` / `listLineupForPreps()`), and each formation layout once. `CoachWeekTest` pins the count as equal for one and ten matches.
 
 ## Parent accounts (#1815, #3571)
 

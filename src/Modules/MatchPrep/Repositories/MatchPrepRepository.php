@@ -51,6 +51,55 @@ class MatchPrepRepository {
         return $row ?: null;
     }
 
+    /**
+     * #4379 — the preps of several activities in one query, keyed by
+     * activity id. Activities without a prep are absent.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, object>
+     */
+    public function findByActivities( array $activity_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( $v ) => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_prep} WHERE club_id = %d AND activity_id IN ({$placeholders})",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) ( ( (array) $row )['activity_id'] ?? 0 ) ] = $row;
+        }
+        return $out;
+    }
+
+    /**
+     * #4379 — every stored line-up row of several preps in one query, keyed
+     * by prep id. Like `listLineupAll()` it does not filter to the drawn
+     * slots; a caller that needs that holds the layout.
+     *
+     * @param list<int> $prep_ids
+     * @return array<int, list<object>>
+     */
+    public function listLineupForPreps( array $prep_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $prep_ids ), static fn( $v ) => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT * FROM {$this->t_lineup}
+              WHERE club_id = %d AND match_prep_id IN ({$placeholders})
+              ORDER BY half ASC, slot_number ASC",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $out[ (int) ( ( (array) $row )['match_prep_id'] ?? 0 ) ][] = $row;
+        }
+        return $out;
+    }
+
     /** #2892 — one prep by its own id, club-scoped like every other read. */
     public function find( int $prep_id ): ?object {
         if ( $prep_id <= 0 ) return null;

@@ -9,7 +9,7 @@ use TT\Modules\Activities\Services\CoachWeek;
 /**
  * CoachWeekRestController — GET /me/week (#4379).
  *
- * The caller's week, Monday to Sunday: every activity on the teams they
+ * The caller's week, from the academy's first day: every activity on the teams they
  * coach and what each still needs. The rows come from `CoachWeek`, the
  * same service the tile landing's "This week" panel renders, so a
  * non-WordPress client draws the same panel.

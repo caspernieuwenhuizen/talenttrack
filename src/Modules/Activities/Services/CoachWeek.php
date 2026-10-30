@@ -16,12 +16,15 @@ use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\MatchExecution\MatchExecutionModule;
 use TT\Modules\MatchPrep\MatchPrepModule;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Modules\MatchPrep\Services\FormationLayoutResolver;
 use TT\Modules\MatchPrep\Services\MatchPrepState;
 use TT\Modules\Training\Repositories\TrainingPlanRunsRepository;
 use TT\Modules\Training\TrainingModule;
+use TT\Shared\Dates\TTDate;
 
 /**
- * CoachWeek (#4379) — the coach's week, Monday to Sunday: every activity on
+ * CoachWeek (#4379) — the coach's week (Monday to Sunday unless the academy
+ * starts its week on Sunday): every activity on
  * the teams they coach, and what each one still needs.
  *
  * The tile landing's "This week" panel and `GET me/week` both read this,
@@ -149,6 +152,25 @@ final class CoachWeek {
         $execution_on = ModuleRegistry::isEnabled( MatchExecutionModule::class );
         $type_labels  = [];
 
+        // The matches still to play, read in one batch per source rather
+        // than per row: a tournament week can hold a dozen fixtures.
+        $matches = [];
+        foreach ( $activities as $activity ) {
+            $a    = (array) $activity;
+            $date = substr( (string) ( $a['session_date'] ?? '' ), 0, 10 );
+            $type = strtolower( trim( (string) ( $a['activity_type_key'] ?? '' ) ) );
+            if ( $date < $today || ! ActivityTypeKey::isMatchLike( $type ) ) continue;
+            $team_id = (int) ( $a['team_id'] ?? 0 );
+            $matches[ (int) ( $a['id'] ?? 0 ) ] = [
+                'team_id'    => $team_id,
+                'type'       => $type,
+                'date'       => $date,
+                'player_ids' => $rosters[ $team_id ] ?? [],
+            ];
+        }
+        $unavailable = $matches !== [] ? PlayerAvailability::unavailableForActivities( $matches ) : [];
+        $lineups     = ( $matches !== [] && $prep_on ) ? self::prepProgressFor( $matches ) : [];
+
         foreach ( $activities as $activity ) {
             $a        = (array) $activity;
             $aid      = (int) ( $a['id'] ?? 0 );
@@ -196,8 +218,9 @@ final class CoachWeek {
                     if ( ! $recorded && $can_edit ) $row['actions'][] = self::ACTION_MARK_ATTENDANCE;
                 }
             } elseif ( $is_match ) {
-                $row['availability'] = self::availability( $roster, $aid, $date );
-                $prep                = $prep_on ? self::prepProgress( $aid, $team_id ) : null;
+                $out_count           = count( $unavailable[ $aid ] ?? [] );
+                $row['availability'] = [ 'available' => count( $roster ) - $out_count, 'unavailable' => $out_count ];
+                $prep                = $lineups[ $aid ] ?? null;
                 $row['lineup']       = $prep;
                 if ( $can_edit && $prep_on ) {
                     $row['actions'][] = ( $when === self::WHEN_TODAY && $prep !== null && $execution_on )
@@ -222,15 +245,21 @@ final class CoachWeek {
     }
 
     /**
-     * Monday and Sunday of the week holding `$today`.
+     * First and last day of the week holding `$today`. The week starts on the
+     * academy's configured first day (`TTDate::weekStartsMonday()`, Monday by
+     * default), the same snap the team planner applies, so "this week" is
+     * one week on the landing and in the planner.
      *
+     * @param bool|null $starts_monday The academy setting when null.
      * @return array{0: string, 1: string}
      */
-    public static function weekBounds( string $today ): array {
-        $day    = new \DateTimeImmutable( $today . ' 12:00:00', new \DateTimeZone( 'UTC' ) );
-        $offset = (int) $day->format( 'N' ) - 1;
-        $monday = $day->modify( '-' . $offset . ' days' );
-        return [ $monday->format( 'Y-m-d' ), $monday->modify( '+6 days' )->format( 'Y-m-d' ) ];
+    public static function weekBounds( string $today, ?bool $starts_monday = null ): array {
+        $starts_monday = $starts_monday ?? TTDate::weekStartsMonday();
+        $day   = new \DateTimeImmutable( $today . ' 12:00:00', new \DateTimeZone( 'UTC' ) );
+        $dow   = (int) $day->format( 'N' ); // 1 (Mon) - 7 (Sun)
+        $back  = $starts_monday ? $dow - 1 : $dow % 7;
+        $first = $day->modify( '-' . $back . ' days' );
+        return [ $first->format( 'Y-m-d' ), $first->modify( '+6 days' )->format( 'Y-m-d' ) ];
     }
 
     /**
@@ -315,38 +344,50 @@ final class CoachWeek {
     }
 
     /**
-     * How many of the roster can and cannot play in this match. Counts only.
+     * Per match with a prep: first-half starters placed on the slots the
+     * formation draws, against the formation's starter target. The same
+     * count `MatchPrepRepository::listLineupForPrep()` and
+     * `MatchPrepState::starterTarget()` give one match at a time, read in
+     * two queries for the week, with each formation's layout resolved once.
      *
-     * @param list<int> $roster
-     * @return array{available:int, unavailable:int}
+     * @param array<int, array{team_id:int, type:string, date:string, player_ids:list<int>}> $matches activity id => facts
+     * @return array<int, array{placed:int, target:int}> activity id => progress; absent when no prep
      */
-    private static function availability( array $roster, int $activity_id, string $date ): array {
-        if ( $roster === [] ) return [ 'available' => 0, 'unavailable' => 0 ];
-        $out = count( array_intersect_key(
-            PlayerAvailability::unavailableForActivity( $roster, $activity_id, $date ),
-            array_flip( $roster )
-        ) );
-        return [ 'available' => count( $roster ) - $out, 'unavailable' => $out ];
-    }
+    private static function prepProgressFor( array $matches ): array {
+        $repo    = new MatchPrepRepository();
+        $preps   = $repo->findByActivities( array_keys( $matches ) );
+        if ( $preps === [] ) return [];
 
-    /**
-     * Starters placed in the first half against the formation's target, or
-     * null when no match prep exists yet.
-     *
-     * @return array{placed:int, target:int}|null
-     */
-    private static function prepProgress( int $activity_id, int $team_id ): ?array {
-        $repo = new MatchPrepRepository();
-        $prep = $repo->findByActivity( $activity_id );
-        if ( ! $prep ) return null;
+        $prep_ids = [];
+        foreach ( $preps as $prep ) $prep_ids[] = (int) ( ( (array) $prep )['id'] ?? 0 );
+        $lineups = $repo->listLineupForPreps( $prep_ids );
 
-        $placed = 0;
-        foreach ( $repo->listLineupForPrep( $prep ) as $slot ) {
-            $s = (array) $slot;
-            if ( (int) ( $s['half'] ?? 0 ) === 1 && (int) ( $s['player_id'] ?? 0 ) > 0 ) $placed++;
+        $layouts = [];
+        $out     = [];
+        foreach ( $preps as $aid => $prep ) {
+            $p           = (array) $prep;
+            $template_id = (int) ( $p['formation_template_id'] ?? 0 );
+            $team_id     = (int) ( $matches[ $aid ]['team_id'] ?? 0 );
+            $key         = $template_id . '|' . $team_id;
+            if ( ! isset( $layouts[ $key ] ) ) {
+                $drawn = [];
+                foreach ( FormationLayoutResolver::layoutFor( $template_id, $team_id ) as $slot ) {
+                    $drawn[ (int) $slot['num'] ] = true;
+                }
+                $layouts[ $key ] = $drawn;
+            }
+            $drawn  = $layouts[ $key ];
+            $target = $drawn !== [] ? count( $drawn ) : MatchPrepState::FALLBACK_STARTER_TARGET;
+
+            $placed = 0;
+            foreach ( $lineups[ (int) ( $p['id'] ?? 0 ) ] ?? [] as $slot ) {
+                $s = (array) $slot;
+                if ( (int) ( $s['half'] ?? 0 ) !== 1 || (int) ( $s['player_id'] ?? 0 ) <= 0 ) continue;
+                if ( isset( $drawn[ (int) ( $s['slot_number'] ?? 0 ) ] ) ) $placed++;
+            }
+            $out[ (int) $aid ] = [ 'placed' => min( $placed, $target ), 'target' => $target ];
         }
-        $target = MatchPrepState::starterTarget( (int) ( ( (array) $prep )['formation_template_id'] ?? 0 ), $team_id );
-        return [ 'placed' => min( $placed, $target ), 'target' => $target ];
+        return $out;
     }
 
     private static function homeAway( string $value ): string {

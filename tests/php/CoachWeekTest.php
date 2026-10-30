@@ -38,6 +38,8 @@ final class CoachWeekTest extends WP_UnitTestCase {
         \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
         ActivityRegisterProgress::forget();
         $wpdb->delete( $wpdb->prefix . 'tt_config', [ 'club_id' => 1, 'config_key' => CoachWeek::CONFIG_KEY ] );
+        $wpdb->delete( $wpdb->prefix . 'tt_config', [ 'club_id' => 1, 'config_key' => \TT\Shared\Dates\TTDate::WEEK_START_KEY ] );
+        $this->resetWeekStartCache();
 
         $this->team      = $this->team( 'JO13-1' );
         $this->otherTeam = $this->team( 'JO15-1' );
@@ -87,13 +89,104 @@ final class CoachWeekTest extends WP_UnitTestCase {
         global $wp_rest_server;
         $wp_rest_server = null;
         wp_set_current_user( 0 );
+        $this->resetWeekStartCache();
         parent::tear_down();
     }
 
-    public function test_the_week_runs_monday_to_sunday(): void {
+    public function test_the_default_week_runs_monday_to_sunday(): void {
         $this->assertSame( [ '2026-11-02', '2026-11-08' ], CoachWeek::weekBounds( '2026-11-04' ) );
         $this->assertSame( [ '2026-11-02', '2026-11-08' ], CoachWeek::weekBounds( '2026-11-02' ) );
         $this->assertSame( [ '2026-11-02', '2026-11-08' ], CoachWeek::weekBounds( '2026-11-08' ) );
+    }
+
+    public function test_a_sunday_start_week_runs_sunday_to_saturday(): void {
+        $this->assertSame( [ '2026-11-01', '2026-11-07' ], CoachWeek::weekBounds( '2026-11-04', false ) );
+        $this->assertSame( [ '2026-11-01', '2026-11-07' ], CoachWeek::weekBounds( '2026-11-01', false ) );
+        $this->assertSame( [ '2026-11-01', '2026-11-07' ], CoachWeek::weekBounds( '2026-11-07', false ) );
+        $this->assertSame( [ '2026-11-08', '2026-11-14' ], CoachWeek::weekBounds( '2026-11-08', false ) );
+    }
+
+    public function test_the_academy_week_start_setting_moves_the_week(): void {
+        \TT\Infrastructure\Query\QueryHelpers::set_config( \TT\Shared\Dates\TTDate::WEEK_START_KEY, 'sun' );
+        $this->resetWeekStartCache();
+
+        $week = CoachWeek::forUser( $this->coach, '2026-11-04' );
+        $this->assertSame( '2026-11-01', $week['week_start'] );
+        $this->assertSame( '2026-11-07', $week['week_end'] );
+        $this->assertSame(
+            [ $this->tuesday, $this->thursday, $this->match ],
+            array_column( $week['rows'], 'activity_id' )
+        );
+
+        // Sunday the 8th opens the next week, so Saturday's match is gone.
+        $next = CoachWeek::forUser( $this->coach, '2026-11-08' );
+        $this->assertSame( [ '2026-11-08', '2026-11-14' ], [ $next['week_start'], $next['week_end'] ] );
+        $this->assertSame( [], $next['rows'] );
+    }
+
+    public function test_the_query_count_does_not_grow_with_the_number_of_matches(): void {
+        $repo = new MatchPrepRepository();
+        // Week of 9 November: ten fixtures. Week of 16 November: one.
+        for ( $i = 0; $i < 10; $i++ ) {
+            $aid  = $this->activity( $this->team, '2026-11-1' . ( $i % 6 ), 'game', 'Fixture ' . $i, [ 'opponent' => 'Opp ' . $i ] );
+            $prep = $repo->ensureForActivity( $aid, 30 );
+            $repo->replaceLineupForHalf( $prep, 1, [ 1 => $this->players[1] ] );
+        }
+        $single = $this->activity( $this->team, '2026-11-17', 'game', 'Only fixture' );
+        $repo->replaceLineupForHalf( $repo->ensureForActivity( $single, 30 ), 1, [ 1 => $this->players[1] ] );
+
+        // Warm the per-request caches (lookup translations, team form, the
+        // matrix) so both measured calls start from the same state.
+        $this->queriesFor( '2026-11-09' );
+        $this->queriesFor( '2026-11-16' );
+
+        $one = $this->queriesFor( '2026-11-16' );
+        $ten = $this->queriesFor( '2026-11-09' );
+
+        $this->assertSame( $one['matches'], 1 );
+        $this->assertSame( $ten['matches'], 10 );
+        $this->assertSame(
+            count( $one['sql'] ),
+            count( $ten['sql'] ),
+            "one query per source, whatever the number of matches. With ten:\n" . implode( "\n", $ten['sql'] )
+        );
+    }
+
+    public function test_post_config_never_stores_player_or_parent(): void {
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $req = new WP_REST_Request( 'POST', '/talenttrack/v1/config' );
+        $req->set_header( 'Content-Type', 'application/json' );
+        $req->set_body( (string) wp_json_encode( [ 'config' => [ CoachWeek::CONFIG_KEY => '["player","parent","head_coach"]' ] ] ) );
+
+        $res = rest_do_request( $req );
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( '["head_coach"]', \TT\Infrastructure\Query\QueryHelpers::get_config( CoachWeek::CONFIG_KEY, '' ) );
+        $this->assertSame( [ 'head_coach' ], CoachWeek::configuredPersonas() );
+    }
+
+    /** @return array{sql:list<string>, matches:int} */
+    private function queriesFor( string $today ): array {
+        ActivityRegisterProgress::forget();
+        \TT\Infrastructure\Journey\SuspensionService::flushCache();
+        $sql     = [];
+        $capture = static function ( $query ) use ( &$sql ) {
+            $sql[] = preg_replace( '/\s+/', ' ', (string) $query );
+            return $query;
+        };
+        add_filter( 'query', $capture );
+        $week = CoachWeek::forUser( $this->coach, $today );
+        remove_filter( 'query', $capture );
+        return [
+            'sql'     => $sql,
+            'matches' => count( array_filter( $week['rows'], static fn( $r ) => $r['is_match'] && $r['lineup'] !== null ) ),
+        ];
+    }
+
+    /** TTDate memoises the week start per request; a test that changes it must clear it. */
+    private function resetWeekStartCache(): void {
+        $prop = new \ReflectionProperty( \TT\Shared\Dates\TTDate::class, 'week_monday_cache' );
+        $prop->setAccessible( true );
+        $prop->setValue( null, null );
     }
 
     public function test_mid_week_with_a_match_on_saturday(): void {

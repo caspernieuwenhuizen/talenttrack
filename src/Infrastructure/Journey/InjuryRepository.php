@@ -188,6 +188,57 @@ final class InjuryRepository {
     }
 
     /**
+     * #4379 — `coveredSet()` for several days at once: day => the subset of
+     * that day's players with an injury covering it. One query reads the
+     * records that could cover any of the days; `InjuryStatus::coversDay()`,
+     * the PHP form of the same rule, decides each day. Only the dates the
+     * rule needs are selected, and only player ids leave this method.
+     *
+     * @param array<string, list<int>> $players_by_day Y-m-d => player ids
+     * @return array<string, array<int, true>>
+     */
+    public function coveredSetByDay( array $players_by_day ): array {
+        $out = [];
+        $ids = [];
+        foreach ( $players_by_day as $day => $players ) {
+            $out[ (string) $day ] = [];
+            foreach ( $players as $pid ) {
+                if ( (int) $pid > 0 ) $ids[ (int) $pid ] = true;
+            }
+        }
+        if ( $ids === [] ) return $out;
+
+        $days = array_keys( $out );
+        sort( $days );
+        $from = (string) $days[0];
+        $to   = (string) $days[ count( $days ) - 1 ];
+
+        $ids = array_keys( $ids );
+        $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only.
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT player_id, started_on, expected_return, actual_return, archived_at, trashed_at
+               FROM {$this->table}
+              WHERE player_id IN ($in)
+                AND club_id = %d
+                AND archived_at IS NULL
+                AND trashed_at IS NULL
+                AND started_on <= %s
+                AND ( actual_return IS NULL OR actual_return > %s )",
+            array_merge( $ids, [ (int) CurrentClub::id(), $to, $from ] )
+        ), ARRAY_A );
+
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $pid = (int) ( $row['player_id'] ?? 0 );
+            foreach ( $players_by_day as $day => $players ) {
+                if ( isset( $out[ (string) $day ][ $pid ] ) || ! in_array( $pid, array_map( 'intval', $players ), true ) ) continue;
+                if ( InjuryStatus::coversDay( $row, (string) $day ) ) $out[ (string) $day ][ $pid ] = true;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * The subset of `$player_ids` with an injury that covers `$day` (Y-m-d),
      * as a set keyed by player id: one query for a whole roster. The rule
      * is `InjuryStatus::coversDaySql()`; nothing about the injury but the

@@ -16,7 +16,7 @@ On a wide screen (1024px and up) the **Today's work** section splits into two co
 
 ## This week
 
-At the top of **Today's work** a **This week** panel lists every activity of the current week, Monday to Sunday, on the teams you coach, in date order. Past days stay in the list, so nothing that still needs doing drops off on Wednesday. If you coach more than one team, each row also names its team. On a wide screen (1024px and up) the panel sits at the top of the right-hand column, above **My work**; on a phone or tablet it comes first, before the tile groups.
+At the top of **Today's work** a **This week** panel lists every activity of the current week on the teams you coach, in date order. The week starts on the first day of the week your academy has set in General settings (Monday unless it is set to Sunday), the same week the team planner shows. Past days stay in the list, so nothing that still needs doing drops off on Wednesday. If you coach more than one team, each row also names its team. On a wide screen (1024px and up) the panel sits at the top of the right-hand column, above **My work**; on a phone or tablet it comes first, before the tile groups.
 
 Each row shows the day, the type, the activity and its time and place, and below that what it still needs:
 

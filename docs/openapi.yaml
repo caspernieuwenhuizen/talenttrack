@@ -689,6 +689,15 @@ paths:
     post: { tags: [personas], summary: Set active persona lens, responses: { '200': { description: OK } } }
     delete: { tags: [personas], summary: Clear active persona lens, responses: { '200': { description: OK } } }
 
+  /me/week:
+    get:
+      tags: [activities]
+      summary: The caller's week of activities and what each still needs (#4379)
+      description: 'Every activity this week (from the academy''s first day of the week) on the teams the caller coaches. `data` holds `visible`, `week_start`, `week_end`, `today`, `multiple_teams`, `has_match` and `rows`; the row shape is in docs/rest-api.md. Availability is two counts per match, never a player or a cause. A caller outside the academy''s `coach_week.personas` list, or who coaches no team, gets 200 with `visible: false` and no rows. Gated on `tt_view_activities` or `tt_edit_activities`.'
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } } }
+        '403': { description: The caller may not read activities }
+
   /docs:
     get: { tags: [docs], summary: List docs index, responses: { '200': { description: OK } } }
   /docs/{slug}:
