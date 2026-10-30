@@ -18,9 +18,10 @@ Your TalentTrack operator records the plan when the install is set up. The insta
 
 Resolution order, first match wins:
 
-1. **Developer override** — only on installs where the owner has configured `TT_DEV_OVERRIDE_SECRET`. See below.
-2. **The recorded plan.**
-3. **Not activated** — when no plan has been recorded, or the recorded one has gone unrefreshed for so long that it is no longer trusted.
+1. **Pinned tier** — only on installs where the owner has configured `TT_DEV_OVERRIDE_SECRET`. See below.
+2. **Developer override** — the same condition. See below.
+3. **The recorded plan.**
+4. **Not activated** — when no plan has been recorded, or the recorded one has gone unrefreshed for so long that it is no longer trusted.
 
 If the Account page says no plan is recorded and that looks wrong, contact your operator. It is a one-line fix on their side and nothing in your data is affected.
 
@@ -284,3 +285,13 @@ For demos and local testing without provisioning a real plan.
 The override is stored as a 24h transient. A "🔓 DEV: Pro" pill appears in the wp-admin top bar so you remember it's on. Re-visit the URL to clear it early.
 
 **Customer installs never see this code path** — without the constant defined, the admin page 404s and the gate ignores the override entirely.
+
+### Pinning the tier on a test bench
+
+A test bench that runs for weeks without a control plane loses its recorded plan once the record is older than its refresh window plus grace, and the 24-hour override expires every day. On such a bench, pin the tier in `wp-config.php`, next to the secret:
+
+```php
+define( 'TT_DEV_TIER', 'pro' );
+```
+
+The value is `free`, `standard` or `pro`; anything else is ignored. The pin never expires and wins over the override and the recorded plan. It is honoured only where `TT_DEV_OVERRIDE_SECRET` is defined, so the constant on its own does nothing on a customer install. `wp tt entitlement show` prints `Pinned tier (TT_DEV_TIER): pro` (or `not set`) above the override line, so the effective tier is explained. In wp-admin the pin shows as a "DEV: Pro (pinned)" pill in the top bar and as a "Tier pinned" notice on the Account page, and the Account page offers upgrades from the pinned tier.

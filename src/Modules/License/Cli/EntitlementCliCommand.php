@@ -42,7 +42,7 @@ final class EntitlementCliCommand {
      * Reports the stored record, its age against the TTL and grace
      * window, and the tier `LicenseGate` actually returns — which can
      * differ from the stored one when commercial mode is off (always
-     * Pro) or a developer override is live.
+     * Pro), a tier is pinned or a developer override is live.
      *
      * ## EXAMPLES
      *
@@ -69,12 +69,15 @@ final class EntitlementCliCommand {
             \WP_CLI::line( '  still honoured:   ' . ( $expired ? 'no — past TTL + grace, reads as unentitled' : 'yes' ) );
         }
 
+        $pinned = DevOverride::pinnedTier();
+        \WP_CLI::line( 'Pinned tier (TT_DEV_TIER): ' . ( $pinned ?? 'not set' ) );
+
         $override = DevOverride::active();
         \WP_CLI::line( 'Developer override: ' . ( $override === null ? 'not active' : $override['tier'] . ' (expires ' . human_time_diff( time(), $override['set_at'] + DevOverride::TRANSIENT_TTL ) . ' from now)' ) );
 
         \WP_CLI::line( 'Effective tier:     ' . LicenseGate::tier() );
 
-        if ( $commercial && $record === null && $override === null ) {
+        if ( $commercial && $record === null && $override === null && $pinned === null ) {
             \WP_CLI::warning( __( 'Commercial mode is on with no entitlement recorded, so this install resolves to the unentitled state and free-tier caps apply. Record one with: wp tt entitlement set --tier=standard', 'talenttrack' ) );
         }
     }

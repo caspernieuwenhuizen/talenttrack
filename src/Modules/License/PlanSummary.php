@@ -53,11 +53,9 @@ final class PlanSummary {
 
         // What the install is entitled to, ignoring an override's
         // inflation — this is what decides whether an upgrade affordance
-        // makes sense. A developer override counts as the underlying tier
-        // so testing an upgrade looks like the real thing.
-        $paid_tier = $override !== null
-            ? FeatureMap::normalizeTier( $override['tier'] )
-            : ( $entitled !== null ? FeatureMap::normalizeTier( $entitled ) : FeatureMap::TIER_FREE );
+        // makes sense. A pinned tier and a developer override count as
+        // the underlying tier so testing an upgrade looks like the real thing.
+        $paid_tier = LicenseGate::underlyingTier();
 
         $caps_apply = ( $effective === FeatureMap::TIER_FREE );
 
