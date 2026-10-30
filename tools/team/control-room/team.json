@@ -1,12 +1,12 @@
 {
-  "headline": "CI is green again (#4278 merged). Teun is on #4244, the first issue of the drain. All decisions D-1 to D-14 are answered. Local reads as the Free tier (expired entitlement), so the HQ isn't testing Pro surfaces. All three installs are on 4.141.5.",
+  "headline": "Six developers on Casper's instruction (Teun on prospects; lanes match prep, injuries, E tournaments/minutes, F family/alerts, G small items). Plan window 9% (5h) / 25% (week). v4.142.0 waits for the open lanes, QA on the batch and the security PR (6 fixes), then your yes.",
   "seats": [
-    { "seat": "Team lead", "name": "Joris", "title": "TT-Lead", "state": "live", "now": "Merging the foundation PR #4275; then the control room on main" },
-    { "seat": "Product owner", "name": "Mirte", "title": "TT-PO", "state": "live", "now": "Re-shaping the injuries epic #4282 to the architect's review and D-10 to D-13" },
-    { "seat": "Architect & standards", "name": "Hidde", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "Fit review of #4282 done: it fits, with no migration and no new capability" },
-    { "seat": "Senior developer", "name": "Teun", "title": "TT-Developer", "state": "live", "now": "#4244 (HoD gets 'No players available' on the PDP create form)" },
-    { "seat": "QA & Academy HQ", "name": "Fenna", "title": "TT-QA", "state": "live", "now": "HQ run 1 done (~1% of the window): #4284, #4285, #4286 filed; idle" },
-    { "seat": "Release manager", "name": "Sjoerd", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "All three environments on 4.141.5; nothing unreleased" }
+    { "seat": "Team lead", "name": "Joris", "title": "TT-Lead", "state": "live", "now": "Running two extra developer lanes on Casper's instruction; routing gated PRs to Fenna and Hidde" },
+    { "seat": "Product owner", "name": "Mirte", "title": "TT-PO", "state": "live", "now": "Epic #4282 shaped into lanes; shaping #4296, #4298 and the local-tier item" },
+    { "seat": "Architect & standards", "name": "Hidde", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "#4354 gate passed (one doc fix); #4344 passed and merged" },
+    { "seat": "Senior developer", "name": "Teun", "title": "TT-Developer", "state": "live", "now": "Prospects lane #4250 → #4267 → #4251 → #4268; 5th fix on the private branch" },
+    { "seat": "QA & Academy HQ", "name": "Fenna", "title": "TT-QA", "state": "live", "now": "#4355 failed once (names cut to one letter at 360); re-check pending" },
+    { "seat": "Release manager", "name": "Sjoerd", "title": "subagent of the lead until the first release train", "state": "subagent", "now": "v4.141.6 published; waiting on sto/jg4it updates; next: #4298 + #4266 (minor)" }
   ],
   "decisions": [
     { "id": "D-6", "state": "answered", "asked": "2026-10-26", "question": "#4247: keep the 'Not in squad' rule and explain it, or count the match-prep line-up as the squad?", "answer": "Keep the rule; one notice per column that links to the attendance step." },
@@ -15,6 +15,13 @@
     { "id": "D-11", "state": "answered", "asked": "2026-10-27", "question": "#4246: an overdue injury in planning, and who is reminded?", "answer": "Available with a neutral 'Check availability' marker; the reminder goes to the team physio and the head coach (the head coach alone if there's no physio)." },
     { "id": "D-12", "state": "answered", "asked": "2026-10-27", "question": "#4253: a family-contact block on the Injuries tab, and messages to guardians?", "answer": "Neither. Staff keep using the Profile card; only the audit-log fix on guardian contact reads ships." },
     { "id": "D-13", "state": "answered", "asked": "2026-10-27", "question": "#4269: an injury without a return date: optional fields, threshold, planning after it?", "answer": "Fields stay optional; 'Incomplete' after 14 days (adjustable per academy); after that, the same neutral 'Check availability' marker as D-11." },
+    { "id": "D-21", "state": "answered", "asked": "2026-10-30", "question": "Match prep: a coach's own status and free-text reason (e.g. Injured, 'hamstring') shows in the print and on the share link. Handle it?", "answer": "Accept and document it, with a tip not to put medical details in the reason." },
+    { "id": "D-20", "state": "answered", "asked": "2026-10-30", "question": "#4286/#4292: may head coaches create teams and players, which the matrix never granted?", "answer": "Creation follows the matrix (HoD and admin); head coaches keep editing. The prospect pipeline stays their intake." },
+    { "id": "D-19", "state": "answered", "asked": "2026-10-29", "question": "#4323: an assistant coach can infer an injury from availability plus suspensions. Close it or accept it?", "answer": "Accept and document it; also the stored Suspended pre-mark in match prep." },
+    { "id": "D-18", "state": "answered", "asked": "2026-10-29", "question": "#4310: buttons are 39 px at desktop width; raise them to 48 px or keep desktop density?", "answer": "Keep desktop density and write it down: 48 px under coarse pointers, a 36 px floor under fine pointers, in one canonical block; CLAUDE.md §2 and the mobile-first doc amended." },
+    { "id": "D-15", "state": "answered", "asked": "2026-10-28", "question": "#4296: who may read lookups over REST?", "answer": "Staff personas only (head coach, assistant coach, staff, scout); parents and players get labels inside their records." },
+    { "id": "D-16", "state": "answered", "asked": "2026-10-28", "question": "#4298: a PDP talk that never took place?", "answer": "As recommended: a dated 'not held' mark with a required reason, set by the file's coach or a global PDP-change holder; shown as 'Not held: <reason>' and counted as not held." },
+    { "id": "D-17", "state": "answered", "asked": "2026-10-28", "question": "#4301: pin the local tier with TT_DEV_TIER, guarded by the dev-override secret?", "answer": "Yes, queued." },
     { "id": "D-14", "state": "answered", "asked": "2026-10-26", "question": "Budget guard: at what share of the 5-hour plan window does the lead stop handing out new work?", "answer": "80%, resuming after the window resets." },
     { "id": "D-8", "state": "answered", "asked": "2026-10-26", "question": "#4251: how should a trial decision show on the player list?", "answer": "As proposed: Joined / Not admitted (new) / In trial. #4251 queued." },
     { "id": "D-9", "state": "answered", "asked": "2026-10-26", "question": "#4257: does a prospect get its own record page, and is logging a consent request wizard-exempt?", "answer": "Its own read-only prospect record page; the consent-request entry is built as a wizard. #4257 queued after #4267 and #4250." },
