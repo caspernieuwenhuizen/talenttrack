@@ -1,0 +1,3 @@
+#: src/Infrastructure/Journey/InjuryRepository.php
+msgid "Injury recovered"
+msgstr "Blessure hersteld"
