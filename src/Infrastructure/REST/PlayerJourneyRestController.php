@@ -27,6 +27,16 @@ use TT\Infrastructure\Security\AuthorizationService;
  */
 class PlayerJourneyRestController extends BaseController {
 
+    /**
+     * #4288 — the columns `GET /player-injuries` returns: what the squad
+     * overview shows, and nothing it does not.
+     */
+    private const OVERVIEW_FIELDS = [
+        'id', 'player_id', 'first_name', 'last_name', 'team_id', 'team_name',
+        'body_part_lookup_id', 'severity_lookup_id',
+        'started_on', 'expected_return', 'actual_return',
+    ];
+
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
     }
@@ -552,8 +562,10 @@ class PlayerJourneyRestController extends BaseController {
 
         return RestResponse::success( [
             // `status` and `days_out` are derived on read by `InjuryStatus`, never stored.
+            // Only the fields the overview shows: notes, type and the
+            // audit columns stay on the player file, behind its own gate.
             'injuries' => array_map(
-                static fn( $row ) => (array) $row + [
+                static fn( $row ) => array_intersect_key( (array) $row, array_flip( self::OVERVIEW_FIELDS ) ) + [
                     'status'   => InjuryStatus::status( $row ),
                     'days_out' => InjuryStatus::daysOut( $row ),
                 ],

@@ -81,6 +81,35 @@ final class InjuriesCollectionRestTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'days_out', $data['injuries'][0] );
     }
 
+    public function test_only_the_fields_the_overview_shows_are_returned(): void {
+        ( new InjuryRepository() )->create( [
+            'player_id'             => $this->player,
+            'started_on'            => AttendanceDateRule::today(),
+            'notes'                 => 'Physio note: not for the squad list',
+            'injury_type_lookup_id' => 1,
+        ] );
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        [ $status, $data ] = $this->get( [ 'team_id' => $this->team ] );
+
+        $this->assertSame( 200, $status );
+        $this->assertNotEmpty( $data['injuries'] );
+        $expected = [
+            'id', 'player_id', 'first_name', 'last_name', 'team_id', 'team_name',
+            'body_part_lookup_id', 'severity_lookup_id',
+            'started_on', 'expected_return', 'actual_return', 'status', 'days_out',
+        ];
+        sort( $expected );
+        foreach ( $data['injuries'] as $item ) {
+            $keys = array_keys( (array) $item );
+            sort( $keys );
+            $this->assertSame( $expected, $keys, 'a fixed field list, nothing else' );
+            foreach ( [ 'notes', 'injury_type_lookup_id', 'created_by', 'club_id', 'archived_at', 'is_recovery_logged' ] as $hidden ) {
+                $this->assertArrayNotHasKey( $hidden, (array) $item, "{$hidden} stays out of the squad list" );
+            }
+        }
+        $this->assertStringNotContainsString( 'Physio note', (string) wp_json_encode( $data ) );
+    }
+
     public function test_a_physio_gets_the_team_they_are_the_physio_of(): void {
         wp_set_current_user( $this->makePhysio( $this->other_team ) );
         [ $status, $data ] = $this->get( [] );
