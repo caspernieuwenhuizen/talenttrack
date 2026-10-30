@@ -171,7 +171,7 @@ Every match in the programme carries a status chip, with the opponent level in
 a chip of its own next to it:
 
 - **Scheduled** — not kicked off, no result entered.
-- **In progress** — kicked off, not completed yet.
+- **In progress** — kicked off, no result entered yet.
 - **Not closed** — both scores are entered, but nobody tapped **Complete
   match**. Its minutes are not booked until you do, so tap **Complete match**
   on that card.

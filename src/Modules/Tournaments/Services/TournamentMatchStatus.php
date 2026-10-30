@@ -26,11 +26,14 @@ final class TournamentMatchStatus {
         $row = is_object( $match ) ? get_object_vars( $match ) : (array) $match;
 
         if ( ! empty( $row['completed_at'] ) ) return self::COMPLETED;
-        if ( ! empty( $row['kicked_off_at'] ) ) return self::IN_PROGRESS;
 
+        // A score wins over the kick-off: a fixture kicked off, scored and
+        // never completed would otherwise read "In progress" for good.
         // `isset()` excludes null, which is how "no result recorded" reads;
         // a 0-0 is a result.
         if ( isset( $row['our_score'], $row['their_score'] ) ) return self::RESULT_ENTERED;
+
+        if ( ! empty( $row['kicked_off_at'] ) ) return self::IN_PROGRESS;
 
         return self::SCHEDULED;
     }

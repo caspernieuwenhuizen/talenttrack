@@ -175,7 +175,7 @@ Elke wedstrijd in het programma heeft een statuslabel, met het niveau van de
 tegenstander in een eigen label ernaast:
 
 - **Gepland** — nog geen aftrap, geen uitslag ingevuld.
-- **In uitvoering** — aftrap gegeven, nog niet afgesloten.
+- **In uitvoering** — aftrap gegeven, nog geen uitslag ingevuld.
 - **Niet afgesloten** — beide scores zijn ingevuld, maar niemand heeft op
   **Wedstrijd afsluiten** getikt. De minuten worden pas geboekt als je dat
   doet, dus tik op **Wedstrijd afsluiten** op die kaart.

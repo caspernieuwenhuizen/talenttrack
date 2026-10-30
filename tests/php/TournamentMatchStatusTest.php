@@ -34,9 +34,17 @@ final class TournamentMatchStatusTest extends WP_UnitTestCase {
         $this->assertSame( TournamentMatchStatus::SCHEDULED, TournamentMatchStatus::of( self::row( [ 'our_score' => 2 ] ) ) );
     }
 
-    public function test_kicked_off_is_in_progress(): void {
+    public function test_kicked_off_without_a_score_is_in_progress(): void {
         $this->assertSame(
             TournamentMatchStatus::IN_PROGRESS,
+            TournamentMatchStatus::of( self::row( [ 'kicked_off_at' => '2026-10-03 10:00:00' ] ) )
+        );
+    }
+
+    /** Kicked off, scored, never completed: not closed, not in progress for good. */
+    public function test_kicked_off_with_a_score_is_result_entered(): void {
+        $this->assertSame(
+            TournamentMatchStatus::RESULT_ENTERED,
             TournamentMatchStatus::of( self::row( [ 'kicked_off_at' => '2026-10-03 10:00:00', 'our_score' => 1, 'their_score' => 0 ] ) )
         );
     }
