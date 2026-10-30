@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Prospect;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Domain\ProspectCreationService;
+use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -118,10 +119,9 @@ final class IdentityStep implements WizardStepInterface {
         <?php
     }
 
+    /** #4251 — the one derivation, which reads the trial case's decision. */
     private static function statusLabel( object $r ): string {
-        if ( ! empty( $r->promoted_to_trial_case_id ) )  return __( 'In trial', 'talenttrack' );
-        if ( ! empty( $r->promoted_to_player_id ) )      return __( 'Joined',   'talenttrack' );
-        return __( 'Active', 'talenttrack' );
+        return ProspectOutcome::label( ProspectOutcome::forRow( (array) $r ) );
     }
 
     public function validate( array $post, array $state ) {

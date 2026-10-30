@@ -87,7 +87,11 @@ class ProspectsRepository {
         $order_dir   = strtolower( (string) ( $filters['order'] ?? 'desc' ) ) === 'asc' ? 'ASC' : 'DESC';
         $orderby_sql = $this->orderByClause( $orderby_key, $order_dir );
 
-        $sql = "SELECT * FROM {$this->table}
+        // #4251 — the trial case's decision rides along, so the caller can
+        // derive the outcome (`ProspectOutcome::forRow`) without a query
+        // per row.
+        $sql = "SELECT {$this->table}.*, " . \TT\Modules\Prospects\Domain\ProspectOutcome::sqlTrialDecision( $this->table ) . " AS trial_decision
+                FROM {$this->table}
                 WHERE " . implode( ' AND ', $where ) . "
                 {$orderby_sql}";
 
@@ -143,29 +147,22 @@ class ProspectsRepository {
             // int-cast ids; strip the leading AND for this array's join.
             $where[] = trim( preg_replace( '/^\s*AND\s+/i', '', $filters['scope_sql'] ) ?? '1=1' );
         }
-        // Computed-status filter. Mirrors the kanban classifier's terminal
-        // states (Active / In trial / Joined / Archived) without joining
-        // tt_workflow_tasks — the cheap "where is this prospect right
-        // now" projection.
+        // Computed-status filter — "where is this prospect right now".
+        // #4251 — the same rule `ProspectOutcome::forRow()` applies to a
+        // row, as SQL, so the list and its filter cannot disagree. The
+        // request key `trial` is the outcome `in_trial`.
         if ( ! empty( $filters['status'] ) ) {
-            switch ( (string) $filters['status'] ) {
-                case 'archived':
-                    $where[] = 'archived_at IS NOT NULL';
-                    break;
-                case 'joined':
-                    $where[] = 'archived_at IS NULL';
-                    $where[] = 'promoted_to_player_id IS NOT NULL';
-                    $where[] = '( promoted_to_trial_case_id IS NULL )';
-                    break;
-                case 'trial':
-                    $where[] = 'archived_at IS NULL';
-                    $where[] = 'promoted_to_trial_case_id IS NOT NULL';
-                    break;
-                case 'active':
-                    $where[] = 'archived_at IS NULL';
-                    $where[] = 'promoted_to_player_id IS NULL';
-                    $where[] = 'promoted_to_trial_case_id IS NULL';
-                    break;
+            $outcomes = [
+                'archived'     => \TT\Modules\Prospects\Domain\ProspectOutcome::ARCHIVED,
+                'joined'       => \TT\Modules\Prospects\Domain\ProspectOutcome::JOINED,
+                'not_admitted' => \TT\Modules\Prospects\Domain\ProspectOutcome::NOT_ADMITTED,
+                'trial'        => \TT\Modules\Prospects\Domain\ProspectOutcome::IN_TRIAL,
+                'active'       => \TT\Modules\Prospects\Domain\ProspectOutcome::ACTIVE,
+            ];
+            $outcome = $outcomes[ (string) $filters['status'] ] ?? null;
+            if ( $outcome !== null ) {
+                $where[]  = \TT\Modules\Prospects\Domain\ProspectOutcome::sqlCase( $this->table ) . ' = %s';
+                $params[] = $outcome;
             }
         } elseif ( empty( $filters['include_archived'] ) ) {
             $where[] = 'archived_at IS NULL';

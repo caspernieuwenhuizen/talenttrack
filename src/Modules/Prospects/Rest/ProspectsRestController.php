@@ -338,15 +338,11 @@ class ProspectsRestController {
                 $u = get_userdata( $disc_by );
                 if ( $u ) $disc_by_name = (string) $u->display_name;
             }
-            $status = 'active';
-            if ( ! empty( $row->archived_at ) ) {
-                $status = 'archived';
-            } elseif ( ! empty( $row->promoted_to_trial_case_id ) ) {
-                $status = 'trial';
-            } elseif ( ! empty( $row->promoted_to_player_id ) ) {
-                $status = 'joined';
-            }
-            $status_label = self::statusLabelFor( $status );
+            // #4251 — the one derivation, which reads the trial case's
+            // decision. The REST key for "in trial" stays `trial`.
+            $outcome      = \TT\Modules\Prospects\Domain\ProspectOutcome::forRow( (array) $row );
+            $status       = $outcome === \TT\Modules\Prospects\Domain\ProspectOutcome::IN_TRIAL ? 'trial' : $outcome;
+            $status_label = \TT\Modules\Prospects\Domain\ProspectOutcome::label( $outcome );
             // Array cast, like the id list above: `search()` answers bare
             // `stdClass` rows, whose properties static analysis cannot check.
             $waiting_days = $waiting[ (int) ( ( (array) $row )['id'] ?? 0 ) ] ?? null;
@@ -382,16 +378,6 @@ class ProspectsRestController {
             'page'     => $page,
             'per_page' => $per_page,
         ] );
-    }
-
-    private static function statusLabelFor( string $status ): string {
-        switch ( $status ) {
-            case 'active':   return __( 'Active',   'talenttrack' );
-            case 'trial':    return __( 'In trial', 'talenttrack' );
-            case 'joined':   return __( 'Joined',   'talenttrack' );
-            case 'archived': return __( 'Archived', 'talenttrack' );
-        }
-        return $status;
     }
 
     private static function clamp_per_page( $value ): int {
