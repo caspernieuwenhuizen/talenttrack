@@ -10,6 +10,13 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\Authorization\MatrixGate;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
+use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
+use TT\Modules\Comms\Template\TemplateRegistry;
+use TT\Modules\Comms\Template\TemplateSwitch;
+use TT\Modules\Comms\Templates\NotificationTemplate;
 use TT\Modules\Journey\JourneyModule;
 use TT\Modules\Journey\Workflow\InjuryRecoveryDueTemplate;
 use TT\Modules\Journey\Workflow\InjuryRecoveryTasks;
@@ -54,6 +61,9 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        remove_all_filters( 'tt_comms_email_send' );
+        TemplateRegistry::clear();
+        ChannelAdapterRegistry::clear();
         wp_set_current_user( 0 );
         MatrixRepository::clearCache();
         FunctionalRoleGrants::clearCache();
@@ -190,7 +200,101 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * The recipient filter is the security control: a head coach on the
+     * player's team who may not read this player's injuries is refused the
+     * task and the e-mail, while the physio who may is still asked.
+     */
+    public function test_a_head_coach_without_injury_read_gets_no_task_and_no_mail(): void {
+        $physio = $this->makePhysio( $this->team );
+        $this->revokeHeadCoachInjuryRead();
+        $this->assertFalse( AuthorizationService::canRecordInjury( $this->coach, $this->player, 'read' ), 'precondition: the head coach is refused' );
+        $this->assertTrue( AuthorizationService::canRecordInjury( $physio, $this->player, 'read' ), 'precondition: the physio may read' );
+
+        $mails = $this->captureMail();
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+
+        $assignees = array_map( static fn ( array $t ): int => (int) $t['assignee_user_id'], $this->all() );
+        $this->assertSame( [ $physio ], $assignees );
+
+        $coach_email = (string) get_userdata( $this->coach )->user_email;
+        foreach ( $mails->sent as $mail ) {
+            $this->assertNotContains( $coach_email, (array) $mail['to'], 'no e-mail to the refused head coach' );
+        }
+    }
+
+    public function test_with_no_one_allowed_to_read_nothing_is_created_or_sent(): void {
+        $this->revokeHeadCoachInjuryRead();
+
+        $mails = $this->captureMail();
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+        InjuryRecoveryTasks::sweep();
+
+        $this->assertSame( [], $this->all() );
+        $this->assertSame( [], $mails->sent );
+    }
+
+    public function test_the_mail_carries_no_injury_detail(): void {
+        $mails = $this->captureMail();
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+            'notes'           => 'ankle',
+        ] );
+
+        $this->assertNotEmpty( $mails->sent, 'the head coach is mailed, or nothing below proves anything' );
+        $json = (string) wp_json_encode( $mails->sent );
+        foreach ( [ 'ankle', $this->day( -10 ), 'expected_return', 'body_part', 'severity' ] as $leak ) {
+            $this->assertStringNotContainsString( $leak, $json );
+        }
+    }
+
     // ---- fixtures ------------------------------------------------------
+
+    /** Takes the head coach persona's team-scope injury read out of the matrix. */
+    private function revokeHeadCoachInjuryRead(): void {
+        ( new MatrixRepository() )->removeRow( 'head_coach', 'player_injuries', MatrixGate::READ, MatrixGate::SCOPE_TEAM );
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
+    }
+
+    /**
+     * Every e-mail the task mailer hands to Comms, taken at the adapter's
+     * transport hook so none leaves the test. Registers exactly the template
+     * and channel the path needs (see CommsPushChokepointTest), and pins the
+     * quiet hours shut so the wall clock cannot hold the mail back.
+     */
+    private function captureMail(): \stdClass {
+        TemplateRegistry::clear();
+        ChannelAdapterRegistry::clear();
+        TemplateRegistry::register( new NotificationTemplate() );
+        ChannelAdapterRegistry::register( new EmailChannelAdapter() );
+        QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
+        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+
+        $box       = new \stdClass();
+        $box->sent = [];
+        add_filter( 'tt_comms_email_send', static function ( $accepted, $args ) use ( $box ) {
+            $box->sent[] = [
+                'to'      => (string) ( $args['to'] ?? '' ),
+                'subject' => (string) ( $args['subject'] ?? '' ),
+                'body'    => (string) ( $args['body'] ?? '' ),
+            ];
+            return true;
+        }, 10, 2 );
+        return $box;
+    }
 
     private function day( int $offset ): string {
         return gmdate( 'Y-m-d', (int) strtotime( $this->today . ' 00:00:00 UTC ' . ( $offset >= 0 ? '+' : '' ) . $offset . ' days' ) );

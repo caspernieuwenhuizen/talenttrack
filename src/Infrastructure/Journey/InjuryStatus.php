@@ -43,6 +43,12 @@ use TT\Modules\Activities\Services\AttendanceDateRule;
  * covers D or needs a check on D, never both, from the day it starts.
  * `InjuryStatusTest` holds each PHP form to its SQL twin.
  *
+ * The recovery reminder (`checkDueSql()`) is due *on* the expected return
+ * day, while the planning marker (`needsCheckSql()`) starts the day *after*
+ * it: on the return day itself the player still counts as out, and the
+ * reminder asks whether that holds. Deliberate; do not align one to the
+ * other.
+ *
  * One clock: `AttendanceDateRule::today()`, the day the attendance and
  * planning rules already read.
  */
