@@ -93,8 +93,8 @@ final class InjuryStatusTest extends WP_UnitTestCase {
 
         $expect = [
             'open'        => true,  // expected return still ahead
-            'overdue'     => false, // expected return passed: stale, not planning's business yet
-            'incomplete'  => true,  // no expected return
+            'overdue'     => false, // expected return passed: available, with the check marker (#4246)
+            'incomplete'  => false, // no expected return for 30 days: available, with the check marker (#4269)
             'closed'      => false, // back on 09-15
             'future_ret'  => true,  // back only on 10-05
             'starts_late' => false, // not hurt yet
@@ -109,6 +109,64 @@ final class InjuryStatusTest extends WP_UnitTestCase {
             $covered,
             PlayerAvailability::unavailableSet( array_values( $this->players ), '2026-10-01' )
         );
+    }
+
+    public function test_the_php_and_sql_check_forms_agree_on_every_day(): void {
+        $this->seedCases();
+        $repo = new InjuryRepository();
+        $days = [ '2026-08-31', '2026-09-01', '2026-09-10', '2026-09-11', '2026-09-14', '2026-09-15',
+                  '2026-10-01', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-10', '2026-10-20', '2026-10-21' ];
+
+        foreach ( $days as $day ) {
+            $sql = $repo->needsCheckSet( array_values( $this->players ), $day );
+            foreach ( $this->injuries as $case => $injury_id ) {
+                $row = $repo->find( $injury_id );
+                $this->assertNotNull( $row );
+                $this->assertSame(
+                    InjuryStatus::needsCheckOnDay( $row, $day ),
+                    isset( $sql[ $this->players[ $case ] ] ),
+                    "PHP and SQL disagree on the check for {$case} on {$day}"
+                );
+            }
+        }
+    }
+
+    public function test_an_unclosed_record_either_covers_a_day_or_asks_for_a_check(): void {
+        $this->seedCases();
+        $repo = new InjuryRepository();
+        foreach ( [ 'open', 'overdue', 'incomplete', 'starts_late' ] as $case ) {
+            $row = $repo->find( $this->injuries[ $case ] );
+            foreach ( [ '2026-09-01', '2026-09-14', '2026-09-15', '2026-10-01', '2026-10-10', '2026-10-21' ] as $day ) {
+                $started = (string) $row->started_on <= $day;
+                $this->assertSame(
+                    $started,
+                    InjuryStatus::coversDay( $row, $day ) xor InjuryStatus::needsCheckOnDay( $row, $day ),
+                    "{$case} on {$day}: exactly one answer once it has started"
+                );
+            }
+        }
+    }
+
+    public function test_a_check_on_today_matches_the_overdue_and_incomplete_states(): void {
+        $this->seedCases();
+        $repo = new InjuryRepository();
+        foreach ( $this->injuries as $case => $injury_id ) {
+            $row    = $repo->find( $injury_id );
+            $status = InjuryStatus::status( $row, '2026-10-01' );
+            if ( ! empty( $row->archived_at ) || (string) $row->started_on > '2026-10-01' ) continue;
+            $this->assertSame(
+                in_array( $status, [ InjuryStatus::OVERDUE, InjuryStatus::INCOMPLETE ], true ),
+                InjuryStatus::needsCheckOnDay( $row, '2026-10-01' ),
+                $case
+            );
+        }
+    }
+
+    public function test_the_check_date_is_the_expected_return_or_the_incomplete_day(): void {
+        $this->assertSame( '2026-09-10', InjuryStatus::checkDate( [ 'started_on' => '2026-09-01', 'expected_return' => '2026-09-10' ] ) );
+        $this->assertSame( '2026-09-15', InjuryStatus::checkDate( [ 'started_on' => '2026-09-01' ] ) );
+        $this->assertNull( InjuryStatus::checkDate( [ 'started_on' => '2026-09-01', 'actual_return' => '2026-09-05' ] ) );
+        $this->assertNull( InjuryStatus::checkDate( [ 'started_on' => '2026-09-01', 'trashed_at' => '2026-09-02 10:00:00' ] ) );
     }
 
     public function test_the_record_status_as_of_a_day(): void {

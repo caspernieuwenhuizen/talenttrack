@@ -42,11 +42,14 @@ use TT\Infrastructure\Journey\InjuryRepository;
  * and an injury the player has since recovered from still counts for the
  * match it kept them out of.
  *
- * An un-closed record whose expected return has passed before D is stale
- * data, not an open injury: counting it would let last season's forgotten
- * entry poison every squad from then on.
+ * An un-closed record whose expected return has passed before D, or that
+ * has had no expected return for the club's number of days, does not keep
+ * the player out: counting it would let last season's forgotten entry poison
+ * every squad from then on. It is not ignored either. The player is available
+ * with a neutral check marker (`checkSet()`, owner decisions D-11 and D-13 on
+ * #4282), a separate answer beside the state, never a third state.
  *
- * The date goes in; only the state comes out — decision 3 holds.
+ * The date goes in; only the state and the marker come out — decision 3 holds.
  */
 final class PlayerAvailability {
 
@@ -107,6 +110,41 @@ final class PlayerAvailability {
     }
 
     /**
+     * The subset of `$player_ids` planning should check on `$on`: an injury
+     * record that is overdue or incomplete that day, for a player nothing
+     * keeps out. A player who is unavailable is not in it; the one answer
+     * already says they cannot be planned for.
+     *
+     * @param list<int>   $player_ids
+     * @param string|null $on          As for `unavailableSet()`.
+     * @param array<int, true>|null $unavailable The unavailable set for the
+     *                                 same players and day, when the caller
+     *                                 already has it.
+     * @return array<int, true>
+     */
+    public static function checkSet( array $player_ids, ?string $on = null, ?array $unavailable = null ): array {
+        $day         = self::day( $on );
+        $unavailable = $unavailable ?? self::unavailableSet( $player_ids, $day );
+        return array_diff_key( ( new InjuryRepository() )->needsCheckSet( $player_ids, $day ), $unavailable );
+    }
+
+    /**
+     * `checkSet()` for an activity: its date, and nobody it already marks
+     * unavailable (injured or suspended).
+     *
+     * @param array<int, int>       $player_ids
+     * @param array<int, true>|null $unavailable From `unavailableForActivity()` when the caller has it.
+     * @return array<int, true>
+     */
+    public static function checkForActivity( array $player_ids, int $activity_id, ?string $on = null, ?array $unavailable = null ): array {
+        if ( ( $on === null || trim( $on ) === '' ) && $activity_id > 0 ) {
+            $on = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityDate( $activity_id );
+        }
+        $unavailable = $unavailable ?? self::unavailableForActivity( $player_ids, $activity_id, $on );
+        return self::checkSet( array_values( $player_ids ), $on, $unavailable );
+    }
+
+    /**
      * The flag for one player, as it appears in a payload or beside a name.
      *
      * @param array<int, true> $unavailable A set from `unavailableSet()`.
@@ -139,5 +177,13 @@ final class PlayerAvailability {
      */
     public static function label(): string {
         return __( 'Unavailable', 'talenttrack' );
+    }
+
+    /**
+     * The marker beside an available player in `checkSet()`. Neutral on
+     * purpose: it asks the coach to confirm, and names no cause.
+     */
+    public static function checkLabel(): string {
+        return __( 'Check availability', 'talenttrack' );
     }
 }

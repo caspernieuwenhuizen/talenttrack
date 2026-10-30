@@ -197,26 +197,60 @@ final class InjuryRepository {
      * @return array<int, true>
      */
     public function coveredSet( array $player_ids, string $day ): array {
+        return $this->playerSet( $player_ids, InjuryStatus::coversDaySql(), InjuryStatus::coversDayParams( $day ) );
+    }
+
+    /**
+     * The subset of `$player_ids` with a record planning should check on
+     * `$day` (overdue or incomplete, `InjuryStatus::needsCheckSql()`), as a
+     * set keyed by player id. One query; only player ids leave it.
+     *
+     * @param list<int> $player_ids
+     * @return array<int, true>
+     */
+    public function needsCheckSet( array $player_ids, string $day ): array {
+        return $this->playerSet( $player_ids, InjuryStatus::needsCheckSql(), InjuryStatus::needsCheckParams( $day ) );
+    }
+
+    /**
+     * Every player in the current club with a record whose decision is due
+     * on or before `$day` (`InjuryStatus::checkDueSql()`): what the recovery
+     * reminder sweep works through. One club-scoped query.
+     *
+     * @return list<int>
+     */
+    public function playersWithCheckDue( string $day ): array {
+        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql(), InjuryStatus::checkDueParams( $day ) ) );
+    }
+
+    /**
+     * The player ids, among `$player_ids` (every player in the club when
+     * null), with a record matching `$predicate`.
+     *
+     * @param list<int>|null $player_ids
+     * @param list<string>   $params     Values for the predicate's placeholders.
+     * @return array<int, true>
+     */
+    private function playerSet( ?array $player_ids, string $predicate, array $params ): array {
         $ids = [];
-        foreach ( $player_ids as $pid ) {
+        foreach ( $player_ids ?? [] as $pid ) {
             $pid = (int) $pid;
             if ( $pid > 0 ) $ids[ $pid ] = true;
         }
-        if ( $ids === [] ) return [];
+        if ( $player_ids !== null && $ids === [] ) return [];
 
-        $ids    = array_keys( $ids );
-        $in     = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $params = array_merge( $ids, [ (int) CurrentClub::id(), $day, $day, $day ] );
-        $covers = InjuryStatus::coversDaySql();
+        $ids   = array_keys( $ids );
+        $where = $player_ids === null
+            ? ''
+            : 'player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
             "SELECT DISTINCT player_id
                FROM {$this->table}
-              WHERE player_id IN ($in)
-                AND club_id = %d
-                AND {$covers}",
-            $params
+              WHERE {$where} club_id = %d
+                AND {$predicate}",
+            array_merge( $ids, [ (int) CurrentClub::id() ], $params )
         ) );
 
         $out = [];

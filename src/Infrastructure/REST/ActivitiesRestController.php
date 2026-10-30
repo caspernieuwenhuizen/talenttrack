@@ -2919,7 +2919,13 @@ class ActivitiesRestController {
      * `roster` when no plan was captured.
      *
      * Each row carries `player_id`, `is_guest`, `name`, `plan_status`
-     * (`expected` / `not_coming` / `maybe`), `notes` and `availability`.
+     * (`expected` / `not_coming` / `maybe`), `notes`, `availability` and
+     * `availability_check`.
+     *
+     * #4246 / #4269 — `availability_check` is true for an available player
+     * with an injury record that is overdue or incomplete on the activity's
+     * date: the planner should check, the player is not kept out. A separate
+     * boolean so `availability` keeps its two published values.
      *
      * #4005 — `availability` is derived per request from the injuries the
      * player was carrying on the activity's date (`PlayerAvailability`,
@@ -2944,15 +2950,14 @@ class ActivitiesRestController {
         // #4100 — on the activity's date, the same day the detail page asks
         // about, so the two answers cannot differ for one activity. #4103 —
         // and a suspension that covers this match, still as the one state.
-        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity(
-            array_map(
-                static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
-                $roster
-            ),
-            $id,
-            $repo->activityDate( $id )
+        $roster_ids  = array_map(
+            static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
+            $roster
         );
-        $out = array_map( static function ( $row ) use ( $unavailable ) {
+        $date        = $repo->activityDate( $id );
+        $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity( $roster_ids, $id, $date );
+        $check       = \TT\Modules\Activities\Services\PlayerAvailability::checkForActivity( $roster_ids, $id, $date, $unavailable );
+        $out = array_map( static function ( $row ) use ( $unavailable, $check ) {
             $status = (string) ( $row->status ?? '' );
             return [
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
@@ -2970,6 +2975,7 @@ class ActivitiesRestController {
                     (int) ( $row->player_id ?? 0 ),
                     $unavailable
                 ),
+                'availability_check' => isset( $check[ (int) ( $row->player_id ?? 0 ) ] ),
             ];
         }, $roster );
 

@@ -157,6 +157,12 @@ the player's status stays whatever you set, and you can still pick them.
 It is worked out when the screen opens, never saved into the prep, so it
 does not appear on the printed sheet, the PDF export or a shared link.
 
+A player whose injury record needs a decision — the expected return has
+passed with no return recorded, or the record has been open for 14 days
+without one — is not marked Unavailable. They carry a neutral **Check
+availability** label in the same places instead, and count as available.
+It follows the same rules: no cause, never saved, never printed.
+
 The status you choose and its reason are different: they are saved into
 the prep, so everyone who opens it sees them, and the printed sheet, the
 PDF and a shared link list them as "name · status (reason)". A shared

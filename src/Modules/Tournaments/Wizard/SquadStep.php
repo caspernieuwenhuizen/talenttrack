@@ -113,10 +113,15 @@ final class SquadStep implements WizardStepInterface {
         // the state only: no injury detail reaches this screen. #4100 — asked
         // for the tournament's start date from the Basics step; today when
         // the state has none.
-        $unavailable = PlayerAvailability::unavailableSet( array_values( array_map(
+        $roster_ids  = array_values( array_map(
             static fn( $player ): int => (int) ( $player->id ?? 0 ),
             $players
-        ) ), (string) ( $state['start_date'] ?? '' ) );
+        ) );
+        $start_date  = (string) ( $state['start_date'] ?? '' );
+        $unavailable = PlayerAvailability::unavailableSet( $roster_ids, $start_date );
+        // #4359 — the neutral "Check availability" marker for an overdue or
+        // incomplete record, same day, never beside an unavailable player.
+        $check = PlayerAvailability::checkSet( $roster_ids, $start_date, $unavailable );
 
         echo '<div class="tt-tournament-wizard">';
         echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
@@ -170,6 +175,8 @@ final class SquadStep implements WizardStepInterface {
             // do it without being told.
             if ( $is_unavailable ) {
                 echo ' <span class="ttw-unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
+            } elseif ( isset( $check[ $pid ] ) ) {
+                echo ' <span class="ttw-check">' . esc_html( PlayerAvailability::checkLabel() ) . '</span>';
             }
             echo '</div>';
 
