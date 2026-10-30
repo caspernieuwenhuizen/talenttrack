@@ -2937,6 +2937,13 @@ class ActivitiesRestController {
      * the state and nothing else — no injury type, body part, note, date or
      * id — so a role without injury access can plan around it without
      * seeing a child's medical record.
+     *
+     * #4260 — `match_squad` is `start` / `bench` / `out` from the match prep
+     * (`MatchPrepState::matchSquadForActivity()`), or null when the activity
+     * has no prep, the prep has no row for the player, or the caller is not
+     * staff for the player (D-22). Read-only and beside `plan_status`, like
+     * `availability`; never the prep's status or reason, which can name a
+     * medical cause.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2978,6 +2985,32 @@ class ActivitiesRestController {
                 'availability_check' => isset( $check[ (int) ( $row->player_id ?? 0 ) ] ),
             ];
         }, $roster );
+
+        // #4260 — the match-day squad the coach picked in match prep, beside
+        // the plan: start, bench or out; null when there is no prep or the
+        // prep has no row for the player. Staff only (D-22): match prep
+        // autosaves mid-composition, so a family would learn "bench" or "out"
+        // before the coach has decided. Staff for the player is the check for
+        // what a family must not see, asked for the whole roster at once.
+        // Computed over `$out`, the rows this route already returns, never
+        // over the whole prep.
+        $team_by_player = [];
+        foreach ( $roster as $row ) {
+            $team_by_player[ (int) ( $row->player_id ?? 0 ) ] = (int) ( $row->team_id ?? 0 );
+        }
+        $staff = AuthorizationService::staffForPlayers( get_current_user_id(), $team_by_player );
+        $squad = in_array( true, $staff, true )
+            ? \TT\Modules\MatchPrep\Services\MatchPrepState::matchSquadForActivity(
+                $id,
+                array_map( static fn( array $row ): int => (int) $row['player_id'], $out )
+            )
+            : null;
+        foreach ( $out as $i => $row ) {
+            $pid = (int) $row['player_id'];
+            $out[ $i ]['match_squad'] = ( $squad !== null && ( $staff[ $pid ] ?? false ) )
+                ? ( $squad[ $pid ] ?? null )
+                : null;
+        }
 
         return RestResponse::success( [
             'activity_id' => $id,

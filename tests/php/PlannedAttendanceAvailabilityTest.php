@@ -111,7 +111,7 @@ final class PlannedAttendanceAvailabilityTest extends WP_UnitTestCase {
     public function test_the_payload_carries_no_medical_detail(): void {
         foreach ( $this->rows() as $row ) {
             $this->assertSame(
-                [ 'player_id', 'is_guest', 'name', 'plan_status', 'notes', 'availability', 'availability_check' ],
+                [ 'player_id', 'is_guest', 'name', 'plan_status', 'notes', 'availability', 'availability_check', 'match_squad' ],
                 array_keys( $row ),
                 'no injury type, body part, dates or injury id may appear here'
             );

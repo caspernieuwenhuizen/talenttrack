@@ -284,4 +284,67 @@ final class MatchPrepState {
         }
         return $out;
     }
+
+    /**
+     * #4260 — where each player stands in the match-day squad the coach
+     * picked in match prep: `start` (a half-1 slot on a position the layout
+     * draws), `bench` (Present without one) or `out` (any other status). A
+     * player the prep has no row for is not in the map. The same reading
+     * the attendance projection writes `lineup_role` from.
+     *
+     * The squad position only: never the prep's status or reason, which can
+     * name a medical cause (#4005, decision 3).
+     *
+     * @param array<int, int> $player_ids
+     * @return array<int, string>|null player id => start|bench|out; null when
+     *                                 the activity has no match prep.
+     *                                 Callers give it to staff readers only
+     *                                 (D-22).
+     */
+    public static function matchSquadForActivity( int $activity_id, array $player_ids ): ?array {
+        $repo = new MatchPrepRepository();
+        $prep = $repo->findByActivity( $activity_id );
+        if ( ! $prep ) return null;
+
+        $prep_id       = (int) ( $prep->id ?? 0 );
+        $slot_position = FormationLayoutResolver::labelsFor(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
+        );
+
+        $starting = [];
+        $known    = [];
+        foreach ( $repo->listLineupAll( $prep_id ) as $row ) {
+            $row = (array) $row;
+            $pid = (int) ( $row['player_id'] ?? 0 );
+            $known[ $pid ] = true;
+            if ( (int) ( $row['half'] ?? 0 ) === 1 && isset( $slot_position[ (int) ( $row['slot_number'] ?? 0 ) ] ) ) {
+                $starting[ $pid ] = true;
+            }
+        }
+        $present = [];
+        foreach ( $repo->listAvailability( $prep_id ) as $row ) {
+            $pid = (int) ( $row->player_id ?? 0 );
+            $known[ $pid ] = true;
+            if ( strcasecmp( (string) ( $row->status ?? '' ), 'Present' ) === 0 ) {
+                $present[ $pid ] = true;
+            }
+        }
+
+        // A player the prep has no row for (added to the plan after the prep
+        // was last saved) is left out of the map: the coach never left them
+        // out, so `out` would be read as "dropped".
+        $out = [];
+        foreach ( $player_ids as $pid ) {
+            $pid = (int) $pid;
+            if ( isset( $starting[ $pid ] ) ) {
+                $out[ $pid ] = 'start';
+            } elseif ( isset( $present[ $pid ] ) ) {
+                $out[ $pid ] = 'bench';
+            } elseif ( isset( $known[ $pid ] ) ) {
+                $out[ $pid ] = 'out';
+            }
+        }
+        return $out;
+    }
 }
