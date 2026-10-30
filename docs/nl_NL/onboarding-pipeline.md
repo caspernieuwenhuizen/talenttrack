@@ -101,7 +101,7 @@ Elke prospect hoort in **precies één** kolom. De classifier loopt in deze volg
 3. Is opgenomen in een trialgroep → **Trialgroep**.
 4. Heeft een openstaande klus *Uitkomst testtraining vastleggen* → **Testtraining**.
 5. Heeft een openstaande klus *Uitnodigen voor testtraining* of *Bevestiging testtraining* → **Uitgenodigd**.
-6. Heeft een openstaande klus *Toestemming vragen aan het gezin* → **Toestemming gevraagd**.
+6. Heeft een openstaande klus *Toestemming vragen aan het gezin*, of een regel in het toestemmingslogboek die nog op antwoord wacht zonder een regel met akkoord → **Toestemming gevraagd**. Een verzoek dat rechtstreeks in het logboek is vastgelegd, telt hetzelfde als de klus; het kaartje opent dan de prospect, waar het logboek staat.
 7. Anders (geen openstaande klus, niet gepromoveerd, niet gearchiveerd) → **Prospects**.
 
 Regel 6 staat bewust ónder de uitnodigingsregels: wie eenmaal is uitgenodigd, is duidelijk voorbij de toestemming, wat een blijven hangen toestemmingsklus ook nog beweert.
@@ -128,7 +128,7 @@ De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, 
 
 Tussen "ik heb een kind bij een andere club gezien" en "het gezin heeft ja gezegd" zit een echte stap: de eigen club van het kind vragen het verzoek door te geven. Die stap heeft nu een eigen plek.
 
-**De klus.** *Toestemming vragen aan het gezin* is een workflow-klus, toegewezen aan de scout die de prospect vond, met een deadline van 21 dagen. Zolang die openstaat, staat de prospect in de kolom **Toestemming gevraagd**. Er volgt niets automatisch op: een verzoek dat *afgewezen* terugkomt, mag geen uitnodiging opleveren.
+**De klus.** *Toestemming vragen aan het gezin* is een workflow-klus, toegewezen aan de scout die de prospect vond, met een deadline van 21 dagen. Zolang die openstaat, of zolang het logboek een verzoek bevat dat nog op antwoord wacht en geen verzoek met akkoord, staat de prospect in de kolom **Toestemming gevraagd**. Er volgt niets automatisch op: een verzoek dat *afgewezen* terugkomt, mag geen uitnodiging opleveren.
 
 **Het logboek.** Het afronden van de klus, of een `POST /prospects/{id}/consent-requests`, schrijft een gedateerde regel: de datum waarop je het vroeg, de club of coördinator die je vroeg, de uitkomst en optionele notities. Alle regels van een prospect staan op het focuspaneel als je op het kaartje klikt, nieuwste eerst. Dat spoor is het antwoord op "zijn de toestemmingsverzoeken eruit gegaan?", dat tot nu toe alleen in het hoofd van een scout zat.
 

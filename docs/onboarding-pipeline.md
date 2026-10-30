@@ -98,7 +98,7 @@ Each prospect belongs to **exactly one** column. The classifier runs in this ord
 3. Has been admitted to a trial group → **Trial group**.
 4. Has an open *Record test training outcome* task → **Test training**.
 5. Has an open *Invite to test training* or *Confirm test training* task → **Invited**.
-6. Has an open *Request consent from the family* task → **Consent requested**.
+6. Has an open *Request consent from the family* task, or a consent-log entry still awaiting an answer with no agreed one → **Consent requested**. A request logged straight in the consent log counts the same as the task; the card then opens the prospect, where the log is.
 7. Otherwise (no open task, not promoted, not archived) → **Prospects**.
 
 Rule 6 sits below the invite rules on purpose: a prospect who has been invited has plainly got past consent, whatever a stale consent task still says.
@@ -125,7 +125,7 @@ The dashboard widget uses the same classifier for its compact count strip, so th
 
 Between "I spotted a child at another club" and "the family has said yes" there is a real step: asking the child's own club to pass the request on. It has a place of its own now.
 
-**The task.** *Request consent from the family* is a workflow task, assigned to the scout who found the prospect, due in 21 days. While it is open the prospect sits in the **Consent requested** column. It spawns nothing on completion — a request that came back *declined* must not produce an invitation.
+**The task.** *Request consent from the family* is a workflow task, assigned to the scout who found the prospect, due in 21 days. While it is open, or while the log holds a request still awaiting an answer and none agreed, the prospect sits in the **Consent requested** column. It spawns nothing on completion — a request that came back *declined* must not produce an invitation.
 
 **The log.** Completing the task, or posting to `POST /prospects/{id}/consent-requests`, writes a dated entry: the date you asked, the club or coordinator you asked, the outcome, and optional notes. Every entry for a prospect shows on the focus panel when you click their card, newest first. That trail is the answer to "did the consent requests go out?", which used to live only in a scout's memory.
 
