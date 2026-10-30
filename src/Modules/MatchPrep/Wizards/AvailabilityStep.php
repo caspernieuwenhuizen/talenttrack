@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
+use TT\Modules\Activities\Services\PlayerAvailability;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Modules\MatchPrep\Services\MatchPrepState;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -69,13 +70,17 @@ final class AvailabilityStep implements WizardStepInterface {
         // player Suspended, with which match of the ban it is. Only when the
         // vocabulary carries the status (an academy may have renamed or
         // removed it), and never over the operator's own saved choice.
+        // #4245 — only for a viewer who may read these players' injuries.
+        $player_ids     = array_map( static fn( $pl ): int => (int) ( ( (array) $pl )['id'] ?? 0 ), $players );
         $suspended_name = self::statusNamed( $statuses, AttendanceStatus::SUSPENDED );
         $suspended      = $suspended_name !== null
-            ? MatchPrepState::suspendedByPlayer(
-                $activity_id,
-                array_map( static fn( $pl ): int => (int) ( ( (array) $pl )['id'] ?? 0 ), $players )
-            )
+            ? MatchPrepState::suspendedForViewer( $activity_id, $player_ids, get_current_user_id() )
             : [];
+
+        // #4245 — who cannot play in this match, flagged beside the name with
+        // the neutral label. Never a pre-marked status: a stored status reaches
+        // the printout and the share link, and the cause is medical.
+        $unavailable = MatchPrepState::unavailableByPlayer( $activity_id, $player_ids );
 
         // #1474 — dense, mobile-first rows + segmented status control;
         // the reason field reveals inline only for non-Present rows (CSS
@@ -118,7 +123,11 @@ final class AvailabilityStep implements WizardStepInterface {
             $reason = (string) ( $row['reason'] ?? '' );
 
             echo '<div class="tt-avail-row">';
-            echo '<div class="tt-avail-name">' . esc_html( $name ) . '</div>';
+            echo '<div class="tt-avail-name">' . esc_html( $name );
+            if ( isset( $unavailable[ $pid ] ) ) {
+                echo ' <span class="tt-mp-unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
+            }
+            echo '</div>';
             echo '<div class="tt-avail-seg" role="radiogroup" aria-label="'
                 . esc_attr( sprintf( /* translators: %s: player name */ __( 'Availability — %s', 'talenttrack' ), $name ) )
                 . '">';

@@ -63,7 +63,10 @@
         roleDefs:       bootstrap.roles || [],
         players:        Array.isArray(bootstrap.players) ? bootstrap.players : [],
         availability:   {},
-        lineup:         { '1': new Map(), '2': new Map() },
+        // #4245 — who cannot play in this match (injured on its date, or
+        // suspended). Derived on the server, shown beside a name, never saved.
+        unavailable:    bootstrap.unavailable || {},
+        lineup:        { '1': new Map(), '2': new Map() },
         attention:      {},
         specific:       {},
         analyst:        {},
@@ -130,6 +133,16 @@
 
     function isUnavailableStatus(status) {
         return status !== '' && String(status).toLowerCase() !== 'present';
+    }
+
+    function isFlaggedUnavailable(pid) {
+        return !!state.unavailable[String(pid)];
+    }
+
+    // The neutral "Unavailable" flag beside a name; empty for anyone else.
+    function unavailableFlag(pid) {
+        if (!isFlaggedUnavailable(pid)) return '';
+        return ' <span class="tt-mp-unavailable">' + escapeHtml(i18n('unavailable', 'Unavailable')) + '</span>';
     }
 
     function $(sel, ctx) { return (ctx || root).querySelector(sel); }
@@ -450,7 +463,7 @@
             var tot = min1 + min2;
             var cls = (on1 || on2) ? 'tt-mp-assigned' : 'tt-mp-unassigned';
             return '<tr data-pid="' + p.id + '" class="tt-mp-roster-row ' + cls + '" draggable="true">'
-                + '<td class="tt-mp-col-name">' + escapeHtml(p.name) + '</td>'
+                + '<td class="tt-mp-col-name">' + escapeHtml(p.name) + unavailableFlag(p.id) + '</td>'
                 + '<td class="tt-mp-col-min ' + (on1 ? 'tt-mp-on' : 'tt-mp-off') + '">' + min1 + '</td>'
                 + '<td class="tt-mp-col-min ' + (on2 ? 'tt-mp-on' : 'tt-mp-off') + '">' + min2 + '</td>'
                 + '<td class="tt-mp-col-tot ' + (tot ? 'tt-mp-on' : 'tt-mp-off') + '">' + tot + '</td>'
@@ -494,15 +507,23 @@
                 var p = pid ? playerById(pid) : null;
                 var btn = document.createElement('button');
                 btn.type = 'button';
-                btn.className = 'tt-mp-slot' + (p ? '' : ' tt-mp-slot-empty');
+                btn.className = 'tt-mp-slot' + (p ? '' : ' tt-mp-slot-empty')
+                    + (p && isFlaggedUnavailable(p.id) ? ' tt-mp-slot-unavailable' : '');
                 btn.setAttribute('data-half', String(half));
                 btn.setAttribute('data-slot', String(pos.num));
                 btn.style.left = pos.x + '%';
                 btn.style.top = pos.y + '%';
-                btn.setAttribute('aria-label', format(i18n('slot_label', 'Slot %1$s — %2$s half'), [pos.num, half === 1 ? i18n('half_1', '1st') : i18n('half_2', '2nd')]));
+                var slotLabel = format(i18n('slot_label', 'Slot %1$s — %2$s half'), [pos.num, half === 1 ? i18n('half_1', '1st') : i18n('half_2', '2nd')]);
+                // #4245 — below 768px the slot shows only a red border, so the
+                // accessible name carries the player and the flag.
+                if (p && isFlaggedUnavailable(p.id)) {
+                    slotLabel += ', ' + p.name + ', ' + i18n('unavailable', 'Unavailable');
+                }
+                btn.setAttribute('aria-label', slotLabel);
                 btn.innerHTML =
                     '<span class="tt-mp-slot-num">' + pos.num + '</span>' +
-                    '<span class="tt-mp-slot-name">' + (p ? escapeHtml(p.name) : '–') + '</span>';
+                    '<span class="tt-mp-slot-name">' + (p ? escapeHtml(p.name) : '–') + '</span>' +
+                    (p ? unavailableFlag(p.id) : '');
                 btn.addEventListener('click', function (e) {
                     e.stopPropagation();
                     openPicker(btn, { kind: 'slot', half: half, slot: pos.num });
@@ -975,7 +996,7 @@
                     + escapeHtml(i18n(chip.key, chip.fallback)) + '</button>';
             }).join('');
             return '<div class="tt-mp-drawer-row" data-pid="' + p.id + '">'
-                + '<div class="tt-mp-drawer-name">' + escapeHtml(p.name) + '</div>'
+                + '<div class="tt-mp-drawer-name">' + escapeHtml(p.name) + unavailableFlag(p.id) + '</div>'
                 + '<div class="tt-mp-chips">' + chips + '</div>'
                 + (isUnavailableStatus(status) ? '<div class="tt-mp-drawer-reason"><input type="text" data-tt-mp-reason="' + p.id + '" value="' + escapeHtml(a.reason || '') + '" placeholder="' + escapeHtml(i18n('reason', 'Reason (optional)…')) + '"></div>' : '')
                 + '</div>';
