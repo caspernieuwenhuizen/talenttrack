@@ -27,7 +27,7 @@ Each row shows the day, the type, the activity and its time and place, and below
 
 *Unavailable* is a count only. The panel never says why a player cannot play.
 
-A week without a match says *No match this week.* under the list; a week with nothing planned says *Nothing planned for your teams this week.*
+A week without a match says *No match this week.* under the list. A week with no activities on your teams shows a single line saying so instead of rows.
 
 ### Who sees the panel
 

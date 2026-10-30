@@ -27,7 +27,7 @@ Elke rij toont de dag, het type, de activiteit met tijd en plaats, en daaronder 
 
 *Niet beschikbaar* is alleen een aantal. Het paneel zegt nooit waarom een speler niet kan spelen.
 
-Een week zonder wedstrijd meldt *Geen wedstrijd deze week.* onder de lijst; een week zonder iets gepland meldt *Niets gepland voor je teams deze week.*
+Een week zonder wedstrijd meldt *Geen wedstrijd deze week.* onder de lijst. Een week zonder activiteiten voor je teams toont in plaats van rijen één regel die dat zegt.
 
 ### Wie het paneel ziet
 
