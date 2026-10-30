@@ -33,10 +33,10 @@ class TaskEngine {
      * array if the template is disabled, missing, or resolves to no
      * assignees).
      *
-     * Idempotency is the caller's concern: this engine creates a row
-     * every time it's called. Cron / event dispatchers in Sprint 2 are
-     * responsible for their own dedup (e.g. "session X already had a
-     * post-match eval task created").
+     * A template's `deadlineFor()` date wins over the deadline offset.
+     * A template that opts into `idempotentDispatch()` gets no second task
+     * for the same template, assignee, player and `due_at`; for every
+     * other template dedup stays the caller's concern.
      *
      * @param string|null $spawned_by_step Phase 2 chain primitive — the
      *     parent template's step id when this dispatch comes from a
@@ -67,11 +67,16 @@ class TaskEngine {
         $deadline_offset = $config['deadline_offset_override']
             ?? $template->defaultDeadlineOffset();
 
-        $contexts = $template->expandTrigger( $context );
-        $resolver = $template->defaultAssignee();
+        $contexts   = $template->expandTrigger( $context );
+        $resolver   = $template->defaultAssignee();
+        $idempotent = $template->idempotentDispatch();
 
         $created = [];
         foreach ( $contexts as $task_context ) {
+            $due_at = self::normalizeDueAt( (string) $template->deadlineFor( $task_context ) )
+                ?? $this->computeDueAt( $deadline_offset );
+            $player_id = (int) ( $task_context->player_id ?? 0 );
+
             $user_ids = $resolver->resolve( $task_context );
             if ( empty( $user_ids ) ) {
                 $this->log( sprintf(
@@ -83,12 +88,17 @@ class TaskEngine {
                 continue;
             }
             foreach ( $user_ids as $user_id ) {
+                if ( $idempotent && $player_id > 0
+                    && $this->tasks->findByNaturalKey( $template_key, (int) $user_id, $player_id, $due_at ) !== null
+                ) {
+                    continue;
+                }
                 $row = array_merge(
                     $task_context->toEntityLinks(),
                     [
                         'template_key'     => $template_key,
                         'assignee_user_id' => (int) $user_id,
-                        'due_at'           => $this->computeDueAt( $deadline_offset ),
+                        'due_at'           => $due_at,
                     ]
                 );
                 if ( $spawned_by_step !== null && $spawned_by_step !== '' ) {
@@ -169,6 +179,17 @@ class TaskEngine {
             $context = $step->buildContext( $task, $response );
             $this->dispatch( $step->template_key, $context, $step->id );
         }
+    }
+
+    /**
+     * A template's own deadline as the stored `due_at` format, or null when
+     * it gave none or one `strtotime()` cannot read. One format on every
+     * path keeps the natural-key lookup exact.
+     */
+    public static function normalizeDueAt( string $date ): ?string {
+        if ( trim( $date ) === '' ) return null;
+        $ts = strtotime( $date );
+        return $ts === false ? null : date( 'Y-m-d H:i:s', $ts );
     }
 
     private function computeDueAt( string $offset ): string {

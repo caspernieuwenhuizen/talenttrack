@@ -85,6 +85,20 @@ interface TaskTemplateInterface {
     public function defaultDeadlineOffset(): string;
 
     /**
+     * A per-record deadline taken from the trigger context, such as an
+     * injury's expected return. Any date `strtotime()` reads; null means
+     * "no date of its own", and the engine falls back to the offset.
+     */
+    public function deadlineFor( TaskContext $context ): ?string;
+
+    /**
+     * When true, `TaskEngine::dispatch()` creates no task if one already
+     * exists for the same template, assignee, player and `due_at`, in any
+     * status. Only applies to contexts that name a player.
+     */
+    public function idempotentDispatch(): bool;
+
+    /**
      * Returns the AssigneeResolver this template uses by default. Called
      * at task creation; the resolver's resolve() returns the user IDs
      * the engine fans the task out to.

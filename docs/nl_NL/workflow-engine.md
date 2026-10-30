@@ -74,6 +74,14 @@ De resterende fases van het epic landden in één release. De vorm blijft hetzel
 - **Bulkacties + snooze** — vinkjes op elke actiebare rij plus een bulk-balk met **Geselecteerde overslaan**, **1 dag snoozen** en **7 dagen snoozen**. Per-rij `1d` en `7d` knoppen verbergen een enkele taak zonder selectie. Gesnoozede taken keren automatisch terug zodra de snooze verloopt; een *Toon gesnoozede* vinkje haalt ze eerder terug.
 - **Event log + retry** — elke event-typed trigger schrijft een rij naar `tt_workflow_event_log`. Geslaagde dispatches gaan over naar `processed`; opgegooide fouten landen als `failed` met de melding bewaard. Het admin-configscherm toont de laatste 25 rijen met een **Retry**-knop op gefaalde rijen die de dispatch opnieuw uitvoert en een retry-teller verhoogt.
 
+## Voor developers: een deadline per record, één taak per sleutel, verschoven datums
+
+Met drie template-hooks volgt een herinnering een record in plaats van de klok. Gebruik ze in plaats van taken rechtstreeks via `TasksRepository` te schrijven, zodat de aan/uit-schakelaar van het template en de actie `tt_workflow_task_created` (die de e-mail verstuurt) blijven gelden.
+
+- **`deadlineFor( TaskContext )`** geeft een datum uit de triggercontext terug, bijvoorbeeld de dag waarop een speler terug wordt verwacht. Geeft hij null terug, dan geldt de deadline-offset zoals voorheen.
+- **`idempotentDispatch()`** die true teruggeeft, laat `dispatch()` een taak overslaan die al bestaat voor hetzelfde template, dezelfde toegewezene, dezelfde speler en dezelfde einddatum, ongeacht de status. Het template na elke wijziging opnieuw afvuren maakt dan niets nieuws aan.
+- **`TaskSupersede::forPlayer( $template_key, $player_id, $keep_due_at )`** slaat de open taken van een template voor één speler over wanneer de datum verschuift, en laat de taak op `$keep_due_at` staan. Roep hem aan voordat je de nieuwe datum dispatcht. Taken van andere spelers blijven ongemoeid.
+
 ## Wat nog niet geleverd is (Phase 4)
 
 - **Formulierenbouwer** — elk formulier is nog steeds een PHP-klasse die met de plugin meekomt of door een developer wordt toegevoegd.

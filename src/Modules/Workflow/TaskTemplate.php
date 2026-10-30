@@ -29,6 +29,16 @@ abstract class TaskTemplate implements TaskTemplateInterface {
         return null;
     }
 
+    /** Default: no date of its own; the deadline offset decides. */
+    public function deadlineFor( TaskContext $context ): ?string {
+        return null;
+    }
+
+    /** Default: every dispatch creates its tasks. */
+    public function idempotentDispatch(): bool {
+        return false;
+    }
+
     /** Default: a single task, no fan-out. Override in fan-out templates. */
     public function expandTrigger( TaskContext $context ): array {
         return [ $context ];

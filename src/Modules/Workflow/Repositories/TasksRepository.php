@@ -88,6 +88,27 @@ class TasksRepository {
     }
 
     /**
+     * A template's still-actionable tasks (open, in progress, overdue) for
+     * one player, club-scoped, every assignee.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function listActiveForPlayer( string $template_key, int $player_id ): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$this->table()}
+              WHERE template_key = %s
+                AND player_id = %d
+                AND club_id = %d
+                AND status IN (%s, %s, %s)
+              ORDER BY id ASC",
+            $template_key, $player_id, CurrentClub::id(),
+            TaskStatus::OPEN, TaskStatus::IN_PROGRESS, TaskStatus::OVERDUE
+        ), ARRAY_A );
+        return is_array( $rows ) ? array_values( $rows ) : [];
+    }
+
+    /**
      * Fetch a task by ID, or null when not found.
      *
      * @return array<string,mixed>|null
