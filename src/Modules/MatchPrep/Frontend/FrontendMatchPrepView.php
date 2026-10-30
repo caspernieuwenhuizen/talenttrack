@@ -161,13 +161,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
             return;
         }
 
-        // A plan that exists stays on screen, with the panel above it.
-        if ( $plan_locked ) {
-            FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
-            echo \TT\Modules\License\UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
-        }
-
-        $prep_id      = (int) $prep->id;
+        $prep_id     = (int) $prep->id;
         $availability = $repo->listAvailability( $prep_id );
         $lineup_rows  = $repo->listLineup( $prep_id );
         $player_goals = $repo->listPlayerGoals( $prep_id );
@@ -250,6 +244,12 @@ class FrontendMatchPrepView extends FrontendViewBase {
             FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ),
             FrontendBreadcrumbs::viewCrumb( 'activities', $activity_crumb_label, [ 'id' => $activity_id ] ),
         ] );
+
+        // A plan that exists stays on screen, with the panel under the one
+        // breadcrumb chain (#4284: a second chain above it broke §5a).
+        if ( $plan_locked ) {
+            echo \TT\Modules\License\UpgradePanel::render( 'match_prep', [ 'reads_kept' => true ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — UpgradePanel returns escaped HTML
+        }
 
         parent::enqueueAssets();
         self::enqueueViewAssets( $prep_id, $activity_id );
