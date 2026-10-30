@@ -110,4 +110,22 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
         $end   = (int) strpos( $js, 'function renderStartersKpi()' );
         $this->assertStringContainsString( 'renderStartersKpi();', substr( $js, $start, $end - $start ), 'renderPitches() redraws the tile' );
     }
+
+    /**
+     * #4346 — the minutes footer counts out of the current layout's
+     * positions, not a fixed eleven, and follows a formation change.
+     */
+    public function test_the_minutes_footer_counts_out_of_the_current_layout(): void {
+        $js = (string) file_get_contents( TT_PLUGIN_DIR . 'assets/js/frontend-match-prep.js' );
+
+        $start = (int) strpos( $js, 'function renderFoot()' );
+        $foot  = substr( $js, $start, (int) strpos( $js, 'function setFoot(' ) - $start );
+        $this->assertStringNotContainsString( "' / 11'", $foot );
+        $this->assertStringContainsString( 'currentSlotLayout().length', $foot );
+
+        $change = (int) strpos( $js, "formationSel.addEventListener('change'" );
+        $this->assertGreaterThan( 0, $change );
+        $handler = substr( $js, $change, (int) strpos( $js, 'saveAll();', $change ) - $change );
+        $this->assertStringContainsString( 'renderFoot();', $handler, 'a formation change redraws the footer' );
+    }
 }

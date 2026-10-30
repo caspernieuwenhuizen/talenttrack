@@ -696,8 +696,11 @@
     function renderFoot() {
         var c1 = state.lineup['1'].size;
         var c2 = state.lineup['2'].size;
-        setFoot('count1', c1 + ' / 11');
-        setFoot('count2', c2 + ' / 11');
+        // #4346 — out of the positions the current layout holds, as the
+        // starters tile, not a fixed eleven.
+        var slots = currentSlotLayout().length;
+        setFoot('count1', c1 + ' / ' + slots);
+        setFoot('count2', c2 + ' / ' + slots);
         var m1 = c1 * state.halfLength;
         var m2 = c2 * state.halfLength;
         setFoot('min1', m1);
@@ -937,6 +940,8 @@
                 var kpiVal = document.querySelector('[data-tt-mp-formation-kpi] .tt-kpi__val');
                 if (kpiVal) kpiVal.textContent = shape;
                 renderPitches();
+                // #4346 — the footer's "n / positions" follows the formation.
+                renderFoot();
             }
             markDirty();
             saveAll();
