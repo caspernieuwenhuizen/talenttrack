@@ -11,7 +11,9 @@ order: 18
 Status: **proposed** by the product owner on 2026-10-30, written from the
 academy owner's chair. It becomes the product's direction when the owner
 adopts it; the bets it starts are then scheduled through the
-[roadmap](roadmap.md) like any other work.
+[roadmap](roadmap.md) like any other work. The owner decided on
+2026-10-30 that the first bets are chosen when the ready queue is close to
+empty, so no bet enters the roadmap before then.
 
 ## The problem nobody's software solves
 
