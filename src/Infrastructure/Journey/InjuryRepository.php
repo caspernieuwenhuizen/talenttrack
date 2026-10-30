@@ -237,11 +237,63 @@ final class InjuryRepository {
      * and the reason setting a return date matters.
      *
      * @param list<int>            $team_ids  Empty means every team (academy-wide readers).
-     * @param array<string, mixed> $filters   status: open|recovered|all, severity_id, from, to
+     * @param array<string, mixed> $filters   status: open|recovered|all, severity_id, from, to,
+     *                                        limit and offset (a page; all rows when no limit)
      * @return list<object>
      */
     public function listForTeams( array $team_ids, array $filters = [] ): array {
-        $p      = $this->wpdb->prefix;
+        $p = $this->wpdb->prefix;
+        [ $where, $args ] = $this->teamsWhere( $team_ids, $filters );
+
+        $page = '';
+        $limit = isset( $filters['limit'] ) ? (int) $filters['limit'] : 0;
+        if ( $limit > 0 ) {
+            $page   = ' LIMIT %d OFFSET %d';
+            $args[] = $limit;
+            $args[] = max( 0, (int) ( $filters['offset'] ?? 0 ) );
+        }
+
+        $sql = "SELECT i.*,
+                       pl.first_name, pl.last_name, pl.team_id,
+                       t.name AS team_name
+                  FROM {$this->table} i
+            INNER JOIN {$p}tt_players pl ON pl.id = i.player_id AND pl.club_id = i.club_id
+             LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id  AND t.club_id = i.club_id
+                 WHERE " . implode( ' AND ', $where ) . "
+              ORDER BY i.started_on DESC, i.id DESC" . $page;
+
+        /** @var list<object> $rows */
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$args ) );
+        return $rows ?: [];
+    }
+
+    /**
+     * How many rows `listForTeams()` would return without a page, for a
+     * paginated reader.
+     *
+     * @param list<int>            $team_ids
+     * @param array<string, mixed> $filters
+     */
+    public function countForTeams( array $team_ids, array $filters = [] ): int {
+        $p = $this->wpdb->prefix;
+        [ $where, $args ] = $this->teamsWhere( $team_ids, $filters );
+
+        $sql = "SELECT COUNT(*)
+                  FROM {$this->table} i
+            INNER JOIN {$p}tt_players pl ON pl.id = i.player_id AND pl.club_id = i.club_id
+                 WHERE " . implode( ' AND ', $where );
+
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare( $sql, ...$args ) );
+    }
+
+    /**
+     * The overview's WHERE, shared by the list and its count.
+     *
+     * @param list<int>            $team_ids
+     * @param array<string, mixed> $filters
+     * @return array{0: list<string>, 1: list<int|string>}
+     */
+    private function teamsWhere( array $team_ids, array $filters ): array {
         $status = (string) ( $filters['status'] ?? 'open' );
 
         $where = [ 'i.club_id = %d', 'i.archived_at IS NULL' ];
@@ -272,18 +324,7 @@ final class InjuryRepository {
             $args[]  = (string) $filters['to'];
         }
 
-        $sql = "SELECT i.*,
-                       pl.first_name, pl.last_name, pl.team_id,
-                       t.name AS team_name
-                  FROM {$this->table} i
-            INNER JOIN {$p}tt_players pl ON pl.id = i.player_id AND pl.club_id = i.club_id
-             LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id  AND t.club_id = i.club_id
-                 WHERE " . implode( ' AND ', $where ) . "
-              ORDER BY i.started_on DESC, i.id DESC";
-
-        /** @var list<object> $rows */
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$args ) );
-        return $rows ?: [];
+        return [ $where, $args ];
     }
 
     /**

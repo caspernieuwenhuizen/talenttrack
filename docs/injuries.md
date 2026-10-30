@@ -69,6 +69,8 @@ A row is flagged **Overdue** when the expected return has passed and no actual r
 
 Filter by team, and switch between **Currently out**, **Recovered** and **All**.
 
+The same list is available to other apps through the API as `GET /wp-json/talenttrack/v1/player-injuries`, with the same team and status filters, a page at a time. It follows the same rules as this page: you only get the teams whose injuries you may read here, and every read is written to the audit log.
+
 **Record injury** sits at the top of the page, so you can log one without going through a player's file first — the wizard asks which team and which player as its first step. The button only appears for roles that may record an injury; everyone else sees the overview read-only.
 
 ## Privacy

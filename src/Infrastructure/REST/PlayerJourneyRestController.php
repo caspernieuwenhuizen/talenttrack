@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Journey\EventEmitter;
 use TT\Infrastructure\Journey\EventTypeRegistry;
+use TT\Infrastructure\Journey\InjuryOverviewScope;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\InjuryStatus;
 use TT\Infrastructure\Journey\PlayerEventsRepository;
@@ -25,6 +26,16 @@ use TT\Infrastructure\Security\AuthorizationService;
  * itself (injuries, manual notes).
  */
 class PlayerJourneyRestController extends BaseController {
+
+    /**
+     * #4288 — the columns `GET /player-injuries` returns: what the squad
+     * overview shows, and nothing it does not.
+     */
+    private const OVERVIEW_FIELDS = [
+        'id', 'player_id', 'first_name', 'last_name', 'team_id', 'team_name',
+        'body_part_lookup_id', 'severity_lookup_id',
+        'started_on', 'expected_return', 'actual_return',
+    ];
 
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
@@ -128,6 +139,27 @@ class PlayerJourneyRestController extends BaseController {
                 'callback'            => [ __CLASS__, 'create_injury' ],
                 'permission_callback' => self::permCan( 'tt_edit_player_medical' ),
                 'args'                => self::injuryArgs(),
+            ],
+        ] );
+        // #4288 — the squad overview over REST: "who is out right now"
+        // across the teams the caller may read, scoped per team inside
+        // the handler exactly as `?tt_view=injuries` is.
+        register_rest_route( self::NS, '/player-injuries', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'list_team_injuries' ],
+                // The overview screen's own first gate (the matrix, any
+                // scope); the per-team scope is the handler's.
+                'permission_callback' => static function (): bool {
+                    $uid = get_current_user_id();
+                    return $uid > 0 && InjuryOverviewScope::canRead( $uid, current_user_can( 'tt_edit_settings' ) );
+                },
+                'args'                => [
+                    'team_id'  => [ 'type' => [ 'integer', 'string' ], 'description' => 'One team; omitted means every team the caller may read.' ],
+                    'status'   => [ 'type' => 'string', 'enum' => [ 'open', 'recovered', 'all' ], 'description' => 'open (default), recovered or all.' ],
+                    'page'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'Page number, from 1.' ],
+                    'per_page' => [ 'type' => [ 'integer', 'string' ], 'description' => '10, 25 (default), 50 or 100.' ],
+                ],
             ],
         ] );
         register_rest_route( self::NS, '/player-injuries/(?P<id>\d+)', [
@@ -474,6 +506,75 @@ class PlayerJourneyRestController extends BaseController {
             static fn( $row ) => (array) $row + [ 'status' => InjuryStatus::status( $row ) ],
             $rows
         ) ] );
+    }
+
+    /**
+     * `GET /player-injuries` — the squad overview's rows, a page at a time.
+     *
+     * Scope is `InjuryOverviewScope`, the overview screen's own: a caller
+     * who may read injuries on no team (an assistant coach, a parent) is
+     * refused; a `team_id` outside the caller's teams answers an empty set
+     * rather than another team's rows. Every read that returns rows is
+     * audit-logged with the player ids it returned.
+     */
+    public static function list_team_injuries( \WP_REST_Request $r ): \WP_REST_Response {
+        $uid      = get_current_user_id();
+        $is_admin = current_user_can( 'tt_edit_settings' );
+
+        $sees_all = InjuryOverviewScope::seesAll( $uid, $is_admin );
+        $teams    = InjuryOverviewScope::teams( $uid, $is_admin );
+        if ( ! InjuryOverviewScope::canRead( $uid, $is_admin ) || ( ! $sees_all && $teams === [] ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have permission to view injuries.', 'talenttrack' ), 403 );
+        }
+
+        $status = sanitize_key( (string) ( $r->get_param( 'status' ) ?? 'open' ) );
+        if ( ! in_array( $status, [ 'open', 'recovered', 'all' ], true ) ) $status = 'open';
+
+        $per_page = absint( $r->get_param( 'per_page' ) ?? 25 );
+        if ( ! in_array( $per_page, [ 10, 25, 50, 100 ], true ) ) $per_page = 25;
+        $page = max( 1, absint( $r->get_param( 'page' ) ?? 1 ) );
+
+        $scope = InjuryOverviewScope::repositoryScope( $teams, absint( $r->get_param( 'team_id' ) ?? 0 ), $sees_all );
+        if ( $scope === null ) {
+            return RestResponse::success( [ 'injuries' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page ] );
+        }
+
+        $repo  = new InjuryRepository();
+        $total = $repo->countForTeams( $scope, [ 'status' => $status ] );
+        $rows  = $repo->listForTeams( $scope, [
+            'status' => $status,
+            'limit'  => $per_page,
+            'offset' => ( $page - 1 ) * $per_page,
+        ] );
+
+        if ( $rows !== [] ) {
+            $player_ids = [];
+            foreach ( $rows as $row ) {
+                $pid = (int) ( ( (array) $row )['player_id'] ?? 0 );
+                if ( $pid > 0 ) $player_ids[ $pid ] = $pid;
+            }
+            ( new AuditService() )->record( 'player.injuries_viewed', 'club', 0, [
+                'surface'    => 'rest_injuries_collection',
+                'count'      => count( $rows ),
+                'player_ids' => array_values( $player_ids ),
+            ] );
+        }
+
+        return RestResponse::success( [
+            // `status` and `days_out` are derived on read by `InjuryStatus`, never stored.
+            // Only the fields the overview shows: notes, type and the
+            // audit columns stay on the player file, behind its own gate.
+            'injuries' => array_map(
+                static fn( $row ) => array_intersect_key( (array) $row, array_flip( self::OVERVIEW_FIELDS ) ) + [
+                    'status'   => InjuryStatus::status( $row ),
+                    'days_out' => InjuryStatus::daysOut( $row ),
+                ],
+                $rows
+            ),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
+        ] );
     }
 
     public static function create_injury( \WP_REST_Request $r ): \WP_REST_Response {

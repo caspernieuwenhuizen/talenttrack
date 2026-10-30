@@ -94,6 +94,7 @@ final class RestSmokeTest extends WP_UnitTestCase {
 
             // Player injuries — minors' medical records, the most sensitive class.
             'GET /players/1/injuries'       => [ 'GET',    '/talenttrack/v1/players/1/injuries' ],
+            'GET /player-injuries'          => [ 'GET',    '/talenttrack/v1/player-injuries' ],
             'POST /players/1/injuries'      => [ 'POST',   '/talenttrack/v1/players/1/injuries' ],
             'PUT /player-injuries/1'        => [ 'PUT',    '/talenttrack/v1/player-injuries/1' ],
             'DELETE /player-injuries/1'     => [ 'DELETE', '/talenttrack/v1/player-injuries/1' ],
