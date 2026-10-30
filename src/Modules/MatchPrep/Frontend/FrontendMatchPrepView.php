@@ -274,6 +274,12 @@ class FrontendMatchPrepView extends FrontendViewBase {
             (int) ( $activity->team_id ?? 0 )
         ) );
         $summary = self::summaryCounts( $availability_by_pid, $lineup_by_half[1], count( $roster_list ), $layout_slots );
+        // #4346 — the roster's minutes follow the same rule: a player on a
+        // slot the current layout does not draw plays no minutes on it.
+        $on_layout_by_half = [
+            1 => self::playersOnLayout( $lineup_by_half[1], $layout_slots ),
+            2 => self::playersOnLayout( $lineup_by_half[2], $layout_slots ),
+        ];
         ?>
         <h1 class="tt-fview-title tt-match-prep-title"><?php echo esc_html( $title ); ?></h1>
 
@@ -470,8 +476,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
                                 if ( ! isset( $players_by_id[ $pid ] ) ) continue;
                                 $pl    = $players_by_id[ $pid ];
                                 $name  = $short_names[ $pid ] ?? QueryHelpers::player_display_name( $pl );
-                                $on1   = in_array( $pid, $lineup_by_half[1], true );
-                                $on2   = in_array( $pid, $lineup_by_half[2], true );
+                                $on1   = isset( $on_layout_by_half[1][ $pid ] );
+                                $on2   = isset( $on_layout_by_half[2][ $pid ] );
                                 $min1  = $on1 ? $half_length : 0;
                                 $min2  = $on2 ? $half_length : 0;
                                 ?>
@@ -1179,6 +1185,26 @@ class FrontendMatchPrepView extends FrontendViewBase {
             'starters'    => $starters,
             'roster'      => $roster_total,
         ];
+    }
+
+    /**
+     * The players of one half who hold a slot the current layout draws
+     * (#4346), keyed by player id. The stored entries on other slots are
+     * kept for switching back to a bigger formation, not counted.
+     *
+     * @param array<int,int> $lineup_half  slot => player id
+     * @param array<int,int> $layout_slots slot numbers of the current layout
+     * @return array<int,true>
+     */
+    private static function playersOnLayout( array $lineup_half, array $layout_slots ): array {
+        $in_layout = array_flip( array_map( 'intval', $layout_slots ) );
+        $out       = [];
+        foreach ( $lineup_half as $slot => $pid ) {
+            if ( (int) $pid > 0 && isset( $in_layout[ (int) $slot ] ) ) {
+                $out[ (int) $pid ] = true;
+            }
+        }
+        return $out;
     }
 
     /**

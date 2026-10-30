@@ -12,4 +12,5 @@ and the players on the other positions come back when you switch back.
 The minutes table footer also counts out of the formation's positions
 ("6 / 6" on a 3-2-1) instead of always "/ 11", counts only the players and
 minutes on those positions, and follows a formation
-change (#4346).
+change (#4346). Each player's minutes in the roster follow the same rule: a
+player left on a position the formation no longer has plays no minutes.

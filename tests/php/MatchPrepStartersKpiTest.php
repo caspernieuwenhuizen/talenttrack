@@ -19,6 +19,7 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
 
     private int $activity = 0;
     private int $user     = 0;
+    private int $team     = 0;
 
     public function set_up(): void {
         parent::set_up();
@@ -29,7 +30,8 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
 
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'JO8-1', 'football_form' => '6v6' ] );
-        $team = (int) $wpdb->insert_id;
+        $team       = (int) $wpdb->insert_id;
+        $this->team = $team;
         $wpdb->insert( "{$wpdb->prefix}tt_activities", [
             'club_id'           => 1,
             'team_id'           => $team,
@@ -87,6 +89,57 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * #4346 — a player left on slot 9 of a 4-3-3 after the switch to 3-2-1
+     * plays no minutes on this pitch; a player on slot 2 does.
+     */
+    public function test_roster_minutes_count_only_players_on_the_current_layout(): void {
+        global $wpdb;
+        $ids = [];
+        foreach ( [ 'Daan', 'Sem' ] as $first ) {
+            $wpdb->insert( "{$wpdb->prefix}tt_players", [
+                'club_id'    => 1,
+                'team_id'    => $this->team,
+                'first_name' => $first,
+                'last_name'  => 'Roster',
+                'status'     => 'active',
+            ] );
+            $ids[] = (int) $wpdb->insert_id;
+        }
+        [ $on_pitch, $off_layout ] = $ids;
+
+        $repo    = new MatchPrepRepository();
+        $prep_id = $repo->ensureForActivity( $this->activity );
+        $repo->replaceAvailability( $prep_id, [
+            $on_pitch   => [ 'status' => 'Present' ],
+            $off_layout => [ 'status' => 'Present' ],
+        ] );
+        $repo->replaceLineupForHalf( $prep_id, 1, [ 2 => $on_pitch, 9 => $off_layout ] );
+
+        $html = $this->renderPrep();
+
+        $this->assertMatchesRegularExpression(
+            '#<tr data-pid="' . $off_layout . '"\s+class="tt-mp-roster-row tt-mp-unassigned"#',
+            $html,
+            'slot 9 is not on a 3-2-1, so the player is not on the pitch'
+        );
+        $this->assertMatchesRegularExpression(
+            '#<tr data-pid="' . $off_layout . '"(?:(?!</tr>).)*?data-tt-mp-min="tot">0</td>#s',
+            $html,
+            'and plays no minutes'
+        );
+        $this->assertMatchesRegularExpression(
+            '#<tr data-pid="' . $on_pitch . '"\s+class="tt-mp-roster-row tt-mp-assigned"#',
+            $html,
+            'slot 2 is on a 3-2-1'
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '#<tr data-pid="' . $on_pitch . '"(?:(?!</tr>).)*?data-tt-mp-min="tot">0</td>#s',
+            $html,
+            'and plays the first half'
+        );
+    }
+
     private function renderPrep(): string {
         $_GET['activity_id'] = (string) $this->activity;
         ob_start();
@@ -136,5 +189,16 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
         $this->assertGreaterThan( 0, $change );
         $handler = substr( $js, $change, (int) strpos( $js, 'saveAll();', $change ) - $change );
         $this->assertStringContainsString( 'renderFoot();', $handler, 'a formation change redraws the footer' );
+        $this->assertStringContainsString( 'renderRoster();', $handler, 'and the roster minutes' );
+
+        // The roster's minutes ask whether the player is on the layout, not
+        // merely stored in the half.
+        $roster_start = (int) strpos( $js, 'function renderRoster()' );
+        $roster       = substr( $js, $roster_start, 1500 );
+        $this->assertStringContainsString( 'var on1 = isOnLayout(1, p.id);', $roster );
+        $this->assertStringContainsString( 'var on2 = isOnLayout(2, p.id);', $roster );
+        $helper_start = (int) strpos( $js, 'function isOnLayout(' );
+        $this->assertGreaterThan( 0, $helper_start );
+        $this->assertStringContainsString( 'currentSlotLayout().some(', substr( $js, $helper_start, 300 ) );
     }
 }

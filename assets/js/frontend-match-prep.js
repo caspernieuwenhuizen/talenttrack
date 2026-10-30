@@ -171,6 +171,16 @@
         return found;
     }
 
+    // #4346 — whether the player holds a slot the current layout draws. A
+    // bigger formation's extra slots stay stored for switching back, but a
+    // player there plays no minutes on this pitch; the server's roster rows
+    // apply the same rule, so live and reload agree.
+    function isOnLayout(half, pid) {
+        var map = state.lineup[String(half)];
+        if (!map) return false;
+        return currentSlotLayout().some(function (pos) { return map.get(pos.num) === pid; });
+    }
+
     function placedCount(pid) {
         var n = 0;
         if (isOnPitch(1, pid)) n++;
@@ -456,8 +466,8 @@
         }
 
         tbody.innerHTML = avail.map(function (p) {
-            var on1 = isOnPitch(1, p.id);
-            var on2 = isOnPitch(2, p.id);
+            var on1 = isOnLayout(1, p.id);
+            var on2 = isOnLayout(2, p.id);
             var min1 = on1 ? state.halfLength : 0;
             var min2 = on2 ? state.halfLength : 0;
             var tot = min1 + min2;
@@ -947,7 +957,9 @@
                 var kpiVal = document.querySelector('[data-tt-mp-formation-kpi] .tt-kpi__val');
                 if (kpiVal) kpiVal.textContent = shape;
                 renderPitches();
-                // #4346 — the footer's "n / positions" follows the formation.
+                // #4346 — the footer's "n / positions" and the roster's
+                // minutes follow the formation.
+                renderRoster();
                 renderFoot();
             }
             markDirty();
