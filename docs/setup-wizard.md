@@ -13,6 +13,8 @@ order: 40
 
 The setup wizard is the first thing a fresh TalentTrack install shows. It creates the minimum a club needs to start using the plugin: an academy name, a first team, your admin profile, and a frontend dashboard page set as the site homepage.
 
+TalentTrack needs **PHP 8.1** or newer and **WordPress 6.0** or newer. On an older PHP version WordPress will not install or update the plugin; ask your host to raise the PHP version first.
+
 ## Where to find it
 
 The wizard is reachable from four places — pick whichever you find first.

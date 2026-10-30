@@ -13,6 +13,8 @@ order: 40
 
 De installatiewizard is het eerste wat een verse TalentTrack-installatie toont. De wizard maakt het minimum aan dat een club nodig heeft om met de plugin te beginnen: een academienaam, een eerste team, je beheerprofiel en een frontend-dashboardpagina die als homepage van de site wordt ingesteld.
 
+TalentTrack heeft **PHP 8.1** of nieuwer nodig en **WordPress 6.0** of nieuwer. Op een oudere PHP-versie installeert of werkt WordPress de plugin niet bij; vraag je hostingpartij dan eerst de PHP-versie te verhogen.
+
 ## Waar je hem vindt
 
 De wizard is bereikbaar vanuit vier plekken — kies welke je het eerst tegenkomt.
