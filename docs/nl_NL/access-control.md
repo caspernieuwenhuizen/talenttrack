@@ -131,6 +131,8 @@ uit die koppelingen, niet uit het recht.
 
 Wijs rollen toe via **Toegangsbeheer → Rollen & Rechten** of de standaard Gebruikersadmin van WordPress.
 
+**Een team toevoegen is een aanmaakrecht, geen bewerkrecht.** Een hoofdtrainer bewerkt de eigen teams: naam, leeftijdsgroep, notities en staf. Een nieuw team toevoegen vraagt het aanmaakrecht op teams, en dat hebben het Hoofd opleiding en de Clubbeheerder. Een hoofdtrainer ziet dus geen actie **Nieuw team**, en ook niet de melding dat de teamlimiet is bereikt: die melding is voor wie een team zou kunnen toevoegen.
+
 De toegang van een **ouder** tot zijn of haar kind wordt automatisch afgeleid van de ouder–kindkoppeling (gelegd wanneer de ouder de uitnodiging accepteert): de ouderrol wordt toegekend, afgebakend tot elk gekoppeld kind, op het moment dat het nodig is. Een ouder/verzorger ziet alleen de gegevens van zijn of haar eigen gekoppelde kind(eren) — nooit het kind van een ander gezin, en nooit de andere verzorgers die aan hetzelfde kind gekoppeld zijn.
 
 ## Alleen-lezen Waarnemer

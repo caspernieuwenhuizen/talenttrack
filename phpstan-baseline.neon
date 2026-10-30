@@ -13753,12 +13753,6 @@ parameters:
 			path: src/Modules/PersonaDashboard/TableSources/UpcomingActivitiesSource.php
 
 		-
-			message: '#^Offset ''cap'' on array\{label_key\: ''Add activity'', view\: ''activities'', cap\: ''tt_edit_activities'', wizard\: ''new\-activity''\}\|array\{label_key\: ''Add evaluation'', view\: ''evaluations'', cap\: ''tt_edit_evaluations'', wizard\: ''new\-evaluation''\}\|array\{label_key\: ''Add goal'', view\: ''goals'', cap\: ''tt_edit_goals'', wizard\: ''new\-goal''\}\|array\{label_key\: ''Add player'', view\: ''players'', cap\: ''tt_edit_players'', wizard\: ''new\-player''\}\|array\{label_key\: ''Add scout report'', view\: ''scout\-history'', cap\: ''tt_generate_scout…''\}\|array\{label_key\: ''Add team'', view\: ''teams'', cap\: ''tt_edit_teams'', wizard\: ''new\-team''\}\|array\{label_key\: ''Add test training'', view\: ''test\-trainings'', cap\: ''tt_edit_prospects''\}\|array\{label_key\: ''Add trial'', view\: ''trials'', cap\: ''tt_manage_trials''\} in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.offset
-			count: 1
-			path: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
-
-		-
 			message: '#^Offset ''active_in_funnel'' on array\{logged_this_month\: int, active_in_funnel\: int\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
