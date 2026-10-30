@@ -74,6 +74,14 @@ The remaining phases of the epic landed in one release. The shape stays the same
 - **Bulk actions + snooze** — checkboxes on every actionable row plus a bulk bar with **Skip selected**, **Snooze 1 day**, and **Snooze 7 days**. Per-row `1d` and `7d` buttons hide a single task without selecting it. Snoozed tasks reappear automatically once the snooze elapses; a *Show snoozed* checkbox brings them back early.
 - **Event log + retry** — every event-typed trigger firing writes a row to `tt_workflow_event_log`. Successful dispatches transition `processed`; thrown errors land as `failed` with the message captured. The admin config view surfaces the last 25 entries with a **Retry** button on failed rows that re-runs the dispatch and increments a retry counter.
 
+## For developers: per-record deadlines, one task per key, moved dates
+
+Three template hooks let a reminder follow a record instead of the clock. Use them rather than writing tasks through `TasksRepository` directly, so the template's enabled switch and the `tt_workflow_task_created` action (which sends the e-mail) still apply.
+
+- **`deadlineFor( TaskContext )`** returns a date from the trigger context, for example the day a player is expected back. When it returns null the deadline offset applies, as before.
+- **`idempotentDispatch()`** returning true makes `dispatch()` skip a task that already exists for the same template, assignee, player and due date, whatever its status. Firing the template again after every edit then creates nothing new.
+- **`TaskSupersede::forPlayer( $template_key, $player_id, $keep_due_at )`** skips a template's open tasks for one player when the date moves, keeping the one on `$keep_due_at`. Call it before dispatching the new date. Other players' tasks are left alone.
+
 ## What's still not shipped (Phase 4)
 
 - **Form builder** — every form is still a PHP class shipped with the plugin or added by a developer.
