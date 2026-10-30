@@ -66,8 +66,34 @@ final class PlayerShortNameCollisionTest extends WP_UnitTestCase {
 
     public function test_identical_full_names_differ_by_shirt_number(): void {
         $names = $this->resolve( [ 1 => [ 'Dex', 'Visser', 7 ], 2 => [ 'Dex', 'Visser', 14 ] ] );
-        $this->assertSame( 'Dex V #7', $names[1] );
-        $this->assertSame( 'Dex V #14', $names[2] );
+        $this->assertSame( 'Dex #7', $names[1] );
+        $this->assertSame( 'Dex #14', $names[2] );
+    }
+
+    /** The reported squad: prefix words are skipped, so the labels stay short. */
+    public function test_van_der_laan_and_van_wijk_read_by_the_main_surname(): void {
+        $names = $this->resolve( [ 1 => [ 'Dex', 'Van der Laan', 11 ], 2 => [ 'Dex', 'Van Wijk', 23 ] ] );
+        $this->assertSame( [ 1 => 'Dex L', 2 => 'Dex W' ], $names );
+    }
+
+    public function test_de_jong_and_de_vries_read_by_the_main_surname(): void {
+        $names = $this->resolve( [ 1 => [ 'Sem', 'de Jong' ], 2 => [ 'Sem', 'De Vries' ] ] );
+        $this->assertSame( [ 1 => 'Sem J', 2 => 'Sem V' ], $names );
+    }
+
+    public function test_main_surnames_sharing_an_initial_take_more_capitalised_letters(): void {
+        $names = $this->resolve( [ 1 => [ 'Dex', 'van Wijk' ], 2 => [ 'Dex', 'Van der Wel' ] ] );
+        $this->assertSame( [ 1 => 'Dex Wi', 2 => 'Dex We' ], $names );
+    }
+
+    public function test_identical_prefixed_names_differ_by_shirt_number_alone(): void {
+        $names = $this->resolve( [ 1 => [ 'Dex', 'Van Wijk', 23 ], 2 => [ 'Dex', 'Van Wijk', 30 ], 3 => [ 'Dex', 'Van der Laan', 11 ] ] );
+        $this->assertSame( [ 1 => 'Dex #23', 2 => 'Dex #30', 3 => 'Dex L' ], $names );
+    }
+
+    public function test_a_surname_of_prefix_words_only_keeps_its_last_word(): void {
+        $names = $this->resolve( [ 1 => [ 'Dex', 'Van' ], 2 => [ 'Dex', 'Bos' ] ] );
+        $this->assertSame( [ 1 => 'Dex V', 2 => 'Dex B' ], $names );
     }
 
     public function test_every_label_in_a_colliding_squad_is_distinct(): void {

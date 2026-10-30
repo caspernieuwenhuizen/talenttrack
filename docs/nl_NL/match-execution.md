@@ -474,9 +474,11 @@ andere ondersteunde formaties).
  als er geen nummer is ingesteld) en een korte naam, op dezelfde manier
  ingekort als in de wedstrijdvoorbereiding: de **voornaam** (bijv. "Daan")
  als niemand anders op het veld die deelt; voornaam plus de eerste letter
- van de achternaam ("Daan P") als iemand dat wel doet; meer letters van de
- achternaam ("Dex Vr", "Dex Va") als ook die letter gelijk is; en het
- rugnummer ("Dex V #7") als de achternamen gelijk zijn. De Opstelling-kaart
+ van de achternaam ("Daan P") als iemand dat wel doet, zonder tussenvoegsel
+ zoals *van* of *de* ("Dex L" voor Dex Van der Laan); meer letters van de
+ achternaam ("Dex Wi", "Dex We") als ook die letter gelijk is; en het
+ rugnummer in plaats van de achternaam ("Dex #23") als de achternamen
+ gelijk zijn. De Opstelling-kaart
  van de wedstrijd op de activiteitpagina kort namen op dezelfde manier in,
  over basisspelers en wisselspelers samen.
 - Een lege plek — een slot zonder speler in de voorbereiding — toont een

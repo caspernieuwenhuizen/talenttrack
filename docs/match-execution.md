@@ -428,9 +428,10 @@ supported shapes).
  number is set) and a short name, shortened the same way as in match
  prep: the player's **first name** (e.g. "Daan") when nobody else on the
  pitch shares it; the first name plus the surname initial ("Daan P") when
- someone does; more surname letters ("Dex Vr", "Dex Va") when the initial
- is shared too; and the shirt number ("Dex V #7") when the surnames are
- identical. The match's Line-up card on the activity page shortens names
+ someone does, skipping prefix words such as *van* or *de* ("Dex L" for
+ Dex Van der Laan); more surname letters ("Dex Wi", "Dex We") when the
+ initial is shared too; and the shirt number instead of the surname
+ ("Dex #23") when the surnames are identical. The match's Line-up card on the activity page shortens names
  the same way, over its starters and bench together.
 - An empty spot — a slot with no player assigned in the prep — shows a
  dashed marker with the position label.
