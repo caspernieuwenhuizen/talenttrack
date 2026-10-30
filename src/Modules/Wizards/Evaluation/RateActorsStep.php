@@ -768,23 +768,21 @@ final class RateActorsStep implements WizardStepInterface {
         $p = $wpdb->prefix;
         $club_id = CurrentClub::id();
 
-        $prep = ( new MatchPrepRepository() )->findByActivity( $activity_id );
+        $prep_repo = new MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
         if ( ! $prep ) return [];
         $prep_id = (int) $prep->id;
 
         $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
         $exec_id = $exec ? (int) $exec->id : 0;
 
-        // Build the on-pitch player_id set in PHP (one round-trip each)
-        // rather than a multi-CTE UNION which gets fiddly with wpdb's
-        // placeholder counting. Two small index-driven lookups.
+        // Build the on-pitch player_id set in PHP rather than a multi-CTE
+        // UNION which gets fiddly with wpdb's placeholder counting.
+        // #4353 — the line-up through the repository, which keeps only the
+        // positions the prep's current layout draws: a player left on a
+        // slot a formation switch removed did not play.
         $on_pitch = [];
-        $lineup_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT player_id FROM {$p}tt_match_prep_lineup
-              WHERE match_prep_id = %d AND club_id = %d",
-            $prep_id, $club_id
-        ) );
-        foreach ( (array) $lineup_rows as $r ) {
+        foreach ( $prep_repo->listLineup( $prep_id ) as $r ) {
             $pid = (int) $r->player_id;
             if ( $pid > 0 ) $on_pitch[ $pid ] = true;
         }

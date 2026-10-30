@@ -163,14 +163,6 @@
         });
     }
 
-    function isOnPitch(half, pid) {
-        var map = state.lineup[String(half)];
-        if (!map) return false;
-        var found = false;
-        map.forEach(function (v) { if (v === pid) found = true; });
-        return found;
-    }
-
     // #4346 — whether the player holds a slot the current layout draws. A
     // bigger formation's extra slots stay stored for switching back, but a
     // player there plays no minutes on this pitch; the server's roster rows
@@ -183,8 +175,10 @@
 
     function placedCount(pid) {
         var n = 0;
-        if (isOnPitch(1, pid)) n++;
-        if (isOnPitch(2, pid)) n++;
+        // #4353 — "×n on pitch" in the picker counts the halves the player
+        // holds a drawn position in, like the roster minutes.
+        if (isOnLayout(1, pid)) n++;
+        if (isOnLayout(2, pid)) n++;
         return n;
     }
 
