@@ -103,6 +103,22 @@ final class PlayerCreateRightTest extends WP_UnitTestCase {
         $this->assertSame( 'tt_manage_players', ( new NewPlayerWizard() )->requiredCap() );
     }
 
+    public function test_the_wizard_and_the_dashboard_card_refuse_a_head_coach_and_admit_the_hod(): void {
+        $coach = $this->makeHeadCoach( $this->team );
+        $hod   = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
+
+        // The card and the empty-state CTA ask the plain capability; the
+        // legacy alias maps `tt_manage_players` to view + edit, which the
+        // head coach holds, so this is the answer that must still be no.
+        $this->assertFalse( user_can( $coach, 'tt_manage_players' ), 'the Add player card hides for a head coach' );
+        $this->assertTrue( user_can( $hod, 'tt_manage_players' ), 'and shows for the HoD' );
+
+        $this->assertNotNull( \TT\Shared\Wizards\WizardRegistry::find( 'new-player' ), 'the wizard is registered, or the two answers below mean nothing' );
+        $this->assertTrue( \TT\Shared\Wizards\WizardRegistry::isEnabled( 'new-player' ) );
+        $this->assertFalse( \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-player', $coach ), 'the wizard refuses a head coach before the first step' );
+        $this->assertTrue( \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-player', $hod ), 'and opens for the HoD' );
+    }
+
     private function makeHeadCoach( int $team_id ): int {
         global $wpdb;
         $p   = $wpdb->prefix;

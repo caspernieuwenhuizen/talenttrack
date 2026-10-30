@@ -50,7 +50,7 @@ De wizard is het canonieke startpunt voor "+ Nieuwe prospect". Klikken op de kno
 ## Rechten
 
 - **`tt_view_prospects`** — vereist om de pijplijn te openen. Standaard toegekend aan Academy Admin, Hoofd Ontwikkeling, Scout en Hoofdtrainer.
-- **`tt_edit_prospects`** — vereist om de Nieuwe prospect-wizard te starten. Toegekend aan Academy Admin, Hoofd Ontwikkeling en Scout — een hoofdtrainer leest de pijplijn, maar vult die niet aan.
+- **`tt_edit_prospects`** — vereist om de Nieuwe prospect-wizard te starten. Toegekend aan Academy Admin, Hoofd Ontwikkeling en Scout — een hoofdtrainer leest de pijplijn, maar vult die niet aan. Deze pijplijn is ook de weg van een nieuwe speler voor de hoofdtrainer: die kan zelf geen speler toevoegen, volgt de prospect op het eigen bord en opent een stage, en aan het eind daarvan registreert de academie de speler.
 - **`tt_invite_prospects`** — vereist om de klussen *Uitnodigen voor
   testtraining* en *Aanwezigheid testtraining bevestigen* af te ronden, en om
   vanuit de pijplijn een testtraining te regelen. Alleen toegekend aan Academy

@@ -97,6 +97,8 @@ A **player** is an individual footballer. Each player has:
 
 Create players in the **Players** admin page. Use the **+ Add new** button.
 
+Adding a player, by hand, through the new-player wizard or by CSV import, is for the Head of Development and the Club Admin. A head coach corrects their squad's records but does not add players, so they see no **New player** or **Import from CSV**. For a head coach the way a new player comes in is the [onboarding pipeline](onboarding-pipeline.md): a scout or the Head of Development logs the prospect, the head coach follows them on their board and can open a trial, and the academy registers the player once the trial is decided.
+
 ## Linking player to WordPress user
 
 When a player has a `wp_user_id` set, logging in as that user routes to their own dashboard view on the frontend shortcode. Without the link, the player exists only as a record you can evaluate.
