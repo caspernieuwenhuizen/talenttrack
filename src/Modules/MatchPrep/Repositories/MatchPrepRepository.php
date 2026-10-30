@@ -242,11 +242,27 @@ class MatchPrepRepository {
      * @return object[]
      */
     public function listLineup( int $prep_id ): array {
-        $rows = $this->listLineupAll( $prep_id );
+        $prep = $this->find( $prep_id );
+        return $prep ? $this->listLineupForPrep( $prep ) : [];
+    }
+
+    /**
+     * `listLineup()` for a caller that already holds the prep row, such as
+     * the minutes report's per-match loop, so the row is not read twice.
+     *
+     * @return object[]
+     */
+    public function listLineupForPrep( object $prep ): array {
+        $prep = (array) $prep;
+        $rows = $this->listLineupAll( (int) ( $prep['id'] ?? 0 ) );
         if ( $rows === [] ) return [];
 
-        $drawn = $this->layoutSlotNumbers( $prep_id );
-        $out   = [];
+        $team_id = ( new ActivitiesRepository() )->activityTeamId( (int) ( $prep['activity_id'] ?? 0 ) );
+        $drawn   = [];
+        foreach ( FormationLayoutResolver::layoutFor( (int) ( $prep['formation_template_id'] ?? 0 ), $team_id ) as $slot ) {
+            $drawn[ (int) $slot['num'] ] = true;
+        }
+        $out = [];
         foreach ( $rows as $row ) {
             if ( isset( $drawn[ (int) ( $row->slot_number ?? 0 ) ] ) ) $out[] = $row;
         }
@@ -269,24 +285,6 @@ class MatchPrepRepository {
             $prep_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
-    }
-
-    /**
-     * Slot numbers of the prep's resolved layout, keyed for lookup.
-     *
-     * @return array<int, true>
-     */
-    private function layoutSlotNumbers( int $prep_id ): array {
-        $prep = $this->find( $prep_id );
-        if ( ! $prep ) return [];
-        $prep    = (array) $prep;
-        $team_id = ( new ActivitiesRepository() )->activityTeamId( (int) ( $prep['activity_id'] ?? 0 ) );
-
-        $out = [];
-        foreach ( FormationLayoutResolver::layoutFor( (int) ( $prep['formation_template_id'] ?? 0 ), $team_id ) as $slot ) {
-            $out[ (int) $slot['num'] ] = true;
-        }
-        return $out;
     }
 
     /**

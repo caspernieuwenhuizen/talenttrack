@@ -155,23 +155,25 @@ final class MatchPrepLineupVisibleSlotsTest extends WP_UnitTestCase {
      */
     public function test_every_reader_takes_the_drawn_positions_and_only_the_editor_takes_all(): void {
         $readers = [
-            'src/Modules/Analytics/Reports/MinutesQuery.php',
-            'src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php',
-            'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php',
-            'src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php',
-            'src/Modules/MatchPrep/Rest/MatchPrepRestController.php',
-            'src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php',
-            'src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php',
-            'src/Modules/Wizards/Evaluation/RateActorsStep.php',
+            'src/Modules/Analytics/Reports/MinutesQuery.php'                         => '->listLineupForPrep(',
+            'src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php'   => '->listLineup(',
+            'src/Modules/MatchExecution/Rest/MatchExecutionRestController.php'       => '->listLineup(',
+            'src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php'     => '->listLineup(',
+            'src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php'          => '->listLineup(',
+            'src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php'             => '->listLineup(',
+            'src/Modules/Wizards/Evaluation/RateActorsStep.php'                      => '->listLineup(',
         ];
-        foreach ( $readers as $file ) {
+        foreach ( $readers as $file => $call ) {
             $src = (string) file_get_contents( TT_PLUGIN_DIR . $file );
-            $this->assertStringContainsString( '->listLineup(', $src, $file );
-            // The attendance projection also reads every row, only to know
-            // whom to project as not starting (tested above).
-            if ( $file === 'src/Modules/MatchPrep/Rest/MatchPrepRestController.php' ) continue;
+            $this->assertStringContainsString( $call, $src, $file );
             $this->assertStringNotContainsString( 'listLineupAll(', $src, $file );
         }
+
+        // The attendance projection reads every row once and filters it
+        // against the same layout its position labels come from; the hidden
+        // rows tell it whom to project as not starting (tested above).
+        $projection = (string) file_get_contents( TT_PLUGIN_DIR . 'src/Modules/MatchPrep/Rest/MatchPrepRestController.php' );
+        $this->assertStringContainsString( 'isset( $slot_position[ $slot ] )', $projection );
 
         $rate = (string) file_get_contents( TT_PLUGIN_DIR . 'src/Modules/Wizards/Evaluation/RateActorsStep.php' );
         $this->assertStringNotContainsString( 'tt_match_prep_lineup', preg_replace( '#/\*.*?\*/#s', '', $rate ) ?? '', 'no raw query around the filter' );

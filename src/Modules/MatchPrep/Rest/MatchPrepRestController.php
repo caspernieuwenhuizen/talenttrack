@@ -368,11 +368,23 @@ class MatchPrepRestController {
             ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
         );
 
-        // Half-1 lineup → slot per player.
+        // Half-1 lineup → slot per player, on the positions that layout
+        // draws (#4353). One read of every stored row, filtered against the
+        // label map above, so the labels and the starters come from the same
+        // layout. Everyone stored on a slot it does not draw is projected
+        // too: not starting, and a projection that skipped them would leave
+        // the `start` an earlier save wrote on their row.
         $starting_slot = [];
-        foreach ( $repo->listLineup( $prep_id ) as $row ) {
-            if ( (int) $row->half !== 1 ) continue;
-            $starting_slot[ (int) $row->player_id ] = (int) $row->slot_number;
+        $stored        = [];
+        foreach ( $repo->listLineupAll( $prep_id ) as $row ) {
+            $row  = (array) $row;
+            $pid  = (int) ( $row['player_id'] ?? 0 );
+            $slot = (int) ( $row['slot_number'] ?? 0 );
+            if ( $pid <= 0 ) continue;
+            $stored[ $pid ] = true;
+            if ( (int) ( $row['half'] ?? 0 ) === 1 && isset( $slot_position[ $slot ] ) ) {
+                $starting_slot[ $pid ] = $slot;
+            }
         }
 
         // Build the set of players to project — union of availability +
@@ -382,15 +394,7 @@ class MatchPrepRestController {
         foreach ( $repo->listAvailability( $prep_id ) as $row ) {
             $availability[ (int) $row->player_id ] = (string) $row->status;
         }
-        // #4353 — plus everyone stored on a slot the current layout does not
-        // draw: they are not starting, and a projection that skipped them
-        // would leave the `start` an earlier save wrote on their row.
-        $hidden = [];
-        foreach ( $repo->listLineupAll( $prep_id ) as $row ) {
-            $pid = (int) ( ( (array) $row )['player_id'] ?? 0 );
-            if ( $pid > 0 ) $hidden[ $pid ] = true;
-        }
-        $player_ids = array_keys( $starting_slot + $availability + $hidden );
+        $player_ids = array_keys( $starting_slot + $availability + $stored );
 
         foreach ( $player_ids as $player_id ) {
             $player_id = (int) $player_id;
