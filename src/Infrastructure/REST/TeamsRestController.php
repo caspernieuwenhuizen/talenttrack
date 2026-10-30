@@ -61,6 +61,10 @@ class TeamsRestController {
         $can_create = static function (): bool {
             return AuthorizationService::canCreateTeam( get_current_user_id() );
         };
+        // Archive and restore act on one team, so they ask about that team.
+        $can_manage_team = static function ( \WP_REST_Request $r ): bool {
+            return AuthorizationService::canManageTeam( get_current_user_id(), (int) $r['id'] );
+        };
         // #3152 — `$can_view` answers "may you look at teams". `GET /teams`
         // then narrows per row; `GET /teams/{id}` did not, so the row the
         // list omits was still readable one id at a time. This is the same
@@ -103,7 +107,10 @@ class TeamsRestController {
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_team' ],
-                'permission_callback' => $can_edit,
+                // `tt_edit_teams` is held by every head coach, so on its own
+                // it let them archive any team. Ask what PUT asks: the right
+                // to manage this team.
+                'permission_callback' => $can_manage_team,
             ],
         ] );
         // #4038 — a player's own team, player-facing.
@@ -200,7 +207,8 @@ class TeamsRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_team' ],
-                'permission_callback' => $can_edit,
+                // The reverse of the archive, so the same per-team check.
+                'permission_callback' => $can_manage_team,
                 'args'                => self::teamIdArgs(),
             ],
         ] );

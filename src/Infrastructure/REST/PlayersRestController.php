@@ -204,7 +204,16 @@ class PlayersRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'restore_player' ],
-                'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
+                // Restoring is the reverse of the archive above, so it asks
+                // the same two things: the capability AND the edit right on
+                // this record, not only the club-wide capability.
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return current_user_can( 'tt_edit_players' )
+                        && AuthorizationService::canEditPlayer(
+                            get_current_user_id(),
+                            (int) $r['id']
+                        );
+                },
                 'args'                => self::lifecycleArgs(),
             ],
         ] );
