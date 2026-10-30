@@ -198,6 +198,66 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $this->assertSame( TaskStatus::SKIPPED, $this->status( (int) $task['id'] ) );
     }
 
+    /** #4357 — archiving fires the edit event with the update() payload shape. */
+    public function test_archiving_fires_the_injury_updated_event(): void {
+        $repo = new InjuryRepository();
+        $id   = $repo->create( [
+            'player_id'  => $this->player,
+            'started_on' => $this->day( -3 ),
+        ] );
+        $seen = [];
+        $spy  = static function ( $payload ) use ( &$seen ): void { $seen[] = $payload; };
+        add_action( 'tt_journey_injury_updated', $spy, 5 );
+
+        $this->assertTrue( $repo->archive( $id, 0 ) );
+        remove_action( 'tt_journey_injury_updated', $spy, 5 );
+
+        $this->assertCount( 1, $seen );
+        $this->assertSame( $this->player, $seen[0]['player_id'] );
+        $this->assertSame( $this->team, $seen[0]['team_id'] );
+        $this->assertSame( $id, $seen[0]['extras']['injury_id'] );
+        $this->assertSame( [ 'archived_at' ], $seen[0]['extras']['fields'] );
+    }
+
+    /** #4357 — the archived record's reminder is skipped in the same request. */
+    public function test_archiving_the_record_skips_the_task(): void {
+        $repo = new InjuryRepository();
+        $id   = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+
+        $repo->archive( $id, 0 );
+
+        $this->assertSame( [], $this->active() );
+        $this->assertSame( TaskStatus::SKIPPED, $this->status( (int) $task['id'] ) );
+        $this->assertSame( [], ( new InjuryRepository() )->needsCheckSet( [ $this->player ], $this->today ) );
+    }
+
+    /** #4357 — a second open record keeps its own reminder. */
+    public function test_archiving_one_record_keeps_the_other_records_reminder(): void {
+        $repo  = new InjuryRepository();
+        $first = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -3 ),
+        ] );
+        $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+        $this->assertSame( $this->day( -3 ) . ' 00:00:00', (string) $this->active()[0]['due_at'] );
+
+        $repo->archive( $first, 0 );
+
+        $now = $this->active();
+        $this->assertCount( 1, $now );
+        $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
     public function test_the_daily_sweep_reminds_about_an_incomplete_record_once(): void {
         global $wpdb;
         // Written without the repository, so no event fires: only the sweep can find it.
