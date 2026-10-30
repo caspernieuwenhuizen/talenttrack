@@ -20,7 +20,7 @@ De instellingen staan per club in `tt_config`, zodat een toekomstige multi-tenan
 | --- | --- | --- |
 | **Identiteit** | Geboortedatum, positie(s), voorkeursvoet, rugnummer en status van de speler. | Nee — altijd zichtbaar. Dit verankert wie de speler is. |
 | **Academie** | Het team, de leeftijdscategorie en de datum van aansluiting van de speler. | Ja |
-| **Ouders · Verzorgers** | Gekoppelde contactgegevens van ouders / verzorgers. Alleen voor staf. | Ja |
+| **Ouders · Verzorgers** | Gekoppelde contactgegevens van ouders / verzorgers. Alleen voor staf. Elke keer dat een stafmedewerker de kaart opent, legt het [auditlog](audit-log.md) vast wie, wanneer en voor welke speler. | Ja |
 | **Ontdekking** | Hoe de speler is ontdekt — de scout, het ontdekkingsevenement, de club en de datum — voor spelers die via de scouting-trechter (Prospects) binnenkwamen. Alleen voor staf. | Ja |
 
 Het paneel **Belastingbeperking** staat hier niet bij: dat wordt bepaald door de VCT-moduleschakelaar, dus het uitzetten van de VCT-module verwijdert het al.
