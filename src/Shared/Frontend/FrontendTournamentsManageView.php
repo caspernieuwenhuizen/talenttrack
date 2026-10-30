@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Tournaments\Services\TournamentMatchStatus;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
@@ -446,17 +447,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                                 echo esc_html( $headline );
                                 ?>
                             </span>
-                            <?php
-                            if ( $m->completed_at ) {
-                                echo '<span class="tt-tour-chip tt-tour-chip--done">' . esc_html__( 'Completed', 'talenttrack' ) . '</span>';
-                            } elseif ( $m->kicked_off_at ) {
-                                echo '<span class="tt-tour-chip tt-tour-chip--live">' . esc_html__( 'In progress', 'talenttrack' ) . '</span>';
-                            } elseif ( $m->opponent_level ) {
-                                $level_key   = (string) $m->opponent_level;
-                                $level_style = LookupColourChip::styleFor( (string) ( $level_colours[ $level_key ] ?? '' ) );
-                                echo '<span class="tt-tour-chip tt-tour-chip--level"' . ( $level_style !== '' ? ' style="' . esc_attr( $level_style ) . '"' : '' ) . '>' . esc_html( $level_labels[ $level_key ] ?? $level_key ) . '</span>'; /* tt-inline-ok: the level's operator-chosen colour, and the ink derived from it */
-                            }
-                            ?>
+                            <?php echo self::matchChipsHtml( $m, $level_labels, $level_colours ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped per chip. ?>
                         </div>
                         <?php
                         // #3532 — the fixture's result. A tournament day has no
@@ -594,11 +585,66 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                     </select>
                 </label>
             </div>
+            <?php
+            // #4264 — minutes are booked on completion, so a played fixture
+            // nobody completed is missing from every total below.
+            $not_completed = TournamentMatchStatus::countNotCompleted( $matches );
+            if ( $not_completed > 0 ) :
+                ?>
+                <p class="tt-ticker-notice" data-tt-ticker-not-completed="<?php echo (int) $not_completed; ?>">
+                    <?php echo esc_html( sprintf(
+                        /* translators: %d: number of tournament matches that were played but not completed. */
+                        _n(
+                            '%d match not completed; its minutes aren\'t counted yet.',
+                            '%d matches not completed; their minutes aren\'t counted yet.',
+                            $not_completed,
+                            'talenttrack'
+                        ),
+                        $not_completed
+                    ) ); ?>
+                </p>
+            <?php endif; ?>
             <div class="tt-ticker-strip" data-tt-ticker-strip="1">
                 <p class="tt-muted" style="padding:8px;font-size:12px;"><?php esc_html_e( 'Loading…', 'talenttrack' ); ?></p>
             </div>
         </aside>
         <?php
+    }
+
+    /**
+     * #4264 — a fixture's status chip and its opponent-level chip, side by
+     * side. They used to share one slot, so a fixture with a score that
+     * nobody completed showed its level where the status belonged.
+     *
+     * @param array<string,string> $level_labels  Stored level key => label.
+     * @param array<string,string> $level_colours Stored level key => colour.
+     */
+    public static function matchChipsHtml( object $m, array $level_labels, array $level_colours ): string {
+        $status = TournamentMatchStatus::of( $m );
+        switch ( $status ) {
+            case TournamentMatchStatus::COMPLETED:
+                $chip = [ 'done', __( 'Completed', 'talenttrack' ) ];
+                break;
+            case TournamentMatchStatus::IN_PROGRESS:
+                $chip = [ 'live', __( 'In progress', 'talenttrack' ) ];
+                break;
+            case TournamentMatchStatus::RESULT_ENTERED:
+                $chip = [ 'open', _x( 'Not closed', 'tournament fixture: a score is entered but the match was not completed', 'talenttrack' ) ];
+                break;
+            default:
+                $chip = [ 'scheduled', _x( 'Scheduled', 'tournament fixture status', 'talenttrack' ) ];
+        }
+
+        $html = '<span class="tt-tour-match__chips">';
+        $html .= '<span class="tt-tour-chip tt-tour-chip--' . esc_attr( $chip[0] ) . '" data-tt-match-status="' . esc_attr( $status ) . '">' . esc_html( $chip[1] ) . '</span>';
+
+        $level_key = (string) ( $m->opponent_level ?? '' );
+        if ( $level_key !== '' ) {
+            $level_style = LookupColourChip::styleFor( (string) ( $level_colours[ $level_key ] ?? '' ) );
+            $html .= '<span class="tt-tour-chip tt-tour-chip--level"' . ( $level_style !== '' ? ' style="' . esc_attr( $level_style ) . '"' : '' ) . '>' . esc_html( $level_labels[ $level_key ] ?? $level_key ) . '</span>'; /* tt-inline-ok: the level's operator-chosen colour, and the ink derived from it */
+        }
+
+        return $html . '</span>';
     }
 
     private static function renderForm( int $user_id, bool $is_admin, ?object $tournament ): void {

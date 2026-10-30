@@ -1,0 +1,16 @@
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture: a score is entered but the match was not completed"
+msgid "Not closed"
+msgstr "Niet afgesloten"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture status"
+msgid "Scheduled"
+msgstr "Gepland"
+
+#. translators: %d: number of tournament matches that were played but not completed.
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "%d match not completed; its minutes aren't counted yet."
+msgid_plural "%d matches not completed; their minutes aren't counted yet."
+msgstr[0] "%d wedstrijd niet afgesloten; de minuten tellen nog niet mee."
+msgstr[1] "%d wedstrijden niet afgesloten; de minuten tellen nog niet mee."

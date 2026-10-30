@@ -37,6 +37,16 @@
     min-height: 32px;
 }
 
+/* #4264 — played fixtures nobody completed are missing from the totals. */
+.tt-dashboard .tt-ticker-notice {
+    margin: 0 0 6px;
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
 .tt-dashboard .tt-ticker-strip {
     display: flex;
     flex-direction: row;

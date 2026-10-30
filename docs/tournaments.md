@@ -165,6 +165,22 @@ next time you edit it or add a match to it — there is nothing to re-run.
 
 You can **Complete** a match without explicit Kick off — the system will auto-kick-off first, so the common "the match just finished" flow is a single button tap.
 
+### Where each match stands
+
+Every match in the programme carries a status chip, with the opponent level in
+a chip of its own next to it:
+
+- **Scheduled** — not kicked off, no result entered.
+- **In progress** — kicked off, no result entered yet.
+- **Not closed** — both scores are entered, but nobody tapped **Complete
+  match**. Its minutes are not booked until you do, so tap **Complete match**
+  on that card.
+- **Completed** — minutes booked.
+
+Typing a score does not complete a match. While a match is in progress or not
+closed, the minutes sidebar says how many matches that is, because their
+minutes are not in the totals yet.
+
 ### The completion step
 
 Tapping **Complete match** no longer commits straight away. A sheet comes up
