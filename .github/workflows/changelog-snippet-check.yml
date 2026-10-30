@@ -9,6 +9,12 @@ name: Changelog snippet check
 #
 # Escape hatch: label the PR `no-changelog` when there is genuinely no
 # user-facing change (pure internal refactor, test-only, tooling).
+# The trigger lists `labeled` and `unlabeled` as well as the default
+# activity types. The job reads the label from the event payload, and
+# `gh pr create --label` opens the PR before it adds the label, so the
+# `opened` payload carries none and a re-run replays that same payload.
+# The label event runs the job again with the current labels: adding
+# `no-changelog` turns the check green, removing it turns it red.
 #
 # #3043 — the check also validates the SHAPE of every snippet in the
 # folder, not only that a new one exists. It used to never open one, so a
@@ -23,6 +29,7 @@ name: Changelog snippet check
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     paths:
       - 'src/**'
       - 'includes/**'
