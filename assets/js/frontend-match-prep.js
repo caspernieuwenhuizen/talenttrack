@@ -552,12 +552,18 @@
     // positions the current layout holds, the same count and target the
     // server renders (MatchPrepState::starterTarget()). Called from
     // renderPitches(), which every line-up and formation change goes through.
+    // Only players on a slot the current layout draws count: a 4-3-3 switched
+    // to 3-2-1 keeps slots 7-11 in the line-up (switching back restores them),
+    // but they are not starters on this pitch, matching summaryCounts().
     function renderStartersKpi() {
         var tile = document.querySelector('[data-tt-mp-starters-kpi]');
         if (!tile) return;
+        var layout = currentSlotLayout();
         var placed = 0;
-        state.lineup['1'].forEach(function (pid) { if (pid > 0) placed++; });
-        var target = currentSlotLayout().length;
+        layout.forEach(function (pos) {
+            if ((state.lineup['1'].get(pos.num) || 0) > 0) placed++;
+        });
+        var target = layout.length;
         var val = tile.querySelector('.tt-kpi__val');
         if (val) val.textContent = placed + '/' + target;
         tile.classList.toggle('tt-kpi--flag-green', target > 0 && placed >= target);

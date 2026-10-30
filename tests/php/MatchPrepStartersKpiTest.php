@@ -64,12 +64,47 @@ final class MatchPrepStartersKpiTest extends WP_UnitTestCase {
         );
     }
 
+    public function test_players_kept_off_the_current_layout_do_not_count_as_starters(): void {
+        // A full 4-3-3 (slots 1-11) left in place after a switch to the
+        // six-a-side 3-2-1, which draws slots 1-6 only.
+        $prep_id = ( new MatchPrepRepository() )->ensureForActivity( $this->activity );
+        $slots   = [];
+        for ( $slot = 1; $slot <= 11; $slot++ ) {
+            $slots[ $slot ] = 9000 + $slot;
+        }
+        ( new MatchPrepRepository() )->replaceLineupForHalf( $prep_id, 1, $slots );
+
+        $this->assertStringContainsString( '<span class="tt-kpi__val">6/6</span>', $this->renderPrep(), 'eleven stored, six on the pitch: 6/6, not 11/6' );
+
+        unset( $slots[3] );
+        ( new MatchPrepRepository() )->replaceLineupForHalf( $prep_id, 1, $slots );
+
+        $html = $this->renderPrep();
+        $this->assertMatchesRegularExpression(
+            '#data-tt-mp-starters-kpi="1"><span class="tt-kpi__label">[^<]*</span><span class="tt-kpi__val">5/6</span>#',
+            $html,
+            'a cleared visible slot reads 5/6 although slots 7-11 still hold players'
+        );
+    }
+
+    private function renderPrep(): string {
+        $_GET['activity_id'] = (string) $this->activity;
+        ob_start();
+        FrontendMatchPrepView::render( $this->user, true );
+        return (string) ob_get_clean();
+    }
+
     public function test_the_script_updates_the_tile_from_the_pitch(): void {
         $js = (string) file_get_contents( TT_PLUGIN_DIR . 'assets/js/frontend-match-prep.js' );
 
         $this->assertStringContainsString( 'function renderStartersKpi()', $js );
         $this->assertStringContainsString( '[data-tt-mp-starters-kpi]', $js );
-        $this->assertStringContainsString( 'currentSlotLayout().length', $js );
+
+        $kpi_start = (int) strpos( $js, 'function renderStartersKpi()' );
+        $kpi_body  = substr( $js, $kpi_start, (int) strpos( $js, 'function renderDps()' ) - $kpi_start );
+        $this->assertStringContainsString( 'currentSlotLayout()', $kpi_body );
+        $this->assertStringContainsString( "state.lineup['1'].get(pos.num)", $kpi_body, 'counts only slots the current layout draws' );
+        $this->assertStringNotContainsString( "state.lineup['1'].forEach", $kpi_body, 'does not count every stored entry' );
 
         $start = (int) strpos( $js, 'function renderPitches()' );
         $end   = (int) strpos( $js, 'function renderStartersKpi()' );

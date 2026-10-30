@@ -267,7 +267,13 @@ class FrontendMatchPrepView extends FrontendViewBase {
         $length_notice_tpl = __( 'The activity says this match lasts %1$s minutes; the preparation uses 2 × %2$s.', 'talenttrack' );
 
         // #1695 — at-a-glance summary on real data for the 2026 KPI strip.
-        $summary = self::summaryCounts( $availability_by_pid, $lineup_by_half[1], count( $roster_list ) );
+        // #4319 — starters count only the slots the current layout draws, so
+        // a 4-3-3 line-up switched to 3-2-1 reads 6/6, as the script shows.
+        $layout_slots = array_keys( FormationLayoutResolver::labelsFor(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            (int) ( $activity->team_id ?? 0 )
+        ) );
+        $summary = self::summaryCounts( $availability_by_pid, $lineup_by_half[1], count( $roster_list ), $layout_slots );
         ?>
         <h1 class="tt-fview-title tt-match-prep-title"><?php echo esc_html( $title ); ?></h1>
 
@@ -1140,10 +1146,17 @@ class FrontendMatchPrepView extends FrontendViewBase {
      * and the strip is render-only polish.
      *
      * @param array<int,array{status:string,reason:string}> $availability_by_pid
+     * Starters count only the half-1 entries on a slot the current layout
+     * draws: a player kept on slot 9 of a 4-3-3 stays stored when the coach
+     * switches to 3-2-1, and comes back with the 4-3-3, but is not a starter
+     * while the pitch has no slot 9 (#4319).
+     *
+     * @param array<int,array{status:string,reason:string}> $availability_by_pid
      * @param array<int,int>                                $lineup_half_1 slot => player id
+     * @param array<int,int>                                $layout_slots  slot numbers of the current layout
      * @return array{available:int,unavailable:int,starters:int,roster:int}
      */
-    private static function summaryCounts( array $availability_by_pid, array $lineup_half_1, int $roster_total ): array {
+    private static function summaryCounts( array $availability_by_pid, array $lineup_half_1, int $roster_total, array $layout_slots ): array {
         $available   = 0;
         $unavailable = 0;
         foreach ( $availability_by_pid as $row ) {
@@ -1153,9 +1166,10 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 $unavailable++;
             }
         }
-        $starters = 0;
-        foreach ( $lineup_half_1 as $pid ) {
-            if ( (int) $pid > 0 ) {
+        $starters  = 0;
+        $in_layout = array_flip( array_map( 'intval', $layout_slots ) );
+        foreach ( $lineup_half_1 as $slot => $pid ) {
+            if ( (int) $pid > 0 && isset( $in_layout[ (int) $slot ] ) ) {
                 $starters++;
             }
         }

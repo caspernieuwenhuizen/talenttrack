@@ -182,7 +182,9 @@ The number of positions is also the number of starters the prep counts
 against. The **1st-half starters** tile reads "4/6" on a 3-2-1 and "9/11"
 on a 4-3-3, and turns green once every position is filled. It follows
 the pitch as you work: placing or removing a first-half player, or
-picking another formation, changes it straight away. The
+picking another formation, changes it straight away. Only players on a
+position the current formation draws count: a full 4-3-3 switched to a
+3-2-1 reads "6/6", and the other players return when you switch back. The
 availability step asks for at least that many players on **Present**, so
 a 6-a-side team can save its prep with six players.
 

@@ -6,4 +6,6 @@ it at "0/6", until a reload. It now follows the pitch: placing or removing a
 first-half player, copying the first half to the second, marking a player
 unavailable, or picking another formation updates the count and the target
 at once, and the tile turns green when every position is filled — the same
-value the page shows after a reload.
+value the page shows after a reload. Only players on a position the current
+formation draws count: switching a full 4-3-3 to 3-2-1 reads 6/6, not 11/6,
+and the players on the other positions come back when you switch back.
