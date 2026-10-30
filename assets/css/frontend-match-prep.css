@@ -346,7 +346,7 @@
     background: rgba(255,255,255,0.92);
     border: 1px solid rgba(0,0,0,0.1);
     border-radius: 4px;
-    padding: 0.125rem 0.25rem;
+    padding: 0.125rem;
     min-width: 0;
     max-width: 4.25rem;
     max-width: min(4.25rem, 16cqw);
