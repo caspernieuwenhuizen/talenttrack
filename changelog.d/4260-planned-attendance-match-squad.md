@@ -1,0 +1,3 @@
+# Planned attendance shows the match-day squad the coach picked in match prep (#4260)
+
+`GET /activities/{id}/planned-attendance` answered from the plan made when the match was created, so a player the coach had left out of the squad in match prep still came back as expected and the team manager arranging kit and transport worked from a different squad. Each planned row now carries a read-only `match_squad` (`start`, `bench` or `out`, or `null` when there is no match prep) beside `plan_status`, which keeps the coach's original plan. Only the squad position is shared, never the status or reason the coach chose in match prep, since that can name a medical cause.

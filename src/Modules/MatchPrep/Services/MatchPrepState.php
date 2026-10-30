@@ -284,4 +284,56 @@ final class MatchPrepState {
         }
         return $out;
     }
+
+    /**
+     * #4260 — where each player stands in the match-day squad the coach
+     * picked in match prep: `start` (a half-1 slot on a position the layout
+     * draws), `bench` (Present without one) or `out` (anything else). The
+     * same reading the attendance projection writes `lineup_role` from.
+     *
+     * The squad position only: never the prep's status or reason, which can
+     * name a medical cause (#4005, decision 3).
+     *
+     * @param array<int, int> $player_ids
+     * @return array<int, string>|null player id => start|bench|out; null when
+     *                                 the activity has no match prep.
+     */
+    public static function matchSquadForActivity( int $activity_id, array $player_ids ): ?array {
+        $repo = new MatchPrepRepository();
+        $prep = $repo->findByActivity( $activity_id );
+        if ( ! $prep ) return null;
+
+        $prep_id       = (int) ( $prep->id ?? 0 );
+        $slot_position = FormationLayoutResolver::labelsFor(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->activityTeamId( $activity_id )
+        );
+
+        $starting = [];
+        foreach ( $repo->listLineupAll( $prep_id ) as $row ) {
+            $row = (array) $row;
+            if ( (int) ( $row['half'] ?? 0 ) === 1 && isset( $slot_position[ (int) ( $row['slot_number'] ?? 0 ) ] ) ) {
+                $starting[ (int) ( $row['player_id'] ?? 0 ) ] = true;
+            }
+        }
+        $present = [];
+        foreach ( $repo->listAvailability( $prep_id ) as $row ) {
+            if ( strcasecmp( (string) ( $row->status ?? '' ), 'Present' ) === 0 ) {
+                $present[ (int) ( $row->player_id ?? 0 ) ] = true;
+            }
+        }
+
+        $out = [];
+        foreach ( $player_ids as $pid ) {
+            $pid = (int) $pid;
+            if ( isset( $starting[ $pid ] ) ) {
+                $out[ $pid ] = 'start';
+            } elseif ( isset( $present[ $pid ] ) ) {
+                $out[ $pid ] = 'bench';
+            } else {
+                $out[ $pid ] = 'out';
+            }
+        }
+        return $out;
+    }
 }

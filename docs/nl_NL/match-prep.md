@@ -147,6 +147,13 @@ beschikbaar** en uit de selectielijsten, zodat de aantallen altijd
 kloppen met de spelers die je kunt kiezen. Zijn eerdere markering blijft
 bewaard; die telt alleen niet meer mee voor deze selectie.
 
+De selectie die je hier kiest, staat ook in de geplande aanwezigheid van
+de activiteit, naast het plan van toen de wedstrijd werd aangemaakt:
+elke geplande speler staat als **basis**, **wissel** of **niet in de
+selectie** voor de wedstrijddag. Alleen die plek wordt gedeeld, nooit de
+status die je koos of de reden, zodat een teammanager die kleding en
+vervoer regelt ziet wie er komt zonder te zien waarom iemand niet komt.
+
 Een speler met een vastgelegde [schorsing](suspensions.md) die voor deze
 wedstrijd geldt, staat al op **Geschorst**, met een reden zoals
 "Geschorst, wedstrijd 2 van 3" — in de beschikbaarheidsstap als je de

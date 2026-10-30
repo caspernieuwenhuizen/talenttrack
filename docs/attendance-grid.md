@@ -84,6 +84,11 @@ be seen and cleared. An upcoming session with nothing recorded on it doesn't
 appear yet. To plan who is coming, use the planned squad on the activity
 itself.
 
+For a match with a [match prep](match-prep.md), the planned squad also
+says where each player stands in the squad the coach picked there:
+starting, on the bench or out. That sits beside the plan and never
+changes it, and it says nothing about why a player is out.
+
 The same rule applies when attendance is recorded on the activity's own form.
 "Today" is the academy's own date, not the server's.
 

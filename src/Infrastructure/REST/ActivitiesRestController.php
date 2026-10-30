@@ -2937,6 +2937,11 @@ class ActivitiesRestController {
      * the state and nothing else — no injury type, body part, note, date or
      * id — so a role without injury access can plan around it without
      * seeing a child's medical record.
+     *
+     * #4260 — `match_squad` is `start` / `bench` / `out` from the match prep
+     * (`MatchPrepState::matchSquadForActivity()`), or null when the activity
+     * has no prep. Read-only and beside `plan_status`, like `availability`;
+     * never the prep's status or reason, which can name a medical cause.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
         $id = absint( $r['id'] );
@@ -2978,6 +2983,16 @@ class ActivitiesRestController {
                 'availability_check' => isset( $check[ (int) ( $row->player_id ?? 0 ) ] ),
             ];
         }, $roster );
+
+        // #4260 — the match-day squad the coach picked in match prep, beside
+        // the plan: start, bench or out; null when there is no prep.
+        $squad = \TT\Modules\MatchPrep\Services\MatchPrepState::matchSquadForActivity(
+            $id,
+            array_map( static fn( array $row ): int => (int) $row['player_id'], $out )
+        );
+        foreach ( $out as $i => $row ) {
+            $out[ $i ]['match_squad'] = $squad === null ? null : ( $squad[ $row['player_id'] ] ?? 'out' );
+        }
 
         return RestResponse::success( [
             'activity_id' => $id,

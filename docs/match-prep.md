@@ -137,6 +137,13 @@ team, or was archived, after you captured availability drops out of the
 numbers always match the players you can pick. Their earlier mark is
 kept; it simply no longer counts for this squad.
 
+The squad you pick here is also what the activity's planned attendance
+reports, beside the plan made when the match was created: each planned
+player shows as **starting**, **on the bench** or **out** of the
+match-day squad. Only that position is shared, never the status you
+chose or its reason, so a team manager arranging kit and transport sees
+who is coming without seeing why someone is not.
+
 A player with a recorded [suspension](suspensions.md) that covers this
 match starts on **Suspended**, with a reason such as "Suspended, match 2
 of 3" — in the availability step when you start the prep, and in the
