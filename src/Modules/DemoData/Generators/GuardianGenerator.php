@@ -102,6 +102,15 @@ class GuardianGenerator implements DependentGeneratorInterface {
                 if ( ! $ok ) continue;
                 $total++;
 
+                // #4254 — PlayerGenerator records an on-file guardian for
+                // nearly every player. This child's guardian is the parent
+                // persona now, so the made-up one would contradict it.
+                $wpdb->update(
+                    $wpdb->prefix . 'tt_players',
+                    [ 'guardian_name' => null, 'guardian_email' => null, 'guardian_phone' => null ],
+                    [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
+                );
+
                 // No surrogate id to tag — the wipe reaches this table via
                 // the tagged player id (DemoCoverage::TABLE_QUIRKS).
                 $this->registry->tag( 'player_parent', $player_id, [ 'parent_user_id' => (int) $parent_user_id ] );

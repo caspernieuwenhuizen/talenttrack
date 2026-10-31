@@ -218,6 +218,18 @@ twee, en dat is wat de kindkiezer en de kindwisselaar op het dashboard
 bereikbaar maakt. Elke gegenereerde academie laat allebei zien, in plaats van
 dat de ouder met meerdere kinderen in ongeveer twee van de drie runs opdook.
 
+**Contactgegevens van een verzorger in het dossier.** Een echte academie
+noteert bij de inschrijving de naam en het contact van een ouder of voogd, of
+die ouder later een account aanmaakt of niet. Daarom krijgt elke andere
+actieve speler een verzorger op zijn dossier: een verzonnen naam met de
+achternaam van de speler, en een e-mailadres op het gereserveerde domein
+`demo.talenttrack.test`, waar geen mail kan aankomen. Er wordt geen
+telefoonnummer geschreven, omdat een verzonnen mobiel nummer van iemand kan
+zijn. De laatste speler van elke selectie blijft met opzet zonder contact van
+een verzorger: dat is het voorbeeld dat de melding *Speler zonder contact
+thuis* moet kunnen laten zien, en het is bij dezelfde opzet in elke
+run dezelfde speler. Het genereren stuurt niets naar deze adressen.
+
 **Schoolvakanties staan op de kalender waar ze horen.** De vakantieperiodes
 die een run wegschrijft zijn die van het schooljaar zelf — voorjaarsvakantie,
 meivakantie, zomerstop, herfstvakantie, kerstvakantie — elk gedateerd op zijn

@@ -1,0 +1,3 @@
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Guardian on file"
+msgstr "Ouder/voogd in het dossier"

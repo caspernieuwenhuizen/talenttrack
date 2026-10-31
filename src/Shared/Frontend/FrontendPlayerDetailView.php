@@ -1647,7 +1647,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
             }
             if ( $show_parents ) {
-                self::renderParentsCard( $player_id );
+                self::renderParentsCard( $player_id, $player );
             }
             if ( $show_discovery ) {
                 self::renderDiscoveryCard( $player_id );
@@ -1923,14 +1923,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         );
     }
 
-    private static function renderParentsCard( int $player_id ): void {
+    private static function renderParentsCard( int $player_id, object $player ): void {
         // #1725 — the guardians list (names, emails, phones of every
         // co-parent) is STAFF-only. A parent viewing their own child must
         // not see co-guardians; a player must not see it either.
         if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
 
         $contacts = \TT\Infrastructure\Identity\GuardianContacts::forPlayer( $player_id );
-        \TT\Infrastructure\Identity\GuardianContacts::recordRead( $player_id, 'player_profile_parents_card', count( $contacts ) );
 
         $rows = [];
         foreach ( $contacts as $contact ) {
@@ -1949,6 +1948,32 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
             $rows[] = [ $name, implode( ' · ', $bits ) ];
         }
+
+        // #4254 — a guardian with no account is recorded on the player
+        // (`guardian_*`, the store #3572 left for them). Without this row a
+        // club that filled those fields still read "No linked parent or
+        // guardian yet" on the card.
+        if ( empty( $rows ) ) {
+            $on_file_name  = trim( (string) ( $player->guardian_name ?? '' ) );
+            $on_file_phone = trim( (string) ( $player->guardian_phone ?? '' ) );
+            $on_file_email = trim( (string) ( $player->guardian_email ?? '' ) );
+            $bits = [];
+            if ( $on_file_name !== '' ) {
+                $bits[] = esc_html( $on_file_name );
+            }
+            if ( $on_file_phone !== '' ) {
+                $bits[] = '<a href="tel:' . esc_attr( $on_file_phone ) . '">' . esc_html( $on_file_phone ) . '</a>';
+            }
+            if ( $on_file_email !== '' ) {
+                $bits[] = '<a href="mailto:' . esc_attr( $on_file_email ) . '">' . esc_html( $on_file_email ) . '</a>';
+            }
+            if ( $bits ) {
+                $rows[] = [ __( 'Guardian on file', 'talenttrack' ), implode( ' · ', $bits ) ];
+            }
+        }
+        // The on-file guardian is guardian contact data too, so it is counted
+        // in the read the card audits (#4253).
+        \TT\Infrastructure\Identity\GuardianContacts::recordRead( $player_id, 'player_profile_parents_card', count( $rows ) );
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">

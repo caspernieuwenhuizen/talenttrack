@@ -234,6 +234,17 @@ what makes the child picker and the dashboard child switcher reachable. Every
 generated academy therefore demonstrates both, instead of the multi-child
 guardian appearing in roughly two runs out of three.
 
+**Guardian contact on file.** A real academy records a guardian's name and
+contact at registration, whether or not the parent ever makes an account. So
+every other active player gets a guardian on their record: a made-up name that
+shares the player's family name, and an email address on the reserved
+`demo.talenttrack.test` domain, which no mail can reach. No phone number is
+written, because a made-up mobile number may belong to somebody. The last
+player of every squad is left with no guardian contact at all, on purpose:
+that is the sample the *Player with no guardian contact* alert has to show,
+and it is the same player on every run with the same plan. Generation sends
+nothing to these addresses.
+
 **School breaks land on the calendar they belong to.** The holiday windows a
 run writes are the school year's own — Voorjaarsvakantie, Meivakantie,
 Zomerstop, Herfstvakantie, Kerstvakantie — each dated from its place in the
