@@ -53,6 +53,29 @@ function tt_hs_has_copy( string $literal ): bool {
 }
 
 /**
+ * The stricter test for PHP output, where literals are mostly markup
+ * fragments, attribute values, class prefixes and REST paths: prose is two
+ * words separated by a space, or a capitalised word ("Squad").
+ */
+function tt_hs_has_prose( string $literal ): bool {
+    if ( ! tt_hs_has_copy( $literal ) ) return false;
+    $text = strip_tags( $literal );
+    $text = preg_replace( '/%(\d+\$)?[-+ 0#]*\d*(\.\d+)?[bcdeEfFgGosuxX]/', ' ', $text ) ?? $text;
+    return preg_match( '/\p{L}{2,}[ \t]+\p{L}{2,}/u', $text ) === 1
+        || preg_match( '/(^|[\s>(])\p{Lu}\p{Ll}+/u', $text ) === 1;
+}
+
+/** Whether a line is a comment (the gate judges code, not prose about code). */
+function tt_hs_is_comment( string $line ): bool {
+    $trimmed = ltrim( $line );
+    return $trimmed === ''
+        || strpos( $trimmed, '//' ) === 0
+        || strpos( $trimmed, '#' ) === 0
+        || strpos( $trimmed, '*' ) === 0
+        || strpos( $trimmed, '/*' ) === 0;
+}
+
+/**
  * The first string literal that starts at $offset in $line, unquoted
  * (quotes and escapes resolved loosely), or null when none starts there.
  */
@@ -66,7 +89,9 @@ function tt_hs_literal_at( string $line, int $offset ): ?string {
     for ( $i = $offset + 1; $i < $len; $i++ ) {
         $c = $line[ $i ];
         if ( $c === '\\' && $i + 1 < $len ) {
-            $out .= $line[ ++$i ];
+            $next = $line[ ++$i ];
+            // \n, \t and \r are whitespace, not the letters n, t and r.
+            $out .= in_array( $next, [ 'n', 't', 'r' ], true ) ? ' ' : $next;
             continue;
         }
         if ( $c === $quote ) return $out;
@@ -81,7 +106,7 @@ function tt_hs_literal_at( string $line, int $offset ): ?string {
  * @return list<string>
  */
 function tt_hs_js_line( string $line ): array {
-    if ( strpos( $line, TT_HS_MARKER ) !== false ) return [];
+    if ( strpos( $line, TT_HS_MARKER ) !== false || tt_hs_is_comment( $line ) ) return [];
 
     $found   = [];
     $targets = [];
@@ -112,14 +137,15 @@ function tt_hs_js_line( string $line ): array {
  * @return list<string>
  */
 function tt_hs_php_line( string $line ): array {
-    if ( strpos( $line, TT_HS_MARKER ) !== false ) return [];
+    if ( strpos( $line, TT_HS_MARKER ) !== false || tt_hs_is_comment( $line ) ) return [];
 
     $found = [];
-    $pattern = '/(?<![\w$>:])(echo|print|printf|esc_html|esc_attr)\b\s*\(?\s*(?=[\'"])/';
+    // Not after a quote either: `$_GET['print']` is a key, not a call.
+    $pattern = '/(?<![\w$>:\'"])(echo|print|printf|esc_html|esc_attr)\b\s*\(?\s*(?=[\'"])/';
     if ( preg_match_all( $pattern, $line, $m, PREG_OFFSET_CAPTURE ) ) {
         foreach ( $m[0] as $i => $match ) {
             $literal = tt_hs_literal_at( $line, $match[1] + strlen( $match[0] ) );
-            if ( $literal !== null && tt_hs_has_copy( $literal ) ) {
+            if ( $literal !== null && tt_hs_has_prose( $literal ) ) {
                 $found[] = sprintf( 'untranslated literal passed to %s: "%s"', $m[1][ $i ][0], $literal );
             }
         }

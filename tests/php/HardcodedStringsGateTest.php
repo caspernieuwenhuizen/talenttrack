@@ -91,6 +91,16 @@ final class HardcodedStringsGateTest extends WP_UnitTestCase {
         $this->assertSame( [], tt_hs_php_line( "\$s = sprintf( 'tt_%s', \$k );" ), 'sprintf is not output' );
     }
 
+    public function test_attribute_values_paths_keys_and_comments_are_not_copy(): void {
+        $this->assertSame( [], tt_hs_php_line( "echo 'hidden';" ), 'an attribute value' );
+        $this->assertSame( [], tt_hs_php_line( "data-rest-path=\"<?php echo esc_attr( 'players/' . \$id ); ?>\"" ), 'a REST path' );
+        $this->assertSame( [], tt_hs_php_line( "\$id = esc_attr( 'tt-injury-' . \$n );" ), 'a class prefix' );
+        $this->assertSame( [], tt_hs_php_line( "if ( isset( \$_GET['print'] ) && \$_GET['x'] ) {}" ), 'an array key named print' );
+        $this->assertSame( [], tt_hs_php_line( "    // the client used to print \"No player attendance\"" ), 'a comment' );
+        $this->assertSame( [], tt_hs_php_line( "     * casting it would print \"Array\" plus a notice." ), 'a docblock line' );
+        $this->assertSame( [], tt_hs_php_line( "echo \"\\n<style id=\\\"tt-x\\\">\";" ), 'an escaped newline is not the letter n' );
+    }
+
     public function test_the_php_marker_exempts_a_line(): void {
         $this->assertSame( [], tt_hs_php_line( "echo 'U13'; /* tt-i18n-ok */" ) );
     }
