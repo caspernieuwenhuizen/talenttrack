@@ -3,7 +3,7 @@ title: Onboarding pipeline
 group: configuration
 summary: The recruitment funnel every arriving player passes through.
 audience: [user]
-views: [onboarding-pipeline, prospects-overview]
+views: [onboarding-pipeline, prospects-overview, prospect]
 module: TT\Modules\Prospects\ProspectsModule
 order: 124
 ---
@@ -127,7 +127,7 @@ Between "I spotted a child at another club" and "the family has said yes" there 
 
 **The task.** *Request consent from the family* is a workflow task, assigned to the scout who found the prospect, due in 21 days. While it is open, or while the log holds a request still awaiting an answer and none agreed, the prospect sits in the **Consent requested** column. It spawns nothing on completion — a request that came back *declined* must not produce an invitation.
 
-**The log.** Completing the task, or posting to `POST /prospects/{id}/consent-requests`, writes a dated entry: the date you asked, the club or coordinator you asked, the outcome, and optional notes. The date can be today or earlier, including a day before the prospect was entered, but not a day in the future: a request dated later than today is refused, because the waiting counter and the *Consent request still waiting* alert count from it. Every entry for a prospect shows on the focus panel when you click their card, newest first. That trail is the answer to "did the consent requests go out?", which used to live only in a scout's memory.
+**The log.** Completing the task, the **Log consent request** button on the prospect's page, or posting to `POST /prospects/{id}/consent-requests`, writes a dated entry: the date you asked, the club or coordinator you asked, the outcome, and optional notes. The date can be today or earlier, including a day before the prospect was entered, but not a day in the future: a request dated later than today is refused, because the waiting counter and the *Consent request still waiting* alert count from it. Every entry for a prospect shows on the prospect's page and on the focus panel when you click their card, newest first. That trail is the answer to "did the consent requests go out?", which used to live only in a scout's memory.
 
 Four outcomes: *waiting for an answer*, *the family agreed*, *the family declined*, *no reply*.
 
@@ -136,6 +136,21 @@ Four outcomes: *waiting for an answer*, *the family agreed*, *the family decline
 **An open request holds the retention clock.** A prospect with no progress is purged after 90 days. An entry with the outcome *waiting for an answer* counts as progress, so an academy that is genuinely waiting does not lose the child out from under it. The clock runs from the entry, not the prospect, so a request nobody ever chased still ages out on the normal rule. When a prospect is purged its consent entries go with it.
 
 **A wait that runs on is said out loud.** The prospects list carries a **Consent waiting** column showing how many days each open request has been waiting, and after five days — your academy's `alerts_prospect_consent_awaiting_days` setting — an alert goes to whoever may edit prospects, naming the club that was asked. Recording any outcome clears it straight away. It exists because of the paragraph above: without it, the likeliest end for a request nobody chased was the child's record being quietly purged, with nothing anywhere having shown the wait. See *Consent request still waiting* in the Alerts topic.
+
+## The prospect's page
+
+Every prospect has a page of their own. The prospects list (**Open**), the focus panel (**Open record**), the scouting-visit page, the scout's dashboard table and the *Consent request still waiting* alert all lead to it. It shows, in one place:
+
+- **Where they are now**: the prospect's column on the board, what the column is waiting for, and **Open next action** when a task is waiting.
+- **Consent requests**: every request sent for the prospect, newest first, with the date, the club or coordinator asked and the outcome.
+- **Scouting**: the scouting notes and the visits the prospect was seen at, with the visit they were found at marked **Found here**. You see the visits you may open: your own as a scout, all of them as the head of development.
+
+The page only reads. Two buttons write, if you may edit prospects:
+
+- **Log consent request** opens a short wizard: who you asked and when (today or earlier), optional notes, then a confirmation. The request is logged as waiting for an answer, and the waiting counter starts from the date you asked.
+- **Edit contact** opens the form for the parent's contact details and the consent date.
+
+Anyone who may see the prospect on the board may open the page, including a head coach who only reads prospects. For a prospect outside what you may see, the page says the prospect was not found.
 
 ## No invitation without consent
 

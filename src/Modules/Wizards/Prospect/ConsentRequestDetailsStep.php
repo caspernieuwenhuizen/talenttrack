@@ -16,7 +16,7 @@ use TT\Shared\Wizards\WizardStepInterface;
 final class ConsentRequestDetailsStep implements WizardStepInterface {
 
     public function slug(): string  { return 'details'; }
-    public function label(): string { return __( 'Request', 'talenttrack' ); }
+    public function label(): string { return _x( 'Request', 'wizard step: who was asked and when', 'talenttrack' ); }
 
     public function render( array $state ): void {
         $today    = current_time( 'Y-m-d' );

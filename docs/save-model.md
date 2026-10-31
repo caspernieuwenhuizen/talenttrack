@@ -155,7 +155,8 @@ behind everyone who opened it and thought better of it.
 final step.
 
 **Where.** Every wizard — new player, new evaluation, new goal, new match
-analysis, new suspension, new team announcement, install and import.
+analysis, new suspension, new team announcement, logging a consent request,
+install and import.
 
 **Why.** A wizard already keeps its own draft between steps, so nothing is
 lost if you stop halfway and come back. What it does not do is write into the

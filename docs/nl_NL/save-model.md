@@ -168,7 +168,8 @@ opende en zich bedacht.
 op de laatste stap.
 
 **Waar.** Elke wizard — nieuwe speler, nieuwe evaluatie, nieuw doel, nieuwe
-wedstrijdanalyse, nieuwe schorsing, nieuwe teamaankondiging, installatie en
+wedstrijdanalyse, nieuwe schorsing, nieuwe teamaankondiging, een
+toestemmingsverzoek vastleggen, installatie en
 import.
 
 **Waarom.** Een wizard houdt tussen de stappen al zijn eigen concept bij, dus

@@ -73,7 +73,9 @@ Only the first draft goes through the wizard. Re-opening an analysis you already
 
 Site admins go to **Administration → Wizards**. Each registered wizard is shown as a tickbox card with its label and slug; the **Enable all wizards** master toggle at the top ticks or unticks the lot. Save the changes with the button at the bottom — there's nothing to type.
 
-Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`.
+Available slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`, `log-consent-request`.
+
+The `log-consent-request` wizard records that the academy asked a child's own club to pass a consent request on to the family: pick the prospect (skipped when you start from the prospect's page) → the date you asked, the club or coordinator you asked and optional notes → confirm. The request is logged as waiting for an answer. See [the onboarding pipeline](onboarding-pipeline.md).
 
 The `new-suspension` wizard records a [suspension](suspensions.md): pick the team and player (skipped when you start from the player's profile) → the reason, the number of matches and the day it counts from → confirm, which lists the matches it will cover before saving.
 

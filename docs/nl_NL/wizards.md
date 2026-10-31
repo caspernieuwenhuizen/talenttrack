@@ -63,7 +63,9 @@ De wizard maakt het doel direct aan. Heb je in stap 2 een link gekozen, dan word
 
 Beheerders gaan naar **Beheer → Wizards**. Iedere geregistreerde wizard staat als aanvinkbaar kaartje op de pagina, met label en slug; de hoofd-vink **Alle wizards inschakelen** bovenaan zet ze allemaal aan of uit in één klik. Klik onderaan op opslaan — er hoeft niets getypt te worden.
 
-Beschikbare slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`.
+Beschikbare slugs: `new-player`, `new-team`, `new-evaluation`, `new-goal`, `new-activity`, `new-person`, `new-team-blueprint`, `new-prospect`, `new-suspension`, `log-consent-request`.
+
+De wizard `log-consent-request` legt vast dat de academie de eigen club van een kind heeft gevraagd een toestemmingsverzoek aan het gezin door te geven: kies de prospect (overgeslagen als je vanaf de pagina van de prospect begint) → de datum waarop je het vroeg, de club of coördinator die je vroeg en optionele notities → bevestigen. Het verzoek komt in het logboek als wachtend op antwoord. Zie [de aannamepijplijn](onboarding-pipeline.md).
 
 De wizard `new-suspension` legt een [schorsing](suspensions.md) vast: kies het team en de speler (overgeslagen als je vanaf het profiel van de speler begint) → de reden, het aantal wedstrijden en de dag vanaf wanneer het telt → bevestigen, waarbij je voor het opslaan ziet voor welke wedstrijden ze geldt.
 

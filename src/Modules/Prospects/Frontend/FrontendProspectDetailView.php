@@ -152,7 +152,7 @@ class FrontendProspectDetailView extends FrontendViewBase {
         $visits = ProspectRecord::visits( $user_id, $id );
         $notes  = trim( $scouting_notes );
         echo '<section class="tt-prospect-record-section" aria-labelledby="tt-prospect-visits">';
-        echo '<h2 id="tt-prospect-visits" class="tt-prospect-record-heading">' . esc_html__( 'Scouting', 'talenttrack' ) . '</h2>';
+        echo '<h2 id="tt-prospect-visits" class="tt-prospect-record-heading">' . esc_html( _x( 'Scouting', 'prospect page section: notes and visits', 'talenttrack' ) ) . '</h2>';
         if ( $notes !== '' ) {
             echo '<p class="tt-prospect-record-notes">' . nl2br( esc_html( $notes ) ) . '</p>';
         }
