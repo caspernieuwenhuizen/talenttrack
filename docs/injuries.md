@@ -79,6 +79,8 @@ When a record asks for a decision — on the expected return date, or on the day
 
 There is one reminder per player at a time. Moving the expected return retires the old task, and a new one arrives on the new date; recording the return or archiving the record retires it too. Moving the record to the recycle bin or deleting it for good retires it as well, and restoring an archived record that still needs a decision brings the reminder back at once. Editing anything else leaves it as it is.
 
+The task asks how the player is doing. **On track** and **Unsure** are recorded on the task and change nothing on the record. **Extend** sets a new expected return: the task lists the player's records that need a decision now (the only one is picked for you), you choose the record and enter the new date, and it is saved as if you had edited the record yourself, including the audit log entry. The new date must be after today and not before the date of injury or the return the record already expects. **Extend** is only offered to people who may edit the player's injuries; everyone else sees who can.
+
 Filter by team, and switch between **Currently out**, **Recovered** and **All**.
 
 The same list is available to other apps through the API as `GET /wp-json/talenttrack/v1/player-injuries`, with the same team and status filters, a page at a time. It follows the same rules as this page: you only get the teams whose injuries you may read here, and every read is written to the audit log.

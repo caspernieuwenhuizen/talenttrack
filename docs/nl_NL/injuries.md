@@ -79,6 +79,8 @@ Wanneer een blessure om een beslissing vraagt — op de verwachte terugkeerdatum
 
 Er is per speler één herinnering tegelijk. Wie de verwachte terugkeer verschuift, sluit de oude taak af en krijgt een nieuwe op de nieuwe datum; het vastleggen van de terugkeer of het archiveren van het dossier sluit hem ook af. Het dossier naar de prullenbak verplaatsen of definitief verwijderen sluit hem eveneens af, en wie een gearchiveerd dossier terugzet dat nog om een beslissing vraagt, krijgt de herinnering meteen terug. Iets anders bewerken laat de taak zoals hij is.
 
+De taak vraagt hoe het met de speler gaat. **Op schema** en **Onzeker** worden op de taak vastgelegd en veranderen niets aan het dossier. **Verlengen** zet een nieuwe verwachte terugkeer: de taak toont de blessures van de speler die nu om een beslissing vragen (is er maar één, dan staat die al gekozen), je kiest de blessure en vult de nieuwe datum in, en die wordt opgeslagen alsof je het dossier zelf hebt bewerkt, inclusief de regel in het auditlogboek. De nieuwe datum moet na vandaag liggen en mag niet vóór de blessuredatum of vóór de terugkeer liggen die het dossier al verwacht. **Verlengen** wordt alleen aangeboden aan wie de blessures van de speler mag bewerken; ieder ander ziet wie dat kan.
+
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 
 Dezelfde lijst is voor andere apps beschikbaar via de API als `GET /wp-json/talenttrack/v1/player-injuries`, met dezelfde filters op team en status, per pagina. Daarvoor gelden dezelfde regels als voor deze pagina: je krijgt alleen de teams waarvan je hier de blessures mag zien, en elke keer dat de lijst wordt opgevraagd, komt dat in het auditlogboek.
