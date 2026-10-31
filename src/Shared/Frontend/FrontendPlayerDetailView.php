@@ -227,13 +227,24 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      *
      * @return array<string,string>  tab key => human label
      */
+    /**
+     * The section read and, for a linked parent, the child's own switch and
+     * status: the pair the evaluations and goals REST routes ask. Without
+     * the second half the profile offered a parent a tab the child kept
+     * private, while the API behind it refused.
+     */
+    private static function mayReadSection( int $user_id, int $player_id, string $section ): bool {
+        return AuthorizationService::canReadPlayerSection( $user_id, $player_id, $section )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, $section );
+    }
+
     private static function tabs( int $user_id, int $player_id ): array {
         $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
 
-        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'goals' ) ) {
+        if ( self::mayReadSection( $user_id, $player_id, 'goals' ) ) {
             $tabs['goals'] = __( 'Goals', 'talenttrack' );
         }
-        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+        if ( self::mayReadSection( $user_id, $player_id, 'evaluations' ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
         // #1892 — measurements in context, beside evaluations (dev-data).
@@ -1071,7 +1082,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // arrow) don't leak through the side door.
                 // #4256 — the same per-player question the Evaluations tab
                 // asks, so the tile and the tab always agree.
-                if ( AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
+                if ( self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'evaluations' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Avg rating', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -1097,6 +1108,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint"><?php echo esc_html( $kpis['attendance']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php if ( self::mayReadSection( get_current_user_id(), $player_id, 'goals' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'goals' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Goals', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -1106,6 +1118,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['goals']['trend_class'] ); ?>"><?php echo esc_html( $kpis['goals']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php endif; ?>
                 <?php // #2859 — "Goals scored", never bare "Goals": the tile
                       // beside it counts development goals, and one word cannot
                       // carry both senses on the same strip. Links to Activities,
