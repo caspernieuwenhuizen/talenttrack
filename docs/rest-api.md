@@ -1437,9 +1437,11 @@ Accounts that could be linked as a parent: any account that is not a player or a
 
 ### `GET /players/{id}/parents`
 
-The parent accounts linked to a player, primary first: `{ player_id, parents: [ { wp_user_id, display_name, email, is_primary } ] }`. `404` for a player outside this club.
+The parent accounts linked to a player, primary first, and the guardian recorded on the player's own record: `{ player_id, parents: [ { wp_user_id, display_name, email, is_primary } ], on_file: { name, email, phone } | null }`. `404` for a player outside this club.
 
-The read is audited, the same way as the profile's Parents · Guardians card: every read writes one `player.guardian_contacts_viewed` row naming the reader and the player, with the payload `{ surface: "rest_players_parents", count }` and no name or e-mail address. An empty list is logged with `count` 0, as on the card; a refused (`403`) or not-found (`404`) read writes none. The list comes from `GuardianContacts::forPlayer()`, so a link whose account no longer exists is left out, and `display_name` falls back to the e-mail address when the account has no display name.
+`on_file` is the guardian the club recorded on the player (`guardian_name`, `guardian_email`, `guardian_phone`), the one the profile's Parents · Guardians card shows as *Guardian on file* when no account is linked. It is returned whether or not accounts are linked, read-only (nothing on this route writes it; the player edit form does), and empty strings stand for fields that are not filled in. It is `null` when none of the three fields holds a value, and also when the caller is not staff for this player (`AuthorizationService::isStaffForPlayer()`, the card's own check): managing parent accounts does not by itself open a child's guardian details. It comes from `GuardianContacts::onFileForPlayer()`, the same read the card uses.
+
+The read is audited, the same way as the profile's Parents · Guardians card: every read writes one `player.guardian_contacts_viewed` row naming the reader and the player, with the payload `{ surface: "rest_players_parents", count }` and no name or e-mail address. `count` is the linked accounts returned plus one when `on_file` is returned, so a read that finds only a guardian on file is logged with `count` 1. An empty read is logged with `count` 0, as on the card; a refused (`403`) or not-found (`404`) read writes none. The list comes from `GuardianContacts::forPlayer()`, so a link whose account no longer exists is left out, and `display_name` falls back to the e-mail address when the account has no display name.
 
 ### `POST /players/{id}/parents`
 
