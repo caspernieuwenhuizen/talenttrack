@@ -7,8 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * WpUserUnlink (#1772) — clear TalentTrack account links when a WP user
  * is deleted.
  *
- * `tt_players.wp_user_id`, `tt_people.wp_user_id` and the
- * `tt_player_parents.parent_user_id` pivot all reference a `wp_users` id.
+ * `tt_players.wp_user_id`, `tt_players.parent_user_id`,
+ * `tt_people.wp_user_id` and the `tt_player_parents.parent_user_id` pivot
+ * all reference a `wp_users` id.
  * Without cleanup, deleting a WP user left dangling references: the
  * orphaned id could later be re-issued to a different person, silently
  * re-linking them to someone else's record — a safeguarding problem for
@@ -39,6 +40,12 @@ final class WpUserUnlink {
         // Unlink players (keep the player record — it's a real player).
         $wpdb->query( $wpdb->prepare(
             "UPDATE {$p}tt_players SET wp_user_id = NULL WHERE wp_user_id = %d",
+            $user_id
+        ) );
+
+        // The single-parent column predating the pivot; still on the row.
+        $wpdb->query( $wpdb->prepare(
+            "UPDATE {$p}tt_players SET parent_user_id = NULL WHERE parent_user_id = %d",
             $user_id
         ) );
 
