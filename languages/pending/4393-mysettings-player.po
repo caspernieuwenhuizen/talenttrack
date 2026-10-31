@@ -1,0 +1,7 @@
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Choose which messages the academy may send you. Unticking one stops it on "
+"every channel. You will only ever receive messages that concern you."
+msgstr ""
+"Kies welke berichten de academie je mag sturen. Vink je er een uit, dan "
+"stopt die via elk kanaal. Je krijgt alleen berichten die over jou gaan."
