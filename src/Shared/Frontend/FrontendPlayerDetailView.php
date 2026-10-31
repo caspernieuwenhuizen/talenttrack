@@ -1930,7 +1930,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( ! self::viewerIsStaffForPlayer( $player_id ) ) return;
 
         $contacts = \TT\Infrastructure\Identity\GuardianContacts::forPlayer( $player_id );
-        \TT\Infrastructure\Identity\GuardianContacts::recordRead( $player_id, 'player_profile_parents_card', count( $contacts ) );
 
         $rows = [];
         foreach ( $contacts as $contact ) {
@@ -1949,6 +1948,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
             $rows[] = [ $name, implode( ' · ', $bits ) ];
         }
+
+        // #4254 — a guardian with no account is recorded on the player
+        // (`guardian_*`, the store #3572 left for them). Without this row a
+        // club that filled those fields still read "No linked parent or
+        // guardian yet" on the card.
+        $on_file = empty( $rows ) ? \TT\Infrastructure\Identity\GuardianContacts::onFileForPlayer( $player_id ) : null;
+        if ( $on_file !== null ) {
+            $bits = [];
+            if ( $on_file['name'] !== '' ) {
+                $bits[] = esc_html( $on_file['name'] );
+            }
+            if ( $on_file['phone'] !== '' ) {
+                $bits[] = '<a href="tel:' . esc_attr( $on_file['phone'] ) . '">' . esc_html( $on_file['phone'] ) . '</a>';
+            }
+            if ( $on_file['email'] !== '' ) {
+                $bits[] = '<a href="mailto:' . esc_attr( $on_file['email'] ) . '">' . esc_html( $on_file['email'] ) . '</a>';
+            }
+            $rows[] = [ __( 'Guardian on file', 'talenttrack' ), implode( ' · ', $bits ) ];
+        }
+        // The on-file guardian is guardian contact data too, so it is counted
+        // in the read the card audits (#4253).
+        \TT\Infrastructure\Identity\GuardianContacts::recordRead( $player_id, 'player_profile_parents_card', count( $rows ) );
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">

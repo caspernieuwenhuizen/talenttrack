@@ -123,8 +123,10 @@ class PlayerGenerator implements GeneratorInterface {
 
         $player_binding_slot = 1;
         $all = [];
+        $team_index = 0;
 
         foreach ( $this->teams as $team ) {
+            $team_index++;
             $team_id = (int) $team->id;
             $age     = $this->ageFromGroup( (string) $team->age_group );
             $used_jerseys = [];
@@ -150,6 +152,7 @@ class PlayerGenerator implements GeneratorInterface {
 
                 $date_joined = $this->randomJoinDate();
                 $consented   = $this->hasMediaConsent( $i, $this->perTeam );
+                $guardian    = $this->guardianOnFile( $team_index, $i, $this->perTeam, $ln, $first );
                 $wpdb->insert( "{$wpdb->prefix}tt_players", [
                     'club_id'             => CurrentClub::id(),
                     'first_name'          => $fn,
@@ -187,6 +190,10 @@ class PlayerGenerator implements GeneratorInterface {
                     'media_consent'       => $consented ? 1 : 0,
                     'media_consent_at'    => $consented ? $date_joined . ' 09:00:00' : null,
                     'media_consent_by'    => $consented && $recorder > 0 ? $recorder : null,
+                    // #4254 — the guardian the club recorded at registration.
+                    // See guardianOnFile().
+                    'guardian_name'       => $guardian['name'],
+                    'guardian_email'      => $guardian['email'],
                 ] );
                 $player_id = (int) $wpdb->insert_id;
 
@@ -256,6 +263,43 @@ class PlayerGenerator implements GeneratorInterface {
         // unconsented case last so every team still carries one.
         if ( $squad_size < 5 ) return $index !== $squad_size - 1;
         return ( $index % 5 ) !== 4;
+    }
+
+    /**
+     * #4254 — the guardian contact a club records at registration, whether
+     * or not the parent ever makes an account.
+     *
+     * Only the two parent personas get a linked account (GuardianGenerator),
+     * so without this almost the whole roster had no guardian contact at all,
+     * and the no-guardian alert had every player to flag. Now every squad
+     * member has one except the last of each squad, which keeps the alert a
+     * real sample to show. A squad of one keeps its guardian, the less
+     * surprising state to show on its own.
+     *
+     * Positional, not drawn from the MT stream, for the reason given in
+     * hasMediaConsent(): a draw here would shift every value after it.
+     *
+     * The address is on the reserved `.test` domain (RFC 2606), not the
+     * configurable demo user domain, so nothing sent to it can be delivered.
+     * No phone number is written: there is no reserved range for Dutch
+     * mobile numbers, and a made-up one may belong to somebody.
+     *
+     * @param int      $team_index 1-based position of the team in this run
+     * @param int      $index      0-based position in the squad
+     * @param int      $squad_size how many players that squad holds
+     * @param string   $last_name  the player's family name, shared by the guardian
+     * @param string[] $first      the first-name seed
+     * @return array{name:?string, email:?string}
+     */
+    private function guardianOnFile( int $team_index, int $index, int $squad_size, string $last_name, array $first ): array {
+        if ( $squad_size > 1 && $index === $squad_size - 1 ) {
+            return [ 'name' => null, 'email' => null ];
+        }
+        $given = $first ? $first[ ( $team_index * 31 + $index * 7 ) % count( $first ) ] : '';
+        return [
+            'name'  => trim( $given . ' ' . $last_name ),
+            'email' => sprintf( 'guardian.%d.%d@demo.talenttrack.test', $team_index, $index + 1 ),
+        ];
     }
 
     /**
