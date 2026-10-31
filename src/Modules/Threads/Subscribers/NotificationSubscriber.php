@@ -12,7 +12,8 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * NotificationSubscriber (#0028) — fans out tt_thread_message_posted
  * to participants via email.
  *
- * Author is excluded from the fan-out. A staff-only (`private_to_coach`)
+ * Author is excluded from the fan-out, and so is any participant who may
+ * not read the thread (`ThreadAccess::canRead()`). A staff-only (`private_to_coach`)
  * message goes only to the participants who can read it:
  * `ThreadAccess::canSeePrivate()`, the same rule the read side applies.
  * The filter only narrows the adapter's participant list; it never adds
@@ -47,7 +48,11 @@ final class NotificationSubscriber {
         if ( ! $adapter ) return;
 
         $participants = $adapter->participantUserIds( $thread_id );
-        $recipients = array_values( array_filter( $participants, static fn( int $id ): bool => $id !== $author_user_id ) );
+        // A message goes only to the participants who may read the thread
+        // it was posted in: the same rule the read side applies.
+        $recipients = array_values( array_filter( $participants, static fn( int $id ): bool =>
+            $id !== $author_user_id && ThreadAccess::canRead( $type, $thread_id, $id )
+        ) );
         if ( empty( $recipients ) ) return;
 
         if ( $visibility === ThreadVisibility::PRIVATE_COACH ) {
