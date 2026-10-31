@@ -1,4 +1,4 @@
-# Tighter access checks on player, team, report and trial data
+# Tighter access checks on player, team, report and trial data (#4412)
 
 Bump: patch
 
