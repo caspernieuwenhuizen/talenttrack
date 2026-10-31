@@ -104,7 +104,7 @@ You own this number: nobody has to approve it, and it takes effect as soon as yo
 
 ### What your parent can see
 
-If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Playing time**, **Development plan**, **Training history**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
+If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Playing time**, **Development plan**, **Training history**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. The **Measurements** switch covers your test results (your measurements profile and its trends); your height and weight are part of your player profile and stay visible to a linked parent. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
 
 ## Reports
 
