@@ -288,10 +288,31 @@ final class InjuryRepository {
      * on or before `$day` (`InjuryStatus::checkDueSql()`): what the recovery
      * reminder sweep works through. One club-scoped query.
      *
+     * #4436 — an archived player has left the academy, so the sweep skips
+     * them; their records stay as they are.
+     *
      * @return list<int>
      */
     public function playersWithCheckDue( string $day ): array {
-        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql(), InjuryStatus::checkDueParams( $day ) ) );
+        $predicate = InjuryStatus::checkDueSql( 'i' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
+        $rows = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT DISTINCT i.player_id
+               FROM {$this->table} i
+               JOIN {$this->wpdb->prefix}tt_players p ON p.id = i.player_id AND p.club_id = i.club_id
+              WHERE i.club_id = %d
+                AND p.archived_at IS NULL
+                AND {$predicate}",
+            array_merge( [ (int) CurrentClub::id() ], InjuryStatus::checkDueParams( $day ) )
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $pid ) {
+            $pid = (int) $pid;
+            if ( $pid > 0 ) $out[ $pid ] = true;
+        }
+        return array_keys( $out );
     }
 
     /**

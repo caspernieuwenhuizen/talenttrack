@@ -62,12 +62,17 @@ final class InjuryRecoveryTasks {
      * trashed or restored record moves its player's reminder in the same
      * request rather than at the next sweep, or never.
      *
+     * #4436 — for entity `player` the ids are the players themselves:
+     * archiving or trashing one skips their reminder, restoring one with a
+     * record still due brings it back.
+     *
      * @param mixed $entity
      * @param mixed $ids
      * @param mixed $player_ids
      */
     public static function onArchiveRowsChanged( $entity, $ids = [], $player_ids = [] ): void {
-        if ( $entity !== 'injury' || ! is_array( $player_ids ) ) return;
+        if ( $entity === 'player' ) $player_ids = $ids;
+        if ( ( $entity !== 'injury' && $entity !== 'player' ) || ! is_array( $player_ids ) ) return;
         foreach ( $player_ids as $player_id ) {
             self::syncPlayer( (int) $player_id );
         }
@@ -90,8 +95,14 @@ final class InjuryRecoveryTasks {
     /**
      * The earliest check date among the player's records that has arrived by
      * `$today`, Y-m-d; null when no record asks for a decision yet.
+     *
+     * #4436 — also null for an archived player (or one no longer there): a
+     * player who has left the academy gets no reminders.
      */
     public static function dueDateForPlayer( int $player_id, ?string $today = null ): ?string {
+        $player = QueryHelpers::get_player( $player_id );
+        if ( ! $player || ! empty( $player->archived_at ) ) return null;
+
         $due = null;
         foreach ( self::dueRecordsForPlayer( $player_id, $today ) as $row ) {
             $date = (string) InjuryStatus::checkDate( $row );
