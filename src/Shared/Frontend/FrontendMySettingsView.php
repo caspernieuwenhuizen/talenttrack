@@ -43,14 +43,10 @@ class FrontendMySettingsView extends FrontendViewBase {
     }
 
     /**
-     * v3.92.0 — accepts an optional player record. The render no longer
-     * uses it (display name / password are WP-user concerns, not
-     * player-record concerns), but the param stays nullable so the
-     * Me-view dispatch path keeps working when a player happens to
-     * navigate here. The dispatcher in v3.92.0 routes my-settings via
-     * a separate $account_slugs branch that doesn't require a player.
+     * Renders for the current WP user. Where a section needs the user's
+     * player record, it looks it up itself.
      */
-    public static function render( ?object $player = null ): void {
+    public static function render(): void {
         self::enqueueAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My settings', 'talenttrack' ) );
         self::renderHeader( __( 'My settings', 'talenttrack' ) );
