@@ -1427,6 +1427,30 @@ The caller's week in site time, starting on the academy's first day of the week 
 
 **Performance:** one query per source for the whole week, whatever the number of rows or matches: the activities, the register counts, the planned squads, the rosters, the training-plan runs, the injuries (`InjuryRepository::coveredSetByDay()`, one read over every match date, decided per day by `InjuryStatus::coversDay()`), the open suspensions (`SuspensionService::coveredSetForActivities()`, with each team's fixture sequence read once), the match preps and their line-ups (`MatchPrepRepository::findByActivities()` / `listLineupForPreps()`), and each formation layout once. `CoachWeekTest` pins the count as equal for one and ten matches.
 
+## PDP planning matrix (#4448)
+
+### `GET /pdp-planning?season_id=N&team_ids[]=…`
+
+Per team and per PDP block for one season: how many players a block expects (the team's active, non-archived roster), how many talks are planned, how many were conducted and how many were marked not held, with each block's window, which runs from the earliest start to the latest end over the team's talks in that block. The planning page (`?tt_view=pdp-planning`) renders these cells. Both read `Modules\Pdp\Services\PdpPlanningService` (`buildMatrix()`, `blockWindows()`). The object below is the `data` of the standard `{ success, data, errors }` envelope.
+
+```json
+{ "season_id": 4, "max_blocks": 3,
+  "teams": [
+    { "team_id": 52, "name": "JO13-1", "roster": 16,
+      "blocks": [
+        { "block": 1, "expected": 16, "planned": 12, "conducted": 9, "not_held": 1,
+          "window_start": "2026-09-01", "window_end": "2026-10-15" } ] } ],
+  "windows": [ { "team_id": 52, "block": 1, "start": "2026-09-01", "end": "2026-10-15" } ] }
+```
+
+- `season_id` is required: `400 missing_season` without it, `404 bad_season` for an unknown season.
+- `team_ids` is optional, sent as `team_ids[]=N` or as a comma-separated list. It narrows the matrix and never widens it.
+- `max_blocks` is the season's configured block count (`tt_pdp_blocks`). When no blocks are configured it falls back to the highest block seen in the data. A team only lists the blocks it has talks in.
+- `planned` counts talks with a date that were not marked not held. `not_held` counts talks marked as not held and not conducted.
+- `windows` repeats each block's window as its own list, so a client can show it without walking the cells.
+
+**Permission:** `tt_view_pdp_planning` (`pdp_planning:read`), the capability the page checks; 403 otherwise. **Scope** is the page's: a caller with academy-wide PDP read (`QueryHelpers::user_has_global_entity_read( …, 'pdp_file' )`) or `tt_edit_settings` sees every team. Anyone else sees only the teams they coach (`QueryHelpers::get_teams_for_coach()`). A coach who asks for another team's `team_ids` gets their own teams' share of the request, which may be empty. Registered by the PDP module, so it is absent when that module is off.
+
 ## Parent accounts (#1815, #3571)
 
 Linking a parent's login to a player — the `tt_player_parents` link that decides what a parent can see. Every route is gated on `tt_manage_parent_accounts`.

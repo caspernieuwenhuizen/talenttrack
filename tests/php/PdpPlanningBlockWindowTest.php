@@ -5,11 +5,12 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Frontend\FrontendPdpPlanningView;
+use TT\Modules\Pdp\Services\PdpPlanningService;
 
 /**
  * #4305 — the block detail showed the window of whichever player's surname
  * sorted first, while the matrix cell it opens from showed the earliest start
- * to the latest end. Both now read FrontendPdpPlanningView::blockWindows().
+ * to the latest end. Both now read PdpPlanningService::blockWindows().
  */
 final class PdpPlanningBlockWindowTest extends WP_UnitTestCase {
 
@@ -74,14 +75,14 @@ final class PdpPlanningBlockWindowTest extends WP_UnitTestCase {
     }
 
     public function test_helper_scopes_to_the_requested_block(): void {
-        $windows = FrontendPdpPlanningView::blockWindows( $this->season, [ $this->team ], 2 );
+        $windows = PdpPlanningService::blockWindows( $this->season, [ $this->team ], 2 );
 
         $this->assertSame( [], $windows, 'no conversation sits in block 2' );
     }
 
     /** @return array<string,mixed> */
     private function matrixCell(): array {
-        $matrix = FrontendPdpPlanningView::buildMatrix( $this->season, [ $this->team ] );
+        $matrix = PdpPlanningService::buildMatrix( $this->season, [ $this->team ] );
         $cell   = $matrix['teams'][ $this->team ]['blocks'][1] ?? null;
         $this->assertIsArray( $cell );
         return $cell;

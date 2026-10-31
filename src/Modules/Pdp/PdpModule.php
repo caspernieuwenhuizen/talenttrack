@@ -12,6 +12,7 @@ use TT\Modules\Pdp\Rest\PdpBlocksRestController;
 use TT\Modules\Pdp\Rest\PdpConversationsRestController;
 use TT\Modules\Pdp\Rest\PdpFamilyRestController;
 use TT\Modules\Pdp\Rest\PdpFilesRestController;
+use TT\Modules\Pdp\Rest\PdpPlanningRestController;
 use TT\Modules\Pdp\Rest\PdpPrepRestController;
 use TT\Modules\Pdp\Rest\PdpVerdictsRestController;
 use TT\Modules\Pdp\Rest\SeasonsRestController;
@@ -58,6 +59,8 @@ class PdpModule implements ModuleInterface {
         // #3645 — the family read route. `pdp-files/*` stays a staff
         // surface; a player and their guardians read the plan here.
         PdpFamilyRestController::init();
+        // #4448 — the planning matrix the `pdp-planning` view shows.
+        PdpPlanningRestController::init();
 
         // Sprint 2 — wp-admin Seasons page + carryover hook + print route.
         if ( is_admin() ) SeasonsPage::init();

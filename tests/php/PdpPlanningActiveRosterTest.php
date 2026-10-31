@@ -5,6 +5,7 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Frontend\FrontendPdpPlanningView;
+use TT\Modules\Pdp\Services\PdpPlanningService;
 
 /**
  * #4248 — the PDP planning matrix and its block detail count one
@@ -47,7 +48,7 @@ final class PdpPlanningActiveRosterTest extends WP_UnitTestCase {
     }
 
     public function test_matrix_counts_only_the_active_roster(): void {
-        $matrix = FrontendPdpPlanningView::buildMatrix( $this->season, [ $this->team ] );
+        $matrix = PdpPlanningService::buildMatrix( $this->season, [ $this->team ] );
         $cell   = $matrix['teams'][ $this->team ]['blocks'][1] ?? null;
 
         $this->assertIsArray( $cell );

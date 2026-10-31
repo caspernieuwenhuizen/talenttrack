@@ -5,10 +5,10 @@ use WP_REST_Request;
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Pdp\Frontend\FrontendPdpPlanningView;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Modules\Pdp\Services\PdpFamilyReader;
+use TT\Modules\Pdp\Services\PdpPlanningService;
 use TT\Modules\Pdp\Workflow\PdpSelfReviewTasks;
 use TT\Modules\Pdp\Workflow\PdpSelfReviewTemplate;
 use TT\Modules\Workflow\Repositories\TasksRepository;
@@ -230,7 +230,7 @@ final class PdpConversationNotHeldTest extends WP_UnitTestCase {
     public function test_planning_counts_it_as_not_held_not_conducted(): void {
         $this->patch( 1, [ 'not_held' => true, 'not_held_reason' => 'Ill.' ] );
 
-        $matrix = FrontendPdpPlanningView::buildMatrix( $this->season, [ $this->team ] );
+        $matrix = PdpPlanningService::buildMatrix( $this->season, [ $this->team ] );
         $cell   = $matrix['teams'][ $this->team ]['blocks'][1] ?? null;
         $this->assertIsArray( $cell );
         $this->assertSame( 1, $cell['not_held'] );
