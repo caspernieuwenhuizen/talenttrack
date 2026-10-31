@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Lookups\PdpStatus;
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\MatrixGate;
+use TT\Modules\Methodology\Repositories\FootballActionsRepository;
+use TT\Modules\Methodology\Repositories\PrinciplesRepository;
 use TT\Modules\Pdp\PdpAccess;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
@@ -2175,13 +2177,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         global $wpdb; $p = $wpdb->prefix;
         switch ( $type ) {
             case 'principle':
-                return (string) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT name FROM {$p}tt_principles WHERE id = %d", $id
-                ) );
+                return ( new PrinciplesRepository() )->displayName( $id );
             case 'football_action':
-                return (string) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT name FROM {$p}tt_football_actions WHERE id = %d", $id
-                ) );
+                return ( new FootballActionsRepository() )->displayName( $id );
             case 'position':
                 return (string) $wpdb->get_var( $wpdb->prepare(
                     "SELECT name FROM {$p}tt_lookups WHERE id = %d", $id
