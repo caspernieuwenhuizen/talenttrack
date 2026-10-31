@@ -5,7 +5,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
-use TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView;
+use TT\Modules\Prospects\Domain\ProspectStages;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 
 /**
@@ -78,7 +78,7 @@ final class PipelineWidgetConsentTest extends WP_UnitTestCase {
         $this->task( $invited, 'invite_to_test_training', 'completed' );
 
         $board = [];
-        foreach ( FrontendOnboardingPipelineView::computeStages( $this->admin ) as $column ) {
+        foreach ( ProspectStages::computeStages( $this->admin ) as $column ) {
             $board[ (string) $column['key'] ] = count( (array) ( $column['cards'] ?? [] ) );
         }
         $strip = $this->stripCounts();

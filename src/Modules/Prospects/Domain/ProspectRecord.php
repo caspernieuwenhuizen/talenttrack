@@ -4,7 +4,6 @@ namespace TT\Modules\Prospects\Domain;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
@@ -76,7 +75,7 @@ final class ProspectRecord {
      * @return array{key:string,label:string,summary:string,next_url:string}|null
      */
     public static function stage( int $user_id, int $prospect_id ): ?array {
-        foreach ( FrontendOnboardingPipelineView::computeStages( $user_id, $prospect_id ) as $column ) {
+        foreach ( ProspectStages::computeStages( $user_id, $prospect_id ) as $column ) {
             foreach ( $column['cards'] as $card ) {
                 if ( (int) ( $card['id'] ?? 0 ) !== $prospect_id ) continue;
                 $url = (string) ( $card['url'] ?? '' );
