@@ -178,6 +178,7 @@ final class AutoPurgeCron {
             if ( $entity === null ) break;
 
             $row = array_shift( $pages[ $entity ] );
+            if ( $row === null ) break;
             if ( $pages[ $entity ] === [] ) {
                 $pages[ $entity ] = $this->expiredRows( $entity, $cutoff, $row );
             }
