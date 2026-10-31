@@ -1,0 +1,15 @@
+#: src/Shared/Frontend/FrontendMyTeamView.php:277
+#, php-format
+msgctxt "my team trend chip heading"
+msgid "Progress of %s"
+msgstr "Voortgang van %s"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php:282
+#, php-format
+msgid "%s's rating trend will appear after the first evaluation."
+msgstr "De beoordelingstrend van %s verschijnt na de eerste evaluatie."
+
+#: src/Shared/Frontend/FrontendMyTeamView.php:298
+#, php-format
+msgid "%s's trend appears after the next evaluation."
+msgstr "De trend van %s verschijnt na de volgende evaluatie."

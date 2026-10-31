@@ -198,7 +198,7 @@ class FrontendMyTeamView extends FrontendViewBase {
                         </span>
                     <?php endif; ?>
                 <?php endif; ?>
-                <?php self::renderTrendChip( $trend ); ?>
+                <?php self::renderTrendChip( $trend, $voice ); ?>
             </div>
 
             <?php
@@ -262,15 +262,25 @@ class FrontendMyTeamView extends FrontendViewBase {
     /**
      * #1384 — growth-framed personal trend chip. Always shown to the
      * player; the raw team rank is opt-in (tt_player_visible_rank).
+     * A reader who is not the player (#4396) is told about the child by
+     * first name: the evaluations are the child's, not the parent's.
      *
      * @param array{has_data:bool,current_avg:float|null,prior_avg:float|null,delta:float|null,top_category:string|null} $trend
      */
-    private static function renderTrendChip( array $trend ): void {
+    private static function renderTrendChip( array $trend, \TT\Shared\Frontend\Components\SubjectVoice $voice ): void {
         echo '<div class="tt-mt-trend-chip">';
 
         if ( empty( $trend['has_data'] ) ) {
-            echo '<span class="tt-mt-trend-headline">' . esc_html__( 'Your progress', 'talenttrack' ) . '</span>';
-            echo '<span class="tt-mt-trend-sub">' . esc_html__( 'Your rating trend will appear after your first evaluation.', 'talenttrack' ) . '</span>';
+            echo '<span class="tt-mt-trend-headline">' . esc_html( $voice->pick(
+                __( 'Your progress', 'talenttrack' ),
+                /* translators: %s = the player's first name, to a parent or a coach. */
+                sprintf( _x( 'Progress of %s', 'my team trend chip heading', 'talenttrack' ), $voice->firstName() )
+            ) ) . '</span>';
+            echo '<span class="tt-mt-trend-sub">' . esc_html( $voice->pick(
+                __( 'Your rating trend will appear after your first evaluation.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( "%s's rating trend will appear after the first evaluation.", 'talenttrack' ), $voice->firstName() )
+            ) ) . '</span>';
             echo '</div>';
             return;
         }
@@ -282,7 +292,11 @@ class FrontendMyTeamView extends FrontendViewBase {
                 __( '%s average so far', 'talenttrack' ),
                 number_format_i18n( (float) $trend['current_avg'], 1 )
             ) ) . '</span>';
-            echo '<span class="tt-mt-trend-sub">' . esc_html__( 'Your trend appears after your next evaluation.', 'talenttrack' ) . '</span>';
+            echo '<span class="tt-mt-trend-sub">' . esc_html( $voice->pick(
+                __( 'Your trend appears after your next evaluation.', 'talenttrack' ),
+                /* translators: %s = the player's first name. */
+                sprintf( __( "%s's trend appears after the next evaluation.", 'talenttrack' ), $voice->firstName() )
+            ) ) . '</span>';
             echo '</div>';
             return;
         }
