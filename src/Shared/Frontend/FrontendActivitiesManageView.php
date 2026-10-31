@@ -2430,8 +2430,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $player_filter = isset( $_GET['player_id'] ) ? absint( (string) $_GET['player_id'] ) : 0;
         // A player drill-down lands from an attendance report whose window is
         // usually in the past, so the (otherwise-collapsed) past activities
-        // are the whole point — expand them by default for this entry.
-        if ( $player_filter > 0 ) {
+        // are the whole point — expand them by default for this entry. An
+        // explicit `include_past=0` (the toggle's "hide") still collapses.
+        if ( $player_filter > 0 && ! isset( $_GET['include_past'] ) ) {
             $include_past = true;
         }
         $date_from_override = isset( $_GET['date_from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'] )
@@ -3378,6 +3379,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( ! empty( $_GET[ $key ] ) ) {
                 $base[ $key ] = sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
             }
+        }
+        // #4507 — a hidden past block stays hidden when a chip is cleared.
+        if ( isset( $_GET['include_past'] ) && (string) $_GET['include_past'] === '0' ) {
+            $base['include_past'] = '0';
         }
         $base['tt_view'] = 'activities';
 

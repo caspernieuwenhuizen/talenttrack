@@ -3,7 +3,6 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
-use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Shared\Frontend\FrontendActivitiesManageView;
@@ -69,6 +68,8 @@ final class MinutesReportsMatchesDrillTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        global $wp_rest_server;
+        $wp_rest_server = null;
         $_GET = [];
         wp_set_current_user( 0 );
         parent::tear_down();
@@ -122,19 +123,85 @@ final class MinutesReportsMatchesDrillTest extends WP_UnitTestCase {
         $this->assertStringContainsString( '3 played matches', $html );
     }
 
-    public function test_the_rest_list_takes_the_same_filter(): void {
-        $result = ( new ActivitiesRepository() )->searchForRest( [
+    public function test_get_activities_takes_the_nested_filter(): void {
+        $ids = $this->restIds( [
+            'filter'   => [ 'team_id' => $this->team, 'played' => '1', 'date_from' => $this->from, 'date_to' => $this->to ],
             'per_page' => 100,
-            'filter'   => [ 'team_id' => $this->team, 'played' => 1, 'date_from' => $this->from, 'date_to' => $this->to ],
         ] );
-        $ids = array_map( static function ( $r ): int { return (int) $r->id; }, (array) $result['rows'] );
-        sort( $ids );
-        $expected = $this->played;
-        sort( $expected );
-        $this->assertSame( $expected, $ids );
+        $this->assertSame( $this->sortedPlayed(), $ids );
+    }
+
+    public function test_get_activities_takes_the_plain_played_the_rendered_list_uses(): void {
+        $ids = $this->restIds( [
+            'team_id'   => (string) $this->team,
+            'date_from' => $this->from,
+            'date_to'   => $this->to,
+            'played'    => '1',
+            'per_page'  => 100,
+        ] );
+        $this->assertSame( $this->sortedPlayed(), $ids, 'the rendered list\'s own query string narrows over REST too' );
+    }
+
+    public function test_an_unreadable_played_value_is_refused(): void {
+        $res = $this->restGet( [ 'team_id' => (string) $this->team, 'played' => 'yes' ] );
+        $this->assertSame( 400, $res->get_status() );
+        $body = (array) $res->get_data();
+        $this->assertSame( 'bad_filter', (string) ( $body['errors'][0]['code'] ?? '' ) );
+    }
+
+    public function test_hide_folds_the_player_drill_too(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_players", [ 'club_id' => 1, 'team_id' => $this->team, 'first_name' => 'Sem', 'last_name' => 'Drill', 'status' => 'active' ] );
+        $player = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
+            'club_id'     => 1,
+            'activity_id' => $this->played[1],
+            'player_id'   => $player,
+            'is_guest'    => 0,
+            'status'      => 'present',
+            'record_type' => 'actual',
+        ] );
+
+        $open = $this->renderList( [ 'tt_view' => 'activities', 'player_id' => (string) $player ] );
+        $this->assertStringContainsString( 'data-past-state="expanded"', $open, 'the player drill lands expanded' );
+
+        $hidden = $this->renderList( [ 'tt_view' => 'activities', 'player_id' => (string) $player, 'include_past' => '0' ] );
+        $this->assertStringContainsString( 'data-past-state="collapsed"', $hidden, 'Hide folds the player drill' );
     }
 
     // Fixtures
+
+    /** @return list<int> */
+    private function sortedPlayed(): array {
+        $ids = $this->played;
+        sort( $ids );
+        return $ids;
+    }
+
+    /** @param array<string,mixed> $params */
+    private function restGet( array $params ): \WP_REST_Response {
+        global $wp_rest_server;
+        $wp_rest_server = new \WP_REST_Server();
+        do_action( 'rest_api_init' );
+        $req = new \WP_REST_Request( 'GET', '/talenttrack/v1/activities' );
+        $req->set_query_params( $params );
+        return rest_do_request( $req );
+    }
+
+    /**
+     * @param array<string,mixed> $params
+     * @return list<int>
+     */
+    private function restIds( array $params ): array {
+        $res = $this->restGet( $params );
+        $this->assertSame( 200, $res->get_status(), (string) wp_json_encode( $res->get_data() ) );
+        $ids = [];
+        foreach ( (array) ( $res->get_data()['data']['rows'] ?? [] ) as $row ) {
+            $ids[] = (int) ( (array) $row )['id'];
+        }
+        sort( $ids );
+        return $ids;
+    }
 
     private function renderReport( string $method ): string {
         $_GET = [ 'tt_view' => 'standard-report', 'team_id' => (string) $this->team, 'from' => $this->from, 'to' => $this->to ];

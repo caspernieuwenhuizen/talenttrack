@@ -50,7 +50,7 @@ These are the same three states the [completing-with-nobody-on-the-register](#co
 
 ### Past activities
 
-Completed and Cancelled activities from the last 7 days stay visible in the **Last 7 days** section. Anything older is pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`, where N counts only those older activities. When nothing is older than a week, the button doesn't appear. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1`, so a shared link reflects the same view the sender saw.
+Completed and Cancelled activities from the last 7 days stay visible in the **Last 7 days** section. Anything older is pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`, where N counts only those older activities. When nothing is older than a week, the button doesn't appear. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1` (shown) or `?include_past=0` (hidden), so a shared link reflects the same view the sender saw. When you arrive from a report that drills into a date window or a player, past activities open expanded, because those are what the report counted; **Hide** still folds them away. From a minutes report's *Matches played*, the **Showing only:** strip above the list names the count and the window, for example *12 played matches, 17-08-2026 – 30-06-2027*, and the list holds exactly those matches, tournament days included.
 
 Past **planned** activities (not closed off) are NOT in this collapsed bucket — they appear in the **Past — still open** section at the top of the list (above the Past toggle and Today), shown by default, since they are signals that the coach still needs to act on.
 
