@@ -9,6 +9,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Workflow\Contracts\FormInterface;
+use TT\Shared\Dates\TTDate;
 
 /**
  * InjuryRecoveryConfirmForm — the answer to an injury recovery check. The
@@ -49,7 +50,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
         $offer_extend = $can_change && $records !== [];
 
         $chosen_id = (int) ( $existing['injury_id'] ?? 0 );
-        if ( $chosen_id <= 0 && count( $records ) === 1 ) $chosen_id = (int) $records[0]->id;
+        if ( $chosen_id <= 0 && count( $records ) === 1 ) $chosen_id = (int) ( $records[0]->id ?? 0 );
 
         $status = (string) ( $existing['recovery_status'] ?? '' );
         $tomorrow = gmdate( 'Y-m-d', (int) strtotime( AttendanceDateRule::today() . ' 00:00:00 UTC +1 day' ) );
@@ -68,10 +69,10 @@ class InjuryRecoveryConfirmForm implements FormInterface {
             <?php else : ?>
                 <fieldset class="tt-irc-group">
                     <legend><?php esc_html_e( 'Injury record', 'talenttrack' ); ?></legend>
-                    <?php foreach ( $records as $row ) : ?>
+                    <?php foreach ( $records as $row ) : $row_id = (int) ( $row->id ?? 0 ); ?>
                         <label class="tt-irc-choice">
-                            <input type="radio" name="injury_id" value="<?php echo esc_attr( (string) (int) $row->id ); ?>"
-                                   <?php checked( (int) $row->id === $chosen_id ); ?>
+                            <input type="radio" name="injury_id" value="<?php echo esc_attr( (string) $row_id ); ?>"
+                                   <?php checked( $row_id === $chosen_id ); ?>
                                    <?php echo $disabled; ?> />
                             <span><?php echo esc_html( self::recordLabel( $row ) ); ?></span>
                         </label>
@@ -158,7 +159,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
 
         // The task view prints only the form-level message, so a field error
         // must also reach it or the form refuses without saying why.
-        if ( $errors !== [] && ! isset( $errors['__form'] ) ) {
+        if ( $errors !== [] ) {
             $errors['__form'] = implode( ' ', $errors );
         }
         return $errors;
@@ -200,7 +201,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
         $records = InjuryRecoveryTasks::dueRecordsForPlayer( $player_id );
         if ( $answered_id <= 0 ) return $records;
         foreach ( $records as $row ) {
-            if ( (int) $row->id === $answered_id ) return $records;
+            if ( (int) ( $row->id ?? 0 ) === $answered_id ) return $records;
         }
         $row = ( new InjuryRepository() )->find( $answered_id );
         if ( $row && (int) ( $row->player_id ?? 0 ) === $player_id ) {
@@ -211,14 +212,14 @@ class InjuryRecoveryConfirmForm implements FormInterface {
 
     private static function recordLabel( object $row ): string {
         $started = (string) ( $row->started_on ?? '' );
-        $ts      = strtotime( $started );
-        $date    = $ts === false ? $started : date_i18n( (string) get_option( 'date_format' ), $ts );
+        $date    = TTDate::date( $started );
+        if ( $date === '' ) $date = $started;
 
         $type = '';
         $type_id = (int) ( $row->injury_type_lookup_id ?? 0 );
         if ( $type_id > 0 ) {
             foreach ( QueryHelpers::get_lookups( 'injury_type' ) as $lookup ) {
-                if ( (int) $lookup->id === $type_id ) {
+                if ( (int) ( $lookup->id ?? 0 ) === $type_id ) {
                     $type = LookupTranslator::name( $lookup );
                     break;
                 }

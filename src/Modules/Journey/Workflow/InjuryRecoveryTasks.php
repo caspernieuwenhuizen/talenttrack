@@ -115,7 +115,7 @@ final class InjuryRecoveryTasks {
             $due[] = $row;
         }
         usort( $due, static fn ( object $a, object $b ): int =>
-            [ (string) InjuryStatus::checkDate( $a ), (int) $a->id ] <=> [ (string) InjuryStatus::checkDate( $b ), (int) $b->id ]
+            [ (string) InjuryStatus::checkDate( $a ), (int) ( $a->id ?? 0 ) ] <=> [ (string) InjuryStatus::checkDate( $b ), (int) ( $b->id ?? 0 ) ]
         );
         return $due;
     }
