@@ -881,7 +881,6 @@
 }
 .tt-bp-card__actions:empty { display: none; }
 .tt-bp-card__actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 .tt-bp-card__link {
@@ -977,7 +976,6 @@
     gap: 0.5rem;
 }
 .tt-player-row--injury .tt-player-row__actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 @media (min-width: 768px) {
