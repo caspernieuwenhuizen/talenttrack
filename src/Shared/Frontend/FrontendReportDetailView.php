@@ -47,6 +47,18 @@ final class FrontendReportDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to reports.', 'talenttrack' ) . '</p>';
             return;
         }
+        // #4384 — both reports list every team in the academy, so a role
+        // scoped to its own teams is refused here as the launcher hides the
+        // tile. Same academy-wide test as the launcher's, so a typed URL
+        // gets the answer the hidden tile gave.
+        $user_id = get_current_user_id();
+        $is_scope_admin = current_user_can( 'tt_edit_settings' )
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
+        if ( ! $is_scope_admin && in_array( $type, [ 'team_ratings', 'coach_activity' ], true ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to reports.', 'talenttrack' ) . '</p>';
+            return;
+        }
         self::enqueueAssets();
 
         // F2 breadcrumbs replace the standalone back button.
