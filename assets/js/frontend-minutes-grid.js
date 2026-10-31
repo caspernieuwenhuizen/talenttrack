@@ -329,6 +329,11 @@
 		} );
 	} );
 
+	// #4506 — once on load, so a count stored above its limit before the
+	// ceiling existed (70 assists on a 2–1 match) is marked before anyone
+	// types: that box is the one the coach has to correct.
+	grid.querySelectorAll( 'input.tt-agrid-stat-in' ).forEach( validateStat );
+
 	// #3531 — the scoreline. A live column renders as text with no input, so
 	// there is nothing here to bind and nothing that can be posted for it.
 	grid.querySelectorAll( 'input.tt-agrid-score-in' ).forEach( function ( inp ) {

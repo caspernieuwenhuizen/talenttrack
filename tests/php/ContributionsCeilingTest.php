@@ -147,6 +147,32 @@ final class ContributionsCeilingTest extends WP_UnitTestCase {
         $this->assertSame( 'contributions_exceed_score', $this->error( $raise )['code'] );
     }
 
+    /**
+     * Fenna's case: a stored 10 against a 3-goal score. The box renders the
+     * stored count and its ceiling, which is what the script checks once on
+     * load to mark it before anyone types.
+     */
+    public function test_a_stored_count_above_the_ceiling_renders_with_its_limit(): void {
+        $render  = new \ReflectionMethod( \TT\Modules\Activities\Frontend\FrontendMinutesGridView::class, 'renderStatCell' );
+        $ceiling = new \ReflectionMethod( \TT\Modules\Activities\Frontend\FrontendMinutesGridView::class, 'statCeiling' );
+        $render->setAccessible( true );
+        $ceiling->setAccessible( true );
+
+        $max = (int) $ceiling->invoke( null, [ 'home_score' => 3 ] );
+        ob_start();
+        $render->invoke( null, 'assists', $this->mate, 99, 10, 'Assists', $max );
+        $html = (string) ob_get_clean();
+
+        $this->assertSame( 3, $max );
+        $this->assertStringContainsString( 'value="10"', $html );
+        $this->assertStringContainsString( 'data-max="3"', $html );
+        $this->assertSame(
+            MatchExecutionRepository::CONTRIBUTIONS_CAP_WITHOUT_SCORE,
+            (int) $ceiling->invoke( null, [ 'home_score' => null ] ),
+            'no score: the cap'
+        );
+    }
+
     // ---- fixtures ---------------------------------------------------------
 
     /** @param list<array<string, int>> $players */
