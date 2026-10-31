@@ -15,8 +15,9 @@ use TT\Modules\Threads\Domain\ThreadVisibility;
  *   - Soft-delete only; original body wiped, deleted_by/at stamped.
  *   - Visibility filtering at read time: a staff-only (private_to_coach)
  *     message is readable by the staff who hold the staff-only right on
- *     this thread and by global thread readers, and hidden from everyone
- *     else.
+ *     this thread and by global thread readers, and by staff who can read
+ *     the thread and may edit evaluations (kept from before the staff-only
+ *     right existed), and hidden from everyone else.
  *   - club_id scoping per the SaaS-readiness rule.
  */
 final class ThreadMessagesRepository {
