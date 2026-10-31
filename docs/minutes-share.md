@@ -19,6 +19,11 @@ Open it from **Reports → Playing time → Team · Minutes share**, pick a team
 and you get one row per player: minutes played, minutes available, and the
 share between them, with anyone under the academy's target flagged.
 
+Staff who can read a team's reports can open it for that team. That includes
+the **team manager**, for the teams they manage and no others, whether they
+hold the team manager role or a staff account with the Manager role on the
+team.
+
 ## How the available minutes are worked out
 
 Every match the team **played** in the window, at that match's own length.

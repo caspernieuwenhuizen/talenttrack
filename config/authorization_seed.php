@@ -599,6 +599,12 @@ return array_merge(
         // `AllTeamsScope` / `get_teams_for_coach()`, so a manager reads
         // their own squads and no others.
         'analytics'                  => [ 'r',   'team',   $mod_analytics ],
+        // #4259 (D-7) — the team reports for their own squads: the minutes
+        // share, before match day, to see who is short of playing time.
+        // `TeamReportAccess` gates the monthly team report and its PDF on
+        // the same row, and the owner accepted that they open too. `team`
+        // scope, so the grant reaches the manager's own teams and no others.
+        'reports'                    => [ 'r',   'team',   $mod_reports ],
         // #3808 — the load half of the availability conversation.
         //
         // The team manager is who parents ring when a boy is tired or sore,
