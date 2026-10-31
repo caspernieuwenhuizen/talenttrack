@@ -42,7 +42,17 @@ class PlayersPage {
         // date of birth and the guardian's name, email and phone, so an
         // unchecked `?id=` handed a coach every child's contact details.
         if ( $action === 'edit' && $id > 0 && ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
-        if ( $action === 'edit' || $action === 'new' ) { self::render_form( $action === 'edit' ? QueryHelpers::get_player( $id ) : null ); return; }
+        if ( $action === 'edit' || $action === 'new' ) {
+            // #4349 — a null record renders the create form, whichever action
+            // asked for it, so the create right decides: the refusal
+            // handle_save() would give, before the form is filled in.
+            $player = $action === 'edit' && $id > 0 ? QueryHelpers::get_player( $id ) : null;
+            if ( $player === null && ! AuthorizationService::canCreatePlayer( get_current_user_id() ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+            self::render_form( $player );
+            return;
+        }
         if ( $action === 'view' && $id ) {
             if ( ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
             self::render_view( $id );
