@@ -306,6 +306,29 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $now[0]['due_at'] );
     }
 
+    /**
+     * #4399 — deleting the player for good takes their reminder with them:
+     * the player cascade's sweep reaches `tt_workflow_tasks.player_id`, so
+     * the archive action naming no players for entity `player` leaves
+     * nothing behind.
+     */
+    public function test_deleting_the_player_leaves_no_reminder(): void {
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $this->assertCount( 1, $this->active(), 'precondition: the reminder is open' );
+
+        $deleted   = ( new ArchiveRepository() )->deletePermanently( 'player', [ $this->player ] );
+        $remaining = $this->all();
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $deleted );
+        $this->assertSame( [], $remaining, 'no injury_recovery_due row remains for the deleted player' );
+    }
+
     /** #4399 — moving an archived record into the bin skips a reminder still open. */
     public function test_trashing_the_record_skips_the_task(): void {
         global $wpdb;
