@@ -21,7 +21,8 @@ use TT\Shared\Frontend\Components\RecordLink;
  * ## The condition
  *
  * An active player — or one with an open or extended trial case, who is
- * exactly the player a welcome is sent about — with:
+ * exactly the player a welcome is sent about — under 18 on the alert day
+ * (or with no date of birth on file), with:
  *
  *   - no parent account linked (`tt_player_parents`), and
  *   - no guardian email and no guardian phone on the player record.
@@ -90,7 +91,7 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
     }
 
     public function description(): string {
-        return __( 'Nobody at home can be reached about this player: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added.', 'talenttrack' );
+        return __( 'Nobody at home can be reached about this player under 18: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added.', 'talenttrack' );
     }
 
     /**
@@ -127,13 +128,20 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #4437 — an adult needs no guardian: a player who is 18 on the
+        // alert day is left out. One with no date of birth stays in, so the
+        // alert does not go quiet because a field is empty.
+        $adult_from = ( new \DateTimeImmutable( current_time( 'Y-m-d' ) ) )->modify( '-18 years' )->format( 'Y-m-d' );
+
         // `tt_player_parents` has a composite key and no surrogate id, so
         // its NOT EXISTS selects a literal.
-        $sql = "SELECT p.id AS player_id, p.first_name, p.last_name, p.team_id
+        $sql = $wpdb->prepare(
+               "SELECT p.id AS player_id, p.first_name, p.last_name, p.team_id
                   FROM {$p}tt_players p
                  WHERE " . QueryHelpers::clubScopeWhere( 'p' ) . "
                    AND p.archived_at IS NULL
                    AND p.trashed_at IS NULL
+                   AND ( p.date_of_birth IS NULL OR p.date_of_birth > %s )
                    AND (
                         p.status = 'active'
                         OR EXISTS (
@@ -161,7 +169,9 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
                            AND i.sent_at IS NOT NULL
                    )"
             . $context->applyScope( self::SUBJECT_TYPE, 'p.id' ) . "
-                 ORDER BY p.id ASC";
+                 ORDER BY p.id ASC",
+            $adult_from
+        );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = $wpdb->get_results( $sql );
