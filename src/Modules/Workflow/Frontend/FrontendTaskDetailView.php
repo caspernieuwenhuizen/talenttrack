@@ -24,6 +24,20 @@ class FrontendTaskDetailView extends FrontendViewBase {
     public const NONCE_ACTION = 'tt_workflow_task_complete';
     public const NONCE_FIELD  = '_tt_workflow_nonce';
 
+    /**
+     * #4421 — the task detail is the `my-tasks` view with a `task_id`, so it
+     * takes the inbox stylesheet, which carries the task notices.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-my-tasks',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-tasks.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, int $task_id ): void {
         self::enqueueAssets();
 
@@ -215,10 +229,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
                 . '</div>';
         }
 
-        if ( ! empty( $errors['__form'] ) ) {
-            echo '<div class="tt-notice notice-error" style="background:#fdecea; border-left:4px solid #b32d2e; padding:8px 12px; margin: 8px 0 16px;">'
-                . esc_html( $errors['__form'] ) . '</div>';
-        }
+        echo self::renderErrors( $errors );
 
         echo '<form method="post" class="tt-workflow-form">';
         wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
@@ -239,6 +250,36 @@ class FrontendTaskDetailView extends FrontendViewBase {
                 . '</button></p>';
         }
         echo '</form>';
+    }
+
+    /**
+     * #4421 — every reason the form was refused, in one notice.
+     *
+     * `validate()` returns its errors keyed by field, and only `__form`
+     * used to be printed, so a refusal on a field reloaded the form with
+     * nothing to say what to change. The forms' `render()` takes no
+     * errors, so the notice is where they all go: `__form` first, then
+     * the rest in the order `validate()` returned them. `role="alert"`
+     * so a screen reader announces it after the reload.
+     *
+     * @param array<string,string> $errors
+     */
+    private static function renderErrors( array $errors ): string {
+        $messages = [];
+        if ( isset( $errors['__form'] ) && (string) $errors['__form'] !== '' ) {
+            $messages[] = (string) $errors['__form'];
+        }
+        foreach ( $errors as $key => $message ) {
+            if ( $key === '__form' || (string) $message === '' ) continue;
+            $messages[] = (string) $message;
+        }
+        if ( $messages === [] ) return '';
+
+        $html = '<div class="tt-notice notice-error tt-workflow-task-errors" role="alert"><ul class="tt-workflow-task-errors__list">';
+        foreach ( $messages as $message ) {
+            $html .= '<li>' . esc_html( $message ) . '</li>';
+        }
+        return $html . '</ul></div>';
     }
 
     /**

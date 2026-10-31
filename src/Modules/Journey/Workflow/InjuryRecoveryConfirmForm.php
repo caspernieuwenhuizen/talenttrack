@@ -171,12 +171,6 @@ class InjuryRecoveryConfirmForm implements FormInterface {
             }
         }
 
-        // The task view prints only the form-level message, so a field error
-        // must also reach it or the form refuses without saying why.
-        // Stopgap until #4421 renders field errors in the task view; remove then.
-        if ( $errors !== [] ) {
-            $errors['__form'] = implode( ' ', $errors );
-        }
         return $errors;
     }
 
