@@ -420,12 +420,15 @@ class MatchExecutionRepository {
     public function contributionsProblem( int $activity_id, array $counts ): ?array {
         if ( $activity_id <= 0 || $counts === [] ) return null;
 
-        $match = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT home_score, title FROM {$this->wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
-            $activity_id, CurrentClub::id()
-        ) );
-        $scored = is_object( $match ) && $match->home_score !== null;
-        $limit  = $scored ? max( 0, (int) $match->home_score ) : self::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
+        // The activity through the activities repository (demo-scoped,
+        // archived included). That read does not filter on the club, so the
+        // club is checked here.
+        $match = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
+        if ( $match !== null && (int) ( $match->club_id ?? 0 ) !== (int) CurrentClub::id() ) $match = null;
+        $stored = $match !== null ? ( $match->home_score ?? null ) : null;
+        $score  = $stored !== null ? (int) $stored : null;
+        $scored = $score !== null;
+        $limit  = $score !== null ? max( 0, $score ) : self::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
 
         $players = [];
         foreach ( $counts as $pid => $c ) {
@@ -459,7 +462,7 @@ class MatchExecutionRepository {
             'code'    => $scored ? 'contributions_exceed_score' : 'contributions_out_of_range',
             'limit'   => $limit,
             'scored'  => $scored,
-            'title'   => is_object( $match ) ? (string) ( $match->title ?? '' ) : '',
+            'title'   => $match !== null ? (string) ( $match->title ?? '' ) : '',
             'players' => $players,
             'totals'  => $totals,
         ];

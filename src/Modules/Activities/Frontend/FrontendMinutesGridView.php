@@ -612,7 +612,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
      * @param array<string,mixed> $a A column from `MinutesGridQuery::matrix()`.
      */
     private static function statCeiling( array $a ): int {
-        return isset( $a['home_score'] ) && $a['home_score'] !== null
+        return isset( $a['home_score'] )
             ? max( 0, (int) $a['home_score'] )
             : MatchExecutionRepository::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
     }
