@@ -132,6 +132,39 @@ doelpuntenlogboek: een doelpunt dat uit het logboek gaat, gaat ook van het
 scorebord. De twee kunnen dus niet over dezelfde wedstrijd van mening
 verschillen.
 
+### Minuten tegenover de wedstrijd
+
+De rij **Minuten** onderaan het raster controleert per wedstrijd of alle
+minuten van de wedstrijd erin staan. Het is dezelfde controle die het overzicht
+minuten-audit doet, met dezelfde woorden en kleuren:
+
+- **Het getal** is het aantal ingevoerde minuten tegenover wat de wedstrijd
+ bevat: het aantal spelers per team maal de wedstrijdduur. `795 / 770` bij een
+ wedstrijd 11 tegen 11 van 70 minuten betekent 25 minuten te veel, meestal een
+ wissel die dubbel is geteld.
+- **Het label** zegt **Volledig** als elke speler uit de selectie minuten heeft
+ en het totaal optelt tot een hele wedstrijd, **Onvolledig** als een van beide
+ controles niet klopt, en **Niet geregistreerd** als er nog helemaal geen
+ minuten zijn ingevoerd.
+- **De reden** onder een label Onvolledig zegt welke controle niet klopt:
+ *Spelers uit de selectie zonder minuten*, *45 minuten te kort voor een hele
+ wedstrijd* of *25 minuten meer dan de wedstrijd bevat*.
+
+De rij rekent mee terwijl je typt, zodat je het antwoord ziet voordat je op
+Opslaan drukt, en na het opslaan geeft hij hetzelfde antwoord als de audit. De
+selectie die hij telt is die van de audit: een speler die je hebt geselecteerd
+maar nooit aanwezig hebt gemeld, heeft hier geen veld, maar telt wel als speler
+zonder minuten tot je zijn aanwezigheid vastlegt. Een speler die je afwezig
+hebt gemeld telt niet mee, tot je hem minuten geeft: vanaf dat moment hoort hij
+bij de selectie, net als in de audit.
+
+Het is informatie, geen regel. Niets houdt je tegen om op te slaan: een
+wedstrijd kan echt korter uitvallen, na een rode kaart of een blessure zonder
+wissel. Een toernooidag toont de minuten van zijn wedstrijden bij elkaar
+opgeteld, net als de audit, zonder streefgetal en met het label
+**Samenvatting**, omdat zijn minuten bij zijn wedstrijden in de toernooiplanner
+horen.
+
 ### Toegekend / stand
 
 De onderste rij van het raster laat per wedstrijd zien hoeveel doelpunten een

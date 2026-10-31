@@ -89,6 +89,144 @@
 		} );
 	}
 
+	// ---- the Minutes row (#4483) -------------------------------------
+	//
+	// Per match: the minutes in the column's boxes against what the match
+	// holds, judged with the Minutes-audit's three checks in the audit's
+	// order (`MinutesAuditQuery::completeness()`). The server renders the
+	// same row from `MinutesGridQuery::minutesCheck()`, so what a coach sees
+	// while typing is what the page and the audit say after Save. It informs
+	// only: nothing here touches the Save button.
+
+	var MLABELS = I18N.minutesLabels || {};
+	var MREASONS = I18N.minutesReasons || {};
+	var CHIP_CLASS = {
+		complete: 'tt-maud-chip--ok',
+		partial: 'tt-maud-chip--partial',
+		none: 'tt-maud-chip--none',
+		rollup: 'tt-maud-chip--rollup'
+	};
+
+	function formatNumber( n ) {
+		var sep = typeof CFG.thousandsSep === 'string' ? CFG.thousandsSep : ',';
+		return String( n ).replace( /\B(?=(\d{3})+(?!\d))/g, sep );
+	}
+
+	function readInt( el, attr ) {
+		var raw = el.getAttribute( attr );
+		if ( raw === null || raw === '' ) {
+			return null;
+		}
+		var n = parseInt( raw, 10 );
+		return isNaN( n ) ? null : n;
+	}
+
+	// A deliberate mirror of `MinutesAuditQuery::completeness()`: the same
+	// three checks, in the same order. Change one, change both. A per-
+	// keystroke preview call would put the server in the typing loop of an
+	// explicit-Save surface; every input comes from the server instead.
+	function completeness( recorded, squad, total, available ) {
+		if ( recorded === 0 ) {
+			return [ 'none', '' ];
+		}
+		if ( squad <= 0 || recorded < squad ) {
+			return [ 'partial', 'players_missing' ];
+		}
+		if ( available !== null ) {
+			if ( total < available ) {
+				return [ 'partial', 'minutes_short' ];
+			}
+			if ( total > available ) {
+				return [ 'partial', 'minutes_over' ];
+			}
+		}
+		return [ 'complete', '' ];
+	}
+
+	function reasonText( reason, total, available ) {
+		var tpl = MREASONS[ reason ] || '';
+		if ( reason === 'minutes_short' ) {
+			return tpl.replace( '%s', formatNumber( Math.max( 0, available - total ) ) );
+		}
+		if ( reason === 'minutes_over' ) {
+			return tpl.replace( '%s', formatNumber( Math.max( 0, total - available ) ) );
+		}
+		return reason === 'players_missing' ? tpl : '';
+	}
+
+	function renderChip( holder, status ) {
+		while ( holder.firstChild ) {
+			holder.removeChild( holder.firstChild );
+		}
+		if ( ! status || ! CHIP_CLASS[ status ] ) {
+			return;
+		}
+		var chip = document.createElement( 'span' );
+		chip.className = 'tt-maud-chip ' + CHIP_CLASS[ status ];
+		chip.setAttribute( 'data-status', status );
+		var dot = document.createElement( 'span' );
+		dot.className = 'tt-maud-chip__dot';
+		chip.appendChild( dot );
+		chip.appendChild( document.createTextNode( MLABELS[ status ] || '' ) );
+		holder.appendChild( chip );
+	}
+
+	function recomputeMinutesCheck( activityId ) {
+		if ( ! activityId ) {
+			return;
+		}
+		var cell = grid.querySelector( 'td[data-minutes-check][data-activity="' + activityId + '"]' );
+		if ( ! cell ) {
+			return;
+		}
+
+		// What has no box is fixed while the coach types: minutes of players
+		// with no row on this grid, and the audit's squad members with no box
+		// (selected but never registered, or off the grid). The boxes are
+		// recounted with the audit's own squad rule: on the squad when
+		// selected (`data-in-squad`) or once they hold minutes, so a player
+		// registered absent joins the squad when he gets minutes, as he will
+		// in the audit after Save (`MinutesGridQuery::minutesCheck()`).
+		var total = readInt( cell, 'data-offgrid-minutes' ) || 0;
+		var recorded = readInt( cell, 'data-offgrid-recorded' ) || 0;
+		var offgridSquad = readInt( cell, 'data-offgrid-squad' );
+		var squad = offgridSquad === null ? null : offgridSquad;
+		grid.querySelectorAll( 'input.tt-agrid-min-in[data-activity="' + activityId + '"]' ).forEach( function ( inp ) {
+			var v = clampMinutes( inp.value );
+			var hasMinutes = v !== '' && v > 0;
+			if ( hasMinutes ) {
+				recorded += 1;
+				total += v;
+			}
+			if ( squad !== null && ( hasMinutes || inp.getAttribute( 'data-in-squad' ) === '1' ) ) {
+				squad += 1;
+			}
+		} );
+
+		var available = readInt( cell, 'data-available' );
+		var verdict = [ '', '' ];
+		if ( cell.getAttribute( 'data-tournament' ) === '1' ) {
+			verdict = [ 'rollup', '' ];
+		} else if ( squad !== null ) {
+			verdict = completeness( recorded, squad, total, available );
+		}
+
+		var sum = cell.querySelector( '[data-minutes-sum]' );
+		if ( sum ) {
+			sum.textContent = available !== null
+				? formatNumber( total ) + ' / ' + formatNumber( available )
+				: formatNumber( total );
+		}
+		var chipHolder = cell.querySelector( '[data-minutes-chip]' );
+		if ( chipHolder ) {
+			renderChip( chipHolder, verdict[ 0 ] );
+		}
+		var reason = cell.querySelector( '[data-minutes-reason]' );
+		if ( reason ) {
+			reason.textContent = reasonText( verdict[ 1 ], total, available === null ? 0 : available );
+		}
+	}
+
 	function refresh() {
 		var n = dirty.size + dirtyStats.size + dirtyScores.size;
 		if ( statusEl ) {
@@ -113,6 +251,7 @@
 				dirty.add( td );
 			}
 			recomputeTotal( inp.closest( 'tr' ) );
+			recomputeMinutesCheck( inp.getAttribute( 'data-activity' ) );
 			refresh();
 		} );
 		// Normalise + clamp when the box loses focus.
@@ -120,6 +259,7 @@
 			var v = clampMinutes( inp.value );
 			inp.value = v === '' ? '' : String( v );
 			recomputeTotal( inp.closest( 'tr' ) );
+			recomputeMinutesCheck( inp.getAttribute( 'data-activity' ) );
 		} );
 	} );
 

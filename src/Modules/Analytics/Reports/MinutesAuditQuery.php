@@ -73,7 +73,7 @@ final class MinutesAuditQuery {
      * @return array{
      *   games: list<array{
      *     activity_id:int, session_date:string, title:string, type_key:string,
-     *     minutes:array<int,int>, on_squad:array<int,bool>, unavailable:array<int,bool>,
+     *     minutes:array<int,int>, on_squad:array<int,bool>, selected:array<int,bool>, unavailable:array<int,bool>,
      *     total_minutes:int, available_minutes:int, recorded_count:int, squad_count:int,
      *     status:string, status_reason:string,
      *     is_rollup:bool, editable:bool, tournament_id:int
@@ -244,6 +244,7 @@ final class MinutesAuditQuery {
                     'type_key'       => self::rowTypeKey( $a ),
                     'minutes'        => [],
                     'on_squad'       => [],
+                    'selected'       => [],
                     'unavailable'    => [],
                     'total_minutes'     => 0,
                     'available_minutes' => $available[ (int) $a->id ] ?? 0,
@@ -319,6 +320,7 @@ final class MinutesAuditQuery {
             // unavailable is not on the squad: their zero is not a recording
             // gap. Recorded minutes still win, since they are what happened.
             $on_squad      = [];
+            $selected      = [];
             $unavailable   = [];
             $minutes       = [];
             $row_total     = 0;
@@ -328,6 +330,7 @@ final class MinutesAuditQuery {
                 $is_squad = isset( $squad_map[ $pid ] ) || isset( $min_map[ $pid ] );
                 $mins     = (int) ( $min_map[ $pid ] ?? 0 );
                 $on_squad[ $pid ]    = $is_squad;
+                $selected[ $pid ]    = isset( $squad_map[ $pid ] );
                 $unavailable[ $pid ] = ! $is_squad && isset( $unavail_map[ $pid ] );
                 $minutes[ $pid ]     = $mins;
                 if ( $is_squad ) $squad_count++;
@@ -372,6 +375,12 @@ final class MinutesAuditQuery {
                 'type_key'       => self::rowTypeKey( $a ),
                 'minutes'        => $minutes,
                 'on_squad'       => $on_squad,
+                // #4483 — on the squad whatever their minutes: selected or
+                // registered and not marked unavailable. `on_squad` is this
+                // plus anyone with minutes, so a client that recounts the
+                // squad as minutes are typed (the minutes grid) starts here
+                // rather than from a count fixed before the typing.
+                'selected'       => $selected,
                 // #4101 — marked unavailable for this game (not Present in
                 // match prep or on the register) and no minutes recorded.
                 // The state only: no reason or injury detail leaves here.
