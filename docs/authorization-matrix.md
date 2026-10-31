@@ -617,6 +617,18 @@ Existing installs gain the four staff rows with migration `0300_authorization_se
 
 Methodology principles follow the same idea without a seed change. `GET /methodology/principles[/{id}]` now asks `tt_view_methodology` (`methodology: read`, already held by both coach personas and the scout) instead of the edit right, and writes keep `tt_edit_methodology`.
 
+## Matrix entity `methodology_vocabulary_panel` — who is offered the vocabulary editor
+
+The **Methodology vocabulary** tile opens the editor for the academy's own methodology words, which requires `tt_edit_methodology`. The head coach, the assistant coach and the scout read `methodology`, because the **Methodology** read tile and the methodology REST reads need it, so a tile on that entity showed them an editor that then refused them.
+
+The tile therefore has its own entity, used only for tile visibility:
+
+| Persona | Grant |
+|---|---|
+| `head_of_development`, `academy_admin` | `read`, global |
+
+Nothing else changes: the staff personas keep `methodology: read`, and the editor itself still checks `tt_edit_methodology`. Existing installs gain the two rows with migration `0302_authorization_methodology_vocabulary_panel`, which adds them with `INSERT IGNORE` and leaves every row an admin has edited alone.
+
 ## The functional-role axis (#3257, #3433)
 
 The matrix keys on `(persona, entity, activity, scope_kind)`. A physio and a kit manager hold the same `tt_staff` WordPress role, so they resolve to the same persona — `staff` — and **no cell on this grid can tell them apart**. That is not a gap in the seed; it is the shape of the key. #3232's `player_injuries [rc, team]` grant therefore reached every Staff account, including ones issued for entirely non-clinical reasons.
