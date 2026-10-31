@@ -150,7 +150,13 @@ final class MinutesGridQuery {
             ];
         }
 
-        $activities = self::withAuditYardstick( $activities, $team_id, $from, $to );
+        $yardstick = self::auditYardstick( $team_id, $from, $to, $activities !== [] );
+        foreach ( $activities as $i => $a ) {
+            $y = $yardstick[ $a['activity_id'] ] ?? null;
+            if ( $y === null || $a['is_tournament'] ) continue;
+            $activities[ $i ]['available_minutes'] = $y['available_minutes'];
+            $activities[ $i ]['squad_count']       = $y['squad_count'];
+        }
 
         // 2. Active roster (rows), ordered jersey-then-name.
         $players = [];
@@ -312,24 +318,20 @@ final class MinutesGridQuery {
      * A tournament day keeps both null: the audit judges it as a roll-up of
      * its fixtures, on players only, and its minutes live in the planner.
      *
-     * @param list<array<string, mixed>> $activities
-     * @return list<array<string, mixed>>
+     * @return array<int, array{available_minutes:int, squad_count:int}> activity id => yardstick
      */
-    private static function withAuditYardstick( array $activities, int $team_id, string $from, string $to ): array {
-        if ( $activities === [] ) return $activities;
+    private static function auditYardstick( int $team_id, string $from, string $to, bool $has_columns ): array {
+        if ( ! $has_columns ) return [];
 
-        $games = [];
+        $out = [];
         foreach ( ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to )['games'] as $g ) {
-            $games[ (int) $g['activity_id'] ] = $g;
+            if ( $g['is_rollup'] ) continue;
+            $out[ $g['activity_id'] ] = [
+                'available_minutes' => $g['available_minutes'],
+                'squad_count'       => $g['squad_count'],
+            ];
         }
-
-        foreach ( $activities as $i => $a ) {
-            $g = $games[ (int) $a['activity_id'] ] ?? null;
-            if ( $g === null || ! empty( $a['is_tournament'] ) || ! empty( $g['is_rollup'] ) ) continue;
-            $activities[ $i ]['available_minutes'] = (int) $g['available_minutes'];
-            $activities[ $i ]['squad_count']       = (int) $g['squad_count'];
-        }
-        return $activities;
+        return $out;
     }
 
     /**
