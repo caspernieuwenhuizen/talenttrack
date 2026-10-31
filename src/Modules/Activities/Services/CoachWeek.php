@@ -263,17 +263,6 @@ final class CoachWeek {
     }
 
     /**
-     * The persona the user is acting as: the switcher's choice, else the
-     * first they hold, as `FrontendTileGrid` resolves it.
-     */
-    public static function activePersona( int $user_id ): string {
-        $active = PersonaResolver::activePersona( $user_id );
-        if ( $active !== null && $active !== '' ) return $active;
-        $all = PersonaResolver::personasFor( $user_id );
-        return (string) ( $all[0] ?? '' );
-    }
-
-    /**
      * The user's coached teams, id => name, when the week is theirs to see;
      * empty otherwise.
      *
@@ -282,7 +271,7 @@ final class CoachWeek {
     private static function teamsIfVisible( int $user_id ): array {
         if ( $user_id <= 0 ) return [];
         if ( ! ModuleRegistry::isEnabled( ActivitiesModule::class ) ) return [];
-        if ( ! in_array( self::activePersona( $user_id ), self::configuredPersonas(), true ) ) return [];
+        if ( ! in_array( PersonaResolver::landingPersona( $user_id ), self::configuredPersonas(), true ) ) return [];
 
         $teams = [];
         foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {

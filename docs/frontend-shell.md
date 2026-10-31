@@ -98,6 +98,9 @@ builds the tile overview, so:
   differently for a coach and for a parent, exactly as on the tiles.
 - Groups appear in the standard order: Performance, People, Planning & tactics,
   Development, Reference.
+- At the foot sit your name and the role you are working as: the one you
+  picked in the role switcher, or otherwise your first role. It is the same
+  role your landing page is built for.
 
 Nothing is reachable through the navigation that was not reachable before, and
 nothing that was reachable has been hidden.

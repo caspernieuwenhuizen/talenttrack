@@ -101,6 +101,9 @@ tegeloverzicht bouwt, dus:
   heten dan voor een ouder, precies zoals op de tegels.
 - Groepen staan in de vaste volgorde: Prestatie, Mensen, Planning & tactiek,
   Ontwikkeling, Naslag.
+- Onderaan staan je naam en de rol waarin je werkt: de rol die je in de
+  rolwisselaar hebt gekozen, of anders je eerste rol. Dat is dezelfde rol
+  waarvoor je startpagina wordt opgebouwd.
 
 Er is niets via de navigatie bereikbaar dat dat eerder niet was, en er is niets
 verborgen dat eerder wel bereikbaar was.

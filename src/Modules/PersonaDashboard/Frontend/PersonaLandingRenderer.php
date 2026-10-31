@@ -39,7 +39,7 @@ final class PersonaLandingRenderer {
         $global = \TT\Infrastructure\Query\QueryHelpers::get_config( 'persona_dashboard.enabled', '1' );
 
         $user_id = get_current_user_id();
-        $persona = self::resolvePersona( $user_id );
+        $persona = PersonaResolver::landingPersona( $user_id );
         if ( $persona !== null && $persona !== '' ) {
             $key = 'persona_dashboard.' . $persona . '.enabled';
             $per_persona = \TT\Infrastructure\Query\QueryHelpers::get_config( $key, '' );
@@ -53,7 +53,7 @@ final class PersonaLandingRenderer {
     public static function render( int $user_id, string $base_url ): void {
         self::enqueueAssets();
 
-        $persona = self::resolvePersona( $user_id );
+        $persona = PersonaResolver::landingPersona( $user_id );
         $club_id = self::currentClubId();
 
         // Bump last-visited so "since you last visited" recap diffs work.
@@ -202,14 +202,6 @@ final class PersonaLandingRenderer {
             'i18n_breakdown_failed' => __( 'Could not load player breakdown.', 'talenttrack' ),
             'i18n_breakdown_empty'  => __( 'No players in window.', 'talenttrack' ),
         ] );
-    }
-
-    private static function resolvePersona( int $user_id ): ?string {
-        if ( $user_id <= 0 ) return null;
-        $active = PersonaResolver::activePersona( $user_id );
-        if ( $active !== null ) return $active;
-        $available = PersonaResolver::personasFor( $user_id );
-        return $available[0] ?? null;
     }
 
     /**

@@ -438,8 +438,10 @@ class FrontendTileGrid {
 
         // #1821 — the player persona's dashboard is just their own journey
         // surfaces: render their work as tiles under "Today's work", not a
-        // side rail. Keep the rail for every other persona.
-        $is_player = self::isPlayerPersona( $user_id );
+        // side rail. Keep the rail for every other persona. #4449 — the
+        // persona the landing dresses as, so the legacy grid and the persona
+        // dashboard agree on who is a player, switcher included.
+        $is_player = \TT\Modules\Authorization\PersonaResolver::landingPersona( $user_id ) === 'player';
 
         if ( $is_player ) {
             // Me-group tiles flow into the main "Today's work" grid; no rail.
@@ -501,24 +503,6 @@ class FrontendTileGrid {
         .tt-ftile-section[open] > .tt-ftile-section-summary { color: var(--tt-primary-deep, #07261c); }
         </style>
         <?php
-    }
-
-    /**
-     * #1821 — true when the user's active (or only) persona is `player`.
-     * Mirrors PersonaLandingRenderer::resolvePersona so the legacy grid and
-     * the persona dashboard agree on who is a player. Respects the persona
-     * switcher: a player-also-coach who switches to coach is not a player here.
-     */
-    private static function isPlayerPersona( int $user_id ): bool {
-        if ( $user_id <= 0 || ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
-            return false;
-        }
-        $active = \TT\Modules\Authorization\PersonaResolver::activePersona( $user_id );
-        if ( $active !== null && $active !== '' ) {
-            return $active === 'player';
-        }
-        $available = \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id );
-        return ( $available[0] ?? null ) === 'player';
     }
 
     /**
