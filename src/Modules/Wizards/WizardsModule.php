@@ -49,6 +49,8 @@ class WizardsModule implements ModuleInterface {
         WizardRegistry::register( new NewPersonWizard() );
         WizardRegistry::register( new NewTeamBlueprintWizard() );
         WizardRegistry::register( new NewProspectWizard() );
+        // #4257 — a consent request logged from a prospect's record page.
+        WizardRegistry::register( new \TT\Modules\Wizards\Prospect\LogConsentRequestWizard() );
 
         // #0092 (v3.110.69) — at-the-pitch attendance-first wizard.
         // Same underlying steps as the new-evaluation activity-first

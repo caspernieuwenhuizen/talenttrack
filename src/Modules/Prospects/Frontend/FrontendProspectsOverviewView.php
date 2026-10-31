@@ -94,6 +94,17 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
             // Cancel and the back-pill return here rather than to a
             // hard-coded list.
             'row_actions' => [
+                // #4257 — the prospect's record page.
+                'open' => [
+                    'label' => __( 'Open', 'talenttrack' ),
+                    'cap'   => 'tt_view_prospects',
+                    'href'  => BackLink::appendTo(
+                        add_query_arg(
+                            [ 'tt_view' => 'prospect', 'id' => '{id}' ],
+                            RecordLink::dashboardUrl()
+                        )
+                    ),
+                ],
                 'edit' => [
                     'label' => __( 'Edit contact', 'talenttrack' ),
                     'cap'   => 'tt_edit_prospects',

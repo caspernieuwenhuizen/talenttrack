@@ -335,11 +335,9 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                         if ( $dob !== '' && preg_match( '/^(\d{4})/', $dob, $m ) ) {
                             $birth_year = $m[1];
                         }
-                        $kanban_url = add_query_arg(
-                            [ 'tt_view' => 'onboarding-pipeline', 'prospect_id' => (int) $p->id ],
-                            remove_query_arg( [ 'action', 'id', 'tt_back' ] )
-                        );
-                        $kanban_url = BackLink::appendTo( $kanban_url );
+                        // #4257 — the prospect's record page, which works for a
+                        // prospect off the board as well as one on it.
+                        $kanban_url = RecordLink::detailUrlForWithBack( 'prospect', (int) $p->id );
                         // #3604 — the same derivation the REST read uses.
                         $status = ProspectOutcome::label( ProspectOutcome::forRow( (array) $p ) );
                         ?>

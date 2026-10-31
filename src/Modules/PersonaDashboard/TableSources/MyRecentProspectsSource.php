@@ -62,10 +62,8 @@ final class MyRecentProspectsSource implements TableRowSource {
             }
             $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
             $status = self::statusLabel( $r );
-            $open_url = add_query_arg(
-                [ 'tt_view' => 'onboarding-pipeline', 'prospect_id' => (int) $r->id ],
-                RecordLink::dashboardUrl()
-            );
+            // #4257 — the prospect's record page.
+            $open_url = RecordLink::detailUrlForWithBack( 'prospect', (int) $r->id );
 
             $out[] = [
                 esc_html( $when !== '' ? $when : '—' ),

@@ -211,7 +211,8 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             // scout was asked five times over six weeks.
             echo self::renderFocusConsent( $focus_pid ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source.
             ?>
-            <?php if ( $has_action || $can_edit || $can_propose || $invite_url !== '' ) : ?>
+            <?php // #4257 — "Open record" is offered for every focused prospect. ?>
+            <?php if ( $focus_pid > 0 ) : ?>
                 <p class="tt-pipeline-focus-actions">
                     <?php if ( $has_action ) : ?>
                         <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
@@ -226,6 +227,8 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                     <?php if ( $can_edit ) : ?>
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit contact', 'talenttrack' ); ?></a>
                     <?php endif; ?>
+                    <?php // #4257 — the full record: every consent request and visit. ?>
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( RecordLink::detailUrlForWithBack( 'prospect', $focus_pid ) ); ?>"><?php esc_html_e( 'Open record', 'talenttrack' ); ?></a>
                 </p>
                 <?php if ( $can_propose ) : ?>
                     <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( self::prospectFocusUrl( $focus_pid ) ); ?>">
@@ -500,9 +503,13 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
      * deliberate — the KPI counts are derived from this same row set, so a
      * post-filter would leave them club-wide while the columns narrowed.
      *
+     * `$only_prospect_id` narrows the same query to one prospect, for the
+     * prospect's record page: its stage and next action come from the rule
+     * the board uses, without reading the whole funnel.
+     *
      * @return array<int, array{key:string,label:string,count:int,cards:array<int, array<string,mixed>>}>
      */
-    public static function computeStages( int $user_id ): array {
+    public static function computeStages( int $user_id, int $only_prospect_id = 0 ): array {
         global $wpdb;
         $club_id = CurrentClub::id();
         $prospects = $wpdb->prefix . 'tt_prospects';
@@ -526,6 +533,9 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         // request and no agreed one. The dashboard's pipeline strip selects
         // the same condition (#4403).
         $awaiting_consent_sql = ProspectConsentRequestsRepository::awaitingConsentSql( 'p' );
+
+        // An int cast, so the clause carries no caller input.
+        $only_one = $only_prospect_id > 0 ? 'AND p.id = ' . (int) $only_prospect_id : '';
 
         $sql = "
             SELECT
@@ -557,6 +567,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             WHERE p.club_id = %d
               AND p.archived_at IS NULL
               {$where_scope}
+              {$only_one}
             GROUP BY p.id
             ORDER BY p.discovered_at DESC, p.id DESC
         ";
