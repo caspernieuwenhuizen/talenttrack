@@ -345,31 +345,35 @@ class MatchPrepRestController {
      * #4320 — a line-up slot outside 1..MAX_LINEUP_SLOTS is refused before
      * anything is written. The repository would otherwise skip it, and the
      * player placed there would vanish from the line-up behind a 200.
+     * `details.fields` names each slot by the key as received, so a
+     * non-numeric key is reported as itself rather than as slot 0.
      *
      * @param array<mixed> $body
      */
     private static function refuseLineupSlotOutOfRange( array $body ): ?\WP_REST_Response {
         if ( ! isset( $body['lineup'] ) || ! is_array( $body['lineup'] ) ) return null;
-        $max = MatchPrepRepository::MAX_LINEUP_SLOTS;
+        $max    = MatchPrepRepository::MAX_LINEUP_SLOTS;
+        $fields = [];
         foreach ( [ 1, 2 ] as $half ) {
             $half_map = $body['lineup'][ $half ] ?? $body['lineup'][ (string) $half ] ?? null;
             if ( ! is_array( $half_map ) ) continue;
-            foreach ( array_keys( $half_map ) as $slot ) {
-                $slot = (int) $slot;
-                if ( $slot >= 1 && $slot <= $max ) continue;
-                return RestResponse::error(
-                    'lineup_slot_out_of_range',
-                    sprintf(
-                        /* translators: %d: highest line-up slot number */
-                        __( 'A line-up slot must be between 1 and %d.', 'talenttrack' ),
-                        $max
-                    ),
-                    400,
-                    [ 'half' => $half, 'slot' => $slot, 'max' => $max ]
-                );
+            foreach ( array_keys( $half_map ) as $key ) {
+                $raw = (string) $key;
+                if ( ctype_digit( $raw ) && (int) $raw >= 1 && (int) $raw <= $max ) continue;
+                $fields[] = 'lineup[' . $half . '][' . $raw . ']';
             }
         }
-        return null;
+        if ( ! $fields ) return null;
+        return RestResponse::error(
+            'invalid_field',
+            sprintf(
+                /* translators: %d: highest line-up slot number */
+                __( 'A line-up slot must be between 1 and %d.', 'talenttrack' ),
+                $max
+            ),
+            400,
+            [ 'fields' => $fields, 'max' => $max ]
+        );
     }
 
     /**

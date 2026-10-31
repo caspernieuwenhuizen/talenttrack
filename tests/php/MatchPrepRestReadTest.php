@@ -181,11 +181,17 @@ final class MatchPrepRestReadTest extends WP_UnitTestCase {
             'lineup' => [ '1' => [ '1' => $a, (string) ( $max + 1 ) => $b ] ],
         ] );
         $this->assertSame( 400, $status );
-        $this->assertSame( 'lineup_slot_out_of_range', $data['errors'][0]['code'] ?? null );
+        $this->assertSame( 'invalid_field', $data['errors'][0]['code'] ?? null );
+        $this->assertSame( [ 'lineup[1][12]' ], (array) ( $data['errors'][0]['details']['fields'] ?? [] ) );
+        $this->assertSame( $max, $data['errors'][0]['details']['max'] ?? null );
         $this->assertSame( 404, $this->send( 'GET', $this->mine )[1], 'a refused PUT starts no prep' );
 
         [ , $status ] = $this->send( 'PUT', $this->mine, [ 'lineup' => [ '1' => [ '0' => $a ] ] ] );
         $this->assertSame( 400, $status, 'slot 0 is outside the range too' );
+
+        [ $data, $status ] = $this->send( 'PUT', $this->mine, [ 'lineup' => [ '2' => [ 'abc' => $a ] ] ] );
+        $this->assertSame( 400, $status );
+        $this->assertSame( [ 'lineup[2][abc]' ], (array) ( $data['errors'][0]['details']['fields'] ?? [] ), 'the key is reported as received' );
 
         [ $put, $status ] = $this->send( 'PUT', $this->mine, [
             'lineup' => [ '1' => [ '1' => $a, (string) $max => $b ] ],
