@@ -30,6 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class LicenseGate {
 
+    private static ?string $test_tier = null;
+
     public static function tier(): string {
         // v3.110.44 — non-commercial test instance: short-circuit to
         // Pro so every feature is unlocked. The License module's tier
@@ -38,7 +40,7 @@ class LicenseGate {
             return FeatureMap::TIER_PRO;
         }
 
-        return self::commercialTier( DevOverride::pinnedTier() );
+        return self::commercialTier( self::testTier() ?? DevOverride::pinnedTier() );
     }
 
     /**
@@ -48,7 +50,32 @@ class LicenseGate {
      * sense, so a pinned or overridden bench looks like the real thing.
      */
     public static function underlyingTier(): string {
-        return self::commercialTier( DevOverride::pinnedTier() );
+        return self::commercialTier( self::testTier() ?? DevOverride::pinnedTier() );
+    }
+
+    /**
+     * Put a commercial install on a tier for the rest of a test; null
+     * resets it. It acts as a pin, ahead of the override and the stored
+     * entitlement. Pair it with `LicenseMode::overrideForTests( true )`:
+     * a non-commercial install answers Pro whatever the tier.
+     *
+     * @internal Tests only. Inert unless LicenseMode::TEST_CONST is defined.
+     */
+    public static function overrideTierForTests( ?string $tier ): void {
+        self::$test_tier = $tier;
+    }
+
+    /**
+     * @internal Split from testTier() so the "inert outside tests" rule
+     *           can be tested from inside a test run.
+     */
+    public static function resolveTestTier( ?string $tier, bool $tests_running ): ?string {
+        if ( ! $tests_running || $tier === null ) return null;
+        return in_array( $tier, FeatureMap::tiers(), true ) ? $tier : null;
+    }
+
+    private static function testTier(): ?string {
+        return self::resolveTestTier( self::$test_tier, LicenseMode::testsRunning() );
     }
 
     /**
