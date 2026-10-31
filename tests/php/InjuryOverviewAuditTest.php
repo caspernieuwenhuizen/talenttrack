@@ -1,6 +1,8 @@
 <?php
 namespace TT\Tests\Php;
 
+use WP_REST_Request;
+use WP_REST_Server;
 use WP_UnitTestCase;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -54,6 +56,8 @@ final class InjuryOverviewAuditTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        global $wp_rest_server;
+        $wp_rest_server = null;
         unset( $_GET['team_id'], $_GET['status'] );
         wp_set_current_user( 0 );
         MatrixRepository::clearCache();
@@ -93,7 +97,91 @@ final class InjuryOverviewAuditTest extends WP_UnitTestCase {
         $this->assertSame( [ $this->back ], $this->lastPayload()['player_ids'], 'status filter' );
     }
 
+    /**
+     * #4341 — a read that returned nothing records nothing: neither a
+     * refusal nor an empty page is a read of any player's injuries.
+     */
+    public function test_a_refused_or_empty_read_writes_no_row(): void {
+        $parent = self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        wp_set_current_user( $parent );
+
+        $before = $this->auditRows();
+        [ $status ] = $this->restGet( [] );
+        $this->assertSame( 403, $status, 'a parent is refused the squad overview' );
+        $this->assertSame( $before, $this->auditRows(), 'a refused read writes no row' );
+
+        $quiet = $this->insertTeam( 'JO12-3' );
+        $coach = $this->makeHeadCoach( $quiet );
+        wp_set_current_user( $coach );
+
+        $before = $this->auditRows();
+        [ $status, $data ] = $this->restGet( [] );
+        $this->assertSame( 200, $status );
+        $this->assertSame( [], $data['injuries'], 'the coach\'s team has no injuries' );
+        $this->assertSame( $before, $this->auditRows(), 'an empty read writes no row' );
+    }
+
+    /**
+     * #4341 — page 2 logs the players on page 2: not the whole result set,
+     * and not page 1's again.
+     */
+    public function test_page_two_logs_only_its_own_players(): void {
+        $squad = $this->insertTeam( 'JO12-4' );
+        $repo  = new InjuryRepository();
+        $today = AttendanceDateRule::today();
+        for ( $i = 0; $i < 12; $i++ ) {
+            $repo->create( [ 'player_id' => $this->insertPlayer( $squad ), 'started_on' => $today ] );
+        }
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+
+        [ , $page1 ] = $this->restGet( [ 'team_id' => $squad, 'per_page' => 10, 'page' => 1 ] );
+        $logged1 = $this->lastPayload()['player_ids'];
+
+        $before = $this->auditCount();
+        [ $status, $page2 ] = $this->restGet( [ 'team_id' => $squad, 'per_page' => 10, 'page' => 2 ] );
+        $this->assertSame( 200, $status );
+        $this->assertSame( $before + 1, $this->auditCount(), 'one row for the page' );
+        $this->assertCount( 2, $page2['injuries'] );
+
+        $logged2 = $this->lastPayload()['player_ids'];
+        sort( $logged2 );
+        $this->assertSame( $this->playerIdsOf( $page2 ), $logged2, 'exactly the players page 2 returned' );
+
+        sort( $logged1 );
+        $this->assertSame( $this->playerIdsOf( $page1 ), $logged1, 'page 1 logged its own players' );
+        $this->assertSame( [], array_values( array_intersect( $logged1, $logged2 ) ), 'page 2 does not repeat page 1' );
+    }
+
     // ---- fixtures ------------------------------------------------------
+
+    /**
+     * @param array<string, int|string> $query
+     * @return array{0:int, 1:array<string, mixed>}
+     */
+    private function restGet( array $query ): array {
+        global $wp_rest_server;
+        if ( ! $wp_rest_server instanceof WP_REST_Server ) {
+            $wp_rest_server = new WP_REST_Server();
+            do_action( 'rest_api_init' );
+        }
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/player-injuries' );
+        foreach ( $query as $k => $v ) $request->set_param( $k, $v );
+        $response = rest_do_request( $request );
+        $body     = (array) $response->get_data();
+        $data     = isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : $body;
+        return [ (int) $response->get_status(), $data ];
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     * @return list<int>
+     */
+    private function playerIdsOf( array $data ): array {
+        $ids = array_map( static fn ( $r ) => (int) ( (array) $r )['player_id'], (array) ( $data['injuries'] ?? [] ) );
+        $ids = array_values( array_unique( $ids ) );
+        sort( $ids );
+        return $ids;
+    }
 
     private function render( int $user_id, bool $is_admin ): string {
         ob_start();
@@ -107,6 +195,12 @@ final class InjuryOverviewAuditTest extends WP_UnitTestCase {
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log
               WHERE action = 'player.injuries_viewed' AND entity_type = 'club'"
         );
+    }
+
+    /** Every row in the audit table, whatever its action. */
+    private function auditRows(): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_audit_log" );
     }
 
     /** @return array<string, mixed> */
