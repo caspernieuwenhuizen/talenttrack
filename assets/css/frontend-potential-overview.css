@@ -273,7 +273,6 @@
 }
 
 .tt-po-form .tt-form-actions .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

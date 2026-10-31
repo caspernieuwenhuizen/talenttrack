@@ -22,7 +22,6 @@
 }
 
 .tt-parent-search__form .tt-btn {
-    min-height: 48px;
     align-self: flex-start;
     touch-action: manipulation;
 }

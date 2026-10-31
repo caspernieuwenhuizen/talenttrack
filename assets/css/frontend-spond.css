@@ -89,11 +89,6 @@
     gap: var(--tt-sp-3);
     margin-top: var(--tt-sp-3);
 }
-
-.tt-dashboard .tt-spond__secondary-actions .tt-btn {
-    min-height: 48px;
-}
-
 /* ---- Teams table ---------------------------------------------------- */
 .tt-dashboard .tt-spond__summary {
     color: var(--tt-muted);
@@ -144,11 +139,6 @@
 .tt-dashboard .tt-spond__group {
     color: var(--tt-success);
 }
-
-.tt-dashboard .tt-spond__teams .tt-btn {
-    min-height: 48px;
-}
-
 /* ---- Status badges -------------------------------------------------- */
 .tt-dashboard .tt-spond__badge {
     display: inline-block;
@@ -249,11 +239,6 @@
     flex-wrap: wrap;
     gap: var(--tt-sp-2);
 }
-
-.tt-dashboard .tt-spond__team-account-actions .tt-btn {
-    min-height: 48px;
-}
-
 /* #3247 — what Test found: the counts, the first few events, and the
    reassurance that none of it was written. */
 .tt-dashboard .tt-spond__preview {

@@ -15,8 +15,6 @@
 }
 
 .tt-dashboard .tt-sessions-revoke-all { margin-bottom: var(--tt-sp-4, 16px); }
-.tt-dashboard .tt-sessions-revoke-all .tt-btn { min-height: 48px; }
-
 .tt-dashboard .tt-sessions {
     list-style: none;
     margin: 0;
@@ -75,6 +73,5 @@
 }
 .tt-dashboard .tt-session-revoke { flex: 0 0 auto; }
 .tt-dashboard .tt-session-revoke .tt-btn {
-    min-height: 48px;
     min-width: 48px;
 }

@@ -123,11 +123,6 @@
     gap: var(--tt-sp-1, 8px);
     align-items: center;
 }
-
-.tt-mv-row-actions .tt-btn {
-    min-height: 48px;
-}
-
 .tt-mv-shipped {
     min-height: 48px;
     display: inline-flex;
@@ -204,11 +199,6 @@
     order: 2;
     margin-left: auto;
 }
-
-.tt-mv-form-actions .tt-btn {
-    min-height: 48px;
-}
-
 @media (min-width: 480px) {
     .tt-mv-row {
         grid-template-columns: 1fr auto;

@@ -140,11 +140,6 @@
     align-items: center;
     gap: var(--tt-sp-2, 8px);
 }
-
-.tt-dashboard .tt-export-card__footer .tt-btn {
-    min-height: 48px;
-}
-
 .tt-dashboard .tt-export-card__msg {
     font-size: var(--tt-fs-sm, 0.85rem);
     color: var(--tt-muted, #6a6d66);

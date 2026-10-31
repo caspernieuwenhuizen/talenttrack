@@ -815,11 +815,6 @@
     flex-wrap: wrap;
     gap: var(--tt-sp-2);
 }
-
-.tt-dashboard .tt-ma__outputs .tt-btn {
-    min-height: 48px;
-}
-
 /* ---- Share link (#2749) ------------------------------------- */
 
 .tt-ma__share {

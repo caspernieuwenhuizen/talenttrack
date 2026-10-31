@@ -87,11 +87,6 @@
     margin-top: var(--tt-sp-4, 1rem);
     font-size: 0.875rem;
 }
-
-.tt-inbox-pagination .tt-btn {
-    min-height: 48px;
-}
-
 @media (min-width: 768px) {
     .tt-inbox-item-head {
         flex-direction: row;

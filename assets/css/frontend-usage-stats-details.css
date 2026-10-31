@@ -42,7 +42,6 @@
 }
 .tt-dashboard .tt-usage-daypicker .tt-btn {
     min-width: 48px;
-    min-height: 48px;
 }
 
 .tt-dashboard .tt-usage-subhead {
@@ -85,7 +84,6 @@
 }
 .tt-dashboard .tt-usage-pager .tt-btn {
     min-width: 48px;
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

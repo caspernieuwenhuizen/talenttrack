@@ -406,8 +406,6 @@
     padding-top: 12px;
     border-top: 1px solid var(--tt-line, #e3e6e1);
 }
-.tt-dashboard .tt-vct-cycle-remove .tt-btn { min-height: 48px; }
-
 /* ── Cycle calendar (#3361, epic #3354) ──────────────────────────── */
 /* Cards at 360px, a table-like row from 768px, from the same markup.
    A coach checking this week's plan at the pitch must not have to scroll

@@ -231,6 +231,27 @@
     text-transform: none;
     letter-spacing: normal;
     transition: background .12s, border-color .12s, opacity .12s;
+    /* CLAUDE.md §2 — a fine pointer keeps desktop density but never drops
+       under 36px; the coarse-pointer rule below lifts it to 48px. */
+    min-height: var(--tt-tap-min-fine, 2.25rem);
+}
+/* The 48px tap-target floor for every button variant under a coarse
+   pointer. A tablet with a mouse (`pointer: fine`) keeps the floor above.
+   The unscoped selectors cover a button rendered outside `.tt-dashboard`
+   (a dialog moved to <body>); the scoped ones must be listed too, or the
+   fine floor above would outrank this rule on specificity. Surfaces do not
+   repeat this floor in their own sheets. */
+@media (pointer: coarse) {
+    .tt-btn,
+    .tt-btn-primary,
+    .tt-btn-secondary,
+    .tt-btn-danger,
+    .tt-dashboard .tt-btn,
+    .tt-dashboard .tt-btn-primary,
+    .tt-dashboard .tt-btn-secondary,
+    .tt-dashboard .tt-btn-danger {
+        min-height: var(--tt-tap-min, 48px);
+    }
 }
 .tt-dashboard .tt-btn:hover,
 .tt-dashboard .tt-btn-primary:hover,

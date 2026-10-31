@@ -132,7 +132,6 @@
 
 .tt-prospect-record-next .tt-btn,
 .tt-prospect-record-actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 

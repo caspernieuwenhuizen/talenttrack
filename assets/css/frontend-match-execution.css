@@ -1725,7 +1725,6 @@
     line-height: 1.45;
 }
 .tt-mexec-register-gap .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

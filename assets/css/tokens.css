@@ -99,4 +99,9 @@
     --tt-sp-4: 16px;
     --tt-sp-5: 20px;
     --tt-sp-6: 24px;
+
+    /* Tap targets (CLAUDE.md §2): the floor under a coarse pointer, and the
+       lower floor a fine pointer keeps for desktop density. */
+    --tt-tap-min:      48px;
+    --tt-tap-min-fine: 2.25rem;
 }

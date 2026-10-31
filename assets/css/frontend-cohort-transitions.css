@@ -55,8 +55,6 @@
     outline: 2px solid var(--tt-primary);
     outline-offset: 1px;
 }
-.tt-dashboard .tt-cohort-filters .tt-btn { min-height: 48px; }
-
 /* ---- Empty / count states ------------------------------------------ */
 .tt-dashboard .tt-cohort .tt-empty {
     margin: var(--tt-sp-2) 0;
@@ -104,8 +102,6 @@
     border-bottom: 1px solid var(--tt-line);
 }
 .tt-dashboard .tt-cohort-table tbody tr:last-child td { border-bottom: none; }
-.tt-dashboard .tt-cohort-table .tt-btn { min-height: 48px; }
-
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-dashboard .tt-cohort-filters {

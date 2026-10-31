@@ -981,7 +981,6 @@ html.tt-sheet-lock body {
 .tt-dashboard .tt-filter-sheet__foot .tt-btn {
 	flex: 1 1 0;
 	justify-content: center;
-	min-height: 48px; /* CLAUDE.md §2 touch target */
 }
 
 /* =============================================================
@@ -1393,11 +1392,6 @@ html.tt-sheet-lock body {
 	gap: var(--tt-sp-2, 8px);
 	justify-content: flex-end;
 }
-
-.tt-dashboard .tt-savedviews__save-actions .tt-btn {
-	min-height: 48px;
-}
-
 /* --- the chip cap ------------------------------------------------------
    The server renders every chip and both `+N` labels because it cannot know
    the viewport; CSS reveals the right ones. Base is mobile: one chip. */

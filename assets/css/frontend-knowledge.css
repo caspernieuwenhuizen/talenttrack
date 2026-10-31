@@ -151,7 +151,6 @@
 }
 
 .tt-knowledge-card__cta .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;
@@ -176,7 +175,6 @@
 }
 
 .tt-knowledge-course__resume .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;
@@ -322,7 +320,6 @@
 .tt-knowledge-lesson__form { margin: 0; }
 
 .tt-knowledge-lesson__completion .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

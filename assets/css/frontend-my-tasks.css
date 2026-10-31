@@ -82,7 +82,6 @@
 .tt-dashboard .tt-mtasks-filters button.tt-btn,
 .tt-dashboard .tt-mtasks-filters button.tt-btn:link,
 .tt-dashboard .tt-mtasks-filters button.tt-btn:visited {
-    min-height: 48px;
     padding: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
     background: var(--tt-primary, #0b3d2e);
     color: #fff;

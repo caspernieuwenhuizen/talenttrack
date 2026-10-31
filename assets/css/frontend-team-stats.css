@@ -50,6 +50,8 @@
     min-height: 48px;
 }
 
+/* Kept on every pointer: the button sits in one row with the 48px fields
+   above, so it matches their height rather than the 36px desktop floor. */
 .tt-ts-window__form .tt-btn {
     min-height: 48px;
 }

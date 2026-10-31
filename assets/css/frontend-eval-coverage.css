@@ -88,11 +88,6 @@
 .tt-ec-window-actions {
     margin-top: var(--tt-sp-4, 16px);
 }
-
-.tt-ec-window-actions .tt-btn {
-    min-height: 48px;
-}
-
 /* ===== KPI strip ===== */
 
 .tt-ec-kpis {

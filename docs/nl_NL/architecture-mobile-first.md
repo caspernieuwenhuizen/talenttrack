@@ -24,7 +24,14 @@ Waarom mobile-first in plaats van desktop-first:
 
 `assets/css/public.css` bevat één `@media (pointer: coarse)`-blok dat het minimum van 48 px uit `CLAUDE.md` § 2 afdwingt. Die stylesheet laadt op elk dashboardscherm, dus een componentstylesheet herhaalt de ondergrens niet — hij erft hem. Omdat het blok op de pointer stuurt en niet op de viewport, krijgt een tablet de tapmaten en houdt een desktop met muis zijn dichtheid, zonder breakpoint.
 
-Wat het blok maatvoert: `.tt-btn` / `.tt-btn-sm`, pagineerlinks, rij-acties, `.tt-record-link`, `summary`, checkboxes en radio's (24 px vakje, 48 px rij vanuit het label) en — sinds #3598 — elke `select`, elke `.tt-input` en elk text-, search-, email-, tel-, number-, date-, time-, url- en password-invoerveld.
+Knoppen hebben twee ondergrenzen, en beide staan naast het canonieke knopblok in `assets/css/frontend-admin.css`. Ze lezen de tokens `--tt-tap-min` (48 px) en `--tt-tap-min-fine` (2,25 rem, 36 px) uit `tokens.css`:
+
+- **Grove pointer: 48 px.** Elke `.tt-btn`-variant (`-primary`, `-secondary`, `-danger`), binnen of buiten `.tt-dashboard`. Dit is wat een duim nodig heeft en wat de mobiele gate meet, op 360 px met touch-emulatie.
+- **Fijne pointer: 36 px.** Het canonieke blok laat een knop nooit onder 2,25 rem zakken, zodat werkbalken en tabelacties op desktop compact blijven zonder onleesbaar klein te worden.
+
+Een componentstylesheet herhaalt geen van beide ondergrenzen op zijn eigen knoppen. `tests/php/ButtonTapFloorTest.php` faalt op een stylesheet die dat wel doet, tenzij de regel daar met reden staat, bijvoorbeeld een knop die in één rij staat met een invoerveld van 48 px.
+
+Wat het `public.css`-blok maatvoert: `.tt-btn-sm`, pagineerlinks, rij-acties, `.tt-record-link`, `summary`, checkboxes en radio's (24 px vakje, 48 px rij vanuit het label) en — sinds #3598 — elke `select`, elke `.tt-input` en elk text-, search-, email-, tel-, number-, date-, time-, url- en password-invoerveld.
 
 Twee regels als je een besturingselement toevoegt:
 

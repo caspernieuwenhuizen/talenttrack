@@ -41,7 +41,6 @@
     flex-wrap: wrap;
 }
 .tt-dashboard .tt-journey-tabs .tt-btn {
-    min-height: 44px;
     display: inline-flex;
     align-items: center;
     border-radius: 999px;
@@ -126,7 +125,6 @@
 }
 
 .tt-dashboard .tt-journey-filters .tt-btn {
-    min-height: 48px;
     border-radius: 999px;
 }
 
@@ -135,7 +133,6 @@
     margin: 1rem 0 0;
 }
 .tt-dashboard .tt-journey-more .tt-btn {
-    min-height: 48px;
     border-radius: 999px;
     display: inline-flex;
     align-items: center;

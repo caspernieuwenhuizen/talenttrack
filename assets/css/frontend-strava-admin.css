@@ -110,11 +110,6 @@
     gap: var(--tt-sp-3);
     margin-top: var(--tt-sp-3);
 }
-
-.tt-dashboard .tt-strava-admin__secondary-actions .tt-btn {
-    min-height: 48px;
-}
-
 /* ---- Players table -------------------------------------------------- */
 .tt-dashboard .tt-strava-admin__summary {
     color: var(--tt-muted);
