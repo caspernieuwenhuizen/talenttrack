@@ -3002,17 +3002,18 @@ class FrontendConfigurationView extends FrontendViewBase {
         // global default. '1' = force persona dashboard. '0' = force
         // classic tile grid. Used for testing one persona at a time
         // without flipping the whole site.
-        $personas = [
-            'academy_admin'       => __( 'Academy admin',           'talenttrack' ),
-            'head_of_development' => __( 'Head of Development',     'talenttrack' ),
-            'head_coach'          => __( 'Head coach',              'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach',         'talenttrack' ),
-            'team_manager'        => __( 'Team manager',            'talenttrack' ),
-            'scout'               => __( 'Scout',                   'talenttrack' ),
-            'player'              => __( 'Player',                  'talenttrack' ),
-            'parent'              => __( 'Parent',                  'talenttrack' ),
-            'readonly_observer'   => __( 'Read-only observer',      'talenttrack' ),
-        ];
+        // #4504 — labels from the one persona map, in this form's order.
+        $personas = \TT\Modules\Authorization\PersonaLabels::forKeys( [
+            'academy_admin',
+            'head_of_development',
+            'head_coach',
+            'assistant_coach',
+            'team_manager',
+            'scout',
+            'player',
+            'parent',
+            'readonly_observer',
+        ] );
         $per_persona = [];
         foreach ( $personas as $key => $_label ) {
             $per_persona[ $key ] = (string) QueryHelpers::get_config( 'persona_dashboard.' . $key . '.enabled', '' );

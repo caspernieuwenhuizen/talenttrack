@@ -98,16 +98,18 @@ final class MfaSettings {
      * @return array<string,string>  persona key → human label
      */
     public static function operatorSelectablePersonas(): array {
-        return [
-            'academy_admin'       => __( 'Academy admin',          'talenttrack' ),
-            'head_of_development' => __( 'Head of development',    'talenttrack' ),
-            'head_coach'          => __( 'Head coach',             'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach',        'talenttrack' ),
-            'scout'               => __( 'Scout',                  'talenttrack' ),
-            'team_manager'        => __( 'Team manager',           'talenttrack' ),
-            'parent'              => __( 'Parent',                 'talenttrack' ),
-            'player'              => __( 'Player',                 'talenttrack' ),
-            'readonly_observer'   => __( 'Read-only observer',     'talenttrack' ),
-        ];
+        // #4504 — this setting decides which personas are offered; the
+        // labels come from the one persona map.
+        return \TT\Modules\Authorization\PersonaLabels::forKeys( [
+            'academy_admin',
+            'head_of_development',
+            'head_coach',
+            'assistant_coach',
+            'scout',
+            'team_manager',
+            'parent',
+            'player',
+            'readonly_observer',
+        ] );
     }
 }
