@@ -225,6 +225,109 @@ a.tt-week-row:active {
     color: var(--tt-muted);
 }
 
+/* #4492 — past days folded into one line; native <details>, so Enter and
+ * tap both open it. */
+.tt-week-fold-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-2, 0.5rem);
+    min-height: 48px;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--tt-tile-radius, var(--tt-radius));
+    background: var(--tt-paper);
+    color: var(--tt-ink-soft, var(--tt-muted));
+    font-size: 0.85rem;
+    list-style: none;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-week-fold-summary::-webkit-details-marker {
+    display: none;
+}
+
+.tt-week-fold-summary::after {
+    content: "\25BE";
+    color: var(--tt-muted);
+}
+
+.tt-week-fold[open] > .tt-week-fold-summary::after {
+    transform: rotate(180deg);
+}
+
+.tt-week-fold-summary:focus-visible,
+.tt-week-what-link:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+.tt-week-fold > .tt-week-list {
+    margin-top: var(--tt-sp-2, 0.5rem);
+}
+
+/* A row of buttons on a device where none of them show: its title links. */
+.tt-week-what-link {
+    display: block;
+    color: inherit;
+    text-decoration: underline;
+    touch-action: manipulation;
+}
+
+/* #4492 — the first activities of next week, below the list. */
+.tt-week-next {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-week-next-title {
+    margin: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-muted);
+}
+
+.tt-week-row.is-next {
+    border-left-color: var(--tt-line);
+}
+
+/* #4492 — the main button when it is the main one on one device only. */
+.tt-week-btn--main-phone {
+    background: var(--tt-primary);
+    color: var(--tt-paper);
+    box-shadow: none;
+}
+
+/* #4492 — a block switched off for one device is hidden there, CSS only.
+ * The phone side is the complement of the 768px breakpoint, so the two
+ * rules meet exactly at 768px with no overlap and no gap. */
+@media not all and (min-width: 768px) {
+    .tt-week.tt-week-off-phone,
+    .tt-week .tt-week-off-phone {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-week .tt-week-off-desktop {
+        display: none;
+    }
+
+    .tt-week-btn--main-phone {
+        background: var(--tt-paper);
+        color: var(--tt-primary);
+        box-shadow: inset 0 0 0 1px var(--tt-line);
+    }
+
+    .tt-week-btn--main-desktop {
+        background: var(--tt-primary);
+        color: var(--tt-paper);
+        box-shadow: none;
+    }
+}
+
 /* A fine pointer gets compact buttons; a finger keeps 48px. */
 @media (pointer: fine) {
     .tt-week-btn {
@@ -260,7 +363,8 @@ a.tt-week-row:active {
     }
 }
 
-/* Configuration > Dashboard: which personas see the panel. */
+/* Configuration > Dashboard > This week panel (#4492): per persona, which
+ * blocks show on desktop and on a phone. */
 .tt-coach-week-config {
     margin-top: 1rem;
 }
@@ -269,19 +373,171 @@ a.tt-week-row:active {
     margin: 0 0 var(--tt-sp-2, 0.5rem);
 }
 
-.tt-coach-week-config__list {
+.tt-coach-week-config__personas {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     gap: var(--tt-sp-2, 0.5rem);
-    margin: 0.75rem 0 0;
+    margin: 0.75rem 0 var(--tt-sp-2, 0.5rem);
     padding: 0;
     border: 0;
+    min-width: 0;
 }
 
 .tt-coach-week-config__legend {
+    width: 100%;
     margin-bottom: var(--tt-sp-2, 0.5rem);
     padding: 0;
     font-weight: 600;
+}
+
+.tt-coach-week-config__pill {
+    position: relative;
+    display: inline-flex;
+}
+
+.tt-coach-week-config__pill input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.tt-coach-week-config__pill span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0 1rem;
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    background: var(--tt-paper);
+    font-size: 0.92rem;
+    touch-action: manipulation;
+}
+
+.tt-coach-week-config__pill input:checked + span {
+    border-color: var(--tt-primary);
+    background: var(--tt-primary);
+    color: var(--tt-paper);
+}
+
+.tt-coach-week-config__pill input:focus-visible + span {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+.tt-coach-week-config__pill.is-off span {
+    color: var(--tt-muted);
+}
+
+.tt-coach-week-config__switches {
+    display: grid;
+    gap: 0.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.tt-coach-week-config__group {
+    margin: 0 0 0.75rem;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-coach-week-config__group > summary {
+    display: flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-coach-week-config__group > summary:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: -2px;
+}
+
+.tt-coach-week-config__body {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0 0.75rem 0.75rem;
+}
+
+.tt-coach-week-config__select {
+    display: grid;
+    gap: 0.25rem;
+    padding: 0.25rem 0;
+}
+
+.tt-coach-week-config__select select {
+    min-height: 48px;
+    max-width: 100%;
+    font-size: 1rem;
+}
+
+.tt-coach-week-config__block,
+.tt-coach-week-config__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--tt-sp-2, 0.5rem);
+    min-height: 48px;
+    border-top: 1px solid var(--tt-line-soft, var(--tt-line));
+}
+
+.tt-coach-week-config__head {
+    min-height: 0;
+    border-top: 0;
+}
+
+.tt-coach-week-config__text {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.tt-coach-week-config__text small,
+.tt-coach-week-config__row small {
+    color: var(--tt-muted);
+    font-size: 0.8rem;
+}
+
+.tt-coach-week-config__devices {
+    display: grid;
+    grid-template-columns: repeat(2, 3.5rem);
+    justify-items: center;
+}
+
+.tt-coach-week-config__devices label {
+    display: grid;
+    place-items: center;
+    min-width: 48px;
+    min-height: 48px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-coach-week-config__devices input {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin: 0;
+    accent-color: var(--tt-primary);
+}
+
+.tt-coach-week-config__head .tt-coach-week-config__devices span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--tt-muted);
+}
+
+.tt-coach-week-config__reset {
+    display: flex;
+    justify-content: flex-start;
 }
 
 .tt-coach-week-config__row {

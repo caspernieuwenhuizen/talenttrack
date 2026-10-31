@@ -107,6 +107,9 @@ class ConfigRestController {
         // #4379 — JSON list of the personas that see the "This week" panel
         // on the tile landing. Saved from the same Dashboard sub-form.
         'coach_week.personas',
+        // #4492 — the per-persona, per-device "This week" settings. While
+        // it is unsaved the persona list above decides who sees the panel.
+        'coach_week.config',
         // #1481 — General settings (academy-wide basics). Un-mapped in
         // KEY_AREA_MAP, so they resolve to the tt_edit_settings umbrella
         // cap (admins / club admins).
@@ -220,6 +223,7 @@ class ConfigRestController {
         'comms_template_channels_blocked' => 'feature_toggles',
         // #4379 — sits beside the persona_dashboard.* switches, same pair.
         'coach_week.personas' => 'feature_toggles',
+        'coach_week.config'   => 'feature_toggles',
     ];
 
     /**
@@ -337,6 +341,11 @@ class ConfigRestController {
             // #4379 — only known staff personas; players and parents never.
             if ( $key === \TT\Modules\Activities\Services\CoachWeek::CONFIG_KEY ) {
                 $clean = \TT\Modules\Activities\Services\CoachWeek::normaliseStored( $clean );
+            }
+            // #4492 — known staff personas and registered blocks only; every
+            // missing field takes its default.
+            if ( $key === \TT\Modules\Activities\Services\CoachWeek::SETTINGS_KEY ) {
+                $clean = \TT\Modules\Activities\Services\CoachWeek::normaliseSettingsStored( $clean );
             }
             QueryHelpers::set_config( $key, $clean );
             $written++;

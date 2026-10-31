@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Activities\CoachWeek\ActionBlock;
 use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Activities\Services\CoachWeek;
 use TT\Shared\Frontend\Components\BackLink;
@@ -613,24 +614,53 @@ class FrontendTileGrid {
      */
     private static function renderWeekPanel( array $week ): void {
         $rows     = is_array( $week['rows'] ?? null ) ? $week['rows'] : [];
-        $multi    = ! empty( $week['multiple_teams'] );
         $start_ts = strtotime( (string) $week['week_start'] . ' 12:00:00' );
         $end_ts   = strtotime( (string) $week['week_end'] . ' 12:00:00' );
         $range    = $start_ts && $end_ts
             ? date_i18n( 'D j', $start_ts ) . ' – ' . date_i18n( 'D j M', $end_ts )
             : '';
+
+        // #4492 — past days folded into one line that opens on tap or Enter.
+        $folded = [];
+        if ( ( $week['past'] ?? '' ) === 'fold' ) {
+            $open = [];
+            foreach ( $rows as $row ) {
+                if ( ( (array) $row )['when'] === 'past' ) {
+                    $folded[] = (array) $row;
+                } else {
+                    $open[] = $row;
+                }
+            }
+            $rows = $open;
+        }
+        $next = is_array( $week['next_week'] ?? null ) ? $week['next_week'] : [];
+
+        $classes = [ 'tt-week' ];
+        if ( empty( $week['phone_on'] ) ) $classes[] = 'tt-week-off-phone';
         ?>
-        <section class="tt-week" aria-labelledby="tt-week-title">
+        <section class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" aria-labelledby="tt-week-title">
             <div class="tt-week-head">
                 <h2 class="tt-week-title" id="tt-week-title"><?php esc_html_e( 'This week', 'talenttrack' ); ?></h2>
                 <?php if ( $range !== '' ) : ?>
                     <span class="tt-week-range"><?php echo esc_html( $range ); ?></span>
                 <?php endif; ?>
             </div>
-            <?php if ( $rows !== [] ) : ?>
+            <?php if ( $rows !== [] || $folded !== [] ) : ?>
                 <ul class="tt-week-list">
+                    <?php if ( $folded !== [] ) : ?>
+                        <li class="tt-week-fold-item">
+                            <details class="tt-week-fold">
+                                <summary class="tt-week-fold-summary"><?php echo self::weekFoldSummary( $week, $folded ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built from escaped parts. ?></summary>
+                                <ul class="tt-week-list">
+                                    <?php foreach ( $folded as $row ) : ?>
+                                        <li><?php self::renderWeekRow( $row, $week ); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </details>
+                        </li>
+                    <?php endif; ?>
                     <?php foreach ( $rows as $row ) : ?>
-                        <li><?php self::renderWeekRow( (array) $row, $multi ); ?></li>
+                        <li><?php self::renderWeekRow( (array) $row, $week ); ?></li>
                     <?php endforeach; ?>
                 </ul>
                 <?php if ( empty( $week['has_match'] ) ) : ?>
@@ -639,51 +669,199 @@ class FrontendTileGrid {
             <?php else : ?>
                 <p class="tt-week-empty"><?php esc_html_e( 'Nothing planned for your teams this week.', 'talenttrack' ); ?></p>
             <?php endif; ?>
+            <?php
+            $next_class = self::weekDeviceClass( $week, 'next_week' );
+            if ( $next !== [] && $next_class !== null ) :
+                ?>
+                <div class="<?php echo esc_attr( trim( 'tt-week-next ' . $next_class ) ); ?>">
+                    <h3 class="tt-week-next-title"><?php esc_html_e( 'Next week', 'talenttrack' ); ?></h3>
+                    <ul class="tt-week-list">
+                        <?php foreach ( $next as $item ) : ?>
+                            <li><?php self::renderWeekNextRow( (array) $item, ! empty( $week['multiple_teams'] ) ); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
         </section>
         <?php
     }
 
     /**
-     * One row of the week. A row with an action of its own renders as a
-     * block with buttons; any other row is one link to the activity.
+     * The one line that stands for the folded past days: which days, how
+     * many activities, and whether their attendance is in.
+     *
+     * @param array<string, mixed>             $week
+     * @param list<array<string, mixed>>       $rows
+     */
+    private static function weekFoldSummary( array $week, array $rows ): string {
+        $days = [];
+        foreach ( $rows as $row ) {
+            $ts = strtotime( (string) ( $row['date'] ?? '' ) . ' 12:00:00' );
+            if ( $ts ) $days[ date_i18n( 'D', $ts ) ] = true;
+        }
+        $count   = count( $rows );
+        $missing = 0;
+        $known   = 0;
+        foreach ( $rows as $row ) {
+            if ( ( $row['attendance_recorded'] ?? null ) === null ) continue;
+            $known++;
+            if ( $row['attendance_recorded'] === false ) $missing++;
+        }
+
+        return self::perDevice( static function ( string $device, string $class ) use ( $week, $days, $count, $missing, $known ): string {
+            $parts   = [ implode( ', ', array_keys( $days ) ) ];
+            /* translators: %d: number of activities on the days already past */
+            $parts[] = sprintf( _n( '%d activity', '%d activities', $count, 'talenttrack' ), $count );
+            if ( $known > 0 && in_array( 'attendance', (array) ( $week['blocks'][ $device ] ?? [] ), true ) ) {
+                $parts[] = $missing === 0
+                    ? __( 'attendance recorded', 'talenttrack' )
+                    /* translators: %d: number of past activities whose attendance is not recorded */
+                    : sprintf( _n( '%d without attendance', '%d without attendance', $missing, 'talenttrack' ), $missing );
+            }
+            return '<span class="' . esc_attr( trim( 'tt-week-fold-text ' . $class ) ) . '">' . esc_html( implode( ' · ', array_filter( $parts ) ) ) . '</span>';
+        } );
+    }
+
+    /**
+     * One activity of next week: day, type, what and when, as a link to the
+     * activity.
+     *
+     * @param array<string, mixed> $item
+     */
+    private static function renderWeekNextRow( array $item, bool $multi_team ): void {
+        $aid    = (int) ( $item['activity_id'] ?? 0 );
+        $ts     = strtotime( (string) ( $item['date'] ?? '' ) . ' 12:00:00' );
+        $what   = ! empty( $item['is_match'] ) ? (string) ( $item['opponent'] ?? '' ) : '';
+        if ( $what === '' ) $what = (string) ( $item['title'] ?? '' );
+        if ( $what === '' ) $what = (string) ( $item['type_label'] ?? '' );
+        $meta   = [];
+        if ( $multi_team && (string) ( $item['team_name'] ?? '' ) !== '' ) $meta[] = (string) $item['team_name'];
+        if ( (string) ( $item['start_time'] ?? '' ) !== '' ) $meta[] = (string) $item['start_time'];
+        $detail = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';
+        $tag    = $detail !== '' ? 'a' : 'div';
+        ?>
+        <<?php echo $tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — a fixed tag name. ?> class="tt-week-row is-next"<?php if ( $detail !== '' ) : ?> href="<?php echo esc_url( $detail ); ?>"<?php endif; ?>>
+            <span class="tt-week-day">
+                <small><?php echo esc_html( $ts ? date_i18n( 'D', $ts ) : '' ); ?></small>
+                <b><?php echo esc_html( $ts ? date_i18n( 'j', $ts ) : '' ); ?></b>
+            </span>
+            <span class="tt-week-body">
+                <span class="tt-week-what">
+                    <span class="tt-week-type"><?php echo esc_html( (string) ( $item['type_label'] ?? '' ) ); ?></span>
+                    <?php echo esc_html( $what ); ?>
+                </span>
+                <?php if ( $meta !== [] ) : ?>
+                    <span class="tt-week-meta"><?php echo esc_html( implode( ' · ', $meta ) ); ?></span>
+                <?php endif; ?>
+            </span>
+        </<?php echo $tag; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — a fixed tag name. ?>>
+        <?php
+    }
+
+    /**
+     * #4492 — the device class of a block: '' when it is on for both
+     * devices, `tt-week-off-phone` or `tt-week-off-desktop` when on for one,
+     * null when it is off for both and nothing should render.
+     *
+     * @param array<string, mixed> $week
+     */
+    private static function weekDeviceClass( array $week, string $block ): ?string {
+        $blocks = is_array( $week['blocks'] ?? null ) ? $week['blocks'] : [];
+        return self::deviceClass(
+            in_array( $block, (array) ( $blocks['desktop'] ?? [] ), true ),
+            in_array( $block, (array) ( $blocks['phone'] ?? [] ), true )
+        );
+    }
+
+    private static function deviceClass( bool $desktop, bool $phone ): ?string {
+        if ( ! $desktop && ! $phone ) return null;
+        if ( $desktop && $phone ) return '';
+        return $desktop ? 'tt-week-off-phone' : 'tt-week-off-desktop';
+    }
+
+    /**
+     * Markup that differs per device, rendered once when both devices see
+     * the same and once per device otherwise, each copy hidden on the other
+     * device by CSS. `$build( $device, $class )` returns '' for nothing.
+     *
+     * @param callable(string, string): string $build
+     */
+    private static function perDevice( callable $build ): string {
+        $desktop = $build( 'desktop', '' );
+        $phone   = $build( 'phone', '' );
+        if ( $desktop === $phone ) return $desktop;
+        return $build( 'desktop', 'tt-week-off-phone' ) . $build( 'phone', 'tt-week-off-desktop' );
+    }
+
+    /**
+     * One row of the week. A row with a button of its own renders as a
+     * block with buttons; any other row is one link to the activity. Each
+     * part carries the device class of the block it belongs to (#4492).
      *
      * @param array<string, mixed> $row
+     * @param array<string, mixed> $week
      */
-    private static function renderWeekRow( array $row, bool $multi_team ): void {
+    private static function renderWeekRow( array $row, array $week ): void {
         $aid      = (int) ( $row['activity_id'] ?? 0 );
         $when     = (string) ( $row['when'] ?? '' );
         $is_match = ! empty( $row['is_match'] );
+        $multi    = ! empty( $week['multiple_teams'] );
         $ts       = strtotime( (string) ( $row['date'] ?? '' ) . ' 12:00:00' );
+        $blocks   = is_array( $week['blocks'] ?? null ) ? $week['blocks'] : [];
+        $on       = static fn( string $device, string $key ): bool => in_array( $key, (array) ( $blocks[ $device ] ?? [] ), true );
 
         $classes = [ 'tt-week-row' ];
         if ( $when === 'past' )  $classes[] = 'is-past';
         if ( $when === 'today' ) $classes[] = 'is-today';
         if ( $is_match )         $classes[] = 'is-match';
 
-        $eyebrow = [ (string) ( $row['type_label'] ?? '' ) ];
-        if ( $is_match && ( $row['home_away'] ?? '' ) === 'home' ) $eyebrow[] = __( 'Home', 'talenttrack' );
-        if ( $is_match && ( $row['home_away'] ?? '' ) === 'away' ) $eyebrow[] = __( 'Away', 'talenttrack' );
-        if ( $when === 'today' ) $eyebrow[] = __( 'Today', 'talenttrack' );
-
-        $what = $is_match ? (string) ( $row['opponent'] ?? '' ) : '';
-        if ( $what === '' ) $what = (string) ( $row['title'] ?? '' );
-        if ( $what === '' ) $what = (string) ( $row['type_label'] ?? '' );
-
-        $meta = [];
-        if ( $multi_team && (string) ( $row['team_name'] ?? '' ) !== '' ) $meta[] = (string) $row['team_name'];
-        if ( $is_match ) {
-            /* translators: %s: arrival/presence time, e.g. "13:15" */
-            if ( (string) ( $row['meet_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), (string) $row['meet_time'] );
-            /* translators: %s: kick-off time, e.g. "10:00" */
-            if ( (string) ( $row['start_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Kick-off %s', 'talenttrack' ), (string) $row['start_time'] );
-        } elseif ( (string) ( $row['start_time'] ?? '' ) !== '' ) {
-            $meta[] = (string) $row['start_time'];
-        }
-        if ( (string) ( $row['location'] ?? '' ) !== '' ) $meta[] = (string) $row['location'];
-
-        $chips   = self::weekChips( $row );
-        $buttons = self::weekButtons( $row, $aid );
+        $buttons = self::weekButtons( $row, $aid, $week );
         $detail  = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';
+        $as_link = $buttons['html'] === '' && $detail !== '';
+
+        $what_html = self::perDevice( static function ( string $device, string $class ) use ( $row, $is_match, $when, $on, $buttons, $detail, $as_link ): string {
+            $eyebrow = [];
+            if ( $on( $device, 'type' ) ) $eyebrow[] = (string) ( $row['type_label'] ?? '' );
+            if ( $is_match && $on( $device, 'opponent' ) && ( $row['home_away'] ?? '' ) === 'home' ) $eyebrow[] = __( 'Home', 'talenttrack' );
+            if ( $is_match && $on( $device, 'opponent' ) && ( $row['home_away'] ?? '' ) === 'away' ) $eyebrow[] = __( 'Away', 'talenttrack' );
+            if ( $when === 'today' ) $eyebrow[] = __( 'Today', 'talenttrack' );
+            $eyebrow = array_filter( $eyebrow, static fn( $p ) => $p !== '' );
+
+            $what = ( $is_match && $on( $device, 'opponent' ) ) ? (string) ( $row['opponent'] ?? '' ) : '';
+            if ( $what === '' ) $what = (string) ( $row['title'] ?? '' );
+            if ( $what === '' ) $what = (string) ( $row['type_label'] ?? '' );
+
+            $inner = ( $eyebrow !== [] ? '<span class="tt-week-type">' . esc_html( implode( ' · ', $eyebrow ) ) . '</span>' : '' ) . esc_html( $what );
+            // A row that is a block of buttons, on a device where none of them show: its title is the link.
+            if ( ! $as_link && $detail !== '' && $buttons['devices'][ $device ] === [] ) {
+                return '<a class="' . esc_attr( trim( 'tt-week-what tt-week-what-link ' . $class ) ) . '" href="' . esc_url( $detail ) . '">' . $inner . '</a>';
+            }
+            return '<span class="' . esc_attr( trim( 'tt-week-what ' . $class ) ) . '">' . $inner . '</span>';
+        } );
+
+        $meta_html = self::perDevice( static function ( string $device, string $class ) use ( $row, $is_match, $multi, $on ): string {
+            $meta = [];
+            if ( $multi && $on( $device, 'team_name' ) && (string) ( $row['team_name'] ?? '' ) !== '' ) $meta[] = (string) $row['team_name'];
+            if ( $on( $device, 'time' ) ) {
+                if ( $is_match ) {
+                    /* translators: %s: arrival/presence time, e.g. "13:15" */
+                    if ( (string) ( $row['meet_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), (string) $row['meet_time'] );
+                    /* translators: %s: kick-off time, e.g. "10:00" */
+                    if ( (string) ( $row['start_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Kick-off %s', 'talenttrack' ), (string) $row['start_time'] );
+                } elseif ( (string) ( $row['start_time'] ?? '' ) !== '' ) {
+                    $meta[] = (string) $row['start_time'];
+                }
+            }
+            if ( $on( $device, 'location' ) && (string) ( $row['location'] ?? '' ) !== '' ) $meta[] = (string) $row['location'];
+            if ( $meta === [] ) return '';
+            return '<span class="' . esc_attr( trim( 'tt-week-meta ' . $class ) ) . '">' . esc_html( implode( ' · ', $meta ) ) . '</span>';
+        } );
+
+        $chips = [];
+        foreach ( self::weekChips( $row ) as [ $tone, $label, $block ] ) {
+            $class = self::weekDeviceClass( $week, $block );
+            if ( $class !== null ) $chips[] = [ $tone, $label, $class ];
+        }
 
         ob_start();
         ?>
@@ -692,32 +870,23 @@ class FrontendTileGrid {
             <b><?php echo esc_html( $ts ? date_i18n( 'j', $ts ) : '' ); ?></b>
         </span>
         <span class="tt-week-body">
-            <span class="tt-week-what">
-                <span class="tt-week-type"><?php echo esc_html( implode( ' · ', array_filter( $eyebrow, static fn( $p ) => $p !== '' ) ) ); ?></span>
-                <?php echo esc_html( $what ); ?>
-            </span>
-            <?php if ( $meta !== [] ) : ?>
-                <span class="tt-week-meta"><?php echo esc_html( implode( ' · ', $meta ) ); ?></span>
-            <?php endif; ?>
+            <?php echo $what_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the builder. ?>
+            <?php echo $meta_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in the builder. ?>
             <?php if ( $chips !== [] ) : ?>
                 <span class="tt-week-chips">
-                    <?php foreach ( $chips as [ $tone, $label ] ) : ?>
-                        <span class="tt-week-chip tt-week-chip--<?php echo esc_attr( $tone ); ?>"><?php echo esc_html( $label ); ?></span>
+                    <?php foreach ( $chips as [ $tone, $label, $class ] ) : ?>
+                        <span class="<?php echo esc_attr( trim( 'tt-week-chip tt-week-chip--' . $tone . ' ' . $class ) ); ?>"><?php echo esc_html( $label ); ?></span>
                     <?php endforeach; ?>
                 </span>
             <?php endif; ?>
-            <?php if ( $buttons !== [] ) : ?>
-                <span class="tt-week-actions">
-                    <?php foreach ( $buttons as [ $variant, $label, $url ] ) : ?>
-                        <a class="tt-week-btn tt-week-btn--<?php echo esc_attr( $variant ); ?>" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $label ); ?></a>
-                    <?php endforeach; ?>
-                </span>
+            <?php if ( $buttons['html'] !== '' ) : ?>
+                <span class="tt-week-actions"><?php echo $buttons['html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in weekButtons(). ?></span>
             <?php endif; ?>
         </span>
         <?php
         $inner = (string) ob_get_clean();
 
-        if ( $buttons !== [] || $detail === '' ) {
+        if ( ! $as_link ) {
             echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '">' . $inner . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every part of $inner is escaped above.
         } else {
             echo '<a class="' . esc_attr( implode( ' ', $classes ) ) . '" href="' . esc_url( $detail ) . '">' . $inner . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every part of $inner is escaped above.
@@ -725,18 +894,18 @@ class FrontendTileGrid {
     }
 
     /**
-     * What the row still needs, as [tone, label] pairs. Tone is `ok`,
-     * `todo` or `bad`. Availability is counts only.
+     * What the row still needs, as [tone, label, block key] triples. Tone is
+     * `ok`, `todo` or `bad`. Availability is counts only.
      *
      * @param array<string, mixed> $row
-     * @return list<array{0: string, 1: string}>
+     * @return list<array{0: string, 1: string, 2: string}>
      */
     private static function weekChips( array $row ): array {
         $chips = [];
         if ( ( $row['attendance_recorded'] ?? null ) === true ) {
-            $chips[] = [ 'ok', __( 'Attendance recorded', 'talenttrack' ) ];
+            $chips[] = [ 'ok', __( 'Attendance recorded', 'talenttrack' ), 'attendance' ];
         } elseif ( ( $row['attendance_recorded'] ?? null ) === false ) {
-            $chips[] = [ 'bad', __( 'Attendance not recorded', 'talenttrack' ) ];
+            $chips[] = [ 'bad', __( 'Attendance not recorded', 'talenttrack' ), 'attendance' ];
         }
         if ( is_array( $row['planned'] ?? null ) ) {
             $chips[] = [ 'ok', sprintf(
@@ -744,42 +913,45 @@ class FrontendTileGrid {
                 __( '%1$d of %2$d expected', 'talenttrack' ),
                 (int) ( $row['planned']['expected'] ?? 0 ),
                 (int) ( $row['planned']['roster'] ?? 0 )
-            ) ];
+            ), 'expected' ];
         }
         if ( ( $row['training_plan'] ?? null ) === true ) {
-            $chips[] = [ 'ok', __( 'Training plan ready', 'talenttrack' ) ];
+            $chips[] = [ 'ok', __( 'Training plan ready', 'talenttrack' ), 'training_plan' ];
         } elseif ( ( $row['training_plan'] ?? null ) === false ) {
-            $chips[] = [ 'todo', __( 'No training plan yet', 'talenttrack' ) ];
+            $chips[] = [ 'todo', __( 'No training plan yet', 'talenttrack' ), 'training_plan' ];
         }
         if ( is_array( $row['availability'] ?? null ) ) {
             $available   = (int) ( $row['availability']['available'] ?? 0 );
             $unavailable = (int) ( $row['availability']['unavailable'] ?? 0 );
             /* translators: %d: number of players who can play */
-            $chips[] = [ 'ok', sprintf( _n( '%d available', '%d available', $available, 'talenttrack' ), $available ) ];
+            $chips[] = [ 'ok', sprintf( _n( '%d available', '%d available', $available, 'talenttrack' ), $available ), 'availability' ];
             if ( $unavailable > 0 ) {
                 /* translators: %d: number of players who cannot play */
-                $chips[] = [ 'bad', sprintf( _n( '%d unavailable', '%d unavailable', $unavailable, 'talenttrack' ), $unavailable ) ];
+                $chips[] = [ 'bad', sprintf( _n( '%d unavailable', '%d unavailable', $unavailable, 'talenttrack' ), $unavailable ), 'availability' ];
             }
         }
         if ( is_array( $row['lineup'] ?? null ) ) {
             $placed = (int) ( $row['lineup']['placed'] ?? 0 );
             $target = (int) ( $row['lineup']['target'] ?? 0 );
             $chips[] = $placed >= $target
-                ? [ 'ok', __( 'Line-up complete', 'talenttrack' ) ]
+                ? [ 'ok', __( 'Line-up complete', 'talenttrack' ), 'lineup' ]
                 /* translators: 1: starters placed, 2: starters the formation needs */
-                : [ 'todo', sprintf( __( 'Line-up %1$d of %2$d', 'talenttrack' ), $placed, $target ) ];
+                : [ 'todo', sprintf( __( 'Line-up %1$d of %2$d', 'talenttrack' ), $placed, $target ), 'lineup' ];
         }
         return $chips;
     }
 
     /**
-     * The row's actions as [variant, label, url] triples, from the action
-     * keys the service granted.
+     * The row's buttons, from the action keys the service granted. Per
+     * device at most `ActionBlock::MAX_PER_ROW` show, and the first one that
+     * applies is the main button; a button switched off for a device is
+     * hidden there. `devices` lists, per device, the actions that show.
      *
      * @param array<string, mixed> $row
-     * @return list<array{0: string, 1: string, 2: string}>
+     * @param array<string, mixed> $week
+     * @return array{html: string, devices: array{desktop: list<string>, phone: list<string>}}
      */
-    private static function weekButtons( array $row, int $aid ): array {
+    private static function weekButtons( array $row, int $aid, array $week ): array {
         $actions = is_array( $row['actions'] ?? null ) ? $row['actions'] : [];
         $base    = RecordLink::dashboardUrl();
         $buttons = [];
@@ -788,23 +960,46 @@ class FrontendTileGrid {
             switch ( $action ) {
                 case CoachWeek::ACTION_MARK_ATTENDANCE:
                     $url = WizardEntryPoint::urlFor( 'mark-attendance', BackLink::appendTo( ActivityGridLink::attendanceUrl( $aid ) ), [ 'activity_id' => $aid ] );
-                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Mark attendance', 'talenttrack' ), $url ];
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Mark attendance', 'talenttrack' ), $url ];
                     break;
                 case CoachWeek::ACTION_MATCH_PREP:
                     $url = CrossViewLink::allows( 'match-prep' ) ? add_query_arg( [ 'tt_view' => 'match-prep', 'activity_id' => $aid ], $base ) : '';
-                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Match preparation', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Match preparation', 'talenttrack' ), BackLink::appendTo( $url ) ];
                     break;
                 case CoachWeek::ACTION_START_MATCH:
                     $url = CrossViewLink::allows( 'match-execution' ) ? add_query_arg( [ 'tt_view' => 'match-execution', 'activity_id' => $aid ], $base ) : '';
-                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Start match', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Start match', 'talenttrack' ), BackLink::appendTo( $url ) ];
                     break;
                 case CoachWeek::ACTION_OPEN_ACTIVITY:
                     $url = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';
-                    if ( $url !== '' ) $buttons[] = [ 'secondary', __( 'Activity', 'talenttrack' ), $url ];
+                    if ( $url !== '' ) $buttons[ $action ] = [ __( 'Activity', 'talenttrack' ), $url ];
                     break;
             }
         }
-        return $buttons;
+
+        $map     = CoachWeek::actionBlocks();
+        $blocks  = is_array( $week['blocks'] ?? null ) ? $week['blocks'] : [];
+        $devices = [ 'desktop' => [], 'phone' => [] ];
+        foreach ( array_keys( $devices ) as $device ) {
+            $shown = array_filter(
+                array_keys( $buttons ),
+                static fn( string $action ): bool => in_array( $map[ $action ] ?? '', (array) ( $blocks[ $device ] ?? [] ), true )
+            );
+            $devices[ $device ] = array_slice( array_values( $shown ), 0, ActionBlock::MAX_PER_ROW );
+        }
+
+        $html = '';
+        foreach ( $buttons as $action => [ $label, $url ] ) {
+            $class = self::deviceClass( in_array( $action, $devices['desktop'], true ), in_array( $action, $devices['phone'], true ) );
+            if ( $class === null ) continue;
+            $main_desktop = ( $devices['desktop'][0] ?? null ) === $action;
+            $main_phone   = ( $devices['phone'][0] ?? null ) === $action;
+            $variant      = $main_desktop && $main_phone ? 'tt-week-btn--primary' : 'tt-week-btn--secondary';
+            if ( $main_desktop && ! $main_phone ) $variant .= ' tt-week-btn--main-desktop';
+            if ( $main_phone && ! $main_desktop ) $variant .= ' tt-week-btn--main-phone';
+            $html .= '<a class="' . esc_attr( trim( 'tt-week-btn ' . $variant . ' ' . $class ) ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
+        }
+        return [ 'html' => $html, 'devices' => $devices ];
     }
 
     /**

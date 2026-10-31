@@ -1417,9 +1417,18 @@ Read-only. The correction path — a family filling in their own guardian contac
 
 The caller's week in site time, starting on the academy's first day of the week (`TTDate::weekStartsMonday()`, the `tt_week_start` setting: Monday by default, Sunday when set), the same snap the team planner uses: every activity on the teams they coach (`QueryHelpers::get_teams_for_coach()`), in date and start-time order, with what each one still needs. The tile landing's **This week** panel renders exactly these rows; both read `Modules\Activities\Services\CoachWeek::forUser()`. The object below is the `data` of the standard `{ success, data, errors }` envelope.
 
+The academy's settings for the caller's persona (see **The settings** below) shape the answer: the window, the teams, whether past rows are included, and which blocks are on per device.
+
 ```json
 { "visible": true, "week_start": "2026-11-02", "week_end": "2026-11-08", "today": "2026-11-04",
-  "multiple_teams": false, "has_match": true,
+  "window": "week", "multiple_teams": false, "has_match": true, "phone_on": true, "past": "show",
+  "blocks": { "desktop": ["team_name", "type", "time", "location", "attendance", "expected", "training_plan",
+                          "opponent", "availability", "lineup", "action_mark_attendance", "action_match_prep",
+                          "action_start_match", "action_open_activity"],
+              "phone":   ["team_name", "type", "time", "attendance", "expected", "opponent", "availability",
+                          "lineup", "action_mark_attendance", "action_match_prep", "action_start_match",
+                          "action_open_activity"] },
+  "next_week": [],
   "rows": [
     { "activity_id": 812, "team_id": 52, "team_name": "JO13-1", "date": "2026-11-03", "when": "past",
       "type_key": "training", "type_label": "Training", "is_match": false, "title": "Training JO13-1",
@@ -1443,9 +1452,25 @@ The caller's week in site time, starting on the academy's first day of the week 
 - `actions` are keys, not URLs, so each client builds its own links: `mark_attendance` (a past activity whose register is not recorded, or a non-match activity today), `match_prep` (a match today or later), `start_match` (instead of `match_prep` on match day once a prep exists and Match execution is on), `open_activity` (on every match row today or later). Every action except `open_activity` needs `tt_edit_activities`.
 - A match whose `activity_status_key` is `completed` (case-insensitive) is done whatever its date: it gets `attendance_recorded` as a past activity does, `mark_attendance` when nothing is recorded and it is not dated after today (the attendance rule refuses present and late before the day), `open_activity` when it is today or later, and never `match_prep` or `start_match`. Its `availability` and `lineup` are `null`.
 - Cancelled and archived activities are left out.
-- `visible: false` with `rows: []` — not a 403 — when the caller's active persona (the persona switcher's choice, else the first persona they hold) is not in the academy's `coach_week.personas` list, or the caller coaches no team. A client hides the panel the same way the landing does.
+- `visible: false` with `rows: []` — not a 403 — when the panel is off for the caller's active persona (the persona switcher's choice, else the first persona they hold), or the week holds no team. A client hides the panel the same way the landing does.
+- `window` is `week` (the calendar week above) or `rolling` (today and the six days after it); `week_start` / `week_end` follow it.
+- `blocks` lists, per device, the block keys that are on, in display order; `desktop` applies from 768px, `phone` below it. A client shows a part of a row, a chip or a button only on a device whose list holds its block. The row fields stay in the payload whatever is listed: a block that is off for both devices leaves its computed field `null` (`attendance_recorded` for `attendance`, `planned` for `expected`, `training_plan`, `availability`, `lineup`) and offers no action. Display-only blocks (`team_name`, `type`, `time`, `location`, `opponent`) govern only what a client shows.
+- `actions` holds the actions whose block is on for at least one device, in priority order. Each action key maps to one block: `mark_attendance` → `action_mark_attendance`, `match_prep` → `action_match_prep`, `start_match` → `action_start_match`, `open_activity` → `action_open_activity`. Per device, a client shows at most two: the first two in `actions` whose block is in that device's list, the first being the main button.
+- `phone_on: false` means no panel below 768px; `blocks.phone` is then empty.
+- `past` is `show`, `fold` (a client folds the `past` rows into one line that opens on demand) or `hide` (no `past` rows are returned; `has_match` still counts them).
+- `next_week` holds the first two activities of the seven days after `week_end` when the `next_week` block is on, as `activity_id`, `team_id`, `team_name`, `date`, `type_key`, `type_label`, `is_match`, `title`, `opponent` and `start_time`. It is `[]` otherwise.
+- With the `teams` setting at `all`, the week covers every academy team, but only for a caller with a global read on activities (`ActivityAccess::hasGlobalRead()`). Anyone else gets their own teams.
 
-**The persona list** is the `tt_config` key `coach_week.personas`, a JSON list of persona keys, default `["head_coach","assistant_coach"]` when unset. It is read and written through `GET/POST /config` (gated like the `persona_dashboard.*` keys, on the `feature_toggles` area). A write is normalised to the known staff personas (`academy_admin`, `head_of_development`, `head_coach`, `assistant_coach`, `team_manager`, `scout`, `readonly_observer`); `player`, `parent` and unknown keys are dropped.
+**The settings** are the `tt_config` key `coach_week.config`: JSON keyed by persona, read and written through `GET/POST /config` on the `feature_toggles` area:
+
+```json
+{ "head_coach": { "on": true, "phone_on": true, "window": "week", "teams": "coached", "past": "show",
+                  "desktop": ["type", "time", "location"], "phone": ["type", "time"] } }
+```
+
+A write is normalised: only the staff personas listed below are kept, every one of them is stored, a missing persona or field takes its default, and `desktop` / `phone` keep only registered block keys, in registry order. While `coach_week.config` has never been saved, the persona list below decides `on`, and every other field takes its default.
+
+**The persona list** is the older `tt_config` key `coach_week.personas`, the fallback while `coach_week.config` is unsaved: a JSON list of persona keys, default `["head_coach","assistant_coach"]` when unset. It is read and written through `GET/POST /config` (gated like the `persona_dashboard.*` keys, on the `feature_toggles` area). A write is normalised to the known staff personas (`academy_admin`, `head_of_development`, `head_coach`, `assistant_coach`, `team_manager`, `scout`, `readonly_observer`); `player`, `parent` and unknown keys are dropped.
 
 **Permission:** `tt_view_activities` or `tt_edit_activities` through `AuthorizationService::userCanOrMatrix()` (`ActivityAccess::isStaffReader()`); 403 otherwise. The route takes no id; the caller is the scope. Registered by the Activities module, so it is absent when that module is off.
 
