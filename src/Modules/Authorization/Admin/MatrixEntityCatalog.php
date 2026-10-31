@@ -186,6 +186,10 @@ final class MatrixEntityCatalog {
             // #2007 — tile visibility only: who is OFFERED the scout's visit
             // planner. Reading the visits themselves is still `prospects`.
             'scouting_visits_panel'         => __( 'Scouting visits (tile)', 'talenttrack' ),
+            // Tile visibility only, like the row above: who is offered the
+            // holidays manager and the methodology vocabulary editor.
+            'holidays_panel'                => __( 'Holidays (tile)', 'talenttrack' ),
+            'methodology_vocabulary_panel'  => __( 'Methodology vocabulary (tile)', 'talenttrack' ),
             // #0085 — Player notes (staff-only running log).
             'player_notes'                  => __( 'Player notes', 'talenttrack' ),
             // #0083 Child 5 — central analytics surface.
