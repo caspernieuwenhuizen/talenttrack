@@ -479,14 +479,6 @@ class CoachForms {
     }
 
     /**
-     * The strip that names the player the evaluation is about: photo or
-     * initials, name, team and position.
-     *
-     * With no player yet (the create form's picker path) it renders
-     * empty and hidden, and `eval-form.js` fills it in from the picker
-     * once a player is chosen.
-     */
-    /**
      * Whether this reader may write an evaluation for this player: the
      * academy admin, or the coach of the player's team. The check
      * `EvaluationsRestController::create_eval()` makes before it saves.
@@ -496,6 +488,14 @@ class CoachForms {
             || QueryHelpers::coach_owns_player( $user_id, $player_id );
     }
 
+    /**
+     * The strip that names the player the evaluation is about: photo or
+     * initials, name, team and position.
+     *
+     * With no player yet (the create form's picker path) it renders
+     * empty and hidden, and `eval-form.js` fills it in from the picker
+     * once a player is chosen.
+     */
     private static function renderSubject( ?object $player, int $player_id ): void {
         $name  = $player !== null ? QueryHelpers::player_display_name( $player ) : ( $player_id > 0 ? '#' . $player_id : '' );
         $photo = $player !== null ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '';
