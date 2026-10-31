@@ -151,19 +151,19 @@ final class DataTranslationAudit {
         $demo    = self::demoGaps( $plugin_dir );
 
         $lines   = [];
-        $lines[] = sprintf( 'Lookups of a shipped vocabulary with no %s label: %d', $locale, count( $shipped ) );
+        $lines[] = 'Lookups of a shipped vocabulary with no ' . $locale . ' label: ' . count( $shipped );
         foreach ( $shipped as $g ) {
             $lines[] = sprintf( '  #%d  %s / %s', $g['id'], $g['lookup_type'], $g['name'] );
         }
-        $lines[] = sprintf( 'Lookups of a type the canonical list does not know, with no %s label: %d', $locale, count( $other ) );
+        $lines[] = 'Lookups of a type the canonical list does not know, with no ' . $locale . ' label: ' . count( $other );
         foreach ( $other as $g ) {
             $lines[] = sprintf( '  #%d  %s / %s', $g['id'], $g['lookup_type'], $g['name'] );
         }
-        $lines[] = sprintf( 'tt_config text still at the shipped English default: %d', count( $config ) );
+        $lines[] = 'tt_config text still at the shipped English default: ' . count( $config );
         foreach ( $config as $c ) {
             $lines[] = sprintf( '  %s = "%s"', $c['key'], $c['value'] );
         }
-        $lines[] = sprintf( 'Demo generators writing English with no Dutch variant: %d', count( $demo ) );
+        $lines[] = 'Demo generators writing English with no Dutch variant: ' . count( $demo );
         foreach ( $demo as $file ) {
             $lines[] = '  ' . $file;
         }
