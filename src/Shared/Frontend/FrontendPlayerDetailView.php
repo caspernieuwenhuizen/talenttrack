@@ -1707,7 +1707,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * @return array<int,array{0:string,1:string}>
      */
     private static function physiqueRows( int $player_id, object $player ): array {
-        $may_read = self::mayReadMeasurements( get_current_user_id(), $player_id );
+        $may_read = MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ );
 
         $physique = ( new \TT\Modules\Measurements\Services\PlayerPhysique() )
             ->forPlayer( $player_id, $player, $may_read );
