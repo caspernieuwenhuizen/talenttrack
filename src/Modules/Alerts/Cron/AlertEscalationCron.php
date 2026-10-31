@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Cron;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\Alerts\Escalation\AlertEscalator;
 use TT\Modules\Workflow\Dispatchers\CronDispatcher;
 
@@ -42,8 +43,9 @@ final class AlertEscalationCron {
 
     public function maybeRun(): void {
         $today = current_time( 'Y-m-d' );
-        foreach ( $this->clubIds() as $club_id ) {
-            $this->withClub( $club_id, function () use ( $today ) {
+        foreach ( ClubIteration::clubIds() as $club_id ) {
+            ClubIteration::withClub( $club_id, function () use ( $today ) {
+                $this->config = new ConfigService();
                 if ( $this->config->get( self::LAST_RUN_CONFIG_KEY, '' ) === $today ) return;
                 $this->runForCurrentClub();
                 $this->config->set( self::LAST_RUN_CONFIG_KEY, $today );
@@ -58,32 +60,6 @@ final class AlertEscalationCron {
         } catch ( \Throwable $e ) {
             error_log( '[TalentTrack alerts] escalation run failed: ' . $e->getMessage() );
             return [];
-        }
-    }
-
-    /** @return int[] */
-    private function clubIds(): array {
-        global $wpdb;
-        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
-        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
-        if ( ! in_array( 1, $ids, true ) ) $ids[] = 1;
-        return array_filter( $ids, static function ( $id ) { return $id > 0; } );
-    }
-
-    /**
-     * @template T
-     * @param callable():T $fn
-     * @return T
-     */
-    private function withClub( int $club_id, callable $fn ) {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        $this->config = new ConfigService();
-        try {
-            return $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-            $this->config = new ConfigService();
         }
     }
 }
