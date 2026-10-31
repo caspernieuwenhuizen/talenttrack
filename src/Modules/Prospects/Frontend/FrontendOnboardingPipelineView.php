@@ -522,6 +522,23 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         // columns below it narrowed, which is worse than either.
         $where_scope = ProspectScope::sqlClause( $user_id, 'p' );
 
+        // #4268 — "consent pending" from the consent log: an awaiting
+        // request and no agreed one, the rule the prospects list's waiting
+        // counter uses. Built from the outcome constants; 0 on an install
+        // whose log table does not exist yet.
+        $awaiting_consent_sql = '0';
+        if ( \TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository::tableExists() ) {
+            $requests = $wpdb->prefix . 'tt_prospect_consent_requests';
+            $awaiting = \TT\Modules\Prospects\Domain\ConsentOutcome::AWAITING;
+            $agreed   = \TT\Modules\Prospects\Domain\ConsentOutcome::AGREED;
+            $awaiting_consent_sql = "( EXISTS ( SELECT 1 FROM {$requests} cr
+                                                 WHERE cr.prospect_id = p.id AND cr.club_id = p.club_id
+                                                   AND cr.outcome = '{$awaiting}' )
+                                       AND NOT EXISTS ( SELECT 1 FROM {$requests} ca
+                                                         WHERE ca.prospect_id = p.id AND ca.club_id = p.club_id
+                                                           AND ca.outcome = '{$agreed}' ) )";
+        }
+
         $sql = "
             SELECT
                 p.id                       AS id,
@@ -537,6 +554,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 MAX(pl.status)             AS player_status,
                 MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_log,
                 MAX(CASE WHEN wt.template_key = 'request_consent'              AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_consent,
+                MAX( {$awaiting_consent_sql} ) AS awaiting_consent,
                 MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_invite,
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_confirm,
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN wt.id ELSE NULL END) AS open_outcome,
@@ -724,6 +742,11 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             // the scout opens it to record what the club came back with.
             case 'consent':
                 $task_id = (int) ( $row->open_consent ?? 0 );
+                // #4268 — a prospect held here by the consent log alone has
+                // no task to open; their focus view shows the log.
+                if ( $task_id === 0 ) {
+                    return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
+                }
                 break;
             case 'joined':
                 $player_id = (int) ( $row->promoted_to_player_id ?? 0 );

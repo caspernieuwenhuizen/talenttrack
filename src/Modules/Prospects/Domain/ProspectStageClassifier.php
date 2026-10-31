@@ -27,7 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * accepted them after trial).
  *
  *     log_prospect open                                    → Prospects
- *     request_consent open                                 → Consent requested
+ *     request_consent open, or an awaiting consent-log
+ *       entry with no agreed one (#4268)                   → Consent requested
  *     invite_to_test_training open                         → Prospects
  *     invite_to_test_training completed                    → Invited
  *     confirm_test_training open                           → Invited
@@ -57,6 +58,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   - created_at                 (string, mysql datetime; for joined window)
  *   - open_consent               (0/1 or task id) — #3812, `request_consent`
  *                                  in open / in_progress / overdue
+ *   - awaiting_consent           (0/1, optional) — #4268, the consent log
+ *                                  holds an `awaiting` entry and no `agreed` one
  *   - open_invite                (0/1 or task id; both work with !empty)
  *   - open_confirm               (0/1 or task id)
  *   - open_outcome               (0/1 or task id)
@@ -161,7 +164,14 @@ final class ProspectStageClassifier {
         // It sits below the invite rules deliberately: a prospect who has
         // been invited has plainly got past consent, whatever a stale
         // consent task still says.
-        if ( ! empty( $row->open_consent ) ) {
+        //
+        // #4268 — the consent log counts too: an `awaiting` request with no
+        // `agreed` one, the same "consent pending" the prospects list's
+        // waiting counter and the consent-awaiting alert read. A request
+        // logged through `POST prospects/{id}/consent-requests`, or one left
+        // waiting after its task was completed, used to leave the prospect
+        // in the first column.
+        if ( ! empty( $row->open_consent ) || ! empty( $row->awaiting_consent ) ) {
             return 'consent';
         }
 
