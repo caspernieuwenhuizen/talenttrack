@@ -1253,6 +1253,10 @@ class DashboardShortcode {
             case 'prospect-edit':
                 \TT\Modules\Prospects\Frontend\FrontendProspectEditView::render( $user_id );
                 return true;
+            // #4257 — a prospect's read-only record page.
+            case 'prospect':
+                \TT\Modules\Prospects\Frontend\FrontendProspectDetailView::render( $user_id );
+                return true;
             // v3.110.119 — scout's scouting-visit planner.
             case 'scouting-visits':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingPlanView::render( $user_id, $is_admin );

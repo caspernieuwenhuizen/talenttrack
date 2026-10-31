@@ -464,6 +464,7 @@ final class CoreSurfaceRegistration {
 
         TileRegistry::registerSlugOwnership( 'prospects-overview', self::M_PROSPECTS );
         TileRegistry::registerSlugOwnership( 'prospect-edit',      self::M_PROSPECTS );
+        TileRegistry::registerSlugOwnership( 'prospect',           self::M_PROSPECTS );
 
         TileRegistry::registerSlugOwnership( 'strava',       self::M_STRAVA );
         TileRegistry::registerSlugOwnership( 'strava-admin', self::M_STRAVA );

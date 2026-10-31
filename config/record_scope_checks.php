@@ -55,6 +55,12 @@ return [
         'PlayerReportAccess::canCreate',
         'ScoutPlayerCard::canRead',
 
+        // A prospect: a child the academy is looking at, not a player yet.
+        // Both ask `ProspectScope::canSee()` on the same id the list narrows
+        // by (#4257).
+        'ProspectRecord::canOpen',
+        'ProspectRecord::canLogConsent',
+
         // A team, and the surfaces scoped by one.
         'canManageTeam',
         'canAssignStaff',

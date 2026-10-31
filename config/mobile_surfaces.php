@@ -128,6 +128,7 @@ return [
     'people'                        => [ 'viewable', 'Staff and contacts. Lower frequency than players and teams; the responsive CSS is honest enough.' ],
     'player-attributes'             => [ 'viewable', 'One player’s chemistry attributes. Bulk entry argues for a desk, but gating it means the attributes never get filled and the engine computes on nulls.' ],
     'prospect-edit'                 => [ 'viewable', 'Correcting a parent’s contact details or the consent date on one prospect (#2838). Four fields on one record, so none of the first three questions fires — but it is a correction made at a desk after the fact, not capture at the moment of seeing a player, which is what keeps it out of native.' ],
+    'prospect'                      => [ 'viewable', 'One prospect’s record: stage, consent requests and scouting visits. Read on the phone between matches, written through the consent wizard and the contact form (#4257).' ],
     'prospects-overview'            => [ 'viewable', 'A list view over the funnel.' ],
     'scout-history'                 => [ 'viewable', 'A scout’s own past activity.' ],
     'scout-my-players'              => [ 'viewable', 'A scout’s portfolio list.' ],

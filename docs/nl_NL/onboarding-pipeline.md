@@ -3,7 +3,7 @@ title: Instroompijplijn
 group: configuration
 summary: De wervingstrechter waar elke binnenkomende speler doorheen gaat.
 audience: [user]
-views: [onboarding-pipeline, prospects-overview]
+views: [onboarding-pipeline, prospects-overview, prospect]
 module: TT\Modules\Prospects\ProspectsModule
 order: 124
 ---
@@ -130,7 +130,7 @@ Tussen "ik heb een kind bij een andere club gezien" en "het gezin heeft ja gezeg
 
 **De klus.** *Toestemming vragen aan het gezin* is een workflow-klus, toegewezen aan de scout die de prospect vond, met een deadline van 21 dagen. Zolang die openstaat, of zolang het logboek een verzoek bevat dat nog op antwoord wacht en geen verzoek met akkoord, staat de prospect in de kolom **Toestemming gevraagd**. Er volgt niets automatisch op: een verzoek dat *afgewezen* terugkomt, mag geen uitnodiging opleveren.
 
-**Het logboek.** Het afronden van de klus, of een `POST /prospects/{id}/consent-requests`, schrijft een gedateerde regel: de datum waarop je het vroeg, de club of coördinator die je vroeg, de uitkomst en optionele notities. De datum mag vandaag of eerder zijn, ook een dag voordat de prospect werd ingevoerd, maar niet in de toekomst: een verzoek met een datum na vandaag wordt geweigerd, omdat de wachtteller en de melding *Toestemmingsverzoek wacht nog* vanaf die datum tellen. Alle regels van een prospect staan op het focuspaneel als je op het kaartje klikt, nieuwste eerst. Dat spoor is het antwoord op "zijn de toestemmingsverzoeken eruit gegaan?", dat tot nu toe alleen in het hoofd van een scout zat.
+**Het logboek.** Het afronden van de klus, de knop **Toestemmingsverzoek vastleggen** op de pagina van de prospect, of een `POST /prospects/{id}/consent-requests`, schrijft een gedateerde regel: de datum waarop je het vroeg, de club of coördinator die je vroeg, de uitkomst en optionele notities. De datum mag vandaag of eerder zijn, ook een dag voordat de prospect werd ingevoerd, maar niet in de toekomst: een verzoek met een datum na vandaag wordt geweigerd, omdat de wachtteller en de melding *Toestemmingsverzoek wacht nog* vanaf die datum tellen. Alle regels van een prospect staan op de pagina van de prospect en op het focuspaneel als je op het kaartje klikt, nieuwste eerst. Dat spoor is het antwoord op "zijn de toestemmingsverzoeken eruit gegaan?", dat tot nu toe alleen in het hoofd van een scout zat.
 
 Vier uitkomsten: *wacht op antwoord*, *het gezin ging akkoord*, *het gezin wees af*, *geen reactie*.
 
@@ -139,6 +139,21 @@ Vier uitkomsten: *wacht op antwoord*, *het gezin ging akkoord*, *het gezin wees 
 **Een openstaand verzoek zet de bewaarklok stil.** Een prospect zonder voortgang wordt na 90 dagen verwijderd. Een regel met de uitkomst *wacht op antwoord* telt als voortgang, zodat een academie die echt zit te wachten het kind niet onder zich vandaan verliest. De klok loopt vanaf die regel, niet vanaf de prospect, dus een verzoek dat nooit is nagebeld verjaart alsnog volgens de normale regel. Wordt een prospect verwijderd, dan gaan de toestemmingsregels mee.
 
 **Een wachttijd die oploopt wordt hardop gezegd.** De talentenlijst heeft een kolom **Toestemming wacht** met het aantal dagen dat elk openstaand verzoek al wacht, en na vijf dagen — de instelling `alerts_prospect_consent_awaiting_days` van je academie — gaat er een melding naar wie talenten mag bewerken, met de naam van de club die is gevraagd. Elke vastgelegde uitkomst ruimt de melding direct op. Ze bestaat vanwege de alinea hierboven: zonder haar was de waarschijnlijkste uitkomst van een verzoek dat niemand najoeg dat het dossier van het kind stil werd verwijderd, terwijl de wachttijd nergens te zien was. Zie *Toestemmingsverzoek wacht nog* in het onderwerp Meldingen.
+
+## De pagina van een prospect
+
+Elke prospect heeft een eigen pagina. De prospectlijst (**Openen**), het focuspaneel (**Dossier openen**), de pagina van een scoutingbezoek, de tabel op het dashboard van de scout en de melding *Toestemmingsverzoek wacht nog* leiden er allemaal naartoe. Je ziet er op één plek:
+
+- **Waar de prospect nu staat**: de kolom op het bord, waar die kolom op wacht, en **Open volgende actie** als er een klus klaarstaat.
+- **Toestemmingsverzoeken**: elk verzoek dat voor de prospect is verstuurd, nieuwste eerst, met de datum, de club of coördinator die je vroeg en de uitkomst.
+- **Scouting**: de scoutingnotities en de bezoeken waarop de prospect is gezien, met het bezoek waar de prospect is gevonden gemarkeerd als **Hier gevonden**. Je ziet de bezoeken die je mag openen: als scout je eigen bezoeken, als hoofd jeugdopleiding alle.
+
+De pagina leest alleen. Twee knoppen schrijven, als je prospects mag bewerken:
+
+- **Toestemmingsverzoek vastleggen** opent een korte wizard: wie je vroeg en wanneer (vandaag of eerder), optionele notities, dan een bevestiging. Het verzoek komt in het logboek als wachtend op antwoord, en de wachtteller loopt vanaf de datum waarop je het vroeg.
+- **Contact bewerken** opent het formulier voor de contactgegevens van de ouder en de datum van toestemming.
+
+Wie de prospect op het bord mag zien, mag de pagina openen, ook een hoofdtrainer die prospects alleen leest. Voor een prospect buiten wat je mag zien, meldt de pagina dat de prospect niet is gevonden.
 
 ## Geen uitnodiging zonder toestemming
 
