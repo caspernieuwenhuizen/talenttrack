@@ -32,8 +32,10 @@ final class ThreadAuthorNameTest extends WP_UnitTestCase {
     }
 
     public function test_a_players_message_carries_the_player_name_not_the_account_name(): void {
+        // A player account: writing in a goal conversation is reading the
+        // goal, which the player persona grants on their own record.
         $account = self::factory()->user->create( [
-            'role'         => 'subscriber',
+            'role'         => 'tt_player',
             'display_name' => 'Hendrik Janssen',
         ] );
         $player_id = $this->seedPlayer( 'Bas', 'Willems', $account );

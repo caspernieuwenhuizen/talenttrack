@@ -3,6 +3,7 @@ namespace TT\Modules\Threads\Adapters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Goals\GoalAccess;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -81,6 +82,12 @@ final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread
         // was locked out of every goal conversation.
         if ( QueryHelpers::user_has_global_entity_read( $user_id, 'goals' ) ) return true;
 
+        // The conversation carries the goal, so reading it is reading the
+        // goal: the same question `GET players/{id}/goals` asks, before any
+        // participant rung. The team's staff read the player and not their
+        // goals, and `coach_owns_player()` counts their team grant too.
+        if ( ! GoalAccess::mayRead( $user_id, (int) $goal->player_id ) ) return false;
+
         return $this->isParticipant( $user_id, $goal );
     }
 
@@ -93,7 +100,8 @@ final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread
         // the academy-wide grant. #4089 — a guardian writes only while the
         // child is active; a graduated child's family reads and no longer
         // posts.
-        if ( $this->isParticipant( $user_id, $goal, ParentChildResolver::NEED_FULL ) ) return true;
+        if ( GoalAccess::mayRead( $user_id, (int) $goal->player_id )
+            && $this->isParticipant( $user_id, $goal, ParentChildResolver::NEED_FULL ) ) return true;
 
         // #3720 — an academy-wide goals *reader* follows the
         // conversation read-only; writing in it needs the change right.
