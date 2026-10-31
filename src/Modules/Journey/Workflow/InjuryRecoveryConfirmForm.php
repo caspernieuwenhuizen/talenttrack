@@ -3,6 +3,7 @@ namespace TT\Modules\Journey\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -48,6 +49,17 @@ class InjuryRecoveryConfirmForm implements FormInterface {
         $can_change = AuthorizationService::canRecordInjury( $viewer, $player_id, 'change' );
         $records    = $can_read ? self::recordsFor( $player_id, (int) ( $existing['injury_id'] ?? 0 ) ) : [];
         $offer_extend = $can_change && $records !== [];
+        // A stored "extend" answer carries a return date: shown to readers only.
+        $show_extend  = $offer_extend || ( $can_read && (string) ( $existing['recovery_status'] ?? '' ) === self::OPTION_EXTEND );
+
+        // Listing the records prints medical fields, so it is a read and is
+        // audit-logged like the injuries tab, the overview and the REST list.
+        if ( $records !== [] ) {
+            ( new AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+                'surface' => 'workflow_injury_recovery',
+                'count'   => count( $records ),
+            ] );
+        }
 
         $chosen_id = (int) ( $existing['injury_id'] ?? 0 );
         if ( $chosen_id <= 0 && count( $records ) === 1 ) $chosen_id = (int) ( $records[0]->id ?? 0 );
@@ -88,7 +100,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
                            <?php echo $disabled; ?> />
                     <span><?php esc_html_e( 'On track — back as expected', 'talenttrack' ); ?></span>
                 </label>
-                <?php if ( $offer_extend || $status === self::OPTION_EXTEND ) : ?>
+                <?php if ( $show_extend ) : ?>
                     <label class="tt-irc-choice">
                         <input type="radio" name="recovery_status" value="<?php echo esc_attr( self::OPTION_EXTEND ); ?>"
                                <?php checked( $status === self::OPTION_EXTEND ); ?>
@@ -107,7 +119,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
                 <?php endif; ?>
             </fieldset>
 
-            <?php if ( $offer_extend || $status === self::OPTION_EXTEND ) : ?>
+            <?php if ( $show_extend ) : ?>
                 <p class="tt-irc-field">
                     <label for="tt-irc-return"><?php esc_html_e( 'New expected return', 'talenttrack' ); ?></label>
                     <input type="date" id="tt-irc-return" name="new_expected_return"
@@ -119,13 +131,15 @@ class InjuryRecoveryConfirmForm implements FormInterface {
                 </p>
             <?php endif; ?>
 
-            <p class="tt-irc-field">
-                <label for="tt-recovery-notes"><?php esc_html_e( 'Notes (optional)', 'talenttrack' ); ?></label>
-                <textarea id="tt-recovery-notes" name="notes" rows="3"
-                          <?php echo $disabled; ?>><?php
-                    echo esc_textarea( (string) ( $existing['notes'] ?? '' ) );
-                ?></textarea>
-            </p>
+            <?php if ( $can_read ) : // A stored answer's notes may describe the injury. ?>
+                <p class="tt-irc-field">
+                    <label for="tt-recovery-notes"><?php esc_html_e( 'Notes (optional)', 'talenttrack' ); ?></label>
+                    <textarea id="tt-recovery-notes" name="notes" rows="3"
+                              <?php echo $disabled; ?>><?php
+                        echo esc_textarea( (string) ( $existing['notes'] ?? '' ) );
+                    ?></textarea>
+                </p>
+            <?php endif; ?>
         </div>
         <?php
         return (string) ob_get_clean();
@@ -159,6 +173,7 @@ class InjuryRecoveryConfirmForm implements FormInterface {
 
         // The task view prints only the form-level message, so a field error
         // must also reach it or the form refuses without saying why.
+        // Stopgap until #4421 renders field errors in the task view; remove then.
         if ( $errors !== [] ) {
             $errors['__form'] = implode( ' ', $errors );
         }

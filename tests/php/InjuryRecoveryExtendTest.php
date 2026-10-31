@@ -3,6 +3,8 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Query\LookupTranslator;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -205,6 +207,93 @@ final class InjuryRecoveryExtendTest extends WP_UnitTestCase {
         $this->assertSame( $this->day( -2 ), (string) $repo->find( $id )->expected_return );
     }
 
+    public function test_listing_the_records_is_an_audited_injury_read(): void {
+        $this->injury( -20, -3 );
+        $this->injury( -10, -1 );
+        $task = $this->openTask();
+
+        ( new InjuryRecoveryConfirmForm() )->render( $task );
+
+        $rows = $this->viewedAudit();
+        $this->assertCount( 1, $rows, 'one row per render' );
+        $this->assertSame( 'workflow_injury_recovery', $rows[0]['surface'] );
+        $this->assertSame( 2, (int) $rows[0]['count'] );
+    }
+
+    public function test_a_viewer_without_injury_read_sees_no_records_notes_or_date(): void {
+        global $wpdb;
+        $type    = QueryHelpers::get_lookups( 'injury_type' )[0] ?? null;
+        $this->assertNotNull( $type, 'precondition: an injury type is seeded' );
+        $type_id = (int) ( $type->id ?? 0 );
+        $label   = LookupTranslator::name( $type );
+
+        $id = ( new InjuryRepository() )->create( [
+            'player_id'             => $this->player,
+            'started_on'            => $this->day( -20 ),
+            'expected_return'       => $this->day( -2 ),
+            'injury_type_lookup_id' => $type_id,
+        ] );
+        $task = $this->openTask();
+
+        $html = ( new InjuryRecoveryConfirmForm() )->render( $task );
+        $this->assertStringContainsString( 'name="injury_id"', $html, 'precondition: a reader sees the record' );
+        $this->assertStringContainsString( $label, $html );
+
+        // A stored "extend" answer whose notes describe the injury.
+        $wpdb->update( "{$wpdb->prefix}tt_workflow_tasks", [ 'response_json' => wp_json_encode( [
+            'recovery_status'     => InjuryRecoveryConfirmForm::OPTION_EXTEND,
+            'injury_id'           => $id,
+            'new_expected_return' => $this->day( 9 ),
+            'notes'               => 'Hamstring rehab week two',
+        ] ) ], [ 'id' => (int) $task['id'] ] );
+        $task['response_json'] = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT response_json FROM {$wpdb->prefix}tt_workflow_tasks WHERE id = %d", (int) $task['id']
+        ) );
+
+        foreach ( [ MatrixGate::READ, MatrixGate::CHANGE ] as $activity ) {
+            ( new MatrixRepository() )->removeRow( 'head_coach', 'player_injuries', $activity, MatrixGate::SCOPE_TEAM );
+        }
+        MatrixRepository::clearCache();
+        FunctionalRoleGrants::clearCache();
+        AuthorizationService::flushCache();
+        $this->assertFalse( AuthorizationService::canRecordInjury( $this->coach, $this->player, 'read' ), 'precondition: no injury read' );
+
+        wp_set_current_user( $this->coach );
+        $before = count( $this->viewedAudit() );
+        $html   = ( new InjuryRecoveryConfirmForm() )->render( $task );
+
+        $this->assertStringNotContainsString( 'name="injury_id"', $html );
+        $this->assertStringNotContainsString( $label, $html );
+        $this->assertStringNotContainsString( 'name="new_expected_return"', $html );
+        $this->assertStringNotContainsString( $this->day( 9 ), $html );
+        $this->assertStringNotContainsString( 'Hamstring', $html );
+        $this->assertCount( $before, $this->viewedAudit(), 'nothing listed, nothing logged' );
+    }
+
+    public function test_a_forged_completion_naming_another_players_record_writes_nothing(): void {
+        $repo = new InjuryRepository();
+        $own  = $this->injury( -20, -2 );
+        $task = $this->openTask();
+
+        $other   = $this->insertPlayer( $this->team, 'Forged' );
+        $foreign = $repo->create( [
+            'player_id'       => $other,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+
+        // Straight to the engine: validate() is never asked.
+        $this->assertTrue( WorkflowModule::engine()->complete( (int) $task['id'], [
+            'recovery_status'     => InjuryRecoveryConfirmForm::OPTION_EXTEND,
+            'injury_id'           => $foreign,
+            'new_expected_return' => $this->day( 10 ),
+        ] ) );
+
+        $this->assertSame( $this->day( -2 ), (string) $repo->find( $foreign )->expected_return );
+        $this->assertSame( $this->day( -2 ), (string) $repo->find( $own )->expected_return );
+        $this->assertNull( $this->auditPayload( $foreign ) );
+    }
+
     public function test_the_task_title_and_description_name_no_injury_detail(): void {
         $template = new InjuryRecoveryDueTemplate();
         foreach ( [ $template->name(), $template->description() ] as $text ) {
@@ -264,6 +353,23 @@ final class InjuryRecoveryExtendTest extends WP_UnitTestCase {
         if ( $payload === null ) return null;
         $decoded = json_decode( (string) $payload, true );
         return is_array( $decoded ) ? $decoded : null;
+    }
+
+    /** @return list<array<string,mixed>> this player's form-surface injury reads, oldest first */
+    private function viewedAudit(): array {
+        global $wpdb;
+        $payloads = $wpdb->get_col( $wpdb->prepare(
+            "SELECT payload FROM {$wpdb->prefix}tt_audit_log
+              WHERE action = 'player.injuries_viewed' AND entity_type = 'player' AND entity_id = %d
+              ORDER BY id ASC",
+            $this->player
+        ) );
+        $out = [];
+        foreach ( (array) $payloads as $payload ) {
+            $decoded = json_decode( (string) $payload, true );
+            if ( is_array( $decoded ) && ( $decoded['surface'] ?? '' ) === 'workflow_injury_recovery' ) $out[] = $decoded;
+        }
+        return $out;
     }
 
     private function day( int $offset ): string {
