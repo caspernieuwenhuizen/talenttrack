@@ -86,7 +86,7 @@ final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread
         // goal: the same question `GET players/{id}/goals` asks, before any
         // participant rung. The team's staff read the player and not their
         // goals, and `coach_owns_player()` counts their team grant too.
-        if ( ! GoalAccess::mayRead( $user_id, (int) $goal->player_id ) ) return false;
+        if ( ! GoalAccess::mayRead( $user_id, (int) ( $goal->player_id ?? 0 ) ) ) return false;
 
         return $this->isParticipant( $user_id, $goal );
     }
@@ -100,7 +100,7 @@ final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread
         // the academy-wide grant. #4089 — a guardian writes only while the
         // child is active; a graduated child's family reads and no longer
         // posts.
-        if ( GoalAccess::mayRead( $user_id, (int) $goal->player_id )
+        if ( GoalAccess::mayRead( $user_id, (int) ( $goal->player_id ?? 0 ) )
             && $this->isParticipant( $user_id, $goal, ParentChildResolver::NEED_FULL ) ) return true;
 
         // #3720 — an academy-wide goals *reader* follows the
