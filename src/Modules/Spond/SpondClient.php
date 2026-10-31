@@ -247,7 +247,7 @@ final class SpondClient {
         $pages_drawn = 0;
         $last_http   = 200;
 
-        while ( $pages_drawn < $max_pages ) {
+        foreach ( range( 1, $max_pages ) as $_page ) {
             $params = [
                 'groupId'           => $group_id,
                 'minStartTimestamp' => $cursor,

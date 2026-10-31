@@ -51,7 +51,7 @@ final class FrontendAppNav {
             }
             if ( $tiles === [] ) continue;
             $out[] = [
-                'label' => (string) ( $group['label'] ?? '' ),
+                'label' => $group['label'],
                 'tiles' => $tiles,
             ];
         }

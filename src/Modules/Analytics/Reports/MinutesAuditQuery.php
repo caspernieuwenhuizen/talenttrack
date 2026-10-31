@@ -667,7 +667,7 @@ final class MinutesAuditQuery {
             foreach ( $players as $pid => $kinds ) {
                 $out[ $aid ][ $pid ] = self::isMarkedUnavailable(
                     $prep[ $aid ][ $pid ] ?? null,
-                    $kinds['actual'] ?? $kinds['planned'] ?? []
+                    $kinds['actual'] ?? $kinds['planned']
                 );
             }
         }
