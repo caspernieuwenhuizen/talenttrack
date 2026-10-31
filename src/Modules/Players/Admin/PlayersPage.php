@@ -42,6 +42,10 @@ class PlayersPage {
         // date of birth and the guardian's name, email and phone, so an
         // unchecked `?id=` handed a coach every child's contact details.
         if ( $action === 'edit' && $id > 0 && ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
+        // #4349 — the same refusal handle_save() gives, before the form is filled in.
+        if ( $action === 'new' && ! AuthorizationService::canCreatePlayer( get_current_user_id() ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
         if ( $action === 'edit' || $action === 'new' ) { self::render_form( $action === 'edit' ? QueryHelpers::get_player( $id ) : null ); return; }
         if ( $action === 'view' && $id ) {
             if ( ! self::canSeePlayer( $id ) ) { self::render_denied(); return; }
