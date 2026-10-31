@@ -89,8 +89,8 @@ class ScoutDelivery {
      * reads a window, not an open end.
      */
     public static function scoutDocument( int $player_id, ReportConfig $config ): string {
-        $from = (string) ( $config->filters['date_from'] ?? '' );
-        $to   = (string) ( $config->filters['date_to'] ?? '' );
+        $from = $config->filters['date_from'];
+        $to   = $config->filters['date_to'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) || $from > $to ) {
             $window = \TT\Modules\Analytics\Reports\ReportFilters::seasonDefaultWindow();
             $from   = $window['from'];
