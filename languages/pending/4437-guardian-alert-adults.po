@@ -1,0 +1,3 @@
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:101
+msgid "Nobody at home can be reached about this player under 18: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added."
+msgstr "Niemand thuis is te bereiken over deze speler onder de 18: er is geen ouderaccount gekoppeld en er is geen e-mailadres of telefoonnummer van een verzorger. Berichten over deze speler bereiken niemand tot er een is toegevoegd."
