@@ -218,14 +218,12 @@ final class FrontendPdpPlanningView {
         //   conducted  = files where conducted_at IS NOT NULL
         //   not_held   = #4298, talks marked as not having taken place;
         //                neither planned nor conducted
-        //   window_*   = the block's window dates (constant across team)
+        //   window_*   = from blockWindows(), the span the block detail shows
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
                 t.id   AS team_id,
                 t.name AS team_name,
                 c.sequence,
-                MIN(c.planning_window_start) AS window_start,
-                MAX(c.planning_window_end)   AS window_end,
                 SUM(CASE WHEN c.scheduled_at IS NOT NULL AND c.not_held_at IS NULL THEN 1 ELSE 0 END)  AS planned,
                 SUM(CASE WHEN c.conducted_at IS NOT NULL THEN 1 ELSE 0 END)  AS conducted,
                 SUM(CASE WHEN c.conducted_at IS NULL AND c.not_held_at IS NOT NULL THEN 1 ELSE 0 END) AS not_held
@@ -242,7 +240,8 @@ final class FrontendPdpPlanningView {
             CurrentClub::id(), $season_id, ...$team_params
         ) );
 
-        $teams = [];
+        $windows    = self::blockWindows( $season_id, $team_ids );
+        $teams      = [];
         $max_blocks = 0;
         foreach ( (array) $rows as $row ) {
             $tid = (int) $row->team_id;
@@ -262,8 +261,8 @@ final class FrontendPdpPlanningView {
                 'planned'      => (int) $row->planned,
                 'conducted'    => (int) $row->conducted,
                 'not_held'     => (int) $row->not_held,
-                'window_start' => (string) $row->window_start,
-                'window_end'   => (string) $row->window_end,
+                'window_start' => $windows[ $tid ][ $b ]['start'] ?? '',
+                'window_end'   => $windows[ $tid ][ $b ]['end'] ?? '',
             ];
         }
 
@@ -315,6 +314,60 @@ final class FrontendPdpPlanningView {
         }
 
         return [ 'max_blocks' => $max_blocks, 'teams' => $teams ];
+    }
+
+    /**
+     * #4305 — a block's window per team: the earliest start to the latest
+     * end over the team's conversations in that block and season. Each
+     * conversation carries its own window, so the block is open while any
+     * player's talk window is. The matrix cell, its chip colour and the
+     * block detail all read this, so they cannot show different dates.
+     *
+     * @param list<int>|null $team_ids null = every team.
+     * @return array<int,array<int,array{start:string,end:string}>> team_id => sequence => window
+     */
+    public static function blockWindows( int $season_id, ?array $team_ids = null, ?int $block = null ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        if ( $season_id <= 0 ) return [];
+        if ( is_array( $team_ids ) && $team_ids === [] ) return [];
+
+        $clause = '';
+        $params = [ CurrentClub::id(), $season_id ];
+        if ( is_array( $team_ids ) ) {
+            $clause .= ' AND pl.team_id IN (' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ')';
+            $params  = array_merge( $params, array_map( 'intval', $team_ids ) );
+        }
+        if ( $block !== null ) {
+            $clause  .= ' AND c.sequence = %d';
+            $params[] = $block;
+        }
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.team_id,
+                    c.sequence,
+                    MIN(c.planning_window_start) AS window_start,
+                    MAX(c.planning_window_end)   AS window_end
+               FROM {$p}tt_pdp_conversations c
+               JOIN {$p}tt_pdp_files f ON f.id = c.pdp_file_id AND f.club_id = c.club_id
+               JOIN {$p}tt_players  pl ON pl.id = f.player_id  AND pl.club_id = f.club_id
+              WHERE c.club_id = %d
+                AND f.season_id = %d{$clause}
+                AND pl.status = 'active'
+                AND pl.archived_at IS NULL
+              GROUP BY pl.team_id, c.sequence",
+            ...$params
+        ) );
+
+        $windows = [];
+        foreach ( (array) $rows as $row ) {
+            $windows[ (int) $row->team_id ][ (int) $row->sequence ] = [
+                'start' => (string) ( $row->window_start ?? '' ),
+                'end'   => (string) ( $row->window_end ?? '' ),
+            ];
+        }
+        return $windows;
     }
 
     /**
@@ -516,8 +569,6 @@ final class FrontendPdpPlanningView {
                     c.conducted_at,
                     c.not_held_at,
                     c.not_held_reason,
-                    c.planning_window_start AS window_start,
-                    c.planning_window_end   AS window_end,
                     pl.id            AS player_id,
                     pl.first_name,
                     pl.last_name
@@ -538,12 +589,12 @@ final class FrontendPdpPlanningView {
         $planned   = [];
         $not_held  = [];
         $covered_player_ids = [];
-        $window_start = '';
-        $window_end   = '';
+        // #4305 — the span the matrix cell shows, not the first player's.
+        $window       = self::blockWindows( $season_id, [ $team_id ], $block )[ $team_id ][ $block ] ?? [ 'start' => '', 'end' => '' ];
+        $window_start = $window['start'];
+        $window_end   = $window['end'];
         foreach ( (array) $conv_rows as $r ) {
             $covered_player_ids[ (int) $r->player_id ] = true;
-            if ( $window_start === '' && ! empty( $r->window_start ) ) $window_start = (string) $r->window_start;
-            if ( $window_end   === '' && ! empty( $r->window_end ) )   $window_end   = (string) $r->window_end;
             $row = [
                 'conversation_id' => (int) $r->conversation_id,
                 'pdp_file_id'     => (int) $r->pdp_file_id,
