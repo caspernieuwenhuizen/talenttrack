@@ -18,6 +18,7 @@ use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
 use TT\Modules\Comms\Templates\NotificationTemplate;
+use TT\Modules\DemoData\DemoMode;
 use TT\Modules\Journey\JourneyModule;
 use TT\Modules\Journey\Workflow\InjuryRecoveryDueTemplate;
 use TT\Modules\Journey\Workflow\InjuryRecoveryTasks;
@@ -502,6 +503,33 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
 
         $this->assertCount( 1, $now );
         $this->assertContains( $this->player, $swept );
+    }
+
+    /**
+     * #4436 — the archive check reads the player without the demo scope: a
+     * sweep while demo mode is on leaves a real player's open reminder open.
+     */
+    public function test_a_sweep_in_demo_mode_keeps_a_real_players_reminder(): void {
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+
+        ( new ConfigService() )->set( InjuryRecoveryTasks::LAST_SWEEP_KEY, '' );
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            $this->assertNull( QueryHelpers::get_player( $this->player ), 'precondition: demo mode hides the real player' );
+            InjuryRecoveryTasks::sweep();
+            $due = InjuryRecoveryTasks::dueDateForPlayer( $this->player );
+        } finally {
+            DemoMode::clearOverride();
+        }
+
+        $this->assertSame( $this->day( -2 ), $due );
+        $this->assertTrue( TaskStatus::isActionable( $this->status( (int) $task['id'] ) ), 'the real player\'s task is not skipped' );
+        $this->assertCount( 1, $this->active() );
     }
 
     public function test_the_daily_sweep_reminds_about_an_incomplete_record_once(): void {

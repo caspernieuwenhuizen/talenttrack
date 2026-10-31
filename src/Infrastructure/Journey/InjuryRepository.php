@@ -298,6 +298,18 @@ final class InjuryRepository {
     }
 
     /**
+     * #4436 — whether this player, in the current club and not archived,
+     * has a record whose decision is due on or before `$day`. The sweep's
+     * rule for one player, so the reminder and the sweep cannot disagree;
+     * no demo scope, so demo mode cannot retire a real player's reminder.
+     */
+    public function hasCheckDue( int $player_id, string $day ): bool {
+        if ( $player_id <= 0 ) return false;
+        $set = $this->playerSet( [ $player_id ], InjuryStatus::checkDueSql( 'i' ), InjuryStatus::checkDueParams( $day ), true );
+        return isset( $set[ $player_id ] );
+    }
+
+    /**
      * The player ids, among `$player_ids` (every player in the club when
      * null), with a record matching `$predicate`. The injuries table is
      * aliased `i`; with `$active_players_only` it joins the player and keeps

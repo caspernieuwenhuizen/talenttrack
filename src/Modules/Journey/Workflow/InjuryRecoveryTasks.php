@@ -97,11 +97,13 @@ final class InjuryRecoveryTasks {
      * `$today`, Y-m-d; null when no record asks for a decision yet.
      *
      * #4436 — also null for an archived player (or one no longer there): a
-     * player who has left the academy gets no reminders.
+     * player who has left the academy gets no reminders. Checked with the
+     * sweep's own rule (`InjuryRepository::hasCheckDue()`), club-scoped and
+     * independent of demo mode.
      */
     public static function dueDateForPlayer( int $player_id, ?string $today = null ): ?string {
-        $player = QueryHelpers::get_player( $player_id );
-        if ( ! $player || ! empty( $player->archived_at ) ) return null;
+        $today = $today ?? AttendanceDateRule::today();
+        if ( ! ( new InjuryRepository() )->hasCheckDue( $player_id, $today ) ) return null;
 
         $due = null;
         foreach ( self::dueRecordsForPlayer( $player_id, $today ) as $row ) {
