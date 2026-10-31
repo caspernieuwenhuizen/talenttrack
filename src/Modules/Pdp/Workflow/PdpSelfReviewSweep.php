@@ -27,7 +27,16 @@ use TT\Modules\Workflow\TaskStatus;
  */
 class PdpSelfReviewSweep {
 
+    /** The sweep, once for every club. */
     public static function run(): void {
+        foreach ( self::clubIds() as $club_id ) {
+            self::withClub( $club_id, static function (): void {
+                self::runForCurrentClub();
+            } );
+        }
+    }
+
+    private static function runForCurrentClub(): void {
         $today = gmdate( 'Y-m-d', (int) current_time( 'timestamp', true ) );
         $convs = ( new PdpConversationsRepository() )->listEnteringPlanningWindow( $today );
         if ( empty( $convs ) ) return;
@@ -57,6 +66,33 @@ class PdpSelfReviewSweep {
                 'due_at'           => $due_at,
                 'status'           => TaskStatus::OPEN,
             ] );
+        }
+    }
+
+    /**
+     * Every club that has config rows, club 1 always included. Mirrors the
+     * enumeration `AlertSweepCron` and `AutoPurgeCron` use.
+     *
+     * @return int[]
+     */
+    private static function clubIds(): array {
+        global $wpdb;
+        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
+        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
+        if ( ! in_array( 1, $ids, true ) ) {
+            $ids[] = 1;
+        }
+        return array_filter( $ids, static function ( $id ) { return $id > 0; } );
+    }
+
+    /** Run `$fn` with `tt_current_club_id` pinned to `$club_id`, then restore. */
+    private static function withClub( int $club_id, callable $fn ): void {
+        $filter = static function () use ( $club_id ) { return $club_id; };
+        add_filter( 'tt_current_club_id', $filter, 9999 );
+        try {
+            $fn();
+        } finally {
+            remove_filter( 'tt_current_club_id', $filter, 9999 );
         }
     }
 }
