@@ -10,6 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Stored on `tt_activities.sync_locked_fields` as a JSON list of group keys;
  * NULL means nothing is locked. A group is added only when a person's save
  * changes one of its values; an unchanged save locks nothing.
+ *
+ * `ActivitiesRepository::update()` is the only person-edit write of these
+ * columns, and the only place the lock is set. A direct `$wpdb->update` of
+ * title, date, times or location on a Spond row would bypass it.
  */
 final class SyncLockedFields {
 

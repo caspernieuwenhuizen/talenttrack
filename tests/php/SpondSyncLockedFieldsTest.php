@@ -169,6 +169,64 @@ final class SpondSyncLockedFieldsTest extends WP_UnitTestCase {
         $this->assertSame( [ 'title' ], $this->locks( $id ) );
     }
 
+    /**
+     * Through the real edit path: `PUT` lays the body over the stored row
+     * and runs it through `extract()`, which reshapes times and derives
+     * `kickoff_time`. A save that changes only the notes must lock nothing.
+     */
+    public function test_a_rest_edit_of_only_the_notes_locks_nothing(): void {
+        $id = $this->importedActivity();
+
+        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        do_action( 'rest_api_init' );
+        $req = new WP_REST_Request( 'PUT', "/talenttrack/v1/activities/{$id}" );
+        $req->set_body_params( [ 'notes' => 'Bring the away kit.' ] );
+        $res = rest_get_server()->dispatch( $req );
+
+        $this->assertSame( 200, $res->get_status(), (string) wp_json_encode( $res->get_data() ) );
+        $row = $this->row( $id );
+        $this->assertSame( 'Bring the away kit.', $row['notes'], 'the edit was written' );
+        $this->assertNull( $row['sync_locked_fields'], 'a notes-only save through PUT locks no group' );
+    }
+
+    public function test_a_coach_outside_the_team_is_refused_and_the_lock_stays(): void {
+        global $wpdb;
+        $id = $this->importedActivity();
+        ( new ActivitiesRepository() )->update( $id, $this->formSave( $id, [ 'title' => 'Coach title' ] ) );
+
+        ( new \TT\Infrastructure\Security\RolesService() )->installRoles();
+        \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
+
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'JO15-1' ] );
+        $other_team = (int) $wpdb->insert_id;
+        $coach      = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Other',
+            'last_name'  => 'Coach',
+            'role_type'  => 'head_coach',
+            'wp_user_id' => $coach,
+            'status'     => 'active',
+        ] );
+        $wpdb->insert( "{$wpdb->prefix}tt_user_role_scopes", [
+            'person_id'  => (int) $wpdb->insert_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => $other_team,
+        ] );
+        wp_set_current_user( $coach );
+        $this->assertTrue( \TT\Infrastructure\REST\ActivitiesRestController::can_edit(), 'the coach holds the edit capability, so the refusal is about the team' );
+
+        $req = new WP_REST_Request( 'DELETE', "/talenttrack/v1/activities/{$id}/sync-locks/title" );
+        $req->set_url_params( [ 'id' => (string) $id, 'group' => 'title' ] );
+        $res = \TT\Infrastructure\REST\ActivitiesRestController::unlock_sync_group( $req );
+
+        $this->assertSame( 403, $res->get_status() );
+        $body = (array) $res->get_data();
+        $this->assertSame( 'forbidden_team', (string) ( $body['errors'][0]['code'] ?? '' ) );
+        $this->assertSame( [ 'title' ], $this->locks( $id ), 'a refused unlock leaves the lock in place' );
+    }
+
     public function test_the_lock_rules(): void {
         $stored = [ 'activity_source_key' => 'spond', 'sync_locked_fields' => '["date"]', 'title' => 'A', 'session_date' => '2026-11-01', 'location' => 'X' ];
         $this->assertSame( '["title","date"]', SyncLockedFields::afterEdit( $stored, [ 'title' => 'B' ] ) );

@@ -1877,7 +1877,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'unknown_group', __( 'That field group cannot be locked.', 'talenttrack' ), 400 );
         }
 
-        $refusal = self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+        $refusal = self::refuseUnlessActivityWritable( $activity_id );
         if ( $refusal !== null ) return $refusal;
 
         $remaining = self::repo()->unlockSyncGroup( $activity_id, $group );

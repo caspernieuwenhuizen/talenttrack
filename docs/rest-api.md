@@ -653,7 +653,7 @@ A field group a person changes on a Spond-sourced activity (`activity_source_key
 | `times` | `start_time`, `end_time`, `kickoff_time`, `time_of_presence` |
 | `location` | `location` |
 
-The lock is set in `ActivitiesRepository::update()`, the write behind `PUT /activities/{id}` and the wp-admin form, and only when the save changes a value in the group. `times` is compared on `start_time`, `end_time` and `time_of_presence`; `kickoff_time` is derived from the start time on save and is locked with the group. An unchanged save, and any save of a non-Spond activity, locks nothing. Opponent, home/away, type and notes are not lock groups: the sync writes them on import only.
+The lock is set in `ActivitiesRepository::update()`, the write behind `PUT /activities/{id}` and the wp-admin form, and only when the save changes a value in the group. `times` is compared on `start_time`, `end_time` and `time_of_presence`; `kickoff_time` is derived from the start time on save and is locked with the group. An unchanged save, and any save of a non-Spond activity, locks nothing. Opponent, home/away, type and notes are not lock groups, and keep their existing rules: notes are written on import only; the type is written on import, and on re-sync only by the #4164 correction of a row still at `training` that Spond flags as a match, which also fills the opponent and home/away where they are still empty.
 
 **Read.** Every `GET /activities` row carries `sync_locked_fields`, a list of group keys in the order above. It is `[]` when nothing is locked, which is always the case for a non-Spond activity.
 
