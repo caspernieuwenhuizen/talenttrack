@@ -99,6 +99,37 @@ final class FormationLayoutResolverTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * #4362 — the table exists on every install since migration 0032, so a
+     * template read asks the database for the template only, never whether
+     * the table is there.
+     */
+    public function test_a_template_read_issues_no_show_tables(): void {
+        $template = $this->seededTemplate( '3-3-1' );
+        $team     = $this->team( '8v8' );
+        $queries  = [];
+        $capture  = static function ( $sql ) use ( &$queries ) {
+            $queries[] = (string) $sql;
+            return $sql;
+        };
+        add_filter( 'query', $capture );
+        FormationLayoutResolver::layoutFor( $template, $team );
+        FormationLayoutResolver::templateLayout( $template );
+        FormationLayoutResolver::templateShape( $template );
+        $list = new \ReflectionMethod( \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView::class, 'listFormationTemplates' );
+        $list->setAccessible( true );
+        $templates = $list->invoke( null );
+        remove_filter( 'query', $capture );
+
+        $this->assertNotEmpty( $templates, 'the prep screen still lists the seeded templates' );
+        $this->assertNotEmpty( $queries, 'the reads went to the database' );
+        $checks = array_filter(
+            $queries,
+            static fn( string $sql ): bool => stripos( $sql, 'SHOW TABLES' ) !== false && strpos( $sql, 'tt_formation_templates' ) !== false
+        );
+        $this->assertSame( [], array_values( $checks ) );
+    }
+
     private function seededTemplate( string $shape ): int {
         global $wpdb;
         $id = (int) $wpdb->get_var( $wpdb->prepare(
