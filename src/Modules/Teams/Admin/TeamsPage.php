@@ -33,12 +33,15 @@ class TeamsPage {
                 . '<p>' . esc_html__( 'You do not have access to this team.', 'talenttrack' ) . '</p></div>';
             return;
         }
-        // #4349 — the same refusal handle_save() gives, before the form is filled in.
-        if ( $action === 'new' && ! AuthorizationService::canCreateTeam( $user_id ) ) {
-            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
-        }
         if ( $action === 'edit' || $action === 'new' ) {
-            self::render_form( $action === 'edit' ? QueryHelpers::get_team( $id ) : null );
+            // #4349 — a null record renders the create form, whichever action
+            // asked for it, so the create right decides: the refusal
+            // handle_save() would give, before the form is filled in.
+            $team = $action === 'edit' && $id > 0 ? QueryHelpers::get_team( $id ) : null;
+            if ( $team === null && ! AuthorizationService::canCreateTeam( $user_id ) ) {
+                wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+            }
+            self::render_form( $team );
             return;
         }
         global $wpdb; $p = $wpdb->prefix;

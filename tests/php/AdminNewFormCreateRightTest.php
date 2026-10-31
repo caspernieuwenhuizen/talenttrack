@@ -90,6 +90,38 @@ final class AdminNewFormCreateRightTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * `action=edit` without a record renders the same empty create form,
+     * so it gets the same refusal: no id, and id=0.
+     *
+     * @return array<string, array{0:string, 1:int}>
+     */
+    public function editWithoutARecord(): array {
+        return [
+            'teams, no id'   => [ TeamsPage::class, -1 ],
+            'teams, id=0'    => [ TeamsPage::class, 0 ],
+            'players, no id' => [ PlayersPage::class, -1 ],
+            'players, id=0'  => [ PlayersPage::class, 0 ],
+        ];
+    }
+
+    /**
+     * @dataProvider editWithoutARecord
+     */
+    public function test_a_head_coach_is_refused_edit_without_a_record( string $page, int $id ): void {
+        $coach = $this->makeHeadCoach( $this->team );
+        if ( $id === 0 ) {
+            $_GET['id'] = '0';
+        }
+
+        try {
+            $this->renderAs( $coach, 'edit', 0, [ $page, 'render_page' ] );
+            $this->fail( 'the empty create form rendered for a head coach through action=edit' );
+        } catch ( WPDieException $e ) {
+            $this->assertStringContainsString( 'Unauthorized', $e->getMessage() );
+        }
+    }
+
     public function test_the_head_of_development_gets_both_new_forms(): void {
         $hod = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
 
