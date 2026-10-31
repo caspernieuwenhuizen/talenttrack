@@ -2390,7 +2390,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => $parent,
             'group'        => 'access',
-            'title'        => __( 'Functional Roles', 'talenttrack' ),
+            'title'        => __( 'Functional roles', 'talenttrack' ),
             'cap'          => 'tt_view_functional_roles',
             'slug'         => 'tt-functional-roles',
             'callback'     => [ \TT\Modules\Authorization\Admin\FunctionalRolesPage::class, 'render' ],
@@ -2399,7 +2399,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => 'talenttrack', // #1530 — show in the modern menu too (was $parent → hidden when legacy off).
             'group'        => 'access',
-            'title'        => __( 'Permission Debug', 'talenttrack' ),
+            'title'        => __( 'Permission debug', 'talenttrack' ),
             'cap'          => 'tt_view_settings',
             'slug'         => 'tt-roles-debug',
             'callback'     => [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ],

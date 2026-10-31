@@ -7,8 +7,6 @@ use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\I18n\TranslatableFieldRegistry;
-use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * RolesPage — admin UI at TalentTrack → Roles & Permissions.
@@ -68,8 +66,8 @@ class RolesPage {
                 printf(
                     /* translators: 1: link to functional-roles page, 2: link to permission debugger */
                     esc_html__( 'For per-team staff assignments (head coach, assistant coach, team manager, physio, mentor), see %1$s. To trace a specific permission for one user, see %2$s.', 'talenttrack' ),
-                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-functional-roles' ) ) . '">' . esc_html__( 'Functional Roles', 'talenttrack' ) . '</a>',
-                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-roles-debug' ) ) . '">' . esc_html__( 'Permission Debug', 'talenttrack' ) . '</a>'
+                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-functional-roles' ) ) . '">' . esc_html__( 'Functional roles', 'talenttrack' ) . '</a>',
+                    '<a href="' . esc_url( admin_url( 'admin.php?page=tt-roles-debug' ) ) . '">' . esc_html__( 'Permission debug', 'talenttrack' ) . '</a>'
                 );
                 ?>
             </p>
@@ -414,39 +412,12 @@ class RolesPage {
      * localized display string.
      */
     public static function roleLabel( string $role_key, ?int $entity_id = null ): string {
-        // #0090 Phase 4 — when the caller passes the row id, consult
-        // tt_translations first. Resolver chain becomes:
-        //   tt_translations → __() switch → humanised-key fallback.
-        if ( $entity_id !== null && $entity_id > 0 ) {
-            $tx = ( new TranslationsRepository() )->translate(
-                TranslatableFieldRegistry::ENTITY_ROLE,
-                $entity_id,
-                'label',
-                self::currentLocale(),
-                ''
-            );
-            if ( $tx !== '' ) return $tx;
-        }
-        switch ( $role_key ) {
-            case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
-            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
-            case 'manager':             return __( 'Manager', 'talenttrack' );
-            case 'physio':              return __( 'Physio', 'talenttrack' );
-            case 'team_member':         return __( 'Team Member', 'talenttrack' );
-            case 'scout':               return __( 'Scout', 'talenttrack' );
-            case 'parent':              return __( 'Parent', 'talenttrack' );
-            case 'player':              return __( 'Player', 'talenttrack' );
-        }
+        // #4523 — one map: tt_translations → LabelTranslator's gettext
+        // switch, then the humanised-key fallback for custom roles.
+        $label = \TT\Infrastructure\Query\LabelTranslator::authRoleLabel( $role_key, $entity_id );
+        if ( $label !== null ) return $label;
         // Fallback for any custom roles added via future UI.
         return ucwords( str_replace( '_', ' ', $role_key ) );
-    }
-
-    private static function currentLocale(): string {
-        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
-        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
-        return 'en_US';
     }
 
     /**

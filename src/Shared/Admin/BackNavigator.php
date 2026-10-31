@@ -88,8 +88,8 @@ class BackNavigator {
 
         // Access Control
         'tt-roles'              => [ 'parent_page' => 'talenttrack',       'label_key' => 'Roles & Permissions' ],
-        'tt-functional-roles'   => [ 'parent_page' => 'talenttrack',       'label_key' => 'Functional Roles' ],
-        'tt-roles-debug'        => [ 'parent_page' => 'talenttrack',       'label_key' => 'Permission Debug' ],
+        'tt-functional-roles'   => [ 'parent_page' => 'talenttrack',       'label_key' => 'Functional roles' ],
+        'tt-roles-debug'        => [ 'parent_page' => 'talenttrack',       'label_key' => 'Permission debug' ],
         'tt-auth-chain-debug'   => [ 'parent_page' => 'talenttrack',       'label_key' => 'Permission Chain Debug' ],
 
         // Help
@@ -139,8 +139,8 @@ class BackNavigator {
             'Edit Evaluation Category' => __( 'Edit Evaluation Category', 'talenttrack' ),
             'Category Weights'         => __( 'Category Weights', 'talenttrack' ),
             'Roles & Permissions'      => __( 'Roles & Permissions', 'talenttrack' ),
-            'Functional Roles'         => __( 'Functional Roles', 'talenttrack' ),
-            'Permission Debug'         => __( 'Permission Debug', 'talenttrack' ),
+            'Functional roles'         => __( 'Functional roles', 'talenttrack' ),
+            'Permission debug'         => __( 'Permission debug', 'talenttrack' ),
             'Permission Chain Debug'   => __( 'Permission Chain Debug', 'talenttrack' ),
             'Help & Docs'              => __( 'Help & Docs', 'talenttrack' ),
         ];

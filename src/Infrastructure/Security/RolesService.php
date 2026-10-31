@@ -352,7 +352,7 @@ class RolesService {
     public function roleDefinitions(): array {
         return [
             'tt_head_dev' => [
-                'label' => __( 'Head of Development', 'talenttrack' ),
+                'label' => _x( 'Head of development', 'role label', 'talenttrack' ),
                 // #0071 — narrowed to development-focused, read-mostly outside
                 // player-development surfaces. Drops `tt_edit_settings` and
                 // the new `tt_edit_*` sub-caps; keeps the view counterparts
@@ -409,7 +409,7 @@ class RolesService {
                 ),
             ],
             'tt_club_admin' => [
-                'label' => __( 'Club Admin', 'talenttrack' ),
+                'label' => _x( 'Club admin', 'role label', 'talenttrack' ),
                 'caps'  => array_merge(
                     [ 'read' => true ],
                     self::allViewCapsTrue(),
@@ -572,7 +572,7 @@ class RolesService {
             ],
             // v3.0.0 — now a meaningful role: view EVERYTHING, edit NOTHING.
             'tt_readonly_observer' => [
-                'label' => __( 'Read-Only Observer', 'talenttrack' ),
+                'label' => _x( 'Read-only observer', 'role label', 'talenttrack' ),
                 'caps'  => array_merge(
                     [ 'read' => true ],
                     self::allViewCapsTrue()

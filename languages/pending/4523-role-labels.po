@@ -1,0 +1,33 @@
+#: src/Infrastructure/Query/LabelTranslator.php:145
+msgctxt "role label"
+msgid "Club admin"
+msgstr "Clubbeheerder"
+
+#: src/Infrastructure/Query/LabelTranslator.php:146
+msgctxt "role label"
+msgid "Head of development"
+msgstr "Hoofd opleiding"
+
+#: src/Infrastructure/Query/LabelTranslator.php:147
+msgctxt "role label"
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:148
+msgctxt "role label"
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:151
+msgctxt "role label"
+msgid "Team member"
+msgstr "Teamlid"
+
+#: src/Infrastructure/Security/RolesService.php:575
+msgctxt "role label"
+msgid "Read-only observer"
+msgstr "Alleen-lezen waarnemer"
+
+#: src/Modules/Authorization/Admin/RolesPage.php:72
+msgid "Permission debug"
+msgstr "Rechten-diagnose"

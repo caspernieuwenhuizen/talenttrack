@@ -97,7 +97,7 @@ class LabelTranslator {
             case 'assistant_coach':     return __( 'Assistant coach', 'talenttrack' );
             case 'manager':             return __( 'Team manager', 'talenttrack' );
             case 'team_manager':        return __( 'Team manager', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
             case 'staff':               return __( 'Staff', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );
             case 'scout':               return __( 'Scout', 'talenttrack' );
@@ -142,15 +142,18 @@ class LabelTranslator {
             if ( $tx !== '' ) return $tx;
         }
         switch ( strtolower( $key ) ) {
-            case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
-            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
+            case 'club_admin':          return _x( 'Club admin', 'role label', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
+            case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
+            case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
             case 'manager':             return __( 'Manager', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );
-            case 'team_member':         return __( 'Team Member', 'talenttrack' );
+            case 'team_member':         return _x( 'Team member', 'role label', 'talenttrack' );
             case 'scout':               return __( 'Scout', 'talenttrack' );
             case 'parent':              return __( 'Parent', 'talenttrack' );
+            // #4523 — RolesPage kept its own copy of this map with this
+            // one extra key; it now reads here.
+            case 'player':              return __( 'Player', 'talenttrack' );
             default:                    return null;
         }
     }
@@ -177,14 +180,14 @@ class LabelTranslator {
             if ( $tx !== '' ) return $tx;
         }
         switch ( strtolower( $key ) ) {
-            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
+            case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
+            case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
             case 'manager':             return __( 'Manager', 'talenttrack' );
             case 'physio':              return __( 'Physio', 'talenttrack' );
             // #3257 — the kit-manager seat, split out of Staff so the
             // Physio functional role can carry the injury grant alone.
             case 'kit_manager':         return __( 'Kit manager', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
             case 'mentor':              return __( 'Mentor', 'talenttrack' );
             case 'other':               return __( 'Other', 'talenttrack' );
             default:                    return null;

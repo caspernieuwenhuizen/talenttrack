@@ -1524,14 +1524,14 @@ class Activator {
         return [
             [
                 'key'         => 'head_coach',
-                'label'       => 'Head Coach',
+                'label'       => 'Head coach',
                 'description' => 'Lead coach for a team. Owns methodology, selection, and activity planning.',
                 'sort_order'  => 10,
                 'maps_to'     => [ 'head_coach' ],
             ],
             [
                 'key'         => 'assistant_coach',
-                'label'       => 'Assistant Coach',
+                'label'       => 'Assistant coach',
                 'description' => 'Supports the head coach with training and evaluations within a team.',
                 'sort_order'  => 20,
                 'maps_to'     => [ 'assistant_coach' ],
@@ -1565,7 +1565,7 @@ class Activator {
             ],
             [
                 'key'         => 'head_of_development',
-                'label'       => 'Head of Development',
+                'label'       => 'Head of development',
                 'description' => 'Academy-wide development lead. Shapes methodology, reviews evaluations, oversees PDP cycles. Not tied to a single team.',
                 'sort_order'  => 45,
                 'maps_to'     => [ 'head_of_development' ],
@@ -1598,13 +1598,13 @@ class Activator {
         return [
             [
                 'key'         => 'club_admin',
-                'label'       => 'Club Admin',
+                'label'       => 'Club admin',
                 'description' => 'Full access across the academy. Can manage all entities, assign staff, and configure the system.',
                 'permissions' => [ '*.*' ],
             ],
             [
                 'key'         => 'head_of_development',
-                'label'       => 'Head of Development',
+                'label'       => 'Head of development',
                 'description' => 'Shapes methodology and reviews output. Read-all across the academy plus evaluations management. No player-data editing, no staff reassignment.',
                 'permissions' => [
                     'players.view',
@@ -1622,7 +1622,7 @@ class Activator {
             ],
             [
                 'key'         => 'head_coach',
-                'label'       => 'Head Coach',
+                'label'       => 'Head coach',
                 'description' => 'Full control within assigned teams — players, evaluations, activities, goals, and team settings. Scoped to team.',
                 'permissions' => [
                     'players.view',
@@ -1641,7 +1641,7 @@ class Activator {
             ],
             [
                 'key'         => 'assistant_coach',
-                'label'       => 'Assistant Coach',
+                'label'       => 'Assistant coach',
                 'description' => 'Evaluate and observe within assigned teams. Can create and edit own evaluations; cannot edit other coaches\' evaluations. Scoped to team.',
                 'permissions' => [
                     'players.view',
@@ -1677,7 +1677,7 @@ class Activator {
             ],
             [
                 'key'         => 'team_member',
-                'label'       => 'Team Member',
+                'label'       => 'Team member',
                 'description' => 'Minimal read-only access within assigned teams. Default authorization for the "Other" functional role — see only players and activities of the teams you are assigned to, nothing more.',
                 'permissions' => [
                     'players.view',
