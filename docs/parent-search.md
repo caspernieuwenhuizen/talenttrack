@@ -35,6 +35,8 @@ Only your own children's records. The search never reaches another family, and i
 
 It also never shows you something you could not already open from your child's own pages. It makes what you are entitled to reachable; it does not widen it.
 
+Coaches and other staff who open this page get no results from it either. They are pointed to the search that covers players: the search field at the top of the screen, or the players list when that field is not there.
+
 ## If you have more than one child
 
 The page says whose records it is searching, and it searches all of them at once. Each result opens on the right child.

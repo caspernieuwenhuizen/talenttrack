@@ -246,6 +246,15 @@
 				sInput.select();
 			}
 		});
+
+		// #4252 — a page can hand the reader to this field with a control
+		// marked data-tt-spotlight-focus.
+		document.addEventListener('click', function (e) {
+			if (!e.target.closest('[data-tt-spotlight-focus]')) return;
+			e.preventDefault();
+			sInput.scrollIntoView({ block: 'nearest' });
+			sInput.focus();
+		});
 	}
 
 	/* ================================================================
