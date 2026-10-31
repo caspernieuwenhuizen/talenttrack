@@ -1549,7 +1549,7 @@ The thread's messages, oldest first, and marks the thread read for the caller: `
 
 ### `POST /threads/{type}/{id}/messages`
 
-Posts a message: `{ "body": "…", "visibility": "public" }`. `body` is required (a missing one is `400 missing_fields`; an empty or whitespace-only one is `400 tt_thread_empty`) and keeps basic HTML. `visibility` is `public` (the default) or `private_to_coach`; anything else is `400 invalid_field`. A caller who can't see private messages posts public whatever they send. Returns the message, **201**.
+Posts a message: `{ "body": "…", "visibility": "public" }`. `body` is required (a missing one is `400 missing_fields`; an empty or whitespace-only one is `400 tt_thread_empty`) and keeps basic HTML. `visibility` is `public` (the default) or `private_to_coach`; anything else is `400 invalid_field`. `private_to_coach` is staff-only: readable by the staff who hold the staff-only right on this thread and by global thread readers. A caller without the staff-only right who sends `private_to_coach` gets `403 tt_thread_staff_only_denied`, and nothing is stored. Returns the message, **201**.
 
 ### `PUT /threads/{type}/{id}/messages/{msg_id}`
 

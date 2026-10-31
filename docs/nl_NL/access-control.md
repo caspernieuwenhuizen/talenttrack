@@ -441,6 +441,12 @@ niemand verliest een notitie die hij vandaag ziet, en wie het nieuwe recht
 bereikt kan teruglezen wat hij net geschreven heeft. Een ouder is geen
 staf, heeft geen van beide armen, en ziet er nooit één.
 
+De mailmelding volgt dezelfde regel. Een staf-only notitie gaat alleen naar
+de deelnemers van het gesprek die haar mogen lezen: de staf met het
+staf-only-recht op dit gesprek en wie alle gesprekken mag lezen. De speler en
+de ouder krijgen er geen melding van, en de melding bereikt nooit iemand die
+geen deelnemer is.
+
 Notities van vóór deze wijziging blijven precies zoals ze zijn. Nergens is
 vastgelegd dát er iets verbreed is, dus de betrokken notities zijn alleen
 te gokken uit de rechten die de schrijver toen had — en een notitie opnieuw

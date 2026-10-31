@@ -42,14 +42,12 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
     }
 
     /**
-     * Pinged on new note posts. Includes the note author + every staff
-     * member with `tt_view_player_notes` capability whose scope row
-     * grants them this player's team. Implementation: the broadcast
-     * fan-out runs through the notification subscriber, which already
-     * scope-filters via `canRead`. Returning the empty list here means
-     * "no specific @-mentions; broadcast to everyone canRead returns
-     * true for". Per-user @-mention parsing is deferred to a follow-up
-     * (spec §5 mention autocomplete + workflow tasks).
+     * Who is notified of a new note on a player thread: nobody. This
+     * returns no one, and `NotificationSubscriber::onPosted()` notifies
+     * only the participants an adapter returns, so a note posted on a
+     * player thread sends no email, public or staff-only. No code
+     * broadcasts to everyone `canRead()` admits. Who should be notified
+     * here is an open product decision.
      *
      * @return list<int>
      */

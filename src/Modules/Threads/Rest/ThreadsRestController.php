@@ -65,7 +65,7 @@ final class ThreadsRestController {
             'visibility' => [
                 'type'        => 'string',
                 'enum'        => ThreadVisibility::all(),
-                'description' => 'Who sees the message. "public" (the default) reaches everyone who can read the thread; "private_to_coach" only coaches and admins. A caller who cannot see private messages posts public.',
+                'description' => 'Who sees the message. "public" (the default) reaches everyone who can read the thread. "private_to_coach" is staff-only: readable by the staff who hold the staff-only right on this thread and by global thread readers. A caller without the staff-only right who sends "private_to_coach" is refused with a 403.',
             ],
         ];
 

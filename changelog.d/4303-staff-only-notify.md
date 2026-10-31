@@ -1,0 +1,3 @@
+# Staff-only conversation messages notify the staff who can read them (#4303)
+
+A staff-only ("Coaches only") message used to email only participants holding one of two old coaching capabilities, which is not who can read the message. A team manager who wrote the goal could read the note but was never told about it. The email now goes to exactly the participants who can open the message, using the same rule the conversation itself applies. Players and parents are never notified, and nobody outside the conversation's participants is added. The REST description of `visibility`, the API reference and the help pages no longer say "coaches and admins". They describe the staff-only rule as it is. The stored value and the REST enum are unchanged.

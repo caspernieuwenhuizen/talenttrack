@@ -13,8 +13,10 @@ use TT\Modules\Threads\Domain\ThreadVisibility;
  * Enforces:
  *   - 5-minute edit window (server-side, in `update()`).
  *   - Soft-delete only; original body wiped, deleted_by/at stamped.
- *   - Visibility filtering at read time (private_to_coach hidden from
- *     non-coach viewers).
+ *   - Visibility filtering at read time: a staff-only (private_to_coach)
+ *     message is readable by the staff who hold the staff-only right on
+ *     this thread and by global thread readers, and hidden from everyone
+ *     else.
  *   - club_id scoping per the SaaS-readiness rule.
  */
 final class ThreadMessagesRepository {

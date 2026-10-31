@@ -492,6 +492,12 @@ note they can see today, and whoever the new right reaches can read back
 what they have just written. A guardian is not staff, holds neither arm, and
 never sees one.
 
+The email notification follows the same rule. A staff-only note goes only to
+the conversation's participants who can read it: the staff who hold the
+staff-only right on this conversation, and global thread readers. The player
+and the guardian are not notified, and the notification never reaches
+anyone who is not a participant.
+
 Notes written before this landed are left exactly as they are. Nothing
 recorded that a widening had happened, so the affected notes could only be
 guessed at from the author's rights at the time — and re-hiding a note a
