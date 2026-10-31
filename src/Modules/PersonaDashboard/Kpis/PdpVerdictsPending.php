@@ -50,32 +50,22 @@ class PdpVerdictsPending extends AbstractKpiDataSource {
         global $wpdb;
         $files = $wpdb->prefix . 'tt_pdp_files';
         $verds = $wpdb->prefix . 'tt_pdp_verdicts';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $files ) ) !== $files ) {
-            return KpiValue::unavailable();
-        }
+        // tt_pdp_files and tt_pdp_verdicts (migration 0031) exist on every install; no table check.
 
         // A cycle is "pending verdict" when:
         // - the file is open (not archived)
         // - it belongs to the calling club
         // - either no verdict row exists, or the verdict isn't
         //   signed off yet
-        $verdicts_table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $verds ) ) === $verds;
-        if ( $verdicts_table_exists ) {
-            $count = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*)
-                   FROM {$files} f
-              LEFT JOIN {$verds} v ON v.pdp_file_id = f.id
-                  WHERE f.club_id = %d
-                    AND f.archived_at IS NULL
-                    AND ( v.id IS NULL OR v.signed_off_at IS NULL )",
-                $club_id
-            ) );
-        } else {
-            $count = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$files} WHERE club_id = %d AND archived_at IS NULL",
-                $club_id
-            ) );
-        }
+        $count = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$files} f
+          LEFT JOIN {$verds} v ON v.pdp_file_id = f.id
+              WHERE f.club_id = %d
+                AND f.archived_at IS NULL
+                AND ( v.id IS NULL OR v.signed_off_at IS NULL )",
+            $club_id
+        ) );
         return KpiValue::of( (string) $count );
     }
 }

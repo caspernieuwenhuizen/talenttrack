@@ -142,9 +142,7 @@ class SystemHealthStripWidget extends AbstractWidget {
     private static function countPendingInvitations(): int {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_invitations';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return 0;
-        }
+        // tt_invitations (migration 0025) exists on every install; no table check.
         $status = InvitationStatus::PENDING;
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return (int) $wpdb->get_var( $wpdb->prepare(

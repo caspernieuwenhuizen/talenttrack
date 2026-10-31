@@ -117,9 +117,7 @@ class AddProspectHeroWidget extends AbstractWidget {
     private static function quickStats( int $user_id, int $club_id ): array {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_prospects';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return [ 'logged_this_month' => 0, 'active_in_funnel' => 0 ];
-        }
+        // tt_prospects (migration 0066) exists on every install; no table check.
         $month_start = gmdate( 'Y-m-01' );
 
         $logged = (int) $wpdb->get_var( $wpdb->prepare(

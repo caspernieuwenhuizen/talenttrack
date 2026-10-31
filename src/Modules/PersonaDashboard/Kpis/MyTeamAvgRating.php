@@ -51,9 +51,7 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
         $e = $p . 'tt_evaluations';
         $pl = $p . 'tt_players';
 
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $r  ) ) !== $r  ) return KpiValue::unavailable();
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $e  ) ) !== $e  ) return KpiValue::unavailable();
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pl ) ) !== $pl ) return KpiValue::unavailable();
+        // tt_eval_ratings (migration 0001), tt_evaluations (migration 0001), tt_players (migration 0001) exist on every install; no table check.
 
         $teams = QueryHelpers::get_teams_for_coach( $user_id );
         if ( empty( $teams ) ) return KpiValue::unavailable();

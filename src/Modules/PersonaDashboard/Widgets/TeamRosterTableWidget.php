@@ -196,26 +196,24 @@ class TeamRosterTableWidget extends AbstractWidget {
         $pdp_files = $wpdb->prefix . 'tt_pdp_files';
         $pdp_verds = $wpdb->prefix . 'tt_pdp_verdicts';
         $pdp_by_player = [];
-        $pdp_table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pdp_files ) ) === $pdp_files;
-        if ( $pdp_table_exists ) {
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-            $pdp_rows = $wpdb->get_results( $wpdb->prepare(
-                "SELECT f.player_id,
-                        CASE
-                          WHEN MAX(v.signed_off_at) IS NOT NULL THEN 'signed_off'
-                          WHEN COUNT(f.id) > 0                 THEN 'in_progress'
-                          ELSE 'none'
-                        END AS pdp_status
-                   FROM {$pdp_files} f
-              LEFT JOIN {$pdp_verds} v ON v.pdp_file_id = f.id
-                  WHERE f.club_id = %d AND f.player_id IN ( {$placeholders} )
-                    AND f.archived_at IS NULL
-                  GROUP BY f.player_id",
-                array_merge( [ $club_id ], $ids )
-            ) );
-            foreach ( (array) $pdp_rows as $r ) {
-                $pdp_by_player[ (int) $r->player_id ] = (string) $r->pdp_status;
-            }
+        // tt_pdp_files and tt_pdp_verdicts (migration 0031) exist on every install; no table check.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $pdp_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT f.player_id,
+                    CASE
+                      WHEN MAX(v.signed_off_at) IS NOT NULL THEN 'signed_off'
+                      WHEN COUNT(f.id) > 0                 THEN 'in_progress'
+                      ELSE 'none'
+                    END AS pdp_status
+               FROM {$pdp_files} f
+          LEFT JOIN {$pdp_verds} v ON v.pdp_file_id = f.id
+              WHERE f.club_id = %d AND f.player_id IN ( {$placeholders} )
+                AND f.archived_at IS NULL
+              GROUP BY f.player_id",
+            array_merge( [ $club_id ], $ids )
+        ) );
+        foreach ( (array) $pdp_rows as $r ) {
+            $pdp_by_player[ (int) $r->player_id ] = (string) $r->pdp_status;
         }
 
         // Attendance % per player over the window. `present + late`

@@ -277,8 +277,9 @@ class QueryHelpers {
         }
         $tag_table = $wpdb->prefix . 'tt_demo_tags';
         // Pre-migration safety: if the tag table doesn't exist yet, skip
-        // the scope to avoid fatal SQL errors.
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $tag_table ) ) !== $tag_table ) {
+        // the scope to avoid fatal SQL errors. Asked once per request:
+        // every scoped list query on a page passes through here.
+        if ( ! TableExists::has( 'tt_demo_tags' ) ) {
             return '';
         }
 

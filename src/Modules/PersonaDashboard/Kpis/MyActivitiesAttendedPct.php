@@ -26,8 +26,7 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
         $p   = $wpdb->prefix;
         $att = $p . 'tt_attendance';
         $act = $p . 'tt_activities';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $att ) ) !== $att ) return KpiValue::unavailable();
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $act ) ) !== $act ) return KpiValue::unavailable();
+        // tt_attendance (migration 0001), tt_activities (migration 0027) exist on every install; no table check.
 
         $from  = gmdate( 'Y-m-d', strtotime( '-' . self::WINDOW_DAYS . ' days' ) ) . ' 00:00:00';
         $to    = gmdate( 'Y-m-d' ) . ' 23:59:59';

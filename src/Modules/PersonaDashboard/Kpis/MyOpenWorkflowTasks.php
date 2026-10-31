@@ -15,9 +15,7 @@ class MyOpenWorkflowTasks extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_workflow_tasks';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_workflow_tasks (migration 0021) exists on every install; no table check.
         // Stay in lock-step with FrontendMyTasksView::openCountForUser
         // and TasksRepository::listActionableForUser: "actionable" =
         // open / in_progress / overdue, club-scoped, snoozed rows hidden.

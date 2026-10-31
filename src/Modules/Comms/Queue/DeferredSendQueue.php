@@ -4,6 +4,7 @@ namespace TT\Modules\Comms\Queue;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\CommsRequest;
 use TT\Modules\Comms\Domain\Recipient;
@@ -77,7 +78,7 @@ final class DeferredSendQueue {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        if ( ! self::tableExists() ) {
+        if ( ! TableExists::has( 'tt_comms_deferred' ) ) {
             Logger::error( 'Comms: tt_comms_deferred is missing (migration 0273 has not run), a held message cannot be queued', [
                 'template_key' => $request->templateKey,
                 'uuid'         => $logUuid,
@@ -113,7 +114,7 @@ final class DeferredSendQueue {
      * @return list<array{id:int, log_uuid:string, request_json:string, recipient_json:string, expires_at:int}>
      */
     public function pending( int $limit ): array {
-        if ( ! self::tableExists() ) return [];
+        if ( ! TableExists::has( 'tt_comms_deferred' ) ) return [];
 
         global $wpdb;
         $p    = $wpdb->prefix;
@@ -242,11 +243,5 @@ final class DeferredSendQueue {
             'phone'             => $recipient->phoneE164,
             'locale'            => $recipient->preferredLocale,
         ];
-    }
-
-    private static function tableExists(): bool {
-        global $wpdb;
-        $table = $wpdb->prefix . 'tt_comms_deferred';
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 }

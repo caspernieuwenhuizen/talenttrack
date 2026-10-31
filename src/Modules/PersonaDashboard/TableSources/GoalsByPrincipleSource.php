@@ -33,8 +33,7 @@ final class GoalsByPrincipleSource implements TableRowSource {
         // never migrated in (older installs).
         $g_table = $p . 'tt_goals';
         $pr_table = $p . 'tt_principles';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $g_table ) ) !== $g_table ) return [];
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pr_table ) ) !== $pr_table ) return [];
+        // tt_goals (migration 0001), tt_principles (migration 0015) exist on every install; no table check.
         $col = $wpdb->get_var( $wpdb->prepare(
             "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'linked_principle_id'",
             $g_table

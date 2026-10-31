@@ -93,9 +93,7 @@ class RecentCommentsWidget extends AbstractWidget {
         $effective_club = $club_id > 0 ? $club_id : CurrentClub::id();
 
         $table = $p . 'tt_thread_messages';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return [];
-        }
+        // tt_thread_messages (migration 0043) exists on every install; no table check.
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT tm.id, tm.thread_type, tm.thread_id, tm.author_user_id, tm.created_at,

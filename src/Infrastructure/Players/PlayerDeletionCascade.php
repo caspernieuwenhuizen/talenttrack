@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Players;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -109,9 +110,9 @@ class PlayerDeletionCascade {
             // player: calendar_link -> conversation -> pdp_file. Delete
             // them BEFORE tt_pdp_conversations is removed below, otherwise
             // the join finds no parent rows and the links orphan.
-            if ( $this->tableExists( 'tt_pdp_calendar_links' )
-                && $this->tableExists( 'tt_pdp_conversations' )
-                && $this->tableExists( 'tt_pdp_files' ) ) {
+            if ( TableExists::has( 'tt_pdp_calendar_links' )
+                && TableExists::has( 'tt_pdp_conversations' )
+                && TableExists::has( 'tt_pdp_files' ) ) {
                 $sql = "DELETE cl FROM {$p}tt_pdp_calendar_links cl
                          INNER JOIN {$p}tt_pdp_conversations cv ON cv.id = cl.conversation_id
                          INNER JOIN {$p}tt_pdp_files pf ON pf.id = cv.pdp_file_id
@@ -135,7 +136,7 @@ class PlayerDeletionCascade {
                 [ 'tt_trial_case_checklist',    'trial_case_id', 'tt_trial_cases', 'id' ],
             ];
             foreach ( $children as [ $child, $fk, $parent, $pk ] ) {
-                if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) continue;
+                if ( ! TableExists::has( $child ) || ! TableExists::has( $parent ) ) continue;
                 $sql = "DELETE c FROM {$p}{$child} c
                          INNER JOIN {$p}{$parent} pa ON pa.{$pk} = c.{$fk}
                          WHERE pa.player_id IN ({$ph})";
@@ -148,7 +149,7 @@ class PlayerDeletionCascade {
 
             // Goal threads (thread_type='goal', thread_id=goal_id).
             foreach ( [ 'tt_thread_messages', 'tt_thread_reads' ] as $thread_table ) {
-                if ( ! $this->tableExists( $thread_table ) ) continue;
+                if ( ! TableExists::has( $thread_table ) ) continue;
                 $sql = "DELETE tm FROM {$p}{$thread_table} tm
                          INNER JOIN {$p}tt_goals g ON tm.thread_type = 'goal' AND tm.thread_id = g.id
                          WHERE g.player_id IN ({$ph})";
@@ -165,7 +166,7 @@ class PlayerDeletionCascade {
             // list is the only way to tell which files nothing points at
             // any more.
             $pruned_media = [];
-            if ( $this->tableExists( 'tt_media_links' ) ) {
+            if ( TableExists::has( 'tt_media_links' ) ) {
                 $pruned_media = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare(
                     "SELECT DISTINCT media_id FROM {$p}tt_media_links
                       WHERE entity_type = 'player' AND entity_id IN ({$ph})",
@@ -286,12 +287,6 @@ class PlayerDeletionCascade {
             ];
         }
         return $out;
-    }
-
-    private function tableExists( string $bare_table ): bool {
-        global $wpdb;
-        $table = $wpdb->prefix . $bare_table;
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 
     /**

@@ -22,9 +22,7 @@ class ProspectsStaleCount extends AbstractKpiDataSource {
         global $wpdb;
         $prospects_table = $wpdb->prefix . 'tt_prospects';
         $tasks_table     = $wpdb->prefix . 'tt_workflow_tasks';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $prospects_table ) ) !== $prospects_table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_prospects (migration 0066) exists on every install; no table check.
         $threshold = (int) get_option( 'tt_prospect_stale_threshold_days', 30 );
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $threshold * DAY_IN_SECONDS );
 

@@ -31,15 +31,8 @@ class OpenTrialCases extends AbstractKpiDataSource {
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
-        // v3.108.5 — was looking up `tt_trials` (which doesn't exist;
-        // the actual table is `tt_trial_cases` per migration 0036).
-        // SHOW TABLES would always miss → KpiValue::unavailable() and
-        // the HoD strip would render "—" instead of the real count.
-        // Also missing `club_id` filter; added.
         $table = $wpdb->prefix . 'tt_trial_cases';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_trial_cases (migration 0036) exists on every install; no table check.
         // v3.110.112 — was `status = 'open'` only. `tt_trial_cases.status`
         // moves to `'extended'` when a case is extended past its
         // original end_date (see TrialCasesRepository::STATUS_OPEN +

@@ -163,9 +163,7 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
         if ( empty( $children ) || $since === null ) return [ 'total' => 0 ];
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return [ 'total' => 0 ];
-        }
+        // tt_evaluations (migration 0001) exists on every install; no table check.
         $ids = array_map( static fn( $c ): int => (int) $c->id, $children );
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // v3.110.182 (#781) — demo-mode scope so the parent recap matches

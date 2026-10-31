@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
@@ -110,7 +111,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
             ), ARRAY_A );
             // #3949 — the coach's note per category is data held about the
             // player just as much as the rating beside it.
-            if ( self::tableExists( "{$p}tt_eval_category_notes" ) ) {
+            if ( TableExists::has( 'tt_eval_category_notes' ) ) {
                 $eval_category_notes = $wpdb->get_results( $wpdb->prepare(
                     "SELECT evaluation_id, category_id, note, created_at, updated_at FROM {$p}tt_eval_category_notes WHERE evaluation_id IN ({$placeholders}) ORDER BY evaluation_id ASC, category_id ASC",
                     $eval_ids
@@ -143,7 +144,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
         // subject by design — we still include the row so the data
         // subject can see "we sent something on this date" without the
         // PII payload, mirroring the GDPR retention spec Q6.
-        $comms = self::tableExists( "{$p}tt_comms_log" )
+        $comms = TableExists::has( 'tt_comms_log' )
             ? $wpdb->get_results( $wpdb->prepare(
                 "SELECT * FROM {$p}tt_comms_log
                     WHERE recipient_player_id = %d AND club_id = %d
@@ -154,7 +155,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
 
         // Linked parents (just the user_ids — not the wp_users row,
         // which carries other-tenant data).
-        $parents = self::tableExists( "{$p}tt_player_parents" )
+        $parents = TableExists::has( 'tt_player_parents' )
             ? $wpdb->get_results( $wpdb->prepare(
                 "SELECT player_id, parent_user_id, is_primary, created_at
                     FROM {$p}tt_player_parents
@@ -173,7 +174,7 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
         //
         // `entity_type = 'player'` is what keeps team and activity media —
         // which belong to other records — out of an individual's export.
-        $media = self::tableExists( "{$p}tt_media_links" )
+        $media = TableExists::has( 'tt_media_links' )
             ? $wpdb->get_results( $wpdb->prepare(
                 "SELECT m.uuid, m.kind, m.title, m.mime_type, m.file_size,
                         m.duration_seconds, m.provider, m.external_url,
@@ -272,11 +273,6 @@ final class GdprSubjectAccessZipExporter implements ExporterInterface {
         } catch ( \Throwable $e ) {
             // Swallow — auditing must never block delivery.
         }
-    }
-
-    private static function tableExists( string $table ): bool {
-        global $wpdb;
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 
     /**

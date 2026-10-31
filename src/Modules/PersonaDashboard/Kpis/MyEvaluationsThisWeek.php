@@ -32,9 +32,7 @@ class MyEvaluationsThisWeek extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_evaluations (migration 0001) exists on every install; no table check.
         // Some installs use `coach_id` for evaluation authorship rather than
         // `created_by`. Detect once per call and pick the right column.
         $col = $wpdb->get_var( $wpdb->prepare(

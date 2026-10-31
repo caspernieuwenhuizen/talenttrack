@@ -19,9 +19,7 @@ class TestTrainingsUpcoming extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_test_trainings';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_test_trainings (migration 0066) exists on every install; no table check.
         $now    = gmdate( 'Y-m-d H:i:s' );
         $cutoff = gmdate( 'Y-m-d H:i:s', time() + 14 * DAY_IN_SECONDS );
         $count  = (int) $wpdb->get_var( $wpdb->prepare(

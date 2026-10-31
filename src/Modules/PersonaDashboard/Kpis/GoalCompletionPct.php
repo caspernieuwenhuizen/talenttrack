@@ -34,9 +34,7 @@ class GoalCompletionPct extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_goals';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_goals (migration 0001) exists on every install; no table check.
         // `tt_goals` doesn't carry an `archived_at` column in the
         // initial schema; the table also lacks `completed_at` (only
         // `updated_at` reflects status changes). Skip the historical
