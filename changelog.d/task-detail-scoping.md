@@ -1,4 +1,4 @@
-# Access checks tightened on tasks, consent requests, goals and the player profile
+# Access checks tightened on tasks, consent requests, goals and the player profile (#4469)
 
 Bump: patch
 
