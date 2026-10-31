@@ -727,8 +727,11 @@ class TeamsRestController {
         $team = QueryHelpers::get_team( $team_id );
         $svc  = new \TT\Infrastructure\Stats\TeamStatsService();
 
+        // The rank is ordered by rating, so it is evaluation data: it follows
+        // the evaluations switch, as the badge on the My team screen does.
         $rank = null;
-        if ( QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1' ) {
+        if ( QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1'
+            && AuthorizationService::mayReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) {
             $rank_info = $svc->getRankInTeam( $player_id, 5 );
             $rank      = $rank_info === null ? null : [
                 'rank'  => (int) $rank_info['rank'],

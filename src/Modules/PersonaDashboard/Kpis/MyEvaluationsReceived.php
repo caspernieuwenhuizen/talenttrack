@@ -15,8 +15,12 @@ class MyEvaluationsReceived extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         $player_id = PlayerKpiResolver::playerId( $user_id );
         if ( $player_id <= 0 ) return KpiValue::unavailable();
+        // How many evaluations there are is evaluation data too.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+            return KpiValue::unavailable();
+        }
 
-        $count = ( new EvaluationsRepository() )->countForPlayer( $player_id );
+        $count =( new EvaluationsRepository() )->countForPlayer( $player_id );
         return KpiValue::of( number_format_i18n( $count ) );
     }
 }

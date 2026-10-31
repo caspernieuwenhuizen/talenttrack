@@ -23,8 +23,13 @@ class MyTeamPodiumPosition extends AbstractKpiDataSource {
 
         $player_id = PlayerKpiResolver::playerId( $user_id );
         if ( $player_id <= 0 ) return KpiValue::unavailable();
+        // The rank is ordered by rating: a parent the child keeps
+        // evaluations from is not shown it.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+            return KpiValue::unavailable();
+        }
 
-        $rank = ( new TeamStatsService() )->getRankInTeam( $player_id, 5 );
+        $rank =( new TeamStatsService() )->getRankInTeam( $player_id, 5 );
         if ( $rank === null ) return KpiValue::unavailable();
 
         $delta = sprintf(

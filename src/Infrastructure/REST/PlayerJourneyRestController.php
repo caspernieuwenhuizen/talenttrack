@@ -246,8 +246,20 @@ class PlayerJourneyRestController extends BaseController {
             ] );
         }
 
+        $events = array_map( [ __CLASS__, 'formatEvent' ], $result['events'] );
+        // The journey switch governs the entry; the score on an evaluation
+        // entry is evaluation data, so it follows the evaluations switch as
+        // it does everywhere else. The entry stays, without its score.
+        if ( ! AuthorizationService::mayReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+            foreach ( $events as $i => $event ) {
+                if ( $event['event_type'] === \TT\Domain\Vocabularies\Lookups\JourneyEventType::EVALUATION_COMPLETED ) {
+                    unset( $events[ $i ]['payload']['overall'] );
+                }
+            }
+        }
+
         return RestResponse::success( [
-            'events'       => array_map( [ __CLASS__, 'formatEvent' ], $result['events'] ),
+            'events'       => $events,
             'hidden_count' => $result['hidden_count'],
             'next_cursor'  => $result['next_cursor'],
         ] );

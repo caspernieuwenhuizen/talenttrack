@@ -2,14 +2,20 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Journey\JourneyEventSubscriber;
 use TT\Infrastructure\Players\PlayerParentVisibilityRepository;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\PlayerJourneyRestController;
+use TT\Infrastructure\REST\TeamsRestController;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Invitations\PlayerParentsRepository;
+use TT\Modules\Comms\Cron\CommsScheduledCron;
+use TT\Modules\PersonaDashboard\Kpis\MyEvaluationsReceived;
 use TT\Modules\PersonaDashboard\Kpis\MyRatingTrend;
+use TT\Modules\PersonaDashboard\Kpis\MyTeamPodiumPosition;
 use TT\Shared\Frontend\FrontendMyTeamView;
 use TT\Shared\Frontend\FrontendOverviewView;
 use TT\Shared\Frontend\FrontendPlayerDetailView;
@@ -61,6 +67,7 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        QueryHelpers::set_config( 'tt_player_visible_rank', '0' );
         MatrixRepository::clearCache();
         AuthorizationService::flushCache();
         wp_set_current_user( 0 );
@@ -110,6 +117,47 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
     public function test_the_trend_route_refuses_family_the_child_keeps_it_from(): void {
         $this->hideEvaluations();
         $this->assertSame( 403, $this->trendRoute()->get_status() );
+    }
+
+    public function test_the_timeline_keeps_the_evaluation_entry_without_its_score(): void {
+        $this->emitEvaluationEvents();
+        $this->assertArrayHasKey( 'overall', $this->evaluationEntry()['payload'] ?? [], 'precondition: the entry carries the score' );
+
+        $this->hideEvaluations();
+        $entry = $this->evaluationEntry();
+        $this->assertNotSame( [], $entry, 'the journey switch keeps the entry' );
+        $this->assertArrayNotHasKey( 'overall', $entry['payload'] ?? [] );
+    }
+
+    public function test_the_team_route_gives_no_rank(): void {
+        QueryHelpers::set_config( 'tt_player_visible_rank', '1' );
+        $this->assertNotNull( $this->teamRoute()['rank'] ?? null, 'precondition: the academy shows rank and there is one' );
+
+        $this->hideEvaluations();
+        $this->assertNull( $this->teamRoute()['rank'] ?? null );
+    }
+
+    public function test_the_podium_tile_is_not_given(): void {
+        QueryHelpers::set_config( 'tt_player_visible_rank', '1' );
+        $this->assertTrue( ( new MyTeamPodiumPosition() )->compute( $this->parent, 1 )->is_available, 'precondition: the tile has a rank' );
+
+        $this->hideEvaluations();
+        $this->assertFalse( ( new MyTeamPodiumPosition() )->compute( $this->parent, 1 )->is_available );
+    }
+
+    public function test_the_evaluation_count_tile_is_not_given(): void {
+        $this->assertTrue( ( new MyEvaluationsReceived() )->compute( $this->parent, 1 )->is_available, 'precondition: the tile has a count' );
+
+        $this->hideEvaluations();
+        $this->assertFalse( ( new MyEvaluationsReceived() )->compute( $this->parent, 1 )->is_available );
+    }
+
+    public function test_the_inactive_parent_nudge_counts_no_hidden_evaluations(): void {
+        update_user_meta( $this->parent, 'last_login', gmdate( 'Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS ) );
+        $this->assertSame( 2, $this->nudgeCount(), 'precondition: the nudge counts the two evaluations' );
+
+        $this->hideEvaluations();
+        $this->assertSame( 0, $this->nudgeCount() );
     }
 
     public function test_the_teams_coach_still_sees_the_scores(): void {
@@ -170,6 +218,49 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/rating-trend' );
         $request->set_param( 'id', $this->player );
         return PlayerJourneyRestController::get_rating_trend( $request );
+    }
+
+    private function emitEvaluationEvents(): void {
+        global $wpdb;
+        $ids = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$wpdb->prefix}tt_evaluations WHERE player_id = %d", $this->player ) );
+        foreach ( $ids as $id ) {
+            JourneyEventSubscriber::on_evaluation_saved( $this->player, (int) $id );
+        }
+    }
+
+    /** @return array<string,mixed> */
+    private function evaluationEntry(): array {
+        wp_set_current_user( $this->parent );
+        $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/timeline' );
+        $request->set_param( 'id', $this->player );
+        $data = PlayerJourneyRestController::get_timeline( $request )->get_data();
+        foreach ( (array) ( $data['data']['events'] ?? $data['events'] ?? [] ) as $event ) {
+            if ( ( $event['event_type'] ?? '' ) === 'evaluation_completed' ) return $event;
+        }
+        return [];
+    }
+
+    /** @return array<string,mixed> */
+    private function teamRoute(): array {
+        wp_set_current_user( $this->parent );
+        $request = new \WP_REST_Request( 'GET', '/talenttrack/v1/players/' . $this->player . '/team' );
+        $request->set_param( 'id', $this->player );
+        $data = TeamsRestController::get_player_team( $request )->get_data();
+        return (array) ( $data['data'] ?? $data );
+    }
+
+    private function nudgeCount(): int {
+        delete_user_meta( $this->parent, 'tt_comms_onboarding_nudge_at' );
+        $count   = -1;
+        $capture = function ( $key, $payload ) use ( &$count ): void {
+            if ( $key === 'onboarding_nudge_inactive' ) $count = (int) ( $payload['recent_evaluations_count'] ?? -1 );
+        };
+        add_action( 'tt_comms_dispatch', $capture, 1, 2 );
+        $detect = new \ReflectionMethod( CommsScheduledCron::class, 'detectOnboardingNudges' );
+        $detect->setAccessible( true );
+        $detect->invoke( null );
+        remove_action( 'tt_comms_dispatch', $capture, 1 );
+        return $count;
     }
 
     private function row(): object {
