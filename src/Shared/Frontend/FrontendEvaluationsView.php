@@ -252,14 +252,14 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 'icon'      => 'evaluations',
                 'headline'  => __( 'No evaluations yet', 'talenttrack' ),
                 'explainer' => __( 'Evaluations capture how each player performed in a training or match. Record the first one after your next activity.', 'talenttrack' ),
-                'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
-                // #4488 — decided here, matrix-aware; an empty URL drops the button.
-                'cta_url'   => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' )
-                    ? \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                        'new-evaluation',
-                        add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
-                    )
+                // #4488 — decided here, matrix-aware; an empty label drops the button.
+                'cta_label' => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' )
+                    ? __( 'Record first evaluation', 'talenttrack' )
                     : '',
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-evaluation',
+                    add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
             ],
             // v3.110.170 — row-link standard. EvaluationsRestController
             // emits `detail_url` (same URL the inline date/avg cells use)

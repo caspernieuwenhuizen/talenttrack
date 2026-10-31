@@ -472,14 +472,14 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 'icon'      => 'goals',
                 'headline'  => __( 'No goals yet', 'talenttrack' ),
                 'explainer' => __( 'Goals capture what each player is working on this season. Set the first one to give training a direction.', 'talenttrack' ),
-                'cta_label' => __( 'Add first goal', 'talenttrack' ),
-                // #4488 — decided here, matrix-aware; an empty URL drops the button.
-                'cta_url'   => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_goals' )
-                    ? \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                        'new-goal',
-                        add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
-                    )
+                // #4488 — decided here, matrix-aware; an empty label drops the button.
+                'cta_label' => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_goals' )
+                    ? __( 'Add first goal', 'talenttrack' )
                     : '',
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-goal',
+                    add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
             ],
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',
