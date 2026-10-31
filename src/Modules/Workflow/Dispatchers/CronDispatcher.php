@@ -54,14 +54,24 @@ class CronDispatcher {
     }
 
     /**
-     * Hourly tick: walk enabled cron triggers, fire any whose schedule
-     * has come due since last fire.
+     * Hourly tick: for every club, walk its enabled cron triggers and fire
+     * any whose schedule has come due since last fire. A tick listener
+     * iterates clubs itself; this is one of the listeners.
      */
     public static function tick(): void {
+        foreach ( self::clubIds() as $club_id ) {
+            self::withClub( $club_id, static function (): void {
+                self::tickCurrentClub();
+            } );
+        }
+    }
+
+    private static function tickCurrentClub(): void {
         $triggers = ( new TriggersRepository() )->listEnabledByType( 'cron' );
         if ( empty( $triggers ) ) return;
 
         foreach ( $triggers as $trigger ) {
+            $trigger_club = (int) ( $trigger['club_id'] ?? CurrentClub::id() );
             $expression = (string) ( $trigger['cron_expression'] ?? '' );
             if ( $expression === '' ) continue;
 
@@ -80,7 +90,7 @@ class CronDispatcher {
                     $next_fire,
                     $now
                 ) );
-                self::recordFire( (int) $trigger['id'], $config, $now );
+                self::recordFire( (int) $trigger['id'], $trigger_club, $config, $now );
                 continue;
             }
 
@@ -88,7 +98,7 @@ class CronDispatcher {
                 (string) $trigger['template_key'],
                 new TaskContext()
             );
-            self::recordFire( (int) $trigger['id'], $config, $now );
+            self::recordFire( (int) $trigger['id'], $trigger_club, $config, $now );
         }
     }
 
@@ -160,14 +170,41 @@ class CronDispatcher {
         return is_array( $decoded ) ? $decoded : [];
     }
 
-    private static function recordFire( int $trigger_id, array $config, int $now ): void {
+    private static function recordFire( int $trigger_id, int $club_id, array $config, int $now ): void {
         global $wpdb;
         $config['last_fired_at'] = $now;
         $wpdb->update(
             $wpdb->prefix . 'tt_workflow_triggers',
             [ 'config_json' => wp_json_encode( $config ) ],
-            [ 'id' => $trigger_id, 'club_id' => CurrentClub::id() ]
+            [ 'id' => $trigger_id, 'club_id' => $club_id ]
         );
+    }
+
+    /**
+     * Every club that has config rows, club 1 always included. Mirrors the
+     * enumeration `AlertSweepCron` and `AutoPurgeCron` use.
+     *
+     * @return int[]
+     */
+    private static function clubIds(): array {
+        global $wpdb;
+        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
+        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
+        if ( ! in_array( 1, $ids, true ) ) {
+            $ids[] = 1;
+        }
+        return array_filter( $ids, static function ( $id ) { return $id > 0; } );
+    }
+
+    /** Run `$fn` with `tt_current_club_id` pinned to `$club_id`, then restore. */
+    private static function withClub( int $club_id, callable $fn ): void {
+        $filter = static function () use ( $club_id ) { return $club_id; };
+        add_filter( 'tt_current_club_id', $filter, 9999 );
+        try {
+            $fn();
+        } finally {
+            remove_filter( 'tt_current_club_id', $filter, 9999 );
+        }
     }
 
     private static function log( string $message ): void {

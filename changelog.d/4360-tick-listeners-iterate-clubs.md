@@ -1,0 +1,3 @@
+# Injury reminders, PDP self-review nudges and scheduled workflow triggers run for every club (#4360)
+
+The hourly background tick ran three of its jobs for whichever club the request happened to resolve to: the daily injury-reminder sweep, the PDP self-review sweep and the scheduled workflow triggers. Each now runs once per club, under that club's own once-a-day guard, the same way the recycle-bin purge, the alert sweeps and the deferred-message queue already did. A trigger's last-fire stamp is written to the trigger's own club. Single-club installs behave exactly as before. This is tenancy groundwork with no visible change today.
