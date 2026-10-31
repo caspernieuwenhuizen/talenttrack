@@ -1,0 +1,200 @@
+<title>TalentTrack Vision</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,500;0,600;0,700;1,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an editorial long read. A deep pitch-green opening with the thesis, three problems as a ruled list, six bets on a 2x3 grid like a squad sheet (each with its first step), guardrails as a white-on-green touchline band. Same faces and palette family as the roadmap and control room. */
+:root{--bg:#f6f7f4;--paper:#fff;--fg:#182019;--muted:#58625a;--line:#d6dbd4;--accent:#1f6f43;--accent-soft:#e3efe6;--chalk:#f2f7f1;--deep:#123d27;--deep-line:rgba(255,255,255,.18);--you:#7a3e8f;--you-soft:#f1e8f5;
+--display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;--body:"IBM Plex Sans",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121714;--paper:#1a201c;--fg:#e8ece8;--muted:#a3ada5;--line:#313a34;--accent:#5fbf85;--accent-soft:#1f3327;--chalk:#e8f1ea;--deep:#0e2618;--deep-line:rgba(255,255,255,.13);--you:#c598d6;--you-soft:#2e2233;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121714;--paper:#1a201c;--fg:#e8ece8;--muted:#a3ada5;--line:#313a34;--accent:#5fbf85;--accent-soft:#1f3327;--chalk:#e8f1ea;--deep:#0e2618;--deep-line:rgba(255,255,255,.13);--you:#c598d6;--you-soft:#2e2233;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.6}
+a{color:var(--accent)}a:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+.inner{max-width:1180px;margin:0 auto;padding-left:max(24px,env(safe-area-inset-left,0px));padding-right:max(24px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);line-height:1.05;margin:0;text-wrap:balance}
+.eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase}
+p{margin:0}
+
+.open{background:var(--deep);color:var(--chalk);position:relative;overflow:hidden}
+.open .inner{padding-block:1.4rem 3.2rem;position:relative;display:grid;gap:1.6rem}
+.open canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.open nav{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.75rem;align-items:center}
+.open nav .links{display:flex;flex-wrap:wrap;gap:.5rem}
+.open nav a{color:var(--chalk);border:1px solid var(--deep-line);padding:.45rem .8rem;min-height:2.5rem;display:inline-flex;align-items:center;text-decoration:none;font-weight:500}
+.open nav a:hover{background:rgba(255,255,255,.07)}
+.status{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--chalk);padding:.25rem .6rem;width:max-content}
+.status i{width:.5rem;height:.5rem;border-radius:50%;background:var(--chalk)}
+.thesis{font-size:clamp(2.1rem,5.4vw,4.4rem);font-weight:700;max-width:18ch;letter-spacing:-.005em}
+.thesis em{font-style:italic;font-weight:600;color:#9fe0b6}
+.lede{max-width:60ch;font-size:clamp(1.02rem,1.5vw,1.2rem);opacity:.92}
+
+section.part .inner{padding-block:3rem;display:grid;gap:1.6rem}
+.part h2{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700}
+.part .kicker{color:var(--muted);max-width:62ch}
+.problems{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:2px solid var(--fg)}
+.problems li{display:grid;grid-template-columns:minmax(0,1fr);gap:.4rem;padding:1.2rem 0;border-bottom:1px solid var(--line)}
+@media (min-width:768px){.problems li{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:2rem}}
+.problems b{font-family:var(--display);font-size:1.45rem;font-weight:600;line-height:1.15}
+.problems p{color:var(--muted);max-width:62ch}
+.coda{font-family:var(--display);font-size:clamp(1.3rem,2.4vw,1.75rem);font-weight:600;max-width:34ch}
+
+.vision{background:var(--accent-soft)}
+.vision blockquote{margin:0;font-family:var(--display);font-size:clamp(1.6rem,3.6vw,2.7rem);font-weight:600;line-height:1.15;max-width:26ch;border-left:5px solid var(--accent);padding-left:1.2rem}
+.vision p{max-width:64ch}
+
+.bets{display:grid;grid-template-columns:minmax(0,1fr);gap:1rem}
+@media (min-width:768px){.bets{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1100px){.bets{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.bet{background:var(--paper);border:1px solid var(--line);padding:1.2rem 1.2rem 1.1rem;display:grid;grid-template-rows:auto auto 1fr auto auto;gap:.7rem;min-width:0}
+.bet .no{font-family:var(--display);font-size:2.6rem;font-weight:700;line-height:.9;color:var(--accent);font-variant-numeric:tabular-nums}
+.bet h3{font-size:1.35rem;font-weight:700}
+.bet .what{font-size:.95rem}
+.bet .why{font-size:.85rem;color:var(--muted);border-top:1px dashed var(--line);padding-top:.6rem}
+.bet .why b{color:var(--fg);font-weight:600}
+.bet .step{background:var(--accent-soft);padding:.6rem .75rem;font-size:.88rem}
+.bet .step .eyebrow{color:var(--accent);display:block;margin-bottom:.15rem}
+
+.rails{background:var(--deep);color:var(--chalk)}
+.rails .inner{padding-block:3rem;display:grid;gap:1.4rem}
+.rails h2{font-size:clamp(1.6rem,3vw,2.3rem)}
+.rails .eyebrow{opacity:.8}
+.rails ul{list-style:none;margin:0;padding:0;display:grid;gap:.8rem;grid-template-columns:minmax(0,1fr)}
+@media (min-width:768px){.rails ul{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:1100px){.rails ul{grid-template-columns:repeat(5,minmax(0,1fr))}}
+.rails li{border-top:2px solid var(--chalk);padding-top:.7rem;display:grid;gap:.3rem}
+.rails li b{font-family:var(--display);font-size:1.2rem;font-weight:600}
+.rails li span{font-size:.9rem;opacity:.85}
+
+.next .inner{padding-block:3rem 3.5rem;display:grid;gap:1rem}
+.next ol{margin:0;padding-left:1.3rem;display:grid;gap:.5rem;max-width:64ch}
+.decide{border:2px solid var(--you);background:var(--you-soft);padding:1rem 1.1rem;max-width:64ch}
+.decide b{color:var(--you)}
+.foot{font-size:.8rem;color:var(--muted);border-top:1px solid var(--line);padding-top:1rem}
+@media (pointer:coarse){.open nav a{min-height:3rem}}
+@media (prefers-reduced-motion:reduce){.open canvas{display:none}}
+</style>
+
+<header class="open">
+  <canvas id="tt-chalk" aria-hidden="true"></canvas>
+  <div class="inner">
+    <nav aria-label="Related pages">
+      <span class="eyebrow">TalentTrack · product vision</span>
+      <div class="links"><a href="https://claude.ai/artifact/Rf5wtJuk8yXkWMJknaXRLc">Roadmap</a><a href="https://claude.ai/artifact/W3kyHMsDXBECvyCpKKcvJN">Control room</a><a href="https://github.com/caspernieuwenhuizen/talenttrack/blob/main/docs/vision.md">Source</a></div>
+    </nav>
+    <span class="status"><i></i>Proposed · 30 October 2026 · for the owner to adopt</span>
+    <h1 class="thesis">The academy's <em>memory</em> and its <em>conscience</em>.</h1>
+    <p class="lede">Every academy has software, and all of it records. TalentTrack should be the first that makes an academy wiser: it remembers every player, makes every judgement fair, and learns from every decision the academy makes. Written from the academy owner's chair.</p>
+  </div>
+</header>
+
+<section class="part" aria-labelledby="h-problem">
+  <div class="inner">
+    <div class="eyebrow">The problem</div>
+    <h2 id="h-problem">The decisions that matter most are still made on memory</h2>
+    <p class="kicker">At the end of a season, in a room, by the people who shouted loudest about the last six weeks. Three things go wrong, and every academy owner knows them.</p>
+    <ul class="problems">
+      <li><b>We release the wrong children.</b><p>A boy born in October, small at thirteen, looks behind a boy born in January who has already grown. We call it talent. It is a birth date and a growth spurt. Some of the players we let go would have been the best we ever had.</p></li>
+      <li><b>We cannot tell whether our coaches agree.</b><p>One coach's 7 is another's 5. A player's file reads like progress or decline depending on who held the clipboard that month.</p></li>
+      <li><b>We do not learn.</b><p>Nobody checks, three years later, what became of the players we released or kept. The same mistakes repeat every season, because the academy has no memory of its own decisions.</p></li>
+    </ul>
+    <p class="coda">The software we use makes recording easier. None of it makes the academy wiser.</p>
+  </div>
+</section>
+
+<section class="part vision" aria-labelledby="h-vision">
+  <div class="inner">
+    <div class="eyebrow" id="h-vision">The vision</div>
+    <blockquote>TalentTrack remembers every player, makes every judgement fair, and learns from every decision the academy makes.</blockquote>
+    <p>The player stays at the centre. What changes is what the system does with what it holds. It stops being a filing cabinet and becomes a colleague that notices: this judgement is skewed by birth date, these two coaches disagree, this player is drifting away from the game, this decision looks like one we got wrong before.</p>
+  </div>
+</section>
+
+<section class="part" aria-labelledby="h-bets">
+  <div class="inner">
+    <div class="eyebrow">Six bets</div>
+    <h2 id="h-bets">What no academy product does today</h2>
+    <p class="kicker">Each bet has a first step that builds on what TalentTrack already holds, so the vision is reached by shipping, not by a rewrite.</p>
+    <div class="bets">
+      <article class="bet"><div class="no">1</div><h3>Fair judgement</h3>
+        <p class="what">Every rating shown beside the player's birth quarter and maturity estimate. A release candidate who is young for the cohort or late to grow is flagged, and training groups can be formed by maturity as well as by age.</p>
+        <p class="why"><b>Why it does not exist:</b> the relative age effect is decades old in research and still absent from the screen where the decision is made.</p>
+        <p class="step"><span class="eyebrow">First step</span>Dated height measurements per player, and the birth quarter on the evaluation and the release decision.</p></article>
+      <article class="bet"><div class="no">2</div><h3>Calibrated coaches</h3>
+        <p class="what">When five coaches rate the same players, the system sees how far apart they are. Each coach sees, privately, where their ratings sit against the staff. The head of development sees where a calibration session would help.</p>
+        <p class="why"><b>Why it does not exist:</b> rating forms treat every number as truth. Nobody measures the measurer.</p>
+        <p class="step"><span class="eyebrow">First step</span>A calibration report on existing evaluations, for the head of development only.</p></article>
+      <article class="bet"><div class="no">3</div><h3>An academy that remembers its decisions</h3>
+        <p class="what">Every signing, promotion, release and graduation kept with its reasoning and evidence. A year later and three years later the system asks: where is this player now? The academy sees its own track record, misses included.</p>
+        <p class="why"><b>Why it does not exist:</b> academies keep player records, not decision records, and nobody follows a released child.</p>
+        <p class="step"><span class="eyebrow">First step</span>Release and graduation events carry a reasoning and an evidence snapshot; a yearly "where are they now" review.</p></article>
+      <article class="bet"><div class="no">4</div><h3>The coach speaks, the record writes itself</h3>
+        <p class="what">Fifteen seconds into the phone on the touchline: "Daan, good scanning before receiving, still drifts inside when we lose the ball." It becomes an observation on Daan's file, linked to the principle and his goal, confirmed with one tap.</p>
+        <p class="why"><b>Why it does not exist:</b> academy software is built for the office. The observations worth keeping happen on grass.</p>
+        <p class="step"><span class="eyebrow">First step</span>Voice notes on the mobile surfaces, transcribed into a suggested observation; nothing saved without the coach's tap.</p></article>
+      <article class="bet"><div class="no">5</div><h3>Every goal has a moment on video</h3>
+        <p class="what">A goal says "first touch under pressure". The player sees three clips from Saturday where it went well and one where it did not, attached to the goal and shown in the development talk.</p>
+        <p class="why"><b>Why it does not exist:</b> video tools and development tools live apart. Clips end up in a chat group, goals in a form.</p>
+        <p class="step"><span class="eyebrow">First step</span>A clip link with a timestamp on a goal, an evaluation or a match-analysis note, shown in the PDP talk.</p></article>
+      <article class="bet"><div class="no">6</div><h3>The whole child, and a dignified exit</h3>
+        <p class="what">A short check-in the player fills in (energy, mood, school load) shows who is struggling before it shows on the pitch. A released player leaves with their story: the record, the coaches' words and the clips, as a document that belongs to them.</p>
+        <p class="why"><b>Why it does not exist:</b> academies are built around the players they keep. The ones they release vanish the day they leave.</p>
+        <p class="step"><span class="eyebrow">First step</span>A player-owned export of the development record on release, built on the player report.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="rails" aria-labelledby="h-rails">
+  <div class="inner">
+    <div class="eyebrow">The guardrails</div>
+    <h2 id="h-rails">These are minors. Every bet stays inside these lines.</h2>
+    <ul>
+      <li><b>The coach decides</b><span>The system notices, suggests and remembers. It never signs, releases or ranks a child on its own.</span></li>
+      <li><b>Every number explains itself</b><span>A flag says why it was raised, from which data, and how sure it is.</span></li>
+      <li><b>No public ranking of children</b><span>Comparisons stay inside the staff roles that need them.</span></li>
+      <li><b>Sensitive stays sensitive</b><span>Wellbeing, growth and medical data are permission-gated and audit-logged.</span></li>
+      <li><b>The family sees its own story</b><span>In language made for a player and their parents, not coach jargon.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="part next" aria-labelledby="h-next">
+  <div class="inner">
+    <div class="eyebrow">From vision to roadmap</div>
+    <h2 id="h-next">How the bets reach the roadmap</h2>
+    <ol>
+      <li>The owner adopts the vision and picks which bets go first.</li>
+      <li>Each chosen bet becomes an epic, with its first step as the first child, in the roadmap's Next column.</li>
+      <li>The rest stay here until their turn. The vision is reviewed once per season.</li>
+    </ol>
+    <p class="decide"><b>Owner, 30 October 2026:</b> the first bets are chosen when the ready queue is close to empty. Until then no bet enters the roadmap.</p>
+    <p class="foot">Source: <code>docs/vision.md</code>. Proposed by the product owner, 30 October 2026.</p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var c = document.getElementById('tt-chalk');
+  if (!c || !c.getContext) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ctx = c.getContext('2d');
+  function draw() {
+    var r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    c.width = Math.max(1, r.width * dpr); c.height = Math.max(1, r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, r.width, r.height);
+    ctx.strokeStyle = 'rgba(255,255,255,0.10)'; ctx.lineWidth = 2;
+    var w = r.width, h = r.height, cx = w * 0.82, cy = h * 0.55, rad = Math.min(w, h) * 0.32;
+    ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, 4, 0, Math.PI * 2); ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fill();
+    ctx.setLineDash([2, 10]); ctx.strokeStyle = 'rgba(159,224,182,0.28)';
+    var pts = [[0.08, 0.86], [0.3, 0.7], [0.48, 0.78], [0.62, 0.48], [cx / w, cy / h]];
+    ctx.beginPath(); pts.forEach(function (p, i) { var x = p[0] * w, y = p[1] * h; if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); }); ctx.stroke();
+    ctx.setLineDash([]);
+    pts.slice(0, -1).forEach(function (p) { ctx.beginPath(); ctx.arc(p[0] * w, p[1] * h, 3, 0, Math.PI * 2); ctx.fillStyle = 'rgba(159,224,182,0.45)'; ctx.fill(); });
+  }
+  if (reduce) return;
+  draw();
+  window.addEventListener('resize', draw);
+})();
+</script>

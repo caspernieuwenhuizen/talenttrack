@@ -23,6 +23,9 @@ academy on `jg4it.mediamaniacs.nl` use TalentTrack to onboard players and
 follow their development, with the Academy HQ as the quality gate that
 finds what escaped before a coach does.
 
+The longer view, beyond this roadmap, is the [product vision](vision.md):
+six bets on what an academy needs that no product offers yet.
+
 ## How the queue reads
 
 `ready-for-dev` holds what ships this cycle: bugs a user hits, review-gate
