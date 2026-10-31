@@ -123,7 +123,8 @@ class ParentAccountRestController {
 
     /**
      * GET /players/{id}/parents (#3571) — the parent accounts linked to a
-     * player, primary first. Every read writes one
+     * player, primary first, plus the guardian on file (#4410) for a caller
+     * who is staff for the player. Every read writes one
      * `player.guardian_contacts_viewed` audit row, an empty one included.
      */
     public static function list_parents( \WP_REST_Request $r ): \WP_REST_Response {
@@ -145,10 +146,19 @@ class ParentAccountRestController {
                 'is_primary'   => $contact['is_primary'],
             ];
         }
-        // Every read is logged, an empty one with count 0, like the card.
-        GuardianContacts::recordRead( $player_id, 'rest_players_parents', count( $contacts ) );
+        // #4410 — the guardian recorded on the player, which the card shows
+        // when no account is linked. Read-only here, and only for a caller
+        // who is staff for this player, the card's own check: managing
+        // parent accounts does not by itself make someone staff for a child.
+        $on_file = AuthorizationService::isStaffForPlayer( get_current_user_id(), $player_id )
+            ? GuardianContacts::onFileForPlayer( $player_id )
+            : null;
 
-        return RestResponse::success( [ 'player_id' => $player_id, 'parents' => $parents ] );
+        // Every read is logged, an empty one with count 0, like the card.
+        // The on-file guardian is a contact read too.
+        GuardianContacts::recordRead( $player_id, 'rest_players_parents', count( $contacts ) + ( $on_file !== null ? 1 : 0 ) );
+
+        return RestResponse::success( [ 'player_id' => $player_id, 'parents' => $parents, 'on_file' => $on_file ] );
     }
 
     /**
