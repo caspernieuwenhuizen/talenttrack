@@ -31,11 +31,15 @@ Een eenvoudige tabel — één rij per team, één kolom per hoofdcategorie, plu
 
 Een snelle manier om te zien welk team dit seizoen het sterkst is.
 
+Beperkt tot rollen die rapporten academiebreed lezen (hoofd opleiding, academiebeheerder, scout en alleen-lezen-waarnemer): de tabel toont elk team, dus staf die beperkt is tot de eigen teams krijgt de tegel niet aangeboden, en wie het rapport via het adres opent krijgt "Niet geautoriseerd".
+
 ## Coachactiviteit
 
 Hoeveel evaluaties elke coach heeft opgeslagen in het gekozen venster (laatste 7, 30, 90, 180 of 365 dagen). Handig om coaches te signaleren die achterlopen, of om te bevestigen dat een geplande beoordelingsperiode echt heeft plaatsgevonden.
 
 Alleen coaches binnen je eigen club worden meegeteld — het rapport is beperkt tot de huidige tenant en toont nooit activiteit van een andere academie. Een coach van wie het gebruikersaccount is verwijderd verschijnt nog steeds (de opgeslagen evaluaties blijven binnen het venster) maar krijgt het label **Onbekende coach** in plaats van een ruw accountnummer.
+
+Beperkt tot rollen die rapporten academiebreed lezen (hoofd opleiding, academiebeheerder, scout en alleen-lezen-waarnemer): coaches zien elkaars activiteit niet, dus staf die beperkt is tot de eigen teams krijgt de tegel niet aangeboden, en wie het rapport via het adres opent krijgt "Niet geautoriseerd".
 
 ## Coach · Evaluatiekwaliteit
 

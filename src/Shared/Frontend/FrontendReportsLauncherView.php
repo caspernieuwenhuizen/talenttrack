@@ -307,7 +307,8 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // v4.20.29 (#1187) — filter the academy-wide tiles for
         // non-scope-admin users.
         if ( ! $is_scope_admin ) {
-            $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout', 'coach-evaluation-quality' ];
+            // #4384 — team_ratings and coach_activity list every team too.
+            $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout', 'coach-evaluation-quality', 'team_ratings', 'coach_activity' ];
             $tiles = array_values( array_filter(
                 $tiles,
                 static fn( array $t ): bool => ! in_array( (string) $t['slug'], $academy_only, true )
