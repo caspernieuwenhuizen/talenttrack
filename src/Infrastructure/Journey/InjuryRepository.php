@@ -133,8 +133,12 @@ final class InjuryRepository {
         return true;
     }
 
-    /** The player's team, for the workflow hooks' payload. */
-    private function teamIdOf( int $player_id ): int {
+    /**
+     * The player's team, for the workflow hooks' payload and the recovery
+     * reminder's assignees. Club-scoped and read without the demo filter, so
+     * a real player's team is found while demo mode is on.
+     */
+    public function teamIdOf( int $player_id ): int {
         return (int) $this->wpdb->get_var( $this->wpdb->prepare(
             "SELECT team_id FROM {$this->wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
             $player_id, CurrentClub::id()

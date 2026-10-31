@@ -532,6 +532,42 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $this->assertCount( 1, $this->active() );
     }
 
+    /**
+     * #4446 — a reminder that falls due while demo mode is on still reaches
+     * the real player's team staff: the team is read without the demo filter.
+     */
+    public function test_a_reminder_falling_due_in_demo_mode_reaches_the_team_staff(): void {
+        global $wpdb;
+        // Written without the repository, so no event fires: only the sweep can find it.
+        $wpdb->insert( "{$wpdb->prefix}tt_player_injuries", [
+            'club_id'         => $this->club,
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+        $this->assertSame( [], $this->all() );
+
+        ( new ConfigService() )->set( InjuryRecoveryTasks::LAST_SWEEP_KEY, '' );
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            $this->assertNull( QueryHelpers::get_player( $this->player ), 'precondition: demo mode hides the real player' );
+            $team = InjuryRecoveryTasks::teamOf( $this->player );
+            InjuryRecoveryTasks::sweep();
+        } finally {
+            DemoMode::clearOverride();
+        }
+
+        $this->assertSame( $this->team, $team );
+        $tasks = $this->active();
+        $this->assertCount( 1, $tasks );
+        $this->assertSame( $this->coach, (int) $tasks[0]['assignee_user_id'] );
+    }
+
+    public function test_with_demo_mode_off_the_team_is_the_players_team(): void {
+        $this->assertSame( $this->team, InjuryRecoveryTasks::teamOf( $this->player ) );
+        $this->assertSame( 0, InjuryRecoveryTasks::teamOf( 0 ) );
+    }
+
     public function test_the_daily_sweep_reminds_about_an_incomplete_record_once(): void {
         global $wpdb;
         // Written without the repository, so no event fires: only the sweep can find it.

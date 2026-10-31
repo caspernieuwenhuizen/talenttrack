@@ -7,7 +7,6 @@ use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\InjuryStatus;
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Workflow\Dispatchers\CronDispatcher;
 use TT\Modules\Workflow\TaskContext;
@@ -167,10 +166,13 @@ final class InjuryRecoveryTasks {
         return null;
     }
 
-    /** The player's team, for the assignees. */
+    /**
+     * The player's team, for the assignees. #4446 — read without the demo
+     * filter: a reminder falling due for a real player during demo mode
+     * still reaches that player's team staff.
+     */
     public static function teamOf( int $player_id ): int {
-        $player = QueryHelpers::get_player( $player_id );
-        return $player ? (int) ( $player->team_id ?? 0 ) : 0;
+        return ( new InjuryRepository() )->teamIdOf( $player_id );
     }
 
     /** The daily sweep, once for every club, each under its own guard. */
