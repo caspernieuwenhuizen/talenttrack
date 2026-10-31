@@ -145,6 +145,34 @@ final class ArchiveRowsChangedActionTest extends WP_UnitTestCase {
         $this->assertSame( [ [ 'team', [ $team ], [] ] ], $this->seen );
     }
 
+    /**
+     * #4445 — `tt_players` has no `player_id` column; its rows are the
+     * players. Archiving a player runs its PDP cascade in a transaction that
+     * commits, hence the cleanup.
+     */
+    public function test_archiving_a_player_names_that_player(): void {
+        $archived = $this->repo->archive( 'player', [ $this->player ], 0 );
+        $seen     = $this->seen;
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $archived );
+        $this->assertSame( [ [ 'player', [ $this->player ], [ $this->player ] ] ], $seen );
+    }
+
+    public function test_restoring_a_player_names_that_player(): void {
+        $this->repo->archive( 'player', [ $this->player ], 0 );
+        $this->seen = [];
+
+        $restored = $this->repo->restore( 'player', [ $this->player ] );
+        $seen     = $this->seen;
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $restored );
+        $this->assertSame( [ [ 'player', [ $this->player ], [ $this->player ] ] ], $seen );
+    }
+
     // ---- fixtures ------------------------------------------------------
 
     private function insertPlayer( string $last ): int {

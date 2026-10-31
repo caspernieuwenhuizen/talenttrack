@@ -81,8 +81,9 @@ class ArchiveRepository {
      * #4399 — fired once after archive / restore / trash / restoreFromTrash /
      * deletePermanently / purge changed at least one row:
      * `( string $entity, int[] $ids, int[] $player_ids )`. `$player_ids` is
-     * read before the change, so a deleted row still names its player; it is
-     * empty when the entity's table has no `player_id` column. A module that
+     * read before the change, so a deleted row still names its player; for
+     * the `player` entity it is the ids themselves, and it is empty when the
+     * entity's table has no `player_id` column. A module that
      * keeps state about a row (a reminder, a cache) re-reads it from here,
      * because these writes bypass the entity's own repository and its events.
      */
@@ -1011,14 +1012,17 @@ class ArchiveRepository {
 
     /**
      * #4399 — the distinct players the rows belong to, read before a write
-     * changes or removes them. One club-scoped query per call; empty when the
-     * entity's table has no `player_id` column.
+     * changes or removes them. For the `player` entity the rows are the
+     * players, so the ids are returned as they are (`tt_players` has no
+     * `player_id` column). Otherwise one club-scoped query per call; empty
+     * when the entity's table has no `player_id` column.
      *
      * @param int[] $ids already cleaned
      * @return list<int>
      */
     private function playerIdsOf( string $entity, array $ids ): array {
         if ( empty( $ids ) ) return [];
+        if ( $entity === 'player' ) return array_values( $ids );
         $table = $this->resolveTable( $entity );
         if ( $table === null || ! self::hasPlayerColumn( $table ) ) return [];
 
