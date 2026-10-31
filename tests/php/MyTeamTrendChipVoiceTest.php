@@ -102,7 +102,7 @@ final class MyTeamTrendChipVoiceTest extends WP_UnitTestCase {
         FrontendMyTeamView::render( $this->child );
         $html = (string) ob_get_clean();
         $this->assertSame( 1, preg_match( '/<div class="tt-mt-trend-chip">(.*?)<\/div>/s', $html, $m ), 'the trend chip must render' );
-        return $m[1];
+        return html_entity_decode( $m[1], ENT_QUOTES );
     }
 
     private function seedEvaluation(): void {
