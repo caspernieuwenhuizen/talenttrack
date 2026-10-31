@@ -149,6 +149,16 @@
 
 .tt-agrid-stat-in:focus-visible { outline: 2px solid #e8b624; outline-offset: -1px; }
 
+/* #4506 — a goals or assists count above the match's ceiling. A heavier
+   border as well as the colour, and the reason in the status line and the
+   box's title, so the state does not rest on colour alone. */
+.tt-agrid-stat-in.is-invalid {
+  border: 2px solid var(--tt-danger);
+  background: var(--tt-danger-subtle);
+  color: var(--tt-danger-ink);
+  font-weight: 700;
+}
+
 /* ---- the column switches ---------------------------------------- */
 
 .tt-agrid-statpick {

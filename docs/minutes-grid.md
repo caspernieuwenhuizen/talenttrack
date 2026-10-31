@@ -119,6 +119,28 @@ ones left to undo first — **the match sheet's score follows it down.** That
 score is a reading of the goal log, so a goal taken off the log is a goal off
 the scoreboard; the two cannot end up disagreeing about the same match.
 
+### How many goals and assists a match allows
+
+**The score is the limit.** When a match has a score, no player can have more
+goals or more assists than your team scored, and together the players' goals,
+and their assists, cannot add up to more than that score either. A match that
+ended 2–1 allows at most 2 goals and 2 assists in total. When a match has no
+score yet, a player can have at most 15 goals and 15 assists.
+
+A box above the limit is outlined in red and says the most it can hold, and
+Save is refused for that match with a message naming the match and the limit.
+Nothing of that match's goals and assists is saved until the numbers fit;
+fix the box, or record the score first. If you type the score and the goals
+in the same pass, the score is saved first, so the new limit counts.
+
+**Correcting numbers that are too high.** Before this limit existed, minutes
+were sometimes typed into the **A** column by mistake, which gave a player 70
+assists in one match. To correct it, open the grid for that period and lower
+the **A** box to the real number, or clear it. The extra assists are removed,
+together with the "no scorer" goals that were created to carry them, and the
+player's totals in the reports drop to match. Lowering one player is always
+allowed, even while other players in the same match are still too high.
+
 ### Minutes against the match
 
 The **Minutes** row at the bottom of the grid checks, per match, whether all
@@ -154,8 +176,9 @@ The bottom row of the grid reads, per match, how many goals have a scorer
 against them versus the recorded score — `2/3` means one goal in that match
 is still nobody's.
 
-It is information, not a rule: nothing stops you saving, and a mismatch is
-often simply true. It is there so that the score and the goal log cannot
+It is information, not a rule: fewer scorers than goals never stops you
+saving, and is often simply true. More scorers than goals is the one thing the
+grid refuses, see the limit above. It is there so that the score and the goal log cannot
 quietly drift apart without anyone noticing.
 
 ### Showing fewer columns

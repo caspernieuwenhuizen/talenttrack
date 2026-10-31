@@ -132,6 +132,30 @@ doelpuntenlogboek: een doelpunt dat uit het logboek gaat, gaat ook van het
 scorebord. De twee kunnen dus niet over dezelfde wedstrijd van mening
 verschillen.
 
+### Hoeveel doelpunten en assists een wedstrijd toelaat
+
+**De uitslag is de grens.** Heeft een wedstrijd een uitslag, dan kan geen speler
+meer doelpunten of meer assists hebben dan jullie team scoorde, en samen kunnen
+de doelpunten van de spelers, en hun assists, ook niet boven die uitslag
+uitkomen. Een wedstrijd die eindigde in 2-1 laat in totaal hoogstens 2
+doelpunten en 2 assists toe. Heeft een wedstrijd nog geen uitslag, dan kan een
+speler hoogstens 15 doelpunten en 15 assists hebben.
+
+Een veld boven de grens krijgt een rode rand en zegt hoeveel het hoogstens kan
+bevatten, en Opslaan wordt voor die wedstrijd geweigerd met een melding die de
+wedstrijd en de grens noemt. Niets van de doelpunten en assists van die
+wedstrijd wordt opgeslagen tot de getallen passen; pas het veld aan, of leg eerst
+de uitslag vast. Typ je de uitslag en de doelpunten in één keer, dan wordt de
+uitslag eerst opgeslagen, zodat de nieuwe grens telt.
+
+**Te hoge getallen corrigeren.** Voordat deze grens bestond, werden soms per
+ongeluk minuten in de kolom **A** getypt, waardoor een speler 70 assists in één
+wedstrijd kreeg. Open het raster voor die periode en zet het veld **A** op het
+echte aantal, of maak het leeg. De extra assists verdwijnen, samen met de
+doelpunten "zonder maker" die werden aangemaakt om ze te dragen, en de totalen
+van de speler in de rapporten dalen mee. Eén speler omlaag zetten mag altijd,
+ook als andere spelers in dezelfde wedstrijd nog te hoog staan.
+
 ### Minuten tegenover de wedstrijd
 
 De rij **Minuten** onderaan het raster controleert per wedstrijd of alle
@@ -171,8 +195,9 @@ De onderste rij van het raster laat per wedstrijd zien hoeveel doelpunten een
 maker op naam hebben tegenover de vastgelegde stand — `2/3` betekent dat één
 doelpunt in die wedstrijd nog van niemand is.
 
-Het is informatie, geen regel: niets houdt je tegen om op te slaan, en een
-verschil is vaak gewoon waar. Het staat er zodat de uitslag en het
+Het is informatie, geen regel: minder makers dan doelpunten houdt je nooit
+tegen om op te slaan, en is vaak gewoon waar. Meer makers dan doelpunten is het
+enige dat het raster weigert, zie de grens hierboven. Het staat er zodat de uitslag en het
 doelpuntenlogboek niet ongemerkt uit elkaar kunnen lopen.
 
 ### Minder kolommen tonen

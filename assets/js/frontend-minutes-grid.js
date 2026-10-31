@@ -60,6 +60,51 @@
 		return Math.max( 0, Math.min( 99, n ) );
 	}
 
+	// #4506 — a goals or assists box above the match's ceiling (our score,
+	// or the cap while no score is recorded) is marked, not clamped: a coach
+	// who typed 70 should see 70 and be told why it cannot be saved. The
+	// server holds the same line (`contributionsProblem()`).
+	function markStat( inp, message ) {
+		var td = inp.closest( 'td' );
+		if ( message ) {
+			inp.classList.add( 'is-invalid' );
+			inp.setAttribute( 'aria-invalid', 'true' );
+			inp.setAttribute( 'title', message );
+			if ( td ) {
+				td.classList.add( 'is-rejected' );
+			}
+			return;
+		}
+		inp.classList.remove( 'is-invalid' );
+		inp.removeAttribute( 'aria-invalid' );
+		inp.removeAttribute( 'title' );
+		if ( td ) {
+			td.classList.remove( 'is-rejected' );
+		}
+	}
+
+	function statMessage( max ) {
+		return ( I18N.statTooMany || '%d' ).replace( '%d', String( max ) );
+	}
+
+	function validateStat( inp ) {
+		var max = parseInt( inp.getAttribute( 'data-max' ), 10 );
+		var v = clampStat( inp.value );
+		markStat( inp, ! isNaN( max ) && v !== '' && v > max ? statMessage( max ) : '' );
+	}
+
+	// The ceiling follows the score box in the same pass: our goals when a
+	// score is typed, the cap again when it is emptied.
+	function applyScoreCeiling( activityId, raw ) {
+		var cap = typeof CFG.statCap === 'number' ? CFG.statCap : 15;
+		var digits = String( raw ).replace( /[^0-9]/g, '' );
+		var max = digits === '' ? cap : Math.max( 0, Math.min( 99, parseInt( digits, 10 ) ) );
+		grid.querySelectorAll( 'input.tt-agrid-stat-in[data-activity="' + activityId + '"]' ).forEach( function ( inp ) {
+			inp.setAttribute( 'data-max', String( max ) );
+			validateStat( inp );
+		} );
+	}
+
 	function sumInputs( tr, selector ) {
 		var total = 0;
 		tr.querySelectorAll( selector ).forEach( function ( inp ) {
@@ -270,6 +315,7 @@
 				td.classList.add( 'is-dirty' );
 				dirtyStats.add( td );
 			}
+			validateStat( inp );
 			recomputeTotal( inp.closest( 'tr' ) );
 			refresh();
 		} );
@@ -278,9 +324,15 @@
 			// Empty rather than "0": a match a player was in but did not
 			// score in should read as blank, the way the paper sheet does.
 			inp.value = v === '' || v === 0 ? '' : String( v );
+			validateStat( inp );
 			recomputeTotal( inp.closest( 'tr' ) );
 		} );
 	} );
+
+	// #4506 — once on load, so a count stored above its limit before the
+	// ceiling existed (70 assists on a 2–1 match) is marked before anyone
+	// types: that box is the one the coach has to correct.
+	grid.querySelectorAll( 'input.tt-agrid-stat-in' ).forEach( validateStat );
 
 	// #3531 — the scoreline. A live column renders as text with no input, so
 	// there is nothing here to bind and nothing that can be posted for it.
@@ -291,6 +343,9 @@
 				td.classList.add( 'is-dirty' );
 			}
 			dirtyScores.add( inp.getAttribute( 'data-activity' ) );
+			if ( inp.getAttribute( 'data-field' ) === 'home_score' ) {
+				applyScoreCeiling( inp.getAttribute( 'data-activity' ), inp.value );
+			}
 			refresh();
 		} );
 		inp.addEventListener( 'blur', function () {
@@ -450,11 +505,46 @@
 		} ).then( function ( r ) {
 			return r.json().then( function ( payload ) {
 				if ( ! r.ok || ! payload || payload.success !== true ) {
-					throw new Error( 'save_failed' );
+					var err = new Error( 'save_failed' );
+					err.payload = payload || null;
+					throw err;
 				}
 				return payload;
 			} );
 		} );
+	}
+
+	/**
+	 * #4506 — a refused goals / assists write names the boxes that broke the
+	 * ceiling in `details`. Mark them, keep them dirty, and hand the server's
+	 * message (which names the match and the limit) to the status line.
+	 */
+	function markContributionRefusal( activityId, err ) {
+		var e = err && err.payload && Array.isArray( err.payload.errors ) ? err.payload.errors[ 0 ] : null;
+		if ( ! e || ( e.code !== 'contributions_exceed_score' && e.code !== 'contributions_out_of_range' ) ) {
+			return '';
+		}
+		var d = e.details || {};
+		var message = statMessage( d.limit );
+		( d.players || [] ).forEach( function ( p ) {
+			var inp = grid.querySelector(
+				'input.tt-agrid-stat-in[data-activity="' + activityId + '"][data-player="' + p.player_id + '"][data-stat="' + p.field + '"]'
+			);
+			if ( inp ) {
+				markStat( inp, message );
+			}
+		} );
+		// A match total too high: every box of that kind the coach changed in
+		// this column is part of it.
+		( d.totals || [] ).forEach( function ( t ) {
+			dirtyStats.forEach( function ( td ) {
+				var inp = td.querySelector( 'input.tt-agrid-stat-in[data-activity="' + activityId + '"][data-stat="' + t.field + '"]' );
+				if ( inp ) {
+					markStat( inp, e.message || message );
+				}
+			} );
+		} );
+		return e.message || '';
 	}
 
 	function save() {
@@ -469,28 +559,17 @@
 			statusEl.textContent = I18N.saving || '';
 		}
 
-		var writes = [];
-
-		if ( dirty.size > 0 && CFG.restBulk ) {
-			writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ) );
-		}
-
-		if ( dirtyStats.size > 0 && CFG.restStats ) {
-			collectStatPayloads().forEach( function ( payload ) {
-				writes.push( postJson(
-					CFG.restStats + payload.activity_id + '/contributions',
-					'PUT',
-					{ players: payload.players }
-				) );
-			} );
-		}
+		var refusal = '';
 
 		// #3531 — one PUT per changed column, through the same endpoint the
 		// match page's Result card writes. Two views of one column, not two
-		// stores (#2857).
+		// stores (#2857). #4506 — written first: the score is the ceiling the
+		// goals and assists are checked against, so a score and its scorers
+		// typed in one pass must reach the server in that order.
+		var scoreWrites = [];
 		if ( dirtyScores.size > 0 && CFG.restStats ) {
 			collectScorePayloads().forEach( function ( payload ) {
-				writes.push( postJson(
+				scoreWrites.push( postJson(
 					CFG.restStats + payload.activity_id + '/result',
 					'PUT',
 					payload.body
@@ -498,10 +577,34 @@
 			} );
 		}
 
+		function otherWrites() {
+			var writes = [];
+			if ( dirty.size > 0 && CFG.restBulk ) {
+				writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ) );
+			}
+			if ( dirtyStats.size > 0 && CFG.restStats ) {
+				collectStatPayloads().forEach( function ( payload ) {
+					writes.push( postJson(
+						CFG.restStats + payload.activity_id + '/contributions',
+						'PUT',
+						{ players: payload.players }
+					)['catch']( function ( err ) {
+						var said = markContributionRefusal( payload.activity_id, err );
+						if ( said ) {
+							refusal = said;
+						}
+						throw err;
+					} ) );
+				} );
+			}
+			return Promise.all( writes );
+		}
+
 		// All or nothing for the message: a partial failure has to read as a
 		// failure, because a coach told "saved" over a half-written screen
 		// will close the tab.
-		Promise.all( writes )
+		Promise.all( scoreWrites )
+			.then( otherWrites )
 			.then( function () {
 				dirty.forEach( function ( td ) {
 					td.classList.remove( 'is-dirty' );
@@ -529,7 +632,7 @@
 				// to store.
 				if ( statusEl ) {
 					statusEl.classList.add( 'is-error' );
-					statusEl.textContent = I18N.error || '';
+					statusEl.textContent = refusal || I18N.error || '';
 				}
 				if ( saveBtn ) {
 					saveBtn.disabled = false;

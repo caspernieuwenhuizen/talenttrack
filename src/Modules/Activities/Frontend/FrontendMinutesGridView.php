@@ -10,6 +10,7 @@ use TT\Modules\Activities\Services\ActivityCompletionResolver;
 use TT\Modules\Activities\Services\ActivityGridLink;
 use TT\Modules\Analytics\Frontend\MinutesCompletenessLabels;
 use TT\Modules\Analytics\Reports\ReportFilters;
+use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -71,6 +72,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             // #4483 — the Minutes row formats its numbers the way
             // `number_format_i18n()` does on the server.
             'thousandsSep' => self::thousandsSeparator(),
+            // #4506 — the goals / assists ceiling while a column has no score.
+            'statCap'      => MatchExecutionRepository::CONTRIBUTIONS_CAP_WITHOUT_SCORE,
             'nonce'    => wp_create_nonce( 'wp_rest' ),
             'i18n'     => [
                 'saving'    => __( 'Saving…', 'talenttrack' ),
@@ -82,6 +85,9 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 'confirm'   => __( 'You have unsaved changes. Leave without saving?', 'talenttrack' ),
                 // #3337 — the same question for an in-place filter change.
                 'confirm_filter' => __( 'You have unsaved changes. Change the filter and lose them?', 'talenttrack' ),
+                // #4506 — a goals or assists box above the match's ceiling.
+                /* translators: %d: the most goals or assists one player can have in this match. */
+                'statTooMany'    => __( 'At most %d for this match', 'talenttrack' ),
                 // #4483 — the Minutes row's words, from the class the audit
                 // reads them from, so the row the script recomputes reads
                 // like the row the server renders after Save.
@@ -365,13 +371,13 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                     __( 'Goals for %1$s on %2$s', 'talenttrack' ),
                     $name,
                     $when
-                ) );
+                ), self::statCeiling( $a ) );
                 self::renderStatCell( 'assists', $pid, $aid, (int) $cell['assists'], sprintf(
                     /* translators: 1: player name, 2: match date. */
                     __( 'Assists for %1$s on %2$s', 'talenttrack' ),
                     $name,
                     $when
-                ) );
+                ), self::statCeiling( $a ) );
             }
 
             echo '<td class="tt-agrid__rate tt-agrid-cell--sep">' . esc_html( (string) number_format_i18n( $total ) ) . '</td>';
@@ -578,17 +584,37 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         );
     }
 
-    private static function renderStatCell( string $stat, int $player_id, int $activity_id, int $value, string $label ): void {
+    /**
+     * #4506 — `data-max` is the ceiling the server holds the box to: our
+     * score when one is stored, otherwise the per-player cap. A text box
+     * (so an empty cell reads blank, not 0) has no native `max`, so the
+     * script checks it and marks the box rather than clamping the number.
+     */
+    private static function renderStatCell( string $stat, int $player_id, int $activity_id, int $value, string $label, int $max ): void {
         printf(
             '<td class="tt-agrid-cell tt-agrid-stat" data-stat="%1$s">'
             . '<input class="tt-agrid-stat-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" value="%2$s"'
-            . ' data-stat="%1$s" data-player="%3$d" data-activity="%4$d" aria-label="%5$s"></td>',
+            . ' data-stat="%1$s" data-player="%3$d" data-activity="%4$d" data-max="%6$d" aria-label="%5$s"></td>',
             esc_attr( $stat ),
             esc_attr( $value > 0 ? (string) $value : '' ),
             $player_id,
             $activity_id,
-            esc_attr( $label )
+            esc_attr( $label ),
+            $max
         );
+    }
+
+    /**
+     * #4506 — the most goals or assists one player can have in this match:
+     * our stored score, or the cap while no score is stored. The same rule
+     * as `MatchExecutionRepository::contributionsProblem()`.
+     *
+     * @param array<string,mixed> $a A column from `MinutesGridQuery::matrix()`.
+     */
+    private static function statCeiling( array $a ): int {
+        return isset( $a['home_score'] )
+            ? max( 0, (int) $a['home_score'] )
+            : MatchExecutionRepository::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
     }
 
     /**
