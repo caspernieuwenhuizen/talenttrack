@@ -220,9 +220,6 @@ final class FormationLayoutResolver {
         if ( $template_id <= 0 ) return null;
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $p . 'tt_formation_templates' ) ) !== $p . 'tt_formation_templates' ) {
-            return null;
-        }
         $json = (string) $wpdb->get_var( $wpdb->prepare(
             "SELECT slots_json FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
             $template_id
@@ -264,9 +261,6 @@ final class FormationLayoutResolver {
         if ( $formation_template_id <= 0 ) return '';
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $p . 'tt_formation_templates' ) ) !== $p . 'tt_formation_templates' ) {
-            return '';
-        }
         return (string) $wpdb->get_var( $wpdb->prepare(
             "SELECT formation_shape FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
             $formation_template_id

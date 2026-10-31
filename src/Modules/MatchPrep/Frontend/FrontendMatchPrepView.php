@@ -1100,9 +1100,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
     private static function listFormationTemplates(): array {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_formation_templates';
-        // Defensive: not every install has migration 0032 applied yet.
-        $exists = $wpdb->get_var( "SHOW TABLES LIKE '{$table}'" );
-        if ( ! $exists ) return [];
         $rows = $wpdb->get_results(
             "SELECT id, name, formation_shape
                FROM {$table}
