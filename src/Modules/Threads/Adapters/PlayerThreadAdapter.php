@@ -4,7 +4,9 @@ namespace TT\Modules\Threads\Adapters;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Recipients\TeamStaffLookup;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Modules\Threads\Domain\PlayerAnchoredThread;
 use TT\Modules\Threads\Domain\ThreadTypeAdapter;
 
@@ -42,17 +44,72 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
     }
 
     /**
-     * Who is notified of a new note on a player thread: nobody. This
-     * returns no one, and `NotificationSubscriber::onPosted()` notifies
-     * only the participants an adapter returns, so a note posted on a
-     * player thread sends no email, public or staff-only. No code
-     * broadcasts to everyone `canRead()` admits. Who should be notified
-     * here is an open product decision.
+     * The functional roles on the player's team who are told about a new
+     * note: the people who act on what a colleague writes about one of
+     * their players. A kit manager or an "other" assignment is team staff
+     * too, and is left out for the reason `TeamStaffLookup` gives.
+     *
+     * @var list<string>
+     */
+    public const NOTIFIED_STAFF_ROLES = [ 'head_coach', 'assistant_coach', 'physio', 'manager' ];
+
+    /**
+     * Who is notified of a new note on a player thread (#4426).
+     *
+     * The current head coach, assistant coach, physio and team manager of
+     * the player's own team, each only when `canRead()` admits them. Staff
+     * of another team are never candidates, whatever they can read.
+     *
+     * The player and the player's guardians are never returned, not even
+     * when they also hold a staff job on the team: this thread is the staff
+     * log about the child, not a channel to the family.
+     *
+     * `NotificationSubscriber::onPosted()` then drops the author, keeps
+     * only those `ThreadAccess::canSeePrivate()` admits for a staff-only
+     * note, and sends through Comms, which honours each recipient's own
+     * notification preferences.
      *
      * @return list<int>
      */
     public function participantUserIds( int $thread_id ): array {
-        return [];
+        $player = $this->findEntity( $thread_id );
+        if ( ! $player ) return [];
+
+        $team_id = (int) ( $player->team_id ?? 0 );
+        if ( $team_id <= 0 ) return [];
+
+        $family = $this->familyUserIds( $player, $thread_id );
+
+        $out = [];
+        foreach ( TeamStaffLookup::forTeam( $team_id, self::NOTIFIED_STAFF_ROLES ) as $uid ) {
+            if ( $uid <= 0 || isset( $family[ $uid ] ) ) continue;
+            if ( ! $this->canRead( $uid, $thread_id ) ) continue;
+            $out[] = $uid;
+        }
+        return $out;
+    }
+
+    /**
+     * The player's own account and every guardian ever linked to them,
+     * keyed by user id. Every link counts, not only the ones that still
+     * give access: this list only ever removes recipients.
+     *
+     * @return array<int, true>
+     */
+    private function familyUserIds( object $player, int $player_id ): array {
+        $ids = [
+            (int) ( $player->wp_user_id ?? 0 ),
+            (int) ( $player->parent_user_id ?? 0 ),
+        ];
+        foreach ( ( new PlayerParentsRepository() )->parentsForPlayer( $player_id ) as $parent_uid ) {
+            $ids[] = (int) $parent_uid;
+        }
+
+        $out = [];
+        foreach ( $ids as $id ) {
+            if ( $id > 0 ) $out[ $id ] = true;
+        }
+        return $out;
     }
 
     public function canRead( int $user_id, int $thread_id ): bool {
@@ -67,9 +124,10 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return false;
 
         // Coach scope: must own the player's team. Matches the
-        // `r[team]` grant on the seed.
-        if ( ! current_user_can( 'tt_view_settings' )
-             && ! user_can( $user_id, 'tt_view_settings' )
+        // `r[team]` grant on the seed. Asked of `$user_id` only: the
+        // notification fan-out evaluates recipients inside the author's
+        // request, so the current user must not change the answer.
+        if ( ! user_can( $user_id, 'tt_view_settings' )
              && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
         ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );
@@ -86,8 +144,7 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
 
-        if ( ! current_user_can( 'tt_view_settings' )
-             && ! user_can( $user_id, 'tt_view_settings' )
+        if ( ! user_can( $user_id, 'tt_view_settings' )
              && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
         ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );

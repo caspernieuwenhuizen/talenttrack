@@ -18,8 +18,12 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * The filter only narrows the adapter's participant list; it never adds
  * anyone to it.
  *
+ * Who the participants are is the adapter's answer: the goal's player,
+ * author and guardians on a goal thread; the player's team staff who can
+ * read it on a player thread (#4426), never the player or the family.
+ *
  * Each recipient receives one short message with a link back to the
- * goal detail. Delivery goes through Comms (#2604), so a participant who
+ * record: the goal detail, or the Notes tab of the player. Delivery goes through Comms (#2604), so a participant who
  * has muted notifications is honoured and every fan-out leaves an audit
  * row — including one for a thread whose participants all turned out to
  * be unreachable, which used to be indistinguishable from a send that
@@ -68,7 +72,9 @@ final class NotificationSubscriber {
             $author_name
         );
         $message_body = self::messagePreview( $msg_id );
-        $deep_link = self::goalDeepLink( $thread_id );
+        $deep_link = $type === 'player'
+            ? self::playerNotesDeepLink( $thread_id )
+            : self::goalDeepLink( $thread_id );
 
         $body = $intro . "\n\n" . $message_body;
         if ( $deep_link !== '' ) $body .= "\n\n" . __( 'View:', 'talenttrack' ) . ' ' . $deep_link;
@@ -91,6 +97,15 @@ final class NotificationSubscriber {
         ) );
         $body = wp_strip_all_tags( $body );
         return mb_substr( $body, 0, 500 );
+    }
+
+    /**
+     * A player thread's id is the player id; its messages live on the
+     * player's Notes tab.
+     */
+    private static function playerNotesDeepLink( int $player_id ): string {
+        $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id );
+        return $url === '' ? '' : add_query_arg( [ 'tab' => 'notes' ], $url );
     }
 
     private static function goalDeepLink( int $goal_id ): string {

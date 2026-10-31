@@ -449,6 +449,15 @@ staf-only-recht). De speler en
 de ouder krijgen er geen melding van, en de melding bereikt nooit iemand die
 geen deelnemer is.
 
+Bij de stafnotities van een speler zijn de deelnemers de staf van het eigen
+team van de speler: de hoofdcoach, assistent-coach, fysio en teammanager van
+dat team, elk alleen als die de notities van deze speler mag lezen. De
+schrijver krijgt geen melding van de eigen notitie, en een staf-only notitie
+gaat alleen naar wie van hen haar mag lezen. Staf van een ander team krijgt
+nooit een melding, en de speler en de ouders ook niet, ook niet als een ouder
+een staffunctie in het team heeft. Iedereen kan deze mails uitzetten onder
+**Mijn instellingen → Berichten die je ontvangt**.
+
 Notities van vóór deze wijziging blijven precies zoals ze zijn. Nergens is
 vastgelegd dát er iets verbreed is, dus de betrokken notities zijn alleen
 te gokken uit de rechten die de schrijver toen had — en een notitie opnieuw

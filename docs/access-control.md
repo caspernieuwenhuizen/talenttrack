@@ -500,6 +500,15 @@ staff-only right existed). The player
 and the guardian are not notified, and the notification never reaches
 anyone who is not a participant.
 
+On a player's staff notes, the participants are the player's own team
+staff: the head coach, assistant coach, physio and team manager of the
+player's team, each only when they can read that player's notes. The author
+is not notified of their own note, and a staff-only note goes only to those
+of them who may read it. Staff of another team are never notified, and
+neither are the player or the guardians, also when a guardian holds a staff
+job on the team. Each person can turn these emails off under
+**My settings → Messages you receive**.
+
 Notes written before this landed are left exactly as they are. Nothing
 recorded that a widening had happened, so the affected notes could only be
 guessed at from the author's rights at the time — and re-hiding a note a
