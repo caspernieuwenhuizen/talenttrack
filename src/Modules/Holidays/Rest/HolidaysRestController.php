@@ -305,10 +305,11 @@ final class HolidaysRestController {
         $id         = (int) $row->id;
         $start      = (string) $row->start_date;
         $end        = (string) $row->end_date;
-        $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+        // #4505 — plain target; the list table appends `tt_back` in the browser.
+        $detail_url = add_query_arg(
             [ 'tt_view' => 'holidays', 'id' => $id ],
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-        ) );
+        );
         return [
             'id'         => $id,
             'uuid'       => (string) $row->uuid,

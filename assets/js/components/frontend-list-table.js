@@ -53,6 +53,69 @@
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    /*
+     * #4505 — the list REST endpoints return plain target URLs, so a
+     * payload is the same whichever page asked for it. The back hint
+     * belongs to the page showing the list: `tt_back` is this page's URL,
+     * added once, encoded and capped at five hops the way
+     * `BackLink::appendTo()` does it on the PHP side.
+     */
+    var BACK_PARAM = 'tt_back';
+    var BACK_MAX_DEPTH = 5;
+
+    function parseUrl(href) {
+        try { return new URL(href, window.location.href); } catch (e) { return null; }
+    }
+
+    /** Drop the innermost hops of a `tt_back` chain until it fits. */
+    function truncateBackChain(href, maxHops) {
+        var u = parseUrl(href);
+        if (!u) return href;
+        var inner = u.searchParams.get(BACK_PARAM);
+        if (!inner) return href;
+        if (maxHops <= 1) {
+            u.searchParams.delete(BACK_PARAM);
+            return u.toString();
+        }
+        var truncated = truncateBackChain(inner, maxHops - 1);
+        if (truncated === inner) return href;
+        u.searchParams.set(BACK_PARAM, truncated);
+        return u.toString();
+    }
+
+    /**
+     * The link with this page as its back target. Left alone when it is
+     * empty, on another origin, not a `tt_view` route, or already carries
+     * a `tt_back`, so a link is never given a second one.
+     */
+    function withBack(href) {
+        if (!href) return href;
+        var u = parseUrl(href);
+        if (!u || u.origin !== window.location.origin) return href;
+        if (!u.searchParams.has('tt_view') || u.searchParams.has(BACK_PARAM)) return href;
+        var current = truncateBackChain(window.location.href, BACK_MAX_DEPTH - 1);
+        var s = String(href);
+        var hash = '';
+        var at = s.indexOf('#');
+        if (at !== -1) { hash = s.slice(at); s = s.slice(0, at); }
+        return s + (s.indexOf('?') === -1 ? '?' : '&') + BACK_PARAM + '=' + encodeURIComponent(current) + hash;
+    }
+
+    /** Add the back hint to the links inside rendered row cells. */
+    function addBackToLinks(container) {
+        if (!container || !container.querySelectorAll) return;
+        var links = container.querySelectorAll('a[href]');
+        for (var i = 0; i < links.length; i++) {
+            var a = links[i];
+            // Row actions come from the view's own config, rendered with
+            // the page; they are not REST payload links.
+            if (a.classList && a.classList.contains('tt-list-table-action')) continue;
+            var href = a.getAttribute('href');
+            var next = withBack(href);
+            if (next !== href) a.setAttribute('href', next);
+        }
+    }
+
     function renderCell(col, row) {
         var v = row[col.value_key];
         if (col.render === 'percent') return v == null ? '—' : (v + '%');
@@ -201,7 +264,7 @@
         var rowClass = '';
         var rowUrlKey = config.row_url_key;
         if (rowUrlKey && row[rowUrlKey]) {
-            rowAttrs += ' data-row-href="' + escapeHtml(String(row[rowUrlKey])) + '"';
+            rowAttrs += ' data-row-href="' + escapeHtml(withBack(String(row[rowUrlKey]))) + '"';
             rowAttrs += ' role="link" tabindex="0"';
             rowClass = ' class="is-row-link"';
         }
@@ -308,9 +371,11 @@
             // row-link wiring is needed.
             var key = config.card_value_key || 'card_html';
             tbody.innerHTML = rows.map(function(r) { return r[key] == null ? '' : String(r[key]); }).join('');
+            addBackToLinks(tbody);
             return;
         }
         tbody.innerHTML = rows.map(function(r) { return renderRow(config, r); }).join('');
+        addBackToLinks(tbody);
     }
 
     /**

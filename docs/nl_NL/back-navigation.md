@@ -288,12 +288,12 @@ Drop-in vervanging van `RecordLink::detailUrlFor()` — dezelfde URL
 plus de `tt_back` query-parameter.
 
 Ruwe URL-bouwers die `RecordLink` niet gebruiken pakken in met
-`BackLink::appendTo()`. REST-controllers die detail-URL's emitteren
-(bijv. `name_link_html` in de spelerslijst) gebruiken eveneens
-`RecordLink::detailUrlForWithBack()`. In een REST-context leest
-`BackLink::captureCurrent()` de pagina-URL uit de HTTP-`Referer`-
+`BackLink::appendTo()`. REST-controllers gebruiken **geen** van beide
+helpers: ze geven kale URL's terug (zie hieronder). In een REST-context
+leest `BackLink::captureCurrent()` de pagina-URL uit de HTTP-`Referer`-
 header (de pagina die de AJAX-call startte) in plaats van
-`REQUEST_URI` (dat naar het REST-eindpunt wijst).
+`REQUEST_URI` (dat naar het REST-eindpunt wijst). Daarom zou een
+REST-veld dat de hint toevoegt per pagina een ander antwoord geven.
 
 ### Domeincode geeft kale URL's terug
 
@@ -320,16 +320,23 @@ van de onboarding-pijplijn, de `url` van `GET /me/search`,
 `ActivityGridLink` en `ActivityCompletionResolver` allemaal kale URL's
 terug. De views die ze tonen voegen `tt_back` toe.
 
-De `*_link_html`-velden die lijst-eindpunten voor `FrontendListTable`
-teruggeven, zijn bewust weergave-uitvoer en houden de hint. Dat geldt ook
-voor de twee service-helpers die markup bouwen in plaats van een URL terug
-te geven: `EmptyRegisterConfirm::guardAttributes()` en `DocLinkResolver`.
+**Lijsten die via REST laden, voegen de hint toe in de browser.** De
+lijst-eindpunten achter `FrontendListTable` geven ook hun `detail_url`,
+`row_url` en de links binnen `*_link_html` kaal terug.
+`assets/js/components/frontend-list-table.js` voegt `tt_back` toe (de
+pagina die de lijst toont, maximaal vijf stappen diep, zoals
+`BackLink::appendTo()`) wanneer het een rij tekent:
+- aan de klik-URL van de rij (`row_url_key`);
+- aan elke `tt_view`-link van dezelfde site binnen de cellen van de rij,
+  een `tt-record-link` of een pil of knop.
 
-**Huidige uitzondering.** Drie lijsttabel-controllers voegen nog `tt_back`
-toe aan een kaal URL-veld van hun rijen: `HolidaysRestController.php:308`,
-`MatchExecutionRestController.php:321` en `PdpFilesRestController.php:503`
-en `:665`. Dit is bekend, en een vervolgstap brengt ze onder de regel.
-Neem het patroon niet over.
+Een link die al een `tt_back` heeft, houdt die en krijgt geen tweede. De
+eigen rijacties van de view worden met de pagina getekend en blijven zoals
+ze zijn.
+
+Twee service-helpers bouwen markup in plaats van een URL terug te geven, en
+voegen de hint nog zelf toe: `EmptyRegisterConfirm::guardAttributes()` en
+`DocLinkResolver`.
 
 ## Een nieuwe view legt ook zijn helponderwerp vast
 

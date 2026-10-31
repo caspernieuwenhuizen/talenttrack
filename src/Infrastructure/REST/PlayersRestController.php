@@ -977,7 +977,7 @@ class PlayersRestController {
 
         // #0070 — pre-render link HTML for name / team / parent so the
         // frontend list table can show clickable cells via render: html.
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', (int) $pl->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $pl->id,
             $detail_url
@@ -989,7 +989,7 @@ class PlayersRestController {
         if ( $team_id > 0 && $team_name !== '' ) {
             $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $team_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
             );
         }
 
