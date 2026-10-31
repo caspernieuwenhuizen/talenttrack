@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Workflow\Repositories\TasksRepository;
+use TT\Modules\Workflow\TaskAccess;
 use TT\Modules\Workflow\TaskStatus;
 use TT\Modules\Workflow\WorkflowModule;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -43,6 +44,11 @@ class FrontendTaskDetailView extends FrontendViewBase {
 
         $repo = new TasksRepository();
         $task = $repo->find( $task_id );
+        // A task the viewer may not open reads exactly like one that does
+        // not exist, so the page does not confirm which ids are in use.
+        if ( $task !== null && ! TaskAccess::canView( $user_id, $task ) ) {
+            $task = null;
+        }
 
         // Breadcrumb chain — resolve the template's translated name
         // instead of leaking the raw `template_key` into the crumb (a
@@ -80,7 +86,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
         // bridge resolves via `canAnyScope` and would also let a
         // coach with `task_completion [rc, self]` through. Only
         // academy_admin holds the global entry today.
-        $can_takeover = MatrixGate::can( $user_id, 'task_completion', 'create', MatrixGate::SCOPE_GLOBAL );
+        $can_takeover = TaskAccess::canCompleteOnBehalf( $user_id );
         $can_submit   = $is_assignee || $can_takeover;
         $is_takeover  = $can_takeover && ! $is_assignee;
 

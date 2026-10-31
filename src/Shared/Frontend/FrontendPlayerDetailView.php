@@ -198,6 +198,32 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /**
+     * The section read and, for a linked parent, the child's own switch and
+     * status: the pair the evaluations and goals REST routes ask. Without
+     * the second half the profile offered a parent a tab the child kept
+     * private, while the API behind it refused.
+     */
+    private static function mayReadSection( int $user_id, int $player_id, string $section ): bool {
+        return AuthorizationService::canReadPlayerSection( $user_id, $player_id, $section )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, $section );
+    }
+
+    /**
+     * The measurements read the tab, the tile and the panel ask, plus the
+     * child's switch the measurements REST route asks.
+     */
+    private static function mayReadMeasurements( int $user_id, int $player_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'measurements' );
+    }
+
+    /** The PDP file read plus the child's switch, as the family PDP route asks. */
+    private static function mayReadPdp( int $user_id, int $player_id ): bool {
+        return MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'pdp' );
+    }
+
+    /**
      * Tab key → human label. Per #1107, dev-data tabs (Evaluations,
      * PDP, Trials) are matrix-gated so AC users (whose seed strips
      * `evaluations`, `pdp_file`, `trial_*` per #1060 / migration 0136)
@@ -225,19 +251,22 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * assistant coach's `my_evaluations` at `self`) open every player's
      * evaluations.
      *
+     * The child's own switch applies to every section it covers: a tab is
+     * offered only where its panel, and the REST route behind it, answer.
+     *
      * @return array<string,string>  tab key => human label
      */
     private static function tabs( int $user_id, int $player_id ): array {
         $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
 
-        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'goals' ) ) {
+        if ( self::mayReadSection( $user_id, $player_id, 'goals' ) ) {
             $tabs['goals'] = __( 'Goals', 'talenttrack' );
         }
-        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
+        if ( self::mayReadSection( $user_id, $player_id, 'evaluations' ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
         // #1892 — measurements in context, beside evaluations (dev-data).
-        if ( MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ ) ) {
+        if ( self::mayReadMeasurements( $user_id, $player_id ) ) {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
         if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'activities' ) ) {
@@ -255,7 +284,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // own `training_exposure` entity rather than on `training_plan`:
         // reading a player's training history and planning a training are
         // different rights, and this one is player data (D16).
-        if ( MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ ) ) {
+        if ( MatrixGate::canAnyScope( $user_id, 'training_exposure', MatrixGate::READ )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'training' ) ) {
             $tabs['training'] = __( 'Training', 'talenttrack' );
         }
         // #3562 (epic #3558) — the tournament days, where a coach rotates
@@ -267,7 +297,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // holds it on their own squads, a parent on their own child. A looser
         // question on the strip would offer a tab whose panel then refuses,
         // which is what #3468 fixed on the Injuries tab.
-        if ( \TT\Modules\Tournaments\PlayerTournamentAccess::canRead( $user_id, $player_id ) ) {
+        if ( \TT\Modules\Tournaments\PlayerTournamentAccess::canRead( $user_id, $player_id )
+            && AuthorizationService::parentCanViewSection( $user_id, $player_id, 'tournaments' ) ) {
             $tabs['tournaments'] = __( 'Tournaments', 'talenttrack' );
         }
         // #2061 (epic #2002) — per-player Strava connection + imported
@@ -283,7 +314,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( MatrixGate::canAnyScope( $user_id, 'strava_integration', MatrixGate::READ ) ) {
             $tabs['strava'] = __( 'Strava', 'talenttrack' );
         }
-        if ( MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ ) ) {
+        if ( self::mayReadPdp( $user_id, $player_id ) ) {
             $tabs['pdp'] = __( 'PDP cycle', 'talenttrack' );
         }
         if ( MatrixGate::canAnyScope( $user_id, 'trial_cases', MatrixGate::READ ) ) {
@@ -1071,7 +1102,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // arrow) don't leak through the side door.
                 // #4256 — the same per-player question the Evaluations tab
                 // asks, so the tile and the tab always agree.
-                if ( AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
+                if ( self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'evaluations' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Avg rating', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -1097,6 +1128,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint"><?php echo esc_html( $kpis['attendance']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php if ( self::mayReadSection( get_current_user_id(), $player_id, 'goals' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'goals' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Goals', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -1106,6 +1138,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['goals']['trend_class'] ); ?>"><?php echo esc_html( $kpis['goals']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php endif; ?>
                 <?php // #2859 — "Goals scored", never bare "Goals": the tile
                       // beside it counts development goals, and one word cannot
                       // carry both senses on the same strip. Links to Activities,
@@ -1124,7 +1157,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // `measurements:read` gate as the Measurements tab so the
                 // tracked-test count + below-target hint never leak to a
                 // viewer who can't open the underlying timeline (§1 privacy).
-                if ( MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) : ?>
+                if ( self::mayReadMeasurements( get_current_user_id(), $player_id ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'measurements' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Measurements', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -2240,7 +2273,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // direct URL keep agreeing. `my_evaluations` is what the player
         // persona holds; asking only for `evaluations` refused the player
         // the one tab a coach writes for them to read.
-        if ( ! AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) {
+        if ( ! self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -2350,7 +2383,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * @param array{is_family: bool, is_self: bool, player_id: int} $viewer
      */
     private static function renderMeasurementsTab( int $player_id, array $viewer ): void {
-        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'measurements', MatrixGate::READ ) ) {
+        if ( ! self::mayReadMeasurements( get_current_user_id(), $player_id ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view measurements for this player.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -2529,7 +2562,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     /** PDP tab — active cycle with 4-step progress bar + past cycles list. */
     private static function renderPdpTab( int $player_id ): void {
         // #1107 — defense in depth. See renderEvaluationsTab note.
-        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'pdp_file', MatrixGate::READ ) ) {
+        if ( ! self::mayReadPdp( get_current_user_id(), $player_id ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP files for this player.', 'talenttrack' ) . '</p>';
             return;
         }

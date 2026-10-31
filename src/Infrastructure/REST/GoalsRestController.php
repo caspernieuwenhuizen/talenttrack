@@ -173,7 +173,11 @@ class GoalsRestController {
         $player_id = (int) $r['id'];
         if ( $uid <= 0 || $player_id <= 0 ) return false;
 
-        return \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id );
+        // Reading the player is not reading their goals: the team's staff
+        // read the first and not the second. The same pair
+        // `players/{id}/evaluations` asks.
+        return \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $uid, $player_id )
+            && \TT\Infrastructure\Security\AuthorizationService::canReadPlayerSection( $uid, $player_id, 'goals' );
     }
 
     /**
