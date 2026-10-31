@@ -909,6 +909,13 @@ class ActivitiesRestController {
      * The scoreline is never written. A mismatch between attributed goals and
      * `home_score` is information the grid shows in its footer, not an error
      * to correct behind the coach's back.
+     *
+     * #4506 — but the score is a ceiling. More goals or assists than our
+     * stored score, per player or added up, is `400
+     * contributions_exceed_score`; with no score stored, more than 15 per
+     * player is `400 contributions_out_of_range`. The rule is
+     * `MatchExecutionRepository::contributionsProblem()`, and nothing in the
+     * batch is written when it refuses.
      */
     /**
      * #3530 — GET /activities/{id}/result. The same payload the rendered
@@ -1047,23 +1054,74 @@ class ActivitiesRestController {
         $saved   = 0;
         $skipped = 0;
 
+        $counts = [];
         foreach ( $players as $row ) {
             if ( ! is_array( $row ) ) { $skipped++; continue; }
 
             $pid = absint( $row['player_id'] ?? 0 );
             if ( $pid <= 0 || $repo->playerTeamId( $pid ) !== $team ) { $skipped++; continue; }
 
-            // Capped rather than refused: a coach who holds a key down should
-            // get a number, not an error dialog. 99 is far beyond any real
-            // youth match and still obviously a typo when it appears.
-            $goals   = min( 99, absint( $row['goals'] ?? 0 ) );
-            $assists = min( 99, absint( $row['assists'] ?? 0 ) );
+            $counts[ $pid ] = [
+                'goals'   => absint( $row['goals'] ?? 0 ),
+                'assists' => absint( $row['assists'] ?? 0 ),
+            ];
+        }
 
-            $exec->setContributions( $activity_id, $pid, $goals, $assists );
+        // #4506 — refused whole, before anything is written: the counts
+        // have to fit what the match's score allows (our score when one is
+        // stored, otherwise a per-player cap). Minutes typed into the
+        // assists box used to become 70 assists for one player.
+        $problem = $exec->contributionsProblem( $activity_id, $counts );
+        if ( $problem !== null ) {
+            return self::contributionsRefusal( $activity_id, $problem );
+        }
+
+        foreach ( $counts as $pid => $c ) {
+            $exec->setContributions( $activity_id, $pid, $c['goals'], $c['assists'] );
             $saved++;
         }
 
         return RestResponse::success( [ 'saved' => $saved, 'skipped' => $skipped ] );
+    }
+
+    /**
+     * #4506 — `400 contributions_exceed_score` / `contributions_out_of_range`,
+     * naming the match and the limit, with the counts that broke it in
+     * `details` so a client can mark the boxes.
+     *
+     * @param array{code:string, limit:int, scored:bool, title:string, players:list<array{player_id:int, field:string, value:int}>, totals:list<array{field:string, value:int}>} $problem
+     */
+    private static function contributionsRefusal( int $activity_id, array $problem ): \WP_REST_Response {
+        $title = $problem['title'] !== '' ? $problem['title'] : __( 'Match', 'talenttrack' );
+        $limit = $problem['limit'];
+
+        $message = $problem['scored']
+            ? sprintf(
+                /* translators: 1: match title, 2: our goals in the stored score. */
+                _n(
+                    '%1$s: no player can have more goals or assists than the %2$d goal the team scored, and together they cannot add up to more.',
+                    '%1$s: no player can have more goals or assists than the %2$d goals the team scored, and together they cannot add up to more.',
+                    $limit,
+                    'talenttrack'
+                ),
+                $title,
+                $limit
+            )
+            : sprintf(
+                /* translators: 1: match title, 2: the most goals or assists one player can have. */
+                __( '%1$s has no score yet, so a player can have at most %2$d goals and %2$d assists. Record the score to check against it.', 'talenttrack' ),
+                $title,
+                $limit
+            );
+
+        return RestResponse::error( $problem['code'], $message, 400, [
+            'activity_id' => $activity_id,
+            'title'       => $problem['title'],
+            'limit'       => $limit,
+            'scored'      => $problem['scored'],
+            'players'     => $problem['players'],
+            'totals'      => $problem['totals'],
+        ] );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */
@@ -2188,7 +2246,7 @@ class ActivitiesRestController {
     private static function contributionsArgs(): array {
         return [
             'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
-            'players'     => [ 'type' => 'array', 'description' => 'The minutes per player. A player the list leaves out keeps what is stored.' ],
+            'players'     => [ 'type' => 'array', 'description' => 'Goals and assists per player: [ { player_id, goals, assists } ]. A player the list leaves out keeps what is stored. With a score stored, no count, and neither match total, may exceed our score (400 contributions_exceed_score); with none, each count is at most 15 (400 contributions_out_of_range). Nothing is written when the batch is refused.' ],
         ];
     }
 

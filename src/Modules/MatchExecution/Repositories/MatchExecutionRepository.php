@@ -385,6 +385,86 @@ class MatchExecutionRepository {
         }
     }
 
+    /**
+     * #4506 — the most goals, and the most assists, one player can be
+     * credited with in a match whose score was never recorded. No youth
+     * match legitimately needs more.
+     */
+    public const CONTRIBUTIONS_CAP_WITHOUT_SCORE = 15;
+
+    /**
+     * #4506 — the ceiling a batch of counts for one match must stay under,
+     * checked before {@see setContributions()} writes any of it.
+     *
+     * Nothing used to question a count: minutes typed into the assists box
+     * became 70 assists for one player in one match, each above the free
+     * goals a `player_id = 0` placeholder carrying it. The ceiling:
+     *
+     *  - **a score is stored**: our score (`tt_activities.home_score`, ours
+     *    whatever the venue, #4066). No player can have scored, or set up,
+     *    more goals than the team scored; and the match's attributed goals,
+     *    and its assists, cannot add up to more after this write. The match
+     *    totals only refuse a write that *raises* them past the ceiling, so
+     *    lowering one inflated player is never blocked by another one still
+     *    waiting to be corrected;
+     *  - **no score is stored**: {@see CONTRIBUTIONS_CAP_WITHOUT_SCORE} per
+     *    player, goals and assists each.
+     *
+     * Lowering an inflated count is how bad data is corrected:
+     * {@see reconcileAssists()} reverses the placeholders as the count comes
+     * down, so no clean-up migration is needed.
+     *
+     * @param array<int, array{goals:int, assists:int}> $counts player id => the counts this write sets
+     * @return array{code:string, limit:int, scored:bool, title:string, players:list<array{player_id:int, field:string, value:int}>, totals:list<array{field:string, value:int}>}|null null when the batch fits
+     */
+    public function contributionsProblem( int $activity_id, array $counts ): ?array {
+        if ( $activity_id <= 0 || $counts === [] ) return null;
+
+        $match = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT home_score, title FROM {$this->wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        $scored = is_object( $match ) && $match->home_score !== null;
+        $limit  = $scored ? max( 0, (int) $match->home_score ) : self::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
+
+        $players = [];
+        foreach ( $counts as $pid => $c ) {
+            foreach ( [ 'goals', 'assists' ] as $field ) {
+                $value = max( 0, (int) $c[ $field ] );
+                if ( $value > $limit ) {
+                    $players[] = [ 'player_id' => (int) $pid, 'field' => $field, 'value' => $value ];
+                }
+            }
+        }
+
+        $totals = [];
+        if ( $scored ) {
+            $before = $this->contributionsByActivity( [ $activity_id ] )[ $activity_id ] ?? [];
+            $after  = $before;
+            foreach ( $counts as $pid => $c ) {
+                $after[ (int) $pid ] = [ 'goals' => max( 0, (int) $c['goals'] ), 'assists' => max( 0, (int) $c['assists'] ) ];
+            }
+            foreach ( [ 'goals', 'assists' ] as $field ) {
+                $pre  = array_sum( array_column( $before, $field ) );
+                $post = array_sum( array_column( $after, $field ) );
+                if ( $post > $limit && $post > $pre ) {
+                    $totals[] = [ 'field' => $field, 'value' => (int) $post ];
+                }
+            }
+        }
+
+        if ( $players === [] && $totals === [] ) return null;
+
+        return [
+            'code'    => $scored ? 'contributions_exceed_score' : 'contributions_out_of_range',
+            'limit'   => $limit,
+            'scored'  => $scored,
+            'title'   => is_object( $match ) ? (string) ( $match->title ?? '' ) : '',
+            'players' => $players,
+            'totals'  => $totals,
+        ];
+    }
+
     /** @return list<int> executions whose goal rows this call reversed */
     private function reconcileGoals( int $activity_id, int $player_id, int $target ): array {
         // Manual rows first in the ordering, so a count-down reverses what

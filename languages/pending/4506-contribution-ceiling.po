@@ -1,0 +1,16 @@
+#. translators: 1: match title, 2: our goals in the stored score.
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "%1$s: no player can have more goals or assists than the %2$d goal the team scored, and together they cannot add up to more."
+msgid_plural "%1$s: no player can have more goals or assists than the %2$d goals the team scored, and together they cannot add up to more."
+msgstr[0] "%1$s: geen speler kan meer doelpunten of assists hebben dan het %2$d doelpunt dat het team scoorde, en samen kunnen ze er niet boven uitkomen."
+msgstr[1] "%1$s: geen speler kan meer doelpunten of assists hebben dan de %2$d doelpunten die het team scoorde, en samen kunnen ze er niet boven uitkomen."
+
+#. translators: 1: match title, 2: the most goals or assists one player can have.
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "%1$s has no score yet, so a player can have at most %2$d goals and %2$d assists. Record the score to check against it."
+msgstr "%1$s heeft nog geen uitslag, dus een speler kan hoogstens %2$d doelpunten en %2$d assists hebben. Leg de uitslag vast om daartegen te controleren."
+
+#. translators: %d: the most goals or assists one player can have in this match.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
+msgid "At most %d for this match"
+msgstr "Hoogstens %d voor deze wedstrijd"
