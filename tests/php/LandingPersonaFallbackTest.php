@@ -9,6 +9,7 @@ use TT\Modules\Activities\Services\CoachWeek;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\PersonaResolver;
 use TT\Modules\PersonaDashboard\Frontend\PersonaLandingRenderer;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendAppNav;
 use TT\Shared\Frontend\FrontendTileGrid;
 use TT\Shared\Tiles\TileRegistry;
@@ -70,7 +71,7 @@ final class LandingPersonaFallbackTest extends WP_UnitTestCase {
 
         $this->assertLandingDressedAs( 'head_coach' );
         $this->assertTrue( CoachWeek::visibleFor( $uid ), 'the coach sees their week' );
-        $this->assertSame( 'Head Coach', $this->navRole( $uid ) );
+        $this->assertSame( 'Head coach', $this->navRole( $uid ) );
     }
 
     public function test_all_three_follow_the_switch(): void {
@@ -88,7 +89,29 @@ final class LandingPersonaFallbackTest extends WP_UnitTestCase {
         update_user_meta( $uid, 'tt_active_persona', 'head_coach' );
         $this->assertLandingDressedAs( 'head_coach' );
         $this->assertTrue( CoachWeek::visibleFor( $uid ) );
-        $this->assertSame( 'Head Coach', $this->navRole( $uid ) );
+        $this->assertSame( 'Head coach', $this->navRole( $uid ) );
+    }
+
+    /** #4473 — persona labels read in sentence case. */
+    public function test_persona_labels_are_sentence_case(): void {
+        $this->assertSame( 'Head coach', FrontendAppChrome::personaLabel( 'head_coach' ) );
+        $this->assertSame( 'Assistant coach', FrontendAppChrome::personaLabel( 'assistant_coach' ) );
+        $this->assertSame( 'Head of development', FrontendAppChrome::personaLabel( 'head_of_development' ) );
+        $this->assertSame( 'Team manager', FrontendAppChrome::personaLabel( 'team_manager' ) );
+        $this->assertSame( 'Academy admin', FrontendAppChrome::personaLabel( 'academy_admin' ) );
+    }
+
+    /** #4490 — a staff member's role shows in the nav foot and the top-bar chip. */
+    public function test_a_staff_member_gets_a_role_label(): void {
+        $uid = self::factory()->user->create( [ 'role' => 'tt_staff', 'display_name' => 'Fysio Staf' ] );
+        AuthorizationService::flushCache();
+        wp_set_current_user( $uid );
+
+        $this->assertSame( 'staff', PersonaResolver::landingPersona( $uid ) );
+        $this->assertSame( 'Staff', FrontendAppChrome::personaLabel( 'staff' ) );
+        $this->assertStringContainsString( '<span>Staff</span>', FrontendAppChrome::personaChipInner( new \WP_User( $uid ) ) );
+        $this->assertNotSame( [], FrontendAppNav::groups( $uid ), 'precondition: the staff member has a nav to render' );
+        $this->assertSame( 'Staff', $this->navRole( $uid ) );
     }
 
     public function test_a_players_tile_grid_still_treats_them_as_a_player(): void {

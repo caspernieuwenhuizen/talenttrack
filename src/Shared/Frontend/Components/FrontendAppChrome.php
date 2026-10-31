@@ -34,13 +34,17 @@ final class FrontendAppChrome {
         return [
             'player'              => __( 'Player', 'talenttrack' ),
             'parent'              => __( 'Parent', 'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant Coach', 'talenttrack' ),
-            'head_coach'          => __( 'Head Coach', 'talenttrack' ),
-            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
+            // #4473 — sentence case (docs/ui-copy.md), with a context so the
+            // label does not share a msgid with the same words elsewhere.
+            'assistant_coach'     => _x( 'Assistant coach', 'persona label', 'talenttrack' ),
+            'head_coach'          => _x( 'Head coach', 'persona label', 'talenttrack' ),
+            'head_of_development' => _x( 'Head of development', 'persona label', 'talenttrack' ),
             'scout'               => __( 'Scout', 'talenttrack' ),
-            'team_manager'        => __( 'Team Manager', 'talenttrack' ),
-            'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
+            'team_manager'        => _x( 'Team manager', 'persona label', 'talenttrack' ),
+            'academy_admin'       => _x( 'Academy admin', 'persona label', 'talenttrack' ),
             'readonly_observer'   => __( 'Observer', 'talenttrack' ),
+            // #4490 — physios, team managers and other staff on `tt_staff`.
+            'staff'               => _x( 'Staff', 'persona label', 'talenttrack' ),
         ];
     }
 
