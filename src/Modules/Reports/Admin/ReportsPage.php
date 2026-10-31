@@ -263,6 +263,7 @@ class ReportsPage {
 
         $days = isset( $_GET['days'] ) ? max( 1, min( 365, absint( $_GET['days'] ) ) ) : 30;
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $club_id = CurrentClub::id();
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.coach_id,
@@ -270,9 +271,11 @@ class ReportsPage {
                     MAX(e.created_at) AS last_eval
              FROM {$p}tt_evaluations e
              WHERE e.created_at >= %s AND e.archived_at IS NULL
+               AND e.club_id = %d
              GROUP BY e.coach_id
              ORDER BY total_in_window DESC, last_eval DESC",
-            $cutoff
+            $cutoff,
+            $club_id
         ) );
         ?>
         <h1><?php esc_html_e( 'Coach activity', 'talenttrack' ); ?></h1>
