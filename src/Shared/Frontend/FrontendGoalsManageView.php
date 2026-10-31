@@ -43,6 +43,19 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 
+        // #4488 — the create form only for a user the save would accept.
+        if ( $action === 'new'
+             && ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_goals' )
+        ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Not authorized', 'talenttrack' ),
+                [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'goals', __( 'Goals', 'talenttrack' ) ) ]
+            );
+            self::renderHeader( __( 'Goals', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to do that.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // v3.92.1 — breadcrumb chain reflects action/id state.
         $current = __( 'Goals', 'talenttrack' );
         $intermediate = null;
@@ -460,11 +473,13 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 'headline'  => __( 'No goals yet', 'talenttrack' ),
                 'explainer' => __( 'Goals capture what each player is working on this season. Set the first one to give training a direction.', 'talenttrack' ),
                 'cta_label' => __( 'Add first goal', 'talenttrack' ),
-                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                    'new-goal',
-                    add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
-                ),
-                'cta_cap'   => 'tt_edit_goals',
+                // #4488 — decided here, matrix-aware; an empty URL drops the button.
+                'cta_url'   => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_goals' )
+                    ? \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                        'new-goal',
+                        add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                    )
+                    : '',
             ],
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',

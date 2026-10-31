@@ -70,7 +70,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
         // v3.110.55 — edit mode. Same form as create, switched to PUT
         // and prefilled. Cap-gated; falls through to the read-only
         // detail when the user can't edit.
-        if ( $action === 'edit' && $id > 0 && current_user_can( 'tt_edit_evaluations' ) ) {
+        if ( $action === 'edit' && $id > 0
+             && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' )
+        ) {
             $existing = self::loadEvaluation( $id );
             // #4001 — the edit branch refuses exactly as the detail branch
             // does. `tt_edit_evaluations` is club-wide, so the check above
@@ -251,11 +253,13 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 'headline'  => __( 'No evaluations yet', 'talenttrack' ),
                 'explainer' => __( 'Evaluations capture how each player performed in a training or match. Record the first one after your next activity.', 'talenttrack' ),
                 'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
-                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                    'new-evaluation',
-                    add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
-                ),
-                'cta_cap'   => 'tt_edit_evaluations',
+                // #4488 — decided here, matrix-aware; an empty URL drops the button.
+                'cta_url'   => \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' )
+                    ? \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                        'new-evaluation',
+                        add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                    )
+                    : '',
             ],
             // v3.110.170 — row-link standard. EvaluationsRestController
             // emits `detail_url` (same URL the inline date/avg cells use)
