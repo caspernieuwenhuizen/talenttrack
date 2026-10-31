@@ -87,8 +87,6 @@
 }
 
 .tt-training-publish .tt-btn {
-    /* 48px minimum tap target — this one sends mail. */
-    min-height: 48px;
     touch-action: manipulation;
 }
 

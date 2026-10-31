@@ -66,7 +66,6 @@
 
 .tt-extag__group-all {
     margin-left: auto;
-    min-height: 40px;
     font-size: var(--tt-fs-sm, 0.8125rem);
 }
 
@@ -250,11 +249,6 @@
     display: grid;
     gap: var(--tt-sp-2, 8px);
 }
-
-.tt-extag__actions .tt-btn {
-    min-height: 48px;
-}
-
 .tt-extag__msg {
     margin: 0;
     min-height: 1.4em;

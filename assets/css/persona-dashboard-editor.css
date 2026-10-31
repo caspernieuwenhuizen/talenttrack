@@ -77,6 +77,12 @@
     padding-inline: 0.875rem;
     touch-action: manipulation;
 }
+/* The frontend editor's buttons are `.tt-btn`s: scoped so they keep the
+   same 2.5rem as the wp-admin editor instead of the shared 36px floor. */
+.tt-dashboard .tt-pde-btn,
+.tt-dashboard .tt-pde-btn-primary {
+    min-height: 2.5rem;
+}
 .tt-pde-btn[aria-pressed="true"] {
     background: var(--pde-accent-soft);
     border-color: var(--pde-accent);

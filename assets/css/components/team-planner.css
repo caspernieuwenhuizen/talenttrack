@@ -505,7 +505,9 @@
     font-size: 0.78rem;
     font-weight: 700;
 }
-.tt-planner-apply {
+/* Scoped so it outranks the shared 36px fine-pointer floor on `.tt-btn`:
+   the button shares a row with the range fields and keeps their height. */
+.tt-dashboard .tt-planner-apply {
     min-height: 44px;
 }
 
@@ -514,7 +516,7 @@
    reached them. Desktop density is unchanged. */
 @media (pointer: coarse) {
     .tt-planner-team-dd-action,
-    .tt-planner-apply {
+    .tt-dashboard .tt-planner-apply {
         min-height: 48px;
     }
 }

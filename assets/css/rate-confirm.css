@@ -17,7 +17,9 @@
     margin: var(--tt-sp-3) 0;
 }
 
-.tt-rate-confirm-btn {
+/* Scoped to outrank the shared .tt-btn floors: the confirm step's buttons
+   are deliberately larger than any other, 56px on every pointer. */
+.tt-dashboard .tt-rate-confirm-btn {
     min-height: 56px;
 }
 

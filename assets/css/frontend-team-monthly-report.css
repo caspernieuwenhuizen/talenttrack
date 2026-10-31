@@ -228,11 +228,6 @@
     flex-wrap: wrap;
     gap: var(--tt-sp-2);
 }
-
-.tt-mr-panel__actions .tt-btn {
-    min-height: 48px;
-}
-
 /* Changes wait for "Update report" (#3988); this says they are waiting. */
 .tt-mr-pending {
     flex: 1 1 16rem;
@@ -370,7 +365,6 @@
 }
 
 .tt-mr-pager__pdf {
-    min-height: 48px;
     margin-left: auto;
 }
 

@@ -126,8 +126,6 @@
     gap: 8px;
     margin-left: auto;
 }
-.tt-tc-toolbar-actions .tt-btn { min-height: 44px; }
-
 /* Segmented Suggested / Override toggle */
 .tt-tc-seg {
     display: inline-flex;
@@ -667,7 +665,6 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     font-size: 16px;
     font-weight: 600;
 }
-.tt-chem-picker-close { min-height: 44px; }
 .tt-chem-picker-list {
     list-style: none;
     margin: 0;
@@ -838,4 +835,3 @@ body.tt-chem-saveas-open { overflow: hidden; }
     justify-content: flex-end;
     gap: 8px;
 }
-.tt-chem-saveas-actions .tt-btn { min-height: 44px; }

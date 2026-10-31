@@ -59,7 +59,6 @@
 }
 
 .tt-suspension-card__actions .tt-btn {
-    min-height: 3rem;
     touch-action: manipulation;
 }
 
@@ -87,6 +86,8 @@
     margin: 0 0 var(--tt-sp-4);
 }
 
+/* Kept on every pointer: the button shares a row with the team and status
+   selects, so it matches them rather than the 36px desktop floor. */
 .tt-suspension-filters .tt-btn {
     min-height: 3rem;
 }

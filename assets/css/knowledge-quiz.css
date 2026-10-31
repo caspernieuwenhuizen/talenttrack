@@ -159,7 +159,6 @@
 }
 
 .tt-quiz__actions .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

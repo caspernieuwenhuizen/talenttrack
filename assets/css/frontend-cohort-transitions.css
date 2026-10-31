@@ -55,6 +55,8 @@
     outline: 2px solid var(--tt-primary);
     outline-offset: 1px;
 }
+/* Kept on every pointer: the button shares a row with the 48px fields, so
+   it matches them rather than the 36px desktop floor. */
 .tt-dashboard .tt-cohort-filters .tt-btn { min-height: 48px; }
 
 /* ---- Empty / count states ------------------------------------------ */
@@ -104,8 +106,6 @@
     border-bottom: 1px solid var(--tt-line);
 }
 .tt-dashboard .tt-cohort-table tbody tr:last-child td { border-bottom: none; }
-.tt-dashboard .tt-cohort-table .tt-btn { min-height: 48px; }
-
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 480px) {
     .tt-dashboard .tt-cohort-filters {

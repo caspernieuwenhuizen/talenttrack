@@ -110,7 +110,6 @@
 }
 
 .tt-profile-strip__go {
-    min-height: 48px;
     min-width: 48px;
     touch-action: manipulation;
 }

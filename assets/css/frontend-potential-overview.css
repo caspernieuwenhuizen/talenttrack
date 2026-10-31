@@ -83,10 +83,12 @@
 }
 
 .tt-po-filters__submit {
-    min-height: 48px;
     align-self: flex-start;
     touch-action: manipulation;
 }
+/* Scoped to outrank the shared 36px fine-pointer floor: the button shares
+   the filter row with 48px fields and matches them. */
+.tt-dashboard .tt-po-filters__submit { min-height: 48px; }
 
 /* ---- KPI strip ------------------------------------------------------- */
 
@@ -273,7 +275,6 @@
 }
 
 .tt-po-form .tt-form-actions .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

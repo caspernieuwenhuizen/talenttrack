@@ -24,7 +24,14 @@ Why mobile-first instead of desktop-first:
 
 `assets/css/public.css` carries a single `@media (pointer: coarse)` block that enforces the 48 px minimum from `CLAUDE.md` § 2. It loads on every dashboard surface, so a component sheet does not restate the floor — it inherits it. Because it is keyed on the pointer and not on the viewport, a tablet gets the touch sizing and a desktop mouse keeps its density, with no breakpoint involved.
 
-What the block sizes: `.tt-btn` / `.tt-btn-sm`, pager links, list-row actions, `.tt-record-link`, `summary`, checkboxes and radios (24 px box, 48 px band from the label), and — since #3598 — every `select`, `.tt-input` and text / search / email / tel / number / date / time / url / password input.
+Buttons have two floors, and both sit next to the canonical button block in `assets/css/frontend-admin.css`, read from the `--tt-tap-min` (48 px) and `--tt-tap-min-fine` (2.25 rem, 36 px) tokens in `tokens.css`:
+
+- **Coarse pointer: 48 px.** Every `.tt-btn` variant (`-primary`, `-secondary`, `-danger`), inside or outside `.tt-dashboard`. This is the rule a thumb needs and the one the mobile gate measures, at 360 px with touch emulation.
+- **Fine pointer: 36 px.** The canonical block itself never lets a button fall under 2.25 rem, so desktop toolbars and table actions keep their density without dropping to an unreadable size.
+
+A component sheet does not restate either floor on its own buttons. `tests/php/ButtonTapFloorTest.php` fails a sheet that does, unless the rule is listed there with its reason, such as a button sharing one row with a 48 px field.
+
+What the `public.css` block sizes: `.tt-btn-sm`, pager links, list-row actions, `.tt-record-link`, `summary`, checkboxes and radios (24 px box, 48 px band from the label), and — since #3598 — every `select`, `.tt-input` and text / search / email / tel / number / date / time / url / password input.
 
 Two rules when you add a control:
 

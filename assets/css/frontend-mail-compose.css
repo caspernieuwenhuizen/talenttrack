@@ -47,7 +47,6 @@
 }
 
 .tt-dashboard .tt-mail-compose .tt-form-actions .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 

@@ -94,7 +94,6 @@
   margin-bottom: var(--tt-sp-2, 8px);
 }
 .tt-agrid-noreg__link {
-  min-height: 48px;
   touch-action: manipulation;
 }
 

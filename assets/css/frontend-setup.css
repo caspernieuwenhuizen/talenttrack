@@ -155,19 +155,9 @@
     gap: var(--tt-sp-3);
     margin-top: var(--tt-sp-4);
 }
-
-.tt-dashboard .tt-setup__actions .tt-btn {
-    min-height: 48px;
-}
-
 .tt-dashboard .tt-setup__skip-row {
     margin: var(--tt-sp-3) 0 0;
 }
-
-.tt-dashboard .tt-setup__skip-row .tt-btn {
-    min-height: 48px;
-}
-
 /* ---- Summary -------------------------------------------------------- */
 .tt-dashboard .tt-setup__summary {
     list-style: disc;

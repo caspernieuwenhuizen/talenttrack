@@ -470,7 +470,6 @@
 }
 .tt-page-actions__more-trigger {
     min-width: 48px;
-    min-height: 48px;
     padding-left: 0;
     padding-right: 0;
     display: inline-flex;
@@ -512,7 +511,6 @@
 .tt-page-actions__more-menu .tt-btn {
     justify-content: flex-start;
     width: 100%;
-    min-height: 48px;
 }
 /* Inside the menu an icon-only action gets its words back — there is room
    for them here, and a column of bare glyphs is a puzzle. */
@@ -699,7 +697,6 @@ dialog.tt-modal::backdrop {
    phone in the rain. An <a> also needs the centring and the
    text-decoration reset a <button> gets for free. */
 .tt-modal-actions .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1175,9 +1172,9 @@ input[type="checkbox"], input[type="radio"] {
 }
 
 /* #0056 — 48px tap-target floor under coarse pointers. Tablets with a
-   Bluetooth mouse (`pointer: fine`) keep desktop density. */
+   Bluetooth mouse (`pointer: fine`) keep desktop density. The `.tt-btn`
+   floor lives next to the canonical button block in frontend-admin.css. */
 @media (pointer: coarse) {
-    .tt-btn { min-height: 48px; }
     .tt-btn-sm { min-height: 48px; padding-inline: 14px; }
     .tt-pager-link { min-width: 48px; min-height: 48px; }
     .tt-list-row-action { min-height: 48px; min-width: 48px; }

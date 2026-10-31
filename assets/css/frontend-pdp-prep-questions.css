@@ -93,7 +93,6 @@
 }
 
 .tt-pdp-prep-config__item-actions .tt-btn {
-    min-height: 48px;
     min-width: 48px;
     touch-action: manipulation;
 }
@@ -110,7 +109,6 @@
 }
 
 .tt-pdp-prep-config__editor .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 

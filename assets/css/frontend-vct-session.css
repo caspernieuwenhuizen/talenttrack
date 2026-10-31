@@ -104,7 +104,6 @@
 }
 
 .tt-dashboard .tt-vct-publish .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 
@@ -118,7 +117,6 @@
 }
 
 .tt-dashboard .tt-vct-bind-prompt .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 

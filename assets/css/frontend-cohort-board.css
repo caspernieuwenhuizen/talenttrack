@@ -36,16 +36,17 @@
 }
 
 .tt-cb-picker__submit {
-    min-height: 48px;
     touch-action: manipulation;
 }
+/* Scoped to outrank the shared 36px fine-pointer floor: the button shares
+   a row with the team select and matches it. */
+.tt-dashboard .tt-cb-picker__submit { min-height: 48px; }
 
 .tt-cb-actions {
     margin: 0 0 0.75rem;
 }
 
 .tt-cb-actions .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

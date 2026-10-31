@@ -350,7 +350,6 @@
 .tt-dashboard .tt-dc-toggle-all[hidden] { display: none; }
 
 .tt-dashboard .tt-dc-toggle-all .tt-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
 

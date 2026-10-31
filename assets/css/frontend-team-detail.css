@@ -131,7 +131,6 @@
     margin-top: 12px;
     flex-wrap: wrap;
 }
-.tt-team-customize__foot .tt-btn { min-height: 48px; }
 .tt-team-customize__status {
     font-size: 13px;
     color: var(--tt-ink-soft, #6a6d66);

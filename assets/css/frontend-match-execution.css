@@ -1725,7 +1725,6 @@
     line-height: 1.45;
 }
 .tt-mexec-register-gap .tt-btn {
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;
@@ -2386,9 +2385,11 @@
     margin: 0.5rem 0 0;
 }
 .tt-mexec-record-after-btn {
-    min-height: 48px;
     touch-action: manipulation;
 }
+/* Scoped to outrank the shared 36px fine-pointer floor: match execution
+   runs pitch-side, often on a laptop, and keeps 48px on every pointer. */
+.tt-dashboard .tt-mexec-record-after-btn { min-height: 48px; }
 .tt-mexec-record-after-note {
     margin: 0;
     font-size: 0.875rem;
@@ -2429,8 +2430,9 @@
     flex-direction: column;
     gap: 8px;
 }
+/* Height scoped below, for the same pitch-side reason as the record button. */
+.tt-dashboard .tt-mexec-overrun-btn { min-height: var(--tt-mexec-tap-min); }
 .tt-mexec-overrun-btn {
-    min-height: var(--tt-mexec-tap-min);
     display: inline-flex;
     align-items: center;
     justify-content: center;

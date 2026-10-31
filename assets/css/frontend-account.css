@@ -128,11 +128,6 @@
 .tt-account-form {
     margin: 0 0 var(--tt-sp-3, 0.75rem);
 }
-
-.tt-account-form .tt-btn {
-    min-height: 48px;
-}
-
 .tt-account-confirm {
     display: flex;
     gap: var(--tt-sp-2, 0.5rem);

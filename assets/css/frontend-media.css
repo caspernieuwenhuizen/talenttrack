@@ -253,7 +253,6 @@
 }
 
 .tt-media-linkbox__row .tt-btn {
-	min-height: 48px;
 	touch-action: manipulation;
 }
 
@@ -724,7 +723,6 @@
 }
 
 .tt-media-retention__actions .tt-btn {
-	min-height: 48px;
 	touch-action: manipulation;
 }
 
@@ -747,7 +745,6 @@
 	display: block;
 	width: 100%;
 	margin-top: var(--tt-sp-3, 0.75rem);
-	min-height: 48px;
 }
 
 @media (min-width: 480px) {

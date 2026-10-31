@@ -125,7 +125,6 @@
 /* ---- Save action --------------------------------------------------- */
 .tt-dashboard .tt-wcfg-actions { margin-top: var(--tt-sp-5, 20px); }
 .tt-dashboard .tt-wcfg-actions .tt-btn {
-    min-height: 48px;
     padding: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
     background: var(--tt-primary, #0b3d2e);
     color: #fff;

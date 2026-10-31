@@ -239,11 +239,6 @@ button.tt-pr-order__move {
 	border: 1px solid var(--tt-line);
 	border-radius: var(--tt-radius);
 }
-
-.tt-pr-share__form .tt-btn {
-	min-height: 3rem;
-}
-
 .tt-pr-shared-badge {
 	display: inline-block;
 	padding: 0 var(--tt-sp-2);
