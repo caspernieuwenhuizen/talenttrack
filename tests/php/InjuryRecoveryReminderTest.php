@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -31,6 +32,9 @@ use TT\Modules\Workflow\TaskStatus;
  */
 final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
 
+    // #4399 — the delete cases run a real cascade, which commits.
+    use CommitsAfterCascade;
+
     private int $club   = 0;
     private int $team   = 0;
     private int $player = 0;
@@ -39,6 +43,7 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        $this->markFixtureFloor();
         $this->club  = (int) CurrentClub::id();
         $this->today = AttendanceDateRule::today();
 
@@ -256,6 +261,121 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $now = $this->active();
         $this->assertCount( 1, $now );
         $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
+    /** #4399 — a permanent delete skips the reminder in the same request. */
+    public function test_deleting_the_record_skips_the_task(): void {
+        $id = ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+
+        $deleted = ( new ArchiveRepository() )->deletePermanently( 'injury', [ $id ] );
+        $active  = $this->active();
+        $status  = $this->status( (int) $task['id'] );
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $deleted );
+        $this->assertSame( [], $active );
+        $this->assertSame( TaskStatus::SKIPPED, $status );
+    }
+
+    /** #4399 — a second open record keeps its own reminder through a delete. */
+    public function test_deleting_one_record_keeps_the_other_records_reminder(): void {
+        $repo  = new InjuryRepository();
+        $first = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -3 ),
+        ] );
+        $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+
+        ( new ArchiveRepository() )->deletePermanently( 'injury', [ $first ] );
+        $now = $this->active();
+
+        $this->cleanUpAndCommit();
+
+        $this->assertCount( 1, $now );
+        $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
+    /** #4399 — moving an archived record into the bin skips a reminder still open. */
+    public function test_trashing_the_record_skips_the_task(): void {
+        global $wpdb;
+        $id = ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+        // Archived without any event, so only the trash can move the reminder.
+        $wpdb->update( "{$wpdb->prefix}tt_player_injuries", [ 'archived_at' => current_time( 'mysql' ) ], [ 'id' => $id ] );
+        $this->assertCount( 1, $this->active(), 'precondition: the reminder is still open' );
+
+        $this->assertSame( 1, ( new ArchiveRepository() )->trash( 'injury', [ $id ], get_current_user_id() ) );
+
+        $this->assertSame( [], $this->active() );
+        $this->assertSame( TaskStatus::SKIPPED, $this->status( (int) $task['id'] ) );
+    }
+
+    /**
+     * #4399 — out of the bin the record is archived again, so still no
+     * reminder; restored from the archive it asks for its check at once.
+     */
+    public function test_restoring_the_record_brings_the_task_back(): void {
+        $archive = new ArchiveRepository();
+        $id      = ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+
+        $archive->archive( 'injury', [ $id ], 0 );
+        $this->assertSame( [], $this->active(), 'archiving through the archive layer skips it' );
+        $archive->trash( 'injury', [ $id ], get_current_user_id() );
+        $archive->restoreFromTrash( 'injury', [ $id ], get_current_user_id() );
+        $this->assertSame( [], $this->active(), 'back in the archive, not yet active' );
+
+        $this->assertSame( 1, $archive->restore( 'injury', [ $id ] ) );
+
+        $now = $this->active();
+        $this->assertCount( 1, $now );
+        $this->assertSame( $this->day( -2 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
+    /** #4399 — the bin's changes to one record leave the other record's reminder alone. */
+    public function test_the_bin_keeps_the_other_records_reminder(): void {
+        $repo    = new InjuryRepository();
+        $archive = new ArchiveRepository();
+        $first   = $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -3 ),
+        ] );
+        $repo->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -10 ),
+            'expected_return' => $this->day( -1 ),
+        ] );
+
+        $archive->archive( 'injury', [ $first ], 0 );
+        $archive->trash( 'injury', [ $first ], get_current_user_id() );
+        $after_trash = $this->active();
+        $archive->restoreFromTrash( 'injury', [ $first ], get_current_user_id() );
+        $archive->restore( 'injury', [ $first ] );
+        $after_restore = $this->active();
+
+        $this->assertCount( 1, $after_trash );
+        $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $after_trash[0]['due_at'] );
+        $this->assertCount( 1, $after_restore );
+        $this->assertSame( $this->day( -3 ) . ' 00:00:00', (string) $after_restore[0]['due_at'], 'the earlier record is due again' );
     }
 
     public function test_the_daily_sweep_reminds_about_an_incomplete_record_once(): void {
