@@ -443,7 +443,9 @@ staf, heeft geen van beide armen, en ziet er nooit één.
 
 De mailmelding volgt dezelfde regel. Een staf-only notitie gaat alleen naar
 de deelnemers van het gesprek die haar mogen lezen: de staf met het
-staf-only-recht op dit gesprek en wie alle gesprekken mag lezen. De speler en
+staf-only-recht op dit gesprek, wie alle gesprekken mag lezen, en staf die het
+gesprek kan lezen en evaluaties mag bewerken (behouden van vóór het
+staf-only-recht). De speler en
 de ouder krijgen er geen melding van, en de melding bereikt nooit iemand die
 geen deelnemer is.
 

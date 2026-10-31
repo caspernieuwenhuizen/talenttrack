@@ -494,7 +494,9 @@ never sees one.
 
 The email notification follows the same rule. A staff-only note goes only to
 the conversation's participants who can read it: the staff who hold the
-staff-only right on this conversation, and global thread readers. The player
+staff-only right on this conversation, global thread readers, and staff who
+can read the conversation and may edit evaluations (kept from before the
+staff-only right existed). The player
 and the guardian are not notified, and the notification never reaches
 anyone who is not a participant.
 

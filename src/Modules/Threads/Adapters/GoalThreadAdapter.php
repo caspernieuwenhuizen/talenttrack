@@ -30,7 +30,7 @@ use TT\Modules\Threads\Domain\ThreadTypeAdapter;
  * they also hold `tt_edit_goals`. Participants (owning coach, goal
  * author, the player, linked parents) read and post as before.
  * private_to_coach messages are filtered at the repository level for
- * non-coach viewers.
+ * viewers `ThreadAccess::canSeePrivate()` does not admit.
  */
 final class GoalThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThread {
 

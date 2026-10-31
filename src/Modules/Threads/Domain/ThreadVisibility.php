@@ -9,7 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   PUBLIC           — every participant who can read the thread sees it.
  *   PRIVATE_TO_COACH — staff-only: readable by the staff who hold the
  *                      staff-only right on this thread and by global
- *                      thread readers (`ThreadAccess::canSeePrivate()`).
+ *                      thread readers, and by staff who can read the
+ *                      thread and may edit evaluations (kept from before
+ *                      the staff-only right existed)
+ *                      (`ThreadAccess::canSeePrivate()`).
  */
 final class ThreadVisibility {
     public const PUBLIC_LEVEL  = 'public';
