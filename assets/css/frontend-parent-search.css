@@ -21,7 +21,10 @@
     width: 100%;
 }
 
+/* min-height kept on every pointer: the button shares a row with the 48px
+   search field, so it matches it rather than the 36px desktop floor. */
 .tt-parent-search__form .tt-btn {
+    min-height: 48px;
     align-self: flex-start;
     touch-action: manipulation;
 }

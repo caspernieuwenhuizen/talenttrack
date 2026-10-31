@@ -299,7 +299,9 @@
     color: #4b5563;
 }
 
-.tt-me-load {
+/* Scoped so it outranks the shared 36px fine-pointer floor on `.tt-btn`:
+   the button shares a row with the 48px fields and matches them. */
+.tt-dashboard .tt-me-load {
     flex: 0 0 auto;
     min-height: 48px;
 }

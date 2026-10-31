@@ -27,8 +27,12 @@ final class ButtonTapFloorTest extends WP_UnitTestCase {
      */
     private const KEPT = [
         // The button shares a row with a 48px field.
-        'frontend-team-stats.css' => [ '.tt-ts-window__form .tt-btn' ],
-        'frontend-pop.css'        => [ '.tt-pdp-team-gate__form .tt-btn' ],
+        'frontend-team-stats.css'          => [ '.tt-ts-window__form .tt-btn' ],
+        'frontend-pop.css'                 => [ '.tt-pdp-team-gate__form .tt-btn' ],
+        'frontend-parent-search.css'       => [ '.tt-parent-search__form .tt-btn' ],
+        'frontend-cohort-transitions.css'  => [ '.tt-dashboard .tt-cohort-filters .tt-btn' ],
+        'frontend-cohort-board.css'        => [ '.tt-cb-actions .tt-btn' ],
+        'frontend-suspensions.css'         => [ '.tt-suspension-filters .tt-btn' ],
         // The player profile's sheets were left as they were.
         'frontend-player-detail.css'        => [ '.tt-bp-card__actions .tt-btn', '.tt-player-row--injury .tt-player-row__actions .tt-btn' ],
         'frontend-player-hero-popovers.css' => [ '.tt-player-hero__actions .tt-btn', '.tt-pp-footer .tt-btn' ],

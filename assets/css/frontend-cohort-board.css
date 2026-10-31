@@ -44,7 +44,10 @@
     margin: 0 0 0.75rem;
 }
 
+/* min-height kept on every pointer: the button shares a row with the team
+   select, so it matches it rather than the 36px desktop floor. */
 .tt-cb-actions .tt-btn {
+    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;

@@ -257,7 +257,7 @@
 }
 
 .tt-dashboard .tt-export-card__columns-action {
-    min-height: 32px;
+    min-height: var(--tt-tap-min-fine, 2.25rem);
     font-size: var(--tt-fs-sm, 0.85rem);
     padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
 }

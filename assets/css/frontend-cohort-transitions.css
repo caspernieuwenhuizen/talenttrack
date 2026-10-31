@@ -55,6 +55,10 @@
     outline: 2px solid var(--tt-primary);
     outline-offset: 1px;
 }
+/* Kept on every pointer: the button shares a row with the 48px fields, so
+   it matches them rather than the 36px desktop floor. */
+.tt-dashboard .tt-cohort-filters .tt-btn { min-height: 48px; }
+
 /* ---- Empty / count states ------------------------------------------ */
 .tt-dashboard .tt-cohort .tt-empty {
     margin: var(--tt-sp-2) 0;
