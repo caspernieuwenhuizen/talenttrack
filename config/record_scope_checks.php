@@ -51,6 +51,8 @@ return [
         'canAccessSuspensions',
         'coach_owns_player',
         'PlayerReportAccess::canRead',
+        // Calls canRead on the same player first, then asks the create right.
+        'PlayerReportAccess::canCreate',
         'ScoutPlayerCard::canRead',
 
         // A team, and the surfaces scoped by one.
