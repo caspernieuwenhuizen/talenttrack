@@ -1356,6 +1356,35 @@
     font-size: 0.75rem;
 }
 
+/* #4485 — field groups edited in TalentTrack that the Spond sync no longer
+ * writes. Stacked on a phone, text and undo side by side from 480px. */
+.tt-dashboard .tt-act-detail__sync-locks {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-act-detail__sync-lock {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-detail__sync-lock-undo {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-act-detail__sync-lock {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
 /* =============================================================
    #2220 — Refined-stack grouping panel + stat strip
    -------------------------------------------------------------

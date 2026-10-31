@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Services\ActivityCoachAssignment;
 
 /**
@@ -158,7 +159,7 @@ final class SpondSync {
             $seen[] = $uid;
 
             $existing = $wpdb->get_row( $wpdb->prepare(
-                "SELECT id, activity_type_key, opponent, home_away, archived_at, archived_by FROM {$p}tt_activities
+                "SELECT id, activity_type_key, opponent, home_away, archived_at, archived_by, sync_locked_fields FROM {$p}tt_activities
                   WHERE external_id = %s
                     AND activity_source_key = %s
                     AND club_id = %d
@@ -212,6 +213,11 @@ final class SpondSync {
                     'session_date' => $session_date ?: '0000-00-00',
                     'location'     => $location,
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time );
+                // #4485 — a group a person edited in TalentTrack is theirs.
+                $update = SyncLockedFields::stripLocked(
+                    $update,
+                    SyncLockedFields::decode( $existing->sync_locked_fields ?? null )
+                );
 
                 // Back in the feed: undo an archive the sync made. #4182 —
                 // an archive a person made (`archived_by` > 0) is theirs,
