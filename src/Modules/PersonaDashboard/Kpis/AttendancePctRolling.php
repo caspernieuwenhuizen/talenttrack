@@ -44,12 +44,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         // `record_type = 'actual'`. /* both-kinds-ok */
         $att_table  = $wpdb->prefix . 'tt_attendance';
         $act_table  = $wpdb->prefix . 'tt_activities';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $att_table ) ) !== $att_table ) {
-            return KpiValue::unavailable();
-        }
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $act_table ) ) !== $act_table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_attendance (migration 0001), tt_activities (migration 0027, the tt_sessions rename) exist on every install; no table check.
         // tt_attendance.activity_id has been the canonical column since
         // migration 0027 (#0035 sessions → activities rename). Verify the
         // column exists; very old installs that haven't run migrations

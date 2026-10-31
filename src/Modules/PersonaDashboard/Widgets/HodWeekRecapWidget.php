@@ -191,22 +191,18 @@ class HodWeekRecapWidget extends AbstractWidget {
             'sessions_completed' => (int) ( $sess_row->done ?? 0 ),
             'sessions_total'     => (int) ( $sess_row->total ?? 0 ),
             'prospects'          => self::guardedCount(
-                "{$p}tt_prospects",
                 "SELECT COUNT(*) FROM {$p}tt_prospects WHERE archived_at IS NULL AND created_at > %s AND club_id = %d",
                 [ $since, $club_id ]
             ),
             'trial_decisions'    => self::guardedCount(
-                "{$p}tt_trial_cases",
                 "SELECT COUNT(*) FROM {$p}tt_trial_cases WHERE decided_at IS NOT NULL AND decided_at > %s AND club_id = %d",
                 [ $since, $club_id ]
             ),
             'behaviour'          => self::guardedCount(
-                "{$p}tt_player_behaviour_ratings",
                 "SELECT COUNT(*) FROM {$p}tt_player_behaviour_ratings WHERE rated_at > %s AND club_id = %d",
                 [ $since, $club_id ]
             ),
             'pdp_conversations'  => self::guardedCount(
-                "{$p}tt_pdp_conversations",
                 "SELECT COUNT(*) FROM {$p}tt_pdp_conversations WHERE conducted_at IS NOT NULL AND conducted_at > %s AND club_id = %d",
                 [ $since, $club_id ]
             ),
@@ -214,16 +210,15 @@ class HodWeekRecapWidget extends AbstractWidget {
     }
 
     /**
-     * Count with a table-exists guard — pre-migration installs simply
-     * drop the line instead of fataling the dashboard.
+     * A count that drops its line (null) when the query fails. No table
+     * check: tt_prospects (migration 0066), tt_trial_cases (0036),
+     * tt_player_behaviour_ratings (0042) and tt_pdp_conversations (0031)
+     * exist on every install.
      *
      * @param array<int,mixed> $params
      */
-    private static function guardedCount( string $table, string $sql, array $params ): ?int {
+    private static function guardedCount( string $sql, array $params ): ?int {
         global $wpdb;
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return null;
-        }
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $n = $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
         return $n === null && $wpdb->last_error !== '' ? null : (int) $n;

@@ -3,6 +3,7 @@ namespace TT\Modules\AdminCenterClient;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Infrastructure\Usage\UsageTracker;
 use TT\Modules\License\Entitlement;
@@ -128,7 +129,7 @@ final class PayloadBuilder {
         // A register is `record_type = 'actual'`: a planned roster is not
         // a register, and counting it would call a club that only plans
         // its trainings a club that records them.
-        if ( self::tableExists( 'tt_attendance' ) && self::tableExists( 'tt_activities' ) ) {
+        if ( TableExists::has( 'tt_attendance' ) && TableExists::has( 'tt_activities' ) ) {
             $out['attendance_recorded_30d'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(DISTINCT act.id)
                    FROM {$p}tt_activities act
@@ -147,14 +148,14 @@ final class PayloadBuilder {
             ) );
         }
 
-        if ( self::tableExists( 'tt_evaluations' ) ) {
+        if ( TableExists::has( 'tt_evaluations' ) ) {
             $out['evaluations_recorded_30d'] = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$p}tt_evaluations WHERE archived_at IS NULL AND created_at >= %s",
                 $since . ' 00:00:00'
             ) );
         }
 
-        if ( self::tableExists( 'tt_pdp_files' ) ) {
+        if ( TableExists::has( 'tt_pdp_files' ) ) {
             $out['pdps_active'] = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM {$p}tt_pdp_files WHERE archived_at IS NULL AND status NOT IN ('completed','archived')"
             );
@@ -162,18 +163,13 @@ final class PayloadBuilder {
 
         // The stored status, not a derived bucket: the two have disagreed
         // before (#3396). Open is anything not completed or cancelled.
-        if ( self::tableExists( 'tt_goals' ) ) {
+        if ( TableExists::has( 'tt_goals' ) ) {
             $out['goals_active'] = (int) $wpdb->get_var(
                 "SELECT COUNT(*) FROM {$p}tt_goals WHERE archived_at IS NULL AND ( status IS NULL OR status NOT IN ('completed','cancelled') )"
             );
         }
 
         return $out;
-    }
-
-    private static function tableExists( string $table ): bool {
-        global $wpdb;
-        return (string) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . $table ) ) === $wpdb->prefix . $table;
     }
 
     private static function siteUrl(): string {

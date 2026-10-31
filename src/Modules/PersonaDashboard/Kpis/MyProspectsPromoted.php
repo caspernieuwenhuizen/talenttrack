@@ -21,9 +21,7 @@ class MyProspectsPromoted extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_prospects';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_prospects (migration 0066) exists on every install; no table check.
         if ( $user_id <= 0 ) return KpiValue::of( '0' );
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - 730 * DAY_IN_SECONDS );
         $count = (int) $wpdb->get_var( $wpdb->prepare(

@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Archive;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -123,7 +124,7 @@ final class GenericCascadeDeleter {
         try {
             // 2) Polymorphic owned children.
             foreach ( (array) ( $plan['cascade_poly'] ?? [] ) as [ $table, $type_col, $id_col, $type_val ] ) {
-                if ( ! $this->tableExists( $table ) ) continue;
+                if ( ! TableExists::has( $table ) ) continue;
                 $sql = "DELETE FROM {$p}{$table} WHERE {$type_col} = %s AND {$id_col} IN ({$ph})";
                 $n   = $wpdb->query( $wpdb->prepare( $sql, ...array_merge( [ $type_val ], $ids ) ) );
                 $this->guard( $n, $table );
@@ -135,7 +136,7 @@ final class GenericCascadeDeleter {
             if ( ! empty( $plan['threads'] ) ) {
                 $type_val = (string) $plan['threads'];
                 foreach ( [ 'tt_thread_messages', 'tt_thread_reads' ] as $tt ) {
-                    if ( ! $this->tableExists( $tt ) ) continue;
+                    if ( ! TableExists::has( $tt ) ) continue;
                     $sql = "DELETE FROM {$p}{$tt} WHERE thread_type = %s AND thread_id IN ({$ph})";
                     $n   = $wpdb->query( $wpdb->prepare( $sql, ...array_merge( [ $type_val ], $ids ) ) );
                     $this->guard( $n, $tt );
@@ -150,7 +151,7 @@ final class GenericCascadeDeleter {
             // directly, which is how `cascade_poly` missed it and left the
             // event standing after its observation was gone.
             foreach ( (array) ( $plan['cascade_poly_via'] ?? [] ) as [ $table, $type_col, $id_col, $type_val, $owner, $opk, $ofk, $parent, $ppk, $pref ] ) {
-                if ( ! $this->tableExists( $table ) || ! $this->tableExists( $owner ) || ! $this->tableExists( $parent ) ) continue;
+                if ( ! TableExists::has( $table ) || ! TableExists::has( $owner ) || ! TableExists::has( $parent ) ) continue;
                 $sql = "DELETE e FROM {$p}{$table} e
                          INNER JOIN {$p}{$owner} o ON o.{$opk} = e.{$id_col}
                          INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = o.{$ofk}
@@ -166,7 +167,7 @@ final class GenericCascadeDeleter {
             // under matches: delete them where the match belongs to the
             // tournament being removed.
             foreach ( (array) ( $plan['children'] ?? [] ) as [ $child, $cfk, $parent, $ppk, $pref ] ) {
-                if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) continue;
+                if ( ! TableExists::has( $child ) || ! TableExists::has( $parent ) ) continue;
                 $sql = "DELETE c FROM {$p}{$child} c
                          INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = c.{$cfk}
                          WHERE pa.{$pref} IN ({$ph})";
@@ -177,7 +178,7 @@ final class GenericCascadeDeleter {
 
             // 4) Declared direct owned children.
             foreach ( (array) ( $plan['cascade'] ?? [] ) as [ $table, $col ] ) {
-                if ( ! $this->tableExists( $table ) ) continue;
+                if ( ! TableExists::has( $table ) ) continue;
                 $sql = "DELETE FROM {$p}{$table} WHERE {$col} IN ({$ph})";
                 $n   = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
                 $this->guard( $n, $table );
@@ -186,7 +187,7 @@ final class GenericCascadeDeleter {
 
             // 5) Set-null the outliving references.
             foreach ( (array) ( $plan['set_null'] ?? [] ) as [ $table, $col ] ) {
-                if ( ! $this->tableExists( $table ) ) continue;
+                if ( ! TableExists::has( $table ) ) continue;
                 $sql = "UPDATE {$p}{$table} SET {$col} = NULL WHERE {$col} IN ({$ph})";
                 $n   = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
                 $this->guard( $n, $table );
@@ -200,7 +201,7 @@ final class GenericCascadeDeleter {
             // team_id resets to 0 when their team is deleted, so the player
             // survives as unassigned rather than being deleted or stranded.
             foreach ( (array) ( $plan['set_zero'] ?? [] ) as [ $table, $col ] ) {
-                if ( ! $this->tableExists( $table ) ) continue;
+                if ( ! TableExists::has( $table ) ) continue;
                 $sql = "UPDATE {$p}{$table} SET {$col} = 0 WHERE {$col} IN ({$ph})";
                 $n   = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
                 $this->guard( $n, $table );
@@ -282,7 +283,7 @@ final class GenericCascadeDeleter {
             }
         }
         foreach ( $pairs as $pair ) {
-            if ( $this->tableExists( $pair['table'] ) ) {
+            if ( TableExists::has( $pair['table'] ) ) {
                 $found[] = [ 'bare' => $pair['table'], 'col' => $pair['column'] ];
             }
         }
@@ -305,7 +306,7 @@ final class GenericCascadeDeleter {
 
     private function countChild( string $child, string $cfk, string $parent, string $ppk, string $pref, array $ids ): int {
         global $wpdb;
-        if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) return 0;
+        if ( ! TableExists::has( $child ) || ! TableExists::has( $parent ) ) return 0;
         $p  = $wpdb->prefix;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
@@ -318,7 +319,7 @@ final class GenericCascadeDeleter {
 
     private function countPoly( string $table, string $type_col, string $id_col, string $type_val, array $ids ): int {
         global $wpdb;
-        if ( ! $this->tableExists( $table ) ) return 0;
+        if ( ! TableExists::has( $table ) ) return 0;
         $p  = $wpdb->prefix;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
@@ -349,7 +350,7 @@ final class GenericCascadeDeleter {
         array $ids
     ): int {
         global $wpdb;
-        if ( ! $this->tableExists( $table ) || ! $this->tableExists( $owner ) || ! $this->tableExists( $parent ) ) return 0;
+        if ( ! TableExists::has( $table ) || ! TableExists::has( $owner ) || ! TableExists::has( $parent ) ) return 0;
         $p  = $wpdb->prefix;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
@@ -363,7 +364,7 @@ final class GenericCascadeDeleter {
 
     private function countThreads( string $type_val, array $ids ): int {
         global $wpdb;
-        if ( ! $this->tableExists( 'tt_thread_messages' ) ) return 0;
+        if ( ! TableExists::has( 'tt_thread_messages' ) ) return 0;
         $p  = $wpdb->prefix;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         return (int) $wpdb->get_var( $wpdb->prepare(
@@ -398,12 +399,6 @@ final class GenericCascadeDeleter {
         if ( $result === false ) {
             throw new \RuntimeException( "Cascade query failed on {$table}: " . $wpdb->last_error );
         }
-    }
-
-    private function tableExists( string $bare_table ): bool {
-        global $wpdb;
-        $table = $wpdb->prefix . $bare_table;
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 
     /**

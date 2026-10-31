@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Infrastructure\Identity\ContactResolver;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Query\TableExists;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\MessageType;
@@ -156,7 +157,7 @@ final class CommsScheduledCron {
     private static function detectTeamScheduleDigests(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( ! self::tableExists( "{$p}tt_activities" ) ) return;
+        if ( ! TableExists::has( 'tt_activities' ) ) return;
 
         $since = self::digestWindowStart();
         $now   = time();
@@ -266,7 +267,7 @@ final class CommsScheduledCron {
     private static function detectGoalNudges(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( ! self::tableExists( "{$p}tt_goals" ) ) return;
+        if ( ! TableExists::has( 'tt_goals' ) ) return;
 
         // 28-day-old goals where the player is reachable (has wp_user_id).
         // Pulls a bounded batch per cron run (50) so a long tail
@@ -321,7 +322,7 @@ final class CommsScheduledCron {
     private static function detectAttendanceFlags(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( ! self::tableExists( "{$p}tt_attendance" ) || ! self::tableExists( "{$p}tt_activities" ) ) return;
+        if ( ! TableExists::has( 'tt_attendance' ) || ! TableExists::has( 'tt_activities' ) ) return;
 
         // Players with 3+ non-present attendance rows in their last 5
         // activities (trailing 30 days). Conservative — joins
@@ -473,7 +474,7 @@ final class CommsScheduledCron {
     private static function detectStaffDevReminders(): void {
         global $wpdb;
         $p = $wpdb->prefix;
-        if ( ! self::tableExists( "{$p}tt_staff_reviews" ) ) return;
+        if ( ! TableExists::has( 'tt_staff_reviews' ) ) return;
 
         // Reviews due in <= 7 days that haven't been reminded in the
         // last 7 days. Bounded batch per run.
@@ -572,10 +573,5 @@ final class CommsScheduledCron {
             [ 'tt_view' => $tt_view, 'id' => $id ],
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
-    }
-
-    private static function tableExists( string $table ): bool {
-        global $wpdb;
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 }

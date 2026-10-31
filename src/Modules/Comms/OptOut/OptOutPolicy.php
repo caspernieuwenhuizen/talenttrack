@@ -4,6 +4,7 @@ namespace TT\Modules\Comms\OptOut;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Domain\MessageType;
 
@@ -58,7 +59,7 @@ final class OptOutPolicy {
     public function isOptedOut( int $userId, string $messageType ): bool {
         if ( $userId <= 0 ) return false;
         if ( MessageType::isOperational( $messageType ) ) return false;
-        if ( ! $this->tableExists() ) return false;
+        if ( ! TableExists::has( 'tt_comms_optouts' ) ) return false;
 
         global $wpdb;
         $table = $this->table();
@@ -75,7 +76,7 @@ final class OptOutPolicy {
     public function setOptedOut( int $userId, string $messageType, bool $optedOut ): void {
         if ( $userId <= 0 ) return;
         if ( MessageType::isOperational( $messageType ) ) return;  // ignore — can't opt out
-        if ( ! $this->tableExists() ) return;
+        if ( ! TableExists::has( 'tt_comms_optouts' ) ) return;
 
         global $wpdb;
         $table = $this->table();
@@ -112,7 +113,7 @@ final class OptOutPolicy {
      * @return list<string>
      */
     public function optedOutTypesFor( int $userId ): array {
-        if ( $userId <= 0 || ! $this->tableExists() ) return [];
+        if ( $userId <= 0 || ! TableExists::has( 'tt_comms_optouts' ) ) return [];
 
         global $wpdb;
         $table = $this->table();
@@ -128,24 +129,11 @@ final class OptOutPolicy {
         return array_values( array_map( 'strval', is_array( $rows ) ? $rows : [] ) );
     }
 
-    /** @var bool|null per-request cache */
-    private static $tableExists = null;
-
     /**
-     * Cached per request: `isOptedOut()` is called once per recipient per
-     * send, and a mass announcement to 300 parents would otherwise spend 300
-     * `SHOW TABLES` queries learning something that cannot change mid-request.
+     * Drop the per-request table cache. Tests use this. `isOptedOut()` runs
+     * once per recipient per send, which is why the check is cached.
      */
-    private function tableExists(): bool {
-        if ( self::$tableExists !== null ) return self::$tableExists;
-        global $wpdb;
-        $table = $this->table();
-        self::$tableExists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
-        return self::$tableExists;
-    }
-
-    /** Drop the per-request table cache. Tests use this. */
     public static function flushTableCache(): void {
-        self::$tableExists = null;
+        TableExists::reset();
     }
 }

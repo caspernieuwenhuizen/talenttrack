@@ -3,6 +3,7 @@ namespace TT\Modules\Export\Exporters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\TableExists;
 use TT\Modules\Import\Excel\SheetSchemas;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
@@ -168,7 +169,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                 ] );
 
             case 'Trial_Cases':
-                if ( ! self::tableExists( "{$p}tt_trial_cases" ) ) return [];
+                if ( ! TableExists::has( 'tt_trial_cases' ) ) return [];
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT id, player_id, team_id, start_date, end_date, decision, notes
                         FROM {$p}tt_trial_cases WHERE club_id = %d
@@ -280,7 +281,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                 ] );
 
             case 'Player_Journey':
-                if ( ! self::tableExists( "{$p}tt_player_events" ) ) return [];
+                if ( ! TableExists::has( 'tt_player_events' ) ) return [];
                 $rows = $wpdb->get_results( $wpdb->prepare(
                     "SELECT pe.player_id, pe.event_type, pe.event_date, pe.summary, pe.visibility
                         FROM {$p}tt_player_events pe
@@ -315,7 +316,7 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                 ] );
 
             case 'Category_Weights':
-                if ( ! self::tableExists( "{$p}tt_category_weights" ) ) return [];
+                if ( ! TableExists::has( 'tt_category_weights' ) ) return [];
                 $rows = $wpdb->get_results(
                     "SELECT cw.age_group, ec.label AS category_label, cw.weight
                         FROM {$p}tt_category_weights cw
@@ -380,10 +381,5 @@ final class DemoDataXlsxExporter implements ExporterInterface {
             $out[] = $emitted;
         }
         return $out;
-    }
-
-    private static function tableExists( string $table ): bool {
-        global $wpdb;
-        return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 }

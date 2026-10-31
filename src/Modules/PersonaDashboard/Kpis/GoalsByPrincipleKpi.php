@@ -42,9 +42,7 @@ class GoalsByPrincipleKpi extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_goals';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_goals (migration 0001) exists on every install; no table check.
         $col = $wpdb->get_var( $wpdb->prepare(
             "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'linked_principle_id'",
             $table

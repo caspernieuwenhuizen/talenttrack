@@ -21,9 +21,7 @@ class TrialGroupActiveCount extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_trial_cases';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_trial_cases (migration 0036) exists on every install; no table check.
         $count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT player_id) FROM {$table}
               WHERE club_id = %d AND archived_at IS NULL AND decision = %s",

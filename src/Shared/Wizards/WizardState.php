@@ -3,6 +3,8 @@ namespace TT\Shared\Wizards;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\TableExists;
+
 /**
  * Wizard state — accumulated answers across steps.
  *
@@ -63,7 +65,7 @@ final class WizardState {
     private static function loadFromTable( int $user_id, string $wizard_slug ): array {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return [];
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return [];
         $json = $wpdb->get_var( $wpdb->prepare(
             "SELECT state_json FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
             $user_id, $wizard_slug
@@ -77,7 +79,7 @@ final class WizardState {
     private static function saveToTable( int $user_id, string $wizard_slug, array $state ): void {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return;
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return;
         $club_id = class_exists( '\TT\Infrastructure\Tenancy\CurrentClub' )
             ? (int) \TT\Infrastructure\Tenancy\CurrentClub::id()
             : 1;
@@ -106,16 +108,8 @@ final class WizardState {
     private static function deleteFromTable( int $user_id, string $wizard_slug ): void {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return;
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return;
         $wpdb->delete( $tbl, [ 'user_id' => $user_id, 'wizard_slug' => $wizard_slug ] );
-    }
-
-    private static function tableExists( string $table ): bool {
-        static $cache = [];
-        if ( isset( $cache[ $table ] ) ) return $cache[ $table ];
-        global $wpdb;
-        $cache[ $table ] = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
-        return $cache[ $table ];
     }
 
     /**
@@ -125,7 +119,7 @@ final class WizardState {
     public static function cleanupOldDrafts(): int {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return 0;
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return 0;
         $days = (int) apply_filters( 'tt_wizard_draft_ttl_days', 14 );
         if ( $days < 1 ) $days = 14;
         return (int) $wpdb->query( $wpdb->prepare(
@@ -142,7 +136,7 @@ final class WizardState {
     public static function hasPersistentDraft( int $user_id, string $wizard_slug ): bool {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return false;
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return false;
         return (bool) $wpdb->get_var( $wpdb->prepare(
             "SELECT 1 FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
             $user_id, $wizard_slug
@@ -156,7 +150,7 @@ final class WizardState {
     public static function persistentDraftAge( int $user_id, string $wizard_slug ): ?string {
         global $wpdb;
         $tbl = $wpdb->prefix . 'tt_wizard_drafts';
-        if ( ! self::tableExists( $tbl ) ) return null;
+        if ( ! TableExists::has( 'tt_wizard_drafts' ) ) return null;
         $val = $wpdb->get_var( $wpdb->prepare(
             "SELECT updated_at FROM {$tbl} WHERE user_id = %d AND wizard_slug = %s LIMIT 1",
             $user_id, $wizard_slug

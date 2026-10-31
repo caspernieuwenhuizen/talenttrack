@@ -37,9 +37,7 @@ class NewEvaluationsThisWeek extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_evaluations (migration 0001) exists on every install; no table check.
         // v3.110.182 (#781) — demo-mode scope so the count matches every
         // other evaluation surface under the same toggle.
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );

@@ -19,9 +19,7 @@ class TrialDecisionsPending extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_workflow_tasks';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_workflow_tasks (migration 0021) exists on every install; no table check.
         $count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$table}
               WHERE club_id = %d AND template_key = %s

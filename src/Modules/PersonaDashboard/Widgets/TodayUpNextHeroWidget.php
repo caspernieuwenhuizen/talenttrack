@@ -88,9 +88,7 @@ class TodayUpNextHeroWidget extends AbstractWidget {
     private static function nextActivity( array $team_ids, int $club_id ): ?object {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_activities';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return null;
-        }
+        // tt_activities (migration 0027, the tt_sessions rename) exists on every install; no table check.
         $today       = gmdate( 'Y-m-d' );
         $has_club    = self::hasClubColumn( $table );
         $club_clause = $has_club ? ' AND a.club_id = ' . (int) $club_id : '';

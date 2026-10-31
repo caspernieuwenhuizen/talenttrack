@@ -32,9 +32,7 @@ class RecentAcademyEvents extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_player_events';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_player_events (migration 0037) exists on every install; no table check.
         $since = gmdate( 'Y-m-d 00:00:00', strtotime( '-30 days' ) );
         // v4.20.24 (#1210, bonus) — added the missing `club_id` filter so
         // the count is tenant-scoped. Pre-fix, on a multi-tenant install

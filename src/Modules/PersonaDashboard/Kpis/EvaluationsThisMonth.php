@@ -37,9 +37,7 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
         $table = $wpdb->prefix . 'tt_evaluations';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return KpiValue::unavailable();
-        }
+        // tt_evaluations (migration 0001) exists on every install; no table check.
         $first = self::cutoffDate() . ' 00:00:00';
         // v3.108.5 — added `club_id` filter. Without it the count
         // aggregated across every tenant on the install (returning
