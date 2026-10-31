@@ -2574,6 +2574,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'next_month'  => __( 'Next month', 'talenttrack' ),
             'this_season' => __( 'This season', 'talenttrack' ),
         ];
+        /** @var array<string, string|int> $pill_base */
         $pill_base = [ 'tt_view' => 'activities' ];
         if ( $team_filter > 0 )      $pill_base['team_id']           = $team_filter;
         if ( $type_filter !== '' )   $pill_base['activity_type_key'] = $type_filter;
