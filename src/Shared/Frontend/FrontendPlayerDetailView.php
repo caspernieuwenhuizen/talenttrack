@@ -204,8 +204,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * private, while the API behind it refused.
      */
     private static function mayReadSection( int $user_id, int $player_id, string $section ): bool {
-        return AuthorizationService::canReadPlayerSection( $user_id, $player_id, $section )
-            && AuthorizationService::parentCanViewSection( $user_id, $player_id, $section );
+        return AuthorizationService::mayReadPlayerSection( $user_id, $player_id, $section );
     }
 
     /**
@@ -1429,12 +1428,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * own coming-soon state before the first rated evaluation; the radar
      * renders nothing when there's no profile yet, and the KPIs render
      * nothing until the first rating.
+     *
+     * Every number on the card is an evaluation score, so the card asks the
+     * evaluations tab's question. A reader who may not read them (a parent
+     * the child keeps evaluations from) gets the card without ratings: photo,
+     * name, position and team.
      */
     private static function renderCardTab( object $player ): void {
         $player_id = (int) $player->id;
         $max       = (float) QueryHelpers::get_config( 'rating_max', '10' );
-        $heads     = ( new PlayerStatsService() )->getHeadlineNumbers( $player_id, [], 5 );
-        $radar     = QueryHelpers::player_radar_datasets( $player_id, 3 );
+        $scores    = self::mayReadSection( get_current_user_id(), $player_id, 'evaluations' );
+        $heads     = $scores ? ( new PlayerStatsService() )->getHeadlineNumbers( $player_id, [], 5 ) : [];
+        $radar     = $scores ? QueryHelpers::player_radar_datasets( $player_id, 3 ) : [];
         $has_radar = ! empty( $radar['datasets'] );
         ?>
         <?php
@@ -1491,11 +1496,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         // already showing. Its click-through pointed at the
                         // staff profile, which is this same page for staff and
                         // a dead end for the player whose card it is.
-                        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', true, null, true, 'none' );
+                        \TT\Modules\Stats\Admin\PlayerCardView::renderCard( $player_id, 'md', $scores, $scores ? null : 'neutral', $scores, 'none' );
                         ?>
                     </div>
                 </div>
-                <?php self::renderCardKpis( $heads, $max ); ?>
+                <?php if ( $scores ) self::renderCardKpis( $heads, $max ); ?>
             </div>
         </div>
         <?php

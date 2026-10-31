@@ -278,6 +278,11 @@ class PlayerJourneyRestController extends BaseController {
         ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
+        // And for a parent, the child's own evaluations switch, as the
+        // evaluations routes ask.
+        if ( ! AuthorizationService::parentCanViewSection( $user_id, $player_id, 'evaluations' ) ) {
+            return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
+        }
 
         $trend =( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
             ->personalTrendForPlayer( $player_id );

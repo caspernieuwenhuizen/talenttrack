@@ -491,6 +491,20 @@ class AuthorizationService {
         return ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->isVisible( $player_id, $section );
     }
 
+    /**
+     * A player section as this reader may see it: the section read on this
+     * player and, for a linked parent, the child's own switch. The pair the
+     * section's REST routes ask; every surface that shows the section's data
+     * outside its own tab (the player card, My team) asks it too, so a
+     * switch the child turns off holds wherever the data appears.
+     *
+     * @param string $section Matrix entity and switch key, e.g. `evaluations`.
+     */
+    public static function mayReadPlayerSection( int $user_id, int $player_id, string $section ): bool {
+        return self::canReadPlayerSection( $user_id, $player_id, $section )
+            && self::parentCanViewSection( $user_id, $player_id, $section );
+    }
+
     public static function canEditPlayer( int $user_id, int $player_id ): bool {
         return self::decide( 'edit_player', $user_id, 'player', $player_id, function () use ( $user_id, $player_id ) {
             if ( self::userHasPermission( $user_id, 'players.edit' ) ) return true;

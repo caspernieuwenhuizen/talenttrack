@@ -122,7 +122,15 @@ class FrontendOverviewView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
-        $max     = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $max = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        // The rating badge is an evaluation score: a parent the child keeps
+        // evaluations from gets the header without it.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::mayReadPlayerSection(
+            get_current_user_id(), (int) $player->id, 'evaluations'
+        ) ) {
+            self::renderHeroStrip( $player, null, null, $max, false );
+            return;
+        }
         $heads   = ( new PlayerStatsService() )->getHeadlineNumbers( (int) $player->id, [], 5 );
         $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
         $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
@@ -136,7 +144,7 @@ class FrontendOverviewView extends FrontendViewBase {
      * (rolling "Last 5", falling back to all-time), or a warm
      * "coming soon" state before the first evaluation.
      */
-    private static function renderHeroStrip( object $player, ?float $rolling, ?float $alltime, float $max ): void {
+    private static function renderHeroStrip( object $player, ?float $rolling, ?float $alltime, float $max, bool $show_rating = true ): void {
         $name = QueryHelpers::player_display_name( $player );
         $team = $player->team_id ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $pos  = json_decode( (string) $player->preferred_positions, true );
@@ -173,12 +181,12 @@ class FrontendOverviewView extends FrontendViewBase {
                     ?>
                 </p>
             </div>
-            <?php if ( $ovr !== null ) : ?>
+            <?php if ( $show_rating && $ovr !== null ) : ?>
                 <div class="tt-ov-ovr" title="<?php echo esc_attr( sprintf( '%s · %s / %s', $ovr_kind, number_format_i18n( $ovr, 1 ), number_format_i18n( $max, 0 ) ) ); ?>">
                     <span class="tt-ov-ovr-label"><?php echo esc_html( $ovr_kind ); ?></span>
                     <span class="tt-ov-ovr-val"><?php echo esc_html( number_format_i18n( $ovr, 1 ) ); ?></span>
                 </div>
-            <?php else : ?>
+            <?php elseif ( $show_rating ) : ?>
                 <div class="tt-ov-ovr tt-ov-ovr--empty">
                     <span class="tt-ov-ovr-val"><?php esc_html_e( 'First evaluation coming soon', 'talenttrack' ); ?></span>
                 </div>
