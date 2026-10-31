@@ -32,6 +32,14 @@ class MatchPrepRepository {
      */
     public const ROLE_KEYS = [ 'captain', 'corner_l', 'corner_r', 'fk_l', 'fk_r', 'penalty' ];
 
+    /**
+     * The highest line-up slot number: eleven-a-side is the ceiling of the
+     * sport, so no formation draws a twelfth position. The REST controller
+     * refuses a slot above it; the guard in `replaceLineupForHalf()` stays
+     * as the last line.
+     */
+    public const MAX_LINEUP_SLOTS = 11;
+
     public function __construct() {
         global $wpdb;
         $this->wpdb     = $wpdb;
@@ -373,7 +381,7 @@ class MatchPrepRepository {
         foreach ( $slots as $slot => $player_id ) {
             $slot = (int) $slot;
             $pid  = (int) $player_id;
-            if ( $slot < 1 || $slot > 11 || $pid <= 0 ) continue;
+            if ( $slot < 1 || $slot > self::MAX_LINEUP_SLOTS || $pid <= 0 ) continue;
             $this->wpdb->insert( $this->t_lineup, [
                 'club_id'       => CurrentClub::id(),
                 'match_prep_id' => $prep_id,
