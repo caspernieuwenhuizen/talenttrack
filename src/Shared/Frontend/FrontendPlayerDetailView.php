@@ -8,6 +8,7 @@ use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Modules\Authorization\AgeTier;
 use TT\Modules\Authorization\MatrixGate;
@@ -218,22 +219,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * hold, so the one tab a coach writes *for the player to read* was the
      * one hidden from them.
      *
+     * #4256 — the three tabs ask `AuthorizationService::canReadPlayerSection()`
+     * about this player, the same check the evaluations REST routes use. Asking
+     * either entity at any scope let a staff member's own-records grant (the
+     * assistant coach's `my_evaluations` at `self`) open every player's
+     * evaluations.
+     *
      * @return array<string,string>  tab key => human label
      */
     private static function tabs( int $user_id, int $player_id ): array {
         $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
 
-        if ( self::mayRead( $user_id, $player_id, 'goals', 'my_goals' ) ) {
+        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'goals' ) ) {
             $tabs['goals'] = __( 'Goals', 'talenttrack' );
         }
-        if ( self::mayRead( $user_id, $player_id, 'evaluations', 'my_evaluations' ) ) {
+        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'evaluations' ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
         // #1892 — measurements in context, beside evaluations (dev-data).
         if ( MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ ) ) {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
-        if ( self::mayRead( $user_id, $player_id, 'activities', 'my_activities' ) ) {
+        if ( AuthorizationService::canReadPlayerSection( $user_id, $player_id, 'activities' ) ) {
             $tabs['activities'] = __( 'Activities', 'talenttrack' );
         }
         // #2725 — what this player has repeatedly been marked as after a
@@ -326,32 +333,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // Analytics tab removed v3.110.187 — operators reach the
         // dimension explorer via ?tt_view=explore.
         return $tabs;
-    }
-
-    /**
-     * #3393 — does this viewer hold either the staff entity or its
-     * player-facing twin?
-     *
-     * #1482 split `goals` / `activities` / `evaluations` from `my_goals` /
-     * `my_activities` / `my_evaluations` so that reading a squad's records
-     * and reading your own are different rights. A gate naming only one
-     * half answers the wrong question on a profile that serves both: ask
-     * for `evaluations` and the player it is about is refused; skip the
-     * gate entirely, as Goals and Activities did, and everyone is admitted.
-     *
-     * #4256 — the `my_` half only counts on the viewer's own record or
-     * their child's. The player persona holds it at `self` and a parent at
-     * `player`, but staff hold it too: the assistant coach carries
-     * `my_evaluations` at `self` for the evaluations they authored. Asked at
-     * any scope, that grant opened the Evaluations tab, with every score, on
-     * every player the assistant coach could open. Staff are decided by the
-     * base entity alone.
-     */
-    private static function mayRead( int $user_id, int $player_id, string $entity, string $own_entity ): bool {
-        if ( MatrixGate::canAnyScope( $user_id, $entity, MatrixGate::READ ) ) return true;
-        if ( ! MatrixGate::canAnyScope( $user_id, $own_entity, MatrixGate::READ ) ) return false;
-        return self::isOwnRecord( $user_id, $player_id )
-            || in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true );
     }
 
     /**
@@ -1088,7 +1069,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 // Hide the KPI tile entirely when the user lacks
                 // `evaluations:read` so the value (and the direction
                 // arrow) don't leak through the side door.
-                if ( MatrixGate::canAnyScope( get_current_user_id(), 'evaluations', MatrixGate::READ ) ) : ?>
+                // #4256 — the same per-player question the Evaluations tab
+                // asks, so the tile and the tab always agree.
+                if ( AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'evaluations' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Avg rating', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -2257,7 +2240,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // direct URL keep agreeing. `my_evaluations` is what the player
         // persona holds; asking only for `evaluations` refused the player
         // the one tab a coach writes for them to read.
-        if ( ! self::mayRead( get_current_user_id(), $player_id, 'evaluations', 'my_evaluations' ) ) {
+        if ( ! AuthorizationService::canReadPlayerSection( get_current_user_id(), $player_id, 'evaluations' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
             return;
         }

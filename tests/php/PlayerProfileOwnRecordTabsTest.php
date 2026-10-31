@@ -3,7 +3,11 @@ namespace TT\Tests\Php;
 
 use ReflectionMethod;
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\PlayerFileCounts;
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
+use TT\Modules\Authorization\FunctionalRoleGrants;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Authorization\PersonaResolver;
@@ -125,12 +129,7 @@ final class PlayerProfileOwnRecordTabsTest extends WP_UnitTestCase {
         );
     }
 
-    /**
-     * The `my_` half on its own: a parent's `my_evaluations` opens their
-     * child's record and no other. The base entity is one the parent persona
-     * does not hold, so only the `my_` arm is being asked.
-     */
-    public function test_a_parents_own_records_grant_does_not_open_another_familys_player(): void {
+    public function test_a_parent_reads_no_sections_of_another_familys_player(): void {
         global $wpdb;
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
             'club_id'    => 1,
@@ -141,23 +140,109 @@ final class PlayerProfileOwnRecordTabsTest extends WP_UnitTestCase {
         ] );
         $other = (int) $wpdb->insert_id;
 
-        $this->assertFalse(
-            MatrixGate::canAnyScope( $this->parent_uid, 'team_chemistry', MatrixGate::READ ),
-            'Precondition: the parent persona holds no team_chemistry read.'
+        foreach ( [ 'evaluations', 'goals', 'activities' ] as $entity ) {
+            $this->assertTrue( AuthorizationService::canReadPlayerSection( $this->parent_uid, $this->player_id, $entity ), "own child: {$entity}" );
+            $this->assertFalse( AuthorizationService::canReadPlayerSection( $this->parent_uid, $other, $entity ), "other family: {$entity}" );
+        }
+        $tabs = $this->tabsFor( $this->parent_uid, $other );
+        $this->assertArrayNotHasKey( 'evaluations', $tabs );
+        $this->assertArrayNotHasKey( 'goals', $tabs );
+        $this->assertArrayNotHasKey( 'activities', $tabs );
+    }
+
+    /**
+     * A grant on one team never opens another team's player. This head
+     * coach reads evaluations on team A, and opens team B's players through
+     * a kit-manager role there. Before this, `canAnyScope( 'evaluations' )`
+     * was true and team B's evaluations were on screen.
+     */
+    public function test_evaluations_on_one_team_do_not_open_another_teams_player(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'Own Record U16', 'age_group' => 'U16' ] );
+        $team_a = (int) $wpdb->insert_id;
+
+        $uid = $this->makeCoach( true, $team_a );
+        $this->assignFunctionalRole( $uid, $this->team_id, 'kit_manager' );
+
+        $this->assertTrue(
+            AuthorizationService::canViewPlayer( $uid, $this->player_id ),
+            'Precondition: the account opens the team-B player.'
+        );
+        $this->assertTrue(
+            MatrixGate::canAnyScope( $uid, 'evaluations', MatrixGate::READ ),
+            'Precondition: the account reads evaluations somewhere (team A).'
         );
 
-        $this->assertTrue( $this->mayRead( $this->parent_uid, $this->player_id, 'team_chemistry', 'my_evaluations' ) );
-        $this->assertFalse( $this->mayRead( $this->parent_uid, $other, 'team_chemistry', 'my_evaluations' ) );
+        $tabs = $this->tabsFor( $uid );
+        $this->assertArrayNotHasKey( 'evaluations', $tabs );
+        $this->assertArrayNotHasKey( 'goals', $tabs );
+        $this->assertStringContainsString(
+            'You do not have permission to view evaluations for this player.',
+            $this->evaluationsTabFor( $uid )
+        );
+        $this->assertStringNotContainsString( 'Avg rating', $this->glanceFor( $uid ) );
+    }
+
+    public function test_the_avg_rating_tile_follows_the_evaluations_tab(): void {
+        $assistant = $this->makeCoach( false );
+        $head      = $this->makeCoach( true );
+
+        $this->assertStringNotContainsString( 'Avg rating', $this->glanceFor( $assistant ) );
+        $this->assertStringContainsString( 'Avg rating', $this->glanceFor( $head ) );
     }
 
     /* ---- helpers -------------------------------------------------------- */
 
     /** @return array<string,string> */
-    private function tabsFor( int $user_id ): array {
+    private function tabsFor( int $user_id, ?int $player_id = null ): array {
         wp_set_current_user( $user_id );
         $method = new ReflectionMethod( FrontendPlayerDetailView::class, 'tabs' );
         $method->setAccessible( true );
-        return (array) $method->invoke( null, $user_id, $this->player_id );
+        return (array) $method->invoke( null, $user_id, $player_id ?? $this->player_id );
+    }
+
+    private function glanceFor( int $user_id ): string {
+        wp_set_current_user( $user_id );
+        $player = QueryHelpers::get_player( $this->player_id );
+        $this->assertNotNull( $player );
+        $method = new ReflectionMethod( FrontendPlayerDetailView::class, 'renderAtAGlance' );
+        $method->setAccessible( true );
+        ob_start();
+        $method->invoke( null, $this->player_id, $player, home_url( '/' ), PlayerFileCounts::for( $this->player_id ) );
+        return (string) ob_get_clean();
+    }
+
+    private function assignFunctionalRole( int $user_id, int $team_id, string $role_key ): void {
+        global $wpdb;
+        $table = "{$wpdb->prefix}tt_functional_roles";
+        $role_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$table} WHERE role_key = %s AND club_id = %d",
+            $role_key, 1
+        ) );
+        if ( $role_id <= 0 ) {
+            $wpdb->insert( $table, [
+                'club_id'     => 1,
+                'role_key'    => $role_key,
+                'label'       => ucfirst( str_replace( '_', ' ', $role_key ) ),
+                'description' => 'Created by PlayerProfileOwnRecordTabsTest.',
+                'is_system'   => 1,
+                'sort_order'  => 90,
+            ] );
+            $role_id = (int) $wpdb->insert_id;
+        }
+        $person_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d LIMIT 1",
+            $user_id
+        ) );
+        $wpdb->insert( "{$wpdb->prefix}tt_team_people", [
+            'club_id'            => 1,
+            'team_id'            => $team_id,
+            'person_id'          => $person_id,
+            'functional_role_id' => $role_id,
+            'role_in_team'       => $role_key,
+        ] );
+        AuthorizationService::flushCache();
+        FunctionalRoleGrants::clearCache();
     }
 
     private function evaluationsTabFor( int $user_id ): string {
@@ -169,16 +254,11 @@ final class PlayerProfileOwnRecordTabsTest extends WP_UnitTestCase {
         return (string) ob_get_clean();
     }
 
-    private function mayRead( int $user_id, int $player_id, string $entity, string $own_entity ): bool {
-        $method = new ReflectionMethod( FrontendPlayerDetailView::class, 'mayRead' );
-        $method->setAccessible( true );
-        return (bool) $method->invoke( null, $user_id, $player_id, $entity, $own_entity );
-    }
-
-    /** A `tt_coach` assigned to the player's team; `is_head_coach` splits the persona. */
-    private function makeCoach( bool $is_head_coach ): int {
+    /** A `tt_coach` assigned to a team (the player's by default); `is_head_coach` splits the persona. */
+    private function makeCoach( bool $is_head_coach, ?int $team_id = null ): int {
         global $wpdb;
-        $p = $wpdb->prefix;
+        $p    = $wpdb->prefix;
+        $team = $team_id ?? $this->team_id;
 
         $uid = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
 
@@ -193,7 +273,7 @@ final class PlayerProfileOwnRecordTabsTest extends WP_UnitTestCase {
         $person_id = (int) $wpdb->insert_id;
 
         $wpdb->insert( "{$p}tt_team_people", [
-            'team_id'       => $this->team_id,
+            'team_id'       => $team,
             'person_id'     => $person_id,
             'role_in_team'  => $is_head_coach ? 'head_coach' : 'assistant_coach',
             'is_head_coach' => $is_head_coach ? 1 : 0,
@@ -203,7 +283,7 @@ final class PlayerProfileOwnRecordTabsTest extends WP_UnitTestCase {
             'person_id'  => $person_id,
             'role_id'    => 1,
             'scope_type' => 'team',
-            'scope_id'   => $this->team_id,
+            'scope_id'   => $team,
         ] );
 
         $this->assertContains(
