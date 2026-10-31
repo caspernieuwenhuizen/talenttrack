@@ -124,9 +124,10 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         if ( ! user_can( $user_id, 'tt_view_player_notes' ) ) return false;
 
         // Coach scope: must own the player's team. Matches the
-        // `r[team]` grant on the seed.
-        if ( ! current_user_can( 'tt_view_settings' )
-             && ! user_can( $user_id, 'tt_view_settings' )
+        // `r[team]` grant on the seed. Asked of `$user_id` only: the
+        // notification fan-out evaluates recipients inside the author's
+        // request, so the current user must not change the answer.
+        if ( ! user_can( $user_id, 'tt_view_settings' )
              && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
         ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );
@@ -143,8 +144,7 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         // them. Same scope check as canRead below.
         if ( ! user_can( $user_id, 'tt_edit_player_notes' ) ) return false;
 
-        if ( ! current_user_can( 'tt_view_settings' )
-             && ! user_can( $user_id, 'tt_view_settings' )
+        if ( ! user_can( $user_id, 'tt_view_settings' )
              && ! QueryHelpers::user_has_global_entity_read( $user_id, 'player_notes' )
         ) {
             return QueryHelpers::coach_owns_player( $user_id, $thread_id );

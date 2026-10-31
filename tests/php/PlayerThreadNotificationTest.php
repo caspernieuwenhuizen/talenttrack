@@ -169,13 +169,70 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
     }
 
     public function test_a_coach_of_another_team_is_not_notified(): void {
-        // An admin author is the widest case: the read check bypasses its
-        // team scope for a current user who holds the settings capability.
+        // An admin author is the widest case: the fan-out runs inside the
+        // admin's request, and the recipient check must not depend on it.
         foreach ( [ $this->head_coach, $this->admin_uid ] as $author ) {
             $this->sent_to = [];
             $this->post( ThreadVisibility::PUBLIC_LEVEL, $author );
             $this->assertNotContains( $this->other_coach, $this->sent_to );
         }
+    }
+
+    public function test_an_admin_post_does_not_reach_staff_without_team_access(): void {
+        // A current assignment in `tt_team_people` whose team scope was
+        // never set up: the app refuses them the Notes tab, so the e-mail
+        // must not carry the note to them either.
+        $unscoped = $this->makeStaff( $this->team_id, 'tt_team_manager', 'manager', 'manager', false );
+
+        wp_set_current_user( $this->admin_uid );
+        $this->assertFalse(
+            ThreadAccess::canRead( 'player', $this->player_id, $unscoped ),
+            'Precondition: without team access they cannot read the thread, whoever is signed in.'
+        );
+
+        foreach ( [ ThreadVisibility::PUBLIC_LEVEL, ThreadVisibility::PRIVATE_COACH ] as $visibility ) {
+            $this->sent_to = [];
+            $this->post( $visibility, $this->admin_uid );
+            $this->assertNotContains( $unscoped, $this->sent_to, "{$visibility}: staff without team access was notified" );
+        }
+    }
+
+    public function test_an_admin_post_does_not_reach_staff_of_an_archived_team(): void {
+        global $wpdb;
+        $wpdb->update(
+            "{$wpdb->prefix}tt_teams",
+            [ 'archived_at' => current_time( 'mysql' ) ],
+            [ 'id' => $this->team_id ]
+        );
+
+        wp_set_current_user( $this->admin_uid );
+        $this->assertFalse(
+            ThreadAccess::canRead( 'player', $this->player_id, $this->manager ),
+            'Precondition: staff of an archived team cannot read the thread, whoever is signed in.'
+        );
+
+        foreach ( [ ThreadVisibility::PUBLIC_LEVEL, ThreadVisibility::PRIVATE_COACH ] as $visibility ) {
+            $this->sent_to = [];
+            $this->post( $visibility, $this->admin_uid );
+            foreach ( [ $this->head_coach, $this->assistant, $this->manager, $this->physio ] as $uid ) {
+                $this->assertNotContains( $uid, $this->sent_to, "{$visibility}: staff of an archived team was notified" );
+            }
+        }
+    }
+
+    public function test_the_recipient_check_does_not_depend_on_who_is_signed_in(): void {
+        $adapter = ThreadTypeRegistry::get( 'player' );
+        $this->assertNotNull( $adapter );
+
+        wp_set_current_user( 0 );
+        $anonymous = $adapter->participantUserIds( $this->player_id );
+        wp_set_current_user( $this->admin_uid );
+        $as_admin = $adapter->participantUserIds( $this->player_id );
+        wp_set_current_user( $this->head_coach );
+        $as_coach = $adapter->participantUserIds( $this->player_id );
+
+        $this->assertSameSet( $anonymous, $as_admin );
+        $this->assertSameSet( $anonymous, $as_coach );
     }
 
     public function test_a_person_who_muted_notifications_is_not_notified(): void {
@@ -228,7 +285,7 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
      * A staff member assigned to `$team_id` under a functional role, with
      * the team-scope grant the read side resolves.
      */
-    private function makeStaff( int $team_id, string $wp_role, string $role_key, string $role_type ): int {
+    private function makeStaff( int $team_id, string $wp_role, string $role_key, string $role_type, bool $with_scope = true ): int {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -264,13 +321,15 @@ final class PlayerThreadNotificationTest extends WP_UnitTestCase {
             'functional_role_id' => $role_id,
             'role_in_team'       => $role_key,
         ] );
-        $wpdb->insert( "{$p}tt_user_role_scopes", [
-            'club_id'    => 1,
-            'person_id'  => $person_id,
-            'role_id'    => 1,
-            'scope_type' => 'team',
-            'scope_id'   => $team_id,
-        ] );
+        if ( $with_scope ) {
+            $wpdb->insert( "{$p}tt_user_role_scopes", [
+                'club_id'    => 1,
+                'person_id'  => $person_id,
+                'role_id'    => 1,
+                'scope_type' => 'team',
+                'scope_id'   => $team_id,
+            ] );
+        }
 
         return $uid;
     }
