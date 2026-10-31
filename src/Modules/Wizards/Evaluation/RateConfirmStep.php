@@ -142,7 +142,7 @@ final class RateConfirmStep implements WizardStepInterface {
     public function submit( array $state ) {
         $aid = (int) ( $state['activity_id'] ?? 0 );
 
-        if ( $aid > 0 ) {
+        if ( $aid > 0 && \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
             AttendanceStep::completeActivityIfNotTerminal( $aid );
 
             if ( ! empty( $state['_skip_closes_rating'] ) ) {

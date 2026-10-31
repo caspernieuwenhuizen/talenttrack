@@ -57,6 +57,32 @@ final class ActivityAccess {
     }
 
     /**
+     * May this user write to this team's activities? Global `activities`
+     * scope writes every team; everyone else writes the teams they coach.
+     * An activity with no team has no team to be out of scope for, so the
+     * capability gate is the whole answer for it. The activities write
+     * routes and the attendance wizards ask this one question.
+     */
+    public static function canWriteTeam( int $user_id, ?int $team_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id ) ) return true;
+        if ( $team_id === null || $team_id <= 0 ) return true;
+        return in_array( $team_id, self::coachedTeamIds( $user_id ), true );
+    }
+
+    /**
+     * {@see self::canWriteTeam()} for one stored activity, archived ones
+     * included. False when the activity does not exist.
+     */
+    public static function canWriteActivity( int $user_id, int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        $activity = ( new ActivitiesRepository() )->findByIdIncludingArchived( $activity_id );
+        if ( $activity === null ) return false;
+        $team_id = (int) ( $activity->team_id ?? 0 );
+        return self::canWriteTeam( $user_id, $team_id > 0 ? $team_id : null );
+    }
+
+    /**
      * True when the user is this player, or a verified parent of them.
      */
     public static function canReadAsPlayerOrParent( int $user_id, int $player_id ): bool {

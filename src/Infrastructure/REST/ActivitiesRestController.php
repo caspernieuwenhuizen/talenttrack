@@ -574,14 +574,9 @@ class ActivitiesRestController {
      * Returns null when the write is allowed, or the 403 to return.
      */
     private static function refuseUnlessTeamWritable( ?int $team_id ): ?\WP_REST_Response {
-        $allowed = self::gridAllowedTeamIds();
-        if ( $allowed === null ) return null; // global scope: any team.
-
-        // An activity with no team has no team to be out of scope for; the
-        // capability gate is the whole answer for it.
-        if ( $team_id === null || $team_id <= 0 ) return null;
-
-        if ( in_array( $team_id, $allowed, true ) ) return null;
+        // The rule lives in `ActivityAccess::canWriteTeam()` so the
+        // attendance wizards ask the same question these routes do.
+        if ( ActivityAccess::canWriteTeam( get_current_user_id(), $team_id ) ) return null;
 
         return RestResponse::error(
             'forbidden_team',
