@@ -223,17 +223,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     private static function tabs( int $user_id, int $player_id ): array {
         $tabs = [ 'profile' => __( 'Profile', 'talenttrack' ) ];
 
-        if ( self::mayRead( $user_id, 'goals', 'my_goals' ) ) {
+        if ( self::mayRead( $user_id, $player_id, 'goals', 'my_goals' ) ) {
             $tabs['goals'] = __( 'Goals', 'talenttrack' );
         }
-        if ( self::mayRead( $user_id, 'evaluations', 'my_evaluations' ) ) {
+        if ( self::mayRead( $user_id, $player_id, 'evaluations', 'my_evaluations' ) ) {
             $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
         }
         // #1892 — measurements in context, beside evaluations (dev-data).
         if ( MatrixGate::canAnyScope( $user_id, 'measurements', MatrixGate::READ ) ) {
             $tabs['measurements'] = __( 'Measurements', 'talenttrack' );
         }
-        if ( self::mayRead( $user_id, 'activities', 'my_activities' ) ) {
+        if ( self::mayRead( $user_id, $player_id, 'activities', 'my_activities' ) ) {
             $tabs['activities'] = __( 'Activities', 'talenttrack' );
         }
         // #2725 — what this player has repeatedly been marked as after a
@@ -339,13 +339,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * for `evaluations` and the player it is about is refused; skip the
      * gate entirely, as Goals and Activities did, and everyone is admitted.
      *
-     * The player persona holds the `my_` entity at `self` scope and a
-     * parent at `player` scope, so this widens nothing — the dispatcher
-     * has already decided whose record is on screen.
+     * #4256 — the `my_` half only counts on the viewer's own record or
+     * their child's. The player persona holds it at `self` and a parent at
+     * `player`, but staff hold it too: the assistant coach carries
+     * `my_evaluations` at `self` for the evaluations they authored. Asked at
+     * any scope, that grant opened the Evaluations tab, with every score, on
+     * every player the assistant coach could open. Staff are decided by the
+     * base entity alone.
      */
-    private static function mayRead( int $user_id, string $entity, string $own_entity ): bool {
-        return MatrixGate::canAnyScope( $user_id, $entity, MatrixGate::READ )
-            || MatrixGate::canAnyScope( $user_id, $own_entity, MatrixGate::READ );
+    private static function mayRead( int $user_id, int $player_id, string $entity, string $own_entity ): bool {
+        if ( MatrixGate::canAnyScope( $user_id, $entity, MatrixGate::READ ) ) return true;
+        if ( ! MatrixGate::canAnyScope( $user_id, $own_entity, MatrixGate::READ ) ) return false;
+        return self::isOwnRecord( $user_id, $player_id )
+            || in_array( $player_id, \TT\Infrastructure\Players\ParentChildResolver::childIds( $user_id ), true );
     }
 
     /**
@@ -2251,7 +2257,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // direct URL keep agreeing. `my_evaluations` is what the player
         // persona holds; asking only for `evaluations` refused the player
         // the one tab a coach writes for them to read.
-        if ( ! self::mayRead( get_current_user_id(), 'evaluations', 'my_evaluations' ) ) {
+        if ( ! self::mayRead( get_current_user_id(), $player_id, 'evaluations', 'my_evaluations' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
             return;
         }
