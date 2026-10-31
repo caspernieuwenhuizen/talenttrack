@@ -36,6 +36,7 @@ final class TrainingCancelledTemplate extends AbstractTemplate {
     public function isEditable(): bool { return true; }
 
     protected function defaultCopy( string $channelKey, string $locale ): array {
+        /** @var array<string, array{0:string, 1:string}> $variants */
         $variants = [ 'en_US' => $this->englishCopy( $channelKey ) ];
         if ( $channelKey !== 'email' ) {
             // A Dutch recipient's short message has its own wording, so its
@@ -48,6 +49,7 @@ final class TrainingCancelledTemplate extends AbstractTemplate {
         return self::pickLocale( $variants, $locale );
     }
 
+    /** @return array{0:string, 1:string} */
     private function englishCopy( string $ch ): array {
         if ( $ch === 'email' ) {
             return [
