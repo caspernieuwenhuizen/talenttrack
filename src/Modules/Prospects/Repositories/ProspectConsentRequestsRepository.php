@@ -241,11 +241,11 @@ class ProspectConsentRequestsRepository {
      * onboarding pipeline board and the dashboard's pipeline strip both
      * select it, so the two cannot count a prospect differently.
      *
-     * Built from the outcome constants; `0` when the table does not exist
-     * yet, so a query on an older install still runs.
+     * Built from the outcome constants and the table prefix, so it carries
+     * no caller input; `0` when the table does not exist yet, so a query on
+     * an older install still runs.
      *
      * @param literal-string $prospect_alias alias of `tt_prospects` in the calling query
-     * @return literal-string
      */
     public static function awaitingConsentSql( string $prospect_alias = 'p' ): string {
         if ( ! self::tableExists() ) return '0';
