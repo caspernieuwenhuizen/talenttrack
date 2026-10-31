@@ -293,18 +293,9 @@ final class PersonaLandingRenderer {
     }
 
     private static function personaLabel( string $persona ): string {
-        $labels = [
-            'player'              => __( 'Player',              'talenttrack' ),
-            'parent'              => __( 'Parent',              'talenttrack' ),
-            'head_coach'          => __( 'Head coach',          'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach',     'talenttrack' ),
-            'team_manager'        => __( 'Team manager',        'talenttrack' ),
-            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
-            'scout'               => __( 'Scout',               'talenttrack' ),
-            'academy_admin'       => __( 'Academy admin',       'talenttrack' ),
-            'readonly_observer'   => __( 'Read-only observer',  'talenttrack' ),
-        ];
-        return $labels[ $persona ] ?? __( 'Dashboard', 'talenttrack' );
+        // #4504 — the one persona map.
+        $label = \TT\Modules\Authorization\PersonaLabels::label( $persona );
+        return $label !== '' ? $label : __( 'Dashboard', 'talenttrack' );
     }
 
     private static function pageSubtitle( int $user_id, PersonaTemplate $template ): string {
@@ -348,23 +339,13 @@ final class PersonaLandingRenderer {
         $available = PersonaResolver::personasFor( $user_id );
         if ( count( $available ) < 2 ) return;
 
-        $labels = [
-            'player'              => __( 'Player',              'talenttrack' ),
-            'parent'              => __( 'Parent',              'talenttrack' ),
-            'head_coach'          => __( 'Head coach',          'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach',     'talenttrack' ),
-            'team_manager'        => __( 'Team manager',        'talenttrack' ),
-            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
-            'scout'               => __( 'Scout',               'talenttrack' ),
-            'academy_admin'       => __( 'Academy admin',       'talenttrack' ),
-            'readonly_observer'   => __( 'Read-only observer',  'talenttrack' ),
-        ];
-
         echo '<div class="tt-pd-role-switcher" role="group" aria-label="' . esc_attr__( 'Switch persona', 'talenttrack' ) . '">';
         echo '<span class="tt-pd-role-switcher-label">' . esc_html__( 'Viewing as', 'talenttrack' ) . '</span>';
         foreach ( $available as $p ) {
             $cls   = $p === $active ? 'tt-pd-role-pill is-active' : 'tt-pd-role-pill';
-            $label = $labels[ $p ] ?? str_replace( '_', ' ', $p );
+            // #4504 — the one persona map.
+            $label = \TT\Modules\Authorization\PersonaLabels::label( (string) $p );
+            if ( $label === '' ) $label = str_replace( '_', ' ', (string) $p );
             echo '<button type="button" class="' . esc_attr( $cls ) . '" data-tt-pd-active-persona="' . esc_attr( $p ) . '">'
                 . esc_html( $label )
                 . '</button>';

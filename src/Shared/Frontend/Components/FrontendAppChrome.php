@@ -24,33 +24,11 @@ use TT\Modules\Authorization\PersonaResolver;
 final class FrontendAppChrome {
 
     /**
-     * Persona key → human label. Mirrors the switcher LUT in
-     * DashboardShortcode; kept here so the chip and any future consumer
-     * share one source. Wrapped in __() so the Dutch .po carries them.
-     *
-     * @return array<string,string>
+     * Human label for a persona key, or '' when unknown. The map itself is
+     * `PersonaLabels` (#4504), next to `PersonaResolver`.
      */
-    private static function personaLabels(): array {
-        return [
-            'player'              => __( 'Player', 'talenttrack' ),
-            'parent'              => __( 'Parent', 'talenttrack' ),
-            // #4473 — sentence case (docs/ui-copy.md), with a context so the
-            // label does not share a msgid with the same words elsewhere.
-            'assistant_coach'     => _x( 'Assistant coach', 'persona label', 'talenttrack' ),
-            'head_coach'          => _x( 'Head coach', 'persona label', 'talenttrack' ),
-            'head_of_development' => _x( 'Head of development', 'persona label', 'talenttrack' ),
-            'scout'               => __( 'Scout', 'talenttrack' ),
-            'team_manager'        => _x( 'Team manager', 'persona label', 'talenttrack' ),
-            'academy_admin'       => _x( 'Academy admin', 'persona label', 'talenttrack' ),
-            'readonly_observer'   => __( 'Observer', 'talenttrack' ),
-            // #4490 — physios, team managers and other staff on `tt_staff`.
-            'staff'               => _x( 'Staff', 'persona label', 'talenttrack' ),
-        ];
-    }
-
-    /** Human label for a persona key, or '' when unknown. */
     public static function personaLabel( string $persona ): string {
-        return self::personaLabels()[ $persona ] ?? '';
+        return \TT\Modules\Authorization\PersonaLabels::label( $persona );
     }
 
     /**

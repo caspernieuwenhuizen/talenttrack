@@ -9,7 +9,7 @@ order: 30
 
 # Persona-dashboards
 
-Iedere gebruiker van de academie landt op een dashboard dat is afgestemd op zijn persona — Speler, Ouder, Hoofdtrainer, Assistent-trainer, Teammanager, Head of Development, Scout, Academiebeheerder, of Read-only waarnemer. Het dashboard beantwoordt in het eerste scherm de vraag die voor die gebruiker telt: *Waar sta ik nu? Wat is er nieuw? Wat is het volgende?*
+Iedere gebruiker van de academie landt op een dashboard dat is afgestemd op zijn persona — Speler, Ouder, Hoofdtrainer, Assistent-trainer, Teammanager, Hoofd opleiding, Scout, Academiebeheerder of Waarnemer. Het dashboard beantwoordt in het eerste scherm de vraag die voor die gebruiker telt: *Waar sta ik nu? Wat is er nieuw? Wat is het volgende?*
 
 Deze pagina beschrijft wat je per persona kunt verwachten, hoe je wisselt als je meerdere rollen hebt, en (voor academiebeheerders) hoe de standaardlay-out per persona is opgebouwd.
 
@@ -21,10 +21,10 @@ Deze pagina beschrijft wat je per persona kunt verwachten, hoe je wisselt als je
 | **Ouder** | Kind-schakelaar + "sinds je laatste bezoek"-overzicht | POP wachtend op jouw akkoord | Dezelfde ontwikkeltegels die je kind ziet, met hun voornaam ervoor (bijv. "Sven's profiel", "Sven's evaluaties") |
 | **Hoofdtrainer / Assistent-trainer** | Vandaag / Eerstvolgende met aanwezigheids- en evaluatie-knoppen | Werkstroomtaken + recente evaluaties-rail | Activiteiten, evaluaties, doelen, spelers, teams, POP, methodiek, mijn taken |
 | **Teammanager** | Vandaag / Eerstvolgende | (standaard geen) | Activiteiten, mijn teams, spelers, mijn taken |
-| **Head of Development** | KPI-strip (actieve spelers, evaluaties deze maand, opkomstpercentage, open trials, openstaande POP-verdicten, doel-voltooiingspercentage) | Ploegoverzicht-grid (per ploeg rating + opkomst, uitklapbaar naar spelersuitsplitsing), Nieuwe trial snelactie, Aankomende activiteiten-tabel, Trials die een besluit nodig hebben (tabel) | Trials, POP, spelers, methodiek, takendashboard, evaluaties, ratingcards, vergelijken |
+| **Hoofd opleiding** | KPI-strip (actieve spelers, evaluaties deze maand, opkomstpercentage, open trials, openstaande POP-verdicten, doel-voltooiingspercentage) | Ploegoverzicht-grid (per ploeg rating + opkomst, uitklapbaar naar spelersuitsplitsing), Nieuwe trial snelactie, Aankomende activiteiten-tabel, Trials die een besluit nodig hebben (tabel) | Trials, POP, spelers, methodiek, takendashboard, evaluaties, ratingcards, vergelijken |
 | **Scout** | Toegewezen-spelers-grid (je primaire werksurface) | Recente rapporten | Mijn rapporten, mijn toegewezen spelers |
 | **Academiebeheerder** | Systeemstatus-strip (back-up, uitnodigingen, licentie, modules) | Recente audit-gebeurtenissen (tabel) | Configuratie, autorisatie, gebruiksstatistieken, audit log, uitnodigingen, migraties, hulp, methodiek |
-| **Read-only waarnemer** | KPI-strip in alleen-lezen-modus | (geen) | (geen bewerk-acties; alleen methodiek + KPI's) |
+| **Waarnemer** | KPI-strip in alleen-lezen-modus | (geen) | (geen bewerk-acties; alleen methodiek + KPI's) |
 
 ## Wisselen tussen persona's
 
@@ -40,7 +40,7 @@ Widgets hebben vier formaten — Small, Medium, Large, Extra-large — en klikke
 
 ## Een persona-dashboard aanpassen
 
-Open **Instellingen → Dashboard-lay-outs**. De editor is afgeschermd met de capability `tt_edit_persona_templates` — standaard toegekend aan beheerders en academiebeheerders, optioneel aan Head of Development.
+Open **Instellingen → Dashboard-lay-outs**. De editor is afgeschermd met de capability `tt_edit_persona_templates` — standaard toegekend aan beheerders en academiebeheerders, optioneel aan Hoofd opleiding.
 
 Dezelfde editor blijft beschikbaar via *TalentTrack → Dashboard-lay-outs* in wp-admin. Het is één editor op twee schermen, geen twee editors: beide lezen en schrijven dezelfde opgeslagen lay-outs, dus het maakt niet uit welke je gebruikt of welke iemand anders gisteren gebruikte.
 
@@ -132,7 +132,7 @@ Een ingelogde gebruiker kan templates lezen voor persona's waarvoor hij in aanme
 
 ## Visuele conventies
 
-Het dashboard opent met een subtiele titelkop — persona-naam als paginatitel plus een ondertitel met datum + clubnaam. Persona's zonder hero-widget (Head of Development, Academiebeheerder, Scout) krijgen een dagdeel-groet als prefix; persona's met een hero (speler, ouder, coach, manager) krijgen geen extra groet omdat de hero die functie al vervult.
+Het dashboard opent met een subtiele titelkop — persona-naam als paginatitel plus een ondertitel met datum + clubnaam. Persona's zonder hero-widget (Hoofd opleiding, Academiebeheerder, Scout) krijgen een dagdeel-groet als prefix; persona's met een hero (speler, ouder, coach, manager) krijgen geen extra groet omdat de hero die functie al vervult.
 
 Tegel-iconen (de gekleurde één-letter-vierkantjes) en de gele plus-cirkel op actie-kaarten zijn weg. Tegels leunen nu op typografische hiërarchie en een hover-pijltje; actie-kaarten plaatsen de "+" in de label-string. De widget-shell heeft zachtere hoekranden, een twee-staps schaduw die meegeeft op hover, en een getokeniseerd kleurenpalet (`--tt-pd-*` custom properties) zodat toekomstige themapasses één plaats hebben om aan te passen.
 
@@ -151,7 +151,7 @@ Van boven naar onder op de standaardtemplate:
 5. **Trials die een beslissing nodig hebben** — gegevens-tabel.
 6. **Navigatietegels** — bovenste rij bevat de vier hoogfrequente drill-downs (Onboarding-pipeline · Takendashboard · Spelers · Ploegen); tweede rij bevat de cyclus-/registratie-oppervlakken (Trials · Evaluaties · PDP · Activiteiten); rest ongewijzigd.
 
-Dit is de meegeleverde standaard. Een academie die een eigen Hoofd Opleiding-template heeft gepubliceerd, behoudt die lay-out. Open de dashboard-editor en klik op **Terug naar standaard** om de nieuwe lay-out te zien.
+Dit is de meegeleverde standaard. Een academie die een eigen template voor Hoofd opleiding heeft gepubliceerd, behoudt die lay-out. Open de dashboard-editor en klik op **Terug naar standaard** om de nieuwe lay-out te zien.
 
 ## Ploegoverzicht-grid (HoD-landing)
 

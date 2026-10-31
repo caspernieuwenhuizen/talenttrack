@@ -380,18 +380,9 @@ final class EditorPage {
     }
 
     private static function personaLabel( string $slug ): string {
-        $labels = [
-            'player'              => __( 'Player', 'talenttrack' ),
-            'parent'              => __( 'Parent', 'talenttrack' ),
-            'head_coach'          => __( 'Head coach', 'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant coach', 'talenttrack' ),
-            'team_manager'        => __( 'Team manager', 'talenttrack' ),
-            'head_of_development' => __( 'Head of Development', 'talenttrack' ),
-            'scout'               => __( 'Scout', 'talenttrack' ),
-            'academy_admin'       => __( 'Academy admin', 'talenttrack' ),
-            'readonly_observer'   => __( 'Read-only observer', 'talenttrack' ),
-        ];
-        return $labels[ $slug ] ?? str_replace( '_', ' ', $slug );
+        // #4504 — the one persona map.
+        $label = \TT\Modules\Authorization\PersonaLabels::label( $slug );
+        return $label !== '' ? $label : str_replace( '_', ' ', $slug );
     }
 
     /**

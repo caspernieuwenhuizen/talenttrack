@@ -262,21 +262,13 @@ final class MatrixEditService {
      * @return array<string, string>
      */
     public static function personaLabels(): array {
-        return [
-            'player'              => __( 'Player', 'talenttrack' ),
-            'parent'              => __( 'Parent', 'talenttrack' ),
-            'assistant_coach'     => __( 'Assistant Coach', 'talenttrack' ),
-            'head_coach'          => __( 'Head Coach', 'talenttrack' ),
-            'head_of_development' => __( 'Head of Dev', 'talenttrack' ),
-            'scout'               => __( 'Scout', 'talenttrack' ),
-            'team_manager'        => __( 'Team Manager', 'talenttrack' ),
-            'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
-        ];
+        // #4504 — the one persona map.
+        return \TT\Modules\Authorization\PersonaLabels::all();
     }
 
     public static function personaLabel( string $persona ): string {
-        $map = self::personaLabels();
+        $label = \TT\Modules\Authorization\PersonaLabels::label( $persona );
 
-        return $map[ $persona ] ?? $persona;
+        return $label !== '' ? $label : $persona;
     }
 }
