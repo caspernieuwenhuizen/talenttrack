@@ -128,7 +128,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $new_url       = add_query_arg( [ 'tt_back' => rawurlencode( $eval_list_url ) ], $new_url );
 
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_evaluations' ) ) {
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_evaluations' ) ) {
             $page_actions[] = [
                 'label'   => __( 'New evaluation', 'talenttrack' ),
                 'href'    => $new_url,

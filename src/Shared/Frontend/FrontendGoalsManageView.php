@@ -165,7 +165,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         // v3.110.53 — header-actions slot for + New goal.
         $list_base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_goals' ) ) {
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_goals' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], $list_base_url );
             $page_actions[] = [
                 'label'   => __( 'Add goal', 'talenttrack' ),
