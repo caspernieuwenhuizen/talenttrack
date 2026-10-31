@@ -247,7 +247,7 @@ final class SpondClient {
         $pages_drawn = 0;
         $last_http   = 200;
 
-        do {
+        foreach ( range( 1, $max_pages ) as $_page ) {
             $params = [
                 'groupId'           => $group_id,
                 'minStartTimestamp' => $cursor,
@@ -292,7 +292,7 @@ final class SpondClient {
             // page's first row may be the same event again (same
             // timestamp); the `$seen_ids` dedupe above handles that.
             $cursor = $last_start;
-        } while ( $pages_drawn < $max_pages );
+        }
 
         return [
             'ok'         => true,

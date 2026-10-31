@@ -6,7 +6,7 @@ use TT\Modules\Spond\SpondAccount;
 use TT\Modules\Spond\SpondClient;
 
 /**
- * #4279 — the event fetch's paging loop became a do/while (its first check
+ * #4279 — the event fetch's paging loop is bounded by a range instead of a counter check (its first check
  * was always true). These pin what it does: a short page ends it after one
  * request, and full pages stop at the 20-page safety cap.
  */
