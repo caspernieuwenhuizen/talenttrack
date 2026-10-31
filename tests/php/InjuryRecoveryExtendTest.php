@@ -150,7 +150,9 @@ final class InjuryRecoveryExtendTest extends WP_UnitTestCase {
                 'new_expected_return' => $this->day( 10 ),
             ], $task );
             $this->assertArrayHasKey( 'injury_id', $errors, "a {$case} record is refused" );
-            $this->assertArrayHasKey( '__form', $errors, 'and the task view can show why' );
+            // #4421 — the task view shows field errors itself, so the message
+            // is not copied into `__form` too, which would print it twice.
+            $this->assertArrayNotHasKey( '__form', $errors, 'the field error is not repeated as a form error' );
         }
         $this->assertSame( $this->day( -2 ), (string) ( new InjuryRepository() )->find( $foreign )->expected_return );
     }
