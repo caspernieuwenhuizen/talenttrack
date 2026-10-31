@@ -37,6 +37,11 @@ use TT\Shared\Wizards\WizardEntryPoint;
  *      the wizards-enabled gate lifts the user into the multi-step
  *      flow. Same pattern `FrontendEvaluationsView::render()` uses
  *      for its page-header CTA.
+ *
+ * #4348 — the card asks `AuthorizationService::userCanOrMatrix()`, not
+ * `current_user_can()`, so it falls through to the matrix when the
+ * `user_has_cap` bridge is dormant, the same answer the create button
+ * on the view it links to gives.
  */
 class ActionCardWidget extends AbstractWidget {
 
@@ -121,7 +126,7 @@ class ActionCardWidget extends AbstractWidget {
         if ( ! isset( self::ACTIONS[ $id ] ) ) return '';
         $action = self::ACTIONS[ $id ];
         // Every action declares its cap, so there is no cap-less case.
-        if ( ! current_user_can( $action['cap'] ) ) return '';
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), $action['cap'] ) ) return '';
 
         $label = $slot->persona_label !== ''
             ? $slot->persona_label
