@@ -188,9 +188,11 @@ class FrontendMySettingsView extends FrontendViewBase {
             <?php
             // #4272 — the hints below were written for a parent and showed
             // to every account; staff read about "your child" they don't have.
+            // #4393 — and a player read about "the players you work with".
             self::renderMessagePreferencesCard(
                 $user_id,
-                \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 0
+                \TT\Infrastructure\Players\ParentChildResolver::childCount( $user_id ) > 0,
+                \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id ) !== null
             );
             ?>
 
@@ -322,7 +324,7 @@ class FrontendMySettingsView extends FrontendViewBase {
      * hidden — a preferences screen that quietly omits the messages you
      * cannot refuse is the same silent behaviour #2602 set out to remove.
      */
-    private static function renderMessagePreferencesCard( int $user_id, bool $has_children ): void {
+    private static function renderMessagePreferencesCard( int $user_id, bool $has_children, bool $is_player ): void {
         $policy = new \TT\Modules\Comms\OptOut\OptOutPolicy();
         $labels = self::visibleMessageTypeLabels( $user_id );
         ?>
@@ -332,7 +334,9 @@ class FrontendMySettingsView extends FrontendViewBase {
 
             <h3><?php esc_html_e( 'Messages you receive', 'talenttrack' ); ?></h3>
             <p class="tt-field-hint">
-                <?php if ( $has_children ) : ?>
+                <?php if ( $is_player ) : ?>
+                    <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you.', 'talenttrack' ); ?>
+                <?php elseif ( $has_children ) : ?>
                     <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or your own child.', 'talenttrack' ); ?>
                 <?php else : ?>
                     <?php esc_html_e( 'Choose which messages the academy may send you. Unticking one stops it on every channel. You will only ever receive messages that concern you or the players you work with.', 'talenttrack' ); ?>
