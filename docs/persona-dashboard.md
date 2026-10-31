@@ -10,7 +10,7 @@ order: 30
 
 # Persona dashboards
 
-Every academy user lands on a dashboard built for their persona — Player, Parent, Head Coach, Assistant Coach, Team Manager, Head of Development, Scout, Academy Admin, or Read-only Observer. The dashboard answers, in the first viewport, the question that matters most for that user: *Where am I now? What's new? What's next?*
+Every academy user lands on a dashboard built for their persona — Player, Parent, Head coach, Assistant coach, Team manager, Head of development, Scout, Academy admin or Observer. The dashboard answers, in the first viewport, the question that matters most for that user: *Where am I now? What's new? What's next?*
 
 This page covers what you can expect to see, how to switch between personas if you wear two hats, and (for academy admins) how each persona's defaults are organised.
 
@@ -22,14 +22,14 @@ This page covers what you can expect to see, how to switch between personas if y
 | **Parent** | Child switcher + "since you last visited" recap | PDP awaiting your acknowledgement | The same development tiles your child sees, relabeled to their first name (e.g. "Sven's profile", "Sven's evaluations") |
 | **Head coach / Assistant coach** | Today / Up next with attendance + evaluation buttons | Workflow tasks list + recent evaluations rail | Activities, evaluations, goals, players, teams, PDP, methodology, my tasks |
 | **Team manager** | Today / Up next | (none by default) | Activities, my teams, players, my tasks |
-| **Head of Development** | KPI strip (active players, evaluations this month, attendance %, open trials, PDP verdicts pending, goal completion) | Team overview grid (per-team rating + attendance, expandable to a player breakdown), New trial quick-action, Upcoming activities table, Trials needing decision table | Trials, PDP, players, methodology, tasks dashboard, evaluations, rate cards, compare |
+| **Head of development** | KPI strip (active players, evaluations this month, attendance %, open trials, PDP verdicts pending, goal completion) | Team overview grid (per-team rating + attendance, expandable to a player breakdown), New trial quick-action, Upcoming activities table, Trials needing decision table | Trials, PDP, players, methodology, tasks dashboard, evaluations, rate cards, compare |
 | **Scout** | Assigned players grid (your primary work surface) | Recent reports | My reports, my assigned players |
 | **Academy admin** | System health strip (backup, invitations, license, modules) | Recent audit events (table) | Configuration, authorization, usage stats, audit log, invitations, migrations, help, methodology |
-| **Read-only observer** | KPI strip in read-only mode | (none) | (no edit actions; methodology + KPIs only) |
+| **Observer** | KPI strip in read-only mode | (none) | (no edit actions; methodology + KPIs only) |
 
 ## Switching personas
 
-If you have more than one role at the academy — say you're a Head Coach and a parent of a player — a small **Viewing as** pill bar appears at the top of your dashboard. Tap a different pill to switch the landing template. The choice persists across sessions; you can always switch back from the same pill bar.
+If you have more than one role at the academy — say you're a Head coach and a parent of a player — a small **Viewing as** pill bar appears at the top of your dashboard. Tap a different pill to switch the landing template. The choice persists across sessions; you can always switch back from the same pill bar.
 
 The pill only shows up when more than one persona resolves for your account. Most users see a single landing and don't need to switch.
 
@@ -59,7 +59,7 @@ Widgets come in four sizes — Small, Medium, Large, Extra-large — and snap to
 
 ## Customising a persona's dashboard
 
-Open **Configuration → Dashboard layouts**. The editor is gated by the `tt_edit_persona_templates` capability — granted to administrators and Academy Admins by default, opt-in for Head of Development.
+Open **Configuration → Dashboard layouts**. The editor is gated by the `tt_edit_persona_templates` capability — granted to administrators and academy admins by default, opt-in for Head of development.
 
 The same editor is still available at *TalentTrack → Dashboard layouts* in wp-admin. It is one editor on two screens, not two editors: both read and write the same stored layouts, so it does not matter which you use or which one somebody else used yesterday.
 
@@ -151,7 +151,7 @@ A logged-in user can read templates for personas they qualify for; the write end
 
 ## Visual conventions
 
-The dashboard opens with a subtle title header — persona name as the page title plus a date + club subtitle. Personas without a hero widget (Head of Development, Academy Admin, Scout) get a time-of-day greeting prefix; personas with a hero (player, parent, coach, manager) skip the greeting because the hero already does the welcome.
+The dashboard opens with a subtle title header — persona name as the page title plus a date + club subtitle. Personas without a hero widget (Head of development, Academy admin, Scout) get a time-of-day greeting prefix; personas with a hero (player, parent, coach, manager) skip the greeting because the hero already does the welcome.
 
 Tile icons (the coloured one-letter squares) and the yellow plus-circle on action cards are gone. Tiles now lean on typographic hierarchy and a hover chevron; action cards put the "+" inside the label string. The widget shell uses softer corner radii, a two-stop shadow that lifts on hover, and a tokenised colour palette (`--tt-pd-*` custom properties) so future theme passes have one place to edit.
 
@@ -170,7 +170,7 @@ Top to bottom on the default template:
 5. **Trials needing decision** data table.
 6. **Navigation tiles** — top row carries the four highest-frequency drill-downs (Onboarding pipeline · Tasks dashboard · Players · Teams); second row carries cycle / record-keeping surfaces (Trials · Evaluations · PDP · Activities); rest unchanged.
 
-This is the shipped default. An academy that has published its own Head of Development template keeps that layout; to adopt the default instead, open the dashboard editor and click **Reset to standard**.
+This is the shipped default. An academy that has published its own Head of development template keeps that layout; to adopt the default instead, open the dashboard editor and click **Reset to standard**.
 
 ## Team overview grid (HoD landing)
 
