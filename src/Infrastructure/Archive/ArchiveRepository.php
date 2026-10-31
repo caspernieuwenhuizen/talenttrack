@@ -77,6 +77,20 @@ class ArchiveRepository {
     private const RETENTION_CONFIG_KEY  = 'tt_recycle_bin_retention_days';
     private const RETENTION_DEFAULT_DAYS = 30;
 
+    /**
+     * #4399 — fired once after archive / restore / trash / restoreFromTrash /
+     * deletePermanently / purge changed at least one row:
+     * `( string $entity, int[] $ids, int[] $player_ids )`. `$player_ids` is
+     * read before the change, so a deleted row still names its player; it is
+     * empty when the entity's table has no `player_id` column. A module that
+     * keeps state about a row (a reminder, a cache) re-reads it from here,
+     * because these writes bypass the entity's own repository and its events.
+     */
+    public const ROWS_CHANGED_ACTION = 'tt_archive_rows_changed';
+
+    /** @var array<string,bool> prefixed table => carries a `player_id` column */
+    private static array $has_player_column = [];
+
     /** @var AuditService */
     private $audit;
 
@@ -124,6 +138,18 @@ class ArchiveRepository {
      * @param array{cascade_activities?: bool} $opts #2411 — opt-in cascades.
      */
     public function archive( string $entity, array $ids, int $by_user_id, array $opts = [] ): int {
+        $ids     = $this->cleanIds( $ids );
+        $players = $this->playerIdsOf( $entity, $ids );
+        $count   = $this->archiveRows( $entity, $ids, $by_user_id, $opts );
+        $this->announceRowsChanged( $entity, $ids, $players, $count );
+        return $count;
+    }
+
+    /**
+     * @param int[]                            $ids
+     * @param array{cascade_activities?: bool} $opts
+     */
+    private function archiveRows( string $entity, array $ids, int $by_user_id, array $opts ): int {
         $table = $this->resolveTable( $entity );
         if ( $table === null ) return 0;
         $ids = $this->cleanIds( $ids );
@@ -267,6 +293,7 @@ class ArchiveRepository {
         if ( empty( $ids ) ) return 0;
 
         global $wpdb;
+        $players = $this->playerIdsOf( $entity, $ids );
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "UPDATE {$table}
                 SET archived_at = NULL, archived_by = NULL
@@ -293,6 +320,7 @@ class ArchiveRepository {
             }
         }
 
+        $this->announceRowsChanged( $entity, $ids, $players, $count );
         return $count;
     }
 
@@ -311,6 +339,15 @@ class ArchiveRepository {
      * @return int
      */
     public function deletePermanently( string $entity, array $ids ): int {
+        $ids     = $this->cleanIds( $ids );
+        $players = $this->playerIdsOf( $entity, $ids );
+        $count   = $this->deleteRows( $entity, $ids );
+        $this->announceRowsChanged( $entity, $ids, $players, $count );
+        return $count;
+    }
+
+    /** @param int[] $ids */
+    private function deleteRows( string $entity, array $ids ): int {
         $table = $this->resolveTable( $entity );
         if ( $table === null ) return 0;
         $ids = $this->cleanIds( $ids );
@@ -398,6 +435,7 @@ class ArchiveRepository {
         if ( empty( $ids ) ) return 0;
 
         global $wpdb;
+        $players = $this->playerIdsOf( $entity, $ids );
         $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "UPDATE {$table}
                 SET trashed_at = %s, trashed_by = %d
@@ -416,6 +454,7 @@ class ArchiveRepository {
                 [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ]
             );
         }
+        $this->announceRowsChanged( $entity, $ids, $players, $n );
         return $n;
     }
 
@@ -441,6 +480,7 @@ class ArchiveRepository {
         if ( empty( $ids ) ) return 0;
 
         global $wpdb;
+        $players = $this->playerIdsOf( $entity, $ids );
         $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "UPDATE {$table}
                 SET trashed_at = NULL, trashed_by = NULL
@@ -458,6 +498,7 @@ class ArchiveRepository {
                 [ 'ids' => $ids, 'affected' => $n, 'by_user' => $by_user_id ]
             );
         }
+        $this->announceRowsChanged( $entity, $ids, $players, $n );
         return $n;
     }
 
@@ -501,7 +542,8 @@ class ArchiveRepository {
         // Route through the existing cascade-aware delete. Any
         // DeleteBlockedException propagates unchanged — purge never
         // swallows a fail-closed refusal.
-        $result = $this->deletePermanentlyWithReport( $entity, $eligible );
+        $players = $this->playerIdsOf( $entity, $eligible );
+        $result  = $this->deletePermanentlyWithReport( $entity, $eligible );
         $deleted = (int) $result['deleted'];
 
         if ( $deleted > 0 ) {
@@ -522,6 +564,7 @@ class ArchiveRepository {
                 ]
             );
         }
+        $this->announceRowsChanged( $entity, $eligible, $players, $deleted );
         return $deleted;
     }
 
@@ -965,6 +1008,58 @@ class ArchiveRepository {
     }
 
     // Helpers
+
+    /**
+     * #4399 — the distinct players the rows belong to, read before a write
+     * changes or removes them. One club-scoped query per call; empty when the
+     * entity's table has no `player_id` column.
+     *
+     * @param int[] $ids already cleaned
+     * @return list<int>
+     */
+    private function playerIdsOf( string $entity, array $ids ): array {
+        if ( empty( $ids ) ) return [];
+        $table = $this->resolveTable( $entity );
+        if ( $table === null || ! self::hasPlayerColumn( $table ) ) return [];
+
+        global $wpdb;
+        $ph   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $wpdb->get_col( $wpdb->prepare(
+            "SELECT DISTINCT player_id FROM {$table} WHERE id IN ({$ph}) AND {$this->clubScope()}",
+            ...$ids
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id > 0 ) $out[ $player_id ] = true;
+        }
+        return array_keys( $out );
+    }
+
+    /** Whether a table carries `player_id`; read from the schema once per request. */
+    private static function hasPlayerColumn( string $table ): bool {
+        if ( ! isset( self::$has_player_column[ $table ] ) ) {
+            global $wpdb;
+            self::$has_player_column[ $table ] = $wpdb->get_var( $wpdb->prepare(
+                "SHOW COLUMNS FROM `{$table}` LIKE %s",
+                'player_id'
+            ) ) !== null;
+        }
+        return self::$has_player_column[ $table ];
+    }
+
+    /**
+     * #4399 — tell the rest of the plugin which rows a lifecycle write
+     * changed, once per call and only when it changed something.
+     *
+     * @param int[]     $ids
+     * @param list<int> $player_ids
+     */
+    private function announceRowsChanged( string $entity, array $ids, array $player_ids, int $changed ): void {
+        if ( $changed <= 0 ) return;
+        do_action( self::ROWS_CHANGED_ACTION, $entity, array_values( $ids ), $player_ids );
+    }
 
     private function resolveTable( string $entity ): ?string {
         if ( ! isset( self::TABLE_MAP[ $entity ] ) ) return null;

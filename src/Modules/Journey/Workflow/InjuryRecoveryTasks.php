@@ -3,6 +3,7 @@ namespace TT\Modules\Journey\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Config\ConfigService;
 use TT\Infrastructure\Journey\InjuryRepository;
 use TT\Infrastructure\Journey\InjuryStatus;
@@ -24,9 +25,11 @@ use TT\Modules\Workflow\WorkflowModule;
  * open task is skipped. A player with several open records gets one task, for
  * the earliest date that has arrived.
  *
- * Two ways in, both through the workflow engine so the template's enabled
+ * Three ways in, all through the workflow engine so the template's enabled
  * switch and the e-mail apply: every create and edit of an injury (`sync`),
- * and a daily sweep for the records whose date arrives with no edit at all.
+ * every archive, restore, trash or delete from the archive layer
+ * (`tt_archive_rows_changed`), and a daily sweep for the records whose date
+ * arrives with no edit at all.
  * Dispatch is idempotent, so the two never double up.
  */
 final class InjuryRecoveryTasks {
@@ -37,6 +40,7 @@ final class InjuryRecoveryTasks {
     public static function init(): void {
         add_action( 'tt_journey_injury_logged', [ self::class, 'onInjuryChanged' ], 20 );
         add_action( 'tt_journey_injury_updated', [ self::class, 'onInjuryChanged' ], 20 );
+        add_action( ArchiveRepository::ROWS_CHANGED_ACTION, [ self::class, 'onArchiveRowsChanged' ], 20, 3 );
         add_action( CronDispatcher::TICK_HOOK, [ self::class, 'onTick' ], 24 );
     }
 
@@ -44,6 +48,23 @@ final class InjuryRecoveryTasks {
     public static function onInjuryChanged( $payload ): void {
         $player_id = is_array( $payload ) ? (int) ( $payload['player_id'] ?? 0 ) : 0;
         if ( $player_id > 0 ) self::syncPlayer( $player_id );
+    }
+
+    /**
+     * #4399 — the recycle bin and the archive write injury rows without
+     * `InjuryRepository`, so they announce the change instead: a deleted,
+     * trashed or restored record moves its player's reminder in the same
+     * request rather than at the next sweep, or never.
+     *
+     * @param mixed $entity
+     * @param mixed $ids
+     * @param mixed $player_ids
+     */
+    public static function onArchiveRowsChanged( $entity, $ids = [], $player_ids = [] ): void {
+        if ( $entity !== 'injury' || ! is_array( $player_ids ) ) return;
+        foreach ( $player_ids as $player_id ) {
+            self::syncPlayer( (int) $player_id );
+        }
     }
 
     /**
