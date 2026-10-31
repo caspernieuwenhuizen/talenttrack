@@ -92,6 +92,15 @@ final class EvaluationRowRestController {
             $row['eval_date'] = current_time( 'Y-m-d' );
         }
 
+        // The route's capability is club-wide; this asks about the player,
+        // as `POST /evaluations` does.
+        if ( $row['player_id'] > 0 && ! EvaluationInserter::mayWriteFor( get_current_user_id(), $row['player_id'] ) ) {
+            return new WP_REST_Response( [
+                'error'   => 'forbidden_player',
+                'message' => __( 'You can only evaluate players in your team.', 'talenttrack' ),
+            ], 403 );
+        }
+
         $result = EvaluationInserter::insert( $row );
         if ( is_wp_error( $result ) ) {
             return new WP_REST_Response( [ 'error' => $result->get_error_code(), 'message' => $result->get_error_message() ], 400 );

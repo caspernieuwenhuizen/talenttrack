@@ -72,6 +72,11 @@ final class PlayerPickerStep implements WizardStepInterface {
     public function validate( array $post, array $state ) {
         $pid = isset( $post['player_id'] ) ? absint( $post['player_id'] ) : 0;
         if ( $pid <= 0 ) return new \WP_Error( 'no_player', __( 'Please pick a player.', 'talenttrack' ) );
+        // The posted id is not taken on trust: a player the reader may not
+        // evaluate reads as no pick at all.
+        if ( ! EvaluationInserter::mayWriteFor( get_current_user_id(), $pid ) ) {
+            return new \WP_Error( 'no_player', __( 'Please pick a player.', 'talenttrack' ) );
+        }
         return [ 'player_id' => $pid, '_path' => 'player-first' ];
     }
 

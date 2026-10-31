@@ -19,6 +19,18 @@ use TT\Modules\Evaluations\EvaluationDateRule;
 final class EvaluationInserter {
 
     /**
+     * May this user write an evaluation for this player? The academy admin,
+     * or the coach of the player's team: the check `POST /evaluations`
+     * makes before it saves. The wizard's row route, its player pick and
+     * both of its submit paths ask it.
+     */
+    public static function mayWriteFor( int $user_id, int $player_id ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return false;
+        return user_can( $user_id, 'tt_edit_settings' )
+            || \TT\Infrastructure\Query\QueryHelpers::coach_owns_player( $user_id, $player_id );
+    }
+
+    /**
      * @param array{
      *   activity_id?: int,
      *   eval_date?: string,
