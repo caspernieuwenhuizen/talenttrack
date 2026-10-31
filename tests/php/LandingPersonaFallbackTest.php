@@ -107,7 +107,7 @@ final class LandingPersonaFallbackTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'class="tt-ftile-daily', $html, 'the work grid rendered at all' );
     }
 
-    // ── helpers ────────────────────────────────────────────────────────
+    // Helpers
 
     /**
      * The landing reads `persona_dashboard.<persona>.enabled` for the persona
