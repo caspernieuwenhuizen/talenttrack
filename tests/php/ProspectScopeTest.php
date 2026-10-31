@@ -28,8 +28,9 @@ final class ProspectScopeTest extends WP_UnitTestCase {
      * discoveries. Both copies are gone; neither may come back.
      */
     public function test_the_inverted_helper_is_gone_from_both_consumers(): void {
+        // #4447 — the board's query lives in the domain class now.
         foreach ( [
-            'src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php',
+            'src/Modules/Prospects/Domain/ProspectStages.php',
             'src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php',
         ] as $rel ) {
             $this->assertStringNotContainsString(
@@ -52,7 +53,7 @@ final class ProspectScopeTest extends WP_UnitTestCase {
      * narrowed — worse than either.
      */
     public function test_the_narrowing_is_applied_in_sql(): void {
-        $source = $this->read( 'src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php' );
+        $source = $this->read( 'src/Modules/Prospects/Domain/ProspectStages.php' );
         $where  = strpos( $source, 'WHERE p.club_id = %d' );
         $this->assertNotFalse( $where );
         $this->assertStringContainsString(
