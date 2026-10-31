@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Archive;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\RecycleBin\RecycleBinEntities;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -120,8 +121,9 @@ final class AutoPurgeCron {
      */
     public function maybeRun(): void {
         $today = current_time( 'Y-m-d' );
-        foreach ( $this->clubIds() as $club_id ) {
-            $this->withClub( $club_id, function () use ( $today ) {
+        foreach ( ClubIteration::clubIds() as $club_id ) {
+            ClubIteration::withClub( $club_id, function () use ( $today ) {
+                $this->config = new ConfigService();
                 if ( $this->config->get( self::LAST_RUN_CONFIG_KEY, '' ) === $today ) {
                     return; // already swept this club today
                 }
@@ -140,8 +142,9 @@ final class AutoPurgeCron {
      */
     public function runAllClubs(): array {
         $out = [];
-        foreach ( $this->clubIds() as $club_id ) {
-            $out[ $club_id ] = $this->withClub( $club_id, function () {
+        foreach ( ClubIteration::clubIds() as $club_id ) {
+            $out[ $club_id ] = ClubIteration::withClub( $club_id, function () {
+                $this->config = new ConfigService();
                 return $this->runForCurrentClub();
             } );
         }
@@ -263,46 +266,6 @@ final class AutoPurgeCron {
             $out[] = [ 'id' => (int) $r['id'], 'trashed_at' => (string) $r['trashed_at'] ];
         }
         return $out;
-    }
-
-    /**
-     * Every club that has config rows, club 1 always included. Mirrors the
-     * club enumeration migration 0186 uses to seed the retention window, so
-     * the sweep covers exactly the clubs that have a retention setting.
-     *
-     * @return int[]
-     */
-    private function clubIds(): array {
-        global $wpdb;
-        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
-        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
-        if ( ! in_array( 1, $ids, true ) ) {
-            $ids[] = 1;
-        }
-        return array_filter( $ids, static function ( $id ) { return $id > 0; } );
-    }
-
-    /**
-     * Run $fn with `tt_current_club_id` pinned to $club_id, then restore the
-     * filter. The pin is what makes ConfigService + ArchiveRepository read and
-     * write the right tenant during an unauthenticated tick. A fresh
-     * ConfigService is taken for the iteration so its per-club read cache
-     * can't return another club's retention value.
-     *
-     * @template T
-     * @param callable():T $fn
-     * @return T
-     */
-    private function withClub( int $club_id, callable $fn ) {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        $this->config = new ConfigService();
-        try {
-            return $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-            $this->config = new ConfigService();
-        }
     }
 
     private function resolveTable( string $entity ): ?string {

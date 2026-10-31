@@ -4,6 +4,7 @@ namespace TT\Modules\Strava;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Workflow\Dispatchers\CronDispatcher;
 
@@ -83,8 +84,8 @@ final class TokenRefreshService {
      */
     public function refreshAllClubs(): array {
         $out = [];
-        foreach ( $this->clubIds() as $club_id ) {
-            $out[ $club_id ] = $this->withClub( $club_id, function () {
+        foreach ( ClubIteration::clubIds() as $club_id ) {
+            $out[ $club_id ] = ClubIteration::withClub( $club_id, function () {
                 return $this->refreshDueForCurrentClub();
             } );
         }
@@ -175,39 +176,5 @@ final class TokenRefreshService {
             }
         }
         return $this->repo->getAccessToken( $player_id );
-    }
-
-    // ---- tenancy helpers (mirror AutoPurgeCron) -------------------------
-
-    /**
-     * Every club that has config rows, club 1 always included.
-     *
-     * @return int[]
-     */
-    private function clubIds(): array {
-        global $wpdb;
-        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
-        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
-        if ( ! in_array( 1, $ids, true ) ) {
-            $ids[] = 1;
-        }
-        return array_filter( $ids, static function ( $id ) { return $id > 0; } );
-    }
-
-    /**
-     * Run $fn with `tt_current_club_id` pinned to $club_id.
-     *
-     * @template T
-     * @param callable():T $fn
-     * @return T
-     */
-    private function withClub( int $club_id, callable $fn ) {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        try {
-            return $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-        }
     }
 }

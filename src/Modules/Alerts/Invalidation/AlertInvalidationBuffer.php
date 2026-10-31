@@ -4,6 +4,7 @@ namespace TT\Modules\Alerts\Invalidation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\Alerts\AlertEvaluator;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Repositories\AlertOccurrencesRepository;
@@ -207,13 +208,13 @@ final class AlertInvalidationBuffer {
             if ( ! ( new AlertOccurrencesRepository() )->tableExists() ) return;
 
             foreach ( $pending as $club_id => $byType ) {
-                self::withClub( (int) $club_id, static function () use ( $club_id, $byType ): void {
+                ClubIteration::withClub( (int) $club_id, static function () use ( $club_id, $byType ): void {
                     // Built inside the pin, once per club. The evaluator's
                     // policy resolver caches config per club on construction,
                     // so an instance made before pinning would answer
                     // "is this alert switched off?" for the wrong tenant —
-                    // the same trap `AlertSweepCron::withClub()` takes a
-                    // fresh `ConfigService` to avoid.
+                    // the same trap `AlertSweepCron` takes a fresh
+                    // `ConfigService` inside the pin to avoid.
                     $evaluator = new AlertEvaluator();
 
                     foreach ( $byType as $type => $ids ) {
@@ -247,21 +248,5 @@ final class AlertInvalidationBuffer {
         self::$pending    = [];
         self::$overflowed = [];
         self::$draining   = false;
-    }
-
-    /**
-     * Run `$fn` with `tt_current_club_id` pinned. Mirrors
-     * `AlertSweepCron::withClub()` — the drain usually runs with the
-     * saving user's club already current, but pinning explicitly is what
-     * stops the two reconcile paths from drifting apart.
-     */
-    private static function withClub( int $club_id, callable $fn ): void {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        try {
-            $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-        }
     }
 }
