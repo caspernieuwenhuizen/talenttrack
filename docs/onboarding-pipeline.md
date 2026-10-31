@@ -143,7 +143,7 @@ Every prospect has a page of their own. The prospects list (**Open**), the focus
 
 - **Where they are now**: the prospect's column on the board, what the column is waiting for, and **Open next action** when a task is waiting.
 - **Consent requests**: every request sent for the prospect, newest first, with the date, the club or coordinator asked and the outcome.
-- **Scouting**: the scouting notes and the visits the prospect was seen at, with the visit they were found at marked **Found here**. You see the visits you may open: your own as a scout, all of them as the head of development.
+- **Scouting**: the scouting notes and the visits the prospect was seen at, with the visit they were found at marked **Found here**. You see the visits you may open: with the default access, scouts and the head of development see all of them, and a head coach sees none.
 
 The page only reads. Two buttons write, if you may edit prospects:
 

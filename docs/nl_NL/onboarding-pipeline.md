@@ -146,7 +146,7 @@ Elke prospect heeft een eigen pagina. De prospectlijst (**Openen**), het focuspa
 
 - **Waar de prospect nu staat**: de kolom op het bord, waar die kolom op wacht, en **Open volgende actie** als er een klus klaarstaat.
 - **Toestemmingsverzoeken**: elk verzoek dat voor de prospect is verstuurd, nieuwste eerst, met de datum, de club of coördinator die je vroeg en de uitkomst.
-- **Scouting**: de scoutingnotities en de bezoeken waarop de prospect is gezien, met het bezoek waar de prospect is gevonden gemarkeerd als **Hier gevonden**. Je ziet de bezoeken die je mag openen: als scout je eigen bezoeken, als hoofd jeugdopleiding alle.
+- **Scouting**: de scoutingnotities en de bezoeken waarop de prospect is gezien, met het bezoek waar de prospect is gevonden gemarkeerd als **Hier gevonden**. Je ziet de bezoeken die je mag openen: met de standaardrechten zien scouts en het hoofd jeugdopleiding ze allemaal, en een hoofdtrainer geen.
 
 De pagina leest alleen. Twee knoppen schrijven, als je prospects mag bewerken:
 
