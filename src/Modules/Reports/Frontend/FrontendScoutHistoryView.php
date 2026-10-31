@@ -33,7 +33,7 @@ class FrontendScoutHistoryView extends FrontendViewBase {
             return;
         }
 
-        if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_generate_scout_report' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
             return;
         }

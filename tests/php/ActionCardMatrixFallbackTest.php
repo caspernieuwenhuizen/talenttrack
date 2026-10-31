@@ -82,6 +82,69 @@ final class ActionCardMatrixFallbackTest extends WP_UnitTestCase {
         $this->assertSame( '', $this->renderAddTeamFor( $uid ) );
     }
 
+    /**
+     * A coach with no team and the raw cap withheld: neither the cap nor
+     * a matrix grant, so every destination a card links to refuses.
+     */
+    private function coachWithout( string ...$caps ): int {
+        $uid  = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $user = new \WP_User( $uid );
+        foreach ( $caps as $cap ) {
+            $user->add_cap( $cap, false );
+        }
+        AuthorizationService::flushCache();
+        foreach ( $caps as $cap ) {
+            $this->assertFalse( AuthorizationService::userCanOrMatrix( $uid, $cap ), 'fixture sanity: no ' . $cap );
+        }
+        return $uid;
+    }
+
+    /** @param callable(int, bool):void $render */
+    private function renderView( int $user_id, callable $render ): string {
+        wp_set_current_user( $user_id );
+        ob_start();
+        $render( $user_id, false );
+        $html = (string) ob_get_clean();
+        wp_set_current_user( 0 );
+        return $html;
+    }
+
+    public function test_scout_history_refuses_without_the_cap_or_the_grant(): void {
+        $uid = $this->coachWithout( 'tt_generate_scout_report' );
+
+        $this->assertStringContainsString(
+            'You need scout-management permission',
+            $this->renderView( $uid, [ \TT\Modules\Reports\Frontend\FrontendScoutHistoryView::class, 'render' ] )
+        );
+    }
+
+    public function test_test_trainings_refuses_without_the_cap_or_the_grant(): void {
+        $uid = $this->coachWithout( 'tt_edit_prospects', 'tt_manage_prospects' );
+
+        $this->assertStringContainsString(
+            'You do not have permission to create test trainings.',
+            $this->renderView( $uid, [ \TT\Shared\Frontend\FrontendTestTrainingsView::class, 'render' ] )
+        );
+    }
+
+    public function test_the_evaluations_list_offers_no_new_evaluation_without_the_cap_or_the_grant(): void {
+        $uid = $this->coachWithout( 'tt_edit_evaluations' );
+
+        $this->assertStringNotContainsString(
+            'New evaluation',
+            $this->renderView( $uid, [ \TT\Shared\Frontend\FrontendEvaluationsView::class, 'render' ] )
+        );
+    }
+
+    public function test_the_goals_list_offers_no_add_goal_without_the_cap_or_the_grant(): void {
+        $uid = $this->coachWithout( 'tt_edit_goals' );
+
+        $this->assertStringNotContainsString(
+            'Add goal',
+            $this->renderView( $uid, [ \TT\Shared\Frontend\FrontendGoalsManageView::class, 'render' ] )
+        );
+    }
+
     public function test_the_administrator_still_gets_the_card(): void {
         $uid = self::factory()->user->create( [ 'role' => 'administrator' ] );
 

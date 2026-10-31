@@ -33,8 +33,9 @@ use TT\Shared\Frontend\Components\FormSaveButton;
 class FrontendTestTrainingsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_edit_prospects' )
-             && ! current_user_can( 'tt_manage_prospects' )
+        // #4348 — matrix-aware, so the dashboard card and this page agree.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' )
+             && ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' )
              && ! $is_admin
         ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
