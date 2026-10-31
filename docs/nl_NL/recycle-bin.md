@@ -98,6 +98,10 @@ verwijdert het definitief. Niemand hoeft eraan te denken de prullenbak te
 legen — zodra de aftelteller van een record op nul staat, verwijdert de
 volgende dagelijkse ronde het.
 
+Eén ronde verwijdert hooguit 200 records, de oudste eerst. Staan er meer
+klaar, bijvoorbeeld na een grote bulkverwijdering of nadat de bewaartermijn
+is ingekort, dan gaat de volgende dagelijkse ronde verder waar deze stopte.
+
 Twee dingen zijn van belang aan hoe het opschonen verloopt:
 
 - **Het gebruikt hetzelfde verwijderpad als "Nu verwijderen".** Een

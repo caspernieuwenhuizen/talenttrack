@@ -131,6 +131,53 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         );
     }
 
+    // ---- per-run cap (#4416) --------------------------------------------
+
+    public function test_a_run_purges_at_most_the_cap_oldest_first_and_the_next_run_continues(): void {
+        $oldest = $this->insertTeam( 'Capped oldest' );
+        $middle = $this->insertTeam( 'Capped middle' );
+        $newest = $this->insertTeam( 'Capped newest' );
+        $this->binRow( 'tt_teams', $newest, 40 );
+        $this->binRow( 'tt_teams', $oldest, 60 );
+        $this->binRow( 'tt_teams', $middle, 50 );
+
+        $cron  = new AutoPurgeCron( null, null, 2 );
+        $first = $cron->runForCurrentClub();
+
+        $this->assertSame( 2, $first['purged'], 'one run purges exactly the cap' );
+        $this->assertSame( 0, $first['blocked'], 'rows the cap leaves behind are not counted as blocked' );
+        $this->assertNull( $this->row( 'tt_teams', $oldest ), 'the oldest row goes first' );
+        $this->assertNull( $this->row( 'tt_teams', $middle ), 'then the next oldest' );
+        $this->assertNotNull( $this->row( 'tt_teams', $newest ), 'the row past the cap waits for the next run' );
+        $this->assertSame( 0, $this->config->getInt( AutoPurgeCron::BLOCKED_COUNT_CONFIG_KEY, -1 ) );
+
+        $second = $cron->runForCurrentClub();
+        $this->assertSame( 1, $second['purged'], 'the next run continues with what is left' );
+        $this->assertNull( $this->row( 'tt_teams', $newest ) );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
+    }
+
+    public function test_blocked_rows_do_not_use_up_the_cap(): void {
+        // trial_track is block_only: it blocks on ANY referencing trial case.
+        $track_id = $this->insertTrialTrack( 'Blocked before cap' );
+        $this->insertTrialCaseOnTrack( $track_id );
+        $this->binRow( 'tt_trial_tracks', $track_id, 70 ); // older than the team
+        $team_id = $this->insertTeam( 'Behind the blocked row' );
+        $this->binRow( 'tt_teams', $team_id, 40 );
+
+        $totals = ( new AutoPurgeCron( null, null, 1 ) )->runForCurrentClub();
+
+        $this->assertSame( 1, $totals['blocked'], 'the blocked row is counted' );
+        $this->assertSame( 1, $totals['purged'], 'the cap is spent on purges, not on blocked rows' );
+        $this->assertNotNull( $this->row( 'tt_trial_tracks', $track_id ), 'the blocked row stays in the bin' );
+        $this->assertNull( $this->row( 'tt_teams', $team_id ), 'the purgeable row behind it is reached' );
+
+        $this->cleanUpAndCommit();
+        $this->assertSame( [], $this->rowsAboveFixtureFloor(), 'a purge test must not hand its fixtures to the rest of the suite' );
+    }
+
     // ---- system actor (#8): audit row user_id = 0 ----------------------
 
     public function test_the_sweep_writes_a_purged_audit_row_with_system_actor(): void {
@@ -199,7 +246,8 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         $teams = (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$this->p}tt_teams WHERE name IN (
                 'Expired team', 'Recent team', 'Club 2 expired', 'Audited expired',
-                'First expired', 'Second expired'
+                'First expired', 'Second expired',
+                'Capped oldest', 'Capped middle', 'Capped newest', 'Behind the blocked row'
              )"
         );
         $this->assertSame( 0, $teams, 'no fixture team outlived the sweep that reached it' );
@@ -210,7 +258,7 @@ final class AutoPurgeCronTest extends WP_UnitTestCase {
         $this->assertSame( 0, $players, 'the player the cascade re-homed is not handed to the next test' );
 
         $tracks = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM {$this->p}tt_trial_tracks WHERE name = 'Blocked template'"
+            "SELECT COUNT(*) FROM {$this->p}tt_trial_tracks WHERE name IN ( 'Blocked template', 'Blocked before cap' )"
         );
         $this->assertSame( 0, $tracks );
 

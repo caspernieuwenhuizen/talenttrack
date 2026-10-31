@@ -73,15 +73,26 @@ final class AutoPurgeCron {
      */
     public const BLOCKED_COUNT_CONFIG_KEY = 'tt_recycle_bin_blocked_count';
 
+    /**
+     * Most rows one sweep purges per club, across all entities, oldest first.
+     * The rest wait for the next daily run, so a large bulk delete or a
+     * shortened retention window cannot push one tick past the time limit.
+     */
+    public const MAX_PURGES_PER_RUN = 200;
+
     /** @var ArchiveRepository */
     private $repo;
 
     /** @var ConfigService */
     private $config;
 
-    public function __construct( ?ArchiveRepository $repo = null, ?ConfigService $config = null ) {
-        $this->repo   = $repo ?? new ArchiveRepository();
-        $this->config = $config ?? new ConfigService();
+    /** @var int */
+    private $max_purges;
+
+    public function __construct( ?ArchiveRepository $repo = null, ?ConfigService $config = null, ?int $max_purges = null ) {
+        $this->repo       = $repo ?? new ArchiveRepository();
+        $this->config     = $config ?? new ConfigService();
+        $this->max_purges = max( 1, $max_purges ?? self::MAX_PURGES_PER_RUN );
     }
 
     /**
@@ -138,28 +149,48 @@ final class AutoPurgeCron {
     }
 
     /**
-     * Sweep one club (the current `CurrentClub::id()`): for every archivable
-     * entity, purge rows trashed before the club's retention cutoff, skipping
-     * any the cascade blocks. Records the blocked count for the bin view.
+     * Sweep one club (the current `CurrentClub::id()`): purge rows trashed
+     * before the club's retention cutoff, oldest first across every
+     * archivable entity, until the per-run cap is reached; skip any the
+     * cascade blocks. Records the blocked count for the bin view.
+     *
+     * Blocked rows do not count against the cap, so rows that stay blocked
+     * can never stop the sweep reaching the purgeable rows behind them. Rows
+     * the cap leaves for the next run are not blocked and are not counted.
      *
      * @return array{purged:int,blocked:int}
      */
     public function runForCurrentClub(): array {
         $retention = $this->repo->retentionDays();
+        $cutoff    = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp', true ) - $retention * DAY_IN_SECONDS );
         $purged    = 0;
         $blocked   = 0;
 
+        // One oldest-first page per entity; an emptied page is refilled from
+        // the row after the last one taken, so blocked rows are stepped over.
+        $pages = [];
         foreach ( RecycleBinEntities::keys() as $entity ) {
-            foreach ( $this->expiredIds( $entity, $retention ) as $id ) {
-                try {
-                    // Cascade eraser, NOT a raw DELETE. by_user_id = 0 is the
-                    // system actor so the audit row reads as an automated purge.
-                    $purged += $this->repo->purge( $entity, [ $id ], 0 );
-                } catch ( DeleteBlockedException $e ) {
-                    // Undeclared reference — leave the row in the bin, count it,
-                    // never force-delete. Surfaced in the bin view.
-                    $blocked++;
-                }
+            $pages[ $entity ] = $this->expiredRows( $entity, $cutoff, null );
+        }
+
+        while ( $purged < $this->max_purges ) {
+            $entity = $this->oldestHead( $pages );
+            if ( $entity === null ) break;
+
+            $row = array_shift( $pages[ $entity ] );
+            if ( $row === null ) break;
+            if ( $pages[ $entity ] === [] ) {
+                $pages[ $entity ] = $this->expiredRows( $entity, $cutoff, $row );
+            }
+
+            try {
+                // Cascade eraser, NOT a raw DELETE. by_user_id = 0 is the
+                // system actor so the audit row reads as an automated purge.
+                $purged += $this->repo->purge( $entity, [ $row['id'] ], 0 );
+            } catch ( DeleteBlockedException $e ) {
+                // Undeclared reference — leave the row in the bin, count it,
+                // never force-delete. Surfaced in the bin view.
+                $blocked++;
             }
         }
 
@@ -169,30 +200,69 @@ final class AutoPurgeCron {
     }
 
     /**
-     * Ids of one entity's rows that are in THIS club's bin and whose
-     * `trashed_at` is older than the retention cutoff. Club-scoped via the
-     * shared QueryHelpers fragment so the tenant clause can't be dropped, and
+     * The entity whose next expired row was trashed earliest, or null when
+     * every page is empty.
+     *
+     * @param array<string,array<int,array{id:int,trashed_at:string}>> $pages
+     */
+    private function oldestHead( array $pages ): ?string {
+        $best = null;
+        foreach ( $pages as $entity => $rows ) {
+            if ( $rows === [] ) continue;
+            if ( $best === null || $rows[0]['trashed_at'] < $pages[ $best ][0]['trashed_at'] ) {
+                $best = $entity;
+            }
+        }
+        return $best;
+    }
+
+    /**
+     * One page of an entity's rows that are in THIS club's bin and whose
+     * `trashed_at` is older than the retention cutoff, oldest first, starting
+     * after $after when given (keyset on trashed_at, id). An empty array
+     * when the previous page was the last. Club-scoped via the shared
+     * QueryHelpers fragment so the tenant clause can't be dropped, and
      * `trashed_at` is qualified with the table alias (ArchiveRepository
      * §filterClause warns bare `trashed_at` is ambiguous across the 20
      * archivable tables — here there's a single FROM table, but the alias
      * keeps it unambiguous and consistent).
      *
-     * @return int[]
+     * @param array{id:int,trashed_at:string}|null $after
+     * @return array<int,array{id:int,trashed_at:string}>
      */
-    private function expiredIds( string $entity, int $retention_days ): array {
+    private function expiredRows( string $entity, string $cutoff, ?array $after ): array {
         $table = $this->resolveTable( $entity );
         if ( $table === null ) return [];
 
-        $cutoff = gmdate( 'Y-m-d H:i:s', current_time( 'timestamp', true ) - $retention_days * DAY_IN_SECONDS );
-
         global $wpdb;
-        $sql = "SELECT t.id FROM {$table} t
-                WHERE t.trashed_at IS NOT NULL
-                  AND t.trashed_at < %s
-                  AND " . QueryHelpers::clubScopeWhere( 't' ) . "
-                ORDER BY t.trashed_at ASC, t.id ASC";
-        $rows = $wpdb->get_col( $wpdb->prepare( $sql, $cutoff ) );
-        return array_map( 'intval', is_array( $rows ) ? $rows : [] );
+        $page = $this->max_purges;
+        if ( $after === null ) {
+            $sql = "SELECT t.id, t.trashed_at FROM {$table} t
+                    WHERE t.trashed_at IS NOT NULL
+                      AND t.trashed_at < %s
+                      AND " . QueryHelpers::clubScopeWhere( 't' ) . "
+                    ORDER BY t.trashed_at ASC, t.id ASC
+                    LIMIT %d";
+            $rows = $wpdb->get_results( $wpdb->prepare( $sql, $cutoff, $page ), ARRAY_A );
+        } else {
+            $sql = "SELECT t.id, t.trashed_at FROM {$table} t
+                    WHERE t.trashed_at IS NOT NULL
+                      AND t.trashed_at < %s
+                      AND ( t.trashed_at > %s OR ( t.trashed_at = %s AND t.id > %d ) )
+                      AND " . QueryHelpers::clubScopeWhere( 't' ) . "
+                    ORDER BY t.trashed_at ASC, t.id ASC
+                    LIMIT %d";
+            $rows = $wpdb->get_results(
+                $wpdb->prepare( $sql, $cutoff, $after['trashed_at'], $after['trashed_at'], $after['id'], $page ),
+                ARRAY_A
+            );
+        }
+
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $r ) {
+            $out[] = [ 'id' => (int) $r['id'], 'trashed_at' => (string) $r['trashed_at'] ];
+        }
+        return $out;
     }
 
     /**

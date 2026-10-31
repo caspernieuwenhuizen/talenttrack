@@ -86,6 +86,10 @@ window has elapsed (trashed more than 30 days ago, or whatever the club's
 window is set to) and purges it for good. No one has to remember to empty the
 bin — once a record's countdown reaches zero, the next daily sweep removes it.
 
+One sweep purges at most 200 records, oldest first. When more are due, for
+example after a large bulk delete or after the retention window is shortened,
+the next daily sweep carries on where this one stopped.
+
 Two things matter about how the purge runs:
 
 - **It uses the same deletion path as "Delete now".** An automatic purge is
