@@ -984,8 +984,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         ];
         $can_edit = empty( $session->archived_at )
             && AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
-        $aid      = (int) $session->id;
-        $back     = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $aid );
+        $aid      = (int) ( $session->id ?? 0 );
+        $back     = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $aid ); /* tt-xview-ok: reload of this same activity after the undo */
 
         echo '<ul class="tt-act-detail__sync-locks">';
         foreach ( $locked as $group ) {

@@ -61,7 +61,7 @@ final class SyncLockedFields {
      * @return string|null JSON list, or null when nothing is locked.
      */
     public static function encode( array $groups ): ?string {
-        $clean = self::decode( (string) wp_json_encode( array_values( $groups ) ) );
+        $clean = self::decode( (string) wp_json_encode( $groups ) );
         return $clean === [] ? null : (string) wp_json_encode( $clean );
     }
 

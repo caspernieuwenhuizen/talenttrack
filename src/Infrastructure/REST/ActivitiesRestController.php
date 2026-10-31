@@ -1864,7 +1864,7 @@ class ActivitiesRestController {
      * sync write one field group again. Answers with the groups still
      * locked; unlocking a group that is not locked is a no-op, not an error.
      */
-    public static function unlock_sync_group( \WP_REST_Request $r ) {
+    public static function unlock_sync_group( \WP_REST_Request $r ): \WP_REST_Response {
         $refused = BaseController::checkBody( $r, self::syncLockArgs() );
         if ( $refused !== null ) return $refused;
 
