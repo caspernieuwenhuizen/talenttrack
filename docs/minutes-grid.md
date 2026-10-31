@@ -144,8 +144,9 @@ then on he is part of the squad, as he is in the audit.
 
 It is information, not a rule. Nothing stops you saving: a match can really
 run short, after a red card or an injury with no substitute. A tournament day
-shows its minutes without a target and the **Roll-up** chip, because its
-minutes belong to its matches in the tournament planner.
+shows the minutes of its matches added up, as the audit does, without a target
+and with the **Roll-up** chip, because its minutes belong to its matches in the
+tournament planner.
 
 ### Attributed / score
 

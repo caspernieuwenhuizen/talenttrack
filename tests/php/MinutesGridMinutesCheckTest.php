@@ -153,6 +153,69 @@ final class MinutesGridMinutesCheckTest extends WP_UnitTestCase {
         $this->assertSame( '', $check['status_reason'] );
     }
 
+    /**
+     * Fenna's case on #4487: a tournament day holds no attendance, its
+     * minutes sit on its fixtures. The day's column reads the audit's
+     * roll-up total, not 0, with the Roll-up chip the audit shows.
+     */
+    public function test_a_tournament_day_reads_the_audits_rollup_of_its_fixtures(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_tournaments", [
+            'club_id'    => $this->club,
+            'team_id'    => $this->team,
+            'name'       => 'Najaarstoernooi',
+            'start_date' => '2026-10-24',
+            'uuid'       => wp_generate_uuid4(),
+            'created_by' => 0,
+        ] );
+        $tournament = (int) $wpdb->insert_id;
+
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'             => $this->club,
+            'team_id'             => $this->team,
+            'tournament_id'       => $tournament,
+            'title'               => 'Toernooidag',
+            'session_date'        => '2026-10-24',
+            'activity_type_key'   => 'tournament',
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
+        ] );
+        $day = (int) $wpdb->insert_id;
+
+        $fixture = $this->insertMatch( '2026-10-24', 25 );
+        $wpdb->insert( "{$this->p}tt_tournament_matches", [
+            'club_id'              => $this->club,
+            'tournament_id'        => $tournament,
+            'sequence'             => 1,
+            'label'                => 'Poule 1',
+            'duration_min'         => 25,
+            'substitution_windows' => '[]',
+            'activity_id'          => $fixture,
+        ] );
+        $players = $this->insertPlayers( 2 );
+        $this->insertMinutes( $fixture, $players[0], 25 );
+        $this->insertMinutes( $fixture, $players[1], 15 );
+
+        $matrix = ( new MinutesGridQuery() )->matrix( $this->team, self::FROM, self::TO );
+        $column = $this->column( $matrix, $day );
+        $check  = $column['minutes_check'];
+
+        $audit = null;
+        foreach ( ( new MinutesAuditQuery() )->matrix( $this->team, self::FROM, self::TO )['games'] as $g ) {
+            if ( (int) $g['activity_id'] === $day ) $audit = $g;
+        }
+        $this->assertNotNull( $audit );
+        $this->assertTrue( (bool) $audit['is_rollup'] );
+
+        $this->assertSame( 40, (int) $audit['total_minutes'], 'precondition: the audit rolls the fixture up' );
+        $this->assertSame( (int) $audit['total_minutes'], $check['total_minutes'], 'the day reads the audit\'s number, not 0' );
+        $this->assertSame( (int) $audit['recorded_count'], $check['recorded_count'] );
+        $this->assertSame( [ 'total_minutes' => 40, 'recorded_count' => 2 ], $column['rollup'] );
+        $this->assertSame( 'rollup', $check['status'] );
+        $this->assertNull( $check['available_minutes'], 'no minutes target on a tournament day' );
+        $this->assertSame( 40, $check['offgrid_minutes'], 'nobody types the day\'s minutes, so all of it is fixed' );
+    }
+
     public function test_the_rest_payload_carries_the_yardstick(): void {
         [ $match ] = $this->ownersMatch();
 

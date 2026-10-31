@@ -44,7 +44,7 @@ final class MinutesGridQuery {
 
     /**
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:?bool, is_neutral:bool, opponent:string, is_tournament:bool, attributed_goals:int, register_recorded:bool, available_minutes:?int, squad_count:?int, minutes_check:?array{total_minutes:int, recorded_count:int, offgrid_minutes:int, offgrid_recorded:int, offgrid_squad:?int, available_minutes:?int, squad_count:?int, status:string, status_reason:string} }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:?bool, is_neutral:bool, opponent:string, is_tournament:bool, attributed_goals:int, register_recorded:bool, available_minutes:?int, squad_count:?int, minutes_check:?array{total_minutes:int, recorded_count:int, offgrid_minutes:int, offgrid_recorded:int, offgrid_squad:?int, available_minutes:?int, squad_count:?int, status:string, status_reason:string}, rollup:?array{total_minutes:int, recorded_count:int} }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int, selected:bool}>>,
      *   summary: array{ total_activities:int, total_players:int },
@@ -151,13 +151,21 @@ final class MinutesGridQuery {
                 // `minutesCheck()`, so a client gets the answer, not only
                 // the inputs to it.
                 'minutes_check'      => null,
+                // #4483 — on a tournament day, the audit's roll-up of its
+                // fixtures: `{ total_minutes, recorded_count }`. Null on
+                // every other column.
+                'rollup'             => null,
             ];
         }
 
         $yardstick = self::auditYardstick( $team_id, $from, $to, $activities !== [] );
         foreach ( $activities as $i => $a ) {
             $y = $yardstick[ $a['activity_id'] ] ?? null;
-            if ( $y === null || $a['is_tournament'] ) continue;
+            if ( $y === null ) continue;
+            if ( $a['is_tournament'] ) {
+                $activities[ $i ]['rollup'] = $y['rollup'];
+                continue;
+            }
             $activities[ $i ]['available_minutes'] = $y['available_minutes'];
             $activities[ $i ]['squad_count']       = $y['squad_count'];
         }
@@ -346,14 +354,30 @@ final class MinutesGridQuery {
      * Bounded to the grid's own team and window: the audit's reads are all
      * `team_id` + date-range (+ `club_id`) scoped, the same as the grid's.
      *
-     * @return array<int, array{available_minutes:int, squad_count:int, selected:array<int,true>}> activity id => yardstick
+     * A tournament day carries no attendance of its own, so the grid's cells
+     * for it are empty; the audit rolls its minutes up from its fixtures.
+     * `rollup` carries that roll-up's total and recorded count, so the day's
+     * column reads the number the audit shows.
+     *
+     * @return array<int, array{available_minutes:int, squad_count:int, selected:array<int,true>, rollup:?array{total_minutes:int, recorded_count:int}}> activity id => yardstick
      */
     private static function auditYardstick( int $team_id, string $from, string $to, bool $has_columns ): array {
         if ( ! $has_columns ) return [];
 
         $out = [];
         foreach ( ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to )['games'] as $g ) {
-            if ( $g['is_rollup'] ) continue;
+            if ( $g['is_rollup'] ) {
+                $out[ $g['activity_id'] ] = [
+                    'available_minutes' => $g['available_minutes'],
+                    'squad_count'       => $g['squad_count'],
+                    'selected'          => [],
+                    'rollup'            => [
+                        'total_minutes'  => $g['total_minutes'],
+                        'recorded_count' => $g['recorded_count'],
+                    ],
+                ];
+                continue;
+            }
             $selected = [];
             foreach ( $g['selected'] as $pid => $is_selected ) {
                 if ( $is_selected ) $selected[ $pid ] = true;
@@ -362,6 +386,7 @@ final class MinutesGridQuery {
                 'available_minutes' => $g['available_minutes'],
                 'squad_count'       => $g['squad_count'],
                 'selected'          => $selected,
+                'rollup'            => null,
             ];
         }
         return $out;
@@ -445,6 +470,15 @@ final class MinutesGridQuery {
             'status_reason'     => '',
         ];
         if ( ! empty( $activity['is_tournament'] ) ) {
+            // The day holds no attendance of its own; its figures are the
+            // audit's roll-up of its fixtures, and nobody types them here.
+            $rollup = is_array( $activity['rollup'] ?? null ) ? $activity['rollup'] : null;
+            if ( $rollup !== null ) {
+                $out['total_minutes']    = (int) ( $rollup['total_minutes'] ?? 0 );
+                $out['recorded_count']   = (int) ( $rollup['recorded_count'] ?? 0 );
+                $out['offgrid_minutes']  = $out['total_minutes'];
+                $out['offgrid_recorded'] = $out['recorded_count'];
+            }
             $out['status'] = 'rollup';
             return $out;
         }

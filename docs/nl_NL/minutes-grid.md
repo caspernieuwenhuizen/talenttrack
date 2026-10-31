@@ -160,7 +160,8 @@ bij de selectie, net als in de audit.
 
 Het is informatie, geen regel. Niets houdt je tegen om op te slaan: een
 wedstrijd kan echt korter uitvallen, na een rode kaart of een blessure zonder
-wissel. Een toernooidag toont zijn minuten zonder streefgetal en met het label
+wissel. Een toernooidag toont de minuten van zijn wedstrijden bij elkaar
+opgeteld, net als de audit, zonder streefgetal en met het label
 **Samenvatting**, omdat zijn minuten bij zijn wedstrijden in de toernooiplanner
 horen.
 
