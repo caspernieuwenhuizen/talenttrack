@@ -588,13 +588,6 @@ class AccountPage {
     }
 
     /**
-     * Plan & restrictions — read-only "what's locked / what's unlocked"
-     * tab. Replaces the former standalone `PlanOverviewPage` so coaches
-     * and other read-only users still get a one-glance view of caps,
-     * the current plan, and the per-tier feature matrix without a
-     * separate menu entry.
-     */
-    /**
      * Whether the Account tab says no plan is recorded. A pinned tier or
      * an active override means the install is not running on Free, and
      * the warning above already says what it runs on instead.
@@ -606,6 +599,13 @@ class AccountPage {
         return $entitled === null && $pinned === null && $override === null;
     }
 
+    /**
+     * Plan & restrictions — read-only "what's locked / what's unlocked"
+     * tab. Replaces the former standalone `PlanOverviewPage` so coaches
+     * and other read-only users still get a one-glance view of caps,
+     * the current plan, and the per-tier feature matrix without a
+     * separate menu entry.
+     */
     private static function renderPlanTab(): void {
         // v3.110.44 — non-commercial test instance: same notice the
         // Account tab shows. Plan / caps / feature matrix all moot
