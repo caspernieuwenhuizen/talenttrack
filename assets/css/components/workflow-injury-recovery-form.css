@@ -1,0 +1,126 @@
+/*
+ * InjuryRecoveryConfirmForm — the answer to an injury recovery check.
+ *
+ * Moved out of inline `style` attributes; the look reads the design tokens
+ * so a themed install gets its own. Mobile-first: every choice row is a
+ * full-width 48px target, the date input is 16px so iOS does not zoom.
+ * Scoped under `.tt-irc-form` so it cannot leak into other task forms.
+ */
+
+.tt-dashboard .tt-irc-form {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-irc-form > * + * {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-irc-intro,
+.tt-dashboard .tt-irc-note {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-irc-group {
+    border: 0;
+    padding: 0;
+    margin-left: 0;
+    margin-right: 0;
+    min-width: 0;
+}
+
+.tt-dashboard .tt-irc-group > legend {
+    font-weight: 600;
+    margin-bottom: var(--tt-sp-2, 8px);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-irc-choice {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    padding: var(--tt-sp-1, 4px) 0;
+    touch-action: manipulation;
+    cursor: pointer;
+}
+
+.tt-dashboard .tt-irc-choice + .tt-irc-choice {
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-irc-choice > input {
+    flex: 0 0 auto;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+}
+
+.tt-dashboard .tt-irc-choice > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-irc-group > .tt-irc-note {
+    margin-top: var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-irc-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin-bottom: 0;
+}
+
+.tt-dashboard .tt-irc-field > label {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-irc-field > input,
+.tt-dashboard .tt-irc-field > textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    font: inherit;
+    font-size: 1rem; /* >=16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-irc-field > textarea {
+    min-height: 6rem;
+    padding: var(--tt-sp-3, 12px);
+    line-height: var(--tt-lh-body, 1.5);
+    resize: vertical;
+}
+
+.tt-dashboard .tt-irc-field > input:focus-visible,
+.tt-dashboard .tt-irc-field > textarea:focus-visible,
+.tt-dashboard .tt-irc-choice > input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+.tt-dashboard .tt-irc-hint {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* A locked form — the task is completed, or the viewer may not submit. */
+.tt-dashboard .tt-irc-form :disabled {
+    opacity: 0.7;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-irc-form {
+        padding: var(--tt-sp-6, 24px);
+    }
+}

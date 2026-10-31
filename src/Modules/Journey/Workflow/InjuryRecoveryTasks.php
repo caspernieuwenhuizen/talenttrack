@@ -37,6 +37,12 @@ final class InjuryRecoveryTasks {
     /** `tt_config` key: the day the sweep last ran, per club. */
     public const LAST_SWEEP_KEY = 'injury_recovery_last_sweep';
 
+    /** #4289 — why a date cannot be a record's new expected return. */
+    public const NEW_RETURN_INVALID         = 'invalid';
+    public const NEW_RETURN_NOT_AFTER_TODAY = 'not_after_today';
+    public const NEW_RETURN_BEFORE_START    = 'before_start';
+    public const NEW_RETURN_BEFORE_CURRENT  = 'before_current';
+
     public static function init(): void {
         add_action( 'tt_journey_injury_logged', [ self::class, 'onInjuryChanged' ], 20 );
         add_action( 'tt_journey_injury_updated', [ self::class, 'onInjuryChanged' ], 20 );
@@ -86,14 +92,66 @@ final class InjuryRecoveryTasks {
      * `$today`, Y-m-d; null when no record asks for a decision yet.
      */
     public static function dueDateForPlayer( int $player_id, ?string $today = null ): ?string {
-        $today = $today ?? AttendanceDateRule::today();
-        $due   = null;
-        foreach ( ( new InjuryRepository() )->listForPlayer( $player_id ) as $row ) {
-            $date = InjuryStatus::checkDate( $row );
-            if ( $date === null || $date > $today ) continue;
+        $due = null;
+        foreach ( self::dueRecordsForPlayer( $player_id, $today ) as $row ) {
+            $date = (string) InjuryStatus::checkDate( $row );
             if ( $due === null || $date < $due ) $due = $date;
         }
         return $due;
+    }
+
+    /**
+     * #4289 — the player's records whose check date has arrived by `$today`:
+     * the ones the reminder is asking about, earliest check first.
+     *
+     * @return list<object>
+     */
+    public static function dueRecordsForPlayer( int $player_id, ?string $today = null ): array {
+        $today = $today ?? AttendanceDateRule::today();
+        $due   = [];
+        foreach ( ( new InjuryRepository() )->listForPlayer( $player_id ) as $row ) {
+            $date = InjuryStatus::checkDate( $row );
+            if ( $date === null || $date > $today ) continue;
+            $due[] = $row;
+        }
+        usort( $due, static fn ( object $a, object $b ): int =>
+            [ (string) InjuryStatus::checkDate( $a ), (int) $a->id ] <=> [ (string) InjuryStatus::checkDate( $b ), (int) $b->id ]
+        );
+        return $due;
+    }
+
+    /**
+     * #4289 — the record an "extend" answer may re-date: one of this
+     * player's, in this club, not archived or trashed, and not closed.
+     * Null otherwise.
+     */
+    public static function extendableRecord( int $injury_id, int $player_id ): ?object {
+        if ( $injury_id <= 0 || $player_id <= 0 ) return null;
+        $row = ( new InjuryRepository() )->find( $injury_id );
+        if ( ! $row || (int) ( $row->player_id ?? 0 ) !== $player_id ) return null;
+        if ( ! empty( $row->archived_at ) || ! empty( $row->trashed_at ) ) return null;
+        if ( ! empty( $row->actual_return ) ) return null;
+        return $row;
+    }
+
+    /**
+     * #4289 — null when `$date` (Y-m-d) may become the record's expected
+     * return; otherwise one of the `NEW_RETURN_*` reasons. It must be a real
+     * date, later than today, and not before the injury started or before
+     * the return the record already expects.
+     */
+    public static function newReturnProblem( object $row, string $date, ?string $today = null ): ?string {
+        $parsed = \DateTimeImmutable::createFromFormat( '!Y-m-d', $date );
+        if ( $parsed === false || $parsed->format( 'Y-m-d' ) !== $date ) return self::NEW_RETURN_INVALID;
+
+        $today = $today ?? AttendanceDateRule::today();
+        if ( $date <= $today ) return self::NEW_RETURN_NOT_AFTER_TODAY;
+        if ( InjuryRepository::expectedReturnBeforeStart( (string) ( $row->started_on ?? '' ), $date ) ) {
+            return self::NEW_RETURN_BEFORE_START;
+        }
+        $current = substr( (string) ( $row->expected_return ?? '' ), 0, 10 );
+        if ( $current !== '' && $date < $current ) return self::NEW_RETURN_BEFORE_CURRENT;
+        return null;
     }
 
     /** The player's team, for the assignees. */

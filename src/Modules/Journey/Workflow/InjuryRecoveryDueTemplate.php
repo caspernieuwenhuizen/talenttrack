@@ -3,6 +3,9 @@ namespace TT\Modules\Journey\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\Journey\InjuryRepository;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\TaskContext;
 use TT\Modules\Workflow\TaskTemplate;
@@ -60,6 +63,35 @@ class InjuryRecoveryDueTemplate extends TaskTemplate {
 
     public function entityLinks(): array {
         return [ 'player_id', 'team_id' ];
+    }
+
+    /**
+     * #4289 — an "extend" answer re-dates the record the form named, through
+     * the repository, so the edit event fires and the reminder follows the
+     * new date. "On track" and "unsure" write nothing. Everything the form
+     * validated is checked again here: the record is still this player's
+     * and open, the date still holds, and the person answering may change it.
+     */
+    public function onComplete( array $task, array $response ): void {
+        if ( (string) ( $response['recovery_status'] ?? '' ) !== InjuryRecoveryConfirmForm::OPTION_EXTEND ) return;
+
+        $player_id = (int) ( $task['player_id'] ?? 0 );
+        if ( ! AuthorizationService::canRecordInjury( get_current_user_id(), $player_id, 'change' ) ) return;
+
+        $injury_id = (int) ( $response['injury_id'] ?? 0 );
+        $row       = InjuryRecoveryTasks::extendableRecord( $injury_id, $player_id );
+        if ( $row === null ) return;
+
+        $date = (string) ( $response['new_expected_return'] ?? '' );
+        if ( InjuryRecoveryTasks::newReturnProblem( $row, $date ) !== null ) return;
+
+        if ( ( new InjuryRepository() )->update( $injury_id, [ 'expected_return' => $date ] ) ) {
+            // The same row an edit from the player's injuries tab writes.
+            ( new AuditService() )->record( 'player.injury_updated', 'player_injury', $injury_id, [
+                'player_id' => $player_id,
+                'fields'    => [ 'expected_return' ],
+            ] );
+        }
     }
 
     /**
