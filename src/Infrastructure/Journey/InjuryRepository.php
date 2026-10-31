@@ -294,36 +294,21 @@ final class InjuryRepository {
      * @return list<int>
      */
     public function playersWithCheckDue( string $day ): array {
-        $predicate = InjuryStatus::checkDueSql( 'i' );
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
-        $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT DISTINCT i.player_id
-               FROM {$this->table} i
-               JOIN {$this->wpdb->prefix}tt_players p ON p.id = i.player_id AND p.club_id = i.club_id
-              WHERE i.club_id = %d
-                AND p.archived_at IS NULL
-                AND {$predicate}",
-            array_merge( [ (int) CurrentClub::id() ], InjuryStatus::checkDueParams( $day ) )
-        ) );
-
-        $out = [];
-        foreach ( (array) $rows as $pid ) {
-            $pid = (int) $pid;
-            if ( $pid > 0 ) $out[ $pid ] = true;
-        }
-        return array_keys( $out );
+        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql( 'i' ), InjuryStatus::checkDueParams( $day ), true ) );
     }
 
     /**
      * The player ids, among `$player_ids` (every player in the club when
-     * null), with a record matching `$predicate`.
+     * null), with a record matching `$predicate`. The injuries table is
+     * aliased `i`; with `$active_players_only` it joins the player and keeps
+     * only players who are not archived, and the predicate must then be
+     * qualified with `i`.
      *
      * @param list<int>|null $player_ids
      * @param list<string>   $params     Values for the predicate's placeholders.
      * @return array<int, true>
      */
-    private function playerSet( ?array $player_ids, string $predicate, array $params ): array {
+    private function playerSet( ?array $player_ids, string $predicate, array $params, bool $active_players_only = false ): array {
         $ids = [];
         foreach ( $player_ids ?? [] as $pid ) {
             $pid = (int) $pid;
@@ -334,13 +319,17 @@ final class InjuryRepository {
         $ids   = array_keys( $ids );
         $where = $player_ids === null
             ? ''
-            : 'player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
+            : 'i.player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
+        $join  = $active_players_only
+            ? "JOIN {$this->wpdb->prefix}tt_players p ON p.id = i.player_id AND p.club_id = i.club_id AND p.archived_at IS NULL"
+            : '';
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT DISTINCT player_id
-               FROM {$this->table}
-              WHERE {$where} club_id = %d
+            "SELECT DISTINCT i.player_id
+               FROM {$this->table} i
+               {$join}
+              WHERE {$where} i.club_id = %d
                 AND {$predicate}",
             array_merge( $ids, [ (int) CurrentClub::id() ], $params )
         ) );
