@@ -231,12 +231,14 @@ final class InjuryRepository {
         $from = (string) $days[0];
         $to   = (string) $days[ count( $days ) - 1 ];
 
+        global $wpdb;
+        $p   = $wpdb->prefix;
         $ids = array_keys( $ids );
         $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only.
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+        $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT player_id, started_on, expected_return, actual_return, archived_at, trashed_at
-               FROM {$this->table}
+               FROM {$p}tt_player_injuries
               WHERE player_id IN ($in)
                 AND club_id = %d
                 AND archived_at IS NULL

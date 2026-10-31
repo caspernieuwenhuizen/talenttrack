@@ -61,10 +61,12 @@ class MatchPrepRepository {
     public function findByActivities( array $activity_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( $v ) => $v > 0 ) ) );
         if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->t_prep} WHERE club_id = %d AND activity_id IN ({$placeholders})",
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_match_prep WHERE club_id = %d AND activity_id IN ({$placeholders})",
             ...array_merge( [ CurrentClub::id() ], $ids )
         ) );
         $out = [];
@@ -85,10 +87,12 @@ class MatchPrepRepository {
     public function listLineupForPreps( array $prep_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $prep_ids ), static fn( $v ) => $v > 0 ) ) );
         if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT * FROM {$this->t_lineup}
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_match_prep_lineup
               WHERE club_id = %d AND match_prep_id IN ({$placeholders})
               ORDER BY half ASC, slot_number ASC",
             ...array_merge( [ CurrentClub::id() ], $ids )
