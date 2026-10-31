@@ -665,6 +665,10 @@ The lock is set in `ActivitiesRepository::update()`, the write behind `PUT /acti
 
 The response is the groups still locked. Unlocking a group that is not locked answers `200` with the list unchanged. An unknown group is `400 unknown_group`; an activity that is not this club's is `404 not_found`.
 
+### Played matches: `GET /activities` with `filter[played]=1` (#4507)
+
+`filter[played]=1`, or the plain `played=1` the rendered list sends, narrows the list to the matches the minutes reports count as **played**: every match-like type (`game`, the legacy `match`, `tournament`), not cancelled, and completed, dated before today, or carrying recorded minutes (`MinutesQuery::playedMatchSql()`). With `filter[date_from]` / `filter[date_to]` it returns exactly the rows behind a minutes report's *Matches played* number. `0` or absent does not narrow; any other value is refused with `400 bad_filter` (`details.parameter = played`). The other filters, the coach scope and the player / parent force-scope apply as usual, so it can only narrow what a caller sees.
+
 ## Search + peek (#2458)
 
 Backs the command palette and the peek panel in the app shell. Both exist as REST
