@@ -4,6 +4,7 @@ namespace TT\Modules\Comms\Queue;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Modules\Comms\CommsAuditLogger;
 use TT\Modules\Comms\CommsService;
 use TT\Modules\Comms\Domain\CommsResult;
@@ -79,8 +80,8 @@ final class DeferredSendSweep {
      */
     public function runAllClubs(): array {
         $out = [];
-        foreach ( $this->clubIds() as $club_id ) {
-            $out[ $club_id ] = $this->withClub( $club_id, function (): array {
+        foreach ( ClubIteration::clubIds() as $club_id ) {
+            $out[ $club_id ] = ClubIteration::withClub( $club_id, function (): array {
                 return $this->runForCurrentClub();
             } );
         }
@@ -160,38 +161,5 @@ final class DeferredSendSweep {
         }
 
         return $counts;
-    }
-
-    /**
-     * Every club that has config rows, club 1 always included — the same
-     * enumeration `AlertSweepCron` and `AutoPurgeCron` use.
-     *
-     * @return list<int>
-     */
-    private function clubIds(): array {
-        global $wpdb;
-        $ids = $wpdb->get_col( "SELECT DISTINCT club_id FROM {$wpdb->prefix}tt_config" );
-        $ids = array_values( array_unique( array_map( 'intval', is_array( $ids ) ? $ids : [] ) ) );
-        if ( ! in_array( 1, $ids, true ) ) {
-            $ids[] = 1;
-        }
-        return array_values( array_filter( $ids, static function ( int $id ): bool { return $id > 0; } ) );
-    }
-
-    /**
-     * Run `$fn` with `tt_current_club_id` pinned, then restore.
-     *
-     * @template T
-     * @param callable():T $fn
-     * @return T
-     */
-    private function withClub( int $club_id, callable $fn ) {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        try {
-            return $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-        }
     }
 }

@@ -4,6 +4,7 @@ namespace TT\Modules\Strava;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
+use TT\Infrastructure\Tenancy\ClubIteration;
 use TT\Infrastructure\Logging\Logger;
 
 /**
@@ -86,7 +87,7 @@ final class WebhookService {
         $player_id = (int) $conn->player_id;
         $club_id   = (int) $conn->club_id;
 
-        $this->withClub( $club_id, function () use ( $object_type, $aspect, $object_id, $payload, $player_id ) {
+        ClubIteration::withClub( $club_id, function () use ( $object_type, $aspect, $object_id, $payload, $player_id ) {
             // Athlete deauthorization — `updates.authorized === "false"`.
             if ( $object_type === 'athlete'
                 && $this->isDeauth( $payload ) ) {
@@ -132,22 +133,5 @@ final class WebhookService {
             [ 'player_id' => $player_id, 'archived_activities' => $archived, 'source' => 'webhook' ]
         );
         Logger::info( 'strava.webhook.deauthorized', [ 'player_id' => $player_id, 'archived' => $archived ] );
-    }
-
-    /**
-     * Run $fn with `tt_current_club_id` pinned to $club_id.
-     *
-     * @template T
-     * @param callable():T $fn
-     * @return T
-     */
-    private function withClub( int $club_id, callable $fn ) {
-        $filter = static function () use ( $club_id ) { return $club_id; };
-        add_filter( 'tt_current_club_id', $filter, 9999 );
-        try {
-            return $fn();
-        } finally {
-            remove_filter( 'tt_current_club_id', $filter, 9999 );
-        }
     }
 }
