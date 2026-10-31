@@ -294,6 +294,9 @@ bestemmingen in drie stappen:
 1. **Geconfigureerd** — club-scoped `tt_config`-sleutel `tt_shell_mobile_slots`,
    een JSON-object van `persona-sleutel => [ slug, … ]`. Een `*`-sleutel geldt
    voor elke persona zonder eigen ingang. Afwezig of leeg valt door.
+
+   De persona is die uit de personawisselaar, of de eerste persona van de
+   gebruiker als er niets gekozen is (`PersonaResolver::landingPersona()`).
 2. **Meegeleverde standaard per persona** — `FrontendAppBottomBar::DEFAULT_SLOTS`
    (#2810).
 3. **Afgeleid** — de eerste vier `kind: 'work'`-tegels uit

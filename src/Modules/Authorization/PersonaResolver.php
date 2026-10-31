@@ -220,6 +220,15 @@ class PersonaResolver {
     }
 
     /**
+     * The persona a screen is dressed as: the switcher's choice when one is
+     * stored, otherwise the user's first persona. activePersona() alone is
+     * null for anyone who never used the switcher (#4428).
+     */
+    public static function landingPersona( int $user_id ): ?string {
+        return self::activePersona( $user_id ) ?? ( self::personasFor( $user_id )[0] ?? null );
+    }
+
+    /**
      * Effective persona set for *presentation*: the active one if set +
      * valid, otherwise the full union.
      *

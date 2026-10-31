@@ -20,7 +20,10 @@ class AppBottomBarSlotsTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
-        $this->user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        // A role with no persona: the derivation and config fallback are
+        // what is under test here. An administrator resolves to the
+        // academy admin, who gets no bar at all (#2810, #4428).
+        $this->user_id = self::factory()->user->create( [ 'role' => 'editor' ] );
         wp_set_current_user( $this->user_id );
 
         $this->saved = TileRegistry::allRegistered();
