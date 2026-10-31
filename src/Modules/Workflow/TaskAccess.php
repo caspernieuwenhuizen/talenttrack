@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Prospects\ProspectScope;
 
@@ -20,7 +21,8 @@ use TT\Modules\Prospects\ProspectScope;
  *   - a user with a global `workflow_tasks` read;
  *   - for a task about a prospect: a user who reads prospects and sees
  *     that prospect on the onboarding pipeline, whose cards open the
- *     task behind each stage.
+ *     task behind each stage. Both halves ask what the pipeline itself
+ *     asks, so the task and the card cannot disagree.
  *
  * Everyone else is answered as if the task did not exist.
  */
@@ -35,7 +37,7 @@ final class TaskAccess {
 
         $prospect_id = (int) ( $task['prospect_id'] ?? 0 );
         return $prospect_id > 0
-            && user_can( $user_id, 'tt_view_prospects' )
+            && AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
             && ProspectScope::canSee( $user_id, $prospect_id );
     }
 

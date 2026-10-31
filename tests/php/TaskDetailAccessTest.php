@@ -88,6 +88,30 @@ final class TaskDetailAccessTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'tt_workflow_submit', $html, 'seeing it is not completing it' );
     }
 
+    public function test_a_head_coach_is_refused_on_a_prospect_task_outside_their_scope(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [ 'club_id' => 1, 'name' => 'Task-scope U14', 'age_group' => 'U14' ] );
+        $coach = $this->makeHeadCoach( (int) $wpdb->insert_id );
+        $this->assertTrue(
+            AuthorizationService::userCanOrMatrix( $coach, 'tt_view_prospects' ),
+            'precondition: the head coach reads prospects, so the refusal below comes from the scope'
+        );
+
+        // Not in their age group, not on their teams, not theirs: outside.
+        $this->assertRefused( $coach, $this->makeTask( InviteToTestTrainingTemplate::KEY, $this->prospect_id ) );
+
+        // One they logged themselves is inside, and opens.
+        $wpdb->insert( "{$wpdb->prefix}tt_prospects", [
+            'club_id'               => 1,
+            'first_name'            => 'Own',
+            'last_name'             => 'Findx',
+            'discovered_by_user_id' => $coach,
+        ] );
+        $own  = $this->makeTask( InviteToTestTrainingTemplate::KEY, (int) $wpdb->insert_id );
+        $html = $this->renderFor( $coach, $own );
+        $this->assertStringNotContainsString( 'Task not found', $html );
+    }
+
     public function test_a_refusal_reads_exactly_like_a_missing_task(): void {
         $player  = $this->makeUser( 'tt_player' );
         $task    = $this->makeTask( RecordTestTrainingOutcomeTemplate::KEY );
@@ -109,6 +133,35 @@ final class TaskDetailAccessTest extends WP_UnitTestCase {
 
     private function makeUser( string $role ): int {
         $uid = self::factory()->user->create( [ 'role' => $role ] );
+        AuthorizationService::flushCache();
+        return $uid;
+    }
+
+    private function makeHeadCoach( int $team_id ): int {
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $uid = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( "{$p}tt_people", [
+            'club_id'    => 1,
+            'first_name' => 'Hoofd',
+            'last_name'  => 'Trainer',
+            'role_type'  => 'head_coach',
+            'wp_user_id' => $uid,
+            'status'     => 'active',
+        ] );
+        $person_id = (int) $wpdb->insert_id;
+        $wpdb->insert( "{$p}tt_team_people", [
+            'team_id'       => $team_id,
+            'person_id'     => $person_id,
+            'role_in_team'  => 'head_coach',
+            'is_head_coach' => 1,
+        ] );
+        $wpdb->insert( "{$p}tt_user_role_scopes", [
+            'person_id'  => $person_id,
+            'role_id'    => 1,
+            'scope_type' => 'team',
+            'scope_id'   => $team_id,
+        ] );
         AuthorizationService::flushCache();
         return $uid;
     }
