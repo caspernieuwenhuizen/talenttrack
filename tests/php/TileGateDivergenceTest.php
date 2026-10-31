@@ -53,6 +53,29 @@ final class TileGateDivergenceTest extends WP_UnitTestCase {
 
     private const RANK = [ 'read' => 0, 'change' => 1, 'create_delete' => 2 ];
 
+    /** @var list<array<string,mixed>> */
+    private $tiles_were = [];
+
+    /**
+     * #4428 — fill the registry here rather than trust boot: a suite that
+     * emptied it earlier made this loop over zero tiles and pass, which is
+     * how #4391 stayed green on CI.
+     */
+    public function set_up(): void {
+        parent::set_up();
+        $this->tiles_were = TileRegistry::allRegistered();
+        TileRegistry::clear();
+        \TT\Shared\CoreSurfaceRegistration::register();
+    }
+
+    public function tear_down(): void {
+        TileRegistry::clear();
+        foreach ( $this->tiles_were as $tile ) {
+            TileRegistry::register( $tile );
+        }
+        parent::tear_down();
+    }
+
     /** @return array<string, array<string, array<string, bool>>> persona => entity => activity => true */
     private function seedGrants(): array {
         $seed = require TT_PLUGIN_DIR . 'config/authorization_seed.php';
@@ -104,6 +127,7 @@ final class TileGateDivergenceTest extends WP_UnitTestCase {
     }
 
     public function test_no_new_tile_shows_a_persona_a_surface_it_cannot_open(): void {
+        $this->assertNotEmpty( TileRegistry::allRegistered(), 'an empty tile registry checks nothing' );
         $found = $this->divergences();
 
         $expected = self::KNOWN;

@@ -15,6 +15,9 @@ class SearchRestControllerTest extends WP_UnitTestCase {
     private int $admin_id = 0;
     private int $outsider_id = 0;
 
+    /** @var list<array<string,mixed>> */
+    private array $saved = [];
+
     public function set_up(): void {
         parent::set_up();
         do_action( 'rest_api_init' );
@@ -22,6 +25,7 @@ class SearchRestControllerTest extends WP_UnitTestCase {
         $this->admin_id    = self::factory()->user->create( [ 'role' => 'administrator' ] );
         $this->outsider_id = self::factory()->user->create( [ 'role' => 'subscriber' ] );
 
+        $this->saved = TileRegistry::allRegistered();
         TileRegistry::clear();
         // A declared `cap` is what makes these tiles capability-filtered.
         // `manage_options` is held by the administrator and not by the
@@ -49,7 +53,12 @@ class SearchRestControllerTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        // #4428 — leave the registry as it was found; a later suite that
+        // reads it must not see an empty one.
         TileRegistry::clear();
+        foreach ( $this->saved as $tile ) {
+            TileRegistry::register( $tile );
+        }
         parent::tear_down();
     }
 
