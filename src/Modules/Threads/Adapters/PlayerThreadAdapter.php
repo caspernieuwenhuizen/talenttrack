@@ -78,7 +78,7 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
         $team_id = (int) ( $player->team_id ?? 0 );
         if ( $team_id <= 0 ) return [];
 
-        $family = $this->familyUserIds( $player );
+        $family = $this->familyUserIds( $player, $thread_id );
 
         $out = [];
         foreach ( TeamStaffLookup::forTeam( $team_id, self::NOTIFIED_STAFF_ROLES ) as $uid ) {
@@ -96,12 +96,12 @@ final class PlayerThreadAdapter implements ThreadTypeAdapter, PlayerAnchoredThre
      *
      * @return array<int, true>
      */
-    private function familyUserIds( object $player ): array {
+    private function familyUserIds( object $player, int $player_id ): array {
         $ids = [
             (int) ( $player->wp_user_id ?? 0 ),
             (int) ( $player->parent_user_id ?? 0 ),
         ];
-        foreach ( ( new PlayerParentsRepository() )->parentsForPlayer( (int) $player->id ) as $parent_uid ) {
+        foreach ( ( new PlayerParentsRepository() )->parentsForPlayer( $player_id ) as $parent_uid ) {
             $ids[] = (int) $parent_uid;
         }
 
