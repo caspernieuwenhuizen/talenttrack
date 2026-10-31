@@ -226,10 +226,7 @@ final class BackLabelResolver {
                 // #4257 — a minor's name, so only for a viewer who may open
                 // the record the pill points back to.
                 if ( ! \TT\Modules\Prospects\Domain\ProspectRecord::canOpen( get_current_user_id(), $id ) ) return '';
-                $row = $wpdb->get_row( $wpdb->prepare(
-                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_prospects WHERE id = %d AND club_id = %d",
-                    $id, $club_id
-                ) );
+                $row = ( new \TT\Modules\Prospects\Repositories\ProspectsRepository() )->find( $id );
                 if ( $row ) {
                     $name = trim( (string) $row->first_name . ' ' . (string) $row->last_name );
                     return $name !== '' ? $name : '';

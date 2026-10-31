@@ -16,6 +16,7 @@ use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -228,7 +229,12 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                         <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit contact', 'talenttrack' ); ?></a>
                     <?php endif; ?>
                     <?php // #4257 — the full record: every consent request and visit. ?>
-                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( RecordLink::detailUrlForWithBack( 'prospect', $focus_pid ) ); ?>"><?php esc_html_e( 'Open record', 'talenttrack' ); ?></a>
+                    <?php
+                    CrossViewLink::render( 'prospect', static function () use ( $focus_pid ): void {
+                        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( RecordLink::detailUrlForWithBack( 'prospect', $focus_pid ) ) . '">' /* tt-xview-ok — gated by CrossViewLink::render() */
+                            . esc_html__( 'Open record', 'talenttrack' ) . '</a>';
+                    }, [ 'ctx' => [ 'prospect_id' => $focus_pid ] ] );
+                    ?>
                 </p>
                 <?php if ( $can_propose ) : ?>
                     <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( self::prospectFocusUrl( $focus_pid ) ); ?>">

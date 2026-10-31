@@ -16,6 +16,7 @@ use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Wizards\Prospect\LogConsentRequestWizard;
+use TT\Shared\Frontend\Components\CrossViewLink;
 
 /**
  * #4257 — a prospect's record page at `?tt_view=prospect&id=N`: the consent
@@ -122,6 +123,36 @@ final class ProspectRecordPageTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'Sportpark Nieuwland', $this->renderFor( $this->scout, $this->outside ), 'the scout who made the visit' );
         $this->assertSame( [], ProspectRecord::visits( $this->coach, $this->own ), 'a head coach does not read the scout\'s visit planner' );
+    }
+
+    public function test_links_to_the_record_follow_the_record_scope(): void {
+        $visit = ( new ScoutingVisitsRepository() )->create( [
+            'scout_user_id' => $this->scout,
+            'visit_date'    => '2026-09-01',
+            'location'      => 'Sportpark Nieuwland',
+            'status'        => ScoutingVisitsRepository::STATUS_COMPLETED,
+        ] );
+
+        wp_set_current_user( $this->coach );
+        $this->assertFalse( CrossViewLink::allows( 'prospect', [ 'ctx' => [ 'prospect_id' => $this->outside ] ] ), 'outside the head coach\'s scope' );
+        $this->assertTrue( CrossViewLink::allows( 'prospect', [ 'ctx' => [ 'prospect_id' => $this->own ] ] ), 'their own find' );
+        $this->assertFalse( CrossViewLink::allows( 'prospect-edit', [ 'ctx' => [ 'prospect_id' => $this->own ] ] ), 'no edit right' );
+        $this->assertFalse( CrossViewLink::allows( 'scouting-visit', [ 'ctx' => [ 'visit_id' => $visit ] ] ), 'a head coach does not read the scout\'s visits' );
+
+        wp_set_current_user( $this->scout );
+        $this->assertTrue( CrossViewLink::allows( 'prospect', [ 'ctx' => [ 'prospect_id' => $this->outside ] ] ) );
+        $this->assertTrue( CrossViewLink::allows( 'scouting-visit', [ 'ctx' => [ 'visit_id' => $visit ] ] ), 'the scout\'s own visit' );
+        $this->assertFalse( CrossViewLink::allows( 'scouting-visit', [ 'ctx' => [ 'visit_id' => $visit + 100000 ] ] ), 'a visit that does not exist' );
+    }
+
+    public function test_a_waiting_request_is_marked_apart_from_an_answered_one(): void {
+        $repo = new ProspectConsentRequestsRepository();
+        $repo->create( $this->outside, '2026-09-10', 'Youth coordinator', ConsentOutcome::AWAITING );
+        $repo->create( $this->outside, '2026-09-01', 'Head of youth', ConsentOutcome::NO_REPLY );
+
+        $html = $this->renderFor( $this->scout, $this->outside );
+        $this->assertStringContainsString( 'tt-chip--awaiting', $html );
+        $this->assertStringContainsString( 'tt-chip--answered', $html );
     }
 
     // ── the consent request ────────────────────────────────────────────

@@ -68,6 +68,43 @@
     overflow-wrap: anywhere;
 }
 
+/*
+ * Status pills: the prospect's status, each consent request's outcome and
+ * the visit a prospect was found at. A request still waiting stands out;
+ * an answered one stays quiet unless the answer was yes.
+ */
+.tt-prospect-record .tt-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--tt-info);
+    border-radius: 999px;
+    background: var(--tt-info-subtle);
+    color: var(--tt-info-ink);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.tt-prospect-record .tt-chip--awaiting {
+    border-color: var(--tt-warning);
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
+.tt-prospect-record .tt-chip--agreed {
+    border-color: var(--tt-success);
+    background: var(--tt-success-subtle);
+    color: var(--tt-success-ink);
+}
+
+.tt-prospect-record .tt-chip--answered {
+    border-color: var(--tt-line);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+}
+
 .tt-prospect-record-link {
     display: inline-flex;
     align-items: center;

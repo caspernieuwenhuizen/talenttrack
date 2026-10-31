@@ -51,18 +51,15 @@ final class ProspectRecord {
         if ( $user_id <= 0 || ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) return [];
         if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) ) return [];
 
-        global $wpdb;
-        $scope = ProspectScope::sqlClause( $user_id, 'p' );
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — the scope clause is built from int-cast ids.
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT p.id, p.first_name, p.last_name FROM {$wpdb->prefix}tt_prospects p
-              WHERE p.club_id = %d AND p.archived_at IS NULL {$scope}
-              ORDER BY p.discovered_at DESC, p.id DESC LIMIT %d",
-            \TT\Infrastructure\Tenancy\CurrentClub::id(), max( 1, $limit )
-        ) );
+        $rows = ( new ProspectsRepository() )->search( [
+            'scope_sql' => ProspectScope::sqlClause( $user_id, '' ),
+            'orderby'   => 'discovered_at',
+            'order'     => 'desc',
+            'limit'     => max( 1, $limit ),
+        ] );
 
         $out = [];
-        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+        foreach ( $rows as $row ) {
             $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
             $out[ (int) $row->id ] = $name !== '' ? $name : '#' . (int) $row->id;
         }
@@ -78,7 +75,7 @@ final class ProspectRecord {
      */
     public static function stage( int $user_id, int $prospect_id ): ?array {
         foreach ( FrontendOnboardingPipelineView::computeStages( $user_id, $prospect_id ) as $column ) {
-            foreach ( (array) ( $column['cards'] ?? [] ) as $card ) {
+            foreach ( $column['cards'] as $card ) {
                 if ( (int) ( $card['id'] ?? 0 ) !== $prospect_id ) continue;
                 $url = (string) ( $card['url'] ?? '' );
                 return [
@@ -101,7 +98,7 @@ final class ProspectRecord {
      */
     public static function consentRequests( int $prospect_id ): array {
         if ( ! ProspectConsentRequestsRepository::tableExists() ) return [];
-        return array_values( ( new ProspectConsentRequestsRepository() )->forProspect( $prospect_id ) );
+        return ( new ProspectConsentRequestsRepository() )->forProspect( $prospect_id );
     }
 
     /**

@@ -9,6 +9,7 @@ use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Modules\Prospects\ScoutingVisitsAccess;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -336,14 +337,21 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             $birth_year = $m[1];
                         }
                         // #4257 — the prospect's record page, which works for a
-                        // prospect off the board as well as one on it.
-                        $kanban_url = RecordLink::detailUrlForWithBack( 'prospect', (int) $p->id );
+                        // prospect off the board as well as one on it. A
+                        // prospect outside the viewer's scope shows as a name.
+                        $record_url = CrossViewLink::allows( 'prospect', [ 'ctx' => [ 'prospect_id' => (int) $p->id ] ] )
+                            ? RecordLink::detailUrlForWithBack( 'prospect', (int) $p->id ) /* tt-xview-ok — gated by CrossViewLink::allows() above */
+                            : '';
                         // #3604 — the same derivation the REST read uses.
                         $status = ProspectOutcome::label( ProspectOutcome::forRow( (array) $p ) );
                         ?>
                         <tr>
                             <td data-sort="<?php echo esc_attr( $p->last_name . ' ' . $p->first_name ); ?>">
-                                <a href="<?php echo esc_url( $kanban_url ); ?>"><?php echo esc_html( $name ); ?></a>
+                                <?php if ( $record_url !== '' ) : ?>
+                                    <a href="<?php echo esc_url( $record_url ); ?>"><?php echo esc_html( $name ); ?></a>
+                                <?php else : ?>
+                                    <?php echo esc_html( $name ); ?>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo esc_html( $birth_year ); ?></td>
                             <td><?php echo esc_html( (string) ( $p->current_club ?? '' ) ); ?></td>

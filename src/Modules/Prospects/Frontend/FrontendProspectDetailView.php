@@ -11,6 +11,7 @@ use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Wizards\Prospect\LogConsentRequestWizard;
 use TT\Shared\Dates\TTDate;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -126,7 +127,9 @@ class FrontendProspectDetailView extends FrontendViewBase {
                 echo '<li class="tt-prospect-record-row">';
                 echo '<span class="tt-prospect-record-when">' . esc_html( $asked_at !== '' ? TTDate::date( $asked_at ) : '' ) . '</span>';
                 echo '<span class="tt-prospect-record-what">' . esc_html( (string) ( $entry['asked_of'] ?? '' ) ) . '</span>';
-                echo '<span class="tt-chip">' . esc_html( ConsentOutcome::label( (string) ( $entry['outcome'] ?? '' ) ) ) . '</span>';
+                $outcome = (string) ( $entry['outcome'] ?? '' );
+                echo '<span class="tt-chip tt-chip--' . esc_attr( $outcome === ConsentOutcome::AWAITING ? 'awaiting' : ( $outcome === ConsentOutcome::AGREED ? 'agreed' : 'answered' ) ) . '">'
+                    . esc_html( ConsentOutcome::label( $outcome ) ) . '</span>';
                 if ( $notes !== '' ) {
                     echo '<span class="tt-prospect-record-note">' . esc_html( $notes ) . '</span>';
                 }
@@ -164,8 +167,13 @@ class FrontendProspectDetailView extends FrontendViewBase {
         echo '<ul class="tt-prospect-record-list">';
         foreach ( $visits as $visit ) {
             $label = trim( TTDate::date( $visit['visit_date'] ) . ' · ' . $visit['event'], ' ·' );
+            $visit_id = $visit['visit_id'];
             echo '<li class="tt-prospect-record-row">';
-            echo '<a class="tt-prospect-record-link" href="' . esc_url( RecordLink::detailUrlForWithBack( 'scouting-visit', $visit['visit_id'] ) ) . '">' . esc_html( $label ) . '</a>';
+            if ( CrossViewLink::allows( 'scouting-visit', [ 'ctx' => [ 'visit_id' => $visit_id ] ] ) ) {
+                echo '<a class="tt-prospect-record-link" href="' . esc_url( RecordLink::detailUrlForWithBack( 'scouting-visit', $visit_id ) ) . '">' . esc_html( $label ) . '</a>'; /* tt-xview-ok — gated by CrossViewLink::allows() above */
+            } else {
+                echo '<span class="tt-prospect-record-link">' . esc_html( $label ) . '</span>';
+            }
             if ( $visit['is_discovery'] ) {
                 echo '<span class="tt-chip">' . esc_html( _x( 'Found here', 'the scouting visit a prospect was discovered at', 'talenttrack' ) ) . '</span>';
             }
@@ -180,7 +188,9 @@ class FrontendProspectDetailView extends FrontendViewBase {
 
     private static function renderActions( int $user_id, int $id ): void {
         if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) return;
-        echo '<p class="tt-prospect-record-actions"><a class="tt-btn tt-btn-secondary" href="' . esc_url( RecordLink::detailUrlForWithBack( 'prospect-edit', $id ) ) . '">'
-            . esc_html__( 'Edit contact', 'talenttrack' ) . '</a></p>';
+        CrossViewLink::render( 'prospect-edit', static function () use ( $id ): void {
+            echo '<p class="tt-prospect-record-actions"><a class="tt-btn tt-btn-secondary" href="' . esc_url( RecordLink::detailUrlForWithBack( 'prospect-edit', $id ) ) . '">' /* tt-xview-ok — gated by CrossViewLink::render() */
+                . esc_html__( 'Edit contact', 'talenttrack' ) . '</a></p>';
+        }, [ 'ctx' => [ 'prospect_id' => $id ] ] );
     }
 }
