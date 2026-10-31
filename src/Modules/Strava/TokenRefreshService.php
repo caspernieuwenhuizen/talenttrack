@@ -177,6 +177,4 @@ final class TokenRefreshService {
         }
         return $this->repo->getAccessToken( $player_id );
     }
-
-    // ---- tenancy helpers (mirror AutoPurgeCron) -------------------------
 }
