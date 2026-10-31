@@ -910,10 +910,11 @@ class ActivitiesRestController {
      * `home_score` is information the grid shows in its footer, not an error
      * to correct behind the coach's back.
      *
-     * #4506 — but the score is a ceiling. More goals or assists than our
+     * #4506 — but the score is a ceiling. Raising goals or assists above our
      * stored score, per player or added up, is `400
-     * contributions_exceed_score`; with no score stored, more than 15 per
-     * player is `400 contributions_out_of_range`. The rule is
+     * contributions_exceed_score`; with no score stored, raising one above 15
+     * per player is `400 contributions_out_of_range`. Lowering is always
+     * accepted, so inflated data can be corrected a box at a time. The rule is
      * `MatchExecutionRepository::contributionsProblem()`, and nothing in the
      * batch is written when it refuses.
      */
@@ -2246,7 +2247,7 @@ class ActivitiesRestController {
     private static function contributionsArgs(): array {
         return [
             'activity_id' => [ 'type' => [ 'integer', 'string' ], 'description' => 'The match, from the URL. A copy in the body is accepted and ignored.' ],
-            'players'     => [ 'type' => 'array', 'description' => 'Goals and assists per player: [ { player_id, goals, assists } ]. A player the list leaves out keeps what is stored. With a score stored, no count, and neither match total, may exceed our score (400 contributions_exceed_score); with none, each count is at most 15 (400 contributions_out_of_range). Nothing is written when the batch is refused.' ],
+            'players'     => [ 'type' => 'array', 'description' => 'Goals and assists per player: [ { player_id, goals, assists } ]. A player the list leaves out keeps what is stored. With a score stored, no count, and neither match total, may be raised above our score (400 contributions_exceed_score); with none, no count may be raised above 15 (400 contributions_out_of_range). Lowering is always accepted. Nothing is written when the batch is refused.' ],
         ];
     }
 

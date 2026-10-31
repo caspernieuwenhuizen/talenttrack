@@ -403,12 +403,15 @@ class MatchExecutionRepository {
      *  - **a score is stored**: our score (`tt_activities.home_score`, ours
      *    whatever the venue, #4066). No player can have scored, or set up,
      *    more goals than the team scored; and the match's attributed goals,
-     *    and its assists, cannot add up to more after this write. The match
-     *    totals only refuse a write that *raises* them past the ceiling, so
-     *    lowering one inflated player is never blocked by another one still
-     *    waiting to be corrected;
+     *    and its assists, cannot add up to more after this write;
      *  - **no score is stored**: {@see CONTRIBUTIONS_CAP_WITHOUT_SCORE} per
      *    player, goals and assists each.
+     *
+     * Both rules, per player and per match, only refuse a write that *raises*
+     * a count past the ceiling. Any lowering is accepted: a player whose goals
+     * are still inflated can have his assists corrected first, and lowering
+     * one player is never blocked by another one still waiting to be
+     * corrected.
      *
      * Lowering an inflated count is how bad data is corrected:
      * {@see reconcileAssists()} reverses the placeholders as the count comes
@@ -430,11 +433,17 @@ class MatchExecutionRepository {
         $scored = $score !== null;
         $limit  = $score !== null ? max( 0, $score ) : self::CONTRIBUTIONS_CAP_WITHOUT_SCORE;
 
+        // What is stored now. A count is refused only when this write raises
+        // it past the ceiling, so any lowering is accepted: a player whose
+        // goals are still inflated can have his assists corrected first.
+        $before = $this->contributionsByActivity( [ $activity_id ] )[ $activity_id ] ?? [];
+
         $players = [];
         foreach ( $counts as $pid => $c ) {
             foreach ( [ 'goals', 'assists' ] as $field ) {
                 $value = max( 0, (int) $c[ $field ] );
-                if ( $value > $limit ) {
+                $now   = (int) ( $before[ (int) $pid ][ $field ] ?? 0 );
+                if ( $value > $limit && $value > $now ) {
                     $players[] = [ 'player_id' => (int) $pid, 'field' => $field, 'value' => $value ];
                 }
             }
@@ -442,8 +451,7 @@ class MatchExecutionRepository {
 
         $totals = [];
         if ( $scored ) {
-            $before = $this->contributionsByActivity( [ $activity_id ] )[ $activity_id ] ?? [];
-            $after  = $before;
+            $after = $before;
             foreach ( $counts as $pid => $c ) {
                 $after[ (int) $pid ] = [ 'goals' => max( 0, (int) $c['goals'] ), 'assists' => max( 0, (int) $c['assists'] ) ];
             }

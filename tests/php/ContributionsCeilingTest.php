@@ -124,6 +124,29 @@ final class ContributionsCeilingTest extends WP_UnitTestCase {
         $this->assertSame( 1, $this->reportAssists( $this->scorer ) );
     }
 
+    /**
+     * The grid sends a player's goals and assists together. With his goals
+     * still inflated, lowering his assists must be accepted: only a raise
+     * past the ceiling is refused, per player as per match.
+     */
+    public function test_an_inflated_player_can_lower_assists_while_goals_stay_inflated(): void {
+        $match = $this->insertMatch( 2, 1 );
+        ( new MatchExecutionRepository() )->setContributions( $match, $this->mate, 30, 40 );
+        $this->assertSame( 30, $this->goals( $match, $this->mate ), 'precondition: inflated before the ceiling' );
+        $this->assertSame( 40, $this->assists( $match, $this->mate ) );
+
+        $res = $this->put( $match, [ [ 'player_id' => $this->mate, 'goals' => 30, 'assists' => 1 ] ] );
+
+        $this->assertSame( 200, $res->get_status(), 'a lowering is accepted while goals are still 30' );
+        $this->assertSame( 1, $this->assists( $match, $this->mate ) );
+        $this->assertSame( 30, $this->goals( $match, $this->mate ) );
+
+        // A raise is still refused, even on an inflated player.
+        $raise = $this->put( $match, [ [ 'player_id' => $this->mate, 'goals' => 31, 'assists' => 1 ] ] );
+        $this->assertSame( 400, $raise->get_status() );
+        $this->assertSame( 'contributions_exceed_score', $this->error( $raise )['code'] );
+    }
+
     // ---- fixtures ---------------------------------------------------------
 
     /** @param list<array<string, int>> $players */
