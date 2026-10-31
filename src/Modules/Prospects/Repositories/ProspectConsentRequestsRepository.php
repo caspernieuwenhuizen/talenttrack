@@ -234,6 +234,33 @@ class ProspectConsentRequestsRepository {
         return $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) === $table;
     }
 
+    /**
+     * "Consent pending" from the log as a SQL condition on a prospect row:
+     * an `awaiting` request and no `agreed` one, the rule the prospects
+     * list's waiting counter and the consent-awaiting alert read. The
+     * onboarding pipeline board and the dashboard's pipeline strip both
+     * select it, so the two cannot count a prospect differently.
+     *
+     * Built from the outcome constants and the table prefix, so it carries
+     * no caller input; `0` when the table does not exist yet, so a query on
+     * an older install still runs.
+     *
+     * @param literal-string $prospect_alias alias of `tt_prospects` in the calling query
+     */
+    public static function awaitingConsentSql( string $prospect_alias = 'p' ): string {
+        if ( ! self::tableExists() ) return '0';
+        global $wpdb;
+        $requests = $wpdb->prefix . self::TABLE;
+        $awaiting = ConsentOutcome::AWAITING;
+        $agreed   = ConsentOutcome::AGREED;
+        return "( EXISTS ( SELECT 1 FROM {$requests} cr
+                            WHERE cr.prospect_id = {$prospect_alias}.id AND cr.club_id = {$prospect_alias}.club_id
+                              AND cr.outcome = '{$awaiting}' )
+                  AND NOT EXISTS ( SELECT 1 FROM {$requests} ca
+                                    WHERE ca.prospect_id = {$prospect_alias}.id AND ca.club_id = {$prospect_alias}.club_id
+                                      AND ca.outcome = '{$agreed}' ) )";
+    }
+
     public function deleteForProspect( int $prospect_id ): int {
         global $wpdb;
         if ( $prospect_id <= 0 ) return 0;
