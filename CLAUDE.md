@@ -108,9 +108,13 @@ follow the rules below.
 - Use CSS Grid and Flexbox. No floats, no absolute positioning for layout.
 
 ### Touch targets & input
-- Minimum tappable size: **48×48 CSS px**. Applies to buttons, links, icons,
-  checkboxes, list rows, pager buttons. Minimum spacing between adjacent
-  targets: 8px.
+- Minimum tappable size: **48×48 CSS px under a coarse pointer** (phones,
+  tablets). Applies to buttons, links, icons, checkboxes, list rows, pager
+  buttons. Under a fine pointer (a mouse) the shared `.tt-btn` keeps desktop
+  density with a **36px (2.25rem) floor**. Both floors live next to the
+  canonical button block in `frontend-admin.css`, read from the
+  `--tt-tap-min` / `--tt-tap-min-fine` tokens; a component sheet never
+  repeats them. Minimum spacing between adjacent targets: 8px.
 - Inputs must use the correct `type` AND `inputmode` so mobile keyboards are
   right: `type="email"` + `inputmode="email"`, `type="tel"`,
   `inputmode="numeric"` (jersey numbers, age), `inputmode="decimal"` (height,
