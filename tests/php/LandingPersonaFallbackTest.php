@@ -100,8 +100,11 @@ final class LandingPersonaFallbackTest extends WP_UnitTestCase {
         FrontendTileGrid::render();
         $html = (string) ob_get_clean();
 
-        $this->assertStringNotContainsString( 'tt-ftile-rail', $html, 'a player gets no "My work" rail' );
-        $this->assertStringNotContainsString( 'tt-ftile-daily--has-week', $html, 'and no coach week' );
+        // The grid prints its own <style> block naming these classes, so
+        // match the markup, not the bare class name.
+        $this->assertStringNotContainsString( '<aside class="tt-ftile-rail"', $html, 'a player gets no "My work" rail' );
+        $this->assertDoesNotMatchRegularExpression( '/class="[^"]*tt-ftile-daily--has-week/', $html, 'and no coach week' );
+        $this->assertStringContainsString( 'class="tt-ftile-daily', $html, 'the work grid rendered at all' );
     }
 
     // ── helpers ────────────────────────────────────────────────────────
