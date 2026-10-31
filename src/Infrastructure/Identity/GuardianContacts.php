@@ -45,6 +45,41 @@ final class GuardianContacts {
     }
 
     /**
+     * #4254 — the guardian recorded on the player's own record
+     * (`guardian_name` / `guardian_email` / `guardian_phone`), the store
+     * #3572 left for a guardian who has no account. Null when none of the
+     * three holds a value, or when the player is not in this club.
+     *
+     * Kept apart from forPlayer(), which lists linked accounts and whose
+     * shape the `GET players/{id}/parents` response follows.
+     *
+     * @return array{name:string, email:string, phone:string}|null
+     */
+    public static function onFileForPlayer( int $player_id ): ?array {
+        if ( $player_id <= 0 ) return null;
+
+        global $wpdb;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT guardian_name, guardian_email, guardian_phone
+               FROM {$wpdb->prefix}tt_players
+              WHERE id = %d AND club_id = %d",
+            $player_id,
+            \TT\Infrastructure\Tenancy\CurrentClub::id()
+        ) );
+        if ( ! is_object( $row ) ) return null;
+
+        $on_file = [
+            'name'  => trim( (string) ( $row->guardian_name ?? '' ) ),
+            'email' => trim( (string) ( $row->guardian_email ?? '' ) ),
+            'phone' => trim( (string) ( $row->guardian_phone ?? '' ) ),
+        ];
+        if ( $on_file['name'] === '' && $on_file['email'] === '' && $on_file['phone'] === '' ) {
+            return null;
+        }
+        return $on_file;
+    }
+
+    /**
      * Audit one read of a player's guardian contacts. Written for every
      * read, including one that found none (`count` 0), so the log shows
      * each time anyone looked this player's guardians up: on the profile

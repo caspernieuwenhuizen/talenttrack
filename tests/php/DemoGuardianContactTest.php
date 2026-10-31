@@ -2,6 +2,7 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Identity\GuardianContacts;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -11,6 +12,7 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\DemoData\DemoBatchRegistry;
 use TT\Modules\DemoData\Generators\GuardianGenerator;
 use TT\Modules\DemoData\Generators\PlayerGenerator;
+use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Shared\Frontend\FrontendPlayerDetailView;
 
 /**
@@ -149,6 +151,86 @@ final class DemoGuardianContactTest extends WP_UnitTestCase {
     // ---- the card -------------------------------------------------------
 
     public function test_staff_see_the_on_file_guardian_on_the_card(): void {
+        [ $team, $player ] = $this->playerWithGuardianOnFile();
+        $coach = $this->makeHeadCoach( $team );
+
+        $html = $this->renderProfile( $player, $coach );
+
+        $this->assertStringContainsString( 'Parents · Guardians', $html, 'precondition: the coach sees the card' );
+        $this->assertStringContainsString( 'Guardian on file', $html );
+        $this->assertStringContainsString( 'Petra Jansen', $html );
+        $this->assertStringContainsString( 'mailto:guardian.1.1@demo.talenttrack.test', $html );
+        $this->assertStringNotContainsString( 'No linked parent or guardian yet.', $html );
+    }
+
+    public function test_the_player_is_refused_the_on_file_guardian(): void {
+        [ , $player ] = $this->playerWithGuardianOnFile();
+        $user = (int) self::factory()->user->create( [ 'role' => 'tt_player' ] );
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_players", [ 'wp_user_id' => $user ], [ 'id' => $player ] );
+
+        $html = $this->renderProfile( $player, $user );
+
+        $this->assertStringContainsString( 'Sem', $html, 'precondition: the player sees their own profile' );
+        $this->assertStringNotContainsString( 'Parents · Guardians', $html );
+        $this->assertStringNotContainsString( 'Guardian on file', $html );
+        $this->assertStringNotContainsString( 'Petra Jansen', $html );
+        $this->assertStringNotContainsString( 'guardian.1.1@demo.talenttrack.test', $html );
+    }
+
+    public function test_a_parent_is_refused_the_on_file_guardian(): void {
+        [ , $player ] = $this->playerWithGuardianOnFile();
+        $parent = (int) self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        ( new PlayerParentsRepository() )->link( $player, $parent, true );
+
+        $html = $this->renderProfile( $player, $parent );
+
+        $this->assertStringContainsString( 'Sem', $html, 'precondition: the parent sees their child\'s profile' );
+        $this->assertStringNotContainsString( 'Parents · Guardians', $html );
+        $this->assertStringNotContainsString( 'Guardian on file', $html );
+        $this->assertStringNotContainsString( 'Petra Jansen', $html );
+        $this->assertStringNotContainsString( 'guardian.1.1@demo.talenttrack.test', $html );
+    }
+
+    public function test_the_service_returns_the_guardian_on_file(): void {
+        [ , $player ] = $this->playerWithGuardianOnFile();
+
+        $this->assertSame(
+            [ 'name' => 'Petra Jansen', 'email' => 'guardian.1.1@demo.talenttrack.test', 'phone' => '' ],
+            GuardianContacts::onFileForPlayer( $player )
+        );
+    }
+
+    public function test_the_service_returns_null_without_a_guardian_on_file(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_players", [
+            'club_id'    => $this->club,
+            'first_name' => 'No',
+            'last_name'  => 'Guardian',
+            'status'     => 'active',
+        ] );
+
+        $this->assertNull( GuardianContacts::onFileForPlayer( (int) $wpdb->insert_id ) );
+    }
+
+    public function test_the_service_does_not_read_another_clubs_player(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_players", [
+            'club_id'        => $this->club + 1,
+            'first_name'     => 'Other',
+            'last_name'      => 'Club',
+            'status'         => 'active',
+            'guardian_name'  => 'Elsewhere Parent',
+            'guardian_email' => 'elsewhere@demo.talenttrack.test',
+        ] );
+
+        $this->assertNull( GuardianContacts::onFileForPlayer( (int) $wpdb->insert_id ) );
+    }
+
+    // ---- fixtures -------------------------------------------------------
+
+    /** @return array{0:int,1:int} team id, player id with a guardian on file and no linked account */
+    private function playerWithGuardianOnFile(): array {
         $roles = new RolesService();
         $roles->installRoles();
         $roles->ensureCapabilities();
@@ -167,23 +249,17 @@ final class DemoGuardianContactTest extends WP_UnitTestCase {
             'guardian_name'  => 'Petra Jansen',
             'guardian_email' => 'guardian.1.1@demo.talenttrack.test',
         ] );
-        $player = (int) $wpdb->insert_id;
-        $coach  = $this->makeHeadCoach( $team );
-
-        wp_set_current_user( $coach );
-        $_GET['tab'] = 'profile';
-        ob_start();
-        FrontendPlayerDetailView::render( $player, $coach, false );
-        $html = (string) ob_get_clean();
-
-        $this->assertStringContainsString( 'Parents · Guardians', $html, 'precondition: the coach sees the card' );
-        $this->assertStringContainsString( 'Guardian on file', $html );
-        $this->assertStringContainsString( 'Petra Jansen', $html );
-        $this->assertStringContainsString( 'mailto:guardian.1.1@demo.talenttrack.test', $html );
-        $this->assertStringNotContainsString( 'No linked parent or guardian yet.', $html );
+        return [ $team, (int) $wpdb->insert_id ];
     }
 
-    // ---- fixtures -------------------------------------------------------
+    private function renderProfile( int $player_id, int $user_id ): string {
+        wp_set_current_user( $user_id );
+        AuthorizationService::flushCache();
+        $_GET['tab'] = 'profile';
+        ob_start();
+        FrontendPlayerDetailView::render( $player_id, $user_id, false );
+        return (string) ob_get_clean();
+    }
 
     private function makeTeam( string $name, string $age_group ): object {
         global $wpdb;

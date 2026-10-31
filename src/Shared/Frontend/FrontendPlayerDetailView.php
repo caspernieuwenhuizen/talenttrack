@@ -1647,7 +1647,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 self::renderProfileCard( __( 'Academy', 'talenttrack' ), $academy_rows );
             }
             if ( $show_parents ) {
-                self::renderParentsCard( $player_id, $player );
+                self::renderParentsCard( $player_id );
             }
             if ( $show_discovery ) {
                 self::renderDiscoveryCard( $player_id );
@@ -1923,7 +1923,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         );
     }
 
-    private static function renderParentsCard( int $player_id, object $player ): void {
+    private static function renderParentsCard( int $player_id ): void {
         // #1725 — the guardians list (names, emails, phones of every
         // co-parent) is STAFF-only. A parent viewing their own child must
         // not see co-guardians; a player must not see it either.
@@ -1953,23 +1953,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // (`guardian_*`, the store #3572 left for them). Without this row a
         // club that filled those fields still read "No linked parent or
         // guardian yet" on the card.
-        if ( empty( $rows ) ) {
-            $on_file_name  = trim( (string) ( $player->guardian_name ?? '' ) );
-            $on_file_phone = trim( (string) ( $player->guardian_phone ?? '' ) );
-            $on_file_email = trim( (string) ( $player->guardian_email ?? '' ) );
+        $on_file = empty( $rows ) ? \TT\Infrastructure\Identity\GuardianContacts::onFileForPlayer( $player_id ) : null;
+        if ( $on_file !== null ) {
             $bits = [];
-            if ( $on_file_name !== '' ) {
-                $bits[] = esc_html( $on_file_name );
+            if ( $on_file['name'] !== '' ) {
+                $bits[] = esc_html( $on_file['name'] );
             }
-            if ( $on_file_phone !== '' ) {
-                $bits[] = '<a href="tel:' . esc_attr( $on_file_phone ) . '">' . esc_html( $on_file_phone ) . '</a>';
+            if ( $on_file['phone'] !== '' ) {
+                $bits[] = '<a href="tel:' . esc_attr( $on_file['phone'] ) . '">' . esc_html( $on_file['phone'] ) . '</a>';
             }
-            if ( $on_file_email !== '' ) {
-                $bits[] = '<a href="mailto:' . esc_attr( $on_file_email ) . '">' . esc_html( $on_file_email ) . '</a>';
+            if ( $on_file['email'] !== '' ) {
+                $bits[] = '<a href="mailto:' . esc_attr( $on_file['email'] ) . '">' . esc_html( $on_file['email'] ) . '</a>';
             }
-            if ( $bits ) {
-                $rows[] = [ __( 'Guardian on file', 'talenttrack' ), implode( ' · ', $bits ) ];
-            }
+            $rows[] = [ __( 'Guardian on file', 'talenttrack' ), implode( ' · ', $bits ) ];
         }
         // The on-file guardian is guardian contact data too, so it is counted
         // in the read the card audits (#4253).
