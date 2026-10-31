@@ -14323,12 +14323,6 @@ parameters:
 			path: src/Modules/Players/Services/PlayerPhotoImporter.php
 
 		-
-			message: '#^Method TT\\Modules\\Prospects\\Frontend\\FrontendOnboardingPipelineView\:\:computeStages\(\) should return array\<int, array\{key\: string, label\: string, count\: int, cards\: array\<int, array\<string, mixed\>\>\}\> but returns non\-empty\-list\<array\{key\?\: ''invited''\|''joined''\|''offer''\|''prospects''\|''test''\|''trial'', label\?\: string, cards\: list\<array\<string, mixed\>\>, count\: int\<0, max\>\}\>\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-
-		-
 			message: '#^Access to an undefined property object\:\:\$id\.$#'
 			identifier: property.notFound
 			count: 3
