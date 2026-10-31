@@ -94,8 +94,10 @@ Wil je weten wie er dit jaar naar U15 is doorgestroomd? Of welke spelers vorig s
 
 1. Kies een gebeurtenistype (bijv. *Naar volgende leeftijdscategorie*).
 2. Kies een datumbereik.
-3. Beperk eventueel tot één team.
+3. Kies eventueel één team uit de lijst, of laat hem op **Alle teams** staan.
 4. Klik **Zoekopdracht uitvoeren**.
+
+De gebeurtenistypen staan in je eigen taal, met dezelfde namen als op de reis van de speler.
 
 Het resultaat toont elke matchende speler + datum + samenvatting. Klik **Reis openen** op een rij om in het volledige verhaal van die speler te duiken.
 

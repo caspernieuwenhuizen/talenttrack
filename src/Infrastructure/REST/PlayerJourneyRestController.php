@@ -456,7 +456,7 @@ class PlayerJourneyRestController extends BaseController {
         foreach ( EventTypeRegistry::all() as $def ) {
             $out[] = [
                 'key'                => $def->key,
-                'label'              => $def->label,
+                'label'              => EventTypeRegistry::label( $def ),
                 'severity'           => $def->severity,
                 'default_visibility' => $def->defaultVisibility,
                 'group'              => $def->group,

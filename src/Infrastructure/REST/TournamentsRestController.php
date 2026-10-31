@@ -15,6 +15,7 @@ use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Tournaments\Services\TournamentDayActivity;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
+use TT\Modules\Tournaments\Services\TournamentMatchStatus;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 use TT\Modules\Tournaments\TournamentAccess;
 
@@ -2806,6 +2807,9 @@ class TournamentsRestController {
             'scheduled_at'         => $row['scheduled_at'],
             'kicked_off_at'        => $row['kicked_off_at'],
             'completed_at'         => $row['completed_at'],
+            // #4264 — `result_entered` is a fixture with a score that nobody
+            // completed; its minutes are not in the totals yet.
+            'status'               => TournamentMatchStatus::of( $row ),
             'activity_id'          => $row['activity_id'] !== null ? (int) $row['activity_id'] : null,
             'notes'                => (string) ( $row['notes'] ?? '' ),
             // #3532 — null, not 0, where no result was recorded. A consumer

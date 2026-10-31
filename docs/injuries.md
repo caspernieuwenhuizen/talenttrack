@@ -34,7 +34,7 @@ One exception, and it is temporary: a Staff account that holds **no** functional
 
 ## Recording an injury
 
-1. Open the player and go to the **Injuries** tab, then choose **Record injury**. (Or open the **Injuries** tile and start from there, which asks for the player first.)
+1. Open the player and go to the **Injuries** tab, then choose **Record injury**. The wizard already knows the player, so it opens on **What happened** with the player's name at the top. (Or open the **Injuries** tile and start from there, which asks for the player first.)
 2. **What happened** — body part, type and severity. All three are optional: at the side of a pitch you know "hamstring" long before you know the grade, and an injury with just a date is worth more than one nobody recorded.
 3. **When** — the date of injury is the only required field. Add an expected return if you have a sense of it; leave it empty if you don't.
 4. Add a note. Write it as if the family will read it, because under a subject-access request they can.
@@ -66,6 +66,18 @@ Until you do this the injury stays open forever, and the overview slowly fills w
 The **Injuries** tile opens the squad view: one row per open injury across the teams you can see, with the player, the team, the body part, the severity, how long they have been out, and when they were expected back.
 
 A row is flagged **Overdue** when the expected return has passed and no actual return has been recorded. That is not a judgement about the player — it means the record needs a decision: either they are back and nobody said so, or the expectation has changed.
+
+A row is flagged **Incomplete** when it has been open for 14 days without an expected return. The body part, type and severity can stay empty — a first-aider on the touchline often does not know them yet — but by then somebody should say when the player is expected back. An academy can change the number of days (configuration key `injury_incomplete_after_days`); the player's **Injuries** tab shows the same flag.
+
+## Planning around an overdue or incomplete record
+
+An overdue or incomplete record does not keep the player out of planning. Planned attendance and the match preparation show the player as available, with a neutral **Check availability** marker beside the name, so the coach confirms rather than guesses. The marker names no cause, so it is safe for every role that plans the squad, and it is never printed or stored in the match preparation. An injury that is still within its expected return, or open for less than the 14 days, keeps showing the player as **Unavailable**.
+
+## The recovery reminder
+
+When a record asks for a decision — on the expected return date, or on the day it becomes incomplete — the team's physio and head coach each get an **Injury recovery check** task, due that day. A team without a physio sends it to the head coach alone, and only people who may read the player's injuries receive it. Neither the task nor its e-mail carries any injury detail: the e-mail gives the task's name and deadline, and the task opens on the player.
+
+There is one reminder per player at a time. Moving the expected return retires the old task, and a new one arrives on the new date; recording the return or archiving the record retires it too. Editing anything else leaves it as it is.
 
 Filter by team, and switch between **Currently out**, **Recovered** and **All**.
 

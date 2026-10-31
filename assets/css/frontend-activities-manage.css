@@ -1090,6 +1090,18 @@
     text-transform: uppercase;
     letter-spacing: 0.03em;
 }
+/* #4246 / #4269 — available, but an injury record needs a decision. Neutral
+   wording, warning tint; the word carries the meaning. */
+.tt-dashboard .tt-act-rp__check {
+    padding: 1px 6px;
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
 .tt-dashboard .tt-act-card-d__sub {
     margin: 0 0 8px;
     font-size: 0.8125rem;
@@ -1542,4 +1554,15 @@
     font-weight: 700;
     background: var(--tt-danger-subtle, #fde2e2);
     color: var(--tt-danger-ink, #a32b22);
+}
+/* #4246 / #4269 — the neutral check marker beside an available player. */
+.tt-dashboard .tt-planned-attendance .tt-planned-check {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
 }

@@ -1770,7 +1770,21 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #2232 — two-column layout: Starting XI | Bench side-by-side on
         // ≥768px, stacking to a single column on mobile. Each player
         // renders as a structured row (jersey · name · position chip).
-        $render_group = static function ( string $heading, array $players, int $count ): void {
+        // #4372 — names are shortened over the whole card, starters and
+        // bench together, so two players who would read the same differ.
+        $short = \TT\Shared\Util\PlayerShortName::resolve( array_map(
+            static function ( object $pl ): array {
+                return [
+                    'id'            => (int) ( $pl->player_id ?? 0 ),
+                    'first_name'    => (string) ( $pl->first_name ?? '' ),
+                    'last_name'     => (string) ( $pl->last_name ?? '' ),
+                    'jersey_number' => (string) ( $pl->jersey ?? '' ),
+                ];
+            },
+            array_merge( $lineup->starting, $lineup->bench )
+        ) );
+
+        $render_group = static function ( string $heading, array $players, int $count ) use ( $short ): void {
             if ( $players === [] ) return;
             echo '<div class="tt-act-lineup__col">';
             echo '<div class="tt-act-lineup__group">'
@@ -1781,9 +1795,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             foreach ( $players as $pl ) {
                 $jersey   = (string) ( $pl->jersey ?? '' );
                 $position = (string) ( $pl->position ?? '' );
-                // Name uses the club's first-name convention (#2223):
-                // first name + last initial (e.g. "Daan P.").
-                $name = self::lineupShortName( (string) ( $pl->name ?? '' ) );
+                $name = (string) ( $short[ (int) ( $pl->player_id ?? 0 ) ] ?? ( $pl->name ?? '' ) );
 
                 echo '<li class="tt-act-lineup__player">';
                 echo '<span class="tt-act-lineup__jersey">'
@@ -1806,31 +1818,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</div>';
         echo '</div>';
-    }
-
-    /**
-     * #2232/#2223 — club first-name convention for the line-up card:
-     * first name + last initial (e.g. "Daan Portzgen" → "Daan P.").
-     * Single-token names render as-is (no stray dot); empty degrades
-     * to an empty string. Mirrors the match-execution pitch label so
-     * coaches read players the way they speak on the sideline.
-     */
-    private static function lineupShortName( string $name ): string {
-        $name = trim( $name );
-        if ( $name === '' ) return '';
-
-        $parts = preg_split( '/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY );
-        if ( ! is_array( $parts ) || count( $parts ) === 0 ) return $name;
-
-        $first = (string) $parts[0];
-        if ( count( $parts ) === 1 ) return $first;
-
-        $last    = (string) $parts[ count( $parts ) - 1 ];
-        $initial = function_exists( 'mb_substr' )
-            ? mb_strtoupper( mb_substr( $last, 0, 1, 'UTF-8' ), 'UTF-8' )
-            : strtoupper( substr( $last, 0, 1 ) );
-
-        return $initial === '' ? $first : $first . ' ' . $initial . '.';
     }
 
     /**
@@ -2027,10 +2014,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // activity's own date, so a current injury does not rewrite a match
         // the player was fit for.
         // #4103 — and a suspension covering this match, as the same flag.
-        $unavailable = PlayerAvailability::unavailableForActivity( array_map(
+        $roster_ids  = array_map(
             static fn( $row ): int => (int) ( $row->player_id ?? 0 ),
             $roster
-        ), $activity_id, (string) ( $session->session_date ?? '' ) );
+        );
+        $unavailable = PlayerAvailability::unavailableForActivity( $roster_ids, $activity_id, (string) ( $session->session_date ?? '' ) );
+        // #4246 / #4269 — an overdue or incomplete injury record does not keep
+        // the player out; the coach gets a neutral marker to check instead.
+        $check = PlayerAvailability::checkForActivity( $roster_ids, $activity_id, (string) ( $session->session_date ?? '' ), $unavailable );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
@@ -2049,6 +2040,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
             if ( isset( $unavailable[ (int) ( $row->player_id ?? 0 ) ] ) ) {
                 echo ' <span class="tt-act-rp__unavailable">' . esc_html( PlayerAvailability::label() ) . '</span>';
+            } elseif ( isset( $check[ (int) ( $row->player_id ?? 0 ) ] ) ) {
+                echo ' <span class="tt-act-rp__check">' . esc_html( PlayerAvailability::checkLabel() ) . '</span>';
             }
             echo '</span>';
         }
@@ -4154,6 +4147,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $activity_id_for_plan,
                 $session ? (string) ( $session->session_date ?? '' ) : null
             );
+            // #4246 / #4269 — the neutral marker for an overdue or incomplete record.
+            $plan_check = PlayerAvailability::checkForActivity(
+                array_map( 'intval', array_keys( $planned_rows ) ),
+                $activity_id_for_plan,
+                $session ? (string) ( $session->session_date ?? '' ) : null,
+                $plan_unavailable
+            );
             ?>
             <?php
             // #2245 + #2248 — planned attendance renders only while the
@@ -4196,6 +4196,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                     <?php endif; ?>
                                     <?php if ( isset( $plan_unavailable[ $pid ] ) ) : ?>
                                         <span class="tt-planned-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span>
+                                    <?php elseif ( isset( $plan_check[ $pid ] ) ) : ?>
+                                        <span class="tt-planned-check"><?php echo esc_html( PlayerAvailability::checkLabel() ); ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>">

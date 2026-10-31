@@ -528,8 +528,10 @@ class MatchExecutionRestController {
         $out = [];
         foreach ( (array) $rows as $row ) {
             $out[ (int) $row->id ] = [
-                'name'   => QueryHelpers::player_display_name( $row ),
-                'jersey' => $row->jersey_number !== null ? (int) $row->jersey_number : null,
+                'name'       => QueryHelpers::player_display_name( $row ),
+                'jersey'     => $row->jersey_number !== null ? (int) $row->jersey_number : null,
+                'first_name' => (string) ( $row->first_name ?? '' ),
+                'last_name'  => (string) ( $row->last_name ?? '' ),
             ];
         }
         return $out;

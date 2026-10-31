@@ -303,6 +303,10 @@ final class FrontendInjuriesView extends FrontendViewBase {
                 }
             } else {
                 echo '<span class="tt-muted">' . esc_html__( 'Not set', 'talenttrack' ) . '</span>';
+                // #4269 — open too long without a return date: the record needs completing.
+                if ( $state === InjuryStatus::INCOMPLETE ) {
+                    echo ' <span class="tt-chip tt-chip--warn">' . esc_html_x( 'Incomplete', 'injury record', 'talenttrack' ) . '</span>';
+                }
             }
             echo '</td>';
             echo '<td>' . (int) $days_out . '</td>';

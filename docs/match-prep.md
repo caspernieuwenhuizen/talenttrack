@@ -157,6 +157,12 @@ the player's status stays whatever you set, and you can still pick them.
 It is worked out when the screen opens, never saved into the prep, so it
 does not appear on the printed sheet, the PDF export or a shared link.
 
+A player whose injury record needs a decision — the expected return has
+passed with no return recorded, or the record has been open for 14 days
+without one — is not marked Unavailable. They carry a neutral **Check
+availability** label in the same places instead, and count as available.
+It follows the same rules: no cause, never saved, never printed.
+
 The status you choose and its reason are different: they are saved into
 the prep, so everyone who opens it sees them, and the printed sheet, the
 PDF and a shared link list them as "name · status (reason)". A shared
@@ -221,7 +227,14 @@ the team roster pages.
 
 When two players on the same team share a first name, both render
 as `<firstName> <lastInitial>` (`Daan P`, `Daan A`) so the coach can
-tell them apart at a glance. The disambiguation triggers per team —
+tell them apart at a glance. The initial is that of the surname itself,
+without prefix words such as *van*, *de* or *van der*: "Dex Van der
+Laan" and "Dex Van Wijk" read `Dex L` and `Dex W`. When the initial is
+shared as well, those two players get more letters of the surname until
+they differ (`Dex Wi`, `Dex We`); when the surnames are identical too,
+the shirt number replaces the surname (`Dex #23`, `Dex #30`), so the
+label still fits a pitch slot on a phone. Only the players that would
+otherwise read the same get a longer name. The disambiguation triggers per team —
 a third `Daan` on a different team has no effect on this team's
 labels. The same player's short form is identical across every
 sub-surface of the match-prep page.

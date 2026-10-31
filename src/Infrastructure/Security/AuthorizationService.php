@@ -412,12 +412,50 @@ class AuthorizationService {
     public static function isStaffForPlayer( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
 
-        if ( self::userHasPermission( $user_id, 'players.view' ) ) return true;
-
         $team_id = self::getPlayerTeamId( $player_id );
 
-        return $team_id !== null
-            && self::userHasPermission( $user_id, 'players.view', 'team', $team_id );
+        return self::staffForPlayers( $user_id, [ $player_id => $team_id ?? 0 ] )[ $player_id ] ?? false;
+    }
+
+    /**
+     * #4260 — {@see self::isStaffForPlayer()} for many players at once, when
+     * the caller already knows each player's team: global `players.view`
+     * asked once, then team-scoped `players.view` once per distinct team. No
+     * player rows are read, so a roster costs the same whatever its size.
+     *
+     * @param array<int, int> $team_by_player player id => team id (0 = none).
+     * @return array<int, bool> player id => staff for that player.
+     */
+    public static function staffForPlayers( int $user_id, array $team_by_player ): array {
+        $out = [];
+        if ( $user_id <= 0 ) {
+            foreach ( $team_by_player as $pid => $team_id ) $out[ (int) $pid ] = false;
+            return $out;
+        }
+
+        $global  = self::userHasPermission( $user_id, 'players.view' );
+        $by_team = [];
+        foreach ( $team_by_player as $pid => $team_id ) {
+            $pid     = (int) $pid;
+            $team_id = (int) $team_id;
+            if ( $pid <= 0 ) {
+                $out[ $pid ] = false;
+                continue;
+            }
+            if ( $global ) {
+                $out[ $pid ] = true;
+                continue;
+            }
+            if ( $team_id <= 0 ) {
+                $out[ $pid ] = false;
+                continue;
+            }
+            if ( ! isset( $by_team[ $team_id ] ) ) {
+                $by_team[ $team_id ] = self::userHasPermission( $user_id, 'players.view', 'team', $team_id );
+            }
+            $out[ $pid ] = $by_team[ $team_id ];
+        }
+        return $out;
     }
 
     /**

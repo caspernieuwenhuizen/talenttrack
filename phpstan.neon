@@ -13,10 +13,10 @@ includes:
 
 parameters:
     level: 8
-    # Pins the PHP version PHPStan analyses for. PHPStan 2.3 otherwise derives
-    # it from composer.json's `php: ">=7.4"` and reports every readonly
-    # property and promoted constructor argument in src as an error; the code
-    # already requires 8.1 (#4277 tracks the stale declared minimum).
+    # Pins the PHP version PHPStan analyses for, the declared minimum in
+    # composer.json, the plugin header and readme.txt (8.1, #4277). Without
+    # the pin PHPStan 2.3 derives it from composer.json, which declared 7.4
+    # until #4277 and made every readonly property an error.
     phpVersion: 80100
     paths:
         - src

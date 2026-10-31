@@ -141,6 +141,35 @@ final class TournamentSquadAvailabilityTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'ttw-unavailable', $after['injured_later'], 'injured by the start date' );
     }
 
+    /**
+     * #4359 — an overdue record on the start date shows the neutral
+     * "Check availability" marker, an injured player "Unavailable", a fit one
+     * nothing; never both on one row, and the marker names no cause.
+     */
+    public function test_an_overdue_injury_asks_for_a_check_on_the_start_date(): void {
+        $this->player( 'overdue' );
+        $this->player( 'hurt' );
+        $this->injuryDated( 'overdue', '2026-09-01', '2026-09-10', null );
+        $this->injuryDated( 'hurt', '2026-09-15', null, null );
+
+        $html = $this->render( '2026-09-20' );
+        $rows = $this->rowsByName( $html );
+
+        $this->assertStringContainsString( 'ttw-check', $rows['overdue'] );
+        $this->assertStringContainsString( PlayerAvailability::checkLabel(), $rows['overdue'] );
+        $this->assertStringNotContainsString( 'ttw-unavailable', $rows['overdue'] );
+
+        $this->assertStringContainsString( 'ttw-unavailable', $rows['hurt'] );
+        $this->assertStringNotContainsString( 'ttw-check', $rows['hurt'] );
+
+        $this->assertStringNotContainsString( 'ttw-check', $rows['fit'] );
+        $this->assertStringNotContainsString( 'ttw-unavailable', $rows['fit'] );
+
+        foreach ( [ 'ankle', '2026-09-10', 'expected_return', 'injury' ] as $leak ) {
+            $this->assertStringNotContainsString( $leak, $html );
+        }
+    }
+
     // ---- fixtures --------------------------------------------------
 
     private function render( string $start_date = '' ): string {

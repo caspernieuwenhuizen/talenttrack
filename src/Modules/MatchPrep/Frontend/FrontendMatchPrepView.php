@@ -195,6 +195,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // #4245 — the same derived set `GET match-prep/{id}` returns as
         // `unavailable`, flagged beside a name even when the prep says Present.
         $unavailable_set = MatchPrepState::unavailableByPlayer( $activity_id, array_map( 'intval', array_keys( $players_by_id ) ) );
+        // #4246 / #4269 — and the neutral "Check availability" marker, as `availability_check`.
+        $check_set = MatchPrepState::checkByPlayer( $activity_id, array_map( 'intval', array_keys( $players_by_id ) ), $unavailable_set );
 
         $lineup_by_half = MatchPrepState::lineupByHalf( $lineup_rows );
 
@@ -486,7 +488,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                                 <tr data-pid="<?php echo (int) $pid; ?>"
                                     class="tt-mp-roster-row <?php echo ( $on1 || $on2 ) ? 'tt-mp-assigned' : 'tt-mp-unassigned'; ?>"
                                     draggable="true">
-                                    <td class="tt-mp-col-name" data-tt-mp-name><?php echo esc_html( $name ); ?><?php if ( isset( $unavailable_set[ $pid ] ) ) : ?> <span class="tt-mp-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span><?php endif; ?></td>
+                                    <td class="tt-mp-col-name" data-tt-mp-name><?php echo esc_html( $name ); ?><?php if ( isset( $unavailable_set[ $pid ] ) ) : ?> <span class="tt-mp-unavailable"><?php echo esc_html( PlayerAvailability::label() ); ?></span><?php elseif ( isset( $check_set[ $pid ] ) ) : ?> <span class="tt-mp-check"><?php echo esc_html( PlayerAvailability::checkLabel() ); ?></span><?php endif; ?></td>
                                     <td class="tt-mp-col-min <?php echo $on1 ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="1"><?php echo (int) $min1; ?></td>
                                     <td class="tt-mp-col-min <?php echo $on2 ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="2"><?php echo (int) $min2; ?></td>
                                     <td class="tt-mp-col-tot <?php echo ( $on1 || $on2 ) ? 'tt-mp-on' : 'tt-mp-off'; ?>" data-tt-mp-min="tot"><?php echo (int) ( $min1 + $min2 ); ?></td>
@@ -828,6 +830,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
             // #4245 — who cannot play in this match; a flag beside the name,
             // never written into `availability`.
             'unavailable'    => (object) $unavailable_set,
+            // #4246 / #4269 — available, but check: a marker, never saved.
+            'availability_check' => (object) $check_set,
             'lineup'         => [
                 '1' => (object) $lineup_by_half[1],
                 '2' => (object) $lineup_by_half[2],
@@ -899,6 +903,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'absent_injured'  => __( 'Injured', 'talenttrack' ),
                 'suspended'       => __( 'Suspended', 'talenttrack' ),
                 'unavailable'     => PlayerAvailability::label(),
+                'availability_check' => PlayerAvailability::checkLabel(),
                 'reason'        => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),

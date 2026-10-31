@@ -426,14 +426,51 @@
 @media (min-width: 768px) {
     .tt-match-prep .tt-mp-slot .tt-mp-unavailable { display: inline-block; }
 }
-.tt-image-pdf-capture .tt-mp-unavailable {
+/* #4246 / #4269 — "Check availability": the player is available, but an
+   injury record needs a decision. Same placement as the flag, warning tint,
+   and the same rules: hidden on a phone's pitch slot, off paper and PDF. */
+.tt-match-prep .tt-mp-check {
+    display: inline-block;
+    margin-left: 0.25rem;
+    padding: 0.0625rem 0.375rem;
+    border-radius: 999px;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning-ink, #8a5300);
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+.tt-mp-slot .tt-mp-check {
+    display: none;
+    margin-left: 0;
+}
+/* On the pitch the marker stays inside its own slot: one line, cut with an
+   ellipsis at the slot's width, and never a tap target, so a tap on it opens
+   this slot's picker and not a neighbour's. The slot's aria-label carries the
+   full words. */
+@media (min-width: 768px) {
+    .tt-match-prep .tt-mp-slot .tt-mp-check {
+        display: block;
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        pointer-events: none;
+    }
+}
+.tt-image-pdf-capture .tt-mp-unavailable,
+.tt-image-pdf-capture .tt-mp-check {
     display: none !important;
 }
 .tt-image-pdf-capture .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name {
     border: 1px solid rgba(0,0,0,0.1) !important;
 }
 @media print {
-    .tt-match-prep .tt-mp-unavailable { display: none !important; }
+    .tt-match-prep .tt-mp-unavailable,
+    .tt-match-prep .tt-mp-check { display: none !important; }
     .tt-match-prep .tt-mp-slot.tt-mp-slot-unavailable .tt-mp-slot-name { border: 1px solid rgba(0,0,0,0.1) !important; }
 }
 

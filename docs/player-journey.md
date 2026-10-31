@@ -94,8 +94,10 @@ Want to know everyone who got promoted to U15 this year? Or every long-term inju
 
 1. Pick an event type (e.g. *Promoted to next age group*).
 2. Pick a date range.
-3. Optionally narrow to one team.
+3. Optionally pick one team from the list, or leave it on **All teams**.
 4. Hit **Run query**.
+
+The event types are listed in your own language, the same labels the player's journey shows.
 
 The result lists every matching player + date + summary. Click **Open journey** on any row to dive into that player's full story.
 

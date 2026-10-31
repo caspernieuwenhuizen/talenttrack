@@ -137,6 +137,10 @@ final class MinutesGridQuery {
                 // type key in the view, which would be the rule stated twice.
                 'is_tournament'      => $is_tournament,
                 'attributed_goals'   => 0,
+                // #4247 — whether any recorded (`actual`) attendance row
+                // exists. False means nobody is in this match's squad because
+                // the register was never taken, not because nobody played.
+                'register_recorded'  => false,
             ];
         }
 
@@ -177,21 +181,31 @@ final class MinutesGridQuery {
         //    carried no minutes, so the cells read 0 rather than wrong, but
         //    a grid that offers a minutes box for a player who was not there
         //    invites somebody to fill it in.
+        //
+        //    #4247 — guest rows are read too, only to tell whether a register
+        //    was taken at all; `in_squad` keeps them out of the squad.
         $activity_ids = array_map( static fn( array $a ): int => $a['activity_id'], $activities );
         $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_id, player_id,
-                    MAX(COALESCE(minutes_override, minutes_played)) AS minutes
+                    MAX(CASE WHEN is_guest = 0 THEN COALESCE(minutes_override, minutes_played) END) AS minutes,
+                    MAX(CASE WHEN is_guest = 0 AND player_id > 0 THEN 1 ELSE 0 END) AS in_squad
                FROM {$p}tt_attendance
               WHERE activity_id IN ($in_ids)
                 AND club_id = %d
-                AND is_guest = 0
                 AND record_type = 'actual'
-                AND player_id > 0
               GROUP BY activity_id, player_id",
             array_merge( $activity_ids, [ $club_id ] )
         ) );
+
+        $recorded = [];
+        foreach ( (array) $att_rows as $r ) {
+            $recorded[ (int) $r->activity_id ] = true;
+        }
+        foreach ( $activities as $i => $a ) {
+            $activities[ $i ]['register_recorded'] = isset( $recorded[ $a['activity_id'] ] );
+        }
 
         // 4. Goals + assists per (activity, player), read by `activity_id` so
         //    a goal typed into this grid counts exactly like one logged live
@@ -227,7 +241,7 @@ final class MinutesGridQuery {
         foreach ( (array) $att_rows as $r ) {
             $pid = (int) $r->player_id;
             $aid = (int) $r->activity_id;
-            if ( $pid <= 0 || $aid <= 0 ) continue;
+            if ( $pid <= 0 || $aid <= 0 || ! (int) $r->in_squad ) continue;
             $register[ $aid ][ $pid ] = $r->minutes !== null ? (int) $r->minutes : null;
         }
 

@@ -101,7 +101,7 @@ class TournamentsModule implements ModuleInterface {
             TileRegistry::register([
                 'module_class' => self::class,
                 'view_slug'    => 'tournaments',
-                'entity'       => 'tournament',
+                'entity'       => 'tournaments',
                 'group'        => __( 'Performance', 'talenttrack' ),
                 'kind'         => 'work',
                 'order'        => 28,

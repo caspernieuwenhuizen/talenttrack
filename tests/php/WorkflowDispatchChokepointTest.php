@@ -103,6 +103,34 @@ final class WorkflowDispatchChokepointTest extends WP_UnitTestCase {
         $this->assertSame( TaskStatus::OPEN, (string) $this->tasks->find( $kept[0] )['status'] );
     }
 
+    /** #4358 — a superseded (skipped) task frees its key. */
+    public function test_a_skipped_task_does_not_block_a_new_one_on_the_same_key(): void {
+        $first = $this->engine->dispatch( self::DATED, $this->context( 9111, '2026-11-20' ) );
+        ( new TaskSupersede( $this->tasks ) )->forPlayer( self::DATED, 9111 );
+
+        $again = $this->engine->dispatch( self::DATED, $this->context( 9111, '2026-11-20' ) );
+
+        $this->assertCount( 1, $again );
+        $this->assertNotSame( $first[0], $again[0] );
+        $this->assertSame( TaskStatus::OPEN, (string) $this->tasks->find( $again[0] )['status'] );
+    }
+
+    /** #4358 — an answered task stays answered: completed still blocks. */
+    public function test_a_completed_task_still_blocks_its_key(): void {
+        $first = $this->engine->dispatch( self::DATED, $this->context( 9112, '2026-11-20' ) );
+        $this->tasks->complete( $first[0], [] );
+
+        $this->assertSame( [], $this->engine->dispatch( self::DATED, $this->context( 9112, '2026-11-20' ) ) );
+    }
+
+    /** #4358 — a cancelled task frees its key, like a skipped one. */
+    public function test_a_cancelled_task_does_not_block_a_new_one(): void {
+        $first = $this->engine->dispatch( self::DATED, $this->context( 9113, '2026-11-20' ) );
+        $this->tasks->update( $first[0], [ 'status' => TaskStatus::CANCELLED ] );
+
+        $this->assertCount( 1, $this->engine->dispatch( self::DATED, $this->context( 9113, '2026-11-20' ) ) );
+    }
+
     public function test_the_created_action_fires_on_the_dated_path(): void {
         $before = did_action( 'tt_workflow_task_created' );
         $this->engine->dispatch( self::DATED, $this->context( 9109, '2026-11-20' ) );

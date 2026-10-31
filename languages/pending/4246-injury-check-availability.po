@@ -1,0 +1,13 @@
+#: src/Modules/Activities/Services/PlayerAvailability.php
+msgid "Check availability"
+msgstr "Beschikbaarheid controleren"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgctxt "injury record"
+msgid "Incomplete"
+msgstr "Onvolledig"
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryDueTemplate.php
+msgid "A player on your team has an injury record that needs a decision. Confirm they are on track or update the expected return date."
+msgstr "Een speler van je team heeft een blessuredossier dat een beslissing nodig heeft. Bevestig dat de speler op schema ligt of pas de verwachte terugkeerdatum aan."

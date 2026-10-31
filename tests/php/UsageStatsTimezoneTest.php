@@ -74,17 +74,67 @@ final class UsageStatsTimezoneTest extends WP_UnitTestCase {
         $this->assertStringEndsWith( ' 00:00:00', UsageTracker::dayStart( 6 ) );
     }
 
+    /**
+     * The local calendar day N days from today, counted in calendar days.
+     * #4283 — the expectations below used to step in DAY_IN_SECONDS too,
+     * so they shared the helper's DST flaw instead of catching it.
+     */
+    private static function calendarDay( int $offset, ?int $now = null ): string {
+        return ( new \DateTimeImmutable( '@' . ( $now ?? time() ) ) )
+            ->setTimezone( wp_timezone() )
+            ->setTime( 0, 0 )
+            ->modify( sprintf( '%+d days', $offset ) )
+            ->format( 'Y-m-d' );
+    }
+
     public function test_day_start_six_days_back_is_the_local_calendar_day(): void {
         $this->assertSame(
-            wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ) . ' 00:00:00',
+            self::calendarDay( -6 ) . ' 00:00:00',
             UsageTracker::dayStart( 6 )
         );
     }
 
     public function test_day_returns_the_local_calendar_day(): void {
         $this->assertSame( wp_date( 'Y-m-d' ), UsageTracker::day() );
-        $this->assertSame( wp_date( 'Y-m-d', time() - DAY_IN_SECONDS ), UsageTracker::day( -1 ) );
-        $this->assertSame( wp_date( 'Y-m-d', time() + DAY_IN_SECONDS ), UsageTracker::day( 1 ) );
+        $this->assertSame( self::calendarDay( -1 ), UsageTracker::day( -1 ) );
+        $this->assertSame( self::calendarDay( 1 ), UsageTracker::day( 1 ) );
+    }
+
+    /**
+     * #4283 — the last hour of the local day after each DST change, where
+     * stepping in DAY_IN_SECONDS put two offsets on one date. 23:30 local
+     * on 2026-10-26 (CET, the day after summer time ended) and on
+     * 2026-03-30 (CEST, the day after it began).
+     *
+     * @return array<string, array{0:string,1:string}>
+     */
+    public static function dstEdges(): array {
+        return [
+            'autumn, the day after summer time ends' => [ '2026-10-26 23:30:00', '2026-10-20' ],
+            'spring, the day after summer time starts' => [ '2026-03-30 23:30:00', '2026-03-24' ],
+            'autumn, just after midnight'              => [ '2026-10-26 00:10:00', '2026-10-20' ],
+            // The spring day is 23 hours, so here the old stepping skipped
+            // a date instead of repeating one.
+            'spring, just after midnight'              => [ '2026-03-30 00:10:00', '2026-03-24' ],
+        ];
+    }
+
+    /** @dataProvider dstEdges */
+    public function test_a_seven_day_window_is_seven_consecutive_days_across_dst( string $local_now, string $first ): void {
+        $now = ( new \DateTimeImmutable( $local_now, wp_timezone() ) )->getTimestamp();
+
+        $keys = [];
+        for ( $i = -6; $i <= 0; $i++ ) {
+            $keys[] = UsageTracker::day( $i, $now );
+        }
+
+        $this->assertCount( 7, array_unique( $keys ), 'seven distinct days' );
+        $this->assertSame( $first, $keys[0] );
+        $this->assertSame( substr( $local_now, 0, 10 ), $keys[6] );
+        for ( $i = 1; $i < 7; $i++ ) {
+            $this->assertSame( self::calendarDay( 1, (int) strtotime( $keys[ $i - 1 ] . ' 12:00:00 UTC' ) ), $keys[ $i ], 'consecutive' );
+        }
+        $this->assertSame( $first . ' 00:00:00', UsageTracker::dayStart( 6, $now ), 'dayStart agrees with the first key' );
     }
 
     /**
@@ -98,7 +148,7 @@ final class UsageStatsTimezoneTest extends WP_UnitTestCase {
         $keys   = array_keys( $series );
 
         $this->assertCount( $days, $series );
-        $this->assertSame( wp_date( 'Y-m-d', time() - 6 * DAY_IN_SECONDS ), $keys[0] );
+        $this->assertSame( self::calendarDay( -6 ), $keys[0] );
         $this->assertSame( wp_date( 'Y-m-d' ), $keys[ $days - 1 ] );
     }
 

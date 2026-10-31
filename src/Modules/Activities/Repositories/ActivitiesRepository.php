@@ -502,7 +502,8 @@ final class ActivitiesRepository {
             "SELECT att.player_id, att.guest_player_id, att.is_guest,
                     att.status, att.notes,
                     COALESCE( gpl.first_name, pl.first_name ) AS first_name,
-                    COALESCE( gpl.last_name,  pl.last_name )  AS last_name
+                    COALESCE( gpl.last_name,  pl.last_name )  AS last_name,
+                    COALESCE( gpl.team_id,    pl.team_id )    AS team_id
                FROM {$p}tt_attendance att
                LEFT JOIN {$p}tt_players pl  ON pl.id  = att.player_id
                LEFT JOIN {$p}tt_players gpl ON gpl.id = att.guest_player_id
@@ -526,6 +527,9 @@ final class ActivitiesRepository {
                 'name'      => $name,
                 'status'    => (string) ( $r->status ?? '' ),
                 'notes'     => (string) ( $r->notes ?? '' ),
+                // #4260 — the player's own team, so a caller can ask who is
+                // staff for the whole roster without a read per player.
+                'team_id'   => (int) ( $r->team_id ?? 0 ),
             ];
         }
         return $out;
@@ -1348,10 +1352,14 @@ final class ActivitiesRepository {
             }
 
             $entry = (object) [
-                'player_id' => $pid,
-                'name'      => $name,
-                'jersey'    => (string) ( $r->jersey_number ?? '' ),
-                'position'  => $position,
+                'player_id'  => $pid,
+                'name'       => $name,
+                // #4372 — the name parts, so the card can shorten names
+                // over all its players at once.
+                'first_name' => (string) ( $r->first_name ?? '' ),
+                'last_name'  => (string) ( $r->last_name ?? '' ),
+                'jersey'     => (string) ( $r->jersey_number ?? '' ),
+                'position'   => $position,
             ];
             if ( (string) $r->lineup_role === 'start' ) {
                 $out->starting[] = $entry;

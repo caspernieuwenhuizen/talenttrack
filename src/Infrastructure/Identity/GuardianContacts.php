@@ -46,8 +46,10 @@ final class GuardianContacts {
 
     /**
      * Audit one read of a player's guardian contacts. Written for every
-     * read, including one that found none, so the log shows each time the
-     * card was opened for this player.
+     * read, including one that found none (`count` 0), so the log shows
+     * each time anyone looked this player's guardians up: on the profile
+     * card or over `GET players/{id}/parents`. A refused read never gets
+     * here.
      */
     public static function recordRead( int $player_id, string $surface, int $count ): void {
         if ( $player_id <= 0 ) return;

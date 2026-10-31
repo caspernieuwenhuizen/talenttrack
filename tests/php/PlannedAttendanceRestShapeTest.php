@@ -95,8 +95,10 @@ final class PlannedAttendanceRestShapeTest extends WP_UnitTestCase {
         $this->assertCount( 3, $roster );
         foreach ( $roster as $row ) {
             $this->assertSame(
-                // #4005 added `availability`, derived beside the plan.
-                [ 'player_id', 'is_guest', 'name', 'plan_status', 'notes', 'availability' ],
+                // #4005 added `availability`, derived beside the plan; #4246
+                // the separate `availability_check` marker; #4260 `match_squad`,
+                // null without a match prep.
+                [ 'player_id', 'is_guest', 'name', 'plan_status', 'notes', 'availability', 'availability_check', 'match_squad' ],
                 array_keys( $row )
             );
             $this->assertFalse( $row['is_guest'] );

@@ -34,7 +34,7 @@ Eén uitzondering, en die is tijdelijk: een Staf-account zonder functionele rol 
 
 ## Een blessure vastleggen
 
-1. Open de speler, ga naar het tabblad **Blessures** en kies **Blessure vastleggen**. (Of open de tegel **Blessures** en begin daar; die vraagt eerst om de speler.)
+1. Open de speler, ga naar het tabblad **Blessures** en kies **Blessure vastleggen**. De wizard kent de speler dan al, dus hij opent op **Wat er gebeurde**, met de naam van de speler bovenaan. (Of open de tegel **Blessures** en begin daar; die vraagt eerst om de speler.)
 2. **Wat er gebeurde** — lichaamsdeel, type en ernst. Alle drie optioneel: langs het veld weet je "hamstring" veel eerder dan de graad, en een blessure met alleen een datum is meer waard dan een die niemand heeft vastgelegd.
 3. **Wanneer** — de datum van de blessure is het enige verplichte veld. Vul een verwachte terugkeer in als je er een gevoel bij hebt; laat hem leeg als dat niet zo is.
 4. Voeg een notitie toe. Schrijf die alsof het gezin meeleest, want bij een inzageverzoek is dat ook zo.
@@ -66,6 +66,18 @@ Zolang je dit niet doet blijft de blessure eeuwig openstaan, en loopt het overzi
 De tegel **Blessures** opent het squad-overzicht: één regel per lopende blessure over de teams die je mag zien, met de speler, het team, het lichaamsdeel, de ernst, hoe lang hij eruit ligt en wanneer hij terug werd verwacht.
 
 Een regel krijgt het label **Verlopen** wanneer de verwachte terugkeer voorbij is en er geen werkelijke terugkeer is vastgelegd. Dat is geen oordeel over de speler — het betekent dat de regel een beslissing nodig heeft: óf hij is terug en niemand heeft het gezegd, óf de verwachting is veranderd.
+
+Een regel krijgt het label **Onvolledig** wanneer hij 14 dagen openstaat zonder verwachte terugkeer. Lichaamsdeel, soort en ernst mogen leeg blijven — een EHBO'er langs de lijn weet die vaak nog niet — maar tegen die tijd hoort iemand te zeggen wanneer de speler terug wordt verwacht. Een academie kan het aantal dagen aanpassen (configuratiesleutel `injury_incomplete_after_days`); het tabblad **Blessures** van de speler toont hetzelfde label.
+
+## Plannen rond een verlopen of onvolledige blessure
+
+Een verlopen of onvolledige blessure houdt de speler niet buiten de planning. De geplande aanwezigheid en de wedstrijdvoorbereiding tonen de speler als beschikbaar, met een neutraal label **Beschikbaarheid controleren** naast de naam, zodat de trainer bevestigt in plaats van gokt. Het label noemt geen oorzaak, dus het is veilig voor elke rol die de selectie plant, en het wordt nooit afgedrukt of opgeslagen in de wedstrijdvoorbereiding. Een blessure die nog binnen de verwachte terugkeer valt, of korter dan 14 dagen openstaat, blijft de speler als **Niet beschikbaar** tonen.
+
+## De herstelherinnering
+
+Wanneer een blessure om een beslissing vraagt — op de verwachte terugkeerdatum, of op de dag dat hij onvolledig wordt — krijgen de fysio en de hoofdtrainer van het team elk een taak **Controle herstel blessure**, met die dag als deadline. Een team zonder fysio stuurt hem alleen naar de hoofdtrainer, en alleen wie de blessures van de speler mag inzien, krijgt hem. Noch de taak, noch de e-mail bevat details over de blessure: de e-mail noemt de naam van de taak en de deadline, en de taak opent bij de speler.
+
+Er is per speler één herinnering tegelijk. Wie de verwachte terugkeer verschuift, sluit de oude taak af en krijgt een nieuwe op de nieuwe datum; het vastleggen van de terugkeer of het archiveren van het dossier sluit hem ook af. Iets anders bewerken laat de taak zoals hij is.
 
 Filter op team en wissel tussen **Nu uit**, **Hersteld** en **Alles**.
 
