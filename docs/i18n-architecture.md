@@ -125,7 +125,28 @@ That failure mode ran for a long time. 68 entries matched nothing, and `0151` se
 
 Rule 2 is not optional politeness. `LookupTranslator` and migration `0247` both treat the curated seed as the known-good value, and that has to be true per type rather than on average: a type curated halfway is worse than one curated not at all, because the missing half looks covered.
 
-A `lookup_type` absent from the map is uncurated on purpose (positions, injury kinds, the VCT vocabularies) and the test ignores it. Listing a type is the promise.
+A `lookup_type` absent from the map is uncurated on purpose (injury kinds, the VCT vocabularies) and the test ignores it. Listing a type is the promise.
+
+### Finding what still renders in English (#4511)
+
+The map only reaches rows that exist when a migration applies it. `0151` and `0248` ran before several later seed migrations created their rows, so migration `0306` applies the map once more after all of them. It uses the same `INSERT IGNORE`, so an academy's own label is never overwritten. Positions joined the map at the same time: migration `0141` derived their labels through gettext at migration time, which inserts nothing where the language pack is not installed yet.
+
+To see what is still missing, run the read-only report:
+
+```
+wp tt i18n-data                    # nl_NL
+wp tt i18n-data --locale=de_DE
+wp eval-file tools/check-data-i18n.php
+```
+
+It lists four things:
+
+- lookup rows of a shipped vocabulary (`LookupCanonicalSeeds`) with no label for the locale;
+- rows of a type the canonical list does not know, since shipped and academy-typed values cannot be told apart there;
+- `tt_config` text still at the installer's English default;
+- demo generators that write English with no Dutch variant.
+
+Values an academy typed itself are not reported. `DataTranslationAuditTest` asserts the first list is empty on a freshly migrated install.
 
 ### Adding a locale
 

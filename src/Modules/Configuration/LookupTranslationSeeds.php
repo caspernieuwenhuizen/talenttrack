@@ -13,9 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Seeded into tt_translations by migration 0151 (INSERT IGNORE, so it
  * fills gaps without overwriting operator edits or earlier backfills),
- * re-applied with the corrected keys by migration 0248.
- * Codes that are identical across languages (age-group U-codes,
- * positions, UEFA cert grades) are intentionally omitted.
+ * re-applied with the corrected keys by migration 0248, and again by
+ * migration 0306 once every seed migration has created its rows (#4511).
+ * Codes that are identical across languages (UEFA cert grades) are
+ * intentionally omitted; see LOCALE_INVARIANT_ROWS.
  *
  * Locale-invariant values are simply not listed. The four UI locales
  * beyond en_US are nl_NL, fr_FR, de_DE, es_ES (I18nModule::REGISTERED_LOCALES).
@@ -44,7 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * average — a map covering half a type is worse than one covering none.
  *
  * Coverage is deliberately per-type, not global: a lookup_type absent
- * from this map (positions, injury kinds, VCT vocabularies) is uncurated
+ * from this map (injury kinds, VCT vocabularies) is uncurated
  * on purpose and the coverage test ignores it. A type listed here is a
  * promise that every one of its live rows is accounted for.
  */
@@ -96,6 +97,25 @@ final class LookupTranslationSeeds {
                 'Left'  => [ 'nl_NL' => 'Links',  'fr_FR' => 'Gauche',   'de_DE' => 'Links',  'es_ES' => 'Izquierda' ],
                 'Right' => [ 'nl_NL' => 'Rechts', 'fr_FR' => 'Droit',    'de_DE' => 'Rechts', 'es_ES' => 'Derecha' ],
                 'Both'  => [ 'nl_NL' => 'Beide',  'fr_FR' => 'Les deux', 'de_DE' => 'Beide',  'es_ES' => 'Ambos' ],
+            ],
+
+            // #4511 — the row name is the code; the label is the long form
+            // LabelTranslator::positionLongForm() names, in each catalogue's
+            // words. Migration 0141 meant to seed these through gettext at
+            // migration time, which inserts nothing where the language pack
+            // is not installed yet, so a fresh Dutch install showed "GK".
+            'position' => [
+                'GK'  => [ 'nl_NL' => 'Keeper',                    'fr_FR' => 'Gardien de but',    'de_DE' => 'Torwart',                      'es_ES' => 'Portero' ],
+                'CB'  => [ 'nl_NL' => 'Centrale verdediger',       'fr_FR' => 'Défenseur central', 'de_DE' => 'Innenverteidiger',             'es_ES' => 'Defensa central' ],
+                'LB'  => [ 'nl_NL' => 'Linksback',                 'fr_FR' => 'Arrière gauche',    'de_DE' => 'Linksverteidiger',             'es_ES' => 'Lateral izquierdo' ],
+                'RB'  => [ 'nl_NL' => 'Rechtsback',                'fr_FR' => 'Arrière droit',     'de_DE' => 'Rechtsverteidiger',            'es_ES' => 'Lateral derecho' ],
+                'CDM' => [ 'nl_NL' => 'Verdedigende middenvelder', 'fr_FR' => 'Milieu défensif',   'de_DE' => 'Defensiver Mittelfeldspieler', 'es_ES' => 'Mediocentro defensivo' ],
+                'CM'  => [ 'nl_NL' => 'Middenvelder',              'fr_FR' => 'Milieu central',    'de_DE' => 'Zentraler Mittelfeldspieler',  'es_ES' => 'Mediocentro' ],
+                'CAM' => [ 'nl_NL' => 'Aanvallende middenvelder',  'fr_FR' => 'Milieu offensif',   'de_DE' => 'Offensiver Mittelfeldspieler', 'es_ES' => 'Mediapunta' ],
+                'LW'  => [ 'nl_NL' => 'Linksbuiten',               'fr_FR' => 'Ailier gauche',     'de_DE' => 'Linksaußen',                   'es_ES' => 'Extremo izquierdo' ],
+                'RW'  => [ 'nl_NL' => 'Rechtsbuiten',              'fr_FR' => 'Ailier droit',      'de_DE' => 'Rechtsaußen',                  'es_ES' => 'Extremo derecho' ],
+                'ST'  => [ 'nl_NL' => 'Spits',                     'fr_FR' => 'Buteur',            'de_DE' => 'Stürmer',                      'es_ES' => 'Delantero' ],
+                'CF'  => [ 'nl_NL' => 'Centrumspits',              'fr_FR' => 'Avant-centre',      'de_DE' => 'Mittelstürmer',                'es_ES' => 'Delantero centro' ],
             ],
 
             'age_group' => [
