@@ -15,11 +15,18 @@ class AppBottomBarSlotsTest extends WP_UnitTestCase {
 
     private int $user_id = 0;
 
+    /** @var list<array<string,mixed>> */
+    private array $saved = [];
+
     public function set_up(): void {
         parent::set_up();
-        $this->user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        // A role with no persona: the derivation and config fallback are
+        // what is under test here. An administrator resolves to the
+        // academy admin, who gets no bar at all (#2810, #4428).
+        $this->user_id = self::factory()->user->create( [ 'role' => 'editor' ] );
         wp_set_current_user( $this->user_id );
 
+        $this->saved = TileRegistry::allRegistered();
         TileRegistry::clear();
         ( new \TT\Infrastructure\Config\ConfigService() )->set( FrontendAppBottomBar::CONFIG_KEY, '' );
 
@@ -34,7 +41,12 @@ class AppBottomBarSlotsTest extends WP_UnitTestCase {
     }
 
     public function tear_down(): void {
+        // #4428 — leave the registry as it was found; a later suite that
+        // reads it must not see an empty one.
         TileRegistry::clear();
+        foreach ( $this->saved as $tile ) {
+            TileRegistry::register( $tile );
+        }
         parent::tear_down();
     }
 

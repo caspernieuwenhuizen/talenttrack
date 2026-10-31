@@ -283,6 +283,9 @@ destinations, in three passes:
 1. **Configured** — club-scoped `tt_config` key `tt_shell_mobile_slots`, a JSON
    object of `persona key => [ slug, … ]`. A `*` key applies to any persona with
    no entry of its own. Absent or empty falls through.
+
+   The persona is the one chosen in the persona switcher, or the user's first
+   persona when nothing has been chosen (`PersonaResolver::landingPersona()`).
 2. **Shipped per-persona default** — `FrontendAppBottomBar::DEFAULT_SLOTS` (#2810).
 3. **Derived** — the first four `kind: 'work'` tiles from
    `FrontendAppNav::groups()`, i.e. already capability-filtered, persona-labelled

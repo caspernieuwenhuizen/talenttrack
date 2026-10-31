@@ -19,7 +19,13 @@ class FocusSurfacesTest extends WP_UnitTestCase {
 
     public function set_up(): void {
         parent::set_up();
+        // An academy admin gets no bar at all (#2810, #4428), so the bar
+        // these tests look for is a head of development's: an administrator
+        // for tile visibility, dressed as the HoD through the switcher.
+        ( new \TT\Infrastructure\Security\RolesService() )->installRoles();
         $this->user_id = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        ( new \WP_User( $this->user_id ) )->add_role( 'tt_head_dev' );
+        update_user_meta( $this->user_id, 'tt_active_persona', 'head_of_development' );
         wp_set_current_user( $this->user_id );
         ShellPreference::setClubDefault( ShellPreference::APP );
         FocusSurfaces::flush();

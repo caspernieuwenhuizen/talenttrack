@@ -207,7 +207,7 @@ final class FrontendAppBottomBar {
      */
     private static function personaFor( int $user_id ): string {
         if ( ! class_exists( PersonaResolver::class ) ) return '';
-        return (string) ( PersonaResolver::activePersona( $user_id ) ?? '' );
+        return (string) ( PersonaResolver::landingPersona( $user_id ) ?? '' );
     }
 
     private static function slugFor( array $tile ): string {

@@ -3,6 +3,7 @@ namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
 use TT\Shared\Frontend\Components\FrontendAppBottomBar;
+use TT\Shared\Tiles\TileRegistry;
 
 /**
  * #2810 — the per-persona thumb-bar slots.
@@ -18,6 +19,29 @@ use TT\Shared\Frontend\Components\FrontendAppBottomBar;
  * to the thumb bar. This is that connection.
  */
 final class ThumbBarSlotsTest extends WP_UnitTestCase {
+
+    /** @var list<array<string,mixed>> */
+    private $tiles_were = [];
+
+    /**
+     * #4428 — the admin tests passed on an empty registry, where there was
+     * nothing to put in a bar whatever the persona. Fill it here.
+     */
+    public function set_up(): void {
+        parent::set_up();
+        $this->tiles_were = TileRegistry::allRegistered();
+        TileRegistry::clear();
+        \TT\Shared\CoreSurfaceRegistration::register();
+    }
+
+    public function tear_down(): void {
+        TileRegistry::clear();
+        foreach ( $this->tiles_were as $tile ) {
+            TileRegistry::register( $tile );
+        }
+        wp_set_current_user( 0 );
+        parent::tear_down();
+    }
 
     /** @return array<string, list<string>> */
     private function defaultSlots(): array {
@@ -71,6 +95,7 @@ final class ThumbBarSlotsTest extends WP_UnitTestCase {
     }
 
     public function test_the_academy_admin_gets_no_bar(): void {
+        $this->assertNotEmpty( TileRegistry::allRegistered(), 'an empty tile registry proves nothing about the persona rule' );
         $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
 
         // The bar excludes setup surfaces by design, and setup is this
@@ -89,6 +114,20 @@ final class ThumbBarSlotsTest extends WP_UnitTestCase {
         // Not hidden in CSS: hidden markup still ships and still holds a
         // place in the keyboard tab order.
         $this->assertSame( '', trim( $html ) );
+    }
+
+    public function test_a_real_admin_without_a_switcher_choice_gets_no_bar(): void {
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        delete_user_meta( $admin, 'tt_active_persona' );
+        wp_set_current_user( $admin );
+
+        $this->assertNotEmpty(
+            \TT\Shared\Frontend\Components\FrontendAppNav::groups( $admin ),
+            'the admin must see tiles, or there is nothing a bar could have shown'
+        );
+        $this->assertNull( \TT\Modules\Authorization\PersonaResolver::activePersona( $admin ) );
+        $this->assertSame( 'academy_admin', \TT\Modules\Authorization\PersonaResolver::landingPersona( $admin ) );
+        $this->assertSame( [], FrontendAppBottomBar::slots( $admin ) );
     }
 
     public function test_head_coach_slot_three_is_teams(): void {
