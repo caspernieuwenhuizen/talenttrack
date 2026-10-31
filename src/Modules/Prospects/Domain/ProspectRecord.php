@@ -60,8 +60,10 @@ final class ProspectRecord {
 
         $out = [];
         foreach ( $rows as $row ) {
-            $name = trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
-            $out[ (int) $row->id ] = $name !== '' ? $name : '#' . (int) $row->id;
+            $r    = (array) $row;
+            $id   = (int) ( $r['id'] ?? 0 );
+            $name = trim( (string) ( $r['first_name'] ?? '' ) . ' ' . (string) ( $r['last_name'] ?? '' ) );
+            $out[ $id ] = $name !== '' ? $name : '#' . $id;
         }
         return $out;
     }
