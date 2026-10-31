@@ -8,6 +8,7 @@ use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
+use TT\Modules\Prospects\Domain\ConsentRequestDate;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 
@@ -145,12 +146,11 @@ class ProspectConsentRequestsRestController {
         }
 
         $asked_at = trim( (string) $r['asked_at'] );
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $asked_at ) ) {
-            return RestResponse::error(
-                'invalid_asked_at',
-                __( 'The date asked must be YYYY-MM-DD.', 'talenttrack' ),
-                400
-            );
+        // #4267 — a real date, not later than today; a date before the
+        // prospect was entered is fine (the club may have been asked first).
+        $date_error = ConsentRequestDate::validate( $asked_at );
+        if ( $date_error !== null ) {
+            return RestResponse::error( ConsentRequestDate::ERROR_CODE, $date_error->get_error_message(), 400 );
         }
 
         $asked_of = trim( sanitize_text_field( (string) $r['asked_of'] ) );

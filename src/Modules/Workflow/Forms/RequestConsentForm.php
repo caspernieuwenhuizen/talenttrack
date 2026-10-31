@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
+use TT\Modules\Prospects\Domain\ConsentRequestDate;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Workflow\Contracts\FormInterface;
@@ -35,7 +36,8 @@ class RequestConsentForm implements FormInterface {
         $disabled = self::completedAttr( $task );
         $prospect = self::prospectSummary( (int) ( $task['prospect_id'] ?? 0 ) );
         $outcome  = (string) ( $existing['outcome'] ?? ConsentOutcome::AWAITING );
-        $asked_at = (string) ( $existing['asked_at'] ?? gmdate( 'Y-m-d' ) );
+        // Site date, the same day the `max` and the validator use.
+        $asked_at = (string) ( $existing['asked_at'] ?? current_time( 'Y-m-d' ) );
 
         ob_start();
         ?>
@@ -53,6 +55,7 @@ class RequestConsentForm implements FormInterface {
             <div class="tt-field">
                 <label for="tt-rc-date"><?php esc_html_e( 'Date asked', 'talenttrack' ); ?></label>
                 <input type="date" id="tt-rc-date" name="asked_at" required
+                       max="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>"
                        value="<?php echo esc_attr( $asked_at ); ?>" <?php echo esc_attr( $disabled ); ?> />
             </div>
 
@@ -89,9 +92,10 @@ class RequestConsentForm implements FormInterface {
     public function validate( array $raw, array $task ): array {
         $errors = [];
 
-        $asked_at = trim( (string) ( $raw['asked_at'] ?? '' ) );
-        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $asked_at ) ) {
-            $errors['asked_at'] = __( 'Enter the date you asked, as YYYY-MM-DD.', 'talenttrack' );
+        // #4267 — the same rule the REST route applies.
+        $date_error = ConsentRequestDate::validate( (string) ( $raw['asked_at'] ?? '' ) );
+        if ( $date_error !== null ) {
+            $errors['asked_at'] = $date_error->get_error_message();
         }
 
         if ( trim( (string) ( $raw['asked_of'] ?? '' ) ) === '' ) {
