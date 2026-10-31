@@ -4,6 +4,7 @@ namespace TT\Modules\Threads\Subscribers;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Comms\Send\NotificationSend;
+use TT\Modules\Threads\Domain\ThreadAccess;
 use TT\Modules\Threads\Domain\ThreadVisibility;
 use TT\Modules\Threads\ThreadTypeRegistry;
 
@@ -11,9 +12,11 @@ use TT\Modules\Threads\ThreadTypeRegistry;
  * NotificationSubscriber (#0028) — fans out tt_thread_message_posted
  * to participants via email.
  *
- * Author is excluded from the fan-out. private_to_coach messages are
- * sent only to coaches + admins (`tt_view_settings` or
- * `tt_edit_evaluations`).
+ * Author is excluded from the fan-out. A staff-only (`private_to_coach`)
+ * message goes only to the participants who can read it:
+ * `ThreadAccess::canSeePrivate()`, the same rule the read side applies.
+ * The filter only narrows the adapter's participant list; it never adds
+ * anyone to it.
  *
  * Each recipient receives one short message with a link back to the
  * goal detail. Delivery goes through Comms (#2604), so a participant who
@@ -44,8 +47,8 @@ final class NotificationSubscriber {
         if ( empty( $recipients ) ) return;
 
         if ( $visibility === ThreadVisibility::PRIVATE_COACH ) {
-            $recipients = array_values( array_filter( $recipients, static function ( int $uid ): bool {
-                return user_can( $uid, 'tt_view_settings' ) || user_can( $uid, 'tt_edit_evaluations' );
+            $recipients = array_values( array_filter( $recipients, static function ( int $uid ) use ( $type, $thread_id ): bool {
+                return ThreadAccess::canSeePrivate( $type, $thread_id, $uid );
             } ) );
             if ( empty( $recipients ) ) return;
         }

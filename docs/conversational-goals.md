@@ -37,11 +37,11 @@ Goals are seen by:
 
 If you can't read a goal's thread, the **Conversation** heading doesn't appear on the goal at all.
 
-Coaches and admins can mark a message as **Coaches only** by ticking the *Coaches only* checkbox before sending. Coaches-only messages stay invisible to players and parents (and don't trigger their email notifications).
+Staff who hold the staff-only right can mark a message as **Coaches only** by ticking the *Coaches only* checkbox before sending. A Coaches-only message is staff-only: it is readable by the staff who hold the staff-only right on this conversation and by anyone who reads every conversation. Players and parents never see it, and it sends them no email.
 
 ## Notifications
 
-Every public message sends an email to every other thread participant — except the author, who's never notified about their own message. Coaches-only messages email coaches and admins only.
+Every public message sends an email to every other thread participant — except the author, who's never notified about their own message. A Coaches-only message emails only the participants who can read it.
 
 Email subject: *New message on Marcus's goal: "Improve first-touch under pressure"*. The body shows the author, a short preview, and a link back to the goal.
 

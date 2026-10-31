@@ -37,11 +37,11 @@ Doelen zijn zichtbaar voor:
 
 Kun je de thread van een doel niet lezen, dan verschijnt de kop **Gesprek** helemaal niet op dat doel.
 
-Trainers en beheerders kunnen een bericht markeren als **Alleen trainers** door het vinkje *Alleen trainers* aan te zetten voor verzending. Berichten in deze modus blijven onzichtbaar voor spelers en ouders (en triggeren ook geen mailmelding voor hen).
+Stafleden met het staf-only-recht kunnen een bericht markeren als **Alleen trainers** door het vinkje *Alleen trainers* aan te zetten voor verzending. Een "Alleen trainers"-bericht is alleen voor de staf: het is leesbaar voor de stafleden met het staf-only-recht op dit gesprek en voor wie alle gesprekken mag lezen. Spelers en ouders zien het nooit, en krijgen er geen mail over.
 
 ## Meldingen
 
-Elk publiek bericht stuurt een mail naar elke andere deelnemer — behalve de auteur zelf, die nooit een melding krijgt over een eigen bericht. "Alleen trainers"-berichten gaan alleen naar trainers en beheerders.
+Elk publiek bericht stuurt een mail naar elke andere deelnemer — behalve de auteur zelf, die nooit een melding krijgt over een eigen bericht. Een "Alleen trainers"-bericht gaat alleen naar de deelnemers die het mogen lezen.
 
 Onderwerp: *Nieuw bericht op het doel van Marcus: "Eerste-balcontact onder druk verbeteren"*. De body toont de auteur, een korte preview en een link terug naar het doel.
 
