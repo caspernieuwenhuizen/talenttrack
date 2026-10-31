@@ -25,6 +25,28 @@
     color: var(--tt-ink, #0e1a14);
 }
 
+/* ---- Task form refused (#4421) -------------------------------------
+ * The task detail view lists every reason validate() gave in one notice.
+ */
+.tt-dashboard .tt-workflow-task-errors {
+    background: var(--tt-danger-subtle, #fde2e2);
+    border-left: 4px solid var(--tt-danger, #d8453b);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+    color: var(--tt-danger-ink, #a32b22);
+    overflow-wrap: anywhere;
+}
+
+.tt-dashboard .tt-workflow-task-errors__list {
+    margin: 0;
+    padding-left: 1.25rem;
+}
+
+.tt-dashboard .tt-workflow-task-errors__list li + li {
+    margin-top: var(--tt-sp-1, 4px);
+}
+
 /* ---- Filter card --------------------------------------------------- */
 .tt-dashboard .tt-mtasks-filters {
     background: var(--tt-paper, #fff);
