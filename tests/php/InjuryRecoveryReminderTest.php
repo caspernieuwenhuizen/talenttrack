@@ -18,6 +18,7 @@ use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
 use TT\Modules\Comms\Template\TemplateRegistry;
 use TT\Modules\Comms\Template\TemplateSwitch;
 use TT\Modules\Comms\Templates\NotificationTemplate;
+use TT\Modules\DemoData\DemoMode;
 use TT\Modules\Journey\JourneyModule;
 use TT\Modules\Journey\Workflow\InjuryRecoveryDueTemplate;
 use TT\Modules\Journey\Workflow\InjuryRecoveryTasks;
@@ -399,6 +400,136 @@ final class InjuryRecoveryReminderTest extends WP_UnitTestCase {
         $this->assertSame( $this->day( -1 ) . ' 00:00:00', (string) $after_trash[0]['due_at'] );
         $this->assertCount( 1, $after_restore );
         $this->assertSame( $this->day( -3 ) . ' 00:00:00', (string) $after_restore[0]['due_at'], 'the earlier record is due again' );
+    }
+
+    /**
+     * #4436 — archiving the player skips the reminder in the same request,
+     * and the next sweep does not bring it back. The player archive runs a
+     * transaction that commits, so the state is read before the cleanup.
+     */
+    public function test_archiving_the_player_skips_the_task_and_the_sweep_leaves_it(): void {
+        $this->markConfigKeys( InjuryRecoveryTasks::LAST_SWEEP_KEY );
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+
+        $archived = ( new ArchiveRepository() )->archive( 'player', [ $this->player ], get_current_user_id() );
+        $active   = $this->active();
+        $status   = $this->status( (int) $task['id'] );
+
+        ( new ConfigService() )->set( InjuryRecoveryTasks::LAST_SWEEP_KEY, '' );
+        InjuryRecoveryTasks::sweep();
+        $after_sweep = $this->active();
+        $swept       = ( new InjuryRepository() )->playersWithCheckDue( $this->today );
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $archived );
+        $this->assertSame( [], $active );
+        $this->assertSame( TaskStatus::SKIPPED, $status );
+        $this->assertSame( [], $after_sweep, 'the sweep does not recreate it' );
+        $this->assertNotContains( $this->player, $swept, 'the sweep skips an archived player' );
+    }
+
+    /** #4436 — restoring the player with a record still due brings the reminder back at once. */
+    public function test_restoring_the_player_brings_the_task_back(): void {
+        $archive = new ArchiveRepository();
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+
+        $archive->archive( 'player', [ $this->player ], get_current_user_id() );
+        $archived = $this->active();
+        $restored = $archive->restore( 'player', [ $this->player ] );
+        $now      = $this->active();
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( [], $archived );
+        $this->assertSame( 1, $restored );
+        $this->assertCount( 1, $now );
+        $this->assertSame( $this->day( -2 ) . ' 00:00:00', (string) $now[0]['due_at'] );
+    }
+
+    /**
+     * #4436 — the bin behaves like the archive: trashed, no reminder; out of
+     * the bin the player is archived again, so still none; restored from the
+     * archive, the reminder is back.
+     */
+    public function test_the_bin_follows_the_player(): void {
+        $archive = new ArchiveRepository();
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+
+        $archive->archive( 'player', [ $this->player ], get_current_user_id() );
+        $trashed       = $archive->trash( 'player', [ $this->player ], get_current_user_id() );
+        $after_trash   = $this->active();
+        $out_of_bin    = $archive->restoreFromTrash( 'player', [ $this->player ], get_current_user_id() );
+        $after_bin     = $this->active();
+        $archive->restore( 'player', [ $this->player ] );
+        $after_restore = $this->active();
+
+        $this->cleanUpAndCommit();
+
+        $this->assertSame( 1, $trashed );
+        $this->assertSame( [], $after_trash );
+        $this->assertSame( 1, $out_of_bin );
+        $this->assertSame( [], $after_bin, 'back in the archive, not yet active' );
+        $this->assertCount( 1, $after_restore );
+    }
+
+    /** #4436 — archiving one player leaves another player's reminder alone. */
+    public function test_archiving_another_player_keeps_this_players_reminder(): void {
+        $other = $this->insertPlayer( $this->team );
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+
+        ( new ArchiveRepository() )->archive( 'player', [ $other ], get_current_user_id() );
+        $now   = $this->active();
+        $swept = ( new InjuryRepository() )->playersWithCheckDue( $this->today );
+
+        $this->cleanUpAndCommit();
+
+        $this->assertCount( 1, $now );
+        $this->assertContains( $this->player, $swept );
+    }
+
+    /**
+     * #4436 — the archive check reads the player without the demo scope: a
+     * sweep while demo mode is on leaves a real player's open reminder open.
+     */
+    public function test_a_sweep_in_demo_mode_keeps_a_real_players_reminder(): void {
+        ( new InjuryRepository() )->create( [
+            'player_id'       => $this->player,
+            'started_on'      => $this->day( -20 ),
+            'expected_return' => $this->day( -2 ),
+        ] );
+        $task = $this->active()[0];
+
+        ( new ConfigService() )->set( InjuryRecoveryTasks::LAST_SWEEP_KEY, '' );
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            $this->assertNull( QueryHelpers::get_player( $this->player ), 'precondition: demo mode hides the real player' );
+            InjuryRecoveryTasks::sweep();
+            $due = InjuryRecoveryTasks::dueDateForPlayer( $this->player );
+        } finally {
+            DemoMode::clearOverride();
+        }
+
+        $this->assertSame( $this->day( -2 ), $due );
+        $this->assertTrue( TaskStatus::isActionable( $this->status( (int) $task['id'] ) ), 'the real player\'s task is not skipped' );
+        $this->assertCount( 1, $this->active() );
     }
 
     public function test_the_daily_sweep_reminds_about_an_incomplete_record_once(): void {

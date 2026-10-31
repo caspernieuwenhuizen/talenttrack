@@ -288,21 +288,39 @@ final class InjuryRepository {
      * on or before `$day` (`InjuryStatus::checkDueSql()`): what the recovery
      * reminder sweep works through. One club-scoped query.
      *
+     * #4436 — an archived player has left the academy, so the sweep skips
+     * them; their records stay as they are.
+     *
      * @return list<int>
      */
     public function playersWithCheckDue( string $day ): array {
-        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql(), InjuryStatus::checkDueParams( $day ) ) );
+        return array_keys( $this->playerSet( null, InjuryStatus::checkDueSql( 'i' ), InjuryStatus::checkDueParams( $day ), true ) );
+    }
+
+    /**
+     * #4436 — whether this player, in the current club and not archived,
+     * has a record whose decision is due on or before `$day`. The sweep's
+     * rule for one player, so the reminder and the sweep cannot disagree;
+     * no demo scope, so demo mode cannot retire a real player's reminder.
+     */
+    public function hasCheckDue( int $player_id, string $day ): bool {
+        if ( $player_id <= 0 ) return false;
+        $set = $this->playerSet( [ $player_id ], InjuryStatus::checkDueSql( 'i' ), InjuryStatus::checkDueParams( $day ), true );
+        return isset( $set[ $player_id ] );
     }
 
     /**
      * The player ids, among `$player_ids` (every player in the club when
-     * null), with a record matching `$predicate`.
+     * null), with a record matching `$predicate`. The injuries table is
+     * aliased `i`; with `$active_players_only` it joins the player and keeps
+     * only players who are not archived, and the predicate must then be
+     * qualified with `i`.
      *
      * @param list<int>|null $player_ids
      * @param list<string>   $params     Values for the predicate's placeholders.
      * @return array<int, true>
      */
-    private function playerSet( ?array $player_ids, string $predicate, array $params ): array {
+    private function playerSet( ?array $player_ids, string $predicate, array $params, bool $active_players_only = false ): array {
         $ids = [];
         foreach ( $player_ids ?? [] as $pid ) {
             $pid = (int) $pid;
@@ -313,13 +331,17 @@ final class InjuryRepository {
         $ids   = array_keys( $ids );
         $where = $player_ids === null
             ? ''
-            : 'player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
+            : 'i.player_id IN (' . implode( ',', array_fill( 0, count( $ids ), '%d' ) ) . ') AND';
+        $join  = $active_players_only
+            ? "JOIN {$this->wpdb->prefix}tt_players p ON p.id = i.player_id AND p.club_id = i.club_id AND p.archived_at IS NULL"
+            : '';
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- placeholders only; the predicate is a fixed string.
         $rows = $this->wpdb->get_col( $this->wpdb->prepare(
-            "SELECT DISTINCT player_id
-               FROM {$this->table}
-              WHERE {$where} club_id = %d
+            "SELECT DISTINCT i.player_id
+               FROM {$this->table} i
+               {$join}
+              WHERE {$where} i.club_id = %d
                 AND {$predicate}",
             array_merge( $ids, [ (int) CurrentClub::id() ], $params )
         ) );
