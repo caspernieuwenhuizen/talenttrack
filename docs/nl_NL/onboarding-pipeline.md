@@ -106,6 +106,22 @@ Elke prospect hoort in **precies één** kolom. De classifier loopt in deze volg
 
 Regel 6 staat bewust ónder de uitnodigingsregels: wie eenmaal is uitgenodigd, is duidelijk voorbij de toestemming, wat een blijven hangen toestemmingsklus ook nog beweert.
 
+Een kind van wie de stage eindigde met een afwijzing, is niet **Aangesloten**. Een afwijzing zet het spelersdossier op vertrokken of inactief, en zo'n prospect verlaat de pijplijn in plaats van naar de kolom Aangesloten te gaan.
+
+### De status op de prospectlijst
+
+De prospectlijst, het filter **Status**, de pagina's van scoutingbezoeken en de tabel op het dashboard van de scout tonen één status per prospect, overal op dezelfde manier bepaald:
+
+| Status | Wanneer |
+|---|---|
+| **Gearchiveerd** | De prospect is gearchiveerd. |
+| **Op stage** | De prospect heeft een stagedossier zonder besluit, of het besluit is doorgaan in de stagegroep. |
+| **Aangesloten** | Het stagedossier besloot *toelaten* of *teampositie aangeboden*, of de prospect werd zonder stage speler. |
+| **Niet toegelaten** | Het stagedossier besloot *afwijzen*, *afwijzen met aanmoediging*, of het gezin *wees de aangeboden positie af*. |
+| **Actief** | Geen van bovenstaande. |
+
+Het besluit op het stagedossier telt. Een prospect die vorige week is toegelaten, staat niet meer op **Op stage**.
+
 De dashboardwidget gebruikt dezelfde classifier voor zijn compacte tellerstrip, dus de getallen op het dashboard kloppen met de kolommen op de standalone pagina. Een prospect telt één keer, in één kolom, hoeveel klussen er ook openstaan.
 
 ## Het gezin vragen, en vastleggen dát je het gevraagd hebt

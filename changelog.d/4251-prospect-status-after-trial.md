@@ -1,0 +1,3 @@
+# A prospect's status follows the trial decision: Joined, Not admitted or still In trial (#4251)
+
+Once a prospect went on trial, the prospects list showed "In trial" for good, even after the trial was decided, while the scouting-visit pages showed "Joined" for every trialist who had not been decided yet. The status now follows the trial case's decision everywhere: admit or an offered team position shows **Joined**, a denial or a declined offer shows the new **Not admitted**, and an undecided trial or one that continues in the trial group stays **In trial**. The prospects list, its Status filter, the scouting-visit pages, the scout's dashboard table and the new-prospect wizard all give the same answer. The onboarding pipeline no longer counts a declined child as Joined.

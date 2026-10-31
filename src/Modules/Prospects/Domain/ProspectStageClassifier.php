@@ -67,6 +67,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class ProspectStageClassifier {
 
+    /** #4251 — player statuses a declined trial leaves a child in. */
+    private const NOT_JOINED_STATUSES = [
+        \TT\Domain\Vocabularies\Lookups\PlayerStatus::RELEASED,
+        \TT\Domain\Vocabularies\Lookups\PlayerStatus::INACTIVE,
+    ];
+
     /**
      * @param object $row           query row (see class docblock for required columns)
      * @param int    $joined_cutoff unix ts; promotions older than this fall off the funnel
@@ -88,6 +94,15 @@ final class ProspectStageClassifier {
         //     #0081 child 4 ship).
         //   - Manual flip in the players UI (admin path, has always
         //     worked).
+        //
+        // #4251 — a declined trial is not a graduation. The trial decision
+        // sets a declined child to `released` or `inactive`
+        // (TrialDecisionPlayerStatusSubscriber), which used to count as
+        // "past trial" and so as Joined. Such a prospect has left the
+        // funnel without joining: it is dropped from it.
+        if ( $player_id > 0 && in_array( $player_status, self::NOT_JOINED_STATUSES, true ) ) {
+            return null;
+        }
         $graduated = $player_id > 0
             && $player_status !== ''
             && $player_status !== 'trial';

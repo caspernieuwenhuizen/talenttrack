@@ -65,6 +65,8 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
                         'active'   => __( 'Active',   'talenttrack' ),
                         'trial'    => __( 'In trial', 'talenttrack' ),
                         'joined'   => __( 'Joined',   'talenttrack' ),
+                        // #4251 — a decided trial that did not admit.
+                        'not_admitted' => __( 'Not admitted', 'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
                     ],
                 ],
