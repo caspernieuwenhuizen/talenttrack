@@ -1449,7 +1449,7 @@ Per team and per PDP block for one season: how many players a block expects (the
 - `planned` counts talks with a date that were not marked not held. `not_held` counts talks marked as not held and not conducted.
 - `windows` repeats each block's window as its own list, so a client can show it without walking the cells.
 
-**Permission:** `tt_view_pdp_planning` (`pdp_planning:read`), the capability the page checks; 403 otherwise. **Scope** is the page's: a caller with academy-wide PDP read (`QueryHelpers::user_has_global_entity_read( …, 'pdp_file' )`) or `tt_edit_settings` sees every team. Anyone else sees only the teams they coach (`QueryHelpers::get_teams_for_coach()`). A coach who asks for another team's `team_ids` gets their own teams' share of the request, which may be empty. Registered by the PDP module, so it is absent when that module is off.
+**Permission:** `tt_view_pdp_planning` (`pdp_planning:read`), the capability the page checks; 403 otherwise. **Scope** is the page's, and the team set follows the planning permission. A global `pdp_planning` read (`QueryHelpers::user_has_global_entity_read( …, 'pdp_planning' )`, which includes the settings admin) sees every team, within the demo scope. Anyone else sees the teams they are assigned to (`QueryHelpers::get_teams_for_coach()`) where their `pdp_planning` grant applies at team scope (`MatrixGate::can( …, 'pdp_planning', 'read', 'team', $team_id )`). A coach with no such team gets an empty matrix. A coach who asks for another team's `team_ids` gets their own teams' share of the request, which may be empty. A `team_ids` that holds no usable id also gets an empty matrix, not every team. Registered by the PDP module, so it is absent when that module is off.
 
 ## Parent accounts (#1815, #3571)
 

@@ -34,6 +34,9 @@ use TT\Modules\Pdp\Services\PdpPlanningService;
 final class FrontendPdpPlanningView {
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // The team set follows the planning permission, which already
+        // answers for the settings admin; the dispatcher's flag adds nothing.
+        unset( $is_admin );
         if ( ! current_user_can( 'tt_view_pdp_planning' ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP planning.', 'talenttrack' ) . '</p>';
             return;
@@ -45,7 +48,7 @@ final class FrontendPdpPlanningView {
         // `?tt_view=pdp` list and didn't actually scope by block.
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         if ( $action === 'block' ) {
-            self::renderBlockDetail( $user_id, $is_admin );
+            self::renderBlockDetail( $user_id );
             return;
         }
 
@@ -58,7 +61,7 @@ final class FrontendPdpPlanningView {
         // #1865 — matrix-scope the planning grid. A HoD / admin (academy-wide
         // PDP read) sees every team; a team-scoped coach sees only the teams
         // they're assigned to. An empty accessible set yields an empty matrix.
-        $team_ids  = PdpPlanningService::accessibleTeamIds( $user_id, $is_admin );
+        $team_ids  = PdpPlanningService::accessibleTeamIds( $user_id );
         $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
         $matrix    = PdpPlanningService::buildMatrix( $season_id, $team_ids );
 
@@ -204,7 +207,7 @@ final class FrontendPdpPlanningView {
      * v3.94.1 replacement for the v1 cell-click that routed to the
      * unfiltered PDP list.
      */
-    private static function renderBlockDetail( int $user_id, bool $is_admin ): void {
+    private static function renderBlockDetail( int $user_id ): void {
         $team_id   = isset( $_GET['team_id'] )   ? absint( $_GET['team_id'] )   : 0;
         $block     = isset( $_GET['block'] )     ? absint( $_GET['block'] )     : 0;
         $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
@@ -217,7 +220,7 @@ final class FrontendPdpPlanningView {
 
         // #1865 — a team-scoped coach can't drill into a team they don't own,
         // even via a hand-edited URL. HoD / admin (null = no restriction) pass.
-        $allowed_teams = PdpPlanningService::accessibleTeamIds( $user_id, $is_admin );
+        $allowed_teams = PdpPlanningService::accessibleTeamIds( $user_id );
         if ( is_array( $allowed_teams ) && ! in_array( $team_id, $allowed_teams, true ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP planning.', 'talenttrack' ) . '</p>';

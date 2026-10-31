@@ -58,7 +58,6 @@ class PdpPlanningRestController {
         $user_id  = get_current_user_id();
         $team_ids = PdpPlanningService::scopedTeamIds(
             $user_id,
-            user_can( $user_id, 'tt_edit_settings' ),
             self::requestedTeamIds( $r->get_param( 'team_ids' ) )
         );
 
@@ -108,10 +107,15 @@ class PdpPlanningRestController {
     }
 
     /**
+     * Null when no `team_ids` was sent. A `team_ids` holding nothing usable
+     * is an empty list, which the service answers with an empty matrix
+     * rather than every team the caller may see.
+     *
      * @param mixed $raw `team_ids[]=N` arrives as an array, `team_ids=1,2` as a string.
-     * @return list<int>
+     * @return list<int>|null
      */
-    private static function requestedTeamIds( $raw ): array {
+    private static function requestedTeamIds( $raw ): ?array {
+        if ( $raw === null ) return null;
         if ( is_string( $raw ) ) $raw = explode( ',', $raw );
         if ( ! is_array( $raw ) ) return [];
         $ids = [];

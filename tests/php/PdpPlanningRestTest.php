@@ -89,7 +89,7 @@ final class PdpPlanningRestTest extends WP_UnitTestCase {
 
         $this->assertEqualsCanonicalizing( [ $this->own, $this->other ], $this->teamIds( $data ) );
 
-        $page = PdpPlanningService::buildMatrix( $this->season, PdpPlanningService::accessibleTeamIds( $this->hod, false ) );
+        $page = PdpPlanningService::buildMatrix( $this->season, PdpPlanningService::accessibleTeamIds( $this->hod ) );
         $this->assertSame( (int) $page['max_blocks'], (int) $data['max_blocks'] );
         foreach ( $data['teams'] as $team ) {
             foreach ( $team['blocks'] as $cell ) {
@@ -143,7 +143,60 @@ final class PdpPlanningRestTest extends WP_UnitTestCase {
         $this->assertSame( 400, $this->get( [] )->get_status() );
     }
 
-    // ── helpers ────────────────────────────────────────────────────────
+    public function test_a_coach_with_no_teams_gets_an_empty_matrix(): void {
+        // Their only assignment is a retired team: the planning grant still
+        // admits them (it counts assignments), but no team is left to show.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_teams", [
+            'club_id' => $this->club, 'name' => 'Planning JO11 (retired)', 'archived_at' => '2026-06-30 12:00:00',
+        ] );
+        $loose = $this->makeHeadCoach( (int) $wpdb->insert_id );
+        wp_set_current_user( $loose );
+
+        $this->assertSame( [], PdpPlanningService::accessibleTeamIds( $loose ) );
+        $response = $this->get( [ 'season_id' => $this->season ] );
+        $this->assertSame( 200, $response->get_status() );
+        $data = $this->data( $response );
+        $this->assertSame( [], $this->teamIds( $data ) );
+        $this->assertSame( [], $data['windows'] );
+    }
+
+    public function test_a_parent_and_a_scout_are_refused(): void {
+        foreach ( [ 'tt_parent', 'tt_scout' ] as $role ) {
+            $uid = self::factory()->user->create( [ 'role' => $role ] );
+            AuthorizationService::flushCache();
+            wp_set_current_user( $uid );
+            $this->assertSame( 403, $this->get( [ 'season_id' => $this->season ] )->get_status(), $role );
+        }
+    }
+
+    public function test_another_clubs_season_is_a_404(): void {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_seasons", [
+            'club_id'    => $this->club + 1,
+            'name'       => 'Elsewhere 2026/27',
+            'start_date' => '2026-07-01',
+            'end_date'   => '2027-06-30',
+        ] );
+        $foreign = (int) $wpdb->insert_id;
+
+        wp_set_current_user( $this->hod );
+        $this->assertSame( 404, $this->get( [ 'season_id' => $foreign ] )->get_status() );
+    }
+
+    public function test_only_invalid_team_ids_give_an_empty_matrix(): void {
+        wp_set_current_user( $this->hod );
+
+        foreach ( [ [ 'abc', '0' ], 'abc,0', '' ] as $team_ids ) {
+            $response = $this->get( [ 'season_id' => $this->season, 'team_ids' => $team_ids ] );
+            $this->assertSame( 200, $response->get_status() );
+            $data = $this->data( $response );
+            $this->assertSame( [], $this->teamIds( $data ), 'not every team the caller may see' );
+            $this->assertSame( [], $data['windows'] );
+        }
+    }
+
+    // Helpers
 
     /** @param array<string,mixed> $params */
     private function get( array $params ): \WP_REST_Response {

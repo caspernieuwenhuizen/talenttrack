@@ -350,7 +350,7 @@ paths:
     get:
       tags: [pdp]
       summary: The PDP planning matrix per team and block for one season (#4448)
-      description: 'The cells and block windows the `pdp-planning` view shows: `data` holds `season_id`, `max_blocks`, `teams` (each with `blocks` of expected / planned / conducted / not_held counts and the window) and `windows`. The shape is in docs/rest-api.md. Gated on `tt_view_pdp_planning`. Academy-wide PDP read sees every team, a coach only the teams they coach. `team_ids` narrows within that scope and never widens it.'
+      description: 'The cells and block windows the `pdp-planning` view shows: `data` holds `season_id`, `max_blocks`, `teams` (each with `blocks` of expected / planned / conducted / not_held counts and the window) and `windows`. The shape is in docs/rest-api.md. Gated on `tt_view_pdp_planning`; the team set follows the same `pdp_planning` grant. A global grant sees every team; a team-scoped grant only the teams it covers. `team_ids` narrows within that scope and never widens it, and a `team_ids` with no usable id gets an empty matrix.'
       parameters:
         - { in: query, name: season_id, required: true, schema: { type: integer } }
         - { in: query, name: 'team_ids[]', schema: { type: array, items: { type: integer } } }

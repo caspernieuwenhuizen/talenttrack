@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\MatrixGate;
 
 /**
  * PdpPlanningService (#4448) — the PDP planning matrix: per team and per
@@ -19,20 +20,25 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 final class PdpPlanningService {
 
     /**
-     * #1865 — the teams a user may see in PDP planning. Returns null when
-     * the user has academy-wide PDP read (admin / HoD) — meaning "no team
-     * restriction"; otherwise the list of team ids they're assigned to as
-     * a coach (possibly empty, which scopes the matrix to nothing).
+     * #1865 — the teams a user may see in PDP planning. The team set follows
+     * the planning permission, `pdp_planning` read, the same grant the page
+     * and the route are gated on. A global grant (and the settings admin)
+     * means no team restriction: null. Otherwise it is the teams the user is
+     * assigned to on which that grant applies, possibly none, which scopes
+     * the matrix to nothing.
      *
      * @return list<int>|null
      */
-    public static function accessibleTeamIds( int $user_id, bool $is_admin ): ?array {
-        if ( $is_admin || QueryHelpers::user_has_global_entity_read( $user_id, 'pdp_file' ) ) {
+    public static function accessibleTeamIds( int $user_id ): ?array {
+        if ( QueryHelpers::user_has_global_entity_read( $user_id, 'pdp_planning' ) ) {
             return null;
         }
         $ids = [];
         foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-            $ids[] = (int) ( ( (array) $t )['id'] ?? 0 );
+            $id = (int) ( ( (array) $t )['id'] ?? 0 );
+            if ( $id > 0 && MatrixGate::can( $user_id, 'pdp_planning', MatrixGate::READ, MatrixGate::SCOPE_TEAM, $id ) ) {
+                $ids[] = $id;
+            }
         }
         return array_values( array_unique( $ids ) );
     }
@@ -56,6 +62,10 @@ final class PdpPlanningService {
             $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
             $team_clause  = " AND t.id IN ($placeholders)";
             $team_params  = array_map( 'intval', $team_ids );
+        } else {
+            // The unrestricted set follows the demo scope, as the coach's
+            // list from get_teams_for_coach() already does.
+            $team_clause = QueryHelpers::apply_demo_scope( 't', 'team' );
         }
 
         // Aggregate per (team_id, sequence). For each block we need:
@@ -184,6 +194,9 @@ final class PdpPlanningService {
         if ( is_array( $team_ids ) ) {
             $clause .= ' AND pl.team_id IN (' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ')';
             $params  = array_merge( $params, array_map( 'intval', $team_ids ) );
+        } else {
+            // Same demo scope as buildMatrix() on the unrestricted path.
+            $clause .= QueryHelpers::apply_demo_scope( 't', 'team' );
         }
         if ( $block !== null ) {
             $clause  .= ' AND c.sequence = %d';
@@ -198,6 +211,7 @@ final class PdpPlanningService {
                FROM {$p}tt_pdp_conversations c
                JOIN {$p}tt_pdp_files f ON f.id = c.pdp_file_id AND f.club_id = c.club_id
                JOIN {$p}tt_players  pl ON pl.id = f.player_id  AND pl.club_id = f.club_id
+               JOIN {$p}tt_teams    t  ON t.id  = pl.team_id   AND t.club_id  = pl.club_id
               WHERE c.club_id = %d
                 AND f.season_id = %d{$clause}
                 AND pl.status = 'active'
@@ -218,16 +232,19 @@ final class PdpPlanningService {
 
     /**
      * The teams the matrix covers when a caller asks for some: the ones it
-     * asked for that this user may see. Asking for nothing means every team
-     * the user may see. A coach who asks for another team's matrix gets
-     * only their own teams' share of the request, which may be none.
+     * asked for that this user may see. Not asking (null) means every team
+     * the user may see. Asking for none, which is what a request carrying
+     * only unusable ids comes to, means none. A coach who asks for another
+     * team's matrix gets only their own teams' share of the request, which
+     * may be none.
      *
-     * @param list<int> $requested
+     * @param list<int>|null $requested null = no team filter sent
      * @return list<int>|null null = no team restriction
      */
-    public static function scopedTeamIds( int $user_id, bool $is_admin, array $requested ): ?array {
-        $allowed = self::accessibleTeamIds( $user_id, $is_admin );
-        if ( $requested === [] ) return $allowed;
+    public static function scopedTeamIds( int $user_id, ?array $requested ): ?array {
+        $allowed = self::accessibleTeamIds( $user_id );
+        if ( $requested === null ) return $allowed;
+        if ( $requested === [] ) return [];
         if ( $allowed === null ) return array_values( array_unique( $requested ) );
         return array_values( array_intersect( array_unique( $requested ), $allowed ) );
     }
