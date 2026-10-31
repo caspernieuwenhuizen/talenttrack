@@ -110,6 +110,13 @@ class CoachForms {
         // profile passes ?player_id=N. Look up the player's team_id and
         // pre-fill both pickers; render hidden inputs in place of the
         // dropdowns.
+        //
+        // The id comes from the URL, so it is asked the question the save
+        // asks (`POST /evaluations`): a player outside the reader's teams is
+        // not named on the form, and the form opens with the picker instead.
+        if ( $preset_player_id > 0 && ! self::mayPresetPlayer( get_current_user_id(), $preset_player_id ) ) {
+            $preset_player_id = 0;
+        }
         $preset_player = $preset_player_id > 0 ? QueryHelpers::get_player( $preset_player_id ) : null;
         $preset_team_id = $preset_player ? (int) ( $preset_player->team_id ?? 0 ) : 0;
         $hide_pickers = $preset_player !== null && $preset_team_id > 0;
@@ -479,6 +486,16 @@ class CoachForms {
      * empty and hidden, and `eval-form.js` fills it in from the picker
      * once a player is chosen.
      */
+    /**
+     * Whether this reader may write an evaluation for this player: the
+     * academy admin, or the coach of the player's team. The check
+     * `EvaluationsRestController::create_eval()` makes before it saves.
+     */
+    private static function mayPresetPlayer( int $user_id, int $player_id ): bool {
+        return user_can( $user_id, 'tt_edit_settings' )
+            || QueryHelpers::coach_owns_player( $user_id, $player_id );
+    }
+
     private static function renderSubject( ?object $player, int $player_id ): void {
         $name  = $player !== null ? QueryHelpers::player_display_name( $player ) : ( $player_id > 0 ? '#' . $player_id : '' );
         $photo = $player !== null ? \TT\Modules\Players\Services\PlayerPhoto::url( $player ) : '';
