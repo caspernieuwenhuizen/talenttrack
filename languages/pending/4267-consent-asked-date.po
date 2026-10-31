@@ -1,7 +1,7 @@
 #: src/Modules/Prospects/Domain/ConsentRequestDate.php
 msgid "The date asked is not a real date."
-msgstr "De datum van het verzoek bestaat niet."
+msgstr "De datum waarop gevraagd is, bestaat niet."
 
 #: src/Modules/Prospects/Domain/ConsentRequestDate.php
 msgid "The date asked cannot be later than today."
-msgstr "De datum van het verzoek kan niet later zijn dan vandaag."
+msgstr "De datum waarop gevraagd is, mag niet later zijn dan vandaag."

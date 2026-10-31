@@ -223,7 +223,11 @@ class PipelineGenerator implements DependentGeneratorInterface {
 
         // A few days after the sighting: an academy rings the club once
         // the scout has written the player up, not on the touchline.
+        // Never later than today: the newest prospects were sighted this
+        // week, and a request dated in the future is refused.
         $asked = gmdate( 'Y-m-d', $discovered_ts + mt_rand( 1, 10 ) * DAY_IN_SECONDS );
+        $today = current_time( 'Y-m-d' );
+        if ( strcmp( $asked, $today ) > 0 ) $asked = $today;
         $who   = sprintf(
             /* translators: %s: the club the prospect currently plays for */
             __( 'Youth coordinator at %s', 'talenttrack' ),
