@@ -32,10 +32,10 @@ delegate.
 - **SaaS-readiness** (`CLAUDE.md` §4): REST as the contract, business logic
   out of view files, capabilities not role strings, `club_id` and `uuid`
   on new tables.
-- **The review gates.** `docs/review/security.md` and
-  `docs/review/performance.md` you run yourself (security with a review
-  subagent). `ux-mobile.md` and `docs-i18n.md` are QA's; you keep all four
-  lists current.
+- **The review gates.** `docs/review/security.md`,
+  `docs/review/performance.md` and `docs/review/rest-contract.md` you run
+  yourself (security with a review subagent). `ux-mobile.md` and
+  `docs-i18n.md` are QA's; you keep all five lists current.
 - **Quarterly sweeps.** One discipline a month over the whole codebase;
   findings become issues.
 - **Debt.** You keep the picture of what is grandfathered (legacy
