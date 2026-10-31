@@ -1,0 +1,17 @@
+#. translators: 1: number of played matches listed, 2: date window
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "%1$d played match, %2$s"
+msgid_plural "%1$d played matches, %2$s"
+msgstr[0] "%1$d gespeelde wedstrijd, %2$s"
+msgstr[1] "%1$d gespeelde wedstrijden, %2$s"
+
+#. translators: %d: number of played matches listed
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "%d played match"
+msgid_plural "%d played matches"
+msgstr[0] "%d gespeelde wedstrijd"
+msgstr[1] "%d gespeelde wedstrijden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "See the minutes distribution →"
+msgstr "Bekijk de minutenverdeling →"

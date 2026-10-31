@@ -73,7 +73,7 @@ die alleen rood is zegt niets in zwart-wit of voor een kleurenblinde lezer.
 
 | Tegel | Wat het betekent |
 | --- | --- |
-| **Gespeelde wedstrijden** | Hoeveel wedstrijden de noemer voedden. Opent Team · Minutenverdeling, dat ze benoemt en aangeeft welke geen vastgelegde minuten hebben. |
+| **Gespeelde wedstrijden** | Hoeveel wedstrijden de noemer voedden. Opent de activiteitenlijst met precies die wedstrijden: dit venster, elk wedstrijdtype, toernooidagen inbegrepen, voorbije wedstrijden uitgeklapt. Wil je zien welke daarvan geen vastgelegde minuten hebben, gebruik dan **Bekijk de minutenverdeling** onder de tegels; dat opent Team · Minutenverdeling op hetzelfde venster. |
 | **Beschikbare minuten / speler** | De noemer waartegen elk aandeel op de pagina wordt gemeten. |
 | **Mediaan aandeel** | Het midden van de selectie. Bewust de mediaan en niet het gemiddelde: één speler die elke minuut speelt trekt een gemiddelde boven een streep waar de rest van de selectie nergens in de buurt komt. |
 | **Onder de norm** | Hoeveel spelers onder de norm zitten, goud gemarkeerd zodra dat er meer dan nul zijn. |

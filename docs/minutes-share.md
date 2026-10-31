@@ -69,7 +69,7 @@ that is only red says nothing in black and white or to a colour-blind reader.
 
 | Tile | What it means |
 | --- | --- |
-| **Matches played** | How many matches fed the denominator. Opens Team · Minutes distribution, which names them and flags any with no minutes recorded. |
+| **Matches played** | How many matches fed the denominator. Opens the activities list with exactly those matches: this window, every match type, tournament days included, past matches expanded. To see which of them have no minutes recorded, use **See the minutes distribution** below the tiles, which opens Team · Minutes distribution on the same window. |
 | **Available minutes / player** | The denominator every share on the page is measured against. |
 | **Median share** | The middle of the squad. Median rather than average on purpose: one player who plays every minute drags an average above a line the rest of the squad is nowhere near. |
 | **Below target** | How many players are under the target, flagged gold when that is more than none. |

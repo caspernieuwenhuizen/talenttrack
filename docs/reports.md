@@ -130,6 +130,9 @@ names the player and the date window, each with an **×** that clears that one
 constraint and leaves the rest standing. Team and type appear in the filter bar
 itself, where you can already see and change them.
 
+A drill that carries a date window opens with past activities expanded, because
+those are what the report counted. **Hide** still folds them away.
+
 ## Drilling into a team's players (team report)
 
 On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.
@@ -237,10 +240,14 @@ recorded* tile, exactly as that player is absent from the squad below it. The
 tile and the rows describe one squad; a count the rows cannot explain is worse
 than a smaller one.
 
-**Tap the tile to see the matches.** It opens the activities list filtered to
-the team and to *Match*, over the report's own window up to today, and the list
-names that window above its rows. Tournament days are a type of their own on the
-list, so a team that played tournaments sees them under *Tournament*.
+**Tap the tile to see the matches.** It opens the activities list showing
+exactly the matches this report counts as **played** in its own window: every
+match type, tournament days included, by the same rule as above, so tonight's
+fixture is not on it until it is played. Past matches are expanded, and the
+**Showing only:** strip above the list names the count and the window, for
+example *12 played matches, 17-08-2026 – 30-06-2027*. The list therefore shows
+the played number from the report's header line; the tile's own number is the
+recorded part of it.
 
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.

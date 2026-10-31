@@ -131,6 +131,9 @@ getoond:** met de speler en de periode, elk met een **×** die alléén die
 beperking opheft en de rest laat staan. Team en type staan in de filterbalk
 zelf, waar je ze al ziet en kunt aanpassen.
 
+Een doorklik met een periode opent met de voorbije activiteiten uitgeklapt, want
+die heeft het rapport geteld. **Verberg** klapt ze daarna gewoon weer in.
+
 ## Inzoomen op de spelers van een team (teamrapport)
 
 In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.
@@ -248,10 +251,14 @@ tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
 verklaren is erger dan een kleiner getal.
 
 **Tik op de tegel om de wedstrijden te zien.** Hij opent de activiteitenlijst
-gefilterd op het team en op *Wedstrijd*, over het venster van het rapport tot en
-met vandaag, en de lijst noemt dat venster boven de rijen. Toernooidagen zijn
-een eigen type in de lijst; een team dat toernooien speelde vindt die onder
-*Toernooi*.
+met precies de wedstrijden die dit rapport in zijn eigen venster als **gespeeld**
+telt: elk wedstrijdtype, toernooidagen inbegrepen, volgens dezelfde regel als
+hierboven, dus de wedstrijd van vanavond staat er pas op als hij gespeeld is.
+Voorbije wedstrijden zijn uitgeklapt, en de strook **Alleen getoond:** boven de
+lijst noemt het aantal en het venster, bijvoorbeeld *12 gespeelde wedstrijden,
+17-08-2026 – 30-06-2027*. De lijst toont dus het aantal gespeelde wedstrijden
+uit de kopregel van het rapport; het getal op de tegel zelf is het vastgelegde
+deel daarvan.
 
 ### Het relatieve getal: Minutenaandeel
 
