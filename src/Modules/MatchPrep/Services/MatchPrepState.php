@@ -23,7 +23,7 @@ final class MatchPrepState {
 
     public const GOAL_FIELDS = [ 'goals_general', 'goals_attack', 'goals_defend', 'goals_attack_setpiece', 'goals_defend_setpiece' ];
 
-    public const FALLBACK_STARTER_TARGET = 11;
+    public const FALLBACK_STARTER_TARGET = MatchPrepRepository::MAX_LINEUP_SLOTS;
 
     /**
      * @param int $viewer_id The user the prep is read for; decides whether the

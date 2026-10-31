@@ -169,6 +169,32 @@ final class MatchPrepRestReadTest extends WP_UnitTestCase {
     }
 
     /**
+     * #4320 — a slot above the eleven-a-side ceiling is refused before
+     * anything is written, instead of the player in it vanishing on save.
+     */
+    public function test_a_lineup_slot_above_the_ceiling_is_refused(): void {
+        [ $a, $b ] = $this->players;
+        $max = \TT\Modules\MatchPrep\Repositories\MatchPrepRepository::MAX_LINEUP_SLOTS;
+        $this->assertSame( 11, $max );
+
+        [ $data, $status ] = $this->send( 'PUT', $this->mine, [
+            'lineup' => [ '1' => [ '1' => $a, (string) ( $max + 1 ) => $b ] ],
+        ] );
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'lineup_slot_out_of_range', $data['errors'][0]['code'] ?? null );
+        $this->assertSame( 404, $this->send( 'GET', $this->mine )[1], 'a refused PUT starts no prep' );
+
+        [ , $status ] = $this->send( 'PUT', $this->mine, [ 'lineup' => [ '1' => [ '0' => $a ] ] ] );
+        $this->assertSame( 400, $status, 'slot 0 is outside the range too' );
+
+        [ $put, $status ] = $this->send( 'PUT', $this->mine, [
+            'lineup' => [ '1' => [ '1' => $a, (string) $max => $b ] ],
+        ] );
+        $this->assertSame( 200, $status );
+        $this->assertSame( $b, ( (array) $put['data']['lineup']['1'] )[ $max ] ?? null, 'slot 11 saves' );
+    }
+
+    /**
      * #4280 — the read says how many starters the line-up holds, from the
      * bound formation's slots: six for a 3-2-1, eleven when nothing is bound
      * on an eleven-a-side team.
