@@ -611,10 +611,9 @@ final class TeamPlannerWeeklyPrintable {
 
     private static function durationLabel( string $start, string $end ): string {
         if ( $start === '' || $end === '' || $start === '00:00:00' || $end === '00:00:00' ) return '';
-        $s = strtotime( '1970-01-01 ' . $start );
-        $e = strtotime( '1970-01-01 ' . $end );
-        if ( ! $s || ! $e || $e <= $s ) return '';
-        $mins = (int) round( ( $e - $s ) / 60 );
+        // #4513 — one rule for the duration: a next-day end counts.
+        $mins = \TT\Modules\Activities\Services\ActivityTimeWindow::minutes( $start, $end );
+        if ( $mins <= 0 ) return '';
         if ( $mins >= 60 ) {
             $h = intdiv( $mins, 60 );
             $m = $mins % 60;

@@ -53,6 +53,44 @@ final class ActivityNextDayEndTest extends WP_UnitTestCase {
         $this->assertSame( 90, $strip->duration_minutes );
     }
 
+    public function test_both_planner_prints_show_a_next_day_duration(): void {
+        foreach ( [ \TT\Modules\Export\Exporters\TeamPlanningPdfExporter::class, \TT\Modules\Planning\Print\TeamPlannerWeeklyPrintable::class ] as $class ) {
+            $label = new \ReflectionMethod( $class, 'durationLabel' );
+            $label->setAccessible( true );
+            $this->assertSame( '1h30', $label->invoke( null, '23:00:00', '00:30:00' ), $class . ' counts a next-day end' );
+            $this->assertSame( '1h30', $label->invoke( null, '18:30:00', '20:00:00' ), $class . ' keeps a same-day end' );
+            $this->assertSame( '', $label->invoke( null, '10:00:00', '09:00:00' ), $class . ' shows no duration for a 23-hour span' );
+        }
+    }
+
+    // The create wizard (#4528)
+
+    public function test_the_wizard_accepts_its_own_wrapped_default_end(): void {
+        $out = ( new \TT\Modules\Wizards\Activity\DetailsStep() )->validate( [
+            'title'        => 'Late match',
+            'session_date' => '2026-11-07',
+            'start_time'   => '22:30',
+            'end_time'     => '00:15',
+        ], [ 'activity_type_key' => 'training' ] );
+
+        $this->assertIsArray( $out, 'a 22:30 start with its 00:15 default end is accepted' );
+        $this->assertSame( '00:15', $out['end_time'] );
+    }
+
+    public function test_the_wizard_still_refuses_an_end_that_is_not_next_day(): void {
+        $step = new \TT\Modules\Wizards\Activity\DetailsStep();
+        foreach ( [ [ '10:00', '09:00' ], [ '10:00', '10:00' ] ] as [ $start, $end ] ) {
+            $out = $step->validate( [
+                'title'        => 'Training',
+                'session_date' => '2026-11-07',
+                'start_time'   => $start,
+                'end_time'     => $end,
+            ], [ 'activity_type_key' => 'training' ] );
+            $this->assertInstanceOf( \WP_Error::class, $out, "{$start} to {$end} is refused" );
+            $this->assertSame( 'end_before_start', $out->get_error_code() );
+        }
+    }
+
     // Through the REST edit path
 
     public function test_a_save_crossing_midnight_keeps_the_end(): void {

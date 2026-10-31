@@ -2021,7 +2021,7 @@ class ActivitiesRestController {
             'title'                => [ 'type' => 'string',  'description' => 'What the activity is called.' ],
             'session_date'         => [ 'type' => 'string',  'description' => 'The date it is held, as YYYY-MM-DD.' ],
             'start_time'           => [ 'type' => 'string',  'description' => 'Start time as HH:MM. Empty clears it. Mirrored into kickoff_time for match types.' ],
-            'end_time'             => [ 'type' => 'string',  'description' => 'End time as HH:MM. Dropped when it is not after the start.' ],
+            'end_time'             => [ 'type' => 'string',  'description' => 'End time as HH:MM. An end earlier than the start is the next day when the span is at most 6 hours; otherwise it is dropped.' ],
             'time_of_presence'     => [ 'type' => 'string',  'description' => 'Arrival time as HH:MM, for match types.' ],
             'team_id'              => [ 'type' => [ 'integer', 'string' ], 'description' => 'The team it belongs to. The caller must be able to write for both the current and the target team.' ],
             'coach_id'             => [
