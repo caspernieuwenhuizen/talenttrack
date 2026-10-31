@@ -222,6 +222,12 @@ final class BackLabelResolver {
                     return $name !== '' ? $name : '';
                 }
                 return '';
+            case 'prospect':
+                // #4257 — a minor's name, so only for a viewer who may open
+                // the record the pill points back to.
+                if ( ! \TT\Modules\Prospects\Domain\ProspectRecord::canOpen( get_current_user_id(), $id ) ) return '';
+                $row = (array) ( ( new \TT\Modules\Prospects\Repositories\ProspectsRepository() )->find( $id ) ?? [] );
+                return trim( (string) ( $row['first_name'] ?? '' ) . ' ' . (string) ( $row['last_name'] ?? '' ) );
         }
         return '';
     }

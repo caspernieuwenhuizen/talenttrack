@@ -305,6 +305,33 @@ final class CoreSurfaceRegistration {
                 (int) ( $ctx['player_id'] ?? 0 )
             );
         } );
+
+        // #4257 — a prospect's record page. Its guard is the record's own:
+        // the prospects read and the viewer's prospect scope, so a scout's
+        // visit page shows a prospect outside that scope as a name only.
+        $reg::register( 'prospect', static fn( int $uid, array $ctx ): bool =>
+            \TT\Modules\Prospects\Domain\ProspectRecord::canOpen( $uid, (int) ( $ctx['prospect_id'] ?? 0 ) )
+        );
+
+        // The contact form behind "Edit contact": the edit right, on a
+        // prospect the viewer can open.
+        $reg::register( 'prospect-edit', static fn( int $uid, array $ctx ): bool =>
+            \TT\Modules\Prospects\Domain\ProspectRecord::canOpen( $uid, (int) ( $ctx['prospect_id'] ?? 0 ) )
+            && \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' )
+        );
+
+        // One scouting visit: the view's two questions (prospects read and
+        // the visit surfaces), then whether this visit is the viewer's.
+        $reg::register( 'scouting-visit', static function ( int $uid, array $ctx ): bool {
+            $is_admin = user_can( $uid, 'tt_edit_settings' );
+            $allowed  = \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $uid, 'tt_view_prospects' )
+                && \TT\Modules\Prospects\ScoutingVisitsAccess::allows( $uid, $is_admin );
+            if ( ! $allowed && ! $is_admin ) return false;
+
+            $visit_id = (int) ( $ctx['visit_id'] ?? 0 );
+            $visit    = $visit_id > 0 ? ( new \TT\Modules\Prospects\Repositories\ScoutingVisitsRepository() )->find( $visit_id ) : null;
+            return $visit !== null && \TT\Modules\Prospects\ScoutingVisitsAccess::canReadVisit( $uid, $visit, $is_admin );
+        } );
     }
 
     /**
@@ -464,6 +491,7 @@ final class CoreSurfaceRegistration {
 
         TileRegistry::registerSlugOwnership( 'prospects-overview', self::M_PROSPECTS );
         TileRegistry::registerSlugOwnership( 'prospect-edit',      self::M_PROSPECTS );
+        TileRegistry::registerSlugOwnership( 'prospect',           self::M_PROSPECTS );
 
         TileRegistry::registerSlugOwnership( 'strava',       self::M_STRAVA );
         TileRegistry::registerSlugOwnership( 'strava-admin', self::M_STRAVA );

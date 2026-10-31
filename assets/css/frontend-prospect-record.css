@@ -1,0 +1,167 @@
+/*
+ * Prospect record page (?tt_view=prospect&id=N). Mobile-first: one column
+ * at phone width, the sections gain room from 768px up.
+ */
+.tt-prospect-record {
+    display: grid;
+    gap: 1rem;
+}
+
+.tt-prospect-record-identity {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    color: var(--tt-ink-soft);
+}
+
+.tt-prospect-record-section {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    padding: 1rem;
+}
+
+.tt-prospect-record-heading {
+    font-size: var(--tt-fs-lg);
+    margin: 0 0 0.5rem;
+}
+
+.tt-prospect-record-stage,
+.tt-prospect-record-notes,
+.tt-prospect-record-empty {
+    margin: 0 0 0.5rem;
+}
+
+.tt-prospect-record-empty,
+.tt-prospect-record-fact,
+.tt-prospect-record-when {
+    color: var(--tt-ink-soft);
+}
+
+.tt-prospect-record-list {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+}
+
+.tt-prospect-record-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--tt-line-soft);
+}
+
+.tt-prospect-record-row:first-child {
+    border-top: 0;
+}
+
+.tt-prospect-record-note {
+    flex-basis: 100%;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+/*
+ * Status pills: the prospect's status, each consent request's outcome and
+ * the visit a prospect was found at. A request still waiting stands out;
+ * an answered one stays quiet unless the answer was yes.
+ */
+.tt-prospect-record .tt-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--tt-info);
+    border-radius: 999px;
+    background: var(--tt-info-subtle);
+    color: var(--tt-info-ink);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+}
+
+.tt-prospect-record .tt-chip--awaiting {
+    border-color: var(--tt-warning);
+    background: var(--tt-warning-subtle);
+    color: var(--tt-warning-ink);
+}
+
+.tt-prospect-record .tt-chip--agreed {
+    border-color: var(--tt-success);
+    background: var(--tt-success-subtle);
+    color: var(--tt-success-ink);
+}
+
+.tt-prospect-record .tt-chip--answered {
+    border-color: var(--tt-line);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+}
+
+.tt-prospect-record-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    color: var(--tt-link);
+    touch-action: manipulation;
+}
+
+.tt-prospect-record-link:hover {
+    color: var(--tt-link-hover);
+}
+
+.tt-prospect-record-link:focus-visible {
+    outline: 2px solid var(--tt-link);
+    outline-offset: 2px;
+}
+
+.tt-prospect-record-next,
+.tt-prospect-record-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0;
+}
+
+.tt-prospect-record-next .tt-btn,
+.tt-prospect-record-actions .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-consent-request-review {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.25rem;
+    margin: 0 0 1rem;
+}
+
+.tt-consent-request-review dt {
+    font-weight: 600;
+}
+
+.tt-consent-request-review dd {
+    margin: 0 0 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .tt-prospect-record-section {
+        padding: 1.25rem 1.5rem;
+    }
+
+    .tt-consent-request-review {
+        grid-template-columns: minmax(10rem, max-content) minmax(0, 1fr);
+        gap: 0.5rem 1rem;
+    }
+
+    .tt-consent-request-review dd {
+        margin: 0;
+    }
+}

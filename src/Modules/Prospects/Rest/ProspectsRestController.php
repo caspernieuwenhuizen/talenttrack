@@ -8,6 +8,7 @@ use TT\Infrastructure\REST\BaseController;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ProposeTestTrainingService;
+use TT\Modules\Prospects\Domain\ProspectRecord;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Workflow\Templates\LogProspectTemplate;
@@ -113,6 +114,53 @@ class ProspectsRestController {
             'permission_callback' => [ self::class, 'can_log' ],
             'args'                => [],
         ] );
+        // #4257 — the two reads behind the prospect's record page that had
+        // no route: the scouting visits they were seen at, and where they
+        // stand on the onboarding pipeline.
+        register_rest_route( self::NS, '/prospects/(?P<id>\d+)/visits', [
+            'methods'             => 'GET',
+            'callback'            => [ self::class, 'list_visits' ],
+            'permission_callback' => [ self::class, 'can_view' ],
+        ] );
+        register_rest_route( self::NS, '/prospects/(?P<id>\d+)/stage', [
+            'methods'             => 'GET',
+            'callback'            => [ self::class, 'get_stage' ],
+            'permission_callback' => [ self::class, 'can_view' ],
+        ] );
+    }
+
+    /** GET /prospects/{id}/visits — 404 for a prospect outside the caller's scope. */
+    public static function list_visits( \WP_REST_Request $r ): \WP_REST_Response {
+        $id  = (int) $r['id'];
+        $uid = get_current_user_id();
+        if ( ! ProspectRecord::canOpen( $uid, $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'prospect_id' => $id, 'visits' => ProspectRecord::visits( $uid, $id ) ] );
+    }
+
+    /**
+     * GET /prospects/{id}/stage — the pipeline column and the waiting task,
+     * or `stage: null` for a prospect off the board.
+     */
+    public static function get_stage( \WP_REST_Request $r ): \WP_REST_Response {
+        $id  = (int) $r['id'];
+        $uid = get_current_user_id();
+        if ( ! ProspectRecord::canOpen( $uid, $id ) ) {
+            return RestResponse::error( 'not_found', __( 'Prospect not found.', 'talenttrack' ), 404 );
+        }
+        $stage = ProspectRecord::stage( $uid, $id );
+        if ( $stage !== null ) {
+            $query = (string) wp_parse_url( $stage['next_url'], PHP_URL_QUERY );
+            parse_str( $query, $args );
+            $stage = [
+                'key'          => $stage['key'],
+                'label'        => $stage['label'],
+                'summary'      => $stage['summary'],
+                'next_task_id' => isset( $args['task_id'] ) ? (int) $args['task_id'] : null,
+            ];
+        }
+        return RestResponse::success( [ 'prospect_id' => $id, 'stage' => $stage ] );
     }
 
     /**

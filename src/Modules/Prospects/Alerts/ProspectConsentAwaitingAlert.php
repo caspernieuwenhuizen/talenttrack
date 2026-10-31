@@ -155,7 +155,7 @@ final class ProspectConsentAwaitingAlert extends AbstractDataQualityAlert {
 
     /** The prospect's own screen, where the consent log and its outcomes live. */
     protected function urlFor( object $row ): string {
-        return RecordLink::detailUrlFor( 'prospect-edit', (int) ( $row->subject_id ?? 0 ) );
+        return RecordLink::detailUrlFor( 'prospect', (int) ( $row->subject_id ?? 0 ) );
     }
 
     /** A prospect is not a player yet, so there is no player to roll up to. */
