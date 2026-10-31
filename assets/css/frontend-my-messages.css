@@ -65,10 +65,8 @@
     margin: 0 0 var(--tt-sp-2, 0.5rem);
 }
 
-/* 48x48 minimum touch target (§2), and full-width on a phone so it is
-   reachable with a thumb without aiming. */
+/* Full-width on a phone so it is reachable with a thumb without aiming. */
 .tt-inbox-mark {
-    min-height: 48px;
     width: 100%;
     touch-action: manipulation;
 }

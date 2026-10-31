@@ -350,7 +350,6 @@
 }
 
 .tt-alert-pager__link {
-  min-height: 48px;
   min-width: 48px;
   display: inline-flex;
   align-items: center;

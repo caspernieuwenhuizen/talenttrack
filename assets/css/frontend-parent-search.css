@@ -38,7 +38,6 @@
 }
 
 .tt-parent-search__pointer {
-    min-height: 48px;
     min-width: 48px;
     touch-action: manipulation;
 }

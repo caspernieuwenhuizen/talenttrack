@@ -296,9 +296,11 @@
 }
 .tt-att-allhere-btn {
     width: 100%;
-    min-height: 48px;
     font-weight: 600;
 }
+/* Scoped to outrank the shared 36px fine-pointer floor: the bulk action a
+   coach taps pitch-side keeps 48px on every pointer. */
+.tt-dashboard .tt-att-allhere-btn { min-height: 48px; }
 .tt-att-allhere-hint {
     margin: 6px 0 0;
     font-size: 13px;

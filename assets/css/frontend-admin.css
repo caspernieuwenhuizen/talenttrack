@@ -1589,7 +1589,6 @@
 .tt-empty-state__action { margin: 0; }
 .tt-empty-state__cta {
     display: inline-block;
-    min-height: 48px;
     line-height: 1.4;
 }
 

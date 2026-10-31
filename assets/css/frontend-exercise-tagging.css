@@ -66,7 +66,6 @@
 
 .tt-extag__group-all {
     margin-left: auto;
-    min-height: 40px;
     font-size: var(--tt-fs-sm, 0.8125rem);
 }
 

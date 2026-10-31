@@ -321,6 +321,9 @@
 }
 
 .tt-run__wide { grid-column: 1 / -1; }
+/* `.tt-run__wide` is a `.tt-btn`: scoped so its 56px outranks the shared
+   fine-pointer floor too. */
+.tt-dashboard .tt-run__wide { min-height: 56px; }
 
 .tt-run__msg {
     margin: var(--tt-sp-3, 12px) 0 0;

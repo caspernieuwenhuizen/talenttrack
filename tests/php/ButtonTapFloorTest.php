@@ -31,7 +31,6 @@ final class ButtonTapFloorTest extends WP_UnitTestCase {
         'frontend-pop.css'                 => [ '.tt-pdp-team-gate__form .tt-btn' ],
         'frontend-parent-search.css'       => [ '.tt-parent-search__form .tt-btn' ],
         'frontend-cohort-transitions.css'  => [ '.tt-dashboard .tt-cohort-filters .tt-btn' ],
-        'frontend-cohort-board.css'        => [ '.tt-cb-actions .tt-btn' ],
         'frontend-suspensions.css'         => [ '.tt-suspension-filters .tt-btn' ],
         // The player profile's sheets were left as they were.
         'frontend-player-detail.css'        => [ '.tt-bp-card__actions .tt-btn', '.tt-player-row--injury .tt-player-row__actions .tt-btn' ],
@@ -102,5 +101,67 @@ final class ButtonTapFloorTest extends WP_UnitTestCase {
         }
 
         $this->assertSame( [], $offenders, 'the shared floor covers these; drop the min-height or justify it beside the rule' );
+    }
+
+    /**
+     * A `.tt-btn` sized by one class (`.tt-me-load { min-height: 48px }`,
+     * 0,1,0) loses to the fine floor `.tt-dashboard .tt-btn` (0,2,0): the
+     * sheet claims a height the button never gets under a mouse. Either the
+     * height is deliberate and has a `.tt-dashboard`-scoped rule, or the
+     * declaration goes. Classes count as buttons when markup in `src/` or
+     * `assets/js/` puts them in the same string as `tt-btn`.
+     */
+    public function test_no_button_class_claims_a_height_the_fine_floor_outranks(): void {
+        $root    = dirname( __DIR__, 2 );
+        $buttons = [];
+        foreach ( [ 'src' => '.php', 'assets/js' => '.js' ] as $dir => $ext ) {
+            $files = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root . '/' . $dir, \FilesystemIterator::SKIP_DOTS ) );
+            foreach ( $files as $file ) {
+                if ( substr( (string) $file, -strlen( $ext ) ) !== $ext ) continue;
+                $src = (string) file_get_contents( (string) $file );
+                if ( strpos( $src, 'tt-btn' ) === false ) continue;
+                preg_match_all( '/[^"\'\n]*(?<![\w-])tt-btn(?![\w-])[^"\'\n]*/', $src, $literals );
+                foreach ( $literals[0] as $literal ) {
+                    preg_match_all( '/(?<![\w-])(tt-[a-z0-9_-]+)/', $literal, $classes );
+                    foreach ( $classes[1] as $class ) {
+                        if ( $class !== 'tt-btn' && strpos( $class, 'tt-btn-' ) !== 0 ) $buttons[ $class ] = true;
+                    }
+                }
+            }
+        }
+        $this->assertNotEmpty( $buttons, 'the markup scan found the classes that sit beside tt-btn' );
+
+        $weak   = [];
+        $strong = [];
+        $files  = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root . '/assets/css', \FilesystemIterator::SKIP_DOTS ) );
+        foreach ( $files as $file ) {
+            if ( substr( (string) $file, -4 ) !== '.css' ) continue;
+            $css = self::stripComments( (string) file_get_contents( (string) $file ) );
+            // A height inside a coarse-pointer block is the touch floor, not a desktop claim.
+            $css = (string) preg_replace_callback(
+                '/@media\s*\(\s*pointer\s*:\s*coarse\s*\)\s*\{((?:[^{}]*\{[^{}]*\})*[^{}]*)\}/',
+                static fn( array $m ): string => str_repeat( ' ', strlen( $m[0] ) ),
+                $css
+            );
+            preg_match_all( '/([^{}]+)\{([^{}]*)\}/', $css, $rules, PREG_SET_ORDER );
+            foreach ( $rules as $rule ) {
+                if ( ! preg_match( '/(^|;|\s)(min-)?height\s*:\s*(?!auto|0\b|100%|inherit|initial|unset)[^;]+/', $rule[2] ) ) continue;
+                foreach ( explode( ',', $rule[1] ) as $selector ) {
+                    $selector = trim( (string) preg_replace( '/\s+/', ' ', $selector ) );
+                    if ( preg_match( '/^(?:[a-z]+)?\.(tt-[a-z0-9_-]+)$/', $selector, $one ) && isset( $buttons[ $one[1] ] ) ) {
+                        $weak[ $one[1] ][] = basename( (string) $file ) . ': ' . $selector;
+                    } elseif ( preg_match( '/^\.tt-dashboard \.(tt-[a-z0-9_-]+)$/', $selector, $scoped ) ) {
+                        $strong[ $scoped[1] ] = true;
+                    }
+                }
+            }
+        }
+
+        $offenders = [];
+        foreach ( $weak as $class => $where ) {
+            if ( ! isset( $strong[ $class ] ) ) $offenders = array_merge( $offenders, $where );
+        }
+        sort( $offenders );
+        $this->assertSame( [], $offenders, 'scope the height under .tt-dashboard if it is deliberate, or drop it' );
     }
 }

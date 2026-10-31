@@ -59,16 +59,17 @@
     margin: 0;
 }
 
-/* Guarantee the 48x48 touch target at the 360px base (the shared .tt-btn
- * min-height:48px rule only kicks in at a larger breakpoint). */
+/* The standalone 404 page does not load frontend-admin.css, where the
+ * shared .tt-btn floors live, so the one button carries its own 48x48.
+ * Scoped so it also outranks the 36px fine-pointer floor where it does. */
 .tt-404-home {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 48px;
     min-width: 48px;
     padding: 12px 24px;
 }
+.tt-dashboard .tt-404-home { min-height: 48px; }
 
 /* Tablet and up — a touch more breathing room and a larger emblem. */
 @media (min-width: 768px) {

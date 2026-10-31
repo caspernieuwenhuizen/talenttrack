@@ -117,8 +117,6 @@
 }
 
 .tt-cw-reset {
-    /* Secondary and subordinate, but still a real tap target. */
-    min-height: 48px;
     display: inline-flex;
     align-items: center;
     touch-action: manipulation;
