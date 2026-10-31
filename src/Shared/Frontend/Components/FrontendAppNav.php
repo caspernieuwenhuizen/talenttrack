@@ -161,7 +161,7 @@ final class FrontendAppNav {
         if ( ! $user ) return;
 
         $name    = (string) ( $user->display_name ?: $user->user_login );
-        $persona = (string) ( \TT\Modules\Authorization\PersonaResolver::activePersona( $user_id ) ?? '' );
+        $persona = (string) ( \TT\Modules\Authorization\PersonaResolver::landingPersona( $user_id ) ?? '' );
         $role    = $persona !== '' ? FrontendAppChrome::personaLabel( $persona ) : '';
 
         echo '<div class="tt-shell-nav__user">';
