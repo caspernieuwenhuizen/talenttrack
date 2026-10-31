@@ -14,6 +14,11 @@
 
 $_root = dirname( __DIR__, 2 );
 
+// #4336 — lets a test switch commercial mode and the tier per case
+// (LicenseMode::overrideForTests(), LicenseGate::overrideTierForTests()).
+// Only this bootstrap defines it, so the overrides are inert in production.
+define( 'TT_PHPUNIT', true );
+
 require $_root . '/vendor/autoload.php';
 
 $_tests_dir = getenv( 'WP_PHPUNIT__DIR' );
