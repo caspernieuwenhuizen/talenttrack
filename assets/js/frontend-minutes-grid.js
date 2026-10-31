@@ -121,7 +121,10 @@
 		return isNaN( n ) ? null : n;
 	}
 
-	// The same three checks, in the same order, as the PHP.
+	// A deliberate mirror of `MinutesAuditQuery::completeness()`: the same
+	// three checks, in the same order. Change one, change both. A per-
+	// keystroke preview call would put the server in the typing loop of an
+	// explicit-Save surface; every input comes from the server instead.
 	function completeness( recorded, squad, total, available ) {
 		if ( recorded === 0 ) {
 			return [ 'none', '' ];
@@ -177,20 +180,30 @@
 			return;
 		}
 
-		// Minutes of players with no row on this grid count as the audit
-		// counts them, but nobody types them here.
+		// What has no box is fixed while the coach types: minutes of players
+		// with no row on this grid, and the audit's squad members with no box
+		// (selected but never registered, or off the grid). The boxes are
+		// recounted with the audit's own squad rule: on the squad when
+		// selected (`data-in-squad`) or once they hold minutes, so a player
+		// registered absent joins the squad when he gets minutes, as he will
+		// in the audit after Save (`MinutesGridQuery::minutesCheck()`).
 		var total = readInt( cell, 'data-offgrid-minutes' ) || 0;
 		var recorded = readInt( cell, 'data-offgrid-recorded' ) || 0;
+		var offgridSquad = readInt( cell, 'data-offgrid-squad' );
+		var squad = offgridSquad === null ? null : offgridSquad;
 		grid.querySelectorAll( 'input.tt-agrid-min-in[data-activity="' + activityId + '"]' ).forEach( function ( inp ) {
 			var v = clampMinutes( inp.value );
-			if ( v !== '' && v > 0 ) {
+			var hasMinutes = v !== '' && v > 0;
+			if ( hasMinutes ) {
 				recorded += 1;
 				total += v;
+			}
+			if ( squad !== null && ( hasMinutes || inp.getAttribute( 'data-in-squad' ) === '1' ) ) {
+				squad += 1;
 			}
 		} );
 
 		var available = readInt( cell, 'data-available' );
-		var squad = readInt( cell, 'data-squad' );
 		var verdict = [ '', '' ];
 		if ( cell.getAttribute( 'data-tournament' ) === '1' ) {
 			verdict = [ 'rollup', '' ];

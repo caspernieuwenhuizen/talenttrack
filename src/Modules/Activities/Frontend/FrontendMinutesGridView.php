@@ -237,7 +237,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $players = $matrix['players'];
         /** @var list<array<string,mixed>> $activities */
         $activities = $matrix['activities'];
-        /** @var array<int,array<int,array{minutes:int,squad:bool,goals:int,assists:int}>> $cells */
+        /** @var array<int,array<int,array{minutes:int,squad:bool,goals:int,assists:int,selected?:bool}>> $cells */
         $cells = $matrix['cells'];
 
         echo '<div class="tt-agrid-card">';
@@ -349,7 +349,10 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 $assists += (int) $cell['assists'];
 
                 echo '<td class="tt-agrid-cell tt-agrid-min tt-agrid-cell--sep" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
-                echo '<input class="tt-agrid-min-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="' . esc_attr( (string) $mins ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '" aria-label="' . esc_attr( sprintf(
+                // #4483 — `data-in-squad`: on the audit's squad whatever the
+                // minutes. Without it a player registered absent joins the
+                // Minutes row's squad only when he gets minutes, as in the audit.
+                echo '<input class="tt-agrid-min-in" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="3" value="' . esc_attr( (string) $mins ) . '" data-player="' . esc_attr( (string) $pid ) . '" data-activity="' . esc_attr( (string) $aid ) . '"' . ( ! empty( $cell['selected'] ) ? ' data-in-squad="1"' : '' ) . ' aria-label="' . esc_attr( sprintf(
                     /* translators: 1: player name, 2: match date. */
                     __( 'Minutes for %1$s on %2$s', 'talenttrack' ),
                     $name,
@@ -716,6 +719,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             . esc_html__( 'Minutes', 'talenttrack' ) . '</th>';
 
         foreach ( $activities as $a ) {
+            // The same call `matrix()` makes for the payload's `minutes_check`.
             $check = MinutesGridQuery::minutesCheck( $a, $cells, $roster_ids );
             $total = number_format_i18n( $check['total_minutes'] );
             $sum   = $check['available_minutes'] !== null
@@ -723,13 +727,14 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 : $total;
 
             printf(
-                '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-mincheck__cell" colspan="3" data-minutes-check data-activity="%1$d" data-available="%2$s" data-squad="%3$s" data-tournament="%4$s" data-offgrid-minutes="%5$d" data-offgrid-recorded="%6$d">',
+                '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-mincheck__cell" colspan="3" data-minutes-check data-activity="%1$d" data-available="%2$s" data-squad="%3$s" data-tournament="%4$s" data-offgrid-minutes="%5$d" data-offgrid-recorded="%6$d" data-offgrid-squad="%7$s">',
                 (int) $a['activity_id'],
                 esc_attr( $check['available_minutes'] !== null ? (string) $check['available_minutes'] : '' ),
                 esc_attr( $check['squad_count'] !== null ? (string) $check['squad_count'] : '' ),
                 ! empty( $a['is_tournament'] ) ? '1' : '0',
                 $check['offgrid_minutes'],
-                $check['offgrid_recorded']
+                $check['offgrid_recorded'],
+                esc_attr( $check['offgrid_squad'] !== null ? (string) $check['offgrid_squad'] : '' )
             );
             echo '<span class="tt-agrid-mincheck__sum" data-minutes-sum>' . esc_html( $sum ) . '</span>';
             echo '<span class="tt-agrid-mincheck__chip" data-minutes-chip>';

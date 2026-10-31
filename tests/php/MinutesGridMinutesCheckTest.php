@@ -167,7 +167,126 @@ final class MinutesGridMinutesCheckTest extends WP_UnitTestCase {
         $this->assertSame( 770, $one['activity']['available_minutes'], 'GET /activities/{id}/minutes carries the same column' );
     }
 
+    /**
+     * Hidde's first case on #4487: twelve selected, eleven with minutes, and
+     * a player registered absent with a box at 0. Typing 30 for him puts him
+     * on the audit's squad, so the row still says a player is missing. A
+     * squad count frozen at render time said 25 over instead.
+     */
+    public function test_minutes_typed_for_an_absent_player_put_him_on_the_squad(): void {
+        $match   = $this->insertMatch( '2026-10-20', 70 );
+        $players = $this->insertPlayers( 13 );
+        foreach ( array_slice( $players, 0, 11 ) as $pid ) {
+            $this->insertMinutes( $match, $pid, 70 );
+        }
+        $this->insertMinutes( $match, $players[11], 0 );
+        $absent = $players[12];
+        $this->insertMinutes( $match, $absent, 0, 'absent' );
+
+        $before = $this->gridState( $match );
+        $this->assertFalse( $before['cells'][ $absent ][ $match ]['selected'], 'registered absent: not on the squad without minutes' );
+        $this->assertSame( 12, $before['check']['squad_count'] );
+        $this->assertSame( 'players_missing', $before['check']['status_reason'] );
+
+        $live = $this->liveRecount( $before, $match, [ $absent => 30 ] );
+
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_attendance", [ 'minutes_played' => 30 ], [ 'activity_id' => $match, 'player_id' => $absent ] );
+        $after = $this->gridCheck( $match );
+
+        $this->assertSame( 13, $after['squad_count'], 'with minutes he is on the squad' );
+        $this->assertSame( [ 'partial', 'players_missing' ], $live, 'the live row while typing' );
+        $this->assertSame( [ $after['status'], $after['status_reason'] ], $live, 'is the row after Save' );
+        $this->assertSameAsTheAudit( $match );
+    }
+
+    /**
+     * Hidde's second case: the absent player is rendered with 40 minutes, so
+     * he is on the squad. Clearing his box takes him off it again: the match
+     * is complete, not short of a player.
+     */
+    public function test_clearing_an_absent_players_minutes_takes_him_off_the_squad(): void {
+        $match   = $this->insertMatch( '2026-10-22', 70 );
+        $players = $this->insertPlayers( 12 );
+        foreach ( array_slice( $players, 0, 11 ) as $pid ) {
+            $this->insertMinutes( $match, $pid, 70 );
+        }
+        $absent = $players[11];
+        $this->insertMinutes( $match, $absent, 40, 'absent' );
+
+        $before = $this->gridState( $match );
+        $this->assertSame( 12, $before['check']['squad_count'] );
+        $this->assertSame( 'minutes_over', $before['check']['status_reason'] );
+
+        $live = $this->liveRecount( $before, $match, [ $absent => 0 ] );
+
+        global $wpdb;
+        $wpdb->update( "{$this->p}tt_attendance", [ 'minutes_played' => null ], [ 'activity_id' => $match, 'player_id' => $absent ] );
+        $after = $this->gridCheck( $match );
+
+        $this->assertSame( [ 'complete', '' ], $live, 'the live row while typing' );
+        $this->assertSame( [ $after['status'], $after['status_reason'] ], $live, 'is the row after Save' );
+        $this->assertSameAsTheAudit( $match );
+    }
+
+    public function test_the_rest_payload_carries_the_verdict(): void {
+        [ $match ] = $this->ownersMatch();
+
+        $matrix = ( new MinutesGridQuery() )->matrix( $this->team, self::FROM, self::TO );
+        $column = $this->column( $matrix, $match );
+
+        $this->assertIsArray( $column['minutes_check'] );
+        $this->assertSame( 795, $column['minutes_check']['total_minutes'] );
+        $this->assertSame( 14, $column['minutes_check']['recorded_count'] );
+        $this->assertSame( 'partial', $column['minutes_check']['status'] );
+        $this->assertSame( 'minutes_over', $column['minutes_check']['status_reason'] );
+        $this->assertSame( 0, $column['minutes_check']['offgrid_squad'] );
+
+        $one = ( new MinutesGridQuery() )->forActivity( $match );
+        $this->assertNotNull( $one );
+        $this->assertSame( 'minutes_over', $one['activity']['minutes_check']['status_reason'], 'GET /activities/{id}/minutes carries it too' );
+    }
+
     // ---- the comparison -------------------------------------------------
+
+    /**
+     * The script's rule (`frontend-minutes-grid.js`, `recomputeMinutesCheck`)
+     * run on the rendered state with some boxes retyped: squad = off-grid
+     * squad + boxes that are selected or hold minutes; recorded and total =
+     * off-grid figures + boxes with minutes.
+     *
+     * @param array<string, mixed> $state  From `gridState()`.
+     * @param array<int, int>      $typed  player id => minutes typed into his box
+     * @return array{0:string, 1:string}
+     */
+    private function liveRecount( array $state, int $match, array $typed ): array {
+        $check    = $state['check'];
+        $squad    = (int) $check['offgrid_squad'];
+        $recorded = (int) $check['offgrid_recorded'];
+        $total    = (int) $check['offgrid_minutes'];
+        foreach ( $state['roster'] as $pid ) {
+            if ( ! isset( $state['cells'][ $pid ][ $match ] ) ) continue;
+            $cell    = $state['cells'][ $pid ][ $match ];
+            $minutes = array_key_exists( $pid, $typed ) ? $typed[ $pid ] : (int) $cell['minutes'];
+            if ( $minutes > 0 ) {
+                $recorded++;
+                $total += $minutes;
+            }
+            if ( $minutes > 0 || ! empty( $cell['selected'] ) ) $squad++;
+        }
+        return MinutesAuditQuery::completeness( $recorded, $squad, $total, $check['available_minutes'] );
+    }
+
+    /** @return array{check:array<string, mixed>, cells:array<int, array<int, array<string, mixed>>>, roster:list<int>} */
+    private function gridState( int $match ): array {
+        $matrix = ( new MinutesGridQuery() )->matrix( $this->team, self::FROM, self::TO );
+        $roster = array_map( static fn( array $pl ): int => (int) $pl['player_id'], $matrix['players'] );
+        return [
+            'check'  => MinutesGridQuery::minutesCheck( $this->column( $matrix, $match ), $matrix['cells'], $roster ),
+            'cells'  => $matrix['cells'],
+            'roster' => $roster,
+        ];
+    }
 
     /** The grid's Minutes row and the audit's row agree on the same match. */
     private function assertSameAsTheAudit( int $match ): void {
@@ -264,13 +383,13 @@ final class MinutesGridMinutesCheckTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function insertMinutes( int $activity_id, int $player_id, int $minutes ): void {
+    private function insertMinutes( int $activity_id, int $player_id, int $minutes, string $status = 'present' ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_attendance", [
             'club_id'        => $this->club,
             'activity_id'    => $activity_id,
             'player_id'      => $player_id,
-            'status'         => 'present',
+            'status'         => $status,
             'is_guest'       => 0,
             'record_type'    => 'actual',
             'minutes_played' => $minutes,

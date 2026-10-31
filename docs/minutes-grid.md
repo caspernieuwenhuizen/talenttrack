@@ -138,7 +138,9 @@ makes, in the same words and colours:
 The row updates as you type, so you see the answer before you press Save, and
 after Save it gives the same answer as the audit. The squad it counts is the
 audit's: a player you selected but never marked present has no box here, but
-still counts as a player without minutes until you record his attendance.
+still counts as a player without minutes until you record his attendance. A
+player you marked absent does not count, until you give him minutes: from
+then on he is part of the squad, as he is in the audit.
 
 It is information, not a rule. Nothing stops you saving: a match can really
 run short, after a red card or an injury with no substitute. A tournament day
