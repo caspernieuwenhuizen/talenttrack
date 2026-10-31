@@ -135,6 +135,17 @@ mysql -u root -h 127.0.0.1 -e "DROP DATABASE IF EXISTS tt_phpunit; CREATE DATABA
 A rerun on a used database fails on leftovers (duplicate keys on
 `tt_players`, for instance), and those failures look like real ones.
 
+**One database per session.** Two sessions that share `tt_phpunit` drop each
+other's tables mid-run. Give each session its own database, for example by
+reading the name from the environment in `wp-tests-config.php`:
+
+```php
+define( 'DB_NAME', getenv( 'TT_TEST_DB' ) ?: 'tt_phpunit' );
+```
+
+and running with `TT_TEST_DB=tt_phpunit_<name>` after recreating that
+database.
+
 ## Reading the result
 
 A full local run does **not** come out green, even on `main`. Several hundred
@@ -191,4 +202,14 @@ Two more things that look like regressions and are not:
   matrix (which persona holds which capability). Check its
   precondition before you blame the code.
 
-A local run is evidence, not CI. When the branch can use CI, CI decides.
+**The full suite in one local process is not a gate.** With about 6,000 tests,
+`main` alone fails around 480 and errors on about 50 locally, on a private
+database too: duplicate keys and missing columns left behind by earlier
+tests. A failing new test in that run says nothing until it has run on its
+own. For a comparison that can tell a regression apart, filter both runs to
+the area the branch touches, for example
+`--filter "Player|Team|Trial|Report|Authorization|RestSmoke"`, which runs
+clean on `main` apart from a known failure or two.
+
+A local run is evidence, not CI. CI's wp-env run is the full gate. When the
+branch can use CI, CI decides.
