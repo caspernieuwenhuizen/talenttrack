@@ -238,6 +238,55 @@ final class CoachWeekTest extends WP_UnitTestCase {
         $this->assertSame( [ CoachWeek::ACTION_START_MATCH, CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'] );
     }
 
+    /** #4486 — a match completed by hand on the day offers its record, not a live start. */
+    public function test_a_completed_match_today_offers_no_start_and_no_prep(): void {
+        $this->complete( $this->match, 'Completed' );
+        $week = CoachWeek::forUser( $this->coach, '2026-11-07' );
+        $sat  = $week['rows'][2];
+
+        $this->assertSame( 'today', $sat['when'] );
+        $this->assertSame( [ CoachWeek::ACTION_MARK_ATTENDANCE, CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'], 'nothing recorded yet: mark attendance, then the activity' );
+        $this->assertFalse( $sat['attendance_recorded'] );
+        $this->assertNull( $sat['availability'] );
+        $this->assertNull( $sat['lineup'] );
+
+        $this->recorded( $this->match );
+        $sat = CoachWeek::forUser( $this->coach, '2026-11-07' )['rows'][2];
+        $this->assertTrue( $sat['attendance_recorded'] );
+        $this->assertSame( [ CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'] );
+    }
+
+    public function test_an_upcoming_match_already_completed_follows_the_same_rule(): void {
+        $this->complete( $this->match, 'completed' );
+        $sat = CoachWeek::forUser( $this->coach, '2026-11-04' )['rows'][2];
+
+        $this->assertSame( 'upcoming', $sat['when'] );
+        $this->assertNotContains( CoachWeek::ACTION_MATCH_PREP, $sat['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $sat['actions'] );
+        $this->assertContains( CoachWeek::ACTION_OPEN_ACTIVITY, $sat['actions'] );
+        $this->assertNull( $sat['availability'] );
+        $this->assertNull( $sat['lineup'] );
+    }
+
+    public function test_rest_returns_no_start_match_for_a_completed_match_today(): void {
+        $today = \TT\Modules\Activities\Services\AttendanceDateRule::today();
+        $repo  = new MatchPrepRepository();
+        $live  = $this->activity( $this->team, $today, 'game', 'Played', [ 'opponent' => 'Baronie O14-1' ] );
+        $done  = $this->activity( $this->team, $today, 'game', 'Recorded', [ 'opponent' => 'Baronie O14-2', 'activity_status_key' => 'completed' ] );
+        foreach ( [ $live, $done ] as $aid ) {
+            $repo->replaceLineupForHalf( $repo->ensureForActivity( $aid, 30 ), 1, [ 1 => $this->players[1] ] );
+        }
+
+        $res = rest_do_request( new WP_REST_Request( 'GET', '/talenttrack/v1/me/week' ) );
+        $this->assertSame( 200, $res->get_status() );
+        $rows = [];
+        foreach ( (array) $res->get_data()['data']['rows'] as $row ) $rows[ (int) $row['activity_id'] ] = $row;
+
+        $this->assertContains( CoachWeek::ACTION_START_MATCH, $rows[ $live ]['actions'], 'a planned match today with a line-up still starts' );
+        $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $rows[ $done ]['actions'] );
+        $this->assertNotContains( CoachWeek::ACTION_MATCH_PREP, $rows[ $done ]['actions'] );
+    }
+
     public function test_a_week_without_a_match(): void {
         $today    = $this->activity( $this->team, '2026-11-17', 'training', 'Training JO13-1' );
         $thursday = $this->activity( $this->team, '2026-11-19', 'training', 'Training JO13-1' );
@@ -389,6 +438,11 @@ final class CoachWeekTest extends WP_UnitTestCase {
             'record_type' => 'actual',
         ] );
         ActivityRegisterProgress::forget();
+    }
+
+    private function complete( int $activity_id, string $status ): void {
+        global $wpdb;
+        $wpdb->update( $wpdb->prefix . 'tt_activities', [ 'activity_status_key' => $status ], [ 'id' => $activity_id ] );
     }
 
     private function trainingRun( int $activity_id ): void {
