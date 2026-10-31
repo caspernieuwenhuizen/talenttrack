@@ -36,6 +36,9 @@
     margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
     color: var(--tt-danger-ink, #a32b22);
     overflow-wrap: anywhere;
+    /* .tt-notice in public.css centres and italicises; a list reads left-aligned. */
+    text-align: start;
+    font-style: normal;
 }
 
 .tt-dashboard .tt-workflow-task-errors__list {
