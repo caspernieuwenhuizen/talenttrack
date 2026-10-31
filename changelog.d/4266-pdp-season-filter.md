@@ -1,3 +1,0 @@
-# The PDP list can be looked at season by season, and a PDP file shows its season (#4266)
-
-A PDP file is one season's plan, but the PDP screens hardly said which season. The PDP list now has a season choice, on the current season by default, so an academy admin or head of development can look back at who had a plan last season. The summary line, the coverage by team and the rows all follow the season you pick, a note says which season you are looking at, and an earlier season offers no create button, since a new file always opens in the current season. A coach still sees only their own players, whichever season they pick. The PDP file's page shows its season under its status, and the PDP REST routes now return the season's name alongside its id.

@@ -1,3 +1,0 @@
-# Alert titles always use the site language (#4265)
-
-Alert titles are written when the alerts are checked, and that check can run inside any user's request. On a Dutch site, a check triggered by a user with an English profile stored English titles, so the alerts list showed one consent alert in English next to another in Dutch until the next hourly sweep. The check now always runs in the site language, switched once per batch and restored afterwards, even when an alert definition fails. The bell, the banner, the alerts list, `GET alerts` and the email digest show the same text. A user with an English profile on a Dutch site now sees Dutch alert titles.

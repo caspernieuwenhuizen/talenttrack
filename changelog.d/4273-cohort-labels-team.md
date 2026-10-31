@@ -1,3 +1,0 @@
-# Cohort transitions: event types in your language, teams by name (#4273)
-
-The Cohort transitions screen listed journey event types in English on a Dutch install, and its team filter was a bare number field that asked for the internal team id. The event types now come through the same translation the player's journey uses ("Aangesloten bij de academie"), falling back to English when no translation exists, and `GET journey/event-types` returns the same translated labels. The team filter is a dropdown of team names with "All teams" first; it still submits `team_id`, so existing links keep working.

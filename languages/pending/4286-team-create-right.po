@@ -1,3 +1,0 @@
-#: src/Shared/Frontend/FrontendTeamsManageView.php
-msgid "You do not have permission to add teams."
-msgstr "Je hebt geen toestemming om teams toe te voegen."

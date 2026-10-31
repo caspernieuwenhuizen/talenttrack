@@ -1,9 +1,0 @@
-#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php
-#: src/Shared/Frontend/FrontendActivitiesManageView.php
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
-msgid "Starting line-up"
-msgstr "Basisopstelling"
-
-#: src/Core/FeatureRegistry.php
-msgid "The referee/opposition team sheet (Starting line-up, Bench, Squad + signature lines). Switch off if match forms are filed digitally. The coach's own match-prep PDF is a separate setting."
-msgstr "Het wedstrijdformulier voor scheidsrechter en tegenstander (basisopstelling, bank, selectie + handtekeningregels). Zet dit uit als de wedstrijdformulieren digitaal worden ingediend. De pdf-export van de trainer zelf is een aparte instelling."

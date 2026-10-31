@@ -1,3 +1,0 @@
-#: src/Shared/Frontend/DashboardShortcode.php
-msgid "Teammate profiles are visible to players only."
-msgstr "Profielen van teamgenoten zijn alleen zichtbaar voor spelers."

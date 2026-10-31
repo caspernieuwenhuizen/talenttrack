@@ -1,3 +1,0 @@
-# Parents see their child's teammates as names, not links to a refusal (#4271)
-
-On a child's My team page, a parent saw the teammate list as links. Each one opened a refusal saying the section was only for users linked to a player, which a parent is. Parents now see the roster as names and photos without links, and get no tap feedback on them. The teammate profile shows another child's height, weight and foot, so it stays with the players. A parent who opens a teammate address directly gets a short notice, "Teammate profiles are visible to players only", with the breadcrumb chain. Players keep the links and the teammate profile as before.

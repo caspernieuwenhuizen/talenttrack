@@ -1,3 +1,0 @@
-#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
-msgid "Attendance not recorded yet"
-msgstr "Aanwezigheid nog niet vastgelegd"

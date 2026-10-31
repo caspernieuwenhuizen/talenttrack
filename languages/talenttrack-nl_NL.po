@@ -67804,6 +67804,267 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "Unknown field type: %s"
 msgstr "Onbekend veldtype: %s"
 
+#: src/Modules/Activities/Services/PlayerAvailability.php
+msgid "Check availability"
+msgstr "Beschikbaarheid controleren"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgctxt "injury record"
+msgid "Incomplete"
+msgstr "Onvolledig"
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryDueTemplate.php
+msgid "A player on your team has an injury record that needs a decision. Confirm they are on track or update the expected return date."
+msgstr "Een speler van je team heeft een blessuredossier dat een beslissing nodig heeft. Bevestig dat de speler op schema ligt of pas de verwachte terugkeerdatum aan."
+
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
+msgid "Attendance not recorded yet"
+msgstr "Aanwezigheid nog niet vastgelegd"
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid ""
+"This search covers a parent's own children. To find a player, use the search "
+"at the top."
+msgstr ""
+"Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder. Gebruik "
+"het zoekveld bovenaan om een speler te vinden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid ""
+"This search covers a parent's own children. To find a player, open the "
+"players list."
+msgstr ""
+"Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder. Open de "
+"spelerslijst om een speler te vinden."
+
+#: src/Shared/Frontend/FrontendParentSearchView.php
+msgid "This search covers a parent's own children."
+msgstr "Deze zoekfunctie doorzoekt alleen de eigen kinderen van een ouder."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Edit injury"
+msgstr "Blessure bewerken"
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "You cannot edit this injury."
+msgstr "Je kunt deze blessure niet bewerken."
+
+#: src/Modules/Journey/Frontend/FrontendInjuriesView.php
+msgid "Save injury"
+msgstr "Blessure opslaan"
+
+#. translators: %s: body part
+#: src/Infrastructure/Journey/InjuryRepository.php
+msgid "Injury: %s"
+msgstr "Blessure: %s"
+
+#: src/Infrastructure/Journey/InjuryRepository.php
+msgid "Injury started"
+msgstr "Blessure ingetreden"
+
+#. translators: %s is a date.
+#: src/Modules/Journey/Wizards/InjuryWhenStep.php
+msgid "Date of injury: %s"
+msgstr "Datum van de blessure: %s"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture: a score is entered but the match was not completed"
+msgid "Not closed"
+msgstr "Niet afgesloten"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgctxt "tournament fixture status"
+msgid "Scheduled"
+msgstr "Gepland"
+
+#. translators: %d: number of tournament matches that were played but not completed.
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "%d match not completed; its minutes aren't counted yet."
+msgid_plural "%d matches not completed; their minutes aren't counted yet."
+msgstr[0] "%d wedstrijd niet afgesloten; de minuten tellen nog niet mee."
+msgstr[1] "%d wedstrijden niet afgesloten; de minuten tellen nog niet mee."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#. translators: 1: covered player count, 2: total player count, 3: season name, e.g. 2024/2025
+msgid "%1$d of %2$d players have a PDP for season %3$s."
+msgstr "%1$d van de %2$d spelers hebben een POP voor seizoen %3$s."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#. translators: %s: season name, e.g. 2024/2025
+msgid "You are looking at season %s. New PDP files open in the current season."
+msgstr "Je bekijkt seizoen %s. Nieuwe POP-dossiers openen in het huidige seizoen."
+
+#. translators: %s: player name
+#: src/Modules/Journey/Wizards/InjuryDetailsStep.php
+msgid "Injury for %s"
+msgstr "Blessure van %s"
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Teammate profiles are visible to players only."
+msgstr "Profielen van teamgenoten zijn alleen zichtbaar voor spelers."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Your contact details are kept in more than one place, and they can disagree. "
+"This is everything the academy holds about you, and where each detail is "
+"kept."
+msgstr ""
+"Je contactgegevens staan op meer dan één plek, en die kunnen van elkaar "
+"afwijken. Dit is alles wat de academie van jou heeft, en waar elk gegeven "
+"wordt bewaard."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid "Your account details are yours to change above."
+msgstr "Je accountgegevens pas je hierboven zelf aan."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Choose which messages the academy may send you. Unticking one stops it on "
+"every channel. You will only ever receive messages that concern you or the "
+"players you work with."
+msgstr ""
+"Kies welke berichten de academie je mag sturen. Vink je er een uit, dan "
+"stopt het via elk kanaal. Je ontvangt alleen berichten die over jou of over "
+"de spelers met wie je werkt gaan."
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:171
+#, php-format
+msgid "Only %1$d players are marked Present. You need at least %2$d to fill the starting line-up."
+msgstr "Er staan maar %1$d spelers op Aanwezig. Je hebt er minstens %2$d nodig om de basisopstelling te vullen."
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "You do not have permission to add teams."
+msgstr "Je hebt geen toestemming om teams toe te voegen."
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php
+msgid "You do not have permission to add players."
+msgstr "Je hebt geen toestemming om spelers toe te voegen."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgctxt "PDP talk status: the talk did not take place"
+msgid "Not held"
+msgstr "Niet doorgegaan"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#. translators: %s: the date the talk was marked as not held
+msgid "Marked on %s."
+msgstr "Gemarkeerd op %s."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This talk did not take place…"
+msgstr "Dit gesprek is niet doorgegaan…"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Mark this talk as not held? The next talk in the cycle becomes the current one."
+msgstr "Dit gesprek markeren als niet doorgegaan? Het volgende gesprek in de cyclus wordt dan het huidige."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Why did the talk not take place?"
+msgstr "Waarom is het gesprek niet doorgegaan?"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The talk stays on the file as not held, with this reason. The player and their parents see it too."
+msgstr "Het gesprek blijft als niet doorgegaan in het dossier staan, met deze reden. De speler en de ouders zien dat ook."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Mark as not held"
+msgstr "Markeren als niet doorgegaan"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Take the not-held mark off? This talk becomes the current one again."
+msgstr "De markering niet doorgegaan weghalen? Dit gesprek wordt dan weer het huidige."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Undo not held"
+msgstr "Niet doorgegaan ongedaan maken"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The verdict opens once every conversation in the cycle is signed off or marked as not held."
+msgstr "Het eindoordeel komt vrij zodra elk gesprek in de cyclus is ondertekend of als niet doorgegaan is gemarkeerd."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+#. translators: %d: number of PDP talks that did not take place
+msgid "%d not held"
+msgid_plural "%d not held"
+msgstr[0] "%d niet doorgegaan"
+msgstr[1] "%d niet doorgegaan"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
+msgid "The coach marked the talk as not having taken place, with a reason. The cycle has moved on to the next talk."
+msgstr "De coach heeft het gesprek gemarkeerd als niet doorgegaan, met een reden. De cyclus is doorgegaan naar het volgende gesprek."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "Only the coach of this PDP file or the head of development can mark a talk as not held."
+msgstr "Alleen de coach van dit POP-dossier of het hoofd opleiding kan een gesprek als niet doorgegaan markeren."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "Mark a talk as not held on its own, without other changes in the same request."
+msgstr "Markeer een gesprek als niet doorgegaan zonder andere wijzigingen in hetzelfde verzoek."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "A later talk has already moved on, so this talk stays marked as not held."
+msgstr "Een later gesprek is al verder, dus dit gesprek blijft gemarkeerd als niet doorgegaan."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This talk took place or has been signed, so it cannot be marked as not held."
+msgstr "Dit gesprek heeft plaatsgevonden of is ondertekend, dus het kan niet als niet doorgegaan worden gemarkeerd."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "Only the current talk can be marked as not held. Earlier talks come first."
+msgstr "Alleen het huidige gesprek kan als niet doorgegaan worden gemarkeerd. Eerdere gesprekken gaan voor."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "Say why the talk did not take place."
+msgstr "Geef aan waarom het gesprek niet is doorgegaan."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+#. translators: %d: the maximum number of characters
+msgid "Keep the reason to %d characters."
+msgstr "Houd de reden op maximaal %d tekens."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This talk did not take place, so it takes no reflection. Write it for the next talk instead."
+msgstr "Dit gesprek is niet doorgegaan, dus er hoort geen reflectie bij. Schrijf die voor het volgende gesprek."
+
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Tier pinned."
+msgstr "Tier vastgezet."
+
+#. translators: 1: tier label, 2: the wp-config constant name
+#: src/Modules/License/Admin/AccountPage.php
+msgid "Tier fixed at %1$s by %2$s in wp-config.php. It does not expire; remove the constant to end it."
+msgstr "Tier vastgezet op %1$s door %2$s in wp-config.php. Dit verloopt niet; verwijder de constante om het te beëindigen."
+
+#. translators: %s: tier label
+#: src/Modules/License/Admin/DevOverridePage.php
+msgid "%s (pinned)"
+msgstr "%s (vastgezet)"
+
+#: src/Modules/License/Admin/DevOverridePage.php
+msgid "Tier pinned by TT_DEV_TIER in wp-config.php."
+msgstr "Tier vastgezet door TT_DEV_TIER in wp-config.php."
+
+#: src/Modules/Pdp/Rest/PdpConversationsRestController.php
+msgid "This talk did not take place, so it takes no notes. Record the next talk instead."
+msgstr "Dit gesprek is niet doorgegaan, dus er horen geen notities bij. Leg het volgende gesprek vast."
+
+#: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Starting line-up"
+msgstr "Basisopstelling"
+
+#: src/Core/FeatureRegistry.php
+msgid "The referee/opposition team sheet (Starting line-up, Bench, Squad + signature lines). Switch off if match forms are filed digitally. The coach's own match-prep PDF is a separate setting."
+msgstr "Het wedstrijdformulier voor scheidsrechter en tegenstander (basisopstelling, bank, selectie + handtekeningregels). Zet dit uit als de wedstrijdformulieren digitaal worden ingediend. De pdf-export van de trainer zelf is een aparte instelling."
+
+#: src/Infrastructure/Journey/InjuryRepository.php
+msgid "Injury recovered"
+msgstr "Blessure hersteld"
+
 #~ msgid "All states"
 #~ msgstr "Alle statussen"
 

@@ -1,9 +1,0 @@
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
-#. translators: 1: covered player count, 2: total player count, 3: season name, e.g. 2024/2025
-msgid "%1$d of %2$d players have a PDP for season %3$s."
-msgstr "%1$d van de %2$d spelers hebben een POP voor seizoen %3$s."
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
-#. translators: %s: season name, e.g. 2024/2025
-msgid "You are looking at season %s. New PDP files open in the current season."
-msgstr "Je bekijkt seizoen %s. Nieuwe POP-dossiers openen in het huidige seizoen."
