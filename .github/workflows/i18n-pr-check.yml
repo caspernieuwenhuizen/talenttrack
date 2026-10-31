@@ -19,6 +19,9 @@ name: i18n PR check
 #    The author can still override with the `i18n-drift-acceptable`
 #    label, e.g. when a feature lands faster than the translator.
 #
+# 1b. Hard-coded user-facing strings (#4509), added lines only, PHP and
+#     JS: `tools/check-hardcoded-strings.php`. `tt-i18n-ok` exempts a line.
+#
 # 2. Hardcoded-English leak grep — Table C leak classes (Audit 4 /
 #    #1178): literal English in `wp_die(...)`, as the 2nd arg to
 #    `WP_Error(...)`, or as a `sprintf(...)` format string. Unchanged.
@@ -34,7 +37,10 @@ on:
   pull_request:
     paths:
       - 'src/**/*.php'
+      - 'assets/js/**/*.js'
       - 'languages/**'
+      - 'tools/check-hardcoded-strings.php'
+      - 'tools/lib/hardcoded-strings.php'
 
 permissions:
   contents: read
@@ -118,6 +124,18 @@ jobs:
 
           echo "::error::This PR adds translatable strings with no Dutch translation."
           exit 1
+
+      # #4509 — hard-coded user-facing strings on the PR's ADDED lines:
+      # JS literals written to textContent / placeholder / title /
+      # aria-label, PHP echo / printf / esc_html() of an untranslated
+      # literal, and msgids that are themselves Dutch. Existing lines are
+      # grandfathered; a trailing tt-i18n-ok marker exempts data.
+      - name: No new hard-coded user-facing strings
+        shell: bash
+        run: |
+          set -e
+          git fetch origin main:refs/remotes/origin/main || true
+          php tools/check-hardcoded-strings.php --base=origin/main --format=github
 
       # Bonus: hardcoded-English leak grep (Audit 4 Table C).
       # We scan only the files changed in the PR — false-positive
