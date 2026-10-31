@@ -1,0 +1,40 @@
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Title"
+msgstr "Titel"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Date"
+msgstr "Datum"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Times"
+msgstr "Tijden"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Location"
+msgstr "Locatie"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Edited in TalentTrack, not updated from Spond"
+msgstr "Aangepast in TalentTrack, niet bijgewerkt vanuit Spond"
+
+#. translators: %s = field group name, e.g. Title
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Follow Spond again: %s"
+msgstr "Spond weer volgen: %s"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Let Spond update this again? The next sync replaces it with what Spond has."
+msgstr "Mag Spond dit weer bijwerken? Bij de volgende synchronisatie komt hier te staan wat in Spond staat."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Follow Spond again"
+msgstr "Spond weer volgen"
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "That field group cannot be locked."
+msgstr "Die groep velden kan niet worden vastgezet."

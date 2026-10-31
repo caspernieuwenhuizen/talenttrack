@@ -11,6 +11,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\ActivityAccess;
+use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\Activities\Repositories\AttendanceWriter;
 use TT\Modules\Activities\Services\AttendanceDateRule;
@@ -101,6 +102,16 @@ class ActivitiesRestController {
                 // edit-class (an assistant coach with edit-only cannot archive).
                 'callback'            => [ __CLASS__, 'delete_session' ],
                 'permission_callback' => [ __CLASS__, 'can_delete' ],
+            ],
+        ] );
+        // #4485 — "Follow Spond again": unlock one edited field group so
+        // the next Spond sync writes it. Edit-class, like the edit itself.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/sync-locks/(?P<group>[a-z_]+)', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'unlock_sync_group' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+                'args'                => self::syncLockArgs(),
             ],
         ] );
         // #1555 — archive lifecycle: restore + gated permanent delete,
@@ -1418,6 +1429,9 @@ class ActivitiesRestController {
             'team_spond_last_sync_at'   => isset( $row->team_spond_last_sync_at ) && $row->team_spond_last_sync_at !== null
                 ? (string) $row->team_spond_last_sync_at
                 : null,
+            // #4485 — field groups edited in TalentTrack that the Spond sync
+            // no longer writes. Always a list; empty when nothing is locked.
+            'sync_locked_fields'        => SyncLockedFields::decode( $row->sync_locked_fields ?? null ),
             'attendance_count'         => $count,
             'present_count'            => $present,
             'roster_size'              => $roster,
@@ -1846,6 +1860,35 @@ class ActivitiesRestController {
     }
 
     /**
+     * DELETE /activities/{id}/sync-locks/{group} — #4485. Lets the Spond
+     * sync write one field group again. Answers with the groups still
+     * locked; unlocking a group that is not locked is a no-op, not an error.
+     */
+    public static function unlock_sync_group( \WP_REST_Request $r ) {
+        $refused = BaseController::checkBody( $r, self::syncLockArgs() );
+        if ( $refused !== null ) return $refused;
+
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+        $group = (string) $r['group'];
+        if ( ! SyncLockedFields::isGroup( $group ) ) {
+            return RestResponse::error( 'unknown_group', __( 'That field group cannot be locked.', 'talenttrack' ), 400 );
+        }
+
+        $refusal = self::refuseUnlessTeamWritable( self::activityTeamId( $activity_id ) );
+        if ( $refusal !== null ) return $refusal;
+
+        $remaining = self::repo()->unlockSyncGroup( $activity_id, $group );
+        if ( $remaining === null ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [ 'id' => $activity_id, 'sync_locked_fields' => $remaining ] );
+    }
+
+    /**
      * POST /activities/{id}/restore — clear the archive stamp (#1555).
      */
     public static function restore_session( \WP_REST_Request $r ) {
@@ -2037,6 +2080,23 @@ class ActivitiesRestController {
             'type'        => [ 'integer', 'string' ],
             'description' => 'The activity, from the URL. A copy in the body is accepted and ignored.',
         ] ];
+    }
+
+    /**
+     * `DELETE /activities/{id}/sync-locks/{group}` — both from the URL. No
+     * `enum`: core validates it before the permission callback, which would
+     * answer an unauthenticated caller with 400 instead of 401. The handler
+     * names an unknown group itself.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private static function syncLockArgs(): array {
+        return self::activityIdArgs() + [
+            'group' => [
+                'type'        => 'string',
+                'description' => 'The field group to hand back to Spond: title, date, times or location.',
+            ],
+        ];
     }
 
     /**

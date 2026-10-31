@@ -642,6 +642,29 @@ Writes `activity_status_key` **and** the derived `plan_state` (`planned` → `sc
 
 The response carries `register_state` (#3446) — `none` | `partial` | `complete` | `not_applicable`, from `ActivityRegisterProgress`. It is **advisory**: the endpoint does not refuse an empty register, because legitimate empty registers exist (imports, club-wide activities with no squad, a borrowed team). A client that offers a completion action should raise the same warning the plugin's own dialog raises on `none`, and stay quiet on the other three — `partial` is a legitimate end state, and `not_applicable` means there is no roster whose participation could go missing. A recorded row is `record_type = 'actual'`, `is_guest = 0`, non-empty `status`; the denominator is the planned roster where one was captured, falling back to the team's current roster.
 
+### Spond sync locks: `sync_locked_fields` and `DELETE /activities/{id}/sync-locks/{group}` (#4485)
+
+A field group a person changes on a Spond-sourced activity (`activity_source_key = 'spond'`) is locked for that activity, and the Spond sync stops writing it. The groups:
+
+| Group | Columns the sync leaves alone |
+| --- | --- |
+| `title` | `title` |
+| `date` | `session_date` |
+| `times` | `start_time`, `end_time`, `kickoff_time`, `time_of_presence` |
+| `location` | `location` |
+
+The lock is set in `ActivitiesRepository::update()`, the write behind `PUT /activities/{id}` and the wp-admin form, and only when the save changes a value in the group. `times` is compared on `start_time`, `end_time` and `time_of_presence`; `kickoff_time` is derived from the start time on save and is locked with the group. An unchanged save, and any save of a non-Spond activity, locks nothing. Opponent, home/away, type and notes are not lock groups: the sync writes them on import only.
+
+**Read.** Every `GET /activities` row carries `sync_locked_fields`, a list of group keys in the order above. It is `[]` when nothing is locked, which is always the case for a non-Spond activity.
+
+**Unlock.** `DELETE /activities/{id}/sync-locks/{group}` removes one group, and the next sync writes Spond's value again. Gated like an edit: `can_edit` (`tt_edit_activities`, matrix-aware) plus write access to the activity's team (`403 forbidden_team`). No body.
+
+```json
+{ "id": 812, "sync_locked_fields": [ "times" ] }
+```
+
+The response is the groups still locked. Unlocking a group that is not locked answers `200` with the list unchanged. An unknown group is `400 unknown_group`; an activity that is not this club's is `404 not_found`.
+
 ## Search + peek (#2458)
 
 Backs the command palette and the peek panel in the app shell. Both exist as REST

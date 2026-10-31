@@ -871,6 +871,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // the issue ("evaluation_skipped stays a conditional notice").
         self::renderEvalSkippedNotice( $session );
 
+        self::renderSyncLocks( $session );
+
         // #1471 — created/changed audit footer (renders nothing for
         // pre-audit rows with no recorded author). #2221 — appends the
         // team's last Spond sync line for Spond-sourced activities.
@@ -960,6 +962,57 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
         }
         return __( 'Pull this team\'s calendar from Spond now? The whole team calendar is refreshed, not just this activity.', 'talenttrack' );
+    }
+
+    /**
+     * #4485 — the field groups a person edited on a Spond-sourced activity,
+     * which the Spond sync no longer writes, each with a way to hand it back.
+     * The lock list comes from the row (`SyncLockedFields::decode()`); the
+     * button rides the shared `data-tt-archive-*` confirm plumbing and calls
+     * `DELETE activities/{id}/sync-locks/{group}`.
+     */
+    private static function renderSyncLocks( object $session ): void {
+        if ( strtolower( (string) ( $session->activity_source_key ?? '' ) ) !== \TT\Modules\Activities\Domain\SyncLockedFields::SOURCE ) return;
+        $locked = \TT\Modules\Activities\Domain\SyncLockedFields::decode( $session->sync_locked_fields ?? null );
+        if ( $locked === [] ) return;
+
+        $labels = [
+            'title'    => _x( 'Title', 'Spond sync field group', 'talenttrack' ),
+            'date'     => _x( 'Date', 'Spond sync field group', 'talenttrack' ),
+            'times'    => _x( 'Times', 'Spond sync field group', 'talenttrack' ),
+            'location' => _x( 'Location', 'Spond sync field group', 'talenttrack' ),
+        ];
+        $can_edit = empty( $session->archived_at )
+            && AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+        $aid      = (int) $session->id;
+        $back     = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'activities', $aid );
+
+        echo '<ul class="tt-act-detail__sync-locks">';
+        foreach ( $locked as $group ) {
+            $label = $labels[ $group ] ?? $group;
+            echo '<li class="tt-act-detail__sync-lock">';
+            echo '<span class="tt-act-detail__sync-lock-text"><strong>' . esc_html( $label ) . '</strong> ';
+            echo esc_html__( 'Edited in TalentTrack, not updated from Spond', 'talenttrack' ) . '</span>';
+            if ( $can_edit ) {
+                echo '<button type="button" class="tt-btn tt-btn-secondary tt-act-detail__sync-lock-undo"'
+                    . ' aria-label="' . esc_attr( sprintf(
+                        /* translators: %s = field group name, e.g. Title */
+                        __( 'Follow Spond again: %s', 'talenttrack' ),
+                        $label
+                    ) ) . '"'
+                    . ' data-tt-archive-rest-path="' . esc_attr( 'activities/' . $aid . '/sync-locks/' . $group ) . '"'
+                    . ' data-tt-archive-method="DELETE"'
+                    . ' data-tt-archive-confirm="' . esc_attr__( 'Let Spond update this again? The next sync replaces it with what Spond has.', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm-title="' . esc_attr__( 'Follow Spond again', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-confirm-label="' . esc_attr__( 'Follow Spond again', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-variant="primary"'
+                    . ' data-tt-archive-redirect="' . esc_url( $back ) . '">'
+                    . esc_html__( 'Follow Spond again', 'talenttrack' )
+                    . '</button>';
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
     }
 
     /**

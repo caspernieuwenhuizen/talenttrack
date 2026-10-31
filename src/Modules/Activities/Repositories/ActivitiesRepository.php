@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
+use TT\Modules\Activities\Domain\SyncLockedFields;
 use TT\Modules\Activities\Reports\MatchResultQuery;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -976,6 +977,10 @@ final class ActivitiesRepository {
         // row said before it. Read it only when the payload could be a
         // cancellation, so the common edit keeps its single query.
         $was_cancelled = $this->wasCancelledBefore( $activity_id, $data );
+        // #4485 — a person's change to a Spond activity's title, date,
+        // times or location locks that group against the next sync.
+        $lock = $this->syncLockAfterEdit( $activity_id, $data );
+        if ( $lock !== null ) $data['sync_locked_fields'] = $lock;
         $ok = $wpdb->update(
             "{$p}tt_activities",
             $data,
@@ -988,6 +993,70 @@ final class ActivitiesRepository {
         if ( $ok && $was_cancelled === false ) $this->announceCancellation( $activity_id );
 
         return $ok;
+    }
+
+    /**
+     * #4485 — the `sync_locked_fields` value this edit leaves behind, or
+     * null when it stays as it is. Reads the row only when the payload
+     * touches a lockable column, so other edits keep their single query.
+     *
+     * @param array<string,mixed> $data Columns about to be written.
+     */
+    private function syncLockAfterEdit( int $activity_id, array $data ): ?string {
+        if ( $activity_id <= 0 ) return null;
+        $columns = SyncLockedFields::comparedColumns();
+        if ( array_intersect( $columns, array_keys( $data ) ) === [] ) return null;
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $cols = implode( ', ', $columns );
+        $row  = $wpdb->get_row( $wpdb->prepare(
+            "SELECT activity_source_key, sync_locked_fields, {$cols}
+               FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ), ARRAY_A );
+        if ( ! is_array( $row ) ) return null;
+
+        return SyncLockedFields::afterEdit( $row, $data );
+    }
+
+    /**
+     * #4485 — the groups locked against the Spond sync, or null when the
+     * activity is not this club's.
+     *
+     * @return list<string>|null
+     */
+    public function syncLockedGroups( int $activity_id ): ?array {
+        if ( $activity_id <= 0 ) return null;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT sync_locked_fields FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( ! is_object( $row ) ) return null;
+        return SyncLockedFields::decode( $row->sync_locked_fields ?? null );
+    }
+
+    /**
+     * #4485 — let the Spond sync write a group again. Returns the groups
+     * still locked, or null when the activity is not this club's.
+     *
+     * @return list<string>|null
+     */
+    public function unlockSyncGroup( int $activity_id, string $group ): ?array {
+        $locked = $this->syncLockedGroups( $activity_id );
+        if ( $locked === null ) return null;
+        $remaining = array_values( array_diff( $locked, [ $group ] ) );
+        if ( $remaining === $locked ) return $locked;
+
+        global $wpdb;
+        $ok = $wpdb->update(
+            $wpdb->prefix . 'tt_activities',
+            [ 'sync_locked_fields' => SyncLockedFields::encode( $remaining ) ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok === false ? null : $remaining;
     }
 
     /**
