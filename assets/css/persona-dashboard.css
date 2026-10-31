@@ -1093,7 +1093,7 @@
 }
 @media (min-width: 768px) {
     .tt-pd-pipeline-cols {
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat(7, minmax(0, 1fr));
     }
 }
 .tt-pd-pipeline-col {

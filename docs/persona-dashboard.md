@@ -165,7 +165,7 @@ Top to bottom on the default template:
 
 1. **KPI strip** — active players, evaluations this month, rolling attendance %, open trial cases, PDP verdicts pending, goal completion %.
 2. **Team overview grid + `+ New trial` action card** — 4 team cards, `concern_first` sort, 30-day window.
-3. **Onboarding pipeline strip** (XL, full width) — six-stage funnel counts (Prospects · Invited · Test training · Trial group · Team offer · Joined) with stale badges.
+3. **Onboarding pipeline strip** (XL, full width) — seven-stage funnel counts (Prospects · Consent requested · Invited · Test training · Trial group · Team offer · Joined) with stale badges. Each stage counts what the column of the same name on the onboarding pipeline board shows.
 4. **Upcoming activities** data table — 4 teams' forward schedule.
 5. **Trials needing decision** data table.
 6. **Navigation tiles** — top row carries the four highest-frequency drill-downs (Onboarding pipeline · Tasks dashboard · Players · Teams); second row carries cycle / record-keeping surfaces (Trials · Evaluations · PDP · Activities); rest unchanged.

@@ -146,7 +146,7 @@ Van boven naar onder op de standaardtemplate:
 
 1. **KPI-strip** — actieve spelers, evaluaties deze maand, lopende opkomst-%, open trial-cases, openstaande PDP-verdicten, doel-voltooiings-%.
 2. **Ploegoverzicht-grid + `+ Nieuw trial`-actiekaart** — 4 ploegkaarten, `concern_first`-sortering, 30-dagen-venster.
-3. **Onboarding-pipeline-strip** (XL, volle breedte) — tellingen voor de zes funneltrappen (Prospects · Uitgenodigd · Testtraining · Trialgroep · Teamaanbod · Aangesloten) met stale-badges.
+3. **Onboarding-pipeline-strip** (XL, volle breedte) — tellingen voor de zeven funneltrappen (Prospects · Toestemming gevraagd · Uitgenodigd · Testtraining · Trialgroep · Teamaanbod · Aangesloten) met stale-badges. Elke trap telt wat de kolom met dezelfde naam op het bord van de aannamepijplijn toont.
 4. **Komende activiteiten** — gegevens-tabel met de planning van de 4 ploegen.
 5. **Trials die een beslissing nodig hebben** — gegevens-tabel.
 6. **Navigatietegels** — bovenste rij bevat de vier hoogfrequente drill-downs (Onboarding-pipeline · Takendashboard · Spelers · Ploegen); tweede rij bevat de cyclus-/registratie-oppervlakken (Trials · Evaluaties · PDP · Activiteiten); rest ongewijzigd.

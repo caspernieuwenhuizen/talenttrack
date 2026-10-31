@@ -10,16 +10,19 @@ use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
 use TT\Modules\Prospects\ProspectScope;
+use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 
 /**
  * OnboardingPipelineWidget (#0081 child 3) — the recruitment funnel
- * visualisation. Six stages laid out left-to-right; each column shows a
+ * visualisation. Seven stages laid out left-to-right; each column shows a
  * count and a stale-count badge. Pivots existing workflow-task and
  * trial-case data — no new tables, no parallel state machine.
  *
  * Stage-to-data mapping:
  *   - Prospects     — open `LogProspectTemplate` tasks OR prospects with
  *                     no task at all yet.
+ *   - Consent requested — an open `request_consent` task, or an awaiting
+ *                     consent-log entry with no agreed one (#4403).
  *   - Invited       — open `InviteToTestTrainingTemplate` or
  *                     `ConfirmTestTrainingTemplate` tasks.
  *   - Test Training — open `RecordTestTrainingOutcomeTemplate` tasks.
@@ -52,7 +55,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
     }
 
     public function description(): string {
-        return __( 'Six-stage count strip — Prospects / Invited / Test training / Trial group / Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an amber stale badge when any task in that stage is >30 days overdue. Counts follow the viewer\'s scope: academy-wide for scouts, HoD and admins; a head coach sees their own age groups.', 'talenttrack' );
+        return __( 'Seven-stage count strip — Prospects / Consent requested / Invited / Test training / Trial group / Team offer / Joined — sourced from tt_prospects and tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an amber stale badge when any task in that stage is >30 days overdue. Counts follow the viewer\'s scope: academy-wide for scouts, HoD and admins; a head coach sees their own age groups.', 'talenttrack' );
     }
 
     /** @return list<string> */
@@ -155,7 +158,8 @@ class OnboardingPipelineWidget extends AbstractWidget {
         // in v3.110.81-83 because the rule preferred player_id over
         // trial_case_id. Joined now requires `player.status != 'trial'`,
         // and the SQL needs the new player_status column to evaluate it.
-        $cache_key = sprintf( 'tt_op_pipeline_v3_%d_%d', $club_id, $user_id );
+        // #4403 — `v4`: the strip gained the Consent requested stage.
+        $cache_key = sprintf( 'tt_op_pipeline_v4_%d_%d', $club_id, $user_id );
         $cached    = wp_cache_get( $cache_key, 'tt_persona_dashboard' );
         if ( is_array( $cached ) ) return $cached;
 
@@ -172,6 +176,11 @@ class OnboardingPipelineWidget extends AbstractWidget {
         // disagree about which prospects the viewer has.
         $where_scope = ProspectScope::sqlClause( $user_id, 'p' );
 
+        // #4403 — the consent inputs the board selects: an open
+        // `request_consent` task, and the consent log's "awaiting, none
+        // agreed" from the one fragment the board uses too.
+        $awaiting_consent_sql = ProspectConsentRequestsRepository::awaitingConsentSql( 'p' );
+
         // v3.110.84 — added `player_status` (LEFT JOIN tt_players on
         // promoted_to_player_id) so the classifier can distinguish
         // Trial group (player still at status='trial') from Joined
@@ -185,6 +194,8 @@ class OnboardingPipelineWidget extends AbstractWidget {
                 p.created_at,
                 MAX(pl.status) AS player_status,
                 MAX(CASE WHEN wt.template_key = 'log_prospect'                 AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_log,
+                MAX(CASE WHEN wt.template_key = 'request_consent'              AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_consent,
+                MAX( {$awaiting_consent_sql} ) AS awaiting_consent,
                 MAX(CASE WHEN wt.template_key = 'invite_to_test_training'      AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_invite,
                 MAX(CASE WHEN wt.template_key = 'confirm_test_training'        AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_confirm,
                 MAX(CASE WHEN wt.template_key = 'record_test_training_outcome' AND wt.status IN ('open','in_progress','overdue') THEN 1 ELSE 0 END) AS open_outcome,
@@ -206,6 +217,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
 
         $tally = [
             'prospects' => [ 'count' => 0, 'stale' => 0 ],
+            'consent'   => [ 'count' => 0, 'stale' => 0 ],
             'invited'   => [ 'count' => 0, 'stale' => 0 ],
             'test'      => [ 'count' => 0, 'stale' => 0 ],
             'trial'     => [ 'count' => 0, 'stale' => 0 ],
@@ -223,13 +235,14 @@ class OnboardingPipelineWidget extends AbstractWidget {
             // group and Joined are derived from prospect-table columns
             // and have no waiting-task semantics.
             if ( ! empty( $row->soonest_due_ts ) && (int) $row->soonest_due_ts < $stale_cutoff
-                 && in_array( $stage, [ 'prospects', 'invited', 'test', 'offer' ], true ) ) {
+                 && in_array( $stage, [ 'prospects', 'consent', 'invited', 'test', 'offer' ], true ) ) {
                 $tally[ $stage ]['stale']++;
             }
         }
 
         $stages = [
             [ 'key' => 'prospects', 'label' => __( 'Prospects',     'talenttrack' ), 'count' => $tally['prospects']['count'], 'stale' => $tally['prospects']['stale'] ],
+            [ 'key' => 'consent',   'label' => __( 'Consent requested', 'talenttrack' ), 'count' => $tally['consent']['count'], 'stale' => $tally['consent']['stale'] ],
             [ 'key' => 'invited',   'label' => __( 'Invited',       'talenttrack' ), 'count' => $tally['invited']['count'],   'stale' => $tally['invited']['stale']   ],
             [ 'key' => 'test',      'label' => __( 'Test training', 'talenttrack' ), 'count' => $tally['test']['count'],      'stale' => $tally['test']['stale']      ],
             [ 'key' => 'trial',     'label' => __( 'Trial group',   'talenttrack' ), 'count' => $tally['trial']['count'],     'stale' => $tally['trial']['stale']     ],

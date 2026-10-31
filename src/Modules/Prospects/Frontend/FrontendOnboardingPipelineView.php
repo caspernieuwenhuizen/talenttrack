@@ -523,21 +523,9 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $where_scope = ProspectScope::sqlClause( $user_id, 'p' );
 
         // #4268 — "consent pending" from the consent log: an awaiting
-        // request and no agreed one, the rule the prospects list's waiting
-        // counter uses. Built from the outcome constants; 0 on an install
-        // whose log table does not exist yet.
-        $awaiting_consent_sql = '0';
-        if ( \TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository::tableExists() ) {
-            $requests = $wpdb->prefix . 'tt_prospect_consent_requests';
-            $awaiting = \TT\Modules\Prospects\Domain\ConsentOutcome::AWAITING;
-            $agreed   = \TT\Modules\Prospects\Domain\ConsentOutcome::AGREED;
-            $awaiting_consent_sql = "( EXISTS ( SELECT 1 FROM {$requests} cr
-                                                 WHERE cr.prospect_id = p.id AND cr.club_id = p.club_id
-                                                   AND cr.outcome = '{$awaiting}' )
-                                       AND NOT EXISTS ( SELECT 1 FROM {$requests} ca
-                                                         WHERE ca.prospect_id = p.id AND ca.club_id = p.club_id
-                                                           AND ca.outcome = '{$agreed}' ) )";
-        }
+        // request and no agreed one. The dashboard's pipeline strip selects
+        // the same condition (#4403).
+        $awaiting_consent_sql = ProspectConsentRequestsRepository::awaitingConsentSql( 'p' );
 
         $sql = "
             SELECT
