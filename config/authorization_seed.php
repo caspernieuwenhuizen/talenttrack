@@ -825,6 +825,10 @@ return array_merge(
         'goals'                         => [ 'rcd', 'global', $mod_goals ],
         'attendance'                    => [ 'rcd', 'global', $mod_activities ],
         'methodology'                   => [ 'rcd', 'global', $mod_methodology ],
+        // #4391 — tile visibility only: who is offered the vocabulary
+        // editor. The staff personas' `methodology` read stays; it serves
+        // the Methodology read tile and the REST reads.
+        'methodology_vocabulary_panel'  => [ 'r',   'global', $mod_methodology ],
         'football_actions'              => [ 'rcd', 'global', $mod_methodology ],
         'player_status_methodology'     => [ 'rc',  'global', $mod_methodology ],
         // #1944 — Exercises (club-global drill library). HoD curates the
@@ -1013,6 +1017,10 @@ return array_merge(
         'goals'                         => [ 'rcd', 'global', $mod_goals ],
         'attendance'                    => [ 'rcd', 'global', $mod_activities ],
         'methodology'                   => [ 'rcd', 'global', $mod_methodology ],
+        // #4391 — tile visibility only: who is offered the vocabulary
+        // editor. The staff personas' `methodology` read stays; it serves
+        // the Methodology read tile and the REST reads.
+        'methodology_vocabulary_panel'  => [ 'r',   'global', $mod_methodology ],
         'football_actions'              => [ 'rcd', 'global', $mod_methodology ],
         'player_status_methodology'     => [ 'rcd', 'global', $mod_methodology ],
         // #1944 — Exercises (club-global drill library). Admin has full

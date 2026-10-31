@@ -616,6 +616,18 @@ Bestaande installaties krijgen de vier stafrijen met migratie `0300_authorizatio
 
 De principes van de methodologie volgen hetzelfde idee zonder wijziging in de seed. `GET /methodology/principles[/{id}]` vraagt nu `tt_view_methodology` (`methodology: read`, dat beide trainerspersona's en de scout al hebben) in plaats van het bewerkrecht, en schrijven blijft bij `tt_edit_methodology`.
 
+## Matrix-entiteit `methodology_vocabulary_panel` — wie de woordenlijst-editor aangeboden krijgt
+
+De tegel **Methodiekvocabulaire** opent de editor voor de eigen methodologiewoorden van de academie, en daarvoor is `tt_edit_methodology` nodig. De hoofdtrainer, de assistent-trainer en de scout lezen `methodology`, omdat de leestegel **Methodologie** en de REST-reads van de methodologie dat nodig hebben. Een tegel op die entiteit liet hun dus een editor zien die hen daarna weigerde.
+
+De tegel heeft daarom een eigen entiteit, die alleen de zichtbaarheid van de tegel bepaalt:
+
+| Persona | Recht |
+|---|---|
+| `head_of_development`, `academy_admin` | `read`, globaal |
+
+Verder verandert er niets: de stafpersona's houden `methodology: read`, en de editor zelf controleert nog steeds `tt_edit_methodology`. Bestaande installaties krijgen de twee rijen met migratie `0302_authorization_methodology_vocabulary_panel`, die ze met `INSERT IGNORE` toevoegt en elke rij die een beheerder heeft aangepast met rust laat.
+
 ## De functionele-rol-as (#3257, #3433)
 
 De matrix sleutelt op `(persona, entiteit, activiteit, scope_kind)`. Een fysio en een materiaalman houden dezelfde WordPress-rol `tt_staff`, komen dus uit op dezelfde persona — `staff` — en **geen enkele cel in dit raster kan die twee uit elkaar houden**. Dat is geen gat in de seed; dat is de vorm van de sleutel. De grant `player_injuries [rc, team]` uit #3232 bereikte daardoor elk Staf-account, ook accounts die om volstrekt niet-medische redenen waren uitgedeeld.

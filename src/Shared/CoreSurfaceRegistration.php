@@ -1076,7 +1076,10 @@ final class CoreSurfaceRegistration {
             // and cannot resolve a constant, so a constant here would leave
             // the surface unchecked.
             'view_slug'    => 'methodology-vocabulary',
-            'entity'       => 'methodology',
+            // #4391 — its own panel entity (the `holidays_panel` pattern):
+            // the coaches and the scout read `methodology`, so a tile on
+            // that entity showed them an editor they are refused at.
+            'entity'       => 'methodology_vocabulary_panel',
             'group'        => __( 'Reference', 'talenttrack' ),
             'kind'         => 'setup',
             'order'        => 20,
