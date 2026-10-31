@@ -9,6 +9,7 @@ use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ConsentRequestDate;
+use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 
@@ -117,10 +118,20 @@ class ProspectConsentRequestsRestController {
         return AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' );
     }
 
+    /**
+     * The prospect exists and is inside the caller's scope: the same answer
+     * `GET /prospects/{id}` gives, so a prospect the caller cannot open is
+     * "not found" here too.
+     */
+    private static function prospectVisible( int $prospect_id ): bool {
+        return ( new ProspectsRepository() )->find( $prospect_id ) !== null
+            && ProspectScope::canSee( get_current_user_id(), $prospect_id );
+    }
+
     /** GET /prospects/{id}/consent-requests */
     public static function list_requests( \WP_REST_Request $r ): \WP_REST_Response {
         $prospect_id = (int) $r['id'];
-        if ( ( new ProspectsRepository() )->find( $prospect_id ) === null ) {
+        if ( ! self::prospectVisible( $prospect_id ) ) {
             return RestResponse::notFound( 'prospect_not_found', __( 'Prospect not found.', 'talenttrack' ) );
         }
         if ( ! ProspectConsentRequestsRepository::tableExists() ) {
@@ -141,7 +152,7 @@ class ProspectConsentRequestsRestController {
         if ( $bad ) return $bad;
 
         $prospect_id = (int) $r['id'];
-        if ( ( new ProspectsRepository() )->find( $prospect_id ) === null ) {
+        if ( ! self::prospectVisible( $prospect_id ) ) {
             return RestResponse::notFound( 'prospect_not_found', __( 'Prospect not found.', 'talenttrack' ) );
         }
 
@@ -193,6 +204,10 @@ class ProspectConsentRequestsRestController {
         $prospect_id = (int) $r['id'];
         $entry_id    = (int) $r['entry_id'];
         $repo        = new ProspectConsentRequestsRepository();
+
+        if ( ! self::prospectVisible( $prospect_id ) ) {
+            return RestResponse::notFound( 'prospect_not_found', __( 'Prospect not found.', 'talenttrack' ) );
+        }
 
         $existing = $repo->findById( $entry_id );
         if ( $existing === null || (int) ( $existing['prospect_id'] ?? 0 ) !== $prospect_id ) {
