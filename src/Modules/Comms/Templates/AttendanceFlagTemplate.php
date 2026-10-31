@@ -29,10 +29,6 @@ final class AttendanceFlagTemplate extends AbstractTemplate {
                 __( 'Attendance flag — {player_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\n{player_name} ({team_name}) has missed {missed_count} activities in a row. You may want to follow up.\n\nOpen: {deep_link}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Aanwezigheid signaal — {player_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\n{player_name} ({team_name}) heeft {missed_count} activiteiten op rij gemist. Mogelijk wil je opvolgen.\n\nOpen: {deep_link}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

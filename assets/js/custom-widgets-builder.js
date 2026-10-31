@@ -76,7 +76,7 @@
             $body.appendChild(h);
             var p = document.createElement('p');
             p.className = 'tt-cw-step-help';
-            p.textContent = 'Each source declares the columns and filters its widget can use.';
+            p.textContent = boot.i18n.sourceHelp;
             $body.appendChild(p);
 
             var grid = document.createElement('div');
@@ -112,7 +112,7 @@
 
             var p = document.createElement('p');
             p.className = 'tt-cw-step-help';
-            p.textContent = 'Pick the columns this widget should show. Required for table widgets; KPI / bar / line widgets ignore the column list.';
+            p.textContent = boot.i18n.columnsHelp;
             $body.appendChild(p);
 
             var grid = document.createElement('div');
@@ -145,14 +145,14 @@
 
             var p = document.createElement('p');
             p.className = 'tt-cw-step-help';
-            p.textContent = 'Filters are applied at fetch time; leave blank to show everything the source returns.';
+            p.textContent = boot.i18n.filtersHelp;
             $body.appendChild(p);
 
             var filters = src.filters || [];
             if (!filters.length) {
                 var none = document.createElement('p');
                 none.style.color = '#5b6e75';
-                none.textContent = 'This source does not declare any filters.';
+                none.textContent = boot.i18n.noFilters;
                 $body.appendChild(none);
                 return;
             }
@@ -283,7 +283,7 @@
 
             var p = document.createElement('p');
             p.className = 'tt-cw-step-help';
-            p.textContent = 'Live preview against the actual data this widget will read on a dashboard. Save to deploy.';
+            p.textContent = boot.i18n.previewHelp;
             $body.appendChild(p);
 
             var box = document.createElement('div');
@@ -382,12 +382,12 @@
             form.className = 'tt-cw-save-form';
 
             var lblName = document.createElement('label');
-            lblName.textContent = 'Name';
+            lblName.textContent = boot.i18n.nameLabel;
             var inpName = document.createElement('input');
             inpName.type = 'text';
             inpName.maxLength = 120;
             inpName.value = state.name || '';
-            inpName.placeholder = 'e.g. Top 10 active players';
+            inpName.placeholder = boot.i18n.namePlaceholder;
             inpName.addEventListener('input', function () { state.name = inpName.value; });
             lblName.appendChild(inpName);
             form.appendChild(lblName);

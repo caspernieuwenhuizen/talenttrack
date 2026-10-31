@@ -26,20 +26,12 @@ final class GuestPlayerInviteTemplate extends AbstractTemplate {
                     __( 'Guest invite — {player_name} for {activity_title}', 'talenttrack' ),
                     __( "Hi {recipient_first_name},\n\nWe would like to invite {player_name} as a guest to:\n\n{activity_title}\nDate: {date}\nTime: {kickoff_time}\nLocation: {location}\n\nLet us know if you can make it.\n\nThe coaching team", 'talenttrack' ),
                 ],
-                'nl_NL' => [
-                    __( 'Gast-uitnodiging — {player_name} voor {activity_title}', 'talenttrack' ),
-                    __( "Hoi {recipient_first_name},\n\nWe willen {player_name} graag uitnodigen als gast voor:\n\n{activity_title}\nDatum: {date}\nTijd: {kickoff_time}\nLocatie: {location}\n\nLaat het ons weten als het lukt.\n\nHet coaching team", 'talenttrack' ),
-                ],
             ], $locale );
         }
         return self::pickLocale( [
             'en_US' => [
                 __( 'Guest invite for {player_name}', 'talenttrack' ),
                 __( "{player_name} is invited to {activity_title} on {date} at {kickoff_time}, {location}.", 'talenttrack' ),
-            ],
-            'nl_NL' => [
-                __( 'Gast-uitnodiging voor {player_name}', 'talenttrack' ),
-                __( "{player_name} is uitgenodigd voor {activity_title} op {date} om {kickoff_time}, {location}.", 'talenttrack' ),
             ],
         ], $locale );
     }

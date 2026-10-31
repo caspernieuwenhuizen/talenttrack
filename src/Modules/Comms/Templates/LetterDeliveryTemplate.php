@@ -30,10 +30,6 @@ final class LetterDeliveryTemplate extends AbstractTemplate {
                 __( '{letter_subject} — {player_name}', 'talenttrack' ),
                 __( "Dear {recipient_first_name},\n\nPlease find the attached letter regarding {player_name}.\n\n{letter_summary}\n\nKind regards,\n{hod_name}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( '{letter_subject} — {player_name}', 'talenttrack' ),
-                __( "Beste {recipient_first_name},\n\nIn de bijlage vind je een brief over {player_name}.\n\n{letter_summary}\n\nMet vriendelijke groet,\n{hod_name}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

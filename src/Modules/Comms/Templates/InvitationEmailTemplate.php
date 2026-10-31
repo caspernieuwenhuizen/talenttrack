@@ -34,10 +34,6 @@ final class InvitationEmailTemplate extends AbstractTemplate implements AccountM
                 __( 'You\'re invited to join {academy_name}', 'talenttrack' ),
                 __( "Hi {first_name},\n\n{inviter_name} has invited you to join {academy_name} on TalentTrack.\n\nAccept your invitation and set your password here:\n{accept_url}\n\nThis link expires in {ttl_days} days.\n\nSee you there!", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Je bent uitgenodigd voor {academy_name}', 'talenttrack' ),
-                __( "Hoi {first_name},\n\n{inviter_name} heeft je uitgenodigd voor {academy_name} op TalentTrack.\n\nAccepteer je uitnodiging en stel hier je wachtwoord in:\n{accept_url}\n\nDeze link vervalt over {ttl_days} dagen.\n\nTot snel!", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

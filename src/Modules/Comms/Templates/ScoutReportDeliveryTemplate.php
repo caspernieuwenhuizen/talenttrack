@@ -33,10 +33,6 @@ final class ScoutReportDeliveryTemplate extends AbstractTemplate {
                 __( '{club_name} — Player report for {player_name}', 'talenttrack' ),
                 __( "Hello, you have been sent a confidential player report from {club_name}.\n\n{cover_message}\n\n{report_url}\n\nThis link is valid until {expiry_date}. Do not forward.", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( '{club_name} — Spelersrapport van {player_name}', 'talenttrack' ),
-                __( "Hallo, je hebt een vertrouwelijk spelersrapport ontvangen van {club_name}.\n\n{cover_message}\n\n{report_url}\n\nDeze link is geldig tot {expiry_date}. Niet doorsturen.", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

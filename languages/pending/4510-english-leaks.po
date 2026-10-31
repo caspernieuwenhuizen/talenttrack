@@ -1,0 +1,41 @@
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:195
+msgid "Each source declares the columns and filters its widget can use."
+msgstr "Elke bron bepaalt welke kolommen en filters de widget kan gebruiken."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:196
+msgid "Pick the columns this widget should show. Required for table widgets; KPI / bar / line widgets ignore the column list."
+msgstr "Kies de kolommen die deze widget toont. Verplicht voor tabelwidgets; KPI-, staaf- en lijnwidgets negeren de kolomlijst."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:197
+msgid "Filters are applied at fetch time; leave blank to show everything the source returns."
+msgstr "Filters worden toegepast bij het ophalen; laat leeg om alles te tonen wat de bron teruggeeft."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:198
+msgid "This source does not declare any filters."
+msgstr "Deze bron heeft geen filters."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:199
+msgid "Live preview against the actual data this widget will read on a dashboard. Save to deploy."
+msgstr "Live voorbeeld met de echte gegevens die deze widget op een dashboard leest. Sla op om hem te plaatsen."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
+msgid "e.g. Top 10 active players"
+msgstr "bijv. Top 10 actieve spelers"
+
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:47
+msgctxt "short notification title, Dutch-language recipient"
+msgid "PDP ready"
+msgstr "Plan klaar"
+
+#: src/Modules/Comms/Templates/TrainingCancelledTemplate.php:45
+msgctxt "short message, Dutch-language recipient"
+msgid "{activity_title} on {date} is cancelled. We will follow up about a replacement."
+msgstr "{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie."
+
+#: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:236
+msgid "(unnamed position)"
+msgstr "(naamloze positie)"
+
+#: src/Modules/Methodology/Rest/SetPiecesRestController.php:148
+msgid "Shipped set pieces cannot be deleted."
+msgstr "Meegeleverde spelhervattingen kunnen niet worden verwijderd."

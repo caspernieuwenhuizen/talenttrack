@@ -32,10 +32,6 @@ final class SelectionLetterTemplate extends AbstractTemplate {
                 __( 'Selection decision for {player_name} — {team_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nWe have made a decision regarding {player_name}'s place at {team_name}: {decision_label}.\n\nThe attached letter has the full details.\n\n{coach_name}\nThe coaching team", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Selectiebesluit voor {player_name} — {team_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nWe hebben een besluit genomen over de plek van {player_name} bij {team_name}: {decision_label}.\n\nDe bijgevoegde brief bevat de volledige details.\n\n{coach_name}\nHet coaching team", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

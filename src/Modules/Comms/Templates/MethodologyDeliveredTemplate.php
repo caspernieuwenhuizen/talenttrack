@@ -27,10 +27,6 @@ final class MethodologyDeliveredTemplate extends AbstractTemplate {
                 __( 'New activity plan published — {plan_title}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nThe activity plan \"{plan_title}\" is published.\n\nFocus: {focus_summary}\n\nOpen: {deep_link}\n\n{hod_name}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Nieuw activiteitsplan gepubliceerd — {plan_title}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nHet activiteitsplan \"{plan_title}\" is gepubliceerd.\n\nFocus: {focus_summary}\n\nOpen: {deep_link}\n\n{hod_name}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

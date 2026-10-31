@@ -43,10 +43,6 @@ final class TeamScheduleDigestTemplate extends AbstractTemplate {
                 __( 'Calendar changes — {team_name}', 'talenttrack' ),
                 __( "{change_count} change(s) to the {team_name} calendar:\n\n{change_list}\n\nOpen the calendar: {deep_link}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Agendawijzigingen — {team_name}', 'talenttrack' ),
-                __( "{change_count} wijziging(en) in de agenda van {team_name}:\n\n{change_list}\n\nOpen de agenda: {deep_link}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

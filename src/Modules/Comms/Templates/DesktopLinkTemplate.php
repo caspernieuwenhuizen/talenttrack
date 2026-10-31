@@ -32,10 +32,6 @@ final class DesktopLinkTemplate extends AbstractTemplate {
                 __( 'Your {site_name} desktop link', 'talenttrack' ),
                 __( "You asked us to email you the link to a desktop-only TalentTrack page.\n\n{link}\n\nOpen this on a laptop or computer.", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Je desktoplink voor {site_name}', 'talenttrack' ),
-                __( "Je hebt ons gevraagd de link naar een TalentTrack-pagina voor desktop te mailen.\n\n{link}\n\nOpen deze op een laptop of computer.", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

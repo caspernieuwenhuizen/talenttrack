@@ -29,10 +29,6 @@ final class SafeguardingBroadcastTemplate extends AbstractTemplate {
                 __( '[Safeguarding] {broadcast_subject}', 'talenttrack' ),
                 __( "{broadcast_body}\n\n— {sender_name}, {sender_role}", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( '[Veiligheid] {broadcast_subject}', 'talenttrack' ),
-                __( "{broadcast_body}\n\n— {sender_name}, {sender_role}", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }

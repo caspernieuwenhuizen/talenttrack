@@ -29,10 +29,6 @@ final class StaffDevelopmentReminderTemplate extends AbstractTemplate {
                 __( 'Your {review_type} is due — {coach_name}', 'talenttrack' ),
                 __( "Hi {recipient_first_name},\n\nYour {review_type} is due on {due_date}.\n\nOpen: {deep_link}\n\nLet your HoD know if you need to reschedule.", 'talenttrack' ),
             ],
-            'nl_NL' => [
-                __( 'Je {review_type} staat gepland — {coach_name}', 'talenttrack' ),
-                __( "Hoi {recipient_first_name},\n\nJe {review_type} staat gepland voor {due_date}.\n\nOpen: {deep_link}\n\nLaat je HoD weten als je moet verplaatsen.", 'talenttrack' ),
-            ],
         ], $locale );
     }
 }
