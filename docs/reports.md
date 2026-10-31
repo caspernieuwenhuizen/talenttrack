@@ -31,7 +31,7 @@ A simple table — one row per team, one column per main category, plus an evalu
 
 A quick way to see which team is strongest this season.
 
-Restricted to academy-wide roles (head of development / admin): the table lists every team, so staff scoped to their own teams are not offered the tile, and opening the report by its address answers "Not authorized".
+Restricted to roles that read reports academy-wide (head of development, academy admin, scout and read-only observer): the table lists every team, so staff scoped to their own teams are not offered the tile, and opening the report by its address answers "Not authorized".
 
 ## Coach activity
 
@@ -39,7 +39,7 @@ How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 
 
 Only coaches within your own club are counted — the report is scoped to the current tenant and never surfaces activity from another academy. A coach whose user account has been deleted still appears (their saved evaluations remain in the window) but is labelled **Unknown coach** rather than a raw account number.
 
-Restricted to academy-wide roles (head of development / admin): coaches cannot see each other's activity, so staff scoped to their own teams are not offered the tile, and opening the report by its address answers "Not authorized".
+Restricted to roles that read reports academy-wide (head of development, academy admin, scout and read-only observer): coaches cannot see each other's activity, so staff scoped to their own teams are not offered the tile, and opening the report by its address answers "Not authorized".
 
 ## Coach · Evaluation quality
 
