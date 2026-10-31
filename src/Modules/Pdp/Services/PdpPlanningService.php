@@ -32,7 +32,7 @@ final class PdpPlanningService {
         }
         $ids = [];
         foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-            $ids[] = (int) $t->id;
+            $ids[] = (int) ( ( (array) $t )['id'] ?? 0 );
         }
         return array_values( array_unique( $ids ) );
     }
