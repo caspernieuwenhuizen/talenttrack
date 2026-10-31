@@ -459,7 +459,7 @@ class AccountPage {
                 </div>
             <?php endif; ?>
 
-            <?php if ( $entitled === null ) : ?>
+            <?php if ( self::showsNoPlanNotice( $entitled, $pinned, $override ) ) : ?>
                 <div class="notice notice-info">
                     <p><strong><?php esc_html_e( 'No plan recorded for this install.', 'talenttrack' ); ?></strong>
                        <?php esc_html_e( 'This install has not been told which plan it is on, so it runs on Free. The plan is set when the install is provisioned — contact your TalentTrack operator if that looks wrong.', 'talenttrack' ); ?>
@@ -588,6 +588,18 @@ class AccountPage {
     }
 
     /**
+     * Whether the Account tab says no plan is recorded. A pinned tier or
+     * an active override means the install is not running on Free, and
+     * the warning above already says what it runs on instead.
+     *
+     * @param array<string, mixed>|null $override DevOverride::active()
+     * @internal Split out so the condition can be tested without constants.
+     */
+    public static function showsNoPlanNotice( ?string $entitled, ?string $pinned, ?array $override ): bool {
+        return $entitled === null && $pinned === null && $override === null;
+    }
+
+    /**
      * Plan & restrictions — read-only "what's locked / what's unlocked"
      * tab. Replaces the former standalone `PlanOverviewPage` so coaches
      * and other read-only users still get a one-glance view of caps,
@@ -610,8 +622,6 @@ class AccountPage {
 
         // Underlying paid tier — see renderAccountTab() for why we
         // distinguish this from LicenseGate::tier().
-        $override    = DevOverride::active();
-        $entitled    = Entitlement::tier();
         $paid_tier   = LicenseGate::underlyingTier();
 
         echo '<p>' . esc_html__( "Everything that's locked or limited on your install, in one place. Caps come from the Free-tier policy; features come from the plan you're on.", 'talenttrack' ) . '</p>';
