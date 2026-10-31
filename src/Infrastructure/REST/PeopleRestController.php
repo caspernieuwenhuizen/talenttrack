@@ -452,7 +452,7 @@ class PeopleRestController {
         // in-product mail composer (?tt_view=mail-compose&person_id=N)
         // — same surface the People admin page already targets — rather
         // than a raw mailto:, so the send is captured in the audit log.
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', (int) $row->id );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', (int) $row->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $row->id,
             $detail_url

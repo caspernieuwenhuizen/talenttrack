@@ -471,14 +471,14 @@ class PdpFilesRestController {
 
         $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $player_name,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
         );
 
         $team_link_html = '—';
         if ( $team_id > 0 && $team_name !== '' ) {
             $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $team_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
             );
         }
 
@@ -500,10 +500,11 @@ class PdpFilesRestController {
             $action_html = self::row_actions_html( $file_id, $player_name, true );
             $row_url     = '';
         } elseif ( $has_pdp ) {
-            $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            // #4505 — plain targets; the list table appends `tt_back`.
+            $detail_url = add_query_arg(
                 [ 'tt_view' => 'pdp', 'id' => $file_id ],
                 $dash
-            ) );
+            );
             $progress = $total > 0
                 ? sprintf(
                     /* translators: 1: conducted conversations, 2: total conversations */
@@ -527,7 +528,7 @@ class PdpFilesRestController {
             $action_html = '';
             $row_url = $detail_url;
         } else {
-            $create_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            $create_url = add_query_arg(
                 array_filter( [
                     'tt_view'   => 'pdp',
                     'action'    => 'new',
@@ -535,7 +536,7 @@ class PdpFilesRestController {
                     'team_id'   => $team_id > 0 ? $team_id : null,
                 ] ),
                 $dash
-            ) );
+            );
             $coverage_html = '<span class="tt-status-badge tt-status-to-be-planned" style="display:inline-flex;align-items:center;min-height:28px;">'
                 . esc_html__( 'Not started', 'talenttrack' ) . '</span>';
             $can_add     = $can_create && current_user_can( 'tt_edit_pdp' );
@@ -662,21 +663,22 @@ class PdpFilesRestController {
         if ( $player_name === '' ) $player_name = '#' . $player_id;
         $team_name = (string) ( $row->team_name ?? '' );
 
-        $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+        // #4505 — plain target; the list table appends `tt_back`.
+        $detail_url = add_query_arg(
             [ 'tt_view' => 'pdp', 'id' => $file_id ],
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-        ) );
+        );
 
         $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $player_name,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
         );
 
         $team_link_html = '—';
         if ( $team_id > 0 && $team_name !== '' ) {
             $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $team_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
             );
         }
 
@@ -753,10 +755,10 @@ class PdpFilesRestController {
             // reusing it keeps a single delete path. Non-holders never
             // see the link.
             if ( current_user_can( 'tt_delete_pdp' ) ) {
-                $del_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                $del_url = add_query_arg(
                     [ 'tt_view' => 'pdp', 'id' => $file_id, 'action' => 'permanent-delete' ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                ) );
+                );
                 $buttons[] = sprintf(
                     '<a class="tt-btn tt-btn-danger tt-pdp-row-action" href="%1$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;background:#b91c1c;color:#fff;border:1px solid #991b1b;">%2$s</a>',
                     esc_url( $del_url ),

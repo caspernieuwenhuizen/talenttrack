@@ -211,11 +211,11 @@ $url = BackLink::appendTo(
 );
 ```
 
-REST controllers that emit detail URLs (e.g. `name_link_html` in the
-players list) also use `RecordLink::detailUrlForWithBack()`. In a REST
-context, `BackLink::captureCurrent()` reads the page URL from the
-HTTP `Referer` header (the page that initiated the AJAX call) instead
-of `REQUEST_URI` (which points at the REST endpoint).
+REST controllers do **not** use either helper: they return plain URLs (see
+below). In a REST context, `BackLink::captureCurrent()` reads the page URL
+from the HTTP `Referer` header (the page that initiated the AJAX call)
+instead of `REQUEST_URI` (which points at the REST endpoint), which is
+exactly why a REST field that appended it would answer differently per page.
 
 ### Domain code returns plain URLs
 
@@ -241,16 +241,22 @@ URLs, `GET /me/search`'s `url`, `ActivityGridLink` and
 `ActivityCompletionResolver` all return plain URLs. The views that show
 them append `tt_back`.
 
-The `*_link_html` fields that list endpoints return for `FrontendListTable`
-are rendering output by design and keep the hint. So do the two service
-helpers that build markup rather than return a URL:
-`EmptyRegisterConfirm::guardAttributes()` and `DocLinkResolver`.
+**REST-fed lists append in the browser.** The list endpoints behind
+`FrontendListTable` return their `detail_url`, `row_url` and the links
+inside `*_link_html` plain too. `assets/js/components/frontend-list-table.js`
+adds `tt_back` (the page showing the list, capped at five hops like
+`BackLink::appendTo()`) when it renders a row:
+- to the row-click URL (`row_url_key`);
+- to every same-origin `tt_view` link inside the row's cells, a
+  `tt-record-link` or a pill or button.
 
-**Current exception.** Three list-table controllers still append `tt_back`
-to a plain URL field of their rows: `HolidaysRestController.php:308`,
-`MatchExecutionRestController.php:321` and `PdpFilesRestController.php:503`
-and `:665`. They are known, and a follow-up moves them onto the rule. Do not
-copy the pattern.
+A link that already carries a `tt_back` keeps it and is not given a second
+one. The view's own row actions are rendered with the page and are left as
+they are.
+
+Two service helpers build markup rather than return a URL, and keep
+appending the hint: `EmptyRegisterConfirm::guardAttributes()` and
+`DocLinkResolver`.
 
 ## A new view also declares its help topic
 

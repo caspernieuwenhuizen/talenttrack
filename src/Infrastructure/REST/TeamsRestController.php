@@ -1094,7 +1094,7 @@ class TeamsRestController {
         $hc_names      = $hc_names_raw !== '' ? explode( '||', $hc_names_raw ) : [];
         $hc_person_ids = $hc_person_ids_raw !== '' ? array_map( 'intval', explode( ',', $hc_person_ids_raw ) ) : [];
 
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $t->id );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', (int) $t->id );
         $name_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $name !== '' ? $name : '#' . (int) $t->id,
             $detail_url
@@ -1110,7 +1110,7 @@ class TeamsRestController {
                 if ( $hc_pid > 0 ) {
                     $links[] = \TT\Shared\Frontend\Components\RecordLink::inline(
                         (string) $hc_name,
-                        \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $hc_pid )
+                        \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $hc_pid )
                     );
                 } else {
                     $links[] = esc_html( (string) $hc_name );

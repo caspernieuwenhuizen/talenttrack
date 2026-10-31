@@ -402,11 +402,10 @@ class EvaluationsRestController {
         $eval_id    = (int) $row->id;
         $avg        = $row->avg_rating !== null ? round( (float) $row->avg_rating, 1 ) : null;
 
-        $eval_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
-            add_query_arg(
-                [ 'tt_view' => 'evaluations', 'id' => $eval_id ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            )
+        // #4505 — plain target; the list table appends `tt_back` in the browser.
+        $eval_url = add_query_arg(
+            [ 'tt_view' => 'evaluations', 'id' => $eval_id ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
 
         // Pre-rendered link HTML so FrontendListTable can render cells via render: html.
@@ -419,14 +418,14 @@ class EvaluationsRestController {
 
         $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
             $player_name,
-            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'players', $player_id )
         );
 
         $team_link_html = '—';
         if ( $team_id > 0 && $team_name !== '' ) {
             $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $team_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'teams', $team_id )
             );
         } elseif ( $team_name !== '' ) {
             $team_link_html = esc_html( $team_name );
@@ -436,7 +435,7 @@ class EvaluationsRestController {
         if ( $coach_name !== '' && $coach_pid > 0 ) {
             $coach_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
                 $coach_name,
-                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $coach_pid )
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'people', $coach_pid )
             );
         }
 

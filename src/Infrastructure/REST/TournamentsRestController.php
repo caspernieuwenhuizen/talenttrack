@@ -2754,7 +2754,7 @@ class TournamentsRestController {
      * Compact row format for the list response.
      */
     private static function fmtTournamentRow( object $row ): array {
-        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'tournaments', (int) $row->id );
+        $detail_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlFor( 'tournaments', (int) $row->id );
         $start      = $row->start_date;
         $end        = $row->end_date;
         return [

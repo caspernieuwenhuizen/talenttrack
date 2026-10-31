@@ -318,10 +318,11 @@ class MatchExecutionRestController {
     private static function listRow( \stdClass $row ): array {
         $state       = (string) ( $row->state ?? '' );
         $activity_id = (int) $row->activity_id;
-        $detail_url  = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+        // #4505 — plain target; the list table appends `tt_back` in the browser.
+        $detail_url  = add_query_arg(
             [ 'tt_view' => 'match-execution', 'activity_id' => $activity_id ],
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-        ) );
+        );
         $opponent = trim( (string) ( $row->opponent ?? '' ) );
         $date     = (string) $row->session_date;
 
