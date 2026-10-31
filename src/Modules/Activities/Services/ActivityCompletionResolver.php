@@ -50,23 +50,22 @@ final class ActivityCompletionResolver {
     /**
      * Resolve the "Complete activity" destination URL for an activity.
      *
+     * #4477 — the plain target. The view that renders the button appends
+     * `tt_back` (CLAUDE.md §5), so the answer does not depend on the page.
+     *
      * @param int    $activity_id
      * @param string $type_key   `tt_activities.activity_type_key`
-     * @param string $back_url   Optional back-target to carry through so
-     *                           the destination can render a `← Back`
-     *                           pill (CLAUDE.md §5). Empty = dashboard.
      */
-    public static function completionUrl( int $activity_id, string $type_key, string $back_url = '' ): string {
+    public static function completionUrl( int $activity_id, string $type_key ): string {
         if ( $activity_id <= 0 ) {
             return RecordLink::dashboardUrl();
         }
 
         if ( self::routesToMatchExecution( $activity_id, $type_key ) ) {
-            $url = add_query_arg(
+            return add_query_arg(
                 [ 'tt_view' => 'match-execution', 'activity_id' => $activity_id ],
                 RecordLink::dashboardUrl()
             );
-            return $back_url !== '' ? BackLink::appendTo( $url ) : $url;
         }
 
         // #2401 — wizard off: the desktop attendance grid is the entry
@@ -74,13 +73,12 @@ final class ActivityCompletionResolver {
         // wizard URL because `buildUrl()` would otherwise hand back an
         // empty string and the caller would hide the affordance.
         if ( ! self::wizardAvailable( get_current_user_id() ) ) {
-            return ActivityGridLink::attendanceUrl( $activity_id, $back_url !== '' );
+            return ActivityGridLink::attendanceUrl( $activity_id );
         }
 
         // Training + paper match → unified wizard, activity branch.
         $extra = [ 'mode' => 'activity', 'activity_id' => $activity_id, 'restart' => 1 ];
-        $url   = WizardEntryPoint::buildUrl( 'new-evaluation', $extra );
-        return $back_url !== '' ? BackLink::appendTo( $url ) : $url;
+        return WizardEntryPoint::buildUrl( 'new-evaluation', $extra );
     }
 
     /**

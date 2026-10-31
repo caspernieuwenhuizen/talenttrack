@@ -214,7 +214,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
             <?php if ( $focus_pid > 0 ) : ?>
                 <p class="tt-pipeline-focus-actions">
                     <?php if ( $has_action ) : ?>
-                        <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
+                        <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( BackLink::appendTo( $url ) ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
                     <?php endif; ?>
                     <?php if ( $invite_url !== '' ) : ?>
                         <?php // long label: "Arrange" alone reads as arranging the prospect, not the training. ?>
@@ -235,7 +235,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                     ?>
                 </p>
                 <?php if ( $can_propose ) : ?>
-                    <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( ProspectStages::prospectFocusUrl( $focus_pid ) ); ?>">
+                    <form id="tt-propose-<?php echo (int) $focus_pid; ?>" class="tt-pipeline-focus-propose" method="post" action="<?php echo esc_url( BackLink::appendTo( ProspectStages::prospectFocusUrl( $focus_pid ) ) ); ?>">
                         <?php wp_nonce_field( self::PROPOSE_ACTION . '_' . $focus_pid, self::PROPOSE_NONCE ); ?>
                         <input type="hidden" name="tt_propose_prospect_id" value="<?php echo (int) $focus_pid; ?>">
                     </form>
@@ -449,7 +449,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $initials  = (string) ( $card['initials']     ?? '' );
         $url       = (string) ( $card['url']          ?? '' );
         $tag       = $url !== '' ? 'a' : 'div';
-        $url_attr  = $url !== '' ? ' href="' . esc_url( $url ) . '"' : '';
+        $url_attr  = $url !== '' ? ' href="' . esc_url( BackLink::appendTo( $url ) ) . '"' : '';
 
         // Flag accent — amber for a stale (overdue) early-funnel card,
         // green for a card that has reached the joined column. The accent

@@ -156,6 +156,40 @@ final class ParentSearchScopeTest extends WP_UnitTestCase {
         $this->assertCount( 2, (array) $payload['children'] );
     }
 
+    /**
+     * #4477 — `url` is the plain target, whatever page made the call. The
+     * search view adds the back hint when it renders the link.
+     */
+    public function test_the_rest_url_is_the_same_from_any_page_and_carries_no_back_chain(): void {
+        wp_set_current_user( $this->parent_user );
+        $server_was = $_SERVER;
+        try {
+            $_SERVER['REQUEST_URI']  = '/?tt_view=my-child&player_id=' . $this->child_one;
+            $_SERVER['HTTP_REFERER'] = home_url( '/?tt_view=my-child&player_id=' . $this->child_one );
+            $first = $this->searchUrls( 'Training dinsdag' );
+
+            $_SERVER['REQUEST_URI']  = '/?tt_view=search&q=x';
+            $_SERVER['HTTP_REFERER'] = home_url( '/?tt_view=my-messages' );
+            $second = $this->searchUrls( 'Training dinsdag' );
+        } finally {
+            $_SERVER = $server_was;
+        }
+
+        $this->assertNotSame( [], $first );
+        $this->assertSame( $first, $second );
+        foreach ( $first as $url ) {
+            $this->assertStringNotContainsString( 'tt_back', $url );
+        }
+    }
+
+    /** @return list<string> */
+    private function searchUrls( string $q ): array {
+        $request = new WP_REST_Request( 'GET', '/talenttrack/v1/me/search' );
+        $request->set_query_params( [ 'q' => $q ] );
+        $payload = (array) ( ( (array) rest_do_request( $request )->get_data() )['data'] ?? [] );
+        return array_values( array_map( 'strval', array_column( (array) $payload['results'], 'url' ) ) );
+    }
+
     // ---- fixtures ---------------------------------------------------------
 
     private function player( int $team, string $first_name ): int {

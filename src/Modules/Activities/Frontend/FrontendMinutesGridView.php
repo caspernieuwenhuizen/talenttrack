@@ -416,11 +416,11 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
         if ( $finalized ) {
             if ( ! ActivityGridLink::canUseAttendance( $activity_id, $user_id ) ) return '';
-            return ActivityGridLink::attendanceUrl( $activity_id, true );
+            return \TT\Shared\Frontend\Components\BackLink::appendTo( ActivityGridLink::attendanceUrl( $activity_id ) );
         }
 
         if ( ! ActivityCompletionResolver::canComplete( $activity_id, 'match', $user_id ) ) return '';
-        return ActivityCompletionResolver::completionUrl( $activity_id, 'match', home_url( add_query_arg( [] ) ) );
+        return \TT\Shared\Frontend\Components\BackLink::appendTo( ActivityCompletionResolver::completionUrl( $activity_id, 'match' ) );
     }
 
     /**

@@ -416,11 +416,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         (string) ( $session->activity_type_key ?? '' ),
                         get_current_user_id()
                     ) ) {
-                        $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                        $complete_url = \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                             (int) $session->id,
-                            (string) ( $session->activity_type_key ?? '' ),
-                            $detail_back
-                        );
+                            (string) ( $session->activity_type_key ?? '' )
+                        ) );
                         $detail_actions[] = [
                             // #2401 — reads "Mark attendance" on the wizard-off
                             // path, where the button leads to the grid rather
@@ -491,7 +490,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             );
                             if ( $record_url !== '' ) {
                                 $complete_attrs['tt-archive-alt-label'] = \TT\Modules\Activities\Services\EmptyRegisterConfirm::recordLabel();
-                                $complete_attrs['tt-archive-alt-href']  = esc_url_raw( $record_url );
+                                $complete_attrs['tt-archive-alt-href']  = esc_url_raw( \TT\Shared\Frontend\Components\BackLink::appendTo( $record_url ) );
                             }
                         }
                         $detail_actions[] = [
@@ -602,7 +601,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseAttendance( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
                         'label'     => __( 'Attendance grid', 'talenttrack' ),
-                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( (int) $session->id ),
+                        'href'      => \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( (int) $session->id ) ),
                         'icon'      => \TT\Shared\Icons\IconRenderer::render( 'check', [ 'width' => 20, 'height' => 20 ] ),
                         'icon_only' => true,
                         'overflow'  => true,
@@ -612,7 +611,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     && \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
                         'label'     => __( 'Minutes + statistics', 'talenttrack' ),
-                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ),
+                        'href'      => \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( (int) $session->id ) ),
                         'icon'      => \TT\Shared\Icons\IconRenderer::render( 'clock', [ 'width' => 20, 'height' => 20 ] ),
                         'icon_only' => true,
                         'overflow'  => true,
@@ -626,7 +625,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseRatings( (int) $session->id, $grid_uid ) ) {
                     $detail_actions[] = [
                         'label'     => __( 'Ratings grid', 'talenttrack' ),
-                        'href'      => \TT\Modules\Activities\Services\ActivityGridLink::ratingsUrl( (int) $session->id ),
+                        'href'      => \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityGridLink::ratingsUrl( (int) $session->id ) ),
                         'icon'      => \TT\Shared\Icons\IconRenderer::render( 'rate-card', [ 'width' => 20, 'height' => 20 ] ),
                         'icon_only' => true,
                         'overflow'  => true,
@@ -1703,7 +1702,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // cannot reach it, in which case the sentence stands on its own
         // rather than offering a dead click.
         $grid_url = \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( $activity_id, get_current_user_id() )
-            ? \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id )
+            ? \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id ) )
             : '';
         $link = $grid_url === '' ? '' : sprintf(
             '<a href="%s">%s</a>',
@@ -3141,11 +3140,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             && ( $status_lower === '' || $status_lower === ActivityStatusKey::PLANNED )
             && in_array( $mode, [ 'today', 'this_week', 'next_week', 'later_this_month', 'later', 'attention' ], true );
         if ( $is_planned && \TT\Modules\Activities\Services\ActivityCompletionResolver::canComplete( $id, $type_key, get_current_user_id() ) ) {
-            $complete_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+            $complete_url = \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                 $id,
-                $type_key,
-                RecordLink::detailUrlFor( 'activities', $id )
-            );
+                $type_key
+            ) );
             $card .= '<a class="tt-btn tt-btn-secondary tt-act-card__complete" href="' . esc_url( $complete_url ) . '">'
                 . esc_html( \TT\Modules\Activities\Services\ActivityCompletionResolver::completionLabel(
                     $id,
@@ -3261,7 +3259,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
         if ( $url === '' ) return '';
 
-        return '<a class="tt-act-card__fix" href="' . esc_url( $url ) . '">'
+        return '<a class="tt-act-card__fix" href="' . esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( $url ) ) . '">'
             . '<span class="tt-act-card__fix-icon" aria-hidden="true">⚠</span>'
             . esc_html( $label ) . '</a>';
     }
@@ -4243,11 +4241,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     (int) ( $session->team_id ?? 0 ),
                     (string) ( $session->session_date ?? '' )
                 );
-                $completion_url = \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
+                $completion_url = \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityCompletionResolver::completionUrl(
                     (int) $session->id,
-                    (string) ( $session->activity_type_key ?? '' ),
-                    add_query_arg( [ 'tt_view' => 'activities', 'id' => (int) $session->id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() )
-                );
+                    (string) ( $session->activity_type_key ?? '' )
+                ) );
                 // #2401 — is there a guided flow at all? With the wizard off
                 // `$completion_url` points at the attendance grid instead, so
                 // every "…in the guided flow" label below has to branch.

@@ -142,7 +142,7 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $wizard_on = ActivityCompletionResolver::wizardAvailable( $ctx->user_id );
             $grid_url  = $wizard_on
                 ? ''
-                : ActivityGridLink::attendanceUrl( $aid );
+                : BackLink::appendTo( ActivityGridLink::attendanceUrl( $aid ) );
 
             $resume_same = false;
             if ( $grid_url !== '' ) {

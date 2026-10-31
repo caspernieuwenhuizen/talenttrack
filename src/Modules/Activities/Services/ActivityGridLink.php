@@ -7,7 +7,6 @@ use TT\Core\FeatureRegistry;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Activities\Reports\AttendanceGridQuery;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -34,6 +33,10 @@ use TT\Shared\Frontend\Components\RecordLink;
  * #3656 adds the attendance grid's column rule to that same test, for the
  * same reason: an upcoming activity with nothing recorded on it is not a
  * column, so the link would open an empty grid.
+ *
+ * #4477 — the URLs are plain targets. The view that renders one appends
+ * `tt_back` with `BackLink::appendTo()`, so the answer does not depend on
+ * which page is being served.
  */
 final class ActivityGridLink {
 
@@ -122,12 +125,12 @@ final class ActivityGridLink {
      * Empty string when the activity has no team — callers gate on
      * `canUseAttendance()` first, so an empty return means "don't render".
      */
-    public static function attendanceUrl( int $activity_id, bool $with_back = true ): string {
-        return self::gridUrl( 'attendance-grid', $activity_id, $with_back );
+    public static function attendanceUrl( int $activity_id ): string {
+        return self::gridUrl( 'attendance-grid', $activity_id );
     }
 
-    public static function minutesUrl( int $activity_id, bool $with_back = true ): string {
-        return self::gridUrl( 'minutes-grid', $activity_id, $with_back );
+    public static function minutesUrl( int $activity_id ): string {
+        return self::gridUrl( 'minutes-grid', $activity_id );
     }
 
     /**
@@ -143,13 +146,13 @@ final class ActivityGridLink {
      * columns are categories, not activities), so it takes `activity_id`
      * rather than a team + date window.
      */
-    public static function ratingsUrl( int $activity_id, bool $with_back = true ): string {
+    public static function ratingsUrl( int $activity_id ): string {
         if ( $activity_id <= 0 || self::anchor( $activity_id )['team'] <= 0 ) return '';
         $url = add_query_arg(
             [ 'tt_view' => 'ratings-grid', 'activity_id' => $activity_id ],
             RecordLink::dashboardUrl()
         );
-        return $with_back ? BackLink::appendTo( $url ) : $url;
+        return $url;
     }
 
     /**
@@ -178,7 +181,7 @@ final class ActivityGridLink {
         return self::anchor( $activity_id )['team'] > 0;
     }
 
-    private static function gridUrl( string $view_slug, int $activity_id, bool $with_back ): string {
+    private static function gridUrl( string $view_slug, int $activity_id ): string {
         $anchor = self::anchor( $activity_id );
         if ( $anchor['team'] <= 0 ) return '';
 
@@ -190,12 +193,7 @@ final class ActivityGridLink {
             $args['from'] = $anchor['date'];
             $args['to']   = $anchor['date'];
         }
-        $url = add_query_arg( $args, RecordLink::dashboardUrl() );
-
-        // `appendTo()` captures the CURRENT request as the back target, so
-        // the pill reads "Back to <wherever the coach clicked from>"
-        // (CLAUDE.md §5) without the caller naming it.
-        return $with_back ? BackLink::appendTo( $url ) : $url;
+        return add_query_arg( $args, RecordLink::dashboardUrl() );
     }
 
     /** @return array{team:int,date:string} */

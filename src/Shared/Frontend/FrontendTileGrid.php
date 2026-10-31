@@ -803,7 +803,7 @@ class FrontendTileGrid {
             $url = '';
             switch ( $action ) {
                 case CoachWeek::ACTION_MARK_ATTENDANCE:
-                    $url = WizardEntryPoint::urlFor( 'mark-attendance', ActivityGridLink::attendanceUrl( $aid ), [ 'activity_id' => $aid ] );
+                    $url = WizardEntryPoint::urlFor( 'mark-attendance', BackLink::appendTo( ActivityGridLink::attendanceUrl( $aid ) ), [ 'activity_id' => $aid ] );
                     if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Mark attendance', 'talenttrack' ), $url ];
                     break;
                 case CoachWeek::ACTION_MATCH_PREP:

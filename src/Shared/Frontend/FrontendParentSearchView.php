@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Search\ParentSearchService;
 use TT\Shared\Dates\TTDate;
+use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\CrossViewLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -155,7 +156,9 @@ class FrontendParentSearchView extends FrontendViewBase {
             ] );
 
             echo '<li class="tt-parent-search__result">';
-            echo '<a class="tt-parent-search__link" href="' . esc_url( (string) $result['url'] ) . '">';
+            // #4477 — the service returns the plain target; the back hint
+            // is this page's to add.
+            echo '<a class="tt-parent-search__link" href="' . esc_url( BackLink::appendTo( (string) $result['url'] ) ) . '">';
             echo '<span class="tt-parent-search__title">' . esc_html( $title ) . '</span>';
             echo '<span class="tt-parent-search__meta">' . esc_html( implode( ' · ', $meta ) ) . '</span>';
             echo '</a>';
