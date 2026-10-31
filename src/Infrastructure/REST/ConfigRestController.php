@@ -104,6 +104,9 @@ class ConfigRestController {
         'persona_dashboard.player.enabled',
         'persona_dashboard.parent.enabled',
         'persona_dashboard.readonly_observer.enabled',
+        // #4379 — JSON list of the personas that see the "This week" panel
+        // on the tile landing. Saved from the same Dashboard sub-form.
+        'coach_week.personas',
         // #1481 — General settings (academy-wide basics). Un-mapped in
         // KEY_AREA_MAP, so they resolve to the tt_edit_settings umbrella
         // cap (admins / club admins).
@@ -215,6 +218,8 @@ class ConfigRestController {
         // #3112 — the per-template channel block list is saved from the
         // same sub-form and gated by the same sub-cap pair.
         'comms_template_channels_blocked' => 'feature_toggles',
+        // #4379 — sits beside the persona_dashboard.* switches, same pair.
+        'coach_week.personas' => 'feature_toggles',
     ];
 
     /**
@@ -328,6 +333,10 @@ class ConfigRestController {
             // does not play and an empty blueprint picker with it.
             if ( $key === 'football_form_by_age_group' ) {
                 $clean = \TT\Modules\Teams\FootballFormResolver::normaliseStored( $clean );
+            }
+            // #4379 — only known staff personas; players and parents never.
+            if ( $key === \TT\Modules\Activities\Services\CoachWeek::CONFIG_KEY ) {
+                $clean = \TT\Modules\Activities\Services\CoachWeek::normaliseStored( $clean );
             }
             QueryHelpers::set_config( $key, $clean );
             $written++;

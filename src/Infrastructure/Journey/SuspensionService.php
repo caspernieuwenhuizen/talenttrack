@@ -180,6 +180,44 @@ final class SuspensionService {
     }
 
     /**
+     * #4379 — `coveredSet()` for several activities at once: one read of
+     * the open suspensions over every player asked about, and each team's
+     * fixture sequence once (memoised), however many matches there are.
+     * The caller passes what it already holds about each activity, so the
+     * activity itself is not read again.
+     *
+     * @param array<int, array{team_id:int, type:string, player_ids:list<int>, date?:string}> $activities activity id => facts
+     * @return array<int, array<int, true>> activity id => covered player ids
+     */
+    public static function coveredSetForActivities( array $activities ): array {
+        $out = [];
+        if ( $activities === [] || ! self::isEnabled() ) return $out;
+
+        $players = [];
+        foreach ( $activities as $aid => $a ) {
+            if ( ! self::isFixtureType( $a['type'] ) ) continue;
+            foreach ( $a['player_ids'] as $pid ) $players[ (int) $pid ] = true;
+        }
+        if ( $players === [] ) return $out;
+
+        $open = ( new SuspensionRepository() )->openForPlayers( array_keys( $players ) );
+        if ( $open === [] ) return $out;
+
+        foreach ( $activities as $aid => $a ) {
+            if ( ! self::isFixtureType( $a['type'] ) ) continue;
+            $on_roster = array_flip( array_map( 'intval', $a['player_ids'] ) );
+            foreach ( $open as $suspension ) {
+                $pid = (int) ( $suspension['player_id'] ?? 0 );
+                if ( $pid <= 0 || ! isset( $on_roster[ $pid ] ) || isset( $out[ $aid ][ $pid ] ) ) continue;
+                if ( (int) ( $suspension['team_id'] ?? 0 ) !== (int) $a['team_id'] ) continue;
+                if ( self::matchNumberFor( $suspension, (int) $aid ) === null ) continue;
+                $out[ (int) $aid ][ $pid ] = true;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * The reason text a planning surface writes beside the Suspended mark,
      * e.g. "Suspended, match 2 of 3".
      */

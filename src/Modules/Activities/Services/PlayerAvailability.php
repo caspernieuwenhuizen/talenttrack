@@ -110,6 +110,42 @@ final class PlayerAvailability {
     }
 
     /**
+     * #4379 — `unavailableForActivity()` for several activities at once, for
+     * a surface that lists a week of matches. Injuries are read once for
+     * every date and roster asked about; suspensions once for all of them.
+     * The same rule as the single-activity answer, and still the one state.
+     *
+     * @param array<int, array{team_id:int, type:string, date:string, player_ids:list<int>}> $activities activity id => facts
+     * @return array<int, array<int, true>> activity id => unavailable player ids (every id given is present)
+     */
+    public static function unavailableForActivities( array $activities ): array {
+        $out     = [];
+        $by_date = [];
+        foreach ( $activities as $aid => $a ) {
+            $out[ (int) $aid ] = [];
+            $day = self::day( $a['date'] );
+            foreach ( $a['player_ids'] as $pid ) $by_date[ $day ][ (int) $pid ] = true;
+        }
+
+        $players_by_day = [];
+        foreach ( $by_date as $day => $players ) $players_by_day[ (string) $day ] = array_keys( $players );
+        $injured = ( new InjuryRepository() )->coveredSetByDay( $players_by_day );
+
+        $suspended = \TT\Infrastructure\Journey\SuspensionService::coveredSetForActivities( $activities );
+
+        foreach ( $activities as $aid => $a ) {
+            $day = self::day( $a['date'] );
+            foreach ( $a['player_ids'] as $pid ) {
+                $pid = (int) $pid;
+                if ( isset( $injured[ $day ][ $pid ] ) || isset( $suspended[ (int) $aid ][ $pid ] ) ) {
+                    $out[ (int) $aid ][ $pid ] = true;
+                }
+            }
+        }
+        return $out;
+    }
+
+    /**
      * The subset of `$player_ids` planning should check on `$on`: an injury
      * record that is overdue or incomplete that day, for a player nothing
      * keeps out. A player who is unavailable is not in it; the one answer

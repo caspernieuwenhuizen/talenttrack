@@ -23,5 +23,7 @@ class ActivitiesModule implements ModuleInterface {
     public function boot( Container $container ): void {
         if ( is_admin() ) Admin\ActivitiesPage::init();
         ActivitiesRestController::init();
+        // #4379 — the coach's week; registered here so it follows the module.
+        \TT\Infrastructure\REST\CoachWeekRestController::init();
     }
 }

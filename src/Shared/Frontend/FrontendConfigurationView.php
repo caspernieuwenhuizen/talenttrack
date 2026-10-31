@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Activities\Services\CoachWeek;
 use TT\Shared\Frontend\BrandFonts;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
@@ -3078,6 +3079,8 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
 
+            <?php self::renderCoachWeekPersonas( $personas ); ?>
+
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save', 'talenttrack' ) ] ); ?>
             </div>
@@ -3085,6 +3088,41 @@ class FrontendConfigurationView extends FrontendViewBase {
         </form>
         <?php
         self::renderConfigJs( false );
+    }
+
+    /**
+     * #4379 — which personas see the "This week" panel on the tile landing.
+     * The checkboxes fill one hidden JSON field, which the shared config
+     * submit sends as `coach_week.personas`.
+     *
+     * @param array<string, string> $personas persona key => label
+     */
+    private static function renderCoachWeekPersonas( array $personas ): void {
+        wp_enqueue_style( 'tt-frontend-coach-week', TT_PLUGIN_URL . 'assets/css/frontend-coach-week.css', [], TT_VERSION );
+        wp_enqueue_script( 'tt-frontend-coach-week-config', TT_PLUGIN_URL . 'assets/js/frontend-coach-week-config.js', [], TT_VERSION, true );
+
+        $chosen = CoachWeek::configuredPersonas();
+        ?>
+        <div class="tt-panel tt-coach-week-config" data-tt-coach-week-config>
+            <h3 class="tt-coach-week-config__title"><?php esc_html_e( 'This week panel', 'talenttrack' ); ?></h3>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'The tile landing shows a This week panel: every activity of the week on the teams the user coaches, and what each still needs. Choose which personas see it. A user also needs at least one team they coach.', 'talenttrack' ); ?>
+            </p>
+            <input type="hidden" name="config[<?php echo esc_attr( CoachWeek::CONFIG_KEY ); ?>]" value="<?php echo esc_attr( (string) wp_json_encode( $chosen ) ); ?>" data-tt-coach-week-json />
+            <fieldset class="tt-coach-week-config__list">
+                <legend class="tt-coach-week-config__legend"><?php esc_html_e( 'Show the This week panel to', 'talenttrack' ); ?></legend>
+                <?php foreach ( $personas as $key => $label ) :
+                    if ( ! in_array( $key, CoachWeek::PERSONAS, true ) ) continue;
+                    $field_id = 'tt-coach-week-persona-' . sanitize_html_class( $key );
+                    ?>
+                    <label class="tt-coach-week-config__row" for="<?php echo esc_attr( $field_id ); ?>">
+                        <input type="checkbox" id="<?php echo esc_attr( $field_id ); ?>" value="<?php echo esc_attr( $key ); ?>" data-tt-coach-week-persona <?php checked( in_array( $key, $chosen, true ) ); ?> />
+                        <span><?php echo esc_html( $label ); ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </fieldset>
+        </div>
+        <?php
     }
 
     private static function renderConfigJs( bool $with_logo ): void {

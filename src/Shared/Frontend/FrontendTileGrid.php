@@ -4,9 +4,15 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\Activities\Services\ActivityGridLink;
+use TT\Modules\Activities\Services\CoachWeek;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\CrossViewLink;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\TileGridStandard;
 use TT\Shared\Frontend\Components\TileIconChip;
 use TT\Shared\Tiles\TileRegistry;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * FrontendTileGrid — v2.21.0 tile landing page for the frontend
@@ -446,11 +452,23 @@ class FrontendTileGrid {
             // in the left column in the explicit order from TileRegistry.
             [ $left_groups, $me_group ] = self::peelMeGroup( $work_groups );
         }
+
+        // #4379 — the coach's week. Who sees it and what each row needs is
+        // decided in CoachWeek; this view only paints the rows.
+        $week = $is_player ? null : CoachWeek::forUser( $user_id );
+        if ( $week !== null && ! $week['visible'] ) $week = null;
+        if ( $week !== null ) {
+            wp_enqueue_style( 'tt-frontend-coach-week', TT_PLUGIN_URL . 'assets/css/frontend-coach-week.css', [], TT_VERSION );
+        }
+        $daily_class = 'tt-ftile-daily'
+            . ( $me_group !== null ? ' tt-ftile-daily--has-rail' : '' )
+            . ( $week !== null ? ' tt-ftile-daily--has-week' : '' );
         ?>
 
         <details class="tt-ftile-section" open>
             <summary class="tt-ftile-section-summary"><?php esc_html_e( "Today's work", 'talenttrack' ); ?></summary>
-            <div class="tt-ftile-daily<?php echo $me_group !== null ? ' tt-ftile-daily--has-rail' : ''; ?>">
+            <div class="<?php echo esc_attr( $daily_class ); ?>">
+                <?php if ( $week !== null ) self::renderWeekPanel( $week ); ?>
                 <div class="tt-ftile-daily-main">
                     <?php self::renderGroups( $left_groups ); ?>
                 </div>
@@ -600,6 +618,209 @@ class FrontendTileGrid {
             </div>
         </div>
         <?php
+    }
+
+    /**
+     * #4379 — the "This week" panel: one row per activity, in date order,
+     * from `CoachWeek::forUser()`. The service decides every state; this
+     * turns them into words, chips and links.
+     *
+     * @param array<string, mixed> $week
+     */
+    private static function renderWeekPanel( array $week ): void {
+        $rows     = is_array( $week['rows'] ?? null ) ? $week['rows'] : [];
+        $multi    = ! empty( $week['multiple_teams'] );
+        $start_ts = strtotime( (string) $week['week_start'] . ' 12:00:00' );
+        $end_ts   = strtotime( (string) $week['week_end'] . ' 12:00:00' );
+        $range    = $start_ts && $end_ts
+            ? date_i18n( 'D j', $start_ts ) . ' – ' . date_i18n( 'D j M', $end_ts )
+            : '';
+        ?>
+        <section class="tt-week" aria-labelledby="tt-week-title">
+            <div class="tt-week-head">
+                <h2 class="tt-week-title" id="tt-week-title"><?php esc_html_e( 'This week', 'talenttrack' ); ?></h2>
+                <?php if ( $range !== '' ) : ?>
+                    <span class="tt-week-range"><?php echo esc_html( $range ); ?></span>
+                <?php endif; ?>
+            </div>
+            <?php if ( $rows !== [] ) : ?>
+                <ul class="tt-week-list">
+                    <?php foreach ( $rows as $row ) : ?>
+                        <li><?php self::renderWeekRow( (array) $row, $multi ); ?></li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php if ( empty( $week['has_match'] ) ) : ?>
+                    <p class="tt-week-empty"><?php esc_html_e( 'No match this week.', 'talenttrack' ); ?></p>
+                <?php endif; ?>
+            <?php else : ?>
+                <p class="tt-week-empty"><?php esc_html_e( 'Nothing planned for your teams this week.', 'talenttrack' ); ?></p>
+            <?php endif; ?>
+        </section>
+        <?php
+    }
+
+    /**
+     * One row of the week. A row with an action of its own renders as a
+     * block with buttons; any other row is one link to the activity.
+     *
+     * @param array<string, mixed> $row
+     */
+    private static function renderWeekRow( array $row, bool $multi_team ): void {
+        $aid      = (int) ( $row['activity_id'] ?? 0 );
+        $when     = (string) ( $row['when'] ?? '' );
+        $is_match = ! empty( $row['is_match'] );
+        $ts       = strtotime( (string) ( $row['date'] ?? '' ) . ' 12:00:00' );
+
+        $classes = [ 'tt-week-row' ];
+        if ( $when === 'past' )  $classes[] = 'is-past';
+        if ( $when === 'today' ) $classes[] = 'is-today';
+        if ( $is_match )         $classes[] = 'is-match';
+
+        $eyebrow = [ (string) ( $row['type_label'] ?? '' ) ];
+        if ( $is_match && ( $row['home_away'] ?? '' ) === 'home' ) $eyebrow[] = __( 'Home', 'talenttrack' );
+        if ( $is_match && ( $row['home_away'] ?? '' ) === 'away' ) $eyebrow[] = __( 'Away', 'talenttrack' );
+        if ( $when === 'today' ) $eyebrow[] = __( 'Today', 'talenttrack' );
+
+        $what = $is_match ? (string) ( $row['opponent'] ?? '' ) : '';
+        if ( $what === '' ) $what = (string) ( $row['title'] ?? '' );
+        if ( $what === '' ) $what = (string) ( $row['type_label'] ?? '' );
+
+        $meta = [];
+        if ( $multi_team && (string) ( $row['team_name'] ?? '' ) !== '' ) $meta[] = (string) $row['team_name'];
+        if ( $is_match ) {
+            /* translators: %s: arrival/presence time, e.g. "13:15" */
+            if ( (string) ( $row['meet_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), (string) $row['meet_time'] );
+            /* translators: %s: kick-off time, e.g. "10:00" */
+            if ( (string) ( $row['start_time'] ?? '' ) !== '' ) $meta[] = sprintf( __( 'Kick-off %s', 'talenttrack' ), (string) $row['start_time'] );
+        } elseif ( (string) ( $row['start_time'] ?? '' ) !== '' ) {
+            $meta[] = (string) $row['start_time'];
+        }
+        if ( (string) ( $row['location'] ?? '' ) !== '' ) $meta[] = (string) $row['location'];
+
+        $chips   = self::weekChips( $row );
+        $buttons = self::weekButtons( $row, $aid );
+        $detail  = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';
+
+        ob_start();
+        ?>
+        <span class="tt-week-day">
+            <small><?php echo esc_html( $ts ? date_i18n( 'D', $ts ) : '' ); ?></small>
+            <b><?php echo esc_html( $ts ? date_i18n( 'j', $ts ) : '' ); ?></b>
+        </span>
+        <span class="tt-week-body">
+            <span class="tt-week-what">
+                <span class="tt-week-type"><?php echo esc_html( implode( ' · ', array_filter( $eyebrow, static fn( $p ) => $p !== '' ) ) ); ?></span>
+                <?php echo esc_html( $what ); ?>
+            </span>
+            <?php if ( $meta !== [] ) : ?>
+                <span class="tt-week-meta"><?php echo esc_html( implode( ' · ', $meta ) ); ?></span>
+            <?php endif; ?>
+            <?php if ( $chips !== [] ) : ?>
+                <span class="tt-week-chips">
+                    <?php foreach ( $chips as [ $tone, $label ] ) : ?>
+                        <span class="tt-week-chip tt-week-chip--<?php echo esc_attr( $tone ); ?>"><?php echo esc_html( $label ); ?></span>
+                    <?php endforeach; ?>
+                </span>
+            <?php endif; ?>
+            <?php if ( $buttons !== [] ) : ?>
+                <span class="tt-week-actions">
+                    <?php foreach ( $buttons as [ $variant, $label, $url ] ) : ?>
+                        <a class="tt-week-btn tt-week-btn--<?php echo esc_attr( $variant ); ?>" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $label ); ?></a>
+                    <?php endforeach; ?>
+                </span>
+            <?php endif; ?>
+        </span>
+        <?php
+        $inner = (string) ob_get_clean();
+
+        if ( $buttons !== [] || $detail === '' ) {
+            echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '">' . $inner . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every part of $inner is escaped above.
+        } else {
+            echo '<a class="' . esc_attr( implode( ' ', $classes ) ) . '" href="' . esc_url( $detail ) . '">' . $inner . '</a>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — every part of $inner is escaped above.
+        }
+    }
+
+    /**
+     * What the row still needs, as [tone, label] pairs. Tone is `ok`,
+     * `todo` or `bad`. Availability is counts only.
+     *
+     * @param array<string, mixed> $row
+     * @return list<array{0: string, 1: string}>
+     */
+    private static function weekChips( array $row ): array {
+        $chips = [];
+        if ( ( $row['attendance_recorded'] ?? null ) === true ) {
+            $chips[] = [ 'ok', __( 'Attendance recorded', 'talenttrack' ) ];
+        } elseif ( ( $row['attendance_recorded'] ?? null ) === false ) {
+            $chips[] = [ 'bad', __( 'Attendance not recorded', 'talenttrack' ) ];
+        }
+        if ( is_array( $row['planned'] ?? null ) ) {
+            $chips[] = [ 'ok', sprintf(
+                /* translators: 1: players expected, 2: players on the roster */
+                __( '%1$d of %2$d expected', 'talenttrack' ),
+                (int) ( $row['planned']['expected'] ?? 0 ),
+                (int) ( $row['planned']['roster'] ?? 0 )
+            ) ];
+        }
+        if ( ( $row['training_plan'] ?? null ) === true ) {
+            $chips[] = [ 'ok', __( 'Training plan ready', 'talenttrack' ) ];
+        } elseif ( ( $row['training_plan'] ?? null ) === false ) {
+            $chips[] = [ 'todo', __( 'No training plan yet', 'talenttrack' ) ];
+        }
+        if ( is_array( $row['availability'] ?? null ) ) {
+            $available   = (int) ( $row['availability']['available'] ?? 0 );
+            $unavailable = (int) ( $row['availability']['unavailable'] ?? 0 );
+            /* translators: %d: number of players who can play */
+            $chips[] = [ 'ok', sprintf( _n( '%d available', '%d available', $available, 'talenttrack' ), $available ) ];
+            if ( $unavailable > 0 ) {
+                /* translators: %d: number of players who cannot play */
+                $chips[] = [ 'bad', sprintf( _n( '%d unavailable', '%d unavailable', $unavailable, 'talenttrack' ), $unavailable ) ];
+            }
+        }
+        if ( is_array( $row['lineup'] ?? null ) ) {
+            $placed = (int) ( $row['lineup']['placed'] ?? 0 );
+            $target = (int) ( $row['lineup']['target'] ?? 0 );
+            $chips[] = $placed >= $target
+                ? [ 'ok', __( 'Line-up complete', 'talenttrack' ) ]
+                /* translators: 1: starters placed, 2: starters the formation needs */
+                : [ 'todo', sprintf( __( 'Line-up %1$d of %2$d', 'talenttrack' ), $placed, $target ) ];
+        }
+        return $chips;
+    }
+
+    /**
+     * The row's actions as [variant, label, url] triples, from the action
+     * keys the service granted.
+     *
+     * @param array<string, mixed> $row
+     * @return list<array{0: string, 1: string, 2: string}>
+     */
+    private static function weekButtons( array $row, int $aid ): array {
+        $actions = is_array( $row['actions'] ?? null ) ? $row['actions'] : [];
+        $base    = RecordLink::dashboardUrl();
+        $buttons = [];
+        foreach ( $actions as $action ) {
+            $url = '';
+            switch ( $action ) {
+                case CoachWeek::ACTION_MARK_ATTENDANCE:
+                    $url = WizardEntryPoint::urlFor( 'mark-attendance', ActivityGridLink::attendanceUrl( $aid ), [ 'activity_id' => $aid ] );
+                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Mark attendance', 'talenttrack' ), $url ];
+                    break;
+                case CoachWeek::ACTION_MATCH_PREP:
+                    $url = CrossViewLink::allows( 'match-prep' ) ? add_query_arg( [ 'tt_view' => 'match-prep', 'activity_id' => $aid ], $base ) : '';
+                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Match preparation', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    break;
+                case CoachWeek::ACTION_START_MATCH:
+                    $url = CrossViewLink::allows( 'match-execution' ) ? add_query_arg( [ 'tt_view' => 'match-execution', 'activity_id' => $aid ], $base ) : '';
+                    if ( $url !== '' ) $buttons[] = [ 'primary', __( 'Start match', 'talenttrack' ), BackLink::appendTo( $url ) ];
+                    break;
+                case CoachWeek::ACTION_OPEN_ACTIVITY:
+                    $url = CrossViewLink::allows( 'activities' ) ? RecordLink::detailUrlForWithBack( 'activities', $aid ) : '';
+                    if ( $url !== '' ) $buttons[] = [ 'secondary', __( 'Activity', 'talenttrack' ), $url ];
+                    break;
+            }
+        }
+        return $buttons;
     }
 
     /**
