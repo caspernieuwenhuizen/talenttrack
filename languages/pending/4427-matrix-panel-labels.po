@@ -1,7 +1,0 @@
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
-msgid "Holidays (tile)"
-msgstr "Vakanties (tegel)"
-
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
-msgid "Methodology vocabulary (tile)"
-msgstr "Methodiekvocabulaire (tegel)"

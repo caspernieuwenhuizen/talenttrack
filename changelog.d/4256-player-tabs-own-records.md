@@ -1,3 +1,0 @@
-# Player profile: an assistant coach no longer sees the Evaluations tab (#4256)
-
-The player profile showed the Evaluations tab, and every score in it, to the assistant coach, a role the authorisation matrix gives no evaluation read. The "my evaluations" right the assistant coach holds for the evaluations they wrote themselves was being read as a right to every player's evaluations. That kind of own-records right now only counts on the viewer's own profile (player) or their child's (parent). Staff see a tab when their role holds the underlying right. The head coach, the player and the parent see the same tabs as before. The assistant coach keeps Goals and Activities.

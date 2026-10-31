@@ -1,4 +1,0 @@
-#: src/Modules/Prospects/Domain/ProspectOutcome.php
-#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php
-msgid "Not admitted"
-msgstr "Niet toegelaten"

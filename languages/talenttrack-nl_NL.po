@@ -68065,6 +68065,271 @@ msgstr "Het wedstrijdformulier voor scheidsrechter en tegenstander (basisopstell
 msgid "Injury recovered"
 msgstr "Blessure hersteld"
 
+#: src/Modules/Prospects/Domain/ProspectOutcome.php
+#: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php
+msgid "Not admitted"
+msgstr "Niet toegelaten"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Guardian on file"
+msgstr "Ouder/voogd in het dossier"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Open record"
+msgstr "Dossier openen"
+
+#. translators: %s: birth year
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "Born %s"
+msgstr "Geboren in %s"
+
+#. translators: %s: date the prospect was found
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "Found %s"
+msgstr "Gevonden op %s"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "Where they are now"
+msgstr "Waar de prospect nu staat"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "Not on the onboarding pipeline."
+msgstr "Niet op de aannamepijplijn."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "No consent request logged yet."
+msgstr "Nog geen toestemmingsverzoek vastgelegd."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+#: src/Modules/Wizards/Prospect/LogConsentRequestWizard.php
+msgid "Log consent request"
+msgstr "Toestemmingsverzoek vastleggen"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgctxt "prospect page section: notes and visits"
+msgid "Scouting"
+msgstr "Scouting"
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgid "No scouting visits you can open are linked to this prospect."
+msgstr "Er zijn geen scoutingbezoeken die je mag openen aan deze prospect gekoppeld."
+
+#: src/Modules/Prospects/Frontend/FrontendProspectDetailView.php
+msgctxt "the scouting visit a prospect was discovered at"
+msgid "Found here"
+msgstr "Hier gevonden"
+
+#: src/Modules/Wizards/Prospect/ConsentRequestConfirmStep.php
+msgid "The request is logged as awaiting an answer. The waiting counter starts from the date asked."
+msgstr "Het verzoek komt in het logboek als wachtend op antwoord. De wachtteller loopt vanaf de datum waarop gevraagd is."
+
+#: src/Modules/Wizards/Prospect/ConsentRequestDetailsStep.php
+msgctxt "wizard step: who was asked and when"
+msgid "Request"
+msgstr "Verzoek"
+
+#: src/Modules/Wizards/Prospect/ConsentRequestDetailsStep.php
+msgid "The club or youth coordinator who passes the request on. Not the family."
+msgstr "De club of jeugdcoördinator die het verzoek doorgeeft. Niet het gezin."
+
+#: src/Modules/Wizards/Prospect/ConsentRequestDetailsStep.php
+msgid "Optional. No family contact details here."
+msgstr "Optioneel. Geen contactgegevens van het gezin."
+
+#: src/Modules/Wizards/Prospect/ConsentRequestProspectStep.php
+msgid "There are no prospects you can log a consent request for."
+msgstr "Er zijn geen prospects waarvoor je een toestemmingsverzoek kunt vastleggen."
+
+#: src/Modules/Wizards/Prospect/ConsentRequestProspectStep.php
+msgid "Which prospect is the request for?"
+msgstr "Voor welke prospect is het verzoek?"
+
+#: src/Modules/Wizards/Prospect/ConsentRequestProspectStep.php
+msgid "— Pick a prospect —"
+msgstr "— Kies een prospect —"
+
+#: src/Modules/Wizards/Prospect/ConsentRequestProspectStep.php
+msgid "Please pick a prospect."
+msgstr "Kies een prospect."
+
+#: src/Modules/Prospects/Domain/ConsentRequestDate.php
+msgid "The date asked is not a real date."
+msgstr "De datum waarop gevraagd is, bestaat niet."
+
+#: src/Modules/Prospects/Domain/ConsentRequestDate.php
+msgid "The date asked cannot be later than today."
+msgstr "De datum waarop gevraagd is, mag niet later zijn dan vandaag."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "You cannot see this player's injury records."
+msgstr "Je kunt de blessures van deze speler niet inzien."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "None of this player's injury records needs a decision any more."
+msgstr "Geen van de blessures van deze speler vraagt nog om een beslissing."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Injury record"
+msgstr "Blessure"
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Only staff who may edit this player's injuries can change the expected return date."
+msgstr "Alleen stafleden die de blessures van deze speler mogen bewerken, kunnen de verwachte terugkeerdatum wijzigen."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "New expected return"
+msgstr "Nieuwe verwachte terugkeer"
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Needed when you choose Extend."
+msgstr "Nodig als je Verlengen kiest."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "You cannot change this player's expected return date."
+msgstr "Je kunt de verwachte terugkeerdatum van deze speler niet wijzigen."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Pick one of this player's open injury records."
+msgstr "Kies een van de openstaande blessures van deze speler."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "The new expected return must be after today."
+msgstr "De nieuwe verwachte terugkeer moet na vandaag liggen."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "The new expected return cannot be before the current one."
+msgstr "De nieuwe verwachte terugkeer kan niet vóór de huidige liggen."
+
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Enter the new expected return date."
+msgstr "Vul de nieuwe verwachte terugkeerdatum in."
+
+#. translators: 1: date the injury started, 2: kind of injury
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Injured since %1$s: %2$s"
+msgstr "Geblesseerd sinds %1$s: %2$s"
+
+#. translators: %s: date the injury started
+#: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php
+msgid "Injured since %s"
+msgstr "Geblesseerd sinds %s"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "No match this week."
+msgstr "Geen wedstrijd deze week."
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Nothing planned for your teams this week."
+msgstr "Niets gepland voor je teams deze week."
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Attendance recorded"
+msgstr "Aanwezigheid geregistreerd"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+#. translators: 1: players expected, 2: players on the roster
+#, php-format
+msgid "%1$d of %2$d expected"
+msgstr "%1$d van %2$d verwacht"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Training plan ready"
+msgstr "Trainingsplan klaar"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "No training plan yet"
+msgstr "Nog geen trainingsplan"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+#. translators: %d: number of players who cannot play
+#, php-format
+msgid "%d unavailable"
+msgid_plural "%d unavailable"
+msgstr[0] "%d niet beschikbaar"
+msgstr[1] "%d niet beschikbaar"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Line-up complete"
+msgstr "Opstelling compleet"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+#. translators: 1: starters placed, 2: starters the formation needs
+#, php-format
+msgid "Line-up %1$d of %2$d"
+msgstr "Opstelling %1$d van %2$d"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "This week panel"
+msgstr "Paneel Deze week"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The tile landing shows a This week panel: every activity of the week on the teams the user coaches, and what each still needs. Choose which personas see it. A user also needs at least one team they coach."
+msgstr "De tegelstartpagina toont een paneel Deze week: elke activiteit van de week van de teams die de gebruiker coacht, en wat elke activiteit nog nodig heeft. Kies welke persona's het zien. Een gebruiker moet ook minstens één team coachen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Show the This week panel to"
+msgstr "Toon het paneel Deze week aan"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Minutes + statistics"
+msgstr "Terug naar Minuten + statistieken"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Attendance grid"
+msgstr "Terug naar Aanwezigheidsraster"
+
+#: src/Shared/Frontend/FrontendMySettingsView.php
+msgid ""
+"Choose which messages the academy may send you. Unticking one stops it on "
+"every channel. You will only ever receive messages that concern you."
+msgstr ""
+"Kies welke berichten de academie je mag sturen. Vink je er een uit, dan "
+"stopt het via elk kanaal. Je ontvangt alleen berichten die over jou gaan."
+
+#: src/Shared/Frontend/FrontendMyTeamView.php:277
+#, php-format
+msgctxt "my team trend chip heading"
+msgid "Progress of %s"
+msgstr "Voortgang van %s"
+
+#: src/Shared/Frontend/FrontendMyTeamView.php:282
+#, php-format
+msgid "%s's rating trend will appear after the first evaluation."
+msgstr "De beoordelingstrend van %s verschijnt na de eerste evaluatie."
+
+#: src/Shared/Frontend/FrontendMyTeamView.php:298
+#, php-format
+msgid "%s's trend appears after the next evaluation."
+msgstr "De trend van %s verschijnt na de volgende evaluatie."
+
+#: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php
+msgid ""
+"Seven-stage count strip — Prospects / Consent requested / Invited / Test "
+"training / Trial group / Team offer / Joined — sourced from tt_prospects and "
+"tt_workflow_tasks via ProspectStageClassifier. Each stage shows count + an "
+"amber stale badge when any task in that stage is >30 days overdue. Counts "
+"follow the viewer's scope: academy-wide for scouts, HoD and admins; a head "
+"coach sees their own age groups."
+msgstr ""
+"Zeven-fase-tellingstrook — Prospects / Toestemming gevraagd / Uitgenodigd / "
+"Proeftraining / Stagegroep / Teamaanbod / Aangesloten — vanuit tt_prospects "
+"en tt_workflow_tasks via ProspectStageClassifier. Elke fase toont aantal + "
+"een amber stale-badge wanneer een taak in die fase >30 dagen achterstallig "
+"is. De aantallen volgen het bereik van de kijker: academiebreed voor scouts, "
+"HO en beheerders; een hoofdtrainer ziet de eigen leeftijdsgroepen."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Holidays (tile)"
+msgstr "Vakanties (tegel)"
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Methodology vocabulary (tile)"
+msgstr "Methodiekvocabulaire (tegel)"
+
+#: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:101
+msgid "Nobody at home can be reached about this player under 18: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added."
+msgstr "Niemand thuis is te bereiken over deze speler onder de 18: er is geen ouderaccount gekoppeld en er is geen e-mailadres of telefoonnummer van een verzorger. Berichten over deze speler bereiken niemand tot er een is toegevoegd."
+
 #~ msgid "All states"
 #~ msgstr "Alle statussen"
 

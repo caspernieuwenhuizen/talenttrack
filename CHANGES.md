@@ -1,3 +1,193 @@
+# TalentTrack v4.143.0 — A prospect's status follows the trial decision: Joined, Not admitted or still In trial (#4251)
+
+Once a prospect went on trial, the prospects list showed "In trial" for good, even after the trial was decided, while the scouting-visit pages showed "Joined" for every trialist who had not been decided yet. The status now follows the trial case's decision everywhere: admit or an offered team position shows **Joined**, a denial or a declined offer shows the new **Not admitted**, and an undecided trial or one that continues in the trial group stays **In trial**. The prospects list, its Status filter, the scouting-visit pages, the scout's dashboard table and the new-prospect wizard all give the same answer. The onboarding pipeline no longer counts a declined child as Joined.
+
+# TalentTrack v4.143.0 — Demo academy: guardian contact on file for nearly every player (#4254)
+
+A generated demo academy gave a guardian only to the few players linked to the
+two parent personas, so most profiles said "No linked parent or guardian yet"
+and the no-guardian alert flagged the whole roster. Every other active player
+now has a guardian recorded on their record, with a made-up name and an email
+on the undeliverable `demo.talenttrack.test` domain; the last player of each
+squad is left without one so the alert still has a real sample. The Parents ·
+Guardians card on the player profile now also shows a guardian recorded on the
+player's own record as "Guardian on file" when no account is linked, which
+helps real clubs that fill those fields too. The card stays staff-only.
+
+# TalentTrack v4.143.0 — Player profile: an assistant coach no longer sees the Evaluations tab (#4256)
+
+The player profile showed the Evaluations tab, and every score in it, to the assistant coach, a role the authorisation matrix gives no evaluation read. The "my evaluations" right the assistant coach holds for the evaluations they wrote themselves was being read as a right to every player's evaluations. That kind of own-records right now only counts on the viewer's own profile (player) or their child's (parent). Staff see a tab when their role holds the underlying right. The head coach, the player and the parent see the same tabs as before. The assistant coach keeps Goals and Activities.
+
+# TalentTrack v4.143.0 — Every prospect has a page: where they stand, the consent requests sent, and the visits they were seen at (#4257)
+
+A prospect now has a record page of their own. The prospects list, the onboarding pipeline's focus panel, the scouting-visit page, the scout's dashboard table and the *Consent request still waiting* alert all open it. The alert used to open the contact form, which had no consent log, so following it gave no way to see whether the family had been asked. The page shows the prospect's column on the board and the next action, every consent request with its date, the club asked and the outcome, and the scouting visits the viewer may open. **Log consent request** opens a short wizard: who you asked, when (today or earlier), optional notes, then confirm. **Edit contact** opens the contact form as before. A head coach who only reads prospects can open the page; for a prospect outside what you may see, it says the prospect was not found.
+
+# TalentTrack v4.143.0 — Team managers read the minutes share and monthly report for their own team (#4259)
+
+A team manager was refused the minutes share for their own team ("You do not
+have access to this team"), so before match day they could not see who was
+short of playing time. The authorization matrix now grants the team manager
+read on team reports at team scope, both on the team manager role and on the
+Manager functional role held by a staff account. That opens the minutes share,
+the monthly team report and its PDF for the teams they manage, and no other
+team's. Existing installs get the grant with migration
+`0301_authorization_seed_topup_manager_reports`, which only adds the missing
+row and leaves any matrix cell an administrator has edited alone.
+
+# TalentTrack v4.143.0 — A consent request cannot be dated in the future or on a day that does not exist (#4267)
+
+When logging that the academy asked a prospect's club for consent, any date in the right format was accepted, including a future date or a mistyped year. The waiting counter and the "consent awaiting" alert then counted from that date, so a prospect found a week earlier could show as waiting 174 days. The date must now be a real date no later than today. The form's date picker stops at today, and an earlier date, even one before the prospect was entered, is still accepted.
+
+# TalentTrack v4.143.0 — The onboarding pipeline shows prospects waiting on consent in the Consent requested column (#4268)
+
+A consent request logged in a prospect's consent log, or one still waiting after its task was completed, left the prospect in the first column of the onboarding pipeline, and "Consent requested" counted 0. The board now reads the log the way the prospects list and the consent-awaiting alert already do: a request still awaiting an answer, with none agreed, puts the prospect in Consent requested. An invited prospect still moves on regardless, and a card with no open task opens the prospect, where the log is.
+
+# TalentTrack v4.143.0 — Injury recovery check: "Extend" now sets the new expected return on the record (#4289)
+
+Answering an injury recovery check with "Extend" used to change nothing: the form had no date, and nothing applied the answer, so coaches and physios believed they had moved a return date that never moved. The task now lists the player's records that need a decision (the only one is preselected), asks for the new expected return, and saves it through the same path as an edit on the player's injuries tab, with the same audit log entry, so the reminder moves to the new date. The date must be after today and not before the injury started or the return already expected. "Extend" is only offered to people who may edit the player's injuries; "On track" and "Unsure" still change no record. The form's inline styling moved into a themed stylesheet.
+
+# TalentTrack v4.143.0 — Staff-only conversation messages notify the staff who can read them (#4303)
+
+A staff-only ("Coaches only") message used to email only participants holding one of two old coaching capabilities, which is not who can read the message. A team manager who wrote the goal could read the note but was never told about it. The email now goes to exactly the participants who can open the message, using the same rule the conversation itself applies. Players and parents are never notified, and nobody outside the conversation's participants is added. The REST description of `visibility`, the API reference and the help pages no longer say "coaches and admins". They describe the staff-only rule as it is. The stored value and the REST enum are unchanged.
+
+# TalentTrack v4.143.0 — PDP planning: the block detail shows the same window as its matrix cell (#4305)
+
+The planning matrix showed a block's window as the earliest start to the
+latest end over the team's talks, but the block detail behind the cell
+showed the window of whichever player's surname sorted first, so the two
+could disagree by weeks and the detail could read as closed while the cell
+still read as open. Both now read one shared helper: the block's window runs
+from the earliest start to the latest end, and the block counts as open
+while any player's talk window is. Renaming a player no longer moves it.
+
+# TalentTrack v4.143.0 — Coach landing: a "This week" panel with every activity of the week and what it still needs (#4379)
+
+The tile landing now opens with a **This week** panel for coaches: every activity of the current week (from the academy's first day of the week, Monday by default, the same week the team planner shows) on the teams the coach coaches, with what each still needs. A training that has passed says whether attendance was recorded and offers **Mark attendance** when it was not; an upcoming training shows how many players are expected and whether a training plan is attached; a match shows how many players are available and unavailable (counts only, never why) and how far the line-up is, with **Match preparation** or, on match day, **Start match**. From 1024 px the panel sits at the top of the right-hand column above My work; on a phone it comes before the tile groups. Which roles see it is an academy setting under Configuration > Default dashboard (head coach and assistant coach by default). The same rows are available over REST as `GET /me/week`.
+
+# TalentTrack v4.143.0 — Team rating averages and Coach activity are academy-wide reports (#4384)
+
+Both reports list every team in the academy, yet an assistant coach could open
+them from the reports launcher. They are now treated like the other
+academy-wide reports: staff scoped to their own teams are not offered the
+tiles, and opening either report by its address shows the "not authorized"
+notice with the breadcrumb chain. Roles that read reports academy-wide (head
+of development, academy admin, scout and read-only observer) see both reports
+as before.
+
+# TalentTrack v4.143.0 — Back pill names the minutes grid and the attendance grid (#4388)
+
+A screen opened from the minutes grid or the attendance grid, such as the
+evaluation wizard or the live match, now shows "Back to Minutes + statistics"
+or "Back to Attendance grid" in its back pill instead of a bare "Back". The
+label matches each grid's breadcrumb title; the team name is not part of it.
+
+# TalentTrack v4.143.0 — Methodology vocabulary tile shows only to who can edit the methodology (#4391)
+
+Head coaches, assistant coaches and scouts no longer see a Methodology vocabulary tile that opened onto a refusal. The tile now has its own matrix entity, `methodology_vocabulary_panel`, granted to the head of development and the academy admin; existing installs get it through migration 0302. The Methodology read tile and the methodology reads are unchanged.
+
+# TalentTrack v4.143.0 — My settings speaks to a player as a player (#4393)
+
+A player opening My settings read, under "Messages you receive", that they
+would only receive messages about "the players you work with", which is the
+sentence written for staff. A player now reads that they only receive messages
+that concern them. Parents and staff keep their own wording.
+
+# TalentTrack v4.143.0 — My team: a parent's progress chip names the child (#4396)
+
+On a parent's view of their child's My team, the growth trend under the
+child's card said "Your progress" and "Your rating trend will appear after
+your first evaluation", talking to the parent as if they were the player.
+For a reader who is not the player it now speaks about the child by first
+name ("Progress of Bas", "Bas's rating trend will appear after the first
+evaluation"), with no gendered pronoun in the Dutch. The rising, steady and
+falling lines were already neutral and are unchanged. The player's own view
+keeps its wording. Copy only; no data or permission change.
+
+# TalentTrack v4.143.0 — Injuries: deleting, trashing or restoring a record from the recycle bin moves its recovery reminder at once (#4399)
+
+The recovery reminder followed every change made on an injury itself, but not the ones made from the archive or the recycle bin. A permanently deleted or trashed record left its reminder open indefinitely, so the physio kept being asked about an injury the academy had removed, and a restored record only got its reminder back at the next daily sweep. The archive layer now announces each archive, restore, trash, restore-from-bin, delete and purge with one `tt_archive_rows_changed` action naming the entity, the ids and the players those rows belonged to, and the reminder listens for injuries. A player's other open records keep their own reminder throughout.
+
+# TalentTrack v4.143.0 — The dashboard's pipeline strip shows prospects waiting on consent (#4403)
+
+The onboarding pipeline strip on the dashboard had no Consent requested stage. It counted a prospect who was waiting on consent under Prospects, so it looked as though the family had not been approached yet. The strip now has seven stages, the same as the board. A prospect with an open consent request, or with a request in the consent log that is still awaiting an answer, counts under Consent requested. Each count on the strip matches the board's column for the same viewer.
+
+# TalentTrack v4.143.0 — PDP file: goal links name their principle and football action (#4404)
+
+A goal on a PDP file that is linked to a methodology principle or a football action now shows what it links to: "Principle: <code> · <title>" and "Football action: <name>", in the reader's language. The chip used to stop after the colon, because the view read a `name` column neither table has, and every opened file wrote a database error to debug.log. The names now come from the methodology repositories' own display helpers. Position and value links are unchanged.
+
+# TalentTrack v4.143.0 — GET players/{id}/parents returns the guardian on file (#4410)
+
+The parents route now returns a read-only `on_file` key, the guardian recorded
+on the player's own record, which the profile's Parents · Guardians card already
+shows as "Guardian on file". An API client and a staff member on screen now get
+the same answer. `on_file` is returned only to a caller who is staff for the
+player, the card's own check; managing parent accounts is not enough by
+itself. A read that finds only an on-file guardian is audited as a read of one
+contact.
+
+# TalentTrack v4.143.0 — Workflow task forms say why an answer was refused (#4421)
+
+A task form that refused an answer on one of its fields, such as an option
+picked without the field it needs or an invalid date, reloaded with no message,
+so the coach, physio or head of development could not tell what to change.
+The task page now lists every reason in one notice above the form, the
+form-wide one first, and screen readers announce it after the reload. This
+applies to every workflow form.
+
+# TalentTrack v4.143.0 — A note on a player's file notifies the team staff who can read it (#4426)
+
+A new message on a player's staff notes used to email nobody, so a physio's
+note for the team manager could go unseen. It now emails the head coach,
+assistant coach, physio and team manager of the player's own team who can
+read that player's notes, minus the author. A staff-only note goes only to
+those of them who may read staff-only messages. The player and the guardians
+are never notified on this thread, staff of another team are never
+notified, and anyone can turn these emails off under My settings, Messages
+you receive. The email links to the player's Notes tab.
+
+# TalentTrack v4.143.0 — Authorization matrix names the holidays and vocabulary tile rows (#4427)
+
+The authorization matrix admin now shows the `holidays_panel` and `methodology_vocabulary_panel` rows as "Holidays (tile)" and "Methodology vocabulary (tile)" (Dutch: "Vakanties (tegel)", "Methodiekvocabulaire (tegel)") instead of their raw keys.
+
+# TalentTrack v4.143.0 — Thumb bar: an academy admin no longer gets one (#4428)
+
+An academy admin was meant to get no thumb bar on a phone (their dashboard is
+setup surfaces, which the bar leaves out), but the bar only checked the
+persona chosen in the persona switcher. An admin who had never used the
+switcher got a bar anyway. The bar now falls back to the user's first persona
+when no choice is stored, so an admin gets no bar and every other persona
+gets its own default slots, not the generic ones. Found while fixing the tile
+gate test, which had been passing without checking anything whenever an
+earlier test suite left the tile registry empty; that test and the two suites
+that emptied the registry are fixed too.
+
+# TalentTrack v4.143.0 — Injury recovery reminders stop when the player is archived (#4436)
+
+A player who has left the academy no longer keeps the physio and head coach
+busy with an injury recovery check. Archiving the player, or moving them to
+the recycle bin, retires their open reminder in the same request, and the
+daily sweep skips archived players. Restoring the player brings the reminder
+back at once while one of their records still needs a decision. The injury
+records themselves are unchanged and stay readable as before.
+
+# TalentTrack v4.143.0 — No-guardian alert leaves out players aged 18 and over (#4437)
+
+The "Player with no guardian contact" alert now covers players under 18
+only. A player who is 18 or older on the day the alert runs needs no
+guardian and is no longer flagged, so a JO19 squad's adults stop drowning
+out the minors nobody at home can be reached about. A player with no date
+of birth on file is still flagged, so the alert does not go quiet because a
+field is empty. The alert's description says "under 18". Demo data is
+unchanged.
+
+# TalentTrack v4.143.0 — Family-visibility docs: height and weight stay visible to a linked parent (#4450)
+
+The docs on what a player can hide from a linked parent now say that the Measurements switch covers test results (the measurements profile and its trends), while height and weight are part of the player's profile and stay visible to the parent. A player who hides Measurements can now predict from the docs what their parent still sees. Docs only; the behaviour is unchanged.
+
+# TalentTrack v4.143.0 — Access checks tightened on tasks, consent requests, goals and the player profile (#4469)
+
+A task opens only for the people it is for: its assignee, the academy admin who may complete it on someone's behalf, an academy-wide task reader, and, for a task about a prospect, whoever sees that prospect on the onboarding pipeline. Anyone else sees "Task not found". Consent requests follow the same prospect scope. A player's goals, their goal conversations and the sections of the player profile (evaluations, goals, measurements, PDP, training, tournaments) now follow the family visibility switches the player sets, the same way the matching lists already did; the team's coaches keep seeing every section. A conversation message is sent only to participants who may read that conversation.
+
 # TalentTrack v4.142.0 — Match prep flags a player who cannot play in the match as "Unavailable" (#4245)
 
 Match prep never read the injury record, so a player with an open injury

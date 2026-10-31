@@ -1,7 +1,0 @@
-#: src/Shared/Frontend/Components/BackLabelResolver.php
-msgid "Back to Minutes + statistics"
-msgstr "Terug naar Minuten + statistieken"
-
-#: src/Shared/Frontend/Components/BackLabelResolver.php
-msgid "Back to Attendance grid"
-msgstr "Terug naar Aanwezigheidsraster"

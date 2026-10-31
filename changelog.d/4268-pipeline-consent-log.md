@@ -1,3 +1,0 @@
-# The onboarding pipeline shows prospects waiting on consent in the Consent requested column (#4268)
-
-A consent request logged in a prospect's consent log, or one still waiting after its task was completed, left the prospect in the first column of the onboarding pipeline, and "Consent requested" counted 0. The board now reads the log the way the prospects list and the consent-awaiting alert already do: a request still awaiting an answer, with none agreed, puts the prospect in Consent requested. An invited prospect still moves on regardless, and a card with no open task opens the prospect, where the log is.
