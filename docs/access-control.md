@@ -438,7 +438,7 @@ Two things changed.
 
 **And nothing else.** Not on the card, deliberately, and a reviewer should refuse a change that adds any of them: guardian name, e-mail or phone; custom fields in any form; evaluations; measurements; injuries or anything medical; behaviour ratings; PDP content; safeguarding notes.
 
-The card is a separate route rather than a widening of `GET /players/{id}` for exactly that reason. The full player record returns guardian contact details and every custom field an academy has defined, with no per-field visibility filter — whatever a club has put in a custom field, including medical or safeguarding notes, rides out with it. A scout still cannot reach that route, and it is unchanged for everyone else.
+The card is a separate route rather than a widening of `GET /players/{id}` for exactly that reason. The full player record can carry guardian contact details and every custom field an academy has defined, and whatever a club has put in a custom field, medical or safeguarding notes included, would ride out with it. So `GET /players/{id}` returns `guardian_name`, `guardian_email`, `guardian_phone` and `custom_fields` only to staff of that player (`AuthorizationService::isStaffForPlayer()`, the same rule that shows the guardians card on the profile), and writes a `player.guardian_contact.read` audit entry each time it does. A linked scout, a linked parent and the player themselves may read the record, but receive it without those four fields.
 
 Who may read a card: anyone who may already read the full player record (the card is a subset of it), or a scout **linked** to that player by the two links above.
 
@@ -478,6 +478,11 @@ The rules the right enforces:
   nothing is stored. The text stays in the box.
 - **Hiding and revealing are the same decision.** Editing a note *to*
   staff-only and editing it *away from* staff-only both need the right.
+- **A team grant counts on that team's conversations.** The right held at
+  team scope applies to a conversation about a player on that team, or to a
+  team record such as a blueprint for that team. A coach who reaches
+  another team's conversation some other way is not staff on it. A
+  conversation with no team answers only to the global grant.
 - **The control is not offered to somebody who cannot use it** — the
   checkbox is not rendered without the right.
 

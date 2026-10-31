@@ -41,6 +41,32 @@ final class PlayerReportAccess {
         return AuthorizationService::canViewPlayer( $user_id, $player_id );
     }
 
+    /**
+     * May this user make a record out of this player's report: freeze a
+     * snapshot, share one with the family, or write a note on one?
+     *
+     * Reading the report is required, and on top of it the matrix's
+     * `reports` create_delete at global scope or on the player's team.
+     * The matrix keeps reading and generating apart on purpose: a read-only
+     * observer and a scout read reports and must not produce them.
+     */
+    public static function canCreate( int $user_id, int $player_id ): bool {
+        if ( ! self::canRead( $user_id, $player_id ) ) return false;
+
+        $team_id = (int) self::teamOf( $player_id );
+
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
+            return user_can( $user_id, 'tt_generate_report' );
+        }
+
+        if ( \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'create_delete', 'global' ) ) {
+            return true;
+        }
+
+        return $team_id > 0
+            && \TT\Modules\Authorization\MatrixGate::can( $user_id, 'reports', 'create_delete', 'team', $team_id );
+    }
+
     private static function readsReports( int $user_id, int $team_id ): bool {
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) {
             return user_can( $user_id, 'tt_view_reports' );

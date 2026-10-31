@@ -8,6 +8,8 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\Export\ExportScope;
+use TT\Modules\Export\ScopeGatedExporter;
 use TT\Shared\Dates\TTDate;
 
 /**
@@ -44,7 +46,13 @@ use TT\Shared\Dates\TTDate;
  * v4.20.58) handles all the cell-style + merge + column-width
  * mechanics; this exporter just declares the data + style refs.
  */
-final class TeamPlannerXlsxExporter implements ExporterInterface {
+final class TeamPlannerXlsxExporter implements ExporterInterface, ScopeGatedExporter {
+
+    /** One team's planner — for squad holders; see `ExportScope`. */
+    public function isAvailableFor( int $user_id ): bool {
+        return user_can( $user_id, $this->requiredCap() )
+            && ExportScope::mayExport( $user_id, 'activities' );
+    }
 
     public function key(): string { return 'team_planner'; }
 
@@ -95,6 +103,9 @@ final class TeamPlannerXlsxExporter implements ExporterInterface {
         $team_id   = (int) ( $request->filters['team_id']   ?? 0 );
         $date_from = (string) ( $request->filters['date_from'] ?? '' );
         $date_to   = (string) ( $request->filters['date_to']   ?? '' );
+
+        // The requested team must be one this caller may export.
+        ExportScope::teamIdsFor( (int) $request->requesterUserId, 'activities', $team_id );
 
         $team_name = (string) $wpdb->get_var( $wpdb->prepare(
             "SELECT name FROM {$p}tt_teams WHERE id = %d AND club_id = %d",

@@ -175,6 +175,23 @@ class TrialCasesRepository {
                 $params[] = $pid;
             }
         }
+        // Case allow-list from TrialCaseAccessPolicy::visibleCaseFilter().
+        // Same contract as player_ids: an empty array yields zero rows, an
+        // absent key means no restriction.
+        if ( isset( $filters['case_ids'] ) && is_array( $filters['case_ids'] ) ) {
+            $case_ids = array_values( array_unique( array_filter(
+                array_map( 'intval', $filters['case_ids'] ),
+                static fn( $v ) => $v > 0
+            ) ) );
+            if ( ! $case_ids ) {
+                return [];
+            }
+            $placeholders = implode( ', ', array_fill( 0, count( $case_ids ), '%d' ) );
+            $where[]      = "id IN ( $placeholders )";
+            foreach ( $case_ids as $cid ) {
+                $params[] = $cid;
+            }
+        }
         if ( ! empty( $filters['date_from'] ) ) {
             $where[]  = 'end_date >= %s';
             $params[] = (string) $filters['date_from'];

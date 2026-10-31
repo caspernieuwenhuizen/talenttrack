@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * to the NEW granular caps under the hood.
  *
  * Mapping:
- *   tt_manage_players    →  user must have BOTH tt_view_players AND tt_edit_players
  *   tt_evaluate_players  →  tt_view_evaluations AND tt_edit_evaluations
  *   tt_manage_settings   →  tt_view_settings AND tt_edit_settings
  *
@@ -36,7 +35,13 @@ class CapabilityAliases {
      * Both new caps must be present for the legacy check to pass.
      */
     private const MAP = [
-        'tt_manage_players'   => [ 'tt_view_players', 'tt_edit_players' ],
+        // `tt_manage_players` is deliberately NOT aliased. It is not
+        // "view + edit players": it gates season rollover, player login
+        // accounts, custom-field definitions and player deletion. The
+        // roles meant to hold it (head of development, club admin,
+        // administrator) hold it outright, and #3232 removed it from
+        // `tt_staff` on purpose. An alias rebuilt it from that role's view
+        // and edit caps whenever the matrix bridge was off.
         'tt_evaluate_players' => [ 'tt_view_evaluations', 'tt_edit_evaluations' ],
         'tt_manage_settings'  => [ 'tt_view_settings', 'tt_edit_settings' ],
 

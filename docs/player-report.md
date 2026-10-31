@@ -193,6 +193,13 @@ alone. **Download PDF** on a snapshot prints it with its notes.
 Only signed-in staff who can open this player's report can open a snapshot of
 it. A snapshot has no shareable link; give someone the PDF instead.
 
+Saving a snapshot, sharing the report with the family and writing a note are
+for staff who may generate this player's reports, not only read them. A seat
+that reads reports only, such as the read-only observer or a scout, sees the
+earlier snapshots and their notes, but is not offered the save, the share or
+the note editor. Each snapshot saved and each note written is recorded in the
+audit log.
+
 ## Sharing the report with the player and their parents
 
 Under the report, **Share with the family…** opens a short explanation and a

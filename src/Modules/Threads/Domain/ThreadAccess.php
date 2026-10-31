@@ -87,7 +87,7 @@ final class ThreadAccess {
     public static function canSeePrivate( string $thread_type, int $thread_id, int $user_id ): bool {
         if ( self::hasGlobalAccess( $user_id, 'read' ) ) return true;
         if ( ! self::canRead( $thread_type, $thread_id, $user_id ) ) return false;
-        return self::holdsStaffOnlyRight( $user_id ) || user_can( $user_id, 'tt_edit_evaluations' );
+        return self::holdsStaffOnlyRight( $thread_type, $thread_id, $user_id ) || user_can( $user_id, 'tt_edit_evaluations' );
     }
 
     /**
@@ -109,23 +109,53 @@ final class ThreadAccess {
         if ( $user_id <= 0 ) return false;
         if ( self::hasGlobalAccess( $user_id, 'change' ) ) return true;
         if ( ! self::canRead( $thread_type, $thread_id, $user_id ) ) return false;
-        return self::holdsStaffOnlyRight( $user_id );
+        return self::holdsStaffOnlyRight( $thread_type, $thread_id, $user_id );
     }
 
     /**
-     * Does the user hold `staff_only_notes: change` anywhere?
+     * Does the user hold `staff_only_notes: change` for this thread?
      *
-     * `canAnyScope()` rather than a scoped `can()`: the seed grants the
-     * right at team scope to the coaches and the team manager and at global
-     * scope to the head of development and academy admin, and the thread
-     * adapter — not this entity — is what decides whether this particular
-     * conversation is theirs. Asking for a scope here would mean guessing
-     * a team id out of a thread type, which only some adapters can answer.
+     * The seed grants the right at team scope to the coaches and the team
+     * manager and at global scope to the head of development and academy
+     * admin. A team-scope grant counts only on the team the thread belongs
+     * to: a coach who holds it on their own squad, and reaches another
+     * team's thread some other way, is not staff on that thread. Reaching
+     * the thread is the adapter's question; holding the right where the
+     * thread lives is this one.
+     *
+     * A thread whose team cannot be resolved answers to the global grant
+     * only.
      */
-    private static function holdsStaffOnlyRight( int $user_id ): bool {
+    private static function holdsStaffOnlyRight( string $thread_type, int $thread_id, int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
         if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
-        return MatrixGate::canAnyScope( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE );
+
+        if ( MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) {
+            return true;
+        }
+
+        $team_id = self::teamFor( $thread_type, $thread_id );
+        return $team_id > 0
+            && MatrixGate::can( $user_id, self::STAFF_ONLY_ENTITY, MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * The team a thread belongs to: the player's team for a player-anchored
+     * thread, the record's own `team_id` otherwise. 0 when there is none.
+     */
+    private static function teamFor( string $thread_type, int $thread_id ): int {
+        $adapter = ThreadTypeRegistry::get( $thread_type );
+        if ( ! $adapter ) return 0;
+
+        if ( $adapter instanceof PlayerAnchoredThread ) {
+            $player_id = $adapter->playerIdFor( $thread_id );
+            if ( $player_id <= 0 ) return 0;
+            $player = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
+            return $player ? (int) ( ( (array) $player )['team_id'] ?? 0 ) : 0;
+        }
+
+        $entity = $adapter->findEntity( $thread_id );
+        return $entity ? (int) ( ( (array) $entity )['team_id'] ?? 0 ) : 0;
     }
 
     /**

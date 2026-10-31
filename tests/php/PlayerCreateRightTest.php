@@ -107,9 +107,8 @@ final class PlayerCreateRightTest extends WP_UnitTestCase {
         $coach = $this->makeHeadCoach( $this->team );
         $hod   = self::factory()->user->create( [ 'role' => 'tt_head_dev' ] );
 
-        // The card and the empty-state CTA ask the plain capability; the
-        // legacy alias maps `tt_manage_players` to view + edit, which the
-        // head coach holds, so this is the answer that must still be no.
+        // The card and the empty-state CTA ask the plain capability, so
+        // this is the answer that must be no for the head coach.
         $this->assertFalse( user_can( $coach, 'tt_manage_players' ), 'the Add player card hides for a head coach' );
         $this->assertTrue( user_can( $hod, 'tt_manage_players' ), 'and shows for the HoD' );
 

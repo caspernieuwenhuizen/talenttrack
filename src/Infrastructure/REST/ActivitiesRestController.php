@@ -599,6 +599,20 @@ class ActivitiesRestController {
     }
 
     /**
+     * The per-record read check for a route that takes an activity id.
+     * `can_view()` answers "may you read activities"; this answers "may
+     * you read THIS one", the rule `GET /activities` applies to its rows.
+     * Null when the read is allowed (or the activity does not exist, which
+     * the caller answers itself), otherwise the 403.
+     */
+    private static function refuseUnlessActivityReadable( int $activity_id ): ?\WP_REST_Response {
+        $activity = self::repo()->findByIdIncludingArchived( $activity_id );
+        if ( $activity === null ) return null;
+        if ( ActivityAccess::canRead( get_current_user_id(), $activity ) ) return null;
+        return RestResponse::error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+    }
+
+    /**
      * #3616 — the stored team of an activity, or null when it has none or
      * the row is gone. Reads archived rows too, because restore and
      * permanent delete act on them.
@@ -892,6 +906,8 @@ class ActivitiesRestController {
      */
     public static function get_result( \WP_REST_Request $r ): \WP_REST_Response {
         $activity_id = absint( $r['activity_id'] );
+        $refusal     = self::refuseUnlessActivityReadable( $activity_id );
+        if ( $refusal !== null ) return $refusal;
         $result      = ( new \TT\Modules\Activities\Reports\MatchResultQuery() )->forActivity( $activity_id );
 
         if ( $result === null ) {
@@ -2953,7 +2969,40 @@ class ActivitiesRestController {
         $repo = self::repo();
         if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
+        // The roster names a squad, with notes and availability, so it is
+        // read on the same terms as the activity it belongs to
+        // (`ActivityAccess::canRead()`). The whole roster: global readers,
+        // and staff who coach the activity's own team. `isStaffReader()`
+        // alone is not enough, because a parent's player-scoped activities
+        // read counts for it, so a team-less activity gets no shortcut
+        // either. Everyone else who may read the activity — a player, a
+        // parent, a linked scout — gets only the rows of the players they
+        // are entitled to; anyone else is refused.
+        $activity = $repo->findByIdIncludingArchived( $id );
+        $uid      = get_current_user_id();
+        $team_id  = (int) ( $activity->team_id ?? 0 );
+        $full     = ActivityAccess::hasGlobalRead( $uid )
+            || ( $team_id > 0
+                 && ActivityAccess::isStaffReader( $uid )
+                 && in_array( $team_id, ActivityAccess::coachedTeamIds( $uid ), true ) );
+        $own_rows = [];
+        if ( ! $full ) {
+            if ( $activity === null || ! ActivityAccess::canRead( $uid, $activity ) ) {
+                return RestResponse::error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+            }
+            $own_rows = array_values( array_unique( array_merge(
+                ActivityAccess::readablePlayerIds( $uid ),
+                AuthorizationService::scoutLinkedReadablePlayerIds( $uid, 'activities' )
+            ) ) );
+        }
+
         $roster = $repo->plannedRosterForActivity( $id );
+        if ( ! $full ) {
+            $roster = array_values( array_filter(
+                $roster,
+                static fn( $row ): bool => in_array( (int) ( $row->player_id ?? 0 ), $own_rows, true )
+            ) );
+        }
         // #4100 — on the activity's date, the same day the detail page asks
         // about, so the two answers cannot differ for one activity. #4103 —
         // and a suspension that covers this match, still as the one state.
@@ -3035,6 +3084,8 @@ class ActivitiesRestController {
         if ( ! self::repo()->activityExists( $id ) ) {
             return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
         }
+        $refusal = self::refuseUnlessActivityReadable( $id );
+        if ( $refusal !== null ) return $refusal;
 
         $principles = \TT\Modules\Methodology\Services\ActivityPrinciples::forActivity( $id );
 

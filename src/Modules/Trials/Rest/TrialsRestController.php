@@ -440,48 +440,6 @@ class TrialsRestController {
         return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_trials' );
     }
 
-    /**
-     * #3566 — does this caller read trials club-wide, or only for the
-     * players they are linked to?
-     *
-     * True for anyone holding the trials capabilities proper. False for a
-     * caller who got through `can_view()` on the scout's player-scoped
-     * matrix row alone — they are entitled to *a* case, never *the* list.
-     */
-    private static function readsAllCases( int $user_id ): bool {
-        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' )
-            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_trial_synthesis' );
-    }
-
-    /**
-     * #3566 — restrict a case query to the caller's linked players when
-     * they are not a club-wide reader.
-     *
-     * Returns the filters to use, or **null** when the caller has no
-     * links at all — the caller then returns an empty list rather than
-     * running an unfiltered query. Null is deliberately distinct from an
-     * empty `player_ids`, which a repository could read as "no filter".
-     *
-     * @param  array<string,mixed> $filters
-     * @return array<string,mixed>|null
-     */
-    private static function narrowToLinkedPlayers( array $filters ): ?array {
-        $uid = get_current_user_id();
-        if ( self::readsAllCases( $uid ) ) return $filters;
-
-        $linked = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $uid );
-        if ( $linked === [] ) return null;
-
-        // An explicit player_id filter narrows further; it never widens.
-        if ( ! empty( $filters['player_ids'] ) && is_array( $filters['player_ids'] ) ) {
-            $linked = array_values( array_intersect( $filters['player_ids'], $linked ) );
-            if ( $linked === [] ) return null;
-        }
-
-        $filters['player_ids'] = $linked;
-        return $filters;
-    }
-
     public static function can_submit_input(): bool {
         if ( ! self::licenseAllowsTrials() ) return false;
         $uid = get_current_user_id();
@@ -521,15 +479,17 @@ class TrialsRestController {
         $player_id = absint( (int) $r->get_param( 'player_id' ) );
         if ( $player_id > 0 ) $filters['player_ids'] = [ $player_id ];
 
-        // #3566 — narrow BEFORE the query, not after. A caller who reached
-        // this route through the scout's player-scoped matrix row sees only
-        // the cases they sit on; without this, resolving their scope would
-        // hand them every case in the club.
-        $narrowed = self::narrowToLinkedPlayers( $filters );
-        if ( $narrowed === null ) {
-            return RestResponse::success( [ 'cases' => [] ] );
+        // Narrow BEFORE the query, not after. Only a trial manager lists every
+        // case; anyone else lists the cases they can open, the same rule the
+        // single-case read applies. The capability that let a caller onto
+        // this route says nothing about which cases they sit on.
+        $visible = TrialCaseAccessPolicy::visibleCaseFilter( get_current_user_id() );
+        if ( $visible !== null ) {
+            if ( $visible === [] ) {
+                return RestResponse::success( [ 'cases' => [] ] );
+            }
+            $filters['case_ids'] = $visible;
         }
-        $filters = $narrowed;
 
         $rows  = ( new TrialCasesRepository() )->search( $filters );
         $names = self::playerNames( array_values( array_map( static fn( $row ): int => (int) ( ( (array) $row )['player_id'] ?? 0 ), $rows ) ) );

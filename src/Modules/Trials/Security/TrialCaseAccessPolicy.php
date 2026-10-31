@@ -62,6 +62,101 @@ final class TrialCaseAccessPolicy {
             || self::isInputAuthor( $user_id, $case_id );
     }
 
+    /**
+     * Which cases may this user see in a list?
+     *
+     * Null for a trial manager: every case. Otherwise the union of three
+     * reasons to see a case:
+     *
+     *   - assigned to it, with an entitlement to be there (the cases
+     *     `canOpenCase()` lets them open);
+     *   - it is on a player a scout is linked to;
+     *   - it is on a player of a team they coach (an active player or a
+     *     trialist placed on the team), where the matrix grants
+     *     them `trial_cases` read on that team (#2005: head coaches hold
+     *     `trial_cases [rc, team]`). Only that team, never another.
+     *
+     * A coarse capability such as `tt_view_trial_synthesis` is not a reason
+     * on its own: it is held by every coach and says what they may read on a
+     * case they sit on, not which cases exist.
+     *
+     * The team-scoped read lists cases a head coach may not open, which is
+     * the screen's behaviour since #2005: they see their own squad's trials.
+     * Opening one is still decided per case.
+     *
+     * Feed the result to `TrialCasesRepository::search()` as `case_ids`. The
+     * REST list and the `?tt_view=trials` screen both do, so they agree.
+     *
+     * @return list<int>|null
+     */
+    public static function visibleCaseFilter( int $user_id ): ?array {
+        if ( $user_id <= 0 ) return [];
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_trials' ) ) {
+            return null;
+        }
+
+        $ids = [];
+
+        $entitled = user_can( $user_id, 'tt_view_trial_synthesis' ) || self::mayWriteInputs( $user_id );
+        if ( $entitled ) {
+            foreach ( ( new TrialCaseStaffRepository() )->caseIdsForUser( $user_id ) as $case_id ) {
+                $ids[ $case_id ] = $case_id;
+            }
+        }
+
+        $player_ids = \TT\Infrastructure\Players\ScoutPlayerLinks::playerIds( $user_id );
+
+        $team_ids = [];
+        foreach ( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
+            $team_id = (int) ( ( (array) $team )['id'] ?? 0 );
+            if ( $team_id > 0 && \TT\Modules\Authorization\MatrixGate::can(
+                $user_id,
+                'trial_cases',
+                \TT\Modules\Authorization\MatrixGate::READ,
+                \TT\Modules\Authorization\MatrixGate::SCOPE_TEAM,
+                $team_id
+            ) ) {
+                $team_ids[] = $team_id;
+            }
+        }
+        foreach ( self::trialRosterPlayerIds( $team_ids ) as $player_id ) {
+            $player_ids[] = $player_id;
+        }
+
+        if ( $player_ids !== [] ) {
+            $cases = ( new TrialCasesRepository() )->search( [ 'player_ids' => $player_ids, 'include_archived' => true ] );
+            foreach ( $cases as $case ) {
+                $case_id = (int) ( ( (array) $case )['id'] ?? 0 );
+                if ( $case_id > 0 ) $ids[ $case_id ] = $case_id;
+            }
+        }
+
+        return array_values( $ids );
+    }
+
+    /**
+     * The players on these teams as trial cases read the roster: active
+     * players and trialists (`TeamRoster::trialClause()`). The squad helper
+     * `get_players_for_teams()` reads active players only, which would hide
+     * the very players a team's trial cases are about.
+     *
+     * @param list<int> $team_ids
+     * @return list<int>
+     */
+    private static function trialRosterPlayerIds( array $team_ids ): array {
+        if ( $team_ids === [] ) return [];
+        global $wpdb;
+        $scope  = \TT\Infrastructure\Query\QueryHelpers::apply_demo_scope( 'p', 'player' );
+        $roster = \TT\Infrastructure\Teams\TeamRoster::trialClause( 'p' );
+        $ph     = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $ids    = $wpdb->get_col( $wpdb->prepare(
+            "SELECT p.id FROM {$wpdb->prefix}tt_players p
+             WHERE p.team_id IN ($ph) AND {$roster} AND p.club_id = %d {$scope}",
+            ...array_merge( $team_ids, [ \TT\Infrastructure\Tenancy\CurrentClub::id() ] )
+        ) );
+        return array_values( array_map( 'intval', (array) $ids ) );
+    }
+
     public static function canViewSynthesis( int $user_id, int $case_id ): bool {
         if ( self::isManager( $user_id ) ) return true;
         if ( ! user_can( $user_id, 'tt_view_trial_synthesis' ) ) return false;
@@ -82,19 +177,23 @@ final class TrialCaseAccessPolicy {
         // in the matrix and the cap in no role, so they were refused here
         // before their panel assignment was ever looked at — the whole
         // reason a scout on a panel could not submit their input.
-        $entitled = \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_submit_trial_input' )
-            || \TT\Modules\Authorization\MatrixGate::canAnyScope(
-                $user_id,
-                'trial_inputs',
-                \TT\Modules\Authorization\MatrixGate::CHANGE
-            );
-        if ( ! $entitled ) return false;
+        if ( ! self::mayWriteInputs( $user_id ) ) return false;
 
         if ( self::isManager( $user_id ) ) return true;
 
         // Assignment still decides WHICH case. Entitlement says they may
         // write an input somewhere; this says it is this one.
         return ( new TrialCaseStaffRepository() )->isAssigned( $case_id, $user_id );
+    }
+
+    /** Does this user hold the right to write trial inputs at all? */
+    private static function mayWriteInputs( int $user_id ): bool {
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_submit_trial_input' )
+            || \TT\Modules\Authorization\MatrixGate::canAnyScope(
+                $user_id,
+                'trial_inputs',
+                \TT\Modules\Authorization\MatrixGate::CHANGE
+            );
     }
 
     public static function canSubmitInput( int $user_id, int $case_id ): bool {

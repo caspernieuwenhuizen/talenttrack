@@ -45,4 +45,15 @@ final class TeamRoster {
         $p = rtrim( $player_alias, '.' );
         return "{$p}.status = 'active' AND " . ArchiveRepository::filterClause( 'active', $p );
     }
+
+    /**
+     * The roster as trial cases read it: active players and the trialists
+     * placed on the team (status `trial`), not archived, not trashed. A head
+     * coach's team-scoped read on trial cases covers both; the squad
+     * surfaces keep `liveClause()`, which leaves trialists out.
+     */
+    public static function trialClause( string $player_alias ): string {
+        $p = rtrim( $player_alias, '.' );
+        return "{$p}.status IN ('active', 'trial') AND " . ArchiveRepository::filterClause( 'active', $p );
+    }
 }
