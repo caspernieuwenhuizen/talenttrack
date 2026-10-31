@@ -37,7 +37,7 @@ final class PlayerTurns18Alert extends AbstractPlayerAlert {
     public const CONFIG_KEY_LEAD_DAYS = 'alerts_player_turns_18_days';
 
     private const DEFAULT_LEAD_DAYS = 30;
-    private const MAJORITY_AGE      = 18;
+    public const MAJORITY_AGE       = 18;
     private const URGENT_WITHIN_DAYS = 7;
 
     public function key(): string {

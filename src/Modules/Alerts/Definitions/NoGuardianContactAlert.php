@@ -78,6 +78,13 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
     /** @var list<int>|null */
     private ?array $managers = null;
 
+    /** The alert day, Y-m-d; null for today in the site's timezone. */
+    private ?string $alertDay;
+
+    public function __construct( ?string $alert_day = null ) {
+        $this->alertDay = $alert_day;
+    }
+
     public function key(): string {
         return 'people.no_guardian_contact';
     }
@@ -129,9 +136,12 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
         $p = $wpdb->prefix;
 
         // #4437 — an adult needs no guardian: a player who is 18 on the
-        // alert day is left out. One with no date of birth stays in, so the
-        // alert does not go quiet because a field is empty.
-        $adult_from = ( new \DateTimeImmutable( current_time( 'Y-m-d' ) ) )->modify( '-18 years' )->format( 'Y-m-d' );
+        // alert day is left out. The 18th birthday is computed the way
+        // `PlayerTurns18Alert` computes it, so the two alerts agree about a
+        // leap-day player. One with no date of birth (NULL, or the zero date
+        // imports write) stays in, so the alert does not go quiet because a
+        // field is empty.
+        $alert_day = $this->alertDay ?? current_time( 'Y-m-d' );
 
         // `tt_player_parents` has a composite key and no surrogate id, so
         // its NOT EXISTS selects a literal.
@@ -141,7 +151,11 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
                  WHERE " . QueryHelpers::clubScopeWhere( 'p' ) . "
                    AND p.archived_at IS NULL
                    AND p.trashed_at IS NULL
-                   AND ( p.date_of_birth IS NULL OR p.date_of_birth > %s )
+                   AND (
+                        p.date_of_birth IS NULL
+                        OR p.date_of_birth = '0000-00-00'
+                        OR DATE_ADD( p.date_of_birth, INTERVAL %d YEAR ) > %s
+                   )
                    AND (
                         p.status = 'active'
                         OR EXISTS (
@@ -170,7 +184,8 @@ final class NoGuardianContactAlert extends AbstractPlayerAlert {
                    )"
             . $context->applyScope( self::SUBJECT_TYPE, 'p.id' ) . "
                  ORDER BY p.id ASC",
-            $adult_from
+            PlayerTurns18Alert::MAJORITY_AGE,
+            $alert_day
         );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
