@@ -246,6 +246,12 @@ are rendering output by design and keep the hint. So do the two service
 helpers that build markup rather than return a URL:
 `EmptyRegisterConfirm::guardAttributes()` and `DocLinkResolver`.
 
+**Current exception.** Three list-table controllers still append `tt_back`
+to a plain URL field of their rows: `HolidaysRestController.php:308`,
+`MatchExecutionRestController.php:321` and `PdpFilesRestController.php:503`
+and `:665`. They are known, and a follow-up moves them onto the rule. Do not
+copy the pattern.
+
 ## A new view also declares its help topic
 
 Adding a `?tt_view=` route means deciding which help topic the Help icon

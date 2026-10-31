@@ -4,7 +4,6 @@ namespace TT\Modules\Activities\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
 

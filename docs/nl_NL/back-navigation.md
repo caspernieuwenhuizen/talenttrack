@@ -325,6 +325,12 @@ teruggeven, zijn bewust weergave-uitvoer en houden de hint. Dat geldt ook
 voor de twee service-helpers die markup bouwen in plaats van een URL terug
 te geven: `EmptyRegisterConfirm::guardAttributes()` en `DocLinkResolver`.
 
+**Huidige uitzondering.** Drie lijsttabel-controllers voegen nog `tt_back`
+toe aan een kaal URL-veld van hun rijen: `HolidaysRestController.php:308`,
+`MatchExecutionRestController.php:321` en `PdpFilesRestController.php:503`
+en `:665`. Dit is bekend, en een vervolgstap brengt ze onder de regel.
+Neem het patroon niet over.
+
 ## Een nieuwe view legt ook zijn helponderwerp vast
 
 Een nieuwe `?tt_view=`-route toevoegen betekent bepalen welk helponderwerp
