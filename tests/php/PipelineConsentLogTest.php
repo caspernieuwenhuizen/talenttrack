@@ -5,7 +5,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Prospects\Domain\ConsentOutcome;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
-use TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView;
+use TT\Modules\Prospects\Domain\ProspectStages;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 
 /**
@@ -88,7 +88,7 @@ final class PipelineConsentLogTest extends WP_UnitTestCase {
 
     /** @return array<string,mixed>|null */
     private function cardIn( string $stage, int $prospect_id ): ?array {
-        foreach ( FrontendOnboardingPipelineView::computeStages( $this->admin ) as $column ) {
+        foreach ( ProspectStages::computeStages( $this->admin ) as $column ) {
             if ( ( $column['key'] ?? '' ) !== $stage ) continue;
             foreach ( (array) ( $column['cards'] ?? [] ) as $card ) {
                 if ( (int) ( $card['id'] ?? 0 ) === $prospect_id ) return (array) $card;
