@@ -246,7 +246,7 @@ class CustomFieldValidator {
      * (success) or ['error' => array] (validation failure).
      *
      * @param mixed $raw
-     * @return array{value?:string, error?:array{code:string, message:string, details:array<string,mixed>}}
+     * @return array{value:string}|array{error:array{code:string, message:string, details:array<string,mixed>}}
      */
     private function sanitizeAndValidate( object $field, $raw ): array {
         $type  = (string) $field->field_type;
