@@ -8,6 +8,7 @@ use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\DemoData\DemoMode;
 use TT\Modules\Pdp\Frontend\FrontendPdpPlanningView;
 use TT\Modules\Pdp\Services\PdpPlanningService;
 
@@ -182,6 +183,25 @@ final class PdpPlanningRestTest extends WP_UnitTestCase {
 
         wp_set_current_user( $this->hod );
         $this->assertSame( 404, $this->get( [ 'season_id' => $foreign ] )->get_status() );
+    }
+
+    public function test_demo_mode_scopes_the_matrix_with_or_without_team_ids(): void {
+        DemoMode::overrideForRequest( DemoMode::ON );
+        try {
+            DemoMode::tagIfActive( 'team', $this->own );
+            wp_set_current_user( $this->hod );
+
+            $all = $this->data( $this->get( [ 'season_id' => $this->season ] ) );
+            $this->assertSame( [ $this->own ], $this->teamIds( $all ), 'only the demo-tagged team' );
+
+            $asked = $this->data( $this->get( [ 'season_id' => $this->season, 'team_ids' => [ $this->own, $this->other ] ] ) );
+            $this->assertSame( [ $this->own ], $this->teamIds( $asked ), 'naming a real team does not get past the demo scope' );
+            $this->assertSame( [ $this->own ], array_values( array_unique( array_map( static fn( $w ) => (int) $w['team_id'], $asked['windows'] ) ) ) );
+
+            $this->assertSame( [], PdpPlanningService::blockWindows( $this->season, [ $this->other ], 1 ), 'the block detail window is scoped too' );
+        } finally {
+            DemoMode::clearOverride();
+        }
     }
 
     public function test_only_invalid_team_ids_give_an_empty_matrix(): void {

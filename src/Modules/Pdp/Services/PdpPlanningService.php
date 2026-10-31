@@ -56,16 +56,14 @@ final class PdpPlanningService {
         if ( $season_id <= 0 ) return [ 'max_blocks' => 0, 'teams' => [] ];
         if ( is_array( $team_ids ) && $team_ids === [] ) return [ 'max_blocks' => 0, 'teams' => [] ];
 
-        $team_clause  = '';
+        // Every team set follows the demo scope, whether it was asked for by
+        // id or not: a list of ids is a filter, never a way past the scope.
+        $team_clause  = QueryHelpers::apply_demo_scope( 't', 'team' );
         $team_params  = [];
         if ( is_array( $team_ids ) ) {
             $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $team_clause  = " AND t.id IN ($placeholders)";
+            $team_clause .= " AND t.id IN ($placeholders)";
             $team_params  = array_map( 'intval', $team_ids );
-        } else {
-            // The unrestricted set follows the demo scope, as the coach's
-            // list from get_teams_for_coach() already does.
-            $team_clause = QueryHelpers::apply_demo_scope( 't', 'team' );
         }
 
         // Aggregate per (team_id, sequence). For each block we need:
@@ -189,14 +187,12 @@ final class PdpPlanningService {
         if ( $season_id <= 0 ) return [];
         if ( is_array( $team_ids ) && $team_ids === [] ) return [];
 
-        $clause = '';
+        // Same demo scope as buildMatrix(), on every path.
+        $clause = QueryHelpers::apply_demo_scope( 't', 'team' );
         $params = [ CurrentClub::id(), $season_id ];
         if ( is_array( $team_ids ) ) {
             $clause .= ' AND pl.team_id IN (' . implode( ',', array_fill( 0, count( $team_ids ), '%d' ) ) . ')';
             $params  = array_merge( $params, array_map( 'intval', $team_ids ) );
-        } else {
-            // Same demo scope as buildMatrix() on the unrestricted path.
-            $clause .= QueryHelpers::apply_demo_scope( 't', 'team' );
         }
         if ( $block !== null ) {
             $clause  .= ' AND c.sequence = %d';
