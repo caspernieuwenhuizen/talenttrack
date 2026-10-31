@@ -110,9 +110,8 @@ final class LandingPersonaFallbackTest extends WP_UnitTestCase {
         $this->assertSame( 'staff', PersonaResolver::landingPersona( $uid ) );
         $this->assertSame( 'Staff', FrontendAppChrome::personaLabel( 'staff' ) );
         $this->assertStringContainsString( '<span>Staff</span>', FrontendAppChrome::personaChipInner( new \WP_User( $uid ) ) );
-        if ( FrontendAppNav::groups( $uid ) !== [] ) {
-            $this->assertSame( 'Staff', $this->navRole( $uid ) );
-        }
+        $this->assertNotSame( [], FrontendAppNav::groups( $uid ), 'precondition: the staff member has a nav to render' );
+        $this->assertSame( 'Staff', $this->navRole( $uid ) );
     }
 
     public function test_a_players_tile_grid_still_treats_them_as_a_player(): void {

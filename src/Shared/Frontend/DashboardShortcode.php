@@ -2538,18 +2538,10 @@ class DashboardShortcode {
                 echo '<a href="#" class="tt-user-menu-item tt-persona-switch" data-persona="" role="menuitem">'
                     . esc_html__( 'All personas (default)', 'talenttrack' )
                     . '</a>';
-                $persona_labels = [
-                    'player'              => __( 'Player', 'talenttrack' ),
-                    'parent'              => __( 'Parent', 'talenttrack' ),
-                    'assistant_coach'     => __( 'Assistant Coach', 'talenttrack' ),
-                    'head_coach'          => __( 'Head Coach', 'talenttrack' ),
-                    'head_of_development' => __( 'Head of Development', 'talenttrack' ),
-                    'scout'               => __( 'Scout', 'talenttrack' ),
-                    'team_manager'        => __( 'Team Manager', 'talenttrack' ),
-                    'academy_admin'       => __( 'Academy Admin', 'talenttrack' ),
-                ];
                 foreach ( $personas as $p ) {
-                    $label = $persona_labels[ $p ] ?? $p;
+                    // #4473 — the same labels as the chip and the nav foot.
+                    $label = \TT\Shared\Frontend\Components\FrontendAppChrome::personaLabel( (string) $p );
+                    if ( $label === '' ) $label = (string) $p;
                     echo '<a href="#" class="tt-user-menu-item tt-persona-switch" data-persona="' . esc_attr( $p ) . '" role="menuitem">'
                         . esc_html( $label )
                         . '</a>';
