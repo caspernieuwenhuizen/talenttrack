@@ -6,7 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\ProspectScope;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -247,10 +246,10 @@ final class ProspectStages {
      * one, the player profile when joined, or nothing (a static card)
      * when the prospect has no actionable surface yet.
      *
-     * v3.110.98 — every returned URL is wrapped in `BackLink::appendTo()`
-     * so the destination view's `← Back to Onboarding pipeline` pill
-     * renders (CLAUDE.md §5's second affordance). The pipeline view
-     * was missing this contract on its outgoing card-click URLs.
+     * #4477 — the URL is the plain target. The views that render a card
+     * or the record's next action append `tt_back` (CLAUDE.md §5), so the
+     * same prospect gives every consumer the same URL whatever page is
+     * being served.
      */
     private static function cardUrl( object $row, string $stage ): string {
         $task_id = 0;
@@ -284,27 +283,27 @@ final class ProspectStages {
             case 'joined':
                 $player_id = (int) ( $row->promoted_to_player_id ?? 0 );
                 if ( $player_id > 0 ) {
-                    return BackLink::appendTo( add_query_arg(
+                    return add_query_arg(
                         [ 'tt_view' => 'players', 'id' => $player_id ],
                         RecordLink::dashboardUrl()
-                    ) );
+                    );
                 }
                 return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
             case 'trial':
                 $case_id = (int) ( $row->promoted_to_trial_case_id ?? 0 );
                 if ( $case_id > 0 ) {
-                    return BackLink::appendTo( add_query_arg(
+                    return add_query_arg(
                         [ 'tt_view' => 'trial-case', 'id' => $case_id ],
                         RecordLink::dashboardUrl()
-                    ) );
+                    );
                 }
                 return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
         }
         if ( $task_id > 0 ) {
-            return BackLink::appendTo( add_query_arg(
+            return add_query_arg(
                 [ 'tt_view' => 'my-tasks', 'task_id' => $task_id ],
                 RecordLink::dashboardUrl()
-            ) );
+            );
         }
         // #1763 — no "next action": fall back to focusing the prospect on
         // the board so a card is never a dead end.
@@ -318,10 +317,10 @@ final class ProspectStages {
      */
     public static function prospectFocusUrl( int $prospect_id ): string {
         if ( $prospect_id <= 0 ) return '';
-        return BackLink::appendTo( add_query_arg(
+        return add_query_arg(
             [ 'tt_view' => 'onboarding-pipeline', 'prospect_id' => $prospect_id ],
             RecordLink::dashboardUrl()
-        ) );
+        );
     }
 
     private static function birthYearFromDob( string $dob ): string {

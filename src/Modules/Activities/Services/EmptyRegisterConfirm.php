@@ -92,7 +92,9 @@ final class EmptyRegisterConfirm {
             $out .= ' ' . $key . '="' . esc_attr( $value ) . '"';
         }
         if ( $url !== '' ) {
-            $out .= ' data-tt-empty-register-alt-href="' . esc_url( $url ) . '"';
+            // #4477 — `recordUrl()` is the plain target; this helper renders
+            // markup, so the back hint is added here.
+            $out .= ' data-tt-empty-register-alt-href="' . esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( $url ) ) . '"';
         }
         return $out;
     }

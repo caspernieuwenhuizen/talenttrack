@@ -392,7 +392,7 @@ final class FrontendTrainingRunView extends FrontendViewBase {
 
         $user_id = get_current_user_id();
         if ( ActivityGridLink::canUseAttendance( $activity_id, $user_id ) ) {
-            $url = ActivityGridLink::attendanceUrl( $activity_id );
+            $url = \TT\Shared\Frontend\Components\BackLink::appendTo( ActivityGridLink::attendanceUrl( $activity_id ) );
             if ( $url !== '' ) return $url;
         }
 

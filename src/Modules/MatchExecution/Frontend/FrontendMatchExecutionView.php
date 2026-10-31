@@ -1897,7 +1897,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
      */
     private static function recordAfterwardsUrl( int $activity_id, int $user_id ): string {
         if ( \TT\Modules\Activities\Services\ActivityGridLink::canUseMinutes( $activity_id, $user_id ) ) {
-            return \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id );
+            return \TT\Shared\Frontend\Components\BackLink::appendTo( \TT\Modules\Activities\Services\ActivityGridLink::minutesUrl( $activity_id ) );
         }
         return \TT\Shared\Frontend\Components\BackLink::appendTo(
             add_query_arg( [ 'tt_view' => 'minutes-audit', 'match_id' => $activity_id ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) /* tt-xview-ok — per-match minutes editor, gated on tt_edit_activities + team scope like this view */

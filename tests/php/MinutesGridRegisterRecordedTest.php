@@ -125,7 +125,7 @@ final class MinutesGridRegisterRecordedTest extends WP_UnitTestCase {
 
         $this->assertStringContainsString( 'tt_view=attendance-grid', $href );
         $this->assertSame(
-            remove_query_arg( 'tt_back', \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( $match, false ) ),
+            remove_query_arg( 'tt_back', \TT\Modules\Activities\Services\ActivityGridLink::attendanceUrl( $match ) ),
             remove_query_arg( 'tt_back', $href )
         );
     }

@@ -217,6 +217,41 @@ context, `BackLink::captureCurrent()` reads the page URL from the
 HTTP `Referer` header (the page that initiated the AJAX call) instead
 of `REQUEST_URI` (which points at the REST endpoint).
 
+### Domain code returns plain URLs
+
+A domain method, a service, or a REST field returns the **plain** target
+URL. It never calls `BackLink::appendTo()` or
+`RecordLink::detailUrlForWithBack()`. `tt_back` is taken from whatever page
+is being served, so a domain method that appended it would give a different
+answer depending on which page asked. A non-WordPress consumer of the REST
+API would then get a back-chain it never asked for.
+
+`tt_back` is added once, by the view that renders the link:
+
+```php
+// Domain: the plain target.
+$url = ActivityGridLink::attendanceUrl( $activity_id );
+
+// View, at render time: the back hint for this page.
+echo '<a href="' . esc_url( BackLink::appendTo( $url ) ) . '">';
+```
+
+So `ProspectRecord::stage()`'s `next_url`, the onboarding pipeline's card
+URLs, `GET /me/search`'s `url`, `ActivityGridLink` and
+`ActivityCompletionResolver` all return plain URLs. The views that show
+them append `tt_back`.
+
+The `*_link_html` fields that list endpoints return for `FrontendListTable`
+are rendering output by design and keep the hint. So do the two service
+helpers that build markup rather than return a URL:
+`EmptyRegisterConfirm::guardAttributes()` and `DocLinkResolver`.
+
+**Current exception.** Three list-table controllers still append `tt_back`
+to a plain URL field of their rows: `HolidaysRestController.php:308`,
+`MatchExecutionRestController.php:321` and `PdpFilesRestController.php:503`
+and `:665`. They are known, and a follow-up moves them onto the rule. Do not
+copy the pattern.
+
 ## A new view also declares its help topic
 
 Adding a `?tt_view=` route means deciding which help topic the Help icon

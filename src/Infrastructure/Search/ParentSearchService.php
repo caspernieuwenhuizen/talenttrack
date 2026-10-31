@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -423,12 +422,15 @@ final class ParentSearchService {
      * Where a result opens. `player_id` is carried because every parent
      * surface resolves its subject from it, and a parent with two children
      * landing on the wrong one is the bug that would make this useless.
+     *
+     * #4477 — the plain target, so `GET /me/search` answers the same from
+     * any page. The search view appends `tt_back` when it renders the link.
      */
     private function url( string $slug, int $player_id, int $record_id ): string {
         $args = [ 'tt_view' => $slug ];
         if ( $player_id > 0 ) $args['player_id'] = $player_id;
         if ( $record_id > 0 ) $args['id']        = $record_id;
 
-        return BackLink::appendTo( add_query_arg( $args, RecordLink::dashboardUrl() ) );
+        return add_query_arg( $args, RecordLink::dashboardUrl() );
     }
 }

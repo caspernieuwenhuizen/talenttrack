@@ -295,6 +295,42 @@ Ruwe URL-bouwers die `RecordLink` niet gebruiken pakken in met
 header (de pagina die de AJAX-call startte) in plaats van
 `REQUEST_URI` (dat naar het REST-eindpunt wijst).
 
+### Domeincode geeft kale URL's terug
+
+Een domeinmethode, een service of een REST-veld geeft de **kale** doel-URL
+terug. Zo'n laag roept nooit `BackLink::appendTo()` of
+`RecordLink::detailUrlForWithBack()` aan. `tt_back` komt uit de pagina die
+op dat moment wordt geserveerd. Een domeinmethode die het toevoegt, geeft
+dus een ander antwoord afhankelijk van welke pagina het vroeg. Een
+front-end buiten WordPress die de REST-API gebruikt, krijgt dan een
+terug-keten waar hij nooit om heeft gevraagd.
+
+`tt_back` wordt één keer toegevoegd, door de view die de link toont:
+
+```php
+// Domein: het kale doel.
+$url = ActivityGridLink::attendanceUrl( $activity_id );
+
+// View, bij het tonen: de terug-hint voor deze pagina.
+echo '<a href="' . esc_url( BackLink::appendTo( $url ) ) . '">';
+```
+
+Daarom geven de `next_url` van `ProspectRecord::stage()`, de kaart-URL's
+van de onboarding-pijplijn, de `url` van `GET /me/search`,
+`ActivityGridLink` en `ActivityCompletionResolver` allemaal kale URL's
+terug. De views die ze tonen voegen `tt_back` toe.
+
+De `*_link_html`-velden die lijst-eindpunten voor `FrontendListTable`
+teruggeven, zijn bewust weergave-uitvoer en houden de hint. Dat geldt ook
+voor de twee service-helpers die markup bouwen in plaats van een URL terug
+te geven: `EmptyRegisterConfirm::guardAttributes()` en `DocLinkResolver`.
+
+**Huidige uitzondering.** Drie lijsttabel-controllers voegen nog `tt_back`
+toe aan een kaal URL-veld van hun rijen: `HolidaysRestController.php:308`,
+`MatchExecutionRestController.php:321` en `PdpFilesRestController.php:503`
+en `:665`. Dit is bekend, en een vervolgstap brengt ze onder de regel.
+Neem het patroon niet over.
+
 ## Een nieuwe view legt ook zijn helponderwerp vast
 
 Een nieuwe `?tt_view=`-route toevoegen betekent bepalen welk helponderwerp
