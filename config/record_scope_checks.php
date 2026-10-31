@@ -66,6 +66,10 @@ return [
         'canAssignStaff',
         'canPlanForTeam',
         'get_teams_for_coach',
+        // #4448 — the PDP planning team scope: academy-wide PDP read, else
+        // `get_teams_for_coach()`. Moved out of the planning view, whose
+        // block detail the gate used to pass one level deep.
+        'PdpPlanningService::accessibleTeamIds',
         'AllTeamsScope::canReadTeam',
         'ActivityTeamScope::covers',
         'TeamChemistryAccess::can',

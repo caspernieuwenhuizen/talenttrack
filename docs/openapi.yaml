@@ -346,6 +346,20 @@ paths:
       parameters: [{ in: path, name: id, required: true, schema: { type: integer } }]
       responses: { '200': { description: OK }, '403': { description: Not visible to this reader }, '404': { description: Player not found } }
 
+  /pdp-planning:
+    get:
+      tags: [pdp]
+      summary: The PDP planning matrix per team and block for one season (#4448)
+      description: 'The cells and block windows the `pdp-planning` view shows: `data` holds `season_id`, `max_blocks`, `teams` (each with `blocks` of expected / planned / conducted / not_held counts and the window) and `windows`. The shape is in docs/rest-api.md. Gated on `tt_view_pdp_planning`; the team set follows the same `pdp_planning` grant. A global grant sees every team; a team-scoped grant only the teams it covers. `team_ids` narrows within that scope and never widens it, and a `team_ids` with no usable id gets an empty matrix.'
+      parameters:
+        - { in: query, name: season_id, required: true, schema: { type: integer } }
+        - { in: query, name: 'team_ids[]', schema: { type: array, items: { type: integer } } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { $ref: '#/components/schemas/Envelope' } } } }
+        '400': { description: season_id missing }
+        '403': { description: The caller may not read PDP planning }
+        '404': { description: Season not found }
+
   /players/import:
     post:
       tags: [players]
