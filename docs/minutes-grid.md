@@ -119,6 +119,32 @@ ones left to undo first — **the match sheet's score follows it down.** That
 score is a reading of the goal log, so a goal taken off the log is a goal off
 the scoreboard; the two cannot end up disagreeing about the same match.
 
+### Minutes against the match
+
+The **Minutes** row at the bottom of the grid checks, per match, whether all
+the match's minutes are in. It is the same check the Minutes-audit overview
+makes, in the same words and colours:
+
+- **The number** is the minutes entered against what the match holds:
+ players a side times the match length. `795 / 770` on an 11-a-side match of
+ 70 minutes means 25 minutes too many, usually a substitution counted twice.
+- **The chip** says **Complete** when every player in the squad has minutes
+ and the total adds up to a whole match, **Incomplete** when either check
+ fails, and **Not recorded** when no minutes are entered at all.
+- **The reason** under an Incomplete chip says which check failed: *Players in
+ the squad without minutes*, *45 minutes short of a full match*, or *25
+ minutes more than the match holds*.
+
+The row updates as you type, so you see the answer before you press Save, and
+after Save it gives the same answer as the audit. The squad it counts is the
+audit's: a player you selected but never marked present has no box here, but
+still counts as a player without minutes until you record his attendance.
+
+It is information, not a rule. Nothing stops you saving: a match can really
+run short, after a red card or an injury with no substitute. A tournament day
+shows its minutes without a target and the **Roll-up** chip, because its
+minutes belong to its matches in the tournament planner.
+
 ### Attributed / score
 
 The bottom row of the grid reads, per match, how many goals have a scorer

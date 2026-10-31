@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
 use TT\Modules\Activities\Services\ActivityCompletionResolver;
 use TT\Modules\Activities\Services\ActivityGridLink;
+use TT\Modules\Analytics\Frontend\MinutesCompletenessLabels;
 use TT\Modules\Analytics\Reports\ReportFilters;
 use TT\Shared\Frontend\Components\FilterBar;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -39,10 +40,18 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #4483 — the Minutes row wears the Minutes-audit's status chip, so
+        // its colours come from the audit's own sheet rather than a copy.
+        wp_enqueue_style(
+            'tt-frontend-minutes-audit',
+            TT_PLUGIN_URL . 'assets/css/frontend-minutes-audit.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         wp_enqueue_style(
             'tt-frontend-minutes-grid',
             TT_PLUGIN_URL . 'assets/css/frontend-minutes-grid.css',
-            [ 'tt-frontend-attendance-grid' ],
+            [ 'tt-frontend-attendance-grid', 'tt-frontend-minutes-audit' ],
             TT_VERSION
         );
         wp_enqueue_script(
@@ -59,6 +68,9 @@ final class FrontendMinutesGridView extends FrontendViewBase {
             'restStats' => esc_url_raw( rest_url( 'talenttrack/v1/activities/' ) ),
             'restPrefs' => esc_url_raw( rest_url( 'talenttrack/v1/me/preferences/minutes-grid' ) ),
             'stats'     => self::visibleStats(),
+            // #4483 — the Minutes row formats its numbers the way
+            // `number_format_i18n()` does on the server.
+            'thousandsSep' => self::thousandsSeparator(),
             'nonce'    => wp_create_nonce( 'wp_rest' ),
             'i18n'     => [
                 'saving'    => __( 'Saving…', 'talenttrack' ),
@@ -70,8 +82,19 @@ final class FrontendMinutesGridView extends FrontendViewBase {
                 'confirm'   => __( 'You have unsaved changes. Leave without saving?', 'talenttrack' ),
                 // #3337 — the same question for an in-place filter change.
                 'confirm_filter' => __( 'You have unsaved changes. Change the filter and lose them?', 'talenttrack' ),
+                // #4483 — the Minutes row's words, from the class the audit
+                // reads them from, so the row the script recomputes reads
+                // like the row the server renders after Save.
+                'minutesLabels'  => MinutesCompletenessLabels::labels(),
+                'minutesReasons' => MinutesCompletenessLabels::reasonTemplates(),
             ],
         ] );
+    }
+
+    /** The locale's thousands separator, as `number_format_i18n()` uses it. */
+    private static function thousandsSeparator(): string {
+        global $wp_locale;
+        return isset( $wp_locale->number_format['thousands_sep'] ) ? (string) $wp_locale->number_format['thousands_sep'] : ',';
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
@@ -356,7 +379,8 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         }
 
         echo '</tbody>';
-        self::renderReconciliationFoot( $activities );
+        $roster_ids = array_map( static fn( array $pl ): int => (int) $pl['player_id'], $players );
+        self::renderReconciliationFoot( $activities, $cells, $roster_ids );
         echo '</table></div>';
 
         $cancel_url = add_query_arg( [ 'tt_view' => 'activities' ], RecordLink::dashboardUrl() ); /* tt-xview-ok */
@@ -622,10 +646,14 @@ final class FrontendMinutesGridView extends FrontendViewBase {
      * "we do not know who scored the third" is a true state of the world and
      * the grid's job is to show it, not to forbid it.
      *
-     * @param list<array<string,mixed>> $activities
+     * @param list<array<string,mixed>>                 $activities
+     * @param array<int,array<int,array<string,mixed>>> $cells
+     * @param list<int>                                 $roster_ids
      */
-    private static function renderReconciliationFoot( array $activities ): void {
-        echo '<tfoot><tr class="tt-agrid-recon">';
+    private static function renderReconciliationFoot( array $activities, array $cells, array $roster_ids ): void {
+        echo '<tfoot>';
+        self::renderMinutesCheckRow( $activities, $cells, $roster_ids );
+        echo '<tr class="tt-agrid-recon">';
         echo '<th class="tt-agrid__player" scope="row">' . esc_html__( 'Attributed / score', 'talenttrack' ) . '</th>';
 
         foreach ( $activities as $a ) {
@@ -664,6 +692,62 @@ final class FrontendMinutesGridView extends FrontendViewBase {
 
         echo '<td class="tt-agrid-cell tt-agrid-cell--sep" colspan="3"></td>';
         echo '</tr></tfoot>';
+    }
+
+    /**
+     * #4483 — the Minutes row: per match, the minutes entered against what
+     * the match holds ("795 / 770"), with the Minutes-audit's chip and its
+     * reason, so a coach sees a substitution counted twice before anyone
+     * opens the audit.
+     *
+     * The verdict is `MinutesGridQuery::minutesCheck()`; this only prints it.
+     * `frontend-minutes-grid.js` recomputes the cell from the boxes in its
+     * column as the coach types, from the `data-available`, `data-squad` and
+     * off-grid figures carried here. Like the goals row below it, it informs
+     * and never blocks a save: a match that really ran short is a true state.
+     *
+     * @param list<array<string,mixed>>                 $activities
+     * @param array<int,array<int,array<string,mixed>>> $cells
+     * @param list<int>                                 $roster_ids
+     */
+    private static function renderMinutesCheckRow( array $activities, array $cells, array $roster_ids ): void {
+        echo '<tr class="tt-agrid-mincheck">';
+        echo '<th class="tt-agrid__player" scope="row" title="' . esc_attr__( 'Complete means every player in the squad has minutes and the total adds up to a whole match: players a side times the match length.', 'talenttrack' ) . '">'
+            . esc_html__( 'Minutes', 'talenttrack' ) . '</th>';
+
+        foreach ( $activities as $a ) {
+            $check = MinutesGridQuery::minutesCheck( $a, $cells, $roster_ids );
+            $total = number_format_i18n( $check['total_minutes'] );
+            $sum   = $check['available_minutes'] !== null
+                ? $total . ' / ' . number_format_i18n( $check['available_minutes'] )
+                : $total;
+
+            printf(
+                '<td class="tt-agrid-cell tt-agrid-cell--sep tt-agrid-mincheck__cell" colspan="3" data-minutes-check data-activity="%1$d" data-available="%2$s" data-squad="%3$s" data-tournament="%4$s" data-offgrid-minutes="%5$d" data-offgrid-recorded="%6$d">',
+                (int) $a['activity_id'],
+                esc_attr( $check['available_minutes'] !== null ? (string) $check['available_minutes'] : '' ),
+                esc_attr( $check['squad_count'] !== null ? (string) $check['squad_count'] : '' ),
+                ! empty( $a['is_tournament'] ) ? '1' : '0',
+                $check['offgrid_minutes'],
+                $check['offgrid_recorded']
+            );
+            echo '<span class="tt-agrid-mincheck__sum" data-minutes-sum>' . esc_html( $sum ) . '</span>';
+            echo '<span class="tt-agrid-mincheck__chip" data-minutes-chip>';
+            if ( $check['status'] !== '' ) {
+                echo MinutesCompletenessLabels::statusChip( $check['status'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
+            }
+            echo '</span>';
+            $reason = MinutesCompletenessLabels::reasonText(
+                $check['status_reason'],
+                $check['total_minutes'],
+                (int) ( $check['available_minutes'] ?? 0 )
+            );
+            echo '<small class="tt-maud-chip__reason tt-agrid-mincheck__reason" data-minutes-reason>' . esc_html( $reason ) . '</small>';
+            echo '</td>';
+        }
+
+        echo '<td class="tt-agrid-cell tt-agrid-cell--sep" colspan="3"></td>';
+        echo '</tr>';
     }
 
     /**

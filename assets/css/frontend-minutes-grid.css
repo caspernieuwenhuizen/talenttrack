@@ -223,3 +223,49 @@
 .tt-agrid-recon__flag {
   font-weight: 800;
 }
+
+/* ---- the Minutes row (#4483) -------------------------------------
+   "795 / 770" per match, with the Minutes-audit's chip and its reason.
+   The chip's colours are the audit's (frontend-minutes-audit.css); the
+   chip carries its label as text, so the state never rests on colour.
+   Mobile-first: the number, the chip and the reason stack inside the
+   match's own column and wrap, so the row adds no width of its own to the
+   grid's horizontal scroll. Information, never a gate: nothing here
+   touches Save. */
+.tt-agrid-mincheck {
+  background: var(--tt-bg-soft);
+  font-size: var(--tt-fs-sm);
+}
+
+.tt-agrid-mincheck__cell {
+  vertical-align: top;
+  padding: var(--tt-sp-1) var(--tt-sp-2);
+  text-align: center;
+  white-space: normal;
+}
+
+.tt-agrid-mincheck__sum {
+  display: block;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--tt-ink);
+}
+
+.tt-agrid-mincheck__chip {
+  display: block;
+  margin-top: var(--tt-sp-1);
+}
+
+.tt-agrid-mincheck__chip:empty {
+  display: none;
+}
+
+/* The audit's reason style, allowed to wrap in a narrow match column. */
+.tt-agrid-mincheck__reason {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.tt-agrid-mincheck__reason:empty {
+  display: none;
+}

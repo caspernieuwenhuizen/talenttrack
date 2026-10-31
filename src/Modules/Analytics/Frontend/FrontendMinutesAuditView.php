@@ -336,9 +336,9 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
             } else {
                 echo '<td class="tt-maud-cell tt-maud-cell--tot">' . esc_html( $total_fmt ) . '</td>';
             }
-            echo '<td>' . self::statusChip( $rollup ? 'rollup' : $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
+            echo '<td>' . MinutesCompletenessLabels::statusChip( $rollup ? 'rollup' : $status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusChip escapes.
             if ( ! $rollup ) {
-                $reason = self::reasonText( (string) ( $g['status_reason'] ?? '' ), $total, $avail );
+                $reason = MinutesCompletenessLabels::reasonText( (string) ( $g['status_reason'] ?? '' ), $total, $avail );
                 if ( $reason !== '' ) echo '<small class="tt-maud-chip__reason">' . esc_html( $reason ) . '</small>';
             }
             echo '</td>';
@@ -415,45 +415,6 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         echo '<span>' . esc_html__( 'Complete means every player in the squad has minutes and the total adds up to a whole match: players a side times the match length.', 'talenttrack' ) . '</span>';
         echo '<span>' . esc_html__( 'A tournament day is a roll-up of its fixtures: its minutes are recorded in the tournament planner and are already counted in the fixture rows, so it is left out of the column totals.', 'talenttrack' ) . '</span>';
         echo '</div>';
-    }
-
-    /**
-     * #4058 — the words for a `status_reason` the query decided. An empty
-     * reason (complete, not recorded) says nothing.
-     */
-    private static function reasonText( string $reason, int $total, int $available ): string {
-        switch ( $reason ) {
-            case 'players_missing':
-                return __( 'Players in the squad without minutes', 'talenttrack' );
-            case 'minutes_short':
-                return sprintf(
-                    /* translators: %s: number of minutes missing */
-                    __( '%s minutes short of a full match', 'talenttrack' ),
-                    number_format_i18n( max( 0, $available - $total ) )
-                );
-            case 'minutes_over':
-                return sprintf(
-                    /* translators: %s: number of minutes over */
-                    __( '%s minutes more than the match holds', 'talenttrack' ),
-                    number_format_i18n( max( 0, $total - $available ) )
-                );
-        }
-        return '';
-    }
-
-    private static function statusChip( string $status ): string {
-        $map = [
-            'complete' => [ 'tt-maud-chip--ok',      __( 'Complete',       'talenttrack' ) ],
-            'partial'  => [ 'tt-maud-chip--partial', __( 'Incomplete',     'talenttrack' ) ],
-            'none'     => [ 'tt-maud-chip--none',    __( 'Not recorded',   'talenttrack' ) ],
-            // #3857 — the roll-up says what it is rather than judging a
-            // completeness nobody can act on from this screen. The context
-            // keeps the one-word label out of the accounting sense of the
-            // word when it is translated.
-            'rollup'   => [ 'tt-maud-chip--rollup',  _x( 'Roll-up', 'minutes audit row: a tournament day summing its fixtures', 'talenttrack' ) ],
-        ];
-        [ $cls, $label ] = $map[ $status ] ?? $map['none'];
-        return '<span class="tt-maud-chip ' . esc_attr( $cls ) . '"><span class="tt-maud-chip__dot"></span>' . esc_html( $label ) . '</span>';
     }
 
     /**

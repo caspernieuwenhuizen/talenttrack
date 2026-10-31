@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
@@ -43,7 +44,7 @@ final class MinutesGridQuery {
 
     /**
      * @return array{
-     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:?bool, is_neutral:bool, opponent:string, is_tournament:bool, attributed_goals:int }>,
+     *   activities: list<array{ activity_id:int, session_date:string, title:string, type_key:string, owned_by_execution:bool, home_score:?int, away_score:?int, is_home:?bool, is_neutral:bool, opponent:string, is_tournament:bool, attributed_goals:int, register_recorded:bool, available_minutes:?int, squad_count:?int }>,
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   cells: array<int, array<int, array{minutes:int, squad:bool, goals:int, assists:int}>>,
      *   summary: array{ total_activities:int, total_players:int },
@@ -141,8 +142,15 @@ final class MinutesGridQuery {
                 // exists. False means nobody is in this match's squad because
                 // the register was never taken, not because nobody played.
                 'register_recorded'  => false,
+                // #4483 — the audit's yardstick for this match, filled in
+                // below. Null on a tournament day and on a column the audit
+                // does not judge.
+                'available_minutes'  => null,
+                'squad_count'        => null,
             ];
         }
+
+        $activities = self::withAuditYardstick( $activities, $team_id, $from, $to );
 
         // 2. Active roster (rows), ordered jersey-then-name.
         $players = [];
@@ -286,6 +294,109 @@ final class MinutesGridQuery {
             ],
             'window'     => $window,
         ];
+    }
+
+    /**
+     * #4483 — `available_minutes` and `squad_count` per match column, read
+     * from the Minutes-audit matrix over the same window.
+     *
+     * Read from the audit rather than worked out again here, so the grid's
+     * Minutes row is judged against exactly what the audit judges: the match
+     * length from `MatchLengthResolver::resolvePlayedLength()` times players
+     * a side (`MinutesAuditQuery::availableMinutes()`), and the audit's squad
+     * — planned or recorded, minus players marked unavailable, plus anyone
+     * with minutes. The grid's own squad is the recorded register only
+     * (#3451), so a player selected and never registered counts here and
+     * has no box on the grid; that is the gap the row is there to show.
+     *
+     * A tournament day keeps both null: the audit judges it as a roll-up of
+     * its fixtures, on players only, and its minutes live in the planner.
+     *
+     * @param list<array<string, mixed>> $activities
+     * @return list<array<string, mixed>>
+     */
+    private static function withAuditYardstick( array $activities, int $team_id, string $from, string $to ): array {
+        if ( $activities === [] ) return $activities;
+
+        $games = [];
+        foreach ( ( new MinutesAuditQuery() )->matrix( $team_id, $from, $to )['games'] as $g ) {
+            $games[ (int) $g['activity_id'] ] = $g;
+        }
+
+        foreach ( $activities as $i => $a ) {
+            $g = $games[ (int) $a['activity_id'] ] ?? null;
+            if ( $g === null || ! empty( $a['is_tournament'] ) || ! empty( $g['is_rollup'] ) ) continue;
+            $activities[ $i ]['available_minutes'] = (int) $g['available_minutes'];
+            $activities[ $i ]['squad_count']       = (int) $g['squad_count'];
+        }
+        return $activities;
+    }
+
+    /**
+     * #4483 — the Minutes row for one match column: the minutes entered in
+     * the grid's cells against what the match holds, judged by
+     * `MinutesAuditQuery::completeness()`.
+     *
+     * The grid's script repeats these three checks, in this order, on the
+     * boxes as the coach types; this is the answer the page renders, and so
+     * the answer the coach sees again after Save. It informs only: a match
+     * that really ran short (a red card, an injury with no substitute) is a
+     * legitimate state and nothing here stops a save.
+     *
+     * `status` is `rollup` for a tournament day and `''` for a column the
+     * audit does not judge; both carry no target and no reason.
+     *
+     * Every cell of the column counts, as every recorded minute counts in
+     * the audit. Pass the grid's row ids as `$roster_ids` and the minutes of
+     * players who have no row on it (a player who has since moved team still
+     * has a register row on his old matches) come back separately as
+     * `offgrid_minutes` / `offgrid_recorded`: included in the totals, but
+     * not typed into any box, so the script adds them to what it sums.
+     *
+     * @param array<string, mixed>                         $activity   A column from `matrix()`.
+     * @param array<int, array<int, array<string, mixed>>> $cells      `matrix()['cells']`.
+     * @param list<int>|null                               $roster_ids The players the grid shows a row for.
+     * @return array{total_minutes:int, recorded_count:int, offgrid_minutes:int, offgrid_recorded:int, available_minutes:?int, squad_count:?int, status:string, status_reason:string}
+     */
+    public static function minutesCheck( array $activity, array $cells, ?array $roster_ids = null ): array {
+        $aid       = (int) ( $activity['activity_id'] ?? 0 );
+        $on_grid   = $roster_ids !== null ? array_fill_keys( $roster_ids, true ) : null;
+        $total     = 0;
+        $recorded  = 0;
+        $off_total = 0;
+        $off_count = 0;
+        foreach ( $cells as $pid => $by_activity ) {
+            $minutes = (int) ( $by_activity[ $aid ]['minutes'] ?? 0 );
+            if ( $minutes <= 0 ) continue;
+            $recorded++;
+            $total += $minutes;
+            if ( $on_grid !== null && ! isset( $on_grid[ (int) $pid ] ) ) {
+                $off_count++;
+                $off_total += $minutes;
+            }
+        }
+
+        $available = isset( $activity['available_minutes'] ) ? (int) $activity['available_minutes'] : null;
+        $squad     = isset( $activity['squad_count'] ) ? (int) $activity['squad_count'] : null;
+
+        $out = [
+            'total_minutes'     => $total,
+            'recorded_count'    => $recorded,
+            'offgrid_minutes'   => $off_total,
+            'offgrid_recorded'  => $off_count,
+            'available_minutes' => $available,
+            'squad_count'       => $squad,
+            'status'            => '',
+            'status_reason'     => '',
+        ];
+        if ( ! empty( $activity['is_tournament'] ) ) {
+            $out['status'] = 'rollup';
+            return $out;
+        }
+        if ( $squad === null ) return $out;
+
+        [ $out['status'], $out['status_reason'] ] = MinutesAuditQuery::completeness( $recorded, $squad, $total, $available );
+        return $out;
     }
 
     /**
