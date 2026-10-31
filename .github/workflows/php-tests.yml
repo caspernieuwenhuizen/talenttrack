@@ -155,4 +155,4 @@ jobs:
         # wp-env mounts the plugin (incl. the host-installed vendor/) into
         # the tests container and provides the WordPress PHPUnit library;
         # bootstrap.php picks it up via WP_PHPUNIT__DIR.
-        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/phpunit
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/phpunit --testdox
