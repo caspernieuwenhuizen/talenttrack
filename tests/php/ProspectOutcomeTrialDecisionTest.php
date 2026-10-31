@@ -8,6 +8,8 @@ use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Prospects\Domain\ProspectOutcome;
 use TT\Modules\Prospects\Domain\ProspectStageClassifier;
+use TT\Modules\Prospects\Repositories\ProspectVisitObservationsRepository;
+use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 
 /**
  * #4251 — a prospect's status follows its trial case's decision.
@@ -164,5 +166,26 @@ final class ProspectOutcomeTrialDecisionTest extends WP_UnitTestCase {
             'created_at'                => gmdate( 'Y-m-d H:i:s' ),
         ];
         $this->assertSame( 'joined', ProspectStageClassifier::classify( $row, 0 ) );
+    }
+
+    // ── the visit pages read the decision from the row ─────────────────
+
+    public function test_a_visit_row_carries_the_decision_so_forrow_needs_no_query(): void {
+        $this->decide( TrialCaseDecision::ADMIT );
+        $visit = ( new ScoutingVisitsRepository() )->create( [
+            'visit_date' => '2026-03-14',
+            'location'   => 'Sportpark Nieuwland',
+            'status'     => ScoutingVisitsRepository::STATUS_COMPLETED,
+        ] );
+        ( new ProspectVisitObservationsRepository() )->link( $this->prospect, $visit );
+
+        $rows = ( new ScoutingVisitsRepository() )->prospectsForVisit( $visit );
+        $this->assertCount( 1, $rows );
+        $this->assertSame( TrialCaseDecision::ADMIT, $rows[0]->trial_decision ?? null, 'the visit query selects trial_decision' );
+
+        global $wpdb;
+        $before = $wpdb->num_queries;
+        $this->assertSame( ProspectOutcome::JOINED, ProspectOutcome::forRow( (array) $rows[0] ) );
+        $this->assertSame( $before, $wpdb->num_queries, 'and forRow() reads it without a query of its own' );
     }
 }

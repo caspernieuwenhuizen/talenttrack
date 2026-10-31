@@ -206,12 +206,15 @@ class ScoutingVisitsRepository {
         $prospects    = $this->wpdb->prefix . 'tt_prospects';
         $lookups      = $this->wpdb->prefix . 'tt_lookups';
         $observations = $this->wpdb->prefix . 'tt_prospect_visit_observations';
+        // #4251 — the trial decision rides along, so ProspectOutcome::forRow()
+        // reads it from the row instead of one query per trialist.
+        $decision     = \TT\Modules\Prospects\Domain\ProspectOutcome::sqlTrialDecision( 'p' );
 
         $sql = $this->wpdb->prepare(
             "SELECT p.id, p.first_name, p.last_name, p.current_club,
                     p.date_of_birth, l.name AS position, p.archived_at,
                     p.promoted_to_player_id, p.promoted_to_trial_case_id, p.discovered_at,
-                    p.scouting_visit_id,
+                    p.scouting_visit_id, {$decision} AS trial_decision,
                     o.id AS observation_id, o.observed_at, o.notes AS observation_notes
               FROM {$observations} o
         INNER JOIN {$prospects} p ON p.id = o.prospect_id AND p.club_id = o.club_id
