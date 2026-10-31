@@ -65,7 +65,7 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         $act = $p . 'tt_activities';
         $pl  = $p . 'tt_players';
 
-        // tt_attendance (migration 0001), tt_activities (migration 0027, the tt_sessions rename), tt_players (migration 0001) exist on every install; no table check.
+        // tt_attendance (migration 0001), tt_activities (migration 0027), tt_players (migration 0001) exist on every install; no table check.
 
         $teams = QueryHelpers::get_teams_for_coach( $user_id );
         if ( empty( $teams ) ) return KpiValue::unavailable();

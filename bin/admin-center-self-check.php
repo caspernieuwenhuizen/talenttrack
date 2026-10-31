@@ -39,6 +39,7 @@ require_once __DIR__ . '/admin-center-self-check.bootstrap.php';
 
 require_once __DIR__ . '/../src/Modules/AdminCenterClient/InstallId.php';
 require_once __DIR__ . '/../src/Modules/AdminCenterClient/Signer.php';
+require_once __DIR__ . '/../src/Infrastructure/Query/TableExists.php';
 require_once __DIR__ . '/../src/Modules/AdminCenterClient/PayloadBuilder.php';
 require_once __DIR__ . '/../src/Modules/License/EntitlementSourceInterface.php';
 require_once __DIR__ . '/../src/Modules/License/CachedEntitlement.php';

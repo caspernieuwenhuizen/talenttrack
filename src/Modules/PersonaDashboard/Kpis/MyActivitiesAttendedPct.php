@@ -26,7 +26,7 @@ class MyActivitiesAttendedPct extends AbstractKpiDataSource {
         $p   = $wpdb->prefix;
         $att = $p . 'tt_attendance';
         $act = $p . 'tt_activities';
-        // tt_attendance (migration 0001), tt_activities (migration 0027, the tt_sessions rename) exist on every install; no table check.
+        // tt_attendance (migration 0001), tt_activities (migration 0027) exist on every install; no table check.
 
         $from  = gmdate( 'Y-m-d', strtotime( '-' . self::WINDOW_DAYS . ' days' ) ) . ' 00:00:00';
         $to    = gmdate( 'Y-m-d' ) . ' 23:59:59';
