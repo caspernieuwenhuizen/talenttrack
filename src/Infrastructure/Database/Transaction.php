@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Database;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
+
 /**
  * The one place the plugin opens, commits and rolls back a transaction.
  *
@@ -79,39 +81,56 @@ final class Transaction {
             register_shutdown_function( [ self::class, 'onShutdown' ] );
         }
         if ( self::$depth === 0 ) {
-            $wpdb->query( 'START TRANSACTION' );
+            self::statement( 'START TRANSACTION' );
         } else {
-            $wpdb->query( 'SAVEPOINT ' . self::savepoint( self::$depth ) );
+            self::statement( 'SAVEPOINT ' . self::savepoint( self::$depth ) );
         }
         self::$depth++;
     }
 
     public static function commit(): void {
-        global $wpdb;
         if ( self::$depth === 0 ) return;
         self::$depth--;
         if ( self::$depth === 0 ) {
-            $wpdb->query( 'COMMIT' );
+            self::statement( 'COMMIT' );
             AfterCommit::committed();
             return;
         }
-        $wpdb->query( 'RELEASE SAVEPOINT ' . self::savepoint( self::$depth ) );
+        self::statement( 'RELEASE SAVEPOINT ' . self::savepoint( self::$depth ) );
         AfterCommit::released( self::$depth );
     }
 
     public static function rollback(): void {
-        global $wpdb;
         if ( self::$depth === 0 ) return;
         self::$depth--;
         if ( self::$depth === 0 ) {
-            $wpdb->query( 'ROLLBACK' );
+            self::statement( 'ROLLBACK' );
             AfterCommit::rolledBack( 0 );
             return;
         }
         $name = self::savepoint( self::$depth );
-        $wpdb->query( 'ROLLBACK TO SAVEPOINT ' . $name );
-        $wpdb->query( 'RELEASE SAVEPOINT ' . $name );
+        self::statement( 'ROLLBACK TO SAVEPOINT ' . $name );
+        self::statement( 'RELEASE SAVEPOINT ' . $name );
         AfterCommit::rolledBack( self::$depth );
+    }
+
+    /**
+     * Run one transaction statement, and log it when the server refuses
+     * it. A savepoint an implicit commit already destroyed, or a COMMIT on
+     * a dropped connection, otherwise fails without a trace while the
+     * caller carries on as if it held.
+     */
+    private static function statement( string $sql ): bool {
+        global $wpdb;
+        $ok = $wpdb->query( $sql ) !== false;
+        if ( ! $ok ) {
+            Logger::error( 'db.transaction.statement_failed', [
+                'statement' => $sql,
+                'depth'     => self::$depth,
+                'error'     => (string) $wpdb->last_error,
+            ] );
+        }
+        return $ok;
     }
 
     /** The savepoint that opened the level above `$level`. */

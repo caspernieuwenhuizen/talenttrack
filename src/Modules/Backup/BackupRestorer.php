@@ -145,7 +145,11 @@ class BackupRestorer {
                 continue;
             }
 
-            $wpdb->query( "DELETE FROM {$table}" );
+            if ( $wpdb->query( "DELETE FROM {$table}" ) === false ) {
+                // The rows still there make the inserts below collide, which
+                // the count check after the commit reports; this says why.
+                \TT\Infrastructure\Logging\Logger::error( 'backup.restore.clear_failed', [ 'table' => $bare, 'error' => (string) $wpdb->last_error ] );
+            }
 
             $count = 0;
             foreach ( $rows as $row ) {

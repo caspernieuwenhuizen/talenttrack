@@ -151,7 +151,11 @@ final class SeedImporter {
         Transaction::begin();
         // DELETE, not TRUNCATE: TRUNCATE commits on the spot, so an insert
         // failing below used to leave the matrix half-replaced (#4561).
-        $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" );
+        if ( $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" ) === false ) {
+            // The inserts below then collide with the rows still there and
+            // roll the import back; this says why.
+            \TT\Infrastructure\Logging\Logger::error( 'authorization.seed_import.clear_failed', [ 'error' => (string) $wpdb->last_error ] );
+        }
 
         $inserted = 0;
         foreach ( $rows as $row ) {

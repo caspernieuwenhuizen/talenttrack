@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
+use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -16,7 +17,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  *   CASCADE DELETE — the row exists only because the person exists.
  *     tt_team_people, tt_user_role_scopes (rows where person_id = X),
- *     tt_staff_development, tt_staff_certifications, tt_staff_evaluations,
+ *     tt_staff_pdp, tt_staff_certifications, tt_staff_evaluations,
  *     tt_staff_goals, tt_staff_mentorships (mentor or mentee = X),
  *     tt_invitations (target_person_id = X AND status IN ('pending','expired')).
  *
@@ -109,11 +110,12 @@ class PersonDeletionCascade {
 
             // tt_staff_* — per-table cascade counts
             foreach ( [
-                'staff_development'  => 'tt_staff_development',
+                'staff_development'  => 'tt_staff_pdp',
                 'staff_certifications' => 'tt_staff_certifications',
                 'staff_evaluations'  => 'tt_staff_evaluations',
                 'staff_goals'        => 'tt_staff_goals',
             ] as $kind => $table ) {
+                if ( ! TableExists::has( $table ) ) continue;
                 $n = (int) $wpdb->get_var( $wpdb->prepare(
                     "SELECT COUNT(*) FROM {$p}{$table} WHERE person_id = %d",
                     $pid
@@ -207,12 +209,17 @@ class PersonDeletionCascade {
             $cascade_targets = [
                 'tt_team_people'         => 'person_id',
                 'tt_user_role_scopes'    => 'person_id',
-                'tt_staff_development'   => 'person_id',
+                // #4589 — the staff-development root table; this read
+                // `tt_staff_development`, which no migration creates, so
+                // every permanent person delete failed and rolled back.
+                'tt_staff_pdp'           => 'person_id',
                 'tt_staff_certifications' => 'person_id',
                 'tt_staff_evaluations'   => 'person_id',
                 'tt_staff_goals'         => 'person_id',
             ];
             foreach ( $cascade_targets as $table => $col ) {
+                // A table an install does not have holds nothing to remove.
+                if ( ! TableExists::has( $table ) ) continue;
                 $sql = "DELETE FROM {$p}{$table} WHERE {$col} IN ({$ph})";
                 $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
                 if ( $n === false ) {
@@ -222,22 +229,26 @@ class PersonDeletionCascade {
             }
 
             // tt_staff_mentorships — OR semantics on two columns
-            $sql_m = "DELETE FROM {$p}tt_staff_mentorships
-                      WHERE mentor_person_id IN ({$ph}) OR mentee_person_id IN ({$ph})";
-            $n_m = $wpdb->query( $wpdb->prepare( $sql_m, ...array_merge( $ids, $ids ) ) );
-            if ( $n_m === false ) {
-                throw new \RuntimeException( 'Cascade delete failed on tt_staff_mentorships: ' . $wpdb->last_error );
+            if ( TableExists::has( 'tt_staff_mentorships' ) ) {
+                $sql_m = "DELETE FROM {$p}tt_staff_mentorships
+                          WHERE mentor_person_id IN ({$ph}) OR mentee_person_id IN ({$ph})";
+                $n_m = $wpdb->query( $wpdb->prepare( $sql_m, ...array_merge( $ids, $ids ) ) );
+                if ( $n_m === false ) {
+                    throw new \RuntimeException( 'Cascade delete failed on tt_staff_mentorships: ' . $wpdb->last_error );
+                }
+                $per_table['tt_staff_mentorships'] = (int) $n_m;
             }
-            $per_table['tt_staff_mentorships'] = (int) $n_m;
 
             // tt_invitations — only pending/expired cascade
-            $sql_i = "DELETE FROM {$p}tt_invitations
-                      WHERE target_person_id IN ({$ph}) AND status IN ('pending','expired')";
-            $n_i = $wpdb->query( $wpdb->prepare( $sql_i, ...$ids ) );
-            if ( $n_i === false ) {
-                throw new \RuntimeException( 'Cascade delete failed on tt_invitations (pending/expired): ' . $wpdb->last_error );
+            if ( TableExists::has( 'tt_invitations' ) ) {
+                $sql_i = "DELETE FROM {$p}tt_invitations
+                          WHERE target_person_id IN ({$ph}) AND status IN ('pending','expired')";
+                $n_i = $wpdb->query( $wpdb->prepare( $sql_i, ...$ids ) );
+                if ( $n_i === false ) {
+                    throw new \RuntimeException( 'Cascade delete failed on tt_invitations (pending/expired): ' . $wpdb->last_error );
+                }
+                $per_table['tt_invitations'] = (int) $n_i;
             }
-            $per_table['tt_invitations'] = (int) $n_i;
 
             // SET NULL
             $sql_grantor = "UPDATE {$p}tt_user_role_scopes
