@@ -49,8 +49,8 @@ final class EvaluationsRecent implements CustomDataSource {
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
-    private function whereFor( array $filters ): array {
-        $where  = [ 'e.club_id = %d' ];
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'e.club_id = %d', SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         if ( ! empty( $filters['date_from'] ) ) {
@@ -78,7 +78,7 @@ final class EvaluationsRecent implements CustomDataSource {
 
         global $wpdb;
         $p = $wpdb->prefix;
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         if ( $aggregation_key === 'count' ) {
             $sql = "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE " . implode( ' AND ', $where );
@@ -104,7 +104,7 @@ final class EvaluationsRecent implements CustomDataSource {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT e.id, e.created_at, e.evaluator_id, p.first_name, p.last_name,
                        u.display_name AS evaluator_name

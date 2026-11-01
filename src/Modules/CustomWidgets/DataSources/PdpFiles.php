@@ -50,8 +50,8 @@ final class PdpFiles implements CustomDataSource {
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
-    private function whereFor( array $filters ): array {
-        $where  = [ 'pf.club_id = %d' ];
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'pf.club_id = %d', SourceScope::playerClause( $user_id, 'pdp_file', 'pf.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         $status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
@@ -78,7 +78,7 @@ final class PdpFiles implements CustomDataSource {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
             return null;
         }
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT COUNT(*) FROM {$p}tt_pdp_files pf WHERE " . implode( ' AND ', $where );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -94,7 +94,7 @@ final class PdpFiles implements CustomDataSource {
             return [];
         }
 
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT pf.id, pf.status, pf.season_id, p.first_name, p.last_name
                   FROM {$table} pf

@@ -28,15 +28,18 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
     private int $club = 0;
     private int $team = 0;
     private int $other_team = 0;
+    /** The viewer the totals are computed for: a club-wide reader. */
+    private int $viewer = 0;
 
     public function set_up(): void {
         parent::set_up();
         ( new RolesService() )->ensureCapabilities();
         global $wpdb;
         $wpdb->hide_errors();
-        $this->p    = $wpdb->prefix;
-        $this->club = (int) CurrentClub::id();
-        wp_set_current_user( self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->p      = $wpdb->prefix;
+        $this->club   = (int) CurrentClub::id();
+        $this->viewer = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $this->viewer );
 
         CustomDataSourceRegistry::register( new PlayersActive() );
 
@@ -61,28 +64,28 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
     public function test_count_of_active_players_counts_them(): void {
         $source = new PlayersActive();
 
-        $this->assertSame( 2.0, $source->aggregate( 0, [ 'team_id' => $this->team ], 'count' ), 'two active players on the team; the archived one and another club\'s are out' );
-        $this->assertSame( 3.0, $source->aggregate( 0, [ 'team_id' => 0 ], 'count' ) - $this->countOutsideFixture(), 'all three of this fixture\'s active players' );
+        $this->assertSame( 2.0, $source->aggregate( $this->viewer,[ 'team_id' => $this->team ], 'count' ), 'two active players on the team; the archived one and another club\'s are out' );
+        $this->assertSame( 3.0, $source->aggregate( $this->viewer,[ 'team_id' => 0 ], 'count' ) - $this->countOutsideFixture(), 'all three of this fixture\'s active players' );
     }
 
     public function test_distinct_teams_counts_teams(): void {
         $source = new PlayersActive();
 
-        $this->assertSame( 1.0, $source->aggregate( 0, [ 'team_id' => $this->team ], 'distinct_teams' ) );
+        $this->assertSame( 1.0, $source->aggregate( $this->viewer,[ 'team_id' => $this->team ], 'distinct_teams' ) );
     }
 
     public function test_an_undeclared_aggregation_is_null(): void {
-        $this->assertNull( ( new PlayersActive() )->aggregate( 0, [], 'avg_age' ) );
+        $this->assertNull( ( new PlayersActive() )->aggregate( $this->viewer,[], 'avg_age' ) );
     }
 
     public function test_age_range_narrows_the_players(): void {
         $source = new PlayersActive();
 
-        $this->assertSame( 2.0, $source->aggregate( 0, [ 'team_id' => $this->team, 'age_range' => 'u13' ], 'count' ), 'under 13: the 10- and 12-year-old' );
-        $this->assertSame( 1.0, $source->aggregate( 0, [ 'team_id' => $this->team, 'age_range' => 'u11' ], 'count' ), 'under 11: the 10-year-old' );
-        $this->assertSame( 0.0, $source->aggregate( 0, [ 'team_id' => $this->team, 'age_range' => 'u9' ], 'count' ) );
+        $this->assertSame( 2.0, $source->aggregate( $this->viewer,[ 'team_id' => $this->team, 'age_range' => 'u13' ], 'count' ), 'under 13: the 10- and 12-year-old' );
+        $this->assertSame( 1.0, $source->aggregate( $this->viewer,[ 'team_id' => $this->team, 'age_range' => 'u11' ], 'count' ), 'under 11: the 10-year-old' );
+        $this->assertSame( 0.0, $source->aggregate( $this->viewer,[ 'team_id' => $this->team, 'age_range' => 'u9' ], 'count' ) );
 
-        $names = array_column( $source->fetch( 0, [ 'team_id' => $this->team, 'age_range' => 'u11' ], [ 'name' ] ), 'name' );
+        $names = array_column( $source->fetch( $this->viewer,[ 'team_id' => $this->team, 'age_range' => 'u11' ], [ 'name' ] ), 'name' );
         $this->assertSame( [ 'KPI Aalders' ], $names, 'the rows a table widget shows are narrowed the same way' );
     }
 
@@ -107,20 +110,20 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
         $window = [ 'date_from' => '2031-05-01', 'date_to' => '2031-05-31 23:59:59' ];
         $source = new EvaluationsRecent();
 
-        $this->assertSame( 2.0, $source->aggregate( 0, $window, 'count' ) );
+        $this->assertSame( 2.0, $source->aggregate( $this->viewer,$window, 'count' ) );
 
         $shared = array_column( ( new EvalRatingsRepository() )->overallRatingsForEvaluations( [ $a, $b ] ), 'value' );
-        $this->assertSame( round( array_sum( $shared ) / count( $shared ), 1 ), $source->aggregate( 0, $window, 'avg_overall' ), 'the overall rating as the profile computes it' );
-        $this->assertSame( 7.0, $source->aggregate( 0, $window, 'avg_overall' ), 'the average of 6 and 8, not one evaluation\'s rating' );
-        $this->assertNull( $source->aggregate( 0, [ 'date_from' => '2032-01-01', 'date_to' => '2032-01-31' ], 'avg_overall' ), 'nothing to average' );
+        $this->assertSame( round( array_sum( $shared ) / count( $shared ), 1 ), $source->aggregate( $this->viewer,$window, 'avg_overall' ), 'the overall rating as the profile computes it' );
+        $this->assertSame( 7.0, $source->aggregate( $this->viewer,$window, 'avg_overall' ), 'the average of 6 and 8, not one evaluation\'s rating' );
+        $this->assertNull( $source->aggregate( $this->viewer,[ 'date_from' => '2032-01-01', 'date_to' => '2032-01-31' ], 'avg_overall' ), 'nothing to average' );
     }
 
     public function test_goals_count_and_distinct_players(): void {
         global $wpdb;
         $players = $wpdb->get_col( $wpdb->prepare( "SELECT id FROM {$this->p}tt_players WHERE team_id = %d AND club_id = %d AND status = 'active'", $this->team, $this->club ) );
         $source  = new GoalsOpen();
-        $before  = (float) $source->aggregate( 0, [ 'status' => 'completed' ], 'count' );
-        $before_players = (float) $source->aggregate( 0, [ 'status' => 'completed' ], 'distinct_players' );
+        $before  = (float) $source->aggregate( $this->viewer,[ 'status' => 'completed' ], 'count' );
+        $before_players = (float) $source->aggregate( $this->viewer,[ 'status' => 'completed' ], 'distinct_players' );
 
         foreach ( [ $players[0], $players[0], $players[1] ] as $pid ) {
             $wpdb->insert( "{$this->p}tt_goals", [
@@ -129,8 +132,8 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
             ] );
         }
 
-        $this->assertSame( $before + 3, $source->aggregate( 0, [ 'status' => 'completed' ], 'count' ) );
-        $this->assertSame( $before_players + 2, $source->aggregate( 0, [ 'status' => 'completed' ], 'distinct_players' ) );
+        $this->assertSame( $before + 3, $source->aggregate( $this->viewer,[ 'status' => 'completed' ], 'count' ) );
+        $this->assertSame( $before_players + 2, $source->aggregate( $this->viewer,[ 'status' => 'completed' ], 'distinct_players' ) );
     }
 
     public function test_activities_count_reads_the_session_date(): void {
@@ -142,22 +145,22 @@ final class CustomWidgetKpiAggregateTest extends WP_UnitTestCase {
             ] );
         }
 
-        $this->assertSame( 2.0, ( new ActivitiesRecent() )->aggregate( 0, [ 'date_from' => '2031-06-01', 'date_to' => '2031-06-30', 'team_id' => $this->team ], 'count' ) );
+        $this->assertSame( 2.0, ( new ActivitiesRecent() )->aggregate( $this->viewer,[ 'date_from' => '2031-06-01', 'date_to' => '2031-06-30', 'team_id' => $this->team ], 'count' ) );
     }
 
     public function test_pdp_files_count(): void {
         global $wpdb;
         $table = "{$this->p}tt_pdp_files";
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            $this->assertNull( ( new PdpFiles() )->aggregate( 0, [], 'count' ) );
+            $this->assertNull( ( new PdpFiles() )->aggregate( $this->viewer,[], 'count' ) );
             return;
         }
         $source = new PdpFiles();
-        $before = (float) $source->aggregate( 0, [ 'season_id' => 940123 ], 'count' );
+        $before = (float) $source->aggregate( $this->viewer,[ 'season_id' => 940123 ], 'count' );
         $player = (int) $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$this->p}tt_players WHERE last_name = %s", 'Aalders' ) );
         $wpdb->insert( $table, [ 'club_id' => $this->club, 'player_id' => $player, 'season_id' => 940123, 'status' => 'active' ] );
 
-        $this->assertSame( $before + 1, $source->aggregate( 0, [ 'season_id' => 940123 ], 'count' ) );
+        $this->assertSame( $before + 1, $source->aggregate( $this->viewer,[ 'season_id' => 940123 ], 'count' ) );
     }
 
     // ── the renderer ───────────────────────────────────────────────────

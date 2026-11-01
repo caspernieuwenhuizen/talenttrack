@@ -84,11 +84,12 @@ final class PlayersActive implements CustomDataSource {
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
-    private function whereFor( array $filters ): array {
+    private function whereFor( array $filters, int $user_id ): array {
         $where  = [ 'p.club_id = %d', "p.status <> 'archived'" ];
         $params = [ CurrentClub::id() ];
 
         $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        $where[] = SourceScope::teamClause( $user_id, 'players', 'p.team_id', $team_id );
         if ( $team_id > 0 ) {
             $where[]  = 'p.team_id = %d';
             $params[] = $team_id;
@@ -112,7 +113,7 @@ final class PlayersActive implements CustomDataSource {
 
         global $wpdb;
         $p = $wpdb->prefix;
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT {$select[ $aggregation_key ]} FROM {$p}tt_players p WHERE " . implode( ' AND ', $where );
 
@@ -124,7 +125,7 @@ final class PlayersActive implements CustomDataSource {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         // #4566 — `tt_players` has no `position` column (it is
         // `preferred_positions`), so this query failed on every call and the

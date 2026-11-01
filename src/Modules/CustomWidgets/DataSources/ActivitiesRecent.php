@@ -69,6 +69,7 @@ final class ActivitiesRecent implements CustomDataSource {
             $where[]  = 'a.team_id = %d';
             $params[] = $team_id;
         }
+        $where[] = SourceScope::teamClause( $user_id, 'activities', 'a.team_id', $team_id );
 
         $sql = "SELECT COUNT(*) FROM {$p}tt_activities a WHERE " . implode( ' AND ', $where );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -95,6 +96,7 @@ final class ActivitiesRecent implements CustomDataSource {
             $where[]  = 'a.team_id = %d';
             $params[] = $team_id;
         }
+        $where[] = SourceScope::teamClause( $user_id, 'activities', 'a.team_id', $team_id );
 
         $sql = "SELECT a.id, a.title, a.session_type, a.start_at, t.name AS team_name
                   FROM {$p}tt_activities a

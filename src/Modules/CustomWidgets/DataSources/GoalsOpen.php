@@ -52,8 +52,8 @@ final class GoalsOpen implements CustomDataSource {
      * @param array<string,mixed> $filters
      * @return array{0:list<string>, 1:list<int|string>}
      */
-    private function whereFor( array $filters ): array {
-        $where  = [ 'g.club_id = %d' ];
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'g.club_id = %d', SourceScope::playerClause( $user_id, 'goals', 'g.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         $status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
@@ -76,7 +76,7 @@ final class GoalsOpen implements CustomDataSource {
 
         global $wpdb;
         $p = $wpdb->prefix;
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT {$select[ $aggregation_key ]} FROM {$p}tt_goals g WHERE " . implode( ' AND ', $where );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -87,7 +87,7 @@ final class GoalsOpen implements CustomDataSource {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        [ $where, $params ] = $this->whereFor( $filters );
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT g.id, g.title, g.status, g.target_date, p.first_name, p.last_name
                   FROM {$p}tt_goals g
