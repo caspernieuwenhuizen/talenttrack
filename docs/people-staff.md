@@ -86,7 +86,7 @@ To remove a person permanently and clean every reference to them in one go, open
 
 Before anything is written, an **impact preview dialog** shows you exactly what is about to happen, per selected person:
 
-- **Removed**: team assignments, functional-role scope grants, staff-development entries, certifications, staff evaluations, staff goals, mentorship pairings, and pending invitations.
+- **Removed**: team assignments, functional-role scope grants, staff-development entries, certifications, staff evaluations and their ratings, staff goals, mentorship pairings, and pending invitations. Only rows in your own club are counted and removed.
 - **Cleared (parent row stays)**: "granted by" attribution on scope grants made by this person, accepted invitations targeting this person (the historical record stays; the target reference is nulled), and player records that listed this person as parent contact.
 
 If you confirm, a single database transaction runs the cleanup; if any step fails, the whole batch rolls back — partial deletes are impossible.
