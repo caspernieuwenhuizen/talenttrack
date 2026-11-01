@@ -161,6 +161,17 @@ final class ActivityRegisterProgress {
         ) );
     }
 
+    /**
+     * #4493 — recorded rows that count as attended: Present and Late
+     * (#4041), non-guest. The same batched row as `recordedCount()`, so a
+     * primed week reads it with no query of its own.
+     */
+    public static function attendedCount( int $activity_id ): int {
+        if ( $activity_id <= 0 ) return 0;
+        if ( ! isset( self::$counts[ $activity_id ] ) ) self::loadCounts( [ $activity_id ] );
+        return self::$counts[ $activity_id ]['min_expected'];
+    }
+
     /** How many players the register is meant to cover. */
     public static function expectedCount( int $activity_id ): int {
         if ( $activity_id <= 0 ) return 0;

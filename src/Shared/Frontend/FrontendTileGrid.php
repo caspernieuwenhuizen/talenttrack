@@ -984,7 +984,8 @@ class FrontendTileGrid {
 
     /**
      * What the row still needs, as [tone, label, block key] triples. Tone is
-     * `ok`, `todo` or `bad`. Availability is counts only.
+     * `ok`, `todo`, `bad` or `neutral` (a fact, not a state). Availability
+     * is counts only.
      *
      * @param array<string, mixed> $row
      * @return list<array{0: string, 1: string, 2: string}>
@@ -1008,6 +1009,17 @@ class FrontendTileGrid {
             $chips[] = [ 'ok', __( 'Training plan ready', 'talenttrack' ), 'training_plan' ];
         } elseif ( ( $row['training_plan'] ?? null ) === false ) {
             $chips[] = [ 'todo', __( 'No training plan yet', 'talenttrack' ), 'training_plan' ];
+        }
+        if ( is_array( $row['attendance_rate'] ?? null ) ) {
+            $chips[] = [ 'neutral', sprintf(
+                /* translators: 1: players who attended, 2: players recorded on the register */
+                __( '%1$d of %2$d present', 'talenttrack' ),
+                (int) ( $row['attendance_rate']['present'] ?? 0 ),
+                (int) ( $row['attendance_rate']['recorded'] ?? 0 )
+            ), 'att_rate' ];
+        }
+        if ( is_string( $row['theme'] ?? null ) && $row['theme'] !== '' ) {
+            $chips[] = [ 'neutral', (string) $row['theme'], 'theme' ];
         }
         if ( is_array( $row['availability'] ?? null ) ) {
             $available   = (int) ( $row['availability']['available'] ?? 0 );

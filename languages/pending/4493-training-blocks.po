@@ -1,0 +1,20 @@
+#: src/Modules/Activities/CoachWeek/Blocks/SessionThemeBlock.php
+msgid "Session theme"
+msgstr "Thema van de training"
+
+#: src/Modules/Activities/CoachWeek/Blocks/SessionThemeBlock.php
+msgid "The theme of the linked training plan."
+msgstr "Het thema van het gekoppelde trainingsplan."
+
+#: src/Modules/Activities/CoachWeek/Blocks/AttendanceRateBlock.php
+msgid "Attendance after the fact"
+msgstr "Opkomst achteraf"
+
+#: src/Modules/Activities/CoachWeek/Blocks/AttendanceRateBlock.php
+msgid "How many of the recorded players were there, on a past training."
+msgstr "Hoeveel van de geregistreerde spelers er waren, bij een voorbije training."
+
+#. translators: 1: players who attended, 2: players recorded on the register
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%1$d of %2$d present"
+msgstr "%1$d van %2$d aanwezig"

@@ -89,6 +89,36 @@ final class TrainingPlanRunsRepository {
     }
 
     /**
+     * #4493 — the theme of the plan each activity runs, in one query for a
+     * set of activities. Activities whose plan has no theme are left out.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, string> activity id => `vct_tactical_theme` key
+     */
+    public function themeKeysForActivities( array $activity_ids ): array {
+        $activity_ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ) ) ) );
+        if ( $activity_ids === [] ) return [];
+        global $wpdb;
+        $plans        = $wpdb->prefix . 'tt_training_plans';
+        $placeholders = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT r.activity_id, p.theme_key
+               FROM {$this->table()} r
+               JOIN {$plans} p ON p.id = r.plan_id AND p.club_id = r.club_id
+              WHERE r.club_id = %d AND r.activity_id IN ({$placeholders})
+                AND p.theme_key IS NOT NULL AND p.theme_key <> ''",
+            ...array_merge( [ CurrentClub::id() ], $activity_ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $fields = (array) $row;
+            $out[ (int) ( $fields['activity_id'] ?? 0 ) ] = (string) ( $fields['theme_key'] ?? '' );
+        }
+        return $out;
+    }
+
+    /**
      * Runs of a plan, newest first. This is the plan detail's
      * "Uitvoeringen" tab.
      *
