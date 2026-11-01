@@ -130,7 +130,7 @@ class MatchPrepPrintRouter {
     <?php
     if ( $body === '' ) :
         ?>
-        <p class="tt-mpp-empty"><?php esc_html_e( 'Geen wedstrijdvoorbereiding gevonden voor deze activiteit.', 'talenttrack' ); ?></p>
+        <p class="tt-mpp-empty"><?php esc_html_e( 'No match preparation found for this activity.', 'talenttrack' ); ?></p>
         <?php
     else :
         echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — body HTML produced by MatchPrepPrintableRenderer with esc_html() on every dynamic field.

@@ -44,7 +44,7 @@ final class FootballActionsPage {
             <?php self::renderNotices(); ?>
 
             <p class="description" style="max-width:740px;">
-                <?php esc_html_e( 'De voetbalhandelingen vormen de harde kern van het voetbalmodel: concrete handelingen die spelers uitvoeren binnen elke teamtaak. Doelen kunnen worden gekoppeld aan één voetbalhandeling om verbeterde uitvoering meetbaar te maken.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Football actions are the hard core of the football model: concrete actions players carry out within each team task. A goal can be linked to one football action to make better execution measurable.', 'talenttrack' ); ?>
             </p>
 
             <?php if ( empty( $rows ) ) : ?>

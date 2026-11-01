@@ -52,13 +52,13 @@ each read top to bottom as a chain:
 **With the ball**
 
 - **Aanvallen**
-- **Omschakelen naar verdedigen** — the instant we lose it
+- **Transition to defending** — the instant we lose it
 - **Set pieces — ours**
 
 **Without the ball**
 
 - **Verdedigen**
-- **Omschakelen naar aanvallen** — the instant we win it
+- **Transition to attacking** — the instant we win it
 - **Set pieces — theirs**
 
 A transition only means something read next to the phase it comes out of,

@@ -67,7 +67,7 @@ class EvalTypeCategoriesPage {
         <div class="wrap">
             <h1><?php esc_html_e( 'Eval Type Categories', 'talenttrack' ); ?></h1>
             <p class="description" style="max-width: 700px;">
-                <?php esc_html_e( 'Per evaluatietype: vink de categorieën die in het rating-formulier moeten verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen (terugval-gedrag, gelijk aan vóór #819).', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Per evaluation type: tick the categories that should appear on the rating form. Tick none for a type to show all active categories (the fallback, as before #819).', 'talenttrack' ); ?>
             </p>
 
             <?php if ( $saved > 0 ) : ?>
