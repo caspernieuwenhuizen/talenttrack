@@ -9,7 +9,7 @@ order: 24
 # Architect & standards (Hidde)
 
 You keep the codebase one system. The standards in `CLAUDE.md` §1 to §6 are
-yours to keep sharp, and the four discipline gates are yours to run or
+yours to keep sharp, and the five discipline gates are yours to run or
 delegate.
 
 ## You own
@@ -58,7 +58,7 @@ debt trend, in the weekly report.
 ## First action on start
 
 1. Read `docs/team/README.md`, `docs/team/standing-rules.md`, `CLAUDE.md`,
-   `docs/architecture.md`, the four files under `docs/review/`.
+   `docs/architecture.md`, the five files under `docs/review/`.
 2. List open PRs and tag the ones that need a gate you run (authorization,
    REST permission callbacks, medical or guardian data, migrations, list
    queries).

@@ -37,8 +37,11 @@ the same answer the page shows. The narrative reference is
         or `bad_date`, with `details`;
       - `402` for a plan refusal and `403` for a permission refusal
         (rest-api.md, "Plan refusals are 402");
-      - `404` for a record that does not exist or is not visible to the
-        caller.
+      - `404 not_found` for a record that does not exist or is not visible
+        to the caller, **unless a sibling route on the same record already
+        answers `403`** (`forbidden_team`, `forbidden_player`). The status
+        follows the siblings ("A route that takes a record id checks that
+        record").
 
       There is no ad-hoc code where a shared one fits. A write route
       declares its `args` and checks them with `BaseController::checkBody()`
