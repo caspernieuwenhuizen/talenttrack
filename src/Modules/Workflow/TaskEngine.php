@@ -226,7 +226,7 @@ class TaskEngine {
             return $written;
         } catch ( \Throwable $e ) {
             $wpdb->query( 'ROLLBACK' );
-            $this->log( sprintf( 'Completing task %d failed and was rolled back: %s', $task_id, $e->getMessage() ) );
+            $this->log( 'Completing task ' . $task_id . ' failed and was rolled back: ' . $e->getMessage() );
             return null;
         }
     }
