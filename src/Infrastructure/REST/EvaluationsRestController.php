@@ -1094,21 +1094,13 @@ class EvaluationsRestController {
      * #3582 — why this evaluation may not be tied to that activity, or
      * null when it may.
      *
-     * The activity has to exist in this club, and a caller without
-     * `tt_edit_settings` may only link an activity of a team they coach —
-     * the same boundary `coach_owns_player` draws around the player.
+     * The activity has to exist in this club, and the caller has to be
+     * allowed to evaluate on its team (`evaluations` change academy-wide or
+     * on that team), the question the wizard asks.
      */
     private static function activityRefusal( int $activity_id ): ?\WP_REST_Response {
-        $repo = new ActivitiesRepository();
-        $ok   = $repo->activityExists( $activity_id );
-
-        if ( $ok && ! current_user_can( 'tt_edit_settings' ) ) {
-            $team_ids = [];
-            foreach ( QueryHelpers::get_teams_for_coach( get_current_user_id() ) as $team ) {
-                $team_ids[] = (int) ( ( (array) $team )['id'] ?? 0 );
-            }
-            $ok = in_array( $repo->activityTeamId( $activity_id ), $team_ids, true );
-        }
+        $ok = ( new ActivitiesRepository() )->activityExists( $activity_id )
+            && EvaluationInserter::mayEvaluateOnActivity( get_current_user_id(), $activity_id );
 
         return $ok ? null : RestResponse::error(
             'bad_activity',

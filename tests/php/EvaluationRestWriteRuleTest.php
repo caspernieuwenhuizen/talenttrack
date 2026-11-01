@@ -87,6 +87,46 @@ final class EvaluationRestWriteRuleTest extends WP_UnitTestCase {
         $this->assertSame( 'Restrule original.', $this->notesOf( $eval_id ) );
     }
 
+    public function test_the_head_of_development_links_another_teams_activity(): void {
+        $activity = $this->activity( $this->team_b );
+        $this->headOfDevelopment();
+
+        $body = $this->body( $this->player_b ) + [ 'activity_id' => $activity ];
+        [ $data, $status ] = $this->send( 'POST', 'evaluations', $body );
+        $this->assertSame( 200, $status, (string) wp_json_encode( $data ) );
+        $this->assertSame( $activity, $this->activityOf( $this->player_b ) );
+    }
+
+    public function test_a_head_coach_cannot_link_another_teams_activity(): void {
+        $activity = $this->activity( $this->team_b );
+        $this->headCoachOf( $this->team_a );
+
+        $body = $this->body( $this->player_a ) + [ 'activity_id' => $activity ];
+        [ $data, $status ] = $this->send( 'POST', 'evaluations', $body );
+        $this->assertSame( 400, $status );
+        $this->assertSame( 'bad_activity', (string) ( $data['errors'][0]['code'] ?? '' ) );
+        $this->assertSame( 0, $this->evaluationsFor( $this->player_a ) );
+    }
+
+    private function activity( int $team_id ): int {
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id' => 1, 'team_id' => $team_id, 'title' => 'Restrule training',
+            'session_date' => gmdate( 'Y-m-d', (int) strtotime( '-2 days' ) ),
+            'activity_type_key' => 'training', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'fixture: the activity row was written' );
+        return $id;
+    }
+
+    private function activityOf( int $player_id ): int {
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT activity_id FROM {$wpdb->prefix}tt_evaluations WHERE player_id = %d", $player_id
+        ) );
+    }
+
     /** @return array{0: array<mixed>, 1: int} */
     private function send( string $method, string $route, array $body ): array {
         $request = new WP_REST_Request( $method, '/talenttrack/v1/' . $route );
