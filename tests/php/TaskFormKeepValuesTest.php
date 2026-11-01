@@ -124,7 +124,14 @@ final class TaskFormKeepValuesTest extends WP_UnitTestCase {
     public function test_a_refused_answer_comes_back_with_what_was_typed( string $form_class, array $typed, array $shown ): void {
         KeepValuesRefusingForm::$inner = $form_class;
         $key     = 'test_keep_' . strtolower( (string) preg_replace( '/[^A-Za-z]/', '', substr( strrchr( '\\' . $form_class, '\\' ), 1 ) ) );
-        $extra   = $form_class === 'TT\\Modules\\Workflow\\Forms\\GoalApprovalForm' ? [ 'parent_task_id' => $this->goalSettingParent() ] : [];
+        $extra = [];
+        if ( $form_class === 'TT\\Modules\\Workflow\\Forms\\GoalApprovalForm' ) {
+            $extra['parent_task_id'] = $this->goalSettingParent();
+        }
+        if ( $form_class === 'TT\\Modules\\Journey\\Workflow\\InjuryRecoveryConfirmForm' ) {
+            // The notes field is for a reader of the player's injuries.
+            $extra['player_id'] = $this->player();
+        }
         $task_id = $this->task( $this->template( $key, KeepValuesRefusingForm::class ), $extra );
         $before  = $this->row( $task_id );
 
@@ -178,6 +185,20 @@ final class TaskFormKeepValuesTest extends WP_UnitTestCase {
         ] );
         $this->assertGreaterThan( 0, $task_id, 'the fixture must write a task' );
         return $task_id;
+    }
+
+    private function player(): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_teams', [ 'club_id' => 1, 'name' => 'JO15-1' ] );
+        $team = (int) $wpdb->insert_id;
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'club_id'    => 1,
+            'team_id'    => $team,
+            'first_name' => 'Keep',
+            'last_name'  => 'Values',
+            'status'     => 'active',
+        ] );
+        return (int) $wpdb->insert_id;
     }
 
     /** A completed goal-setting task whose goals a goal-approval task reviews. */
