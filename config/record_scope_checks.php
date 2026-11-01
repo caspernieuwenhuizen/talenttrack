@@ -50,6 +50,9 @@ return [
         // global, that player's team, self, or a linked parent.
         'canAccessSuspensions',
         'coach_owns_player',
+        // May this user write an evaluation for this player: `evaluations`
+        // change at global scope or on the player's team.
+        'EvaluationInserter::mayWriteFor',
         'PlayerReportAccess::canRead',
         // Calls canRead on the same player first, then asks the create right.
         'PlayerReportAccess::canCreate',

@@ -21,13 +21,12 @@ final class EvaluationInserter {
     /**
      * May this user write an evaluation for this player? `evaluations`
      * change at global scope (head of development, academy admin), or at
-     * team scope on the player's team (the team's head coach), and the
-     * settings admin. The wizard's row route, its player pick, both of its
-     * submit paths and the new-evaluation form's preset ask it.
+     * team scope on the player's team (the team's head coach). The wizard's
+     * row route, its player pick, both of its submit paths, the
+     * new-evaluation form's preset and the `/evaluations` writes ask it.
      */
     public static function mayWriteFor( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        if ( user_can( $user_id, 'tt_edit_settings' ) ) return true;
         $gate = \TT\Modules\Authorization\MatrixGate::class;
         if ( $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL ) ) return true;
         $player  = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );
@@ -46,14 +45,24 @@ final class EvaluationInserter {
         if ( self::mayWriteFor( $user_id, $player_id ) ) return true;
         if ( $user_id <= 0 || $activity_id <= 0 || $player_id <= 0 ) return false;
 
-        $gate    = \TT\Modules\Authorization\MatrixGate::class;
-        $team_id = (int) ( \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity( $activity_id ) ?? 0 );
-        $rates   = $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL )
-            || ( $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id ) );
-        if ( ! $rates ) return false;
+        if ( ! self::mayEvaluateOnActivity( $user_id, $activity_id ) ) return false;
         if ( ! \TT\Modules\Activities\ActivityAccess::canWriteActivity( $user_id, $activity_id ) ) return false;
 
         return in_array( $player_id, \TT\Modules\Activities\Repositories\AttendanceWriter::attendedPlayerIds( $activity_id ), true );
+    }
+
+    /**
+     * May this user evaluate on this activity's team? `evaluations` change
+     * at global scope, or at team scope on the activity's team. An activity
+     * without a team needs the global grant. The wizard's guest check and
+     * the `/evaluations` activity link both ask it.
+     */
+    public static function mayEvaluateOnActivity( int $user_id, int $activity_id ): bool {
+        if ( $user_id <= 0 || $activity_id <= 0 ) return false;
+        $gate    = \TT\Modules\Authorization\MatrixGate::class;
+        $team_id = (int) ( \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity( $activity_id ) ?? 0 );
+        return $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL )
+            || ( $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id ) );
     }
 
     /**
