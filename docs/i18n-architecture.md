@@ -129,7 +129,7 @@ A `lookup_type` absent from the map is uncurated on purpose (injury kinds, the V
 
 ### Finding what still renders in English (#4511)
 
-The map only reaches rows that exist when a migration applies it. `0151` and `0248` ran before several later seed migrations created their rows, so migration `0306` applies the map once more after all of them. It uses the same `INSERT IGNORE`, so an academy's own label is never overwritten. Positions joined the map at the same time: migration `0141` derived their labels through gettext at migration time, which inserts nothing where the language pack is not installed yet.
+The map only reaches rows that exist when a migration applies it. `0151` and `0248` ran before several later seed migrations created their rows, so migration `0306` applies the map once more after all of them. It uses the same `INSERT IGNORE`, so a label an academy edited is never overwritten. A label it cleared in the Lookups editor has no row left, so it falls back to the shipped label: an empty label is not a choice to keep. Positions joined the map at the same time: migration `0141` derived their labels through gettext at migration time, which inserts nothing where the language pack is not installed yet.
 
 To see what is still missing, run the read-only report:
 

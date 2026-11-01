@@ -19,8 +19,10 @@
  * a Dutch install could show "GK" where it meant "Keeper".
  *
  * `INSERT IGNORE`, deliberately, as in 0248: this fills gaps and never
- * overwrites a label an academy chose for itself. Forward-only and
- * idempotent; a second run inserts nothing.
+ * overwrites a label an academy edited. A label cleared in the Lookups
+ * editor is deleted, so it falls back to the shipped label here; an empty
+ * label is not a choice to keep. Forward-only and idempotent; a second run
+ * inserts nothing.
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit;

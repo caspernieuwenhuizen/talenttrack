@@ -129,7 +129,7 @@ Een `lookup_type` die niet in de map staat is bewust ongecureerd (blessuretypes,
 
 ### Vinden wat nog in het Engels verschijnt (#4511)
 
-De map bereikt alleen rijen die al bestaan als een migratie hem toepast. `0151` en `0248` draaiden vóór een aantal latere seed-migraties hun rijen aanmaakten, dus migratie `0306` past de map daarna nog één keer toe. Ze gebruikt dezelfde `INSERT IGNORE`, dus een label dat een academie zelf koos wordt nooit overschreven. Posities staan sindsdien ook in de map: migratie `0141` leidde hun labels tijdens de migratie via gettext af, en dat voegt niets toe zolang het taalpakket nog niet geïnstalleerd is.
+De map bereikt alleen rijen die al bestaan als een migratie hem toepast. `0151` en `0248` draaiden vóór een aantal latere seed-migraties hun rijen aanmaakten, dus migratie `0306` past de map daarna nog één keer toe. Ze gebruikt dezelfde `INSERT IGNORE`, dus een label dat een academie zelf aanpaste wordt nooit overschreven. Een label dat ze in de Lookups-editor leegmaakte heeft geen rij meer en valt terug op het meegeleverde label: een leeg label is geen keuze om te bewaren. Posities staan sindsdien ook in de map: migratie `0141` leidde hun labels tijdens de migratie via gettext af, en dat voegt niets toe zolang het taalpakket nog niet geïnstalleerd is.
 
 Wat er nog ontbreekt laat het rapport zien, dat alleen leest:
 
