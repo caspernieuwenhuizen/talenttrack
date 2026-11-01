@@ -316,7 +316,7 @@ final class FrontendMinutesGridView extends FrontendViewBase {
         $no_register = [];
         foreach ( $activities as $a ) {
             if ( ( $a['register_recorded'] ?? true ) === false ) {
-                $no_register[ (int) $a['activity_id'] ] = self::noRegisterNotice( $a, count( $players ) );
+                $no_register[ (int) $a['activity_id'] ] = self::noRegisterNotice( $a, count( $players ), $team_writable );
             }
         }
         $first_row = true;
@@ -436,16 +436,17 @@ final class FrontendMinutesGridView extends FrontendViewBase {
      * every player row. It links to the activity's attendance step when the
      * reader can reach it; a tournament fixture or day takes its register from
      * the tournament planner, so it gets the explanation without the link.
+     * A read-only grid gets the explanation alone too: it offers no write.
      *
      * @param array<string,mixed> $a A column from `MinutesGridQuery::matrix()`.
      */
-    private static function noRegisterNotice( array $a, int $rows ): string {
+    private static function noRegisterNotice( array $a, int $rows, bool $team_writable = true ): string {
         $aid = (int) $a['activity_id'];
 
         $html  = '<td class="tt-agrid-cell tt-agrid-cell--noreg tt-agrid-cell--sep" colspan="3" rowspan="' . esc_attr( (string) max( 1, $rows ) ) . '" data-activity="' . esc_attr( (string) $aid ) . '">';
         $html .= '<span class="tt-agrid-noreg__text">' . esc_html__( 'Attendance not recorded yet', 'talenttrack' ) . '</span>';
 
-        $url = empty( $a['is_neutral'] ) ? self::recordAttendanceUrl( $aid, get_current_user_id() ) : '';
+        $url = $team_writable && empty( $a['is_neutral'] ) ? self::recordAttendanceUrl( $aid, get_current_user_id() ) : '';
         if ( $url !== '' ) {
             $html .= '<a class="tt-btn tt-btn-secondary tt-agrid-noreg__link" href="' . esc_url( $url ) . '">' . esc_html__( 'Record attendance', 'talenttrack' ) . '</a>';
         }

@@ -78,7 +78,19 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-agrid-min-in', $own, 'precondition: their own team is editable' );
         $this->assertStringContainsString( 'data-agrid-save', $own );
 
+        // A match on the other team with no register yet: the read-only
+        // grid explains it and offers no way to take the register.
+        global $wpdb;
+        $wpdb->insert( "{$wpdb->prefix}tt_activities", [
+            'club_id' => (int) CurrentClub::id(), 'team_id' => $this->other_team, 'title' => 'Gridscope unregistered',
+            'session_date' => gmdate( 'Y-m-d', (int) strtotime( '-5 days' ) ),
+            'activity_type_key' => 'game', 'activity_status_key' => 'completed', 'plan_state' => 'completed',
+            'opponent' => 'Ajax', 'home_away' => 'home',
+        ] );
+
         $other = $this->minutesGrid( $coach, $this->other_team );
+        $this->assertStringContainsString( 'tt-agrid-cell--noreg', $other, 'precondition: the column without a register is shown' );
+        $this->assertStringNotContainsString( 'tt-agrid-noreg__link', $other );
         $this->assertStringContainsString( 'tt-agrid-cell--locked', $other, 'the read seat still sees the grid' );
         $this->assertStringNotContainsString( 'tt-agrid-min-in', $other );
         $this->assertStringNotContainsString( 'tt-agrid-stat-in', $other );
@@ -87,10 +99,9 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
     }
 
     /**
-     * The ratings view opens for whoever it admits (`$is_admin`, or
-     * `ActivityGridLink::canRateTeam()`); the save asks the change grant.
-     * Opened as an admitted reader the save does not cover, the scores are
-     * shown without a box.
+     * Opened by a reader of the activity's team whom the save does not
+     * cover, the scores are shown without a box. Rendered with
+     * `$is_admin = false`, as the dashboard does for this reader.
      */
     public function test_the_ratings_grid_renders_another_teams_scores_read_only(): void {
         $coach = $this->observerCoach();
@@ -104,6 +115,14 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'tt-rgrid-locked', $other );
         $this->assertStringNotContainsString( 'tt-rgrid-input', $other );
         $this->assertStringNotContainsString( 'tt-save-btn', $other );
+    }
+
+    public function test_a_coach_without_club_wide_read_is_refused_another_teams_ratings_grid(): void {
+        $coach = $this->observerCoach( false );
+
+        $other = $this->ratingsGrid( $coach, $this->other_match );
+        $this->assertStringNotContainsString( 'data-tt-rgrid', $other );
+        $this->assertStringContainsString( 'do not coach', html_entity_decode( $other, ENT_QUOTES ) );
     }
 
     /**
@@ -161,12 +180,15 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
         $this->flush();
         $_GET = [ 'tt_view' => 'ratings-grid', 'activity_id' => (string) $activity_id ];
         ob_start();
-        FrontendRatingsGridView::render( $user_id, true );
+        FrontendRatingsGridView::render( $user_id, false );
         return (string) ob_get_clean();
     }
 
-    /** A head coach of the own team who also holds the club-wide read-only observer seat. */
-    private function observerCoach(): int {
+    /**
+     * A head coach of the own team who also holds the club-wide read-only
+     * observer seat, or, with `$observer = false`, only the coach.
+     */
+    private function observerCoach( bool $observer = true ): int {
         global $wpdb;
         $p     = $wpdb->prefix;
         $coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
@@ -182,10 +204,10 @@ final class GridWriteScopeTest extends WP_UnitTestCase {
         $wpdb->insert( "{$p}tt_user_role_scopes", [
             'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->own_team,
         ] );
-        ( new \WP_User( $coach ) )->add_role( 'tt_readonly_observer' );
+        if ( $observer ) ( new \WP_User( $coach ) )->add_role( 'tt_readonly_observer' );
         $this->flush();
 
-        $this->assertTrue( AllTeamsScope::canSeeAllTeamsActivities( $coach ), 'precondition: the seat reads every team' );
+        $this->assertSame( $observer, AllTeamsScope::canSeeAllTeamsActivities( $coach ), 'precondition: only the seat reads every team' );
         $this->assertSame( [ $this->own_team ], ActivityAccess::writableTeamIds( $coach ), 'precondition: the save writes only their own team' );
         return $coach;
     }

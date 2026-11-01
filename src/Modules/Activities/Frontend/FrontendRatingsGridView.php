@@ -116,10 +116,13 @@ final class FrontendRatingsGridView extends FrontendViewBase {
             return;
         }
 
-        // Team scope: a coach may only rate on a team they coach. Mirrors
-        // the check the bulk endpoint enforces, so the two agree (§7).
+        // Team scope: a coach rates on a team they coach, and a reader of the
+        // activity's team opens it read-only, as on the attendance and minutes
+        // grids. Whether the boxes render is the write answer below, the one
+        // the bulk endpoint asks (§7).
         $team_id = (int) $activity->team_id;
-        if ( ! self::canRateTeam( $user_id, $team_id, $is_admin ) ) {
+        if ( ! self::canRateTeam( $user_id, $team_id, $is_admin )
+            && ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, $team_id, $is_admin ) ) {
             self::crumbs( (string) $activity->title, $activity_id );
             echo '<p class="tt-notice">' . esc_html__( 'You do not coach this activity\'s team.', 'talenttrack' ) . '</p>';
             return;

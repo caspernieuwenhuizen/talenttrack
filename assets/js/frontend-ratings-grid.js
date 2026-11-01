@@ -370,6 +370,13 @@
                 var blanks = changes.filter(function (c) { return c.rating === '' || c.rating === null; }).length;
                 var notWritten = (parseInt(data.skipped, 10) || 0) - blanks;
                 if (notWritten > 0) {
+                    // Flagged like a refused score, so a screen reader hears
+                    // which edits are still unsaved. Not `is-invalid`: that
+                    // would block Save, and a reload or a second Save is
+                    // the way out. The next edit clears it.
+                    inputs.forEach(function (input) {
+                        if (input.classList.contains('is-dirty')) input.setAttribute('aria-invalid', 'true');
+                    });
                     saveBtn.disabled = false;
                     setStatus(fmt(t(notWritten === 1 ? 'skipped_one' : 'skipped_many', '%d change(s) were not saved'), [notWritten]));
                     return;

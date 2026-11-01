@@ -260,6 +260,12 @@
 				// is never shown as a save.
 				var skipped = parseInt( ( res.body.data && res.body.data.skipped ) || 0, 10 ) || 0;
 				if ( skipped > 0 ) {
+					// Flagged like a refused cell, so a screen reader hears
+					// which edits are still unsaved; the next edit clears it.
+					dirty.forEach( function ( td ) {
+						td.classList.add( 'is-rejected' );
+						td.setAttribute( 'aria-invalid', 'true' );
+					} );
 					if ( statusEl ) {
 						statusEl.classList.add( 'is-error' );
 						statusEl.textContent = ( I18N.skipped || I18N.error || '' ).replace( '%d', String( skipped ) );

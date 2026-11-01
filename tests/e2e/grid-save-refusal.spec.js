@@ -122,6 +122,7 @@ test.describe( 'Grid save reads skipped changes', () => {
 		const status = page.locator( '[data-agrid-status]' );
 		await expect( status ).toHaveText( SKIPPED.replace( '%d', '1' ) );
 		await expect( page.locator( 'td.tt-agrid-cell' ) ).toHaveClass( /is-dirty/ );
+		await expect( page.locator( 'td.tt-agrid-cell' ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		await expect( page.locator( '[data-agrid-save]' ) ).toBeEnabled();
 	} );
 
@@ -145,6 +146,7 @@ test.describe( 'Grid save reads skipped changes', () => {
 
 		await expect( page.locator( '[data-agrid-status]' ) ).toHaveText( SKIPPED.replace( '%d', '1' ) );
 		await expect( page.locator( 'td.tt-agrid-min' ) ).toHaveClass( /is-dirty/ );
+		await expect( page.locator( 'input.tt-agrid-min-in' ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		await expect( page.locator( '[data-agrid-save]' ) ).toBeEnabled();
 	} );
 
@@ -169,6 +171,7 @@ test.describe( 'Grid save reads skipped changes', () => {
 
 		await expect( page.locator( '[data-tt-rgrid-status]' ) ).toHaveText( RATINGS_SKIPPED_ONE.replace( '%d', '1' ) );
 		await expect( page.locator( 'input.tt-rgrid-input' ) ).toHaveClass( /is-dirty/ );
+		await expect( page.locator( 'input.tt-rgrid-input' ) ).toHaveAttribute( 'aria-invalid', 'true' );
 		await expect( page.locator( '.tt-save-btn' ) ).toBeEnabled();
 	} );
 
