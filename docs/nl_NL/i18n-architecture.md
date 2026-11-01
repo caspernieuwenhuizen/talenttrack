@@ -125,7 +125,28 @@ Die faalwijze heeft lang doorgelopen. 68 entries raakten niets, en `0151` seedde
 
 Regel 2 is geen beleefdheid. `LookupTranslator` en migratie `0247` behandelen de vaste seed allebei als de bekend-goede waarde, en dat moet per type kloppen in plaats van gemiddeld: een half gecureerd type is erger dan een niet-gecureerd type, omdat de ontbrekende helft gedekt lijkt.
 
-Een `lookup_type` die niet in de map staat is bewust ongecureerd (posities, blessuretypes, de VCT-vocabulaires) en wordt door de test genegeerd. Een type opnemen ís de belofte.
+Een `lookup_type` die niet in de map staat is bewust ongecureerd (blessuretypes, de VCT-vocabulaires) en wordt door de test genegeerd. Een type opnemen ís de belofte.
+
+### Vinden wat nog in het Engels verschijnt (#4511)
+
+De map bereikt alleen rijen die al bestaan als een migratie hem toepast. `0151` en `0248` draaiden vóór een aantal latere seed-migraties hun rijen aanmaakten, dus migratie `0306` past de map daarna nog één keer toe. Ze gebruikt dezelfde `INSERT IGNORE`, dus een label dat een academie zelf aanpaste wordt nooit overschreven. Een label dat ze in de Lookups-editor leegmaakte heeft geen rij meer en valt terug op het meegeleverde label: een leeg label is geen keuze om te bewaren. Posities staan sindsdien ook in de map: migratie `0141` leidde hun labels tijdens de migratie via gettext af, en dat voegt niets toe zolang het taalpakket nog niet geïnstalleerd is.
+
+Wat er nog ontbreekt laat het rapport zien, dat alleen leest:
+
+```
+wp tt i18n-data                    # nl_NL
+wp tt i18n-data --locale=de_DE
+wp eval-file tools/check-data-i18n.php
+```
+
+Het toont vier lijsten:
+
+- lookuprijen van een meegeleverd vocabulaire (`LookupCanonicalSeeds`) zonder label voor de taal;
+- rijen van een type dat de canonieke lijst niet kent, omdat daar niet te zien is of een waarde meegeleverd of door de academie getypt is;
+- tekst in `tt_config` die nog op de Engelse standaardwaarde van de installatie staat;
+- demo-generatoren die Engels schrijven zonder Nederlandse variant.
+
+Waarden die een academie zelf typte, worden niet gemeld. `DataTranslationAuditTest` controleert dat de eerste lijst leeg is op een vers gemigreerde installatie.
 
 ### Een taal toevoegen
 

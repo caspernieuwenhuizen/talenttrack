@@ -63,6 +63,11 @@ class I18nModule implements ModuleInterface {
         // gates) work alongside the matrix layer.
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
+        // #4511 — read-only report of data that renders untranslated.
+        if ( class_exists( 'WP_CLI' ) ) {
+            \WP_CLI::add_command( 'tt i18n-data', Cli\DataI18nCliCommand::class );
+        }
+
         // Phase 2 — register the `lookup` entity with `name` and
         // `description` translatable fields. `LookupTranslator`
         // consults `TranslationsRepository` first, then falls back to
