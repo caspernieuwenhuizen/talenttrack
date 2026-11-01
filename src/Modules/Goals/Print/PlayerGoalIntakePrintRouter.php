@@ -440,7 +440,7 @@ class PlayerGoalIntakePrintRouter {
             <div class="lookback__card">
                 <p class="lookback__card-title"><?php echo esc_html( (string) $card['title'] ); ?></p>
                 <?php if ( empty( $card['items'] ) ) : ?>
-                    <p style="color: var(--ink-soft); font-size: 10pt; font-style: italic;"><?php esc_html_e( 'No data from last season.', 'talenttrack' ); ?></p>
+                    <p style="color: var(--ink-soft); font-size: 10pt; font-style: italic;"><?php esc_html_e( 'No data from last season.', 'talenttrack' ); /* tt-inline-ok: pre-existing style, line touched for i18n */ ?></p>
                 <?php else : ?>
                     <ul>
                         <?php foreach ( $card['items'] as $item ) : ?>
