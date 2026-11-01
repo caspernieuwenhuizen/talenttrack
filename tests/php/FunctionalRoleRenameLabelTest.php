@@ -9,6 +9,8 @@ use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Admin\FunctionalRolesPage;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
+use TT\Modules\I18n\TranslatableFieldRegistry;
+use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * #4557 — a club that renames a seeded functional role sees its own name.
@@ -25,6 +27,9 @@ final class FunctionalRoleRenameLabelTest extends WP_UnitTestCase {
 
     /** @var callable|null */
     private $dutch = null;
+
+    /** @var callable|null */
+    private $dutchPlain = null;
 
     public function set_up(): void {
         parent::set_up();
@@ -100,7 +105,43 @@ final class FunctionalRoleRenameLabelTest extends WP_UnitTestCase {
         $this->assertSame( 'Fysiotherapeut', LabelTranslator::functionalRoleLabel( 'physio', $id ) );
     }
 
+    // Dutch installs that ran migration 0085 hold the Dutch of the original
+    // seed ("Hoofdtrainer") in tt_translations for every seeded row.
+
+    public function test_a_renamed_role_is_not_hidden_by_the_backfilled_translation(): void {
+        $id = $this->role( 'head_coach', 'Trainer A-selectie' );
+        $this->translation( $id, 'Hoofdtrainer' );
+        $this->dutch();
+
+        $this->assertSame( 'Trainer A-selectie', LabelTranslator::functionalRoleLabel( 'head_coach', $id ) );
+        $this->assertSame( 'Trainer A-selectie', $this->assignmentRole( $id ) );
+    }
+
+    public function test_an_unrenamed_role_with_the_backfilled_translation_shows_the_dutch(): void {
+        $id = $this->role( 'head_coach', 'Head Coach' );
+        $this->translation( $id, 'Hoofdtrainer' );
+        $this->dutch();
+
+        $this->assertSame( 'Hoofdtrainer', LabelTranslator::functionalRoleLabel( 'head_coach', $id ) );
+        $this->assertSame( 'Hoofdtrainer', $this->assignmentRole( $id ) );
+    }
+
+    public function test_a_translation_entered_for_the_new_name_still_wins(): void {
+        $id = $this->role( 'head_coach', 'Trainer A-selectie' );
+        $this->translation( $id, 'Trainer A' );
+        $this->dutch();
+
+        $this->assertSame( 'Trainer A', LabelTranslator::functionalRoleLabel( 'head_coach', $id ) );
+    }
+
     // Helpers
+
+    /** A `nl_NL` label translation on this functional role row. */
+    private function translation( int $role_id, string $value ): void {
+        $this->assertTrue( ( new TranslationsRepository() )->upsert(
+            TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE, $role_id, 'label', 'nl_NL', $value, get_current_user_id()
+        ) );
+    }
 
     /** The club's row for this key with `$label` stored, created when absent. */
     private function role( string $key, string $label ): int {
@@ -134,17 +175,31 @@ final class FunctionalRoleRenameLabelTest extends WP_UnitTestCase {
         return (string) $rows[0]['role'];
     }
 
+    /** The Dutch catalogue for the msgids involved, and an nl_NL locale for tt_translations. */
     private function dutch(): void {
         $this->english();
         $this->dutch = static function ( $translation, $text, $context, $domain ) {
             if ( $domain === 'talenttrack' && $context === 'role label' && $text === 'Head coach' ) return 'Hoofdtrainer';
             return $translation;
         };
+        $this->dutchPlain = static function ( $translation, $text, $domain ) {
+            if ( $domain === 'talenttrack' && $text === 'Head Coach' ) return 'Hoofdtrainer';
+            return $translation;
+        };
         add_filter( 'gettext_with_context', $this->dutch, 10, 4 );
+        add_filter( 'gettext', $this->dutchPlain, 10, 3 );
+        add_filter( 'pre_determine_locale', [ $this, 'nlLocale' ] );
+    }
+
+    public function nlLocale(): string {
+        return 'nl_NL';
     }
 
     private function english(): void {
         if ( $this->dutch !== null ) remove_filter( 'gettext_with_context', $this->dutch, 10 );
-        $this->dutch = null;
+        if ( $this->dutchPlain !== null ) remove_filter( 'gettext', $this->dutchPlain, 10 );
+        remove_filter( 'pre_determine_locale', [ $this, 'nlLocale' ] );
+        $this->dutch      = null;
+        $this->dutchPlain = null;
     }
 }
