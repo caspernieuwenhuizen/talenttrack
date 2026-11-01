@@ -146,10 +146,12 @@ final class SpondPreviewRestTest extends WP_UnitTestCase {
         $wpdb->insert( $wpdb->prefix . 'tt_teams', [
             'club_id' => 1, 'name' => 'JO13-1', 'spond_group_id' => 'grp-4562',
         ] );
+        // Read before the credentials save, which writes a row of its own.
+        $team_id = (int) $wpdb->insert_id;
         \TT\Modules\Spond\CredentialsManager::save( 'coach@example.test', 'secret' );
         $this->day = gmdate( 'Y-m-d', time() + 10 * DAY_IN_SECONDS );
         add_filter( 'pre_http_request', [ $this, 'fakeSpond' ], 10, 3 );
-        return (int) $wpdb->insert_id;
+        return $team_id;
     }
 
     /** @return array<string,mixed> */
@@ -166,7 +168,8 @@ final class SpondPreviewRestTest extends WP_UnitTestCase {
     }
 
     private function syncAndAssertEnd( int $team, string $uid, string $end ): void {
-        $this->assertSame( 'ok', \TT\Modules\Spond\SpondSync::syncTeam( $team )['status'] ?? '' );
+        $summary = \TT\Modules\Spond\SpondSync::syncTeam( $team );
+        $this->assertSame( 'ok', $summary['status'] ?? '', (string) ( $summary['last_message'] ?? '' ) );
         global $wpdb;
         $stored = (string) $wpdb->get_var( $wpdb->prepare(
             "SELECT end_time FROM {$wpdb->prefix}tt_activities WHERE external_id = %s", $uid
