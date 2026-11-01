@@ -393,14 +393,14 @@ final class SpondSync {
 
     /**
      * #2389 — a match's fallback end = kick-off + MATCH_DEFAULT_MINUTES,
-     * mirroring the create wizard's #1863 default. Clamped to end-of-day
-     * (23:59) rather than wrapping past midnight, since `end_time` is a
-     * bare TIME with no date to carry the roll-over.
+     * mirroring the create wizard's #1863 default. #4529 — it wraps past
+     * midnight (22:30 gives 00:15): an end earlier than the start is read
+     * as the next day (`ActivityTimeWindow::endIsNextDay()`, #4513), and
+     * 105 minutes is well inside that window.
      */
     private static function matchEndFallback( string $start_time ): string {
         $parts = explode( ':', $start_time );
-        $mins  = (int) ( $parts[0] ?? 0 ) * 60 + (int) ( $parts[1] ?? 0 ) + self::MATCH_DEFAULT_MINUTES;
-        if ( $mins > 1439 ) $mins = 1439; // clamp to 23:59
+        $mins  = ( (int) ( $parts[0] ?? 0 ) * 60 + (int) ( $parts[1] ?? 0 ) + self::MATCH_DEFAULT_MINUTES ) % 1440;
         return sprintf( '%02d:%02d:00', intdiv( $mins, 60 ), $mins % 60 );
     }
 

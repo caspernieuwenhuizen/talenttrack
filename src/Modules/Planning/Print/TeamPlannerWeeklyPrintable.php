@@ -605,12 +605,15 @@ final class TeamPlannerWeeklyPrintable {
         $s = self::clockTime( $start );
         if ( $s === '' ) $s = self::clockTime( $kickoff );
         if ( $s === '' ) return '';
-        $e = self::clockTime( $end );
+        // A 00:00 end is a real midnight end (#4529), unlike a 00:00 start.
+        $e = trim( $end ) !== '' ? substr( trim( $end ), 0, 5 ) : '';
         return $e !== '' ? $s . '–' . $e : $s;
     }
 
     private static function durationLabel( string $start, string $end ): string {
-        if ( $start === '' || $end === '' || $start === '00:00:00' || $end === '00:00:00' ) return '';
+        // A 00:00 start still reads as "no time"; a 00:00 end is a real
+        // midnight end (#4529), so 23:00 to 00:00 is an hour.
+        if ( $start === '' || $end === '' || $start === '00:00:00' ) return '';
         // #4513 — one rule for the duration: a next-day end counts.
         $mins = \TT\Modules\Activities\Services\ActivityTimeWindow::minutes( $start, $end );
         if ( $mins <= 0 ) return '';
