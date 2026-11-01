@@ -87,10 +87,9 @@ final class PlayerMatchMinutes {
     /**
      * The newest-row rule as a SQL condition on an attendance alias that is
      * already narrowed to recorded, non-guest rows: `AND <alias>.id` is the
-     * highest id among that player's recorded rows for the match.
-     *
-     * @param literal-string $alias
-     * @return literal-string
+     * highest id among that player's recorded rows for the match. Built like
+     * `ActivityLifecycle::notCancelledClause()`: the alias is the caller's
+     * own literal, never input.
      */
     public static function newestRowClause( string $alias ): string {
         global $wpdb;
