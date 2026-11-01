@@ -445,12 +445,15 @@ final class MinutesQuery {
      * `forTeam()` reads. Sorted by total minutes, highest first, then by
      * last and first name.
      *
-     * @param list<object> $pairs Rows carrying `player_id`, `activity_id`,
-     *                            `first_name`, `last_name`, `jersey_number`.
+     * @param array<mixed> $pairs `get_results()` rows carrying `player_id`,
+     *                            `activity_id`, `first_name`, `last_name`,
+     *                            `jersey_number`; anything else is skipped.
      * @return list<\stdClass> `player_id`, `name`, `first_name`, `last_name`,
      *                         `jersey_number`, `total_minutes`, `apps`
      */
     public static function squadTotals( array $pairs ): array {
+        $pairs = array_values( array_filter( $pairs, 'is_object' ) );
+
         $activity_ids = [];
         foreach ( $pairs as $pair ) {
             $activity_ids[] = (int) ( $pair->activity_id ?? 0 );
