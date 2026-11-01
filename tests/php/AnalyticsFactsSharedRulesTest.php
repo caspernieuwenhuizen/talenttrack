@@ -117,6 +117,29 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         $this->assertSame( 'No team', DimensionValueResolver::resolve( $dim, null ) );
     }
 
+    /**
+     * #4615 — an evaluation counts in the month it took place, not the month
+     * it was typed in.
+     */
+    public function test_an_evaluation_counts_in_the_month_of_its_evaluation_date(): void {
+        global $wpdb;
+        $team   = $this->insertTeam( 'U12 backdated' );
+        $player = $this->insertPlayer( $team, 'Late' );
+        $this->insertEvaluation( 0, $player, 1, '2021-03-15' );
+        $wpdb->update( "{$this->p}tt_evaluations", [ 'created_at' => '2021-05-20 10:00:00' ], [ 'id' => (int) $wpdb->insert_id ] );
+
+        $rows = FactQuery::run( 'evaluations', [ 'month' ], [ 'count' ], [ 'player_id_eq' => $player ], FactScope::unrestricted() );
+        $this->assertCount( 1, $rows );
+        $this->assertSame( '2021-03', (string) $rows[0]->month, 'the month of the evaluation date' );
+        $this->assertSame( 1, (int) $rows[0]->count );
+
+        $march = FactQuery::run( 'evaluations', [], [ 'count' ], [ 'player_id_eq' => $player, 'date_after' => '2021-03-01', 'date_before' => '2021-03-31' ], FactScope::unrestricted() );
+        $this->assertSame( 1, (int) ( $march[0]->count ?? 0 ), 'in a March-only range' );
+
+        $may = FactQuery::run( 'evaluations', [], [ 'count' ], [ 'player_id_eq' => $player, 'date_after' => '2021-05-01', 'date_before' => '2021-05-31' ], FactScope::unrestricted() );
+        $this->assertSame( 0, (int) ( $may[0]->count ?? 0 ), 'not in the month it was entered' );
+    }
+
     public function test_attendance_measures_equal_the_attendance_report(): void {
         $team    = $this->insertTeam( 'U15 attendance-rules' );
         $old     = $this->insertTeam( 'U14 attendance-rules' );
