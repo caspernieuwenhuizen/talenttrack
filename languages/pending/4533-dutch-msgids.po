@@ -1,6 +1,6 @@
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:70
 msgid "Per evaluation type: tick the categories that should appear on the rating form. Tick none for a type to show all active categories (the fallback, as before #819)."
-msgstr "Per evaluatietype: vink de categorieën die in het rating-formulier moeten verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen (terugval-gedrag, gelijk aan vóór #819)."
+msgstr "Per evaluatietype: vink de categorieën aan die in het ratingformulier moeten verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen (terugvalgedrag, gelijk aan vóór #819)."
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:400
 msgid "Page 1: player snapshot — read before the conversation starts. Goals follow on pages 2 + 3."

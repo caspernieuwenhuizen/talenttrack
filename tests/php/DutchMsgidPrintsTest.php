@@ -68,21 +68,37 @@ final class DutchMsgidPrintsTest extends WP_UnitTestCase {
         return $out;
     }
 
-    public function test_every_fragment_msgstr_is_the_dutch_the_page_printed_before(): void {
-        $catalogue = $this->catalogue();
-        $fragment  = $this->fragment();
+    /**
+     * The Dutch printed today is the catalogue's msgstr for the old Dutch
+     * msgid. Usually that is the msgid itself; once (the eval-type
+     * categories notice) the catalogue had corrected it, and the corrected
+     * wording is what an install shows.
+     */
+    public function test_every_fragment_msgstr_is_the_dutch_printed_today(): void {
+        $printed  = array_flip( array_values( $this->catalogue() ) );
+        $fragment = $this->fragment();
         $this->assertCount( 28, $fragment, 'one entry per converted msgid' );
 
         foreach ( $fragment as $entry ) {
-            $old = $entry['msgstr'];
-            $this->assertArrayHasKey( $old, $catalogue, "the old Dutch msgid ships today: {$old}" );
-            $this->assertSame( $old, $catalogue[ $old ], "and prints as itself: {$old}" );
-            $this->assertNotSame( $old, $entry['msgid'], 'the new msgid is English' );
+            $this->assertArrayHasKey( $entry['msgstr'], $printed, "a Dutch install prints this today: {$entry['msgstr']}" );
+            $this->assertNotSame( $entry['msgstr'], $entry['msgid'], 'the new msgid is English' );
         }
     }
 
     public function test_no_converted_file_still_uses_an_old_dutch_msgid(): void {
-        $old = array_column( $this->fragment(), 'msgstr' );
+        $catalogue = $this->catalogue();
+        $old       = [];
+        foreach ( $this->fragment() as $entry ) {
+            // The old msgid: the catalogue entry that prints this Dutch.
+            foreach ( array_keys( $catalogue, $entry['msgstr'], true ) as $msgid ) {
+                $msgid = (string) $msgid;
+                // A Dutch msgid is the Dutch itself, or an earlier wording of
+                // it; an English msgid that also translates to it is not one.
+                similar_text( $msgid, $entry['msgstr'], $percent );
+                if ( $msgid !== $entry['msgid'] && $percent >= 90 ) $old[] = $msgid;
+            }
+        }
+        $this->assertNotEmpty( $old );
 
         foreach ( self::FILES as $relative ) {
             foreach ( tt_gettext_calls( (string) file_get_contents( $this->root() . '/' . $relative ) ) as $call ) {

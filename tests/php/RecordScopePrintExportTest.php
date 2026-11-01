@@ -97,8 +97,8 @@ final class RecordScopePrintExportTest extends WP_UnitTestCase {
         $theirs  = MatchPrepPrintRouter::renderHtml( $this->otherActivity );
         $missing = MatchPrepPrintRouter::renderHtml( $this->otherActivity + 100000 );
         $this->assertStringNotContainsString( 'Feyenoord U17', $theirs );
-        $this->assertStringContainsString( 'Geen wedstrijdvoorbereiding gevonden voor deze activiteit.', $theirs, 'answered as not found' );
-        $this->assertStringContainsString( 'Geen wedstrijdvoorbereiding gevonden voor deze activiteit.', $missing, 'and a missing id says the same thing' );
+        $this->assertStringContainsString( 'No match preparation found for this activity.', $theirs, 'answered as not found' );
+        $this->assertStringContainsString( 'No match preparation found for this activity.', $missing, 'and a missing id says the same thing' );
     }
 
     public function test_the_team_sheet_prints_the_coachs_own_match_and_not_another_teams(): void {
