@@ -66,7 +66,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                 <table class="tt-tdash-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Template', 'talenttrack' ); ?></th>
+                            <th><?php echo esc_html_x( 'Template', 'my tasks filter: the kind of task', 'talenttrack' ); ?></th>
                             <th class="tt-num"><?php esc_html_e( 'Created', 'talenttrack' ); ?></th>
                             <th class="tt-num"><?php esc_html_e( 'Completed on time', 'talenttrack' ); ?></th>
                             <th class="tt-num"><?php esc_html_e( 'Rate', 'talenttrack' ); ?></th>
@@ -130,7 +130,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                 <table class="tt-tdash-table">
                     <thead>
                         <tr>
-                            <th><?php esc_html_e( 'Template', 'talenttrack' ); ?></th>
+                            <th><?php echo esc_html_x( 'Template', 'my tasks filter: the kind of task', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Assignee', 'talenttrack' ); ?></th>
                             <th class="tt-num"><?php esc_html_e( 'Days overdue', 'talenttrack' ); ?></th>
                         </tr>
