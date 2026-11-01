@@ -222,13 +222,13 @@ het rapport noemt altijd de datums die de getallen daadwerkelijk beslaan.
 
 ### Wat "wedstrijden" betekent in het rapport Team · Minutenverdeling
 
-De tegel *Wedstrijden vastgelegd* telt de wedstrijden die **vastgelegde minuten
-hebben opgeleverd** — precies de wedstrijden waaruit de spelerbalken eronder
-zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Daaronder staat de
-eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**.
-Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
-wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
-vastlegging gaat en niet om een leeg seizoen.
+Het grote getal op de tegel *Gespeelde wedstrijden* is hoeveel wedstrijden er in
+de periode zijn **gespeeld**. De subregel zegt hoeveel daarvan **vastgelegde
+minuten hebben opgeleverd**: precies de wedstrijden waaruit de spelerbalken
+eronder zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Verschillen
+die twee, dan krijgt de tegel een signaal: *"9 vastgelegd, 3 zonder minuten"*
+maakt duidelijk dat het om een hiaat in de vastlegging gaat en niet om een leeg
+seizoen.
 
 **Een wedstrijd die vanavond begint is nog niet gespeeld.** Hij telt voor geen
 van beide getallen mee tot je hem voltooit, de minuten vastlegt, of de dag om
@@ -245,8 +245,8 @@ gespeeld zijn maar nog niets is vastgelegd — in plaats van de misleidende "19
 wedstrijden" naast een lege selectie die eerdere versies toonden.
 
 **Vertrokken spelers tellen evenmin mee.** Minuten die zijn vastgelegd op een
-speler die inmiddels gearchiveerd is, tellen niet mee in de tegel *Wedstrijden
-vastgelegd* — net zoals die speler niet meer in de selectie eronder staat. De
+speler die inmiddels gearchiveerd is, tellen niet mee in het vastgelegde aantal,
+net zoals die speler niet meer in de selectie eronder staat. De
 tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
 verklaren is erger dan een kleiner getal.
 
@@ -256,9 +256,8 @@ telt: elk wedstrijdtype, toernooidagen inbegrepen, volgens dezelfde regel als
 hierboven, dus de wedstrijd van vanavond staat er pas op als hij gespeeld is.
 Voorbije wedstrijden zijn uitgeklapt, en de strook **Alleen getoond:** boven de
 lijst noemt het aantal en het venster, bijvoorbeeld *12 gespeelde wedstrijden,
-17-08-2026 – 30-06-2027*. De lijst toont dus het aantal gespeelde wedstrijden
-uit de kopregel van het rapport; het getal op de tegel zelf is het vastgelegde
-deel daarvan.
+17-08-2026 – 30-06-2027*. De lijst toont het grote getal van de tegel: tik op
+12, zie 12.
 
 ### Het relatieve getal: Minutenaandeel
 

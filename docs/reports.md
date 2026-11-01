@@ -213,12 +213,11 @@ the dates the numbers actually cover.
 
 ### What "matches" means on the Team · Minutes distribution report
 
-The *Matches recorded* tile counts the matches that **produced recorded
-minutes** — the same matches the player bars below it are built from, so the
-tile can never contradict them. Underneath it sits the honest denominator:
-how many matches were **played** in the window. When the two differ the tile
-is flagged: *"3 played matches have no minutes"* tells you the gap is a
-recording gap, not an empty season.
+The *Matches played* tile's headline is how many matches were **played** in
+the window. Its sub-line says how many of them **produced recorded minutes**,
+which are the matches the player bars below are built from, so the tile can
+never contradict them. When the two differ the tile is flagged: *"9 recorded,
+3 without minutes"* tells you the gap is a recording gap, not an empty season.
 
 **A fixture kicking off tonight is not played yet.** It belongs to neither
 number until you complete it, record its minutes, or the day ends — otherwise
@@ -235,8 +234,8 @@ recorded — instead of the misleading "19 matches" beside an empty squad that
 earlier versions showed.
 
 **Players who have left count in neither number either.** Minutes recorded
-against a player who has since been archived are excluded from the *Matches
-recorded* tile, exactly as that player is absent from the squad below it. The
+against a player who has since been archived are excluded from the recorded
+count, exactly as that player is absent from the squad below it. The
 tile and the rows describe one squad; a count the rows cannot explain is worse
 than a smaller one.
 
@@ -245,9 +244,8 @@ exactly the matches this report counts as **played** in its own window: every
 match type, tournament days included, by the same rule as above, so tonight's
 fixture is not on it until it is played. Past matches are expanded, and the
 **Showing only:** strip above the list names the count and the window, for
-example *12 played matches, 17-08-2026 – 30-06-2027*. The list therefore shows
-the played number from the report's header line; the tile's own number is the
-recorded part of it.
+example *12 played matches, 17-08-2026 – 30-06-2027*. The list shows the
+tile's headline number: tap 12, see 12.
 
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.

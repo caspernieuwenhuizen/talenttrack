@@ -99,15 +99,17 @@ final class MinutesReportsMatchesDrillTest extends WP_UnitTestCase {
         $this->assertSame( $this->to, $q['to'] ?? '' );
     }
 
-    public function test_the_distribution_matches_tile_opens_the_played_count(): void {
+    public function test_the_distribution_matches_tile_headline_is_the_list_count(): void {
         $html = $this->renderReport( 'renderTeamMinutesDistribution' );
         $tile = $this->playedTile( $html );
 
         $played = ( new MinutesQuery() )->matchCountsForTeam( $this->team, $this->from, $this->to )['played'];
         $this->assertSame( count( $this->played ), $played );
+        $this->assertSame( (string) $played, $tile['value'], 'the headline is the played count' );
         $this->assertSame( $this->from, $tile['query']['date_from'] ?? '' );
         $this->assertSame( $this->to, $tile['query']['date_to'] ?? '' );
-        $this->assertCount( $played, $this->listedIds( $tile['query'] ), 'the list shows the played count the report states' );
+        $this->assertSame( (int) $tile['value'], count( $this->listedIds( $tile['query'] ) ), 'tapping the headline shows that many matches' );
+        $this->assertStringContainsString( '0 recorded, 3 without minutes', $html, 'the recorded part is the sub-line' );
     }
 
     public function test_a_date_drill_lands_with_past_activities_expanded(): void {

@@ -15,3 +15,8 @@ msgstr[1] "%d gespeelde wedstrijden"
 #: src/Shared/Frontend/FrontendStandardReportsView.php
 msgid "See the minutes distribution →"
 msgstr "Bekijk de minutenverdeling →"
+
+#. translators: 1: matches with recorded minutes, 2: played matches with no recorded minutes
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "%1$d recorded, %2$d without minutes"
+msgstr "%1$d vastgelegd, %2$d zonder minuten"

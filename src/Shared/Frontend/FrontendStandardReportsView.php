@@ -1222,19 +1222,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'team_id' => $team_id ],
             __( 'Last 12 months', 'talenttrack' )
         );
-        // #2433 — the Matches tile reports what the report can actually
-        // account for, with the fixture count as its denominator. A gap
-        // between the two is the signal that minutes are missing, and it
-        // is flagged rather than hidden behind a single ambiguous number.
+        // #2433 — the Matches tile states how many matches were played and how
+        // many of them the minutes account for. A gap between the two is the
+        // signal that minutes are missing, and it is flagged rather than
+        // hidden behind a single ambiguous number. #4507 — the headline is the
+        // played count, the number the list behind the tile opens on, so
+        // tapping 5 shows 5; the recorded part is the sub-line.
         $unrecorded = max( 0, $played_matches - $recorded_matches );
         self::renderKpiStrip( [
             [ 'num' => (string) count( $rows ), 'label' => __( 'Players in selection', 'talenttrack' ), 'href' => $squad_url, 'cap' => 'tt_view_teams' ],
             [
-                'num'   => (string) $recorded_matches,
-                'label' => __( 'Matches recorded', 'talenttrack' ),
+                'num'   => (string) $played_matches,
+                'label' => __( 'Matches played', 'talenttrack' ),
                 'sub'   => $unrecorded > 0
-                    /* translators: %d = number of played matches with no recorded minutes */
-                    ? sprintf( _n( '%d played match has no minutes', '%d played matches have no minutes', $unrecorded, 'talenttrack' ), $unrecorded )
+                    ? sprintf(
+                        /* translators: 1: matches with recorded minutes, 2: played matches with no recorded minutes */
+                        __( '%1$d recorded, %2$d without minutes', 'talenttrack' ),
+                        $recorded_matches,
+                        $unrecorded
+                    )
                     : __( 'All played matches recorded', 'talenttrack' ),
                 'warn'  => $unrecorded > 0,
                 'href'  => $matches_url,
