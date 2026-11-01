@@ -3,7 +3,10 @@ namespace TT\Modules\Analytics\Domain;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Infrastructure\Teams\TeamRoster;
 
 /**
  * AttendanceFlagService (#1488) — the one place that decides what counts as
@@ -185,6 +188,30 @@ final class AttendanceFlagService {
             $sums[] = "SUM( CASE WHEN LOWER({$col}) = '{$status}' THEN 1 ELSE 0 END ) AS {$status}";
         }
         return implode( ",\n                ", $sums );
+    }
+
+    /**
+     * The activity and roster half of "this attendance row counts" (#4584):
+     * the activity is neither archived nor trashed, it is completed and on or
+     * before today, and the player is on that team's current roster. The
+     * attendance reports and the semantic-layer measures both read it, so the
+     * KPI and the report beside it count the same rows.
+     *
+     * The roster test is a correlated subquery on `tt_players` under
+     * `$player_alias`, so a query that has not joined the player (the fact
+     * engine) can use it as well as one that has. `record_type` and
+     * `is_guest` stay with the caller.
+     */
+    public static function countableRowClause( string $attendance_alias = 'att', string $activity_alias = 'a', string $player_alias = 'p' ): string {
+        global $wpdb;
+        $att = self::column( $attendance_alias );
+        $a   = self::column( $activity_alias );
+        $p   = self::column( $player_alias );
+        return ArchiveRepository::filterClause( 'active', $a )
+            . ' AND ' . ActivityLifecycle::completedClause( $a )
+            . " AND {$a}.session_date <= CURDATE()"
+            . " AND EXISTS ( SELECT 1 FROM {$wpdb->prefix}tt_players {$p} WHERE {$p}.id = {$att}.player_id AND "
+            . TeamRoster::memberOfClause( $p, "{$a}.team_id" ) . ' )';
     }
 
     /** #4041 — does this one status (any case) count as attended? */
