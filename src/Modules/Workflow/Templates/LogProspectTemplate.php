@@ -84,7 +84,7 @@ class LogProspectTemplate extends TaskTemplate {
     }
 
     /**
-     * After the scout submits the form, the form's `serializeResponse()`
+     * After the scout submits the form, the form's `onCompleted()`
      * has already written the prospect row and tucked `prospect_id` into
      * the response payload. Stamp it onto the task row's entity link so
      * the chain step (and the future pipeline widget) can join on it.
@@ -105,7 +105,7 @@ class LogProspectTemplate extends TaskTemplate {
      * Chain step: spawn InviteToTestTraining for the HoD to invite the
      * just-logged prospect to a test training. Skip the spawn
      * if `prospect_id` didn't make it onto the response (defensive —
-     * shouldn't happen since `serializeResponse()` raises a hard error
+     * shouldn't happen since `onCompleted()` raises a hard error
      * when it can't insert the row).
      */
     public function chainSteps(): array {

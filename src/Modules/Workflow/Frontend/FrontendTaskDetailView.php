@@ -148,7 +148,11 @@ class FrontendTaskDetailView extends FrontendViewBase {
                 $errors = $form->validate( $raw, $task );
                 if ( empty( $errors ) ) {
                     $response = $form->serializeResponse( $raw, $task );
-                    $ok = WorkflowModule::engine()->complete( $task_id, $response );
+                    // #4550 — a form that writes records does so in its
+                    // completion step, which the engine runs only after the
+                    // task is marked completed.
+                    $step = $form instanceof \TT\Modules\Workflow\Contracts\CompletionStepInterface ? $form : null;
+                    $ok   = WorkflowModule::engine()->complete( $task_id, $response, $step, $raw );
                     if ( $ok ) {
                         // #1152 — audit-log on takeover so the
                         // operator who completed for someone else

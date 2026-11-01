@@ -7,6 +7,7 @@ use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -20,11 +21,11 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * which already aggregates per-stage tasks; the widget is a more
  * natural place for that batching.
  *
- * On `admit_to_trial`, the form creates the trial case directly
+ * On `admit_to_trial`, the form creates the trial case in `onCompleted()`
  * (mirrors the LogProspect → tt_prospects pattern) so the chain step
  * can read `trial_case_id` from the response payload.
  */
-class RecordTestTrainingOutcomeForm implements FormInterface {
+class RecordTestTrainingOutcomeForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -95,12 +96,21 @@ class RecordTestTrainingOutcomeForm implements FormInterface {
         $recommendation = (string) ( $raw['recommendation'] ?? '' );
         $observations   = sanitize_textarea_field( (string) ( $raw['observations'] ?? '' ) );
 
-        $payload = [
+        return [
             'recommendation' => $recommendation,
             'observations'   => $observations,
         ];
+    }
 
-        if ( $recommendation === 'admit_to_trial' ) {
+    /**
+     * #4550 — on `admit_to_trial` the player and the trial case are created
+     * once the task is completed, so a completion that fails leaves neither
+     * behind.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $payload = $response;
+
+        if ( (string) ( $response['recommendation'] ?? '' ) === 'admit_to_trial' ) {
             // Promote prospect to a player on admit (matches the
             // existing trial_case → player flow). Without a player_id
             // the trial case can't be created.

@@ -17,7 +17,7 @@ use TT\Modules\Workflow\WorkflowModule;
  * the user typed, not with its defaults, and the refusal writes nothing.
  *
  * The view sanitises the submitted values itself and never calls the form's
- * `serializeResponse()`, which in five forms also writes a record. Every form
+ * `serializeResponse()`. Every form
  * type is checked through the real view: a wrapper renders the real form,
  * refuses every answer, and fails the test if `serializeResponse()` is
  * reached. `request_consent` is also checked with its own validation.

@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Forms;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -15,7 +16,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * (for `continue_in_trial_group` only). Chain spawns happen via the
  * template's `chainSteps()`.
  */
-class ReviewTrialGroupMembershipForm implements FormInterface {
+class ReviewTrialGroupMembershipForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -77,10 +78,21 @@ class ReviewTrialGroupMembershipForm implements FormInterface {
     }
 
     public function serializeResponse( array $raw, array $task ): array {
-        $decision  = (string) ( $raw['decision'] ?? '' );
-        $rationale = sanitize_textarea_field( (string) ( $raw['rationale'] ?? '' ) );
+        return [
+            'decision'      => (string) ( $raw['decision'] ?? '' ),
+            'rationale'     => sanitize_textarea_field( (string) ( $raw['rationale'] ?? '' ) ),
+            'trial_case_id' => (int) ( $task['trial_case_id'] ?? 0 ),
+        ];
+    }
 
-        $trial_case_id = (int) ( $task['trial_case_id'] ?? 0 );
+    /**
+     * #4550 — the decision is recorded on the trial case once the task is
+     * completed, so a completion that fails records nothing.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $decision      = (string) ( $response['decision'] ?? '' );
+        $rationale     = (string) ( $response['rationale'] ?? '' );
+        $trial_case_id = (int) ( $response['trial_case_id'] ?? 0 );
         if ( $trial_case_id > 0 ) {
             $repo  = new TrialCasesRepository();
             $actor = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
@@ -120,11 +132,7 @@ class ReviewTrialGroupMembershipForm implements FormInterface {
             }
         }
 
-        return [
-            'decision'      => $decision,
-            'rationale'     => $rationale,
-            'trial_case_id' => $trial_case_id,
-        ];
+        return $response;
     }
 
     /** @param array<string,mixed> $task */

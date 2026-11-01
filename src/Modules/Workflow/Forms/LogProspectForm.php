@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow\Forms;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Domain\ProspectCreationService;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -24,7 +25,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * fails with a `__form` error listing the candidates. False positives are
  * preferable to false negatives in this domain.
  *
- * On `serializeResponse()` (called after validate has passed), the form
+ * In `onCompleted()` (run once the task is marked completed), the form
  * creates the prospect through `ProspectCreationService` and embeds
  * `prospect_id` in the returned payload. The template's `onComplete()`
  * stamps the ID onto the task's `prospect_id` column so the pipeline widget
@@ -38,7 +39,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * the wizard's passed `scouting_visit_id`, so a prospect logged through this
  * task counted on no scouting visit.
  */
-class LogProspectForm implements FormInterface {
+class LogProspectForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing  = self::decodeResponse( $task );
@@ -195,26 +196,8 @@ class LogProspectForm implements FormInterface {
     public function serializeResponse( array $raw, array $task ): array {
         $consent_at = ! empty( $raw['consent_given'] ) ? current_time( 'mysql', true ) : null;
 
-        // #4015 — one create path. `false` because this form is a step in
-        // the LogProspect chain, which spawns the invite task itself; a
-        // second one would be a duplicate in the head of development's
-        // inbox. The wizard and the REST route pass the default.
-        //
-        // The discoverer is the task's assignee rather than whoever is
-        // signed in: an administrator completing a scout's task is recording
-        // the scout's find, not their own.
-        $created = ( new ProspectCreationService() )->create( array_merge( $raw, [
-            'discovered_by_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
-            'consent_given_at'      => $consent_at,
-        ] ), false );
-
-        // `validate()` has already refused everything this can refuse, so a
-        // WP_Error here is a failed write. Answering 0, as this always did,
-        // keeps the task's stored response readable rather than half-shaped.
-        $prospect_id = $created instanceof \WP_Error ? 0 : (int) $created;
-
         return [
-            'prospect_id'         => $prospect_id,
+            'prospect_id'         => 0,
             'first_name'          => sanitize_text_field( (string) ( $raw['first_name'] ?? '' ) ),
             'last_name'           => sanitize_text_field( (string) ( $raw['last_name']  ?? '' ) ),
             'date_of_birth'       => trim( (string) ( $raw['date_of_birth'] ?? '' ) ) ?: null,
@@ -226,6 +209,32 @@ class LogProspectForm implements FormInterface {
             'parent_phone'        => sanitize_text_field( (string) ( $raw['parent_phone'] ?? '' ) ),
             'consent_given_at'    => $consent_at,
         ];
+    }
+
+    /**
+     * #4550 — the prospect is created once the task is completed, so a
+     * completion that fails leaves no prospect behind and the next attempt
+     * cannot log the same player twice.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        // #4015 — one create path. `false` because this form is a step in
+        // the LogProspect chain, which spawns the invite task itself; a
+        // second one would be a duplicate in the head of development's
+        // inbox. The wizard and the REST route pass the default.
+        //
+        // The discoverer is the task's assignee rather than whoever is
+        // signed in: an administrator completing a scout's task is recording
+        // the scout's find, not their own.
+        $created = ( new ProspectCreationService() )->create( array_merge( $raw, [
+            'discovered_by_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
+            'consent_given_at'      => $response['consent_given_at'] ?? null,
+        ] ), false );
+
+        // `validate()` has already refused everything this can refuse, so a
+        // WP_Error here is a failed write. Answering 0, as this always did,
+        // keeps the task's stored response readable rather than half-shaped.
+        $response['prospect_id'] = $created instanceof \WP_Error ? 0 : (int) $created;
+        return $response;
     }
 
     /** @param array<string,mixed> $task */

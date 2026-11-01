@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -20,7 +21,7 @@ use TT\Modules\Workflow\Contracts\FormInterface;
  * announcing nothing, because nothing was decided; the operator can
  * revisit later. The prospect is archived here on decline and no-response.
  */
-class AwaitTeamOfferDecisionForm implements FormInterface {
+class AwaitTeamOfferDecisionForm implements FormInterface, CompletionStepInterface {
 
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
@@ -82,8 +83,20 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
     }
 
     public function serializeResponse( array $raw, array $task ): array {
-        $outcome = (string) ( $raw['outcome'] ?? '' );
-        $notes   = sanitize_textarea_field( (string) ( $raw['notes'] ?? '' ) );
+        return [
+            'outcome'       => (string) ( $raw['outcome'] ?? '' ),
+            'notes'         => sanitize_textarea_field( (string) ( $raw['notes'] ?? '' ) ),
+            'trial_case_id' => (int) ( $task['trial_case_id'] ?? 0 ),
+        ];
+    }
+
+    /**
+     * #4550 — the trial case and the prospect change once the task is
+     * completed, so a completion that fails changes neither.
+     */
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $outcome = (string) ( $response['outcome'] ?? '' );
+        $notes   = (string) ( $response['notes'] ?? '' );
 
         // Trial-case side-effect. The trial_case_id was carried through
         // the chain by InviteToTestTraining → ConfirmTestTraining →
@@ -153,11 +166,7 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
             );
         }
 
-        return [
-            'outcome'       => $outcome,
-            'notes'         => $notes,
-            'trial_case_id' => $trial_case_id,
-        ];
+        return $response;
     }
 
     /** @param array<string,mixed> $task */

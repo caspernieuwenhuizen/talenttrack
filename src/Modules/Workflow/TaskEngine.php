@@ -4,6 +4,7 @@ namespace TT\Modules\Workflow;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Workflow\Chain\ChainStep;
+use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Repositories\TemplateConfigRepository;
@@ -143,14 +144,33 @@ class TaskEngine {
      * Mark a task completed and run the template's onComplete hook.
      * Returns true on success.
      *
+     * `$step` is the form's own writes (#4550). It runs only after the row
+     * is marked completed, so a failed completion writes nothing. A task
+     * that is already completed is left as it is: completing it again would
+     * write its records a second time, or overwrite the stored answer with
+     * one that no longer carries their ids.
+     *
      * @param array<string,mixed> $response
+     * @param array<string,mixed> $raw      The validated input `$step` receives.
      */
-    public function complete( int $task_id, array $response ): bool {
+    public function complete( int $task_id, array $response, ?CompletionStepInterface $step = null, array $raw = [] ): bool {
         $task = $this->tasks->find( $task_id );
         if ( $task === null ) return false;
+        if ( $step !== null && (string) ( $task['status'] ?? '' ) === TaskStatus::COMPLETED ) return true;
 
         $ok = $this->tasks->complete( $task_id, $response );
         if ( ! $ok ) return false;
+
+        if ( $step !== null ) {
+            $completed = $this->tasks->find( $task_id );
+            if ( is_array( $completed ) ) {
+                $written = $step->onCompleted( $completed, $raw, $response );
+                if ( $written !== $response ) {
+                    $response = $written;
+                    $this->tasks->update( $task_id, [ 'response_json' => wp_json_encode( $response ) ] );
+                }
+            }
+        }
 
         $template = $this->registry->get( (string) $task['template_key'] );
         if ( $template !== null ) {

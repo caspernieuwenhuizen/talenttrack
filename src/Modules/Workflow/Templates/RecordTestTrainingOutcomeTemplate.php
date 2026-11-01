@@ -74,7 +74,7 @@ class RecordTestTrainingOutcomeTemplate extends TaskTemplate {
 
     /**
      * Side-effects: trial-case creation on `admit_to_trial`, prospect
-     * archival on `decline`. The form's `serializeResponse()` also
+     * archival on `decline`. The form's `onCompleted()` also
      * carries forward player_id when a prospect-to-player promotion
      * happened earlier; we don't promote here (the prospect stays a
      * prospect through the trial cycle and only promotes on team
@@ -93,7 +93,7 @@ class RecordTestTrainingOutcomeTemplate extends TaskTemplate {
             );
         }
         // admit_to_trial side-effect (trial case creation) is handled
-        // in the form's serializeResponse() so the trial_case_id ends
+        // in the form's onCompleted() so the trial_case_id ends
         // up in $response and we can read it from the chain step
         // contextBuilder below. Keeping the entity-creation in the
         // form mirrors LogProspect/InviteToTestTraining's pattern of
