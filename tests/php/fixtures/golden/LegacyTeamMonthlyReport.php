@@ -27,7 +27,9 @@ use TT\Modules\Measurements\Units\UnitContext;
 /**
  * Frozen copy of `TeamMonthlyReport` as it stood before the block composers
  * were extracted (#4590). The golden test composes with both and compares the
- * bytes. Not loaded by the plugin; do not call it from `src/`.
+ * bytes. Not loaded by the plugin; do not call it from `src/`. Delete it when
+ * #4572 merges: from then the Studio blocks are the second caller of the
+ * composers, and the golden test compares against stored snapshots.
  *
  * TeamMonthlyReport (#3458, epic #3457) — the document a monthly staff meeting
  * runs on, as data.

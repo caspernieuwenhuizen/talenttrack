@@ -14,7 +14,8 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 /**
  * Frozen copy of `TeamMatchStatsQuery` as it stood before its record moved
  * onto the shared `TeamMatchRecord` read (#4590). The golden test compares
- * both. Not loaded by the plugin; do not call it from `src/`.
+ * both. Not loaded by the plugin; do not call it from `src/`. Delete it when
+ * #4572 merges, with the other frozen copies.
  *
  * TeamMatchStatsQuery (#3520, epic #3519) — "how is this team doing", as one
  * answer.

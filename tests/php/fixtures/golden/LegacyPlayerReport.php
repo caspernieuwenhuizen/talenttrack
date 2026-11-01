@@ -14,7 +14,9 @@ use TT\Modules\Players\Services\PlayerPhoto;
 /**
  * Frozen copy of `PlayerReport` as it stood before the block composers were
  * extracted (#4590). The golden test composes with both and compares the
- * bytes. Not loaded by the plugin; do not call it from `src/`.
+ * bytes. Not loaded by the plugin; do not call it from `src/`. Delete it when
+ * #4572 merges: from then the Studio blocks are the second caller of the
+ * composers, and the golden test compares against stored snapshots.
  *
  * PlayerReport (#3872, epic #3871) — one player over one window, as blocks.
  *
