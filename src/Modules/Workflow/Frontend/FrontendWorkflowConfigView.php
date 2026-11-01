@@ -110,7 +110,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             <table class="tt-wcfg-table">
                 <thead>
                     <tr>
-                        <th><?php esc_html_e( 'Template', 'talenttrack' ); ?></th>
+                        <th><?php echo esc_html_x( 'Template', 'my tasks filter: the kind of task', 'talenttrack' ); ?></th>
                         <th><?php esc_html_e( 'Enabled', 'talenttrack' ); ?></th>
                         <th>
                             <?php esc_html_e( 'How often (cron)', 'talenttrack' ); ?>
@@ -287,7 +287,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         echo '<div class="tt-wcfg-card"><table class="tt-wcfg-table"><thead><tr>';
         echo '<th>' . esc_html__( 'When', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Event hook', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html_x( 'Template', 'my tasks filter: the kind of task', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Retries', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Result', 'talenttrack' ) . '</th>';
