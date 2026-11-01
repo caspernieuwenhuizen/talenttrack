@@ -220,7 +220,9 @@ final class CoachWeek {
                 if ( $register ) {
                     $recorded                   = ActivityRegisterProgress::recordedCount( $aid ) > 0;
                     $row['attendance_recorded'] = $recorded;
-                    if ( ! $recorded && $can_edit ) $row['actions'][] = self::ACTION_MARK_ATTENDANCE;
+                    // A completed match dated after today gets no button: the
+                    // attendance rule refuses present and late before the day.
+                    if ( ! $recorded && $can_edit && $when !== self::WHEN_UPCOMING ) $row['actions'][] = self::ACTION_MARK_ATTENDANCE;
                 }
                 if ( $done && $when !== self::WHEN_PAST ) $row['actions'][] = self::ACTION_OPEN_ACTIVITY;
             } elseif ( $is_match ) {

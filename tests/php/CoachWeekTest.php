@@ -261,6 +261,8 @@ final class CoachWeekTest extends WP_UnitTestCase {
         $sat = CoachWeek::forUser( $this->coach, '2026-11-04' )['rows'][2];
 
         $this->assertSame( 'upcoming', $sat['when'] );
+        $this->assertFalse( $sat['attendance_recorded'] );
+        $this->assertSame( [ CoachWeek::ACTION_OPEN_ACTIVITY ], $sat['actions'], 'no Mark attendance before the day: the attendance rule refuses present and late on a future date' );
         $this->assertNotContains( CoachWeek::ACTION_MATCH_PREP, $sat['actions'] );
         $this->assertNotContains( CoachWeek::ACTION_START_MATCH, $sat['actions'] );
         $this->assertContains( CoachWeek::ACTION_OPEN_ACTIVITY, $sat['actions'] );
