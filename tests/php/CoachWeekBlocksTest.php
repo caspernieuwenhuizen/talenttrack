@@ -111,7 +111,7 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $owned = [];
         foreach ( WeekBlockRegistry::all() as $key => $block ) {
             foreach ( array_keys( $block->rowDefaults() ) as $field ) {
-                $this->assertArrayNotHasKey( $field, $owned, "{$key} and {$owned[ $field ]} both claim {$field}" );
+                $this->assertArrayNotHasKey( $field, $owned, "{$key} claims {$field}, which another block already owns" );
                 $owned[ $field ] = $key;
             }
         }
@@ -393,10 +393,11 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->configure( 'head_coach', [ 'past' => 'fold' ] );
         $before = QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' );
 
+        // The head coach holds no config edit right at all, so the route
+        // gate refuses before any key is looked at.
         $res = $this->postSettings( (string) wp_json_encode( [ 'head_coach' => [ 'on' => false ] ] ) );
 
-        $this->assertSame( 200, $res->get_status() );
-        $this->assertContains( CoachWeek::SETTINGS_KEY, (array) $res->get_data()['data']['keys_skipped'] );
+        $this->assertSame( 403, $res->get_status() );
         $this->assertSame( $before, QueryHelpers::get_config( CoachWeek::SETTINGS_KEY, '' ), 'the coach cannot change the academy setting' );
     }
 
