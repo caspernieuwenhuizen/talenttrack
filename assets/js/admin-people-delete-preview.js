@@ -204,6 +204,14 @@
                 return format(lang.mentorship || '%d mentorship pairing(s) will be removed.', r.count);
             case 'invitation_pending':
                 return format(lang.invitation_pending || '%d pending invitation(s) to this person will be cancelled.', r.count);
+            case 'course_enrolments':
+                return format(lang.course_enrolments || '%d course enrolment(s) will be removed.', r.count);
+            case 'course_progress':
+                return format(lang.course_progress || '%d course lesson progress record(s) will be removed.', r.count);
+            case 'course_quiz_attempts':
+                return format(lang.course_quiz_attempts || '%d course quiz attempt(s) will be removed.', r.count);
+            case 'course_submissions':
+                return format(lang.course_submissions || '%d course assignment submission(s) will be removed.', r.count);
             default:
                 return JSON.stringify(r);
         }
@@ -216,6 +224,8 @@
                 return format(lang.scope_grantor || '%d functional-role grant(s) attribution will become unknown (grants stay).', r.count);
             case 'invitation_accepted':
                 return format(lang.invitation_accepted || '%d accepted invitation(s) will keep the historical record; target reference cleared.', r.count);
+            case 'course_reviewer':
+                return format(lang.course_reviewer || '%d course submission(s) they reviewed will keep the review; reviewer cleared.', r.count);
             case 'player_parent_link':
                 return format(lang.player_parent_link || 'Will be removed as parent contact from player %s.', r.player);
             default:

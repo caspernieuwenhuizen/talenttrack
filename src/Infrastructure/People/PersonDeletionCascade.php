@@ -21,11 +21,14 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *     tt_staff_pdp, tt_staff_certifications, tt_staff_evaluations (and
  *     their tt_staff_eval_ratings), tt_staff_goals,
  *     tt_staff_mentorships (mentor or mentee = X),
- *     tt_invitations (target_person_id = X AND status IN ('pending','expired')).
+ *     tt_invitations (target_person_id = X AND status IN ('pending','expired')),
+ *     tt_course_enrolments (and their tt_course_progress,
+ *     tt_course_quiz_attempts, tt_course_submissions).
  *
  *   SET NULL — the row means something on its own; nulling preserves it.
  *     tt_user_role_scopes.granted_by_person_id, tt_players.parent_person_id,
- *     tt_invitations.target_person_id where status = 'accepted'.
+ *     tt_invitations.target_person_id where status = 'accepted',
+ *     tt_course_submissions.reviewer_person_id.
  *
  * The wp_user account is NOT touched. Audit-log and other tables that
  * reference `wp_users.ID` (coach_id, created_by, etc.) keep working.
@@ -162,6 +165,57 @@ class PersonDeletionCascade {
                 $total_affected += $invite_null;
             }
 
+            // Course enrolments, the records under them, and reviews
+            if ( TableExists::has( 'tt_course_enrolments' ) ) {
+                $enrol_n = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$p}tt_course_enrolments WHERE person_id = %d AND club_id = %d",
+                    $pid, $club
+                ) );
+                if ( $enrol_n > 0 ) {
+                    $removals[] = [ 'kind' => 'course_enrolments', 'count' => $enrol_n ];
+                    $total_affected += $enrol_n;
+                }
+                foreach ( [
+                    'course_progress'      => 'tt_course_progress',
+                    'course_quiz_attempts' => 'tt_course_quiz_attempts',
+                    'course_submissions'   => 'tt_course_submissions',
+                ] as $kind => $table ) {
+                    if ( ! TableExists::has( $table ) ) continue;
+                    $n = (int) $wpdb->get_var( $wpdb->prepare(
+                        "SELECT COUNT(*) FROM {$p}{$table}
+                         WHERE enrolment_id IN (
+                             SELECT id FROM {$p}tt_course_enrolments
+                             WHERE person_id = %d AND club_id = %d
+                         ) AND club_id = %d",
+                        $pid, $club, $club
+                    ) );
+                    if ( $n > 0 ) {
+                        $removals[] = [ 'kind' => $kind, 'count' => $n ];
+                        $total_affected += $n;
+                    }
+                }
+            }
+            if ( TableExists::has( 'tt_course_submissions' ) && TableExists::has( 'tt_course_enrolments' ) ) {
+                // Their own submissions are removed above, not cleared.
+                $reviewer_n = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$p}tt_course_submissions
+                     WHERE reviewer_person_id = %d AND club_id = %d
+                       AND enrolment_id NOT IN (
+                           SELECT id FROM {$p}tt_course_enrolments
+                           WHERE person_id = %d AND club_id = %d
+                       )",
+                    $pid, $club, $pid, $club
+                ) );
+                if ( $reviewer_n > 0 ) {
+                    $nulls[] = [
+                        'kind'  => 'course_reviewer',
+                        'count' => $reviewer_n,
+                        'note'  => __( 'submissions stay; "reviewed by" becomes unknown', 'talenttrack' ),
+                    ];
+                    $total_affected += $reviewer_n;
+                }
+            }
+
             // #3572 — `tt_players.parent_person_id` is retired and read by
             // nothing, so it is no longer listed as a consequence here: a
             // player's parent is the `tt_player_parents` link, which a
@@ -224,6 +278,24 @@ class PersonDeletionCascade {
                 $per_table['tt_staff_eval_ratings'] = (int) $n_r;
             }
 
+            // Course progress, quiz attempts and submissions hang off the
+            // enrolment, so they go while the enrolments still exist.
+            if ( TableExists::has( 'tt_course_enrolments' ) ) {
+                foreach ( [ 'tt_course_progress', 'tt_course_quiz_attempts', 'tt_course_submissions' ] as $child ) {
+                    if ( ! TableExists::has( $child ) ) continue;
+                    $sql_c = "DELETE FROM {$p}{$child}
+                              WHERE enrolment_id IN (
+                                  SELECT id FROM {$p}tt_course_enrolments
+                                  WHERE person_id IN ({$ph}) AND club_id = %d
+                              ) AND club_id = %d";
+                    $n_c = $wpdb->query( $wpdb->prepare( $sql_c, ...array_merge( $ids, [ $club, $club ] ) ) );
+                    if ( $n_c === false ) {
+                        throw new \RuntimeException( 'Cascade delete failed on ' . $child . ': ' . $wpdb->last_error );
+                    }
+                    $per_table[ $child ] = (int) $n_c;
+                }
+            }
+
             // CASCADE — target_person_id-based deletes
             $cascade_targets = [
                 'tt_team_people'         => 'person_id',
@@ -235,6 +307,7 @@ class PersonDeletionCascade {
                 'tt_staff_certifications' => 'person_id',
                 'tt_staff_evaluations'   => 'person_id',
                 'tt_staff_goals'         => 'person_id',
+                'tt_course_enrolments'   => 'person_id',
             ];
             foreach ( $cascade_targets as $table => $col ) {
                 // A table an install does not have holds nothing to remove.
@@ -287,6 +360,19 @@ class PersonDeletionCascade {
                 throw new \RuntimeException( 'Set-null failed on tt_invitations.target_person_id (accepted): ' . $wpdb->last_error );
             }
             $nulled['tt_invitations.target_person_id'] = (int) $n_ia;
+
+            // A submission they reviewed for someone else stays; the
+            // reviewer becomes unknown.
+            if ( TableExists::has( 'tt_course_submissions' ) ) {
+                $sql_rev = "UPDATE {$p}tt_course_submissions
+                            SET reviewer_person_id = NULL
+                            WHERE reviewer_person_id IN ({$ph}) AND club_id = %d";
+                $n_rev = $wpdb->query( $wpdb->prepare( $sql_rev, ...array_merge( $ids, [ $club ] ) ) );
+                if ( $n_rev === false ) {
+                    throw new \RuntimeException( 'Set-null failed on tt_course_submissions.reviewer_person_id: ' . $wpdb->last_error );
+                }
+                $nulled['tt_course_submissions.reviewer_person_id'] = (int) $n_rev;
+            }
 
             // The column is retired (#3572); once it is dropped there is
             // nothing to clear, and the delete must not fail on it.

@@ -277,4 +277,135 @@ final class PersonDeletionCascadeTest extends WP_UnitTestCase {
             $id
         ) );
     }
+
+    /** #4618 — no course row belongs to or points at a deleted person. */
+    public function test_the_course_records_of_the_person_are_deleted(): void {
+        $club      = (int) CurrentClub::id();
+        $person    = $this->person();
+        $enrolment = $this->enrolment( $person, $club );
+        $progress  = $this->courseChild( 'tt_course_progress', $enrolment, $club );
+        $attempt   = $this->courseChild( 'tt_course_quiz_attempts', $enrolment, $club );
+        $own_sub   = $this->submission( $enrolment, $club, null );
+
+        // A colleague's submission the person reviewed.
+        $colleague = $this->person();
+        $reviewed  = $this->submission( $this->enrolment( $colleague, $club ), $club, $person );
+
+        // The same person id under another club.
+        $theirs       = $this->enrolment( $person, $club + 1 );
+        $theirs_child = $this->courseChild( 'tt_course_progress', $theirs, $club + 1 );
+        $theirs_rev   = $this->submission( $this->enrolment( $colleague, $club + 1 ), $club + 1, $person );
+
+        $result = ( new PersonDeletionCascade() )->cascade( [ $person ] );
+
+        $this->assertSame( 1, $result['deleted'] );
+        $this->assertSame( 1, $result['per_table']['tt_course_enrolments'] ?? 0 );
+        $this->assertSame( 1, $result['per_table']['tt_course_progress'] ?? 0 );
+        $this->assertSame( 1, $result['per_table']['tt_course_quiz_attempts'] ?? 0 );
+        $this->assertSame( 1, $result['per_table']['tt_course_submissions'] ?? 0 );
+        $this->assertSame( 1, $result['nulled']['tt_course_submissions.reviewer_person_id'] ?? 0 );
+
+        $this->assertSame( 0, $this->rows( 'tt_course_enrolments', 'id', $enrolment ) );
+        $this->assertSame( 0, $this->rows( 'tt_course_progress', 'id', $progress ) );
+        $this->assertSame( 0, $this->rows( 'tt_course_quiz_attempts', 'id', $attempt ) );
+        $this->assertSame( 0, $this->rows( 'tt_course_submissions', 'id', $own_sub ) );
+        $this->assertSame( 0, $this->clubRows( 'tt_course_enrolments', 'person_id', $person, $club ), 'no enrolment belongs to the person' );
+        $this->assertSame( 0, $this->clubRows( 'tt_course_submissions', 'reviewer_person_id', $person, $club ), 'no submission points at the person' );
+
+        $this->assertSame( 1, $this->rows( 'tt_course_submissions', 'id', $reviewed ), "the colleague's submission survives" );
+        $this->assertNull( $this->nullable( 'tt_course_submissions', 'reviewer_person_id', $reviewed ), 'with the reviewer cleared' );
+
+        $this->assertSame( 1, $this->rows( 'tt_course_enrolments', 'id', $theirs ), "the other club's enrolment stays" );
+        $this->assertSame( 1, $this->rows( 'tt_course_progress', 'id', $theirs_child ), "the other club's progress stays" );
+        $this->assertSame( $person, $this->value( 'tt_course_submissions', 'reviewer_person_id', $theirs_rev ), "the other club's review keeps its reviewer" );
+    }
+
+    /** #4618 — the preview counts the course rows the delete removes and clears. */
+    public function test_the_preview_counts_the_course_records(): void {
+        $club      = (int) CurrentClub::id();
+        $person    = $this->person();
+        $enrolment = $this->enrolment( $person, $club );
+        $this->courseChild( 'tt_course_progress', $enrolment, $club );
+        $this->courseChild( 'tt_course_progress', $enrolment, $club, 'lesson-2' );
+        $this->courseChild( 'tt_course_quiz_attempts', $enrolment, $club );
+        $this->submission( $enrolment, $club, $person ); // their own, reviewed by themselves: removed, not cleared
+        $this->submission( $this->enrolment( $this->person(), $club ), $club, $person );
+
+        $preview = ( new PersonDeletionCascade() )->preview( [ $person ] );
+        $entry   = $preview['persons'][0] ?? [ 'removals' => [], 'nullifications' => [] ];
+        $removed = [];
+        foreach ( $entry['removals'] as $r ) $removed[ (string) $r['kind'] ] = (int) ( $r['count'] ?? 0 );
+        $cleared = [];
+        foreach ( $entry['nullifications'] as $r ) $cleared[ (string) $r['kind'] ] = (int) $r['count'];
+
+        $result = ( new PersonDeletionCascade() )->cascade( [ $person ] );
+
+        $this->assertSame( $result['per_table']['tt_course_enrolments'], $removed['course_enrolments'] ?? 0 );
+        $this->assertSame( $result['per_table']['tt_course_progress'], $removed['course_progress'] ?? 0 );
+        $this->assertSame( $result['per_table']['tt_course_quiz_attempts'], $removed['course_quiz_attempts'] ?? 0 );
+        $this->assertSame( $result['per_table']['tt_course_submissions'], $removed['course_submissions'] ?? 0 );
+        $this->assertSame( $result['nulled']['tt_course_submissions.reviewer_person_id'], $cleared['course_reviewer'] ?? 0 );
+        $this->assertSame( 2, $removed['course_progress'] ?? 0 );
+        $this->assertSame( 1, $cleared['course_reviewer'] ?? 0 );
+    }
+
+    private function enrolment( int $person, int $club ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_course_enrolments', [
+            'uuid'        => wp_generate_uuid4(),
+            'club_id'     => $club,
+            'course_slug' => 'coaching-basics',
+            'person_id'   => $person,
+            'status'      => 'in_progress',
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a course enrolment' );
+        return $id;
+    }
+
+    private function courseChild( string $table, int $enrolment, int $club, string $lesson = 'lesson-1' ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . $table, [
+            'club_id'      => $club,
+            'enrolment_id' => $enrolment,
+            'lesson_slug'  => $lesson,
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a ' . $table . ' row' );
+        return $id;
+    }
+
+    private function submission( int $enrolment, int $club, ?int $reviewer ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_course_submissions', [
+            'uuid'               => wp_generate_uuid4(),
+            'club_id'            => $club,
+            'enrolment_id'       => $enrolment,
+            'lesson_slug'        => 'lesson-1',
+            'reviewer_person_id' => $reviewer,
+            'outcome'            => $reviewer !== null ? 'approved' : '',
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a course submission' );
+        return $id;
+    }
+
+    private function clubRows( string $table, string $column, int $id, int $club ): int {
+        global $wpdb;
+        // Table and column are literals from this test, never caller input.
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}{$table} WHERE {$column} = %d AND club_id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $id, $club
+        ) );
+    }
+
+    private function nullable( string $table, string $column, int $id ): ?string {
+        global $wpdb;
+        // Table and column are literals from this test, never caller input.
+        $v = $wpdb->get_var( $wpdb->prepare(
+            "SELECT {$column} FROM {$wpdb->prefix}{$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $id
+        ) );
+        return $v === null ? null : (string) $v;
+    }
 }

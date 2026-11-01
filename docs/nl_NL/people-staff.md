@@ -89,6 +89,8 @@ Voordat er iets wordt geschreven, opent een **impact-preview-dialoog** die exact
 - **Verwijderd**: teamtoewijzingen, scopetoekenningen op functionele rollen, staf-ontwikkelingsentries, certificaten, staf-evaluaties, staf-doelen, mentorkoppelingen en openstaande uitnodigingen.
 - **Leeggemaakt (bovenliggende rij blijft staan)**: "toegekend door"-attributie op scopes die deze persoon heeft toegekend, geaccepteerde uitnodigingen die op deze persoon waren gericht (historie blijft staan; de doelverwijzing wordt leeggemaakt), en spelerrecords die deze persoon als ouder-contact noemden.
 
+De cursusinschrijvingen van de persoon gaan ook weg, met hun lesvoortgang, quizpogingen en ingeleverde opdrachten. Een opdracht die de persoon voor iemand anders heeft beoordeeld, blijft staan; de beoordelaar wordt leeggemaakt.
+
 Bij bevestiging draait één database-transactie de schoonmaak; als één stap mislukt, wordt de hele batch teruggedraaid — een gedeeltelijke delete is onmogelijk.
 
 Voor batches van 3+ personen OF bij een persoon met 5+ getroffen verwijzingen vraagt een tweede stap om **DELETE** te typen ter bevestiging — bescherming tegen onbedoelde klikken op grote opschoningen.
