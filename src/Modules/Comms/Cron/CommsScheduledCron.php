@@ -444,19 +444,23 @@ final class CommsScheduledCron {
                 continue;
             }
             // The counts are the sections' own data: a section the child
-            // keeps from this guardian counts as nothing to them.
-            $auth = \TT\Infrastructure\Security\AuthorizationService::class;
+            // keeps from this guardian is left out, and the template drops
+            // its line.
+            $auth    = \TT\Infrastructure\Security\AuthorizationService::class;
+            $payload = [
+                'player_name' => trim( $row->first_name . ' ' . $row->last_name ),
+                'deep_link'   => self::deepLink( 'players', (int) $row->player_id ),
+            ];
+            if ( $auth::mayReadPlayerSection( $parent_user_id, (int) $row->player_id, 'evaluations' ) ) {
+                $payload['recent_evaluations_count'] = self::countRecentEvaluations( (int) $row->player_id );
+            }
+            if ( $auth::mayReadPlayerSection( $parent_user_id, (int) $row->player_id, 'goals' ) ) {
+                $payload['recent_goals_count'] = self::countRecentGoals( (int) $row->player_id );
+            }
             do_action(
                 CommsDispatcher::ACTION_HOOK,
                 'onboarding_nudge_inactive',
-                [
-                    'player_name'              => trim( $row->first_name . ' ' . $row->last_name ),
-                    'recent_evaluations_count' => $auth::mayReadPlayerSection( $parent_user_id, (int) $row->player_id, 'evaluations' )
-                        ? self::countRecentEvaluations( (int) $row->player_id ) : 0,
-                    'recent_goals_count'       => $auth::mayReadPlayerSection( $parent_user_id, (int) $row->player_id, 'goals' )
-                        ? self::countRecentGoals( (int) $row->player_id ) : 0,
-                    'deep_link'                => self::deepLink( 'players', (int) $row->player_id ),
-                ],
+                $payload,
                 [
                     Recipient::parent(
                         $parent_user_id,

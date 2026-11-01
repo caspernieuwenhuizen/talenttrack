@@ -13,6 +13,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Modules\Comms\Cron\CommsScheduledCron;
+use TT\Modules\Comms\Domain\CommsRequest;
+use TT\Modules\Comms\Domain\Recipient;
+use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
 use TT\Modules\PersonaDashboard\Kpis\MyEvaluationsReceived;
 use TT\Modules\PersonaDashboard\Kpis\MyRatingTrend;
 use TT\Modules\PersonaDashboard\Kpis\MyTeamPodiumPosition;
@@ -152,12 +155,29 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         $this->assertFalse( ( new MyEvaluationsReceived() )->compute( $this->parent, 1 )->is_available );
     }
 
-    public function test_the_inactive_parent_nudge_counts_no_hidden_evaluations(): void {
-        update_user_meta( $this->parent, 'last_login', gmdate( 'Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS ) );
-        $this->assertSame( 2, $this->nudgeCount(), 'precondition: the nudge counts the two evaluations' );
+    public function test_the_inactive_parent_nudge_counts_what_the_child_shares(): void {
+        $body = $this->nudgeBody();
+        $this->assertStringContainsString( '2 new evaluation(s)', $body );
+        $this->assertStringContainsString( '0 new goal(s)', $body );
+    }
 
+    public function test_the_inactive_parent_nudge_leaves_out_hidden_evaluations(): void {
         $this->hideEvaluations();
-        $this->assertSame( 0, $this->nudgeCount() );
+        $body = $this->nudgeBody();
+        $this->assertStringContainsString( '0 new goal(s)', $body, 'precondition: the nudge was sent' );
+        $this->assertStringNotContainsString( 'evaluation', $body );
+        $this->assertStringNotContainsString( "\n\n\n", $body );
+    }
+
+    public function test_the_inactive_parent_nudge_leaves_out_hidden_goals(): void {
+        ( new PlayerParentVisibilityRepository() )->setVisibility( $this->player, 'goals', false );
+        AuthorizationService::flushCache();
+        $this->assertFalse( AuthorizationService::parentCanViewSection( $this->parent, $this->player, 'goals' ), 'precondition: the switch is off' );
+
+        $body = $this->nudgeBody();
+        $this->assertStringContainsString( '2 new evaluation(s)', $body, 'precondition: the nudge was sent' );
+        $this->assertStringNotContainsString( 'goal', $body );
+        $this->assertStringNotContainsString( "\n\n\n", $body );
     }
 
     public function test_the_teams_coach_still_sees_the_scores(): void {
@@ -249,18 +269,23 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         return (array) ( $data['data'] ?? $data );
     }
 
-    private function nudgeCount(): int {
+    /** The body of the inactive-parent nudge, as the parent would read it. */
+    private function nudgeBody(): string {
+        update_user_meta( $this->parent, 'last_login', gmdate( 'Y-m-d H:i:s', time() - 40 * DAY_IN_SECONDS ) );
         delete_user_meta( $this->parent, 'tt_comms_onboarding_nudge_at' );
-        $count   = -1;
-        $capture = function ( $key, $payload ) use ( &$count ): void {
-            if ( $key === 'onboarding_nudge_inactive' ) $count = (int) ( $payload['recent_evaluations_count'] ?? -1 );
+        $sent    = null;
+        $capture = function ( $key, $payload ) use ( &$sent ): void {
+            if ( $key === 'onboarding_nudge_inactive' ) $sent = (array) $payload;
         };
         add_action( 'tt_comms_dispatch', $capture, 1, 2 );
         $detect = new \ReflectionMethod( CommsScheduledCron::class, 'detectOnboardingNudges' );
         $detect->setAccessible( true );
         $detect->invoke( null );
         remove_action( 'tt_comms_dispatch', $capture, 1 );
-        return $count;
+        $this->assertIsArray( $sent, 'precondition: the nudge was dispatched' );
+
+        $request = new CommsRequest( 'onboarding_nudge_inactive', 'onboarding_nudge_inactive', 1, 0, [], $sent );
+        return ( new OnboardingNudgeInactiveTemplate() )->render( 'email', $request, Recipient::parent( $this->parent, $this->player ), 'en_US' )[1];
     }
 
     private function row(): object {
