@@ -33,12 +33,14 @@ final class MyTasksTemplateLabelTest extends WP_UnitTestCase {
     }
 
     public function test_the_dutch_is_sjabloon(): void {
+        // A release consolidates the fragment into the catalogue and deletes
+        // it; from then on the catalogue is the record.
         $path = $this->root() . '/languages/pending/4555-template-label.po';
         if ( ! is_readable( $path ) ) {
-            $this->markTestSkipped( 'The 4555 fragment has been consolidated by a release.' );
+            $path = $this->root() . '/languages/talenttrack-nl_NL.po';
         }
         $entries = tt_po_parse( (string) file_get_contents( $path ) )['entries'];
-        $match   = array_values( array_filter( $entries, static fn ( array $e ): bool => $e['msgid'] === 'Template' && (string) $e['msgctxt'] === self::CONTEXT ) );
+        $match   = array_values( array_filter( $entries, static fn ( array $e ): bool => empty( $e['obsolete'] ) && $e['msgid'] === 'Template' && (string) $e['msgctxt'] === self::CONTEXT ) );
 
         $this->assertSame( 'Sjabloon', (string) ( $match[0]['msgstr'][0] ?? '' ) );
     }

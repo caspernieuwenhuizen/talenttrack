@@ -128,10 +128,26 @@ final class EnglishLeaksTest extends WP_UnitTestCase {
         $this->assertSame( [ 'PdpReadyTemplate.php', 'TrainingCancelledTemplate.php' ], $with_arm );
     }
 
-    public function test_the_fragment_keeps_the_short_dutch_wording(): void {
-        $fragment = (string) file_get_contents( $this->root() . '/languages/pending/4510-english-leaks.po' );
-        $this->assertStringContainsString( 'msgstr "Plan klaar"', $fragment );
-        $this->assertStringContainsString( 'msgstr "{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie."', $fragment );
+    /**
+     * The fragment these entries shipped in has been consolidated into the
+     * catalogue by a release, so the catalogue is the record.
+     */
+    public function test_the_catalogue_keeps_the_short_dutch_wording(): void {
+        require_once $this->root() . '/tools/lib/po.php';
+        $dutch = [];
+        foreach ( tt_po_parse( (string) file_get_contents( $this->root() . '/languages/talenttrack-nl_NL.po' ) )['entries'] as $entry ) {
+            if ( ! empty( $entry['obsolete'] ) || $entry['msgid'] === null ) continue;
+            $dutch[ tt_po_key( (string) $entry['msgctxt'], (string) $entry['msgid'] ) ] = (string) ( $entry['msgstr'][0] ?? '' );
+        }
+
+        $this->assertSame(
+            'Plan klaar',
+            $dutch[ tt_po_key( 'short notification title, Dutch-language recipient', 'PDP ready' ) ] ?? null
+        );
+        $this->assertSame(
+            '{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie.',
+            $dutch[ tt_po_key( 'short message, Dutch-language recipient', '{activity_title} on {date} is cancelled. We will follow up about a replacement.' ) ] ?? null
+        );
     }
 
     // The custom widget builder

@@ -34,16 +34,35 @@ final class ShortDutchMsgidsTest extends WP_UnitTestCase {
         require_once $this->root() . '/tools/lib/gettext-calls.php';
     }
 
-    /** @return list<array{msgid:string, msgstr:string}> */
+    /**
+     * The converted entries. While the fragment is pending it is the record.
+     * A release consolidates it into the catalogue and deletes it; from then
+     * on the fixture copy of the fragment as it shipped names the entries,
+     * and the catalogue supplies their Dutch.
+     *
+     * @return list<array{msgid:string, msgstr:string}>
+     */
     private function fragment(): array {
-        $path = $this->root() . '/languages/pending/4563-short-dutch-msgids.po';
-        if ( ! is_readable( $path ) ) {
-            $this->markTestSkipped( 'The 4563 fragment has been consolidated by a release.' );
+        $path    = $this->root() . '/languages/pending/4563-short-dutch-msgids.po';
+        $pending = is_readable( $path );
+        if ( ! $pending ) {
+            $path = __DIR__ . '/fixtures/i18n/4563-short-dutch-msgids.po';
+            $shipped = [];
+            foreach ( tt_po_parse( (string) file_get_contents( $this->root() . '/languages/talenttrack-nl_NL.po' ) )['entries'] as $e ) {
+                if ( ! empty( $e['obsolete'] ) || $e['msgid'] === null ) continue;
+                $shipped[ tt_po_key( (string) $e['msgctxt'], (string) $e['msgid'] ) ] = (string) ( $e['msgstr'][0] ?? '' );
+            }
         }
         $out = [];
         foreach ( tt_po_parse( (string) file_get_contents( $path ) )['entries'] as $e ) {
             if ( $e['msgid'] === null || $e['msgid'] === '' ) continue;
-            $out[] = [ 'msgid' => (string) $e['msgid'], 'msgstr' => (string) ( $e['msgstr'][0] ?? '' ) ];
+            $msgstr = (string) ( $e['msgstr'][0] ?? '' );
+            if ( ! $pending ) {
+                $key = tt_po_key( (string) $e['msgctxt'], (string) $e['msgid'] );
+                $this->assertArrayHasKey( $key, $shipped, "the catalogue carries the converted msgid: {$e['msgid']}" );
+                $msgstr = $shipped[ $key ];
+            }
+            $out[] = [ 'msgid' => (string) $e['msgid'], 'msgstr' => $msgstr ];
         }
         return $out;
     }
