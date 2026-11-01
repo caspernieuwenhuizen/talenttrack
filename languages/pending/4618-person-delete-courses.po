@@ -1,0 +1,28 @@
+#: src/Infrastructure/People/PersonDeletionCascade.php
+msgid "submissions stay; \"reviewed by\" becomes unknown"
+msgstr "inzendingen blijven staan; \"beoordeeld door\" wordt onbekend"
+
+#: src/Modules/People/Admin/PeoplePage.php:86
+#, php-format
+msgid "%d course enrolment(s) will be removed."
+msgstr "%d cursusinschrijving(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:87
+#, php-format
+msgid "%d course lesson progress record(s) will be removed."
+msgstr "%d voortgangsregistratie(s) van cursuslessen wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:88
+#, php-format
+msgid "%d course quiz attempt(s) will be removed."
+msgstr "%d quizpoging(en) van cursussen wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:89
+#, php-format
+msgid "%d course assignment submission(s) will be removed."
+msgstr "%d ingeleverde cursusopdracht(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php:90
+#, php-format
+msgid "%d course submission(s) they reviewed will keep the review; reviewer cleared."
+msgstr "%d door deze persoon beoordeelde cursusopdracht(en) behoudt/behouden de beoordeling; de beoordelaar wordt leeggemaakt."

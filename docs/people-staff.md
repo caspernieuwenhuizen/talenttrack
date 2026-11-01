@@ -89,6 +89,8 @@ Before anything is written, an **impact preview dialog** shows you exactly what 
 - **Removed**: team assignments, functional-role scope grants, staff-development entries, certifications, staff evaluations and their ratings, staff goals, mentorship pairings, and pending invitations. Only rows in your own club are counted and removed.
 - **Cleared (parent row stays)**: "granted by" attribution on scope grants made by this person, accepted invitations targeting this person (the historical record stays; the target reference is nulled), and player records that listed this person as parent contact.
 
+The person's course enrolments go too, with their lesson progress, quiz attempts and assignment submissions. A submission they reviewed for someone else stays, with the reviewer cleared.
+
 If you confirm, a single database transaction runs the cleanup; if any step fails, the whole batch rolls back — partial deletes are impossible.
 
 For batches of 3+ persons OR any person with 5+ affected references, a second step asks you to type **DELETE** to confirm — protection against accidental clicks on large clean-ups.
