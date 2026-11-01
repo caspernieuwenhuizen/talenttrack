@@ -1,6 +1,6 @@
 #: src/Infrastructure/People/PersonDeletionCascade.php
 msgid "submissions stay; \"reviewed by\" becomes unknown"
-msgstr "inleveringen blijven staan; \"beoordeeld door\" wordt onbekend"
+msgstr "inzendingen blijven staan; \"beoordeeld door\" wordt onbekend"
 
 #: src/Modules/People/Admin/PeoplePage.php:86
 #, php-format
