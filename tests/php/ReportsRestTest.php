@@ -286,6 +286,29 @@ final class ReportsRestTest extends WP_UnitTestCase {
         ) ) );
     }
 
+    public function test_a_failed_publish_rolls_back_every_write(): void {
+        global $wpdb;
+        wp_set_current_user( $this->hod );
+        $id = $this->create( [ 'scope' => 'team', 'binding' => 'on_open', 'sharing' => 'role' ] );
+        $this->assertSame( 201, $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'head_coach' ] ] )->get_status() );
+        $before = (int) $wpdb->get_var( $wpdb->prepare( "SELECT published_version_id FROM {$wpdb->prefix}tt_reports WHERE id = %d", $id ) );
+        $this->assertGreaterThan( 0, $before );
+
+        // The publication list is the last write; make it fail.
+        $broken = static fn( $sql ) => is_string( $sql ) && stripos( $sql, 'INSERT INTO' ) === 0 && strpos( $sql, 'tt_report_publications' ) !== false
+            ? 'INSERT INTO tt_no_such_table_4569 (id) VALUES (1)'
+            : $sql;
+        add_filter( 'query', $broken );
+        $res = $this->send( 'POST', "reports/{$id}/versions", [ 'persona_keys' => [ 'assistant_coach' ] ] );
+        remove_filter( 'query', $broken );
+
+        $this->assertSame( 500, $res->get_status() );
+        $this->assertSame( 'db_error', $this->code( $res ) );
+        $this->assertSame( 1, (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_report_versions WHERE report_id = %d", $id ) ), 'no new version row' );
+        $this->assertSame( $before, (int) $wpdb->get_var( $wpdb->prepare( "SELECT published_version_id FROM {$wpdb->prefix}tt_reports WHERE id = %d", $id ) ), 'the report still points at version 1' );
+        $this->assertSame( [ 'head_coach' ], ( new \TT\Modules\ReportStudio\Repositories\ReportsRepository() )->personaKeys( $id ), 'the old publication list stands' );
+    }
+
     // ---- reading -------------------------------------------------------------
 
     public function test_a_scout_with_reports_read_is_refused_an_unpublished_report(): void {
@@ -415,7 +438,9 @@ final class ReportsRestTest extends WP_UnitTestCase {
     public function test_the_group_limit_applies_to_what_each_reader_sees(): void {
         for ( $i = 0; $i < 30; $i++ ) $this->player( $this->team_a, 'A' . $i );
         for ( $i = 0; $i < 34; $i++ ) $this->player( $this->team_b, 'B' . $i );
-        $id = $this->publishedGroup( [ $this->team_a, $this->team_b ] );
+        // Team B first: a cap taken before narrowing would keep B's 35 and
+        // only 25 of A's, and the coach would get 25.
+        $id = $this->publishedGroup( [ $this->team_b, $this->team_a ] );
 
         $coach = $this->send( 'GET', "reports/{$id}/data", [], [ 'from' => '2020-03-01', 'to' => '2020-03-31' ] );
         $this->assertSame( 200, $coach->get_status(), 'a cohort of 66 is not refused' );

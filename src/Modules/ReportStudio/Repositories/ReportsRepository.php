@@ -249,8 +249,10 @@ final class ReportsRepository {
         try {
             $version = null;
             for ( $attempt = 0; $attempt < 2 && $version === null; $attempt++ ) {
+                // Locking read: a retry after a collision sees the version the
+                // other publish committed, not this transaction's snapshot.
                 $next = 1 + (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d",
+                    "SELECT MAX(version_no) FROM {$p}tt_report_versions WHERE report_id = %d AND club_id = %d FOR UPDATE",
                     $report_id, $club
                 ) );
                 $suppress = $wpdb->suppress_errors( true );
