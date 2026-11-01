@@ -62,6 +62,7 @@ final class RecycleBinEntities {
             'measurement_result'     => __( 'Measurement result', 'talenttrack' ),
             'player_attribute_def'   => __( 'Player attribute', 'talenttrack' ),
             'pdp_file'               => __( 'PDP file', 'talenttrack' ),
+            'report'                 => _x( 'Report', 'a Report Studio report', 'talenttrack' ),
         ];
         if ( isset( $labels[ $entity ] ) ) {
             return $labels[ $entity ];

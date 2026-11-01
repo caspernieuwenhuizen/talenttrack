@@ -53,6 +53,11 @@ class PresetRegistry {
             'tt_usage_events',
             'tt_demo_tags',
             'tt_config',
+            // #4569 — Report Studio reports and what hangs off them.
+            'tt_reports',
+            'tt_report_drafts',
+            'tt_report_versions',
+            'tt_report_publications',
         ] );
 
         return [

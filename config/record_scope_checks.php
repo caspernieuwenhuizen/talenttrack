@@ -85,6 +85,11 @@ return [
         'ActivityAccess::registerTeamIds',
         'TeamChemistryAccess::can',
         'TeamReportAccess::canRead',
+        // #4569 — a stored Studio report: edit asks the builder's own scope
+        // over the report's subject, read asks that or a persona the report
+        // is published to.
+        'ReportAccess::canEdit',
+        'ReportAccess::canRead',
         // #4568 — a Studio block's subject, on every call: the player and team
         // report rules above, each group player through canViewPlayer, the
         // academy through club-wide analytics read.

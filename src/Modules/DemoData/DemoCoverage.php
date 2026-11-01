@@ -924,6 +924,14 @@ class DemoCoverage {
             'written_by'  => TeamReportSnapshotGenerator::class,
             'depends_on'  => [ 'player', 'activity', 'attendance', 'evaluation' ],
         ],
+        // #4569 — Report Studio storage. Unseeded until the canvas exists
+        // (#4571): a demo report is only worth showing once it can be opened
+        // and edited, and a definition written by hand would freeze whichever
+        // block options happen to exist today.
+        'tt_reports'             => [ 'exempt' => 'Report Studio reports are built in the Studio canvas, which ships in #4571; demo reports follow it.' ],
+        'tt_report_drafts'       => [ 'exempt' => 'A builder\'s working copy of a Studio report; follows tt_reports.' ],
+        'tt_report_versions'     => [ 'exempt' => 'Published versions of a Studio report; follows tt_reports.' ],
+        'tt_report_publications' => [ 'exempt' => 'Who a Studio report is published to; follows tt_reports.' ],
         'tt_workflow_triggers'         => [ 'exempt' => 'Workflow trigger configuration, seeded by migrations.' ],
         'tt_workflow_template_config'  => [ 'exempt' => 'Workflow template configuration, seeded by migrations.' ],
         'tt_workflow_event_log'        => [ 'exempt' => 'Log of real workflow-engine events.' ],

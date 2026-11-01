@@ -601,6 +601,27 @@ IGNORE, beperkt tot de ene entiteit + academy_admin-persona), zodat geen
 enkele beheerder de Modules-pagina verliest bij een upgrade wanneer de matrix
 actief is.
 
+## Report Studio — `tt_build_reports` / `tt_publish_reports`
+
+Twee bevoegdheden regelen de opgeslagen rapporten van de Report Studio:
+
+| Bevoegdheid | Matrix-entiteit | Wie haar standaard heeft |
+| --- | --- | --- |
+| `tt_build_reports` | `report_studio : create_delete` | Hoofdtrainer en assistent-trainer voor de teams die ze trainen; hoofd opleiding en academy-beheerder voor alle teams |
+| `tt_publish_reports` | `report_publishing : create_delete` | Hoofd opleiding en academy-beheerder |
+
+Beide komen alleen uit de matrix: er zit geen roltoekenning achter. Wie
+`tt_build_reports` heeft, beslist daarmee nooit alleen over één rapport. Elke
+keer vraagt de plugin of het onderwerp van het rapport (een speler, een team,
+een groep of de academie) er een is waarvoor de gebruiker bouwt: een coach
+bouwt over zijn eigen teams en spelers, nooit over de academie. Een rapport
+voor een rol publiceren vraagt `tt_publish_reports`; een bouwer kan een
+rapport wel altijd voor zichzelf publiceren.
+
+Een gepubliceerd rapport lezen vraagt een van de persona's waarvoor het is
+gepubliceerd. `tt_view_reports` alleen opent het niet. De matrix-entiteiten en
+hun scopes staan beschreven in de handleiding van de autorisatiematrix.
+
 ## Strava-koppeling — spelers koppelen hun eigen
 
 Strava is persoonlijke activiteitsdata, dus een **speler** kan zijn eigen

@@ -641,6 +641,26 @@ the `module_management` grant onto existing installs (INSERT IGNORE, scoped
 to the one entity + academy_admin persona), so no operator loses the Modules
 page on upgrade when the matrix is active.
 
+## Report Studio — `tt_build_reports` / `tt_publish_reports`
+
+Two capabilities govern stored Report Studio reports:
+
+| Capability | Matrix entity | Who holds it by default |
+| --- | --- | --- |
+| `tt_build_reports` | `report_studio : create_delete` | Head coach and assistant coach for the teams they coach; head of development and academy admin for every team |
+| `tt_publish_reports` | `report_publishing : create_delete` | Head of development and academy admin |
+
+Both are matrix-only: there is no role grant behind them. Holding
+`tt_build_reports` never decides one report on its own. Each time, the plugin
+asks whether the report's subject (a player, a team, a group or the academy)
+is one the user builds for: a coach builds about their own teams and players,
+never about the academy. Publishing a report to a role needs
+`tt_publish_reports`; a builder can still publish a report for themselves.
+
+Reading a published report needs one of the personas it was published to.
+`tt_view_reports` alone does not open it. The matrix entities and their scopes
+are described in the authorization matrix guide.
+
 ## Strava connection — players connect their own
 
 Strava is personal activity data, so a **player** can connect their own Strava

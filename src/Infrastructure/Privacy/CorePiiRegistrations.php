@@ -139,6 +139,16 @@ final class CorePiiRegistrations {
             [ 'entity_type' => 'player' ]
         );
 
+        // #4569 — a Report Studio report about one player. Its drafts and
+        // versions reach the player through the report (the two-hop policy
+        // above), so only the report is registered.
+        PlayerDataMap::register(
+            'tt_reports',
+            'player_id',
+            'Report Studio reports built about this player.',
+            'TT\\Modules\\ReportStudio\\ReportStudioModule'
+        );
+
         // #0081 — Prospect promoted to a player carries their pre-
         // promotion identity row. The link column is `promoted_to_player_id`,
         // not `player_id`, because a prospect does not have a player

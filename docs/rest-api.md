@@ -1199,7 +1199,7 @@ one shared read (a report query or the analytics `FactQuery`) and returns
 data, never HTML, so a block shows the same figure as the report it comes
 from. Both routes need `tt_view_reports`, the `report_studio` feature switched
 on (`403` otherwise) and the `report_studio` plan feature (`402
-license_required` otherwise, on every verb: the Studio stores nothing yet).
+license_required` otherwise, on every verb).
 
 ### `GET /report-blocks?scope=&audience=`
 
@@ -1292,6 +1292,169 @@ The three blocks:
 
 Shared reads are memoised per request by subject and period, so several
 blocks on one subject read it once.
+
+## Report Studio reports (#4569, epic #4564)
+
+Stored reports and dashboards. Four tables hold them: `tt_reports` (the
+starting choices, the name, the owner and the published version),
+`tt_report_drafts` (one working copy per builder, the owner's included),
+`tt_report_versions` (what publishing froze) and `tt_report_publications`
+(the persona keys a report is published to). Every route needs the
+`report_studio` feature switched on (`403` otherwise) and the `report_studio`
+plan feature (`402 license_required` otherwise, on every verb).
+
+**Who.** `tt_build_reports` (matrix `report_studio : create_delete`) builds:
+head of development and academy admin for every team, head coach and
+assistant coach for the teams they coach. `tt_publish_reports` (matrix
+`report_publishing : create_delete`) publishes to a role: head of
+development and academy admin only. Both capabilities are club-wide, so every
+by-id route asks about the report itself (`ReportAccess`): an **editor** is
+its owner, or a builder for every team, while its subject is one they build
+for; a **recipient** holds one of the persona keys it is published to.
+Holding `tt_view_reports` alone opens nothing: a scout holds it club-wide and
+is answered `403 forbidden` on a report that was not published to scouts.
+
+| Route | Cap | What |
+| --- | --- | --- |
+| `GET /reports` | `tt_view_reports` | Reports I own and reports published to a persona I hold. |
+| `POST /reports` | `tt_build_reports` | Create from the starting choices. |
+| `GET /reports/{id}` | `tt_view_reports` | One report. An editor also gets their `draft` and the `persona_keys`. |
+| `PATCH /reports/{id}` | `tt_build_reports` | My draft and the name, partially. |
+| `DELETE /reports/{id}` | `tt_build_reports` | Archive. |
+| `POST /reports/{id}/restore` | `tt_build_reports` | Un-archive (`404` when the report is not archived). |
+| `POST /reports/{id}/draft` | `tt_build_reports` | My draft becomes a version's definition. |
+| `GET /reports/{id}/versions` | `tt_build_reports` | The versions, newest first, without their definitions. |
+| `POST /reports/{id}/versions` | `tt_build_reports` | Publish my draft as the next version. |
+| `GET /reports/{id}/data` | `tt_view_reports` | Every block's data, for me. |
+
+An editor-only route answers a recipient `403 forbidden` and anyone else the
+same; a report that does not exist in the club is `404 not_found`.
+
+### `GET /reports?kind=&scope=&owner=&archived=&page=&per_page=&order=`
+
+`kind` is `report` or `dashboard`, `scope` one of the five scopes, `owner`
+`me` or `published` (both when omitted), `archived` `active` (default) or
+`archived`. Each is also accepted as `filter[...]`, the nested value winning.
+`page` from 1, `per_page` 10, 25 (default), 50 or 100, `order` `desc`
+(default) or `asc` on the report id. **An unknown value is `400 bad_filter`**
+with the parameter in `details`. Answers `{ rows, total, page, per_page }`.
+
+### `POST /reports`
+
+The body is the seven starting choices: `kind` (`report`), `scope`,
+`binding` (`fixed`, `on_open`, `viewer`), `audience` (`internal`, `scout`,
+`family`), `period_mode` (`fixed`, `rolling`, `on_open`) with `period_value`
+(`Y-m-d/Y-m-d` for fixed, `last_week`, `last_month`, `this_month` or
+`this_season` for rolling), `layout` (`rows`, `grid`) and `sharing` (`me`,
+`role`, `schedule`, `family`); defaults in brackets where there is one. Plus
+`name` and the subject: `player_id`, `team_id`, or for a group a `cohort` of
+`team_ids` with an optional `age_group` and `position`, never player ids.
+
+`ReportStartRules` validates them and answers the first rule broken as `400
+invalid_field` with `details.field` and the reason:
+
+- a family or scout audience is about one player;
+- the academy scope is a staff reading;
+- a dashboard's period is never fixed;
+- a report that is mailed or shared with the family is laid out in rows;
+- publishing for a role needs a binding that is not fixed, and
+  `tt_publish_reports` (`sharing`);
+- following the viewer works for me, a player or a team;
+- a fixed binding names its subject.
+
+The subject must be one the caller builds for: `403 forbidden_team`,
+`forbidden_player`, or `forbidden_scope` for the academy from a team builder.
+`201` with the report.
+
+### `PATCH /reports/{id}`
+
+Writes the **caller's** draft, never another builder's: `definition` (`{
+"blocks": [ { "id", "key", "options" } ] }`, at most 60 registered blocks and
+65536 bytes) and `name`. **An omitted field keeps its value; a field sent
+empty clears it.** A body with neither is `400 no_writable_field`. The draft
+row is made on first use from the published version, or the owner's draft.
+
+`revision` is optional. When sent it must be the draft's current revision,
+and a stale one is **`409 stale_revision`** with `details.current_revision`,
+so two tabs of one builder never overwrite each other silently; the canvas
+reloads the draft. Every definition write raises the revision by one.
+
+### `POST /reports/{id}/versions`
+
+`{ "note": "…", "persona_keys": [ … ] }`. Publishes the caller's draft as the
+next version and replaces the list of personas it reaches. An empty list
+publishes the report for its builder only, which `tt_build_reports` allows.
+Reaching a persona needs `tt_publish_reports` (`403 forbidden_publish`) and a
+report made for a role (`sharing: role`); persona keys are staff personas
+only, because a family reads a shared snapshot, never a live report (`400
+invalid_field` with the allowed keys). Version numbers are unique per report
+in the database: a publish that collides is retried once, then answered `409
+version_conflict`, and no duplicate is written. `201 { version_no,
+persona_keys }`. Publishing is its own action, never a field on the
+autosaving draft.
+
+### `POST /reports/{id}/draft`
+
+`{ "from_version": 2 }` replaces the caller's draft with that version's
+definition; the next publish makes it live. `404 not_found` for an unknown
+version. It is deliberately not called `restore`, which on this API means
+un-archiving.
+
+### `GET /reports/{id}/data?source=&player_id=&team_id=&from=&to=`
+
+Every block of the definition, read through `POST
+/report-blocks/{key}/preview`'s engine, so each block checks its capability,
+the subject and the audience on every call, and fact reads take the caller's
+row scope. `source` is `draft` (a builder's own, their default) or
+`published` (everyone else's default; a recipient asking for `draft` is
+`403`, a report never published is `404 not_published`).
+
+- **The subject comes from the report.** A fixed subject is fixed: a
+  recipient asking for another is `403 fixed_subject`, and a builder may
+  change it only to a subject they build for. A subject chosen when opened
+  takes `player_id` / `team_id`. A report that follows the viewer reads the
+  viewer's own player, or one of the teams they coach. A group reads its
+  cohort's players.
+- **The period comes from the report** too: fixed, rolling, or `from` / `to`
+  when it is chosen on opening. A recipient sending a period for a report
+  that sets one is `403 fixed_period`.
+- **The subject is checked once for the report** and again for each block:
+  out of scope is `403 forbidden_team` / `forbidden_player` /
+  `forbidden_scope` for the whole report. A block that cannot be read for
+  this subject carries an `error` in its own slot and the others still read.
+
+```json
+{ "report_id": 7, "uuid": "…", "source": "published", "version_no": 2,
+  "context": { "scope": "team", "player_id": null, "team_id": 12, "player_ids": [],
+               "from": "2026-09-01", "to": "2026-09-30", "audience": "internal" },
+  "blocks": [
+    { "id": "b1", "key": "attendance_per_week", "options": {}, "data": { "breakdown": "week", "rows": [ … ], "truncated": false } },
+    { "id": "b2", "key": "playing_time", "error": { "code": "invalid_field", "message": "…" } } ] }
+```
+
+### Payload
+
+```json
+{ "id": 7, "uuid": "…", "name": "Month pack", "kind": "report", "scope": "team",
+  "binding": "on_open", "audience": "internal", "period_mode": "rolling",
+  "period_value": "last_month", "layout": "rows", "sharing": "role",
+  "subject": { "player_id": null, "team_id": null, "cohort": null },
+  "owner_user_id": 3, "published_version_id": 11,
+  "created_at": "…", "updated_at": "…", "archived_at": null,
+  "permissions": { "can_edit": true, "can_publish": true },
+  "draft": { "definition": { "blocks": [ … ] }, "revision": 4, "updated_at": "…" },
+  "persona_keys": [ "head_coach" ] }
+```
+
+`permissions` says what the caller may do; no role names travel.
+`owner_user_id` is a mapping to the account that made the report, not its
+identity, which is the `uuid`.
+
+**Storage.** Archiving uses the recycle bin (entity `report`); purging a
+report takes its drafts, versions and publications. Purging a team removes
+its reports, and erasing a player removes the reports about them, with
+everything that hangs off them. A player's subject-access export carries the
+reports about them and every draft of them (`studio_reports.json`).
 
 ## A player's evaluations, player-facing (#3478)
 
