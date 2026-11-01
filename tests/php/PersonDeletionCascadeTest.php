@@ -117,18 +117,34 @@ final class PersonDeletionCascadeTest extends WP_UnitTestCase {
         global $wpdb;
         $person = $this->person();
         $club   = (int) CurrentClub::id();
+        $other  = $club + 1;
         $ours   = $this->staffGoal( $person, $club );
-        $theirs = $this->staffGoal( $person, $club + 1 );
+        $theirs = $this->staffGoal( $person, $other );
+
+        // One row per club-scoped statement, all for the same person id.
+        $evaluation = $this->staffEvaluation( $person, $other );
+        $rating     = $this->staffRating( $evaluation );
+        $mentorship = $this->mentorship( $person, $other );
+        $pending    = $this->invitation( $person, $other, 'pending' );
+        $accepted   = $this->invitation( $person, $other, 'accepted' );
+        $scope      = $this->scopeGrantedBy( $person, $other );
 
         $result = ( new PersonDeletionCascade() )->cascade( [ $person ] );
 
         $this->assertSame( 1, $result['deleted'] );
         $this->assertSame( 0, $this->rows( 'tt_staff_goals', 'id', $ours ) );
         $this->assertSame( 1, $this->rows( 'tt_staff_goals', 'id', $theirs ), "the other club's row stays" );
-        $this->assertSame( $club + 1, (int) $wpdb->get_var( $wpdb->prepare(
+        $this->assertSame( $other, (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT club_id FROM {$wpdb->prefix}tt_staff_goals WHERE id = %d",
             $theirs
         ) ) );
+
+        $this->assertSame( 1, $this->rows( 'tt_staff_evaluations', 'id', $evaluation ), "the other club's staff evaluation stays" );
+        $this->assertSame( 1, $this->rows( 'tt_staff_eval_ratings', 'id', $rating ), "the other club's rating stays" );
+        $this->assertSame( 1, $this->rows( 'tt_staff_mentorships', 'id', $mentorship ), "the other club's mentorship stays" );
+        $this->assertSame( 1, $this->rows( 'tt_invitations', 'id', $pending ), "the other club's pending invitation stays" );
+        $this->assertSame( $person, $this->value( 'tt_invitations', 'target_person_id', $accepted ), "the other club's accepted invitation keeps its target" );
+        $this->assertSame( $person, $this->value( 'tt_user_role_scopes', 'granted_by_person_id', $scope ), "the other club's grant keeps its grantor" );
     }
 
     /** #4605 — a person of another club is not reachable through this club's cascade. */
@@ -147,10 +163,63 @@ final class PersonDeletionCascadeTest extends WP_UnitTestCase {
 
     // Fixtures
 
-    private function staffEvaluation( int $person ): int {
+    private function mentorship( int $person, int $club ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_staff_mentorships', [
+            'club_id'          => $club,
+            'mentor_person_id' => $person,
+            'mentee_person_id' => $person + 1000,
+            'started_on'       => '2026-09-01',
+            'created_by'       => get_current_user_id(),
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a mentorship' );
+        return $id;
+    }
+
+    private function invitation( int $person, int $club, string $status ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_invitations', [
+            'club_id'          => $club,
+            'token'            => wp_generate_password( 40, false ),
+            'kind'             => 'staff',
+            'target_person_id' => $person,
+            'created_by'       => get_current_user_id(),
+            'expires_at'       => '2026-12-31 00:00:00',
+            'status'           => $status,
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write an invitation' );
+        return $id;
+    }
+
+    private function scopeGrantedBy( int $person, int $club ): int {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_user_role_scopes', [
+            'club_id'              => $club,
+            'person_id'            => $person + 1000,
+            'role_id'              => 1,
+            'scope_type'           => 'global',
+            'granted_by_person_id' => $person,
+        ] );
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'the fixture must write a role scope' );
+        return $id;
+    }
+
+    private function value( string $table, string $column, int $id ): int {
+        global $wpdb;
+        // Table and column are literals from this test, never caller input.
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT {$column} FROM {$wpdb->prefix}{$table} WHERE id = %d", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            $id
+        ) );
+    }
+
+    private function staffEvaluation( int $person, ?int $club = null ): int {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_staff_evaluations', [
-            'club_id'          => (int) CurrentClub::id(),
+            'club_id'          => $club ?? (int) CurrentClub::id(),
             'person_id'        => $person,
             'reviewer_user_id' => get_current_user_id(),
             'review_kind'      => 'top_down',
