@@ -138,6 +138,9 @@ explain why a printed activity differs from what you set in Spond — a stale
 cache, a changed event UID, or a field Spond owns all become visible here. Gated
 on the same `tt_edit_teams` capability as the sync.
 
+The times shown are the ones a sync would store, so a match with no Spond end
+shows its kick-off + 105 minutes end here too, and is not listed as losing it.
+
 ## Per-team accounts (override the club login)
 
 Each team on the Spond page shows which account it syncs with — **Uses club

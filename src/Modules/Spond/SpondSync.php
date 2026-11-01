@@ -323,9 +323,12 @@ final class SpondSync {
      * kick-off + 105 min here too. A real Spond end always wins — the
      * default fills only the blank.
      *
+     * #4562 — public so the sync preview diffs exactly what a sync writes,
+     * the fallback end included.
+     *
      * @return array<string,string|null>
      */
-    private static function timeColumns( string $type_key, string $start_time, string $end_time, string $meet_time ): array {
+    public static function timeColumns( string $type_key, string $start_time, string $end_time, string $meet_time ): array {
         $cols = [
             'start_time' => $start_time !== '' ? $start_time : null,
             'end_time'   => $end_time   !== '' ? $end_time   : null,

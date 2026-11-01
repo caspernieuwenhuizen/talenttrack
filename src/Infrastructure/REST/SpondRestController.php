@@ -262,9 +262,6 @@ final class SpondRestController {
         return RestResponse::success( $result );
     }
 
-    /** Activity types that carry kickoff + presence times (mirrors SpondSync). */
-    private const MATCH_TYPES = [ 'game', 'match', 'friendly', 'tournament' ];
-
     /**
      * Dry-run preview of what a Spond sync would do for one team (#2284).
      *
@@ -360,11 +357,21 @@ final class SpondRestController {
                 $uid, 'spond', $club
             ) );
 
+            // #4562 — the time columns a sync would write, from the sync's own
+            // mapping: an existing row keeps its type (corrected the way the
+            // sync corrects it), and a match with no Spond end gets the
+            // sync's fallback end. Diffing the feed's raw end instead showed
+            // every fallback end as being cleared.
+            $time_type = $type;
+            if ( $existing ) {
+                $time_type = (string) $existing->activity_type_key;
+                $time_type = SpondTypeResolver::correctedType( $time_type, $title, ! empty( $event['is_match'] ) ) ?? $time_type;
+            }
+            $time_cols = SpondSync::timeColumns( $time_type, $start_time, $end_time, $meet_time );
+
             if ( $existing ) {
                 $status  = 'update';
-                $changes = self::diffChanges(
-                    $existing, $title, $location, $start_time, $end_time, $meet_time
-                );
+                $changes = self::diffChanges( $existing, $title, $location, $time_cols );
                 $counts['update']++;
             } else {
                 $status  = 'new';
@@ -380,7 +387,7 @@ final class SpondRestController {
                 'dtend'       => $dtend,
                 'meetup'      => $meetup,
                 'start_time'  => $start_time,
-                'end_time'    => $end_time,
+                'end_time'    => (string) ( $time_cols['end_time'] ?? '' ),
                 'meet_time'   => $meet_time,
                 'location'    => $location,
                 'description' => $description,
@@ -429,15 +436,19 @@ final class SpondRestController {
      * diffed here. A change is emitted only when the stored value actually
      * differs from what the sync would write.
      *
+     * #4562 — `$time_cols` is `SpondSync::timeColumns()` for this event, so
+     * the times compared are the ones the update writes, the match
+     * fallback end included. Kickoff and presence are in it only for a
+     * match type, exactly the rows the sync writes them for.
+     *
+     * @param array<string,string|null> $time_cols
      * @return list<array{field:string,from:string,to:string}>
      */
     private static function diffChanges(
         object $existing,
         string $title,
         string $location,
-        string $start_time,
-        string $end_time,
-        string $meet_time
+        array $time_cols
     ): array {
         $changes = [];
 
@@ -451,15 +462,12 @@ final class SpondRestController {
         $compare( 'location', (string) ( $existing->location ?? '' ), $location );
 
         // start_time / end_time are stored for every activity type.
-        $compare( 'start_time', self::hhmm( (string) ( $existing->start_time ?? '' ) ), self::hhmm( $start_time ) );
-        $compare( 'end_time',   self::hhmm( (string) ( $existing->end_time   ?? '' ) ), self::hhmm( $end_time ) );
+        $compare( 'start_time', self::hhmm( (string) ( $existing->start_time ?? '' ) ), self::hhmm( (string) ( $time_cols['start_time'] ?? '' ) ) );
+        $compare( 'end_time',   self::hhmm( (string) ( $existing->end_time   ?? '' ) ), self::hhmm( (string) ( $time_cols['end_time'] ?? '' ) ) );
 
-        // kickoff_time / time_of_presence only apply to match-type rows —
-        // exactly the rows SpondSync writes those columns for.
-        $type = (string) ( $existing->activity_type_key ?? '' );
-        if ( in_array( $type, self::MATCH_TYPES, true ) ) {
-            $compare( 'kickoff_time',     self::hhmm( (string) ( $existing->kickoff_time     ?? '' ) ), self::hhmm( $start_time ) );
-            $compare( 'time_of_presence', self::hhmm( (string) ( $existing->time_of_presence ?? '' ) ), self::hhmm( $meet_time ) );
+        if ( array_key_exists( 'kickoff_time', $time_cols ) ) {
+            $compare( 'kickoff_time',     self::hhmm( (string) ( $existing->kickoff_time     ?? '' ) ), self::hhmm( (string) ( $time_cols['kickoff_time'] ?? '' ) ) );
+            $compare( 'time_of_presence', self::hhmm( (string) ( $existing->time_of_presence ?? '' ) ), self::hhmm( (string) ( $time_cols['time_of_presence'] ?? '' ) ) );
         }
 
         return $changes;
