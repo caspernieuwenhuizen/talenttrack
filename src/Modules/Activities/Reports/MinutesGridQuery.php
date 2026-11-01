@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
@@ -215,12 +216,16 @@ final class MinutesGridQuery {
         //
         //    #4247 — guest rows are read too, only to tell whether a register
         //    was taken at all; `in_squad` keeps them out of the squad.
+        //
+        //    #4526 — the minutes are the newest recorded row's, through
+        //    `PlayerMatchMinutes`, the read the audit and the reports share.
+        //    MAX here read 70 where they summed two rows to 140.
         $activity_ids = array_map( static fn( array $a ): int => $a['activity_id'], $activities );
         $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
+        $newest = PlayerMatchMinutes::forActivities( $activity_ids );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_id, player_id,
-                    MAX(CASE WHEN is_guest = 0 THEN COALESCE(minutes_override, minutes_played) END) AS minutes,
                     MAX(CASE WHEN is_guest = 0 AND player_id > 0 THEN 1 ELSE 0 END) AS in_squad
                FROM {$p}tt_attendance
               WHERE activity_id IN ($in_ids)
@@ -273,7 +278,7 @@ final class MinutesGridQuery {
             $pid = (int) $r->player_id;
             $aid = (int) $r->activity_id;
             if ( $pid <= 0 || $aid <= 0 || ! (int) $r->in_squad ) continue;
-            $register[ $aid ][ $pid ] = $r->minutes !== null ? (int) $r->minutes : null;
+            $register[ $aid ][ $pid ] = $newest[ $aid ][ $pid ] ?? null;
         }
 
         $cells = [];

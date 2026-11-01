@@ -1,0 +1,3 @@
+# One minutes figure per player per match on every screen (#4526)
+
+A player could have two recorded attendance rows for the same match. The minutes grid then took the higher figure, while the Minutes audit and the minutes reports added them up, so two entries of 70 read 70 on the grid and 140 in the audit beside it. The most recent entry now counts everywhere: grid, audit, minutes reports and the tournament minutes. Entering minutes or attendance again now updates the player's existing entry instead of adding a second one. Doubled entries from before stay in place and are read past, and an administrator sees how many the selected period holds under the audit's matrix. No migration.

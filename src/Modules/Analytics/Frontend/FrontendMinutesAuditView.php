@@ -167,6 +167,24 @@ final class FrontendMinutesAuditView extends FrontendViewBase {
         }
 
         self::renderMatrix( $matrix, $gap, $team_id );
+
+        // #4526 — read-only, for admins: legacy duplicate recorded rows in
+        // this window. The figures above read the newest row of each, so this
+        // only says whether a clean-up is worth doing; nothing is repaired.
+        $dupes = (int) $matrix['summary']['duplicate_pairs'];
+        if ( $dupes > 0 && current_user_can( 'tt_edit_settings' ) ) {
+            echo '<p class="tt-maud-note">' . esc_html( sprintf(
+                /* translators: %d: number of player-match pairs with more than one recorded attendance row. */
+                _n(
+                    '%d player-match in this window has more than one recorded attendance row. The newest one counts.',
+                    '%d player-matches in this window have more than one recorded attendance row. The newest one counts.',
+                    $dupes,
+                    'talenttrack'
+                ),
+                $dupes
+            ) ) . '</p>';
+        }
+
         echo '</div>'; // #3338 — /.tt-filter-region
     }
 

@@ -350,6 +350,14 @@ zichtbaar voor gebruikers die geregistreerde minuten mogen bewerken — opent de
 **per-wedstrijd minuten-editor** (zie hieronder). Gebruikers zonder die
 bevoegdheid zien de volledige matrix, alleen zonder de bewerklink.
 
+**Eén getal per speler per wedstrijd.** Is een speler twee keer vastgelegd voor
+dezelfde wedstrijd, dan telt de meest recente invoer, op dit scherm, in het
+minutenraster en in de minutenrapporten; opnieuw minuten invoeren werkt de
+bestaande invoer bij in plaats van een tweede toe te voegen. Een beheerder ziet
+onder de matrix een regel als de gekozen periode nog zulke dubbele invoer van
+vroeger bevat, met het aantal. Je hoeft er niets mee: de meest recente invoer is
+de invoer die telt.
+
 Het scherm is een matrix in spreadsheet-stijl:
 
 - **Rijen** zijn de wedstrijd-, match- en toernooiactiviteiten van het team in de
