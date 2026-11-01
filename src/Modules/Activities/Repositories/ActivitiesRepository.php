@@ -1606,7 +1606,7 @@ final class ActivitiesRepository {
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.team_id, a.title, a.session_date, a.start_time, a.end_time,
                     a.time_of_presence, a.location, a.opponent, a.home_away,
-                    a.activity_type_key, a.activity_status_key
+                    a.activity_type_key, a.activity_status_key, a.home_score, a.away_score
                FROM {$p}tt_activities a
               WHERE a.team_id IN ({$placeholders})
                 AND a.club_id = %d

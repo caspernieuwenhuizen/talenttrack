@@ -58,6 +58,27 @@ class MatchAnalysisRepository {
         return $row ?: null;
     }
 
+    /**
+     * #4494 — which of these activities have an analysis, in one query. The
+     * same test the missing-analysis alert applies: a row exists.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, true>
+     */
+    public function activityIdsWithAnalysis( array $activity_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $found = $this->wpdb->get_col( $this->wpdb->prepare(
+            "SELECT DISTINCT activity_id FROM {$this->t_analysis} WHERE club_id = %d AND activity_id IN ({$placeholders})",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $found ) ? $found : [] as $id ) $out[ (int) $id ] = true;
+        return $out;
+    }
+
     public function find( int $analysis_id ): ?object {
         if ( $analysis_id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(

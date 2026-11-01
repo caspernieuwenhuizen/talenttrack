@@ -67,6 +67,9 @@ final class CoachWeek {
     public const ACTION_MATCH_PREP      = 'match_prep';
     public const ACTION_START_MATCH     = 'start_match';
     public const ACTION_OPEN_ACTIVITY   = 'open_activity';
+    public const ACTION_MINUTES_STATS   = 'minutes_stats';
+    public const ACTION_RATE_PLAYERS    = 'rate_players';
+    public const ACTION_MATCH_ANALYSIS  = 'match_analysis';
 
     /**
      * The personas that see the panel.
@@ -251,6 +254,9 @@ final class CoachWeek {
             self::ACTION_MATCH_PREP      => 'action_match_prep',
             self::ACTION_START_MATCH     => 'action_start_match',
             self::ACTION_OPEN_ACTIVITY   => 'action_open_activity',
+            self::ACTION_MINUTES_STATS   => 'action_minutes_stats',
+            self::ACTION_RATE_PLAYERS    => 'action_rate_players',
+            self::ACTION_MATCH_ANALYSIS  => 'action_match_analysis',
         ];
     }
 

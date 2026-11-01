@@ -326,6 +326,37 @@ final class RatingsGridQuery {
         return $out;
     }
 
+    /**
+     * #4494 — how many players carry at least one rating per activity, from
+     * the same rows `existingRatings()` reads, in one query for a set of
+     * activities.
+     *
+     * @param list<int> $activity_ids
+     * @return array<int, int> activity id => rated players; absent means none
+     */
+    public static function ratedPlayerCounts( array $activity_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
+        if ( $ids === [] ) return [];
+        global $wpdb;
+        $p            = $wpdb->prefix;
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.activity_id, COUNT( DISTINCT e.player_id ) AS rated
+               FROM {$p}tt_evaluations e
+               INNER JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+              WHERE e.club_id = %d AND e.activity_id IN ({$placeholders})
+              GROUP BY e.activity_id",
+            ...array_merge( [ CurrentClub::id() ], $ids )
+        ) );
+        $out = [];
+        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
+            $fields = (array) $row;
+            $out[ (int) ( $fields['activity_id'] ?? 0 ) ] = (int) ( $fields['rated'] ?? 0 );
+        }
+        return $out;
+    }
+
     /** @return array{min:float,max:float,step:float} */
     public static function scale(): array {
         $get = static fn( string $k, string $d ): float =>
