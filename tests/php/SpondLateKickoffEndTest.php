@@ -93,6 +93,27 @@ final class SpondLateKickoffEndTest extends WP_UnitTestCase {
         }
     }
 
+    public function test_the_planner_pdf_range_shows_a_midnight_end(): void {
+        $this->assertRanges( \TT\Modules\Export\Exporters\TeamPlanningPdfExporter::class );
+    }
+
+    public function test_the_weekly_planner_print_range_shows_a_midnight_end(): void {
+        $this->assertRanges( \TT\Modules\Planning\Print\TeamPlannerWeeklyPrintable::class );
+    }
+
+    private function assertRanges( string $class ): void {
+        $range = new \ReflectionMethod( $class, 'timeRange' );
+        $range->setAccessible( true );
+        $label = new \ReflectionMethod( $class, 'durationLabel' );
+        $label->setAccessible( true );
+
+        $this->assertSame( '23:00–00:00', $range->invoke( null, '23:00:00', '00:00:00', '' ), 'the range keeps a midnight end' );
+        $this->assertSame( '1h', $label->invoke( null, '23:00:00', '00:00:00' ), 'next to its one-hour duration' );
+        $this->assertSame( '18:30–20:00', $range->invoke( null, '18:30:00', '20:00:00', '' ), 'a same-day range is unchanged' );
+        $this->assertSame( '', $range->invoke( null, '00:00:00', '01:00:00', '' ), 'a 00:00 start is still no time' );
+        $this->assertSame( '20:00', $range->invoke( null, '', '', '20:00:00' ), 'the kick-off still stands in for a missing start' );
+    }
+
     /**
      * @param mixed $body
      * @return array<string,mixed>

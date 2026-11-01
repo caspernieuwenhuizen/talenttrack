@@ -688,7 +688,8 @@ final class TeamPlanningPdfExporter implements ExporterInterface {
         $s = ( $start !== '' && $start !== '00:00:00' ) ? substr( $start, 0, 5 ) : '';
         if ( $s === '' && $kickoff !== '' && $kickoff !== '00:00:00' ) $s = substr( $kickoff, 0, 5 );
         if ( $s === '' ) return '';
-        $e = ( $end !== '' && $end !== '00:00:00' ) ? substr( $end, 0, 5 ) : '';
+        // A 00:00 end is a real midnight end (#4529), unlike a 00:00 start.
+        $e = $end !== '' ? substr( $end, 0, 5 ) : '';
         return $e !== '' ? $s . '–' . $e : $s;
     }
 

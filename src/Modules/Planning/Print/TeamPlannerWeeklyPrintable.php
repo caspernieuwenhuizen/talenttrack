@@ -605,7 +605,8 @@ final class TeamPlannerWeeklyPrintable {
         $s = self::clockTime( $start );
         if ( $s === '' ) $s = self::clockTime( $kickoff );
         if ( $s === '' ) return '';
-        $e = self::clockTime( $end );
+        // A 00:00 end is a real midnight end (#4529), unlike a 00:00 start.
+        $e = trim( $end ) !== '' ? substr( trim( $end ), 0, 5 ) : '';
         return $e !== '' ? $s . '–' . $e : $s;
     }
 
