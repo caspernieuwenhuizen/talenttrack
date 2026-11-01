@@ -41,6 +41,8 @@ Je academie kiest wat het paneel toont, per rol en per apparaat, onder **Configu
   - **Dagen die al voorbij zijn** kun je tonen, samenvouwen tot één regel, of verbergen. Een samengevouwen regel leest als *di, do · 2 activiteiten · aanwezigheid vastgelegd* en opent met een tik of met Enter.
   - **Teamnaam op elke regel** noemt het team als de week meer dan één team beslaat.
   - **Vooruitblik op volgende week** zet de eerste twee activiteiten van de zeven dagen daarna onder de lijst.
+- **Weekoverzicht**:
+  - **Weeksamenvatting** zet drie getallen boven de lijst, voor de periode en de teams van het paneel: het aantal trainingen, het aantal wedstrijden, en het aanwezigheidspercentage over de activiteiten waarvan de aanwezigheid is vastgelegd. Aanwezig en te laat tellen allebei als aanwezig, precies zoals in het aanwezigheidsrapport per team, dus die twee tonen altijd hetzelfde getal. Is er nog niets vastgelegd, dan staat er *—*. Standaard staat hij aan voor de hoofdtrainer op een desktop, en voor het hoofd opleiding en de academiebeheerder op allebei; voor elke andere rol zet je hem hier aan.
 - De andere onderdelen zetten elk deel van een regel op een rij (**Op elke regel**, **Trainingen**, **Wedstrijden**) en elke knop (**Knoppen op een regel**). Elk heeft een vakje **Desktop** en een vakje **Telefoon**, zodat een telefoon een korter paneel kan tonen dan een desktop. Er staan hooguit twee knoppen op een regel, en de eerste die van toepassing is, is de hoofdknop.
 - **Reset naar standaarden** zet de rol die je bekijkt terug op de begininstellingen. Druk op **Opslaan** om dat te bewaren.
 

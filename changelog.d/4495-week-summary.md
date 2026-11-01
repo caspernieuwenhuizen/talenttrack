@@ -1,0 +1,3 @@
+# This week panel: a week summary strip (#4495)
+
+The **This week** panel can show three figures above its list: the number of trainings, the number of matches, and the attendance percentage over the activities whose attendance is recorded, for the panel's own window and teams. The percentage is the team attendance report's figure (present and late both count as attended), so the panel and the report never disagree; it reads "—" when nothing is recorded yet. The new **Week summary** block sits in a new **Week overview** section of the panel settings. It is on for the head coach on a desktop, and for the head of development and the academy admin on desktop and phone; other roles get it once the academy switches it on. `GET /me/week` returns it as `summary`.

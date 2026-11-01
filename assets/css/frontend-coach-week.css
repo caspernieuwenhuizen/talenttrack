@@ -304,6 +304,40 @@ a.tt-week-row:active {
     border-left-color: var(--tt-line);
 }
 
+/* #4495 — the summary strip above the list: three equal cells from 360px,
+ * each figure under a text label. One class, so the per-device hide rules
+ * below still win. */
+.tt-week-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0;
+}
+
+.tt-week-summary-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+    padding: var(--tt-sp-2, 0.5rem);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+}
+
+.tt-week-summary-cell dt {
+    font-size: 0.75rem;
+    color: var(--tt-muted);
+    overflow-wrap: anywhere;
+}
+
+.tt-week-summary-cell dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
 /* #4492 — the main button when it is the main one on one device only. */
 .tt-week-btn--main-phone {
     background: var(--tt-primary);

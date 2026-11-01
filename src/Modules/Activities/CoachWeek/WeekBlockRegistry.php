@@ -18,6 +18,7 @@ final class WeekBlockRegistry {
     private const BLOCKS = [
         Blocks\TeamNameBlock::class,
         Blocks\NextWeekBlock::class,
+        Blocks\SummaryBlock::class,
         Blocks\TypeBlock::class,
         Blocks\TimesBlock::class,
         Blocks\LocationBlock::class,
