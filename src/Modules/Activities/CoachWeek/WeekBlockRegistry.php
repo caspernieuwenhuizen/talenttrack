@@ -25,7 +25,7 @@ final class WeekBlockRegistry {
         Blocks\AttendanceBlock::class,
         Blocks\ExpectedPlayersBlock::class,
         Blocks\TrainingPlanBlock::class,
-        Blocks\SessionThemeBlock::class,
+        Blocks\TrainingThemeBlock::class,
         Blocks\AttendanceRateBlock::class,
         Blocks\OpponentBlock::class,
         Blocks\AvailabilityBlock::class,

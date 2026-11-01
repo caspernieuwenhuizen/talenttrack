@@ -18,13 +18,13 @@ use TT\Modules\Training\TrainingModule;
  * chip. Nothing shows when no plan is linked or the plan has no theme. The
  * themes of the whole week are read in one query.
  */
-final class SessionThemeBlock extends AbstractWeekBlock {
+final class TrainingThemeBlock extends AbstractWeekBlock {
 
     public function key(): string { return 'theme'; }
 
     public function group(): string { return WeekBlockGroup::TRAINING; }
 
-    public function label(): string { return __( 'Session theme', 'talenttrack' ); }
+    public function label(): string { return __( 'Training theme', 'talenttrack' ); }
 
     public function help(): string { return __( 'The theme of the linked training plan.', 'talenttrack' ); }
 

@@ -1,8 +1,8 @@
-#: src/Modules/Activities/CoachWeek/Blocks/SessionThemeBlock.php
-msgid "Session theme"
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingThemeBlock.php
+msgid "Training theme"
 msgstr "Thema van de training"
 
-#: src/Modules/Activities/CoachWeek/Blocks/SessionThemeBlock.php
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingThemeBlock.php
 msgid "The theme of the linked training plan."
 msgstr "Het thema van het gekoppelde trainingsplan."
 

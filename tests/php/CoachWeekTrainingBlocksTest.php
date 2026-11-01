@@ -11,7 +11,7 @@ use TT\Modules\Activities\Services\CoachWeek;
 use TT\Shared\Frontend\FrontendConfigurationView;
 
 /**
- * #4493 — the training blocks of the "This week" panel: the session theme
+ * #4493 — the training blocks of the "This week" panel: the training theme
  * from the linked plan, and attendance after the fact on a past training.
  * Uses the week of Monday 2 to Sunday 8 November 2026.
  */
