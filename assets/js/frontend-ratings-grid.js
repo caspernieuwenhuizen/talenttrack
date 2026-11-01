@@ -363,14 +363,15 @@
                 var data = r.body.data || {};
 
                 // `skipped` also counts the blank cells, which write nothing
-                // by design. Any skip beyond those is a change the server
-                // did not write, and the response does not name it, so
-                // every edit stays dirty rather than reading as saved.
+                // by design. Any skip beyond those is a player or category
+                // that left the activity after the grid was opened. The
+                // response does not name it, so every edit stays dirty
+                // rather than reading as saved.
                 var blanks = changes.filter(function (c) { return c.rating === '' || c.rating === null; }).length;
                 var notWritten = (parseInt(data.skipped, 10) || 0) - blanks;
                 if (notWritten > 0) {
                     saveBtn.disabled = false;
-                    setStatus(fmt(t('skipped', '%d change(s) were not saved'), [notWritten]));
+                    setStatus(fmt(t(notWritten === 1 ? 'skipped_one' : 'skipped_many', '%d change(s) were not saved'), [notWritten]));
                     return;
                 }
 

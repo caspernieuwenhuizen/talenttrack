@@ -64,8 +64,13 @@ final class FrontendRatingsGridView extends FrontendViewBase {
                 'blocked'   => __( '%d score(s) out of range — fix the highlighted cells to save', 'talenttrack' ),
                 /* translators: %d is the number of scores the server refused. */
                 'rejected'  => __( '%d score(s) were refused and NOT saved — the highlighted cells are still unsaved', 'talenttrack' ),
-                /* translators: %d is the number of cell changes the server skipped. */
-                'skipped'   => __( "%d change(s) were not saved: you can't change this team", 'talenttrack' ),
+                // The ratings save refuses a team it may not write as a
+                // whole (403); what it skips is a player or category that
+                // left the activity after the grid was opened.
+                /* translators: %d is the number of score changes the server skipped. */
+                'skipped_one'  => _n( '%d change was not saved: the player or category is no longer part of this activity. Reload the grid.', '%d changes were not saved: the player or category is no longer part of this activity. Reload the grid.', 1, 'talenttrack' ),
+                /* translators: %d is the number of score changes the server skipped. */
+                'skipped_many' => _n( '%d change was not saved: the player or category is no longer part of this activity. Reload the grid.', '%d changes were not saved: the player or category is no longer part of this activity. Reload the grid.', 2, 'talenttrack' ),
                 /* translators: %s is a main evaluation category, e.g. Technical. */
                 'showSubs'  => __( 'Show sub-categories of %s', 'talenttrack' ),
                 /* translators: %s is a main evaluation category, e.g. Technical. */

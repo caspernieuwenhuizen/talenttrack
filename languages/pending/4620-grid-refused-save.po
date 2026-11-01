@@ -1,12 +1,19 @@
 #. translators: %d is the number of cell changes the server skipped.
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:67
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:86
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:68
 msgid "%d change(s) were not saved: you can't change this team"
 msgstr "%d wijziging(en) niet opgeslagen: je kunt dit team niet wijzigen"
 
+#. translators: %d is the number of score changes the server skipped.
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:71
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:73
+msgid "%d change was not saved: the player or category is no longer part of this activity. Reload the grid."
+msgid_plural "%d changes were not saved: the player or category is no longer part of this activity. Reload the grid."
+msgstr[0] "%d wijziging is niet opgeslagen: de speler of categorie hoort niet meer bij deze activiteit. Laad het raster opnieuw."
+msgstr[1] "%d wijzigingen zijn niet opgeslagen: de speler of categorie hoort niet meer bij deze activiteit. Laad het raster opnieuw."
+
 #: src/Modules/Activities/Frontend/FrontendAttendanceGridView.php:424
 #: src/Modules/Activities/Frontend/FrontendMinutesGridView.php:413
-#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:365
+#: src/Modules/Activities/Frontend/FrontendRatingsGridView.php:371
 msgid "You can see this team's grid, but you can't change it."
 msgstr "Je kunt het raster van dit team bekijken, maar niet wijzigen."

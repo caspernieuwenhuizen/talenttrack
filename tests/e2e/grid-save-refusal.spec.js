@@ -6,11 +6,13 @@ const path = require( 'path' );
 /**
  * The attendance, minutes and ratings grids read their save's answer.
  *
- * `POST /attendance/bulk`, `POST /minutes/bulk` and
- * `POST /activities/{id}/ratings/bulk` answer 200 with `skipped: N` for a
- * change they did not write (a team the save may not change). The grids
- * used to read only `rejected`, so a skipped save said "All changes
- * saved" and the coach's work was lost.
+ * `POST /attendance/bulk` and `POST /minutes/bulk` answer 200 with
+ * `skipped: N` for a change they did not write, a team the save may not
+ * change among them. `POST /activities/{id}/ratings/bulk` refuses such a
+ * team outright (403); its `skipped` counts blank cells, which write
+ * nothing by design, and a player or category that left the activity
+ * after the grid was opened. The grids used to read only `rejected`, so
+ * a skipped save said "All changes saved" and the coach's work was lost.
  *
  * Each grid's real script runs against a minimal copy of its markup on a
  * routed origin, with the bulk endpoint answered by the test. Nothing here
@@ -98,8 +100,14 @@ function ratingsBody( value ) {
 		'<button type="submit" class="tt-save-btn">Save ratings</button></div>';
 }
 
+const RATINGS_SKIPPED_ONE = '%d change was not saved: the player or category is no longer part of this activity. Reload the grid.';
+const RATINGS_SKIPPED_MANY = '%d changes were not saved: the player or category is no longer part of this activity. Reload the grid.';
+
 const RATINGS_CONFIG = 'window.TTRatingsGrid = ' + JSON.stringify( {
-	i18n: { saving: 'Saving', saved: SAVED, error: 'Could not save', skipped: SKIPPED },
+	i18n: {
+		saving: 'Saving', saved: SAVED, error: 'Could not save',
+		skipped_one: RATINGS_SKIPPED_ONE, skipped_many: RATINGS_SKIPPED_MANY,
+	},
 } ) + ';';
 
 test.describe( 'Grid save reads skipped changes', () => {
@@ -151,6 +159,7 @@ test.describe( 'Grid save reads skipped changes', () => {
 		await expect( page.locator( 'td.tt-agrid-min' ) ).not.toHaveClass( /is-dirty/ );
 	} );
 
+	// The player or category left the activity after the grid was opened.
 	test( 'ratings: a skipped score is not reported as saved and stays dirty', async ( { page } ) => {
 		await mount( page, ratingsBody( '' ), RATINGS_CONFIG, script( 'frontend-ratings-grid.js' ),
 			{ saved: 0, skipped: 1, failed: 0, rejected: [], rejected_count: 0 } );
@@ -158,7 +167,7 @@ test.describe( 'Grid save reads skipped changes', () => {
 		await page.fill( 'input.tt-rgrid-input', '7' );
 		await page.click( '.tt-save-btn' );
 
-		await expect( page.locator( '[data-tt-rgrid-status]' ) ).toHaveText( SKIPPED.replace( '%d', '1' ) );
+		await expect( page.locator( '[data-tt-rgrid-status]' ) ).toHaveText( RATINGS_SKIPPED_ONE.replace( '%d', '1' ) );
 		await expect( page.locator( 'input.tt-rgrid-input' ) ).toHaveClass( /is-dirty/ );
 		await expect( page.locator( '.tt-save-btn' ) ).toBeEnabled();
 	} );
