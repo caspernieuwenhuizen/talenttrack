@@ -283,7 +283,7 @@ final class TeamMonthlyReportTest extends WP_UnitTestCase {
      * order they arrive in). A tie shares its rank; assists only has none.
      */
     public function test_scorers_are_ranked_by_goals_then_assists(): void {
-        $rank = new \ReflectionMethod( TeamMonthlyReport::class, 'rankScorers' );
+        $rank = new \ReflectionMethod( \TT\Modules\Analytics\Reports\TeamMonthlyComposers\MatchesComposer::class, 'rankScorers' );
         $rank->setAccessible( true );
 
         $ranked = $rank->invoke( null, [

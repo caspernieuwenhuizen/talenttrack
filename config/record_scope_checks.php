@@ -149,5 +149,11 @@ return [
         'QueryHelpers::get_player(',
         'QueryHelpers::get_team(',
         'ArchivedDetailCard::resolve(',
+        // #4590 — the report block composers read one team's or one player's
+        // records from the context they are handed. Building a context from a
+        // request id opens that record, so the surface doing it owes the
+        // `TeamReportAccess` / `PlayerReportAccess` check above.
+        'new TeamReportContext(',
+        'PlayerReportContext::make(',
     ],
 ];

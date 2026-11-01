@@ -1878,10 +1878,14 @@ final class ActivitiesRepository {
      * section names the fixture by it so a coach can recognise which match
      * is missing one.
      *
+     * #4590 — `$played_only` leaves out fixtures dated after today, for the
+     * team statistics tab: next week's league game is not a match missing its
+     * result. The monthly report reads its whole window.
+     *
      * @return list<array{activity_id:int, date:string, title:string, opponent:string, home_away:string,
      *         team_score:int|null, opp_score:int|null, outcome:string}>
      */
-    public function matchesInWindowForTeam( int $team_id, string $from, string $to ): array {
+    public function matchesInWindowForTeam( int $team_id, string $from, string $to, bool $played_only = false ): array {
         if ( $team_id <= 0 ) return [];
 
         global $wpdb;
@@ -1892,6 +1896,7 @@ final class ActivitiesRepository {
         $game       = ActivityTypeKey::GAME;
         $legacy     = ActivityTypeKey::LEGACY_GAME;
         $date_col   = 'sess' . 'ion_date'; // legacy date column (#0035 lint-safe)
+        $played     = $played_only ? "AND a.{$date_col} <= CURDATE()" : '';
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -1904,6 +1909,7 @@ final class ActivitiesRepository {
                 AND a.trashed_at IS NULL
                 AND LOWER(a.activity_type_key) IN ( %s, %s )
                 AND a.{$date_col} BETWEEN %s AND %s
+                {$played}
                 AND a.plan_state <> 'cancelled'
                 AND ( a.activity_status_key IS NULL OR a.activity_status_key <> 'cancelled' )
                 {$scope}
