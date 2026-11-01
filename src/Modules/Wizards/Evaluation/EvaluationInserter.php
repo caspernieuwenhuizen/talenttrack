@@ -21,13 +21,12 @@ final class EvaluationInserter {
     /**
      * May this user write an evaluation for this player? `evaluations`
      * change at global scope (head of development, academy admin), or at
-     * team scope on the player's team (the team's head coach), and the
-     * settings admin. The wizard's row route, its player pick, both of its
-     * submit paths and the new-evaluation form's preset ask it.
+     * team scope on the player's team (the team's head coach). The wizard's
+     * row route, its player pick, both of its submit paths, the
+     * new-evaluation form's preset and the `/evaluations` writes ask it.
      */
     public static function mayWriteFor( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
-        if ( user_can( $user_id, 'tt_edit_settings' ) ) return true;
         $gate = \TT\Modules\Authorization\MatrixGate::class;
         if ( $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL ) ) return true;
         $player  = \TT\Infrastructure\Query\QueryHelpers::get_player( $player_id );

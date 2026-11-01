@@ -1,0 +1,3 @@
+# Evaluations: the REST routes ask the same write rule as the wizard (#4612)
+
+`POST /evaluations`, `PUT /evaluations/{id}` and the archive, trash, restore and permanent-delete routes now ask the rule the evaluation wizard asks: evaluations change academy-wide, or on the player's team. Before, they asked "settings admin, or a coach linked to the player", so a head of development could save an evaluation through the wizard and was refused by the API. A head coach is still refused for another team's player. The wizard's own rule no longer carries a separate settings-admin rung; every seeded settings admin already has the academy-wide evaluations grant.

@@ -536,12 +536,12 @@ class EvaluationsRestController {
      * The submitted `player_id` is checked separately, mirroring
      * `create_eval`. That is not the same thing: a body that omits
      * `player_id` never reached a scope check at all, so the row's own
-     * player went unverified on update and archive.
+     * player went unverified on update and archive. Both ask
+     * `EvaluationInserter::mayWriteFor()`, the rule the wizard asks.
      */
     private static function write_refusal( int $eval_id ): ?\WP_REST_Response {
-        if ( current_user_can( 'tt_edit_settings' ) ) return null;
         $player_id = self::evaluation_player_id( $eval_id );
-        if ( $player_id > 0 && ! QueryHelpers::coach_owns_player( get_current_user_id(), $player_id ) ) {
+        if ( $player_id > 0 && ! EvaluationInserter::mayWriteFor( get_current_user_id(), $player_id ) ) {
             return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
         }
         return null;
@@ -628,7 +628,7 @@ class EvaluationsRestController {
      */
     private static function writeArgs(): array {
         return [
-            'player_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the evaluation is about. A caller without tt_edit_settings may only name a player they coach.' ],
+            'player_id'       => [ 'type' => [ 'integer', 'string' ], 'description' => 'The player the evaluation is about. The caller must be allowed to evaluate them: evaluations change academy-wide, or on the player\'s team.' ],
             'eval_type_id'    => [ 'type' => [ 'integer', 'string' ], 'description' => 'A key from the evaluation-type lookup. Derived from the activity when one is linked and none is given.' ],
             'activity_id'     => [ 'type' => [ 'integer', 'string' ], 'description' => 'The training or match it was made at. 0 or null removes the link.' ],
             'eval_date'       => [ 'type' => 'string', 'description' => 'The date of the evaluation, as YYYY-MM-DD. Defaults to the linked activity\'s date, then to today.' ],
@@ -682,10 +682,9 @@ class EvaluationsRestController {
                 ] ) ) ]
             );
         }
-        if ( ! current_user_can( 'tt_edit_settings' ) ) {
-            if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
-                return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
-            }
+        // The same rule the wizard asks, so every front end gets one answer.
+        if ( ! EvaluationInserter::mayWriteFor( get_current_user_id(), (int) $header['player_id'] ) ) {
+            return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
         }
 
         // #3582 — the training or match this evaluation came from. Same
@@ -794,8 +793,8 @@ class EvaluationsRestController {
         // Mirror `create_eval`'s scope check on the submitted
         // `player_id` for non-admins, and bound the UPDATE WHERE to
         // the current club.
-        if ( ! empty( $header['player_id'] ) && ! current_user_can( 'tt_edit_settings' ) ) {
-            if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
+        if ( ! empty( $header['player_id'] ) ) {
+            if ( ! EvaluationInserter::mayWriteFor( get_current_user_id(), (int) $header['player_id'] ) ) {
                 return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
             }
         }
@@ -988,9 +987,9 @@ class EvaluationsRestController {
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
         // #4002 — irreversible, so the per-record check matters most here.
-        // `write_refusal()` lets a `tt_edit_settings` holder through, which
-        // is every holder of the recycle-bin cap this route gates on, and
-        // narrows anyone else to their own players.
+        // `write_refusal()` lets an academy-wide evaluations grant through,
+        // which every seeded holder of the recycle-bin cap this route gates
+        // on has, and narrows anyone else to their own team's players.
         $refusal = self::write_refusal( $id );
         if ( $refusal !== null ) return $refusal;
         try {
