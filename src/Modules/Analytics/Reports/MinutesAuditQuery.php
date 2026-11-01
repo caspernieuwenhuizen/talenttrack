@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Teams\FootballFormResolver;
+use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
 
 /**
  * MinutesAuditQuery (#2368) — the games × players auditability matrix for
@@ -19,9 +20,13 @@ use TT\Modules\Teams\FootballFormResolver;
  * Minutes-played-per-team report and reads the SAME single source of truth,
  * so the two reconcile exactly:
  *
- *   - minutes come ONLY from persisted `record_type = 'actual'` attendance
- *     rows (#2193) — never estimated / recomputed at report time. A planned
- *     but never-recorded match contributes 0 for every player.
+ *   - minutes come from persisted `record_type = 'actual'` attendance rows
+ *     (#2193) — never estimated / recomputed at report time. A planned but
+ *     never-recorded match contributes 0 for every player. The one
+ *     documented fallback (#4500, the #4053 rule): on a **completed
+ *     tournament fixture**, a player on the register with no figure on it
+ *     takes the rotation plan's minutes, through `TournamentMinutesResolver`
+ *     as the grid and the minutes reports do. A confirmed 0 stays 0.
  *   - the squad (matrix columns) is resolved from ATTENDANCE on the team's
  *     activities in the window — the same way the attendance report resolves
  *     it — NOT `tt_players.team_id` (which is the #2339 bug the audit exists
@@ -203,7 +208,14 @@ final class MinutesAuditQuery {
             $mins = (int) $r->minutes_played;
             if ( $pid <= 0 ) continue;
             $minutes_by_game[ $aid ][ $pid ] = $mins;
-            $player_ids[ $pid ]              = true; // recorded minutes imply squad membership even if the attendance row is only 'actual'
+        }
+        // #4500 — a tournament fixture completed before v4.135.0 has a
+        // register with no minutes on it; the rotation plan answers there.
+        $minutes_by_game = $this->withPlannedFallback( $activity_ids, $minutes_by_game );
+        foreach ( $minutes_by_game as $by_player ) {
+            foreach ( array_keys( $by_player ) as $pid ) {
+                $player_ids[ $pid ] = true; // recorded minutes imply squad membership even if the attendance row is only 'actual'
+            }
         }
 
         // 3b. #3857 — a tournament DAY holds no attendance of its own; the
@@ -581,6 +593,9 @@ final class MinutesAuditQuery {
             $pid = (int) $row->player_id;
             $minutes_by_fixture[ $aid ][ $pid ] = ( $minutes_by_fixture[ $aid ][ $pid ] ?? 0 ) + (int) $row->minutes_played;
         }
+        // #4500 — the same fallback the fixture's own row takes, so the day
+        // stays the sum of rows already in the matrix.
+        $minutes_by_fixture = $this->withPlannedFallback( $ids, $minutes_by_fixture );
 
         $out = [];
         foreach ( $days as $day_id => $tournament_id ) {
@@ -607,6 +622,65 @@ final class MinutesAuditQuery {
             $out[ $day_id ] = [ 'squad' => $squad, 'unavailable' => $unavailable, 'minutes' => $minutes ];
         }
         return $out;
+    }
+
+    /**
+     * #4500 — the register's minutes, with the rotation plan as the fallback
+     * on a completed tournament fixture whose register holds no figure.
+     *
+     * The rule is `TournamentMinutesResolver::arbitrate()`'s, applied the way
+     * `MinutesGridQuery` applies it, so the audit and the grid read the same
+     * minute for the same fixture: only players on the fixture's register
+     * are resolved (a player the plan names and the register does not is not
+     * in the squad), a figure on the register wins, and a confirmed `0` stays
+     * 0 because the resolver keys on presence, not on the value.
+     * `plannedByActivity()` answers for completed tournament fixtures only,
+     * so every other match comes back exactly as it went in.
+     *
+     * @param array<int>                 $activity_ids
+     * @param array<int, array<int,int>> $minutes activity id => player id => minutes above 0
+     * @return array<int, array<int,int>>
+     */
+    private function withPlannedFallback( array $activity_ids, array $minutes ): array {
+        $planned = TournamentMinutesResolver::plannedByActivity( array_values( array_map( 'intval', $activity_ids ) ) );
+        if ( $planned === [] ) return $minutes;
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $ids  = array_map( 'intval', array_keys( $planned ) );
+        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // The register as the resolver needs it: a figure, or null where the
+        // row carries none. SUM of only NULLs is NULL, so presence survives.
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes
+               FROM {$p}tt_attendance
+              WHERE activity_id IN ($in)
+                AND club_id = %d
+                AND record_type = 'actual'
+                AND is_guest = 0
+                AND player_id > 0
+              GROUP BY activity_id, player_id",
+            array_merge( $ids, [ (int) CurrentClub::id() ] )
+        ) );
+
+        $register = [];
+        foreach ( (array) $rows as $r ) {
+            $register[ (int) $r->activity_id ][ (int) $r->player_id ] = $r->minutes !== null ? (int) $r->minutes : null;
+        }
+
+        foreach ( $register as $aid => $by_player ) {
+            $resolved = TournamentMinutesResolver::arbitrate( $by_player, $planned[ $aid ] ?? [] );
+            foreach ( array_keys( $by_player ) as $pid ) {
+                $value = (int) ( $resolved[ $pid ]['minutes'] ?? 0 );
+                if ( $value > 0 ) {
+                    $minutes[ $aid ][ $pid ] = $value;
+                } else {
+                    unset( $minutes[ $aid ][ $pid ] );
+                }
+            }
+        }
+        return $minutes;
     }
 
     /**

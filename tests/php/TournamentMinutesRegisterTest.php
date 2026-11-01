@@ -5,6 +5,7 @@ use WP_REST_Request;
 use WP_UnitTestCase;
 use TT\Infrastructure\Security\RolesService;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
+use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Tournaments\Services\TournamentMinutesCalculator;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
@@ -234,7 +235,74 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( 2, (int) $mine['matches'] );
     }
 
+    // ── the minutes audit (#4500) ─────────────────────────────────────
+
+    /**
+     * The audit read only the register, so the legacy fixture was 0 for
+     * every player and a gap nobody could close, while the grid on the same
+     * screen showed the plan's twenty.
+     */
+    public function test_the_audit_reads_the_legacy_fixture_through_the_plan_and_matches_the_grid(): void {
+        $row = $this->auditRow( $this->fixtures['legacy_empty']['activity_id'] );
+
+        $this->assertSame( 2 * self::PERIOD, (int) $row['minutes'][ $this->player ], 'the plan answers where the register holds nothing' );
+        $this->assertSame( 0, (int) ( $row['minutes'][ $this->teammate ] ?? 0 ), 'benched in the plan, nil in the audit' );
+        $this->assertSame( $this->gridColumnTotal( $this->fixtures['legacy_empty']['activity_id'] ), (int) $row['total_minutes'], 'the audit row equals the grid column' );
+    }
+
+    public function test_the_audit_keeps_a_confirmed_zero(): void {
+        $row = $this->auditRow( $this->fixtures['confirmed_zero']['activity_id'] );
+
+        $this->assertSame( 0, (int) ( $row['minutes'][ $this->player ] ?? 0 ), 'a confirmed nil is not the plan\'s twenty' );
+        $this->assertSame( 0, (int) $row['total_minutes'] );
+        $this->assertSame( $this->gridColumnTotal( $this->fixtures['confirmed_zero']['activity_id'] ), (int) $row['total_minutes'] );
+
+        $corrected = $this->auditRow( $this->fixtures['corrected']['activity_id'] );
+        $this->assertSame( 15, (int) $corrected['minutes'][ $this->player ], 'a correction still wins' );
+    }
+
+    public function test_the_audit_leaves_a_league_match_as_it_was(): void {
+        global $wpdb;
+        $wpdb->insert( "{$this->p}tt_activities", [
+            'club_id'             => 1,
+            'team_id'             => self::TEAM,
+            'title'               => 'Competitie',
+            'session_date'        => '2026-03-21',
+            'activity_type_key'   => 'match',
+            'activity_status_key' => 'completed',
+            'plan_state'          => 'completed',
+            'opponent'            => 'VVV',
+        ] );
+        $league = (int) $wpdb->insert_id;
+        $this->register( $league, $this->player, 60 );
+        $this->register( $league, $this->teammate, null );
+
+        $row = $this->auditRow( $league );
+
+        $this->assertSame( 60, (int) $row['minutes'][ $this->player ] );
+        $this->assertSame( 0, (int) ( $row['minutes'][ $this->teammate ] ?? 0 ), 'no plan to fall back on outside a tournament' );
+        $this->assertSame( 60, (int) $row['total_minutes'] );
+    }
+
     // ── helpers ───────────────────────────────────────────────────────
+
+    /** @return array<string,mixed> */
+    private function auditRow( int $activity_id ): array {
+        $matrix = ( new MinutesAuditQuery() )->matrix( self::TEAM, '2026-03-01', '2026-03-31' );
+        foreach ( $matrix['games'] as $g ) {
+            if ( (int) $g['activity_id'] === $activity_id ) return $g;
+        }
+        $this->fail( 'the audit lists the fixture' );
+    }
+
+    private function gridColumnTotal( int $activity_id ): int {
+        $matrix = ( new MinutesGridQuery() )->matrix( self::TEAM, '2026-03-01', '2026-03-31' );
+        $total  = 0;
+        foreach ( $matrix['cells'] as $by_activity ) {
+            $total += (int) ( $by_activity[ $activity_id ]['minutes'] ?? 0 );
+        }
+        return $total;
+    }
 
     /** @return array<string,mixed> */
     private function history( int $player_id ): array {
