@@ -44,13 +44,13 @@ final class BlockOption {
         $choices = [];
         if ( $this->dependsOn === null ) {
             foreach ( $this->choices as $value => $label ) {
-                $choices[] = [ 'value' => (string) $value, 'label' => (string) $label ];
+                $choices[] = [ 'value' => (string) $value, 'label' => is_string( $label ) ? $label : '' ];
             }
         } else {
             foreach ( $this->choices as $parent => $set ) {
                 $list = [];
-                foreach ( (array) $set as $value => $label ) {
-                    $list[] = [ 'value' => (string) $value, 'label' => (string) $label ];
+                foreach ( is_array( $set ) ? $set : [] as $value => $label ) {
+                    $list[] = [ 'value' => (string) $value, 'label' => is_string( $label ) ? $label : '' ];
                 }
                 $choices[ (string) $parent ] = $list;
             }

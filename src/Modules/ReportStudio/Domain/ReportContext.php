@@ -131,7 +131,7 @@ final class ReportContext {
      * @param list<int> $player_ids
      */
     public function withPlayerIds( array $player_ids ): self {
-        return new self( $this->scope, $this->playerId, $this->teamId, array_values( $player_ids ), $this->from, $this->to, $this->audience, $this->userId );
+        return new self( $this->scope, $this->playerId, $this->teamId, $player_ids, $this->from, $this->to, $this->audience, $this->userId );
     }
 
     public function isExternal(): bool {
