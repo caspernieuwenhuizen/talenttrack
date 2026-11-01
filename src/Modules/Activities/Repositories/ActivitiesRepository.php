@@ -85,13 +85,18 @@ final class ActivitiesRepository {
         // activities. It lives on tt_teams (migration 0041), not per
         // activity; the label makes the team scope explicit. Resolution
         // stays in the domain layer (CLAUDE.md §4).
+        //
+        // #4521 — scoped to the current club like every other repository
+        // read (CLAUDE.md §4). It used to select by id alone, so another
+        // club's activity came back to anyone who knew its id.
         /** @var object|null $row */
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT s.*, t.name AS team_name, t.spond_last_sync_at AS team_spond_last_sync_at
              FROM {$p}tt_activities s
              LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-             WHERE s.id = %d {$archive_clause} {$scope}",
-            $activity_id
+             WHERE s.id = %d AND s.club_id = %d {$archive_clause} {$scope}",
+            $activity_id,
+            CurrentClub::id()
         ) );
         if ( ! $row ) return null;
 
