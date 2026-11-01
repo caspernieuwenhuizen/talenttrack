@@ -15,6 +15,7 @@ final class WeekBlockGroup {
     public const TRAINING = 'training';
     public const MATCH    = 'match';
     public const ACTIONS  = 'actions';
+    public const FOLLOWUPS = 'followups';
 
     /** @return array<string, string> group key => translated heading, in display order */
     public static function labels(): array {
@@ -25,6 +26,7 @@ final class WeekBlockGroup {
             self::TRAINING => _x( 'Trainings', 'This week panel settings group', 'talenttrack' ),
             self::MATCH    => __( 'Matches', 'talenttrack' ),
             self::ACTIONS  => __( 'Buttons on a row', 'talenttrack' ),
+            self::FOLLOWUPS => __( 'Follow-ups due this week', 'talenttrack' ),
         ];
     }
 

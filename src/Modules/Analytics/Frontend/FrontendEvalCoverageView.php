@@ -50,8 +50,7 @@ final class FrontendEvalCoverageView extends FrontendViewBase {
         // different report, and `tt_view_analytics` is true for a
         // team-scoped grant on every surface, so the capability alone does
         // not say whether this reader may see the academy.
-        $club_wide = $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeClubWideAnalytics( $user_id );
-        if ( ! current_user_can( 'tt_view_analytics' ) || ! $club_wide ) {
+        if ( ! EvalCoverageService::readerMayOpen( $user_id ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Not authorized', 'talenttrack' ),
                 [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]

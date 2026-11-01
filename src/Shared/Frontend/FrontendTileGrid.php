@@ -670,6 +670,7 @@ class FrontendTileGrid {
             <?php else : ?>
                 <p class="tt-week-empty"><?php esc_html_e( 'Nothing planned for your teams this week.', 'talenttrack' ); ?></p>
             <?php endif; ?>
+            <?php self::renderWeekFollowUps( $week ); ?>
             <?php
             $next_class = self::weekDeviceClass( $week, 'next_week' );
             if ( $next !== [] && $next_class !== null ) :
@@ -709,6 +710,69 @@ class FrontendTileGrid {
             echo '<div class="tt-week-summary-cell"><dt>' . esc_html( $label ) . '</dt><dd>' . esc_html( $value ) . '</dd></div>';
         }
         echo '</dl>';
+    }
+
+    /**
+     * #4497 — "Follow-ups due this week": one line per follow-up block whose
+     * field is set, each a link to the view it counts from. The service sets
+     * a field only when the count is above 0 and the viewer may open that
+     * view; the section shows only on a device where at least one line does.
+     *
+     * @param array<string, mixed> $week
+     */
+    private static function renderWeekFollowUps( array $week ): void {
+        $lines = [];
+
+        $pdp = $week['pdp_due'] ?? null;
+        if ( is_array( $pdp ) ) {
+            $n  = (int) ( $pdp['count'] ?? 0 );
+            $ts = strtotime( (string) ( $pdp['closes'] ?? '' ) . ' 12:00:00' );
+            $lines[] = [ 'pdp', 'pdp-planning', __( 'PDP conversations due', 'talenttrack' ), sprintf(
+                /* translators: 1: number of players whose PDP talk is still to hold, 2: weekday the block closes */
+                _n( '%1$d player · closes %2$s', '%1$d players · closes %2$s', $n, 'talenttrack' ),
+                $n,
+                $ts ? date_i18n( 'D', $ts ) : ''
+            ) ];
+        }
+        $evals = $week['evals_due'] ?? null;
+        if ( is_array( $evals ) ) {
+            $n       = (int) ( $evals['count'] ?? 0 );
+            $lines[] = [ 'evals', 'eval-coverage', __( 'Evaluations due', 'talenttrack' ), sprintf(
+                /* translators: %d: number of players not evaluated in the open evaluation round */
+                _n( '%d player not evaluated this round', '%d players not evaluated this round', $n, 'talenttrack' ),
+                $n
+            ) ];
+        }
+        $tasks = $week['tasks_due'] ?? null;
+        if ( is_array( $tasks ) ) {
+            $n       = (int) ( $tasks['count'] ?? 0 );
+            $lines[] = [ 'tasks', 'my-tasks', __( 'My tasks due this week', 'talenttrack' ), sprintf(
+                /* translators: %d: number of the viewer's tasks due this week */
+                _n( '%d due', '%d due', $n, 'talenttrack' ),
+                $n
+            ) ];
+        }
+
+        $on_desktop = false;
+        $on_phone   = false;
+        $items      = [];
+        foreach ( $lines as [ $block, $slug, $label, $text ] ) {
+            $class = self::weekDeviceClass( $week, $block );
+            if ( $class === null ) continue;
+            if ( $class !== 'tt-week-off-desktop' ) $on_desktop = true;
+            if ( $class !== 'tt-week-off-phone' ) $on_phone = true;
+            $url     = BackLink::appendTo( add_query_arg( [ 'tt_view' => $slug ], RecordLink::dashboardUrl() ) ); /* tt-xview-ok — the block sets its field only for a viewer the view's gate admits */
+            $items[] = '<li class="' . esc_attr( $class ) . '"><a class="tt-week-followup" href="' . esc_url( $url ) . '">'
+                . '<span class="tt-week-followup-label">' . esc_html( $label ) . '</span> '
+                . '<span class="tt-week-followup-count">' . esc_html( $text ) . '</span></a></li>';
+        }
+        $section = self::deviceClass( $on_desktop, $on_phone );
+        if ( $section === null ) return;
+
+        echo '<div class="' . esc_attr( trim( 'tt-week-followups ' . $section ) ) . '">';
+        echo '<h3 class="tt-week-next-title">' . esc_html__( 'Follow-ups due this week', 'talenttrack' ) . '</h3>';
+        echo '<ul class="tt-week-followup-list">' . implode( '', $items ) . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — built from escaped parts.
+        echo '</div>';
     }
 
     /**

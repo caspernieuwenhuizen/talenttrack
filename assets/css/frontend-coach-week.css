@@ -338,6 +338,55 @@ a.tt-week-row:active {
     font-variant-numeric: tabular-nums;
 }
 
+/* #4497 — "Follow-ups due this week" below the list: one link per line,
+ * label then count, wrapping on a narrow phone. */
+.tt-week-followups {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+}
+
+.tt-week-followup-list {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-week-followup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem var(--tt-sp-2, 0.5rem);
+    min-height: 48px;
+    padding: var(--tt-sp-2, 0.5rem) 0.75rem;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: inherit;
+    text-decoration: none;
+    touch-action: manipulation;
+}
+
+.tt-week-followup:active {
+    background: var(--tt-bg-soft);
+}
+
+.tt-week-followup:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 2px;
+}
+
+.tt-week-followup-label {
+    font-weight: 600;
+}
+
+.tt-week-followup-count {
+    color: var(--tt-muted);
+    font-variant-numeric: tabular-nums;
+}
+
 /* #4492 — the main button when it is the main one on one device only. */
 .tt-week-btn--main-phone {
     background: var(--tt-primary);

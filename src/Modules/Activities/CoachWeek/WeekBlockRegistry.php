@@ -32,6 +32,9 @@ final class WeekBlockRegistry {
         Blocks\MatchPrepAction::class,
         Blocks\StartMatchAction::class,
         Blocks\OpenActivityAction::class,
+        Blocks\PdpDueBlock::class,
+        Blocks\EvalsDueBlock::class,
+        Blocks\TasksDueBlock::class,
     ];
 
     /** @var array<string, WeekBlock>|null */
