@@ -100,7 +100,7 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
 
     public function test_action_blocks_are_in_priority_order(): void {
         $this->assertSame(
-            [ 'action_mark_attendance', 'action_match_prep', 'action_start_match', 'action_open_activity' ],
+            [ 'action_mark_attendance', 'action_match_prep', 'action_start_match', 'action_minutes_stats', 'action_rate_players', 'action_match_analysis', 'action_open_activity' ],
             array_map( static fn( ActionBlock $b ): string => $b->key(), WeekBlockRegistry::actions() )
         );
         $this->assertSame( array_values( CoachWeek::actionBlocks() ), array_map( static fn( ActionBlock $b ): string => $b->key(), WeekBlockRegistry::actions() ) );

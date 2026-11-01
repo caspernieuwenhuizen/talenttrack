@@ -40,6 +40,8 @@ final class RatePlayersAction extends AbstractWeekBlock implements ActionBlock {
         $counts = PlayerRatingsBlock::countsFor( $row, $week );
         if ( $counts === null || $counts['rated'] >= $counts['played'] ) return null;
         ActivityGridLink::primeAnchor( $row->activityId, $row->teamId, $row->date );
-        return ActivityGridLink::canUseRatings( $row->activityId, $week->userId ) ? CoachWeek::ACTION_RATE_PLAYERS : null;
+        // Per team and user, not per match: asked once per team.
+        $reachable = $week->once( 'can_use_ratings:' . $row->teamId, static fn(): bool => ActivityGridLink::canUseRatings( $row->activityId, $week->userId ) );
+        return $reachable ? CoachWeek::ACTION_RATE_PLAYERS : null;
     }
 }

@@ -40,6 +40,9 @@ final class MinutesStatsAction extends AbstractWeekBlock implements ActionBlock 
         $check = MinutesCheckBlock::checkFor( $row, $week );
         if ( $check === null || $check['status'] === 'complete' ) return null;
         ActivityGridLink::primeAnchor( $row->activityId, $row->teamId, $row->date );
-        return ActivityGridLink::canUseMinutes( $row->activityId, $week->userId ) ? CoachWeek::ACTION_MINUTES_STATS : null;
+        // The grid's reachability depends on the team and the user, not on
+        // the match: asked once per team, so the week costs no query per row.
+        $reachable = $week->once( 'can_use_minutes:' . $row->teamId, static fn(): bool => ActivityGridLink::canUseMinutes( $row->activityId, $week->userId ) );
+        return $reachable ? CoachWeek::ACTION_MINUTES_STATS : null;
     }
 }
