@@ -2,10 +2,12 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\REST\ActivitiesRestController;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Security\RolesService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Activities\ActivityAccess;
+use TT\Modules\Authorization\AllTeamsScope;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 use TT\Modules\Wizards\Evaluation\ActivityPickerStep;
 use TT\Modules\Wizards\Evaluation\AttendanceStep;
@@ -124,6 +126,31 @@ final class WizardActivityScopeTest extends WP_UnitTestCase {
             [ '_path' => 'activity-first', 'activity_id' => $teamless ]
         );
         $this->assertSame( [], $this->actualPlayers( $teamless ) );
+    }
+
+    public function test_a_club_wide_read_seat_does_not_widen_what_the_coach_writes(): void {
+        ( new \WP_User( $this->coach ) )->add_role( 'tt_readonly_observer' );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        $this->assertTrue( AllTeamsScope::canSeeAllTeamsActivities( $this->coach ), 'precondition: the seat reads every team' );
+        $this->assertTrue( ActivityAccess::canWriteActivity( $this->coach, $this->own_activity ), 'precondition: their own team stays writable' );
+
+        $this->assertFalse( ActivityAccess::canWriteActivity( $this->coach, $this->other_activity ) );
+
+        $status = new \WP_REST_Request( 'POST', '/talenttrack/v1/activities/' . $this->other_activity . '/status' );
+        $status->set_param( 'id', $this->other_activity );
+        $status->set_param( 'status', 'cancelled' );
+        $this->assertSame( 403, ActivitiesRestController::set_status( $status )->get_status() );
+        $this->assertSame( 'planned', (string) $this->activityRow( $this->other_activity )->activity_status_key );
+
+        $grid = new \WP_REST_Request( 'POST', '/talenttrack/v1/attendance/bulk' );
+        $grid->set_param( 'changes', [ [ 'activity_id' => $this->other_activity, 'player_id' => $this->other_player, 'status' => 'present' ] ] );
+        ActivitiesRestController::bulk_attendance( $grid );
+        $this->assertSame( [], $this->actualPlayers( $this->other_activity ) );
+
+        $this->assertArrayNotHasKey( 'activity_id', ( new NewEvaluationWizard() )->initialState( [ 'mode' => 'activity', 'activity_id' => $this->other_activity ] ) );
+        $this->assertArrayNotHasKey( 'activity_id', ( new MarkAttendanceWizard() )->initialState( [ 'activity_id' => $this->other_activity ] ) );
+        $this->assertInstanceOf( \WP_Error::class, ( new ActivityPickerStep() )->validate( [ 'activity_id' => $this->other_activity ], [] ) );
     }
 
     public function test_another_teams_activity_is_not_completed_or_marked_skipped(): void {

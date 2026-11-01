@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Players\ParentChildResolver;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Activities\Repositories\ActivitiesRepository;
 
 /**
@@ -57,17 +58,33 @@ final class ActivityAccess {
     }
 
     /**
-     * May this user write to this team's activities? Global `activities`
-     * scope writes every team; everyone else writes the teams they coach.
+     * May this user write to this team's activities? `activities` change at
+     * global scope writes every team; at team scope, the teams it is held
+     * on. Asked of the change grant, never the read one: a coach who also
+     * holds a club-wide read seat writes only their own teams.
      * An activity with no team has no team to be out of scope for, so the
      * capability gate is the whole answer for it. The activities write
      * routes and the attendance wizards ask this one question.
      */
     public static function canWriteTeam( int $user_id, ?int $team_id ): bool {
         if ( $user_id <= 0 ) return false;
-        if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id ) ) return true;
+        if ( MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return true;
         if ( $team_id === null || $team_id <= 0 ) return true;
-        return in_array( $team_id, self::coachedTeamIds( $user_id ), true );
+        return MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /**
+     * The teams whose activities this user may write: null for every team,
+     * otherwise the coached teams {@see self::canWriteTeam()} admits.
+     *
+     * @return list<int>|null
+     */
+    public static function writableTeamIds( int $user_id ): ?array {
+        if ( $user_id > 0 && MatrixGate::can( $user_id, 'activities', MatrixGate::CHANGE, MatrixGate::SCOPE_GLOBAL ) ) return null;
+        return array_values( array_filter(
+            self::coachedTeamIds( $user_id ),
+            static fn( int $team_id ): bool => self::canWriteTeam( $user_id, $team_id )
+        ) );
     }
 
     /**

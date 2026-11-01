@@ -449,7 +449,7 @@ class ActivitiesRestController {
         }
 
         // Team scope — a coach may only rate on a team they coach.
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( (int) $activity->team_id, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not coach this activity\'s team.', 'talenttrack' ), 403 );
         }
@@ -549,6 +549,16 @@ class ActivitiesRestController {
             return null;
         }
         return array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $uid ), 'id' ) ) );
+    }
+
+    /**
+     * The grid's team scope for a write: the teams the caller may change,
+     * which a club-wide read seat does not widen. Null = every team.
+     *
+     * @return list<int>|null
+     */
+    private static function gridWritableTeamIds(): ?array {
+        return ActivityAccess::writableTeamIds( get_current_user_id() );
     }
 
     /**
@@ -672,7 +682,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed  = self::gridAllowedTeamIds();
+        $allowed  = self::gridWritableTeamIds();
         $repo     = self::repo();
         $saved    = 0;
         $skipped  = 0;
@@ -848,7 +858,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'bad_request', __( 'No changes supplied.', 'talenttrack' ), 400 );
         }
 
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         $repo    = self::repo();
         $exec    = new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository();
         $saved   = 0;
@@ -1000,7 +1010,7 @@ class ActivitiesRestController {
         }
 
         $team    = self::repo()->activityTeamId( $activity_id );
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
         }
@@ -1042,7 +1052,7 @@ class ActivitiesRestController {
             return RestResponse::error( 'not_found', __( 'Unknown match.', 'talenttrack' ), 404 );
         }
 
-        $allowed = self::gridAllowedTeamIds();
+        $allowed = self::gridWritableTeamIds();
         if ( $allowed !== null && ! in_array( $team, $allowed, true ) ) {
             return RestResponse::error( 'forbidden', __( 'Not your team.', 'talenttrack' ), 403 );
         }
