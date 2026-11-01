@@ -119,6 +119,22 @@ final class CoachWeekFollowUpsTest extends WP_UnitTestCase {
         $this->assertSame( [ 'count' => $expected, 'closes' => $ends ], $week['pdp_due'] );
     }
 
+    public function test_a_coach_refused_pdp_planning_gets_no_count_and_no_link(): void {
+        $ends = $this->week( $this->coach )['week_end'];
+        $this->talk( $this->players[0], 1, $ends, null );
+
+        $allowed = $this->week( $this->coach );
+        $this->assertSame( 3, $allowed['pdp_due']['count'] ?? null, 'precondition: with the planning grant the coach sees the talks due' );
+
+        $matrix = new \TT\Modules\Authorization\Matrix\MatrixRepository();
+        foreach ( [ 'team', 'global' ] as $scope ) $matrix->removeRow( 'head_coach', 'pdp_planning', 'read', $scope );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+
+        $refused = $this->week( $this->coach );
+        $this->assertNull( $refused['pdp_due'], 'no count for a page the coach may not open' );
+        $this->assertStringNotContainsString( 'pdp-planning', $this->panelHtml( $refused ), 'and no link to it' );
+    }
+
     public function test_no_talk_left_to_hold_leaves_the_line_out(): void {
         $ends = $this->week( $this->admin )['week_end'];
         foreach ( $this->players as $pid ) $this->talk( $pid, 1, $ends, 'conducted' );
