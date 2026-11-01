@@ -144,6 +144,49 @@ final class PlayerMatchMinutesTest extends WP_UnitTestCase {
         $this->assertSame( 60, $share['minutes'], 'share report: not the SUM' );
     }
 
+    public function test_player_minutes_played_reads_the_newest_figure(): void {
+        $match = $this->insertMatch( '2026-10-23' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, 60 );
+
+        $html = $this->renderReport( 'renderPlayerMinutesPlayed', [ 'player_id' => (string) $this->player ] );
+
+        $this->assertStringContainsString( '<td class="num">60</td>', $html, 'Player · Minutes played: the newest figure' );
+        $this->assertStringNotContainsString( '<td class="num">130</td>', $html, 'not the SUM' );
+    }
+
+    public function test_team_minutes_distribution_reads_the_newest_figure(): void {
+        $match = $this->insertMatch( '2026-10-24' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, 60 );
+
+        $html = $this->renderReport( 'renderTeamMinutesDistribution', [ 'team_id' => (string) $this->team ] );
+
+        $this->assertStringContainsString( '<span class="num">60</span>', $html, 'Team · Minutes distribution: the newest figure' );
+        $this->assertStringNotContainsString( '<span class="num">130</span>', $html, 'not the SUM' );
+    }
+
+    /**
+     * Hidde's case on the status write: 70, then a newer row with no
+     * figure. A status-only save from the attendance grid heals the
+     * duplicate by keeping the row the minutes read picks, so the 70
+     * survives rather than being deleted for the empty row.
+     */
+    public function test_a_status_save_on_a_duplicate_keeps_the_row_with_the_figure(): void {
+        $match = $this->insertMatch( '2026-10-25' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, null );
+
+        $res = $this->post( '/talenttrack/v1/attendance/bulk', [ 'changes' => [
+            [ 'activity_id' => $match, 'player_id' => $this->player, 'status' => 'present' ],
+        ] ] );
+
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( 1, $this->actualRows( $match ), 'the duplicate is healed' );
+        $this->assertSame( [ $match => [ $this->player => 70 ] ], PlayerMatchMinutes::forActivities( [ $match ] ), 'and the 70 is the row that stayed' );
+        $this->assertSame( 70, $this->reportTotal() );
+    }
+
     public function test_the_audit_counts_duplicate_pairs_for_an_admin(): void {
         $match = $this->insertMatch( '2026-10-13' );
         $this->rawActual( $match, 70 );
@@ -216,6 +259,26 @@ final class PlayerMatchMinutesTest extends WP_UnitTestCase {
     }
 
     // ── fixtures ───────────────────────────────────────────────────────
+
+    /**
+     * One of the standard reports, rendered for an explicit window.
+     *
+     * @param array<string, string> $query
+     */
+    private function renderReport( string $method, array $query ): string {
+        $saved = $_GET;
+        $_GET  = $query + [ 'from' => self::FROM, 'to' => self::TO ];
+        $m = new \ReflectionMethod( \TT\Shared\Frontend\FrontendStandardReportsView::class, $method );
+        $m->setAccessible( true );
+        ob_start();
+        try {
+            $m->invoke( null );
+        } finally {
+            $html = (string) ob_get_clean();
+            $_GET = $saved;
+        }
+        return $html;
+    }
 
     /** @param array<string, mixed> $body */
     private function post( string $route, array $body ): \WP_REST_Response {

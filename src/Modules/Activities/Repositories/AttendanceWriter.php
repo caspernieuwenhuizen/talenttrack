@@ -375,6 +375,29 @@ final class AttendanceWriter {
     }
 
     /**
+     * #4526 — the RECORDED row the minutes read picks for one player on one
+     * activity, or 0: the newest one that carries a figure
+     * (`COALESCE(minutes_override, minutes_played)`), or the newest when none
+     * does. A writer healing a legacy duplicate keeps THIS row; keeping the
+     * newest instead would delete a 70 for a newer empty row and turn the
+     * match into 0. Same rule as `PlayerMatchMinutes`.
+     */
+    public function readRowId( int $activity_id, int $player_id ): int {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                AND is_guest = 0 AND record_type = 'actual'
+              ORDER BY ( COALESCE( minutes_override, minutes_played ) IS NOT NULL ) DESC, id DESC
+              LIMIT 1",
+            $activity_id, $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
      * Every RECORDED row for one player on one activity, oldest first.
      *
      * More than one is legacy dirty data (a wizard row and a match-execution
