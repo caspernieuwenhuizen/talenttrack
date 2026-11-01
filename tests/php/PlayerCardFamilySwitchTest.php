@@ -191,7 +191,20 @@ final class PlayerCardFamilySwitchTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( 'happening', $en );
         $this->assertStringNotContainsString( 'Card Childx', $en );
 
-        $nl = $this->nudgeBody( 'nl_NL' );
+        // The Dutch copy is the catalogue's translation of the English
+        // body; supplied here so the heading drop is shown on the wording a
+        // Dutch parent reads, without loading the whole catalogue.
+        $dutch = static function ( $translation, $text, $domain ) {
+            if ( $domain !== 'talenttrack' || strpos( (string) $text, "We haven't seen you log in" ) === false ) return $translation;
+            return "Hoi {recipient_first_name},\n\nWe hebben je een tijdje niet zien inloggen. Dit is er gebeurd bij {player_name}:\n\n"
+                . "• {recent_evaluations_count} nieuwe evaluatie(s)\n• {recent_goals_count} nieuw(e) doel(en)\n\nKijk eens: {deep_link}\n\nHet coaching team";
+        };
+        add_filter( 'gettext', $dutch, 10, 3 );
+        try {
+            $nl = $this->nudgeBody();
+        } finally {
+            remove_filter( 'gettext', $dutch, 10 );
+        }
         $this->assertStringContainsString( "We hebben je een tijdje niet zien inloggen.\n\nKijk eens: ", $nl );
         $this->assertStringNotContainsString( 'gebeurd', $nl );
     }
