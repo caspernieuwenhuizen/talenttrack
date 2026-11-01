@@ -100,6 +100,13 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 'loadFailed'      => __( 'Could not load the completion step.', 'talenttrack' ),
                 'completeFailed'  => __( 'The match could not be completed.', 'talenttrack' ),
                 'kickoffConfirm'  => __( 'Kick off this match?', 'talenttrack' ),
+                // #4532 — the auto-balance button and the grid's fallbacks.
+                'autoBalance'     => __( 'Auto-balance', 'talenttrack' ),
+                'balancing'       => __( 'Balancing…', 'talenttrack' ),
+                'balanceFailed'   => __( 'Could not auto-balance.', 'talenttrack' ),
+                'noFormation'     => __( 'No formation set on this match. Edit the match to pick a formation.', 'talenttrack' ),
+                /* translators: %d: a player id, shown when the player's name is not loaded. */
+                'playerNumber'    => __( 'Player #%d', 'talenttrack' ),
             ],
         ] );
         wp_enqueue_script(

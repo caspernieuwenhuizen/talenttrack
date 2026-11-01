@@ -152,8 +152,8 @@
         if (count > 0) {
             var badge = document.createElement('span');
             badge.className = 'tt-bpe-pick-count';
-            badge.textContent = 'x' + count;
-            badge.setAttribute('aria-label', 'placed ' + count + ' times');
+            badge.textContent = '×' + count;
+            badge.setAttribute('aria-label', ((cfg.i18n && cfg.i18n.placed_times) || 'Placed %d times').replace('%d', String(count)));
             nameLine.appendChild(badge);
         }
 
@@ -353,8 +353,8 @@
         var clearBtn = document.createElement('button');
         clearBtn.type = 'button';
         clearBtn.className = 'tt-bpe-slot-x';
-        clearBtn.setAttribute('aria-label', 'Clear');
-        clearBtn.textContent = 'x';
+        clearBtn.setAttribute('aria-label', (cfg.i18n && cfg.i18n.clear_slot) || 'Clear this slot');
+        clearBtn.textContent = '×';
         clearBtn.addEventListener('click', function (e) {
             e.stopPropagation();
             if (!cfg.can_manage || cfg.locked) return;

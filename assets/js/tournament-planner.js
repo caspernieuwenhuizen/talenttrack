@@ -411,16 +411,16 @@
     function autoBalance( tournamentId, matchId, body, button ) {
         if ( button ) {
             button.disabled = true;
-            button.textContent = 'Balancing…';
+            button.textContent = i18n( 'balancing', 'Balancing…' );
         }
         api( 'POST', 'tournaments/' + tournamentId + '/matches/' + matchId + '/auto-plan', {} )
             .then( function ( res ) {
                 if ( button ) {
                     button.disabled = false;
-                    button.textContent = 'Auto-balance';
+                    button.textContent = i18n( 'autoBalance', 'Auto-balance' );
                 }
                 if ( ! res.ok ) {
-                    var msg = ( res.json && res.json.errors && res.json.errors[0] ) ? res.json.errors[0].message : 'Could not auto-balance.';
+                    var msg = ( res.json && res.json.errors && res.json.errors[0] ) ? res.json.errors[0].message : i18n( 'balanceFailed', 'Could not auto-balance.' );
                     if ( body ) body.insertAdjacentHTML( 'afterbegin', '<p class="tt-notice tt-notice-error">' + escapeHtml( msg ) + '</p>' );
                     return;
                 }
@@ -437,7 +437,7 @@
             .catch( function () {
                 if ( button ) {
                     button.disabled = false;
-                    button.textContent = 'Auto-balance';
+                    button.textContent = i18n( 'autoBalance', 'Auto-balance' );
                 }
             } );
     }
@@ -512,7 +512,7 @@
 
         if ( flatSlots.length === 0 ) {
             html += '<tr><td colspan="' + totalColspan + '" class="tt-muted">';
-            html += 'No formation set on this match. Edit the match to pick a formation.';
+            html += escapeHtml( i18n( 'noFormation', 'No formation set on this match. Edit the match to pick a formation.' ) );
             html += '</td></tr>';
         }
 
@@ -600,8 +600,8 @@
                 var fromPid = idx.slots[ p + '|' + code ];
                 var toPid   = idx.slots[ ( p + 1 ) + '|' + code ];
                 if ( fromPid === toPid ) return;
-                var fromName = fromPid ? ( playerById[ fromPid ] ? playerById[ fromPid ].full_name : 'Player #' + fromPid ) : '—';
-                var toName   = toPid   ? ( playerById[ toPid ]   ? playerById[ toPid ].full_name   : 'Player #' + toPid )   : '—';
+                var fromName = fromPid ? ( playerById[ fromPid ] ? playerById[ fromPid ].full_name : i18n( 'playerNumber', 'Player #%d' ).replace( '%d', String( fromPid ) ) ) : '—';
+                var toName   = toPid   ? ( playerById[ toPid ]   ? playerById[ toPid ].full_name   : i18n( 'playerNumber', 'Player #%d' ).replace( '%d', String( toPid ) ) )   : '—';
                 swaps.push( {
                     code: code,
                     from_name: fromName,
@@ -658,7 +658,7 @@
         var html = '<td class="' + cls + '" data-period="' + period + '" data-position="' + escapeHtml( code ) + '">';
         if ( playerId ) {
             var pl = playerById[ playerId ];
-            var name = pl ? pl.full_name : ( 'Player #' + playerId );
+            var name = pl ? pl.full_name : i18n( 'playerNumber', 'Player #%d' ).replace( '%d', String( playerId ) );
             html += '<button type="button" class="tt-planner-chip" data-player-id="' + playerId + '" data-period="' + period + '" data-position="' + escapeHtml( code ) + '">' + escapeHtml( name ) + '</button>';
         } else {
             html += '<button type="button" class="tt-planner-chip tt-planner-chip-empty" data-period="' + period + '" data-position="' + escapeHtml( code ) + '">+</button>';

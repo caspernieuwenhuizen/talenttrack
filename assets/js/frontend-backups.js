@@ -33,6 +33,15 @@
 
     function t(key, fallback) { return i18n[key] || fallback || ''; }
 
+    // #4532 — type-to-confirm. The user types the word the page shows, in
+    // their own language; the API keeps its fixed token, which is sent only
+    // when the typed word matches. Exposed so the rule can be tested.
+    function confirmToken(typed, word, token) {
+        return String(typed || '').trim() === String(word || '') && word !== '' ? token : null;
+    }
+    window.TT = window.TT || {};
+    window.TT.backupsConfirmToken = confirmToken;
+
     function headers(json) {
         var h = { 'Accept': 'application/json' };
         if (json) h['Content-Type'] = 'application/json';
@@ -237,7 +246,7 @@
         input.type = 'text';
         input.id = 'tt-bk-restore-confirm';
         input.name = 'confirm_text';
-        input.placeholder = 'RESTORE';
+        input.placeholder = t('restore_word', 'RESTORE');
         input.setAttribute('autocomplete', 'off');
         field.appendChild(lab);
         field.appendChild(input);
@@ -255,10 +264,15 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            var token = confirmToken(input.value, t('restore_word', 'RESTORE'), 'RESTORE');
+            if (!token) {
+                setMsg(t('confirm_mismatch'), 'error');
+                return;
+            }
             submit.disabled = true;
             setMsg(t('restoring'), '');
             reqJson('backups/' + encodeURIComponent(id) + '/restore', {
-                confirm_text: String(input.value || '')
+                confirm_text: token
             }).then(function (r) {
                 if (r.ok && r.json && r.json.success) {
                     setMsg(t('restored'), 'success');
@@ -495,7 +509,7 @@
         var input = el('input', 'tt-backups__input tt-backups__input--narrow');
         input.type = 'text';
         input.name = 'confirm_text';
-        input.placeholder = 'IMPORT';
+        input.placeholder = t('import_word', 'IMPORT');
         input.id = 'tt-bk-import-confirm';
         input.setAttribute('autocomplete', 'off');
         lab.setAttribute('for', input.id);
@@ -515,10 +529,15 @@
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            var token = confirmToken(input.value, t('import_word', 'IMPORT'), 'IMPORT');
+            if (!token) {
+                setMsg(t('confirm_mismatch'), 'error');
+                return;
+            }
             commit.disabled = true;
             setMsg(t('import_committing'), '');
             var body = {
-                confirm_text: String(input.value || ''),
+                confirm_text: token,
                 entities: opts.entities,
                 conflict: opts.conflict,
                 user_map: opts.user_map

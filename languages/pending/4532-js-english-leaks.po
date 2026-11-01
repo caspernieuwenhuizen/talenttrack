@@ -1,0 +1,33 @@
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:106
+msgid "Balancing…"
+msgstr "Bezig met auto-balanceren…"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:107
+msgid "Could not auto-balance."
+msgstr "Auto-balanceren is niet gelukt."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:108
+msgid "No formation set on this match. Edit the match to pick a formation."
+msgstr "Deze wedstrijd heeft geen opstelling. Bewerk de wedstrijd om een opstelling te kiezen."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1388
+msgid "Placed %d times"
+msgstr "%d keer geplaatst"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:415
+msgctxt "type-to-confirm word for a destructive restore"
+msgid "RESTORE"
+msgstr "HERSTELLEN"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:416
+msgctxt "type-to-confirm word for a destructive import"
+msgid "IMPORT"
+msgstr "IMPORTEREN"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:424
+msgid "Type the word shown, exactly, to confirm."
+msgstr "Typ het getoonde woord precies over om te bevestigen."
+
+#: src/Shared/Frontend/FrontendBackupsView.php:436
+msgid "Type %s to confirm:"
+msgstr "Typ %s ter bevestiging:"
