@@ -53,6 +53,32 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         $this->assertSame( 2.0, $kpi, 'the Evaluation coverage KPI returns a value' );
     }
 
+    /**
+     * `tt_evaluations` has `coach_id`, not `evaluator_id`; the dimension keeps
+     * its key so saved explorer URLs still resolve.
+     */
+    public function test_grouping_by_evaluator_reads_the_coach(): void {
+        $team     = $this->insertTeam( 'U16 evaluator' );
+        $player   = $this->insertPlayer( $team, 'Eva' );
+        $activity = $this->insertActivity( $team, '2020-06-10', 'completed' );
+        $this->insertEvaluation( $activity, $player, 11 );
+        $this->insertEvaluation( $activity, $player, 11 );
+        $this->insertEvaluation( $activity, $player, 12 );
+
+        $window = [ 'date_after' => '2020-06-01', 'date_before' => '2020-06-30' ];
+        $rows   = FactQuery::run( 'evaluations_per_session', [ 'evaluator_id' ], [ 'count_evaluations' ], $window );
+        $counts = [];
+        foreach ( $rows as $r ) $counts[ (int) $r->evaluator_id ] = (int) $r->count_evaluations;
+        ksort( $counts );
+        $this->assertSame( [ 11 => 2, 12 => 1 ], $counts );
+
+        $only = FactQuery::run( 'evaluations_per_session', [], [ 'count_evaluations' ], $window + [ 'evaluator_id_eq' => 12 ] );
+        $this->assertSame( 1, (int) $only[0]->count_evaluations, 'filtering by evaluator reads the coach too' );
+
+        $all = FactQuery::run( 'evaluations', [ 'evaluator_id' ], [ 'count' ], [ 'evaluator_id_in' => [ 11, 12 ] ] );
+        $this->assertCount( 2, $all, 'the evaluations fact groups by the coach as well' );
+    }
+
     public function test_attendance_measures_equal_the_attendance_report(): void {
         $team    = $this->insertTeam( 'U15 attendance-rules' );
         $old     = $this->insertTeam( 'U14 attendance-rules' );
@@ -140,13 +166,13 @@ final class AnalyticsFactsSharedRulesTest extends WP_UnitTestCase {
         ] );
     }
 
-    private function insertEvaluation( int $activity_id, int $player_id ): void {
+    private function insertEvaluation( int $activity_id, int $player_id, int $coach_id = 1 ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_evaluations", [
             'club_id'     => $this->club,
             'activity_id' => $activity_id,
             'player_id'   => $player_id,
-            'coach_id'    => 1,
+            'coach_id'    => $coach_id,
             'eval_date'   => '2020-05-10',
         ] );
     }

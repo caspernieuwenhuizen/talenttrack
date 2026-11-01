@@ -190,7 +190,7 @@ class AnalyticsModule implements ModuleInterface {
             tableAlias: 'f',
             dimensions: [
                 new Dimension( 'player_id',    __( 'Player', 'talenttrack' ),    Dimension::TYPE_FOREIGN_KEY, 'tt_players' ),
-                new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users' ),
+                new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users', null, 'f.coach_id' ),
                 new Dimension( 'team_id',      __( 'Team', 'talenttrack' ),      Dimension::TYPE_FOREIGN_KEY, 'tt_teams' ),
                 new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(f.created_at, '%Y-%m')" ),
             ],
@@ -284,7 +284,7 @@ class AnalyticsModule implements ModuleInterface {
             label:      __( 'Evaluation coverage', 'talenttrack' ),
             tableAlias: 'f',
             dimensions: [
-                new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users' ),
+                new Dimension( 'evaluator_id', __( 'Evaluator', 'talenttrack' ), Dimension::TYPE_FOREIGN_KEY, 'wp_users', null, 'f.coach_id' ),
                 new Dimension( 'activity_id',  __( 'Activity', 'talenttrack' ),  Dimension::TYPE_FOREIGN_KEY, 'tt_activities' ),
                 new Dimension( 'month',        __( 'Month', 'talenttrack' ),     Dimension::TYPE_DATE_RANGE, null, null, "DATE_FORMAT(a.session_date, '%Y-%m')" ),
             ],
