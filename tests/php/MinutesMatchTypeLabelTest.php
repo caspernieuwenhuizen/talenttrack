@@ -79,7 +79,9 @@ final class MinutesMatchTypeLabelTest extends WP_UnitTestCase {
             'Friendly'
         ) );
         foreach ( (array) $ids as $id ) {
-            $wpdb->insert( $wpdb->prefix . 'tt_translations', [
+            // `replace`: base data may already carry this row's nl_NL label
+            // (the unique key is club + entity + id + field + locale).
+            $wpdb->replace( $wpdb->prefix . 'tt_translations', [
                 'club_id'     => (int) CurrentClub::id(),
                 'entity_type' => 'lookup',
                 'entity_id'   => (int) $id,
