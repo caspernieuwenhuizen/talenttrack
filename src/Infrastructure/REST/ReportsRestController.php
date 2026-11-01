@@ -7,6 +7,7 @@ use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\CoachEvalQualityQuery;
 use TT\Modules\Analytics\Reports\PlayerRadarQuery;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
+use TT\Infrastructure\Security\AuthorizationService;
 use WP_REST_Request;
 
 /**
@@ -76,10 +77,11 @@ final class ReportsRestController extends BaseController {
                 ],
             ],
         ] );
-        // #1488 — attendance ranking surfaces. Gated on `tt_view_analytics`
-        // (the same cap the PHP-rendered report + leaderboard check);
-        // results are additionally narrowed to the caller's team scope
-        // below, so coaches never read other teams' rows.
+        // #1488 — attendance ranking surfaces. #4579 — gated on the
+        // matrix's `attendance` read, as the PHP-rendered reports are, not
+        // on `tt_view_analytics`, which no coach holds. The rows are
+        // narrowed to the teams that read reaches (attendanceReadScope()),
+        // so a coach never reads another team's rows.
         // #3780 — every one of these is also taken nested as `filter[...]`.
         $window = 'as YYYY-MM-DD. Anything else falls back to the season window, which the response echoes.';
         $attendance_args = [
@@ -95,7 +97,7 @@ final class ReportsRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'attendanceLeaderboard' ],
-                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'permission_callback' => [ self::class, 'canReadAttendanceReports' ],
                 'args'                => $attendance_args + [
                     'n' => [ 'sanitize_callback' => 'absint', 'required' => false ],
                     // #4194 — one board as a page of list rows. Same as
@@ -112,19 +114,19 @@ final class ReportsRestController extends BaseController {
             [
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'attendanceAtRisk' ],
-                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'permission_callback' => [ self::class, 'canReadAttendanceReports' ],
                 'args'                => $attendance_args,
             ],
         ] );
         // #2137 — per-player attendance rows for one window, used by the
         // team report's inline drill-down accordion (and any SaaS consumer
         // that needs the same per-player slice). `team_id` narrows to one
-        // team; scope is still enforced by attendanceScope().
+        // team; scope is still enforced by attendanceReadScope().
         register_rest_route( self::NS, '/reports/attendance', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ self::class, 'attendanceRows' ],
-                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'permission_callback' => [ self::class, 'canReadAttendanceReports' ],
                 'args'                => $attendance_args,
             ],
         ] );
@@ -372,7 +374,7 @@ final class ReportsRestController extends BaseController {
         $to            = $query['to'];
         $team_id       = $query['team_id'];
         $type_key      = $query['activity_type_key'];
-        $allowed       = self::attendanceScope( $team_id );
+        $allowed       = self::attendanceReadScope( $team_id );
         // #2893 — a permission block is not an empty result. Returning
         // success([]) made the client print "No player attendance in this
         // window", which asserts something false about the data; the
@@ -404,10 +406,10 @@ final class ReportsRestController extends BaseController {
         $nested          = is_array( $req->get_param( 'filter' ) ) ? $req->get_param( 'filter' ) : [];
         $n               = isset( $nested['n'] ) && is_scalar( $nested['n'] ) ? absint( $nested['n'] ) : (int) $req->get_param( 'n' );
         $type_key        = $query['activity_type_key'];
-        $allowed         = self::attendanceScope( $team_id );
+        $allowed         = self::attendanceReadScope( $team_id );
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
-        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
+        $board =( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'], $type_key );
 
         $which = isset( $nested['board'] ) && is_scalar( $nested['board'] )
             ? sanitize_key( (string) $nested['board'] )
@@ -471,10 +473,10 @@ final class ReportsRestController extends BaseController {
         $to              = $query['to'];
         $team_id         = $query['team_id'];
         $type_key        = $query['activity_type_key'];
-        $allowed         = self::attendanceScope( $team_id );
+        $allowed         = self::attendanceReadScope( $team_id );
         if ( $allowed['blocked'] ) return self::attendanceForbidden();
 
-        $players = ( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'], $type_key );
+        $players =( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'], $type_key );
         return RestResponse::success( [
             'players'   => $players,
             'threshold' => AttendanceFlagService::threshold(),
@@ -675,6 +677,34 @@ final class ReportsRestController extends BaseController {
             __( 'You do not have access to this team’s players.', 'talenttrack' ),
             403
         );
+    }
+
+    /**
+     * #4579 — the gate on the three attendance report routes: `attendance`
+     * read at global scope, or at team scope on at least one team. The
+     * same question the views and their launcher tiles ask.
+     */
+    public static function canReadAttendanceReports(): bool {
+        return AuthorizationService::canOpenAttendanceReports( get_current_user_id() );
+    }
+
+    /**
+     * #4579 — the team scope of the three attendance report readers, from
+     * the matrix's `attendance` read: every team for an academy-wide
+     * reader, else the teams that read reaches. A team outside it, or a
+     * reader with none, is blocked. The same shape as `attendanceScope()`,
+     * which the minutes routes on this controller keep.
+     *
+     * @return array{team_ids:list<int>|null, blocked:bool}
+     */
+    private static function attendanceReadScope( int $team_id ): array {
+        $team_ids = AuthorizationService::attendanceReadableTeamIds( get_current_user_id() );
+        if ( $team_ids === null ) return [ 'team_ids' => null, 'blocked' => false ];
+        if ( $team_ids === [] ) return [ 'team_ids' => [], 'blocked' => true ];
+        if ( $team_id > 0 && ! in_array( $team_id, $team_ids, true ) ) {
+            return [ 'team_ids' => $team_ids, 'blocked' => true ];
+        }
+        return [ 'team_ids' => $team_ids, 'blocked' => false ];
     }
 
     /**

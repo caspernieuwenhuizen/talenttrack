@@ -14,9 +14,10 @@ use TT\Modules\Authorization\Matrix\MatrixRepository;
  * "which of my players keep missing training", and a team manager was
  * refused it for their own squad.
  *
- * The three attendance report routes gate on `tt_view_analytics`, which
+ * The three attendance report routes gated on `tt_view_analytics`, which
  * bridges to `analytics: read`, and the seed granted that to head of
- * development and academy admin only. Nothing in the controller was
+ * development and academy admin only. Since #4579 they gate on
+ * `attendance: read` instead, which both manager shapes hold for their team. Nothing in the controller was
  * wrong: `attendanceScope()` below the gate already narrows a non-admin
  * to `get_teams_for_coach()`.
  *
