@@ -8,6 +8,7 @@ use TT\Modules\Prospects\Domain\ConsentGate;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Prospects\Repositories\TestTrainingsRepository;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -159,11 +160,15 @@ class InviteToTestTrainingForm implements FormInterface, CompletionStepInterface
         if ( (int) ( $response['test_training_id'] ?? 0 ) > 0 || $new_date === '' ) return $response;
 
         $location = (string) ( $response['new_location'] ?? '' );
-        $response['test_training_id'] = ( new TestTrainingsRepository() )->create( [
+        $test_training_id = ( new TestTrainingsRepository() )->create( [
             'date'          => str_replace( 'T', ' ', $new_date ) . ':00',
             'location'      => $location !== '' ? $location : null,
             'coach_user_id' => (int) ( $task['assignee_user_id'] ?? get_current_user_id() ),
         ] );
+        if ( $test_training_id <= 0 ) {
+            throw new CompletionStepFailed( 'The test training was not scheduled.' );
+        }
+        $response['test_training_id'] = $test_training_id;
         return $response;
     }
 

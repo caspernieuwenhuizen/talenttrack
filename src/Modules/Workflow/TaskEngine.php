@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\AfterCommit;
 use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
@@ -206,29 +207,33 @@ class TaskEngine {
     private function completeWithStep( int $task_id, array $response, CompletionStepInterface $step, array $raw ): ?array {
         global $wpdb;
         $wpdb->query( 'START TRANSACTION' );
+        // Messages the step's writes trigger wait for the commit, so a
+        // rollback announces nothing.
+        AfterCommit::open();
+        $written = $response;
         try {
             if ( ! $this->tasks->complete( $task_id, $response ) ) {
-                $wpdb->query( 'ROLLBACK' );
-                return null;
+                throw new CompletionStepFailed( 'The task was not completed by this call.' );
             }
             $completed = $this->tasks->find( $task_id );
             if ( ! is_array( $completed ) ) {
-                $wpdb->query( 'ROLLBACK' );
-                return null;
+                throw new CompletionStepFailed( 'The completed task could not be read back.' );
             }
             $written = $step->onCompleted( $completed, $raw, $response );
             if ( $written !== $response
                 && ! $this->tasks->update( $task_id, [ 'response_json' => (string) wp_json_encode( $written ) ] ) ) {
-                $wpdb->query( 'ROLLBACK' );
-                return null;
+                throw new CompletionStepFailed( 'The ids of what was written could not be stored.' );
             }
-            $wpdb->query( 'COMMIT' );
-            return $written;
         } catch ( \Throwable $e ) {
             $wpdb->query( 'ROLLBACK' );
-            $this->log( 'Completing task ' . $task_id . ' failed and was rolled back: ' . $e->getMessage() );
+            AfterCommit::discard();
+            $this->log( 'Completing task ' . $task_id . ' was rolled back: ' . $e->getMessage() );
             return null;
         }
+
+        $wpdb->query( 'COMMIT' );
+        AfterCommit::commit();
+        return $written;
     }
 
     /**

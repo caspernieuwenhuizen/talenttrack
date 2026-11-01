@@ -3,6 +3,7 @@ namespace TT\Modules\Comms\Send;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\AfterCommit;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Comms\Dispatch\CommsDispatcher;
 use TT\Modules\Comms\Domain\CommsResult;
@@ -51,7 +52,12 @@ final class TrialPlayerWelcomeSend {
      * `CommsDispatcher` writes.
      */
     public static function handle( int $case_id, int $player_id = 0 ): void {
-        self::send( $case_id, $player_id );
+        // #4550 — a trial opened inside a transaction (a workflow task's
+        // completion step) is welcomed once it commits, never for a case a
+        // rollback took away.
+        AfterCommit::run( static function () use ( $case_id, $player_id ): void {
+            self::send( $case_id, $player_id );
+        } );
     }
 
     /**

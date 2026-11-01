@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -107,39 +108,45 @@ class AwaitTeamOfferDecisionForm implements FormInterface, CompletionStepInterfa
         $prospect_id   = (int) ( $task['prospect_id']   ?? 0 );
         $actor         = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
 
-        if ( $trial_case_id > 0 ) {
-            $repo = new TrialCasesRepository();
+        // #4550 — the answer is about this trial case; without it, or when
+        // the case was not written, the completion fails and rolls back.
+        if ( $trial_case_id <= 0 ) {
+            throw new CompletionStepFailed( 'The task names no trial case.' );
+        }
+        $repo = new TrialCasesRepository();
 
-            // #3138 — through `recordDecision()`, not `update()`. Both
-            // decision branches used to write the case row and announce
-            // nothing, so a trial that ended here never closed on the
-            // player's timeline: the declined branch left a trial that
-            // started and never finished, and the accepted branch produced
-            // no "Signed after trial" either.
-            //
-            // The decision hook now carries both, which also means the
-            // player's status is written by one owner —
-            // `TrialDecisionPlayerStatusSubscriber` (#3116), whose mapping
-            // already covers `admit` -> active and
-            // `declined_offered_position` -> inactive. The manual
-            // `tt_players` write that used to live below is gone with it;
-            // two writers with two opinions about the same column is the
-            // thing that gap invites.
-            if ( $outcome === 'accepted' ) {
-                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_ADMIT, $actor, $notes );
-            } elseif ( $outcome === 'declined' ) {
-                $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION, $actor, $notes );
-            } else {
-                // no_response → archive without decision change. Nothing was
-                // decided, so nothing is announced.
-                $repo->update( $trial_case_id, [
-                    'decision_made_at' => current_time( 'mysql', true ),
-                    'decision_made_by' => $actor,
-                    'decision_notes'   => $notes,
-                    'archived_at'      => current_time( 'mysql', true ),
-                    'archived_by'      => $actor,
-                ] );
-            }
+        // #3138 — through `recordDecision()`, not `update()`. Both
+        // decision branches used to write the case row and announce
+        // nothing, so a trial that ended here never closed on the
+        // player's timeline: the declined branch left a trial that
+        // started and never finished, and the accepted branch produced
+        // no "Signed after trial" either.
+        //
+        // The decision hook now carries both, which also means the
+        // player's status is written by one owner —
+        // `TrialDecisionPlayerStatusSubscriber` (#3116), whose mapping
+        // already covers `admit` -> active and
+        // `declined_offered_position` -> inactive. The manual
+        // `tt_players` write that used to live below is gone with it;
+        // two writers with two opinions about the same column is the
+        // thing that gap invites.
+        if ( $outcome === 'accepted' ) {
+            $written = $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_ADMIT, $actor, $notes );
+        } elseif ( $outcome === 'declined' ) {
+            $written = $repo->recordDecision( $trial_case_id, TrialCasesRepository::DECISION_DECLINED_OFFERED_POSITION, $actor, $notes );
+        } else {
+            // no_response → archive without decision change. Nothing was
+            // decided, so nothing is announced.
+            $written = $repo->update( $trial_case_id, [
+                'decision_made_at' => current_time( 'mysql', true ),
+                'decision_made_by' => $actor,
+                'decision_notes'   => $notes,
+                'archived_at'      => current_time( 'mysql', true ),
+                'archived_by'      => $actor,
+            ] );
+        }
+        if ( ! $written ) {
+            throw new CompletionStepFailed( 'The trial case was not updated.' );
         }
 
         // v3.110.85 — close the docblock gap. Pre-v3.110.85 only the

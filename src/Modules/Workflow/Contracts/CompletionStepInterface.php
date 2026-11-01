@@ -13,9 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * completed. A completion that fails therefore leaves nothing behind, and
  * the next attempt cannot create a second record for the same task.
  *
- * The step runs before the template's `onComplete()` and chain steps, and the
- * response it returns is the one they see and the one stored on the task, so
- * the ids of what it wrote reach both.
+ * The step runs in one transaction with the completing UPDATE, before the
+ * template's `onComplete()` and chain steps, and the response it returns is
+ * the one they see and the one stored on the task, so the ids of what it
+ * wrote reach both. A write that fails, including one that answers 0 rather
+ * than throwing, must throw (`CompletionStepFailed`): the engine then rolls
+ * the whole completion back and the task stays open. A message the writes
+ * trigger is sent through `AfterCommit`, so a rollback announces nothing.
  */
 interface CompletionStepInterface {
 

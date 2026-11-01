@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -93,43 +94,50 @@ class ReviewTrialGroupMembershipForm implements FormInterface, CompletionStepInt
         $decision      = (string) ( $response['decision'] ?? '' );
         $rationale     = (string) ( $response['rationale'] ?? '' );
         $trial_case_id = (int) ( $response['trial_case_id'] ?? 0 );
-        if ( $trial_case_id > 0 ) {
-            $repo  = new TrialCasesRepository();
-            $actor = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+        // #4550 — the decision is about this trial case; without it, or when
+        // the decision was not written, the completion fails and rolls back.
+        if ( $trial_case_id <= 0 ) {
+            throw new CompletionStepFailed( 'The task names no trial case.' );
+        }
+        $repo    = new TrialCasesRepository();
+        $actor   = (int) ( $task['assignee_user_id'] ?? get_current_user_id() );
+        $written = false;
 
-            // #3138 — all three go through `recordDecision()` rather than
-            // `update()`, so the decision is announced once from the one
-            // write path. The case status each decision settles on is the
-            // repository's business now: `continue_in_trial_group` extends,
-            // `offered_team_position` leaves the case open because the
-            // final disposition lands in `AwaitTeamOfferDecisionForm`, and
-            // a final decline decides it.
-            //
-            // Only the final decline reaches the timeline. The other two
-            // are announced but produce no journey entry, because
-            // `continue_in_trial_group` means the trial is still running
-            // and `offered_team_position` is mid-conversation — see
-            // `TrialCaseDecision::TERMINAL`.
-            if ( $decision === 'continue_in_trial_group' ) {
-                $repo->recordDecision(
-                    $trial_case_id, TrialCasesRepository::DECISION_CONTINUE_IN_TRIAL_GROUP, $actor, $rationale,
-                    null, null,
-                    [ 'continued_until' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ) ]
-                );
-            } elseif ( $decision === 'offer_team_position' ) {
-                $repo->recordDecision(
-                    $trial_case_id, TrialCasesRepository::DECISION_OFFERED_TEAM_POSITION, $actor, $rationale
-                );
-            } elseif ( $decision === 'decline_final' ) {
-                $repo->recordDecision(
-                    $trial_case_id, TrialCasesRepository::DECISION_DENY_FINAL, $actor, $rationale,
-                    null, null,
-                    [
-                        'archived_at' => current_time( 'mysql', true ),
-                        'archived_by' => $actor,
-                    ]
-                );
-            }
+        // #3138 — all three go through `recordDecision()` rather than
+        // `update()`, so the decision is announced once from the one
+        // write path. The case status each decision settles on is the
+        // repository's business now: `continue_in_trial_group` extends,
+        // `offered_team_position` leaves the case open because the
+        // final disposition lands in `AwaitTeamOfferDecisionForm`, and
+        // a final decline decides it.
+        //
+        // Only the final decline reaches the timeline. The other two
+        // are announced but produce no journey entry, because
+        // `continue_in_trial_group` means the trial is still running
+        // and `offered_team_position` is mid-conversation — see
+        // `TrialCaseDecision::TERMINAL`.
+        if ( $decision === 'continue_in_trial_group' ) {
+            $written = $repo->recordDecision(
+                $trial_case_id, TrialCasesRepository::DECISION_CONTINUE_IN_TRIAL_GROUP, $actor, $rationale,
+                null, null,
+                [ 'continued_until' => gmdate( 'Y-m-d', strtotime( '+90 days' ) ) ]
+            );
+        } elseif ( $decision === 'offer_team_position' ) {
+            $written = $repo->recordDecision(
+                $trial_case_id, TrialCasesRepository::DECISION_OFFERED_TEAM_POSITION, $actor, $rationale
+            );
+        } elseif ( $decision === 'decline_final' ) {
+            $written = $repo->recordDecision(
+                $trial_case_id, TrialCasesRepository::DECISION_DENY_FINAL, $actor, $rationale,
+                null, null,
+                [
+                    'archived_at' => current_time( 'mysql', true ),
+                    'archived_by' => $actor,
+                ]
+            );
+        }
+        if ( ! $written ) {
+            throw new CompletionStepFailed( 'The trial-group decision was not recorded.' );
         }
 
         return $response;

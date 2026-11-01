@@ -2,8 +2,15 @@
 namespace TT\Tests\Php;
 
 use WP_UnitTestCase;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Comms\Channel\Adapters\EmailChannelAdapter;
+use TT\Modules\Comms\Channel\ChannelAdapterRegistry;
+use TT\Modules\Comms\Template\TemplateRegistry;
+use TT\Modules\Comms\Template\TemplateSwitch;
+use TT\Modules\Comms\Templates\TrialPlayerWelcomeTemplate;
+use TT\Modules\Invitations\PlayerParentsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Workflow\Contracts\AssigneeResolver;
@@ -43,6 +50,14 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
     private bool $fail_completion = false;
 
+    private bool $welcome_enabled = false;
+
+    /** A write this pattern matches fails, as a refused write would. */
+    private string $refuse = '';
+
+    /** @var list<array<string,mixed>> e-mails the comms channel was asked to send */
+    private array $mails = [];
+
     /** Watch every tt_ table rather than only the record tables. */
     private bool $watch_every_table = false;
 
@@ -52,6 +67,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
     public function set_up(): void {
         parent::set_up();
         $this->markFixtureFloor();
+        $this->markConfigKeys( TemplateSwitch::CONFIG_KEY, 'comms_quiet_hours_start', 'comms_quiet_hours_end' );
         $this->user = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         wp_set_current_user( $this->user );
         AuthorizationService::flushCache();
@@ -60,6 +76,12 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
     public function tear_down(): void {
         remove_filter( 'query', [ $this, 'watch' ] );
+        remove_filter( 'tt_comms_email_send', [ $this, 'captureMail' ], 10 );
+        if ( $this->welcome_enabled ) {
+            TemplateRegistry::clear();
+            ChannelAdapterRegistry::clear();
+        }
+        $this->refuse = '';
         ThrowingOnceConsentForm::$throw = false;
         ThrowingOnceConsentForm::$wrote = false;
         $_POST = [];
@@ -80,6 +102,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         if ( ! preg_match( '/^\s*(INSERT|UPDATE|DELETE|REPLACE)\b/i', $sql ) ) return $sql;
 
         global $wpdb;
+        if ( $this->refuse !== '' && preg_match( $this->refuse, $sql ) ) return '';
         if ( stripos( $sql, $wpdb->prefix . 'tt_workflow_tasks' ) !== false ) {
             if ( $this->fail_completion && stripos( $sql, "'completed'" ) !== false ) return '';
             if ( ! $this->watch_every_table ) return $sql;
@@ -235,6 +258,64 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $this->assertSame( $before + 1, $this->records( 'consent', $extra ) );
     }
 
+    public function test_a_write_that_returns_no_id_rolls_back_and_leaves_the_task_open(): void {
+        global $wpdb;
+        [ $form_class, $raw, $extra ] = $this->arrange( 'outcome' );
+        $task_id = $this->task( $this->template( 'test_writes_after_zero_id', $form_class ), $extra );
+        /** @var FormInterface&CompletionStepInterface $form */
+        $form = new $form_class();
+        $task = ( new TasksRepository() )->find( $task_id );
+        $this->assertIsArray( $task );
+
+        // The player is promoted first; then the trial case insert fails
+        // without throwing, so `create()` answers 0.
+        $this->refuse = '/^\s*INSERT\s+INTO\s+`?' . preg_quote( $wpdb->prefix, '/' ) . 'tt_trial_cases`?\s/i';
+        $this->assertFalse( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->refuse = '';
+
+        $this->assertNotSame( TaskStatus::COMPLETED, $this->status( $task_id ), 'the task is still open' );
+        $this->assertSame( 0, (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE first_name = %s AND last_name = %s",
+            'Sem', 'Voltooid'
+        ) ), 'the player promoted before the failure was rolled back' );
+        $this->assertNull( $wpdb->get_var( $wpdb->prepare(
+            "SELECT promoted_to_player_id FROM {$wpdb->prefix}tt_prospects WHERE id = %d",
+            (int) $extra['prospect_id']
+        ) ) );
+
+        // With the insert working again, the retry admits the prospect.
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->assertSame( 1, $this->records( 'outcome', $extra ) );
+    }
+
+    public function test_a_rolled_back_completion_sends_no_welcome_and_a_committed_one_does(): void {
+        global $wpdb;
+        $this->enableWelcomeMail();
+        [ $form_class, $raw, $extra ] = $this->arrange( 'outcome' );
+        $this->promoteWithFamily( (int) $extra['prospect_id'] );
+        /** @var FormInterface&CompletionStepInterface $form */
+        $form = new $form_class();
+
+        // The trial case is opened, which triggers the welcome; storing the
+        // ids on the task then fails, so the whole completion rolls back.
+        $task_id = $this->task( $this->template( 'test_writes_after_welcome', $form_class ), $extra );
+        $task    = ( new TasksRepository() )->find( $task_id );
+        $this->assertIsArray( $task );
+        $this->refuse = '/^\s*UPDATE\s+`?' . preg_quote( $wpdb->prefix, '/' ) . 'tt_workflow_tasks`?\s.*trial_case_id/is';
+        $this->assertFalse( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->refuse = '';
+
+        $this->assertNotSame( TaskStatus::COMPLETED, $this->status( $task_id ) );
+        $this->assertSame( 0, $this->records( 'outcome', $extra ), 'the trial case was rolled back' );
+        $this->assertSame( [], $this->mails, 'a rolled-back trial is not announced to the family' );
+
+        // The retry commits, and the family is welcomed once, after it.
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->assertSame( 1, $this->records( 'outcome', $extra ) );
+        $this->assertCount( 1, $this->mails );
+        $this->assertSame( 'family-' . $extra['prospect_id'] . '@example.test', (string) ( $this->mails[0]['to'] ?? '' ) );
+    }
+
     public function test_a_task_without_a_completion_step_is_completed_once(): void {
         $task_id   = $this->task( $this->template( 'test_writes_after_plain', 'TT\\Modules\\Workflow\\Forms\\QuarterlyHoDReviewForm' ) );
         $completed = 0;
@@ -356,6 +437,45 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
                 ) );
         }
         $this->fail( "Unknown case {$case}" );
+    }
+
+    /** Lets the trial welcome reach the e-mail channel, captured instead of sent. */
+    private function enableWelcomeMail(): void {
+        $this->welcome_enabled = true;
+        TemplateRegistry::clear();
+        ChannelAdapterRegistry::clear();
+        TemplateRegistry::register( new TrialPlayerWelcomeTemplate() );
+        ChannelAdapterRegistry::register( new EmailChannelAdapter() );
+        QueryHelpers::set_config( TemplateSwitch::CONFIG_KEY, '' );
+        // Quiet hours shut, so the send does not depend on the time of day.
+        QueryHelpers::set_config( 'comms_quiet_hours_start', '03:00' );
+        QueryHelpers::set_config( 'comms_quiet_hours_end', '03:01' );
+        add_filter( 'tt_comms_email_send', [ $this, 'captureMail' ], 10, 2 );
+    }
+
+    /**
+     * @param mixed               $accepted
+     * @param array<string,mixed> $args
+     */
+    public function captureMail( $accepted, $args ): bool {
+        $this->mails[] = is_array( $args ) ? $args : [];
+        return true;
+    }
+
+    /** The prospect is already a player on the books, with a parent to welcome. */
+    private function promoteWithFamily( int $prospect_id ): void {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'club_id'       => (int) CurrentClub::id(),
+            'first_name'    => 'Sem',
+            'last_name'     => 'Gezin',
+            'date_of_birth' => '2013-01-01',
+            'status'        => 'trial',
+        ] );
+        $player_id = (int) $wpdb->insert_id;
+        $parent    = (int) self::factory()->user->create( [ 'user_email' => 'family-' . $prospect_id . '@example.test' ] );
+        ( new PlayerParentsRepository() )->link( $player_id, $parent, true );
+        $wpdb->update( $wpdb->prefix . 'tt_prospects', [ 'promoted_to_player_id' => $player_id ], [ 'id' => $prospect_id ] );
     }
 
     private function prospect( bool $consented ): int {

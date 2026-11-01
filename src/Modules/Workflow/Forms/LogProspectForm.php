@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Prospects\Domain\ProspectCreationService;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -231,9 +232,13 @@ class LogProspectForm implements FormInterface, CompletionStepInterface {
         ] ), false );
 
         // `validate()` has already refused everything this can refuse, so a
-        // WP_Error here is a failed write. Answering 0, as this always did,
-        // keeps the task's stored response readable rather than half-shaped.
-        $response['prospect_id'] = $created instanceof \WP_Error ? 0 : (int) $created;
+        // WP_Error here is a failed write. It fails the completion, which
+        // rolls back, rather than completing the task with no prospect.
+        $prospect_id = $created instanceof \WP_Error ? 0 : (int) $created;
+        if ( $prospect_id <= 0 ) {
+            throw new CompletionStepFailed( 'The prospect was not created.' );
+        }
+        $response['prospect_id'] = $prospect_id;
         return $response;
     }
 

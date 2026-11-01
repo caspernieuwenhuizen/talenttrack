@@ -9,6 +9,7 @@ use TT\Modules\Prospects\Domain\ConsentRequestDate;
 use TT\Modules\Prospects\Repositories\ProspectConsentRequestsRepository;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
+use TT\Modules\Workflow\CompletionStepFailed;
 use TT\Modules\Workflow\Contracts\FormInterface;
 
 /**
@@ -146,13 +147,14 @@ class RequestConsentForm implements FormInterface, CompletionStepInterface {
             (string) ( $response['notes'] ?? '' )
         );
 
-        if ( $entry_id > 0 ) {
-            ( new AuditService() )->record( 'prospect.consent_requested', 'prospect', $prospect_id, [
-                'entry_id' => $entry_id,
-                'asked_at' => $asked_at,
-                'outcome'  => $outcome,
-            ] );
+        if ( $entry_id <= 0 ) {
+            throw new CompletionStepFailed( 'The consent request was not recorded.' );
         }
+        ( new AuditService() )->record( 'prospect.consent_requested', 'prospect', $prospect_id, [
+            'entry_id' => $entry_id,
+            'asked_at' => $asked_at,
+            'outcome'  => $outcome,
+        ] );
 
         $response['entry_id'] = $entry_id;
         return $response;
