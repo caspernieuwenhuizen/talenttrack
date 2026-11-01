@@ -554,6 +554,13 @@ final class ReportComposersGoldenTest extends WP_UnitTestCase {
             'actual_return' => null,
             'notes'         => 'Ankle.',
         ] );
+        $wpdb->insert( "{$p}tt_player_injuries", [
+            'club_id'       => $club,
+            'player_id'     => $this->players[0],
+            'started_on'    => '2020-03-02',
+            'actual_return' => '2020-03-09',
+            'notes'         => 'Hamstring.',
+        ] );
 
         // One journey entry per visibility rung, so every reader's set is
         // a different set.
