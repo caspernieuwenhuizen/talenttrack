@@ -128,8 +128,8 @@ final class ActivitiesRepository {
         ) );
         if ( ! $row ) return null;
         $row->match_count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_tournament_matches WHERE tournament_id = %d",
-            $tournament_id
+            "SELECT COUNT(*) FROM {$p}tt_tournament_matches WHERE tournament_id = %d AND club_id = %d",
+            $tournament_id, $club_id
         ) );
         return $row;
     }
@@ -160,7 +160,9 @@ final class ActivitiesRepository {
         // null keeps the old unfiltered behaviour for anything not yet
         // migrated, but collapses duplicates to one row per player,
         // preferring the recorded one.
-        $params = [ $activity_id ];
+        // #4565 — scoped to the current club: the attendance row, the joined
+        // player and the dedupe subquery all carry the same club.
+        $params = [ $activity_id, CurrentClub::id() ];
         if ( $record_type !== null && $record_type !== '' ) {
             $type_filter = 'AND att.record_type = %s';
             $params[]    = $record_type;
@@ -171,6 +173,7 @@ final class ActivitiesRepository {
                                  WHERE pick.activity_id = att.activity_id
                                    AND pick.player_id   = att.player_id
                                    AND pick.is_guest    = att.is_guest
+                                   AND pick.club_id     = att.club_id
                               ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
                                  LIMIT 1
                             )";
@@ -182,8 +185,8 @@ final class ActivitiesRepository {
                     att.is_guest, att.record_type,
                     pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
                FROM {$p}tt_attendance att
-               JOIN {$p}tt_players pl ON pl.id = att.player_id
-              WHERE att.activity_id = %d {$guest_filter} {$type_filter}
+               JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
+              WHERE att.activity_id = %d AND att.club_id = %d {$guest_filter} {$type_filter}
               ORDER BY pl.last_name ASC, pl.first_name ASC",
             ...$params
         ) );
@@ -257,8 +260,10 @@ final class ActivitiesRepository {
             : [];
         $only_past_completed = ! empty( $filters['only_past_completed'] );
 
-        $where  = [];
-        $params = [];
+        // #4565 — the current club's rows only; the join and the dedupe
+        // subquery below carry the same club.
+        $where  = [ 'att.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
 
         if ( $include_guests ) {
             $where[]  = '( att.player_id = %d OR att.guest_player_id = %d )';
@@ -317,6 +322,7 @@ final class ActivitiesRepository {
                         WHERE pick.activity_id = att.activity_id
                           AND pick.player_id   = att.player_id
                           AND pick.is_guest    = att.is_guest
+                          AND pick.club_id     = att.club_id
                      ORDER BY ( pick.record_type = 'actual' ) DESC, pick.id DESC
                         LIMIT 1
                    )";
@@ -326,7 +332,7 @@ final class ActivitiesRepository {
                     SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, a.team_id, a.activity_status_key,
                            att.id AS attendance_id, att.status, att.notes AS att_notes, att.is_guest, att.record_type
                       FROM {$p}tt_attendance att
-                      JOIN {$p}tt_activities a ON a.id = att.activity_id
+                      JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
                      WHERE {$where_sql}
                        AND {$dedupe}
                   ORDER BY a.session_date DESC, a.id DESC
@@ -367,13 +373,14 @@ final class ActivitiesRepository {
         $rows  = $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT a.id, a.session_date, a.title
                FROM {$p}tt_activities a
-               JOIN {$p}tt_attendance att ON att.activity_id = a.id
+               JOIN {$p}tt_attendance att ON att.activity_id = a.id AND att.club_id = a.club_id
               WHERE att.player_id = %d
+                AND a.club_id = %d
                 AND a.activity_status_key = %s
                 AND a.archived_at IS NULL
               ORDER BY a.session_date DESC
               LIMIT %d",
-            $player_id, 'completed', $limit
+            $player_id, CurrentClub::id(), 'completed', $limit
         ) );
         return is_array( $rows ) ? $rows : [];
     }
@@ -438,8 +445,8 @@ final class ActivitiesRepository {
         // form's per-player attendance map doesn't double up once #788
         // ship 2 lands with pre-filled expected rows. Audit 7 (#1181).
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND record_type = 'actual'",
-            $activity_id
+            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d AND is_guest = 0 AND record_type = 'actual'",
+            $activity_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( $rows ?: [] as $r ) {
@@ -1983,8 +1990,8 @@ final class ActivitiesRepository {
         global $wpdb;
         $p = $wpdb->prefix;
         return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
-            $wp_user_id
+            "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND club_id = %d AND archived_at IS NULL LIMIT 1",
+            $wp_user_id, CurrentClub::id()
         ) );
     }
 
