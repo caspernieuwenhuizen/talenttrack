@@ -46,7 +46,7 @@ final class MatchPrepPdfExporter implements ExporterInterface {
 
     public function collect( ExportRequest $request ): array {
         $activity_id = (int) ( $request->filters['activity_id'] ?? 0 );
-        $body        = MatchPrepPrintableRenderer::bodyHtml( $activity_id, (int) $request->clubId );
+        $body        = MatchPrepPrintableRenderer::bodyHtml( $activity_id, (int) $request->clubId, (int) $request->requesterUserId );
         if ( $body === '' ) {
             return [
                 'html'    => '<p>' . esc_html__( 'No match prep exists for this activity yet. Open the wizard from the activity detail page.', 'talenttrack' ) . '</p>',

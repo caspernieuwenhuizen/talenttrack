@@ -103,7 +103,7 @@ class MatchPrepPrintRouter {
 
     public static function renderHtml( int $activity_id ): string {
         $club_id   = (int) CurrentClub::id();
-        $body      = MatchPrepPrintableRenderer::bodyHtml( self::scopedActivityId( $activity_id ), $club_id );
+        $body      = MatchPrepPrintableRenderer::bodyHtml( self::scopedActivityId( $activity_id ), $club_id, get_current_user_id() );
         $styles    = MatchPrepPrintableRenderer::styleBlock();
         $close_url = add_query_arg(
             [ 'tt_view' => 'match-prep', 'activity_id' => $activity_id ],

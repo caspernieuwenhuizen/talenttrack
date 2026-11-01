@@ -47,8 +47,14 @@ final class MatchPrepPrintableRenderer {
      * Render the body HTML for a match-prep printable. Empty string
      * when the activity isn't found or no prep exists (the caller's
      * page chrome surfaces the "not found" notice if it wants to).
+     *
+     * `$viewer_id` is the reader the print is for: the coach's free-text
+     * reason beside an absent player goes to who plans the team or reads
+     * the player's injuries, and the status alone to anyone else. Null is a
+     * share link, a token the coach minted for their own staff, which keeps
+     * the reason.
      */
-    public static function bodyHtml( int $activity_id, int $club_id ): string {
+    public static function bodyHtml( int $activity_id, int $club_id, ?int $viewer_id = null ): string {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -114,6 +120,9 @@ final class MatchPrepPrintableRenderer {
         // on-screen view's "Doen per speler" panel iterates).
         $available_ids = [];
         $absent        = [];
+        $reason_for    = $viewer_id === null
+            ? null
+            : \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $viewer_id, $player_ids, (int) ( $activity->team_id ?? 0 ) );
         foreach ( $availability as $a ) {
             $pid = (int) $a->player_id;
             if ( strcasecmp( (string) $a->status, 'Present' ) === 0 ) {
@@ -122,7 +131,7 @@ final class MatchPrepPrintableRenderer {
                 $absent[] = [
                     'pid'    => $pid,
                     'status' => (string) $a->status,
-                    'reason' => (string) ( $a->reason ?? '' ),
+                    'reason' => ( $reason_for === null || isset( $reason_for[ $pid ] ) ) ? (string) ( $a->reason ?? '' ) : '',
                 ];
             }
         }
