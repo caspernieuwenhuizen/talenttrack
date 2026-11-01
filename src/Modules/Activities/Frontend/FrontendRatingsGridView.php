@@ -113,7 +113,8 @@ final class FrontendRatingsGridView extends FrontendViewBase {
 
         // Team scope: a coach may only rate on a team they coach. Mirrors
         // the check the bulk endpoint enforces, so the two agree (§7).
-        if ( ! self::canRateTeam( $user_id, (int) $activity->team_id, $is_admin ) ) {
+        $team_id = (int) $activity->team_id;
+        if ( ! self::canRateTeam( $user_id, $team_id, $is_admin ) ) {
             self::crumbs( (string) $activity->title, $activity_id );
             echo '<p class="tt-notice">' . esc_html__( 'You do not coach this activity\'s team.', 'talenttrack' ) . '</p>';
             return;
@@ -145,7 +146,7 @@ final class FrontendRatingsGridView extends FrontendViewBase {
         // which asks the change grant. A club-wide reader sees the scores
         // without a box that the save would refuse.
         $writable      = \TT\Modules\Activities\ActivityAccess::writableTeamIds( $user_id );
-        $team_writable = $writable === null || in_array( (int) $activity->team_id, $writable, true );
+        $team_writable = $writable === null || in_array( $team_id, $writable, true );
 
         self::renderGrid( $activity_id, $data['groups'], $categories, $players, $data['values'], $data['scale'], $team_writable );
     }
