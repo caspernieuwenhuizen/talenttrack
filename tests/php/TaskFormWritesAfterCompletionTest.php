@@ -145,7 +145,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
     public function test_a_failed_completion_leaves_no_record_behind( string $case ): void {
         [ $form_class, $raw, $extra ] = $this->arrange( $case );
         $task_id = $this->task( $this->template( 'test_writes_after_' . $case, $form_class ), $extra );
-        $before  = $this->count( $case, $extra );
+        $before  = $this->records( $case, $extra );
 
         $this->fail_completion = true;
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -162,7 +162,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $this->assertStringContainsString( 'Could not save the task.', $html, 'precondition: the completion failed' );
         $this->assertNotSame( TaskStatus::COMPLETED, $this->status( $task_id ) );
         $this->assertSame( [], $this->writes, 'nothing is written for a task that did not complete' );
-        $this->assertSame( $before, $this->count( $case, $extra ) );
+        $this->assertSame( $before, $this->records( $case, $extra ) );
     }
 
     /**
@@ -171,7 +171,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
     public function test_completing_once_writes_the_record_once( string $case ): void {
         [ $form_class, $raw, $extra ] = $this->arrange( $case );
         $task_id = $this->task( $this->template( 'test_writes_after_' . $case, $form_class ), $extra );
-        $before  = $this->count( $case, $extra );
+        $before  = $this->records( $case, $extra );
         /** @var FormInterface&CompletionStepInterface $form */
         $form = new $form_class();
         $task = ( new TasksRepository() )->find( $task_id );
@@ -179,7 +179,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
 
         $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
         $this->assertSame( TaskStatus::COMPLETED, $this->status( $task_id ) );
-        $this->assertSame( $before + 1, $this->count( $case, $extra ), 'one record, as before' );
+        $this->assertSame( $before + 1, $this->records( $case, $extra ), 'one record, as before' );
 
         $stored = json_decode( (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' ), true );
         $id_key = [
@@ -197,7 +197,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $stored_json  = (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' );
         $this->writes = [];
         WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw );
-        $this->assertSame( $before + 1, $this->count( $case, $extra ), 'a task already completed is not written for twice' );
+        $this->assertSame( $before + 1, $this->records( $case, $extra ), 'a task already completed is not written for twice' );
         $this->assertSame( [], $this->writes );
         $this->assertSame( $stored_json, (string) ( ( new TasksRepository() )->find( $task_id )['response_json'] ?? '' ) );
     }
@@ -256,7 +256,7 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
      *
      * @param array<string, mixed> $extra
      */
-    private function count( string $case, array $extra ): int {
+    private function records( string $case, array $extra ): int {
         global $wpdb;
         $p = $wpdb->prefix;
         switch ( $case ) {
