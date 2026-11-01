@@ -32,7 +32,7 @@ The builder lives at **TalentTrack → Custom widgets** (also reachable from the
 1. **Source** — pick which data source the widget reads. Each source declares its columns, filters, and aggregations; everything downstream re-renders when the source changes.
 2. **Columns** — for table widgets, pick which columns appear. KPI / bar / line widgets ignore the column list (they show one aggregated value or one series).
 3. **Filters** — narrow down the rows. Filters are source-declared (e.g. `team_id`, `date_from`, `status`); leave one blank to skip it.
-4. **Format** — pick a chart type: Table, KPI (single big number), Bar chart, or Line chart. Non-table types also need an aggregation (count / avg / sum / distinct).
+4. **Format** — pick a chart type: Table, KPI (single big number), Bar chart, or Line chart. Non-table types also need an aggregation (count / avg / sum / distinct). A KPI shows that aggregation worked out over every row the filters select: the number of active players, or the average overall rating of the evaluations in the period, calculated the same way as on a player's profile. The *Age range* filter on active players keeps the players who have not yet reached that age today (U13 is under 13); players without a date of birth are left out once an age range is picked.
 5. **Preview** — saves the widget as a draft and renders the actual data the dashboard would show.
 6. **Save** — give the widget a name (1-120 chars) and pick a cache TTL in minutes (default 5; set to 0 to disable caching).
 
@@ -51,6 +51,8 @@ Custom widgets respect two layers:
 - **Source-cap inheritance at render time** — every shipped data source declares the underlying read cap (`players_active` → `tt_view_players`, `evaluations_recent` → `tt_view_evaluations`, etc.). A viewer without the underlying cap sees a "You do not have access to this data." stub instead of the rendered widget. This is enforced in `CustomWidgetRenderer`; you can't bypass it by composing a custom widget.
 
 A parent without `tt_view_evaluations` can't see an evaluations-backed custom widget on someone else's dashboard, even if an admin placed it there. The same gate that protects the underlying record list protects the widget.
+
+- **Row scope** — the capability says whether a viewer reads the data at all, never whose. A widget's rows and its KPI total are narrowed as the bulk exports narrow theirs: a club-wide reader sees the whole club, a coach or team manager sees the teams they work with, and a parent or player, who reads one child's data, gets no rows. A team filter outside the viewer's teams gives an empty widget, not someone else's squad. A table and a KPI on the same source always count the same rows.
 
 ## Caching
 
@@ -97,7 +99,7 @@ add_action( 'init', function () {
 }, 25 );
 ```
 
-The interface declares five methods: `id()` (snake_case stable id used as the `data_source_id` foreign key), `label()` (translatable picker label), `columns()` (list of `[key, label, kind]`), `filters()` (list of `[key, label, kind, options?]`), `fetch( $user_id, $filters, $column_keys, $limit )`, `aggregations()` (list of `[key, label, kind, column?]`).
+The interface declares these methods: `id()` (snake_case stable id used as the `data_source_id` foreign key), `label()` (translatable picker label), `columns()` (list of `[key, label, kind]`), `filters()` (list of `[key, label, kind, options?]`), `fetch( $user_id, $filters, $column_keys, $limit )`, `aggregations()` (list of `[key, label, kind, column?]`), and `aggregate( $user_id, $filters, $aggregation_key ): ?float`, which computes one declared aggregation over every row the filters select, with the same scope as `fetch()`. A KPI widget shows `aggregate()`; it returns null for an aggregation the source does not declare. The widget data route (`GET /custom-widgets/{id}/data`) carries the same figure as `aggregate`, next to the `aggregation` key.
 
 Sources should also implement `requiredCap(): string` so the renderer's source-cap inheritance kicks in. The interface doesn't require it (additive after Phase 1), but every shipped source has it. A source with no cap returns the empty string.
 

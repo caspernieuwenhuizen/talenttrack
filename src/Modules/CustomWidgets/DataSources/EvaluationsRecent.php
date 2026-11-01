@@ -3,6 +3,7 @@ namespace TT\Modules\CustomWidgets\DataSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Evaluations\EvalRatingsRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\CustomWidgets\Domain\CustomDataSource;
 
@@ -42,11 +43,14 @@ final class EvaluationsRecent implements CustomDataSource {
         ];
     }
 
-    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $where  = [ 'e.club_id = %d' ];
+    /**
+     * The WHERE the rows and the aggregate share: club and the date range.
+     *
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>, 1:list<int|string>}
+     */
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'e.club_id = %d', SourceScope::playerClause( $user_id, 'evaluations', 'e.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         if ( ! empty( $filters['date_from'] ) ) {
@@ -57,6 +61,50 @@ final class EvaluationsRecent implements CustomDataSource {
             $where[]  = 'e.created_at <= %s';
             $params[] = (string) $filters['date_to'];
         }
+        return [ $where, $params ];
+    }
+
+    /**
+     * #4566 — `count` is one SQL COUNT. `avg_overall` averages the
+     * evaluations' overall ratings as the rest of the product computes
+     * them: `EvalRatingsRepository::overallRatingsForEvaluations()`, the
+     * weighted mean of the main categories per age group. There is no
+     * stored overall column to average in SQL, and a second formula here
+     * would disagree with the player profile. Evaluations nobody rated are
+     * left out, so they do not pull the average to 0.
+     */
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float {
+        if ( $aggregation_key !== 'count' && $aggregation_key !== 'avg_overall' ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
+
+        if ( $aggregation_key === 'count' ) {
+            $sql = "SELECT COUNT(*) FROM {$p}tt_evaluations e WHERE " . implode( ' AND ', $where );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            return (float) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+        }
+
+        $sql = "SELECT e.id FROM {$p}tt_evaluations e WHERE " . implode( ' AND ', $where );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $ids = array_map( 'intval', (array) $wpdb->get_col( $wpdb->prepare( $sql, ...$params ) ) );
+
+        $sum = 0.0;
+        $n   = 0;
+        foreach ( ( new EvalRatingsRepository() )->overallRatingsForEvaluations( $ids ) as $overall ) {
+            if ( $overall['value'] === null ) continue;
+            $sum += (float) $overall['value'];
+            $n++;
+        }
+        return $n > 0 ? round( $sum / $n, 1 ) : null;
+    }
+
+    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT e.id, e.created_at, e.evaluator_id, p.first_name, p.last_name,
                        u.display_name AS evaluator_name

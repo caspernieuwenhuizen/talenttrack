@@ -20,9 +20,9 @@ use TT\Modules\CustomWidgets\Repository\CustomWidgetRepository;
  * Chart-type behaviour:
  *   - **table** — `<table>` with the saved column subset; rows from
  *     the source's `fetch()`. Empty data → empty-state message.
- *   - **kpi** — single big number; reads the first row's first
- *     non-null value when an aggregation is present, falls back to
- *     row count otherwise.
+ *   - **kpi** — single big number. With an aggregation in the
+ *     definition, the source's `aggregate()` over every row the filters
+ *     select (#4566); without one, the first row's first numeric value.
  *   - **bar** / **line** — `<canvas>` element + Chart.js bootstrap
  *     payload in a `<script>` block. Chart.js itself is enqueued via
  *     `enqueueChartJsIfNeeded()` once per page render.
@@ -83,14 +83,37 @@ final class CustomWidgetRenderer {
             ? (int) $widget->definition['cache_ttl_minutes']
             : 5;
 
+        // #4566 — a KPI with an aggregation shows that aggregation, computed
+        // by the source over every row the filters select. It used to show
+        // the first value of a one-row fetch: a player's age under
+        // "Number of active players". Cached under the aggregation, so
+        // switching it never shows the old figure.
+        $aggregation_key = isset( $widget->definition['aggregation']['key'] )
+            ? (string) $widget->definition['aggregation']['key']
+            : '';
+        // The rows follow the viewer's team scope, so the cache key carries
+        // it: a change of teams is a change of key.
+        $scope = \TT\Modules\CustomWidgets\DataSources\SourceScope::cacheVariant( $user_id );
+        if ( $widget->chartType === CustomWidget::CHART_KPI && $aggregation_key !== '' ) {
+            $variant = 'agg_' . $aggregation_key . '_' . $scope;
+            $cached  = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes, $variant );
+            if ( $cached !== null ) {
+                $value = $cached[0]['value'] ?? null;
+            } else {
+                $value = $source->aggregate( $user_id, $filters, $aggregation_key );
+                CustomWidgetCache::put( $widget->uuid, $user_id, [ [ 'value' => $value ] ], $ttl_minutes, $variant );
+            }
+            return self::renderKpiFigure( $widget, $value );
+        }
+
         // Phase 5 — per-widget cache. Per-user keying so a future
         // viewer-aware filter (e.g. "my players") doesn't bleed.
-        $cached = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes );
+        $cached = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes, 'rows_' . $scope );
         if ( $cached !== null ) {
             $rows = $cached;
         } else {
             $rows = $source->fetch( $user_id, $filters, $columns, $limit );
-            CustomWidgetCache::put( $widget->uuid, $user_id, $rows, $ttl_minutes );
+            CustomWidgetCache::put( $widget->uuid, $user_id, $rows, $ttl_minutes, 'rows_' . $scope );
         }
 
         switch ( $widget->chartType ) {
@@ -184,7 +207,14 @@ final class CustomWidgetRenderer {
      * @param array<int, array<string,mixed>> $rows
      */
     private static function renderKpi( CustomWidget $widget, array $rows ): string {
-        $value = self::kpiValueFromRows( $rows );
+        // A KPI without an aggregation keeps the first-value reading.
+        return self::renderKpiFigure( $widget, self::kpiValueFromRows( $rows ) );
+    }
+
+    /**
+     * @param mixed $value The figure: an aggregate, a first value, or null.
+     */
+    private static function renderKpiFigure( CustomWidget $widget, $value ): string {
         $body  = '<div class="tt-cw-kpi-value">' . esc_html( self::formatKpiValue( $value ) ) . '</div>';
         $body .= '<div class="tt-cw-kpi-label">' . esc_html( $widget->name ) . '</div>';
         return self::frame( '', $body, $widget->uuid, 'tt-cw-kpi' );

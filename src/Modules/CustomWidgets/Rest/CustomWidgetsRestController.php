@@ -316,11 +316,25 @@ final class CustomWidgetsRestController {
         if ( $limit < 1 ) $limit = 1;
         if ( $limit > 5000 ) $limit = 5000;
         $rows = $source->fetch( get_current_user_id(), $filters, $columns, $limit );
+
+        // #4566 — the figure a KPI shows, computed by the source over every
+        // row the filters select: the same call the renderer makes, so a
+        // client reading this route gets the dashboard's number. Null for a
+        // widget with no aggregation.
+        $aggregation_key = isset( $widget->definition['aggregation']['key'] )
+            ? (string) $widget->definition['aggregation']['key']
+            : '';
+        $aggregate = $aggregation_key !== ''
+            ? $source->aggregate( get_current_user_id(), $filters, $aggregation_key )
+            : null;
+
         return rest_ensure_response( [
-            'uuid'       => $widget->uuid,
-            'chart_type' => $widget->chartType,
-            'columns'    => $columns,
-            'rows'       => $rows,
+            'uuid'        => $widget->uuid,
+            'chart_type'  => $widget->chartType,
+            'columns'     => $columns,
+            'rows'        => $rows,
+            'aggregation' => $aggregation_key !== '' ? $aggregation_key : null,
+            'aggregate'   => $aggregate,
         ] );
     }
 

@@ -46,11 +46,14 @@ final class GoalsOpen implements CustomDataSource {
         ];
     }
 
-    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $where  = [ 'g.club_id = %d' ];
+    /**
+     * The WHERE the rows and the aggregate share: club and status.
+     *
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>, 1:list<int|string>}
+     */
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'g.club_id = %d', SourceScope::playerClause( $user_id, 'goals', 'g.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         $status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
@@ -60,6 +63,31 @@ final class GoalsOpen implements CustomDataSource {
         } else {
             $where[] = "g.status = 'active'";
         }
+        return [ $where, $params ];
+    }
+
+    /** #4566 — one SQL aggregate over the rows `fetch()` selects. */
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float {
+        $select = [
+            'count'            => 'COUNT(*)',
+            'distinct_players' => 'COUNT( DISTINCT g.player_id )',
+        ];
+        if ( ! isset( $select[ $aggregation_key ] ) ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
+
+        $sql = "SELECT {$select[ $aggregation_key ]} FROM {$p}tt_goals g WHERE " . implode( ' AND ', $where );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (float) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+    }
+
+    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT g.id, g.title, g.status, g.target_date, p.first_name, p.last_name
                   FROM {$p}tt_goals g

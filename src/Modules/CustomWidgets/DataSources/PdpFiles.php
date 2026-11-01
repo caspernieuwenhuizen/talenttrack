@@ -44,16 +44,14 @@ final class PdpFiles implements CustomDataSource {
         ];
     }
 
-    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $table = $p . 'tt_pdp_files';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-            return [];
-        }
-
-        $where  = [ 'pf.club_id = %d' ];
+    /**
+     * The WHERE the rows and the aggregate share: club, status and season.
+     *
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>, 1:list<int|string>}
+     */
+    private function whereFor( array $filters, int $user_id ): array {
+        $where  = [ 'pf.club_id = %d', SourceScope::playerClause( $user_id, 'pdp_file', 'pf.player_id' ) ];
         $params = [ CurrentClub::id() ];
 
         $status = isset( $filters['status'] ) ? (string) $filters['status'] : '';
@@ -67,6 +65,36 @@ final class PdpFiles implements CustomDataSource {
             $where[]  = 'pf.season_id = %d';
             $params[] = $season_id;
         }
+        return [ $where, $params ];
+    }
+
+    /** #4566 — one SQL COUNT over the rows `fetch()` selects. */
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float {
+        if ( $aggregation_key !== 'count' ) return null;
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $table = $p . 'tt_pdp_files';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return null;
+        }
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
+
+        $sql = "SELECT COUNT(*) FROM {$p}tt_pdp_files pf WHERE " . implode( ' AND ', $where );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (float) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+    }
+
+    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $table = $p . 'tt_pdp_files';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return [];
+        }
+
+        [ $where, $params ] = $this->whereFor( $filters, $user_id );
 
         $sql = "SELECT pf.id, pf.status, pf.season_id, p.first_name, p.last_name
                   FROM {$table} pf

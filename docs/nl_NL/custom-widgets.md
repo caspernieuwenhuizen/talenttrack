@@ -32,7 +32,7 @@ De bouwer leeft op **TalentTrack → Aangepaste widgets** (ook bereikbaar via he
 1. **Bron** — kies welke gegevensbron de widget leest. Elke bron declareert haar eigen kolommen, filters en aggregaties; alles stroomafwaarts wordt opnieuw weergegeven wanneer de bron verandert.
 2. **Kolommen** — kies voor tabelwidgets welke kolommen verschijnen. KPI / staaf / lijn-widgets negeren de kolomlijst (ze tonen één geaggregeerde waarde of één reeks).
 3. **Filters** — beperk de rijen. Filters worden door de bron gedeclareerd (bv. `team_id`, `date_from`, `status`); laat een filter leeg om het over te slaan.
-4. **Opmaak** — kies een grafiektype: Tabel, KPI (één groot getal), Staafdiagram of Lijndiagram. Niet-tabel-typen hebben ook een aggregatie nodig (count / avg / sum / distinct).
+4. **Opmaak** — kies een grafiektype: Tabel, KPI (één groot getal), Staafdiagram of Lijndiagram. Niet-tabel-typen hebben ook een aggregatie nodig (count / avg / sum / distinct). Een KPI toont die aggregatie, berekend over elke rij die de filters selecteren: het aantal actieve spelers, of de gemiddelde totaalbeoordeling van de evaluaties in de periode, op dezelfde manier berekend als op het profiel van een speler. Het filter *Leeftijdsbereik* bij actieve spelers houdt de spelers over die die leeftijd vandaag nog niet hebben bereikt (O13 is jonger dan 13); spelers zonder geboortedatum vallen weg zodra je een leeftijdsbereik kiest.
 5. **Voorbeeld** — slaat de widget als concept op en toont de daadwerkelijke gegevens die het dashboard zou laten zien.
 6. **Opslaan** — geef de widget een naam (1-120 tekens) en kies een cache-houdbaarheid in minuten (standaard 5; zet op 0 om caching uit te schakelen).
 
@@ -51,6 +51,8 @@ Aangepaste widgets respecteren twee lagen:
 - **Bron-cap-overerving op rendertijd** — elke standaard gegevensbron declareert het onderliggende leesrecht (`players_active` → `tt_view_players`, `evaluations_recent` → `tt_view_evaluations`, enz.). Een kijker zonder het onderliggende recht ziet een "Je hebt geen toegang tot deze gegevens."-stub in plaats van de gerenderde widget. Dit wordt afgedwongen in `CustomWidgetRenderer`; je kunt het niet omzeilen door een aangepaste widget samen te stellen.
 
 Een ouder zonder `tt_view_evaluations` kan geen op evaluaties gebaseerde aangepaste widget zien op iemand anders' dashboard, ook niet als een beheerder die daar heeft geplaatst. Dezelfde gate die de onderliggende recordlijst beschermt, beschermt de widget.
+
+- **Rij-afbakening** — het recht zegt of een kijker de gegevens überhaupt leest, nooit van wie. De rijen en het KPI-totaal van een widget worden afgebakend zoals de bulkexports dat doen: wie clubbreed leest ziet de hele club, een trainer of teammanager ziet de teams waarmee die werkt, en een ouder of speler, die de gegevens van één kind leest, krijgt geen rijen. Een teamfilter buiten de teams van de kijker geeft een lege widget, niet de selectie van iemand anders. Een tabel en een KPI op dezelfde bron tellen altijd dezelfde rijen.
 
 ## Caching
 
@@ -97,7 +99,7 @@ add_action( 'init', function () {
 }, 25 );
 ```
 
-De interface declareert vijf methoden: `id()` (snake_case stabiele id die wordt gebruikt als de `data_source_id` foreign key), `label()` (vertaalbaar picker-label), `columns()` (lijst van `[key, label, kind]`), `filters()` (lijst van `[key, label, kind, options?]`), `fetch( $user_id, $filters, $column_keys, $limit )`, `aggregations()` (lijst van `[key, label, kind, column?]`).
+De interface declareert deze methoden: `id()` (snake_case stabiele id die wordt gebruikt als de `data_source_id` foreign key), `label()` (vertaalbaar picker-label), `columns()` (lijst van `[key, label, kind]`), `filters()` (lijst van `[key, label, kind, options?]`), `fetch( $user_id, $filters, $column_keys, $limit )`, `aggregations()` (lijst van `[key, label, kind, column?]`) en `aggregate( $user_id, $filters, $aggregation_key ): ?float`, die één gedeclareerde aggregatie berekent over elke rij die de filters selecteren, met dezelfde afbakening als `fetch()`. Een KPI-widget toont `aggregate()`; die geeft null terug voor een aggregatie die de bron niet declareert. De dataroute van de widget (`GET /custom-widgets/{id}/data`) geeft hetzelfde getal mee als `aggregate`, naast de sleutel `aggregation`.
 
 Bronnen moeten ook `requiredCap(): string` implementeren zodat de bron-cap-overerving van de renderer in werking treedt. De interface vereist het niet (additief na Phase 1), maar elke standaardbron heeft het. Een bron zonder cap retourneert de lege string.
 

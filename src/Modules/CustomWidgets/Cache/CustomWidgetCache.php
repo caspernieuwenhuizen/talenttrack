@@ -36,9 +36,9 @@ final class CustomWidgetCache {
      *
      * @return array<int, array<string,mixed>>|null
      */
-    public static function get( string $uuid, int $user_id, int $ttl_minutes ): ?array {
+    public static function get( string $uuid, int $user_id, int $ttl_minutes, string $variant = '' ): ?array {
         if ( $ttl_minutes <= 0 ) return null;
-        $key   = self::dataKey( $uuid, $user_id );
+        $key   = self::dataKey( $uuid, $user_id, $variant );
         $value = get_transient( $key );
         if ( $value === false ) return null;
         return is_array( $value ) ? $value : null;
@@ -47,9 +47,9 @@ final class CustomWidgetCache {
     /**
      * @param array<int, array<string,mixed>> $rows
      */
-    public static function put( string $uuid, int $user_id, array $rows, int $ttl_minutes ): void {
+    public static function put( string $uuid, int $user_id, array $rows, int $ttl_minutes, string $variant = '' ): void {
         if ( $ttl_minutes <= 0 ) return;
-        $key = self::dataKey( $uuid, $user_id );
+        $key = self::dataKey( $uuid, $user_id, $variant );
         $ttl = $ttl_minutes * MINUTE_IN_SECONDS;
         // WP transients hard-cap at WEEK_IN_SECONDS for some backends.
         if ( $ttl > WEEK_IN_SECONDS ) $ttl = WEEK_IN_SECONDS;
@@ -67,10 +67,17 @@ final class CustomWidgetCache {
         update_option( $opt, $cur + 1, false );
     }
 
-    private static function dataKey( string $uuid, int $user_id ): string {
+    /**
+     * #4566 — `$variant` separates what is cached for one widget: a KPI's
+     * aggregate is keyed by its aggregation, so switching it never shows
+     * the figure computed for the old one. Sanitised and short, so the key
+     * stays within the transient limit.
+     */
+    private static function dataKey( string $uuid, int $user_id, string $variant = '' ): string {
         $version = (int) get_option( self::VERSION_OPTION_PREFIX . $uuid, 0 );
+        $suffix  = $variant !== '' ? '_' . substr( sanitize_key( $variant ), 0, 32 ) : '';
         // Transient keys are bound to 172 chars on some backends; the
-        // composed key here stays under 80 even with a 36-char uuid.
-        return self::DATA_TRANSIENT_PREFIX . $uuid . '_' . $user_id . '_v' . $version;
+        // composed key here stays under 120 even with a 36-char uuid.
+        return self::DATA_TRANSIENT_PREFIX . $uuid . '_' . $user_id . '_v' . $version . $suffix;
     }
 }
