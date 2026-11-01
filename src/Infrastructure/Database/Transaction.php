@@ -27,13 +27,57 @@ final class Transaction {
 
     private static int $depth = 0;
 
+    private static bool $guarded = false;
+
     /** How many levels are open: 0 outside a transaction. */
     public static function depth(): int {
         return self::$depth;
     }
 
+    /**
+     * Run `$work` in one level: committed when it returns, rolled back and
+     * rethrown when it throws.
+     *
+     * @template T
+     * @param callable(): T $work
+     * @return T
+     */
+    public static function run( callable $work ) {
+        self::begin();
+        try {
+            $result = $work();
+        } catch ( \Throwable $e ) {
+            self::rollback();
+            throw $e;
+        }
+        self::commit();
+        return $result;
+    }
+
+    /**
+     * End of the request with a level still open: a caller missed its
+     * `commit()` or `rollback()`. Nothing it wrote is trusted, so it is
+     * rolled back, and the miss is logged so it can be found.
+     */
+    public static function onShutdown(): void {
+        if ( self::$depth === 0 ) return;
+        global $wpdb;
+        if ( function_exists( 'error_log' ) ) {
+            error_log( '[TalentTrack] A transaction was still open at the end of the request (' . self::$depth . ' level(s)); it was rolled back.' );
+        }
+        self::$depth = 0;
+        if ( isset( $wpdb ) && is_object( $wpdb ) ) {
+            $wpdb->query( 'ROLLBACK' );
+        }
+        AfterCommit::rolledBack( 0 );
+    }
+
     public static function begin(): void {
         global $wpdb;
+        if ( ! self::$guarded ) {
+            self::$guarded = true;
+            register_shutdown_function( [ self::class, 'onShutdown' ] );
+        }
         if ( self::$depth === 0 ) {
             $wpdb->query( 'START TRANSACTION' );
         } else {

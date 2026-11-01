@@ -139,7 +139,7 @@ final class SeedImporter {
     }
 
     /**
-     * Apply the stashed rows: TRUNCATE + INSERT, mirror of MatrixRepository::reseed
+     * Apply the stashed rows: DELETE + INSERT in one transaction, mirror of MatrixRepository::reseed
      * but with `is_default = 0` since this IS an admin edit.
      *
      * @return array{ok:bool, inserted:int, error?:string}
@@ -149,7 +149,9 @@ final class SeedImporter {
         $p = $wpdb->prefix;
 
         Transaction::begin();
-        $wpdb->query( "TRUNCATE TABLE {$p}tt_authorization_matrix" );
+        // DELETE, not TRUNCATE: TRUNCATE commits on the spot, so an insert
+        // failing below used to leave the matrix half-replaced (#4561).
+        $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" );
 
         $inserted = 0;
         foreach ( $rows as $row ) {

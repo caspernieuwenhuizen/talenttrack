@@ -15,9 +15,10 @@ use TT\Infrastructure\Database\Transaction;
  *                           a per-table summary the UI shows before
  *                           the user confirms.
  *
- *   2. restore( $path )  — actually executes: TRUNCATE then INSERT
- *                           for every table in the snapshot. Wraps in
- *                           a transaction where InnoDB allows.
+ *   2. restore( $path )  — actually executes: DELETE then INSERT
+ *                           for every table in the snapshot, in one
+ *                           transaction, so a restore that throws part
+ *                           way leaves the tables as they were.
  *
  * Cross-major-version policy: a snapshot from a different major plugin
  * version is rejected outright. Same-major OK; the schema migrator is
@@ -83,9 +84,10 @@ class BackupRestorer {
             return [ 'ok' => false, 'error' => __( 'Backup file is not valid.', 'talenttrack' ), 'restored' => [] ];
         }
 
-        // Best-effort transaction. MySQL DDL (TRUNCATE) auto-commits, so
-        // the transaction wrapping is mostly cosmetic; we still try, in
-        // case the server happens to support it for the path we hit.
+        // One transaction for the whole restore. The tables are emptied
+        // with DELETE rather than TRUNCATE (#4561): TRUNCATE commits on the
+        // spot, which made this transaction cosmetic and let a restore
+        // that failed part way leave tables emptied.
         Transaction::begin();
         try {
             $restored = self::restoreTables( $snapshot['tables'] );
@@ -143,7 +145,7 @@ class BackupRestorer {
                 continue;
             }
 
-            $wpdb->query( "TRUNCATE TABLE {$table}" );
+            $wpdb->query( "DELETE FROM {$table}" );
 
             $count = 0;
             foreach ( $rows as $row ) {

@@ -5,6 +5,7 @@ use WP_UnitTestCase;
 use TT\Infrastructure\Database\AfterCommit;
 use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Authorization\Admin\SeedImporter;
 use TT\Modules\Backup\PartialRestorer;
 use TT\Modules\Pdp\PdpCascadeDeleter;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
@@ -115,6 +116,69 @@ final class TransactionTest extends WP_UnitTestCase {
         Transaction::rollback();
 
         $this->assertSame( 0, $sent );
+    }
+
+    public function test_run_commits_what_the_work_wrote_and_returns_its_result(): void {
+        $id = Transaction::run( fn(): int => $this->team( 'Run team' ) );
+
+        $this->assertTrue( $this->teamExists( $id ) );
+    }
+
+    public function test_run_rolls_back_and_rethrows_when_the_work_throws(): void {
+        $id = 0;
+        try {
+            Transaction::run( function () use ( &$id ): void {
+                $id = $this->team( 'Thrown team' );
+                throw new \RuntimeException( 'Failed, for the test.' );
+            } );
+            $this->fail( 'the throw reaches the caller' );
+        } catch ( \RuntimeException $e ) {
+            $this->assertSame( 'Failed, for the test.', $e->getMessage() );
+        }
+
+        $this->assertGreaterThan( 0, $id );
+        $this->assertFalse( $this->teamExists( $id ) );
+    }
+
+    public function test_a_level_left_open_is_rolled_back_at_shutdown(): void {
+        $sent = 0;
+        Transaction::begin();
+        $id = $this->team( 'Abandoned team' );
+        AfterCommit::run( static function () use ( &$sent ): void { $sent++; } );
+
+        Transaction::onShutdown();
+
+        $this->assertSame( 0, Transaction::depth() );
+        $this->assertFalse( $this->teamExists( $id ), 'nothing an unclosed level wrote is kept' );
+        $this->assertSame( 0, $sent, 'nothing it held back is sent' );
+    }
+
+    /**
+     * The matrix used to be emptied with TRUNCATE, which commits on the
+     * spot, so an insert failing part way left the matrix half-replaced and
+     * the academy's permissions with it.
+     */
+    public function test_a_seed_import_that_fails_part_way_leaves_the_matrix_as_it_was(): void {
+        global $wpdb;
+        $table  = $wpdb->prefix . 'tt_authorization_matrix';
+        $before = $wpdb->get_results( "SELECT persona, entity, activity, scope_kind, module_class, is_default FROM {$table} ORDER BY id", ARRAY_A );
+        $this->assertNotEmpty( $before, 'precondition: the seeded matrix is there' );
+
+        $rows   = array_slice( $before, 0, 3 );
+        $rows[] = [ 'persona' => 'tt_refused_persona', 'entity' => 'players', 'activity' => 'read', 'scope_kind' => 'global', 'module_class' => '' ];
+        $refuse = static function ( $sql ) {
+            return stripos( (string) $sql, 'tt_refused_persona' ) !== false ? '' : $sql;
+        };
+        add_filter( 'query', $refuse );
+        $result = SeedImporter::apply( $rows );
+        remove_filter( 'query', $refuse );
+
+        $this->assertFalse( $result['ok'], 'precondition: the import failed' );
+        $this->assertSame(
+            $before,
+            $wpdb->get_results( "SELECT persona, entity, activity, scope_kind, module_class, is_default FROM {$table} ORDER BY id", ARRAY_A ),
+            'every row is back, defaults included'
+        );
     }
 
     public function test_nothing_in_src_opens_or_closes_a_transaction_itself(): void {
