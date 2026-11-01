@@ -1,0 +1,3 @@
+# Functional roles: a renamed stock role shows the club's own name (#4557)
+
+A club that renamed one of the stock functional roles, for example "Head coach" to "Trainer A-selectie", kept seeing the stock label on every screen, because the role was matched by its key before its stored label was read. Now the stored label is shown whenever it differs from the label the role was set up with. An unrenamed stock role still shows its translated label, in Dutch and in English, and a role the club added itself keeps its own name as before. Older installs that still store the original "Head Coach" spelling count as unrenamed. A rename made through `PUT functional-roles/{id}` shows straight away in the same request.

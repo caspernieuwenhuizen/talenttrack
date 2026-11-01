@@ -189,6 +189,8 @@ class FunctionalRolesRestController {
             Logger::error( 'rest.functional_role.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The role type could not be updated.', 'talenttrack' ), 500 );
         }
+        // #4557 — a rename shows in the labels read later in this request.
+        \TT\Infrastructure\Query\LabelTranslator::flushFunctionalRoleLabels();
         return RestResponse::success( [ 'id' => $id ] );
     }
 

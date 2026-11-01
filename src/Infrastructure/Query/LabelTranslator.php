@@ -179,6 +179,16 @@ class LabelTranslator {
             );
             if ( $tx !== '' ) return $tx;
         }
+
+        // #4557 — a club that renamed a seeded role ("Head coach" to
+        // "Trainer A-selectie") sees its own name. The stored label counts
+        // as renamed only when it differs from the seed's default for that
+        // key, ignoring case: installs seeded before #4523 still hold the
+        // Title Case original ("Head Coach"), which is not a rename.
+        $stored = self::storedFunctionalRoleLabel( $key, $entity_id );
+        $seed   = self::seededFunctionalRoleLabel( $key );
+        if ( $stored !== '' && $seed !== '' && strcasecmp( $stored, $seed ) !== 0 ) return $stored;
+
         switch ( strtolower( $key ) ) {
             case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
             case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
@@ -192,6 +202,51 @@ class LabelTranslator {
             case 'other':               return _x( 'Other', 'role label', 'talenttrack' );
             default:                    return null;
         }
+    }
+
+    /** @var array<int, array{by_id: array<int, string>, by_key: array<string, string>}> club id => stored labels */
+    private static array $functional_role_labels = [];
+
+    /**
+     * The label stored on the club's functional role row, by id when the
+     * caller has it and by key otherwise; '' when there is no row. One read
+     * per club per request.
+     */
+    private static function storedFunctionalRoleLabel( string $key, ?int $entity_id ): string {
+        $club = (int) \TT\Infrastructure\Tenancy\CurrentClub::id();
+        if ( ! isset( self::$functional_role_labels[ $club ] ) ) {
+            global $wpdb;
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, role_key, label FROM {$wpdb->prefix}tt_functional_roles WHERE club_id = %d",
+                $club
+            ) );
+            $labels = [ 'by_id' => [], 'by_key' => [] ];
+            foreach ( (array) $rows as $row ) {
+                $f     = (array) $row;
+                $label = trim( (string) ( $f['label'] ?? '' ) );
+                $labels['by_id'][ (int) ( $f['id'] ?? 0 ) ] = $label;
+                $labels['by_key'][ strtolower( (string) ( $f['role_key'] ?? '' ) ) ] = $label;
+            }
+            self::$functional_role_labels[ $club ] = $labels;
+        }
+        $labels = self::$functional_role_labels[ $club ];
+        if ( $entity_id !== null && $entity_id > 0 && isset( $labels['by_id'][ $entity_id ] ) ) {
+            return $labels['by_id'][ $entity_id ];
+        }
+        return $labels['by_key'][ strtolower( $key ) ] ?? '';
+    }
+
+    /** The English label the Activator seeds for this functional role key; '' for a key it does not seed. */
+    private static function seededFunctionalRoleLabel( string $key ): string {
+        foreach ( \TT\Core\Activator::defaultFunctionalRoleDefinitions() as $def ) {
+            if ( strtolower( (string) $def['key'] ) === strtolower( $key ) ) return (string) $def['label'];
+        }
+        return '';
+    }
+
+    /** Forget the stored functional role labels read this request (after a rename, and in tests). */
+    public static function flushFunctionalRoleLabels(): void {
+        self::$functional_role_labels = [];
     }
 
     private static function currentLocale(): string {
