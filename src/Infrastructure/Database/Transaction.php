@@ -66,7 +66,7 @@ final class Transaction {
             error_log( '[TalentTrack] A transaction was still open at the end of the request (' . self::$depth . ' level(s)); it was rolled back.' );
         }
         self::$depth = 0;
-        if ( isset( $wpdb ) && is_object( $wpdb ) ) {
+        if ( $wpdb instanceof \wpdb ) {
             $wpdb->query( 'ROLLBACK' );
         }
         AfterCommit::rolledBack( 0 );
