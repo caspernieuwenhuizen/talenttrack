@@ -59,8 +59,8 @@ final class PdpDueBlock extends FollowUpBlock {
 
         $count  = 0;
         $closes = '';
-        foreach ( (array) ( $matrix['teams'] ?? [] ) as $team ) {
-            foreach ( (array) ( $team['blocks'] ?? [] ) as $cell ) {
+        foreach ( $matrix['teams'] as $team ) {
+            foreach ( $team['blocks'] as $cell ) {
                 $end = substr( (string) ( $cell['window_end'] ?? '' ), 0, 10 );
                 if ( $end === '' || $end < $week->start || $end > $week->end ) continue;
                 $open = max( 0, (int) ( $cell['expected'] ?? 0 ) - (int) ( $cell['conducted'] ?? 0 ) - (int) ( $cell['not_held'] ?? 0 ) );

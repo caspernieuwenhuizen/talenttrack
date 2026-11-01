@@ -77,7 +77,7 @@ final class CoachWeekFollowUpsTest extends WP_UnitTestCase {
 
         $this->admin = (int) self::factory()->user->create( [ 'role' => 'administrator' ] );
         $persona     = (string) \TT\Modules\Authorization\PersonaResolver::landingPersona( $this->admin );
-        $this->configure( $persona, [ 'on' => true, 'teams' => 'all', 'desktop' => [ 'pdp', 'evals', 'tasks' ], 'phone' => [ 'tasks' ] ] );
+        $this->configure( $persona, [ 'on' => true, 'phone_on' => true, 'teams' => 'all', 'desktop' => [ 'pdp', 'evals', 'tasks' ], 'phone' => [ 'tasks' ] ] );
 
         $this->coach = (int) self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $this->grantTeam( $this->coach, $this->team );

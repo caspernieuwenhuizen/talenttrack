@@ -43,8 +43,8 @@ final class EvalsDueBlock extends FollowUpBlock {
         $round   = null;
         $windows = $service->windows();
         foreach ( $windows as $i => $window ) {
-            $start = (string) ( $window['start'] ?? '' );
-            $end   = (string) ( $window['end'] ?? '' );
+            $start = (string) $window['start'];
+            $end   = (string) $window['end'];
             if ( $start !== '' && $start <= $week->today && ( $end === '' || $end >= $week->today ) ) {
                 $round = (int) $i;
                 break;
@@ -54,9 +54,9 @@ final class EvalsDueBlock extends FollowUpBlock {
 
         $coverage = $week->once( 'eval_coverage', static fn(): array => $service->coverage() );
         $count    = 0;
-        foreach ( (array) ( $coverage['teams'] ?? [] ) as $team ) {
-            if ( ! $week->canSeeTeam( (int) ( $team['team_id'] ?? 0 ) ) ) continue;
-            foreach ( (array) ( $team['players'] ?? [] ) as $player ) {
+        foreach ( $coverage['teams'] as $team ) {
+            if ( ! $week->canSeeTeam( (int) $team['team_id'] ) ) continue;
+            foreach ( $team['players'] as $player ) {
                 if ( ( $player['cells'][ $round ]['state'] ?? '' ) === 'gap' ) $count++;
             }
         }
