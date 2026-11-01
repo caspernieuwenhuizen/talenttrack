@@ -105,14 +105,10 @@ final class RegisterAndEvaluationRolesTest extends WP_UnitTestCase {
         $this->assertSame( 1, $this->evaluationsFor( $this->own_player ) );
     }
 
-    public function test_a_coach_rates_a_linked_guest_on_their_activity(): void {
-        global $wpdb;
+    public function test_a_coach_rates_a_linked_guest_who_took_part(): void {
         $coach = $this->headCoachOf( $this->own_team );
         wp_set_current_user( $coach );
-        $wpdb->insert( "{$wpdb->prefix}tt_attendance", [
-            'club_id' => 1, 'activity_id' => $this->own_activity, 'player_id' => $this->other_player,
-            'is_guest' => 1, 'status' => 'Present', 'record_type' => 'actual',
-        ] );
+        $this->addGuest( $this->own_activity, $this->other_player );
         $stranger = $this->player( $this->other_team, 'Rolekeepstranger' );
 
         $this->assertFalse( EvaluationInserter::mayWriteFor( $coach, $this->other_player ), 'precondition: not the coach\'s own player' );
@@ -125,6 +121,65 @@ final class RegisterAndEvaluationRolesTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->evaluationsFor( $stranger ), 'a player who was not there is not' );
 
         $this->assertSame( 201, $this->rowRoute( $this->other_player, $this->own_activity )->get_status(), 'the row route rates the guest too' );
+    }
+
+    public function test_a_guest_only_planned_for_the_activity_is_not_rated(): void {
+        $coach = $this->headCoachOf( $this->own_team );
+        wp_set_current_user( $coach );
+        ( new \TT\Modules\Activities\Repositories\AttendanceWriter() )->planExpected( [
+            'club_id' => 1, 'activity_id' => $this->own_activity, 'player_id' => $this->other_player,
+            'is_guest' => 0, 'status' => 'Present',
+        ] );
+
+        $this->assertFalse( EvaluationInserter::mayWriteForActivity( $coach, $this->other_player, $this->own_activity ) );
+        $this->assertSame( 403, $this->rowRoute( $this->other_player, $this->own_activity )->get_status() );
+    }
+
+    public function test_a_coach_is_not_admitted_on_another_teams_or_a_teamless_activity(): void {
+        global $wpdb;
+        $admin = self::factory()->user->create( [ 'role' => 'administrator' ] );
+        wp_set_current_user( $admin );
+        $teamless = $this->activity( 0 );
+        $guest    = $this->player( $this->other_team, 'Rolekeepvisitor' );
+        $this->addGuest( $this->other_activity, $guest );
+        $this->addGuest( $teamless, $guest );
+        $this->assertContains( $guest, \TT\Modules\Activities\Repositories\AttendanceWriter::attendedPlayerIds( $teamless ), 'precondition: the guest took part' );
+
+        $coach = $this->headCoachOf( $this->own_team );
+        wp_set_current_user( $coach );
+        $this->assertFalse( EvaluationInserter::mayWriteForActivity( $coach, $guest, $this->other_activity ) );
+        $this->assertFalse( EvaluationInserter::mayWriteForActivity( $coach, $guest, $teamless ) );
+        ( new ReviewStep() )->submit( [
+            '_path' => 'activity-first', 'activity_id' => $teamless, 'ratings' => [ $guest => [ 1 => 7 ] ],
+        ] );
+        $this->assertSame( 0, $this->evaluationsFor( $guest ) );
+
+    }
+
+    public function test_a_manager_who_takes_the_register_cannot_rate(): void {
+        $manager = $this->functionalRoleManager();
+        wp_set_current_user( $manager );
+        ( new AttendanceStep() )->validate(
+            [ 'attendance' => [ (string) $this->own_player => 'present' ] ],
+            [ '_path' => 'activity-first', 'activity_id' => $this->own_activity ]
+        );
+        $this->assertSame( [ $this->own_player ], $this->actualPlayers( $this->own_activity ), 'precondition: the manager took the register' );
+
+        $this->assertFalse( EvaluationInserter::mayWriteForActivity( $manager, $this->own_player, $this->own_activity ) );
+        ( new ReviewStep() )->submit( [
+            '_path' => 'activity-first', 'activity_id' => $this->own_activity, 'ratings' => [ $this->own_player => [ 1 => 7 ] ],
+        ] );
+        $this->assertSame( 0, $this->evaluationsFor( $this->own_player ) );
+    }
+
+    /** A linked guest, added the way the activity screen adds one. */
+    private function addGuest( int $activity_id, int $player_id ): void {
+        $request = new \WP_REST_Request( 'POST', '/talenttrack/v1/activities/' . $activity_id . '/guests' );
+        $request->set_param( 'id', $activity_id );
+        $request->set_param( 'guest_player_id', $player_id );
+        $request->set_param( 'status', 'present' );
+        $response = rest_ensure_response( ActivitiesRestController::add_guest( $request ) );
+        $this->assertLessThan( 300, $response->get_status(), 'fixture: the guest was added' );
     }
 
     private function rowRoute( int $player_id, int $activity_id ): \WP_REST_Response {

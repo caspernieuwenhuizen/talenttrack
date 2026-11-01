@@ -145,7 +145,10 @@ final class RateConfirmStep implements WizardStepInterface {
         if ( $aid > 0 && \TT\Modules\Activities\ActivityAccess::canTakeRegister( get_current_user_id(), $aid ) ) {
             AttendanceStep::completeActivityIfNotTerminal( $aid );
 
-            if ( ! empty( $state['_skip_closes_rating'] ) ) {
+            // Closing the rating is a change to the activity, not to its
+            // register, so it asks the activity's own write rule.
+            if ( ! empty( $state['_skip_closes_rating'] )
+                && \TT\Modules\Activities\ActivityAccess::canWriteActivity( get_current_user_id(), $aid ) ) {
                 global $wpdb;
                 $wpdb->update(
                     $wpdb->prefix . 'tt_activities',

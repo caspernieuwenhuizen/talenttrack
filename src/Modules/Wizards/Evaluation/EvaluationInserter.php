@@ -36,21 +36,24 @@ final class EvaluationInserter {
     }
 
     /**
-     * The same question for a player rated on an activity: also a player on
-     * that activity's attendance, a linked guest from another team among
-     * them, when the user may write the activity and evaluate at all.
+     * The same question for a player rated on an activity. Also a player who
+     * took part in it, a linked guest from another team among them, when the
+     * user may evaluate on the activity's own team (`evaluations` change at
+     * global scope, or at team scope on that team) and may write the
+     * activity. An activity without a team needs the global grant.
      */
     public static function mayWriteForActivity( int $user_id, int $player_id, int $activity_id ): bool {
         if ( self::mayWriteFor( $user_id, $player_id ) ) return true;
-        if ( $activity_id <= 0 || $player_id <= 0 ) return false;
-        if ( ! \TT\Modules\Authorization\MatrixGate::canAnyScope( $user_id, 'evaluations', \TT\Modules\Authorization\MatrixGate::CHANGE ) ) return false;
+        if ( $user_id <= 0 || $activity_id <= 0 || $player_id <= 0 ) return false;
+
+        $gate    = \TT\Modules\Authorization\MatrixGate::class;
+        $team_id = (int) ( \TT\Modules\Authorization\ActivityTeamScope::teamIdForActivity( $activity_id ) ?? 0 );
+        $rates   = $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_GLOBAL )
+            || ( $team_id > 0 && $gate::can( $user_id, 'evaluations', $gate::CHANGE, $gate::SCOPE_TEAM, $team_id ) );
+        if ( ! $rates ) return false;
         if ( ! \TT\Modules\Activities\ActivityAccess::canWriteActivity( $user_id, $activity_id ) ) return false;
 
-        global $wpdb;
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_attendance WHERE activity_id = %d AND player_id = %d AND club_id = %d",
-            $activity_id, $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) ) > 0;
+        return in_array( $player_id, \TT\Modules\Activities\Repositories\AttendanceWriter::attendedPlayerIds( $activity_id ), true );
     }
 
     /**
