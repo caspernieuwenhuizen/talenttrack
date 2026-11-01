@@ -37,7 +37,8 @@
     // their own language; the API keeps its fixed token, which is sent only
     // when the typed word matches. Exposed so the rule can be tested.
     function confirmToken(typed, word, token) {
-        return String(typed || '').trim() === String(word || '') && word !== '' ? token : null;
+        var w = String(word || '');
+        return w !== '' && String(typed || '').trim() === w ? token : null;
     }
     window.TT = window.TT || {};
     window.TT.backupsConfirmToken = confirmToken;
