@@ -36,22 +36,39 @@ final class DutchMsgidPrintsTest extends WP_UnitTestCase {
         require_once $this->root() . '/tools/lib/gettext-calls.php';
     }
 
-    /** @return list<array{msgctxt:string, msgid:string, msgstr:string}> */
+    /**
+     * The converted entries. While the fragment is pending it is the record.
+     * A release consolidates it into the catalogue and deletes it; from then
+     * on the fixture copy of the fragment as it shipped names the entries,
+     * and the catalogue supplies their Dutch.
+     *
+     * @return list<array{msgctxt:string, msgid:string, msgstr:string}>
+     */
     private function fragment(): array {
-        $path = $this->root() . '/languages/pending/4533-dutch-msgids.po';
-        if ( ! is_readable( $path ) ) {
-            // The release consolidates the fragment into the catalogue and
-            // deletes it; from then on the catalogue is the record.
-            $this->markTestSkipped( 'The 4533 fragment has been consolidated by a release.' );
+        $path    = $this->root() . '/languages/pending/4533-dutch-msgids.po';
+        $pending = is_readable( $path );
+        if ( ! $pending ) {
+            $path = __DIR__ . '/fixtures/i18n/4533-dutch-msgids.po';
+            $shipped = [];
+            foreach ( tt_po_parse( (string) file_get_contents( $this->root() . '/languages/talenttrack-nl_NL.po' ) )['entries'] as $entry ) {
+                if ( ! empty( $entry['obsolete'] ) || $entry['msgid'] === null ) continue;
+                $shipped[ tt_po_key( (string) $entry['msgctxt'], (string) $entry['msgid'] ) ] = (string) ( $entry['msgstr'][0] ?? '' );
+            }
         }
         $parsed = tt_po_parse( (string) file_get_contents( $path ) );
         $out    = [];
         foreach ( $parsed['entries'] as $entry ) {
             if ( $entry['msgid'] === null || $entry['msgid'] === '' ) continue;
+            $msgstr = (string) ( $entry['msgstr'][0] ?? '' );
+            if ( ! $pending ) {
+                $key = tt_po_key( (string) $entry['msgctxt'], (string) $entry['msgid'] );
+                $this->assertArrayHasKey( $key, $shipped, "the catalogue carries the converted msgid: {$entry['msgid']}" );
+                $msgstr = $shipped[ $key ];
+            }
             $out[] = [
                 'msgctxt' => (string) $entry['msgctxt'],
                 'msgid'   => (string) $entry['msgid'],
-                'msgstr'  => (string) ( $entry['msgstr'][0] ?? '' ),
+                'msgstr'  => $msgstr,
             ];
         }
         return $out;

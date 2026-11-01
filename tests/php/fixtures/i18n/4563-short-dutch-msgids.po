@@ -1,0 +1,554 @@
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:210
+#, php-format
+msgid "Season intakes — %1$s — %2$s"
+msgstr "Seizoens-intakes — %1$s — %2$s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:232
+#, php-format
+msgid "%s — no active players"
+msgstr "%s — geen actieve spelers"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:398
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:473
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:491
+#, php-format
+msgid "TalentTrack · season intake %s"
+msgstr "TalentTrack · seizoensintake %s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:413
+msgctxt "goal intake print"
+msgid "Photo"
+msgstr "Foto"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:421
+msgctxt "goal intake print"
+msgid "Shirt number"
+msgstr "Rugnummer"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:422
+msgctxt "goal intake print"
+msgid "Age · Date of birth"
+msgstr "Leeftijd · Geboortedatum"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:423
+msgctxt "goal intake print"
+msgid "Preferred foot"
+msgstr "Voorkeursvoet"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:428
+msgctxt "goal intake print"
+msgid "Last season"
+msgstr "Vorig seizoen"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:429
+msgctxt "goal intake print"
+msgid "Matches"
+msgstr "Wedstr."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:430
+msgctxt "goal intake print"
+msgid "Minutes"
+msgstr "Minuten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:431
+msgctxt "goal intake print"
+msgid "Goals scored"
+msgstr "Doelpunten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:433
+msgctxt "goal intake print"
+msgid "Avg. score"
+msgstr "Gem. score"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:436
+msgctxt "goal intake print"
+msgid "Looking back"
+msgstr "Terugblik"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:443
+msgid "No data from last season."
+msgstr "Geen gegevens vorig seizoen."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:457
+msgid "Player writes / coach notes:"
+msgstr "Speler schrijft / trainer noteert:"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:465
+msgid "Page 1 of 3 · player snapshot"
+msgstr "Pagina 1 van 3 · speler-snapshot"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:483
+msgid "Page 2 of 3 · goals 1 + 2"
+msgstr "Pagina 2 van 3 · doelen 1 + 2"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:493
+msgid "Goal 3 · closing reflection · signatures."
+msgstr "Doel 3 · afsluitende reflectie · ondertekening."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:510
+msgctxt "goal intake print"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:518
+msgctxt "goal intake print"
+msgid "Conversation date"
+msgstr "Datum gesprek"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:532
+msgid "Page 3 of 3 · goal 3 + wrap-up"
+msgstr "Pagina 3 van 3 · doel 3 + afronding"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:546
+msgctxt "goal intake print"
+msgid "Technical"
+msgstr "Technisch"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:547
+msgctxt "goal intake print"
+msgid "Tactical"
+msgstr "Tactisch"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:548
+msgctxt "goal intake print"
+msgid "Physical"
+msgstr "Fysiek"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:549
+msgctxt "goal intake print"
+msgid "Mental"
+msgstr "Mentaal"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:554
+msgctxt "goal intake print"
+msgid "Goal description"
+msgstr "Doelomschrijving"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:561
+msgctxt "goal intake print"
+msgid "Linked game principle(s)"
+msgstr "Gekoppeld(e) spelprincipe(s)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:565
+msgid "e.g. AO-01, VS-03"
+msgstr "bijv. AO-01, VS-03"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:569
+msgctxt "goal intake print"
+msgid "Linked football action(s)"
+msgstr "Gekoppelde voetbalhandeling(en)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:573
+msgid "e.g. Passing, Getting free"
+msgstr "bijv. Passen, Vrijlopen"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:593
+msgctxt "goal intake print"
+msgid "First check-in date"
+msgstr "Eerste check-in datum"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:597
+msgid "Owner (player / coach / both)"
+msgstr "Eigenaar (speler / trainer / beide)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:614
+msgctxt "goal intake print: preferred foot"
+msgid "Right"
+msgstr "Rechts"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:615
+msgctxt "goal intake print: preferred foot"
+msgid "Left"
+msgstr "Links"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:616
+msgctxt "goal intake print: preferred foot"
+msgid "Both"
+msgstr "Beide"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:741
+msgid "Strengths last season (median evaluation)"
+msgstr "Sterke punten vorig seizoen (mediaan eval)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:742
+msgctxt "goal intake print"
+msgid "Development points"
+msgstr "Ontwikkelpunten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:744
+msgctxt "goal intake print"
+msgid "Coach notes"
+msgstr "Trainersnotities"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:880
+#, php-format
+msgid "Player: %1$s · Season %2$s"
+msgstr "Speler: %1$s · Seizoen %2$s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:927
+#, php-format
+msgid "Season intakes — %1$s — choose blocks"
+msgstr "Seizoens-intakes — %1$s — kies blokken"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:930
+#, php-format
+msgid "Team: %1$s · Season %2$s · %3$d players"
+msgstr "Team: %1$s · Seizoen %2$s · %3$d spelers"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:954
+msgid "Snapshot (photo, stats, looking back, reflection)"
+msgstr "Snapshot (foto, stats, terugblik, reflectie)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:955
+msgctxt "goal intake print"
+msgid "Goal 1"
+msgstr "Doel 1"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:956
+msgctxt "goal intake print"
+msgid "Goal 2"
+msgstr "Doel 2"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:957
+msgctxt "goal intake print"
+msgid "Goal 3"
+msgstr "Doel 3"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:959
+msgid "Signatures (player / coach / date)"
+msgstr "Handtekeningen (speler / trainer / datum)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:960
+msgid "Coach reminder (CTA note)"
+msgstr "Trainer-reminder (CTA-note)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:1000
+msgctxt "goal intake print"
+msgid "Print selected blocks"
+msgstr "Print geselecteerde blokken"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:1001
+msgctxt "goal intake print"
+msgid "Print all"
+msgstr "Print alles"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:86
+msgctxt "methodology reference card"
+msgid "Methodology reference"
+msgstr "Methodiek-referentie"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:144
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:205
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:273
+msgid "TalentTrack · methodology reference"
+msgstr "TalentTrack · methodiek-referentie"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:145
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:182
+msgctxt "methodology reference card"
+msgid "Game principles"
+msgstr "Spelprincipes"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:181
+#, php-format
+msgid "%1$s · Game principles (%2$d) · v %3$s"
+msgstr "%1$s · Spelprincipes (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:197
+msgctxt "methodology reference card"
+msgid "On the ball"
+msgstr "Met balcontact"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:198
+msgctxt "methodology reference card"
+msgid "Off the ball"
+msgstr "Zonder balcontact"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:199
+msgctxt "methodology reference card"
+msgid "Supporting"
+msgstr "Ondersteunend"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:206
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:238
+msgctxt "methodology reference card"
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:237
+#, php-format
+msgid "%1$s · Football actions (%2$d) · v %3$s"
+msgstr "%1$s · Voetbalhandelingen (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:256
+msgctxt "methodology reference card"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:257
+msgctxt "methodology reference card"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:258
+msgctxt "methodology reference card"
+msgid "Transition"
+msgstr "Omschakelen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:262
+msgctxt "methodology reference card"
+msgid "building up"
+msgstr "opbouwen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:263
+msgctxt "methodology reference card"
+msgid "scoring"
+msgstr "scoren"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:264
+msgctxt "methodology reference card"
+msgid "disrupting"
+msgstr "storen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:265
+msgctxt "methodology reference card"
+msgid "preventing goals"
+msgstr "doelpunten voorkomen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:266
+msgctxt "methodology reference card"
+msgid "after winning the ball"
+msgstr "na balwinst"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:267
+msgctxt "methodology reference card"
+msgid "after losing the ball"
+msgstr "na balverlies"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:274
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:327
+msgctxt "methodology reference card"
+msgid "Learning goals"
+msgstr "Leerdoelen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:326
+#, php-format
+msgid "%1$s · Learning goals (%2$d) · v %3$s"
+msgstr "%1$s · Leerdoelen (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/MethodologyEnums.php:56
+msgctxt "methodology team function"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:59
+msgctxt "methodology team function"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:66
+msgctxt "methodology team task"
+msgid "Building up"
+msgstr "Opbouwen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:67
+msgctxt "methodology team task"
+msgid "Scoring"
+msgstr "Scoren"
+
+#: src/Modules/Methodology/MethodologyEnums.php:68
+msgctxt "methodology team task"
+msgid "Transition after losing the ball"
+msgstr "Overgang na balverlies"
+
+#: src/Modules/Methodology/MethodologyEnums.php:69
+msgctxt "methodology team task"
+msgid "Transition after winning the ball"
+msgstr "Overgang na balwinst"
+
+#: src/Modules/Methodology/MethodologyEnums.php:70
+msgctxt "methodology team task"
+msgid "Disrupting"
+msgstr "Storen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:71
+msgctxt "methodology team task"
+msgid "Preventing goals"
+msgstr "Doelpunten voorkomen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:79
+msgctxt "methodology set piece"
+msgid "Free kick (direct)"
+msgstr "Vrije trap (direct)"
+
+#: src/Modules/Methodology/MethodologyEnums.php:80
+msgctxt "methodology set piece"
+msgid "Free kick (cross)"
+msgstr "Vrije trap (voorzet)"
+
+#: src/Modules/Methodology/MethodologyEnums.php:82
+msgctxt "methodology set piece"
+msgid "Throw-in"
+msgstr "Inworp"
+
+#: src/Modules/Methodology/MethodologyEnums.php:89
+msgctxt "methodology side"
+msgid "Attacking"
+msgstr "Aanvallend"
+
+#: src/Modules/Methodology/MethodologyEnums.php:90
+msgctxt "methodology side"
+msgid "Defending"
+msgstr "Verdedigend"
+
+#: src/Modules/Methodology/MethodologyEnums.php:91
+msgctxt "methodology side"
+msgid "Transition"
+msgstr "Omschakelen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:98
+msgctxt "methodology style of play"
+msgid "Attacking positional play"
+msgstr "Aanvallend positiespel"
+
+#: src/Modules/Methodology/MethodologyEnums.php:99
+msgctxt "methodology style of play"
+msgid "Dominant possession"
+msgstr "Dominant balbezit"
+
+#: src/Modules/Methodology/MethodologyEnums.php:100
+msgctxt "methodology style of play"
+msgid "Reactive / counter"
+msgstr "Reactief / counter"
+
+#: src/Modules/Methodology/MethodologyEnums.php:102
+msgctxt "methodology style of play"
+msgid "Pragmatic"
+msgstr "Pragmatisch"
+
+#: src/Modules/Methodology/MethodologyEnums.php:116
+msgctxt "methodology line"
+msgid "Attackers"
+msgstr "Aanvallers"
+
+#: src/Modules/Methodology/MethodologyEnums.php:117
+msgctxt "methodology line"
+msgid "Midfielders"
+msgstr "Middenvelders"
+
+#: src/Modules/Methodology/MethodologyEnums.php:118
+msgctxt "methodology line"
+msgid "Defenders"
+msgstr "Verdedigers"
+
+#: src/Modules/Methodology/MethodologyEnums.php:119
+msgctxt "methodology line"
+msgid "Goalkeeper"
+msgstr "Keeper"
+
+#: src/Modules/Methodology/MethodologyEnums.php:120
+msgctxt "methodology line"
+msgid "General"
+msgstr "Algemeen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:177
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:315
+msgctxt "match prep print"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:180
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:200
+msgctxt "match prep print: total minutes"
+msgid "total"
+msgstr "tot"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:237
+msgctxt "match prep print"
+msgid "1st half"
+msgstr "1e helft"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:238
+msgctxt "match prep print"
+msgid "2nd half"
+msgstr "2e helft"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:246
+msgctxt "match prep print"
+msgid "Bench 1st half:"
+msgstr "Bank 1e helft:"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:247
+msgctxt "match prep print"
+msgid "Bench 2nd half:"
+msgstr "Bank 2e helft:"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:266
+msgctxt "match prep print"
+msgid "Match goals"
+msgstr "Wedstrijddoelen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:272
+msgctxt "match prep print"
+msgid "General"
+msgstr "Algemeen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:273
+msgctxt "match prep print"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:274
+msgctxt "match prep print"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:275
+msgctxt "match prep print"
+msgid "Set pieces (attacking)"
+msgstr "Spelhervattingen (aanvallend)"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:276
+msgctxt "match prep print"
+msgid "Set pieces (defending)"
+msgstr "Spelhervattingen (verdedigend)"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:309
+msgctxt "match prep print"
+msgid "Tasks per player"
+msgstr "Doen per speler"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:316
+msgctxt "match prep print"
+msgid "Focus point"
+msgstr "Aandachtspunt"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:317
+msgctxt "match prep print"
+msgid "Specific goal"
+msgstr "Specifiek doel"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:318
+msgctxt "match prep print"
+msgid "Video analyst assigned"
+msgstr "Video-analist toegewezen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:431
+msgctxt "match prep print: venue"
+msgid "home"
+msgstr "thuis"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:431
+msgctxt "match prep print: venue"
+msgid "away"
+msgstr "uit"
+
+#: src/Modules/Methodology/Admin/FootballActionsPage.php:37
+msgctxt "football actions admin"
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1142
+#, php-format
+msgid "Type %s to confirm before the data is written."
+msgstr "Typ %s om te bevestigen voordat de gegevens worden weggeschreven."
