@@ -613,12 +613,13 @@ final class AttendanceWriter {
         foreach ( $prep_repo->listLineupForPrep( $prep ) as $row ) {
             $ids[] = (int) ( ( (array) $row )['player_id'] ?? 0 );
         }
-        $exec = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( $activity_id );
-        if ( $exec ) {
+        $exec    = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( $activity_id );
+        $exec_id = $exec ? (int) ( ( (array) $exec )['id'] ?? 0 ) : 0;
+        if ( $exec_id > 0 ) {
             $subs = $wpdb->get_col( $wpdb->prepare(
                 "SELECT DISTINCT player_on_id FROM {$p}tt_match_execution_substitutions
                   WHERE execution_id = %d AND club_id = %d AND reversed_at IS NULL",
-                (int) $exec->id, $club_id
+                $exec_id, $club_id
             ) );
             foreach ( (array) $subs as $pid ) $ids[] = (int) $pid;
         }
