@@ -83,8 +83,8 @@ final class BasicsStep implements WizardStepInterface {
         if ( $team_id <= 0 ) {
             return new \WP_Error( 'team_required', __( 'Pick an anchor team.', 'talenttrack' ) );
         }
-        if ( ! self::isActiveClubTeam( $team_id )
-            || ! TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
+        // Also refuses an archived, unknown or other club's team.
+        if ( ! TournamentAccess::canCreateForTeam( get_current_user_id(), $team_id ) ) {
             return new \WP_Error( 'forbidden_team', __( 'That team is not in your scope.', 'talenttrack' ) );
         }
         $start = isset( $post['start_date'] ) ? sanitize_text_field( wp_unslash( (string) $post['start_date'] ) ) : '';
@@ -128,14 +128,5 @@ final class BasicsStep implements WizardStepInterface {
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $rows = (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
         return array_values( array_map( static fn( $row ): \stdClass => (object) (array) $row, $rows ) );
-    }
-
-    /** A team of this club, not archived. */
-    private static function isActiveClubTeam( int $team_id ): bool {
-        global $wpdb;
-        return (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d AND archived_at IS NULL",
-            $team_id, CurrentClub::id()
-        ) ) > 0;
     }
 }

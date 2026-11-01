@@ -611,9 +611,14 @@ class TournamentsRestController {
         $existing_team = (int) ( ( (array) $existing )['team_id'] ?? 0 );
         if ( $r->get_param( 'team_id' ) === null || $payload['team_id'] <= 0 ) {
             unset( $payload['team_id'] );
-        } elseif ( $payload['team_id'] !== $existing_team
-            && ! TournamentAccess::hasGlobal( get_current_user_id(), MatrixGate::CREATE_DELETE ) ) {
-            return RestResponse::error( 'team_locked', __( 'That team is not in your scope.', 'talenttrack' ), 403 );
+        } elseif ( $payload['team_id'] !== $existing_team ) {
+            if ( ! TournamentAccess::hasGlobal( get_current_user_id(), MatrixGate::CREATE_DELETE ) ) {
+                return RestResponse::error( 'forbidden_team', __( "A tournament's team can't be changed after it is created.", 'talenttrack' ), 403 );
+            }
+            // An academy-wide planner moves it only onto a team the club has.
+            if ( ! TournamentAccess::canCreateForTeam( get_current_user_id(), $payload['team_id'] ) ) {
+                return RestResponse::error( 'team_invalid', __( 'Pick an anchor team.', 'talenttrack' ), 422 );
+            }
         }
 
         if ( $payload['name'] === '' ) {
@@ -1703,6 +1708,7 @@ class TournamentsRestController {
         global $wpdb; $p = $wpdb->prefix;
         $tournament_id = (int) $r['id'];
         $player_id     = (int) $r['player_id'];
+        if ( ! self::fetchTournamentRow( $tournament_id ) ) return RestResponse::notFound( 'tournament_not_found' );
 
         // #4020 — a code the planner has no slot for is refused, not dropped.
         $bad_positions = self::rejectUnknownPositions(

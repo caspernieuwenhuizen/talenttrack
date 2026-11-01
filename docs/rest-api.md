@@ -1780,8 +1780,14 @@ again, so a replace that keeps them, or an edit of their positions, still
 works.
 
 The anchor team is fixed once the tournament exists. `PUT /tournaments/{id}`
-with a different `team_id` answers **403** `team_locked` unless the caller
-plans academy-wide; a body without `team_id` keeps the team it has.
+with a different `team_id` answers **403** `forbidden_team` unless the caller
+plans academy-wide, and **422** `team_invalid` when an academy-wide planner
+names a team that is archived or not in the club. A body without `team_id`
+keeps the team it has. `POST /tournaments` refuses an archived or unknown
+anchor team for every caller, academy-wide planners included.
+
+A player may also not be archived or belong to another club; such a player is
+refused like any other the caller may not add.
 
 ## Tournament matches — `opponent_level` (#3559)
 

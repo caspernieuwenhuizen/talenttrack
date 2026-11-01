@@ -77,10 +77,23 @@ final class TournamentAccess {
      * is a squad to widen the answer.
      */
     public static function canCreateForTeam( int $user_id, int $team_id ): bool {
-        if ( $user_id <= 0 ) return false;
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+        // The anchor is a team of this club, not archived, for every caller:
+        // an academy-wide grant reaches every team, not a team that is not
+        // there.
+        if ( ! self::isActiveClubTeam( $team_id ) ) return false;
         if ( self::hasGlobal( $user_id, MatrixGate::CREATE_DELETE ) ) return true;
-        if ( $team_id <= 0 ) return false;
         return MatrixGate::can( $user_id, self::ENTITY, MatrixGate::CREATE_DELETE, MatrixGate::SCOPE_TEAM, $team_id );
+    }
+
+    /** A team of the current club, not archived. */
+    public static function isActiveClubTeam( int $team_id ): bool {
+        if ( $team_id <= 0 ) return false;
+        global $wpdb;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d AND archived_at IS NULL",
+            $team_id, CurrentClub::id()
+        ) ) > 0;
     }
 
     /**
@@ -199,9 +212,10 @@ final class TournamentAccess {
     public static function canAddToSquad( int $user_id, int $player_id ): bool {
         if ( $user_id <= 0 || $player_id <= 0 ) return false;
         global $wpdb;
-        // A player of this club; another club's player is nobody's to add.
+        // A current player of this club; another club's player, or an
+        // archived one, is nobody's to add.
         $team_id = $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            "SELECT team_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d AND archived_at IS NULL",
             $player_id, CurrentClub::id()
         ) );
         if ( $team_id === null ) return false;
