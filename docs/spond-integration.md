@@ -140,6 +140,8 @@ on the same `tt_edit_teams` capability as the sync.
 
 The times shown are the ones a sync would store, so a match with no Spond end
 shows its kick-off + 105 minutes end here too, and is not listed as losing it.
+A field someone edited in TalentTrack, which the sync leaves alone, is not
+listed either.
 
 ## Per-team accounts (override the club login)
 

@@ -129,6 +129,32 @@ final class SpondPreviewRestTest extends WP_UnitTestCase {
         $this->assertSame( '', $event['end_time'] );
     }
 
+    public function test_a_locked_group_is_never_listed_as_changing(): void {
+        $team = $this->linkedTeam();
+        $this->feed = [ $this->event( 'spond-ev-4562-d', 'JO13-1 - vv Hedel', true, '11:00', '' ) ];
+        $this->syncAndAssertEnd( $team, 'spond-ev-4562-d', '12:45:00' );
+
+        // A coach edited the times in TalentTrack: the sync leaves them alone.
+        global $wpdb;
+        $wpdb->update(
+            "{$wpdb->prefix}tt_activities",
+            [ 'sync_locked_fields' => (string) wp_json_encode( [ 'times' ] ) ],
+            [ 'external_id' => 'spond-ev-4562-d' ]
+        );
+
+        $this->feed = [ $this->event( 'spond-ev-4562-d', 'JO13-1 - vv Hedel (verplaatst)', true, '11:30', '13:30' ) ];
+        $event = $this->previewEvent( $team, 'spond-ev-4562-d' );
+        $fields = array_column( (array) $event['changes'], 'field' );
+        $this->assertSame( [ 'title' ], $fields, 'the locked times are not listed; the unlocked title still is' );
+
+        $wpdb->update(
+            "{$wpdb->prefix}tt_activities",
+            [ 'sync_locked_fields' => (string) wp_json_encode( [ 'times', 'title' ] ) ],
+            [ 'external_id' => 'spond-ev-4562-d' ]
+        );
+        $this->assertSame( [], $this->previewEvent( $team, 'spond-ev-4562-d' )['changes'], 'nothing the sync would write' );
+    }
+
     public function test_the_fallback_end_has_one_implementation(): void {
         $this->assertTrue( method_exists( \TT\Modules\Spond\SpondSync::class, 'matchEndFallback' ) );
         $this->assertFalse( method_exists( \TT\Infrastructure\REST\SpondRestController::class, 'matchEndFallback' ), 'the preview reuses the sync\'s' );
