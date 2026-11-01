@@ -24,9 +24,19 @@ final class ResultBlock extends AbstractWeekBlock {
 
     public function help(): string { return __( 'Won, lost or drew, on a completed match with a score.', 'talenttrack' ); }
 
+    /** persona => devices on by default (#4494); every other persona opts in. */
+    private const DEFAULTS = [
+        'head_coach'          => [ 'desktop', 'phone' ],
+        'head_of_development' => [ 'desktop', 'phone' ],
+        'academy_admin'       => [ 'desktop' ],
+    ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        if ( $persona === 'head_coach' || $persona === 'head_of_development' ) return true;
-        return $persona === 'academy_admin' && $device === 'desktop';
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'result' => null ]; }

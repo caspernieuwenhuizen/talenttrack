@@ -31,14 +31,15 @@ final class MinutesCheckBlock extends AbstractWeekBlock {
      * exists, the two personas that see all teams get the block only when an
      * academy switches it on for them.
      */
-    public const OPT_IN = [ 'head_of_development', 'academy_admin' ];
+    private const DEFAULTS = [ 'head_coach' => [ 'desktop', 'phone' ] ];
 
     public function defaultFor( string $persona, string $device ): bool {
-        return $persona === 'head_coach';
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
     }
 
+    /** Every persona the table does not name opts in, the two all-teams personas included. */
     public function optInFor( string $persona ): bool {
-        return in_array( $persona, self::OPT_IN, true );
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'minutes_check' => null ]; }

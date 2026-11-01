@@ -31,8 +31,18 @@ final class MatchAnalysisBlock extends AbstractWeekBlock {
         return ModuleRegistry::isEnabled( MatchAnalysisModule::class ) && LicenseGate::allows( 'match_analysis' );
     }
 
+    /** persona => devices on by default (#4494); every other persona opts in. */
+    private const DEFAULTS = [
+        'head_coach'          => [ 'desktop' ],
+        'head_of_development' => [ 'desktop' ],
+    ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        return $device === 'desktop' && ( $persona === 'head_coach' || $persona === 'head_of_development' );
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'analysis_written' => null ]; }

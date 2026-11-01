@@ -29,8 +29,15 @@ final class GamePlanBlock extends AbstractWeekBlock {
 
     public function available(): bool { return ModuleRegistry::isEnabled( MatchPrepModule::class ); }
 
+    /** persona => devices on by default (#4494); every other persona opts in. */
+    private const DEFAULTS = [ 'head_coach' => [ 'desktop' ] ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        return $persona === 'head_coach' && $device === 'desktop';
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'game_plan' => null ]; }

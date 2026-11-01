@@ -35,8 +35,17 @@ final class PlayerRatingsBlock extends AbstractWeekBlock {
      * Not for the assistant coach: the matrix gives that persona no
      * evaluations read (#1060). The rights check below decides in any case.
      */
+    private const DEFAULTS = [
+        'head_coach'          => [ 'desktop' ],
+        'head_of_development' => [ 'desktop' ],
+    ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        return $device === 'desktop' && in_array( $persona, [ 'head_coach', 'head_of_development' ], true );
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'ratings' => null ]; }

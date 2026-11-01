@@ -57,6 +57,12 @@ final class ActivityGridLink {
      */
     private static array $columns = [];
 
+    /** @var array<int, bool> user id => may rate any team (#4494) */
+    private static array $rate_any = [];
+
+    /** @var array<int, array<int, true>> user id => the team ids they coach (#4494) */
+    private static array $rate_coached = [];
+
     /**
      * Seed an activity's team + date from a row the caller already holds.
      * The activity list and detail queries both select `s.*`, so both
@@ -151,20 +157,24 @@ final class ActivityGridLink {
     public static function canRateTeam( int $user_id, int $team_id ): bool {
         if ( $team_id <= 0 || $user_id <= 0 ) return false;
         // Both answers once per user and request: a list of rows asks this
-        // for every team on it.
-        static $any     = [];
-        static $coached = [];
-        if ( ! isset( $any[ $user_id ] ) ) {
-            $any[ $user_id ] = user_can( $user_id, 'tt_edit_settings' ) || user_can( $user_id, 'tt_view_all_teams' );
+        // for every team on it. `forget()` drops them.
+        if ( ! isset( self::$rate_any[ $user_id ] ) ) {
+            self::$rate_any[ $user_id ] = user_can( $user_id, 'tt_edit_settings' ) || user_can( $user_id, 'tt_view_all_teams' );
         }
-        if ( $any[ $user_id ] ) return true;
-        if ( ! isset( $coached[ $user_id ] ) ) {
-            $coached[ $user_id ] = [];
+        if ( self::$rate_any[ $user_id ] ) return true;
+        if ( ! isset( self::$rate_coached[ $user_id ] ) ) {
+            self::$rate_coached[ $user_id ] = [];
             foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $team ) {
-                $coached[ $user_id ][ (int) ( ( (array) $team )['id'] ?? 0 ) ] = true;
+                self::$rate_coached[ $user_id ][ (int) ( ( (array) $team )['id'] ?? 0 ) ] = true;
             }
         }
-        return isset( $coached[ $user_id ][ $team_id ] );
+        return isset( self::$rate_coached[ $user_id ][ $team_id ] );
+    }
+
+    /** Drop the request's `canRateTeam()` answers, for a caller that changed a user's teams or rights. */
+    public static function forget(): void {
+        self::$rate_any     = [];
+        self::$rate_coached = [];
     }
 
     /**

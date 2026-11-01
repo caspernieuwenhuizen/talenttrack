@@ -68,7 +68,7 @@ Je academie kiest wat het paneel toont, per rol en per apparaat, onder **Configu
 
 Het paneel beslaat alleen teams die de gebruiker mag zien, en een knop verschijnt alleen op een regel van een team dat de gebruiker mag wijzigen. Een gebruiker in wiens week geen team zit, ziet het paneel nooit, welke rol die ook heeft. Scouts en waarnemers krijgen de aantallen beschikbare spelers alleen als je dat blok voor hen aanzet.
 
-Tot de instellingen voor het eerst worden opgeslagen, houdt elke rol die het paneel al zag het hele paneel op een desktop, teammanagers inbegrepen. Op een telefoon laat het de locatie en het trainingsplan weg, en ziet een teammanager daar tijden, locatie, verwachte spelers en de tegenstander. Een teammanager die pas na het opslaan wordt aangezet, begint op beide apparaten met die kortere set. Blokken die na dat paneel zijn gekomen, zoals het thema van de training en de opkomst achteraf, volgen ook vóór het eerste opslaan hun eigen standaard per rol.
+Tot de instellingen voor het eerst worden opgeslagen, houdt elke rol die het paneel al zag het hele paneel op een desktop, teammanagers inbegrepen. Op een telefoon laat het de locatie en het trainingsplan weg, en ziet een teammanager daar tijden, locatie, verwachte spelers en de tegenstander. Een teammanager die pas na het opslaan wordt aangezet, begint op beide apparaten met die kortere set. Blokken die na dat paneel zijn gekomen, zoals het thema van de training, de opkomst achteraf en de wedstrijdblokken, volgen ook vóór het eerste opslaan hun eigen standaard per rol.
 
 ## Tegels die je het meeste gebruikt
 

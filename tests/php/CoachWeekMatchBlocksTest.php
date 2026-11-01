@@ -33,6 +33,7 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         ( new RolesService() )->ensureCapabilities();
         \TT\Modules\Authorization\Matrix\MatrixRepository::clearCache();
         ActivityRegisterProgress::forget();
+        \TT\Modules\Activities\Services\ActivityGridLink::forget();
         WeekBlockRegistry::reset();
         foreach ( [ CoachWeek::CONFIG_KEY, CoachWeek::SETTINGS_KEY, \TT\Shared\Dates\TTDate::WEEK_START_KEY ] as $key ) {
             $wpdb->delete( $wpdb->prefix . 'tt_config', [ 'club_id' => 1, 'config_key' => $key ] );
@@ -270,6 +271,23 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [ 'score', 'ratings', 'analysis' ], array_values( array_intersect( $d['head_of_development']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
         $this->assertSame( [ 'score' ], array_values( array_intersect( $d['head_of_development']['phone'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
         $this->assertSame( [ 'score' ], array_values( array_intersect( $d['academy_admin']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+    }
+
+    public function test_the_fallback_follows_each_blocks_table_for_the_assistant_coach(): void {
+        global $wpdb;
+        // Settings never saved: the older list's default (head and assistant
+        // coach) switches the panel on, and every match block keeps its table.
+        $wpdb->delete( $wpdb->prefix . 'tt_config', [ 'club_id' => 1, 'config_key' => CoachWeek::SETTINGS_KEY ] );
+        $settings = CoachWeek::settings();
+        $mine     = [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis', 'action_minutes_stats', 'action_rate_players', 'action_match_analysis' ];
+
+        $this->assertTrue( $settings['assistant_coach']['on'] );
+        $this->assertSame( [], array_values( array_intersect( $settings['assistant_coach']['desktop'], $mine ) ), 'none of the match blocks reach the assistant before an academy chooses' );
+        $this->assertSame( [], array_values( array_intersect( $settings['assistant_coach']['phone'], $mine ) ) );
+        $this->assertSame( $mine, array_values( array_intersect( $settings['head_coach']['desktop'], $mine ) ), 'the head coach keeps them all' );
+        foreach ( $mine as $key ) {
+            $this->assertTrue( WeekBlockRegistry::get( $key )->optInFor( 'assistant_coach' ), "{$key} is opt-in for the assistant" );
+        }
     }
 
     public function test_the_all_teams_personas_opt_in_to_the_minutes_check(): void {

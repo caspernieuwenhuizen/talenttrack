@@ -31,13 +31,15 @@ final class MinutesStatsAction extends AbstractWeekBlock implements ActionBlock 
         return ActivityGridLink::minutesEnabled() && LicenseGate::allows( 'minutes_grid' );
     }
 
+    /** persona => devices on by default (#4494); every other persona opts in. */
+    private const DEFAULTS = [ 'head_coach' => [ 'desktop', 'phone' ] ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        return $persona === 'head_coach';
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
     }
 
-    /** It reads the same per-team audit as the minutes check, so the same personas opt in. */
     public function optInFor( string $persona ): bool {
-        return in_array( $persona, MinutesCheckBlock::OPT_IN, true );
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
