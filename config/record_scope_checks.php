@@ -72,6 +72,11 @@ return [
         'PdpPlanningService::accessibleTeamIds',
         'AllTeamsScope::canReadTeam',
         'ActivityTeamScope::covers',
+        // The write scope on an activity's team: `activities` change at
+        // global scope, or at team scope on that team. `writableTeamIds()` is
+        // the same answer for a list of teams, which the grid writes narrow to.
+        'ActivityAccess::canWrite*',
+        'ActivityAccess::writableTeamIds',
         'TeamChemistryAccess::can',
         'TeamReportAccess::canRead',
 
