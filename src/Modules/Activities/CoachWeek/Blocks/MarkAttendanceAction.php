@@ -24,6 +24,9 @@ final class MarkAttendanceAction extends CoreWeekBlock implements ActionBlock {
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
         if ( ! $row->register || ! $week->canEdit ) return null;
         if ( $row->isDone() ) {
+            // A completed match dated after today gets no button: the
+            // attendance rule refuses present and late before the day.
+            if ( $row->when === WeekRow::WHEN_UPCOMING ) return null;
             return $week->recorded( $row->activityId ) ? null : CoachWeek::ACTION_MARK_ATTENDANCE;
         }
         return ( ! $row->isMatch && $row->when === WeekRow::WHEN_TODAY ) ? CoachWeek::ACTION_MARK_ATTENDANCE : null;
