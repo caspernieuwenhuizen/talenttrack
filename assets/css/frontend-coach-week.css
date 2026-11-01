@@ -393,6 +393,72 @@ a.tt-week-row:active {
     font-variant-numeric: tabular-nums;
 }
 
+/* #4496 — players who need attention, below the list. */
+.tt-week-attention {
+    display: grid;
+    gap: var(--tt-sp-3, 0.75rem);
+}
+
+/* Scoped to .tt-week (0,2,0) so a theme's .tt-dashboard h3 / h4 (0,1,1) does not win. */
+.tt-week .tt-week-attention-title {
+    margin: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-muted);
+}
+
+.tt-week-attention-line {
+    display: grid;
+    gap: var(--tt-sp-1, 0.25rem);
+}
+
+.tt-week .tt-week-attention-label {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+/* At least 8px between stacked names, which are 48px tap targets on touch. */
+.tt-week-attention-list {
+    display: grid;
+    gap: var(--tt-sp-2, 0.5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.tt-week-attention-item {
+    font-size: 0.875rem;
+}
+
+.tt-week-attention-item.is-count,
+.tt-week-attention-meta {
+    color: var(--tt-muted);
+}
+
+.tt-week-attention-item .tt-record-link {
+    touch-action: manipulation;
+}
+
+@media (pointer: coarse) {
+    .tt-week-attention-item .tt-record-link {
+        display: inline-flex;
+        align-items: center;
+        min-height: var(--tt-tap-min, 48px);
+    }
+
+    /* The row is as tall as its link, so the list gap is the gap between taps. */
+    .tt-week .tt-week-attention-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 0.25rem;
+        min-height: var(--tt-tap-min, 48px);
+    }
+}
+
 /* #4492 — the main button when it is the main one on one device only. */
 .tt-week-btn--main-phone {
     background: var(--tt-primary);
