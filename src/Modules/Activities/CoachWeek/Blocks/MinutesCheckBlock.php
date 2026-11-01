@@ -26,18 +26,21 @@ final class MinutesCheckBlock extends AbstractWeekBlock {
     public function help(): string { return __( 'The minutes entered against what the match holds, as the minutes audit judges it.', 'talenttrack' ); }
 
     /**
-     * The audit reads one team at a time, so a week across every academy
-     * team would cost its statements once per team. Until a cross-team read
-     * exists, the two personas that see all teams get the block only when an
-     * academy switches it on for them.
+     * persona => devices on by default (#4494's table). The audit reads every
+     * team of the week at once (#4553), so the personas that see all teams
+     * get the block by default too.
      */
-    private const DEFAULTS = [ 'head_coach' => [ 'desktop', 'phone' ] ];
+    private const DEFAULTS = [
+        'head_coach'          => [ 'desktop', 'phone' ],
+        'head_of_development' => [ 'desktop' ],
+        'academy_admin'       => [ 'desktop' ],
+    ];
 
     public function defaultFor( string $persona, string $device ): bool {
         return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
     }
 
-    /** Every persona the table does not name opts in, the two all-teams personas included. */
+    /** Every persona the table does not name opts in. */
     public function optInFor( string $persona ): bool {
         return ! isset( self::DEFAULTS[ $persona ] );
     }
@@ -58,16 +61,24 @@ final class MinutesCheckBlock extends AbstractWeekBlock {
      */
     public static function checkFor( WeekRow $row, WeekContext $week ): ?array {
         if ( ! $row->done || ! $week->canSeeTeam( $row->teamId ) ) return null;
-        $games = $week->once( 'minutes_audit:' . $row->teamId, static function () use ( $row, $week ): array {
+        // #4553 — one audit read for every team with a completed match this
+        // week, so the cost does not grow with the number of teams.
+        $games = $week->once( 'minutes_audit', static function () use ( $week ): array {
+            $teams = [];
+            foreach ( $week->rows() as $r ) {
+                if ( $r->done && $week->canSeeTeam( $r->teamId ) ) $teams[ $r->teamId ] = $r->teamId;
+            }
             $out = [];
-            foreach ( ( new MinutesAuditQuery() )->matrix( $row->teamId, $week->start, $week->end )['games'] as $game ) {
-                if ( ! empty( $game['is_rollup'] ) ) continue;
-                $out[ (int) $game['activity_id'] ] = [
-                    'status'            => (string) $game['status'],
-                    'status_reason'     => (string) $game['status_reason'],
-                    'total_minutes'     => (int) $game['total_minutes'],
-                    'available_minutes' => (int) $game['available_minutes'],
-                ];
+            foreach ( ( new MinutesAuditQuery() )->matrixForTeams( array_values( $teams ), $week->start, $week->end ) as $matrix ) {
+                foreach ( $matrix['games'] as $game ) {
+                    if ( ! empty( $game['is_rollup'] ) ) continue;
+                    $out[ (int) $game['activity_id'] ] = [
+                        'status'            => (string) $game['status'],
+                        'status_reason'     => (string) $game['status_reason'],
+                        'total_minutes'     => (int) $game['total_minutes'],
+                        'available_minutes' => (int) $game['available_minutes'],
+                    ];
+                }
             }
             return $out;
         } );
