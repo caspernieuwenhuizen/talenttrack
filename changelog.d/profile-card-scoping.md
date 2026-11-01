@@ -1,4 +1,4 @@
-# Access checks tightened on player scores, wizards, match-day screens and exports (#PR)
+# Access checks tightened on player scores, wizards, match-day screens and exports (#4607)
 
 Bump: patch
 
