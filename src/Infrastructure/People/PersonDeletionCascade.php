@@ -3,6 +3,7 @@ namespace TT\Infrastructure\People;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\MigrationHelpers;
 use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\TableExists;
@@ -269,14 +270,18 @@ class PersonDeletionCascade {
             }
             $nulled['tt_invitations.target_person_id'] = (int) $n_ia;
 
-            $sql_parent = "UPDATE {$p}tt_players
-                           SET parent_person_id = NULL
-                           WHERE parent_person_id IN ({$ph}) AND club_id = %d";
-            $n_pp = $wpdb->query( $wpdb->prepare( $sql_parent, ...array_merge( $ids, [ $club ] ) ) );
-            if ( $n_pp === false ) {
-                throw new \RuntimeException( 'Set-null failed on tt_players.parent_person_id: ' . $wpdb->last_error );
+            // The column is retired (#3572); once it is dropped there is
+            // nothing to clear, and the delete must not fail on it.
+            if ( MigrationHelpers::columnExists( $p . 'tt_players', 'parent_person_id' ) ) {
+                $sql_parent = "UPDATE {$p}tt_players
+                               SET parent_person_id = NULL
+                               WHERE parent_person_id IN ({$ph}) AND club_id = %d";
+                $n_pp = $wpdb->query( $wpdb->prepare( $sql_parent, ...array_merge( $ids, [ $club ] ) ) );
+                if ( $n_pp === false ) {
+                    throw new \RuntimeException( 'Set-null failed on tt_players.parent_person_id: ' . $wpdb->last_error );
+                }
+                $nulled['tt_players.parent_person_id'] = (int) $n_pp;
             }
-            $nulled['tt_players.parent_person_id'] = (int) $n_pp;
 
             // Final delete — guarded by club_id
             $sql_final = "DELETE FROM {$p}tt_people WHERE id IN ({$ph}) AND club_id = %d";
