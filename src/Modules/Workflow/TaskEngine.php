@@ -3,7 +3,7 @@ namespace TT\Modules\Workflow;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Database\AfterCommit;
+use TT\Infrastructure\Database\Transaction;
 use TT\Modules\Workflow\Chain\ChainStep;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
@@ -200,24 +200,18 @@ class TaskEngine {
      * response with the ids of what was written, or null when the task was
      * not completed: already completed, or rolled back after a failure.
      *
-     * Known gap (#4561): MySQL has no nested transactions, and a
-     * `START TRANSACTION` inside the step commits this one. Archiving a
-     * player opens its own (`ArchiveRepository::archive()`), and a group
-     * review's `decline_final` reaches it through
-     * `TrialDecisionPlayerStatusSubscriber`. On that path what was written
-     * before the archive is committed early, and a later failure cannot
-     * roll it back.
+     * Through `Transaction` (#4561), so a write inside the step that opens
+     * its own transaction (archiving a player, which a group review's
+     * `decline_final` reaches) takes a savepoint instead of committing this
+     * one early. Messages the step's writes trigger wait in `AfterCommit`
+     * for the outermost commit, so a rollback announces nothing.
      *
      * @param array<string,mixed> $response
      * @param array<string,mixed> $raw
      * @return array<string,mixed>|null
      */
     private function completeWithStep( int $task_id, array $response, CompletionStepInterface $step, array $raw ): ?array {
-        global $wpdb;
-        $wpdb->query( 'START TRANSACTION' );
-        // Messages the step's writes trigger wait for the commit, so a
-        // rollback announces nothing.
-        AfterCommit::open();
+        Transaction::begin();
         $written = $response;
         try {
             if ( ! $this->tasks->complete( $task_id, $response ) ) {
@@ -233,14 +227,12 @@ class TaskEngine {
                 throw new CompletionStepFailed( 'The ids of what was written could not be stored.' );
             }
         } catch ( \Throwable $e ) {
-            $wpdb->query( 'ROLLBACK' );
-            AfterCommit::discard();
+            Transaction::rollback();
             $this->log( 'Completing task ' . $task_id . ' was rolled back: ' . $e->getMessage() );
             return null;
         }
 
-        $wpdb->query( 'COMMIT' );
-        AfterCommit::commit();
+        Transaction::commit();
         return $written;
     }
 

@@ -3,6 +3,7 @@ namespace TT\Infrastructure\People;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -200,7 +201,7 @@ class PersonDeletionCascade {
         $per_table = [];
         $nulled    = [];
 
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         try {
             // CASCADE — target_person_id-based deletes
             $cascade_targets = [
@@ -272,25 +273,8 @@ class PersonDeletionCascade {
             if ( $deleted === false ) {
                 throw new \RuntimeException( 'Final delete failed on tt_people: ' . $wpdb->last_error );
             }
-
-            $wpdb->query( 'COMMIT' );
-
-            Logger::info( 'person.deleted_with_cascade', [
-                'person_ids' => $ids,
-                'club_id'    => $club,
-                'deleted'    => (int) $deleted,
-                'per_table'  => $per_table,
-                'nulled'     => $nulled,
-                'by_user'    => get_current_user_id(),
-            ] );
-
-            return [
-                'deleted'   => (int) $deleted,
-                'per_table' => $per_table,
-                'nulled'    => $nulled,
-            ];
         } catch ( \Throwable $e ) {
-            $wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             Logger::error( 'person.cascade.failed', [
                 'person_ids' => $ids,
                 'club_id'    => $club,
@@ -298,6 +282,22 @@ class PersonDeletionCascade {
             ] );
             throw $e;
         }
+        Transaction::commit();
+
+        Logger::info( 'person.deleted_with_cascade', [
+            'person_ids' => $ids,
+            'club_id'    => $club,
+            'deleted'    => (int) $deleted,
+            'per_table'  => $per_table,
+            'nulled'     => $nulled,
+            'by_user'    => get_current_user_id(),
+        ] );
+
+        return [
+            'deleted'   => (int) $deleted,
+            'per_table' => $per_table,
+            'nulled'    => $nulled,
+        ];
     }
 
     /**

@@ -3,6 +3,7 @@ namespace TT\Modules\Authorization\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -138,7 +139,7 @@ final class SeedImporter {
     }
 
     /**
-     * Apply the stashed rows: TRUNCATE + INSERT, mirror of MatrixRepository::reseed
+     * Apply the stashed rows: DELETE + INSERT in one transaction, mirror of MatrixRepository::reseed
      * but with `is_default = 0` since this IS an admin edit.
      *
      * @return array{ok:bool, inserted:int, error?:string}
@@ -147,8 +148,10 @@ final class SeedImporter {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $wpdb->query( 'START TRANSACTION' );
-        $wpdb->query( "TRUNCATE TABLE {$p}tt_authorization_matrix" );
+        Transaction::begin();
+        // DELETE, not TRUNCATE: TRUNCATE commits on the spot, so an insert
+        // failing below used to leave the matrix half-replaced (#4561).
+        $wpdb->query( "DELETE FROM {$p}tt_authorization_matrix" );
 
         $inserted = 0;
         foreach ( $rows as $row ) {
@@ -161,7 +164,7 @@ final class SeedImporter {
                 'is_default'   => 0,
             ] );
             if ( $ok === false ) {
-                $wpdb->query( 'ROLLBACK' );
+                Transaction::rollback();
                 return [ 'ok' => false, 'inserted' => 0, 'error' => sprintf(
                     /* translators: %s: persona|entity|activity tuple that failed to insert */
                     __( 'Insert failed at row %s — rolled back.', 'talenttrack' ),
@@ -170,7 +173,7 @@ final class SeedImporter {
             }
             $inserted++;
         }
-        $wpdb->query( 'COMMIT' );
+        Transaction::commit();
 
         MatrixRepository::clearCache();
 

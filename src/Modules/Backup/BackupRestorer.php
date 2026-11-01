@@ -3,6 +3,8 @@ namespace TT\Modules\Backup;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
+
 /**
  * BackupRestorer — replay a snapshot back into the live `tt_*` tables.
  *
@@ -13,9 +15,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *                           a per-table summary the UI shows before
  *                           the user confirms.
  *
- *   2. restore( $path )  — actually executes: TRUNCATE then INSERT
- *                           for every table in the snapshot. Wraps in
- *                           a transaction where InnoDB allows.
+ *   2. restore( $path )  — actually executes: DELETE then INSERT
+ *                           for every table in the snapshot, in one
+ *                           transaction, so a restore that throws part
+ *                           way leaves the tables as they were.
  *
  * Cross-major-version policy: a snapshot from a different major plugin
  * version is rejected outright. Same-major OK; the schema migrator is
@@ -81,42 +84,19 @@ class BackupRestorer {
             return [ 'ok' => false, 'error' => __( 'Backup file is not valid.', 'talenttrack' ), 'restored' => [] ];
         }
 
-        global $wpdb;
-        $restored = [];
-
-        // Best-effort transaction. MySQL DDL (TRUNCATE) auto-commits, so
-        // the transaction wrapping is mostly cosmetic; we still try, in
-        // case the server happens to support it for the path we hit.
-        $wpdb->query( 'START TRANSACTION' );
-
-        foreach ( $snapshot['tables'] as $bare => $payload ) {
-            $bare    = (string) $bare;
-            $columns = is_array( $payload['columns'] ?? null ) ? $payload['columns'] : [];
-            $rows    = is_array( $payload['rows']    ?? null ) ? $payload['rows']    : [];
-
-            $table = $wpdb->prefix . $bare;
-            // Skip tables that don't exist on this install (older or
-            // optional). Snapshot may be wider than the live schema.
-            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
-                continue;
-            }
-
-            $wpdb->query( "TRUNCATE TABLE {$table}" );
-
-            $count = 0;
-            foreach ( $rows as $row ) {
-                if ( ! is_array( $row ) ) continue;
-                $insert = [];
-                foreach ( $columns as $col ) {
-                    $insert[ (string) $col ] = $row[ (string) $col ] ?? null;
-                }
-                $ok = $wpdb->insert( $table, $insert );
-                if ( $ok !== false ) $count++;
-            }
-            $restored[ $bare ] = $count;
+        // One transaction for the whole restore. The tables are emptied
+        // with DELETE rather than TRUNCATE (#4561): TRUNCATE commits on the
+        // spot, which made this transaction cosmetic and let a restore
+        // that failed part way leave tables emptied.
+        Transaction::begin();
+        try {
+            $restored = self::restoreTables( $snapshot['tables'] );
+        } catch ( \Throwable $e ) {
+            // #4561 — closed on a throw too, so the level is never left open.
+            Transaction::rollback();
+            throw $e;
         }
-
-        $wpdb->query( 'COMMIT' );
+        Transaction::commit();
 
         // Post-restore: count match check.
         $expected = $preview['summary'] ?? [];
@@ -141,6 +121,46 @@ class BackupRestorer {
         }
 
         return [ 'ok' => true, 'restored' => $restored ];
+    }
+
+    /**
+     * Truncate and refill each snapshot table that exists on this install.
+     *
+     * @param array<mixed> $tables
+     * @return array<string,int> bare table => rows restored
+     */
+    private static function restoreTables( array $tables ): array {
+        global $wpdb;
+        $restored = [];
+
+        foreach ( $tables as $bare => $payload ) {
+            $bare    = (string) $bare;
+            $columns = is_array( $payload['columns'] ?? null ) ? $payload['columns'] : [];
+            $rows    = is_array( $payload['rows']    ?? null ) ? $payload['rows']    : [];
+
+            $table = $wpdb->prefix . $bare;
+            // Skip tables that don't exist on this install (older or
+            // optional). Snapshot may be wider than the live schema.
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+                continue;
+            }
+
+            $wpdb->query( "DELETE FROM {$table}" );
+
+            $count = 0;
+            foreach ( $rows as $row ) {
+                if ( ! is_array( $row ) ) continue;
+                $insert = [];
+                foreach ( $columns as $col ) {
+                    $insert[ (string) $col ] = $row[ (string) $col ] ?? null;
+                }
+                $ok = $wpdb->insert( $table, $insert );
+                if ( $ok !== false ) $count++;
+            }
+            $restored[ $bare ] = $count;
+        }
+
+        return $restored;
     }
 
     /**

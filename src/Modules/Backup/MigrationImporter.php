@@ -3,6 +3,8 @@ namespace TT\Modules\Backup;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
+
 /**
  * MigrationImporter (#1464, phase 2) — read-only validation and analysis of
  * an uploaded `.ttmig` archive ahead of an install-to-install import.
@@ -151,108 +153,114 @@ class MigrationImporter {
         }
 
         if ( ! $dry_run ) {
-            $wpdb->query( 'START TRANSACTION' );
+            Transaction::begin();
         }
         $failed = false;
 
-        foreach ( $ordered as $tbl ) {
-            $physical = $wpdb->prefix . $tbl;
-            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $physical ) ) !== $physical ) {
-                $warnings[] = sprintf(
-                    /* translators: %s is a database table name. */
-                    __( 'Table %s does not exist on this install; skipped.', 'talenttrack' ),
-                    $tbl
-                );
-                continue;
-            }
-
-            $columns  = is_array( $snap_tables[ $tbl ]['columns'] ?? null ) ? $snap_tables[ $tbl ]['columns'] : [];
-            $rows     = is_array( $snap_tables[ $tbl ]['rows'] ?? null ) ? $snap_tables[ $tbl ]['rows'] : [];
-            $has_col  = array_fill_keys( array_map( 'strval', $columns ), true );
-            $tbl_refs = $refs[ $tbl ] ?? [];
-            $sk       = $stable_by_table[ $tbl ] ?? null;
-            $strategy = $sk && ( $conflict[ $sk['entity'] ] ?? 'insert' ) === 'update' ? 'update' : 'insert';
-
-            $existing = $sk ? self::indexExistingByKey( $physical, $sk['columns'], $club ) : [];
-
-            $ins = 0; $upd = 0; $skip = 0;
-            $id_map[ $tbl ] = $id_map[ $tbl ] ?? [];
-
-            foreach ( $rows as $row ) {
-                if ( ! is_array( $row ) ) { $skip++; continue; }
-                $old_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
-
-                $data = self::projectColumns( $row, $columns );
-                unset( $data['id'] );
-                if ( isset( $has_col['club_id'] ) ) {
-                    $data['club_id'] = $club;
-                }
-                if ( isset( $has_col['wp_user_id'] ) ) {
-                    $old_uid = (int) ( $row['wp_user_id'] ?? 0 );
-                    $data['wp_user_id'] = ( $old_uid > 0 && ( $user_map[ $old_uid ] ?? 0 ) > 0 ) ? $user_map[ $old_uid ] : null;
+        try {
+            foreach ( $ordered as $tbl ) {
+                $physical = $wpdb->prefix . $tbl;
+                if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $physical ) ) !== $physical ) {
+                    $warnings[] = sprintf(
+                        /* translators: %s is a database table name. */
+                        __( 'Table %s does not exist on this install; skipped.', 'talenttrack' ),
+                        $tbl
+                    );
+                    continue;
                 }
 
-                // Rewrite foreign keys via the accumulated id maps.
-                $orphaned = false;
-                foreach ( $tbl_refs as $ref ) {
-                    $col = (string) $ref['column'];
-                    if ( ! isset( $has_col[ $col ] ) ) continue;
-                    $old_fk = (int) ( $row[ $col ] ?? 0 );
-                    if ( $old_fk <= 0 ) { $data[ $col ] = null; continue; }
-                    $pt     = (string) $ref['parent_table'];
-                    $new_fk = (int) ( $id_map[ $pt ][ $old_fk ] ?? 0 );
-                    if ( $new_fk !== 0 ) {
-                        $data[ $col ] = $new_fk;
-                    } else {
-                        $data[ $col ] = null;
-                        if ( isset( $config_keys[ $pt ] ) ) {
-                            $warnings[] = sprintf(
-                                /* translators: 1: child table, 2: parent (config) table. */
-                                __( 'A %1$s row references a %2$s entry not present on this install; imported without that link.', 'talenttrack' ),
-                                $tbl,
-                                $pt
-                            );
+                $columns  = is_array( $snap_tables[ $tbl ]['columns'] ?? null ) ? $snap_tables[ $tbl ]['columns'] : [];
+                $rows     = is_array( $snap_tables[ $tbl ]['rows'] ?? null ) ? $snap_tables[ $tbl ]['rows'] : [];
+                $has_col  = array_fill_keys( array_map( 'strval', $columns ), true );
+                $tbl_refs = $refs[ $tbl ] ?? [];
+                $sk       = $stable_by_table[ $tbl ] ?? null;
+                $strategy = $sk && ( $conflict[ $sk['entity'] ] ?? 'insert' ) === 'update' ? 'update' : 'insert';
+
+                $existing = $sk ? self::indexExistingByKey( $physical, $sk['columns'], $club ) : [];
+
+                $ins = 0; $upd = 0; $skip = 0;
+                $id_map[ $tbl ] = $id_map[ $tbl ] ?? [];
+
+                foreach ( $rows as $row ) {
+                    if ( ! is_array( $row ) ) { $skip++; continue; }
+                    $old_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
+
+                    $data = self::projectColumns( $row, $columns );
+                    unset( $data['id'] );
+                    if ( isset( $has_col['club_id'] ) ) {
+                        $data['club_id'] = $club;
+                    }
+                    if ( isset( $has_col['wp_user_id'] ) ) {
+                        $old_uid = (int) ( $row['wp_user_id'] ?? 0 );
+                        $data['wp_user_id'] = ( $old_uid > 0 && ( $user_map[ $old_uid ] ?? 0 ) > 0 ) ? $user_map[ $old_uid ] : null;
+                    }
+
+                    // Rewrite foreign keys via the accumulated id maps.
+                    $orphaned = false;
+                    foreach ( $tbl_refs as $ref ) {
+                        $col = (string) $ref['column'];
+                        if ( ! isset( $has_col[ $col ] ) ) continue;
+                        $old_fk = (int) ( $row[ $col ] ?? 0 );
+                        if ( $old_fk <= 0 ) { $data[ $col ] = null; continue; }
+                        $pt     = (string) $ref['parent_table'];
+                        $new_fk = (int) ( $id_map[ $pt ][ $old_fk ] ?? 0 );
+                        if ( $new_fk !== 0 ) {
+                            $data[ $col ] = $new_fk;
                         } else {
-                            // Missing record parent → would orphan the row; skip it.
-                            $orphaned = true;
+                            $data[ $col ] = null;
+                            if ( isset( $config_keys[ $pt ] ) ) {
+                                $warnings[] = sprintf(
+                                    /* translators: 1: child table, 2: parent (config) table. */
+                                    __( 'A %1$s row references a %2$s entry not present on this install; imported without that link.', 'talenttrack' ),
+                                    $tbl,
+                                    $pt
+                                );
+                            } else {
+                                // Missing record parent → would orphan the row; skip it.
+                                $orphaned = true;
+                            }
                         }
                     }
-                }
-                if ( $orphaned ) { $skip++; continue; }
+                    if ( $orphaned ) { $skip++; continue; }
 
-                // Stable-key conflict handling.
-                if ( $sk ) {
-                    $key      = self::keyOf( $row, $sk['columns'] );
-                    $match_id = (int) ( $existing[ $key ] ?? 0 );
-                    if ( $match_id > 0 && $strategy === 'update' ) {
-                        if ( ! $dry_run ) {
-                            $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
-                            if ( $ok === false ) { $failed = true; break 2; }
+                    // Stable-key conflict handling.
+                    if ( $sk ) {
+                        $key      = self::keyOf( $row, $sk['columns'] );
+                        $match_id = (int) ( $existing[ $key ] ?? 0 );
+                        if ( $match_id > 0 && $strategy === 'update' ) {
+                            if ( ! $dry_run ) {
+                                $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
+                                if ( $ok === false ) { $failed = true; break 2; }
+                            }
+                            $upd++;
+                            if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $match_id;
+                            continue;
                         }
-                        $upd++;
-                        if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $match_id;
-                        continue;
                     }
+
+                    // Insert as new.
+                    if ( $dry_run ) {
+                        $new_id = --$synthetic;
+                    } else {
+                        $ok = $wpdb->insert( $physical, $data );
+                        if ( $ok === false ) { $failed = true; break 2; }
+                        $new_id = (int) $wpdb->insert_id;
+                    }
+                    $ins++;
+                    if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $new_id;
+                    if ( $sk ) { $existing[ self::keyOf( $row, $sk['columns'] ) ] = $new_id; }
                 }
 
-                // Insert as new.
-                if ( $dry_run ) {
-                    $new_id = --$synthetic;
-                } else {
-                    $ok = $wpdb->insert( $physical, $data );
-                    if ( $ok === false ) { $failed = true; break 2; }
-                    $new_id = (int) $wpdb->insert_id;
-                }
-                $ins++;
-                if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $new_id;
-                if ( $sk ) { $existing[ self::keyOf( $row, $sk['columns'] ) ] = $new_id; }
+                $counts[ $tbl ] = [ 'insert' => $ins, 'update' => $upd, 'skip' => $skip ];
             }
-
-            $counts[ $tbl ] = [ 'insert' => $ins, 'update' => $upd, 'skip' => $skip ];
+        } catch ( \Throwable $e ) {
+            // #4561 — closed on a throw too, so the level is never left open.
+            if ( ! $dry_run ) Transaction::rollback();
+            throw $e;
         }
 
         if ( $failed ) {
-            $wpdb->query( 'ROLLBACK' );
+            if ( ! $dry_run ) Transaction::rollback();
             return [
                 'ok'       => false,
                 'error'    => __( 'A database write failed; the import was rolled back and nothing was changed.', 'talenttrack' ),
@@ -262,7 +270,7 @@ class MigrationImporter {
         }
 
         if ( ! $dry_run ) {
-            $wpdb->query( 'COMMIT' );
+            Transaction::commit();
         }
 
         return [

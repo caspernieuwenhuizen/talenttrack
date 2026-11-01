@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Filters;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -167,7 +168,7 @@ class SavedViewsRepository {
         if ( $row === null ) return null;
 
         $club = CurrentClub::id();
-        $this->wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
 
         // Clear the whole group first — including this row, so the update
         // below is the only write that sets the flag.
@@ -187,10 +188,10 @@ class SavedViewsRepository {
         }
 
         if ( $cleared === false || $set === false ) {
-            $this->wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             return null;
         }
-        $this->wpdb->query( 'COMMIT' );
+        Transaction::commit();
 
         return $this->find( $id, $user_id );
     }

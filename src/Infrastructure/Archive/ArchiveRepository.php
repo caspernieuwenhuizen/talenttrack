@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Config\ConfigService;
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Players\PlayerDeletionCascade;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -171,7 +172,7 @@ class ArchiveRepository {
         // in the same layer as the entity-write itself — UI code
         // doesn't need to know about it.
         if ( $entity === 'player' ) {
-            $wpdb->query( 'START TRANSACTION' );
+            Transaction::begin();
             try {
                 $count = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
                 if ( class_exists( PdpFilesRepository::class ) ) {
@@ -180,12 +181,12 @@ class ArchiveRepository {
                         $pdp_repo->archiveAllForPlayer( (int) $player_id );
                     }
                 }
-                $wpdb->query( 'COMMIT' );
-                return $count;
             } catch ( \Throwable $e ) {
-                $wpdb->query( 'ROLLBACK' );
+                Transaction::rollback();
                 throw $e;
             }
+            Transaction::commit();
+            return $count;
         }
 
         // #2411 — archiving a team optionally takes its ACTIVITIES with it.
@@ -197,25 +198,25 @@ class ArchiveRepository {
         // can reverse exactly what this cascade archived — an activity that
         // was archived independently BEFORE the team must stay archived.
         if ( $entity === 'team' && ! empty( $opts['cascade_activities'] ) ) {
-            $wpdb->query( 'START TRANSACTION' );
+            Transaction::begin();
             try {
                 $count    = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
                 $cascaded = $this->cascadeArchiveTeamActivities( $ids, $by_user_id );
-                $wpdb->query( 'COMMIT' );
-
-                if ( $cascaded ) {
-                    $this->audit->record(
-                        'team.archive_cascaded',
-                        'team',
-                        (int) $ids[0],
-                        [ 'team_ids' => array_values( $ids ), 'activity_ids' => $cascaded ]
-                    );
-                }
-                return $count;
             } catch ( \Throwable $e ) {
-                $wpdb->query( 'ROLLBACK' );
+                Transaction::rollback();
                 throw $e;
             }
+            Transaction::commit();
+
+            if ( $cascaded ) {
+                $this->audit->record(
+                    'team.archive_cascaded',
+                    'team',
+                    (int) $ids[0],
+                    [ 'team_ids' => array_values( $ids ), 'activity_ids' => $cascaded ]
+                );
+            }
+            return $count;
         }
 
         return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
