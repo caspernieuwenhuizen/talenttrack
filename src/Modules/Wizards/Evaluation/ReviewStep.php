@@ -223,13 +223,11 @@ final class ReviewStep implements WizardStepInterface {
         $eval_date = $activity_row && $activity_row->session_date ? (string) $activity_row->session_date : current_time( 'Y-m-d' );
 
         $created = 0;
+        $refused = 0;
         $uid     = get_current_user_id();
         foreach ( $ratings as $player_id => $cats ) {
             $player_id = (int) $player_id;
             if ( $player_id <= 0 ) continue;
-            // Each posted key is asked about: a player the reader may not
-            // evaluate gets no row. A linked guest on this activity counts.
-            if ( ! EvaluationInserter::mayWriteForActivity( $uid, $player_id, $aid ) ) continue;
             if ( ! empty( $skip[ $player_id ] ) ) continue;
             if ( ! is_array( $cats ) || empty( $cats ) ) continue;
 
@@ -248,6 +246,15 @@ final class ReviewStep implements WizardStepInterface {
             $any = false;
             foreach ( $cats as $v ) { if ( (int) $v > 0 ) { $any = true; break; } }
             if ( ! $any ) continue;
+
+            // Each posted key is asked about: a player the reader may not
+            // evaluate gets no row. A linked guest on this activity counts.
+            // Asked after the empty checks, so only a rating the coach
+            // actually typed is counted as not saved.
+            if ( ! EvaluationInserter::mayWriteForActivity( $uid, $player_id, $aid ) ) {
+                $refused++;
+                continue;
+            }
 
             $result = EvaluationInserter::insert( [
                 'activity_id' => $aid,
@@ -272,6 +279,9 @@ final class ReviewStep implements WizardStepInterface {
         // player was skipped, all ratings were 0 or out of range).
         // Otherwise the activity transitions and the wizard reports
         // "success" with no real data written.
+        if ( $created <= 0 && $refused > 0 ) {
+            return new \WP_Error( 'ratings_not_saved', self::notSavedMessage( $refused ) );
+        }
         if ( $created <= 0 ) {
             return new \WP_Error(
                 'empty_evaluation',
@@ -290,6 +300,15 @@ final class ReviewStep implements WizardStepInterface {
         // `plan_state = 'completed'`.
         if ( $aid > 0 ) {
             AttendanceStep::completeActivityIfNotTerminal( $aid );
+        }
+
+        // The submit redirects on success, so the partial refusal travels
+        // as a flash message to the page the coach lands on.
+        if ( $refused > 0 ) {
+            \TT\Shared\Frontend\FlashMessages::add(
+                \TT\Shared\Frontend\FlashMessages::TYPE_WARNING,
+                self::notSavedMessage( $refused )
+            );
         }
 
         // #869 — Write the behaviour rows captured by BehaviourStep.
@@ -332,7 +351,21 @@ final class ReviewStep implements WizardStepInterface {
                 'activity_id' => $aid,
             ], WizardEntryPoint::currentDashboardUrl() );
 
-        return [ 'redirect_url' => $redirect, 'created' => $created ];
+        return [ 'redirect_url' => $redirect, 'created' => $created, 'not_saved' => $refused ];
+    }
+
+    /** The coach-facing line for ratings the write check refused. */
+    private static function notSavedMessage( int $count ): string {
+        return sprintf(
+            /* translators: %d: number of player ratings that were not saved */
+            _n(
+                '%d rating was not saved: this player didn\'t take part, or you can\'t rate them on this activity.',
+                '%d ratings were not saved: these players didn\'t take part, or you can\'t rate them on this activity.',
+                $count,
+                'talenttrack'
+            ),
+            $count
+        );
     }
 
     /**
