@@ -128,6 +128,9 @@ class FrontendTaskDetailView extends FrontendViewBase {
 
         $errors = [];
         $flash  = '';
+        // #4423 — what the user submitted, when the answer was refused, so
+        // the form comes back with it rather than with its defaults.
+        $refused = null;
 
         // Submission path — assignee always; academy_admin takeover
         // when `task_completion:create` is held at global scope.
@@ -168,6 +171,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
                         $errors['__form'] = __( 'Could not save the task. Please try again.', 'talenttrack' );
                     }
                 }
+                if ( ! empty( $errors ) ) $refused = $raw;
             }
         }
 
@@ -245,7 +249,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
         // changes to the form class.
         $needs_lock = ! $can_submit && ! $is_completed;
         if ( $needs_lock ) echo '<fieldset disabled style="border:0; padding:0; margin:0;">';
-        echo $form->render( $task );
+        echo $form->render( self::taskToRender( $task, $is_completed ? null : $refused ) );
         if ( $needs_lock ) echo '</fieldset>';
         if ( $can_submit && ! $is_completed ) {
             $submit_label = $is_takeover
@@ -256,6 +260,52 @@ class FrontendTaskDetailView extends FrontendViewBase {
                 . '</button></p>';
         }
         echo '</form>';
+    }
+
+    /** Posted keys that belong to the page, not to the form's answer. */
+    private const FRAMEWORK_KEYS = [ 'tt_workflow_submit', self::NONCE_FIELD, '_wp_http_referer' ];
+
+    /**
+     * #4423 — the task a form renders. After a refused answer it is a copy
+     * whose `response_json` holds the submitted values, so the form prefills
+     * from them the way it prefills a saved answer: each form reads its
+     * answer back under the field names it posts.
+     *
+     * The values are sanitised here, and the form's `serializeResponse()` is
+     * never called: in five forms it also writes (a consent request, a
+     * prospect, a test training, a trial case), and a refused answer must
+     * write nothing. The stored task and its row are untouched; the copy
+     * lives for this render only.
+     *
+     * @param array<string,mixed>      $task
+     * @param array<string,mixed>|null $refused the submitted values, or null
+     * @return array<string,mixed>
+     */
+    private static function taskToRender( array $task, ?array $refused ): array {
+        if ( $refused === null ) return $task;
+        $values = array_diff_key( $refused, array_flip( self::FRAMEWORK_KEYS ) );
+        $copy   = $task;
+        $copy['response_json'] = (string) wp_json_encode( self::sanitiseSubmitted( $values ) );
+        return $copy;
+    }
+
+    /**
+     * Plain text, line breaks kept, at any depth: what a form's fields hold.
+     *
+     * @param array<mixed> $values
+     * @return array<mixed>
+     */
+    private static function sanitiseSubmitted( array $values ): array {
+        $out = [];
+        foreach ( $values as $key => $value ) {
+            $key = is_int( $key ) ? $key : sanitize_key( (string) $key );
+            if ( is_array( $value ) ) {
+                $out[ $key ] = self::sanitiseSubmitted( $value );
+            } elseif ( is_scalar( $value ) ) {
+                $out[ $key ] = sanitize_textarea_field( (string) $value );
+            }
+        }
+        return $out;
     }
 
     /**
