@@ -18,8 +18,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  *   CASCADE DELETE — the row exists only because the person exists.
  *     tt_team_people, tt_user_role_scopes (rows where person_id = X),
- *     tt_staff_pdp, tt_staff_certifications, tt_staff_evaluations,
- *     tt_staff_goals, tt_staff_mentorships (mentor or mentee = X),
+ *     tt_staff_pdp, tt_staff_certifications, tt_staff_evaluations (and
+ *     their tt_staff_eval_ratings), tt_staff_goals,
+ *     tt_staff_mentorships (mentor or mentee = X),
  *     tt_invitations (target_person_id = X AND status IN ('pending','expired')).
  *
  *   SET NULL — the row means something on its own; nulling preserves it.
@@ -28,6 +29,8 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *
  * The wp_user account is NOT touched. Audit-log and other tables that
  * reference `wp_users.ID` (coach_id, created_by, etc.) keep working.
+ *
+ * Every write is limited to the current club's rows.
  *
  * All operations run in a single transaction. On any failure, the whole
  * batch rolls back; partial-state on failure is impossible.
@@ -206,6 +209,21 @@ class PersonDeletionCascade {
 
         Transaction::begin();
         try {
+            // Ratings hang off the evaluation, not the person, so they go
+            // first, while the evaluations they point at still exist.
+            if ( TableExists::has( 'tt_staff_eval_ratings' ) && TableExists::has( 'tt_staff_evaluations' ) ) {
+                $sql_r = "DELETE FROM {$p}tt_staff_eval_ratings
+                          WHERE evaluation_id IN (
+                              SELECT id FROM {$p}tt_staff_evaluations
+                              WHERE person_id IN ({$ph}) AND club_id = %d
+                          )";
+                $n_r = $wpdb->query( $wpdb->prepare( $sql_r, ...array_merge( $ids, [ $club ] ) ) );
+                if ( $n_r === false ) {
+                    throw new \RuntimeException( 'Cascade delete failed on tt_staff_eval_ratings: ' . $wpdb->last_error );
+                }
+                $per_table['tt_staff_eval_ratings'] = (int) $n_r;
+            }
+
             // CASCADE — target_person_id-based deletes
             $cascade_targets = [
                 'tt_team_people'         => 'person_id',
@@ -221,8 +239,8 @@ class PersonDeletionCascade {
             foreach ( $cascade_targets as $table => $col ) {
                 // A table an install does not have holds nothing to remove.
                 if ( ! TableExists::has( $table ) ) continue;
-                $sql = "DELETE FROM {$p}{$table} WHERE {$col} IN ({$ph})";
-                $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                $sql = "DELETE FROM {$p}{$table} WHERE {$col} IN ({$ph}) AND club_id = %d";
+                $n = $wpdb->query( $wpdb->prepare( $sql, ...array_merge( $ids, [ $club ] ) ) );
                 if ( $n === false ) {
                     throw new \RuntimeException( 'Cascade delete failed on ' . $table . ': ' . $wpdb->last_error );
                 }
@@ -232,8 +250,8 @@ class PersonDeletionCascade {
             // tt_staff_mentorships — OR semantics on two columns
             if ( TableExists::has( 'tt_staff_mentorships' ) ) {
                 $sql_m = "DELETE FROM {$p}tt_staff_mentorships
-                          WHERE mentor_person_id IN ({$ph}) OR mentee_person_id IN ({$ph})";
-                $n_m = $wpdb->query( $wpdb->prepare( $sql_m, ...array_merge( $ids, $ids ) ) );
+                          WHERE ( mentor_person_id IN ({$ph}) OR mentee_person_id IN ({$ph}) ) AND club_id = %d";
+                $n_m = $wpdb->query( $wpdb->prepare( $sql_m, ...array_merge( $ids, $ids, [ $club ] ) ) );
                 if ( $n_m === false ) {
                     throw new \RuntimeException( 'Cascade delete failed on tt_staff_mentorships: ' . $wpdb->last_error );
                 }
@@ -243,8 +261,8 @@ class PersonDeletionCascade {
             // tt_invitations — only pending/expired cascade
             if ( TableExists::has( 'tt_invitations' ) ) {
                 $sql_i = "DELETE FROM {$p}tt_invitations
-                          WHERE target_person_id IN ({$ph}) AND status IN ('pending','expired')";
-                $n_i = $wpdb->query( $wpdb->prepare( $sql_i, ...$ids ) );
+                          WHERE target_person_id IN ({$ph}) AND status IN ('pending','expired') AND club_id = %d";
+                $n_i = $wpdb->query( $wpdb->prepare( $sql_i, ...array_merge( $ids, [ $club ] ) ) );
                 if ( $n_i === false ) {
                     throw new \RuntimeException( 'Cascade delete failed on tt_invitations (pending/expired): ' . $wpdb->last_error );
                 }
@@ -263,8 +281,8 @@ class PersonDeletionCascade {
 
             $sql_inv_acc = "UPDATE {$p}tt_invitations
                             SET target_person_id = NULL
-                            WHERE target_person_id IN ({$ph}) AND status = 'accepted'";
-            $n_ia = $wpdb->query( $wpdb->prepare( $sql_inv_acc, ...$ids ) );
+                            WHERE target_person_id IN ({$ph}) AND status = 'accepted' AND club_id = %d";
+            $n_ia = $wpdb->query( $wpdb->prepare( $sql_inv_acc, ...array_merge( $ids, [ $club ] ) ) );
             if ( $n_ia === false ) {
                 throw new \RuntimeException( 'Set-null failed on tt_invitations.target_person_id (accepted): ' . $wpdb->last_error );
             }
@@ -338,6 +356,9 @@ class PersonDeletionCascade {
     }
 
     /**
+     * Positive, unique ids of people in the current club. An id from
+     * another club never reaches the child deletes.
+     *
      * @param int[] $raw
      * @return int[]
      */
@@ -347,6 +368,14 @@ class PersonDeletionCascade {
             $i = (int) $v;
             if ( $i > 0 ) $out[ $i ] = true;
         }
-        return array_keys( $out );
+        if ( empty( $out ) ) return [];
+
+        global $wpdb;
+        $ids = array_keys( $out );
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = "SELECT id FROM {$wpdb->prefix}tt_people
+                WHERE id IN ({$ph}) AND club_id = %d";
+        $rows = $wpdb->get_col( $wpdb->prepare( $sql, ...array_merge( $ids, [ CurrentClub::id() ] ) ) );
+        return array_values( array_map( 'intval', (array) $rows ) );
     }
 }
