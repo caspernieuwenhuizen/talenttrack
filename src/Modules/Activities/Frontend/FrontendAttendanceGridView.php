@@ -3,8 +3,8 @@ namespace TT\Modules\Activities\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\ActivityAccess;
 use TT\Modules\Activities\Reports\AttendanceGridQuery;
 use TT\Modules\Activities\Services\AttendanceDateRule;
 use TT\Modules\Analytics\Reports\ReportFilters;
@@ -63,6 +63,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
                 'completed' => __( 'All changes saved · %d activity/activities marked completed', 'talenttrack' ),
                 /* translators: %d is the number of cells that were not saved. */
                 'rejected'  => __( '%d change(s) not saved.', 'talenttrack' ),
+                /* translators: %d is the number of cell changes the server skipped. */
+                'skipped'   => __( "%d change(s) were not saved: you can't change this team", 'talenttrack' ),
                 // #2521 — the confirmation shown before a save that will
                 // change an activity's status. Nothing is written until the
                 // coach has read which sessions are affected and why.
@@ -121,13 +123,13 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
 
         self::renderModeNav();
 
-        // Team scope mirrors the activities + minutes surfaces: academy-wide
-        // roles see every team, coaches only the teams they coach.
+        // Academy-wide readers see every team. Everyone else is offered the
+        // teams `POST /attendance/bulk` will write for them, so an ended or
+        // future assignment does not list a team whose save would be skipped.
+        $writable_team_ids = ActivityAccess::registerTeamIds( $user_id );
         $is_scope_admin = $is_admin
             || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
-        $allowed_team_ids = $is_scope_admin
-            ? null
-            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+        $allowed_team_ids = $is_scope_admin ? null : $writable_team_ids;
 
         if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
             echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to record. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
@@ -192,7 +194,8 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             return;
         }
 
-        self::renderGrid( $matrix, $team_id );
+        $team_writable = $writable_team_ids === null || in_array( $team_id, $writable_team_ids, true );
+        self::renderGrid( $matrix, $team_id, $team_writable );
         echo '</div>'; // #3337 — /.tt-filter-region
     }
 
@@ -273,8 +276,10 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
 
     /**
      * @param array<string,mixed> $matrix
+     * @param bool $team_writable Whether the save would write this team; when
+     *                            not, every cell renders read-only.
      */
-    private static function renderGrid( array $matrix, int $team_id ): void {
+    private static function renderGrid( array $matrix, int $team_id, bool $team_writable = true ): void {
         /** @var list<array<string,mixed>> $players */
         $players = $matrix['players'];
         /** @var list<array<string,mixed>> $activities */
@@ -323,7 +328,9 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             echo '<span class="tt-agrid__act-type" aria-hidden="true">'
                 . \TT\Shared\Icons\IconRenderer::render( $glyph, [ 'width' => 14, 'height' => 14 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                 . '</span>';
-            echo '<button type="button" class="tt-agrid__fill" data-activity="' . esc_attr( (string) $aid ) . '">' . esc_html__( 'all present', 'talenttrack' ) . '</button>';
+            if ( $team_writable ) {
+                echo '<button type="button" class="tt-agrid__fill" data-activity="' . esc_attr( (string) $aid ) . '">' . esc_html__( 'all present', 'talenttrack' ) . '</button>';
+            }
             echo '</th>';
         }
         echo '<th class="tt-agrid__rate" scope="col">' . esc_html__( 'Present %', 'talenttrack' ) . '</th>';
@@ -338,15 +345,16 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
             // since moved on. Their register is history: the bulk write
             // refuses a mark for a player off the activity's team, so the row
             // shows the marks and offers no control that would no-op.
-            $editable = ! array_key_exists( 'editable', $pl ) || ! empty( $pl['editable'] );
+            $former   = array_key_exists( 'editable', $pl ) && empty( $pl['editable'] );
+            $editable = $team_writable && ! $former;
             $moved_to = (string) ( $pl['current_team_name'] ?? '' );
 
-            echo '<tr' . ( $editable ? '' : ' class="tt-agrid__row--former"' ) . '>';
+            echo '<tr' . ( $former ? ' class="tt-agrid__row--former"' : '' ) . '>';
             echo '<th class="tt-agrid__player" scope="row"><span class="tt-agrid__who">';
             if ( $jersey !== null ) echo '<span class="tt-agrid__no">' . esc_html( (string) $jersey ) . '</span>';
             echo '<span class="tt-agrid__nm">' . esc_html( $name ) . '</span>';
             echo '</span>';
-            if ( ! $editable ) {
+            if ( $former ) {
                 $badge = $moved_to !== ''
                     /* translators: %s is the team the player is on now. */
                     ? sprintf( __( 'Left the squad — now %s', 'talenttrack' ), $moved_to )
@@ -409,6 +417,14 @@ final class FrontendAttendanceGridView extends FrontendViewBase {
         }
 
         self::renderLegend( $statuses );
+
+        // A team the save would skip has nothing to save: say so in words
+        // instead of offering a Save that could only be refused.
+        if ( ! $team_writable ) {
+            echo '<p class="tt-notice tt-agrid-readonly-note">' . esc_html__( "You can see this team's grid, but you can't change it.", 'talenttrack' ) . '</p>';
+            echo '</div>'; // .tt-agrid-card
+            return;
+        }
 
         // Save + Cancel (§6). Save is JS-driven (bulk upsert); Cancel returns
         // to the activities list (or the tt_back target when present).

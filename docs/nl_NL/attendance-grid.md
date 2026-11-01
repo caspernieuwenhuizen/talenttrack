@@ -75,6 +75,22 @@ Het raster legt dezelfde aanwezigheid vast als de rapporten en de wizard,
 zodat de rapporten Aanwezigheid en Minuten blijven kloppen met wat je hier
 invoert.
 
+## Teams die je wel ziet maar niet kunt wijzigen
+
+De teamlijst bevat de teams waarvoor je aanwezigheid mag vastleggen. Een
+toewijzing die is afgelopen, of nog niet is begonnen, zet een team niet in die
+lijst.
+
+Mag je met je rol de activiteiten van alle teams zien, dan staan alle teams in
+de lijst. Een team waarvoor je niets mag vastleggen, opent alleen-lezen: je
+ziet elke vastgelegde status, maar er is geen keuzelijst, geen **allen
+aanwezig** en geen **Opslaan**, en een notitie onder het raster zegt dat.
+
+Wordt een opslag toch geweigerd, bijvoorbeeld omdat je toewijzing afliep terwijl
+het raster openstond, dan meldt de opslagbalk hoeveel wijzigingen niet zijn
+opgeslagen en houden je wijzigingen hun rand. Het raster meldt nooit *Alle
+wijzigingen opgeslagen* voor wijzigingen die het niet heeft vastgelegd.
+
 ## Activiteiten die nog niet geweest zijn
 
 **Aanwezig** en **Laat** kun je pas vastleggen op of na de dag van de

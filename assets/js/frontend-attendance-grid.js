@@ -254,6 +254,27 @@
 				if ( ! res.ok || ! res.body || res.body.success !== true ) {
 					throw new Error( 'save_failed' );
 				}
+				// A skipped change was not written (a team the save may not
+				// change, a player off the roster). The response counts them
+				// without naming them, so every edit stays dirty: a refusal
+				// is never shown as a save.
+				var skipped = parseInt( ( res.body.data && res.body.data.skipped ) || 0, 10 ) || 0;
+				if ( skipped > 0 ) {
+					// Flagged like a refused cell, so a screen reader hears
+					// which edits are still unsaved; the next edit clears it.
+					dirty.forEach( function ( td ) {
+						td.classList.add( 'is-rejected' );
+						td.setAttribute( 'aria-invalid', 'true' );
+					} );
+					if ( statusEl ) {
+						statusEl.classList.add( 'is-error' );
+						statusEl.textContent = ( I18N.skipped || I18N.error || '' ).replace( '%d', String( skipped ) );
+					}
+					if ( saveBtn ) {
+						saveBtn.disabled = false;
+					}
+					return;
+				}
 				// #3586 — refused cells (present / late on an activity that
 				// has not happened) stay dirty and flagged, so a refusal is
 				// never shown as a save.

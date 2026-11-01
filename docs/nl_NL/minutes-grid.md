@@ -60,6 +60,19 @@ een desktop of laptop.
 De minuten die je hier invoert zijn dezelfde cijfers die de minuten-audit en
 het rapport Minuten per team gebruiken, zodat alles blijft kloppen.
 
+### Teams die je wel ziet maar niet kunt wijzigen
+
+De teamlijst bevat de teams waarvan je de activiteiten mag bewerken. Een
+toewijzing die is afgelopen, of nog niet is begonnen, zet een team niet in die
+lijst. Mag je met je rol de activiteiten van alle teams zien, dan staan alle
+teams in de lijst, en een team dat je niet mag bewerken opent alleen-lezen: de
+vastgelegde minuten, doelpunten, assists en uitslag als tekst, zonder velden
+en zonder **Opslaan**, met een notitie onder het raster.
+
+Wordt een opslag toch geweigerd, dan meldt de opslagbalk hoeveel wijzigingen
+niet zijn opgeslagen en houden je wijzigingen hun rand. Het raster meldt nooit
+*Alle wijzigingen opgeslagen* voor wijzigingen die het niet heeft vastgelegd.
+
 ### Doelpunten en assists zonder live wedstrijdformulier
 
 Tot nu toe konden doelpunten en assists alleen worden vastgelegd door een

@@ -290,6 +290,7 @@
 
 	grid.querySelectorAll( 'input.tt-agrid-min-in' ).forEach( function ( inp ) {
 		inp.addEventListener( 'input', function () {
+			inp.removeAttribute( 'aria-invalid' );
 			var td = inp.closest( 'td' );
 			if ( td ) {
 				td.classList.add( 'is-dirty' );
@@ -580,7 +581,26 @@
 		function otherWrites() {
 			var writes = [];
 			if ( dirty.size > 0 && CFG.restBulk ) {
-				writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ) );
+				// A skipped change was not written (a team the save may not
+				// change, a player with no squad row). The response counts
+				// them without naming them, so it fails the whole save and
+				// every edit stays dirty.
+				writes.push( postJson( CFG.restBulk, 'POST', { changes: collectChanges() } ).then( function ( payload ) {
+					var skipped = parseInt( ( payload.data && payload.data.skipped ) || 0, 10 ) || 0;
+					if ( skipped > 0 ) {
+						// Flagged like a refused box, so a screen reader hears
+						// which edits are still unsaved; the next edit clears it.
+						dirty.forEach( function ( td ) {
+							var box = td.querySelector( 'input.tt-agrid-min-in' );
+							if ( box ) {
+								box.setAttribute( 'aria-invalid', 'true' );
+							}
+						} );
+						refusal = ( I18N.skipped || '' ).replace( '%d', String( skipped ) );
+						throw new Error( 'save_skipped' );
+					}
+					return payload;
+				} ) );
 			}
 			if ( dirtyStats.size > 0 && CFG.restStats ) {
 				collectStatPayloads().forEach( function ( payload ) {

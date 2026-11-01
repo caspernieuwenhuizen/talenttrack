@@ -41,6 +41,7 @@ Open the activity and click **Ratings grid**. The button appears when you can ed
 - **Edited cells are highlighted** until you press Save, so you can see what's pending.
 - **Keyboard**: arrows move between cells, Enter moves down a row (the way you'd rate one category down the squad), Tab reaches Cancel then Save.
 - **Save is explicit.** Nothing is written until you press it, and Cancel returns you to the activity without saving.
+- **A team you can't edit opens read-only.** The recorded scores are shown as text, with no boxes and no **Save ratings**, and a note under the grid says so. If a player or category stops being part of the activity while the grid is open, the save leaves those scores out: the line under the grid says how many changes were not saved and asks you to reload the grid, and the cells stay marked as unsaved. The grid never says *All changes saved* for scores it didn't store.
 
 Saving twice is safe: the grid updates the player's existing evaluation for that activity rather than creating a second one, so scores never pile up.
 
