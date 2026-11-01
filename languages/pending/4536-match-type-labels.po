@@ -1,4 +1,0 @@
-#: src/Shared/Frontend/Components/MinutesBreakdown.php
-msgctxt "match type"
-msgid "No type"
-msgstr "Geen type"

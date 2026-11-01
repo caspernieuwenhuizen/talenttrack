@@ -36501,7 +36501,7 @@ msgstr "Nog geen posities op deze formatie."
 
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:236
 msgid "(unnamed position)"
-msgstr ""
+msgstr "(naamloze positie)"
 
 #: src/Modules/Methodology/Frontend/Manage/FormationsManageTab.php:257
 msgid "Delete this position? This cannot be undone."
@@ -37830,7 +37830,7 @@ msgstr "Meegeleverde spelhervattingen zijn alleen-lezen. Kloon om te bewerken."
 
 #: src/Modules/Methodology/Rest/SetPiecesRestController.php:148
 msgid "Shipped set pieces cannot be deleted."
-msgstr ""
+msgstr "Meegeleverde spelhervattingen kunnen niet worden verwijderd."
 
 #: src/Modules/Methodology/Rest/SetPiecesRestController.php:223
 msgid "Invalid set-piece kind."
@@ -68329,6 +68329,1484 @@ msgstr "Methodiekvocabulaire (tegel)"
 #: src/Modules/Alerts/Definitions/NoGuardianContactAlert.php:101
 msgid "Nobody at home can be reached about this player under 18: no parent account is linked and there is no guardian email or phone. Messages about them reach no one until one is added."
 msgstr "Niemand thuis is te bereiken over deze speler onder de 18: er is geen ouderaccount gekoppeld en er is geen e-mailadres of telefoonnummer van een verzorger. Berichten over deze speler bereiken niemand tot er een is toegevoegd."
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php
+#, php-format
+msgid "A line-up slot must be between 1 and %d."
+msgstr "Een positie in de opstelling moet tussen 1 en %d liggen."
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:39
+msgctxt "persona label"
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:40
+msgctxt "persona label"
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:41
+msgctxt "persona label"
+msgid "Head of development"
+msgstr "Hoofd opleiding"
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:43
+msgctxt "persona label"
+msgid "Team manager"
+msgstr "Teammanager"
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:44
+msgctxt "persona label"
+msgid "Academy admin"
+msgstr "Academiebeheerder"
+
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:47
+msgctxt "persona label"
+msgid "Staff"
+msgstr "Staf"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Title"
+msgstr "Titel"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Date"
+msgstr "Datum"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Times"
+msgstr "Tijden"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgctxt "Spond sync field group"
+msgid "Location"
+msgstr "Locatie"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Edited in TalentTrack, not updated from Spond"
+msgstr "Aangepast in TalentTrack, niet bijgewerkt vanuit Spond"
+
+#. translators: %s = field group name, e.g. Title
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Follow Spond again: %s"
+msgstr "Spond weer volgen: %s"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Let Spond update this again? The next sync replaces it with what Spond has."
+msgstr "Mag Spond dit weer bijwerken? Bij de volgende synchronisatie komt hier te staan wat in Spond staat."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Follow Spond again"
+msgstr "Spond weer volgen"
+
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "That field group cannot be locked."
+msgstr "Die groep velden kan niet worden vastgezet."
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgid "Which week, which teams"
+msgstr "Welke week, welke teams"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgid "On every row"
+msgstr "Op elke regel"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgctxt "This week panel settings group"
+msgid "Trainings"
+msgstr "Trainingen"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgid "Buttons on a row"
+msgstr "Knoppen op een regel"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TeamNameBlock.php
+msgid "Team name on each row"
+msgstr "Teamnaam op elke regel"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TeamNameBlock.php
+msgid "Shown when the week covers more than one team."
+msgstr "Zichtbaar als de week meer dan één team beslaat."
+
+#: src/Modules/Activities/CoachWeek/Blocks/NextWeekBlock.php
+msgid "Peek at next week"
+msgstr "Vooruitblik op volgende week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/NextWeekBlock.php
+msgid "The first two activities of next week, below the list."
+msgstr "De eerste twee activiteiten van volgende week, onder de lijst."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TypeBlock.php
+msgid "Training, match, and whether it is today."
+msgstr "Training, wedstrijd, en of het vandaag is."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TimesBlock.php
+msgctxt "This week panel block: start and kick-off times"
+msgid "Times"
+msgstr "Tijden"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TimesBlock.php
+msgid "Start time; for a match the time to be present and the kick-off."
+msgstr "Begintijd; bij een wedstrijd de aanwezigheidstijd en de aftrap."
+
+#: src/Modules/Activities/CoachWeek/Blocks/AttendanceBlock.php
+msgid "Whether attendance is recorded, once the activity has passed."
+msgstr "Of de aanwezigheid is vastgelegd, zodra de activiteit voorbij is."
+
+#: src/Modules/Activities/CoachWeek/Blocks/ExpectedPlayersBlock.php
+msgid "Expected players"
+msgstr "Verwachte spelers"
+
+#: src/Modules/Activities/CoachWeek/Blocks/ExpectedPlayersBlock.php
+msgid "How many players are expected, from the planned squad."
+msgstr "Hoeveel spelers er verwacht worden, volgens de geplande selectie."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingPlanBlock.php
+msgid "Training plan linked"
+msgstr "Trainingsplan gekoppeld"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingPlanBlock.php
+msgid "Whether the training has a training plan yet."
+msgstr "Of de training al een trainingsplan heeft."
+
+#: src/Modules/Activities/CoachWeek/Blocks/OpponentBlock.php
+msgid "Opponent and home or away"
+msgstr "Tegenstander en thuis of uit"
+
+#: src/Modules/Activities/CoachWeek/Blocks/OpponentBlock.php
+msgid "Off: the row shows the activity title instead."
+msgstr "Uit: de regel toont dan de titel van de activiteit."
+
+#: src/Modules/Activities/CoachWeek/Blocks/AvailabilityBlock.php
+msgid "How many players can play. A count, never the reason. Off for scouts and observers unless you switch it on."
+msgstr "Hoeveel spelers kunnen spelen. Een aantal, nooit de reden. Uit voor scouts en waarnemers, tenzij je het aanzet."
+
+#: src/Modules/Activities/CoachWeek/Blocks/LineupBlock.php
+msgid "Line-up status"
+msgstr "Stand van de opstelling"
+
+#: src/Modules/Activities/CoachWeek/Blocks/LineupBlock.php
+msgid "How many starters are placed in the match preparation."
+msgstr "Hoeveel basisspelers in de wedstrijdvoorbereiding zijn geplaatst."
+
+#: src/Modules/Activities/CoachWeek/Blocks/StartMatchAction.php
+msgid "Only on match day, never on a completed match."
+msgstr "Alleen op de wedstrijddag, nooit bij een voltooide wedstrijd."
+
+#: src/Modules/Activities/CoachWeek/Blocks/OpenActivityAction.php
+msgid "Open activity"
+msgstr "Activiteit openen"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "attendance recorded"
+msgstr "aanwezigheid vastgelegd"
+
+#. translators: %d: number of past activities whose attendance is not recorded
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%d without attendance"
+msgid_plural "%d without attendance"
+msgstr[0] "%d zonder aanwezigheid"
+msgstr[1] "%d zonder aanwezigheid"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The tile landing shows a This week panel: every activity of the week on the teams the user works with, and what each still needs. Choose per persona what the panel shows, on a desktop and on a phone. The panel only covers teams that user may see, and a button only shows where that user may take the action."
+msgstr "Het tegeloverzicht toont een paneel Deze week: elke activiteit van de week bij de teams waar de gebruiker mee werkt, en wat elke activiteit nog nodig heeft. Kies per persona wat het paneel toont, op een desktop en op een telefoon. Het paneel beslaat alleen teams die die gebruiker mag zien, en een knop verschijnt alleen waar die gebruiker de handeling mag uitvoeren."
+
+#: src/Infrastructure/REST/ConfigRestController.php
+msgid "The This week panel settings could not be read. Nothing was saved."
+msgstr "De instellingen van het paneel Deze week konden niet worden gelezen. Er is niets opgeslagen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Configure the panel for"
+msgstr "Stel het paneel in voor"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Show the panel to this persona"
+msgstr "Toon het paneel aan deze persona"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Also on phones"
+msgstr "Ook op telefoons"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Off: the panel only shows on tablet and desktop."
+msgstr "Uit: het paneel verschijnt alleen op tablet en desktop."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgctxt "device"
+msgid "Desktop"
+msgstr "Desktop"
+
+#. translators: %s: the name of a block of the This week panel, e.g. "Location"
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%s on desktop"
+msgstr "%s op desktop"
+
+#. translators: %s: the name of a block of the This week panel, e.g. "Location"
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%s on phone"
+msgstr "%s op telefoon"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Time window"
+msgstr "Periode"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The calendar week follows the first day of the week in General settings."
+msgstr "De kalenderweek volgt de eerste dag van de week uit de Algemene instellingen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Calendar week"
+msgstr "Kalenderweek"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Next 7 days"
+msgstr "Komende 7 dagen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "All academy teams applies only to users who may see every team's activities; others see their own teams."
+msgstr "Alle teams van de academie geldt alleen voor gebruikers die de activiteiten van elk team mogen zien; anderen zien hun eigen teams."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Their own teams"
+msgstr "Eigen teams"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "All academy teams"
+msgstr "Alle teams van de academie"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Days already past"
+msgstr "Dagen die al voorbij zijn"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Show them, fold them into one line, or leave them out."
+msgstr "Toon ze, vouw ze samen tot één regel, of laat ze weg."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Fold into one line"
+msgstr "Samenvouwen tot één regel"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgctxt "past days in the This week panel"
+msgid "Hide"
+msgstr "Verbergen"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingThemeBlock.php
+msgid "Training theme"
+msgstr "Thema van de training"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrainingThemeBlock.php
+msgid "The theme of the linked training plan."
+msgstr "Het thema van het gekoppelde trainingsplan."
+
+#: src/Modules/Activities/CoachWeek/Blocks/AttendanceRateBlock.php
+msgid "Attendance after the fact"
+msgstr "Opkomst achteraf"
+
+#: src/Modules/Activities/CoachWeek/Blocks/AttendanceRateBlock.php
+msgid "How many of the recorded players were there, on a past training."
+msgstr "Hoeveel van de geregistreerde spelers er waren, bij een voorbije training."
+
+#. translators: 1: players who attended, 2: players recorded on the register
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%1$d of %2$d present"
+msgstr "%1$d van %2$d aanwezig"
+
+#: src/Modules/Activities/CoachWeek/Blocks/GamePlanBlock.php
+msgid "Game plan ready"
+msgstr "Wedstrijdplan klaar"
+
+#: src/Modules/Activities/CoachWeek/Blocks/GamePlanBlock.php
+msgid "Whether the match preparation has its game plan written."
+msgstr "Of het wedstrijdplan in de wedstrijdvoorbereiding is uitgeschreven."
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "No game plan yet"
+msgstr "Nog geen wedstrijdplan"
+
+#: src/Modules/Activities/CoachWeek/Blocks/ResultBlock.php
+msgid "Won, lost or drew, on a completed match with a score."
+msgstr "Gewonnen, verloren of gelijk, bij een voltooide wedstrijd met een uitslag."
+
+#: src/Modules/Activities/CoachWeek/Blocks/MinutesCheckBlock.php
+msgid "Minutes check"
+msgstr "Minutencontrole"
+
+#: src/Modules/Activities/CoachWeek/Blocks/MinutesCheckBlock.php
+msgid "The minutes entered against what the match holds, as the minutes audit judges it."
+msgstr "De ingevoerde minuten tegenover wat de wedstrijd bevat, zoals de minutencontrole het beoordeelt."
+
+#: src/Modules/Activities/CoachWeek/Blocks/PlayerRatingsBlock.php
+msgid "Player ratings"
+msgstr "Spelersbeoordelingen"
+
+#: src/Modules/Activities/CoachWeek/Blocks/PlayerRatingsBlock.php
+msgid "How many of the players who played have been rated."
+msgstr "Hoeveel van de spelers die speelden een beoordeling hebben."
+
+#: src/Modules/Activities/CoachWeek/Blocks/MatchAnalysisBlock.php
+msgid "Whether the match analysis is written."
+msgstr "Of de wedstrijdanalyse is geschreven."
+
+#: src/Modules/Activities/CoachWeek/Blocks/MinutesStatsAction.php
+msgid "On a completed match whose minutes check is not complete."
+msgstr "Bij een voltooide wedstrijd waarvan de minutencontrole niet compleet is."
+
+#: src/Modules/Activities/CoachWeek/Blocks/RatePlayersAction.php
+msgid "On a completed match with players still to rate."
+msgstr "Bij een voltooide wedstrijd met spelers die nog beoordeeld moeten worden."
+
+#: src/Modules/Activities/CoachWeek/Blocks/WriteAnalysisAction.php
+msgid "Write match analysis"
+msgstr "Wedstrijdanalyse schrijven"
+
+#: src/Modules/Activities/CoachWeek/Blocks/WriteAnalysisAction.php
+msgid "On a completed match without an analysis."
+msgstr "Bij een voltooide wedstrijd zonder analyse."
+
+#. translators: 1: our goals, 2: their goals, e.g. "Won 2–1"
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Won %1$d–%2$d"
+msgstr "Gewonnen %1$d–%2$d"
+
+#. translators: 1: our goals, 2: their goals, e.g. "Lost 0–3"
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Lost %1$d–%2$d"
+msgstr "Verloren %1$d–%2$d"
+
+#. translators: 1: our goals, 2: their goals, e.g. "Drew 1–1"
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Drew %1$d–%2$d"
+msgstr "Gelijk %1$d–%2$d"
+
+#. translators: 1: minutes entered, 2: minutes the match holds, e.g. "795 / 770 min"
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%1$s / %2$s min"
+msgstr "%1$s / %2$s min"
+
+#. translators: 1: players rated, 2: players who played
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Ratings %1$d of %2$d"
+msgstr "Beoordelingen %1$d van %2$d"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Analysis written"
+msgstr "Analyse geschreven"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "No analysis yet"
+msgstr "Nog geen analyse"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+msgid "Week overview"
+msgstr "Weekoverzicht"
+
+#: src/Modules/Activities/CoachWeek/Blocks/SummaryBlock.php
+msgid "Week summary"
+msgstr "Weeksamenvatting"
+
+#: src/Modules/Activities/CoachWeek/Blocks/SummaryBlock.php
+msgid "Trainings, matches and attendance for the window, above the list."
+msgstr "Trainingen, wedstrijden en aanwezigheid voor de periode, boven de lijst."
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Trainings"
+msgstr "Trainingen"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Matches"
+msgstr "Wedstrijden"
+
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgctxt "This week summary"
+msgid "Attendance"
+msgstr "Aanwezigheid"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php:28
+msgid "Players who need attention"
+msgstr "Spelers die aandacht nodig hebben"
+
+#: src/Modules/Activities/CoachWeek/Blocks/InjuriesBlock.php:42
+msgid "Unavailable and returning this week"
+msgstr "Niet beschikbaar en terug deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/InjuriesBlock.php:43
+msgid "Players an injury keeps out today, and when they are expected back. Never the injury itself."
+msgstr "Spelers die vandaag door een blessure niet kunnen, en wanneer ze terug worden verwacht. Nooit de blessure zelf."
+
+#: src/Modules/Activities/CoachWeek/Blocks/MissedTrainingsBlock.php:31
+msgid "Missed several trainings"
+msgstr "Meerdere trainingen gemist"
+
+#: src/Modules/Activities/CoachWeek/Blocks/MissedTrainingsBlock.php:32
+msgid "Players absent from each of their team's last three recorded trainings."
+msgstr "Spelers die elk van de laatste drie vastgelegde trainingen van hun team hebben gemist."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrialPlayersBlock.php:26
+msgid "Trial players this week"
+msgstr "Proefspelers deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrialPlayersBlock.php:27
+msgid "Prospects on trial with your team, and the days your team has an activity."
+msgstr "Prospects die bij je team op proef zijn, en de dagen waarop je team een activiteit heeft."
+
+#: src/Modules/Activities/CoachWeek/Blocks/BirthdaysBlock.php:20
+msgid "Birthdays"
+msgstr "Verjaardagen"
+
+#: src/Modules/Activities/CoachWeek/Blocks/BirthdaysBlock.php:21
+msgid "Players with a birthday this week: first name and day only, never the age."
+msgstr "Spelers die deze week jarig zijn: alleen voornaam en dag, nooit de leeftijd."
+
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:92
+msgctxt "This week: a player expected back"
+msgid "returning"
+msgstr "komt terug"
+
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:93
+msgctxt "This week: a player expected back this week"
+msgid "this week"
+msgstr "deze week"
+
+#. translators: %s: the expected return date, e.g. "8 Nov"
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:105
+msgid "back ~ %s"
+msgstr "terug ~ %s"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:138
+msgid "%d more player unavailable"
+msgid_plural "%d more players unavailable"
+msgstr[0] "nog %d speler niet beschikbaar"
+msgstr[1] "nog %d spelers niet beschikbaar"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:140
+msgid "%d player unavailable"
+msgid_plural "%d players unavailable"
+msgstr[0] "%d speler niet beschikbaar"
+msgstr[1] "%d spelers niet beschikbaar"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:136
+msgid "%d more player missed them"
+msgid_plural "%d more players missed them"
+msgstr[0] "nog %d speler miste ze"
+msgstr[1] "nog %d spelers misten ze"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:138
+msgid "%d player missed the last three trainings"
+msgid_plural "%d players missed the last three trainings"
+msgstr[0] "%d speler miste de laatste drie trainingen"
+msgstr[1] "%d spelers misten de laatste drie trainingen"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:141
+msgid "%d more trial player"
+msgid_plural "%d more trial players"
+msgstr[0] "nog %d proefspeler"
+msgstr[1] "nog %d proefspelers"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:143
+msgid "%d trial player"
+msgid_plural "%d trial players"
+msgstr[0] "%d proefspeler"
+msgstr[1] "%d proefspelers"
+
+#. translators: %d: number of birthdays
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:146
+msgid "%d more birthday"
+msgid_plural "%d more birthdays"
+msgstr[0] "nog %d verjaardag"
+msgstr[1] "nog %d verjaardagen"
+
+#. translators: %d: number of birthdays
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:148
+msgid "%d birthday"
+msgid_plural "%d birthdays"
+msgstr[0] "%d verjaardag"
+msgstr[1] "%d verjaardagen"
+
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Follow-ups due this week"
+msgstr "Op te volgen deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/PdpDueBlock.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "PDP conversations due"
+msgstr "POP-gesprekken te voeren"
+
+#: src/Modules/Activities/CoachWeek/Blocks/PdpDueBlock.php
+msgid "PDP talks still to hold in a block that closes this week. Opens PDP planning."
+msgstr "POP-gesprekken die nog gevoerd moeten worden in een blok dat deze week sluit. Opent POP-planning."
+
+#: src/Modules/Activities/CoachWeek/Blocks/EvalsDueBlock.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "Evaluations due"
+msgstr "Evaluaties te doen"
+
+#: src/Modules/Activities/CoachWeek/Blocks/EvalsDueBlock.php
+msgid "Players not yet evaluated in the evaluation round that is open now. Opens Evaluation coverage."
+msgstr "Spelers die in de evaluatieronde die nu loopt nog niet zijn geëvalueerd. Opent Evaluatie-dekking."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TasksDueBlock.php
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "My tasks due this week"
+msgstr "Mijn taken deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TasksDueBlock.php
+msgid "Your own open tasks with a due date in the window. Opens My tasks."
+msgstr "Je eigen openstaande taken met een einddatum in de periode. Opent Mijn taken."
+
+#. translators: 1: number of players whose PDP talk is still to hold, 2: weekday the block closes
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%1$d player · closes %2$s"
+msgid_plural "%1$d players · closes %2$s"
+msgstr[0] "%1$d speler · sluit %2$s"
+msgstr[1] "%1$d spelers · sluit %2$s"
+
+#. translators: %d: number of players not evaluated in the open evaluation round
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%d player not evaluated this round"
+msgid_plural "%d players not evaluated this round"
+msgstr[0] "%d speler nog niet geëvalueerd deze ronde"
+msgstr[1] "%d spelers nog niet geëvalueerd deze ronde"
+
+#. translators: %d: number of the viewer's tasks due this week
+#: src/Shared/Frontend/FrontendTileGrid.php
+msgid "%d due"
+msgid_plural "%d due"
+msgstr[0] "%d te doen"
+msgstr[1] "%d te doen"
+
+#. translators: 1: match title, 2: our goals in the stored score.
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "%1$s: no player can have more goals or assists than the %2$d goal the team scored, and together they cannot add up to more."
+msgid_plural "%1$s: no player can have more goals or assists than the %2$d goals the team scored, and together they cannot add up to more."
+msgstr[0] "%1$s: geen speler kan meer doelpunten of assists hebben dan het %2$d doelpunt dat het team scoorde, en samen kunnen ze er niet boven uitkomen."
+msgstr[1] "%1$s: geen speler kan meer doelpunten of assists hebben dan de %2$d doelpunten die het team scoorde, en samen kunnen ze er niet boven uitkomen."
+
+#. translators: 1: match title, 2: the most goals or assists one player can have.
+#: src/Infrastructure/REST/ActivitiesRestController.php
+msgid "%1$s has no score yet, so a player can have at most %2$d goals and %2$d assists. Record the score to check against it."
+msgstr "%1$s heeft nog geen uitslag, dus een speler kan hoogstens %2$d doelpunten en %2$d assists hebben. Leg de uitslag vast om daartegen te controleren."
+
+#. translators: %d: the most goals or assists one player can have in this match.
+#: src/Modules/Activities/Frontend/FrontendMinutesGridView.php
+msgid "At most %d for this match"
+msgstr "Hoogstens %d voor deze wedstrijd"
+
+#. translators: 1: number of played matches listed, 2: date window
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "%1$d played match, %2$s"
+msgid_plural "%1$d played matches, %2$s"
+msgstr[0] "%1$d gespeelde wedstrijd, %2$s"
+msgstr[1] "%1$d gespeelde wedstrijden, %2$s"
+
+#. translators: %d: number of played matches listed
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "%d played match"
+msgid_plural "%d played matches"
+msgstr[0] "%d gespeelde wedstrijd"
+msgstr[1] "%d gespeelde wedstrijden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "See the minutes distribution →"
+msgstr "Bekijk de minutenverdeling →"
+
+#. translators: 1: matches with recorded minutes, 2: played matches with no recorded minutes
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "%1$d recorded, %2$d without minutes"
+msgstr "%1$d vastgelegd, %2$d zonder minuten"
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:195
+msgid "Each source declares the columns and filters its widget can use."
+msgstr "Elke bron bepaalt welke kolommen en filters de widget kan gebruiken."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:196
+msgid "Pick the columns this widget should show. Required for table widgets; KPI / bar / line widgets ignore the column list."
+msgstr "Kies de kolommen die deze widget toont. Verplicht voor tabelwidgets; KPI-, staaf- en lijnwidgets negeren de kolomlijst."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:197
+msgid "Filters are applied at fetch time; leave blank to show everything the source returns."
+msgstr "Filters worden toegepast bij het ophalen; laat leeg om alles te tonen wat de bron teruggeeft."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:198
+msgid "This source does not declare any filters."
+msgstr "Deze bron heeft geen filters."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:199
+msgid "Live preview against the actual data this widget will read on a dashboard. Save to deploy."
+msgstr "Live voorbeeld met de echte gegevens die deze widget op een dashboard leest. Sla op om hem te plaatsen."
+
+#: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
+msgid "e.g. Top 10 active players"
+msgstr "bijv. Top 10 actieve spelers"
+
+#: src/Modules/Comms/Templates/PdpReadyTemplate.php:47
+msgctxt "short notification title, Dutch-language recipient"
+msgid "PDP ready"
+msgstr "Plan klaar"
+
+#: src/Modules/Comms/Templates/TrainingCancelledTemplate.php:45
+msgctxt "short message, Dutch-language recipient"
+msgid "{activity_title} on {date} is cancelled. We will follow up about a replacement."
+msgstr "{activity_title} op {date} is afgelast. We laten je horen over een vervangende sessie."
+
+#: src/Infrastructure/Query/LabelTranslator.php:145
+msgctxt "role label"
+msgid "Club admin"
+msgstr "Clubbeheerder"
+
+#: src/Infrastructure/Query/LabelTranslator.php:146
+msgctxt "role label"
+msgid "Head of development"
+msgstr "Hoofd opleiding"
+
+#: src/Infrastructure/Query/LabelTranslator.php:147
+msgctxt "role label"
+msgid "Head coach"
+msgstr "Hoofdtrainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:148
+msgctxt "role label"
+msgid "Assistant coach"
+msgstr "Assistent-trainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:151
+msgctxt "role label"
+msgid "Team member"
+msgstr "Teamlid"
+
+#: src/Infrastructure/Security/RolesService.php:575
+msgctxt "role label"
+msgid "Read-only observer"
+msgstr "Alleen-lezen waarnemer"
+
+#: src/Modules/Authorization/Admin/RolesPage.php:72
+msgid "Permission debug"
+msgstr "Rechten-diagnose"
+
+#: src/Infrastructure/Query/LabelTranslator.php:91
+msgctxt "role label"
+msgid "Coach"
+msgstr "Trainer"
+
+#: src/Infrastructure/Query/LabelTranslator.php:98
+msgctxt "role label"
+msgid "Team manager"
+msgstr "Teammanager"
+
+#: src/Infrastructure/Query/LabelTranslator.php:101
+msgctxt "role label"
+msgid "Staff"
+msgstr "Staf"
+
+#: src/Infrastructure/Query/LabelTranslator.php:102
+msgctxt "role label"
+msgid "Physio"
+msgstr "Fysio"
+
+#: src/Infrastructure/Query/LabelTranslator.php:103
+msgctxt "role label"
+msgid "Scout"
+msgstr "Scout"
+
+#: src/Infrastructure/Query/LabelTranslator.php:104
+msgctxt "role label"
+msgid "Parent"
+msgstr "Ouder"
+
+#: src/Infrastructure/Query/LabelTranslator.php:105
+msgctxt "role label"
+msgid "Other"
+msgstr "Overig"
+
+#: src/Infrastructure/Query/LabelTranslator.php:149
+msgctxt "role label"
+msgid "Manager"
+msgstr "Manager"
+
+#: src/Infrastructure/Query/LabelTranslator.php:156
+msgctxt "role label"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Infrastructure/Query/LabelTranslator.php:186
+msgctxt "role label"
+msgid "Kit manager"
+msgstr "Materiaalman"
+
+#: src/Infrastructure/Query/LabelTranslator.php:188
+msgctxt "role label"
+msgid "Mentor"
+msgstr "Mentor"
+
+#. translators: %d: number of player-match pairs with more than one recorded attendance row.
+#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
+msgid "%d player-match in this window has more than one recorded attendance row. The newest one counts."
+msgid_plural "%d player-matches in this window have more than one recorded attendance row. The newest one counts."
+msgstr[0] "%d speler-wedstrijd in deze periode heeft meer dan één vastgelegde aanwezigheidsregel. De nieuwste telt."
+msgstr[1] "%d speler-wedstrijden in deze periode hebben meer dan één vastgelegde aanwezigheidsregel. De nieuwste telt."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:106
+msgid "Balancing…"
+msgstr "Bezig met auto-balanceren…"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:107
+msgid "Could not auto-balance."
+msgstr "Auto-balanceren is niet gelukt."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:108
+msgid "No formation set on this match. Edit the match to pick a formation."
+msgstr "Deze wedstrijd heeft geen opstelling. Bewerk de wedstrijd om een opstelling te kiezen."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:112
+msgid "Loading planner…"
+msgstr "Planner laden…"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:113
+msgid "Could not load the planner."
+msgstr "De planner kon niet worden geladen."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:114
+msgid "Click a player chip, then click another cell to swap. Click the same chip again to deselect. Arrows mark substitutions."
+msgstr "Klik op een speler en daarna op een ander vak om te wisselen. Klik nog eens op dezelfde speler om te deselecteren. Pijlen geven wissels aan."
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:115
+msgid "Planned substitutions"
+msgstr "Geplande wissels"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:116
+msgid "no changes"
+msgstr "geen wissels"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:120
+#, php-format
+msgctxt "tournament planner: substitutions at one moment"
+msgid "%d change"
+msgid_plural "%d changes"
+msgstr[0] "%d wissel"
+msgstr[1] "%d wissels"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1388
+msgid "Placed %d times"
+msgstr "%d keer geplaatst"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:415
+msgctxt "type-to-confirm word for a destructive restore"
+msgid "RESTORE"
+msgstr "HERSTELLEN"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:416
+msgctxt "type-to-confirm word for a destructive import"
+msgid "IMPORT"
+msgstr "IMPORTEREN"
+
+#: src/Shared/Frontend/FrontendBackupsView.php:424
+msgid "Type the word shown, exactly, to confirm."
+msgstr "Typ het getoonde woord precies over om te bevestigen."
+
+#: src/Shared/Frontend/FrontendBackupsView.php:436
+msgid "Type %s to confirm:"
+msgstr "Typ %s ter bevestiging:"
+
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:70
+msgid "Per evaluation type: tick the categories that should appear on the rating form. Tick none for a type to show all active categories (the fallback, as before #819)."
+msgstr "Per evaluatietype: vink de categorieën aan die in het ratingformulier moeten verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen (terugvalgedrag, gelijk aan vóór #819)."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:400
+msgid "Page 1: player snapshot — read before the conversation starts. Goals follow on pages 2 + 3."
+msgstr "Pagina 1: speler-snapshot — lees voor het gesprek begint. Doelen volgen op pagina 2 + 3."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:455
+msgid "Reflection — in the player's own words"
+msgstr "Reflectie — in de eigen woorden van de speler"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:499
+msgid "Wrap-up — one thing to take into the season"
+msgstr "Afsluiting — één ding om mee te nemen het seizoen in"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:525
+msgid "Reminder for the coach:"
+msgstr "Reminder voor de trainer:"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:526
+msgid "enter the three goals above in TalentTrack within 48 hours (Player › Goals › + New goal) so the digital version is linked to this conversation. Use the \"linked game principle\" and \"linked football action\" fields in the wizard so the digital goal reads the same as above."
+msgstr "zet de drie doelen hierboven binnen 48 uur in TalentTrack (Speler › Doelen › + Nieuw doel) zodat de digitale versie aan dit gesprek hangt. Gebruik de velden \"gekoppeld spelprincipe\" en \"gekoppelde voetbalhandeling\" in de wizard zodat het digitale doel hetzelfde leest als hierboven."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:554
+msgid "the SMART sentence you write together"
+msgstr "de SMART-zin die jullie samen formuleren"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:579
+msgid "Why this matters"
+msgstr "Waarom dit belangrijk is"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:585
+msgid "How we measure this"
+msgstr "Hoe we dit meten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:958
+msgid "Wrap-up (reflection: 1 thing to take away)"
+msgstr "Afsluiting (reflectie 1 ding om mee te nemen)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:986
+msgid "Select the blocks to print"
+msgstr "Selecteer de blokken om te printen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:133
+msgid "No match preparation found for this activity."
+msgstr "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:289
+msgctxt "match prep print: unavailable players heading"
+msgid "Not available"
+msgstr "Niet beschikbaar"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:311
+msgid "No availability recorded."
+msgstr "Geen beschikbaarheid vastgelegd."
+
+#: src/Modules/Methodology/Admin/FootballActionsPage.php:47
+msgid "Football actions are the hard core of the football model: concrete actions players carry out within each team task. A goal can be linked to one football action to make better execution measurable."
+msgstr "De voetbalhandelingen vormen de harde kern van het voetbalmodel: concrete handelingen die spelers uitvoeren binnen elke teamtaak. Doelen kunnen worden gekoppeld aan één voetbalhandeling om verbeterde uitvoering meetbaar te maken."
+
+#: src/Modules/Methodology/MethodologyEnums.php:57
+msgctxt "methodology team function"
+msgid "Transition to defending"
+msgstr "Omschakelen naar verdedigen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:58
+msgctxt "methodology team function"
+msgid "Transition to attacking"
+msgstr "Omschakelen naar aanvallen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:148
+msgid "%1$s — game model · %2$d principles · use the codes when setting goals."
+msgstr "%1$s — speelmodel · %2$d principes · gebruik de codes bij het opstellen van doelen."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:153
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:214
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:282
+msgid "Print once · laminate · keep in the goals folder"
+msgstr "Eenmaal printen · lamineren · bewaren in de doelenmap"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:157
+msgid "How to use this card in a goal intake (1:1):"
+msgstr "Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:159
+msgid "Discuss the player's development point in plain language."
+msgstr "Bespreek het ontwikkelpunt van de speler in gewone taal."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:160
+msgid "Pick 1–2 principles together that relate to it (the code goes on the intake form)."
+msgstr "Kies samen 1–2 principes die hieraan raken (de code komt op het intakeformulier)."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:161
+msgid "Then go to the football actions and pick 1–2 actions that — as they improve — strengthen the principle."
+msgstr "Ga daarna naar de voetbalhandelingen en kies 1–2 handelingen die — als ze beter worden — het principe versterken."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:209
+msgid "The %d football actions every player practises — pick 1–2 per goal."
+msgstr "De %d voetbalhandelingen die elke speler oefent — kies er 1–2 per doel."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:277
+msgid "%1$s — %2$d learning goals · underpin the game principles with concrete sub-skills."
+msgstr "%1$s — %2$d leerdoelen · onderbouwen de spelprincipes met concrete deelvaardigheden."
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:286
+msgid "How to use this card:"
+msgstr "Hoe je deze kaart gebruikt:"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:287
+msgid " every learning goal has a title + 4–5 sub-skills. In the goal intake you and the player pick one sub-skill to work on — it becomes the \"why this matters\" or \"how we measure this\" on the intake form."
+msgstr " elk leerdoel bestaat uit een titel + 4–5 deelvaardigheden. Tijdens de doelenintake kies je samen met de speler één deelvaardigheid om aan te werken — die wordt het \"waarom dit belangrijk is\" of \"hoe we dit meten\" op het intakeformulier."
+
+#: src/Modules/Trials/Letters/LetterTemplateEngine.php:173
+msgctxt "trial acceptance slip: where to hand it in"
+msgid "the club office"
+msgstr "het secretariaat"
+
+#: src/Shared/Frontend/Components/MinutesBreakdown.php
+msgctxt "match type"
+msgid "No type"
+msgstr "Geen type"
+
+#: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php
+#: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php
+msgid "This task is not linked to a trial. Ask an administrator to look at it."
+msgstr "Deze taak is niet aan een stage gekoppeld. Vraag een beheerder ernaar te kijken."
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:271
+msgctxt "my tasks filter: the kind of task"
+msgid "Template"
+msgstr "Sjabloon"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:210
+#, php-format
+msgid "Season intakes — %1$s — %2$s"
+msgstr "Seizoens-intakes — %1$s — %2$s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:232
+#, php-format
+msgid "%s — no active players"
+msgstr "%s — geen actieve spelers"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:398
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:473
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:491
+#, php-format
+msgid "TalentTrack · season intake %s"
+msgstr "TalentTrack · seizoensintake %s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:413
+msgctxt "goal intake print"
+msgid "Photo"
+msgstr "Foto"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:421
+msgctxt "goal intake print"
+msgid "Shirt number"
+msgstr "Rugnummer"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:422
+msgctxt "goal intake print"
+msgid "Age · Date of birth"
+msgstr "Leeftijd · Geboortedatum"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:423
+msgctxt "goal intake print"
+msgid "Preferred foot"
+msgstr "Voorkeursvoet"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:428
+msgctxt "goal intake print"
+msgid "Last season"
+msgstr "Vorig seizoen"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:429
+msgctxt "goal intake print"
+msgid "Matches"
+msgstr "Wedstr."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:430
+msgctxt "goal intake print"
+msgid "Minutes"
+msgstr "Minuten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:431
+msgctxt "goal intake print"
+msgid "Goals scored"
+msgstr "Doelpunten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:433
+msgctxt "goal intake print"
+msgid "Avg. score"
+msgstr "Gem. score"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:436
+msgctxt "goal intake print"
+msgid "Looking back"
+msgstr "Terugblik"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:443
+msgid "No data from last season."
+msgstr "Geen gegevens vorig seizoen."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:457
+msgid "Player writes / coach notes:"
+msgstr "Speler schrijft / trainer noteert:"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:465
+msgid "Page 1 of 3 · player snapshot"
+msgstr "Pagina 1 van 3 · speler-snapshot"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:483
+msgid "Page 2 of 3 · goals 1 + 2"
+msgstr "Pagina 2 van 3 · doelen 1 + 2"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:493
+msgid "Goal 3 · closing reflection · signatures."
+msgstr "Doel 3 · afsluitende reflectie · ondertekening."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:510
+msgctxt "goal intake print"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:518
+msgctxt "goal intake print"
+msgid "Conversation date"
+msgstr "Datum gesprek"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:532
+msgid "Page 3 of 3 · goal 3 + wrap-up"
+msgstr "Pagina 3 van 3 · doel 3 + afronding"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:546
+msgctxt "goal intake print"
+msgid "Technical"
+msgstr "Technisch"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:547
+msgctxt "goal intake print"
+msgid "Tactical"
+msgstr "Tactisch"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:548
+msgctxt "goal intake print"
+msgid "Physical"
+msgstr "Fysiek"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:549
+msgctxt "goal intake print"
+msgid "Mental"
+msgstr "Mentaal"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:554
+msgctxt "goal intake print"
+msgid "Goal description"
+msgstr "Doelomschrijving"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:561
+msgctxt "goal intake print"
+msgid "Linked game principle(s)"
+msgstr "Gekoppeld(e) spelprincipe(s)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:565
+msgid "e.g. AO-01, VS-03"
+msgstr "bijv. AO-01, VS-03"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:569
+msgctxt "goal intake print"
+msgid "Linked football action(s)"
+msgstr "Gekoppelde voetbalhandeling(en)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:573
+msgid "e.g. Passing, Getting free"
+msgstr "bijv. Passen, Vrijlopen"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:593
+msgctxt "goal intake print"
+msgid "First check-in date"
+msgstr "Eerste check-in datum"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:597
+msgid "Owner (player / coach / both)"
+msgstr "Eigenaar (speler / trainer / beide)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:614
+msgctxt "goal intake print: preferred foot"
+msgid "Right"
+msgstr "Rechts"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:615
+msgctxt "goal intake print: preferred foot"
+msgid "Left"
+msgstr "Links"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:616
+msgctxt "goal intake print: preferred foot"
+msgid "Both"
+msgstr "Beide"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:741
+msgid "Strengths last season (median evaluation)"
+msgstr "Sterke punten vorig seizoen (mediaan eval)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:742
+msgctxt "goal intake print"
+msgid "Development points"
+msgstr "Ontwikkelpunten"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:744
+msgctxt "goal intake print"
+msgid "Coach notes"
+msgstr "Trainersnotities"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:880
+#, php-format
+msgid "Player: %1$s · Season %2$s"
+msgstr "Speler: %1$s · Seizoen %2$s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:927
+#, php-format
+msgid "Season intakes — %1$s — choose blocks"
+msgstr "Seizoens-intakes — %1$s — kies blokken"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:930
+#, php-format
+msgid "Team: %1$s · Season %2$s · %3$d players"
+msgstr "Team: %1$s · Seizoen %2$s · %3$d spelers"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:954
+msgid "Snapshot (photo, stats, looking back, reflection)"
+msgstr "Snapshot (foto, stats, terugblik, reflectie)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:955
+msgctxt "goal intake print"
+msgid "Goal 1"
+msgstr "Doel 1"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:956
+msgctxt "goal intake print"
+msgid "Goal 2"
+msgstr "Doel 2"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:957
+msgctxt "goal intake print"
+msgid "Goal 3"
+msgstr "Doel 3"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:959
+msgid "Signatures (player / coach / date)"
+msgstr "Handtekeningen (speler / trainer / datum)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:960
+msgid "Coach reminder (CTA note)"
+msgstr "Trainer-reminder (CTA-note)"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:1000
+msgctxt "goal intake print"
+msgid "Print selected blocks"
+msgstr "Print geselecteerde blokken"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:1001
+msgctxt "goal intake print"
+msgid "Print all"
+msgstr "Print alles"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:86
+msgctxt "methodology reference card"
+msgid "Methodology reference"
+msgstr "Methodiek-referentie"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:144
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:205
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:273
+msgid "TalentTrack · methodology reference"
+msgstr "TalentTrack · methodiek-referentie"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:145
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:182
+msgctxt "methodology reference card"
+msgid "Game principles"
+msgstr "Spelprincipes"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:181
+#, php-format
+msgid "%1$s · Game principles (%2$d) · v %3$s"
+msgstr "%1$s · Spelprincipes (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:197
+msgctxt "methodology reference card"
+msgid "On the ball"
+msgstr "Met balcontact"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:198
+msgctxt "methodology reference card"
+msgid "Off the ball"
+msgstr "Zonder balcontact"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:199
+msgctxt "methodology reference card"
+msgid "Supporting"
+msgstr "Ondersteunend"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:206
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:238
+msgctxt "methodology reference card"
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:237
+#, php-format
+msgid "%1$s · Football actions (%2$d) · v %3$s"
+msgstr "%1$s · Voetbalhandelingen (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:256
+msgctxt "methodology reference card"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:257
+msgctxt "methodology reference card"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:258
+msgctxt "methodology reference card"
+msgid "Transition"
+msgstr "Omschakelen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:262
+msgctxt "methodology reference card"
+msgid "building up"
+msgstr "opbouwen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:263
+msgctxt "methodology reference card"
+msgid "scoring"
+msgstr "scoren"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:264
+msgctxt "methodology reference card"
+msgid "disrupting"
+msgstr "storen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:265
+msgctxt "methodology reference card"
+msgid "preventing goals"
+msgstr "doelpunten voorkomen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:266
+msgctxt "methodology reference card"
+msgid "after winning the ball"
+msgstr "na balwinst"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:267
+msgctxt "methodology reference card"
+msgid "after losing the ball"
+msgstr "na balverlies"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:274
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:327
+msgctxt "methodology reference card"
+msgid "Learning goals"
+msgstr "Leerdoelen"
+
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:326
+#, php-format
+msgid "%1$s · Learning goals (%2$d) · v %3$s"
+msgstr "%1$s · Leerdoelen (%2$d) · v %3$s"
+
+#: src/Modules/Methodology/MethodologyEnums.php:56
+msgctxt "methodology team function"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:59
+msgctxt "methodology team function"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:66
+msgctxt "methodology team task"
+msgid "Building up"
+msgstr "Opbouwen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:67
+msgctxt "methodology team task"
+msgid "Scoring"
+msgstr "Scoren"
+
+#: src/Modules/Methodology/MethodologyEnums.php:68
+msgctxt "methodology team task"
+msgid "Transition after losing the ball"
+msgstr "Overgang na balverlies"
+
+#: src/Modules/Methodology/MethodologyEnums.php:69
+msgctxt "methodology team task"
+msgid "Transition after winning the ball"
+msgstr "Overgang na balwinst"
+
+#: src/Modules/Methodology/MethodologyEnums.php:70
+msgctxt "methodology team task"
+msgid "Disrupting"
+msgstr "Storen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:71
+msgctxt "methodology team task"
+msgid "Preventing goals"
+msgstr "Doelpunten voorkomen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:79
+msgctxt "methodology set piece"
+msgid "Free kick (direct)"
+msgstr "Vrije trap (direct)"
+
+#: src/Modules/Methodology/MethodologyEnums.php:80
+msgctxt "methodology set piece"
+msgid "Free kick (cross)"
+msgstr "Vrije trap (voorzet)"
+
+#: src/Modules/Methodology/MethodologyEnums.php:82
+msgctxt "methodology set piece"
+msgid "Throw-in"
+msgstr "Inworp"
+
+#: src/Modules/Methodology/MethodologyEnums.php:89
+msgctxt "methodology side"
+msgid "Attacking"
+msgstr "Aanvallend"
+
+#: src/Modules/Methodology/MethodologyEnums.php:90
+msgctxt "methodology side"
+msgid "Defending"
+msgstr "Verdedigend"
+
+#: src/Modules/Methodology/MethodologyEnums.php:91
+msgctxt "methodology side"
+msgid "Transition"
+msgstr "Omschakelen"
+
+#: src/Modules/Methodology/MethodologyEnums.php:98
+msgctxt "methodology style of play"
+msgid "Attacking positional play"
+msgstr "Aanvallend positiespel"
+
+#: src/Modules/Methodology/MethodologyEnums.php:99
+msgctxt "methodology style of play"
+msgid "Dominant possession"
+msgstr "Dominant balbezit"
+
+#: src/Modules/Methodology/MethodologyEnums.php:100
+msgctxt "methodology style of play"
+msgid "Reactive / counter"
+msgstr "Reactief / counter"
+
+#: src/Modules/Methodology/MethodologyEnums.php:102
+msgctxt "methodology style of play"
+msgid "Pragmatic"
+msgstr "Pragmatisch"
+
+#: src/Modules/Methodology/MethodologyEnums.php:116
+msgctxt "methodology line"
+msgid "Attackers"
+msgstr "Aanvallers"
+
+#: src/Modules/Methodology/MethodologyEnums.php:117
+msgctxt "methodology line"
+msgid "Midfielders"
+msgstr "Middenvelders"
+
+#: src/Modules/Methodology/MethodologyEnums.php:118
+msgctxt "methodology line"
+msgid "Defenders"
+msgstr "Verdedigers"
+
+#: src/Modules/Methodology/MethodologyEnums.php:119
+msgctxt "methodology line"
+msgid "Goalkeeper"
+msgstr "Keeper"
+
+#: src/Modules/Methodology/MethodologyEnums.php:120
+msgctxt "methodology line"
+msgid "General"
+msgstr "Algemeen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:177
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:315
+msgctxt "match prep print"
+msgid "Player"
+msgstr "Speler"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:180
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:200
+msgctxt "match prep print: total minutes"
+msgid "total"
+msgstr "tot"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:237
+msgctxt "match prep print"
+msgid "1st half"
+msgstr "1e helft"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:238
+msgctxt "match prep print"
+msgid "2nd half"
+msgstr "2e helft"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:246
+msgctxt "match prep print"
+msgid "Bench 1st half:"
+msgstr "Bank 1e helft:"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:247
+msgctxt "match prep print"
+msgid "Bench 2nd half:"
+msgstr "Bank 2e helft:"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:266
+msgctxt "match prep print"
+msgid "Match goals"
+msgstr "Wedstrijddoelen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:272
+msgctxt "match prep print"
+msgid "General"
+msgstr "Algemeen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:273
+msgctxt "match prep print"
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:274
+msgctxt "match prep print"
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:275
+msgctxt "match prep print"
+msgid "Set pieces (attacking)"
+msgstr "Spelhervattingen (aanvallend)"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:276
+msgctxt "match prep print"
+msgid "Set pieces (defending)"
+msgstr "Spelhervattingen (verdedigend)"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:309
+msgctxt "match prep print"
+msgid "Tasks per player"
+msgstr "Doen per speler"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:316
+msgctxt "match prep print"
+msgid "Focus point"
+msgstr "Aandachtspunt"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:317
+msgctxt "match prep print"
+msgid "Specific goal"
+msgstr "Specifiek doel"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:318
+msgctxt "match prep print"
+msgid "Video analyst assigned"
+msgstr "Video-analist toegewezen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:431
+msgctxt "match prep print: venue"
+msgid "home"
+msgstr "thuis"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:431
+msgctxt "match prep print: venue"
+msgid "away"
+msgstr "uit"
+
+#: src/Modules/Methodology/Admin/FootballActionsPage.php:37
+msgctxt "football actions admin"
+msgid "Football actions"
+msgstr "Voetbalhandelingen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1142
+#, php-format
+msgid "Type %s to confirm before the data is written."
+msgstr "Typ %s om te bevestigen voordat de gegevens worden weggeschreven."
 
 #~ msgid "All states"
 #~ msgstr "Alle statussen"

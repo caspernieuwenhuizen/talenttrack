@@ -1,6 +1,0 @@
-#. translators: %d: number of player-match pairs with more than one recorded attendance row.
-#: src/Modules/Analytics/Frontend/FrontendMinutesAuditView.php
-msgid "%d player-match in this window has more than one recorded attendance row. The newest one counts."
-msgid_plural "%d player-matches in this window have more than one recorded attendance row. The newest one counts."
-msgstr[0] "%d speler-wedstrijd in deze periode heeft meer dan één vastgelegde aanwezigheidsregel. De nieuwste telt."
-msgstr[1] "%d speler-wedstrijden in deze periode hebben meer dan één vastgelegde aanwezigheidsregel. De nieuwste telt."

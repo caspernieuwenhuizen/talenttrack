@@ -1,4 +1,0 @@
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php
-#, php-format
-msgid "A line-up slot must be between 1 and %d."
-msgstr "Een positie in de opstelling moet tussen 1 en %d liggen."

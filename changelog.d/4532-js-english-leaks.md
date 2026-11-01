@@ -1,3 +1,0 @@
-# Tournament planner, blueprint editor and backups no longer show English on a Dutch install (#4532)
-
-The tournament planner's "Auto-balance" and "Balancing…" button states, its no-formation notice and its player fallback name now come from the translation catalogue. The team blueprint editor's count badge and slot-clear button use a "×" sign, with Dutch labels a screen reader reads out. On the backups page, the word you type to confirm a restore or an import is now in your language: HERSTELLEN and IMPORTEREN on a Dutch install. The restore or import goes ahead only when you type exactly the word the page shows.

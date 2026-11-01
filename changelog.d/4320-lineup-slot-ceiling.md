@@ -1,3 +1,0 @@
-# Match prep: a line-up slot above eleven is refused, not dropped (#4320)
-
-`PUT match-prep/{activity_id}` now answers `400 invalid_field` for a line-up slot outside 1 to 11, naming the slot in `details.fields` as it was sent (`lineup[1][12]`), before anything is written. Before, the repository skipped such a slot without a word, so the player placed in it vanished from the line-up behind a successful save. The eleven-a-side ceiling is one named constant, `MatchPrepRepository::MAX_LINEUP_SLOTS`, which the repository guard, the starter-target fallback and the route's field description all read. No layout that exists today draws more than eleven slots, so nothing changes for the prep screen.

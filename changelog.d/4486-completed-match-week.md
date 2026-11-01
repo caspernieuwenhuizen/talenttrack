@@ -1,3 +1,0 @@
-# This week panel: a completed match no longer offers Start match (#4486)
-
-A match already marked completed, for example one the coach recorded by hand on match day, showed **Start match** in the coach's "This week" panel, along with availability and line-up chips, as if it still had to be played. Now it shows like a past day: whether attendance is recorded, **Mark attendance** when it is not, and **Activity**, which leads to the minutes and stats. It gets no preparation, no start and no chips. A match that has not been completed still offers **Start match** on match day, as before. `GET me/week` gives the same answer.

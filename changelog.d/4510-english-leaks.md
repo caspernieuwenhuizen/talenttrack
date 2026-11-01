@@ -1,3 +1,0 @@
-# English leaks on Dutch screens: widget builder, message templates, two missing translations (#4510)
-
-The custom widget builder's help texts, its "Name" label and its name placeholder now come from the translation catalogue, so a Dutch install shows them in Dutch. Before, they were always English. The message templates no longer carry their Dutch as source text. Every template now has English source copy, which the catalogue translates to exactly the Dutch a Dutch reader received before, so the messages can also be translated into other languages. Two screens that showed English because their Dutch was missing now have it: "(unnamed position)" in the formations editor, and the refusal when deleting a shipped set piece.

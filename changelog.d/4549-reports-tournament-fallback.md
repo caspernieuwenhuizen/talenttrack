@@ -1,3 +1,0 @@
-# Every minutes report shows the minutes of old tournament matches (#4549)
-
-On a tournament match completed before the completion step asked for minutes, the minutes grid, the Minutes audit and the team and player minutes reports already showed the rotation plan's minutes. Player · Minutes played, Team · Minutes distribution and Team · Minutes share (also its API and the scout card) still showed 0. So did the season totals on the goal-intake sheet and the count of recorded matches beside the minutes reports. All of these now read the same minutes as the other minutes reports, so a player's minutes for that match are the same on every screen. A minute confirmed on the attendance, 0 included, still wins. League matches and the handling of doubled entries are unchanged.

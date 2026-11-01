@@ -1,3 +1,0 @@
-# Each role has one name on every screen (#4504)
-
-Roles used to be named differently from one screen to the next. The authorization matrix said "Head of Dev", the persona landing and the dashboard editor said "Head of Development", and the shell navigation said "Head of development". The read-only role was "Read-only observer" in some places and "Observer" in others. Every screen now reads one list: the shell navigation and its chip, the "View as" switcher, the persona landing and its switcher, the persona dashboard editor, the authorization matrix, the MFA requirement setting and the dashboard configuration. The names are in sentence case ("Head coach", "Head of development", "Observer"), and the Dutch is the same as the shell navigation already used.

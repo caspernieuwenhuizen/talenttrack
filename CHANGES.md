@@ -1,3 +1,262 @@
+# TalentTrack v4.144.0 — Static analysis moves to PHPStan 2.3 (#4279)
+
+The development toolchain now runs PHPStan 2.3, and the code its stricter rules flagged has been fixed rather than added to the baseline. The fixes are a validator return type that now says what it returns, three null-coalescing defaults that could never apply, and a Spond paging loop whose first check was always true. No behaviour change for academies. This is tooling and code hygiene only.
+
+# TalentTrack v4.144.0 — Buttons: 48 px under touch, never under 36 px with a mouse (#4310)
+
+The shared button now carries both of its height floors in one place, next to the canonical button styles: 48 px under a coarse pointer (phones, tablets), and a 36 px floor under a fine pointer, where it used to come out at about 39 px with nothing holding it. Both read new `--tt-tap-min` / `--tt-tap-min-fine` design tokens. About seventy per-screen rules that pinned individual buttons to 48 px on every pointer are gone in favour of the shared rule, so desktop screens keep a consistent, denser button height while touch screens keep the 48 px target. Buttons that sit in one row with a taller field keep that field's height, with the reason beside the rule: search, cohort transitions, the cohort board, the team planner, measurement entry, potential overview, suspensions, team stats and the PDP team gate. Buttons that are deliberately larger keep their size under a mouse too: match execution, the attendance "all here" action, the rating confirm step, the training run and the dashboard template editor. The export card's "All" / "None" column buttons move from 32 px to the 36 px floor under a mouse. The player profile's own button rules are unchanged.
+
+# TalentTrack v4.144.0 — Match prep: a line-up slot above eleven is refused, not dropped (#4320)
+
+`PUT match-prep/{activity_id}` now answers `400 invalid_field` for a line-up slot outside 1 to 11, naming the slot in `details.fields` as it was sent (`lineup[1][12]`), before anything is written. Before, the repository skipped such a slot without a word, so the player placed in it vanished from the line-up behind a successful save. The eleven-a-side ceiling is one named constant, `MatchPrepRepository::MAX_LINEUP_SLOTS`, which the repository guard, the starter-target fallback and the route's field description all read. No layout that exists today draws more than eleven slots, so nothing changes for the prep screen.
+
+# TalentTrack v4.144.0 — Tests can switch commercial mode and the plan tier per case (#4336)
+
+The PHPUnit suite can now put one test on a commercial free-tier install and the next on a paid one, so the free-tier team cap and the locked plan states are covered by tests instead of checked by hand. `LicenseMode::overrideForTests()` and `LicenseGate::overrideTierForTests()` are read only while the test bootstrap's `TT_PHPUNIT` constant is defined, so they have no effect on a live install, and there is deliberately no filter. Usage is in `docs/testing.md`. No behaviour change for academies.
+
+# TalentTrack v4.144.0 — Dashboard action cards follow the authorization matrix (#4348)
+
+The dashboard action cards and the quick actions panel now decide visibility with the same check as the views they link to (`AuthorizationService::userCanOrMatrix()`). On an install where the matrix bridge is not supplying the raw capabilities, a head of development who holds the team create right in the matrix sees the "Add team" card again. Before, the card was hidden while "+ New team" still showed on the teams view. Four destinations now use the same check: the scout history page, the test trainings page, and the "New evaluation" and "Add goal" buttons on their lists. So a card never leads to a page that refuses. Nothing changes for administrators.
+
+# TalentTrack v4.144.0 — Injury reminders, PDP self-review nudges and scheduled workflow triggers run for every club (#4360)
+
+The hourly background tick ran three of its jobs for whichever club the request happened to resolve to: the daily injury-reminder sweep, the PDP self-review sweep and the scheduled workflow triggers. Each now runs once per club, under that club's own once-a-day guard, the same way the recycle-bin purge, the alert sweeps and the deferred-message queue already did. A trigger's last-fire stamp is written to the trigger's own club. Single-club installs behave exactly as before. This is tenancy groundwork with no visible change today.
+
+# TalentTrack v4.144.0 — Task forms keep what was typed after a refused answer (#4423)
+
+When a workflow task form refuses an answer, it now comes back with what you typed, next to the notice that says what to fix, instead of resetting to its defaults. A consent request keeps its asked-on date and the club you named; a prospect keeps its name and notes. This works the same for every task form. A refused answer still saves nothing: no task is completed, and no prospect, consent request, test training or trial-case change is written.
+
+# TalentTrack v4.144.0 — Archiving or restoring a player tells listeners which player changed (#4445)
+
+When a player was archived, restored or deleted, the archive layer announced the change with an empty list of player ids, because the players table has no `player_id` column. It now reports the player ids themselves, so a module that keeps state about a player, such as the injury recovery reminders, hears which player left or came back. Other entities are unchanged.
+
+# TalentTrack v4.144.0 — Injury recovery reminders that fall due in demo mode reach the team staff (#4446)
+
+A recovery reminder that fell due while demo mode was on found no team for a real player, because the player was read through the demo filter, so the reminder was assigned to nobody. The player's team is now read by id within the club, without the demo filter, so the reminder reaches the team's physio and head coach as it does outside demo mode. Reminders that were already open were never affected.
+
+# TalentTrack v4.144.0 — PDP planning matrix available over REST (#4448)
+
+The PDP planning matrix now comes from a domain service,
+`PdpPlanningService`, instead of static methods on the planning view. The
+matrix is also reachable at `GET /talenttrack/v1/pdp-planning?season_id=N`,
+with optional `team_ids[]`. The route returns the same cells and block
+windows the page shows. It is gated on the page's `tt_view_pdp_planning`
+capability and scoped to the same teams: a head of development sees every
+team, a coach only the teams they coach, whatever team ids they ask for.
+The page itself is unchanged.
+
+# TalentTrack v4.144.0 — Shell navigation shows your role before you ever use the switcher (#4449)
+
+The app shell's navigation shows your name and role at its foot. The role
+used to appear only once you had picked one in the role switcher, so a head
+coach who never switched saw a name with nothing under it. It now shows the
+role your landing page is built for: the one you picked, or otherwise your
+first role. The landing page, the coach's week, the tile grid and the
+navigation now all read that role from one place, `PersonaResolver::landingPersona()`,
+instead of three copies of the same fallback.
+
+# TalentTrack v4.144.0 — Role labels under your name in sentence case, and a label for staff (#4473, #4490)
+
+The role shown under your name in the app shell's navigation and in the top-bar chip now follows the sentence case the rest of the interface uses: "Head coach", "Assistant coach", "Head of development", "Team manager", "Academy admin". Staff members such as physios, who hold the staff role, used to see only their name there. They now see "Staff" ("Staf" in Dutch). The Dutch labels for the other roles are unchanged.
+
+# TalentTrack v4.144.0 — Player profile: hero buttons reach 48 px on touch (#4474)
+
+The action buttons in the player profile hero were 44 px tall on phones and tablets, under the 48 px tap target, because a rule of their own outranked the shared button floor. That rule and three other player-profile floors (the popover footer, the card actions and the injury row actions) are gone, so the profile's buttons follow the shared rule: 48 px under touch, 36 px minimum with a mouse.
+
+# TalentTrack v4.144.0 — Minutes grid: the audit's minutes check per match, while you type (#4483)
+
+The minutes grid has a new Minutes row in its footer. Per match it shows the minutes entered against what the match holds, for example "795 / 770". It also shows the Minutes-audit's chip (Complete, Incomplete, Not recorded) and the reason in the audit's words, for example "25 minutes more than the match holds". The row recomputes as the coach types, so a substitution counted twice shows up before Save, and after Save the row gives the same answer as the audit. It only informs and never blocks a save. A tournament day shows its minutes without a target. The grid's REST payload now carries `available_minutes`, `squad_count` and the verdict itself (`minutes_check`) per match column, read from the audit. Each cell also carries whether the player is on the audit's squad (`selected`), and the audit's rows carry the same `selected` map. The audit's reason and chip wording moved to one shared class, so both screens use the same words.
+
+# TalentTrack v4.144.0 — Spond sync keeps the title, date, times and location a coach corrected (#4485)
+
+A field a person changes in TalentTrack on a Spond-imported activity is no longer overwritten by the next Spond sync. Title, date, times (start, end and meet-up together) and location are locked per activity once someone edits them; fields nobody touched keep following Spond, so a match moved in Spond still moves here. Saving the form without changing a value locks nothing. The activity page lists each locked field with a **Follow Spond again** button that hands it back to Spond. Opponent, home/away, type and notes behave as before. Every `GET /activities` row carries `sync_locked_fields`, and `DELETE /activities/{id}/sync-locks/{group}` unlocks a group. Adds migration 0305 (`tt_activities.sync_locked_fields`).
+
+# TalentTrack v4.144.0 — This week panel: a completed match no longer offers Start match (#4486)
+
+A match already marked completed, for example one the coach recorded by hand on match day, showed **Start match** in the coach's "This week" panel, along with availability and line-up chips, as if it still had to be played. Now it shows like a past day: whether attendance is recorded, **Mark attendance** when it is not, and **Activity**, which leads to the minutes and stats. It gets no preparation, no start and no chips. A match that has not been completed still offers **Start match** on match day, as before. `GET me/week` gives the same answer.
+
+# TalentTrack v4.144.0 — Goals and evaluations screens follow the authorization matrix (#4488)
+
+The goals create form (`?tt_view=goals&action=new`) now refuses a user who may not add goals. Before, it showed them a form they could never save. The "Add first goal" and "Record first evaluation" empty-state buttons, and opening an evaluation for editing, now use the same matrix-aware check as the other buttons on those lists. A user who holds the right only through the authorization matrix gets all of them, and two buttons on one list can no longer disagree.
+
+# TalentTrack v4.144.0 — This week panel: set up per role and per device (#4492)
+
+The coach's "This week" panel can now be set up per role, under Configuration → Default dashboard → This week panel. For each role an academy chooses:
+
+- whether the panel shows, and whether it shows on phones as well;
+- which week it covers: the calendar week or the next seven days;
+- which teams it covers: the user's own teams, or all academy teams for staff who may see every team;
+- whether past days are shown, folded into one line, or hidden.
+
+Every part of a row (type, times, location, attendance, expected players, training plan, opponent, availability, line-up) and every button has its own Desktop and Phone switch. A team-name switch and a peek at the first two activities of next week are new. **Reset to defaults** restores a role's starting settings.
+
+An academy that never opens the settings keeps the panel it had on a desktop, for the same roles, team managers included. On a phone the default panel is shorter: no location and no training plan. Buttons now follow the edit right for each row's team. Scouts and read-only observers see availability counts only when the academy switches that on for them. An academy that already shows the panel to scouts or observers will see those counts disappear for them after the update, until an admin switches availability on for that role. A part whose module is switched off has no switch. `GET me/week` now returns the blocks that are on per device, along with the window, the past-days setting and the next-week peek, so another front end shows the same thing. The settings are stored in `tt_config` as `coach_week.config`, with no database change. The block registry under `Modules/Activities/CoachWeek` is what the next blocks (training, match, week summary, attention and follow-up lists) build on.
+
+# TalentTrack v4.144.0 — This week panel: training theme and attendance after the fact (#4493)
+
+The This week panel has two new blocks under Trainings. **Training theme** shows the theme of the training plan linked to a training, as a grey chip, and nothing when no plan is linked. **Attendance after the fact** shows, on a past training whose attendance is recorded, how many of the recorded players were there, for example "12 of 14 present". Late counts as present, the same rule as everywhere else. By default the head coach sees both on a desktop and the assistant coach sees the theme. Neither shows on a phone unless the academy switches it on. Both are read for the whole week at once, so the panel adds no query per training. `GET /me/week` returns them as `training_theme` and `attendance_rate`.
+
+# TalentTrack v4.144.0 — This week panel: game plan, result, minutes check, ratings and analysis (#4494)
+
+The This week panel has new blocks under Matches. Before a match, **Game plan ready** says whether the match preparation has its game plan written. On a completed match:
+
+- **Result** shows the score from our side whatever the venue (Won 2–1). Nothing shows when no score is stored, because empty is not 0–0.
+- **Minutes check** compares the minutes entered with what the match holds (795 / 770 min), with the same verdict and words as the minutes audit and the minutes grid.
+- **Player ratings** shows how many of the players who played are rated (Ratings 9 of 14), only to someone who may read that team's evaluations.
+- **Match analysis** shows whether an analysis is written.
+
+Three buttons follow from these: **Minutes + stats** when the minutes check is not complete, **Rate players** when players are still unrated, and **Write match analysis** when none exists and the match is not dated after today. Each shows only where the screen behind it will open for that person. By default the head coach sees everything on a desktop, and the result, the minutes check and the Minutes + stats button on a phone. The head of development and the academy admin get the minutes check only when an academy switches it on for them, because it reads each team in turn. `GET /me/week` returns the new fields, and a week of one team's matches is read without a query per match.
+
+# TalentTrack v4.144.0 — This week panel: a week summary strip (#4495)
+
+The **This week** panel can show three figures above its list: the number of trainings, the number of matches, and the attendance percentage over the activities whose attendance is recorded, for the panel's own window and teams. The percentage is the team attendance report's figure (present and late both count as attended), so the panel and the report show the same figure for the same dates and teams; it reads "—" when nothing is recorded yet. The new **Week summary** block sits in a new **Week overview** section of the panel settings. It is on for the head coach on a desktop, and for the head of development and the academy admin on desktop and phone; other roles get it once the academy switches it on. `GET /me/week` returns it as `summary`.
+
+# TalentTrack v4.144.0 — This week panel: players who need attention (#4496)
+
+The This week panel gains a section below the list that points at individual players on your teams. It has four lines, each switchable per role and device under **Players who need attention** in the panel's settings:
+
+- **Unavailable and returning this week.** The planning screens' neutral "Unavailable", for the teams you plan with. Anyone who may read the team's injuries also sees when the player is expected back, and that read is recorded in the audit log. Scouts and read-only observers get this line only when the academy switches it on for them.
+- **Missed several trainings.** Players who missed each of their team's last three recorded trainings, counted the way the attendance report counts.
+- **Trial players this week.** Prospects on trial with the team and the days it has an activity, for prospect readers only and within their prospect scope.
+- **Birthdays.** A first name and a day.
+
+These are minors' data. A player is named only when the viewer may open their profile, and is otherwise counted. On Birthdays they are left out altogether, so a count never reveals a hidden child's birthday. No injury detail, age or date of birth reaches the page or `GET /me/week`.
+
+# TalentTrack v4.144.0 — This week panel: follow-ups due - PDP talks, evaluations, my tasks (#4497)
+
+The **This week** panel can show a **Follow-ups due this week** section below its list, one line per follow-up, each linking to where it is dealt with. **PDP conversations due** counts the PDP talks still to hold in a block that closes this week, with the closing day: each closing block's roster in PDP planning, minus the talks held and those marked not held. **Evaluations due** counts the players not yet evaluated in the evaluation round that is open now: the gaps Evaluation coverage shows in that round's column. **My tasks due this week** counts your own open tasks due in the window. A line shows only when something is due and you may open the page it links to, and the section hides when every line is empty. The three blocks sit in a new **Follow-ups due this week** section of the panel settings, on by default for the head coach, the head of development, the team manager and the academy admin as listed in the docs. `GET /me/week` returns them as `pdp_due`, `evals_due` and `tasks_due`.
+
+# TalentTrack v4.144.0 — Minutes audit counts the minutes of old tournament fixtures (#4500)
+
+A tournament fixture completed before the completion step existed has a register with no minutes on it. The minutes grid, the minutes reports and the player's Tournaments tab read the rotation plan's minutes there, but the Minutes-audit overview counted 0 for every player and showed the fixture as a gap nobody could close. The audit now reads those fixtures through the same rule. A minute confirmed on the register wins, a confirmed 0 stays 0, and the plan answers only where the register holds nothing. Tournament days roll up the same figures. League matches are unchanged.
+
+# TalentTrack v4.144.0 — Each role has one name on every screen (#4504)
+
+Roles used to be named differently from one screen to the next. The authorization matrix said "Head of Dev", the persona landing and the dashboard editor said "Head of Development", and the shell navigation said "Head of development". The read-only role was "Read-only observer" in some places and "Observer" in others. Every screen now reads one list: the shell navigation and its chip, the "View as" switcher, the persona landing and its switcher, the persona dashboard editor, the authorization matrix, the MFA requirement setting and the dashboard configuration. The names are in sentence case ("Head coach", "Head of development", "Observer"), and the Dutch is the same as the shell navigation already used.
+
+# TalentTrack v4.144.0 — Goals and assists can no longer exceed the match's score (#4506)
+
+The minutes grid accepted up to 99 goals or assists per player per match, and each assist above the match's free goals was stored as a "no scorer" goal carrying it. Minutes typed into the A column by mistake gave one team about 800 assists against about 20 goals in its minutes report. The score is now the limit. With a score stored, no player can have more goals or assists than the team scored, and the match's goals and assists cannot add up to more. With no score stored, a player can have at most 15 of each. A refused save names the match and the limit and writes nothing for that match (`400 contributions_exceed_score` / `contributions_out_of_range`). The grid marks the boxes above the limit as you type. No migration: lowering an inflated A box in the grid removes the extra assists and the placeholder goals that carried them, and that correction is always accepted, even while other players in the same match are still too high.
+
+# TalentTrack v4.144.0 — Minutes reports: "Matches played" opens the matches it counts (#4507)
+
+On Minutes share, **Matches played** now opens the activities list with exactly the matches it counted: the report's own window, every match type including tournament days, by the same "played" rule the report uses, with past matches expanded. The list's **Showing only:** strip names the count and the window, for example "12 played matches, 17-08-2026 – 30-06-2027". On the Minutes distribution report the matches tile changes its headline: it used to show the recorded matches ("Matches recorded") and now shows the played matches ("Matches played"), the number the same list opens on, so tapping 5 shows 5. How many of them have recorded minutes moves to the tile's sub-line ("9 recorded, 3 without minutes"). Minutes share links to the distribution report with its window kept. A date drill into the activities list now lands with past activities expanded; **Hide** still folds them away. `GET /activities` accepts `filter[played]=1` for the same list.
+
+# TalentTrack v4.144.0 — English leaks on Dutch screens: widget builder, message templates, two missing translations (#4510)
+
+The custom widget builder's help texts, its "Name" label and its name placeholder now come from the translation catalogue, so a Dutch install shows them in Dutch. Before, they were always English. The message templates no longer carry their Dutch as source text. Every template now has English source copy, which the catalogue translates to exactly the Dutch a Dutch reader received before, so the messages can also be translated into other languages. Two screens that showed English because their Dutch was missing now have it: "(unnamed position)" in the formations editor, and the refusal when deleting a shipped set piece.
+
+# TalentTrack v4.144.0 — Positions and late-seeded vocabularies show in Dutch on a Dutch install (#4511)
+
+Positions now have Dutch labels (Keeper, Centrale verdediger, Spits and so on) wherever the position list is read, where a Dutch install could show only the code ("GK"). The same holds for French, German and Spanish. A new upgrade step applies the shipped Dutch labels once more, after every vocabulary has been created, so rows that arrived after the earlier passes (the potential bands, "Goal set" on the timeline, competition types) are covered on fresh and existing installs alike. A label an academy changed itself is never overwritten; a label it cleared in the Lookups editor falls back to the shipped label. For operators, `wp tt i18n-data` lists any data that would still render untranslated: shipped lookups without a label, installer text still at its English default, and demo content without a Dutch version. It changes nothing.
+
+# TalentTrack v4.144.0 — Activities crossing midnight keep their end time (#4513, #4528)
+
+An activity that ends after midnight, such as a tournament evening from 23:00 to 00:30, no longer loses its end time on save, and the new-activity wizard accepts it too, including the 00:15 end it suggests for a 22:30 kick-off. An end earlier than the start now counts as the next day when the span is six hours or less: the duration in the stat strip, the planner PDF and the weekly planner print, and the match-length basis all count it (23:00 to 00:30 is 90 minutes). A longer span, such as 10:00 to 09:00, is still treated as a typo. Re-saving a late Spond activity without changes no longer locks its times against the Spond sync.
+
+# TalentTrack v4.144.0 — Role names in sentence case, from one list (#4523)
+
+Role names now follow the sentence case the rest of the interface uses: "Club admin", "Head coach", "Assistant coach", "Team member", "Head of development" and "Read-only observer". That covers the roles admin page, the functional roles page, the People admin page, the roles explainer and the staff picker. The "Functional roles" and "Permission debug" page titles and links follow suit. Those screens used to keep their own copies of the role names, which is how they drifted. They now all read one list. The Dutch is unchanged, except that the observer role now reads "Alleen-lezen waarnemer" with a lower-case w. On the People admin page, the `manager` role type now reads "Team manager", as it already did on the frontend People list. On the functional roles page, Kit manager and Mentor now show their translated labels ("Materiaalman" and "Mentor" in Dutch), where they used to show the role key with its words capitalised. The functional-role assignments list and filter, a person's team list and the person deletion summary now show the translated role name. Before, they showed the English label stored when the academy was set up.
+
+# TalentTrack v4.144.0 — One minutes figure per player per match on every screen (#4526)
+
+A player could have two recorded attendance rows for the same match. The minutes grid then took the higher figure, while the Minutes audit and the minutes reports added them up, so two entries of 70 read 70 on the grid and 140 in the audit beside it. The most recent entry that has minutes now counts everywhere: the grid, the audit, the minutes reports (Player · Minutes played, Team · Minutes distribution, the minutes share report and the scout card) and the tournament minutes. A later entry with only an attendance mark no longer wipes those minutes out. Entering minutes or attendance again updates the player's existing entry instead of adding a second one, and clearing a player's minutes in the grid clears them everywhere. Doubled entries from before stay in place and are read past, and an administrator sees how many the selected period holds under the audit's matrix. Player · Minutes played now also shows a coach's minutes correction. No migration.
+
+# TalentTrack v4.144.0 — Spond: a late kick-off's default end runs past midnight (#4529)
+
+A Spond match that arrives without an end time gets kick-off + 105 minutes, as before, but a late kick-off no longer stops at 23:59: a 22:30 match now ends at 00:15, read as the next day, and lasts the full 105 minutes. The planner PDF and the weekly planner print also handle an activity that ends at exactly midnight: 23:00 to 00:00 now prints as "23:00–00:00" with a one-hour duration, where they used to show the start alone and no duration.
+
+# TalentTrack v4.144.0 — Tournament planner, blueprint editor and backups no longer show English on a Dutch install (#4532)
+
+The tournament planner's "Auto-balance" and "Balancing…" button states, its no-formation notice and its player fallback name now come from the translation catalogue. The team blueprint editor's count badge and slot-clear button use a "×" sign, with Dutch labels a screen reader reads out. On the backups page, the word you type to confirm a restore or an import is now in your language: HERSTELLEN and IMPORTEREN on a Dutch install. The restore or import goes ahead only when you type exactly the word the page shows.
+
+# TalentTrack v4.144.0 — Printed goal intake, methodology cards and match prep: English source text (#4533)
+
+Twenty-eight texts were written in Dutch in the source, so an English or other-language install printed them in Dutch:
+- the goal-intake print's section headings and coach reminder;
+- the methodology reference cards' instructions;
+- the two transition team functions ("Transition to defending / attacking");
+- the match-prep print's availability notices;
+- the explanation on the evaluation-type categories and football-actions admin pages.
+
+Each now has English source text, and the translation catalogue carries the Dutch they printed before, so a Dutch install prints exactly what it printed today. The trial acceptance slip now uses one set of source text too; its English and Dutch read as before. Stored methodology values are unchanged. Shorter labels on these sheets are still Dutch at the source and follow in a later release.
+
+# TalentTrack v4.144.0 — Minutes reports show the match type in your language (#4536)
+
+The team and player minutes reports printed the stored match type in English ("Friendly", "League", "unknown") in the per-match rows. Any type other than league, cup or friendly also became a raw column header such as "UNKNOWN". Match types now come from the academy's own match-type list, in the user's language, in the rows, the column headers and the type filter, so a renamed type shows its new name. A match without a type shows "No type" ("Geen type" in Dutch). Filtering by type works as before.
+
+# TalentTrack v4.144.0 — Every minutes report shows the minutes of old tournament matches (#4549)
+
+On a tournament match completed before the completion step asked for minutes, the minutes grid, the Minutes audit and the team and player minutes reports already showed the rotation plan's minutes. Player · Minutes played, Team · Minutes distribution and Team · Minutes share (also its API and the scout card) still showed 0. So did the season totals on the goal-intake sheet and the count of recorded matches beside the minutes reports. All of these now read the same minutes as the other minutes reports, so a player's minutes for that match are the same on every screen. A minute confirmed on the attendance, 0 included, still wins. League matches and the handling of doubled entries are unchanged.
+
+# TalentTrack v4.144.0 — Workflow tasks write their records only once the task is completed, and complete only once (#4550, #4560)
+
+Six workflow task forms used to create or change records while the answer was still being prepared, before the task was marked completed: the consent request (with its audit entry), the logged prospect, the new test training, the trial case and promoted player on an admit, the trial-case decision and prospect archival on a team-offer answer, and the decision of a trial-group review. If completing the task then failed, the record stayed behind while the task was still open, and the next attempt created a second one. Those writes now happen in a separate completion step that runs in one database transaction with marking the task completed. Either both land, or neither does and the task stays open to try again. That includes a write that fails quietly, such as an admit that opens no trial case. The welcome message a family receives when a trial opens is sent only after the commit, so a rolled-back completion never announces a trial that does not exist. The ids of what was written still land in the task's stored answer, and the template's follow-up steps, which run after the commit, still see them. A team-offer or trial-group review task that is not linked to a trial now says so and asks for an administrator, instead of failing with a generic error. A task is now completed only once, on every route. A second submit, whether from a stale tab or racing the first, leaves the answer on record and its follow-ups as they were. A parent who clicks the confirmation link twice at once gets the same answer both times. Completing a task once still creates exactly one record, as before.
+
+# TalentTrack v4.144.0 — Minutes audit reads every team at once; the minutes check is back for the head of development and the admin (#4553)
+
+The minutes audit can now read several teams in one go, with the same rules and verdicts as for one team. The This week panel's minutes check uses that, so a week across every academy team costs the same as a week of one. With that in place, the head of development and the academy admin see the minutes check on a desktop by default again, as the panel's defaults intended.
+
+# TalentTrack v4.144.0 — This week panel: headings keep the panel's own small label style (#4554)
+
+The This week panel's title and its "Next week" and "Follow-ups due this week" section titles were drawn in the dashboard's large heading type, because the theme's heading rules outranked the panel's own. The panel's heading rules are now scoped to the panel, so they keep the small uppercase label style with the default theme and with a club theme.
+
+# TalentTrack v4.144.0 — My tasks: the "Template" filter reads in Dutch (#4555)
+
+The template filter on My tasks showed "Template:" in English on a Dutch install, because the shared word was never translated. It now reads "Sjabloon:".
+
+# TalentTrack v4.144.0 — The last minutes figures read the same as the reports (#4556)
+
+A few places still worked out a player's minutes in their own way, so they could disagree with the minutes reports for the same match. The roster stats CSV export added up raw entries, ignoring the coach's corrected minutes and counting guest and training rows. The match execution view and the match analysis used whichever entry for a player came back last, and the analysis could fall back on a second stored copy. They now all read the same minutes as the grid, the Minutes audit and the minutes reports. On an old tournament match, a player who was in the plan but never on the attendance is no longer counted in the team minutes reports either, as the grid and the audit already did. The minutes reports also read a period's minutes in one go instead of match by match.
+
+# TalentTrack v4.144.0 — Functional roles: a renamed stock role shows the club's own name (#4557)
+
+A club that renamed one of the stock functional roles, for example "Head coach" to "Trainer A-selectie", kept seeing the stock label on every screen, because the role was matched by its key before its stored label was read. Now the stored label is shown whenever it differs from the label the role was set up with. An unrenamed stock role still shows its translated label, in Dutch and in English, and a role the club added itself keeps its own name as before. Older installs that still store the original "Head Coach" spelling count as unrenamed. On Dutch installs, the Dutch stock label stored as a translation for every seeded role no longer hides a rename, while a translation entered for the new name still wins. A rename made through `PUT functional-roles/{id}` shows straight away in the same request, and it clears the role's label translations, because those translate the old name.
+
+# TalentTrack v4.144.0 — One transaction helper, so a write inside another no longer commits it early (#4561)
+
+MySQL has no nested transactions: opening one while another is open silently commits the first. Archiving a player, the permanent-delete cascades, saved views, VCT sessions, the backup restores and imports and the authorization seed import each opened their own. When one of them ran inside another, the outer work was committed at that moment, and a later failure could no longer undo it. The concrete case was a trial-group review that ends in a final decline: it archives the player in the middle of completing the task, so a failure after the archive left a half-completed task. All of them now go through one helper, which opens the transaction on the outside and takes a savepoint for every level inside it. An inner failure undoes only its own writes, and the outer transaction still decides. Messages and file deletions that wait for a commit now wait for the outermost one. Uploading an authorization matrix that fails part way now leaves the matrix exactly as it was. It used to be emptied with an immediate, uncommittable step and was left half-replaced. A full backup restore that fails part way likewise leaves the tables as they were, instead of emptied. A transaction a request forgets to close is rolled back and logged when the request ends.
+
+# TalentTrack v4.144.0 — Spond: the sync preview no longer shows a false end-time change on matches (#4562)
+
+The Spond integration monitor listed an end-time change on every match whose end the sync had filled in itself (kick-off + 105 minutes), as if the next sync would clear it. It will not. The preview now works out the times from the sync's own mapping, the match fallback end included, so it lists only the changes a sync would really make, and each event's `end_time` in `POST /teams/{id}/spond/preview` shows the end the sync would store. A match whose Spond end really changed, and a training with no Spond end, show their change as before. The preview also leaves out the fields a person edited in TalentTrack (title, date, times or location), which the sync no longer overwrites, so it never lists a change the sync will not make.
+
+Late matches imported with the old 23:59 end (before #4529) will move to the wrapped end (for example 00:15) on their next sync, and the preview will now show that as a real change.
+
+# TalentTrack v4.144.0 — Goal intake, methodology cards and match prep print in English on an English install (#4563)
+
+The remaining short labels on the printed goal-intake sheet, the methodology reference cards, the match-prep sheet and the football-actions page were written in Dutch in the source. Examples are "Rugnummer", "Doel 1", "Spelprincipes", "1e helft" and "Wedstrijddoelen". So were the methodology vocabulary labels (team functions, team tasks, set pieces, styles of play and lines). These labels now have English source text, and the translation catalogue carries the Dutch they printed before, so a Dutch install reads exactly as today. Stored methodology values are unchanged.
+
+On the wp-admin Backups page, the word you type to confirm a restore or a migration import is now in your language (HERSTELLEN / IMPORTEREN on a Dutch install), as on the frontend Backups page.
+
+# TalentTrack v4.144.0 — Team blueprint: the player picker shows the position, not raw JSON (#4574)
+
+The team blueprint's roster and its player picker showed a player's position as raw JSON, for example `["RW"] · 17 jaar`. They now show the first preferred position's name in the site's language, for players stored with a list of positions and for older records stored as a comma-separated list alike. A player with no position still shows `-`. The button that clears a filled slot is now at least 24 by 24 pixels with a mouse; it was 16 by 21.
+
+# TalentTrack v4.144.0 — Federation and Leon Hutten themes: muted text is easier to read (#4575)
+
+The grey used for secondary text (dates, ages, counts) was too light in the federation and Leon Hutten themes. It is now slightly darker, so it reaches at least 4.5:1 contrast on both the white and the soft background: about 5.5:1 and 4.9–5.0:1. The default theme was already fine and is unchanged.
+
+# TalentTrack v4.144.0 — Coaches open the attendance reports for their own teams (#4579)
+
+A head coach who tapped the attendance figure on their dashboard was told they had no permission to view the report behind it. The team attendance report, the player attendance report and the attendance leaderboard now open for anyone who may read attendance, the same access a coach uses to take the register, instead of asking for statistics access, which coaches do not have. The same applies to the three report tiles on the Reports launcher and to their REST routes (`/reports/attendance`, `/reports/attendance-leaderboard`, `/reports/attendance-at-risk`). A head coach, an assistant coach or a team manager sees their own teams only. The leaderboard ranks only their players, and asking for another team is refused: `403` over REST, and a notice on the player report instead of an empty table. The head of development and the academy admin still see the whole club. Saved views on the three reports follow the same access, so a coach can save and reuse filters there too. Coaches are not given statistics access, so nothing else opens up, and each report's own switch works as before.
+
+# TalentTrack v4.144.0 — Analytics: Evaluation coverage reads the activity date; attendance KPIs count the rows the reports count (#4584)
+
+The Evaluation coverage fact read `tt_activities.start_at`, a column that does not exist, so the Evaluation coverage KPI and its explorer showed nothing. It now reads `session_date`. Grouping or filtering the evaluation facts by Evaluator read `evaluator_id`, which `tt_evaluations` does not have; the dimension now reads the evaluation's coach, under the same key, so saved explorer links keep working. The attendance fact's Present, Absent and Attendance % measures counted rows the attendance reports leave out: trashed or archived activities, activities that were not completed or lie in the future, and players no longer on that team's roster. One shared clause, `AttendanceFlagService::countableRowClause()`, now carries those rules for both the attendance reports and the measures, so the KPI and the report beside it give the same figure. The explorer's row list still shows every attendance row. Saved explorations on attendance may show a different (correct) percentage.
+
+# TalentTrack v4.144.0 — Permanently deleting a person works again (#4589)
+
+Permanently deleting a person always failed and changed nothing. The cleanup that runs with it removed the person's staff-development record from a table name that no install has, so the whole delete stopped on that step and rolled back. It now removes the record from the table where it actually lives, and the delete preview counts it there too. A staff table that an install does not have is skipped rather than stopping the delete. Separately, a transaction step the database refuses, and a failed clear-out at the start of a matrix upload or a backup restore, are now written to the error log instead of passing silently.
+
+# TalentTrack v4.144.0 — Tasks dashboard: the "Template" columns read in Dutch (#4597)
+
+The two "Template" column headers on the tasks dashboard showed English on a Dutch install. They now read "Sjabloon", the same word as the My tasks filter.
+
+# TalentTrack v4.144.0 — Access checks tightened on player scores, wizards, match-day screens and exports (#4607)
+
+A child's evaluations switch now covers every score taken from their evaluations: the player card, My team, the trend chip, the development header, the rating trend, the timeline's overall score, the team rank and the dashboard tiles. The parent reminder e-mail leaves out the lines for hidden sections. The attendance and new-evaluation wizards work only on activities and players the user may change, and an activity without a team lists no roster. Writing to activities, match execution, match prep, match analysis, the opponent backfill and the wp-admin activity screens now asks the change permission, so read-only access never widens it, and the activity detail page offers its edit actions on the same terms. The unavailable markers and the coach's absence reasons go to people who plan the team or may read the player's injuries. The match prep PDF export asks which team the match belongs to.
+
 # TalentTrack v4.143.0 — A prospect's status follows the trial decision: Joined, Not admitted or still In trial (#4251)
 
 Once a prospect went on trial, the prospects list showed "In trial" for good, even after the trial was decided, while the scouting-visit pages showed "Joined" for every trialist who had not been decided yet. The status now follows the trial case's decision everywhere: admit or an offered team position shows **Joined**, a denial or a declined offer shows the new **Not admitted**, and an undecided trial or one that continues in the trial group stays **In trial**. The prospects list, its Status filter, the scouting-visit pages, the scout's dashboard table and the new-prospect wizard all give the same answer. The onboarding pipeline no longer counts a declined child as Joined.
