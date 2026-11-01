@@ -14,9 +14,10 @@ use TT\Modules\Evaluations\EvaluationsModule;
 
 /**
  * #4494 — on a completed match, how many of the players who played carry a
- * rating ("Ratings 9 of 14"). Rated players come from the ratings grid's own
- * source (`RatingsGridQuery`), played is the register's attended count
- * (Present or Late). Both read once for the week. Counts only.
+ * rating ("Ratings 9 of 14"). Played is the register's attended count
+ * (Present or Late); rated is counted among those same players, from the
+ * ratings grid's own source (`RatingsGridQuery`). Both read once for the
+ * week. Counts only.
  */
 final class PlayerRatingsBlock extends AbstractWeekBlock {
 
@@ -30,8 +31,12 @@ final class PlayerRatingsBlock extends AbstractWeekBlock {
 
     public function available(): bool { return ModuleRegistry::isEnabled( EvaluationsModule::class ); }
 
+    /**
+     * Not for the assistant coach: the matrix gives that persona no
+     * evaluations read (#1060). The rights check below decides in any case.
+     */
     public function defaultFor( string $persona, string $device ): bool {
-        return $device === 'desktop' && in_array( $persona, [ 'head_coach', 'assistant_coach', 'head_of_development' ], true );
+        return $device === 'desktop' && in_array( $persona, [ 'head_coach', 'head_of_development' ], true );
     }
 
     public function rowDefaults(): array { return [ 'ratings' => null ]; }
@@ -49,7 +54,9 @@ final class PlayerRatingsBlock extends AbstractWeekBlock {
      * @return array{rated:int, played:int}|null
      */
     public static function countsFor( WeekRow $row, WeekContext $week ): ?array {
-        if ( ! $row->done || ! $row->register || ! $week->canSeeTeam( $row->teamId ) ) return null;
+        // A ratings count is evaluation data: it shows only to a viewer who
+        // may read this team's evaluations, whatever the persona defaults say.
+        if ( ! $row->done || ! $row->register || ! $week->canReadOnTeam( 'evaluations', $row->teamId ) ) return null;
         if ( ! $week->recorded( $row->activityId ) ) return null;
         $played = ActivityRegisterProgress::attendedCount( $row->activityId );
         if ( $played <= 0 ) return null;
@@ -58,6 +65,6 @@ final class PlayerRatingsBlock extends AbstractWeekBlock {
             array_filter( $week->rows(), static fn( WeekRow $r ): bool => $r->done )
         ) );
         $rated = $week->once( 'rated_players', static fn(): array => RatingsGridQuery::ratedPlayerCounts( $done ) );
-        return [ 'rated' => min( (int) ( $rated[ $row->activityId ] ?? 0 ), $played ), 'played' => $played ];
+        return [ 'rated' => (int) ( $rated[ $row->activityId ] ?? 0 ), 'played' => $played ];
     }
 }

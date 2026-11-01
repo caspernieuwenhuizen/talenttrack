@@ -40,8 +40,12 @@ final class RatePlayersAction extends AbstractWeekBlock implements ActionBlock {
         $counts = PlayerRatingsBlock::countsFor( $row, $week );
         if ( $counts === null || $counts['rated'] >= $counts['played'] ) return null;
         ActivityGridLink::primeAnchor( $row->activityId, $row->teamId, $row->date );
-        // Per team and user, not per match: asked once per team.
-        $reachable = $week->once( 'can_use_ratings:' . $row->teamId, static fn(): bool => ActivityGridLink::canUseRatings( $row->activityId, $week->userId ) );
-        return $reachable ? CoachWeek::ACTION_RATE_PLAYERS : null;
+        // One answer per user (feature switch, a team, the edit capability),
+        // asked once for the week.
+        $reachable = $week->once( 'can_use_ratings', static fn(): bool => ActivityGridLink::canUseRatings( $row->activityId, $week->userId ) );
+        // And the grid's own team rule, so the button never leads to "You do
+        // not coach this activity's team" (a global activities edit is not it).
+        if ( ! $reachable || ! ActivityGridLink::canRateTeam( $week->userId, $row->teamId ) ) return null;
+        return CoachWeek::ACTION_RATE_PLAYERS;
     }
 }

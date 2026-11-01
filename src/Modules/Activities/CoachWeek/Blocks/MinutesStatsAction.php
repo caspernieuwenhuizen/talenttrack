@@ -35,14 +35,20 @@ final class MinutesStatsAction extends AbstractWeekBlock implements ActionBlock 
         return $persona === 'head_coach';
     }
 
+    /** It reads the same per-team audit as the minutes check, so the same personas opt in. */
+    public function optInFor( string $persona ): bool {
+        return in_array( $persona, MinutesCheckBlock::OPT_IN, true );
+    }
+
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
         if ( ! $row->done || ! $week->canEditTeam( $row->teamId ) ) return null;
         $check = MinutesCheckBlock::checkFor( $row, $week );
         if ( $check === null || $check['status'] === 'complete' ) return null;
         ActivityGridLink::primeAnchor( $row->activityId, $row->teamId, $row->date );
-        // The grid's reachability depends on the team and the user, not on
-        // the match: asked once per team, so the week costs no query per row.
-        $reachable = $week->once( 'can_use_minutes:' . $row->teamId, static fn(): bool => ActivityGridLink::canUseMinutes( $row->activityId, $week->userId ) );
+        // The grid's reachability is its feature switch, the row having a
+        // team (guaranteed once `canEditTeam()` passed) and the user's edit
+        // capability: one answer per user, asked once for the week.
+        $reachable = $week->once( 'can_use_minutes', static fn(): bool => ActivityGridLink::canUseMinutes( $row->activityId, $week->userId ) );
         return $reachable ? CoachWeek::ACTION_MINUTES_STATS : null;
     }
 }

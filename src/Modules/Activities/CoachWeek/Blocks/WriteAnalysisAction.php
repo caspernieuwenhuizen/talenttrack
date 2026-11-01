@@ -38,6 +38,10 @@ final class WriteAnalysisAction extends AbstractWeekBlock implements ActionBlock
 
     public function actionFor( WeekRow $row, WeekContext $week ): ?string {
         if ( ! $row->done || ! $week->canEditTeam( $row->teamId ) ) return null;
+        // A completed match dated after today has not been played as far as
+        // the analysis is concerned: the composer refuses it (as #4501 does
+        // for attendance).
+        if ( $row->when === WeekRow::WHEN_UPCOMING ) return null;
         return MatchAnalysisBlock::writtenFor( $row, $week ) === false ? CoachWeek::ACTION_MATCH_ANALYSIS : null;
     }
 }

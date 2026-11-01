@@ -87,6 +87,20 @@ final class WeekContext {
     }
 
     /**
+     * The viewer may read this matrix entity for this team: at global scope
+     * or on the team. For a block that shows a fact from another entity
+     * (evaluations, say) on a row the viewer can see; the persona's defaults
+     * never stand in for the right.
+     */
+    public function canReadOnTeam( string $entity, int $team_id ): bool {
+        return (bool) $this->once( 'read:' . $entity . ':' . $team_id, function () use ( $entity, $team_id ): bool {
+            if ( ! $this->canSeeTeam( $team_id ) ) return false;
+            if ( MatrixGate::can( $this->userId, $entity, MatrixGate::READ, MatrixGate::SCOPE_GLOBAL ) ) return true;
+            return MatrixGate::can( $this->userId, $entity, MatrixGate::READ, MatrixGate::SCOPE_TEAM, $team_id );
+        } );
+    }
+
+    /**
      * The viewer may open this player's record. A block that names players
      * names only these; everyone else gets a count.
      */

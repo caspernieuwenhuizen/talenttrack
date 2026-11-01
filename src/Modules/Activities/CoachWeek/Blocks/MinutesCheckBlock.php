@@ -25,9 +25,20 @@ final class MinutesCheckBlock extends AbstractWeekBlock {
 
     public function help(): string { return __( 'The minutes entered against what the match holds, as the minutes audit judges it.', 'talenttrack' ); }
 
+    /**
+     * The audit reads one team at a time, so a week across every academy
+     * team would cost its statements once per team. Until a cross-team read
+     * exists, the two personas that see all teams get the block only when an
+     * academy switches it on for them.
+     */
+    public const OPT_IN = [ 'head_of_development', 'academy_admin' ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        if ( $persona === 'head_coach' ) return true;
-        return $device === 'desktop' && ( $persona === 'head_of_development' || $persona === 'academy_admin' );
+        return $persona === 'head_coach';
+    }
+
+    public function optInFor( string $persona ): bool {
+        return in_array( $persona, self::OPT_IN, true );
     }
 
     public function rowDefaults(): array { return [ 'minutes_check' => null ]; }

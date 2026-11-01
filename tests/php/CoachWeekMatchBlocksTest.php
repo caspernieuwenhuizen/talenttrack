@@ -4,14 +4,14 @@ namespace TT\Tests\Php;
 use WP_UnitTestCase;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\RolesService;
-use TT\Modules\Activities\CoachWeek\Blocks\MinutesStatsAction;
-use TT\Modules\Activities\CoachWeek\Blocks\RatePlayersAction;
-use TT\Modules\Activities\CoachWeek\Blocks\WriteAnalysisAction;
 use TT\Modules\Activities\CoachWeek\WeekBlockRegistry;
 use TT\Modules\Activities\Reports\MinutesGridQuery;
 use TT\Modules\Activities\Services\ActivityRegisterProgress;
 use TT\Modules\Activities\Services\CoachWeek;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
+use TT\Modules\License\FeatureMap;
+use TT\Modules\License\LicenseGate;
+use TT\Modules\License\LicenseMode;
 
 /**
  * #4494 — the match blocks of the "This week" panel: game plan, result,
@@ -61,9 +61,16 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
             $settings[ $persona ]['desktop'] = WeekBlockRegistry::keys();
         }
         QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, CoachWeek::normaliseSettingsStored( (string) wp_json_encode( $settings ) ) );
+
+        // The three buttons are Pro features: pin the tier so the tests do
+        // not depend on how the install happens to answer.
+        LicenseMode::overrideForTests( true );
+        LicenseGate::overrideTierForTests( FeatureMap::TIER_PRO );
     }
 
     public function tear_down(): void {
+        LicenseMode::overrideForTests( null );
+        LicenseGate::overrideTierForTests( null );
         wp_set_current_user( 0 );
         parent::tear_down();
     }
@@ -81,9 +88,7 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( 'minutes_over', $row['minutes_check']['status_reason'] );
         $this->assertSame( $available + 25, $row['minutes_check']['total_minutes'] );
         $this->assertStringContainsString( 'Won 2–1', $this->panelHtml( '2026-11-07' ) );
-        if ( ( new MinutesStatsAction() )->available() ) {
-            $this->assertContains( CoachWeek::ACTION_MINUTES_STATS, $row['actions'] );
-        }
+        $this->assertContains( CoachWeek::ACTION_MINUTES_STATS, $row['actions'] );
 
         $this->minutes( $match, $available );
         $row = $this->row( $match, '2026-11-07' );
@@ -127,18 +132,88 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
         $this->assertSame( [ 'rated' => 0, 'played' => 1 ], $row['ratings'] );
         $this->assertFalse( $row['analysis_written'] );
         $this->assertSame( 'L', $row['result']['outcome'] );
-        if ( ( new RatePlayersAction() )->available() ) {
-            $this->assertContains( CoachWeek::ACTION_RATE_PLAYERS, $row['actions'] );
-        }
-        if ( ( new WriteAnalysisAction() )->available() ) {
-            $this->assertContains( CoachWeek::ACTION_MATCH_ANALYSIS, $row['actions'] );
-        }
+        $this->assertContains( CoachWeek::ACTION_RATE_PLAYERS, $row['actions'] );
+        $this->assertContains( CoachWeek::ACTION_MATCH_ANALYSIS, $row['actions'] );
         $this->assertLessThanOrEqual( 7, count( $row['actions'] ), 'actions are the candidates; the view shows two per device' );
+    }
+
+    public function test_a_rated_absent_player_does_not_hide_rate_players(): void {
+        global $wpdb;
+        $match = $this->completedMatch( '2026-11-07', 0, 3, 'home' );
+        $this->minutes( $match, 70 ); // the fixture player played, unrated
+        $wpdb->insert( $wpdb->prefix . 'tt_players', [
+            'club_id' => 1, 'team_id' => $this->team, 'first_name' => 'Week', 'last_name' => 'Afwezig', 'status' => 'active',
+        ] );
+        $absent = (int) $wpdb->insert_id;
+        $wpdb->insert( $wpdb->prefix . 'tt_attendance', [
+            'club_id' => 1, 'activity_id' => $match, 'player_id' => $absent, 'status' => 'Absent', 'record_type' => 'actual',
+        ] );
+        $this->rate( $match, $absent );
+
+        $row = $this->row( $match, '2026-11-07' );
+        $this->assertSame( [ 'rated' => 0, 'played' => 1 ], $row['ratings'], 'a rating on a player who did not play does not count' );
+        $this->assertContains( CoachWeek::ACTION_RATE_PLAYERS, $row['actions'], 'the player who played is still unrated' );
+
+        $this->rate( $match, $this->player );
+        $row = $this->row( $match, '2026-11-07' );
+        $this->assertSame( [ 'rated' => 1, 'played' => 1 ], $row['ratings'] );
+        $this->assertNotContains( CoachWeek::ACTION_RATE_PLAYERS, $row['actions'] );
+    }
+
+    public function test_on_standard_the_three_buttons_and_their_switches_are_not_offered(): void {
+        LicenseGate::overrideTierForTests( FeatureMap::TIER_STANDARD );
+        $match = $this->completedMatch( '2026-11-07', 0, 3, 'home' );
+        $this->minutes( $match, 999 );
+        $row = $this->row( $match, '2026-11-07' );
+
+        foreach ( [ CoachWeek::ACTION_MINUTES_STATS, CoachWeek::ACTION_RATE_PLAYERS, CoachWeek::ACTION_MATCH_ANALYSIS ] as $action ) {
+            $this->assertNotContains( $action, $row['actions'], $action );
+        }
+        foreach ( [ 'action_minutes_stats', 'action_rate_players', 'action_match_analysis' ] as $key ) {
+            $this->assertArrayNotHasKey( $key, WeekBlockRegistry::available(), "{$key} has no switch on Standard" );
+        }
+    }
+
+    public function test_a_completed_match_dated_after_today_offers_no_analysis(): void {
+        $match = $this->completedMatch( '2026-11-07', 1, 0, 'home' );
+        $this->minutes( $match, 70 );
+        $this->assertNotContains( CoachWeek::ACTION_MATCH_ANALYSIS, $this->row( $match, '2026-11-04' )['actions'], 'the composer says it has not been played' );
+        $this->assertContains( CoachWeek::ACTION_MATCH_ANALYSIS, $this->row( $match, '2026-11-07' )['actions'], 'on the day it is offered' );
+    }
+
+    public function test_an_assistant_coach_without_evaluations_read_sees_no_ratings(): void {
+        global $wpdb;
+        $match = $this->completedMatch( '2026-11-07', 0, 3, 'home' );
+        $this->minutes( $match, 70 );
+
+        $assistant = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $person    = $this->grantTeam( $assistant );
+        $wpdb->insert( $wpdb->prefix . 'tt_team_people', [
+            'club_id' => 1, 'team_id' => $this->team, 'person_id' => $person, 'role_in_team' => 'assistant_coach', 'is_head_coach' => 0,
+        ] );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        $this->assertSame( 'assistant_coach', \TT\Modules\Authorization\PersonaResolver::landingPersona( $assistant ), 'precondition' );
+
+        $row = null;
+        foreach ( CoachWeek::forUser( $assistant, '2026-11-07' )['rows'] as $r ) {
+            if ( (int) $r['activity_id'] === $match ) $row = $r;
+        }
+        $this->assertNotNull( $row );
+        $this->assertNull( $row['ratings'], 'switched on in the settings, but the matrix gives no evaluations read' );
+        $this->assertNotContains( CoachWeek::ACTION_RATE_PLAYERS, $row['actions'] );
+        $this->assertNotContains( 'ratings', CoachWeek::defaultSettings()['assistant_coach']['desktop'] );
     }
 
     public function test_a_user_without_the_edit_right_never_gets_rate_players(): void {
         $match = $this->completedMatch( '2026-11-07', 0, 3, 'home' );
         $this->minutes( $match, 70 );
+
+        // Positive control: on this match, on this tier, the editor gets all
+        // three, so the refusals below cannot pass for want of a button.
+        $coach_row = $this->row( $match, '2026-11-07' );
+        foreach ( [ CoachWeek::ACTION_MINUTES_STATS, CoachWeek::ACTION_RATE_PLAYERS, CoachWeek::ACTION_MATCH_ANALYSIS ] as $action ) {
+            $this->assertContains( $action, $coach_row['actions'], "the coach gets {$action}" );
+        }
 
         $observer = self::factory()->user->create( [ 'role' => 'tt_readonly_observer' ] );
         \TT\Infrastructure\Security\AuthorizationService::flushCache();
@@ -188,10 +263,24 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
             $this->assertContains( $key, $d['head_coach']['desktop'], $key );
         }
         $this->assertSame( [ 'score', 'minutes', 'action_minutes_stats' ], array_values( array_intersect( $d['head_coach']['phone'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis', 'action_minutes_stats', 'action_rate_players', 'action_match_analysis' ] ) ) );
-        $this->assertSame( [ 'ratings' ], array_values( array_intersect( $d['assistant_coach']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
-        $this->assertSame( [ 'score', 'minutes', 'ratings', 'analysis' ], array_values( array_intersect( $d['head_of_development']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+        // The assistant coach has no evaluations read (#1060), so no ratings.
+        $this->assertSame( [], array_values( array_intersect( $d['assistant_coach']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+        // The minutes check reads the audit per team, so the two all-teams
+        // personas opt in to it rather than get it by default.
+        $this->assertSame( [ 'score', 'ratings', 'analysis' ], array_values( array_intersect( $d['head_of_development']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
         $this->assertSame( [ 'score' ], array_values( array_intersect( $d['head_of_development']['phone'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
-        $this->assertSame( [ 'score', 'minutes' ], array_values( array_intersect( $d['academy_admin']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+        $this->assertSame( [ 'score' ], array_values( array_intersect( $d['academy_admin']['desktop'], [ 'prep_notes', 'score', 'minutes', 'ratings', 'analysis' ] ) ) );
+    }
+
+    public function test_the_all_teams_personas_opt_in_to_the_minutes_check(): void {
+        QueryHelpers::set_config( CoachWeek::SETTINGS_KEY, '' );
+        QueryHelpers::set_config( CoachWeek::CONFIG_KEY, '["head_coach","head_of_development","academy_admin"]' );
+        $settings = CoachWeek::settings();
+        foreach ( [ 'head_of_development', 'academy_admin' ] as $persona ) {
+            $this->assertNotContains( 'minutes', $settings[ $persona ]['desktop'], "{$persona}: the older list does not switch it on" );
+            $this->assertNotContains( 'action_minutes_stats', $settings[ $persona ]['desktop'], $persona );
+        }
+        $this->assertContains( 'minutes', $settings['head_coach']['desktop'] );
     }
 
     // Helpers
@@ -263,13 +352,27 @@ final class CoachWeekMatchBlocksTest extends WP_UnitTestCase {
     }
 
     /** A staff record and an active team-scope grant, what get_teams_for_coach() reads. */
-    private function grantTeam( int $user_id ): void {
+    /** @return int the person id */
+    private function grantTeam( int $user_id ): int {
         global $wpdb;
         $wpdb->insert( $wpdb->prefix . 'tt_people', [
             'club_id' => 1, 'first_name' => 'Week', 'last_name' => 'Coach', 'role_type' => 'head_coach', 'wp_user_id' => $user_id, 'status' => 'active',
         ] );
+        $person = (int) $wpdb->insert_id;
         $wpdb->insert( $wpdb->prefix . 'tt_user_role_scopes', [
-            'person_id' => (int) $wpdb->insert_id, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team,
+            'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team,
+        ] );
+        return $person;
+    }
+
+    /** One rating for this player on this match, the rows the ratings grid writes. */
+    private function rate( int $activity_id, int $player_id ): void {
+        global $wpdb;
+        $wpdb->insert( $wpdb->prefix . 'tt_evaluations', [
+            'club_id' => 1, 'player_id' => $player_id, 'coach_id' => $this->coach, 'eval_date' => '2026-11-07', 'activity_id' => $activity_id,
+        ] );
+        $wpdb->insert( $wpdb->prefix . 'tt_eval_ratings', [
+            'club_id' => 1, 'evaluation_id' => (int) $wpdb->insert_id, 'category_id' => 1, 'rating' => 7,
         ] );
     }
 }

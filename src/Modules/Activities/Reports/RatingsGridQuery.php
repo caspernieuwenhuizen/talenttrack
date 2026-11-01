@@ -327,12 +327,14 @@ final class RatingsGridQuery {
     }
 
     /**
-     * #4494 — how many players carry at least one rating per activity, from
-     * the same rows `existingRatings()` reads, in one query for a set of
-     * activities.
+     * #4494 — how many of the players who played carry at least one rating,
+     * per activity, from the same rows `existingRatings()` reads, in one
+     * query for a set of activities. Played is an actual, non-guest register
+     * row that counts as attended (`AttendanceFlagService`), so a rated
+     * player who was recorded absent is not counted against the squad.
      *
      * @param list<int> $activity_ids
-     * @return array<int, int> activity id => rated players; absent means none
+     * @return array<int, int> activity id => rated players who played; absent means none
      */
     public static function ratedPlayerCounts( array $activity_ids ): array {
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $activity_ids ), static fn( int $v ): bool => $v > 0 ) ) );
@@ -340,11 +342,16 @@ final class RatingsGridQuery {
         global $wpdb;
         $p            = $wpdb->prefix;
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $attended     = \TT\Modules\Analytics\Domain\AttendanceFlagService::attendedStatusClause( 'att.status' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.activity_id, COUNT( DISTINCT e.player_id ) AS rated
                FROM {$p}tt_evaluations e
                INNER JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+               INNER JOIN {$p}tt_attendance att
+                       ON att.activity_id = e.activity_id AND att.player_id = e.player_id
+                      AND att.club_id = e.club_id AND att.record_type = 'actual' AND att.is_guest = 0
+                      AND {$attended}
               WHERE e.club_id = %d AND e.activity_id IN ({$placeholders})
               GROUP BY e.activity_id",
             ...array_merge( [ CurrentClub::id() ], $ids )
