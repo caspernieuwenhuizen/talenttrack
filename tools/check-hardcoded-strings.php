@@ -62,16 +62,31 @@ function tt_hs_git( string $root, array $args ): ?string {
     return $status === 0 ? implode( "\n", $output ) : null;
 }
 
-/** @return array<int, true> */
-function tt_hs_added_lines( string $root, string $merge_base, string $relative ): array {
-    $diff = tt_hs_git( $root, [ 'diff', '--unified=0', $merge_base . '...HEAD', '--', $relative ] );
-    $added = [];
-    foreach ( preg_split( '/\R/', (string) $diff ) ?: [] as $line ) {
-        if ( preg_match( '/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/', $line, $m ) !== 1 ) continue;
+/**
+ * The lines this PR added, per file. One diff over the whole tree with
+ * rename detection and no pathspec, so a file renamed within src/ or moved
+ * in from outside it is paired with its old path and judged only on the
+ * lines that changed, never in full.
+ *
+ * @return array<string, array<int, true>>|null path => line number => true; null when git fails
+ */
+function tt_hs_added_by_file( string $root, string $merge_base ): ?array {
+    $diff = tt_hs_git( $root, [ 'diff', '--unified=0', '-M', '--diff-filter=AMR', '--no-color', $merge_base . '...HEAD' ] );
+    if ( $diff === null ) return null;
+
+    $added   = [];
+    $current = null;
+    foreach ( explode( "\n", $diff ) as $line ) {
+        if ( strpos( $line, '+++ ' ) === 0 ) {
+            $path    = substr( $line, 4 );
+            $current = strpos( $path, 'b/' ) === 0 ? substr( $path, 2 ) : null;
+            continue;
+        }
+        if ( $current === null || preg_match( '/^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/', $line, $m ) !== 1 ) continue;
         $start = (int) $m[1];
         $count = isset( $m[2] ) ? (int) $m[2] : 1;
         for ( $i = 0; $i < $count; $i++ ) {
-            $added[ $start + $i ] = true;
+            $added[ $current ][ $start + $i ] = true;
         }
     }
     return $added;
@@ -79,13 +94,14 @@ function tt_hs_added_lines( string $root, string $merge_base, string $relative )
 
 // --- which files, which lines -------------------------------------------
 
+$added_by_file = null;
 if ( $options['report'] ) {
     $listing = tt_hs_git( $root, [ 'ls-files', '--', 'src', 'assets/js' ] );
     if ( $listing === null ) {
         fwrite( STDERR, "check-hardcoded-strings: cannot list files in {$root}.\n" );
         exit( 2 );
     }
-    $merge_base = null;
+    $candidates = explode( "\n", $listing );
 } else {
     $base = trim( (string) $options['base'] );
     $merge_base = tt_hs_git( $root, [ 'merge-base', 'HEAD', $base ] );
@@ -93,17 +109,17 @@ if ( $options['report'] ) {
         fwrite( STDERR, "check-hardcoded-strings: cannot find a merge base with {$base}.\n" );
         exit( 2 );
     }
-    $merge_base = trim( $merge_base );
-    $listing = tt_hs_git( $root, [ 'diff', '--name-only', '--diff-filter=AM', $merge_base . '...HEAD', '--', 'src', 'assets/js' ] );
-    if ( $listing === null ) {
-        fwrite( STDERR, "check-hardcoded-strings: cannot diff against {$merge_base}.\n" );
+    $added_by_file = tt_hs_added_by_file( $root, trim( $merge_base ) );
+    if ( $added_by_file === null ) {
+        fwrite( STDERR, "check-hardcoded-strings: cannot diff against {$base}.\n" );
         exit( 2 );
     }
+    $candidates = array_keys( $added_by_file );
 }
 
 $files = [];
-foreach ( preg_split( '/\R/', $listing ) ?: [] as $line ) {
-    $line = trim( $line );
+foreach ( $candidates as $line ) {
+    $line = trim( (string) $line );
     if ( $line !== '' && tt_hs_in_scope( $line ) ) $files[] = $line;
 }
 
@@ -116,8 +132,8 @@ foreach ( $files as $relative ) {
     if ( ! is_readable( $path ) ) continue;
 
     $only = null;
-    if ( $merge_base !== null ) {
-        $only = tt_hs_added_lines( $root, $merge_base, $relative );
+    if ( $added_by_file !== null ) {
+        $only = $added_by_file[ $relative ] ?? [];
         if ( ! $only ) continue;
     }
 
@@ -147,6 +163,7 @@ if ( $total > 0 ) {
     echo "  PHP: wrap the literal in __() / esc_html__() / _e() and friends.\n";
     echo "  Dutch msgid: msgids are English; put the Dutch in languages/pending/<issue>-<slug>.po.\n";
     echo "  Data, not copy? Add a trailing tt-i18n-ok marker on the line: /* tt-i18n-ok */ (PHP) or // tt-i18n-ok (JS).\n";
+    echo "  Lines you did not write? Run `git fetch origin main` first: a stale base pulls other commits into the diff.\n";
     exit( 1 );
 }
 

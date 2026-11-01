@@ -60,9 +60,13 @@ function tt_hs_has_copy( string $literal ): bool {
 function tt_hs_has_prose( string $literal ): bool {
     if ( ! tt_hs_has_copy( $literal ) ) return false;
     $text = strip_tags( $literal );
+    // Attribute pairs outside a tag (' class="tt-card is-active"') are markup.
+    $text = preg_replace( '/[\w-]+\s*=\s*"[^"]*"?/u', ' ', $text ) ?? $text;
     $text = preg_replace( '/%(\d+\$)?[-+ 0#]*\d*(\.\d+)?[bcdeEfFgGosuxX]/', ' ', $text ) ?? $text;
-    return preg_match( '/\p{L}{2,}[ \t]+\p{L}{2,}/u', $text ) === 1
-        || preg_match( '/(^|[\s>(])\p{Lu}\p{Ll}+/u', $text ) === 1;
+    // A word is standalone: `tt-btn tt-btn-secondary` is two class names.
+    $word = '(?<![\w-])\p{L}{2,}(?![\w-])';
+    return preg_match( '/' . $word . '[ \t]+' . $word . '/u', $text ) === 1
+        || preg_match( '/(^|[\s>(])\p{Lu}\p{Ll}+(?![\w-])/u', $text ) === 1;
 }
 
 /** Whether a line is a comment (the gate judges code, not prose about code). */
@@ -90,6 +94,17 @@ function tt_hs_literal_at( string $line, int $offset ): ?string {
         $c = $line[ $i ];
         if ( $c === '\\' && $i + 1 < $len ) {
             $next = $line[ ++$i ];
+            // \uXXXX and \xXX are one character, not the letters u and x.
+            if ( $next === 'u' && preg_match( '/\G[0-9a-fA-F]{4}/', $line, $hex, 0, $i + 1 ) === 1 ) {
+                $out .= mb_chr( (int) hexdec( $hex[0] ), 'UTF-8' );
+                $i   += 4;
+                continue;
+            }
+            if ( $next === 'x' && preg_match( '/\G[0-9a-fA-F]{2}/', $line, $hex, 0, $i + 1 ) === 1 ) {
+                $out .= mb_chr( (int) hexdec( $hex[0] ), 'UTF-8' );
+                $i   += 2;
+                continue;
+            }
             // \n, \t and \r are whitespace, not the letters n, t and r.
             $out .= in_array( $next, [ 'n', 't', 'r' ], true ) ? ' ' : $next;
             continue;
@@ -176,7 +191,10 @@ function tt_hs_is_dutch( string $msgid ): bool {
  */
 function tt_hs_file_violations( string $relative, string $source, ?array $only_lines = null ): array {
     $is_js  = substr( $relative, -3 ) === '.js';
-    $lines  = preg_split( '/\R/', $source ) ?: [];
+    // Split on "\n" only, as git numbers lines. `\R` without the u flag also
+    // breaks on byte 0x85, which sits inside multibyte characters such as ✅,
+    // and every line after one would be judged as its neighbour.
+    $lines  = array_map( static fn ( string $l ): string => rtrim( $l, "\r" ), explode( "\n", $source ) );
     $out    = [];
 
     foreach ( $lines as $index => $line ) {

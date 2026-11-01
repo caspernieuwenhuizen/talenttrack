@@ -231,6 +231,10 @@ Translation drift is gated and reported automatically by two workflows under `.g
   - **PHP:** `echo`, `print`, `printf`, `esc_html()` or `esc_attr()` of a literal that still has letters once markup and `%s` placeholders are stripped. Wrap it in `__()`, `esc_html__()`, `_e()` and friends. Markup-only literals (`'<div class="tt-card">'`) pass.
   - **A Dutch msgid:** a `talenttrack` msgid that reads as Dutch: two or more Dutch function words, or one plus a word spelled with "ij" or "aa". Msgids are English; the Dutch goes in the PR's `languages/pending/` fragment, so the string can still be translated into any other language.
 
+  A renamed or moved file is paired with its old path, so only the lines that changed are judged. A file moved into `src/` without edits passes.
+
+  **Known blind spot:** a literal that does not follow the `=` directly is not seen. `el.textContent = ( TT.i18n && TT.i18n.save ) || 'Save';` passes, so a pass does not mean "no English fallback".
+
   **Opt-out:** a trailing `/* tt-i18n-ok */` (PHP) or `// tt-i18n-ok` (JS) on the same line exempts it. Use it for data that only looks like copy (a team code, a CSS value, a fixture), never for words a reader sees.
 
   Run it before pushing, or print the whole backlog on `main`:

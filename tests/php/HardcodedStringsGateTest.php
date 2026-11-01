@@ -101,6 +101,34 @@ final class HardcodedStringsGateTest extends WP_UnitTestCase {
         $this->assertSame( [], tt_hs_php_line( "echo \"\\n<style id=\\\"tt-x\\\">\";" ), 'an escaped newline is not the letter n' );
     }
 
+    public function test_space_separated_markup_values_are_not_prose(): void {
+        $this->assertSame( [], tt_hs_php_line( "echo ' class=\"tt-card is-active\"';" ) );
+        $this->assertSame( [], tt_hs_php_line( "echo esc_attr( 'tt-btn tt-btn-secondary' );" ) );
+        $this->assertSame( [], tt_hs_php_line( "echo ' data-tt-sort=\"last_name asc\"';" ) );
+        $this->assertNotEmpty( tt_hs_php_line( "echo 'No players found';" ), 'prose still fails' );
+    }
+
+    public function test_js_escapes_are_one_character_not_letters(): void {
+        $this->assertSame( [], tt_hs_js_line( "b.textContent = '\\u00d7';" ), 'the multiplication sign' );
+        $this->assertSame( [], tt_hs_js_line( "b.textContent = '\\xa0';" ), 'a no-break space' );
+        $this->assertNotEmpty( tt_hs_js_line( "b.textContent = 'caf\\u00e9 open';" ), 'an escaped letter is still a letter' );
+    }
+
+    /**
+     * Byte 0x85 sits inside multibyte characters (✅ is E2 9C 85). Split as
+     * `\R` without the u flag, it counted as a line break and every later
+     * line was judged as its neighbour.
+     */
+    public function test_line_numbers_follow_git_past_a_multibyte_character(): void {
+        $source = "<?php\n\$icon = '✅';\n\$x = 1;\necho 'Old violation on main';\n\$clean = 3;\n";
+
+        $hits = tt_hs_file_violations( 'src/Icons.php', $source );
+
+        $this->assertArrayHasKey( 4, $hits, 'the echo is on line 4' );
+        $this->assertArrayNotHasKey( 5, $hits );
+        $this->assertSame( [], tt_hs_file_violations( 'src/Icons.php', $source, [ 5 => true ] ), 'only line 5 was added' );
+    }
+
     public function test_the_php_marker_exempts_a_line(): void {
         $this->assertSame( [], tt_hs_php_line( "echo 'U13'; /* tt-i18n-ok */" ) );
     }
@@ -163,6 +191,70 @@ final class HardcodedStringsGateTest extends WP_UnitTestCase {
         file_put_contents( $this->repo . '/assets/js/demo.js', "el.textContent = 'Old English';\n" . $head_js );
         $this->git( 'add', '-A' );
         $this->git( 'commit', '--quiet', '-m', 'head' );
+    }
+
+    /** A base commit with the given files; the head commit is the caller's. */
+    private function baseRepo( array $files ): void {
+        $this->repo = rtrim( sys_get_temp_dir(), '/\\' ) . '/tt-hs-gate-' . uniqid();
+        mkdir( $this->repo, 0777, true );
+        foreach ( $files as $relative => $body ) {
+            $this->put( $relative, $body );
+        }
+        $this->git( 'init', '--quiet', '-b', 'main' );
+        $this->git( 'config', 'user.email', 'gate@example.com' );
+        $this->git( 'config', 'user.name', 'Gate' );
+        $this->git( 'add', '-A' );
+        $this->git( 'commit', '--quiet', '-m', 'base' );
+        $this->git( 'branch', 'base' );
+    }
+
+    private function put( string $relative, string $body ): void {
+        $path = $this->repo . '/' . $relative;
+        if ( ! is_dir( dirname( $path ) ) ) {
+            mkdir( dirname( $path ), 0777, true );
+        }
+        file_put_contents( $path, $body );
+    }
+
+    private function commitHead(): void {
+        $this->git( 'add', '-A' );
+        $this->git( 'commit', '--quiet', '-m', 'head' );
+    }
+
+    public function test_a_renamed_file_is_judged_on_its_added_lines(): void {
+        $this->skip_without_git();
+        $body = "<?php\n" . str_repeat( "\$a = 1;\n", 20 );
+        $this->baseRepo( [ 'src/A/Old.php' => $body ] );
+        $this->git( 'mv', 'src/A/Old.php', 'src/B/New.php' );
+        $this->put( 'src/B/New.php', $body . "echo 'New violation added';\n" );
+        $this->commitHead();
+
+        $result = $this->gate();
+
+        $this->assertSame( 1, $result['status'], $result['output'] );
+        $this->assertStringContainsString( 'src/B/New.php:22', $result['output'] );
+    }
+
+    public function test_a_file_moved_into_src_without_edits_passes(): void {
+        $this->skip_without_git();
+        $this->baseRepo( [ 'legacy/Moved.php' => "<?php\necho 'Legacy violation here';\n" . str_repeat( "\$a = 1;\n", 10 ) ] );
+        $this->git( 'mv', 'legacy/Moved.php', 'src/B/Moved.php' );
+        $this->commitHead();
+
+        $result = $this->gate();
+
+        $this->assertSame( 0, $result['status'], $result['output'] );
+    }
+
+    public function test_an_added_line_after_a_multibyte_character_is_the_one_judged(): void {
+        $this->skip_without_git();
+        $this->baseRepo( [ 'src/Icons.php' => "<?php\n\$icon = '✅';\n\$x = 1;\necho 'Old violation on main';\n" ] );
+        $this->put( 'src/Icons.php', "<?php\n\$icon = '✅';\n\$x = 1;\necho 'Old violation on main';\n\$clean = 3;\n" );
+        $this->commitHead();
+
+        $result = $this->gate();
+
+        $this->assertSame( 0, $result['status'], $result['output'] );
     }
 
     /** @return array{status:int, output:string} */
