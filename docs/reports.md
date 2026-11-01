@@ -413,8 +413,9 @@ Because the audit reads the **same** recorded, actual, non-guest minutes as the
 minutes report, its numbers reconcile with that report exactly. That includes
 the one fallback both make: on a completed tournament match whose attendance
 holds no minutes at all (a match completed before the completion step asked for
-them), the rotation plan's minutes are shown, as in the minutes grid, the team
-minutes report and the player report. A minute confirmed on the attendance, 0 included, always wins. The honest-zero
+them), the rotation plan's minutes are shown, as in the minutes grid and every
+minutes report (the team and player minutes reports, Player · Minutes played,
+Team · Minutes distribution and Team · Minutes share). A minute confirmed on the attendance, 0 included, always wins. The honest-zero
 rules apply here too: a team with games but no recorded minutes shows every game,
 honest *Not recorded* chips, and a clear next-action note — never a misleading
 "0 players" empty state. An empty window (no games at all) says so distinctly.

@@ -88,7 +88,7 @@ final class MatchExecutionMissingAlert extends AbstractActivityAlert {
         $completed = ActivityLifecycle::completedClause( 'a' );
 
         // Minutes are the same predicate every minutes report reads
-        // (`MinutesQuery::persistedMinutes`): recorded, non-guest, effective
+        // (`MinutesQuery::minutesForActivities`): recorded, non-guest, effective
         // minutes above zero. A completed game with no minutes at all is
         // `AttendanceUnrecordedAlert`'s subject, not this one's.
         $sql = $wpdb->prepare(

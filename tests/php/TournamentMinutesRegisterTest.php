@@ -315,7 +315,95 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( 60, (int) $row['total_minutes'] );
     }
 
+    // ── the same number in all six places (#4549) ─────────────────────
+
+    /**
+     * Corrected 15 + confirmed 0 + the old fixture's plan 20 = 35, read
+     * from every surface that reports this player's minutes for the day:
+     * the grid, the audit, the `MinutesQuery` reports, Player · Minutes
+     * played, Team · Minutes distribution and Minutes share (query and
+     * REST) — plus the goal-intake season total and the recorded-match
+     * count. Before #4549 the last five read the empty register as 0.
+     */
+    public function test_the_same_minutes_in_all_six_places(): void {
+        $from = '2026-03-01';
+        $to   = '2026-03-31';
+
+        $grid  = ( new MinutesGridQuery() )->matrix( self::TEAM, $from, $to );
+        $cells = 0;
+        foreach ( $grid['cells'][ $this->player ] ?? [] as $cell ) {
+            $cells += (int) $cell['minutes'];
+        }
+
+        $audit = 0;
+        foreach ( ( new MinutesAuditQuery() )->matrix( self::TEAM, $from, $to )['games'] as $g ) {
+            if ( empty( $g['is_rollup'] ) ) $audit += (int) ( $g['minutes'][ $this->player ] ?? 0 );
+        }
+
+        $report = 0;
+        foreach ( ( new MinutesQuery() )->forTeam( self::TEAM, $from, $to ) as $row ) {
+            if ( (int) $row['player_id'] === $this->player ) $report = (int) $row['total_minutes'];
+        }
+
+        $played_html = $this->renderReport( 'renderPlayerMinutesPlayed', [ 'player_id' => (string) $this->player, 'from' => $from, 'to' => $to ] );
+        preg_match_all( '#<td class="num">(\d+)</td>#', $played_html, $m );
+        $played = array_sum( array_map( 'intval', $m[1] ) );
+
+        $dist_html = $this->renderReport( 'renderTeamMinutesDistribution', [ 'team_id' => (string) self::TEAM, 'from' => $from, 'to' => $to ] );
+        $dist = preg_match( '#<span>Toernooi Speler 7</span>.*?<span class="num">(\d+)</span>#s', $dist_html, $d ) ? (int) $d[1] : -1;
+
+        $share = ( new \TT\Modules\Analytics\Reports\MinutesShareQuery() )->forPlayer( self::TEAM, $this->player, $from, $to );
+
+        $req = new WP_REST_Request( 'GET', '/talenttrack/v1/teams/' . self::TEAM . '/minutes-share' );
+        $req->set_param( 'from', $from );
+        $req->set_param( 'to', $to );
+        $res  = rest_do_request( $req );
+        $body = (array) $res->get_data();
+        $data = isset( $body['data'] ) && is_array( $body['data'] ) ? $body['data'] : $body;
+        $rest = -1;
+        foreach ( (array) ( $data['players'] ?? [] ) as $p ) {
+            if ( (int) $p['player_id'] === $this->player ) $rest = (int) $p['minutes'];
+        }
+
+        $season = ( new MinutesQuery() )->seasonTotalsForPlayer( $this->player, $from, $to );
+        $counts = ( new MinutesQuery() )->matchCountsForTeam( self::TEAM, $from, $to );
+
+        $expected = 15 + 0 + 2 * self::PERIOD;
+        $this->assertSame( $expected, $season['minutes'], 'goal-intake season total' );
+        $this->assertSame( 2, $season['apps'], 'the corrected and the old fixture are appearances; the confirmed 0 is not' );
+        $this->assertSame( 2, $counts['recorded'], 'the old fixture counts as a recorded match, through its plan' );
+        $this->assertSame( $expected, $cells, 'minutes grid' );
+        $this->assertSame( $expected, $audit, 'minutes audit' );
+        $this->assertSame( $expected, $report, 'MinutesQuery reports' );
+        $this->assertSame( $expected, $played, 'Player · Minutes played' );
+        $this->assertSame( $expected, $dist, 'Team · Minutes distribution' );
+        $this->assertNotNull( $share );
+        $this->assertSame( $expected, $share['minutes'], 'Minutes share' );
+        $this->assertSame( 200, $res->get_status() );
+        $this->assertSame( $expected, $rest, 'GET /teams/{id}/minutes-share' );
+    }
+
     // ── helpers ───────────────────────────────────────────────────────
+
+    /**
+     * One of the standard reports, rendered with the given query.
+     *
+     * @param array<string, string> $query
+     */
+    private function renderReport( string $method, array $query ): string {
+        $saved = $_GET;
+        $_GET  = $query;
+        $m = new \ReflectionMethod( \TT\Shared\Frontend\FrontendStandardReportsView::class, $method );
+        $m->setAccessible( true );
+        ob_start();
+        try {
+            $m->invoke( null );
+        } finally {
+            $html = (string) ob_get_clean();
+            $_GET = $saved;
+        }
+        return $html;
+    }
 
     /** @return array<string,mixed> */
     private function auditRow( int $activity_id ): array {
