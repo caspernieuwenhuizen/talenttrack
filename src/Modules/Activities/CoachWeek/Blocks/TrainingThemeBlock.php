@@ -30,9 +30,19 @@ final class TrainingThemeBlock extends AbstractWeekBlock {
 
     public function available(): bool { return ModuleRegistry::isEnabled( TrainingModule::class ); }
 
+    /** persona => devices on by default (#4493); every other persona opts in. */
+    private const DEFAULTS = [
+        'head_coach'      => [ 'desktop' ],
+        'assistant_coach' => [ 'desktop' ],
+    ];
+
     public function defaultFor( string $persona, string $device ): bool {
-        if ( $device !== 'desktop' ) return false;
-        return $persona === 'head_coach' || $persona === 'assistant_coach';
+        return in_array( $device, self::DEFAULTS[ $persona ] ?? [], true );
+    }
+
+    /** No default and no fallback turns it on for a persona the table does not name. */
+    public function optInFor( string $persona ): bool {
+        return ! isset( self::DEFAULTS[ $persona ] );
     }
 
     public function rowDefaults(): array { return [ 'training_theme' => null ]; }

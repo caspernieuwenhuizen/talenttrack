@@ -169,6 +169,43 @@ final class CoachWeekTrainingBlocksTest extends WP_UnitTestCase {
         $this->assertStringNotContainsString( '3 of 3 present', $html );
     }
 
+    public function test_the_fallback_follows_the_defaults_table_for_the_assistant_coach(): void {
+        global $wpdb;
+        // Settings never saved: the older persona list (its default, head and
+        // assistant coach) decides, and each block's table still applies.
+        $wpdb->delete( $wpdb->prefix . 'tt_config', [ 'club_id' => 1, 'config_key' => CoachWeek::SETTINGS_KEY ] );
+        $settings = CoachWeek::settings();
+
+        $this->assertTrue( $settings['assistant_coach']['on'] );
+        $this->assertContains( 'training_theme', $settings['assistant_coach']['desktop'], 'the table gives the assistant the theme' );
+        $this->assertNotContains( 'att_rate', $settings['assistant_coach']['desktop'], 'but not attendance after the fact' );
+        $this->assertContains( 'att_rate', $settings['head_coach']['desktop'] );
+
+        $tuesday = $this->training( '2026-11-03' );
+        $this->runPlan( $tuesday, 'pressing' );
+        $this->record( $tuesday, [ 'Present', 'Late', 'Absent' ] );
+
+        $assistant = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        $wpdb->insert( $wpdb->prefix . 'tt_people', [
+            'club_id' => 1, 'first_name' => 'Week', 'last_name' => 'Assistent', 'role_type' => 'assistant_coach', 'wp_user_id' => $assistant, 'status' => 'active',
+        ] );
+        $person = (int) $wpdb->insert_id;
+        $wpdb->insert( $wpdb->prefix . 'tt_user_role_scopes', [ 'person_id' => $person, 'role_id' => 1, 'scope_type' => 'team', 'scope_id' => $this->team ] );
+        $wpdb->insert( $wpdb->prefix . 'tt_team_people', [
+            'club_id' => 1, 'team_id' => $this->team, 'person_id' => $person, 'role_in_team' => 'assistant_coach', 'is_head_coach' => 0,
+        ] );
+        \TT\Infrastructure\Security\AuthorizationService::flushCache();
+        $this->assertSame( 'assistant_coach', \TT\Modules\Authorization\PersonaResolver::landingPersona( $assistant ), 'precondition' );
+
+        $row = null;
+        foreach ( CoachWeek::forUser( $assistant, '2026-11-04' )['rows'] as $r ) {
+            if ( (int) $r['activity_id'] === $tuesday ) $row = $r;
+        }
+        $this->assertNotNull( $row );
+        $this->assertNull( $row['attendance_rate'], 'no "2 of 3 present" for the assistant on the fallback' );
+        $this->assertNotNull( $row['training_theme'] );
+    }
+
     public function test_both_blocks_are_switches_under_trainings_with_the_issue_defaults(): void {
         $method = new \ReflectionMethod( FrontendConfigurationView::class, 'renderCoachWeekConfig' );
         $method->setAccessible( true );

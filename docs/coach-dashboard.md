@@ -54,7 +54,7 @@ Your academy chooses what the panel shows, per role and per device, under **Conf
 
 The panel only covers teams the user may see, and a button only shows on a row whose team the user may change. A user whose week holds no team never sees the panel, whatever their role. Scouts and read-only observers get the availability counts only when you switch that block on for them.
 
-Until the settings are first saved, every role that already saw the panel keeps the whole panel on a desktop, team managers included. On a phone it leaves out the location and the training plan, and a team manager sees times, location, expected players and the opponent there. A team manager newly switched on after the settings are saved starts from that shorter set on both devices.
+Until the settings are first saved, every role that already saw the panel keeps the whole panel on a desktop, team managers included. On a phone it leaves out the location and the training plan, and a team manager sees times, location, expected players and the opponent there. A team manager newly switched on after the settings are saved starts from that shorter set on both devices. Blocks that came after that panel, such as the training theme and attendance after the fact, follow their own defaults for each role, also before the first save.
 
 ## Tiles you'll use most
 
