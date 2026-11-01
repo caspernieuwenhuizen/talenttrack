@@ -117,4 +117,17 @@ interface CustomDataSource {
      * @return list<array<string,mixed>>
      */
     public function aggregations(): array;
+
+    /**
+     * #4566 — compute one declared aggregation over every row the filters
+     * select: the number a KPI widget shows. Same tenancy, demo scope and
+     * filters as `fetch()`, but over the whole set rather than a page of
+     * it — `fetch()` with a limit of 1 cannot count anything.
+     *
+     * Returns null for an aggregation the source does not declare, or when
+     * there is nothing to average.
+     *
+     * @param array<string,mixed> $filters
+     */
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float;
 }

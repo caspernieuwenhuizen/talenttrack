@@ -65,10 +65,26 @@ final class PlayersActive implements CustomDataSource {
         ];
     }
 
-    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
+    /**
+     * The upper age (exclusive) of each age-range option: `u13` is a player
+     * who has not yet turned 13.
+     */
+    private const AGE_RANGE_UNDER = [ 'u9' => 9, 'u11' => 11, 'u13' => 13, 'u15' => 15, 'u17' => 17, 'u19' => 19 ];
 
+    /**
+     * The WHERE the rows and the aggregate share: club, not archived, and
+     * the declared filters.
+     *
+     * #4566 — `age_range` was declared and accepted but never applied. It
+     * keeps a player who has not yet reached the option's age today: their
+     * date of birth is later than that many years ago. A player without a
+     * date of birth cannot be placed in an age range and is left out of a
+     * filtered set.
+     *
+     * @param array<string,mixed> $filters
+     * @return array{0:list<string>, 1:list<int|string>}
+     */
+    private function whereFor( array $filters ): array {
         $where  = [ 'p.club_id = %d', "p.status <> 'archived'" ];
         $params = [ CurrentClub::id() ];
 
@@ -77,6 +93,38 @@ final class PlayersActive implements CustomDataSource {
             $where[]  = 'p.team_id = %d';
             $params[] = $team_id;
         }
+
+        $range = isset( $filters['age_range'] ) ? strtolower( (string) $filters['age_range'] ) : '';
+        if ( isset( self::AGE_RANGE_UNDER[ $range ] ) ) {
+            $where[]  = 'p.date_of_birth IS NOT NULL AND p.date_of_birth > DATE_SUB( CURDATE(), INTERVAL %d YEAR )';
+            $params[] = self::AGE_RANGE_UNDER[ $range ];
+        }
+
+        return [ $where, $params ];
+    }
+
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float {
+        $select = [
+            'count'          => 'COUNT(*)',
+            'distinct_teams' => 'COUNT( DISTINCT p.team_id )',
+        ];
+        if ( ! isset( $select[ $aggregation_key ] ) ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        [ $where, $params ] = $this->whereFor( $filters );
+
+        $sql = "SELECT {$select[ $aggregation_key ]} FROM {$p}tt_players p WHERE " . implode( ' AND ', $where );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (float) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+    }
+
+    public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        [ $where, $params ] = $this->whereFor( $filters );
 
         $sql = "SELECT p.id, p.first_name, p.last_name, p.position, p.status, p.team_id, p.date_of_birth,
                        t.name AS team_name

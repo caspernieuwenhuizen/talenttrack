@@ -41,6 +41,40 @@ final class ActivitiesRecent implements CustomDataSource {
         ];
     }
 
+    /**
+     * #4566 — one SQL COUNT over the source's activities, with the declared
+     * filters. The date range reads `session_date`, the activities table's
+     * date column: there is no `start_at` on `tt_activities` (see
+     * `AnalyticsModule::registerInitialFacts()`), so a count keyed on it
+     * would fail outright.
+     */
+    public function aggregate( int $user_id, array $filters, string $aggregation_key ): ?float {
+        if ( $aggregation_key !== 'count' ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 'a.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
+        if ( ! empty( $filters['date_from'] ) ) {
+            $where[]  = 'a.session_date >= %s';
+            $params[] = (string) $filters['date_from'];
+        }
+        if ( ! empty( $filters['date_to'] ) ) {
+            $where[]  = 'a.session_date <= %s';
+            $params[] = (string) $filters['date_to'];
+        }
+        $team_id = isset( $filters['team_id'] ) ? (int) $filters['team_id'] : 0;
+        if ( $team_id > 0 ) {
+            $where[]  = 'a.team_id = %d';
+            $params[] = $team_id;
+        }
+
+        $sql = "SELECT COUNT(*) FROM {$p}tt_activities a WHERE " . implode( ' AND ', $where );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (float) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+    }
+
     public function fetch( int $user_id, array $filters, array $column_keys, int $limit = 100 ): array {
         global $wpdb;
         $p = $wpdb->prefix;
