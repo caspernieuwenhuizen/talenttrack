@@ -36,13 +36,16 @@ final class EvalFormPresetPlayerScopeTest extends WP_UnitTestCase {
         $wpdb->insert( "{$p}tt_players", [
             'club_id' => 1, 'first_name' => 'Ownpreset', 'last_name' => 'Kidx',
             'team_id' => $this->own_team, 'status' => 'active',
+            'wp_user_id' => self::factory()->user->create( [ 'role' => 'tt_player' ] ),
         ] );
         $this->own_player = (int) $wpdb->insert_id;
         $wpdb->insert( "{$p}tt_players", [
             'club_id' => 1, 'first_name' => 'Otherpreset', 'last_name' => 'Kidx',
             'team_id' => $other_team, 'status' => 'active',
+            'wp_user_id' => self::factory()->user->create( [ 'role' => 'tt_player' ] ),
         ] );
         $this->other = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $this->own_player * $this->other, 'fixture: both player rows were written' );
 
         $this->coach = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
         $wpdb->insert( "{$p}tt_people", [

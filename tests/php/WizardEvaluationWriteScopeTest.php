@@ -127,7 +127,10 @@ final class WizardEvaluationWriteScopeTest extends WP_UnitTestCase {
         $wpdb->insert( "{$wpdb->prefix}tt_players", [
             'club_id' => (int) CurrentClub::id(), 'team_id' => $team_id,
             'first_name' => $first, 'last_name' => 'Kidx', 'status' => 'active',
+            'wp_user_id' => self::factory()->user->create( [ 'role' => 'tt_player' ] ),
         ] );
-        return (int) $wpdb->insert_id;
+        $id = (int) $wpdb->insert_id;
+        $this->assertGreaterThan( 0, $id, 'fixture: the player row was written' );
+        return $id;
     }
 }
