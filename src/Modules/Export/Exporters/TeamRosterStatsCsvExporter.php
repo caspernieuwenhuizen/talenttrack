@@ -137,36 +137,17 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
         ) );
         $roster = is_array( $roster ) ? $roster : [];
 
-        // #4556 — minutes played are the minutes reports' own read
-        // (`MinutesQuery::minutesForActivities()`): the coach's override, a
-        // duplicate row read once, guests left out, and an old tournament
-        // fixture's plan. This summed raw `minutes_played` over every
-        // completed activity, trainings and guest rows included. The query
-        // names the completed matches each player is on the register of.
+        // #4556 — minutes played are the team minutes report's own totals,
+        // `MinutesQuery::forTeam()` for this team and window: the same
+        // matches (the team's, not archived, not trashed, not cancelled, no
+        // completed status needed) and the same minutes (the coach's
+        // override, a duplicate row read once, guests left out, an old
+        // tournament fixture's plan). This summed raw `minutes_played` over
+        // every completed activity of any team, trainings, guest, archived
+        // and trashed rows included, so the export and the report disagreed.
         $minutes_total = [];
-        $player_ids    = array_values( array_filter( array_map( static fn( $r ): int => (int) ( $r->id ?? 0 ), $roster ) ) );
-        if ( $player_ids !== [] ) {
-            $in    = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-            $pairs = $wpdb->get_results( $wpdb->prepare(
-                "SELECT DISTINCT att.player_id, att.activity_id
-                   FROM {$p}tt_attendance att
-                   INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                  WHERE att.player_id IN ($in)
-                    AND att.club_id = %d
-                    AND att.record_type = 'actual'
-                    AND att.is_guest = 0
-                    AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
-                    AND {$completed}
-                    AND a.session_date BETWEEN %s AND %s",
-                array_merge( $player_ids, [ $club_id, $date_from, $date_to ] )
-            ) );
-            $pairs   = is_array( $pairs ) ? $pairs : [];
-            $minutes = MinutesQuery::minutesForActivities( array_map( static fn( $r ): int => (int) ( $r->activity_id ?? 0 ), $pairs ) );
-            foreach ( $pairs as $r ) {
-                $pid = (int) ( $r->player_id ?? 0 );
-                $minutes_total[ $pid ] = ( $minutes_total[ $pid ] ?? 0 ) + (int) ( $minutes[ (int) ( $r->activity_id ?? 0 ) ][ $pid ] ?? 0 );
-            }
+        foreach ( ( new MinutesQuery() )->forTeam( $team_id, $date_from, $date_to ) as $row ) {
+            $minutes_total[ (int) $row['player_id'] ] = (int) $row['total_minutes'];
         }
 
         $headers = [

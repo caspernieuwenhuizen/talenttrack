@@ -435,8 +435,8 @@ final class MinutesQuery {
      *    when neither has one.
      *  - `source`: `TournamentMinutesResolver::SOURCE_REGISTER` or
      *    `SOURCE_PLAN`, null with no figure. A plan figure is shown where
-     *    minutes are reported, but it is not a recorded one: the audit
-     *    reads the source to tell the two apart.
+     *    minutes are reported, but it is not a recorded one; a caller that
+     *    has to tell the two apart reads the source.
      *
      * Only players on the register: a player the plan names who was never
      * registered for the fixture is not in its squad, which is how the grid

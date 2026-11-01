@@ -86,6 +86,47 @@ final class MinutesOneReadSurfacesTest extends WP_UnitTestCase {
         }
     }
 
+    /**
+     * Hidde's cases on #4592: the CSV and the team report count the same
+     * matches. An archived match counts in neither; minutes typed into the
+     * grid on a match nobody marked completed (#2407) count in both.
+     */
+    public function test_the_csv_and_the_team_report_count_the_same_matches(): void {
+        global $wpdb;
+        $archived = $this->insertMatch( '2026-09-19' );
+        $this->actual( $archived, $this->dup, 30 );
+        $wpdb->update( "{$this->p}tt_activities", [ 'archived_at' => current_time( 'mysql' ) ], [ 'id' => $archived ] );
+
+        $open = $this->insertMatch( '2026-09-20', 'scheduled' );
+        $this->actual( $open, $this->zero, 25 );
+
+        $csv  = $this->csvMinutes();
+        $team = $this->forTeamTotals();
+
+        $this->assertSame( 60, $team[ $this->dup ] ?? 0, 'the archived match is left out of the report' );
+        $this->assertSame( 60, $csv[ $this->dup ] ?? 0, 'and out of the CSV' );
+        $this->assertSame( 25, $team[ $this->zero ] ?? 0, 'grid minutes on an uncompleted match count in the report' );
+        $this->assertSame( 25, $csv[ $this->zero ] ?? 0, 'and in the CSV' );
+    }
+
+    /**
+     * The "played" predicate reads the chosen row: a match still to come
+     * whose duplicate was corrected to 0 has no minutes, so it is not
+     * played yet; one with minutes on its chosen row is.
+     */
+    public function test_played_reads_the_chosen_row(): void {
+        $window_from = '2099-05-01';
+        $window_to   = '2099-05-31';
+
+        $corrected = $this->insertMatch( '2099-05-10', 'scheduled' );
+        $this->actual( $corrected, $this->dup, 70 );
+        $this->actual( $corrected, $this->dup, 0 );
+        $this->assertSame( 0, ( new MinutesQuery() )->matchCountsForTeam( $this->team, $window_from, $window_to )['played'], 'a duplicate corrected to 0 does not make it played' );
+
+        $this->actual( $this->insertMatch( '2099-05-17', 'scheduled' ), $this->dup, 45 );
+        $this->assertSame( 1, ( new MinutesQuery() )->matchCountsForTeam( $this->team, $window_from, $window_to )['played'], 'minutes on the chosen row do' );
+    }
+
     public function test_the_shared_read_carries_the_source(): void {
         $entries = MinutesQuery::playerMatchMinutes( [ $this->match ] );
 
@@ -157,7 +198,7 @@ final class MinutesOneReadSurfacesTest extends WP_UnitTestCase {
         return (int) $wpdb->insert_id;
     }
 
-    private function insertMatch( string $date ): int {
+    private function insertMatch( string $date, string $status = 'completed' ): int {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_activities", [
             'club_id'              => $this->club,
@@ -166,8 +207,8 @@ final class MinutesOneReadSurfacesTest extends WP_UnitTestCase {
             'session_date'         => $date,
             'activity_type_key'    => 'match',
             'game_subtype_key'     => 'League',
-            'activity_status_key'  => 'completed',
-            'plan_state'           => 'completed',
+            'activity_status_key'  => $status,
+            'plan_state'           => $status === 'completed' ? 'completed' : 'planned',
             'match_length_minutes' => 70,
         ] );
         return (int) $wpdb->insert_id;

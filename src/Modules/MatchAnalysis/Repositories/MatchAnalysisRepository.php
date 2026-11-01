@@ -450,6 +450,11 @@ class MatchAnalysisRepository {
      * Returns the row id on write, 0 on delete / no-op, so the caller can
      * decide whether a journey event should follow.
      *
+     * #4556 — the `minutes_played` column is no longer written. The analysis
+     * shows the minutes reports' own read (`MinutesQuery::squadForActivity()`),
+     * and a copy that is written and never read drifts quietly. The column
+     * stays, with whatever older rows hold, until a migration drops it.
+     *
      * @param list<array{valence:string, body:string}> $items
      */
     public function savePlayerItem(
@@ -457,8 +462,7 @@ class MatchAnalysisRepository {
         int $player_id,
         string $marker,
         array $items,
-        ?string $team_function,
-        ?int $minutes_played
+        ?string $team_function
     ): int {
         if ( $analysis_id <= 0 || $player_id <= 0 ) return 0;
 
@@ -484,10 +488,9 @@ class MatchAnalysisRepository {
         // `note` is deliberately absent — see the class docblock: the old
         // column is the rollback net, so it is read never and written never.
         $data = [
-            'marker'         => $marker,
-            'team_function'  => $team_function,
-            'minutes_played' => $minutes_played,
-            'updated_at'     => current_time( 'mysql' ),
+            'marker'        => $marker,
+            'team_function' => $team_function,
+            'updated_at'    => current_time( 'mysql' ),
         ];
 
         if ( $existing > 0 ) {

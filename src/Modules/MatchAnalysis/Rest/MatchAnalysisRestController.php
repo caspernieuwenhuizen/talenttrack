@@ -488,11 +488,7 @@ class MatchAnalysisRestController {
             }
         }
 
-        ( new MatchAnalysisWriter() )->apply(
-            $analysis_id,
-            $body,
-            self::minutesByPlayer( $payload )
-        );
+        ( new MatchAnalysisWriter() )->apply( $analysis_id, $body );
 
         $fresh = $composer->forActivity( $activity_id, false );
 
@@ -570,13 +566,10 @@ class MatchAnalysisRestController {
         $payload = ( new MatchAnalysisComposer() )->forActivity( $activity_id, true );
         if ( $payload === null ) return self::not_a_match();
 
-        $minutes = self::minutesByPlayer( $payload );
-
         ( new MatchAnalysisWriter() )->savePlayerItem(
             (int) $payload['analysis_id'],
             $player_id,
-            $body,
-            $minutes[ $player_id ] ?? null
+            $body
         );
 
         return RestResponse::success( [ 'player_id' => $player_id ] );
@@ -701,22 +694,6 @@ class MatchAnalysisRestController {
         if ( is_array( $body ) ) return $body;
 
         return (array) $r->get_body_params();
-    }
-
-    /**
-     * player id => minutes, as the composer resolved them. Snapshotted onto
-     * the item so a printed or shared analysis still says how long a player
-     * was on the pitch after the attendance row has moved on.
-     *
-     * @param array<string,mixed> $payload
-     * @return array<int,?int>
-     */
-    private static function minutesByPlayer( array $payload ): array {
-        $out = [];
-        foreach ( (array) $payload['players'] as $row ) {
-            $out[ (int) $row['player_id'] ] = $row['minutes'] !== null ? (int) $row['minutes'] : null;
-        }
-        return $out;
     }
 
     /**
