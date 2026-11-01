@@ -346,6 +346,17 @@ final class CoachWeekBlocksTest extends WP_UnitTestCase {
         $this->assertMatchesRegularExpression( '#<summary class="tt-week-fold-summary"><span class="[^"]*">[^<]*1 activity#', $html );
     }
 
+    public function test_a_title_link_gets_the_tap_floor_on_a_touch_screen(): void {
+        $css = (string) file_get_contents( dirname( __DIR__, 2 ) . '/assets/css/frontend-coach-week.css' );
+        $css = (string) preg_replace( '#/\*.*?\*/#s', '', $css );
+
+        $this->assertMatchesRegularExpression(
+            '/@media\s*\(\s*pointer\s*:\s*coarse\s*\)\s*\{\s*\.tt-week-what-link\s*\{[^}]*min-height\s*:\s*var\(--tt-tap-min[^}]*\}/',
+            $css,
+            'a row with no button is tapped on its title, which needs the 48px floor'
+        );
+    }
+
     public function test_the_peek_lists_the_first_two_activities_of_next_week(): void {
         $first  = $this->activity( $this->team, '2026-11-10', 'training', 'Next one' );
         $second = $this->activity( $this->team, '2026-11-12', 'training', 'Next two' );

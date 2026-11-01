@@ -274,6 +274,17 @@ a.tt-week-row:active {
     touch-action: manipulation;
 }
 
+/* On a touch screen the title link is the row's only target: give it the
+ * tap floor, with the eyebrow and title centred in it. */
+@media (pointer: coarse) {
+    .tt-week-what-link {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: var(--tt-tap-min, 48px);
+    }
+}
+
 /* #4492 — the first activities of next week, below the list. */
 .tt-week-next {
     display: grid;
@@ -431,6 +442,7 @@ a.tt-week-row:active {
 /* Off: a dashed outline, so the text keeps full contrast. */
 .tt-coach-week-config__pill.is-off span {
     border-style: dashed;
+    border-color: var(--tt-muted);
     color: var(--tt-ink);
 }
 
