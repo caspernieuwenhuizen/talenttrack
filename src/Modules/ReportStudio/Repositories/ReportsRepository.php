@@ -400,7 +400,7 @@ final class ReportsRepository {
             'published_version_id' => $nullable( 'published_version_id' ),
             'created_at'           => (string) ( $row['created_at'] ?? '' ),
             'updated_at'           => (string) ( $row['updated_at'] ?? '' ),
-            'archived_at'          => isset( $row['archived_at'] ) && $row['archived_at'] !== null ? (string) $row['archived_at'] : null,
+            'archived_at'          => isset( $row['archived_at'] ) ? (string) $row['archived_at'] : null,
         ];
     }
 

@@ -134,7 +134,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
             $res = $this->send( 'POST', 'reports', $body );
             $this->assertSame( 400, $res->get_status(), $field );
             $this->assertSame( 'invalid_field', $this->code( $res ), $field );
-            $this->assertSame( $field, $res->get_data()['errors'][0]['details']['field'] ?? null, $field );
+            $this->assertSame( $field, $this->details( $res )['field'] ?? null, $field );
         }
 
         $unknown = $this->send( 'POST', 'reports', [ 'scope' => 'me', 'colour' => 'red' ] );
@@ -202,7 +202,7 @@ final class ReportsRestTest extends WP_UnitTestCase {
         $stale = $this->send( 'PATCH', "reports/{$id}", [ 'definition' => [ 'blocks' => [] ], 'revision' => 0 ] );
         $this->assertSame( 409, $stale->get_status() );
         $this->assertSame( 'stale_revision', $this->code( $stale ) );
-        $this->assertSame( 1, $stale->get_data()['errors'][0]['details']['current_revision'] );
+        $this->assertSame( 1, $this->details( $stale )['current_revision'] ?? null );
     }
 
     public function test_one_builder_never_writes_another_builders_draft(): void {
@@ -372,6 +372,11 @@ final class ReportsRestTest extends WP_UnitTestCase {
 
     private function code( WP_REST_Response $res ): string {
         return (string) ( $res->get_data()['errors'][0]['code'] ?? '' );
+    }
+
+    /** The first error's details, which the envelope carries as an object. @return array<string,mixed> */
+    private function details( WP_REST_Response $res ): array {
+        return (array) ( $res->get_data()['errors'][0]['details'] ?? [] );
     }
 
     private function player( int $team, string $first ): int {

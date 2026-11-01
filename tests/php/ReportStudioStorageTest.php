@@ -109,9 +109,14 @@ final class ReportStudioStorageTest extends WP_UnitTestCase {
         $repo   = new ArchiveRepository();
 
         $this->assertSame( 1, $repo->archive( 'report', [ $report ], 1 ) );
-        $this->assertNotNull( ( new ReportsRepository() )->find( $report )['archived_at'] ?? null );
+        $archived = ( new ReportsRepository() )->find( $report );
+        $this->assertNotNull( $archived );
+        $this->assertNotNull( $archived['archived_at'] );
+
         $this->assertSame( 1, $repo->restore( 'report', [ $report ] ) );
-        $this->assertNull( ( new ReportsRepository() )->find( $report )['archived_at'] ?? 'not restored' );
+        $restored = ( new ReportsRepository() )->find( $report );
+        $this->assertNotNull( $restored );
+        $this->assertNull( $restored['archived_at'] );
     }
 
     /**

@@ -66,28 +66,20 @@ final class ReportStartRules {
      * @return array{kind:string, scope:string, binding:string, audience:string, period_mode:string, period_value:string, layout:string, sharing:string, name:string, player_id:?int, team_id:?int, cohort:?array{team_ids:list<int>, age_group:string, position:string}}|StudioError
      */
     public static function validate( array $in, int $user_id ): array|StudioError {
-        $vocabulary = [
-            'kind'        => [ self::KINDS, self::KIND_REPORT ],
-            'scope'       => [ ReportContext::SCOPES, '' ],
-            'binding'     => [ self::BINDINGS, self::BINDING_FIXED ],
-            'audience'    => [ [ PlayerReportAudience::INTERNAL, PlayerReportAudience::SCOUT, PlayerReportAudience::FAMILY ], PlayerReportAudience::INTERNAL ],
-            'period_mode' => [ self::PERIOD_MODES, self::PERIOD_ON_OPEN ],
-            'layout'      => [ self::LAYOUTS, self::LAYOUT_ROWS ],
-            'sharing'     => [ self::SHARINGS, self::SHARING_ME ],
-        ];
-        $choices = [];
-        foreach ( $vocabulary as $field => [ $allowed, $default ] ) {
-            $value = self::choice( $in, $field, $allowed, $default );
-            if ( $value === null ) return self::invalid( $field, self::vocabularyMessage( $field ) );
-            $choices[ $field ] = $value;
-        }
-        $kind     = $choices['kind'];
-        $scope    = $choices['scope'];
-        $binding  = $choices['binding'];
-        $audience = $choices['audience'];
-        $period   = $choices['period_mode'];
-        $layout   = $choices['layout'];
-        $sharing  = $choices['sharing'];
+        $kind = self::pick( $in, 'kind', self::KINDS, self::KIND_REPORT );
+        if ( $kind instanceof StudioError ) return $kind;
+        $scope = self::pick( $in, 'scope', ReportContext::SCOPES, '' );
+        if ( $scope instanceof StudioError ) return $scope;
+        $binding = self::pick( $in, 'binding', self::BINDINGS, self::BINDING_FIXED );
+        if ( $binding instanceof StudioError ) return $binding;
+        $audience = self::pick( $in, 'audience', [ PlayerReportAudience::INTERNAL, PlayerReportAudience::SCOUT, PlayerReportAudience::FAMILY ], PlayerReportAudience::INTERNAL );
+        if ( $audience instanceof StudioError ) return $audience;
+        $period = self::pick( $in, 'period_mode', self::PERIOD_MODES, self::PERIOD_ON_OPEN );
+        if ( $period instanceof StudioError ) return $period;
+        $layout = self::pick( $in, 'layout', self::LAYOUTS, self::LAYOUT_ROWS );
+        if ( $layout instanceof StudioError ) return $layout;
+        $sharing = self::pick( $in, 'sharing', self::SHARINGS, self::SHARING_ME );
+        if ( $sharing instanceof StudioError ) return $sharing;
 
         $name = is_string( $in['name'] ?? null ) ? trim( (string) $in['name'] ) : '';
         if ( mb_strlen( $name ) > self::MAX_NAME ) {
@@ -212,6 +204,17 @@ final class ReportStartRules {
         $position = is_string( $raw['position'] ?? null ) ? strtoupper( sanitize_key( (string) $raw['position'] ) ) : '';
 
         return [ 'team_ids' => array_values( $teams ), 'age_group' => $age, 'position' => $position ];
+    }
+
+    /**
+     * One starting choice, or the refusal naming its field.
+     *
+     * @param list<string>        $allowed
+     * @param array<string,mixed> $in
+     */
+    private static function pick( array $in, string $field, array $allowed, string $default ): string|StudioError {
+        $value = self::choice( $in, $field, $allowed, $default );
+        return $value ?? self::invalid( $field, self::vocabularyMessage( $field ) );
     }
 
     /**

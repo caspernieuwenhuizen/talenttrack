@@ -218,7 +218,7 @@ final class ReportsRestController extends BaseController {
         $user_id = get_current_user_id();
         $result  = ( new ReportsRepository() )->listFor(
             $user_id,
-            PersonaResolver::personasFor( $user_id ),
+            array_values( PersonaResolver::personasFor( $user_id ) ),
             [ 'kind' => $values['kind'], 'scope' => $values['scope'], 'owner' => $values['owner'], 'archived' => $values['archived'] ],
             $page,
             $per_page,
