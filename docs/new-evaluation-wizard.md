@@ -60,6 +60,8 @@ Attendance is saved at this point, so the wizard asks whether you want to rate t
 
 For each present/late player, you get a row per **quick-rate** category (Technical, Tactical, Physical, Mental by default — clubs can flip individual categories on or off via Configuration → Evaluation Categories). Type a number 1-5 (or whatever your rating-scale max is configured to).
 
+On a **match**, the list is the players who were on the pitch: the line-up and the substitutes who came on, a guest from another team included. Bench players who never came on are not listed. Everyone on the list can be rated, whether or not the match's register was recorded.
+
 Each player has a **Skip** checkbox if you genuinely don't want to evaluate them this round — skipping writes no evaluation row, but the player still shows up in attendance.
 
 Add per-player notes inline. The deep-rate panel for a single player is a follow-up — for v1, the quick-rate row + the notes textarea are the surface.

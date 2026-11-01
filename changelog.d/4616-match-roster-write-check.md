@@ -1,0 +1,3 @@
+# Evaluation wizard: a match's rate roster and its write check read one answer (#4616)
+
+On a match whose register was never recorded (it wasn't run through match execution, or the recompute gave up), the evaluation wizard offered a linked guest from another team on the rate screen and then refused to save their rating. Who took part in a match now also counts the line-up and the substitutes who came on (reversed substitutions left out), the same set the rate screen lists. So every player the wizard offers can be rated. A player who wasn't in the line-up, didn't come on and has no register row is still refused.

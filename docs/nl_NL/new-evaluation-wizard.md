@@ -61,6 +61,8 @@ De aanwezigheid is nu opgeslagen, dus de wizard vraagt of je de aanwezige speler
 
 Voor elke aanwezige/te-late speler krijg je een rij per **snelbeoordeel-categorie** (standaard Technisch / Tactisch / Fysiek / Mentaal — clubs kunnen individuele categorieën aan/uit zetten via Configuratie → Evaluatiecategorieën). Typ een getal 1-5 (of wat je rating-schaal-max ook is).
 
+Bij een **wedstrijd** staan in de lijst de spelers die op het veld stonden: de opstelling en de wissels die erin kwamen, een gastspeler van een ander team inbegrepen. Bankspelers die er niet in kwamen staan er niet in. Iedereen in de lijst kun je beoordelen, of de presentielijst van de wedstrijd nu is vastgelegd of niet.
+
 Elke speler heeft een **Overslaan**-checkbox als je echt niet wilt beoordelen dit ronde — overslaan schrijft geen evaluatie-rij, maar de speler verschijnt nog steeds in aanwezigheid.
 
 Voeg per-speler notities inline toe. Het deep-rate-panel voor een enkele speler is een follow-up — voor v1 zijn de snelbeoordeel-rij + het notities-tekstveld het oppervlak.

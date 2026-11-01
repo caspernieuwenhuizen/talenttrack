@@ -562,8 +562,11 @@ final class AttendanceWriter {
      * The players who took part in an activity: a recorded register row
      * (`actual`) marked present or late. A linked guest counts through
      * `guest_player_id`, the column a guest row names its player in; an
-     * anonymous guest has no player and does not. The evaluation wizard's
-     * rate roster and its write check both read this one answer.
+     * anonymous guest has no player and does not. On a match, the line-up
+     * and the substitutes who came on count too, whether or not a register
+     * was ever recorded: that is the set the evaluation wizard's rate roster
+     * offers for a match. The roster and the wizard's write check read this
+     * one answer for every activity type.
      *
      * @return list<int>
      */
@@ -579,7 +582,47 @@ final class AttendanceWriter {
                 AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )",
             $activity_id, CurrentClub::id()
         ) );
-        return array_values( array_filter( array_map( 'intval', (array) $ids ), static fn( int $id ): bool => $id > 0 ) );
+        $ids = array_merge( array_map( 'intval', (array) $ids ), self::onPitchPlayerIds( $activity_id ) );
+        return array_values( array_unique( array_filter( $ids, static fn( int $id ): bool => $id > 0 ) ) );
+    }
+
+    /**
+     * A match's line-up (the positions its layout draws) and the
+     * substitutes who came on, reversed substitutions left out. The same
+     * reads `RateActorsStep::ratablePlayersForMatch()` makes. Empty for any
+     * other activity type.
+     *
+     * @return list<int>
+     */
+    private static function onPitchPlayerIds( int $activity_id ): array {
+        global $wpdb;
+        $p        = $wpdb->prefix;
+        $club_id  = CurrentClub::id();
+        $type_key = strtolower( (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT activity_type_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, $club_id
+        ) ) );
+        // The legacy 'game' key and the post-#988 'match' key both denote a match.
+        if ( $type_key !== 'match' && $type_key !== 'game' ) return [];
+
+        $prep_repo = new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
+        if ( ! $prep ) return [];
+
+        $ids = [];
+        foreach ( $prep_repo->listLineupForPrep( $prep ) as $row ) {
+            $ids[] = (int) ( ( (array) $row )['player_id'] ?? 0 );
+        }
+        $exec = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( $activity_id );
+        if ( $exec ) {
+            $subs = $wpdb->get_col( $wpdb->prepare(
+                "SELECT DISTINCT player_on_id FROM {$p}tt_match_execution_substitutions
+                  WHERE execution_id = %d AND club_id = %d AND reversed_at IS NULL",
+                (int) $exec->id, $club_id
+            ) );
+            foreach ( (array) $subs as $pid ) $ids[] = (int) $pid;
+        }
+        return $ids;
     }
 
     public static function announce( int $activity_id ): void {
