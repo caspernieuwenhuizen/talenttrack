@@ -1,0 +1,8 @@
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php
+msgid "Attendance saved"
+msgstr "Aanwezigheid opgeslagen"
+
+#: src/Modules/Wizards/Evaluation/RateConfirmStep.php
+msgctxt "mark attendance wizard button"
+msgid "Finish"
+msgstr "Afronden"

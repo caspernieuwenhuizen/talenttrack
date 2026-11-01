@@ -57,6 +57,17 @@ final class RateConfirmStep implements WizardStepInterface {
         $present = self::countRatable( $aid );
         $empty   = EmptyRegisterConfirm::applies( $aid );
         $guard   = $empty ? EmptyRegisterConfirm::guardAttributes( $aid, get_current_user_id() ) : '';
+        if ( self::registerOnly( $state ) ) {
+            ?>
+            <p class="tt-rate-confirm-intro"><?php esc_html_e( 'Attendance saved', 'talenttrack' ); ?></p>
+            <div class="tt-rate-confirm-actions">
+                <button type="submit" name="_rate_choice" value="skip_open" class="tt-btn tt-btn-primary tt-rate-confirm-btn" formnovalidate<?php echo $guard; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_attr() in guardAttributes() ?>>
+                    <?php echo esc_html( _x( 'Finish', 'mark attendance wizard button', 'talenttrack' ) ); ?>
+                </button>
+            </div>
+            <?php
+            return;
+        }
         ?>
         <p class="tt-rate-confirm-intro">
             <?php
@@ -115,6 +126,11 @@ final class RateConfirmStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
+        // Forced rather than trusted: a crafted "yes" must not reach the
+        // rating steps for someone who only takes the register.
+        if ( self::registerOnly( $state ) ) {
+            return [ '_skip_rating' => 1, '_skip_closes_rating' => 0 ];
+        }
         $choice = isset( $post['_rate_choice'] ) ? sanitize_key( (string) $post['_rate_choice'] ) : '';
         // Three-way choice: "skip_closed" sets `evaluation_skipped=1` on
         // the activity so the eval-wizard's picker filters it out;
@@ -125,6 +141,20 @@ final class RateConfirmStep implements WizardStepInterface {
             '_skip_rating'        => $skip ? 1 : 0,
             '_skip_closes_rating' => $closed ? 1 : 0,
         ];
+    }
+
+    /**
+     * Takes the register on this activity but does not write it, as a team
+     * manager does: the rating fork is not offered, only a Finish.
+     *
+     * @param array<string,mixed> $state
+     */
+    public static function registerOnly( array $state ): bool {
+        $aid = (int) ( $state['activity_id'] ?? 0 );
+        $uid = get_current_user_id();
+        return $aid > 0
+            && \TT\Modules\Activities\ActivityAccess::canTakeRegister( $uid, $aid )
+            && ! \TT\Modules\Activities\ActivityAccess::canWriteActivity( $uid, $aid );
     }
 
     public function nextStep( array $state ): ?string {

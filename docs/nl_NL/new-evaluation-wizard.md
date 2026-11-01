@@ -29,6 +29,15 @@ knoppen en de knop *Een activiteit evalueren* van deze wizard bereiken
 allemaal hetzelfde `mode=activity`-pad. (De oude `mark-attendance`-link
 werkt nog steeds — die verwijst naar deze wizard met het activiteitpad.)
 
+**Wie Aanwezigheid registreren kan openen:** iedereen die voor een team
+de presentielijst mag bijhouden, dus ook een teammanager, naast de
+trainers en het hoofd opleidingen. Je kiest alleen activiteiten van je
+eigen teams. Wie de presentielijst bijhoudt maar de activiteit niet
+plant, zoals een teammanager, krijgt de beoordeelstappen niet: na de
+presentielijst meldt de wizard *Aanwezigheid opgeslagen* en biedt hij
+**Afronden**, dat de activiteit afrondt en hem openlaat zodat de trainer
+kan beoordelen.
+
 ## Pad 1 — Een activiteit evalueren (de dagelijkse flow)
 
 `Activiteit kiezen → Aanwezigheid → Nu beoordelen? → Spelers beoordelen → Controleren`
