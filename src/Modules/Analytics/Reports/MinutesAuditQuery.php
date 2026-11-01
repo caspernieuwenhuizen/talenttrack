@@ -303,7 +303,7 @@ final class MinutesAuditQuery {
      * One team's rows, column totals and summary from the maps read for the
      * whole window. The rule every caller reads.
      *
-     * @param array<int, object>                           $activities the team's games, in date order
+     * @param array<int, \stdClass>                        $activities the team's games, in date order
      * @param list<AuditPlayer>                            $players the team's players, in column order
      * @param array<int, int>                              $available       activity id => minutes the match holds
      * @param array<int, array<int, bool>>                 $squad_by_game   activity id => [ player id => true ]
