@@ -29,6 +29,19 @@ Each row shows the day, the type, the activity and its time and place, and below
 
 A week without a match says *No match this week.* under the list. A week with no activities on your teams shows a single line saying so instead of rows.
 
+### Players who need attention
+
+Below the list, a section can point at individual players on your teams:
+
+- **Unavailable and returning this week**: players an injury keeps out today, as *Morris Adriaanse · Unavailable*, the same neutral word the planning screens use. This line covers the teams whose injuries you may read and the teams whose activities you may change. If you may read your team's injuries, it also says when they are expected back (*back ~ 8 Nov*), or *returning · this week* when that falls in the window. Showing that date is recorded in the audit log, as reading the injury overview is. The injury itself, the body part and any notes never show here. Scouts and read-only observers get this line only when your academy switches it on for them.
+- **Missed several trainings**: players who missed each of their team's last three recorded trainings. Missed counts the way the attendance report counts it: absent, excused, injured or suspended. (The player status attendance score sets injured and suspended aside; this line, like the report, counts them as missed.)
+- **Trial players this week**: prospects on trial with your team, as a first name and last initial with the days the team has an activity (*Thomas K. · Tue, Thu*). Only people who may see prospects get this line.
+- **Birthdays**: players with a birthday this week, as a first name and the day (*Duco · Fri 30*). Never the age or the year.
+
+A player is named only when you may open their profile, and the name links to it. Anyone else on the line is counted instead (*2 players unavailable*), except on Birthdays, which leaves them out entirely: a count would tell you that a child you cannot see has a birthday this week. The section hides when it has nothing to say.
+
+By default the head coach sees all four on a desktop and the unavailable line on a phone, the assistant coach sees the unavailable line, missed trainings and birthdays on a desktop, the team manager birthdays, and the head of development missed trainings and trial players. Your academy can change that per role and device under **Players who need attention** in the panel's settings.
+
 ### Setting up the panel
 
 Your academy chooses what the panel shows, per role and per device, under **Configuration → Default dashboard → This week panel**. Pick a role with the buttons at the top, set it up, pick the next role, and press **Save** once for all of them. The change shows the next time the dashboard is opened.

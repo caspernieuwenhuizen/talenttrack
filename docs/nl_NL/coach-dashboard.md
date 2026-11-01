@@ -29,6 +29,19 @@ Elke rij toont de dag, het type, de activiteit met tijd en plaats, en daaronder 
 
 Een week zonder wedstrijd meldt *Geen wedstrijd deze week.* onder de lijst. Een week zonder activiteiten voor je teams toont in plaats van rijen één regel die dat zegt.
 
+### Spelers die aandacht nodig hebben
+
+Onder de lijst kan een blok wijzen op afzonderlijke spelers van je teams:
+
+- **Niet beschikbaar en terug deze week**: spelers die vandaag door een blessure niet kunnen, als *Morris Adriaanse · Niet beschikbaar*, hetzelfde neutrale woord als op de planningsschermen. De regel gaat over de teams waarvan je de blessures mag inzien en de teams waarvan je de activiteiten mag wijzigen. Mag je de blessures van je team inzien, dan staat er ook wanneer ze terug worden verwacht (*terug ~ 8 nov*), of *komt terug · deze week* als dat in de periode valt. Het tonen van die datum wordt vastgelegd in het auditlog, net als het inzien van het blessure-overzicht. De blessure zelf, het lichaamsdeel en eventuele notities staan hier nooit. Scouts en alleen-lezen waarnemers krijgen deze regel alleen als je academie hem voor hen aanzet.
+- **Meerdere trainingen gemist**: spelers die elk van de laatste drie vastgelegde trainingen van hun team hebben gemist. Gemist telt zoals het aanwezigheidsrapport het telt: afwezig, afgemeld, geblesseerd of geschorst. (De aanwezigheidsscore van de spelerstatus laat geblesseerd en geschorst buiten beschouwing; deze regel telt ze, net als het rapport, als gemist.)
+- **Proefspelers deze week**: prospects die bij je team op proef zijn, met voornaam en eerste letter van de achternaam en de dagen waarop het team een activiteit heeft (*Thomas K. · di, do*). Alleen wie prospects mag zien krijgt deze regel.
+- **Verjaardagen**: spelers die deze week jarig zijn, met voornaam en dag (*Duco · vr 30*). Nooit de leeftijd of het jaar.
+
+Een speler wordt alleen bij naam genoemd als je zijn profiel mag openen, en de naam linkt daarheen. Ieder ander op de regel wordt geteld (*2 spelers niet beschikbaar*), behalve bij Verjaardagen: die laat hen helemaal weg, want een aantal zou verraden dat een kind dat je niet mag zien deze week jarig is. Het blok verdwijnt als er niets te melden is.
+
+Standaard ziet de hoofdtrainer alle vier op een desktop en de regel niet beschikbaar op een telefoon, de assistent-trainer de regel niet beschikbaar, gemiste trainingen en verjaardagen op een desktop, de teammanager verjaardagen, en het hoofd opleiding gemiste trainingen en proefspelers. Je academie kan dat per rol en apparaat aanpassen onder **Spelers die aandacht nodig hebben** in de instellingen van het paneel.
+
 ### Het paneel instellen
 
 Je academie kiest wat het paneel toont, per rol en per apparaat, onder **Configuratie → Standaard dashboard → Paneel Deze week**. Kies bovenaan een rol, stel die in, kies de volgende rol, en druk één keer op **Opslaan** voor allemaal. De wijziging is zichtbaar zodra het dashboard opnieuw wordt geopend.

@@ -671,6 +671,7 @@ class FrontendTileGrid {
                 <p class="tt-week-empty"><?php esc_html_e( 'Nothing planned for your teams this week.', 'talenttrack' ); ?></p>
             <?php endif; ?>
             <?php self::renderWeekFollowUps( $week ); ?>
+            <?php \TT\Shared\Frontend\Components\WeekAttentionSection::render( $week ); // #4496 ?>
             <?php
             $next_class = self::weekDeviceClass( $week, 'next_week' );
             if ( $next !== [] && $next_class !== null ) :

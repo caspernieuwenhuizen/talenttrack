@@ -325,8 +325,20 @@ final class CoachWeekTest extends WP_UnitTestCase {
 
     public function test_availability_carries_counts_and_nothing_about_the_injury(): void {
         $week = CoachWeek::forUser( $this->coach, '2026-11-04' );
+
+        // #4496 — the injuries line names the injured as a marker, behind its
+        // own naming rule (CoachWeekAttentionTest). Everything else in the
+        // week still says nothing about an injury, and that line says
+        // nothing about the injury itself.
+        $line = (string) wp_json_encode( $week['attention_injuries'] );
+        unset( $week['attention_injuries'] );
+        // The block's own key in the device lists names the switch, not a player.
+        foreach ( $week['blocks'] as $device => $keys ) {
+            $week['blocks'][ $device ] = array_values( array_diff( (array) $keys, [ 'injuries' ] ) );
+        }
         $json = (string) wp_json_encode( $week );
 
+        $this->assertStringNotContainsString( 'Ankle', $line );
         $this->assertStringNotContainsString( 'Ankle', $json );
         $this->assertStringNotContainsString( 'injur', strtolower( $json ) );
         $this->assertSame( [ 'available', 'unavailable' ], array_keys( $week['rows'][2]['availability'] ) );

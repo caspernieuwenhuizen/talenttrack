@@ -1,0 +1,106 @@
+#: src/Modules/Activities/CoachWeek/WeekBlockGroup.php:28
+msgid "Players who need attention"
+msgstr "Spelers die aandacht nodig hebben"
+
+#: src/Modules/Activities/CoachWeek/Blocks/InjuriesBlock.php:42
+msgid "Unavailable and returning this week"
+msgstr "Niet beschikbaar en terug deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/InjuriesBlock.php:43
+msgid "Players an injury keeps out today, and when they are expected back. Never the injury itself."
+msgstr "Spelers die vandaag door een blessure niet kunnen, en wanneer ze terug worden verwacht. Nooit de blessure zelf."
+
+#: src/Modules/Activities/CoachWeek/Blocks/MissedTrainingsBlock.php:31
+msgid "Missed several trainings"
+msgstr "Meerdere trainingen gemist"
+
+#: src/Modules/Activities/CoachWeek/Blocks/MissedTrainingsBlock.php:32
+msgid "Players absent from each of their team's last three recorded trainings."
+msgstr "Spelers die elk van de laatste drie vastgelegde trainingen van hun team hebben gemist."
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrialPlayersBlock.php:26
+msgid "Trial players this week"
+msgstr "Proefspelers deze week"
+
+#: src/Modules/Activities/CoachWeek/Blocks/TrialPlayersBlock.php:27
+msgid "Prospects on trial with your team, and the days your team has an activity."
+msgstr "Prospects die bij je team op proef zijn, en de dagen waarop je team een activiteit heeft."
+
+#: src/Modules/Activities/CoachWeek/Blocks/BirthdaysBlock.php:20
+msgid "Birthdays"
+msgstr "Verjaardagen"
+
+#: src/Modules/Activities/CoachWeek/Blocks/BirthdaysBlock.php:21
+msgid "Players with a birthday this week: first name and day only, never the age."
+msgstr "Spelers die deze week jarig zijn: alleen voornaam en dag, nooit de leeftijd."
+
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:92
+msgctxt "This week: a player expected back"
+msgid "returning"
+msgstr "komt terug"
+
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:93
+msgctxt "This week: a player expected back this week"
+msgid "this week"
+msgstr "deze week"
+
+#. translators: %s: the expected return date, e.g. "8 Nov"
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:105
+msgid "back ~ %s"
+msgstr "terug ~ %s"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:138
+msgid "%d more player unavailable"
+msgid_plural "%d more players unavailable"
+msgstr[0] "nog %d speler niet beschikbaar"
+msgstr[1] "nog %d spelers niet beschikbaar"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:140
+msgid "%d player unavailable"
+msgid_plural "%d players unavailable"
+msgstr[0] "%d speler niet beschikbaar"
+msgstr[1] "%d spelers niet beschikbaar"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:136
+msgid "%d more player missed them"
+msgid_plural "%d more players missed them"
+msgstr[0] "nog %d speler miste ze"
+msgstr[1] "nog %d spelers misten ze"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:138
+msgid "%d player missed the last three trainings"
+msgid_plural "%d players missed the last three trainings"
+msgstr[0] "%d speler miste de laatste drie trainingen"
+msgstr[1] "%d spelers misten de laatste drie trainingen"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:141
+msgid "%d more trial player"
+msgid_plural "%d more trial players"
+msgstr[0] "nog %d proefspeler"
+msgstr[1] "nog %d proefspelers"
+
+#. translators: %d: number of players
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:143
+msgid "%d trial player"
+msgid_plural "%d trial players"
+msgstr[0] "%d proefspeler"
+msgstr[1] "%d proefspelers"
+
+#. translators: %d: number of birthdays
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:146
+msgid "%d more birthday"
+msgid_plural "%d more birthdays"
+msgstr[0] "nog %d verjaardag"
+msgstr[1] "nog %d verjaardagen"
+
+#. translators: %d: number of birthdays
+#: src/Shared/Frontend/Components/WeekAttentionSection.php:148
+msgid "%d birthday"
+msgid_plural "%d birthdays"
+msgstr[0] "%d verjaardag"
+msgstr[1] "%d verjaardagen"

@@ -16,6 +16,8 @@ final class WeekBlockGroup {
     public const MATCH    = 'match';
     public const ACTIONS  = 'actions';
     public const FOLLOWUPS = 'followups';
+    /** #4496 — the section below the list about individual players. */
+    public const ATTENTION = 'attention';
 
     /** @return array<string, string> group key => translated heading, in display order */
     public static function labels(): array {
@@ -27,6 +29,7 @@ final class WeekBlockGroup {
             self::MATCH    => __( 'Matches', 'talenttrack' ),
             self::ACTIONS  => __( 'Buttons on a row', 'talenttrack' ),
             self::FOLLOWUPS => __( 'Follow-ups due this week', 'talenttrack' ),
+            self::ATTENTION => __( 'Players who need attention', 'talenttrack' ),
         ];
     }
 

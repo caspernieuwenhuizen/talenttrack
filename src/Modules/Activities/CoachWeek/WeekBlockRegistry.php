@@ -35,6 +35,10 @@ final class WeekBlockRegistry {
         Blocks\PdpDueBlock::class,
         Blocks\EvalsDueBlock::class,
         Blocks\TasksDueBlock::class,
+        Blocks\InjuriesBlock::class,
+        Blocks\MissedTrainingsBlock::class,
+        Blocks\TrialPlayersBlock::class,
+        Blocks\BirthdaysBlock::class,
     ];
 
     /** @var array<string, WeekBlock>|null */
