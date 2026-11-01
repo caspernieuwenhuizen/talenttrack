@@ -682,9 +682,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // predicate is MinutesQuery's, shared with the team report so the two
         // cannot disagree about what "played" means.
         $played_sql = \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( 'a' );
+        // #4526 — the query names the matches; the minutes on each are the
+        // shared read's (newest recorded figure, `minutes_override` first),
+        // not a SUM of `minutes_played` that doubled a duplicate row and
+        // ignored a coach's override.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key,
-                    COALESCE( SUM( att.minutes_played ), 0 ) AS minutes_played
+            "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
                     AND a.archived_at IS NULL
@@ -703,6 +706,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $player_id, $bd_from, $bd_to, $row_cap
         ) );
         $rows = is_array( $rows ) ? $rows : [];
+
+        $played_minutes = \TT\Modules\Activities\Repositories\PlayerMatchMinutes::forActivities(
+            array_map( static fn( $r ): int => (int) $r->activity_id, $rows ),
+            $player_id
+        );
+        foreach ( $rows as $r ) {
+            $r->minutes_played = (int) ( $played_minutes[ (int) $r->activity_id ][ $player_id ] ?? 0 );
+        }
 
         $apps = 0; $minutes = 0;
         foreach ( $rows as $r ) {
@@ -1127,8 +1138,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // squad if they have ANY canonical attendance row on the team's
         // activities in the window — so players appear even with 0 recorded
         // minutes, and the squad + match count share one team-membership
-        // definition. Minutes are summed per (player, activity) in a derived
+        // definition. Minutes are taken per (player, activity) in a derived
         // table FIRST so a duplicate `actual` row can't fan the JOIN out.
+        // #4526 — one row per pair: the shared newest-figure rule
+        // (`PlayerMatchMinutes`), so a duplicate is read once, not summed.
         $rows = $wpdb->get_results( $wpdb->prepare(
             // #2849 — `tt_players` has no `name`; it carries `first_name` and
             // `last_name`. Selecting the column that does not exist made the
@@ -1158,6 +1171,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                        AND att.is_guest = 0
                        AND a.activity_type_key IN ('match','game','tournament')
                        AND a.{$date_col} BETWEEN %s AND %s
+                       " . \TT\Modules\Activities\Repositories\PlayerMatchMinutes::newestRowClause( 'att' ) . "
                      GROUP BY att.player_id, att.{$att_fk}
                   ) m
                JOIN {$wpdb->prefix}tt_players p ON p.id = m.player_id AND p.archived_at IS NULL

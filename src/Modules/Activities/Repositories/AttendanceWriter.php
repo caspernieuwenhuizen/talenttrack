@@ -92,11 +92,58 @@ final class AttendanceWriter {
      * the declaration. `club_id` defaults to the current club when the
      * caller has not pinned one.
      *
+     * #4526 — **one recorded row per player per match.** When the player
+     * already has a recorded row for the activity, that row (the newest, if
+     * legacy data left several) is updated with these columns instead of a
+     * second one being inserted. Nothing in the schema stops a duplicate, and
+     * the readers disagreed on what two rows meant: SUM counted the match
+     * twice, MAX ignored a correction downwards. Every writer of the register
+     * comes through here, so this one rule covers them all. Guest rows are
+     * visits, not a player's register, and are always inserted.
+     *
+     * Only the columns in `$row` are written, so a stored `minutes_override`
+     * survives a re-recorded `minutes_played`, as it does on execution's
+     * `updateRow()` path: an override outlives a recompute. The existing row
+     * is looked up in the current club; a caller pinning another `club_id`
+     * gets an insert, as before.
+     *
      * @param array<string, mixed> $row Column map. `activity_id` required.
-     * @return int|null New row id, or null on a DB error (`lastError()`).
+     * @return int|null The row id (new, or the updated existing one), or null
+     *                  on a DB error (`lastError()`).
      */
     public function recordActual( array $row ): ?int {
+        $activity_id = (int) ( $row['activity_id'] ?? 0 );
+        $player_id   = (int) ( $row['player_id'] ?? 0 );
+        if ( $player_id > 0 && empty( $row['is_guest'] ) ) {
+            $existing = $this->actualRowId( $activity_id, $player_id );
+            if ( $existing > 0 ) {
+                return $this->updateExistingActual( $existing, $row );
+            }
+        }
         return $this->insertOfKind( $row, self::RECORDED );
+    }
+
+    /**
+     * Write a recorded row's columns onto the player's existing recorded row.
+     * The keys that say which row it is stay as they are; the stamp is a
+     * register save's, as an insert's would be.
+     *
+     * @param array<string, mixed> $row
+     */
+    private function updateExistingActual( int $row_id, array $row ): ?int {
+        global $wpdb;
+
+        unset( $row['id'], $row['record_type'], $row['club_id'], $row['activity_id'], $row['player_id'], $row['is_guest'] );
+        $row = self::stamp( $row );
+
+        $ok = $wpdb->update( $this->table(), $row, [ 'id' => $row_id, 'club_id' => CurrentClub::id() ] ); /* both-kinds-ok */
+        if ( $ok === false ) {
+            $this->last_error = (string) $wpdb->last_error;
+            return null;
+        }
+        $this->last_error = '';
+        self::announce( $this->activityIdOfRow( $row_id ) );
+        return $row_id;
     }
 
     /**
@@ -325,6 +372,29 @@ final class AttendanceWriter {
     public function actualRowId( int $activity_id, int $player_id ): int {
         $ids = $this->actualRowIds( $activity_id, $player_id );
         return $ids === [] ? 0 : (int) end( $ids );
+    }
+
+    /**
+     * #4526 — the RECORDED row the minutes read picks for one player on one
+     * activity, or 0: the newest one that carries a figure
+     * (`COALESCE(minutes_override, minutes_played)`), or the newest when none
+     * does. A writer healing a legacy duplicate keeps THIS row; keeping the
+     * newest instead would delete a 70 for a newer empty row and turn the
+     * match into 0. Same rule as `PlayerMatchMinutes`.
+     */
+    public function readRowId( int $activity_id, int $player_id ): int {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND club_id = %d
+                AND is_guest = 0 AND record_type = 'actual'
+              ORDER BY ( COALESCE( minutes_override, minutes_played ) IS NOT NULL ) DESC, id DESC
+              LIMIT 1",
+            $activity_id, $player_id, CurrentClub::id()
+        ) );
     }
 
     /**

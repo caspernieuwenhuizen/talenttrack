@@ -332,6 +332,16 @@ only to users who can edit recorded minutes — that opens the **per-match minut
 editor** (see below). Users without that permission still see the full matrix,
 just without the edit link.
 
+**One figure per player per match.** If a player has been recorded twice for
+the same match, the most recent entry that has minutes counts, on this screen,
+in the minutes grid and in the minutes reports alike; a later entry with only
+an attendance mark and no minutes does not wipe them out. Entering minutes
+again updates the existing entry rather than adding a second, and clearing a
+player's minutes in the grid clears them everywhere. An administrator sees a
+line under the matrix when the selected period still holds such doubled
+entries from before, with how many there are. Nothing has to be done about
+them.
+
 The surface is a spreadsheet-style matrix:
 
 - **Rows** are the team's game, match and tournament activities in the window

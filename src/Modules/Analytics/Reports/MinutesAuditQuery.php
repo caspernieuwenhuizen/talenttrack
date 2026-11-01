@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 use TT\Modules\Teams\FootballFormResolver;
 use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
@@ -86,7 +87,7 @@ final class MinutesAuditQuery {
      *   players: list<array{ player_id:int, first_name:string, last_name:string, jersey_number:?int }>,
      *   column_totals: array<int,int>,
      *   grand_total: int,
-     *   summary: array{ total_games:int, complete:int, partial:int, none:int, rollups:int }
+     *   summary: array{ total_games:int, complete:int, partial:int, none:int, rollups:int, duplicate_pairs:int }
      * }
      */
     public function matrix( int $team_id, string $from, string $to, string $type_filter = 'all' ): array {
@@ -99,7 +100,7 @@ final class MinutesAuditQuery {
             'players'       => [],
             'column_totals' => [],
             'grand_total'   => 0,
-            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0 ],
+            'summary'       => [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0, 'duplicate_pairs' => 0 ],
         ];
         if ( $team_id <= 0 ) return $empty;
 
@@ -162,35 +163,22 @@ final class MinutesAuditQuery {
         //    those activities. This is how the attendance report resolves the
         //    squad; using it (not tt_players.team_id) is the #2339 fix.
         //    #4101 — minus the players marked unavailable for the game.
-        $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
         $squad_marks = $this->squadMarks( $activity_ids );
+        // #4526 — legacy duplicate recorded rows in this window, counted for
+        // the admin footer; the minutes above read past them.
+        $duplicate_pairs = PlayerMatchMinutes::duplicatePairs( $activity_ids );
 
-        // 3. Recorded actual minutes per game+player (the same source
-        //    MinutesQuery sums). Aggregated so a player with more than one
-        //    matching row for an activity is counted once. Effective minutes
-        //    = COALESCE(minutes_override, minutes_played) so an explicit
-        //    coach override on the match-execution / audit surface is what
-        //    the overview reflects — consistent with MinutesQuery and the
-        //    minutes-authority arbiter (#2367). Harmless before any override
-        //    exists (the column is null → minutes_played wins).
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $minute_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
-               FROM {$p}tt_attendance
-              WHERE activity_id IN ($in_ids)
-                AND club_id = %d
-                AND record_type = 'actual'
-                AND is_guest = 0
-                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
-                AND COALESCE(minutes_override, minutes_played) > 0
-              GROUP BY activity_id, player_id",
-            array_merge( $activity_ids, [ $club_id ] )
-        ) );
+        // 3. Recorded actual minutes per game+player, the same read the grid
+        //    and the minutes reports make. Effective minutes =
+        //    COALESCE(minutes_override, minutes_played) so an explicit coach
+        //    override on the match-execution / audit surface is what the
+        //    overview reflects (#2367). #4526 — a player with more than one
+        //    recorded row for a match reads the newest one, not their SUM.
+        $minutes_by_game = self::recordedMinutes( $activity_ids );
 
         // Fold into per-activity maps + collect the union of squad players.
         $squad_by_game   = []; // aid => [pid => true]
         $unavail_by_game = []; // aid => [pid => true], #4101
-        $minutes_by_game = []; // aid => [pid => minutes]
         $player_ids      = []; // set of every player that appears anywhere
         foreach ( $squad_marks as $aid => $marks ) {
             foreach ( $marks as $pid => $is_unavailable ) {
@@ -201,13 +189,6 @@ final class MinutesAuditQuery {
                 }
                 $player_ids[ $pid ] = true;
             }
-        }
-        foreach ( (array) $minute_rows as $r ) {
-            $aid  = (int) $r->activity_id;
-            $pid  = (int) $r->player_id;
-            $mins = (int) $r->minutes_played;
-            if ( $pid <= 0 ) continue;
-            $minutes_by_game[ $aid ][ $pid ] = $mins;
         }
         // #4500 — a tournament fixture completed before v4.135.0 has a
         // register with no minutes on it; the rotation plan answers there.
@@ -280,6 +261,7 @@ final class MinutesAuditQuery {
                     'partial'     => 0,
                     'none'        => $editable,
                     'rollups'     => count( $games ) - $editable,
+                    'duplicate_pairs' => $duplicate_pairs,
                 ],
             ];
         }
@@ -316,7 +298,7 @@ final class MinutesAuditQuery {
         // 5. Assemble the rows + running column totals.
         $column_totals = array_fill_keys( $ordered_pids, 0 );
         $grand_total   = 0;
-        $summary       = [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0 ];
+        $summary       = [ 'total_games' => 0, 'complete' => 0, 'partial' => 0, 'none' => 0, 'rollups' => 0, 'duplicate_pairs' => $duplicate_pairs ];
         $games         = [];
 
         foreach ( $activities as $a ) {
@@ -565,34 +547,14 @@ final class MinutesAuditQuery {
         }
         if ( $all_ids === [] ) return [];
 
-        $ids  = array_keys( $all_ids );
-        $in_a = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $ids = array_keys( $all_ids );
 
         // Same two reads the matrix makes for an ordinary match, so a
         // rolled-up minute is the same minute the fixture's own row shows,
         // and a player unavailable for a fixture is left out of the day's
         // squad the same way (#4101).
-        $squad_marks = $this->squadMarks( $ids );
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $minute_rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
-               FROM {$p}tt_attendance
-              WHERE activity_id IN ($in_a)
-                AND club_id = %d
-                AND record_type = 'actual'
-                AND is_guest = 0
-                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
-                AND COALESCE(minutes_override, minutes_played) > 0
-              GROUP BY activity_id, player_id",
-            array_merge( $ids, [ $club_id ] )
-        ) );
-
-        $minutes_by_fixture = [];
-        foreach ( (array) $minute_rows as $row ) {
-            $aid = (int) $row->activity_id;
-            $pid = (int) $row->player_id;
-            $minutes_by_fixture[ $aid ][ $pid ] = ( $minutes_by_fixture[ $aid ][ $pid ] ?? 0 ) + (int) $row->minutes_played;
-        }
+        $squad_marks        = $this->squadMarks( $ids );
+        $minutes_by_fixture = self::recordedMinutes( $ids );
         // #4500 — the same fallback the fixture's own row takes, so the day
         // stays the sum of rows already in the matrix.
         $minutes_by_fixture = $this->withPlannedFallback( $ids, $minutes_by_fixture );
@@ -625,6 +587,24 @@ final class MinutesAuditQuery {
     }
 
     /**
+     * #4526 — the recorded minutes above 0 per (activity, player): the
+     * newest recorded row's, through `PlayerMatchMinutes`, the read the grid
+     * and the minutes reports share.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, array<int,int>> activity id => player id => minutes
+     */
+    private static function recordedMinutes( array $activity_ids ): array {
+        $out = [];
+        foreach ( PlayerMatchMinutes::forActivities( $activity_ids ) as $aid => $by_player ) {
+            foreach ( $by_player as $pid => $minutes ) {
+                if ( $minutes !== null && $minutes > 0 ) $out[ $aid ][ $pid ] = $minutes;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * #4500 — the register's minutes, with the rotation plan as the fallback
      * on a completed tournament fixture whose register holds no figure.
      *
@@ -645,29 +625,9 @@ final class MinutesAuditQuery {
         $planned = TournamentMinutesResolver::plannedByActivity( array_values( array_map( 'intval', $activity_ids ) ) );
         if ( $planned === [] ) return $minutes;
 
-        global $wpdb;
-        $p    = $wpdb->prefix;
-        $ids  = array_map( 'intval', array_keys( $planned ) );
-        $in   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        // The register as the resolver needs it: a figure, or null where the
-        // row carries none. SUM of only NULLs is NULL, so presence survives.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT activity_id, player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes
-               FROM {$p}tt_attendance
-              WHERE activity_id IN ($in)
-                AND club_id = %d
-                AND record_type = 'actual'
-                AND is_guest = 0
-                AND player_id > 0
-              GROUP BY activity_id, player_id",
-            array_merge( $ids, [ (int) CurrentClub::id() ] )
-        ) );
-
-        $register = [];
-        foreach ( (array) $rows as $r ) {
-            $register[ (int) $r->activity_id ][ (int) $r->player_id ] = $r->minutes !== null ? (int) $r->minutes : null;
-        }
+        // The register as the resolver needs it: the newest recorded row's
+        // figure, or null where that row carries none (#4526).
+        $register = PlayerMatchMinutes::forActivities( array_keys( $planned ) );
 
         foreach ( $register as $aid => $by_player ) {
             $resolved = TournamentMinutesResolver::arbitrate( $by_player, $planned[ $aid ] ?? [] );

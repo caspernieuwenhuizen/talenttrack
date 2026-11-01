@@ -41,7 +41,12 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
 
     /**
      * Two `actual` attendance rows for the same (player, match) — e.g. a
-     * legacy duplicate — must sum to one match row, not fan out / double.
+     * legacy duplicate — must collapse to one match row, not fan out.
+     *
+     * #4526 — and that row reads the NEWEST recorded row, not the SUM: a
+     * duplicate is a second write of the same fact, and the latest is what
+     * the coach last typed. SUM counted the match twice beside a grid that
+     * took the MAX; every surface now reads `PlayerMatchMinutes`.
      */
     public function test_duplicate_attendance_row_is_not_double_counted(): void {
         $team_id   = $this->insertTeam( 'U17 fanout' );
@@ -58,14 +63,14 @@ final class MinutesQueryHardeningTest extends WP_UnitTestCase {
         $breakdown = ( new MinutesQuery() )->matchBreakdownForPlayer( $team_id, $player_id, $from, $to );
 
         $this->assertCount( 1, $breakdown, 'a duplicate attendance row must collapse to ONE match row' );
-        $this->assertSame( 90, (int) $breakdown[0]['minutes'], 'the two rows must SUM (60+30), not fan out to 180' );
+        $this->assertSame( 30, (int) $breakdown[0]['minutes'], 'the newest row (30) counts: not the SUM (90), not a fan-out (180)' );
 
         // The team report total must equal the breakdown sum (reconciliation).
         $rows  = ( new MinutesQuery() )->forTeam( $team_id, $from, $to );
         $total = $this->totalFor( $rows, $player_id );
         $sum   = array_sum( array_column( $breakdown, 'minutes' ) );
         $this->assertSame( $sum, $total, 'team-report total must reconcile with the per-match breakdown' );
-        $this->assertSame( 90, $total );
+        $this->assertSame( 30, $total );
     }
 
     /**

@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchExecution\Domain\MatchStints;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
@@ -394,27 +395,15 @@ final class MinutesQuery {
      * @return array<int,int> player_id => minutes
      */
     private static function persistedMinutes( int $activity_id, int $club_id ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
         // Effective minutes = COALESCE(minutes_override, minutes_played) so
         // an explicit coach override on the match-execution surface is what
-        // reports read (the derived value stays in minutes_played).
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT player_id, SUM( COALESCE(minutes_override, minutes_played) ) AS minutes_played
-               FROM {$p}tt_attendance
-              WHERE activity_id = %d
-                AND club_id = %d
-                AND record_type = 'actual'
-                AND is_guest = 0
-                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
-                AND COALESCE(minutes_override, minutes_played) > 0
-              GROUP BY player_id",
-            $activity_id, $club_id
-        ) );
+        // reports read (the derived value stays in minutes_played). #4526 —
+        // the newest recorded row's, through the read the grid and the audit
+        // share; SUM here counted a duplicate row twice. That read scopes to
+        // the current club, which is the `$club_id` every caller passes.
         $map = [];
-        foreach ( (array) $rows as $r ) {
-            $pid = (int) $r->player_id;
-            if ( $pid > 0 ) $map[ $pid ] = (int) $r->minutes_played;
+        foreach ( PlayerMatchMinutes::forActivities( [ $activity_id ] )[ $activity_id ] ?? [] as $pid => $minutes ) {
+            if ( $minutes !== null && $minutes > 0 ) $map[ (int) $pid ] = $minutes;
         }
         return $map;
     }
@@ -564,7 +553,8 @@ final class MinutesQuery {
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
+                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0
+                " . PlayerMatchMinutes::newestRowClause( 'att' ),
             $club_id, $team_id, $from, $to
         ) );
 
@@ -640,7 +630,8 @@ final class MinutesQuery {
                 AND " . ActivityLifecycle::notCancelledClause( 'a' ) . "
                 AND att.record_type = 'actual'
                 AND att.is_guest = 0
-                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0",
+                AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0
+                " . PlayerMatchMinutes::newestRowClause( 'att' ),
             $club_id, $player_id, $from, $to
         ) );
 

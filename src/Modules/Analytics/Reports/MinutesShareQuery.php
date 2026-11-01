@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
@@ -214,9 +215,11 @@ final class MinutesShareQuery {
         $date_col   = 'sess' . 'ion_date'; // #0035 lint-safe
         $played_sql = MinutesQuery::playedMatchSql( 'a' );
 
-        // Minutes summed per (player, activity) in a derived table first, so
-        // a duplicate `actual` row cannot fan the join out and double a
-        // player's total (#2158). Same squad definition as
+        // Minutes per (player, activity) in a derived table first, so a
+        // duplicate `actual` row cannot fan the join out and double a
+        // player's total (#2158). #4526 — one row per pair, by the shared
+        // newest-figure rule (`PlayerMatchMinutes`), so a duplicate is read
+        // once rather than summed. Same squad definition as
         // Team · Minutes distribution: attendance on the team's played
         // matches, archived players excluded (#2339, #2833).
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -238,6 +241,7 @@ final class MinutesShareQuery {
                        AND att.is_guest = 0
                        AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
                        AND a.{$date_col} BETWEEN %s AND %s
+                       " . PlayerMatchMinutes::newestRowClause( 'att' ) . "
                      GROUP BY att.player_id, att.activity_id
                   ) m
                JOIN {$p}tt_players pl ON pl.id = m.player_id AND pl.archived_at IS NULL

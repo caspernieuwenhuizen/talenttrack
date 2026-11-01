@@ -4,6 +4,7 @@ namespace TT\Modules\Tournaments\Services;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 
 /**
  * TournamentMinutesResolver (#4053) — the one answer to "what are this
@@ -373,39 +374,10 @@ final class TournamentMinutesResolver {
         $activity_ids = self::ints( $activity_ids );
         if ( $activity_ids === [] ) return [];
 
-        global $wpdb;
-        $p            = $wpdb->prefix;
-        $placeholders = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
-        $params       = $activity_ids;
-        $params[]     = (int) CurrentClub::id();
-        $filter       = '';
-        if ( $player_id !== null && $player_id > 0 ) {
-            $filter   = 'AND player_id = %d';
-            $params[] = (int) $player_id;
-        }
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- placeholders are generated, values are bound below.
-        $sql = "SELECT activity_id, player_id,
-                       MAX( COALESCE( minutes_override, minutes_played ) ) AS minutes
-                  FROM {$p}tt_attendance
-                 WHERE activity_id IN ($placeholders)
-                   AND club_id = %d
-                   AND is_guest = 0
-                   AND record_type = 'actual'
-                   AND player_id > 0
-                   {$filter}
-              GROUP BY activity_id, player_id";
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ), ARRAY_A );
-
-        $out = [];
-        foreach ( is_array( $rows ) ? $rows : [] as $row ) {
-            $out[ (int) $row['activity_id'] ][ (int) $row['player_id'] ] =
-                $row['minutes'] !== null ? (int) $row['minutes'] : null;
-        }
-
-        return $out;
+        // #4526 — the newest recorded row's figure (null where it carries
+        // none), the read every minutes surface shares. MAX here ignored a
+        // correction downwards on a duplicated row.
+        return PlayerMatchMinutes::forActivities( $activity_ids, $player_id );
     }
 
     /**
