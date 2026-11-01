@@ -3161,7 +3161,12 @@ class ActivitiesRestController {
         $date        = $repo->activityDate( $id );
         $unavailable = \TT\Modules\Activities\Services\PlayerAvailability::unavailableForActivity( $roster_ids, $id, $date );
         $check       = \TT\Modules\Activities\Services\PlayerAvailability::checkForActivity( $roster_ids, $id, $date, $unavailable );
-        $out = array_map( static function ( $row ) use ( $unavailable, $check ) {
+        // The flag is shown to who plans the team or reads the player's
+        // injuries; for everyone else `availability` is null and there is
+        // no check marker.
+        $flagged     = \TT\Modules\Activities\Services\PlayerAvailability::readableFlagSet( $uid, $roster_ids, $team_id );
+        $out = array_map( static function ( $row ) use ( $unavailable, $check, $flagged ) {
+            $pid = (int) ( $row->player_id ?? 0 );
             $status = (string) ( $row->status ?? '' );
             return [
                 'player_id'   => (int) ( $row->player_id ?? 0 ),
@@ -3175,11 +3180,10 @@ class ActivitiesRestController {
                 'plan_status' => self::plannedStatusToKey( $status ),
                 'notes'       => (string) ( $row->notes ?? '' ),
                 // #4005 — read-only, derived, and never a plan state.
-                'availability' => \TT\Modules\Activities\Services\PlayerAvailability::flagFor(
-                    (int) ( $row->player_id ?? 0 ),
-                    $unavailable
-                ),
-                'availability_check' => isset( $check[ (int) ( $row->player_id ?? 0 ) ] ),
+                'availability' => isset( $flagged[ $pid ] )
+                    ? \TT\Modules\Activities\Services\PlayerAvailability::flagFor( $pid, $unavailable )
+                    : null,
+                'availability_check' => isset( $flagged[ $pid ] ) && isset( $check[ $pid ] ),
             ];
         }, $roster );
 

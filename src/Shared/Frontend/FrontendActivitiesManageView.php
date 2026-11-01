@@ -2074,6 +2074,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // #4246 / #4269 — an overdue or incomplete injury record does not keep
         // the player out; the coach gets a neutral marker to check instead.
         $check = PlayerAvailability::checkForActivity( $roster_ids, $activity_id, (string) ( $session->session_date ?? '' ), $unavailable );
+        // Shown to who plans the team or reads the player's injuries, as the
+        // planned-attendance route returns it.
+        $flagged     = PlayerAvailability::readableFlagSet( get_current_user_id(), $roster_ids, (int) ( $session->team_id ?? 0 ) );
+        $unavailable = array_intersect_key( $unavailable, $flagged );
+        $check       = array_intersect_key( $check, $flagged );
 
         echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
