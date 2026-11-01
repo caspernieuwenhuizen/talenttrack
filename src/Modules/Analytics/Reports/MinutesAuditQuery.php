@@ -26,7 +26,7 @@ use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
  *     documented fallback (#4500, the #4053 rule): on a **completed
  *     tournament fixture**, a player on the register with no figure on it
  *     takes the rotation plan's minutes, through `TournamentMinutesResolver`
- *     as the grid and the minutes reports do. A confirmed 0 stays 0.
+ *     as the grid and the `MinutesQuery` reports do. A confirmed 0 stays 0.
  *   - the squad (matrix columns) is resolved from ATTENDANCE on the team's
  *     activities in the window — the same way the attendance report resolves
  *     it — NOT `tt_players.team_id` (which is the #2339 bug the audit exists
