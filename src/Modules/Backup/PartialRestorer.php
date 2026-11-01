@@ -3,6 +3,8 @@ namespace TT\Modules\Backup;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
+
 /**
  * PartialRestorer — execute the user's chosen actions against the
  * live database for a closure produced by PartialRestoreScope and
@@ -43,9 +45,27 @@ class PartialRestorer {
 
         $diff = DiffComputer::compute( $tables, $closure );
 
-        global $wpdb;
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
+        try {
+            $applied = self::apply( $tables, $closure, $actions );
+        } catch ( \Throwable $e ) {
+            // #4561 — closed on a throw too, so the level is never left open.
+            Transaction::rollback();
+            throw $e;
+        }
+        Transaction::commit();
 
+        return [ 'ok' => true, 'applied' => $applied ];
+    }
+
+    /**
+     * @param array<mixed> $tables
+     * @param array<string,array<int,int>> $closure
+     * @param array<string,array{green:string, yellow:string}> $actions
+     * @return array<string,array{inserted:int, updated:int, skipped:int}>
+     */
+    private static function apply( array $tables, array $closure, array $actions ): array {
+        global $wpdb;
         $applied = [];
         $ordered = BackupDependencyMap::restoreOrder( array_keys( $closure ) );
 
@@ -115,9 +135,7 @@ class PartialRestorer {
             $applied[ $tbl ] = [ 'inserted' => $inserted, 'updated' => $updated, 'skipped' => $skipped ];
         }
 
-        $wpdb->query( 'COMMIT' );
-
-        return [ 'ok' => true, 'applied' => $applied ];
+        return $applied;
     }
 
     /**

@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Archive;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -120,7 +121,7 @@ final class GenericCascadeDeleter {
         $nulled    = [];
         $zeroed    = [];
 
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         try {
             // 2) Polymorphic owned children.
             foreach ( (array) ( $plan['cascade_poly'] ?? [] ) as [ $table, $type_col, $id_col, $type_val ] ) {
@@ -213,28 +214,27 @@ final class GenericCascadeDeleter {
             $sql_final = "DELETE FROM {$p}{$entity_table} WHERE id IN ({$ph}) AND club_id = %d";
             $deleted = $wpdb->query( $wpdb->prepare( $sql_final, ...array_merge( $ids, [ $club ] ) ) );
             $this->guard( $deleted, $entity_table );
-
-            $wpdb->query( 'COMMIT' );
-
-            Logger::info( 'entity.deleted_with_cascade', [
-                'entity'    => $entity,
-                'ids'       => $ids,
-                'club_id'   => $club,
-                'deleted'   => (int) $deleted,
-                'per_table' => $per_table,
-                'nulled'    => $nulled,
-                'zeroed'    => $zeroed,
-                'by_user'   => get_current_user_id(),
-            ] );
-
-            return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled, 'zeroed' => $zeroed ];
         } catch ( \Throwable $e ) {
-            $wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             Logger::error( 'entity.cascade.failed', [
                 'entity' => $entity, 'ids' => $ids, 'error' => $e->getMessage(),
             ] );
             throw $e;
         }
+        Transaction::commit();
+
+        Logger::info( 'entity.deleted_with_cascade', [
+            'entity'    => $entity,
+            'ids'       => $ids,
+            'club_id'   => $club,
+            'deleted'   => (int) $deleted,
+            'per_table' => $per_table,
+            'nulled'    => $nulled,
+            'zeroed'    => $zeroed,
+            'by_user'   => get_current_user_id(),
+        ] );
+
+        return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled, 'zeroed' => $zeroed ];
     }
 
     /**

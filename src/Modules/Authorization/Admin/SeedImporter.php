@@ -3,6 +3,7 @@ namespace TT\Modules\Authorization\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Modules\Authorization\Matrix\MatrixRepository;
 
 /**
@@ -147,7 +148,7 @@ final class SeedImporter {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         $wpdb->query( "TRUNCATE TABLE {$p}tt_authorization_matrix" );
 
         $inserted = 0;
@@ -161,7 +162,7 @@ final class SeedImporter {
                 'is_default'   => 0,
             ] );
             if ( $ok === false ) {
-                $wpdb->query( 'ROLLBACK' );
+                Transaction::rollback();
                 return [ 'ok' => false, 'inserted' => 0, 'error' => sprintf(
                     /* translators: %s: persona|entity|activity tuple that failed to insert */
                     __( 'Insert failed at row %s — rolled back.', 'talenttrack' ),
@@ -170,7 +171,7 @@ final class SeedImporter {
             }
             $inserted++;
         }
-        $wpdb->query( 'COMMIT' );
+        Transaction::commit();
 
         MatrixRepository::clearCache();
 

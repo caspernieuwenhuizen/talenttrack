@@ -3,6 +3,8 @@ namespace TT\Infrastructure\Players;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\AfterCommit;
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\TableExists;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -101,7 +103,7 @@ class PlayerDeletionCascade {
         $per_table = [];
         $nulled    = [];
 
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         try {
             // Parent-keyed children first — these carry no player_id of
             // their own, so the dynamic sweep below can't see them.
@@ -219,30 +221,8 @@ class PlayerDeletionCascade {
             if ( $deleted === false ) {
                 throw new \RuntimeException( 'Final delete failed on tt_players: ' . $wpdb->last_error );
             }
-
-            $wpdb->query( 'COMMIT' );
-
-            // Post-commit, deliberately. Deleting a blob is not
-            // transactional, so it only runs once the batch is durable —
-            // a rolled-back cascade must not leave files missing for
-            // players who still exist. The media module works out which
-            // of these are now orphaned and removes their bytes.
-            if ( $pruned_media !== [] ) {
-                do_action( 'tt_media_links_pruned', $pruned_media );
-            }
-
-            Logger::info( 'player.deleted_with_cascade', [
-                'player_ids' => $ids,
-                'club_id'    => $club,
-                'deleted'    => (int) $deleted,
-                'per_table'  => $per_table,
-                'nulled'     => $nulled,
-                'by_user'    => get_current_user_id(),
-            ] );
-
-            return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled ];
         } catch ( \Throwable $e ) {
-            $wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             Logger::error( 'player.cascade.failed', [
                 'player_ids' => $ids,
                 'club_id'    => $club,
@@ -250,6 +230,31 @@ class PlayerDeletionCascade {
             ] );
             throw $e;
         }
+
+        // Post-commit, deliberately. Deleting a blob is not
+        // transactional, so it only runs once the batch is durable —
+        // a rolled-back cascade must not leave files missing for
+        // players who still exist. The media module works out which
+        // of these are now orphaned and removes their bytes. Queued
+        // before the commit so that, inside a larger transaction, it
+        // waits for that one's commit too (#4561).
+        if ( $pruned_media !== [] ) {
+            AfterCommit::run( static function () use ( $pruned_media ): void {
+                do_action( 'tt_media_links_pruned', $pruned_media );
+            } );
+        }
+        Transaction::commit();
+
+        Logger::info( 'player.deleted_with_cascade', [
+            'player_ids' => $ids,
+            'club_id'    => $club,
+            'deleted'    => (int) $deleted,
+            'per_table'  => $per_table,
+            'nulled'     => $nulled,
+            'by_user'    => get_current_user_id(),
+        ] );
+
+        return [ 'deleted' => (int) $deleted, 'per_table' => $per_table, 'nulled' => $nulled ];
     }
 
     /**

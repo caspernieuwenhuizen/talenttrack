@@ -8,51 +8,59 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * A message, an e-mail or a notification cannot be rolled back. When it is
  * triggered by a write inside a transaction, sending it straight away
- * announces something the rollback may then undo. Code that opens such a
- * transaction calls `open()` first and `commit()` or `discard()` after; a
- * sender calls `run()`, which sends at once when no transaction is open and
- * otherwise holds the send until the commit.
+ * announces something the rollback may then undo. A sender calls `run()`,
+ * which sends at once when no `Transaction` is open and otherwise holds the
+ * send until the outermost commit (#4550, #4561).
  *
- * Opened today only by `TaskEngine::complete()` around a form's completion
- * step (#4550).
+ * Each held send remembers the level it was queued at. A savepoint that
+ * rolls back drops what was queued inside it; one that is released hands
+ * it to the level around it; the outermost commit sends it; the outermost
+ * rollback drops it. `Transaction` reports those moments here.
  */
 final class AfterCommit {
 
-    private static int $depth = 0;
-
-    /** @var list<callable(): void> */
+    /** @var list<array{0: int, 1: callable(): void}> level, send */
     private static array $queue = [];
-
-    public static function open(): void {
-        self::$depth++;
-    }
 
     /** Run `$send` now, or after the open transaction commits. */
     public static function run( callable $send ): void {
-        if ( self::$depth === 0 ) {
+        $depth = Transaction::depth();
+        if ( $depth === 0 ) {
             $send();
             return;
         }
-        self::$queue[] = $send;
+        self::$queue[] = [ $depth, $send ];
     }
 
-    /** The transaction committed: send what it held back. */
-    public static function commit(): void {
-        if ( self::$depth === 0 ) return;
-        self::$depth--;
-        if ( self::$depth > 0 ) return;
-
+    /** The outermost transaction committed: send what it held back. */
+    public static function committed(): void {
         $queue       = self::$queue;
         self::$queue = [];
-        foreach ( $queue as $send ) {
-            $send();
+        foreach ( $queue as [ , $send ] ) {
+            try {
+                $send();
+            } catch ( \Throwable $e ) {
+                // The writes are committed; a failed send must not undo the
+                // caller's success or stop the sends after it.
+                if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+                    error_log( '[TalentTrack] A send held for the commit failed: ' . $e->getMessage() );
+                }
+            }
         }
     }
 
-    /** The transaction rolled back: nothing it held back is sent. */
-    public static function discard(): void {
-        if ( self::$depth === 0 ) return;
-        self::$depth--;
-        if ( self::$depth === 0 ) self::$queue = [];
+    /** The savepoint opened at `$level` was released: its sends move out a level. */
+    public static function released( int $level ): void {
+        foreach ( self::$queue as $i => $entry ) {
+            if ( $entry[0] > $level ) self::$queue[ $i ][0] = $level;
+        }
+    }
+
+    /** Everything above `$level` rolled back: what it queued is not sent. */
+    public static function rolledBack( int $level ): void {
+        self::$queue = array_values( array_filter(
+            self::$queue,
+            static fn( array $entry ): bool => $entry[0] <= $level
+        ) );
     }
 }

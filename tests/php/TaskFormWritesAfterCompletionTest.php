@@ -17,6 +17,7 @@ use TT\Modules\Workflow\Contracts\AssigneeResolver;
 use TT\Modules\Workflow\Contracts\CompletionStepInterface;
 use TT\Modules\Workflow\Contracts\FormInterface;
 use TT\Modules\Workflow\Forms\RequestConsentForm;
+use TT\Modules\Workflow\Forms\ReviewTrialGroupMembershipForm;
 use TT\Modules\Workflow\Frontend\FrontendTaskDetailView;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\Resolvers\LambdaResolver;
@@ -84,6 +85,8 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $this->refuse = '';
         ThrowingOnceConsentForm::$throw = false;
         ThrowingOnceConsentForm::$wrote = false;
+        ThrowingAfterReviewForm::$throw    = false;
+        ThrowingAfterReviewForm::$archived = false;
         $_POST = [];
         $_SERVER['REQUEST_METHOD'] = 'GET';
         wp_set_current_user( 0 );
@@ -349,6 +352,43 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
         $this->assertSame( [], $this->writes );
     }
 
+    /**
+     * #4561 — a final decline archives the player, and archiving opens a
+     * transaction of its own. That used to commit the completion's early,
+     * so a failure after it left the decision and the archive standing.
+     */
+    public function test_a_final_decline_that_fails_after_the_archive_rolls_back_fully(): void {
+        global $wpdb;
+        $extra   = $this->trialCase();
+        $task_id = $this->task( $this->template( 'test_writes_after_decline_final', ThrowingAfterReviewForm::class ), $extra );
+        $form    = new ThrowingAfterReviewForm();
+        $task    = ( new TasksRepository() )->find( $task_id );
+        $this->assertIsArray( $task );
+        $raw = [ 'decision' => 'decline_final', 'rationale' => 'Not at the level for the age group.' ];
+
+        ThrowingAfterReviewForm::$throw = true;
+        $this->assertFalse( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->assertTrue( ThrowingAfterReviewForm::$archived, 'precondition: the player was archived before the failure' );
+
+        $this->assertNotSame( TaskStatus::COMPLETED, $this->status( $task_id ), 'the task is still open' );
+        $player = $wpdb->get_row( $wpdb->prepare(
+            "SELECT status, archived_at FROM {$wpdb->prefix}tt_players WHERE id = %d",
+            (int) $extra['player_id']
+        ) );
+        $this->assertSame( 'trial', (string) ( $player->status ?? '' ), 'the player is still on trial' );
+        $this->assertNull( $player->archived_at ?? null, 'the archive was rolled back' );
+        $this->assertSame( '', (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COALESCE(decision, '') FROM {$wpdb->prefix}tt_trial_cases WHERE id = %d",
+            (int) $extra['trial_case_id']
+        ) ), 'the decision was rolled back' );
+        $this->assertSame( 0, $this->records( 'review', $extra ), 'no trial ending reached the timeline' );
+
+        // The retry decides it, once.
+        ThrowingAfterReviewForm::$throw = false;
+        $this->assertTrue( WorkflowModule::engine()->complete( $task_id, $form->serializeResponse( $raw, $task ), $form, $raw ) );
+        $this->assertSame( 1, $this->records( 'review', $extra ) );
+    }
+
     public function test_a_task_without_a_completion_step_is_completed_once(): void {
         $task_id   = $this->task( $this->template( 'test_writes_after_plain', 'TT\\Modules\\Workflow\\Forms\\QuarterlyHoDReviewForm' ) );
         $completed = 0;
@@ -599,6 +639,31 @@ final class TaskFormWritesAfterCompletionTest extends WP_UnitTestCase {
  * The consent-request form, whose completion step writes its record and then
  * fails while `$throw` is set.
  */
+/**
+ * The trial-group review form, whose completion step records the decision
+ * (which archives the player on a final decline) and then fails while
+ * `$throw` is set.
+ */
+final class ThrowingAfterReviewForm extends ReviewTrialGroupMembershipForm {
+
+    public static bool $throw = false;
+
+    public static bool $archived = false;
+
+    public function onCompleted( array $task, array $raw, array $response ): array {
+        $written = parent::onCompleted( $task, $raw, $response );
+        if ( self::$throw ) {
+            global $wpdb;
+            self::$archived = $wpdb->get_var( $wpdb->prepare(
+                "SELECT archived_at FROM {$wpdb->prefix}tt_players WHERE id = %d",
+                (int) ( $task['player_id'] ?? 0 )
+            ) ) !== null;
+            throw new \RuntimeException( 'Failed after the archive, for the test.' );
+        }
+        return $written;
+    }
+}
+
 final class ThrowingOnceConsentForm extends RequestConsentForm {
 
     public static bool $throw = false;

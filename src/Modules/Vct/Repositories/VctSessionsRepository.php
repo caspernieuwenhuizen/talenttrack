@@ -3,6 +3,7 @@ namespace TT\Modules\Vct\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -119,15 +120,15 @@ class VctSessionsRepository {
         if ( $id <= 0 ) return false;
         $club_id = CurrentClub::id();
 
-        $this->wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         $this->wpdb->delete( $this->blocks_table, [ 'club_id' => $club_id, 'vct_session_id' => $id ] );
         $ok = $this->wpdb->delete( $this->table, [ 'club_id' => $club_id, 'id' => $id ] );
 
         if ( $ok === false || $ok === 0 ) {
-            $this->wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             return false;
         }
-        $this->wpdb->query( 'COMMIT' );
+        Transaction::commit();
         return true;
     }
 

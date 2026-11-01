@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -56,7 +57,7 @@ final class PdpCascadeDeleter {
 
         $deleted = [];
 
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
         try {
             // Conversation ids needed for both the calendar-link delete
             // and the goal-link cleanup below.
@@ -131,27 +132,8 @@ final class PdpCascadeDeleter {
             ) );
             if ( $n === false ) throw new \RuntimeException( 'Final delete failed on tt_pdp_files: ' . $wpdb->last_error );
             $deleted['tt_pdp_files'] = (int) $n;
-
-            $wpdb->query( 'COMMIT' );
-
-            $audit_event = [
-                'pdp_file_id' => $pdp_file_id,
-                'club_id'     => $club_id,
-                'by_user'     => get_current_user_id(),
-                'deleted'     => $deleted,
-            ];
-            // #1294 — surface-provided side-effect metadata (e.g.
-            // pre-delete CSV path from the wp-admin double-confirm
-            // surface). Extra keys can never override the canonical
-            // ones above.
-            if ( ! empty( $extra_audit ) ) {
-                $audit_event = array_merge( $extra_audit, $audit_event );
-            }
-            Logger::info( 'pdp.deleted_with_cascade', $audit_event );
-
-            return $deleted;
         } catch ( \Throwable $e ) {
-            $wpdb->query( 'ROLLBACK' );
+            Transaction::rollback();
             Logger::error( 'pdp.cascade.failed', [
                 'pdp_file_id' => $pdp_file_id,
                 'club_id'     => $club_id,
@@ -159,5 +141,23 @@ final class PdpCascadeDeleter {
             ] );
             throw $e;
         }
+        Transaction::commit();
+
+        $audit_event = [
+            'pdp_file_id' => $pdp_file_id,
+            'club_id'     => $club_id,
+            'by_user'     => get_current_user_id(),
+            'deleted'     => $deleted,
+        ];
+        // #1294 — surface-provided side-effect metadata (e.g.
+        // pre-delete CSV path from the wp-admin double-confirm
+        // surface). Extra keys can never override the canonical
+        // ones above.
+        if ( ! empty( $extra_audit ) ) {
+            $audit_event = array_merge( $extra_audit, $audit_event );
+        }
+        Logger::info( 'pdp.deleted_with_cascade', $audit_event );
+
+        return $deleted;
     }
 }

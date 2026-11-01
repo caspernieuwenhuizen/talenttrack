@@ -3,6 +3,8 @@ namespace TT\Modules\Backup;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Database\Transaction;
+
 /**
  * BackupRestorer — replay a snapshot back into the live `tt_*` tables.
  *
@@ -81,15 +83,55 @@ class BackupRestorer {
             return [ 'ok' => false, 'error' => __( 'Backup file is not valid.', 'talenttrack' ), 'restored' => [] ];
         }
 
-        global $wpdb;
-        $restored = [];
-
         // Best-effort transaction. MySQL DDL (TRUNCATE) auto-commits, so
         // the transaction wrapping is mostly cosmetic; we still try, in
         // case the server happens to support it for the path we hit.
-        $wpdb->query( 'START TRANSACTION' );
+        Transaction::begin();
+        try {
+            $restored = self::restoreTables( $snapshot['tables'] );
+        } catch ( \Throwable $e ) {
+            // #4561 — closed on a throw too, so the level is never left open.
+            Transaction::rollback();
+            throw $e;
+        }
+        Transaction::commit();
 
-        foreach ( $snapshot['tables'] as $bare => $payload ) {
+        // Post-restore: count match check.
+        $expected = $preview['summary'] ?? [];
+        $mismatches = [];
+        foreach ( $expected as $bare => $exp ) {
+            $actual = $restored[ $bare ] ?? 0;
+            if ( (int) $exp !== (int) $actual ) {
+                $mismatches[] = sprintf( '%s: %d expected, %d restored', $bare, $exp, $actual );
+            }
+        }
+
+        if ( ! empty( $mismatches ) ) {
+            return [
+                'ok'       => false,
+                'error'    => sprintf(
+                    /* translators: %s is comma-separated list of "table: expected vs actual" mismatches */
+                    __( 'Restore completed but row counts do not match: %s', 'talenttrack' ),
+                    implode( ', ', $mismatches )
+                ),
+                'restored' => $restored,
+            ];
+        }
+
+        return [ 'ok' => true, 'restored' => $restored ];
+    }
+
+    /**
+     * Truncate and refill each snapshot table that exists on this install.
+     *
+     * @param array<mixed> $tables
+     * @return array<string,int> bare table => rows restored
+     */
+    private static function restoreTables( array $tables ): array {
+        global $wpdb;
+        $restored = [];
+
+        foreach ( $tables as $bare => $payload ) {
             $bare    = (string) $bare;
             $columns = is_array( $payload['columns'] ?? null ) ? $payload['columns'] : [];
             $rows    = is_array( $payload['rows']    ?? null ) ? $payload['rows']    : [];
@@ -116,31 +158,7 @@ class BackupRestorer {
             $restored[ $bare ] = $count;
         }
 
-        $wpdb->query( 'COMMIT' );
-
-        // Post-restore: count match check.
-        $expected = $preview['summary'] ?? [];
-        $mismatches = [];
-        foreach ( $expected as $bare => $exp ) {
-            $actual = $restored[ $bare ] ?? 0;
-            if ( (int) $exp !== (int) $actual ) {
-                $mismatches[] = sprintf( '%s: %d expected, %d restored', $bare, $exp, $actual );
-            }
-        }
-
-        if ( ! empty( $mismatches ) ) {
-            return [
-                'ok'       => false,
-                'error'    => sprintf(
-                    /* translators: %s is comma-separated list of "table: expected vs actual" mismatches */
-                    __( 'Restore completed but row counts do not match: %s', 'talenttrack' ),
-                    implode( ', ', $mismatches )
-                ),
-                'restored' => $restored,
-            ];
-        }
-
-        return [ 'ok' => true, 'restored' => $restored ];
+        return $restored;
     }
 
     /**
