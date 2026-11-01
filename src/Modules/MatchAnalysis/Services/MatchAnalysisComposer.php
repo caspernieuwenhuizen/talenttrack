@@ -381,7 +381,9 @@ final class MatchAnalysisComposer {
                 'player_id'      => $pid,
                 'name'           => (string) ( $short[ $pid ] ?? QueryHelpers::player_display_name( $player ) ),
                 'full_name'      => (string) QueryHelpers::player_display_name( $player ),
-                'minutes'        => $minutes[ $pid ] ?? ( $item['minutes_played'] ?? null ),
+                // #4556 — the minutes reports' own read, and only that: the
+                // analysis's stored copy is not a second minutes source.
+                'minutes'        => $minutes[ $pid ] ?? null,
                 'marker'         => (string) ( $item['marker'] ?? '' ),
                 // `note` stays as the first line so every existing reader
                 // keeps working; `note_items` is where the marks are.

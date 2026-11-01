@@ -102,6 +102,10 @@ final class MinutesQuery {
         $by_type     = []; // [pid][type_key] => minutes
         $available_minutes = 0; // squad-wide; same for every player on roster
 
+        // #4556 — every match's minutes in one read, before the loop, rather
+        // than one read per match.
+        $all_minutes = self::minutesForActivities( array_map( static fn( $a ): int => (int) $a->id, $activities ) );
+
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
             $type_key = (string) ( $a->game_subtype_key ?? '' );
@@ -112,7 +116,7 @@ final class MinutesQuery {
             // tt_attendance but no match-prep; it must still appear. The
             // recorded minutes — not the presence of a prep line-up — are
             // what qualify a match to count (see the #2252 gate below).
-            $minutes_map = self::minutesFor( $aid, $club_id );
+            $minutes_map = $all_minutes[ $aid ] ?? [];
 
             $prep = $prep_repo->findByActivity( $aid );
 
@@ -402,10 +406,46 @@ final class MinutesQuery {
      * same figures as `forTeam()` in a fixed number of queries, rather than
      * a SQL aggregate of its own that never asked the resolver.
      *
+     * #4556 — {@see playerMatchMinutes()} above 0. Register players only,
+     * as the grid and the audit count them.
+     *
      * @param array<int> $activity_ids
      * @return array<int, array<int,int>> activity id => player id => minutes above 0
      */
     public static function minutesForActivities( array $activity_ids ): array {
+        $out = [];
+        foreach ( self::playerMatchMinutes( $activity_ids ) as $aid => $by_player ) {
+            foreach ( $by_player as $pid => $entry ) {
+                if ( $entry['minutes'] !== null && $entry['minutes'] > 0 ) $out[ $aid ][ $pid ] = $entry['minutes'];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * #4556 — the one implementation of a player's minutes for a match, for
+     * every player on its recorded register, and where the figure came from.
+     * The minutes grid, the Minutes audit and every minutes report read it
+     * (the reports through {@see minutesForActivities()}).
+     *
+     *  - `minutes`: the newest recorded figure (`PlayerMatchMinutes`, #4526),
+     *    a confirmed `0` included; on a completed tournament fixture whose
+     *    register holds no figure for the player, the rotation plan's
+     *    (#4053), through `TournamentMinutesResolver::arbitrate()`; null
+     *    when neither has one.
+     *  - `source`: `TournamentMinutesResolver::SOURCE_REGISTER` or
+     *    `SOURCE_PLAN`, null with no figure. A plan figure is shown where
+     *    minutes are reported, but it is not a recorded one: the audit
+     *    reads the source to tell the two apart.
+     *
+     * Only players on the register: a player the plan names who was never
+     * registered for the fixture is not in its squad, which is how the grid
+     * and the audit have always counted it.
+     *
+     * @param array<int> $activity_ids
+     * @return array<int, array<int, array{minutes:?int, source:?string}>> activity id => player id => entry
+     */
+    public static function playerMatchMinutes( array $activity_ids ): array {
         $ids = [];
         foreach ( $activity_ids as $aid ) {
             $aid = (int) $aid;
@@ -418,16 +458,13 @@ final class MinutesQuery {
         $planned  = TournamentMinutesResolver::plannedByActivity( $ids );
 
         $out = [];
-        foreach ( $ids as $aid ) {
-            $values = $register[ $aid ] ?? [];
-            if ( isset( $planned[ $aid ] ) ) {
-                $values = [];
-                foreach ( TournamentMinutesResolver::arbitrate( $register[ $aid ] ?? [], $planned[ $aid ] ) as $pid => $answer ) {
-                    $values[ $pid ] = $answer['minutes'];
-                }
-            }
-            foreach ( $values as $pid => $minutes ) {
-                if ( $minutes !== null && (int) $minutes > 0 ) $out[ $aid ][ (int) $pid ] = (int) $minutes;
+        foreach ( $register as $aid => $by_player ) {
+            $resolved = TournamentMinutesResolver::arbitrate( $by_player, $planned[ $aid ] ?? [] );
+            foreach ( array_keys( $by_player ) as $pid ) {
+                $answer = $resolved[ $pid ] ?? null;
+                $out[ $aid ][ $pid ] = $answer !== null
+                    ? [ 'minutes' => $answer['minutes'], 'source' => $answer['source'] ]
+                    : [ 'minutes' => null, 'source' => null ];
             }
         }
         return $out;
@@ -567,7 +604,10 @@ final class MinutesQuery {
             . "              WHERE played_att.activity_id = {$q}id"
             . "                AND played_att.record_type = 'actual'"
             . "                AND played_att.is_guest = 0"
-            . "                AND COALESCE( played_att.minutes_override, played_att.minutes_played, 0 ) > 0 ) )";
+            . "                AND COALESCE( played_att.minutes_override, played_att.minutes_played, 0 ) > 0"
+            // #4556 — on the row the minutes read picks, not any row: a
+            // duplicate corrected to 0 does not make the match played.
+            . "                " . PlayerMatchMinutes::newestRowClause( 'played_att' ) . " ) )";
     }
 
     /**
@@ -790,6 +830,9 @@ final class MinutesQuery {
         ) );
         if ( empty( $activities ) ) return [];
 
+        // #4556 — one read for every match, before the loop.
+        $all_minutes = self::minutesForActivities( array_map( static fn( $a ): int => (int) $a->id, $activities ) );
+
         $out = [];
         foreach ( $activities as $a ) {
             $aid = (int) $a->id;
@@ -798,7 +841,7 @@ final class MinutesQuery {
             // `record_type = 'actual'` minutes ONLY. Minutes are never
             // recomputed from a lineup at report time; a planned-but-never-
             // recorded match contributes no breakdown row.
-            $minutes_map = self::minutesFor( $aid, $club_id );
+            $minutes_map = $all_minutes[ $aid ] ?? [];
             $record_type = 'actual';
 
             if ( ! isset( $minutes_map[ $player_id ] ) ) continue;

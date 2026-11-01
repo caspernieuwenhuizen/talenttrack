@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -120,14 +121,6 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                         AND {$completed}
                         AND a.session_date BETWEEN %s AND %s
                     ) AS attendance_count,
-                    (SELECT COALESCE(SUM(att.minutes_played), 0) FROM {$p}tt_attendance att
-                       INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                      WHERE att.player_id = pl.id
-                        AND att.club_id  = pl.club_id
-                        AND att.record_type = 'actual'
-                        AND {$completed}
-                        AND a.session_date BETWEEN %s AND %s
-                    ) AS minutes_total,
                     (SELECT ROUND(AVG(er.rating), 2) FROM {$p}tt_eval_ratings er
                        INNER JOIN {$p}tt_evaluations e ON e.id = er.evaluation_id AND e.archived_at IS NULL
                       WHERE e.player_id = pl.id
@@ -139,11 +132,42 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
               ORDER BY pl.last_name ASC, pl.first_name ASC",
             $date_from, $date_to,
             $date_from, $date_to,
-            $date_from, $date_to,
             $club_id,
             $team_id
         ) );
         $roster = is_array( $roster ) ? $roster : [];
+
+        // #4556 — minutes played are the minutes reports' own read
+        // (`MinutesQuery::minutesForActivities()`): the coach's override, a
+        // duplicate row read once, guests left out, and an old tournament
+        // fixture's plan. This summed raw `minutes_played` over every
+        // completed activity, trainings and guest rows included. The query
+        // names the completed matches each player is on the register of.
+        $minutes_total = [];
+        $player_ids    = array_values( array_filter( array_map( static fn( $r ): int => (int) ( $r->id ?? 0 ), $roster ) ) );
+        if ( $player_ids !== [] ) {
+            $in    = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            $pairs = $wpdb->get_results( $wpdb->prepare(
+                "SELECT DISTINCT att.player_id, att.activity_id
+                   FROM {$p}tt_attendance att
+                   INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
+                  WHERE att.player_id IN ($in)
+                    AND att.club_id = %d
+                    AND att.record_type = 'actual'
+                    AND att.is_guest = 0
+                    AND LOWER(a.activity_type_key) IN ( 'match', 'game', 'tournament' )
+                    AND {$completed}
+                    AND a.session_date BETWEEN %s AND %s",
+                array_merge( $player_ids, [ $club_id, $date_from, $date_to ] )
+            ) );
+            $pairs   = is_array( $pairs ) ? $pairs : [];
+            $minutes = MinutesQuery::minutesForActivities( array_map( static fn( $r ): int => (int) ( $r->activity_id ?? 0 ), $pairs ) );
+            foreach ( $pairs as $r ) {
+                $pid = (int) ( $r->player_id ?? 0 );
+                $minutes_total[ $pid ] = ( $minutes_total[ $pid ] ?? 0 ) + (int) ( $minutes[ (int) ( $r->activity_id ?? 0 ) ][ $pid ] ?? 0 );
+            }
+        }
 
         $headers = [
             __( 'Player ID',          'talenttrack' ),
@@ -173,7 +197,7 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                 (string) ( $r->team_name ?? '' ),
                 ExportValueFormatter::playerStatus( $r->status ?? '' ),
                 (int)    ( $r->attendance_count ?? 0 ),
-                (int)    ( $r->minutes_total ?? 0 ),
+                (int)    ( $minutes_total[ (int) $r->id ] ?? 0 ),
                 $r->rating_avg !== null ? (float) $r->rating_avg : '',
             ];
         }

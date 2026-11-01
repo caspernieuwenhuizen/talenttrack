@@ -976,23 +976,11 @@ class MatchExecutionRepository {
         // #2290-rebuild — effective minutes = COALESCE(minutes_override,
         // minutes_played). The override is the coach's explicit correction
         // on the match surface; the derived value stays in minutes_played.
-        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT player_id, COALESCE(minutes_override, minutes_played) AS minutes_played
-               FROM {$this->wpdb->prefix}tt_attendance
-              WHERE activity_id = %d
-                AND club_id = %d
-                AND is_guest = 0
-                AND record_type = 'actual'
-                AND COALESCE(minutes_override, minutes_played) IS NOT NULL
-                AND COALESCE(minutes_override, minutes_played) > 0",
-            $activity_id, CurrentClub::id()
-        ) );
-        $map = [];
-        foreach ( (array) $rows as $r ) {
-            $pid = (int) $r->player_id;
-            if ( $pid > 0 ) $map[ $pid ] = (int) $r->minutes_played;
-        }
-        return $map;
+        // #4556 — read through the minutes reports' own read, so a duplicate
+        // row, the override and an old tournament fixture's plan read the
+        // same here as in the reports; this used to take whichever row came
+        // back last.
+        return \TT\Modules\Analytics\Reports\MinutesQuery::squadForActivity( $activity_id );
     }
 
     /**
