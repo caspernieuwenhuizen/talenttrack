@@ -1097,7 +1097,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<table class="tt-list-table-table">';
         echo '<thead><tr>';
         echo '<th>#</th>';
-        echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html_x( 'Template', 'PDP conversation template', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
         // #1852 — visibility only (never a gate): has the player added a
@@ -1148,7 +1148,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             // same row. The class's rule resets colour and decoration with
             // `!important` precisely so a hostile theme cannot re-underline it
             // (#1792).
-            echo '<td data-label="' . esc_attr__( 'Template', 'talenttrack' ) . '">'
+            echo '<td data-label="' . esc_attr_x( 'Template', 'PDP conversation template', 'talenttrack' ) . '">'
                 . '<a class="tt-record-link" href="' . esc_url( $url ) . '">'
                 . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
             echo '<td data-label="' . esc_attr__( 'Scheduled', 'talenttrack' ) . '">'

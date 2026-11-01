@@ -796,7 +796,7 @@ final class TrainingPlansRestController {
         $row['created_at_display'] = TTDate::date( $row['created_at'] );
 
         $row['kind_label'] = $row['is_template']
-            ? __( 'Template', 'talenttrack' )
+            ? _x( 'Template', 'training plan template', 'talenttrack' )
             : __( 'Plan', 'talenttrack' );
 
         // Only archived rows carry it, so the list table's `show_if` gate

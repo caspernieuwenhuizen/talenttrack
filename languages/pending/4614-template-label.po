@@ -1,0 +1,15 @@
+#: src/Infrastructure/REST/TrainingPlansRestController.php:799
+msgctxt "training plan template"
+msgid "Template"
+msgstr "Sjabloon"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1100
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1151
+msgctxt "PDP conversation template"
+msgid "Template"
+msgstr "Sjabloon"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:182
+msgctxt "VCT cycle template"
+msgid "Template"
+msgstr "Sjabloon"
