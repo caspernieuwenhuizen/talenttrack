@@ -58,7 +58,8 @@ class ActivitiesPage {
         $team_id = (int) ( $stored->team_id ?? 0 );
         if ( $team_id <= 0 ) return true;
 
-        return ActivityTeamScope::coversTeam( get_current_user_id(), $team_id );
+        // Every caller here edits, saves or deletes, so it is the write scope.
+        return ActivityTeamScope::coversTeamForWrite( get_current_user_id(), $team_id );
     }
 
     public static function render_page(): void {
@@ -549,7 +550,7 @@ class ActivitiesPage {
         // squad; only the second, edit another squad's fixture by posting their
         // own team id.
         if ( ( $id > 0 && ! self::coversActivity( $id ) )
-            || ( $team_id > 0 && ! ActivityTeamScope::coversTeam( get_current_user_id(), $team_id ) )
+            || ( $team_id > 0 && ! ActivityTeamScope::coversTeamForWrite( get_current_user_id(), $team_id ) )
         ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         }

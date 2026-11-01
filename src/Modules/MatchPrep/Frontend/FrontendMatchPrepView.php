@@ -108,7 +108,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
         // #3151 — `tt_edit_activities` is held club-wide, so it says the
         // viewer runs matches, not whose. Narrow to the teams they coach
         // before a squad is loaded.
-        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeam( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
+        // The prep is an editor, so it opens on the write scope.
+        if ( ! \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, (int) ( $activity->team_id ?? 0 ), $is_admin ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
             echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
             return;

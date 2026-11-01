@@ -325,7 +325,7 @@ class BulkActionsHelper {
         $user_id = get_current_user_id();
         $checks  = [
             'player'   => static fn ( int $id ): bool => AuthorizationService::canEditPlayer( $user_id, $id ),
-            'activity' => static fn ( int $id ): bool => ActivityTeamScope::coversActivity( $user_id, $id ),
+            'activity' => static fn ( int $id ): bool => ActivityTeamScope::coversActivityForWrite( $user_id, $id ),
             'goal'     => static function ( int $id ) use ( $user_id ): bool {
                 $player_id = GoalAccess::playerIdOf( $id );
                 // A goal that is not in this club is not this caller's to act

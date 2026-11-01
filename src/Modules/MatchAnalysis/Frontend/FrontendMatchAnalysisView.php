@@ -88,6 +88,11 @@ class FrontendMatchAnalysisView extends FrontendViewBase {
             echo \TT\Modules\Authorization\ActivityTeamScope::refusalNotice(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped at source
             return;
         }
+        // Reading the team's analysis is not writing it: the form is for a
+        // reader who may change it, everyone else gets the document.
+        if ( $can_edit && $scoped_team_id !== null ) {
+            $can_edit = \TT\Modules\Authorization\ActivityTeamScope::coversTeamForWrite( $user_id, $scoped_team_id, $is_admin );
+        }
 
         $composer = new MatchAnalysisComposer();
         $payload  = $composer->forActivity( $activity_id, false );

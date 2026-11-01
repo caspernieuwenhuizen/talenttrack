@@ -120,9 +120,10 @@ class MatchPrepRestController {
      */
     public static function can_edit( \WP_REST_Request $r ): bool {
         if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
-        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
             get_current_user_id(),
-            absint( $r['activity_id'] )
+            absint( $r['activity_id'] ),
+            $r
         );
     }
 
@@ -135,9 +136,10 @@ class MatchPrepRestController {
         if ( ! current_user_can( 'tt_edit_activities' ) ) return false;
         $prep = ( new MatchPrepRepository() )->find( absint( $r['prep_id'] ) );
         if ( ! $prep ) return false;
-        return \TT\Modules\Authorization\ActivityTeamScope::coversActivity(
+        return \TT\Modules\Authorization\ActivityTeamScope::coversActivityForRequest(
             get_current_user_id(),
-            (int) ( $prep->activity_id ?? 0 )
+            (int) ( $prep->activity_id ?? 0 ),
+            $r
         );
     }
 
