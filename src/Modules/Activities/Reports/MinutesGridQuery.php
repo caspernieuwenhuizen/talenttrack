@@ -5,10 +5,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\Analytics\Reports\MinutesAuditQuery;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
-use TT\Modules\Tournaments\Services\TournamentMinutesResolver;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 
 /**
  * MinutesGridQuery (#2386, epic #2381) — the players × matches minutes-entry
@@ -217,12 +216,10 @@ final class MinutesGridQuery {
         //    #4247 — guest rows are read too, only to tell whether a register
         //    was taken at all; `in_squad` keeps them out of the squad.
         //
-        //    #4526 — the minutes are the newest recorded row's, through
-        //    `PlayerMatchMinutes`, the read the audit and the reports share.
-        //    MAX here read 70 where they summed two rows to 140.
+        //    #4526 / #4556 — the minutes are `MinutesQuery::playerMatchMinutes()`,
+        //    the one read the audit and every minutes report share.
         $activity_ids = array_map( static fn( array $a ): int => $a['activity_id'], $activities );
         $in_ids = implode( ',', array_fill( 0, count( $activity_ids ), '%d' ) );
-        $newest = PlayerMatchMinutes::forActivities( $activity_ids );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT activity_id, player_id,
@@ -256,39 +253,30 @@ final class MinutesGridQuery {
         // #4053 — a tournament fixture completed before v4.135.0 has a register
         // row per squad member with no minutes on it, because the confirm step
         // that writes them did not exist yet. Those cells read 0 for a child who
-        // played twelve minutes. The rotation plan is the fallback, arbitrated
-        // by `TournamentMinutesResolver` — the same class the player's own
-        // Tournaments tab and the coach's ticker use, so the three cannot
-        // disagree. Only **completed** fixtures are in the map: handing the grid
-        // an uncompleted fixture's plan would print planned minutes in a
-        // minutes-entry box (#3713).
-        // `is_neutral` is the flag a tournament fixture carries; the day itself
-        // carries it too and is simply never any fixture's activity, so it
-        // costs nothing to ask about and keeps the rule read from one column.
-        $tournament_activity_ids = [];
-        foreach ( $activities as $a ) {
-            if ( $a['is_neutral'] ) $tournament_activity_ids[] = $a['activity_id'];
-        }
-        $planned = TournamentMinutesResolver::plannedByActivity( $tournament_activity_ids );
+        // played twelve minutes. The rotation plan is the fallback; since #4556
+        // it is applied once, in `MinutesQuery::playerMatchMinutes()`, which
+        // the audit and the reports read too, so they cannot disagree. Only
+        // **completed** fixtures fall back: handing the grid an uncompleted
+        // fixture's plan would print planned minutes in a minutes-entry box
+        // (#3713). A register figure wins whenever there is one, a confirmed
+        // 0 included.
+        $entries = MinutesQuery::playerMatchMinutes( $activity_ids );
 
-        // A register figure wins whenever there is one, a confirmed 0 included;
-        // `minutes` is NULL here only when no row carried a figure at all.
         $register = [];
         foreach ( (array) $att_rows as $r ) {
             $pid = (int) $r->player_id;
             $aid = (int) $r->activity_id;
             if ( $pid <= 0 || $aid <= 0 || ! (int) $r->in_squad ) continue;
-            $register[ $aid ][ $pid ] = $newest[ $aid ][ $pid ] ?? null;
+            $register[ $aid ][ $pid ] = true;
         }
 
         $cells = [];
         foreach ( $register as $aid => $by_player ) {
-            $resolved = TournamentMinutesResolver::arbitrate( $by_player, $planned[ $aid ] ?? [] );
             foreach ( array_keys( $by_player ) as $pid ) {
                 $cells[ $pid ][ $aid ] = [
                     // A player with a register row and nothing on it either way
                     // is 0, as before: the cell is the box a coach types into.
-                    'minutes'  => (int) ( $resolved[ $pid ]['minutes'] ?? 0 ),
+                    'minutes'  => (int) ( $entries[ $aid ][ $pid ]['minutes'] ?? 0 ),
                     'squad'    => true,
                     'goals'    => (int) ( $contributions[ $aid ][ $pid ]['goals'] ?? 0 ),
                     'assists'  => (int) ( $contributions[ $aid ][ $pid ]['assists'] ?? 0 ),

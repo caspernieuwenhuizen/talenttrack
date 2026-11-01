@@ -315,6 +315,33 @@ final class TournamentMinutesRegisterTest extends WP_UnitTestCase {
         $this->assertSame( 60, (int) $row['total_minutes'] );
     }
 
+    /**
+     * #4556 — a player the plan names who was never on the fixture's
+     * register is not in its squad, on any surface. The grid and the audit
+     * left him out; the `MinutesQuery` reports counted his plan minutes.
+     */
+    public function test_a_plan_only_player_is_absent_everywhere(): void {
+        $plan_only = $this->seedPlayer( 11 );
+        $this->assign( $this->fixtures['legacy_empty']['match_id'], 0, $plan_only, 'CM' );
+        $this->assign( $this->fixtures['legacy_empty']['match_id'], 1, $plan_only, 'CM' );
+        $aid = $this->fixtures['legacy_empty']['activity_id'];
+
+        $grid = ( new MinutesGridQuery() )->matrix( self::TEAM, '2026-03-01', '2026-03-31' );
+        $this->assertArrayNotHasKey( $aid, $grid['cells'][ $plan_only ] ?? [], 'grid' );
+        $this->assertSame( 0, (int) ( $this->auditRow( $aid )['minutes'][ $plan_only ] ?? 0 ), 'audit' );
+        $this->assertArrayNotHasKey( $plan_only, MinutesQuery::squadForActivity( $aid ), 'squadForActivity' );
+        $this->assertArrayNotHasKey( $plan_only, MinutesQuery::playerMatchMinutes( [ $aid ] )[ $aid ] ?? [], 'the shared read' );
+        $this->assertSame( [], ( new MinutesQuery() )->matchBreakdownForPlayer( self::TEAM, $plan_only, '2026-03-01', '2026-03-31' ), 'breakdown' );
+        foreach ( ( new MinutesQuery() )->forTeam( self::TEAM, '2026-03-01', '2026-03-31' ) as $row ) {
+            if ( (int) $row['player_id'] === $plan_only ) $this->assertSame( 0, (int) $row['total_minutes'], 'forTeam' );
+        }
+
+        // The register player on the same fixture still reads the plan, and
+        // the shared read says so.
+        $entry = MinutesQuery::playerMatchMinutes( [ $aid ] )[ $aid ][ $this->player ];
+        $this->assertSame( [ 'minutes' => 2 * self::PERIOD, 'source' => TournamentMinutesResolver::SOURCE_PLAN ], $entry );
+    }
+
     // ── the same number in all six places (#4549) ─────────────────────
 
     /**

@@ -66,6 +66,20 @@ final class MatchExecutionMissingAlertTest extends WP_UnitTestCase {
         $this->assertSame( [], ( new MatchExecutionMissingAlert() )->evaluate( new AlertContext( $this->club ) ) );
     }
 
+    /**
+     * #4556 — the minutes check reads the row the minutes read picks: a
+     * duplicate corrected to 0 is a game without minutes, so nothing to ask.
+     */
+    public function test_a_duplicate_corrected_to_zero_produces_nothing(): void {
+        $team   = $this->insertTeam();
+        $game   = $this->insertGame( $team, $this->daysAgo( 5 ) );
+        $player = $this->insertPlayer( $team );
+        $this->insertMinutes( $game, $player, 70 );
+        $this->insertMinutes( $game, $player, 0 );
+
+        $this->assertSame( [], ( new MatchExecutionMissingAlert() )->evaluate( new AlertContext( $this->club ) ) );
+    }
+
     /** No minutes at all is the attendance alert's subject, not this one's. */
     public function test_a_game_without_minutes_produces_nothing(): void {
         $team = $this->insertTeam();

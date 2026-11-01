@@ -98,7 +98,7 @@ final class MatchAnalysisDocumentTest extends WP_UnitTestCase {
             'players'  => [
                 $this->players['Thijs'] => [ 'marker' => MatchAnalysisEnums::MARKER_STOOD_OUT, 'note' => 'Verdedigend sterk.' ],
             ],
-        ], [] );
+        ] );
 
         return $analysis_id;
     }

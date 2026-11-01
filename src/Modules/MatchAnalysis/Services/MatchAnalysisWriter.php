@@ -58,9 +58,8 @@ final class MatchAnalysisWriter {
      * nothing arrives here half-written (#3843).
      *
      * @param array<string,mixed> $body
-     * @param array<int,?int>     $minutes player id => minutes, for the snapshot
      */
-    public function apply( int $analysis_id, array $body, array $minutes = [] ): void {
+    public function apply( int $analysis_id, array $body ): void {
         if ( $analysis_id <= 0 ) return;
 
         $patch = [];
@@ -90,12 +89,7 @@ final class MatchAnalysisWriter {
             foreach ( $body['players'] as $pid => $item ) {
                 if ( ! is_array( $item ) ) continue;
                 $player_id = (int) $pid;
-                $this->savePlayerItem(
-                    $analysis_id,
-                    $player_id,
-                    $item,
-                    $minutes[ $player_id ] ?? null
-                );
+                $this->savePlayerItem( $analysis_id, $player_id, $item );
             }
         }
 
@@ -292,7 +286,7 @@ final class MatchAnalysisWriter {
      *
      * @param array<string,mixed> $item
      */
-    public function savePlayerItem( int $analysis_id, int $player_id, array $item, ?int $minutes ): void {
+    public function savePlayerItem( int $analysis_id, int $player_id, array $item ): void {
         if ( $analysis_id <= 0 || $player_id <= 0 ) return;
 
         $marker = isset( $item['marker'] ) ? sanitize_key( (string) $item['marker'] ) : '';
@@ -306,8 +300,7 @@ final class MatchAnalysisWriter {
             $player_id,
             $marker,
             self::cleanNoteItems( self::notesOf( $item ) ),
-            $tag !== '' ? $tag : null,
-            $minutes
+            $tag !== '' ? $tag : null
         );
 
         if ( $item_id > 0 ) {

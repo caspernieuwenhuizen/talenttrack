@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
 use TT\Infrastructure\Query\ActivityLifecycle;
+use TT\Modules\Activities\Repositories\PlayerMatchMinutes;
 use TT\Modules\Alerts\Domain\AlertContext;
 use TT\Modules\Alerts\Domain\Severity;
 use TT\Modules\License\LicenseGate;
@@ -89,8 +90,11 @@ final class MatchExecutionMissingAlert extends AbstractActivityAlert {
 
         // Minutes are the same predicate every minutes report reads
         // (`MinutesQuery::minutesForActivities`): recorded, non-guest, effective
-        // minutes above zero. A completed game with no minutes at all is
-        // `AttendanceUnrecordedAlert`'s subject, not this one's.
+        // minutes above zero, on the row that read picks (#4556) — a duplicate
+        // corrected to 0 is a match without minutes. A completed game with no
+        // minutes at all is `AttendanceUnrecordedAlert`'s subject, not this
+        // one's. Tournament fixtures are out of this alert, so the plan
+        // fallback never applies here.
         $sql = $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date, a.team_id, a.coach_id
                FROM {$p}tt_activities a
@@ -106,6 +110,7 @@ final class MatchExecutionMissingAlert extends AbstractActivityAlert {
                        AND att.record_type = 'actual'
                        AND att.is_guest = 0
                        AND COALESCE( att.minutes_override, att.minutes_played, 0 ) > 0
+                       " . PlayerMatchMinutes::newestRowClause( 'att' ) . "
                 )
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_match_execution me

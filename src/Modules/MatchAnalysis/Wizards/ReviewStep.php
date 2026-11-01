@@ -141,11 +141,6 @@ final class ReviewStep implements WizardStepInterface {
 
         $analysis_id = (int) $payload['analysis_id'];
 
-        $minutes = [];
-        foreach ( (array) $payload['players'] as $row ) {
-            $minutes[ (int) $row['player_id'] ] = $row['minutes'] !== null ? (int) $row['minutes'] : null;
-        }
-
         $sections = isset( $state['sections'] ) && is_array( $state['sections'] ) ? $state['sections'] : [];
         $players  = isset( $state['players'] ) && is_array( $state['players'] ) ? $state['players'] : [];
 
@@ -156,8 +151,7 @@ final class ReviewStep implements WizardStepInterface {
                 'status'   => MatchAnalysisEnums::STATUS_FINAL,
                 'sections' => $sections,
                 'players'  => $players,
-            ],
-            $minutes
+            ]
         );
 
         return [

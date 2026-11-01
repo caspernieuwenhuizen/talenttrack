@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\ActivityLifecycle;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
+use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
 use TT\Modules\Export\ExportScope;
@@ -120,14 +121,6 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                         AND {$completed}
                         AND a.session_date BETWEEN %s AND %s
                     ) AS attendance_count,
-                    (SELECT COALESCE(SUM(att.minutes_played), 0) FROM {$p}tt_attendance att
-                       INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                      WHERE att.player_id = pl.id
-                        AND att.club_id  = pl.club_id
-                        AND att.record_type = 'actual'
-                        AND {$completed}
-                        AND a.session_date BETWEEN %s AND %s
-                    ) AS minutes_total,
                     (SELECT ROUND(AVG(er.rating), 2) FROM {$p}tt_eval_ratings er
                        INNER JOIN {$p}tt_evaluations e ON e.id = er.evaluation_id AND e.archived_at IS NULL
                       WHERE e.player_id = pl.id
@@ -139,11 +132,23 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
               ORDER BY pl.last_name ASC, pl.first_name ASC",
             $date_from, $date_to,
             $date_from, $date_to,
-            $date_from, $date_to,
             $club_id,
             $team_id
         ) );
         $roster = is_array( $roster ) ? $roster : [];
+
+        // #4556 — minutes played are the team minutes report's own totals,
+        // `MinutesQuery::forTeam()` for this team and window: the same
+        // matches (the team's, not archived, not trashed, not cancelled, no
+        // completed status needed) and the same minutes (the coach's
+        // override, a duplicate row read once, guests left out, an old
+        // tournament fixture's plan). This summed raw `minutes_played` over
+        // every completed activity of any team, trainings, guest, archived
+        // and trashed rows included, so the export and the report disagreed.
+        $minutes_total = [];
+        foreach ( ( new MinutesQuery() )->forTeam( $team_id, $date_from, $date_to ) as $row ) {
+            $minutes_total[ (int) $row['player_id'] ] = (int) $row['total_minutes'];
+        }
 
         $headers = [
             __( 'Player ID',          'talenttrack' ),
@@ -173,7 +178,7 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface, ScopeGatedE
                 (string) ( $r->team_name ?? '' ),
                 ExportValueFormatter::playerStatus( $r->status ?? '' ),
                 (int)    ( $r->attendance_count ?? 0 ),
-                (int)    ( $r->minutes_total ?? 0 ),
+                (int)    ( $minutes_total[ (int) $r->id ] ?? 0 ),
                 $r->rating_avg !== null ? (float) $r->rating_avg : '',
             ];
         }

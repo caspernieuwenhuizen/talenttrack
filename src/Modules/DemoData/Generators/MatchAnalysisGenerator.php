@@ -271,7 +271,8 @@ class MatchAnalysisGenerator implements DependentGeneratorInterface {
                     'player_id'      => $player_id,
                     'marker'         => $markers[ $n % count( $markers ) ],
                     'team_function'  => $sections[ ( $index + $m ) % count( $sections ) ],
-                    'minutes_played' => $row->minutes !== null ? (int) $row->minutes : null,
+                    // #4556 — no minutes copy: the analysis reads the
+                    // attendance minutes like every other screen.
                     'updated_at'     => $when,
                 ] );
                 $n++;
