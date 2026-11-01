@@ -1426,16 +1426,15 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     /**
-     * First preferred-position label (the `preferred_positions` column
-     * is a comma-separated list of abbreviations like `ST,LW`). Used
-     * for the roster row's meta line.
+     * First preferred-position label, for the roster row's meta line and
+     * the picker. #4574 — `preferred_positions` holds a JSON array
+     * (`["RW"]`) on modern rows and a comma list on legacy ones; splitting
+     * the JSON on commas printed `["RW"]`. `primaryPositionLabel()` reads
+     * both forms.
      */
     private static function firstPreferredPosition( object $player ): string {
         $raw = isset( $player->preferred_positions ) ? (string) $player->preferred_positions : '';
-        if ( $raw === '' ) return '';
-        $parts = array_filter( array_map( 'trim', explode( ',', $raw ) ) );
-        if ( ! $parts ) return '';
-        return \TT\Infrastructure\Query\LabelTranslator::positionLabel( (string) reset( $parts ) );
+        return \TT\Infrastructure\Query\LabelTranslator::primaryPositionLabel( $raw );
     }
 
     /**

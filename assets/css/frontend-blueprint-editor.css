@@ -843,6 +843,26 @@
 }
 
 .tt-bpe-slot.is-filled .tt-bpe-slot-x { display: inline-block; }
+
+/* The clear button measured 16 x 21 px, under the 24 px floor a mouse
+   needs too. Under a fine pointer it gets a 24 x 24 box, and the slot
+   row grows to hold it rather than clip it (the row hides overflow). */
+@media (pointer: fine) {
+    .tt-bpe-slot {
+        height: auto;
+        min-height: calc(var(--tt-sp-6) + 2px);
+    }
+    .tt-bpe-slot.is-filled .tt-bpe-slot-x {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: var(--tt-sp-6);
+        min-height: var(--tt-sp-6);
+        margin-left: var(--tt-sp-1);
+        margin-right: calc(-1 * var(--tt-sp-1));
+        padding: 0;
+    }
+}
 .tt-bpe-slot-x:hover { color: #b32d2e; }
 .tt-bpe-slot-x:focus-visible {
     outline: 2px solid #b32d2e;
