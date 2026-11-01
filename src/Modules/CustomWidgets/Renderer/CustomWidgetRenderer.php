@@ -91,8 +91,11 @@ final class CustomWidgetRenderer {
         $aggregation_key = isset( $widget->definition['aggregation']['key'] )
             ? (string) $widget->definition['aggregation']['key']
             : '';
+        // The rows follow the viewer's team scope, so the cache key carries
+        // it: a change of teams is a change of key.
+        $scope = \TT\Modules\CustomWidgets\DataSources\SourceScope::cacheVariant( $user_id );
         if ( $widget->chartType === CustomWidget::CHART_KPI && $aggregation_key !== '' ) {
-            $variant = 'agg_' . $aggregation_key;
+            $variant = 'agg_' . $aggregation_key . '_' . $scope;
             $cached  = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes, $variant );
             if ( $cached !== null ) {
                 $value = $cached[0]['value'] ?? null;
@@ -105,12 +108,12 @@ final class CustomWidgetRenderer {
 
         // Phase 5 — per-widget cache. Per-user keying so a future
         // viewer-aware filter (e.g. "my players") doesn't bleed.
-        $cached = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes );
+        $cached = CustomWidgetCache::get( $widget->uuid, $user_id, $ttl_minutes, 'rows_' . $scope );
         if ( $cached !== null ) {
             $rows = $cached;
         } else {
             $rows = $source->fetch( $user_id, $filters, $columns, $limit );
-            CustomWidgetCache::put( $widget->uuid, $user_id, $rows, $ttl_minutes );
+            CustomWidgetCache::put( $widget->uuid, $user_id, $rows, $ttl_minutes, 'rows_' . $scope );
         }
 
         switch ( $widget->chartType ) {

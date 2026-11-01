@@ -49,6 +49,19 @@ final class SourceScope {
     }
 
     /**
+     * A short fingerprint of the teams this viewer's rows are narrowed to,
+     * for the widget cache key: a coach taken off a team gets a new key and
+     * stops being served the rows cached while they still had it.
+     */
+    public static function cacheVariant( int $user_id ): string {
+        $scope = [];
+        foreach ( [ 'players', 'evaluations', 'goals', 'activities', 'pdp_file' ] as $entity ) {
+            $scope[ $entity ] = self::teamIds( $user_id, $entity, 0 );
+        }
+        return substr( md5( (string) wp_json_encode( $scope ) ), 0, 8 );
+    }
+
+    /**
      * Null for every team; an empty list when the viewer may see none.
      *
      * @return list<int>|null

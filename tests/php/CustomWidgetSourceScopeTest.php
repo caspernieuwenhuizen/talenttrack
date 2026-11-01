@@ -10,6 +10,7 @@ use TT\Modules\CustomWidgets\Domain\CustomDataSource;
 use TT\Modules\CustomWidgets\DataSources\ActivitiesRecent;
 use TT\Modules\CustomWidgets\DataSources\EvaluationsRecent;
 use TT\Modules\CustomWidgets\DataSources\GoalsOpen;
+use TT\Modules\CustomWidgets\DataSources\PdpFiles;
 use TT\Modules\CustomWidgets\DataSources\PlayersActive;
 use TT\Modules\Invitations\PlayerParentsRepository;
 
@@ -57,6 +58,9 @@ final class CustomWidgetSourceScopeTest extends WP_UnitTestCase {
             ] );
             $wpdb->insert( "{$p}tt_goals", [
                 'club_id' => $this->club, 'player_id' => $pid, 'title' => 'Goal ' . $name, 'status' => 'active',
+            ] );
+            $wpdb->insert( "{$p}tt_pdp_files", [
+                'club_id' => $this->club, 'player_id' => $pid, 'season_id' => 950001, 'status' => 'open',
             ] );
             $wpdb->insert( "{$p}tt_activities", [
                 'club_id' => $this->club, 'team_id' => $team, 'title' => 'Training ' . $name,
@@ -116,7 +120,32 @@ final class CustomWidgetSourceScopeTest extends WP_UnitTestCase {
             'evaluations' => [ EvaluationsRecent::class ],
             'goals'       => [ GoalsOpen::class ],
             'activities'  => [ ActivitiesRecent::class ],
+            'pdp files'   => [ PdpFiles::class ],
         ];
+    }
+
+    /** A coach taken off the team gets a new cache key, so no cached rows. */
+    public function test_the_cache_key_follows_the_viewers_teams(): void {
+        global $wpdb;
+        $before = \TT\Modules\CustomWidgets\DataSources\SourceScope::cacheVariant( $this->coach );
+        $wpdb->delete( "{$wpdb->prefix}tt_user_role_scopes", [ 'scope_type' => 'team', 'scope_id' => $this->own ] );
+        MatrixRepository::clearCache();
+        AuthorizationService::flushCache();
+        $this->assertNotSame( $before, \TT\Modules\CustomWidgets\DataSources\SourceScope::cacheVariant( $this->coach ) );
+    }
+
+    /** The PDP rows themselves: this source's row query reads today's schema. */
+    public function test_the_pdp_rows_follow_the_viewers_teams(): void {
+        $admin = $this->text( PdpFiles::class, self::factory()->user->create( [ 'role' => 'administrator' ] ) );
+        $this->assertStringContainsString( 'Otherkid', $admin, 'precondition: the club-wide reader sees both files' );
+
+        $mine = $this->text( PdpFiles::class, $this->coach );
+        $this->assertStringContainsString( 'Ownkid', $mine, 'precondition: the coach reads their own team\'s file' );
+        $this->assertStringNotContainsString( 'Otherkid', $mine );
+
+        $parent = self::factory()->user->create( [ 'role' => 'tt_parent' ] );
+        ( new PlayerParentsRepository() )->link( $this->players['Ownkid'], $parent, true );
+        $this->assertSame( [], $this->rows( PdpFiles::class, $parent ) );
     }
 
     /**
