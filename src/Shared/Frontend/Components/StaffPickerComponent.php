@@ -182,8 +182,9 @@ class StaffPickerComponent {
         $u = get_userdata( $user_id );
         if ( ! $u ) return '';
         $priority = [
-            'tt_head_dev'   => __( 'Head of Development', 'talenttrack' ),
-            'tt_club_admin' => __( 'Club Admin', 'talenttrack' ),
+            // #4523 — the role names from LabelTranslator, in sentence case.
+            'tt_head_dev'   => (string) \TT\Infrastructure\Query\LabelTranslator::authRoleLabel( 'head_of_development' ),
+            'tt_club_admin' => (string) \TT\Infrastructure\Query\LabelTranslator::authRoleLabel( 'club_admin' ),
             'tt_coach'      => __( 'Coach', 'talenttrack' ),
             'tt_scout'      => __( 'Scout', 'talenttrack' ),
             'tt_staff'      => __( 'Staff', 'talenttrack' ),

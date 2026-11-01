@@ -295,7 +295,7 @@ class ConfigurationPage {
                       'description' => __( 'Capability-by-persona matrix that drives access control.', 'talenttrack' ),
                       'icon' => '🔐', 'url' => $page_url( 'tt-matrix' ),
                       'cap' => 'administrator' ],
-                    [ 'label' => __( 'Functional Roles', 'talenttrack' ),
+                    [ 'label' => __( 'Functional roles', 'talenttrack' ),
                       'description' => __( 'Per-team functional roles assignable to staff (Head Coach, …).', 'talenttrack' ),
                       'icon' => '🧩', 'url' => $page_url( 'tt-functional-roles' ) ],
                     [ 'label' => __( 'Roles & Permissions', 'talenttrack' ),
@@ -311,7 +311,7 @@ class ConfigurationPage {
                       // #2187 — matrix-backed cap (→ `module_management`), so
                       // this landing tile follows the same gate as the page.
                       'cap' => \TT\Modules\Authorization\Admin\ModulesPage::CAP ],
-                    [ 'label' => __( 'Permission Debug', 'talenttrack' ),
+                    [ 'label' => __( 'Permission debug', 'talenttrack' ),
                       'description' => __( 'Debug screen showing which capabilities the current user has.', 'talenttrack' ),
                       'icon' => '🐛', 'url' => $page_url( 'tt-roles-debug' ) ],
                 ],

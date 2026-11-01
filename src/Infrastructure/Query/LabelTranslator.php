@@ -88,21 +88,21 @@ class LabelTranslator {
      */
     public static function roleType( string $code ): string {
         switch ( strtolower( $code ) ) {
-            case 'coach':               return __( 'Coach', 'talenttrack' );
+            case 'coach':               return _x( 'Coach', 'role label', 'talenttrack' );
             // `head_coach` is the role-key the People module ships out
             // of the box (see `PeopleRepository::ROLE_TYPES`). The
             // earlier translator omitted it, so the team-detail page's
             // staff list rendered the raw key on Dutch installs.
-            case 'head_coach':          return __( 'Head coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant coach', 'talenttrack' );
-            case 'manager':             return __( 'Team manager', 'talenttrack' );
-            case 'team_manager':        return __( 'Team manager', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
-            case 'staff':               return __( 'Staff', 'talenttrack' );
-            case 'physio':              return __( 'Physio', 'talenttrack' );
-            case 'scout':               return __( 'Scout', 'talenttrack' );
-            case 'parent':              return __( 'Parent', 'talenttrack' );
-            case 'other':               return __( 'Other', 'talenttrack' );
+            case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
+            case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
+            case 'manager':             return _x( 'Team manager', 'role label', 'talenttrack' );
+            case 'team_manager':        return _x( 'Team manager', 'role label', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
+            case 'staff':               return _x( 'Staff', 'role label', 'talenttrack' );
+            case 'physio':              return _x( 'Physio', 'role label', 'talenttrack' );
+            case 'scout':               return _x( 'Scout', 'role label', 'talenttrack' );
+            case 'parent':              return _x( 'Parent', 'role label', 'talenttrack' );
+            case 'other':               return _x( 'Other', 'role label', 'talenttrack' );
             default:                    return self::humanise( $code );
         }
     }
@@ -142,15 +142,18 @@ class LabelTranslator {
             if ( $tx !== '' ) return $tx;
         }
         switch ( strtolower( $key ) ) {
-            case 'club_admin':          return __( 'Club Admin', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
-            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
-            case 'manager':             return __( 'Manager', 'talenttrack' );
-            case 'physio':              return __( 'Physio', 'talenttrack' );
-            case 'team_member':         return __( 'Team Member', 'talenttrack' );
-            case 'scout':               return __( 'Scout', 'talenttrack' );
-            case 'parent':              return __( 'Parent', 'talenttrack' );
+            case 'club_admin':          return _x( 'Club admin', 'role label', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
+            case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
+            case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
+            case 'manager':             return _x( 'Manager', 'role label', 'talenttrack' );
+            case 'physio':              return _x( 'Physio', 'role label', 'talenttrack' );
+            case 'team_member':         return _x( 'Team member', 'role label', 'talenttrack' );
+            case 'scout':               return _x( 'Scout', 'role label', 'talenttrack' );
+            case 'parent':              return _x( 'Parent', 'role label', 'talenttrack' );
+            // #4523 — RolesPage kept its own copy of this map with this
+            // one extra key; it now reads here.
+            case 'player':              return _x( 'Player', 'role label', 'talenttrack' );
             default:                    return null;
         }
     }
@@ -177,16 +180,16 @@ class LabelTranslator {
             if ( $tx !== '' ) return $tx;
         }
         switch ( strtolower( $key ) ) {
-            case 'head_coach':          return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach':     return __( 'Assistant Coach', 'talenttrack' );
-            case 'manager':             return __( 'Manager', 'talenttrack' );
-            case 'physio':              return __( 'Physio', 'talenttrack' );
+            case 'head_coach':          return _x( 'Head coach', 'role label', 'talenttrack' );
+            case 'assistant_coach':     return _x( 'Assistant coach', 'role label', 'talenttrack' );
+            case 'manager':             return _x( 'Manager', 'role label', 'talenttrack' );
+            case 'physio':              return _x( 'Physio', 'role label', 'talenttrack' );
             // #3257 — the kit-manager seat, split out of Staff so the
             // Physio functional role can carry the injury grant alone.
-            case 'kit_manager':         return __( 'Kit manager', 'talenttrack' );
-            case 'head_of_development': return __( 'Head of Development', 'talenttrack' );
-            case 'mentor':              return __( 'Mentor', 'talenttrack' );
-            case 'other':               return __( 'Other', 'talenttrack' );
+            case 'kit_manager':         return _x( 'Kit manager', 'role label', 'talenttrack' );
+            case 'head_of_development': return _x( 'Head of development', 'role label', 'talenttrack' );
+            case 'mentor':              return _x( 'Mentor', 'role label', 'talenttrack' );
+            case 'other':               return _x( 'Other', 'role label', 'talenttrack' );
             default:                    return null;
         }
     }

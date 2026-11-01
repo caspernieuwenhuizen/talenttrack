@@ -1,7 +1,7 @@
 ---
 title: Access control
 group: frontend
-summary: Roles, permissions, functional roles, and the Read-Only Observer.
+summary: Roles, permissions, functional roles, and the Read-only observer.
 audience: [admin]
 views: [roles, matrix]
 order: 50
@@ -51,9 +51,9 @@ Reading something and changing it are two different permissions, and the wp-admi
 
 Five wp-admin screens used to gate their **save** on a capability whose name says *view*: Category Weights, Custom Fields, Evaluation Categories, Eval Type Categories, and People. On each, the menu entry that leads there was already gated on the narrower read capability, so the page was reachable by URL for a user the entry point deliberately hides it from — and the write behind it was authorised by permission to read.
 
-**Who this changes things for.** Chiefly **Head of Development**. `tt_view_settings` is a roll-up: a user holds it when they hold all the per-area view capabilities. Head of Development holds those by design — they can inspect Configuration — and had their `tt_edit_*` capabilities deliberately removed when the settings capabilities were split. The wp-admin pages handed the edit back through the view umbrella. It no longer does. A Head of Development who genuinely needs to change category weights, custom fields or evaluation categories should be granted the matching `tt_edit_*` capability, which is a deliberate act rather than a side effect.
+**Who this changes things for.** Chiefly **Head of development**. `tt_view_settings` is a roll-up: a user holds it when they hold all the per-area view capabilities. Head of development holds those by design — they can inspect Configuration — and had their `tt_edit_*` capabilities deliberately removed when the settings capabilities were split. The wp-admin pages handed the edit back through the view umbrella. It no longer does. A Head of development who genuinely needs to change category weights, custom fields or evaluation categories should be granted the matching `tt_edit_*` capability, which is a deliberate act rather than a side effect.
 
-Club Admin and administrator are unaffected: both already hold every edit capability involved. Coaches and team managers are unaffected: they never held `tt_view_settings`.
+Club admin and administrator are unaffected: both already hold every edit capability involved. Coaches and team managers are unaffected: they never held `tt_view_settings`.
 
 Two write handlers still name a read capability, and both are recorded rather than quietly widened, because the right capability does not exist yet and inventing one is a change to the permission model in its own right:
 
@@ -113,7 +113,7 @@ They now show a coach only their own teams' players and teams:
   silently unassign it.
 
 An administrator, and any persona holding a **global** read on the entity —
-Head of Development, Academy Admin, Club Admin, and the Read-Only Observer on
+Head of development, Academy admin, Club admin, and the Read-only observer on
 the surfaces it is granted — still sees everything.
 
 If a coach reports that a wp-admin list has gone empty, the question to ask is
@@ -124,22 +124,22 @@ scope comes from those assignments, not from the capability.
 
 | Role | View | Edit |
 |---------------------------|--------------------|--------------------------------------------------------|
-| **Head of Development** | All areas | All areas (incl. Evaluations, Settings) |
-| **Club Admin** | All areas | Teams, Players, People, Sessions, Goals, Settings |
+| **Head of development** | All areas | All areas (incl. Evaluations, Settings) |
+| **Club admin** | All areas | Teams, Players, People, Sessions, Goals, Settings |
 | **Coach** | All except Settings| Evaluations, Sessions, Goals |
 | **Scout** | Teams, Players, Evals | Evaluations |
 | **Staff** | Teams, Players, People | Players, People |
 | **Player** | Own data only | Own profile only |
 | **Parent** | Child's data only | *(none)* |
-| **Read-Only Observer** | **All areas** | **None** |
+| **Read-only observer** | **All areas** | **None** |
 
 Assign roles via **Access Control → Roles & Permissions** or WordPress's standard Users admin.
 
-**Adding a team is a create right, not an edit right.** A head coach edits the teams they run: name, age group, notes and staff. Adding a new team takes the create right on teams, which the Head of Development and the Club Admin hold. So a head coach sees no **New team** action, and does not see the "team limit reached" notice either: that notice is for the people who could add a team. Players work the same way: a head coach corrects the records of their squad, while adding a player, by hand or by CSV import, takes the create right on players, held by the same two roles. A head coach sees no **New player** or **Import from CSV** and no "player limit reached" notice, For a head coach the prospect pipeline is the way in: they follow the prospect on their board and open a trial, and the academy registers the player at the end of it. See [Onboarding pipeline](onboarding-pipeline.md).
+**Adding a team is a create right, not an edit right.** A head coach edits the teams they run: name, age group, notes and staff. Adding a new team takes the create right on teams, which the Head of development and the Club admin hold. So a head coach sees no **New team** action, and does not see the "team limit reached" notice either: that notice is for the people who could add a team. Players work the same way: a head coach corrects the records of their squad, while adding a player, by hand or by CSV import, takes the create right on players, held by the same two roles. A head coach sees no **New player** or **Import from CSV** and no "player limit reached" notice, For a head coach the prospect pipeline is the way in: they follow the prospect on their board and open a trial, and the academy registers the player at the end of it. See [Onboarding pipeline](onboarding-pipeline.md).
 
 A **parent's** access to their child is derived automatically from the parent–child link (set when the parent accepts their invitation): the parent role is granted, scoped to each linked child, at the moment it's needed. A guardian can read only their own linked child(ren)'s records — never another family's child, and never the other guardians linked to the same child.
 
-## Read-Only Observer
+## Read-only observer
 
 v3.0.0 makes this role meaningful across the whole plugin. An observer can:
 
@@ -176,7 +176,7 @@ Use cases:
 | **Reports** — the academy's reporting surfaces | Build or schedule a report |
 | **Settings** — the configuration screens, read-only | Change any setting |
 
-**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of Development and Academy Admin alone, and several are deliberately withheld even from head coaches.
+**And nothing else.** In particular an observer does **not** see safeguarding notes, injuries or any other medical record, coaches' private notes on a player, measurements and test results, behaviour ratings, potential bands, a player's journey, how the academy discovered a player, photographs or video of players, private message threads, the audit log, or the impersonation log. Those stay with the people accountable for them — most are held by the Head of development and Academy admin alone, and several are deliberately withheld even from head coaches.
 
 Each player's guardian contact **is** visible to an observer: it is part of the player record, which the role reads.
 
@@ -278,10 +278,10 @@ A staff member attached to no squad sees nothing. That is deliberate: attaching 
 
 Functional roles are the jobs people do on a squad: Head coach, Assistant coach, Physio, Kit manager, Manager. Assigning one never changes anybody's WordPress role. It does two things, both on that team only:
 
-- Under **Access Control → Functional Roles**, each functional role is mapped to one or more authorization roles. Their permissions apply to the person on the team they hold the role on.
+- Under **Access Control → Functional roles**, each functional role is mapped to one or more authorization roles. Their permissions apply to the person on the team they hold the role on.
 - Five functional roles also carry a grant set of their own. See the table below.
 
-Assigning a person via Functional Roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring.
+Assigning a person via Functional roles also writes a row to `tt_user_role_scopes` (scope_type=`team`, scope_id=the team) so the matrix's team-scope check returns true for that person on that team. Removing the last assignment for a (person, team) pair removes the matching scope row. Multi-role-on-same-team users keep one scope row until the last role is unassigned. The backfill migration `0062_fr_assignment_scope_backfill.php` covered installs that pre-dated this wiring.
 
 ### A functional role can also grant access of its own
 
@@ -353,10 +353,10 @@ An unregistered slug falls back to a permissive read check (the tile's declared 
 
 The recruitment funnel introduces two new matrix entities, scoped consent-sensitively because prospect data is the most-sensitive PII the system holds (collected before any contractual relationship, legal basis is consent):
 
-- **`prospects`** — Head Coach reads at team scope (their own age group's funnel). Scout has RCD at *self* scope only — a scout literally cannot see another scout's prospects via any code path, enforced at the SQL layer in `ProspectsRepository`. Head of Development and Academy Admin have RCD globally.
+- **`prospects`** — Head coach reads at team scope (their own age group's funnel). Scout has RCD at *self* scope only — a scout literally cannot see another scout's prospects via any code path, enforced at the SQL layer in `ProspectsRepository`. Head of development and Academy admin have RCD globally.
 - **`test_trainings`** — same scoping, except Scout reads globally (so a scout can see the upcoming session their prospect was invited to).
 
-**`test_trainings: change` is what `tt_invite_prospects` bridges to**, and it is the gate on inviting a child to the academy: the *Invite to test training* and *Confirm test-training attendance* tasks, and the pipeline's "Arrange test training" button. Head of Development and Academy Admin hold it; Head Coach and Scout read the entity and do not hold it.
+**`test_trainings: change` is what `tt_invite_prospects` bridges to**, and it is the gate on inviting a child to the academy: the *Invite to test training* and *Confirm test-training attendance* tasks, and the pipeline's "Arrange test training" button. Head of development and Academy admin hold it; Head coach and Scout read the entity and do not hold it.
 
 Until #3869 the capability was mapped and documented but checked nowhere, so the only real gate on those tasks was who the assignee resolver had addressed them to — granting or revoking the matrix cell changed nothing. It is now checked on the task surface, which means a persona who holds the task without the capability can no longer finish it. They are not left with a dead button: the form renders locked with a note naming who to ask. The parent's signed confirmation link (`GET /prospects/confirm`) bypasses all of this by design — nobody is signed in on it.
 
@@ -521,9 +521,9 @@ behind its own capability: **`tt_manage_recycle_bin`**. It gates viewing the
 recycle bin, restoring trashed records, and purging them for good.
 
 The capability is granted to **the WordPress administrator and the Academy
-Admin role (`tt_club_admin`) only**. It is deliberately **not** part of
+admin role (`tt_club_admin`) only**. It is deliberately **not** part of
 `RolesService::VIEW_CAPS` / `EDIT_CAPS` — those propagate to the Head of
-Development and the Read-Only Observer via `allViewCapsTrue()`, which would
+development and the Read-only observer via `allViewCapsTrue()`, which would
 hand the bin to roles that must not purge data. Instead it lives in its own
 `RECYCLE_BIN_CAPS` constant: `ensureCapabilities()` grants it to WP
 `administrator`, and the `tt_club_admin` role definition lists it explicitly.
@@ -550,11 +550,11 @@ to every family unrefusably are not the same act. `tt_view_player_safeguarding`
 is a *read* capability governing a sensitive event on one player's record:
 the right subject, the wrong verb and the wrong scope.
 
-It is granted to **the WordPress administrator and the Academy Admin role
+It is granted to **the WordPress administrator and the Academy admin role
 (`tt_club_admin`) only**, and like `tt_manage_recycle_bin` it is deliberately
 kept out of `RolesService::VIEW_CAPS` / `EDIT_CAPS` so it does not propagate
-to the Head of Development or the Read-Only Observer. A **head coach cannot
-send one** by default, and neither can a Head of Development.
+to the Head of development or the Read-only observer. A **head coach cannot
+send one** by default, and neither can a Head of development.
 
 An academy whose designated safeguarding lead is not an academy admin grants
 them the capability. That is the intended route: widening it is a deliberate,
@@ -583,13 +583,13 @@ which is the outcome this exists to end.
 
 **`tt_send_academy_announcement`** reaches any team, an age group, or every
 family at once. Held by the **WordPress administrator**, **Head of
-Development** and the **Academy Admin** role. Reaching families whose child
+development** and the **Academy admin** role. Reaching families whose child
 this person does not coach is an academy-level act, so it is an academy-level
 grant. It implies the team tier — somebody who may announce to everybody may
 announce to one squad.
 
 Both are kept out of `RolesService::VIEW_CAPS` / `EDIT_CAPS`, like the two
-blocks above, so neither propagates to the Read-Only Observer.
+blocks above, so neither propagates to the Read-only observer.
 
 **The audience is checked on the way in, not only on the way out.** The
 capability opens the routes; `MassAnnouncementSender::canSend()` then decides
@@ -624,10 +624,10 @@ from the read-mostly `feature_toggles` config entity it previously shared
  and from the `module_state` status view: enabling/disabling a module
 is a materially different privilege from editing a config feature-toggle, and
 should be matrix-governable on its own row. The entity is seeded
-**`rcd` global to Academy Admin only** — matching the raw cap holders
+**`rcd` global to Academy admin only** — matching the raw cap holders
 (WordPress `administrator`, who bypasses every `tt_*` cap, plus the
-`tt_club_admin` role that backs the Academy Admin persona). Head of
-Development holds `feature_toggles [read]` but **no** `module_management`
+`tt_club_admin` role that backs the Academy admin persona). Head of
+development holds `feature_toggles [read]` but **no** `module_management`
 row, so it gains nothing — the re-point is access-preserving.
 
 Migration `0194_authorization_seed_module_management` idempotently top-ups
@@ -644,7 +644,7 @@ persona — mirroring the player's `my_profile` self grant. A player can only
 ever manage their **own** connection; the self scope means they cannot connect
 Strava for any other player. The Strava **operator console** (Configuration →
 Integrations: app credentials, webhook subscription, connections overview) is a
-separate `global`-scoped grant held by Head Coach and Academy Admin, and is
+separate `global`-scoped grant held by Head coach and Academy admin, and is
 unaffected by the player grant. See
 [authorization matrix](authorization-matrix.md#matrix-entity-strava_integration--personal-activity-connection-2127-2153).
 
@@ -660,15 +660,15 @@ The re-assert is **additive**, and deliberately so. It hands a role the capabili
 
 ## Permission debug
 
-**Access Control → Permission Debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
+**Access Control → Permission debug** lets you inspect any user's effective capabilities. Useful when a user reports "I can't see X" — check what they actually have.
 
 ## Finding the Access Control tools
 
-The advanced authorization pages — Authorization Matrix, Activate access control, Compare users, Permission Debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
+The advanced authorization pages — Authorization Matrix, Activate access control, Compare users, Permission debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
 
-**The matrix editor is not one of those wp-admin links.** It has its own frontend surface at **Configuration → Authorization matrix** (`?tt_view=matrix`), gated on the `tt_manage_authorization` capability — granted to administrator and Club Admin — rather than on holding a WordPress administrator account. An academy with nobody in the WordPress admin can now correct an over-broad or too-narrow grant themselves, which matters because those grants decide who can open a player's evaluations, notes and medical fields.
+**The matrix editor is not one of those wp-admin links.** It has its own frontend surface at **Configuration → Authorization matrix** (`?tt_view=matrix`), gated on the `tt_manage_authorization` capability — granted to administrator and Club admin — rather than on holding a WordPress administrator account. An academy with nobody in the WordPress admin can now correct an over-broad or too-narrow grant themselves, which matters because those grants decide who can open a player's evaluations, notes and medical fields.
 
-A Club Admin editing from the frontend cannot change their own persona row, nor the entities that govern the permission model, the schema or the backups; those cells are locked and stay administrator-only. The wp-admin page is unchanged and remains the recovery path if a matrix edit hides the frontend. `docs/authorization-matrix.md` has the full table of who may do what.
+A Club admin editing from the frontend cannot change their own persona row, nor the entities that govern the permission model, the schema or the backups; those cells are locked and stay administrator-only. The wp-admin page is unchanged and remains the recovery path if a matrix edit hides the frontend. `docs/authorization-matrix.md` has the full table of who may do what.
 
 ## What still needs the WordPress admin, and why
 
@@ -772,7 +772,7 @@ The persona dashboard (`persona_dashboard.enabled`) ships a parallel, richer par
 
 Two cap-and-matrix-adjacent operator guides shipped in v3.97.2 (#0086 Workstream A):
 
-- [Security operator guide](security-operator-guide.md) — the day-one + annual-review checklist for the Academy Admin: limiting administrator accounts, MFA recommendations, audit-log review, suspected-breach response, the future `require_mfa_for_personas` enforcement.
+- [Security operator guide](security-operator-guide.md) — the day-one + annual-review checklist for the Academy admin: limiting administrator accounts, MFA recommendations, audit-log review, suspected-breach response, the future `require_mfa_for_personas` enforcement.
 - [Privacy operator guide](privacy-operator-guide.md) — the GDPR-facing how-to: subject-access requests, right-to-be-forgotten requests (manual until the formal erasure pipeline ships), retention windows per data category, the privacy lifecycle of a player joining and leaving the academy.
 
 The public-facing trust artifacts (security page, privacy policy, DPA template) live on `mediamaniacs.nl/talenttrack/security` and `mediamaniacs.nl/talenttrack/privacy`; the source is in `marketing/security/` for editing.

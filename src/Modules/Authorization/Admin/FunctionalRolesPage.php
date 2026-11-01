@@ -6,8 +6,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Authorization\AuthorizationRepository;
 use TT\Infrastructure\Authorization\FunctionalRolesRepository;
 use TT\Infrastructure\Tenancy\CurrentClub;
-use TT\Modules\I18n\TranslatableFieldRegistry;
-use TT\Modules\I18n\TranslationsRepository;
 
 /**
  * FunctionalRolesPage — admin UI at TalentTrack → Functional Roles.
@@ -64,7 +62,7 @@ class FunctionalRolesPage {
         $roles = $repo->listRoles();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Functional Roles', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Functional roles', 'talenttrack' ); ?></h1>
 
             <?php self::renderMessages(); ?>
 
@@ -312,34 +310,12 @@ class FunctionalRolesPage {
      * localized display. Matches the pattern from RolesPage::roleLabel().
      */
     public static function roleLabel( string $role_key, ?int $entity_id = null ): string {
-        // #0090 Phase 4 — when the caller passes the row id, consult
-        // tt_translations first. Resolver chain becomes:
-        //   tt_translations → __() switch → humanised-key fallback.
-        if ( $entity_id !== null && $entity_id > 0 ) {
-            $tx = ( new TranslationsRepository() )->translate(
-                TranslatableFieldRegistry::ENTITY_FUNCTIONAL_ROLE,
-                $entity_id,
-                'label',
-                self::currentLocale(),
-                ''
-            );
-            if ( $tx !== '' ) return $tx;
-        }
-        switch ( $role_key ) {
-            case 'head_coach':      return __( 'Head Coach', 'talenttrack' );
-            case 'assistant_coach': return __( 'Assistant Coach', 'talenttrack' );
-            case 'manager':         return __( 'Manager', 'talenttrack' );
-            case 'physio':          return __( 'Physio', 'talenttrack' );
-            case 'other':           return __( 'Other', 'talenttrack' );
-        }
+        // #4523 — one map: tt_translations → LabelTranslator's gettext
+        // switch, then the humanised-key fallback for custom roles.
+        $label = \TT\Infrastructure\Query\LabelTranslator::functionalRoleLabel( $role_key, $entity_id );
+        if ( $label !== null ) return $label;
         // Fallback for any custom functional roles added via future UI.
         return ucwords( str_replace( '_', ' ', $role_key ) );
-    }
-
-    private static function currentLocale(): string {
-        if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();
-        if ( function_exists( 'get_locale' ) ) return (string) get_locale();
-        return 'en_US';
     }
 
     public static function roleDescription( string $role_key ): string {

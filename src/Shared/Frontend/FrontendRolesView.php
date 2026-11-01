@@ -59,18 +59,18 @@ class FrontendRolesView extends FrontendViewBase {
         // The Read-Only Observer card first (most-missed role).
         self::renderRoleCard(
             'tt_readonly_observer',
-            __( 'Read-Only Observer', 'talenttrack' ),
+            _x( 'Read-only observer', 'role label', 'talenttrack' ),
             __( 'Sees every team, player, evaluation, activity, goal, and report. Cannot edit anything. Use this for board members, parents who want a peek at progress, or external scouts. The role most admins forget exists.', 'talenttrack' ),
             true
         );
 
         $other = [
             'tt_head_dev' => [
-                __( 'Head of Development', 'talenttrack' ),
+                _x( 'Head of development', 'role label', 'talenttrack' ),
                 __( 'Oversees the whole academy. Can see and edit everything: teams, players, evaluations, activities, goals, settings. The default fallback for "this person needs to do everything."', 'talenttrack' ),
             ],
             'tt_club_admin' => [
-                __( 'Club Admin', 'talenttrack' ),
+                _x( 'Club admin', 'role label', 'talenttrack' ),
                 __( 'Manages teams, players, people, activities, goals, and settings. Cannot record evaluations themselves. Use for office-side admins who handle the roster + administration but don\'t coach.', 'talenttrack' ),
             ],
             'tt_coach' => [
@@ -127,7 +127,7 @@ class FrontendRolesView extends FrontendViewBase {
         $tools = [
             [ 'cap' => 'administrator',     'slug' => 'tt-matrix-preview',  'label' => __( 'Activate access control', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-user-compare',    'label' => __( 'Compare users', 'talenttrack' ) ],
-            [ 'cap' => 'tt_view_settings',  'slug' => 'tt-roles-debug',     'label' => __( 'Permission Debug', 'talenttrack' ) ],
+            [ 'cap' => 'tt_view_settings',  'slug' => 'tt-roles-debug',     'label' => __( 'Permission debug', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-auth-chain-debug','label' => __( 'Permission Chain Debug', 'talenttrack' ) ],
         ];
 

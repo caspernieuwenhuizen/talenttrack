@@ -26,7 +26,7 @@ class DebugPage {
         $selected_user_id = isset( $_GET['user_id'] ) ? absint( wp_unslash( (string) $_GET['user_id'] ) ) : 0;
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Permission Debug', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Permission debug', 'talenttrack' ); ?></h1>
 
             <p class="description">
                 <?php esc_html_e( 'Choose a WordPress user to see every role-scope they resolve to, the source of each scope (direct role assignment, functional-role mapping, or derived), and the concrete permissions each scope grants.', 'talenttrack' ); ?>

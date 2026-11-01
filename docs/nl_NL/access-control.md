@@ -1,7 +1,7 @@
 ---
 title: Toegangsbeheer
 group: frontend
-summary: Rollen, rechten, functionele rollen en de Alleen-lezen Waarnemer.
+summary: Rollen, rechten, functionele rollen en de Alleen-lezen waarnemer.
 audience: [admin]
 views: [roles, matrix]
 order: 50
@@ -45,7 +45,7 @@ Iets bekijken en iets wijzigen zijn twee verschillende rechten, en de wp-adminpa
 
 Vijf wp-adminschermen schermden hun **opslaan** af met een recht waarvan de naam *bekijken* zegt: Categoriegewichten, Aangepaste velden, Evaluatiecategorieën, Eval-typecategorieën en Personen. Bij elk daarvan was het menu-item dat ernaartoe leidt al afgeschermd met het smallere leesrecht, dus de pagina was via de URL bereikbaar voor iemand die het toegangspunt bewust verbergt — en de schrijfactie erachter werd toegestaan op grond van leestoegang.
 
-**Voor wie dit iets verandert.** Vooral voor het **Hoofd Ontwikkeling**. `tt_view_settings` is een verzamelrecht: je hebt het zodra je alle deel-leesrechten hebt. Het Hoofd Ontwikkeling heeft die bewust — het mag de configuratie inzien — en is bij het opsplitsen van de instellingenrechten juist zijn `tt_edit_*`-rechten kwijtgeraakt. De wp-adminpagina's gaven dat schrijfrecht via het lees-verzamelrecht terug. Dat gebeurt niet meer. Moet een Hoofd Ontwikkeling echt categoriegewichten, aangepaste velden of evaluatiecategorieën kunnen wijzigen, geef dan het bijbehorende `tt_edit_*`-recht: een bewuste keuze in plaats van een bijeffect.
+**Voor wie dit iets verandert.** Vooral voor het **Hoofd opleiding**. `tt_view_settings` is een verzamelrecht: je hebt het zodra je alle deel-leesrechten hebt. Het Hoofd opleiding heeft die bewust — het mag de configuratie inzien — en is bij het opsplitsen van de instellingenrechten juist zijn `tt_edit_*`-rechten kwijtgeraakt. De wp-adminpagina's gaven dat schrijfrecht via het lees-verzamelrecht terug. Dat gebeurt niet meer. Moet een Hoofd opleiding echt categoriegewichten, aangepaste velden of evaluatiecategorieën kunnen wijzigen, geef dan het bijbehorende `tt_edit_*`-recht: een bewuste keuze in plaats van een bijeffect.
 
 Clubbeheerder en beheerder merken niets: die hebben alle betrokken schrijfrechten al. Trainers en teammanagers ook niet: die hadden `tt_view_settings` nooit.
 
@@ -109,8 +109,8 @@ Ze tonen een trainer nu alleen de spelers en teams van de eigen teams:
   opslaan kan die koppeling niet stilzwijgend wissen.
 
 Een beheerder, en elke persona met een **globaal** leesrecht op de entiteit —
-Hoofd Ontwikkeling, Academiebeheerder, Clubbeheerder en de Alleen-lezen
-Waarnemer op de schermen waarvoor het is toegekend — ziet nog steeds alles.
+Hoofd opleiding, Academiebeheerder, Clubbeheerder en de Alleen-lezen
+waarnemer op de schermen waarvoor het is toegekend — ziet nog steeds alles.
 
 Meldt een trainer dat een wp-adminlijst leeg is, vraag dan aan welke teams die
 persoon is gekoppeld onder **Personen → Functionele rollen**: het bereik komt
@@ -127,7 +127,7 @@ uit die koppelingen, niet uit het recht.
 | **Staf** | Teams, Spelers, Personen | Spelers, Personen |
 | **Speler** | Alleen eigen data | Alleen eigen profiel |
 | **Ouder** | Alleen data van kind | *(geen)* |
-| **Alleen-lezen Waarnemer** | **Alle onderdelen** | **Geen** |
+| **Alleen-lezen waarnemer** | **Alle onderdelen** | **Geen** |
 
 Wijs rollen toe via **Toegangsbeheer → Rollen & Rechten** of de standaard Gebruikersadmin van WordPress.
 
@@ -135,7 +135,7 @@ Wijs rollen toe via **Toegangsbeheer → Rollen & Rechten** of de standaard Gebr
 
 De toegang van een **ouder** tot zijn of haar kind wordt automatisch afgeleid van de ouder–kindkoppeling (gelegd wanneer de ouder de uitnodiging accepteert): de ouderrol wordt toegekend, afgebakend tot elk gekoppeld kind, op het moment dat het nodig is. Een ouder/verzorger ziet alleen de gegevens van zijn of haar eigen gekoppelde kind(eren) — nooit het kind van een ander gezin, en nooit de andere verzorgers die aan hetzelfde kind gekoppeld zijn.
 
-## Alleen-lezen Waarnemer
+## Alleen-lezen waarnemer
 
 v3.0.0 maakt deze rol zinvol over de hele plug-in. Een waarnemer kan:
 
@@ -172,7 +172,7 @@ Gebruiksgevallen:
 | **Rapportages** — de rapportageschermen van de academie | Een rapportage bouwen of inplannen |
 | **Instellingen** — de configuratieschermen, alleen-lezen | Een instelling wijzigen |
 
-**En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen metingen en testresultaten, geen gedragsbeoordelingen, geen potentieelinschaling, niet de ontwikkelreis van een speler, niet hoe de academie een speler heeft ontdekt, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd Ontwikkeling en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
+**En verder niets.** Een waarnemer ziet met name géén zorgnotities, blessures of andere medische gegevens, geen privénotities van trainers over een speler, geen metingen en testresultaten, geen gedragsbeoordelingen, geen potentieelinschaling, niet de ontwikkelreis van een speler, niet hoe de academie een speler heeft ontdekt, geen foto's of video van spelers, geen privéberichten, geen auditlog en geen impersonatielog. Die blijven bij de mensen die er verantwoordelijk voor zijn — het meeste ligt alleen bij Hoofd opleiding en Academie-admin, en een deel wordt zelfs bewust niet aan hoofdtrainers gegeven.
 
 De contactgegevens van de ouders van een speler zijn **wel** zichtbaar voor een waarnemer: ze horen bij het spelersdossier, en dat leest de rol.
 
@@ -347,10 +347,10 @@ Een niet-geregistreerde slug valt terug op een toegeeflijke leescontrole (de ged
 
 De recruitmenttrechter introduceert twee nieuwe matrixentiteiten, met een opzettelijk smal toegangsbereik omdat prospect-gegevens de gevoeligste PII in het systeem zijn (verzameld voordat er een contractuele relatie bestaat — wettelijke grondslag is toestemming):
 
-- **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd Opleiding en Academy Admin hebben RCD globaal.
+- **`prospects`** — Hoofdcoach leest op teamniveau (de eigen leeftijdscategorie). Scout heeft RCD op *self*-niveau — een scout kan letterlijk geen prospects van een andere scout zien via welk codepad dan ook (afgedwongen op SQL-niveau in `ProspectsRepository`). Hoofd opleiding en Academiebeheerder hebben RCD globaal.
 - **`test_trainings`** — zelfde toegangsbereik, behalve dat de Scout deze globaal mag lezen (zodat een scout de geplande sessie kan zien waarvoor zijn prospect is uitgenodigd).
 
-**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd Ontwikkeling en Academy Admin hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
+**`test_trainings: change` is waar `tt_invite_prospects` op uitkomt**, en dat is het slot op het uitnodigen van een kind bij de academie: de klussen *Uitnodigen voor testtraining* en *Aanwezigheid testtraining bevestigen*, en de knop "Testtraining regelen" in de pijplijn. Hoofd opleiding en Academiebeheerder hebben dit recht; Hoofdtrainer en Scout lezen de entiteit en hebben het niet.
 
 Tot #3869 was het recht wel gekoppeld en gedocumenteerd maar nergens gecontroleerd, zodat het enige echte slot op die klussen was aan wie de toewijzer ze had gericht — de matrixcel aan- of uitzetten veranderde niets. Het wordt nu op de kluspagina gecontroleerd, wat betekent dat een persona die de klus wél heeft maar het recht niet, hem niet langer kan afronden. Die blijft niet met een dode knop achter: het formulier wordt vergrendeld getoond met een melding wie je erom moet vragen. De ondertekende bevestigingslink voor de ouder (`GET /prospects/confirm`) omzeilt dit alles met opzet — daar is niemand ingelogd.
 
@@ -474,8 +474,8 @@ definitief opschonen ervan.
 De capability wordt **alleen** verleend aan de WordPress-administrator en de
 rol Academiebeheerder (`tt_club_admin`). Hij maakt bewust **geen** deel uit
 van `RolesService::VIEW_CAPS` / `EDIT_CAPS` — die stromen via
-`allViewCapsTrue()` door naar het Hoofd Ontwikkeling en de Alleen-lezen
-Waarnemer, wat de prullenbak zou geven aan rollen die geen gegevens mogen
+`allViewCapsTrue()` door naar het Hoofd opleiding en de Alleen-lezen
+waarnemer, wat de prullenbak zou geven aan rollen die geen gegevens mogen
 opschonen. In plaats daarvan zit hij in een eigen `RECYCLE_BIN_CAPS`-constante:
 `ensureCapabilities()` verleent hem aan WP `administrator`, en de
 `tt_club_admin`-roldefinitie noemt hem expliciet. Geen enkele andere
@@ -506,8 +506,8 @@ en het verkeerde bereik.
 Hij wordt **alleen** verleend aan de WordPress-administrator en de rol
 Academiebeheerder (`tt_club_admin`), en net als `tt_manage_recycle_bin` zit
 hij bewust niet in `RolesService::VIEW_CAPS` / `EDIT_CAPS`, zodat hij niet
-doorstroomt naar het Hoofd Ontwikkeling of de Alleen-lezen Waarnemer. Een
-**hoofdcoach kan er standaard geen versturen**, en het Hoofd Ontwikkeling
+doorstroomt naar het Hoofd opleiding of de Alleen-lezen waarnemer. Een
+**hoofdcoach kan er standaard geen versturen**, en het Hoofd opleiding
 evenmin.
 
 Een academie waarvan de aandachtsfunctionaris veiligheid geen
@@ -583,10 +583,10 @@ vooral-lezen `feature_toggles` configuratie-entiteit die het eerder deelde
  en van de `module_state` statusweergave: een module aan/uit zetten is
 een wezenlijk ander recht dan een configuratie-feature-toggle bewerken, en
 moet op een eigen rij door de matrix bestuurbaar zijn. De entiteit is
-geseed **`rcd` globaal aan alleen Academy Admin** — overeenkomend met de ruwe
+geseed **`rcd` globaal aan alleen Academiebeheerder** — overeenkomend met de ruwe
 capability-houders (WordPress `administrator`, die elke `tt_*`-capability
-omzeilt, plus de `tt_club_admin`-rol achter de Academy Admin-persona). Head
-of Development heeft `feature_toggles [read]` maar **geen** `module_management`-rij,
+omzeilt, plus de `tt_club_admin`-rol achter de Academiebeheerder-persona). Het Hoofd
+opleiding heeft `feature_toggles [read]` maar **geen** `module_management`-rij,
 dus wint niets — de omzetting is toegangsbehoudend.
 
 Migratie `0194_authorization_seed_module_management` vult de
@@ -769,7 +769,7 @@ Het persona-dashboard (`persona_dashboard.enabled`) levert een parallelle, rijke
 
 Twee cap-en-matrix-aanpalende operator-handleidingen zijn in v3.97.2 (#0086 Workstream A) gepubliceerd:
 
-- [Beveiliging — handleiding voor de academy admin](security-operator-guide.md) — de dag-één- + jaarlijkse-checklist voor de Academy Admin: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
+- [Beveiliging — handleiding voor de academy admin](security-operator-guide.md) — de dag-één- + jaarlijkse-checklist voor de academiebeheerder: administrator-accounts inperken, MFA-aanbevelingen, audit-log doornemen, vermoede inbraak afhandelen, toekomstige `require_mfa_for_personas`-handhaving.
 - [Privacy — handleiding voor de academy admin](privacy-operator-guide.md) — de AVG-georiënteerde how-to: inzage-verzoeken, recht-op-vergetelheid-verzoeken (handmatig tot de formele wis-pijplijn er is), retentie-vensters per datacategorie, de privacy-levenscyclus van een speler die toetreedt en vertrekt.
 
 De publieke trust-artefacten (security-pagina, privacybeleid, DPA-template) staan op `mediamaniacs.nl/talenttrack/security` en `mediamaniacs.nl/talenttrack/privacy`; de bron staat ter bewerking in `marketing/security/`.
