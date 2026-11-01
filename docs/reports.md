@@ -130,6 +130,9 @@ names the player and the date window, each with an **×** that clears that one
 constraint and leaves the rest standing. Team and type appear in the filter bar
 itself, where you can already see and change them.
 
+A drill that carries a date window opens with past activities expanded, because
+those are what the report counted. **Hide** still folds them away.
+
 ## Drilling into a team's players (team report)
 
 On the team report each team row is **tap-to-expand**: tapping the team name opens an inline sub-table of that team's players (player · present %, with at-risk players marked), loaded on demand for the active window and filters. Tapping again collapses it; one team is open at a time. Without JavaScript, a **View players** link beside each team opens the player report pre-filtered to that team instead — the drill-down is always reachable.
@@ -210,12 +213,11 @@ the dates the numbers actually cover.
 
 ### What "matches" means on the Team · Minutes distribution report
 
-The *Matches recorded* tile counts the matches that **produced recorded
-minutes** — the same matches the player bars below it are built from, so the
-tile can never contradict them. Underneath it sits the honest denominator:
-how many matches were **played** in the window. When the two differ the tile
-is flagged: *"3 played matches have no minutes"* tells you the gap is a
-recording gap, not an empty season.
+The *Matches played* tile's headline is how many matches were **played** in
+the window. Its sub-line says how many of them **produced recorded minutes**,
+which are the matches the player bars below are built from, so the tile can
+never contradict them. When the two differ the tile is flagged: *"9 recorded,
+3 without minutes"* tells you the gap is a recording gap, not an empty season.
 
 **A fixture kicking off tonight is not played yet.** It belongs to neither
 number until you complete it, record its minutes, or the day ends — otherwise
@@ -232,15 +234,18 @@ recorded — instead of the misleading "19 matches" beside an empty squad that
 earlier versions showed.
 
 **Players who have left count in neither number either.** Minutes recorded
-against a player who has since been archived are excluded from the *Matches
-recorded* tile, exactly as that player is absent from the squad below it. The
+against a player who has since been archived are excluded from the recorded
+count, exactly as that player is absent from the squad below it. The
 tile and the rows describe one squad; a count the rows cannot explain is worse
 than a smaller one.
 
-**Tap the tile to see the matches.** It opens the activities list filtered to
-the team and to *Match*, over the report's own window up to today, and the list
-names that window above its rows. Tournament days are a type of their own on the
-list, so a team that played tournaments sees them under *Tournament*.
+**Tap the tile to see the matches.** It opens the activities list showing
+exactly the matches this report counts as **played** in its own window: every
+match type, tournament days included, by the same rule as above, so tonight's
+fixture is not on it until it is played. Past matches are expanded, and the
+**Showing only:** strip above the list names the count and the window, for
+example *12 played matches, 17-08-2026 – 30-06-2027*. The list shows the
+tile's headline number: tap 12, see 12.
 
 Use the **Minutes audit** report (below) to see exactly which players are
 missing minutes on which game.

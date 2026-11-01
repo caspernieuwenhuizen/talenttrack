@@ -1143,6 +1143,7 @@ class ActivitiesRestController {
      *   ?filter[date_from]=<YYYY-MM-DD>
      *   ?filter[date_to]=<YYYY-MM-DD>
      *   ?filter[attendance]=complete|partial|none
+     *   ?filter[played]=1|0                                — #4507, the matches the minutes reports count as played
      *   ?orderby=session_date|title|team_name|attendance
      *   ?order=asc|desc                                   (default: desc on session_date, asc otherwise)
      *   ?page=<int>                                       (default 1)
@@ -1195,6 +1196,23 @@ class ActivitiesRestController {
                     [ 'param' => $date_key ]
                 );
             }
+        }
+
+        // #4507 — `played` is 1 or 0. Anything else is refused, like the
+        // date and type filters beside it, rather than read as "on".
+        $played = isset( $filter['played'] ) && is_scalar( $filter['played'] ) ? trim( (string) $filter['played'] ) : '';
+        if ( isset( $filter['played'] ) && ! in_array( $played, [ '', '0', '1' ], true ) ) {
+            return RestResponse::error(
+                'bad_filter',
+                __( 'That filter value cannot be read.', 'talenttrack' ),
+                400,
+                [ 'parameter' => 'played' ]
+            );
+        }
+        if ( $played === '1' ) {
+            $filter['played'] = '1';
+        } else {
+            unset( $filter['played'] );
         }
 
         // #3687 — the activity-type filter. The rendered list has taken
@@ -1337,6 +1355,8 @@ class ActivitiesRestController {
             'activity_type_key' => [ 'activity_type_key' ],
             'date_from'         => [ 'date_from', 'from' ],
             'date_to'           => [ 'date_to', 'to' ],
+            // #4507 — the rendered list's own `?played=1`.
+            'played'            => [ 'played' ],
         ];
         foreach ( $aliases as $key => $names ) {
             if ( isset( $filter[ $key ] ) && $filter[ $key ] !== '' ) continue;
@@ -1373,7 +1393,8 @@ class ActivitiesRestController {
             'date_to'   => [ 'type' => 'string', 'description' => $date . ' Same as filter[date_to].' ],
             'from'      => [ 'type' => 'string', 'description' => 'Alias of date_from.' ],
             'to'        => [ 'type' => 'string', 'description' => 'Alias of date_to.' ],
-            'filter'    => [ 'description' => 'Nested filters: team_id, date_from, date_to, player_id, activity_type_key, archived. A nested value wins over the plain parameter of the same name.' ],
+            'played'    => [ 'type' => [ 'integer', 'string' ], 'description' => '1 narrows to the matches the minutes reports count as played (every match type, tournament days included); 0 or absent does not narrow. Same as filter[played]. Any other value is refused with 400 bad_filter.' ],
+            'filter'    => [ 'description' => 'Nested filters: team_id, date_from, date_to, player_id, activity_type_key, played, archived. A nested value wins over the plain parameter of the same name.' ],
             'search'    => [ 'type' => 'string', 'description' => 'Free-text search on the title.' ],
             'orderby'   => [ 'type' => 'string', 'description' => 'Column to sort by.' ],
             'order'     => [ 'type' => 'string', 'description' => 'asc or desc.' ],

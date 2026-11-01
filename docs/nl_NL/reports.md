@@ -131,6 +131,9 @@ getoond:** met de speler en de periode, elk met een **×** die alléén die
 beperking opheft en de rest laat staan. Team en type staan in de filterbalk
 zelf, waar je ze al ziet en kunt aanpassen.
 
+Een doorklik met een periode opent met de voorbije activiteiten uitgeklapt, want
+die heeft het rapport geteld. **Verberg** klapt ze daarna gewoon weer in.
+
 ## Inzoomen op de spelers van een team (teamrapport)
 
 In het teamrapport is elke teamrij **tikken-om-uit-te-klappen**: tik op de teamnaam om een inline subtabel met de spelers van dat team te openen (speler · aanwezig %, met risicospelers gemarkeerd), op aanvraag geladen voor de actieve periode en filters. Nogmaals tikken klapt hem in; er is één team tegelijk open. Zonder JavaScript opent een **Spelers bekijken**-link naast elk team het spelersrapport, vooraf gefilterd op dat team — het inzoomen is altijd bereikbaar.
@@ -219,13 +222,13 @@ het rapport noemt altijd de datums die de getallen daadwerkelijk beslaan.
 
 ### Wat "wedstrijden" betekent in het rapport Team · Minutenverdeling
 
-De tegel *Wedstrijden vastgelegd* telt de wedstrijden die **vastgelegde minuten
-hebben opgeleverd** — precies de wedstrijden waaruit de spelerbalken eronder
-zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Daaronder staat de
-eerlijke noemer: hoeveel wedstrijden er in de periode zijn **gespeeld**.
-Verschillen die twee, dan krijgt de tegel een signaal: *"3 gespeelde
-wedstrijden hebben geen minuten"* maakt duidelijk dat het om een hiaat in de
-vastlegging gaat en niet om een leeg seizoen.
+Het grote getal op de tegel *Gespeelde wedstrijden* is hoeveel wedstrijden er in
+de periode zijn **gespeeld**. De subregel zegt hoeveel daarvan **vastgelegde
+minuten hebben opgeleverd**: precies de wedstrijden waaruit de spelerbalken
+eronder zijn opgebouwd, zodat de tegel die nooit kan tegenspreken. Verschillen
+die twee, dan krijgt de tegel een signaal: *"9 vastgelegd, 3 zonder minuten"*
+maakt duidelijk dat het om een hiaat in de vastlegging gaat en niet om een leeg
+seizoen.
 
 **Een wedstrijd die vanavond begint is nog niet gespeeld.** Hij telt voor geen
 van beide getallen mee tot je hem voltooit, de minuten vastlegt, of de dag om
@@ -242,16 +245,19 @@ gespeeld zijn maar nog niets is vastgelegd — in plaats van de misleidende "19
 wedstrijden" naast een lege selectie die eerdere versies toonden.
 
 **Vertrokken spelers tellen evenmin mee.** Minuten die zijn vastgelegd op een
-speler die inmiddels gearchiveerd is, tellen niet mee in de tegel *Wedstrijden
-vastgelegd* — net zoals die speler niet meer in de selectie eronder staat. De
+speler die inmiddels gearchiveerd is, tellen niet mee in het vastgelegde aantal,
+net zoals die speler niet meer in de selectie eronder staat. De
 tegel en de rijen beschrijven één selectie; een getal dat de rijen niet kunnen
 verklaren is erger dan een kleiner getal.
 
 **Tik op de tegel om de wedstrijden te zien.** Hij opent de activiteitenlijst
-gefilterd op het team en op *Wedstrijd*, over het venster van het rapport tot en
-met vandaag, en de lijst noemt dat venster boven de rijen. Toernooidagen zijn
-een eigen type in de lijst; een team dat toernooien speelde vindt die onder
-*Toernooi*.
+met precies de wedstrijden die dit rapport in zijn eigen venster als **gespeeld**
+telt: elk wedstrijdtype, toernooidagen inbegrepen, volgens dezelfde regel als
+hierboven, dus de wedstrijd van vanavond staat er pas op als hij gespeeld is.
+Voorbije wedstrijden zijn uitgeklapt, en de strook **Alleen getoond:** boven de
+lijst noemt het aantal en het venster, bijvoorbeeld *12 gespeelde wedstrijden,
+17-08-2026 – 30-06-2027*. De lijst toont het grote getal van de tegel: tik op
+12, zie 12.
 
 ### Het relatieve getal: Minutenaandeel
 

@@ -773,18 +773,32 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #4507 — "a played match", in the words the minutes reports count it:
+     * a match-like type (match, game, tournament) that is completed, dated
+     * before today, or carries recorded minutes
+     * (`MinutesQuery::playedMatchSql()`). Callers add the cancelled and
+     * archived exclusions they already carry.
+     */
+    private static function playedMatchesClause( string $alias ): string {
+        $alias = preg_replace( '/[^A-Za-z0-9_]/', '', $alias ) ?: 's';
+        return "LOWER({$alias}.activity_type_key) IN (" . ActivityTypeKey::MATCH_LIKE_SQL . ') AND '
+            . \TT\Modules\Analytics\Reports\MinutesQuery::playedMatchSql( $alias );
+    }
+
+    /**
      * #1320 — the activities-manage surface list, moved out of
      * `FrontendActivitiesManageView::loadActivitiesForList()`. Club- and
      * demo-scoped, applies the same coach-scope guard as the REST
      * `list_sessions` endpoint: personas with global `activities` read
      * (scout, head_of_development, academy_admin) see every team;
      * everyone else is restricted to the teams they head-coach. Optional
-     * team / type / date-window filters. No LIMIT — the surface renders
-     * the full filtered set (pilot volumes are tractable).
+     * team / type / date-window filters; `$played_matches` narrows to the
+     * matches the minutes reports count as played (#4507). No LIMIT — the
+     * surface renders the full filtered set (pilot volumes are tractable).
      *
      * @return object[]
      */
-    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0 ): array {
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0, bool $played_matches = false ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -803,10 +817,17 @@ final class ActivitiesRepository {
         // the newer plan_state taxonomy OR the older activity_status_key
         // one (pilot installs mix both), so exclude on both. The manage
         // list opts back in with the "show cancelled" filter.
-        if ( ! $show_cancelled ) {
+        if ( ! $show_cancelled || $played_matches ) {
             $where[]  = "( LOWER(COALESCE(s.plan_state, '')) <> %s AND LOWER(COALESCE(s.activity_status_key, '')) <> %s )";
             $params[] = ActivityStatusKey::CANCELLED;
             $params[] = ActivityStatusKey::CANCELLED;
+        }
+
+        // #4507 — the minutes reports' "Matches played" drill: exactly the
+        // matches those reports count, every match type, tournament days
+        // included, played by the reports' own rule.
+        if ( $played_matches ) {
+            $where[] = self::playedMatchesClause( 's' );
         }
 
         if ( $date_from !== '' ) {
@@ -2124,6 +2145,12 @@ final class ActivitiesRepository {
                 $where[]      = "s.activity_type_key IN ($placeholders)";
                 foreach ( $types as $type_key ) $params[] = $type_key;
             }
+        }
+
+        // #4507 — the played-matches drill, as on the rendered list.
+        if ( ! empty( $filter['played'] ) ) {
+            $where[] = \TT\Infrastructure\Query\ActivityLifecycle::notCancelledClause( 's' );
+            $where[] = self::playedMatchesClause( 's' );
         }
 
         if ( ! empty( $filter['date_from'] ) ) {

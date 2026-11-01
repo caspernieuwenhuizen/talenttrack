@@ -2430,14 +2430,24 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $player_filter = isset( $_GET['player_id'] ) ? absint( (string) $_GET['player_id'] ) : 0;
         // A player drill-down lands from an attendance report whose window is
         // usually in the past, so the (otherwise-collapsed) past activities
-        // are the whole point — expand them by default for this entry.
-        if ( $player_filter > 0 ) {
+        // are the whole point — expand them by default for this entry. An
+        // explicit `include_past=0` (the toggle's "hide") still collapses.
+        if ( $player_filter > 0 && ! isset( $_GET['include_past'] ) ) {
             $include_past = true;
         }
         $date_from_override = isset( $_GET['date_from'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_from'] )
             ? sanitize_text_field( wp_unslash( (string) $_GET['date_from'] ) ) : '';
         $date_to_override = isset( $_GET['date_to'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['date_to'] )
             ? sanitize_text_field( wp_unslash( (string) $_GET['date_to'] ) ) : '';
+        // #4507 — a report's date drill lists activities it already counted,
+        // which are mostly past, so it lands expanded like the player drill.
+        // An explicit `include_past=0` (the toggle's "hide") still collapses.
+        if ( ( $date_from_override !== '' || $date_to_override !== '' ) && ! isset( $_GET['include_past'] ) ) {
+            $include_past = true;
+        }
+        // #4507 — `played=1`: exactly the matches the minutes reports count
+        // as played (every match type, tournament days included).
+        $played_filter = ! empty( $_GET['played'] );
         // #1862 — cancelled activities are hidden by default; the filter
         // checkbox opts back in.
         $show_cancelled = ! empty( $_GET['show_cancelled'] );
@@ -2491,7 +2501,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $window['to'] ?? '',
             $show_cancelled,
             'active',
-            $player_filter
+            $player_filter,
+            $played_filter
         );
         $archived_rows = ( $archived_view === 'active' ) ? [] : self::loadActivitiesForList(
             $team_filter,
@@ -2500,7 +2511,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $window['to'] ?? '',
             $show_cancelled,
             'archived',
-            $player_filter
+            $player_filter,
+            $played_filter
         );
 
         // Bucket the (active) rows.
@@ -2563,16 +2575,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'next_month'  => __( 'Next month', 'talenttrack' ),
             'this_season' => __( 'This season', 'talenttrack' ),
         ];
+        /** @var array<string, string|int> $pill_base */
         $pill_base = [ 'tt_view' => 'activities' ];
         if ( $team_filter > 0 )      $pill_base['team_id']           = $team_filter;
         if ( $type_filter !== '' )   $pill_base['activity_type_key'] = $type_filter;
         if ( $include_past )         $pill_base['include_past']      = '1';
+        elseif ( isset( $_GET['include_past'] ) ) $pill_base['include_past'] = '0';
         if ( $show_cancelled )       $pill_base['show_cancelled']    = '1';
         // #2185 — carry the attendance drill-down scope so period / status
         // pills don't drop the player + date window.
         if ( $player_filter > 0 )    $pill_base['player_id']         = $player_filter;
         if ( $date_from_override !== '' ) $pill_base['date_from']    = $date_from_override;
         if ( $date_to_override   !== '' ) $pill_base['date_to']      = $date_to_override;
+        if ( $played_filter )             $pill_base['played']       = '1';
         if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']     = (string) $_GET['tt_back'];
 
         $period_options = [];
@@ -2621,11 +2636,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $period_filter !== '' )       $hidden['period']       = $period_filter;
         if ( $archived_view !== 'active' ) $hidden['archived']     = $archived_view;
         if ( $include_past )               $hidden['include_past'] = '1';
+        elseif ( isset( $_GET['include_past'] ) ) $hidden['include_past'] = '0';
         // #2185 — preserve the attendance drill-down scope across an
         // auto-submitting Team / Type / Show-cancelled change.
         if ( $player_filter > 0 )          $hidden['player_id']    = (string) $player_filter;
         if ( $date_from_override !== '' )  $hidden['date_from']    = $date_from_override;
         if ( $date_to_override   !== '' )  $hidden['date_to']      = $date_to_override;
+        if ( $played_filter )              $hidden['played']       = '1';
         if ( ! empty( $_GET['tt_back'] ) ) $hidden['tt_back']      = (string) $_GET['tt_back'];
 
         // --- "Clear" target: the bare list with no filter params.
@@ -2637,7 +2654,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // the query, invisible to the reader, so the list looked like an
         // ordinary list that happened to be short and a coach could not tell
         // which activities the number they clicked was counted from.
-        self::renderDrillContext( $player_filter, $date_from_override, $date_to_override, $dash_url );
+        self::renderDrillContext( $player_filter, $date_from_override, $date_to_override, $dash_url, $played_filter ? count( $bucket_rows ) : null );
 
         FilterBar::render( [
             'hidden'       => $hidden,
@@ -2990,14 +3007,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
     /**
      * Render the past-toggle button. The form is a GET that flips
-     * `include_past` between absent and `1`, preserving every other
-     * existing query param.
+     * `include_past` between `0` and `1`, preserving every other
+     * existing query param. "Hide" writes `0` rather than dropping the
+     * parameter, because a date drill expands past activities when the
+     * parameter is absent (#4507).
      */
     private static function renderPastToggle( int $past_count, bool $include_past ): void {
         // Build the toggle URL — same query string, toggled include_past.
-        $toggle_url = $include_past
-            ? remove_query_arg( 'include_past' )
-            : add_query_arg( 'include_past', '1' );
+        $toggle_url = add_query_arg( 'include_past', $include_past ? '0' : '1' );
 
         // Carry the click via <a> so it's noscript-resilient and a
         // proper 48px tap target.
@@ -3352,16 +3369,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * change them. These three have no control of their own, which is exactly
      * why they were invisible.
      */
-    private static function renderDrillContext( int $player_id, string $date_from, string $date_to, string $dash_url ): void {
-        if ( $player_id <= 0 && $date_from === '' && $date_to === '' ) return;
+    private static function renderDrillContext( int $player_id, string $date_from, string $date_to, string $dash_url, ?int $played_count = null ): void {
+        if ( $player_id <= 0 && $date_from === '' && $date_to === '' && $played_count === null ) return;
 
         // Everything currently on the URL, minus WordPress's own noise, so a
         // chip's × preserves the rest of the state.
         $base = [];
-        foreach ( [ 'tt_view', 'team_id', 'activity_type_key', 'period', 'archived', 'include_past', 'show_cancelled', 'tt_back', 'player_id', 'date_from', 'date_to' ] as $key ) {
+        foreach ( [ 'tt_view', 'team_id', 'activity_type_key', 'period', 'archived', 'include_past', 'show_cancelled', 'tt_back', 'player_id', 'date_from', 'date_to', 'played' ] as $key ) {
             if ( ! empty( $_GET[ $key ] ) ) {
                 $base[ $key ] = sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
             }
+        }
+        // #4507 — a hidden past block stays hidden when a chip is cleared.
+        if ( isset( $_GET['include_past'] ) && (string) $_GET['include_past'] === '0' ) {
+            $base['include_past'] = '0';
         }
         $base['tt_view'] = 'activities';
 
@@ -3379,6 +3400,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ];
         }
 
+        $window = '';
         if ( $date_from !== '' || $date_to !== '' ) {
             $window = $date_from !== '' && $date_to !== ''
                 ? sprintf(
@@ -3388,7 +3410,27 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     \TT\Shared\Dates\TTDate::date( $date_to )
                 )
                 : \TT\Shared\Dates\TTDate::date( $date_from !== '' ? $date_from : $date_to );
+        }
 
+        if ( $played_count !== null ) {
+            // #4507 — the number the report card showed, named with its window,
+            // so "12" on the card traces to "12 played matches" here.
+            $chips[] = [
+                'label'  => $window !== ''
+                    ? sprintf(
+                        /* translators: 1: number of played matches listed, 2: date window */
+                        _n( '%1$d played match, %2$s', '%1$d played matches, %2$s', $played_count, 'talenttrack' ),
+                        $played_count,
+                        $window
+                    )
+                    : sprintf(
+                        /* translators: %d: number of played matches listed */
+                        _n( '%d played match', '%d played matches', $played_count, 'talenttrack' ),
+                        $played_count
+                    ),
+                'remove' => add_query_arg( array_diff_key( $base, [ 'played' => 1, 'date_from' => 1, 'date_to' => 1 ] ), $dash_url ),
+            ];
+        } elseif ( $window !== '' ) {
             $chips[] = [
                 'label'  => $window,
                 'remove' => add_query_arg( array_diff_key( $base, [ 'date_from' => 1, 'date_to' => 1 ] ), $dash_url ),
@@ -3674,14 +3716,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         return $type === ActivityTypeKey::LEGACY_GAME ? ActivityTypeKey::GAME : $type;
     }
 
-    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0 ): array {
+    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active', int $player_id = 0, bool $played_matches = false ): array {
         // #1320 — the query (incl. demo + coach-scope authorization) lives
         // in ActivitiesRepository so the REST list and this surface share
         // one source of truth and the view holds no SQL or permission logic.
         // #2185 — an optional player_id narrows the list to activities the
         // player has a recorded attendance row for (attendance drill-down).
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled, $archived_view, $player_id );
+            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled, $archived_view, $player_id, $played_matches );
     }
 
     /**

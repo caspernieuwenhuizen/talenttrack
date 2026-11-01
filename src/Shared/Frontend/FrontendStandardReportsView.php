@@ -303,6 +303,27 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     }
 
     /**
+     * #4507 — the activities list of the matches a minutes report counts as
+     * played: the report's team and exact window, every match type, played
+     * by `MinutesQuery::playedMatchSql()` (`played=1`), past expanded. No cap
+     * at today: the played rule already decides which dates count, and a
+     * cap would drop a match completed with a later date.
+     */
+    private static function playedMatchesUrl( int $team_id, string $from, string $to ): string {
+        return \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+            [
+                'tt_view'      => 'activities', /* tt-xview-ok — the KPI tile gates itself on the destination slug via CrossViewLink (#4039, §7) */
+                'team_id'      => $team_id,
+                'played'       => '1',
+                'include_past' => '1',
+                'date_from'    => $from,
+                'date_to'      => $to,
+            ],
+            RecordLink::dashboardUrl()
+        ) );
+    }
+
+    /**
      * Render a KPI strip from `[ [ 'num' => N, 'label' => 'X', 'sub' => '…' (optional), 'warn' => bool, 'href' => '…' (optional), 'cap' => '…' (optional) ], … ]`.
      *
      * #2343 — an optional `href` turns a tile into a clickable drill-down;
@@ -857,19 +878,21 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ) ) . '</p>';
         }
 
-        // The Minutes distribution report is the trace for both numbers: it
-        // names which matches were counted and which are missing minutes.
-        $distribution_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution', 'team_id' => $team_id ],
-            RecordLink::dashboardUrl()
-        ) );
+        // #4507 — "Matches played" opens the list of exactly those matches:
+        // same team, same window, every match type, played by the rule this
+        // report counts with. The distribution report keeps its own link
+        // below, carrying the window, as the trace for the minutes.
+        $matches_url = self::playedMatchesUrl( $team_id, $bd_from, $bd_to );
+        $distribution_args = [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution', 'team_id' => $team_id, 'from' => $bd_from, 'to' => $bd_to ]; /* tt-xview-ok — rendered only for a reader holding tt_view_reports, checked below */
+        if ( (string) $win['period'] !== '' ) $distribution_args['period'] = (string) $win['period'];
+        $distribution_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( $distribution_args, RecordLink::dashboardUrl() ) );
 
         self::renderKpiStrip( [
             [
                 'num'   => (string) (int) $data['matches'],
                 'label' => __( 'Matches played', 'talenttrack' ),
-                'href'  => $distribution_url,
-                'cap'   => 'tt_view_reports',
+                'href'  => $matches_url,
+                'slug'  => 'activities',
             ],
             [ 'num' => (string) $available, 'label' => __( 'Available minutes / player', 'talenttrack' ) ],
             [
@@ -890,6 +913,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 'warn'  => $below > 0,
             ],
         ] );
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_reports' ) ) {
+            echo '<p class="tt-rep-note"><a class="tt-rep-btn" href="' . esc_url( $distribution_url ) . '">'
+                . esc_html__( 'See the minutes distribution →', 'talenttrack' ) . '</a></p>';
+        }
 
         if ( $available <= 0 ) {
             // "Widen the window" is only advice worth giving when there is
@@ -1171,14 +1198,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // #4185 — the list opens on the report's own window as an exact
         // `date_from` / `date_to` drill (the list names it in its drill
         // context line), not a period pill, which could under-count against
-        // the report's window. `date_to` stops at today because the tile
-        // counts played matches. The type is the canonical `game` key; the
-        // list's filter also matches rows stored under the legacy `match`.
-        $matches_to  = min( $bd_to, current_time( 'Y-m-d' ) );
-        $matches_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
-            [ 'tt_view' => 'activities', 'team_id' => $team_id, 'activity_type_key' => ActivityTypeKey::GAME, 'date_from' => $bd_from, 'date_to' => $matches_to ], /* tt-xview-ok — the KPI tile gates itself on tt_view_activities (§7) */
-            RecordLink::dashboardUrl()
-        ) );
+        // the report's window. #4507 — and lists the played matches this
+        // report counts (`played=1`, every match type, tournament days
+        // included), so the list shows the played count the tile reports.
+        $matches_url = self::playedMatchesUrl( $team_id, $bd_from, $bd_to );
         $window_label = self::windowLabel( $bd_from, $bd_to );
         self::renderPageHead(
             sprintf( /* translators: %s = team name */ __( 'Minutes distribution — %s', 'talenttrack' ), (string) $team->name ),
@@ -1199,19 +1222,25 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'team_id' => $team_id ],
             __( 'Last 12 months', 'talenttrack' )
         );
-        // #2433 — the Matches tile reports what the report can actually
-        // account for, with the fixture count as its denominator. A gap
-        // between the two is the signal that minutes are missing, and it
-        // is flagged rather than hidden behind a single ambiguous number.
+        // #2433 — the Matches tile states how many matches were played and how
+        // many of them the minutes account for. A gap between the two is the
+        // signal that minutes are missing, and it is flagged rather than
+        // hidden behind a single ambiguous number. #4507 — the headline is the
+        // played count, the number the list behind the tile opens on, so
+        // tapping 5 shows 5; the recorded part is the sub-line.
         $unrecorded = max( 0, $played_matches - $recorded_matches );
         self::renderKpiStrip( [
             [ 'num' => (string) count( $rows ), 'label' => __( 'Players in selection', 'talenttrack' ), 'href' => $squad_url, 'cap' => 'tt_view_teams' ],
             [
-                'num'   => (string) $recorded_matches,
-                'label' => __( 'Matches recorded', 'talenttrack' ),
+                'num'   => (string) $played_matches,
+                'label' => __( 'Matches played', 'talenttrack' ),
                 'sub'   => $unrecorded > 0
-                    /* translators: %d = number of played matches with no recorded minutes */
-                    ? sprintf( _n( '%d played match has no minutes', '%d played matches have no minutes', $unrecorded, 'talenttrack' ), $unrecorded )
+                    ? sprintf(
+                        /* translators: 1: matches with recorded minutes, 2: played matches with no recorded minutes */
+                        __( '%1$d recorded, %2$d without minutes', 'talenttrack' ),
+                        $recorded_matches,
+                        $unrecorded
+                    )
                     : __( 'All played matches recorded', 'talenttrack' ),
                 'warn'  => $unrecorded > 0,
                 'href'  => $matches_url,
