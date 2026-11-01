@@ -42,8 +42,9 @@ live writes, and sets the themes. Everything else is the team's.
 
 ## Disciplines are gates, not seats
 
-Security, performance, the REST contract, UX and documentation are too important to leave to
-whoever is building, and too thin to occupy a session each. Each is a
+Security, performance, the REST contract, reports quality, UX and
+documentation are too important to leave to whoever is building, and too
+thin to occupy a session each. Each is a
 checklist under [`docs/review/`](../review/security.md) that a PR must pass
 when it touches that area. The issue names the gates it needs when it is
 shaped; the reviewer ticks the list in the PR.
@@ -53,6 +54,7 @@ shaped; the reviewer ticks the list in the PR.
 | Security & privacy | [review/security.md](../review/security.md) | Architect, with a security review subagent |
 | Performance | [review/performance.md](../review/performance.md) | Architect |
 | REST contract | [review/rest-contract.md](../review/rest-contract.md) | Architect |
+| Reports quality | [review/reports-quality.md](../review/reports-quality.md) | Architect; QA checks screen, print and PDF |
 | UX & mobile | [review/ux-mobile.md](../review/ux-mobile.md) | QA |
 | Docs & i18n | [review/docs-i18n.md](../review/docs-i18n.md) | The developer; QA verifies |
 
@@ -153,7 +155,7 @@ per epic.
 | Daily | HQ run (QA), triage to issues, the product owner shapes, the developer drains what is ready, the lead posts the headline |
 | Twice a week | Release train: batch what merged, ask the owner, release, verify on local, then sto, then offer jg4it on the owner's yes |
 | Weekly | Fifteen minutes of decisions with the owner through the inbox; the lead's report; one retro item turned into a standard |
-| Monthly | The architect's discipline sweep (rotating: security, performance, UX, docs); the product owner's roadmap check against pilot feedback |
+| Monthly | The architect's discipline sweep (rotating: security, performance, REST contract, reports quality, UX, docs); the product owner's roadmap check against pilot feedback |
 
 ## Starting a seat
 
