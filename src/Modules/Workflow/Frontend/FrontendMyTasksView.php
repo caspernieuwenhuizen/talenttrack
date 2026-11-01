@@ -265,7 +265,11 @@ class FrontendMyTasksView extends FrontendViewBase {
         <form class="tt-mtasks-filters" method="get" action="<?php echo esc_url( $base ); ?>">
             <input type="hidden" name="tt_view" value="my-tasks" />
             <label>
-                <?php esc_html_e( 'Template', 'talenttrack' ); ?>:
+                <?php
+                // #4555 — the bare "Template" msgid ships untranslated, so the
+                // filter label has its own context and Dutch.
+                echo esc_html( _x( 'Template', 'my tasks filter: the kind of task', 'talenttrack' ) );
+                ?>:
                 <select name="filter_template">
                     <option value=""><?php esc_html_e( 'All', 'talenttrack' ); ?></option>
                     <?php foreach ( $template_keys as $tk ) :

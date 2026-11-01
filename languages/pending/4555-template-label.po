@@ -1,0 +1,4 @@
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:271
+msgctxt "my tasks filter: the kind of task"
+msgid "Template"
+msgstr "Sjabloon"
