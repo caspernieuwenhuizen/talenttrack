@@ -101,6 +101,12 @@ final class AttendanceWriter {
      * comes through here, so this one rule covers them all. Guest rows are
      * visits, not a player's register, and are always inserted.
      *
+     * Only the columns in `$row` are written, so a stored `minutes_override`
+     * survives a re-recorded `minutes_played`, as it does on execution's
+     * `updateRow()` path: an override outlives a recompute. The existing row
+     * is looked up in the current club; a caller pinning another `club_id`
+     * gets an insert, as before.
+     *
      * @param array<string, mixed> $row Column map. `activity_id` required.
      * @return int|null The row id (new, or the updated existing one), or null
      *                  on a DB error (`lastError()`).

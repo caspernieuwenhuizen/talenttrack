@@ -90,6 +90,60 @@ final class PlayerMatchMinutesTest extends WP_UnitTestCase {
         $this->assertSame( 0, $this->reportTotal(), 'MAX would have kept the 70' );
     }
 
+    /**
+     * Hidde's case: a status-only register row written after match execution
+     * recorded the minutes. The newer row carries no figure, so the older
+     * figure stands: the newest row *with a figure* wins.
+     */
+    public function test_a_newer_row_without_a_figure_leaves_the_older_figure_standing(): void {
+        $match = $this->insertMatch( '2026-10-19' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, null );
+
+        $this->assertSame( [ $match => [ $this->player => 70 ] ], PlayerMatchMinutes::forActivities( [ $match ] ) );
+
+        $grid = ( new MinutesGridQuery() )->matrix( $this->team, self::FROM, self::TO );
+        $this->assertSame( 70, (int) $grid['cells'][ $this->player ][ $match ]['minutes'], 'grid' );
+        $this->assertSame( 70, (int) $this->auditRow( $match )['minutes'][ $this->player ], 'audit' );
+        $this->assertSame( 70, $this->reportTotal(), 'minutes report' );
+    }
+
+    public function test_with_no_figure_anywhere_the_answer_is_null(): void {
+        $match = $this->insertMatch( '2026-10-20' );
+        $this->rawActual( $match, null );
+        $this->rawActual( $match, null );
+
+        $this->assertSame( [ $match => [ $this->player => null ] ], PlayerMatchMinutes::forActivities( [ $match ] ) );
+    }
+
+    /**
+     * A coach clearing the box on a legacy duplicate: the minutes write drops
+     * the older rows, so the clear is what every screen reads rather than the
+     * older row's figure.
+     */
+    public function test_clearing_minutes_on_a_duplicate_drops_the_older_rows(): void {
+        $match = $this->insertMatch( '2026-10-21' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, 60 );
+
+        $this->assertTrue( ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->updateActualAttendanceMinutes( $match, $this->player, null ) );
+
+        $this->assertSame( 1, $this->actualRows( $match ) );
+        $this->assertSame( [ $match => [ $this->player => null ] ], PlayerMatchMinutes::forActivities( [ $match ] ) );
+        $this->assertSame( 0, $this->reportTotal() );
+    }
+
+    public function test_the_minutes_share_report_reads_the_newest_figure(): void {
+        $match = $this->insertMatch( '2026-10-22' );
+        $this->rawActual( $match, 70 );
+        $this->rawActual( $match, 60 );
+
+        $share = ( new \TT\Modules\Analytics\Reports\MinutesShareQuery() )->forPlayer( $this->team, $this->player, self::FROM, self::TO );
+
+        $this->assertNotNull( $share );
+        $this->assertSame( 60, $share['minutes'], 'share report: not the SUM' );
+    }
+
     public function test_the_audit_counts_duplicate_pairs_for_an_admin(): void {
         $match = $this->insertMatch( '2026-10-13' );
         $this->rawActual( $match, 70 );
@@ -188,7 +242,7 @@ final class PlayerMatchMinutesTest extends WP_UnitTestCase {
     }
 
     /** A recorded row written straight to the table, as the old duplicates were. */
-    private function rawActual( int $activity_id, int $minutes ): void {
+    private function rawActual( int $activity_id, ?int $minutes ): void {
         global $wpdb;
         $wpdb->insert( "{$this->p}tt_attendance", [
             'club_id'        => $this->club,

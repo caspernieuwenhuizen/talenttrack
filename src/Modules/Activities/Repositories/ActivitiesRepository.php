@@ -2692,13 +2692,24 @@ final class ActivitiesRepository {
      * offers minutes for squad players — so a missing row returns false
      * (the controller skips it) rather than inventing an attendance row
      * with no status. Clamped to 0..200. Club-scoped.
+     *
+     * #4526 — heals a legacy duplicate the way `upsertActualAttendanceStatus()`
+     * does: the newest recorded row is kept and written, the older ones are
+     * dropped. The minutes read takes the newest row that carries a figure,
+     * so without this a coach clearing the box would leave an older row's
+     * minutes standing; with it, the clear is what every screen reads.
      */
     public function updateActualAttendanceMinutes( int $activity_id, int $player_id, ?int $minutes ): bool {
         if ( $activity_id <= 0 || $player_id <= 0 ) return false;
 
-        $writer = new AttendanceWriter();
-        $row_id = $writer->actualRowId( $activity_id, $player_id );
+        $writer       = new AttendanceWriter();
+        $existing_ids = $writer->actualRowIds( $activity_id, $player_id );
+        $row_id       = $existing_ids ? (int) end( $existing_ids ) : 0;
         if ( $row_id <= 0 ) return false;
+
+        foreach ( $existing_ids as $id ) {
+            if ( $id !== $row_id ) $writer->deleteRow( $id );
+        }
 
         $value = $minutes === null ? null : max( 0, min( 200, $minutes ) );
         return $writer->updateRow( $row_id, [ 'minutes_played' => $value ] );

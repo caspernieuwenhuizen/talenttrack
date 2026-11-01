@@ -15,29 +15,35 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * MAX, the Minutes audit and the minutes reports the SUM, so two rows of 70
  * read 70 on the grid and 140 in the audit beside it.
  *
- * **The newest recorded row wins** (highest `id`), with
- * `COALESCE(minutes_override, minutes_played)`. A duplicate is a second
- * write of the same fact, and the latest write is what the coach last
- * typed: SUM counts the match twice, and MAX ignores a correction downwards.
- * Guest rows are never a player's minutes.
+ * **The newest recorded row that carries a figure wins** (highest `id`),
+ * with `COALESCE(minutes_override, minutes_played)`; the answer is null only
+ * when no recorded row carries one. A duplicate is a second write of the
+ * same fact, and the latest figure is what the coach last typed: SUM counts
+ * the match twice, and MAX ignores a correction downwards (a `0` is a
+ * figure, so a correction to nil holds). A newer row with no figure at all —
+ * a status-only register row written after match execution recorded the
+ * minutes, which is where the legacy duplicates come from — does not wipe
+ * the figure out. Guest rows are never a player's minutes.
  *
  * Every reader of a player's match minutes comes through here:
- * `MinutesGridQuery`, `MinutesAuditQuery`, `MinutesQuery` and the
- * `TournamentMinutesResolver` register read. A reader that has to aggregate
- * in its own SQL (a JOIN across activities) applies {@see newestRowClause()}
- * so it keeps the same one row.
+ * `MinutesGridQuery`, `MinutesAuditQuery`, `MinutesQuery`, `MinutesShareQuery`,
+ * the Player · Minutes played and Team · Minutes distribution reports, and
+ * the `TournamentMinutesResolver` register read. A reader that has to
+ * aggregate in its own SQL (a JOIN across activities) applies
+ * {@see newestRowClause()} so it keeps the same one row.
  *
  * `AttendanceWriter::recordActual()` stops new duplicates by updating the
- * existing recorded row. Old ones are counted by {@see duplicatePairs()},
- * not repaired: whether a clean-up with a unique key is worth it is a
- * separate decision.
+ * existing recorded row, and the minutes grid's write drops older duplicates
+ * so that clearing a box is what every screen reads. Old ones are counted by
+ * {@see duplicatePairs()}, not repaired: whether a clean-up with a unique key
+ * is worth it is a separate decision.
  */
 final class PlayerMatchMinutes {
 
     /**
-     * The minutes per (activity, player) on the newest recorded row: a
-     * figure, or null where that row carries none (a register taken without
-     * minutes — the tournament fallback, #4053, keys on that null).
+     * The minutes per (activity, player): the newest recorded figure, or null
+     * where no recorded row carries one (a register taken without minutes —
+     * the tournament fallback, #4053, keys on that null).
      *
      * @param array<int> $activity_ids
      * @param int|null   $player_id Narrow the read to one player.
@@ -85,9 +91,10 @@ final class PlayerMatchMinutes {
     }
 
     /**
-     * The newest-row rule as a SQL condition on an attendance alias that is
-     * already narrowed to recorded, non-guest rows: `AND <alias>.id` is the
-     * highest id among that player's recorded rows for the match. Built like
+     * The rule as a SQL condition on an attendance alias that is already
+     * narrowed to recorded, non-guest rows: `AND <alias>.id` is the newest of
+     * that player's recorded rows for the match **that carries a figure**,
+     * or, when none does, simply the newest. Built like
      * `ActivityLifecycle::notCancelledClause()`: the alias is the caller's
      * own literal, never input.
      */
@@ -95,7 +102,11 @@ final class PlayerMatchMinutes {
         global $wpdb;
         $p = $wpdb->prefix;
         return "AND {$alias}.id = (
-                    SELECT MAX( n.id ) FROM {$p}tt_attendance n
+                    SELECT COALESCE(
+                               MAX( CASE WHEN COALESCE( n.minutes_override, n.minutes_played ) IS NOT NULL THEN n.id END ),
+                               MAX( n.id )
+                           )
+                      FROM {$p}tt_attendance n
                      WHERE n.activity_id = {$alias}.activity_id
                        AND n.player_id   = {$alias}.player_id
                        AND n.club_id     = {$alias}.club_id
